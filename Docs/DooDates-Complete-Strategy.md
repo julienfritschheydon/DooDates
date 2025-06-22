@@ -103,6 +103,13 @@ Timeful (Meilleur): 3-4 étapes      DooDates: 1 étape
 - **Compréhension contextuelle** vs saisie manuelle
 - **Automatisation complète** vs processus multi-étapes
 
+#### Interface MCP (Model Context Protocol)
+- **Serveur MCP intégré** : Premier outil de sondage avec interface MCP
+- **Intégration assistants IA** : Cascade, Claude, ChatGPT, etc.
+- **Workflows automatisés** : Création sondages via langage naturel
+- **Resources MCP** : polls/, votes/, analytics/, calendars/
+- **Tools MCP** : create_poll, sync_calendars, get_insights, invite_participants
+
 #### Modèle Économique Optimal
 ```
 Doodle: Abonnement    Framadate: Limité    Timeful: Gratuit    DooDates: Hybride
@@ -138,6 +145,168 @@ Timeful représente le meilleur de l'état actuel du marché mais reste dans l'a
 ### Positionnement Final
 
 **"DooDates - Modern AI scheduling, no subscriptions"**
+
+## Idées Innovation à Explorer
+
+### Intégrations Multi-Plateforme
+- **Extension Chrome** : Création sondages directement depuis Gmail, Calendar
+- **Plugin Figma** : Sondages pour feedback design et choix créatifs
+- **Bot Telegram/WhatsApp** : Sondages intégrés dans groupes existants
+- **Widget iOS/Android** : Accès rapide depuis écran d'accueil
+
+### Fonctionnalités Avancées IA
+- **Mode "Urgence"** : Planification ultra-rapide <2min avec optimisation automatique
+- **Négociation automatique** : IA négocie créneaux selon règles prédéfinies
+- **Collaboration temps réel** : Voir modifications disponibilités en direct (Google Docs style)
+- **Assistant proactif** : Suggestions automatiques basées sur patterns utilisateurs
+
+### Éthique & Transparence First
+- **Hébergement européen** : Serveurs en France/Allemagne pour souveraineté données
+- **Open-source partiel** : Composants UI et algorithmes de base publics
+- **Transparence totale** : Dashboard usage données, algorithmes explicables
+- **Certification B-Corp** : Impact social et environnemental positif
+- **Mode déconnecté** : Fonctionnement sans collecte données (local storage)
+
+### Innovations UX/UI
+- **Interface haptique** : Vibrations pour feedback mobile
+- **Mode sombre adaptatif** : Ajustement automatique selon luminosité
+- **Accessibilité avancée** : Support lecteurs d'écran, navigation clavier
+- **Micro-animations contextuelles** : Feedback visuel personnalisé par action
+
+## Métriques de Succès
+
+### KPIs Produit
+- Temps création sondage : <30 secondes (vs 5+ minutes concurrents)
+- Taux de réponse : >70% (vs 40-50% marché)
+- NPS Score : >50 (satisfaction élevée)
+
+### KPIs Business
+- Conversion Freemium : >5% (gratuit → Pro)
+- Upsell Rate : >20% (Pro → Premium)
+- Support Tickets : <2% utilisateurs/mois
+- Croissance utilisateurs : 20% MoM
+
+### KPIs Techniques
+- Page Load Time : <2 secondes
+- Uptime : >99.9%
+- Temps réponse IA : <3 secondes
+- Mobile Usage : >70% du trafic
+
+## Prochaines Étapes
+
+### Immédiat (Semaine 1)
+1. Setup projet : npx create-next-app@latest doodates
+2. Configuration Supabase : Base de données + Auth
+3. Design system : Composants UI de base
+4. Prototype rapide : Création sondage basique
+
+### Court terme (Mois 1)
+1. Interface complète : Création + Vote + Partage
+2. Tests utilisateurs : Validation UX avec 10 utilisateurs
+3. Optimisation mobile poussée
+4. Intégration calendrier
+
+### Moyen terme (Mois 2-3)
+1. IA conversationnelle : Intégration OpenAI + LangChain
+2. Design system avancé : Micro-interactions Framer Motion
+3. Système notifications : Email + SMS via Twilio
+4. Beta privée : 50 early adopters
+
+### Phase 2.5 : Interface MCP (Mois 4-5)
+- Serveur MCP intégré aux API routes Next.js
+- Resources MCP : polls/, votes/, analytics/, calendars/
+- Tools MCP : create_poll, sync_calendars, get_insights
+- Tests intégration avec Cascade, Claude, ChatGPT
+- Documentation API MCP pour développeurs
+
+### Phase 3 : Monétisation (Mois 5-6)
+- Implémentation tiers Pro/Premium
+- Système rappels automatiques
+- Personnalisation avancée
+- Analytics et dashboard
+
+### Phase 4 : Scale (Mois 7-12)
+- Internationalisation (EN, ES, DE)
+- API publique et webhooks
+  - Intégrations CRM : Créer sondages depuis Salesforce, HubSpot
+  - Plugins : Extensions Chrome, apps mobiles tierces
+  - Automatisation : Zapier, IFTTT, webhooks
+  - Développeurs : Écosystème d'applications autour de DooDates
+  - Enterprise : Intégration dans outils internes d'entreprise
+- Fonctionnalités Enterprise (SSO, admin)
+- IA proactive et suggestions
+
+### Stratégie Focus Révisée
+- Phase 0-1 : Particuliers et groupes d'amis (marché plus large, besoins simples)
+- Hébergement économique : Vercel Hobby + Supabase Free = 10€/mois jusqu'à 50k requêtes
+- Phase 0 cruciale : UX Research + Design System avant développement
+- Phase 2+ : Freelances et professionnels (quand fonctionnalités avancées prêtes)
+
+## Métriques Acquisition
+
+#### Coûts Mensuels
+- **Infrastructure** : ~120€/mois (Vercel + Supabase + OpenAI)
+
+#### Objectifs Year 1
+- **150 ventes Pro** (15€) = 2 250€
+- **50 ventes Premium** (25€) = 1 250€
+- **Add-ons** = 500€
+- **Total Y1** : 4 000€ (rentable dès mois 6)
+
+#### Break-even
+- 20 ventes Pro/mois OU 13 ventes Premium/mois
+
+## Roadmap de Développement
+
+### Phase 0 : UX/Design & Image de Marque (Semaine 1-2) 
+- Research UX : Interviews utilisateurs, personas, journey maps
+- Design System : Couleurs, typographie, composants UI
+- Identité Visuelle : Logo, charte graphique, style guide
+- Wireframes & Prototypes : Figma flows, tests utilisabilité
+- Mobile-First Design : Interactions tactiles, micro-animations
+- Brand Voice : Ton, messaging, positionnement communication
+
+### Phase 1 : MVP Foundation (Mois 1-2)
+- Setup technique (Next.js + Supabase)
+- Interface création sondage classique
+- Système de vote temps réel
+- Partage et notifications basiques
+
+### Phase 2 : Différenciation (Mois 3-4)
+- Intégration IA conversationnelle (OpenAI)
+- Design system avancé (animations)
+- Optimisation mobile poussée
+- Intégrations calendrier
+
+### Phase 2.5 : Interface MCP (Mois 4-5)
+- Serveur MCP intégré aux API routes Next.js
+- Resources MCP : polls/, votes/, analytics/, calendars/
+- Tools MCP : create_poll, sync_calendars, get_insights
+- Tests intégration avec Cascade, Claude, ChatGPT
+- Documentation API MCP pour développeurs
+
+### Phase 3 : Monétisation (Mois 5-6)
+- Implémentation tiers Pro/Premium
+- Système rappels automatiques
+- Personnalisation avancée
+- Analytics et dashboard
+
+### Phase 4 : Scale (Mois 7-12)
+- Internationalisation (EN, ES, DE)
+- API publique et webhooks
+  - Intégrations CRM : Créer sondages depuis Salesforce, HubSpot
+  - Plugins : Extensions Chrome, apps mobiles tierces
+  - Automatisation : Zapier, IFTTT, webhooks
+  - Développeurs : Écosystème d'applications autour de DooDates
+  - Enterprise : Intégration dans outils internes d'entreprise
+- Fonctionnalités Enterprise (SSO, admin)
+- IA proactive et suggestions
+
+### Stratégie Focus Révisée
+- Phase 0-1 : Particuliers et groupes d'amis (marché plus large, besoins simples)
+- Hébergement économique : Vercel Hobby + Supabase Free = 10€/mois jusqu'à 50k requêtes
+- Phase 0 cruciale : UX Research + Design System avant développement
+- Phase 2+ : Freelances et professionnels (quand fonctionnalités avancées prêtes)
 
 ## Spécifications Techniques MVP
 
@@ -197,9 +366,11 @@ GRATUIT                 PRO (15€)              PREMIUM (25€)
 ├─ 20 votes/mois       ├─ Votes illimités      ├─ Votes illimités
 ├─ Basique             ├─ Personnalisation     ├─ Tout Pro +
 └─ 30 jours            ├─ Export avancé        ├─ IA Assistant
+                       ├─ Interface MCP Base   ├─ Interface MCP Pro
                        └─ Support email        ├─ Intégrations
                                               ├─ Rappels auto
-                                              └─ Analytics
+                                              ├─ Analytics avancées
+                                              └─ Calendar sync
 ```
 
 ### Add-ons Optionnels
@@ -244,6 +415,13 @@ GRATUIT                 PRO (15€)              PREMIUM (25€)
 - Optimisation mobile poussée
 - Intégrations calendrier
 
+### Phase 2.5 : Interface MCP (Mois 4-5)
+- Serveur MCP intégré aux API routes Next.js
+- Resources MCP : polls/, votes/, analytics/, calendars/
+- Tools MCP : create_poll, sync_calendars, get_insights
+- Tests intégration avec Cascade, Claude, ChatGPT
+- Documentation API MCP pour développeurs
+
 ### Phase 3 : Monétisation (Mois 5-6)
 - Implémentation tiers Pro/Premium
 - Système rappels automatiques
@@ -267,98 +445,19 @@ GRATUIT                 PRO (15€)              PREMIUM (25€)
 - Phase 0 cruciale : UX Research + Design System avant développement
 - Phase 2+ : Freelances et professionnels (quand fonctionnalités avancées prêtes)
 
-## Métriques de Succès
+## Métriques Acquisition
 
-### KPIs Produit
-- Temps création sondage : <30 secondes (vs 5+ minutes concurrents)
-- Taux de réponse : >70% (vs 40-50% marché)
-- NPS Score : >50 (satisfaction élevée)
+#### Coûts Mensuels
+- **Infrastructure** : ~120€/mois (Vercel + Supabase + OpenAI)
 
-### KPIs Business
-- Conversion Freemium : >5% (gratuit → Pro)
-- Upsell Rate : >20% (Pro → Premium)
-- Support Tickets : <2% utilisateurs/mois
-- Croissance utilisateurs : 20% MoM
+#### Objectifs Year 1
+- **150 ventes Pro** (15€) = 2 250€
+- **50 ventes Premium** (25€) = 1 250€
+- **Add-ons** = 500€
+- **Total Y1** : 4 000€ (rentable dès mois 6)
 
-### KPIs Techniques
-- Page Load Time : <2 secondes
-- Uptime : >99.9%
-- Temps réponse IA : <3 secondes
-- Mobile Usage : >70% du trafic
-
-## Prochaines Étapes
-
-### Immédiat (Semaine 1)
-1. Setup projet : npx create-next-app@latest doodates
-2. Configuration Supabase : Base de données + Auth
-3. Design system : Composants UI de base
-4. Prototype rapide : Création sondage basique
-
-### Court terme (Mois 1)
-1. Interface complète : Création + Vote + Partage
-2. Tests utilisateurs : Validation UX avec 10 utilisateurs
-3. Optimisation mobile : Interactions tactiles
-4. Intégration calendrier
-
-### Moyen terme (Mois 2-3)
-1. IA conversationnelle : Intégration OpenAI + LangChain
-2. Design system avancé : Micro-interactions Framer Motion
-3. Système notifications : Email + SMS via Twilio
-4. Beta privée : 50 early adopters
-
-### Validation Stratégie
-- Blue Ocean confirmé : Aucun concurrent avec IA
-- Marché validé : 7-8% croissance annuelle  
-- Différenciation claire : IA + Paiement unique + Mobile-first
-- Modèle économique : Rentable dès 20 ventes/mois
-
-Prêt à révolutionner la planification collaborative ? 
-
-## Annexes
-
-### Commandes Développement
-```bash
-# Setup initial
-npx create-next-app@latest doodates --typescript --tailwind --app
-cd doodates
-npm install @supabase/supabase-js @supabase/auth-ui-react
-npm install next-intl framer-motion react-hook-form zod
-npm install openai langchain
-
-# Development
-npm run dev           # Mode développement
-npm run build        # Build production  
-npm run start        # Start production
-npx prisma studio    # Admin base de données
-```
-
-### Structure Projet
-```
-doodates/
-├── app/
-│   ├── [locale]/
-│   │   ├── dashboard/
-│   │   ├── poll/[slug]/
-│   │   └── page.tsx
-│   ├── api/
-│   │   ├── ai/
-│   │   └── polls/
-│   └── globals.css
-├── components/
-│   ├── ui/           # Composants base
-│   ├── forms/        # Formulaires
-│   ├── ai/          # Interface IA
-│   └── layout/       # Layout
-├── lib/
-│   ├── supabase.ts   # Client Supabase
-│   ├── openai.ts     # Client OpenAI
-│   ├── auth.ts       # Utils auth
-│   └── utils.ts      # Utilitaires
-└── types/
-    └── index.ts      # Types TypeScript
-```
-
-Document créé le 22 juin 2025 - Version 1.0
+#### Break-even
+- 20 ventes Pro/mois OU 13 ventes Premium/mois
 
 ## Architecture Base de Données
 
