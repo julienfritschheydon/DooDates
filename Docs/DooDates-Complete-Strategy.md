@@ -173,141 +173,6 @@ Timeful représente le meilleur de l'état actuel du marché mais reste dans l'a
 - **Accessibilité avancée** : Support lecteurs d'écran, navigation clavier
 - **Micro-animations contextuelles** : Feedback visuel personnalisé par action
 
-## Métriques de Succès
-
-### KPIs Produit
-- Temps création sondage : <30 secondes (vs 5+ minutes concurrents)
-- Taux de réponse : >70% (vs 40-50% marché)
-- NPS Score : >50 (satisfaction élevée)
-
-### KPIs Business
-- Conversion Freemium : >5% (gratuit → Pro)
-- Upsell Rate : >20% (Pro → Premium)
-- Support Tickets : <2% utilisateurs/mois
-- Croissance utilisateurs : 20% MoM
-
-### KPIs Techniques
-- Page Load Time : <2 secondes
-- Uptime : >99.9%
-- Temps réponse IA : <3 secondes
-- Mobile Usage : >70% du trafic
-
-## Prochaines Étapes
-
-### Immédiat (Semaine 1)
-1. Setup projet : npx create-next-app@latest doodates
-2. Configuration Supabase : Base de données + Auth
-3. Design system : Composants UI de base
-4. Prototype rapide : Création sondage basique
-
-### Court terme (Mois 1)
-1. Interface complète : Création + Vote + Partage
-2. Tests utilisateurs : Validation UX avec 10 utilisateurs
-3. Optimisation mobile poussée
-4. Intégration calendrier
-
-### Moyen terme (Mois 2-3)
-1. IA conversationnelle : Intégration OpenAI + LangChain
-2. Design system avancé : Micro-interactions Framer Motion
-3. Système notifications : Email + SMS via Twilio
-4. Beta privée : 50 early adopters
-
-### Phase 2.5 : Interface MCP (Mois 4-5)
-- Serveur MCP intégré aux API routes Next.js
-- Resources MCP : polls/, votes/, analytics/, calendars/
-- Tools MCP : create_poll, sync_calendars, get_insights
-- Tests intégration avec Cascade, Claude, ChatGPT
-- Documentation API MCP pour développeurs
-
-### Phase 3 : Monétisation (Mois 5-6)
-- Implémentation tiers Pro/Premium
-- Système rappels automatiques
-- Personnalisation avancée
-- Analytics et dashboard
-
-### Phase 4 : Scale (Mois 7-12)
-- Internationalisation (EN, ES, DE)
-- API publique et webhooks
-  - Intégrations CRM : Créer sondages depuis Salesforce, HubSpot
-  - Plugins : Extensions Chrome, apps mobiles tierces
-  - Automatisation : Zapier, IFTTT, webhooks
-  - Développeurs : Écosystème d'applications autour de DooDates
-  - Enterprise : Intégration dans outils internes d'entreprise
-- Fonctionnalités Enterprise (SSO, admin)
-- IA proactive et suggestions
-
-### Stratégie Focus Révisée
-- Phase 0-1 : Particuliers et groupes d'amis (marché plus large, besoins simples)
-- Hébergement économique : Vercel Hobby + Supabase Free = 10€/mois jusqu'à 50k requêtes
-- Phase 0 cruciale : UX Research + Design System avant développement
-- Phase 2+ : Freelances et professionnels (quand fonctionnalités avancées prêtes)
-
-## Métriques Acquisition
-
-#### Coûts Mensuels
-- **Infrastructure** : ~120€/mois (Vercel + Supabase + OpenAI)
-
-#### Objectifs Year 1
-- **150 ventes Pro** (15€) = 2 250€
-- **50 ventes Premium** (25€) = 1 250€
-- **Add-ons** = 500€
-- **Total Y1** : 4 000€ (rentable dès mois 6)
-
-#### Break-even
-- 20 ventes Pro/mois OU 13 ventes Premium/mois
-
-## Roadmap de Développement
-
-### Phase 0 : UX/Design & Image de Marque (Semaine 1-2) 
-- Research UX : Interviews utilisateurs, personas, journey maps
-- Design System : Couleurs, typographie, composants UI
-- Identité Visuelle : Logo, charte graphique, style guide
-- Wireframes & Prototypes : Figma flows, tests utilisabilité
-- Mobile-First Design : Interactions tactiles, micro-animations
-- Brand Voice : Ton, messaging, positionnement communication
-
-### Phase 1 : MVP Foundation (Mois 1-2)
-- Setup technique (Next.js + Supabase)
-- Interface création sondage classique
-- Système de vote temps réel
-- Partage et notifications basiques
-
-### Phase 2 : Différenciation (Mois 3-4)
-- Intégration IA conversationnelle (OpenAI)
-- Design system avancé (animations)
-- Optimisation mobile poussée
-- Intégrations calendrier
-
-### Phase 2.5 : Interface MCP (Mois 4-5)
-- Serveur MCP intégré aux API routes Next.js
-- Resources MCP : polls/, votes/, analytics/, calendars/
-- Tools MCP : create_poll, sync_calendars, get_insights
-- Tests intégration avec Cascade, Claude, ChatGPT
-- Documentation API MCP pour développeurs
-
-### Phase 3 : Monétisation (Mois 5-6)
-- Implémentation tiers Pro/Premium
-- Système rappels automatiques
-- Personnalisation avancée
-- Analytics et dashboard
-
-### Phase 4 : Scale (Mois 7-12)
-- Internationalisation (EN, ES, DE)
-- API publique et webhooks
-  - Intégrations CRM : Créer sondages depuis Salesforce, HubSpot
-  - Plugins : Extensions Chrome, apps mobiles tierces
-  - Automatisation : Zapier, IFTTT, webhooks
-  - Développeurs : Écosystème d'applications autour de DooDates
-  - Enterprise : Intégration dans outils internes d'entreprise
-- Fonctionnalités Enterprise (SSO, admin)
-- IA proactive et suggestions
-
-### Stratégie Focus Révisée
-- Phase 0-1 : Particuliers et groupes d'amis (marché plus large, besoins simples)
-- Hébergement économique : Vercel Hobby + Supabase Free = 10€/mois jusqu'à 50k requêtes
-- Phase 0 cruciale : UX Research + Design System avant développement
-- Phase 2+ : Freelances et professionnels (quand fonctionnalités avancées prêtes)
-
 ## Spécifications Techniques MVP
 
 ### Stack Technologique (2025)
@@ -392,58 +257,6 @@ GRATUIT                 PRO (15€)              PREMIUM (25€)
 
 #### Break-even
 - 20 ventes Pro/mois OU 13 ventes Premium/mois
-
-## Roadmap de Développement
-
-### Phase 0 : UX/Design & Image de Marque (Semaine 1-2) 
-- Research UX : Interviews utilisateurs, personas, journey maps
-- Design System : Couleurs, typographie, composants UI
-- Identité Visuelle : Logo, charte graphique, style guide
-- Wireframes & Prototypes : Figma flows, tests utilisabilité
-- Mobile-First Design : Interactions tactiles, micro-animations
-- Brand Voice : Ton, messaging, positionnement communication
-
-### Phase 1 : MVP Foundation (Mois 1-2)
-- Setup technique (Next.js + Supabase)
-- Interface création sondage classique
-- Système de vote temps réel
-- Partage et notifications basiques
-
-### Phase 2 : Différenciation (Mois 3-4)
-- Intégration IA conversationnelle (OpenAI)
-- Design system avancé (animations)
-- Optimisation mobile poussée
-- Intégrations calendrier
-
-### Phase 2.5 : Interface MCP (Mois 4-5)
-- Serveur MCP intégré aux API routes Next.js
-- Resources MCP : polls/, votes/, analytics/, calendars/
-- Tools MCP : create_poll, sync_calendars, get_insights
-- Tests intégration avec Cascade, Claude, ChatGPT
-- Documentation API MCP pour développeurs
-
-### Phase 3 : Monétisation (Mois 5-6)
-- Implémentation tiers Pro/Premium
-- Système rappels automatiques
-- Personnalisation avancée
-- Analytics et dashboard
-
-### Phase 4 : Scale (Mois 7-12)
-- Internationalisation (EN, ES, DE)
-- API publique et webhooks
-  - Intégrations CRM : Créer sondages depuis Salesforce, HubSpot
-  - Plugins : Extensions Chrome, apps mobiles tierces
-  - Automatisation : Zapier, IFTTT, webhooks
-  - Développeurs : Écosystème d'applications autour de DooDates
-  - Enterprise : Intégration dans outils internes d'entreprise
-- Fonctionnalités Enterprise (SSO, admin)
-- IA proactive et suggestions
-
-### Stratégie Focus Révisée
-- Phase 0-1 : Particuliers et groupes d'amis (marché plus large, besoins simples)
-- Hébergement économique : Vercel Hobby + Supabase Free = 10€/mois jusqu'à 50k requêtes
-- Phase 0 cruciale : UX Research + Design System avant développement
-- Phase 2+ : Freelances et professionnels (quand fonctionnalités avancées prêtes)
 
 ## Métriques Acquisition
 
@@ -597,13 +410,6 @@ CREATE INDEX idx_analytics_event ON poll_analytics(event_type);
 - **Facebook Ads** : Lookalike audiences, event organizers targeting
 - **Retargeting** : Users qui ont visité sans créer de compte
 
-### Métriques Acquisition
-- **CAC** (Customer Acquisition Cost) : <10€ pour freemium, <50€ pour Pro
-- **Conversion rates** : Visiteur → Inscription (15%), Inscription → Premier sondage (60%)
-- **Activation rate** : Premier sondage avec >3 réponses (40%)
-- **Time to value** : Premier sondage réussi <5 minutes
-- **Viral coefficient** : >1.2 (chaque utilisateur amène 1.2 nouveaux)
-
 ## Métriques IA & Expérience Conversationnelle 🤖
 
 ### KPIs Qualité IA
@@ -692,27 +498,6 @@ CREATE INDEX idx_analytics_event ON poll_analytics(event_type);
 - **User retention** : Communication transparente sur limitations
 - **Competitive advantage** : IA bonus, pas dépendance critique
 
-## Spécifications UX Research Détaillées 🎯
-
-### Phase 0 : User Research (Semaine 1-2)
-
-#### User Interviews (10 personnes)
-**Segment 1 : Particuliers & Groupes d'Amis (6 personnes)**
-- **Profil** : 25-40 ans, organisent 2+ événements/mois
-- **Questions** : Frustrations actuelles, outils utilisés, processus coordination
-- **Scénarios** : Soirée 8 personnes, weekend 15 amis, dîner famille
-
-**Segment 2 : Organisateurs Événements (4 personnes)**
-- **Profil** : Associations, clubs, responsables équipe
-- **Questions** : Volume coordination, contraintes business, budget outils
-- **Scénarios** : Réunion 20 personnes, formation 50 participants
-
-#### Competitive Analysis Pratique
-- **Time-to-task benchmark** : Doodle vs Framadate vs Timeful
-- **Mobile usability test** : Touch targets, responsive design, loading
-- **Error scenarios** : Confusion utilisateur, abandons, frustrations
-- **Feature gap analysis** : Ce qui manque aux outils actuels
-
 ### Design System Foundation
 
 #### Visual Identity
@@ -754,11 +539,10 @@ CREATE INDEX idx_analytics_event ON poll_analytics(event_type);
 - **User satisfaction** : >4.5/5 Net Promoter Score
 - **Mobile optimization** : Toutes interactions tactiles <44px touch targets
 
-## Annexes
 
-### Stratégie de Tests Complète 🧪
+## Stratégie de Tests Complète 🧪
 
-#### Tests Unitaires (Jest + Testing Library)
+### Tests Unitaires (Jest + Testing Library)
 ```typescript
 // Exemple structure tests
 src/
@@ -829,9 +613,9 @@ test-e2e:
       uses: actions/upload-artifact@v4
 ```
 
-### Conformité RGPD & Protection Données 🔒
+## Conformité RGPD & Protection Données 🔒
 
-#### Données Collectées & Finalités
+### Données Collectées & Finalités
 ```json
 {
   "personal_data": {
@@ -853,13 +637,13 @@ test-e2e:
 }
 ```
 
-#### Consentement & Transparence
+### Consentement & Transparence
 - **Banner cookie** : Granular consent (essential/analytics/marketing)
 - **Privacy Policy** : Français + Anglais + autres langues, langage simple
 - **Data usage explanation** : Pourquoi chaque donnée est collectée
 - **Opt-out mechanisms** : Analytics, marketing, AI training
 
-#### Droits Utilisateurs (Articles 15-22 RGPD)
+### Droits Utilisateurs (Articles 15-22 RGPD)
 - **Accès** : Export complet données JSON via dashboard
 - **Rectification** : Modification profil, correction erreurs
 - **Effacement** : Suppression compte + données liées (30 jours)
@@ -868,28 +652,28 @@ test-e2e:
 - **Limitation** : Suspension temporaire traitement
 - **Tout automatisé**
 
-#### Mesures Techniques & Organisationnelles
+### Mesures Techniques & Organisationnelles
 - **Chiffrement** : TLS 1.3 transit, AES-256 repos
 - **Accès contrôlé** : RBAC Supabase, logs d'accès
 - **Minimisation** : Collecte uniquement données nécessaires
 - **Pseudonymisation** : Analytics avec IDs anonymes
 - **Retention** : Purge automatique après 2 ans inactivité
 
-#### DPO & Conformité
+### DPO & Conformité
 - **Contact DPO** : dpo@doodates.com (ou externe via CNIL)
 - **Registre traitements** : Documentation complète activités
 - **Audit interne** : Révision annuelle pratiques
 - **Formation équipe** : Sensibilisation RGPD développeurs
 
-### Stratégie Backup & Continuité 💾
+## Stratégie Backup & Continuité 💾
 
-#### Backup Base de Données (Supabase)
+### Backup Base de Données (Supabase)
 - **Daily backups** : Automatique Supabase Pro (7 jours retention)
 - **Weekly snapshots** : Export complet vers AWS S3 (30 jours)
 - **Monthly archives** : Stockage long terme (12 mois)
 - **Point-in-time recovery** : Supabase Pro feature (24h window)
 
-#### Backup Code & Assets
+### Backup Code & Assets
 ```bash
 # Backup automation script
 #!/bin/bash
@@ -899,27 +683,27 @@ git push backup main                    # GitLab mirror
 aws s3 sync ./uploads s3://doodates-assets/backup/
 ```
 
-#### Disaster Recovery Plan
+### Disaster Recovery Plan
 - **RTO** (Recovery Time Objective) : <4 heures
 - **RPO** (Recovery Point Objective) : <1 heure perte données max
 - **Failover process** : Vercel automatic + Supabase redundancy
 - **Communication plan** : Status page + email notifications
 
-#### Business Continuity
+### Business Continuity
 - **Documentation critique** : Passwords, API keys, procedures
 - **Team access** : Minimum 2 personnes accès production
 - **Vendor dependencies** : Alternatives identifiées (OpenAI, Stripe)
 - **Legal compliance** : Backup practices conformes RGPD
 
-### Système Support Client 🎧
+## Système Support Client 🎧
 
-#### Channels Support
+### Channels Support
 - **Email** : support@doodates.com (réponse <24h)
 - **Chat live** : Widget Intercom pour Pro/Premium
 - **FAQ dynamique** : Base connaissances avec search
 - **Video tutorials** : YouTube channel pour features courantes
 
-#### Ticketing System (Intercom + Notion)
+### Ticketing System (Intercom + Notion)
 ```
 Priority Levels:
 P1 - Critical: Service down, data loss (response: 2h)
@@ -928,45 +712,45 @@ P3 - Medium: UI bug, performance slow (response: 24h)
 P4 - Low: Feature request, enhancement (response: 72h)
 ```
 
-#### Self-Service Resources
+### Self-Service Resources
 - **Knowledge Base** : 50+ articles common issues
 - **Video Library** : Tutoriels 2-5 minutes par feature
 - **Status Page** : status.doodates.com avec incidents
 - **Community Forum** : Discord/Reddit pour user discussions
 
-#### Support Metrics & SLA
+### Support Metrics & SLA
 - **First Response Time** : <24h (Free), <8h (Pro), <2h (Premium)
 - **Resolution Time** : 80% tickets résolus <48h
 - **Customer Satisfaction** : >4.2/5 (CSAT surveys)
 - **Escalation Process** : Technical issues → Dev team direct
 
-#### Onboarding & Activation
+### Onboarding & Activation
 - **Welcome sequence** : 5 emails over 10 days
 - **Product tours** : Interactive guide first visit
 - **Success triggers** : Celebrate first poll, first vote received
 - **Activation metrics** : Track time-to-value <5 minutes
 
-### Infrastructure Monitoring & Alertes 📊
+## Infrastructure Monitoring & Alertes 📊
 
-#### Application Monitoring (Vercel Analytics + Sentry)
+### Application Monitoring (Vercel Analytics + Sentry)
 - **Performance metrics** : Page load, API response times
 - **Error tracking** : JavaScript errors, API failures
 - **User analytics** : Funnel analysis, feature adoption
 - **Custom dashboards** : Business KPIs real-time
 
-#### Database Monitoring (Supabase + DataDog)
+### Database Monitoring (Supabase + DataDog)
 - **Query performance** : Slow queries detection
 - **Connection pooling** : Concurrent users handling
 - **Storage usage** : Growth trends, cleanup alerts
 - **Backup verification** : Daily backup success confirmation
 
-#### AI System Monitoring
+### AI System Monitoring
 - **OpenAI API** : Rate limits, cost tracking, error rates
 - **Conversation quality** : Success rates, user satisfaction
 - **Fallback triggers** : Frequency, reasons, impact
 - **Cost optimization** : Token usage, caching effectiveness
 
-#### Alerting Rules
+### Alerting Rules
 ```yaml
 alerts:
   critical:
@@ -981,9 +765,9 @@ alerts:
     - Monthly budget > 80%
 ```
 
-### Déploiement & DevOps 🚀
+## Déploiement & DevOps 🚀
 
-#### CI/CD Pipeline (GitHub Actions)
+### CI/CD Pipeline (GitHub Actions)
 ```yaml
 # Production deployment
 name: Deploy Production
@@ -1008,19 +792,19 @@ jobs:
         run: npm run test:smoke
 ```
 
-#### Environments Strategy
+### Environments Strategy
 - **Development** : Local + preview branches
 - **Staging** : staging.doodates.com (Vercel preview)
 - **Production** : doodates.com (Vercel pro)
 - **Database** : Separate Supabase projects per environment
 
-#### Security Practices
+### Security Practices
 - **Secrets management** : Vercel env vars + GitHub secrets
 - **API security** : Rate limiting, input validation, CORS
 - **Authentication** : Supabase Auth + JWT validation
 - **Code scanning** : GitHub Security + dependency updates
 
-#### Performance Optimization
+### Performance Optimization
 - **Next.js optimizations** : ISR, image optimization, code splitting
 - **CDN strategy** : Cloudflare + Vercel Edge Network
 - **Database indexing** : Query optimization, connection pooling
@@ -1028,87 +812,4 @@ jobs:
 
 ---
 
-## Commandes Développement
-
-```bash
-# Setup initial
-npx create-next-app@latest doodates --typescript --tailwind --app
-cd doodates
-npm install @supabase/supabase-js @supabase/auth-ui-react
-npm install next-intl framer-motion react-hook-form zod
-npm install openai langchain @pinecone-database/pinecone
-npm install stripe @stripe/stripe-js
-
-# Development
-npm run dev              # Mode développement
-npm run test             # Tests unitaires
-npm run test:e2e         # Tests end-to-end
-npm run test:coverage    # Couverture tests
-npm run lint             # ESLint + Prettier
-npm run type-check       # TypeScript validation
-
-# Production
-npm run build           # Build production  
-npm run start           # Start production
-npm run analyze         # Bundle analysis
-npm run lighthouse      # Performance audit
-
-# Database
-npx supabase start      # Local Supabase
-npx supabase status     # Check services
-npx supabase db reset   # Reset local DB
-npx supabase gen types  # Generate TypeScript types
-```
-
-### Structure Projet Finale
-
-```
-doodates/
-├── app/                          # Next.js App Router
-│   ├── [locale]/                 # Internationalization
-│   │   ├── (auth)/              # Auth group routes
-│   │   ├── dashboard/           # User dashboard
-│   │   ├── poll/[slug]/         # Public poll pages
-│   │   ├── pricing/             # Pricing page
-│   │   └── page.tsx             # Home page
-│   ├── api/                     # API routes
-│   │   ├── ai/                  # AI conversation endpoints
-│   │   ├── polls/               # Poll CRUD operations
-│   │   ├── votes/               # Voting system
-│   │   ├── payments/            # Stripe integration
-│   │   └── webhooks/            # External webhooks
-│   └── globals.css              # Global styles
-├── components/                   # React components
-│   ├── ui/                      # Basic UI components
-│   ├── forms/                   # Form components
-│   ├── poll/                    # Poll-specific components
-│   └── ai/                      # AI chat components
-├── lib/                         # Utilities & configurations
-│   ├── supabase/               # Database client
-│   ├── stripe/                 # Payment processing
-│   ├── ai/                     # OpenAI & LangChain
-│   ├── validations/            # Zod schemas
-│   └── utils/                  # Helper functions
-├── hooks/                       # Custom React hooks
-├── types/                       # TypeScript definitions
-├── __tests__/                   # Test files
-├── docs/                        # Documentation
-├── public/                      # Static assets
-├── supabase/                    # Database migrations
-│   ├── migrations/
-│   └── seed.sql
-├── .github/                     # GitHub Actions
-│   └── workflows/
-├── .env.local                   # Environment variables
-├── next.config.js              # Next.js configuration
-├── tailwind.config.js          # TailwindCSS configuration
-├── tsconfig.json               # TypeScript configuration
-├── playwright.config.ts        # E2E tests configuration
-└── package.json               # Dependencies & scripts
-```
-
----
-
 **Document créé le 22 juin 2025 - Version 2.0 Complète**
-
-*Stratégie DooDates : Prêt pour exécution avec tous les aspects production couverts*
