@@ -1,0 +1,342 @@
+# DooDates - Planning de Développement 
+
+**Document mis à jour le 22 juin 2025**
+
+## Vue d'Ensemble du Projet
+
+### Statut Actuel : Phase 1 Terminée 
+- **Progression** : Interface AI Foundation complète
+- **Prochaine étape** : Phase 2 - Backend MVP
+- **Timeline** : Septembre 2025
+- **Objectif** : Lancement beta Octobre 2025
+
+---
+
+## Roadmap Détaillé
+
+### Phase 1 : Interface AI Foundation (TERMINÉE - Juin 2025)
+
+**Status :** 100% Complété
+
+#### Réalisations Accomplies
+- **Repository Setup** 
+  - Création repository privé GitHub
+  - Licence propriétaire et NDA
+  - Documentation stratégique complète
+
+- **Stack Technique Moderne**
+  - React 18 + Vite (build ultra-rapide)
+  - TypeScript strict mode
+  - TailwindCSS + PostCSS
+  - Configuration ESLint + Prettier
+
+- **Interface Conversationnelle**
+  - ChatInterface.tsx (interface chat complète)
+  - Sidebar.tsx (navigation principale)
+  - Message streaming ready
+  - Mobile-first responsive
+
+- **Bibliothèque UI Complète**
+  - 49 composants Shadcn/ui intégrés
+  - Radix UI primitives (accessibilité)
+  - Design system cohérent
+  - Dark/light mode ready
+
+- **Infrastructure Frontend**
+  - React Router DOM v6
+  - TanStack Query (server state)
+  - Toast notifications
+  - Error boundaries
+
+**Métriques Phase 1 :**
+- 51 composants React fonctionnels
+- Interface AI prête pour backend
+- 0 erreurs TypeScript
+- Mobile responsive 100%
+
+---
+
+### Phase 2 : MVP Core Backend (Juillet-Août 2025)
+
+**Durée :** 8 semaines (1er juillet - 31 août 2025)  
+**Status :** En cours de planification
+
+#### Semaines 1-2 : Backend Foundation (1-14 juillet)
+**Objectif :** Infrastructure serveur solide
+
+- **Setup Supabase**
+  - Création project Supabase
+  - Configuration Row Level Security (RLS)
+    * Row Level Security = Sécurité automatique qui empêche les utilisateurs de voir les données des autres dans Supabase.
+  - Setup environnements (dev/staging/prod)
+  - Configuration CORS et domaines
+
+- **Database Schema**
+  ```sql
+  - Users (auth, profiles, preferences)
+  - Polls (création, options, settings)
+  - Votes (real-time, anonymous/auth)
+  - Messages (chat IA, historique)
+  - Sessions (conversation tracking)
+  ```
+
+- **Authentication**
+  - OAuth Google integration
+  - Email/password signup
+  - Session management
+  - User roles et permissions
+
+- **API Routes Basiques**
+  - CRUD polls (create, read, update, delete)
+  - CRUD votes (cast, update, delete)
+  - User profile management
+  - Error handling middleware
+
+**Livrables Semaine 2 :**
+- Supabase configuré et testé
+- Schema DB déployé
+- Auth fonctionnel (Google + Email)
+- API endpoints documentés
+
+#### Semaines 3-4 : IA Conversationnelle (15-28 juillet)
+**Objectif :** Chat → Poll conversion automatique
+
+- **Mistral AI Integration**
+  - Setup Mistral API (Mistral Large)
+  - Configuration streaming responses
+  - Token management et coûts réduits
+  - Rate limiting et caching
+
+- **Parsing Conversationnel**
+  - Extraction dates et heures
+  - Identification participants
+  - Reconnaissance options multiples
+  - Gestion ambiguïtés et clarifications
+
+- **Function Calling**
+  - Functions : create_poll, add_participants, set_options
+  - Validation inputs utilisateur
+  - Conversion langage naturel → structure poll
+  - Gestion erreurs et fallbacks
+
+- **Memory Management**
+  - Contexte conversation persistant
+  - Historique sessions utilisateur
+  - Preferences et patterns d'usage
+  - Cleanup automatique données anciennes
+
+**Livrables Semaine 4 :**
+- Chat IA fonctionnel
+- Conversion automatique phrase → sondage
+- Tests unitaires IA (scenarios complexes)
+- Documentation API IA
+
+#### Semaines 5-6 : Features Core (29 juillet - 11 août)
+**Objectif :** Experience utilisateur complète
+
+- **Interface Polls**
+  - Affichage sondages générés par IA
+  - Modification manuelle post-création
+  - Preview avant publication
+  - Partage et invitations
+
+- **Système Voting Real-time**
+  - WebSockets Supabase real-time
+  - Updates instantanés résultats
+  - Gestion connexions multiples
+  - Anonymous vs authenticated voting
+
+- **Notifications Email**
+  - Integration Resend ou SendGrid
+  - Templates responsive emails
+  - Invitations participants
+  - Rappels et updates résultats
+
+- **Dashboard Utilisateur**
+  - Liste mes sondages (créés/participé)
+  - Historique conversations IA
+  - Analytics basiques (vues, votes)
+  - Export données (CSV, PDF)
+
+**Livrables Semaine 6 :**
+- Interface polls complète
+- Voting temps réel opérationnel
+- Emails automatiques fonctionnels
+- Dashboard utilisateur prêt
+
+#### Semaines 7-8 : Polish & Beta Launch (12-31 août)
+**Objectif :** Lancement beta publique
+
+- **Tests & Quality Assurance**
+  - Tests E2E avec Playwright
+  - Tests performance (Core Web Vitals)
+  - Tests charge (100+ utilisateurs simultanés)
+  - Tests accessibilité (WCAG 2.1)
+
+- **Performance Optimization**
+  - Code splitting et lazy loading
+  - Image optimization
+  - Caching stratégies
+  - Bundle size optimization
+
+- **Mobile Final & PWA**
+  - Responsive final toutes tailles
+  - PWA setup (manifest, service worker)
+  - Push notifications
+  - Offline mode basique
+
+- **Beta Launch**
+  - Onboarding 50 early adopters
+  - Feedback collection automatisé
+  - Analytics usage et conversion
+  - Bug tracking et hotfixes
+
+**Livrables Fin Août :**
+- Application beta prête production
+- 50+ beta testeurs actifs
+- Feedback loop opérationnel
+- Métriques baseline établies
+
+---
+
+### Phase 3 : Monétisation (Septembre 2025)
+
+**Durée :** 4 semaines (1-30 septembre 2025)  
+**Status :** Planifiée
+
+#### Semaines 1-2 : Système de Paiement (1-14 septembre)
+- **Stripe Integration**
+  - Setup Stripe account et webhooks
+  - Paiements uniques (vs abonnements)
+  - Gestion taxes européennes
+  - Receipts et facturation
+
+- **Tiers FREE/PRO/PREMIUM**
+  ```
+  FREE (0€)         PRO (15€)         PREMIUM (25€)
+  ├─ 3 sondages     ├─ Illimité       ├─ Tout PRO +
+  ├─ 20 votes max   ├─ Votes illimité ├─ IA avancée
+  ├─ 30 jours       ├─ Export data    ├─ Intégrations
+  └─ Watermark      ├─ Customisation  ├─ White-label
+                    └─ Support email  └─ API access
+  ```
+
+#### Semaines 3-4 : Features Monétisation (15-30 septembre)
+- **Analytics Avancées** (PREMIUM)
+- **White-label Option** (PREMIUM)
+- **Interface MCP** pour développeurs (PRO+)
+- **A/B Testing** pricing et conversion
+
+**Objectifs Septembre :**
+- 10+ ventes PRO première semaine
+- 3+ ventes PREMIUM premier mois
+- Conversion rate 5%+ (beta → payant)
+
+---
+
+### Phase 4 : Scale & International (Q4 2025)
+
+**Durée :** 3 mois (Octobre-Décembre 2025)  
+**Status :** Roadmap
+
+#### Octobre : Expansion Features
+- **Internationalisation** (EN, ES, DE)
+- **API publique + webhooks**
+- **Extensions Chrome/Firefox**
+
+#### Novembre : Intégrations
+- **Plugins Slack/Discord/Teams**
+- **Connecteurs Zapier/IFTTT**
+- **Calendar sync** (Google/Outlook)
+
+#### Décembre : Enterprise
+- **SSO** (Single Sign-On)
+- **Admin dashboard**
+- **Enterprise pricing**
+
+---
+
+## Métriques de Succès par Phase
+
+### Phase 2 (Fin Août 2025)
+- **Technique :**
+  - 50+ beta testeurs actifs
+  - 100+ sondages créés via IA
+  - < 2s temps réponse backend
+  - 95%+ uptime service
+
+- **Produit :**
+  - 80%+ conversion chat → sondage réussi
+  - 4.5+ rating satisfaction (sur 5)
+  - 60%+ retention 7 jours
+  - 30%+ weekly active users
+
+### Phase 3 (Fin Septembre 2025)
+- **Business :**
+  - 20+ ventes PRO/mois (break-even)
+  - 5+ ventes PREMIUM/mois
+  - 5%+ conversion rate beta → payant
+  - 1000€+ revenue mensuel
+
+- **Croissance :**
+  - 500+ utilisateurs total
+  - 50+ organic signups/semaine
+  - 3.0+ Net Promoter Score
+  - 70%+ customer satisfaction
+
+### Phase 4 (Fin 2025)
+- **Scale :**
+  - 2000+ utilisateurs actifs
+  - 50+ ventes PRO/mois
+  - 15+ ventes PREMIUM/mois
+  - 5000€+ revenue mensuel
+
+---
+
+## Risques et Mitigation
+
+### Risques Techniques
+- **Performance IA** : Coûts Mistral élevés
+  - *Mitigation* : Caching intelligent, modèles optimisés
+- **Scalabilité** : Supabase limits
+  - *Mitigation* : Monitoring usage, migration plan
+
+### Risques Produit
+- **Adoption lente** : Users résistants IA
+  - *Mitigation* : Mode manuel backup, éducation UX
+- **Compétition** : Doodle ajoute IA
+  - *Mitigation* : Focus différenciation, execution speed
+
+### Risques Business
+- **Monetization** : Conversion faible
+  - *Mitigation* : A/B test pricing, freemium optimization
+- **Légal** : GDPR compliance
+  - *Mitigation* : Privacy by design, audit legal
+
+---
+
+## Next Actions Immédiates (Juin-Juillet 2025)
+
+### Semaine du 23 juin (CETTE SEMAINE)
+1. **Dimanche 23 :** Setup Supabase project + invite team
+2. **Lundi 24 :** Design database schema (Users, Polls, Votes)
+3. **Mardi 25 :** Configure authentication (Google OAuth)
+4. **Mercredi 26 :** Create API routes basiques (CRUD polls)
+5. **Jeudi 27 :** Setup Mistral account et test integration
+
+### Semaine du 30 juin  
+1. **Lundi 30 :** Deploy database schema + RLS policies
+2. **Mardi 1er :** Connect frontend avec Supabase
+3. **Mercredi 2 :** Test auth flow complet
+4. **Jeudi 3 :** Implement poll creation via API
+5. **Vendredi 4 :** Review semaines 1-2 + prepare Mistral IA
+
+**Priorité absolue :** Backend foundation solide avant IA integration
+
+**Objectif accéléré :** Finir Phase 2 avant septembre pour se concentrer sur monétisation
+
+---
+
+**Planning mis à jour le 22 juin 2025**  
+**Phase actuelle :** Démarrage Phase 2 demain (23 juin)  
+**Prochaine milestone :** Backend MVP (fin août)
