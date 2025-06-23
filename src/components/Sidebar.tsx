@@ -7,11 +7,14 @@ import {
   User, 
   Plus,
   Sparkles,
-  Menu
+  Menu,
+  Smartphone
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navigationItems = [
     { icon: MessageCircle, label: 'Chat Assistant', active: true, disabled: true },
@@ -60,15 +63,26 @@ const Sidebar = () => {
             </div>
           </div>
           
-          <button 
-            className="doo-button-primary w-full flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
-            disabled
-            title="Chat IA - Bientôt disponible"
-          >
-            <Plus className="w-4 h-4" />
-            Nouveau Chat
-          </button>
-          <p className="text-xs text-gray-400 mt-2 text-center">Chat IA - Bientôt disponible</p>
+          <div className="space-y-2">
+            <button 
+              className="doo-button-primary w-full flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+              disabled
+              title="Chat IA - Bientôt disponible"
+            >
+              <Plus className="w-4 h-4" />
+              Nouveau Chat
+            </button>
+            <p className="text-xs text-gray-400 text-center">Chat IA - Bientôt disponible</p>
+            
+            <button 
+              onClick={() => navigate('/demo/swipe')}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-rose-600 text-white px-4 py-2 rounded-lg hover:from-pink-600 hover:to-rose-700 transition-all duration-200 shadow-sm text-sm"
+              title="Tester l'interface de vote swipe"
+            >
+              <Smartphone className="w-4 h-4" />
+              Vote Swipe
+            </button>
+          </div>
         </div>
 
         {/* Navigation */}
