@@ -541,12 +541,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
                               key={index}
                               onClick={() => toggleDate(date)}
                               className={`w-10 h-10 text-sm rounded-lg transition-all duration-200 font-medium
-                                hover:bg-gray-100 hover:scale-105
                                 ${isSelected
-                                  ? 'bg-blue-600 text-white shadow-md'
+                                  ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700'
                                   : isToday
-                                  ? 'bg-blue-50 text-blue-600 border-2 border-blue-200'
-                                  : 'text-gray-700'
+                                  ? 'bg-blue-50 text-blue-600 border-2 border-blue-200 hover:bg-blue-100'
+                                  : 'text-gray-700 hover:bg-gray-100 hover:scale-105'
                                 }
                               `}
                             >
@@ -585,14 +584,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
                     >
                       <Clock className="w-4 h-4" />
                       Horaires
-                    </button>
-                    
-                    <button
-                      onClick={() => setState(prev => ({ ...prev, showShare: true }))}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      Partager
                     </button>
                   </div>
                 </div>
@@ -752,6 +743,30 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
                     </div>
                   )}
                 </div>
+                
+                {/* Bouton Partager affiché après la section horaires */}
+                <div className="mt-4">
+                  <button
+                    onClick={() => setState(prev => ({ ...prev, showShare: true }))}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Partager
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Bouton Partager affiché si pas d'horaires sélectionnés */}
+            {state.selectedDates.length > 0 && !state.showTimeSlots && (
+              <div className="mt-4">
+                <button
+                  onClick={() => setState(prev => ({ ...prev, showShare: true }))}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Partager
+                </button>
               </div>
             )}
             

@@ -7,34 +7,29 @@ import {
   User, 
   Plus,
   Sparkles,
-  Menu,
-  X
+  Menu
 } from 'lucide-react';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navigationItems = [
-    { icon: MessageCircle, label: 'Chat Assistant', active: true },
-    { icon: Calendar, label: 'Mes Événements', badge: '3' },
-    { icon: History, label: 'Historique', badge: null },
-    { icon: Settings, label: 'Paramètres', badge: null },
+    { icon: MessageCircle, label: 'Chat Assistant', active: true, disabled: true },
+    { icon: Calendar, label: 'Mes Événements', badge: null, disabled: true },
+    { icon: History, label: 'Historique', badge: null, disabled: true },
+    { icon: Settings, label: 'Paramètres', badge: null, disabled: true },
   ];
 
-  const recentChats = [
-    { title: 'Réunion équipe marketing', time: '2h' },
-    { title: 'Déjeuner client Dupont', time: '1j' },
-    { title: 'Formation nouveaux employés', time: '3j' },
-  ];
+  const recentChats: any[] = [];
 
   return (
     <>
-      {/* Mobile Menu Button - repositionné pour ne pas cacher le logo */}
+      {/* Mobile Menu Button - Toggle uniquement */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-doo-gradient rounded-xl shadow-lg border border-gray-200"
       >
-        {isOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
+        <Menu className="w-5 h-5 text-white" />
       </button>
 
       {/* Overlay for mobile */}
@@ -66,12 +61,14 @@ const Sidebar = () => {
           </div>
           
           <button 
-            className="doo-button-primary w-full flex items-center justify-center gap-2"
-            onClick={() => setIsOpen(false)}
+            className="doo-button-primary w-full flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+            disabled
+            title="Chat IA - Bientôt disponible"
           >
             <Plus className="w-4 h-4" />
             Nouveau Chat
           </button>
+          <p className="text-xs text-gray-400 mt-2 text-center">Chat IA - Bientôt disponible</p>
         </div>
 
         {/* Navigation */}
@@ -80,8 +77,9 @@ const Sidebar = () => {
             {navigationItems.map((item, index) => (
               <div
                 key={index}
-                className={`doo-nav-item ${item.active ? 'active' : ''}`}
-                onClick={() => setIsOpen(false)}
+                className={`doo-nav-item ${item.active ? 'active' : ''} ${item.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={() => !item.disabled && setIsOpen(false)}
+                title={item.disabled ? `${item.label} - Bientôt disponible` : item.label}
               >
                 <item.icon className="w-5 h-5" />
                 <span className="flex-1">{item.label}</span>
@@ -90,35 +88,31 @@ const Sidebar = () => {
                     {item.badge}
                   </span>
                 )}
+                {item.disabled && (
+                  <span className="text-xs text-gray-400">Bientôt</span>
+                )}
               </div>
             ))}
           </nav>
         </div>
 
-        {/* Recent Chats */}
+        {/* Recent Chats - Section vide pour l'instant */}
         <div className="flex-1 p-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Conversations récentes</h3>
+          <h3 className="text-sm font-medium text-gray-400 mb-3">Conversations récentes</h3>
           <div className="space-y-2">
-            {recentChats.map((chat, index) => (
-              <div
-                key={index}
-                className="p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all duration-200 group"
-                onClick={() => setIsOpen(false)}
-              >
-                <div className="flex items-start justify-between">
-                  <p className="text-sm text-gray-700 group-hover:text-gray-900 leading-tight">
-                    {chat.title}
-                  </p>
-                  <span className="text-xs text-gray-400 ml-2">{chat.time}</span>
-                </div>
+            {recentChats.length === 0 && (
+              <div className="p-4 text-center">
+                <MessageCircle className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-gray-400">Aucune conversation</p>
+                <p className="text-xs text-gray-300 mt-1">Vos chats apparaîtront ici</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
         {/* User Profile */}
         <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all duration-200">
+          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all duration-200 opacity-50">
             <div className="w-8 h-8 bg-doo-blue-100 rounded-full flex items-center justify-center">
               <User className="w-4 h-4 text-doo-blue-600" />
             </div>
@@ -127,6 +121,7 @@ const Sidebar = () => {
               <p className="text-xs text-gray-500">Version gratuite</p>
             </div>
           </div>
+          <p className="text-xs text-gray-400 text-center mt-2">Profils - Bientôt disponible</p>
         </div>
       </div>
     </>
