@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, Calendar, Mail, Clock, Plus, Check, AlertCircle, Settings, Menu, Share2, Copy } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Calendar, Mail, Clock, Plus, Check, AlertCircle, Settings, Menu, Share2, Copy, Loader2 } from 'lucide-react';
+import { usePolls, type PollData } from '../hooks/usePolls';
+import { useAuth } from '../contexts/AuthContext';
+import { UserMenu } from './UserMenu';
 
 interface TimeSlot {
   hour: number;
@@ -34,6 +37,10 @@ interface PollCreatorProps {
 }
 
 const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
+  const { user } = useAuth();
+  const { createPoll, loading: pollLoading, error: pollError } = usePolls();
+  const [createdPollSlug, setCreatedPollSlug] = useState<string | null>(null);
+  
   const [state, setState] = useState<PollCreationState>({
     selectedDates: [],
     currentMonth: new Date(),
@@ -429,22 +436,80 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
   };
 
   const canFinalize = () => {
-    return (
-      state.selectedDates.length > 0 &&
-      state.emailErrors.length === 0
-    );
+    const hasDates = state.selectedDates.length > 0;
+    const noEmailErrors = state.emailErrors.length === 0;
+    
+    return hasDates && noEmailErrors;
   };
 
-  const handleFinalize = () => {
-    console.log('Finalisation du sondage');
-    // Logique de finalisation à implémenter
+  const handleFinalize = async () => {
+    // Vérification : si pas d'utilisateur, créer un sondage anonyme
+    if (!user) {
+      console.log('Création d\'un sondage anonyme (fonctionnalité limitée)');
+      // TODO: Implémenter la création de sondages anonymes
+      // Pour l'instant, on redirige vers la connexion
+      window.location.href = '/auth';
+      return;
+    }
+
+    // Validation des emails
+    const { valid: validEmails, errors: emailErrors } = validateEmails(state.participantEmails);
+    if (emailErrors.length > 0) {
+      setState(prev => ({ ...prev, emailErrors }));
+      return;
+    }
+
+    // Préparation des données du sondage
+    const pollData: PollData = {
+      title: state.pollTitle.trim() || `Sondage du ${new Date().toLocaleDateString('fr-FR')}`,
+      description: null, // Pas de description pour l'instant
+      selectedDates: state.selectedDates,
+      timeSlotsByDate: timeSlotsByDate,
+      participantEmails: validEmails,
+      settings: {
+        timeGranularity: state.timeGranularity,
+        allowAnonymousVotes: true, // Par défaut
+        allowMaybeVotes: true, // Par défaut
+        sendNotifications: state.notificationsEnabled,
+        expiresAt: undefined, // Pas d'expiration par défaut
+      },
+    };
+
+    console.log('Création du sondage avec les données:', pollData);
+
+    // Créer le sondage
+    const result = await createPoll(pollData);
+    console.log('Résultat createPoll:', result);
+    
+    if (result.error) {
+      console.error('Erreur lors de la création du sondage:', result.error);
+      return;
+    }
+
+    if (result.poll) {
+      console.log('Sondage créé avec succès:', result.poll);
+      setCreatedPollSlug(result.poll.slug);
+      
+      // Nettoyer le brouillon
+      localStorage.removeItem('doodates-draft');
+      
+      console.log('createdPollSlug défini à:', result.poll.slug);
+      
+      // Optionnel : rediriger vers le sondage créé
+      // window.location.href = `/poll/${poll.slug}`;
+    } else {
+      console.error('Aucun sondage retourné malgré l\'absence d\'erreur');
+    }
   };
 
   const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
   const copyPollLink = async () => {
     try {
-      const pollUrl = `https://doodates.app/poll/${state.pollTitle.replace(/\s+/g, '-').toLowerCase() || 'nouveau-sondage'}`;
+      const pollUrl = createdPollSlug 
+        ? `https://doodates.app/poll/${createdPollSlug}`
+        : `https://doodates.app/poll/${state.pollTitle.replace(/\s+/g, '-').toLowerCase() || 'nouveau-sondage'}`;
+      
       await navigator.clipboard.writeText(pollUrl);
       setState(prev => ({ ...prev, pollLinkCopied: true }));
       
@@ -774,9 +839,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
             {state.showShare && (
               <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                 <div className="space-y-4">
+                  {/* Affichage utilisateur connecté */}
+                  <UserMenu />
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Titre du sondage
+                      Titre du sondage <span className="text-gray-400 text-sm">(optionnel)</span>
                     </label>
                     <input
                       type="text"
@@ -807,7 +874,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
                     <div className="flex gap-2">
                       <input
                         type="text"
-                        value={`https://doodates.app/poll/${state.pollTitle.replace(/\s+/g, '-').toLowerCase() || 'nouveau-sondage'}`}
+                        value={createdPollSlug 
+                          ? `https://doodates.app/poll/${createdPollSlug}`
+                          : `https://doodates.app/poll/${state.pollTitle.replace(/\s+/g, '-').toLowerCase() || 'nouveau-sondage'}`
+                        }
                         readOnly
                         className="flex-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm text-gray-600"
                       />
@@ -827,13 +897,101 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
                     )}
                   </div>
 
+                  {/* Suggestion de connexion pour utilisateur non connecté */}
+                  {!user && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-blue-800">
+                        <AlertCircle className="w-4 h-4" />
+                        <span className="text-sm font-medium">Connexion recommandée</span>
+                      </div>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Connectez-vous pour gérer vos sondages et accéder à plus de fonctionnalités.
+                      </p>
+                      <button
+                        onClick={() => window.location.href = '/auth'}
+                        className="mt-2 text-sm text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Se connecter maintenant
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Affichage des erreurs */}
+                  {pollError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-red-800">
+                        <AlertCircle className="w-4 h-4" />
+                        <span className="text-sm font-medium">Erreur</span>
+                      </div>
+                      <p className="text-sm text-red-700 mt-1">{pollError}</p>
+                    </div>
+                  )}
+
+                  {/* Affichage des erreurs d'email */}
+                  {state.emailErrors.length > 0 && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-red-800">
+                        <AlertCircle className="w-4 h-4" />
+                        <span className="text-sm font-medium">Emails invalides</span>
+                      </div>
+                      <ul className="text-sm text-red-700 mt-1 list-disc list-inside">
+                        {state.emailErrors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Succès de création */}
+                  {createdPollSlug && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-green-800">
+                        <Check className="w-4 h-4" />
+                        <span className="text-sm font-medium">Sondage créé avec succès !</span>
+                      </div>
+                      <p className="text-sm text-green-700 mt-1">
+                        Votre sondage est maintenant disponible à l'adresse :
+                      </p>
+                      <div className="mt-2 p-2 bg-white border border-green-200 rounded text-sm font-mono text-green-900">
+                        https://doodates.app/poll/{createdPollSlug}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Aide pour les exigences */}
+                  {!canFinalize() && !pollLoading && !createdPollSlug && (
+                    <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                      <p className="font-medium mb-1">Pour créer le sondage :</p>
+                      <ul className="space-y-1">
+                        {state.selectedDates.length === 0 && (
+                          <li className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                            Sélectionnez au moins une date
+                          </li>
+                        )}
+                        {state.emailErrors.length > 0 && (
+                          <li className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                            Corrigez les emails invalides
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+
                   <div className="pt-2">
                     <button
                       onClick={handleFinalize}
-                      disabled={!canFinalize()}
-                      className="w-full py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                      disabled={!canFinalize() || pollLoading}
+                      className="w-full py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                     >
-                      {state.participantEmails.trim() ? 'Partager' : 'Enregistrer'}
+                      {pollLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {pollLoading 
+                        ? 'Création en cours...' 
+                        : createdPollSlug 
+                        ? 'Sondage créé !' 
+                        : (state.participantEmails.trim() ? 'Partager' : 'Enregistrer')
+                      }
                     </button>
                   </div>
                 </div>
