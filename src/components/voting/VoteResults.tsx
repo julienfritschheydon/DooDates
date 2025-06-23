@@ -94,9 +94,12 @@ const OptionResult: React.FC<{
   const totalResponses = voteCounts.yes + voteCounts.no + voteCounts.maybe;
   const score = voteCounts.yes - (voteCounts.no * 0.5); // Score pondéré
 
-  // Format de la date
+  // Format de la date (éviter les décalages timezone)
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    // Parser la date en mode local pour éviter les décalages timezone
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
+    
     return date.toLocaleDateString('fr-FR', {
       weekday: 'short',
       day: 'numeric',
@@ -330,11 +333,17 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
               <span className="font-semibold">Créneau gagnant</span>
             </div>
             <div className="text-sm opacity-90">
-              {new Date(bestOption.option_date).toLocaleDateString('fr-FR', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long'
-              })}
+              {(() => {
+                // Parser la date en mode local pour éviter les décalages timezone
+                const [year, month, day] = bestOption.option_date.split('-').map(Number);
+                const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
+                
+                return date.toLocaleDateString('fr-FR', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long'
+                });
+              })()}
             </div>
           </motion.div>
         )}

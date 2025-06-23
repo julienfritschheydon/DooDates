@@ -192,15 +192,23 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
     }
   };
 
-  // Formater la date de façon ultra-simple
+  // Formater la date de façon ultra-simple (éviter les décalages timezone)
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    // Parser la date en mode local pour éviter les décalages timezone
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
+    
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    if (date.toDateString() === today.toDateString()) return 'Aujourd\'hui';
-    if (date.toDateString() === tomorrow.toDateString()) return 'Demain';
+    // Comparer uniquement les dates sans les heures
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const tomorrowOnly = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
+
+    if (dateOnly.getTime() === todayOnly.getTime()) return 'Aujourd\'hui';
+    if (dateOnly.getTime() === tomorrowOnly.getTime()) return 'Demain';
 
     return date.toLocaleDateString('fr-FR', {
       weekday: 'long',
@@ -575,10 +583,16 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
             console.log('Condition flèches:', index === 0 && !userHasVoted[option.id]);
           }
           
-          // Couleur de bordure : seulement la première en vert
-          const getRankingColor = (rank: number) => {
-            if (rank === 1) return 'border-green-400';      // 1er : bordure verte
-            return 'border-gray-200';                       // Autres : bordure grise par défaut
+          // Badge pour le 1er : plus visible qu'une bordure
+          const getRankingBadge = (rank: number) => {
+            if (rank === 1) {
+              return (
+                <div className="absolute top-3 right-3 z-30 bg-green-500 text-white px-3 py-2 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg border-2 border-white">
+                  1er
+                </div>
+              );
+            }
+            return null;
           };
           
           return (
@@ -597,7 +611,7 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
               transition={{
                 backgroundColor: { duration: 0.3 }
               }}
-              className={`bg-white rounded-xl p-4 border-4 cursor-grab active:cursor-grabbing transition-all duration-200 shadow-sm hover:shadow-md ${getRankingColor(rank)}`}
+              className="bg-white rounded-xl p-4 border border-gray-200 cursor-grab active:cursor-grabbing transition-all duration-200 shadow-sm hover:shadow-md relative"
               whileDrag={{ 
                 scale: 1.02, 
                 rotate: 1,
@@ -661,7 +675,8 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
                 handleOptionDragEnd(event, info, option.id);
               }}
             >
-
+              {/* Badge 1er place */}
+              {getRankingBadge(rank)}
 
               {/* Date et heure */}
               <div className="text-center mb-4">
@@ -764,12 +779,12 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
                         ? 'text-green-700'  // COLORÉ : vert foncé (contraste sur fond vert clair)
                         : 'text-green-600'  // PAS COLORÉ : vert standard
                       }`} />
-                    {/* Nombre de votes existants uniquement (sans le vote utilisateur) */}
+                    {/* Nombre de votes AVEC le vote utilisateur inclus */}
                     <span className={`text-sm font-bold ${(userVote === 'yes' && userHasVoted[option.id]) || currentSwipe[option.id] === 'yes'
                         ? 'text-green-700'  // COLORÉ : vert foncé
                         : 'text-green-600'  // PAS COLORÉ : vert standard
                       }`}>
-                      {getExistingStats(option.id).yes}
+                      {getStatsWithUser(option.id).yes}
                     </span>
                   </div>
 
@@ -874,7 +889,7 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
                         ? 'text-orange-700'  // COLORÉ : orange foncé
                         : 'text-orange-600'  // PAS COLORÉ : orange standard
                       }`}>
-                      {getExistingStats(option.id).maybe}
+                      {getStatsWithUser(option.id).maybe}
                     </span>
                   </div>
 
@@ -950,7 +965,7 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
                         ? 'text-red-700'  // COLORÉ : rouge foncé
                         : 'text-red-600'  // PAS COLORÉ : rouge standard
                       }`}>
-                      {getExistingStats(option.id).no}
+                      {getStatsWithUser(option.id).no}
                     </span>
                   </div>
 
