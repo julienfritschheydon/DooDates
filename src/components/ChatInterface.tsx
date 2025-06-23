@@ -10,40 +10,13 @@ interface Message {
 }
 
 const ChatInterface = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: "Bonjour ! Je suis votre assistant IA pour la planification collaborative. Comment puis-je vous aider à organiser votre prochain rendez-vous ?",
-      isAI: true,
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [showPollCreator, setShowPollCreator] = useState(false);
 
   const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      const newMessage: Message = {
-        id: Date.now().toString(),
-        content: inputValue,
-        isAI: false,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, newMessage]);
-      setInputValue('');
-      
-      // Simulate AI response
-      setTimeout(() => {
-        const aiResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          content: "Parfait ! Je vais vous aider à planifier cela. Pouvez-vous me dire combien de personnes seront impliquées et quelle est la durée approximative souhaitée ?",
-          isAI: true,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, aiResponse]);
-      }, 1000);
-    }
+    // Fonctionnalité temporairement désactivée
+    console.log('Chat IA - Bientôt disponible');
   };
 
   if (showPollCreator) {
@@ -65,8 +38,23 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
+      {/* Messages Area - Empty State */}
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 flex items-center justify-center">
+        {messages.length === 0 && (
+          <div className="text-center max-w-md">
+            <div className="w-16 h-16 bg-doo-gradient rounded-full flex items-center justify-center mx-auto mb-4 opacity-50">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-600 mb-2">Chat IA bientôt disponible</h3>
+            <p className="text-sm text-gray-400 mb-4">
+              L'assistant conversationnel sera disponible dans une prochaine version.
+            </p>
+            <p className="text-sm text-gray-500">
+              En attendant, utilisez le bouton <strong>+</strong> pour créer vos sondages.
+            </p>
+          </div>
+        )}
+        
         {messages.map((message) => (
           <div
             key={message.id}
@@ -95,7 +83,7 @@ const ChatInterface = () => {
         ))}
       </div>
 
-      {/* Input */}
+      {/* Input - Disabled */}
       <div className="bg-white border-t p-3 sm:p-4">
         <div className="flex gap-2 sm:gap-3">
           <input
@@ -103,18 +91,21 @@ const ChatInterface = () => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Décrivez votre besoin de planification..."
-            className="doo-input text-sm sm:text-base"
+            placeholder="Chat IA - Bientôt disponible..."
+            className="doo-input text-sm sm:text-base opacity-50 cursor-not-allowed"
+            disabled
           />
           <button
             onClick={handleSendMessage}
-            className="px-4 py-3 bg-doo-gradient text-white rounded-xl hover:shadow-lg transition-all duration-200 flex-shrink-0"
+            className="px-4 py-3 bg-doo-gradient text-white rounded-xl hover:shadow-lg transition-all duration-200 flex-shrink-0 opacity-50 cursor-not-allowed"
+            disabled
+            title="Chat IA - Bientôt disponible"
           >
             <Send className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
         <div className="mt-2 text-center">
-          <span className="text-xs text-gray-400">v2.4.3</span>
+          <span className="text-xs text-gray-400">v2.4.8</span>
         </div>
       </div>
     </div>
