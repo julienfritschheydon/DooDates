@@ -32,7 +32,7 @@ const Sidebar = () => {
       {/* Mobile Menu Button - repositionné pour ne pas cacher le logo */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 right-4 z-50 p-3 bg-doo-gradient rounded-xl shadow-lg border border-gray-200"
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-doo-gradient rounded-xl shadow-lg border border-gray-200"
       >
         {isOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
       </button>

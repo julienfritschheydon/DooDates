@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Send, Sparkles, Calendar, Clock, Users } from 'lucide-react';
+import { Send, Sparkles, Plus } from 'lucide-react';
+import PollCreator from './PollCreator';
 
 interface Message {
   id: string;
@@ -18,6 +19,7 @@ const ChatInterface = () => {
     }
   ]);
   const [inputValue, setInputValue] = useState('');
+  const [showPollCreator, setShowPollCreator] = useState(false);
 
   const handleSendMessage = () => {
     if (inputValue.trim()) {
@@ -44,41 +46,22 @@ const ChatInterface = () => {
     }
   };
 
-  const quickActions = [
-    { icon: Calendar, text: "Nouveau RDV", fullText: "Nouveau rendez-vous", color: "doo-blue" },
-    { icon: Clock, text: "Créneaux", fullText: "Créneaux disponibles", color: "doo-green" },
-    { icon: Users, text: "Équipe", fullText: "Réunion d'équipe", color: "doo-purple" }
-  ];
+  if (showPollCreator) {
+    return <PollCreator onBack={() => setShowPollCreator(false)} />;
+  }
 
   return (
     <div className="flex flex-col h-full bg-doo-gradient-subtle">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-3 sm:p-4">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-doo-gradient rounded-xl flex items-center justify-center shadow-md">
-            <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-lg sm:text-xl font-geist font-semibold text-gray-900">DooDates</h1>
-            <p className="text-xs sm:text-sm text-gray-500">Assistant IA de planification</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="p-3 sm:p-4 border-b bg-white">
-        <p className="text-sm text-gray-600 mb-3 font-medium">Actions rapides :</p>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {quickActions.map((action, index) => (
-            <button
-              key={index}
-              className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl text-sm text-gray-700 transition-all duration-200 doo-hover-lift whitespace-nowrap min-w-0 flex-shrink-0"
-              title={action.fullText}
-            >
-              <action.icon className="w-4 h-4 flex-shrink-0" />
-              <span className="truncate">{action.text}</span>
-            </button>
-          ))}
+      {/* Single Plus Button */}
+      <div className="p-4 border-b bg-white">
+        <div className="flex justify-center">
+          <button
+            onClick={() => setShowPollCreator(true)}
+            className="w-12 h-12 bg-doo-gradient rounded-full flex items-center justify-center text-white hover:shadow-lg transition-all duration-200 doo-hover-lift"
+            title="Créer un nouveau sondage"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
         </div>
       </div>
 
@@ -129,6 +112,9 @@ const ChatInterface = () => {
           >
             <Send className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
+        </div>
+        <div className="mt-2 text-center">
+          <span className="text-xs text-gray-400">v2.4.3</span>
         </div>
       </div>
     </div>
