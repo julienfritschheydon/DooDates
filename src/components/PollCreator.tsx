@@ -300,7 +300,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
   };
 
   const toggleDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // Formater la date en mode local pour éviter les décalages timezone
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
     setState((prev) => ({
       ...prev,
       selectedDates: prev.selectedDates.includes(dateStr)
@@ -427,7 +432,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
   };
 
   const formatSelectedDateHeader = (dateStr: string) => {
-    const date = new Date(dateStr);
+    // Parser la date en mode local pour éviter les décalages timezone
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
+    
     return {
       dayName: date.toLocaleDateString('fr-FR', { weekday: 'short' }),
       dayNumber: date.getDate(),
@@ -596,7 +604,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu }) => {
                           ))}
 
                         {generateCalendarForMonth(month).map(({ date, day }, index) => {
-                          const isSelected = state.selectedDates.includes(date.toISOString().split('T')[0]);
+                          // Formater la date en mode local pour éviter les décalages timezone
+                          const year = date.getFullYear();
+                          const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                          const dayStr = date.getDate().toString().padStart(2, '0');
+                          const dateStr = `${year}-${month}-${dayStr}`;
+                          const isSelected = state.selectedDates.includes(dateStr);
                           const today = new Date();
                           today.setHours(0, 0, 0, 0);
                           const isToday = date.getTime() === today.getTime();

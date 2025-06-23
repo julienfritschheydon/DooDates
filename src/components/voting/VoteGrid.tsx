@@ -152,9 +152,12 @@ const OptionCard: React.FC<{
 }> = ({ option, currentVote, userHasVoted, voteCounts, onVoteChange, onHaptic }) => {
   const [isDragging, setIsDragging] = useState(false);
   
-  // Format de la date
+  // Format de la date (éviter les décalages timezone)
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    // Parser la date en mode local pour éviter les décalages timezone
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
+    
     return date.toLocaleDateString('fr-FR', {
       weekday: 'long',
       day: 'numeric',
