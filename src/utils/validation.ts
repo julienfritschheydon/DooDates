@@ -21,13 +21,15 @@ export function isValidDate(dateString: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
     return false;
   }
-  
+
   const date = new Date(dateString);
-  const [year, month, day] = dateString.split('-').map(Number);
-  
-  return date.getFullYear() === year &&
-         date.getMonth() === month - 1 &&
-         date.getDate() === day;
+  const [year, month, day] = dateString.split("-").map(Number);
+
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+  );
 }
 
 /**
@@ -37,31 +39,37 @@ export function isFutureDate(dateString: string): boolean {
   if (!isValidDate(dateString)) {
     return false;
   }
-  
+
   const date = new Date(dateString);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   return date >= today;
 }
 
 /**
  * Validation d'une liste d'emails séparés par des virgules
  */
-export function validateEmailList(emailList: string): { valid: string[]; invalid: string[] } {
-  const emails = emailList.split(',').map(email => email.trim()).filter(email => email.length > 0);
-  
+export function validateEmailList(emailList: string): {
+  valid: string[];
+  invalid: string[];
+} {
+  const emails = emailList
+    .split(",")
+    .map((email) => email.trim())
+    .filter((email) => email.length > 0);
+
   const valid: string[] = [];
   const invalid: string[] = [];
-  
-  emails.forEach(email => {
+
+  emails.forEach((email) => {
     if (validateEmail(email)) {
       valid.push(email);
     } else {
       invalid.push(email);
     }
   });
-  
+
   return { valid, invalid };
 }
 
@@ -80,12 +88,12 @@ export function validateTimeRange(startTime: string, endTime: string): boolean {
   if (!validateTimeSlot(startTime) || !validateTimeSlot(endTime)) {
     return false;
   }
-  
-  const [startHour, startMinute] = startTime.split(':').map(Number);
-  const [endHour, endMinute] = endTime.split(':').map(Number);
-  
+
+  const [startHour, startMinute] = startTime.split(":").map(Number);
+  const [endHour, endMinute] = endTime.split(":").map(Number);
+
   const startMinutes = startHour * 60 + startMinute;
   const endMinutes = endHour * 60 + endMinute;
-  
+
   return endMinutes > startMinutes;
-} 
+}

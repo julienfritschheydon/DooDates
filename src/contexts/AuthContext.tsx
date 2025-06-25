@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session, AuthError } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
-import { SignInInput, SignUpInput } from '../lib/schemas';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { User, Session, AuthError } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
+import { SignInInput, SignUpInput } from "../lib/schemas";
 
 // Variables d'environnement pour validation
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -14,7 +14,7 @@ interface Profile {
   avatar_url: string | null;
   timezone: string;
   preferences: Record<string, any>;
-  plan_type: 'free' | 'pro' | 'premium';
+  plan_type: "free" | "pro" | "premium";
   subscription_expires_at: string | null;
   created_at: string;
   updated_at: string;
@@ -26,13 +26,13 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   error: string | null;
-  
+
   // Méthodes d'authentification
   signIn: (data: SignInInput) => Promise<{ error?: AuthError }>;
   signUp: (data: SignUpInput) => Promise<{ error?: AuthError }>;
   signInWithGoogle: () => Promise<{ error?: AuthError }>;
   signOut: () => Promise<{ error?: AuthError }>;
-  
+
   // Méthodes de profil
   updateProfile: (updates: Partial<Profile>) => Promise<{ error?: any }>;
   refreshProfile: () => Promise<void>;
@@ -43,7 +43,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
@@ -63,19 +63,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
         .single();
 
       if (error) {
-        console.error('Error fetching profile:', error);
+        console.error("Error fetching profile:", error);
         return null;
       }
 
       return data;
     } catch (err) {
-      console.error('Error in fetchProfile:', err);
+      console.error("Error in fetchProfile:", err);
       return null;
     }
   };
@@ -83,14 +83,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Mise à jour du profil
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) {
-      return { error: { message: 'Utilisateur non connecté' } };
+      return { error: { message: "Utilisateur non connecté" } };
     }
 
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update(updates)
-        .eq('id', user.id)
+        .eq("id", user.id)
         .select()
         .single();
 
@@ -166,33 +166,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
 
     try {
-      console.log('🔄 Tentative de connexion Google...');
-      
+      console.log("🔄 Tentative de connexion Google...");
+
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+            access_type: "offline",
+            prompt: "consent",
           },
-          scopes: 'email profile https://www.googleapis.com/auth/calendar.readonly',
+          scopes:
+            "email profile https://www.googleapis.com/auth/calendar.readonly",
         },
       });
 
       if (error) {
-        console.error('❌ Google OAuth Error:', error);
+        console.error("❌ Google OAuth Error:", error);
         setError(`Erreur Google OAuth: ${error.message}`);
         setLoading(false);
         return { error };
       }
 
-      console.log('✅ Redirection Google OAuth démarrée');
+      console.log("✅ Redirection Google OAuth démarrée");
       // Ne pas setLoading(false) ici car la redirection va se faire
       return { error: null };
     } catch (err) {
-      console.error('❌ Google OAuth Exception:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Erreur de connexion Google';
+      console.error("❌ Google OAuth Exception:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Erreur de connexion Google";
       setError(`Erreur connexion: ${errorMessage}`);
       setLoading(false);
       return { error: { message: errorMessage } as AuthError };
@@ -206,7 +208,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     try {
       const { error } = await supabase.auth.signOut();
-      
+
       // Nettoyer l'état local
       setUser(null);
       setProfile(null);
@@ -228,17 +230,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Récupérer la session initiale
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (mounted) {
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
           const profileData = await fetchProfile(session.user.id);
           setProfile(profileData);
         }
-        
+
         setLoading(false);
       }
     };
@@ -246,46 +250,46 @@ export function AuthProvider({ children }: AuthProviderProps) {
     getInitialSession();
 
     // Écouter les changements d'authentification
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
 
-        setSession(session);
-        setUser(session?.user ?? null);
-        setError(null);
+      setSession(session);
+      setUser(session?.user ?? null);
+      setError(null);
 
-        if (session?.user) {
-          // Récupérer le profil pour les nouveaux utilisateurs
-          const profileData = await fetchProfile(session.user.id);
-          setProfile(profileData);
-        } else {
-          setProfile(null);
-        }
-
-        setLoading(false);
-
-        // Analytics pour les événements d'auth
-        if (event === 'SIGNED_IN') {
-          // Tracker la connexion
-          supabase.from('analytics_events').insert({
-            event_type: 'user_signed_in',
-            event_data: {
-              method: session?.user?.app_metadata?.provider || 'email',
-              timestamp: new Date().toISOString(),
-            },
-            user_id: session?.user?.id,
-          });
-        } else if (event === 'SIGNED_OUT') {
-          // Tracker la déconnexion
-          supabase.from('analytics_events').insert({
-            event_type: 'user_signed_out',
-            event_data: {
-              timestamp: new Date().toISOString(),
-            },
-          });
-        }
+      if (session?.user) {
+        // Récupérer le profil pour les nouveaux utilisateurs
+        const profileData = await fetchProfile(session.user.id);
+        setProfile(profileData);
+      } else {
+        setProfile(null);
       }
-    );
+
+      setLoading(false);
+
+      // Analytics pour les événements d'auth
+      if (event === "SIGNED_IN") {
+        // Tracker la connexion
+        supabase.from("analytics_events").insert({
+          event_type: "user_signed_in",
+          event_data: {
+            method: session?.user?.app_metadata?.provider || "email",
+            timestamp: new Date().toISOString(),
+          },
+          user_id: session?.user?.id,
+        });
+      } else if (event === "SIGNED_OUT") {
+        // Tracker la déconnexion
+        supabase.from("analytics_events").insert({
+          event_type: "user_signed_out",
+          event_data: {
+            timestamp: new Date().toISOString(),
+          },
+        });
+      }
+    });
 
     return () => {
       mounted = false;
@@ -307,9 +311,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refreshProfile,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-} 
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}

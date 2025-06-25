@@ -1,7 +1,7 @@
 // Système de chargement progressif intelligent du calendrier
 // Charge 1 an au début, puis anticipe quand on approche de la fin
 
-import type { PreGeneratedCalendar, CalendarDay } from './calendar-generator';
+import type { PreGeneratedCalendar, CalendarDay } from "./calendar-generator";
 
 interface YearCalendarData {
   year: number;
@@ -34,7 +34,7 @@ class ProgressiveCalendarManager {
     }
 
     console.time(`📥 Chargement année ${year}`);
-    
+
     // Utiliser requestIdleCallback pour les chargements non-critiques
     const loadingPromise = new Promise<YearCalendarData>((resolve, reject) => {
       const loadData = async () => {
@@ -52,7 +52,7 @@ class ProgressiveCalendarManager {
         loadData();
       } else {
         // Années futures: utiliser requestIdleCallback pour ne pas bloquer
-        if (typeof requestIdleCallback !== 'undefined') {
+        if (typeof requestIdleCallback !== "undefined") {
           requestIdleCallback(() => loadData());
         } else {
           // Fallback pour navigateurs sans requestIdleCallback
@@ -60,7 +60,7 @@ class ProgressiveCalendarManager {
         }
       }
     });
-    
+
     this.loadingPromises.set(year, loadingPromise);
 
     try {
@@ -83,7 +83,9 @@ class ProgressiveCalendarManager {
       const module = await import(`../data/calendar-${year}.json`);
       return module.default;
     } catch (error) {
-      console.warn(`⚠️ Fichier calendar-${year}.json non trouvé, génération dynamique...`);
+      console.warn(
+        `⚠️ Fichier calendar-${year}.json non trouvé, génération dynamique...`,
+      );
       // Fallback: génération dynamique si le fichier n'existe pas
       return this.generateYearFallback(year);
     }
@@ -97,21 +99,41 @@ class ProgressiveCalendarManager {
     const weekends: CalendarDay[] = [];
     const weekdays: CalendarDay[] = [];
 
-    const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-    const monthNames = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 
-                       'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    const dayNames = [
+      "dimanche",
+      "lundi",
+      "mardi",
+      "mercredi",
+      "jeudi",
+      "vendredi",
+      "samedi",
+    ];
+    const monthNames = [
+      "janvier",
+      "février",
+      "mars",
+      "avril",
+      "mai",
+      "juin",
+      "juillet",
+      "août",
+      "septembre",
+      "octobre",
+      "novembre",
+      "décembre",
+    ];
 
     for (let month = 0; month < 12; month++) {
-      const monthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+      const monthKey = `${year}-${(month + 1).toString().padStart(2, "0")}`;
       byMonth[monthKey] = [];
-      
+
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      
+
       for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = date.toISOString().split("T")[0];
         const dayOfWeek = date.getDay();
-        
+
         const calendarDay: CalendarDay = {
           date: dateStr,
           year,
@@ -122,17 +144,17 @@ class ProgressiveCalendarManager {
           monthName: monthNames[month],
           isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
           weekNumber: 1, // Simplifié pour le fallback
-          quarterNumber: Math.ceil((month + 1) / 3)
+          quarterNumber: Math.ceil((month + 1) / 3),
         };
 
         days.push(calendarDay);
         byMonth[monthKey].push(calendarDay);
-        
+
         if (!byDayOfWeek[dayOfWeek]) {
           byDayOfWeek[dayOfWeek] = [];
         }
         byDayOfWeek[dayOfWeek].push(calendarDay);
-        
+
         if (calendarDay.isWeekend) {
           weekends.push(calendarDay);
         } else {
@@ -151,7 +173,7 @@ class ProgressiveCalendarManager {
       weekdays,
       isLeapYear: new Date(year, 1, 29).getDate() === 29,
       weekendsCount: weekends.length,
-      weekdaysCount: weekdays.length
+      weekdaysCount: weekdays.length,
     };
   }
 
@@ -162,11 +184,16 @@ class ProgressiveCalendarManager {
     const month = date.getMonth() + 1; // 1-12
 
     // Si on est dans les derniers mois de l'année, précharger l'année suivante
-    if (month >= (12 - this.preloadThresholdMonths)) {
+    if (month >= 12 - this.preloadThresholdMonths) {
       const nextYear = year + 1;
-      if (!this.loadedYears.has(nextYear) && !this.loadingPromises.has(nextYear)) {
-        console.log(`🔮 Préchargement anticipé de l'année ${nextYear} (mois ${month})`);
-        this.loadYear(nextYear).catch(error => {
+      if (
+        !this.loadedYears.has(nextYear) &&
+        !this.loadingPromises.has(nextYear)
+      ) {
+        console.log(
+          `🔮 Préchargement anticipé de l'année ${nextYear} (mois ${month})`,
+        );
+        this.loadYear(nextYear).catch((error) => {
           console.warn(`⚠️ Erreur préchargement ${nextYear}:`, error);
         });
       }
@@ -174,27 +201,30 @@ class ProgressiveCalendarManager {
   }
 
   // Obtenir les données d'une plage de dates (peut couvrir plusieurs années)
-  async getDateRange(startDate: string, endDate: string): Promise<CalendarDay[]> {
+  async getDateRange(
+    startDate: string,
+    endDate: string,
+  ): Promise<CalendarDay[]> {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const startYear = start.getFullYear();
     const endYear = end.getFullYear();
 
     const results: CalendarDay[] = [];
-    
+
     // Charger toutes les années nécessaires en parallèle
     const yearsToLoad = [];
     for (let year = startYear; year <= endYear; year++) {
       yearsToLoad.push(year);
     }
 
-    const yearDataPromises = yearsToLoad.map(year => this.loadYear(year));
+    const yearDataPromises = yearsToLoad.map((year) => this.loadYear(year));
     const yearDataArray = await Promise.all(yearDataPromises);
 
     // Filtrer les jours dans la plage demandée
     for (const yearData of yearDataArray) {
-      const filteredDays = yearData.days.filter(day => 
-        day.date >= startDate && day.date <= endDate
+      const filteredDays = yearData.days.filter(
+        (day) => day.date >= startDate && day.date <= endDate,
       );
       results.push(...filteredDays);
     }
@@ -208,7 +238,7 @@ class ProgressiveCalendarManager {
   // Obtenir les jours d'un mois spécifique
   async getMonth(year: number, month: number): Promise<CalendarDay[]> {
     const yearData = await this.loadYear(year);
-    const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
+    const monthKey = `${year}-${month.toString().padStart(2, "0")}`;
     return yearData.byMonth[monthKey] || [];
   }
 
@@ -217,16 +247,23 @@ class ProgressiveCalendarManager {
     return {
       loadedYears: Array.from(this.loadedYears.keys()).sort(),
       loadingYears: Array.from(this.loadingPromises.keys()).sort(),
-      totalLoadedDays: Array.from(this.loadedYears.values())
-        .reduce((total, yearData) => total + yearData.totalDays, 0)
+      totalLoadedDays: Array.from(this.loadedYears.values()).reduce(
+        (total, yearData) => total + yearData.totalDays,
+        0,
+      ),
     };
   }
 
   // Nettoyer le cache (garder seulement les années récentes)
   cleanupCache() {
     const currentYear = new Date().getFullYear();
-    const keepYears = [currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
-    
+    const keepYears = [
+      currentYear - 1,
+      currentYear,
+      currentYear + 1,
+      currentYear + 2,
+    ];
+
     for (const [year] of this.loadedYears) {
       if (!keepYears.includes(year)) {
         this.loadedYears.delete(year);
@@ -244,10 +281,10 @@ export { progressiveCalendar, type YearCalendarData };
 // API compatible avec l'ancien système
 export async function getProgressiveCalendar(): Promise<PreGeneratedCalendar> {
   const currentYear = new Date().getFullYear();
-  
+
   // Charger l'année courante immédiatement
   const currentYearData = await progressiveCalendar.loadYear(currentYear);
-  
+
   // Précharger l'année suivante en arrière-plan
   progressiveCalendar.loadYear(currentYear + 1).catch(() => {
     // Ignore les erreurs de préchargement
@@ -263,6 +300,6 @@ export async function getProgressiveCalendar(): Promise<PreGeneratedCalendar> {
     byMonth: currentYearData.byMonth,
     byDayOfWeek: currentYearData.byDayOfWeek,
     weekends: currentYearData.weekends,
-    weekdays: currentYearData.weekdays
+    weekdays: currentYearData.weekdays,
   };
-} 
+}

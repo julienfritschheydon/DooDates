@@ -1,6 +1,13 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Users, Calendar, Clock, Trophy, Share2 } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft,
+  Users,
+  Calendar,
+  Clock,
+  Trophy,
+  Share2,
+} from "lucide-react";
 
 interface Poll {
   id: string;
@@ -28,7 +35,7 @@ interface Vote {
   poll_id: string;
   voter_email: string;
   voter_name: string;
-  selections: Record<string, 'yes' | 'no' | 'maybe'>;
+  selections: Record<string, "yes" | "no" | "maybe">;
   created_at: string;
 }
 
@@ -81,54 +88,64 @@ const OptionResult: React.FC<{
   const voteCounts = { yes: 0, no: 0, maybe: 0 };
   const voterNames: string[] = [];
 
-  votes.forEach(vote => {
+  votes.forEach((vote) => {
     const selection = vote.selections[option.id];
     if (selection && voteCounts.hasOwnProperty(selection)) {
       voteCounts[selection]++;
-      if (selection === 'yes') {
+      if (selection === "yes") {
         voterNames.push(vote.voter_name);
       }
     }
   });
 
   const totalResponses = voteCounts.yes + voteCounts.no + voteCounts.maybe;
-  const score = voteCounts.yes - (voteCounts.no * 0.5); // Score pondéré
+  const score = voteCounts.yes - voteCounts.no * 0.5; // Score pondéré
 
   // Format de la date (éviter les décalages timezone)
   const formatDate = (dateString: string) => {
     // Parser la date en mode local pour éviter les décalages timezone
-    const [year, month, day] = dateString.split('-').map(Number);
+    const [year, month, day] = dateString.split("-").map(Number);
     const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
-    
-    return date.toLocaleDateString('fr-FR', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short'
+
+    return date.toLocaleDateString("fr-FR", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
     });
   };
 
   // Format des créneaux horaires
-  const formatTimeSlots = (timeSlots: Array<{ hour: number; minute: number; duration?: number }>) => {
-    if (!timeSlots || timeSlots.length === 0) return 'Toute la journée';
-    
-    return timeSlots.map(slot => {
-      const start = `${slot.hour.toString().padStart(2, '0')}:${slot.minute.toString().padStart(2, '0')}`;
-      if (slot.duration) {
-        const endHour = Math.floor((slot.hour * 60 + slot.minute + slot.duration) / 60);
-        const endMinute = (slot.hour * 60 + slot.minute + slot.duration) % 60;
-        const end = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
-        return `${start}-${end}`;
-      }
-      return start;
-    }).join(', ');
+  const formatTimeSlots = (
+    timeSlots: Array<{ hour: number; minute: number; duration?: number }>,
+  ) => {
+    if (!timeSlots || timeSlots.length === 0) return "Toute la journée";
+
+    return timeSlots
+      .map((slot) => {
+        const start = `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")}`;
+        if (slot.duration) {
+          const endHour = Math.floor(
+            (slot.hour * 60 + slot.minute + slot.duration) / 60,
+          );
+          const endMinute = (slot.hour * 60 + slot.minute + slot.duration) % 60;
+          const end = `${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}`;
+          return `${start}-${end}`;
+        }
+        return start;
+      })
+      .join(", ");
   };
 
   const getRankColor = (rank: number) => {
     switch (rank) {
-      case 1: return 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-800';
-      case 2: return 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800';
-      case 3: return 'bg-gradient-to-r from-amber-600 to-amber-700 text-amber-100';
-      default: return 'bg-gradient-to-r from-blue-500 to-blue-600 text-blue-100';
+      case 1:
+        return "bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-800";
+      case 2:
+        return "bg-gradient-to-r from-gray-300 to-gray-400 text-gray-800";
+      case 3:
+        return "bg-gradient-to-r from-amber-600 to-amber-700 text-amber-100";
+      default:
+        return "bg-gradient-to-r from-blue-500 to-blue-600 text-blue-100";
     }
   };
 
@@ -148,7 +165,9 @@ const OptionResult: React.FC<{
         {/* En-tête avec rang */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${getRankColor(rank)}`}>
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${getRankColor(rank)}`}
+            >
               {getRankIcon(rank) || rank}
             </div>
             <div>
@@ -162,9 +181,11 @@ const OptionResult: React.FC<{
             </div>
           </div>
           <div className="text-right">
-            <div className="text-lg font-bold text-green-600">{voteCounts.yes}</div>
+            <div className="text-lg font-bold text-green-600">
+              {voteCounts.yes}
+            </div>
             <div className="text-xs text-gray-500">
-              {totalResponses} réponse{totalResponses !== 1 ? 's' : ''}
+              {totalResponses} réponse{totalResponses !== 1 ? "s" : ""}
             </div>
           </div>
         </div>
@@ -221,24 +242,24 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
   poll,
   options,
   votes,
-  onBack
+  onBack,
 }) => {
   // Calculer le classement des options
-  const optionsWithStats = options.map(option => {
+  const optionsWithStats = options.map((option) => {
     const voteCounts = { yes: 0, no: 0, maybe: 0 };
-    votes.forEach(vote => {
+    votes.forEach((vote) => {
       const selection = vote.selections[option.id];
       if (selection && voteCounts.hasOwnProperty(selection)) {
         voteCounts[selection]++;
       }
     });
 
-    const score = voteCounts.yes - (voteCounts.no * 0.5);
+    const score = voteCounts.yes - voteCounts.no * 0.5;
     return {
       ...option,
       voteCounts,
       score,
-      totalResponses: voteCounts.yes + voteCounts.no + voteCounts.maybe
+      totalResponses: voteCounts.yes + voteCounts.no + voteCounts.maybe,
     };
   });
 
@@ -254,10 +275,10 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
         await navigator.share({
           title: `Résultats: ${poll.title}`,
           text: `Découvrez les résultats du sondage "${poll.title}"`,
-          url: window.location.href
+          url: window.location.href,
         });
       } catch (error) {
-        console.log('Partage annulé');
+        console.log("Partage annulé");
       }
     } else {
       // Fallback: copier le lien
@@ -285,7 +306,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
           >
             <ArrowLeft className="h-6 w-6 text-gray-600" />
           </button>
-          
+
           <h1 className="text-lg font-bold text-gray-800 text-center flex-1">
             Résultats
           </h1>
@@ -303,7 +324,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">{totalVotes}</div>
             <div className="text-xs text-gray-500">
-              Participant{totalVotes !== 1 ? 's' : ''}
+              Participant{totalVotes !== 1 ? "s" : ""}
             </div>
           </div>
           <div className="text-center">
@@ -313,9 +334,11 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
             <div className="text-xs text-gray-500">Meilleur score</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{options.length}</div>
+            <div className="text-2xl font-bold text-purple-600">
+              {options.length}
+            </div>
             <div className="text-xs text-gray-500">
-              Option{options.length !== 1 ? 's' : ''}
+              Option{options.length !== 1 ? "s" : ""}
             </div>
           </div>
         </div>
@@ -335,13 +358,15 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
             <div className="text-sm opacity-90">
               {(() => {
                 // Parser la date en mode local pour éviter les décalages timezone
-                const [year, month, day] = bestOption.option_date.split('-').map(Number);
+                const [year, month, day] = bestOption.option_date
+                  .split("-")
+                  .map(Number);
                 const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
-                
-                return date.toLocaleDateString('fr-FR', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long'
+
+                return date.toLocaleDateString("fr-FR", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
                 });
               })()}
             </div>
@@ -355,7 +380,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
           <Users className="h-5 w-5" />
           Classement des options
         </h2>
-        
+
         {sortedOptions.map((option, index) => (
           <OptionResult
             key={option.id}
@@ -384,4 +409,4 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
       )}
     </motion.div>
   );
-}; 
+};

@@ -1,14 +1,7 @@
 {
   "generated": "2025-06-25T12:31:39.508Z",
   "version": "2.0",
-  "availableYears": [
-    2025,
-    2026,
-    2027,
-    2028,
-    2029,
-    2030
-  ],
+  "availableYears": [2025, 2026, 2027, 2028, 2029, 2030],
   "startYear": 2025,
   "endYear": 2030,
   "totalFiles": 6

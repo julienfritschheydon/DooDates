@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from "./supabase";
 
 interface GoogleCalendarEvent {
   id: string;
@@ -36,13 +36,15 @@ export class GoogleCalendarService {
 
   private async initializeToken() {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session?.provider_token) {
         this.accessToken = session.provider_token;
-        console.log('🗓️ Token Google Calendar récupéré');
+        console.log("🗓️ Token Google Calendar récupéré");
       }
     } catch (error) {
-      console.error('❌ Erreur récupération token:', error);
+      console.error("❌ Erreur récupération token:", error);
     }
   }
 
@@ -55,26 +57,29 @@ export class GoogleCalendarService {
   /**
    * Récupérer les événements du calendrier principal
    */
-  async getEvents(startDate: string, endDate: string): Promise<GoogleCalendarEvent[]> {
+  async getEvents(
+    startDate: string,
+    endDate: string,
+  ): Promise<GoogleCalendarEvent[]> {
     await this.refreshTokenIfNeeded();
-    
+
     if (!this.accessToken) {
-      throw new Error('Pas de token Google Calendar disponible');
+      throw new Error("Pas de token Google Calendar disponible");
     }
 
     try {
       const response = await fetch(
         `https://www.googleapis.com/calendar/v3/calendars/primary/events?` +
-        `timeMin=${encodeURIComponent(startDate)}&` +
-        `timeMax=${encodeURIComponent(endDate)}&` +
-        `singleEvents=true&` +
-        `orderBy=startTime`,
+          `timeMin=${encodeURIComponent(startDate)}&` +
+          `timeMax=${encodeURIComponent(endDate)}&` +
+          `singleEvents=true&` +
+          `orderBy=startTime`,
         {
           headers: {
-            'Authorization': `Bearer ${this.accessToken}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.accessToken}`,
+            "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -84,7 +89,7 @@ export class GoogleCalendarService {
       const data = await response.json();
       return data.items || [];
     } catch (error) {
-      console.error('❌ Erreur récupération événements:', error);
+      console.error("❌ Erreur récupération événements:", error);
       throw error;
     }
   }
@@ -92,28 +97,31 @@ export class GoogleCalendarService {
   /**
    * Vérifier les créneaux occupés/libres
    */
-  async getFreeBusy(startDate: string, endDate: string): Promise<Array<{start: string; end: string}>> {
+  async getFreeBusy(
+    startDate: string,
+    endDate: string,
+  ): Promise<Array<{ start: string; end: string }>> {
     await this.refreshTokenIfNeeded();
-    
+
     if (!this.accessToken) {
-      throw new Error('Pas de token Google Calendar disponible');
+      throw new Error("Pas de token Google Calendar disponible");
     }
 
     try {
       const response = await fetch(
         `https://www.googleapis.com/calendar/v3/freeBusy`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${this.accessToken}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.accessToken}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             timeMin: startDate,
             timeMax: endDate,
-            items: [{ id: 'primary' }],
+            items: [{ id: "primary" }],
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -123,7 +131,7 @@ export class GoogleCalendarService {
       const data: FreeBusyResponse = await response.json();
       return data.calendars.primary?.busy || [];
     } catch (error) {
-      console.error('❌ Erreur récupération créneaux occupés:', error);
+      console.error("❌ Erreur récupération créneaux occupés:", error);
       throw error;
     }
   }
@@ -133,8 +141,8 @@ export class GoogleCalendarService {
    */
   async analyzeAvailability(dates: string[]): Promise<{
     [date: string]: {
-      busy: Array<{start: string; end: string}>;
-      suggested: Array<{start: string; end: string}>;
+      busy: Array<{ start: string; end: string }>;
+      suggested: Array<{ start: string; end: string }>;
     };
   }> {
     const result: { [date: string]: any } = {};
@@ -143,12 +151,12 @@ export class GoogleCalendarService {
       try {
         const startDate = `${date}T00:00:00Z`;
         const endDate = `${date}T23:59:59Z`;
-        
+
         const busySlots = await this.getFreeBusy(startDate, endDate);
-        
+
         // Suggérer des créneaux libres (exemple : 9h-12h et 14h-17h si libres)
         const suggested = this.suggestFreeSlots(date, busySlots);
-        
+
         result[date] = {
           busy: busySlots,
           suggested: suggested,
@@ -168,9 +176,12 @@ export class GoogleCalendarService {
   /**
    * Suggérer des créneaux libres basés sur les créneaux occupés
    */
-  private suggestFreeSlots(date: string, busySlots: Array<{start: string; end: string}>): Array<{start: string; end: string}> {
-    const suggestions: Array<{start: string; end: string}> = [];
-    
+  private suggestFreeSlots(
+    date: string,
+    busySlots: Array<{ start: string; end: string }>,
+  ): Array<{ start: string; end: string }> {
+    const suggestions: Array<{ start: string; end: string }> = [];
+
     // Créneaux par défaut à vérifier (9h-12h et 14h-17h)
     const defaultSlots = [
       { start: `${date}T09:00:00`, end: `${date}T12:00:00` },
@@ -178,8 +189,8 @@ export class GoogleCalendarService {
     ];
 
     for (const slot of defaultSlots) {
-      const isSlotFree = !busySlots.some(busy => 
-        this.slotsOverlap(slot, busy)
+      const isSlotFree = !busySlots.some((busy) =>
+        this.slotsOverlap(slot, busy),
       );
 
       if (isSlotFree) {
@@ -193,7 +204,10 @@ export class GoogleCalendarService {
   /**
    * Vérifier si deux créneaux se chevauchent
    */
-  private slotsOverlap(slot1: {start: string; end: string}, slot2: {start: string; end: string}): boolean {
+  private slotsOverlap(
+    slot1: { start: string; end: string },
+    slot2: { start: string; end: string },
+  ): boolean {
     const start1 = new Date(slot1.start);
     const end1 = new Date(slot1.end);
     const start2 = new Date(slot2.start);
@@ -212,4 +226,4 @@ export class GoogleCalendarService {
 }
 
 // Instance singleton
-export const googleCalendar = new GoogleCalendarService(); 
+export const googleCalendar = new GoogleCalendarService();

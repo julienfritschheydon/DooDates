@@ -1,11 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 // Configuration Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  throw new Error("Missing Supabase environment variables");
 }
 
 // Client Supabase avec configuration optimisée
@@ -14,13 +14,13 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    flowType: 'pkce' // Plus sécurisé
+    flowType: "pkce", // Plus sécurisé
   },
   realtime: {
     params: {
-      eventsPerSecond: 10
-    }
-  }
+      eventsPerSecond: 10,
+    },
+  },
 });
 
 // Types pour TypeScript
@@ -35,7 +35,7 @@ export type Database = {
           avatar_url: string | null;
           timezone: string;
           preferences: Record<string, any>;
-          plan_type: 'free' | 'pro' | 'premium';
+          plan_type: "free" | "pro" | "premium";
           subscription_expires_at: string | null;
           created_at: string;
           updated_at: string;
@@ -47,7 +47,7 @@ export type Database = {
           avatar_url?: string | null;
           timezone?: string;
           preferences?: Record<string, any>;
-          plan_type?: 'free' | 'pro' | 'premium';
+          plan_type?: "free" | "pro" | "premium";
           subscription_expires_at?: string | null;
         };
         Update: {
@@ -55,7 +55,7 @@ export type Database = {
           avatar_url?: string | null;
           timezone?: string;
           preferences?: Record<string, any>;
-          plan_type?: 'free' | 'pro' | 'premium';
+          plan_type?: "free" | "pro" | "premium";
           subscription_expires_at?: string | null;
         };
       };
@@ -67,7 +67,7 @@ export type Database = {
           description: string | null;
           slug: string;
           settings: Record<string, any>;
-          status: 'draft' | 'active' | 'closed' | 'archived';
+          status: "draft" | "active" | "closed" | "archived";
           expires_at: string | null;
           created_at: string;
           updated_at: string;
@@ -78,14 +78,14 @@ export type Database = {
           description?: string | null;
           slug: string;
           settings?: Record<string, any>;
-          status?: 'draft' | 'active' | 'closed' | 'archived';
+          status?: "draft" | "active" | "closed" | "archived";
           expires_at?: string | null;
         };
         Update: {
           title?: string;
           description?: string | null;
           settings?: Record<string, any>;
-          status?: 'draft' | 'active' | 'closed' | 'archived';
+          status?: "draft" | "active" | "closed" | "archived";
           expires_at?: string | null;
         };
       };
@@ -149,7 +149,7 @@ export type Database = {
           messages: Record<string, any>[];
           context: Record<string, any>;
           poll_id: string | null;
-          status: 'active' | 'completed' | 'abandoned';
+          status: "active" | "completed" | "abandoned";
           created_at: string;
           updated_at: string;
         };
@@ -160,14 +160,14 @@ export type Database = {
           messages?: Record<string, any>[];
           context?: Record<string, any>;
           poll_id?: string | null;
-          status?: 'active' | 'completed' | 'abandoned';
+          status?: "active" | "completed" | "abandoned";
         };
         Update: {
           title?: string | null;
           messages?: Record<string, any>[];
           context?: Record<string, any>;
           poll_id?: string | null;
-          status?: 'active' | 'completed' | 'abandoned';
+          status?: "active" | "completed" | "abandoned";
         };
       };
       analytics_events: {
@@ -196,11 +196,11 @@ export type Database = {
 
 // Helper pour les erreurs Supabase
 export function handleSupabaseError(error: any) {
-  console.error('Supabase error:', error);
-  
+  console.error("Supabase error:", error);
+
   if (error?.message) {
     return error.message;
   }
-  
-  return 'Une erreur inattendue s\'est produite';
-} 
+
+  return "Une erreur inattendue s'est produite";
+}

@@ -30,26 +30,49 @@ export interface PreGeneratedCalendar {
 }
 
 class CalendarGenerator {
-  private dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-  private monthNames = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 
-                       'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  private dayNames = [
+    "dimanche",
+    "lundi",
+    "mardi",
+    "mercredi",
+    "jeudi",
+    "vendredi",
+    "samedi",
+  ];
+  private monthNames = [
+    "janvier",
+    "février",
+    "mars",
+    "avril",
+    "mai",
+    "juin",
+    "juillet",
+    "août",
+    "septembre",
+    "octobre",
+    "novembre",
+    "décembre",
+  ];
 
   // Jours fériés fixes français (optionnel)
   private fixedHolidays = [
-    { month: 1, day: 1 },   // Jour de l'An
-    { month: 5, day: 1 },   // Fête du Travail
-    { month: 5, day: 8 },   // Victoire 1945
-    { month: 7, day: 14 },  // Fête Nationale
-    { month: 8, day: 15 },  // Assomption
-    { month: 11, day: 1 },  // Toussaint
+    { month: 1, day: 1 }, // Jour de l'An
+    { month: 5, day: 1 }, // Fête du Travail
+    { month: 5, day: 8 }, // Victoire 1945
+    { month: 7, day: 14 }, // Fête Nationale
+    { month: 8, day: 15 }, // Assomption
+    { month: 11, day: 1 }, // Toussaint
     { month: 11, day: 11 }, // Armistice
-    { month: 12, day: 25 }  // Noël
+    { month: 12, day: 25 }, // Noël
   ];
 
-  generateCalendar(startYear: number = new Date().getFullYear(), yearsCount: number = 100): PreGeneratedCalendar {
+  generateCalendar(
+    startYear: number = new Date().getFullYear(),
+    yearsCount: number = 100,
+  ): PreGeneratedCalendar {
     const endYear = startYear + yearsCount - 1;
     const days: CalendarDay[] = [];
-    
+
     // Index pour recherche rapide
     const byYear: Record<number, CalendarDay[]> = {};
     const byMonth: Record<string, CalendarDay[]> = {};
@@ -57,31 +80,33 @@ class CalendarGenerator {
     const weekends: CalendarDay[] = [];
     const weekdays: CalendarDay[] = [];
 
-    console.log(`🗓️ Génération du calendrier ${startYear}-${endYear} (${yearsCount} ans)`);
+    console.log(
+      `🗓️ Génération du calendrier ${startYear}-${endYear} (${yearsCount} ans)`,
+    );
 
     for (let year = startYear; year <= endYear; year++) {
       byYear[year] = [];
-      
+
       for (let month = 0; month < 12; month++) {
-        const monthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+        const monthKey = `${year}-${(month + 1).toString().padStart(2, "0")}`;
         byMonth[monthKey] = [];
-        
+
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        
+
         for (let day = 1; day <= daysInMonth; day++) {
           const date = new Date(year, month, day);
-          const dateStr = date.toISOString().split('T')[0];
+          const dateStr = date.toISOString().split("T")[0];
           const dayOfWeek = date.getDay();
-          
+
           // Calculer le numéro de semaine
           const weekNumber = this.getWeekNumber(date);
-          
+
           // Calculer le trimestre
           const quarterNumber = Math.ceil((month + 1) / 3);
-          
+
           // Vérifier si c'est un jour férié
           const isHoliday = this.isFixedHoliday(month + 1, day);
-          
+
           const calendarDay: CalendarDay = {
             date: dateStr,
             year,
@@ -93,19 +118,19 @@ class CalendarGenerator {
             isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
             isHoliday,
             weekNumber,
-            quarterNumber
+            quarterNumber,
           };
 
           // Ajouter aux index
           days.push(calendarDay);
           byYear[year].push(calendarDay);
           byMonth[monthKey].push(calendarDay);
-          
+
           if (!byDayOfWeek[dayOfWeek]) {
             byDayOfWeek[dayOfWeek] = [];
           }
           byDayOfWeek[dayOfWeek].push(calendarDay);
-          
+
           if (calendarDay.isWeekend) {
             weekends.push(calendarDay);
           } else {
@@ -115,7 +140,9 @@ class CalendarGenerator {
       }
     }
 
-    console.log(`✅ Calendrier généré: ${days.length} jours, ${weekends.length} week-ends, ${weekdays.length} jours ouvrables`);
+    console.log(
+      `✅ Calendrier généré: ${days.length} jours, ${weekends.length} week-ends, ${weekdays.length} jours ouvrables`,
+    );
 
     return {
       startYear,
@@ -126,52 +153,57 @@ class CalendarGenerator {
       byMonth,
       byDayOfWeek,
       weekends,
-      weekdays
+      weekdays,
     };
   }
 
   private getWeekNumber(date: Date): number {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const d = new Date(
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+    );
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   }
 
   private isFixedHoliday(month: number, day: number): boolean {
-    return this.fixedHolidays.some(holiday => 
-      holiday.month === month && holiday.day === day
+    return this.fixedHolidays.some(
+      (holiday) => holiday.month === month && holiday.day === day,
     );
   }
 }
 
 // Cache optimisé par année pour éviter le dépassement de quota localStorage
 const yearlyCalendarCache = new Map<number, CalendarDay[]>();
-const CACHE_VERSION = '1.1';
+const CACHE_VERSION = "1.1";
 
 export function getPreGeneratedCalendar(): PreGeneratedCalendar {
-  console.log('🚀 Initialisation du calendrier progressif...');
-  
+  console.log("🚀 Initialisation du calendrier progressif...");
+
   // NOUVELLE OPTIMISATION: Calendrier progressif par année !
-  console.time('⚡ Calendrier progressif');
-  
+  console.time("⚡ Calendrier progressif");
+
   // Import du système progressif
-  return import('./progressive-calendar').then(module => {
-    console.timeEnd('⚡ Calendrier progressif');
-    return module.getProgressiveCalendar();
-  }).catch(() => {
-    // Fallback: ancien système si le progressif échoue
-    console.log('📅 Fallback: calendrier statique');
-    return import('./calendar-data').then(module => {
-      return module.getStaticCalendar();
-    });
-  }).catch(() => {
-    // Fallback final: génération dynamique
-    console.log('📅 Fallback final: génération dynamique');
-    const generator = new CalendarGenerator();
-    const currentYear = new Date().getFullYear();
-    return generator.generateCalendar(currentYear, 2);
-  }) as any;
+  return import("./progressive-calendar")
+    .then((module) => {
+      console.timeEnd("⚡ Calendrier progressif");
+      return module.getProgressiveCalendar();
+    })
+    .catch(() => {
+      // Fallback: ancien système si le progressif échoue
+      console.log("📅 Fallback: calendrier statique");
+      return import("./calendar-data").then((module) => {
+        return module.getStaticCalendar();
+      });
+    })
+    .catch(() => {
+      // Fallback final: génération dynamique
+      console.log("📅 Fallback final: génération dynamique");
+      const generator = new CalendarGenerator();
+      const currentYear = new Date().getFullYear();
+      return generator.generateCalendar(currentYear, 2);
+    }) as any;
 }
 
 // Cache global pour le calendrier progressif
@@ -179,28 +211,28 @@ let globalProgressiveCalendar: PreGeneratedCalendar | null = null;
 
 // Version synchrone pour compatibilité (utilise le cache global)
 export function getPreGeneratedCalendarSync(): PreGeneratedCalendar {
-  console.log('🚀 Calendrier synchrone avec cache...');
-  
+  console.log("🚀 Calendrier synchrone avec cache...");
+
   // Vérifier d'abord le cache global du calendrier progressif
   if (globalProgressiveCalendar) {
-    console.log('⚡ Calendrier progressif - Cache global synchrone');
+    console.log("⚡ Calendrier progressif - Cache global synchrone");
     return globalProgressiveCalendar;
   }
-  
+
   // Essayer d'importer le calendrier statique de manière synchrone
   try {
-    const { getStaticCalendarSync } = require('./calendar-data');
+    const { getStaticCalendarSync } = require("./calendar-data");
     const result = getStaticCalendarSync();
     if (result.totalDays > 0) {
-      console.log('⚡ Calendrier statique synchrone');
+      console.log("⚡ Calendrier statique synchrone");
       return result;
     }
   } catch (e) {
-    console.warn('⚠️ Calendrier statique non disponible');
+    console.warn("⚠️ Calendrier statique non disponible");
   }
-  
+
   // Fallback: génération dynamique minimale (1 an seulement)
-  console.log('📅 Fallback synchrone: génération 1 an');
+  console.log("📅 Fallback synchrone: génération 1 an");
   const generator = new CalendarGenerator();
   const currentYear = new Date().getFullYear();
   return generator.generateCalendar(currentYear, 1); // 1 an au lieu de 10
@@ -209,7 +241,7 @@ export function getPreGeneratedCalendarSync(): PreGeneratedCalendar {
 // Fonction pour initialiser le cache global (appelée par App.tsx)
 export function initializeGlobalCalendarCache(calendar: PreGeneratedCalendar) {
   globalProgressiveCalendar = calendar;
-  console.log('📋 Cache global calendrier initialisé');
+  console.log("📋 Cache global calendrier initialisé");
 }
 
 // Fonction pour obtenir des données d'une année spécifique (avec cache)
@@ -219,7 +251,7 @@ export function getYearCalendar(year: number): CalendarDay[] {
   }
 
   // Vérifier le cache localStorage pour cette année
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     try {
       const cacheKey = `doodates-year-${year}`;
       const cached = localStorage.getItem(cacheKey);
@@ -239,25 +271,30 @@ export function getYearCalendar(year: number): CalendarDay[] {
   const generator = new CalendarGenerator();
   const yearCalendar = generator.generateCalendar(year, 1);
   const yearDays = yearCalendar.days;
-  
+
   // Sauvegarder en cache mémoire
   yearlyCalendarCache.set(year, yearDays);
-  
+
   // Sauvegarder en localStorage (une année à la fois)
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     try {
       const cacheKey = `doodates-year-${year}`;
-      localStorage.setItem(cacheKey, JSON.stringify({
-        version: CACHE_VERSION,
-        year,
-        generated: new Date().toISOString(),
-        data: yearDays
-      }));
+      localStorage.setItem(
+        cacheKey,
+        JSON.stringify({
+          version: CACHE_VERSION,
+          year,
+          generated: new Date().toISOString(),
+          data: yearDays,
+        }),
+      );
     } catch (e) {
-      console.warn(`Impossible de sauvegarder l'année ${year} en localStorage (quota dépassé)`);
+      console.warn(
+        `Impossible de sauvegarder l'année ${year} en localStorage (quota dépassé)`,
+      );
     }
   }
-  
+
   return yearDays;
 }
 
@@ -282,8 +319,8 @@ export class CalendarQuery {
 
     for (let year = startYear; year <= endYear; year++) {
       const yearDays = this.getYearDays(year);
-      const filteredDays = yearDays.filter(day => 
-        day.date >= startDate && day.date <= endDate
+      const filteredDays = yearDays.filter(
+        (day) => day.date >= startDate && day.date <= endDate,
       );
       days.push(...filteredDays);
     }
@@ -294,10 +331,13 @@ export class CalendarQuery {
   // Obtenir les jours d'une année (avec cache)
   private getYearDays(year: number): CalendarDay[] {
     // Vérifier si l'année est dans le calendrier de base
-    if (year >= this.baseCalendar.startYear && year <= this.baseCalendar.endYear) {
+    if (
+      year >= this.baseCalendar.startYear &&
+      year <= this.baseCalendar.endYear
+    ) {
       return this.baseCalendar.byYear[year] || [];
     }
-    
+
     // Sinon, charger à la demande
     return getYearCalendar(year);
   }
@@ -310,63 +350,75 @@ export class CalendarQuery {
   // Obtenir tous les week-ends d'une période
   getWeekendsInRange(startDate: string, endDate: string): CalendarDay[] {
     const days = this.getDaysInRange(startDate, endDate);
-    return days.filter(day => day.isWeekend);
+    return days.filter((day) => day.isWeekend);
   }
 
   // Obtenir tous les jours ouvrables d'une période
   getWeekdaysInRange(startDate: string, endDate: string): CalendarDay[] {
     const days = this.getDaysInRange(startDate, endDate);
-    return days.filter(day => !day.isWeekend);
+    return days.filter((day) => !day.isWeekend);
   }
 
   // Obtenir N occurrences d'un jour de la semaine à partir d'une date
-  getNextNDaysOfWeek(dayOfWeek: number, count: number, fromDate: string): CalendarDay[] {
+  getNextNDaysOfWeek(
+    dayOfWeek: number,
+    count: number,
+    fromDate: string,
+  ): CalendarDay[] {
     const days: CalendarDay[] = [];
     const fromDateObj = new Date(fromDate);
     const currentYear = fromDateObj.getFullYear();
-    
+
     // Rechercher dans les années suivantes jusqu'à avoir assez de jours
-    for (let year = currentYear; year <= currentYear + 10 && days.length < count; year++) {
+    for (
+      let year = currentYear;
+      year <= currentYear + 10 && days.length < count;
+      year++
+    ) {
       const yearDays = this.getYearDays(year);
       const matchingDays = yearDays
-        .filter(day => day.dayOfWeek === dayOfWeek && day.date >= fromDate)
+        .filter((day) => day.dayOfWeek === dayOfWeek && day.date >= fromDate)
         .slice(0, count - days.length);
       days.push(...matchingDays);
     }
-    
+
     return days.slice(0, count);
   }
 
   // Obtenir tous les jours d'un mois
   getDaysInMonth(year: number, month: number): CalendarDay[] {
     const yearDays = this.getYearDays(year);
-    return yearDays.filter(day => day.month === month);
+    return yearDays.filter((day) => day.month === month);
   }
 
   // Obtenir les jours d'une semaine spécifique
-  getDaysOfWeekInRange(dayOfWeek: number, startDate: string, endDate: string): CalendarDay[] {
+  getDaysOfWeekInRange(
+    dayOfWeek: number,
+    startDate: string,
+    endDate: string,
+  ): CalendarDay[] {
     const days = this.getDaysInRange(startDate, endDate);
-    return days.filter(day => day.dayOfWeek === dayOfWeek);
+    return days.filter((day) => day.dayOfWeek === dayOfWeek);
   }
 
   // Obtenir les week-ends d'une période spécifique (mois)
   getWeekendsInMonths(startMonth: string, endMonth: string): CalendarDay[] {
     const weekends: CalendarDay[] = [];
-    
+
     // Parcourir tous les mois dans la période
-    const [startYear, startMonthNum] = startMonth.split('-').map(Number);
-    const [endYear, endMonthNum] = endMonth.split('-').map(Number);
-    
+    const [startYear, startMonthNum] = startMonth.split("-").map(Number);
+    const [endYear, endMonthNum] = endMonth.split("-").map(Number);
+
     for (let year = startYear; year <= endYear; year++) {
       const monthStart = year === startYear ? startMonthNum : 1;
       const monthEnd = year === endYear ? endMonthNum : 12;
-      
+
       for (let month = monthStart; month <= monthEnd; month++) {
         const monthDays = this.getDaysInMonth(year, month);
-        weekends.push(...monthDays.filter(day => day.isWeekend));
+        weekends.push(...monthDays.filter((day) => day.isWeekend));
       }
     }
-    
+
     return weekends;
   }
 
@@ -381,25 +433,25 @@ export class CalendarQuery {
       totalDays: this.baseCalendar.totalDays,
       weekends: this.baseCalendar.weekends.length,
       weekdays: this.baseCalendar.weekdays.length,
-      years: this.baseCalendar.endYear - this.baseCalendar.startYear + 1
+      years: this.baseCalendar.endYear - this.baseCalendar.startYear + 1,
     };
   }
 }
 
 // Fonction utilitaire pour nettoyer le cache localStorage
 export function clearCalendarCache(): void {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Nettoyer l'ancien cache global
     try {
-      localStorage.removeItem('doodates-calendar-cache');
+      localStorage.removeItem("doodates-calendar-cache");
     } catch (e) {
-      console.warn('Impossible de nettoyer le cache global');
+      console.warn("Impossible de nettoyer le cache global");
     }
-    
+
     // Nettoyer les caches par année
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key?.startsWith('doodates-year-')) {
+      if (key?.startsWith("doodates-year-")) {
         try {
           localStorage.removeItem(key);
         } catch (e) {
@@ -407,10 +459,10 @@ export function clearCalendarCache(): void {
         }
       }
     }
-    
-    console.log('🧹 Cache calendrier nettoyé');
+
+    console.log("🧹 Cache calendrier nettoyé");
   }
-  
+
   // Nettoyer le cache mémoire
   yearlyCalendarCache.clear();
 }

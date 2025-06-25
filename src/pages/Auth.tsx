@@ -1,16 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { SignInForm } from '../components/auth/SignInForm';
-import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Alert, AlertDescription } from '../components/ui/alert';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { SignUpSchema, SignUpInput } from '../lib/schemas';
-import { Loader2, Mail, Lock, User } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { SignInForm } from "../components/auth/SignInForm";
+import { useAuth } from "../contexts/AuthContext";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SignUpSchema, SignUpInput } from "../lib/schemas";
+import { Loader2, Mail, Lock, User } from "lucide-react";
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -32,20 +38,20 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
 
   const onSubmit = async (data: SignUpInput) => {
     setIsSubmitting(true);
-    
+
     try {
       const { error } = await signUp(data);
-      
+
       if (error) {
-        setError('root', { 
-          message: error.message || 'Erreur lors de l\'inscription' 
+        setError("root", {
+          message: error.message || "Erreur lors de l'inscription",
         });
       } else {
         onSuccess?.();
       }
     } catch (err) {
-      setError('root', { 
-        message: 'Une erreur inattendue s\'est produite' 
+      setError("root", {
+        message: "Une erreur inattendue s'est produite",
       });
     } finally {
       setIsSubmitting(false);
@@ -55,15 +61,15 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
   const handleGoogleSignIn = async () => {
     try {
       const { error } = await signInWithGoogle();
-      
+
       if (error) {
-        setError('root', { 
-          message: error.message || 'Erreur de connexion Google' 
+        setError("root", {
+          message: error.message || "Erreur de connexion Google",
         });
       }
     } catch (err) {
-      setError('root', { 
-        message: 'Erreur de connexion Google' 
+      setError("root", {
+        message: "Erreur de connexion Google",
       });
     }
   };
@@ -76,7 +82,7 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
           Créez votre compte DooDates
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Bouton Google */}
         <Button
@@ -129,11 +135,13 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
                 type="text"
                 placeholder="Votre nom complet"
                 className="pl-10"
-                {...register('fullName')}
+                {...register("fullName")}
               />
             </div>
             {errors.fullName && (
-              <p className="text-sm text-destructive">{errors.fullName.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.fullName.message}
+              </p>
             )}
           </div>
 
@@ -146,7 +154,7 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
                 type="email"
                 placeholder="votre@email.com"
                 className="pl-10"
-                {...register('email')}
+                {...register("email")}
               />
             </div>
             {errors.email && (
@@ -163,11 +171,13 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
                 type="password"
                 placeholder="••••••••"
                 className="pl-10"
-                {...register('password')}
+                {...register("password")}
               />
             </div>
             {errors.password && (
-              <p className="text-sm text-destructive">{errors.password.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
@@ -180,11 +190,13 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
                 type="password"
                 placeholder="••••••••"
                 className="pl-10"
-                {...register('confirmPassword')}
+                {...register("confirmPassword")}
               />
             </div>
             {errors.confirmPassword && (
-              <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.confirmPassword.message}
+              </p>
             )}
           </div>
 
@@ -197,9 +209,9 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
             </Alert>
           )}
 
-          <Button 
-            type="submit" 
-            className="w-full" 
+          <Button
+            type="submit"
+            className="w-full"
             disabled={isSubmitting || loading}
           >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -228,58 +240,71 @@ export function Auth() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading, signInWithGoogle } = useAuth();
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
 
   // Détecter l'intention de connexion calendrier
-  const connectCalendar = searchParams.get('connect') === 'calendar';
-  const needsCalendarConnection = localStorage.getItem('doodates-connect-calendar') === 'true';
+  const connectCalendar = searchParams.get("connect") === "calendar";
+  const needsCalendarConnection =
+    localStorage.getItem("doodates-connect-calendar") === "true";
 
   // Auto-connexion Google pour le calendrier (une seule fois)
   useEffect(() => {
-    if ((connectCalendar || needsCalendarConnection) && !user && !loading && !autoConnectAttempted) {
-      console.log('🗓️ Connexion automatique au calendrier Google...');
+    if (
+      (connectCalendar || needsCalendarConnection) &&
+      !user &&
+      !loading &&
+      !autoConnectAttempted
+    ) {
+      console.log("🗓️ Connexion automatique au calendrier Google...");
       setAutoConnectAttempted(true);
-      
+
       const timer = setTimeout(async () => {
         try {
           const { error } = await signInWithGoogle();
           if (error) {
-            console.error('❌ Erreur connexion Google Calendar:', error);
+            console.error("❌ Erreur connexion Google Calendar:", error);
             setAutoConnectAttempted(false); // Permettre une nouvelle tentative
           }
         } catch (err) {
-          console.error('❌ Erreur connexion Google Calendar:', err);
+          console.error("❌ Erreur connexion Google Calendar:", err);
           setAutoConnectAttempted(false); // Permettre une nouvelle tentative
         }
       }, 500);
 
       return () => clearTimeout(timer);
     }
-  }, [connectCalendar, needsCalendarConnection, user, loading, autoConnectAttempted, signInWithGoogle]);
+  }, [
+    connectCalendar,
+    needsCalendarConnection,
+    user,
+    loading,
+    autoConnectAttempted,
+    signInWithGoogle,
+  ]);
 
   // Redirection des utilisateurs authentifiés
   useEffect(() => {
     if (user && !loading) {
-      const returnTo = localStorage.getItem('doodates-return-to');
-      if (returnTo === 'create') {
-        localStorage.removeItem('doodates-return-to');
-        localStorage.removeItem('doodates-connect-calendar');
-        navigate('/create', { replace: true });
+      const returnTo = localStorage.getItem("doodates-return-to");
+      if (returnTo === "create") {
+        localStorage.removeItem("doodates-return-to");
+        localStorage.removeItem("doodates-connect-calendar");
+        navigate("/create", { replace: true });
       } else {
-        navigate('/', { replace: true });
+        navigate("/", { replace: true });
       }
     }
   }, [user, loading, navigate]);
 
   const handleAuthSuccess = () => {
-    const returnTo = localStorage.getItem('doodates-return-to');
-    if (returnTo === 'create') {
-      localStorage.removeItem('doodates-return-to');
-      localStorage.removeItem('doodates-connect-calendar');
-      navigate('/create', { replace: true });
+    const returnTo = localStorage.getItem("doodates-return-to");
+    if (returnTo === "create") {
+      localStorage.removeItem("doodates-return-to");
+      localStorage.removeItem("doodates-connect-calendar");
+      navigate("/create", { replace: true });
     } else {
-      navigate('/', { replace: true });
+      navigate("/", { replace: true });
     }
   };
 
@@ -310,20 +335,33 @@ export function Auth() {
           <div className="bg-white shadow rounded-lg p-6">
             <div className="text-center space-y-4">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <svg
+                  className="w-8 h-8 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
               </div>
               <h2 className="text-xl font-semibold text-gray-900">
                 Connecter votre calendrier Google
               </h2>
               <p className="text-sm text-gray-600">
-                Nous vous redirigeons vers Google pour accéder à votre calendrier et suggérer les meilleurs créneaux disponibles.
+                Nous vous redirigeons vers Google pour accéder à votre
+                calendrier et suggérer les meilleurs créneaux disponibles.
               </p>
               {!autoConnectAttempted ? (
                 <div className="flex items-center justify-center mt-4">
                   <Loader2 className="h-5 w-5 animate-spin text-blue-600 mr-2" />
-                  <span className="text-sm text-gray-600">Connexion en cours...</span>
+                  <span className="text-sm text-gray-600">
+                    Connexion en cours...
+                  </span>
                 </div>
               ) : (
                 <Button
@@ -354,15 +392,15 @@ export function Auth() {
           </p>
         </div>
 
-        {mode === 'signin' ? (
+        {mode === "signin" ? (
           <SignInForm
             onSuccess={handleAuthSuccess}
-            onSwitchToSignUp={() => setMode('signup')}
+            onSwitchToSignUp={() => setMode("signup")}
           />
         ) : (
           <SignUpForm
             onSuccess={handleAuthSuccess}
-            onSwitchToSignIn={() => setMode('signin')}
+            onSwitchToSignIn={() => setMode("signin")}
           />
         )}
       </div>
@@ -378,29 +416,29 @@ export function AuthCallback() {
   useEffect(() => {
     const handleCallback = async () => {
       // Vérifier s'il y a des erreurs dans l'URL
-      const error = searchParams.get('error');
-      const errorDescription = searchParams.get('error_description');
-      
+      const error = searchParams.get("error");
+      const errorDescription = searchParams.get("error_description");
+
       if (error) {
-        console.error('OAuth Error:', error, errorDescription);
-        navigate('/auth', { replace: true });
+        console.error("OAuth Error:", error, errorDescription);
+        navigate("/auth", { replace: true });
         return;
       }
 
       // Attendre que Supabase traite la session
       const timer = setTimeout(() => {
         if (user) {
-          console.log('User authenticated, redirecting appropriately');
-          const returnTo = localStorage.getItem('doodates-return-to');
-          if (returnTo === 'create') {
-            localStorage.removeItem('doodates-return-to');
-            navigate('/create', { replace: true });
+          console.log("User authenticated, redirecting appropriately");
+          const returnTo = localStorage.getItem("doodates-return-to");
+          if (returnTo === "create") {
+            localStorage.removeItem("doodates-return-to");
+            navigate("/create", { replace: true });
           } else {
-            navigate('/', { replace: true });
+            navigate("/", { replace: true });
           }
         } else if (!loading) {
-          console.log('No user found after callback, redirecting to auth');
-          navigate('/auth', { replace: true });
+          console.log("No user found after callback, redirecting to auth");
+          navigate("/auth", { replace: true });
         }
       }, 2000); // Augmenté à 2 secondes pour laisser plus de temps
 
@@ -414,10 +452,16 @@ export function AuthCallback() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">
         <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-        <h2 className="text-lg font-semibold text-gray-900">Connexion en cours...</h2>
-        <p className="text-sm text-gray-600 mt-2">Veuillez patienter pendant que nous finalisons votre connexion.</p>
+        <h2 className="text-lg font-semibold text-gray-900">
+          Connexion en cours...
+        </h2>
+        <p className="text-sm text-gray-600 mt-2">
+          Veuillez patienter pendant que nous finalisons votre connexion.
+        </p>
         {user && (
-          <p className="text-xs text-green-600 mt-2">Utilisateur connecté, redirection...</p>
+          <p className="text-xs text-green-600 mt-2">
+            Utilisateur connecté, redirection...
+          </p>
         )}
       </div>
     </div>
@@ -425,4 +469,4 @@ export function AuthCallback() {
 }
 
 // Export par défaut pour compatibilité avec l'import existant dans App.tsx
-export default Auth; 
+export default Auth;

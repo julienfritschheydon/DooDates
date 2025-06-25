@@ -4,9 +4,12 @@ interface TimeSlot {
   enabled: boolean;
 }
 
-export const generateTimeSlots = (showExtendedHours: boolean, timeGranularity: number): { hour: number; minute: number; label: string }[] => {
-  console.time('⏰ generateTimeSlots - Lazy function');
-  
+export const generateTimeSlots = (
+  showExtendedHours: boolean,
+  timeGranularity: number,
+): { hour: number; minute: number; label: string }[] => {
+  console.time("⏰ generateTimeSlots - Lazy function");
+
   const slots: { hour: number; minute: number; label: string }[] = [];
   const startHour = showExtendedHours ? 6 : 8;
   const endHour = showExtendedHours ? 23 : 20;
@@ -14,36 +17,38 @@ export const generateTimeSlots = (showExtendedHours: boolean, timeGranularity: n
   for (let hour = startHour; hour <= endHour; hour++) {
     for (let minute = 0; minute < 60; minute += timeGranularity) {
       if (hour === endHour && minute > 0) break;
-      
-      const label = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+
+      const label = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
       slots.push({ hour, minute, label });
     }
   }
-  
-  console.timeEnd('⏰ generateTimeSlots - Lazy function');
+
+  console.timeEnd("⏰ generateTimeSlots - Lazy function");
   return slots;
 };
 
 export const getVisibleTimeSlots = (
-  showExtendedHours: boolean, 
+  showExtendedHours: boolean,
   timeGranularity: number,
-  timeSlotsByDate: Record<string, TimeSlot[]>
+  timeSlotsByDate: Record<string, TimeSlot[]>,
 ) => {
-  console.time('⏰ getVisibleTimeSlots - Lazy function');
-  
+  console.time("⏰ getVisibleTimeSlots - Lazy function");
+
   const allSlots = generateTimeSlots(showExtendedHours, timeGranularity);
 
   if (showExtendedHours) {
-    console.timeEnd('⏰ getVisibleTimeSlots - Lazy function');
+    console.timeEnd("⏰ getVisibleTimeSlots - Lazy function");
     return allSlots;
   } else {
     // Détecter la plage d'horaires pré-sélectionnés - optimisé
     const enabledHours = new Set<number>();
-    
-    Object.values(timeSlotsByDate).forEach(slots => {
-      slots.filter(slot => slot.enabled).forEach(slot => {
-        enabledHours.add(slot.hour);
-      });
+
+    Object.values(timeSlotsByDate).forEach((slots) => {
+      slots
+        .filter((slot) => slot.enabled)
+        .forEach((slot) => {
+          enabledHours.add(slot.hour);
+        });
     });
 
     let result;
@@ -51,30 +56,33 @@ export const getVisibleTimeSlots = (
       // Si des créneaux sont pré-sélectionnés, afficher une plage autour d'eux
       const minHour = Math.max(Math.min(...enabledHours) - 1, 0);
       const maxHour = Math.min(Math.max(...enabledHours) + 2, 23);
-      result = allSlots.filter((slot) => slot.hour >= minHour && slot.hour <= maxHour);
+      result = allSlots.filter(
+        (slot) => slot.hour >= minHour && slot.hour <= maxHour,
+      );
     } else {
       // Plage par défaut réduite si aucun créneau pré-sélectionné
       result = allSlots.filter((slot) => slot.hour >= 8 && slot.hour <= 20);
     }
-    
-    console.timeEnd('⏰ getVisibleTimeSlots - Lazy function');
+
+    console.timeEnd("⏰ getVisibleTimeSlots - Lazy function");
     return result;
   }
 };
 
 export const getTimeSlotBlocks = (
-  dateStr: string, 
+  dateStr: string,
   timeSlotsByDate: Record<string, TimeSlot[]>,
-  timeGranularity: number
+  timeGranularity: number,
 ): {
   start: { hour: number; minute: number };
   end: { hour: number; minute: number };
 }[] => {
-  console.time('⏰ getTimeSlotBlocks - Lazy function');
-  
+  console.time("⏰ getTimeSlotBlocks - Lazy function");
+
   const slots = timeSlotsByDate[dateStr] || [];
-  const enabledSlots = slots.filter((slot) => slot.enabled)
-    .sort((a, b) => (a.hour * 60 + a.minute) - (b.hour * 60 + b.minute));
+  const enabledSlots = slots
+    .filter((slot) => slot.enabled)
+    .sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
 
   const blocks: {
     start: { hour: number; minute: number };
@@ -89,7 +97,8 @@ export const getTimeSlotBlocks = (
     if (!currentBlock) {
       currentBlock = { start: slot, end: slot };
     } else {
-      const blockEndMinutes = currentBlock.end.hour * 60 + currentBlock.end.minute;
+      const blockEndMinutes =
+        currentBlock.end.hour * 60 + currentBlock.end.minute;
 
       if (slotMinutes === blockEndMinutes + timeGranularity) {
         currentBlock.end = slot;
@@ -104,25 +113,29 @@ export const getTimeSlotBlocks = (
     blocks.push(currentBlock);
   }
 
-  console.timeEnd('⏰ getTimeSlotBlocks - Lazy function');
+  console.timeEnd("⏰ getTimeSlotBlocks - Lazy function");
   return blocks;
 };
 
 export const toggleTimeSlotForDate = (
-  dateStr: string, 
-  hour: number, 
+  dateStr: string,
+  hour: number,
   minute: number,
-  timeSlotsByDate: Record<string, TimeSlot[]>
+  timeSlotsByDate: Record<string, TimeSlot[]>,
 ): Record<string, TimeSlot[]> => {
-  console.time('⏰ toggleTimeSlotForDate - Lazy function');
-  
+  console.time("⏰ toggleTimeSlotForDate - Lazy function");
+
   const currentSlots = timeSlotsByDate[dateStr] || [];
-  const existingSlot = currentSlots.find((s) => s.hour === hour && s.minute === minute);
+  const existingSlot = currentSlots.find(
+    (s) => s.hour === hour && s.minute === minute,
+  );
 
   let newSlots;
   if (existingSlot) {
     newSlots = currentSlots.map((slot) =>
-      slot.hour === hour && slot.minute === minute ? { ...slot, enabled: !slot.enabled } : slot
+      slot.hour === hour && slot.minute === minute
+        ? { ...slot, enabled: !slot.enabled }
+        : slot,
     );
   } else {
     newSlots = [...currentSlots, { hour, minute, enabled: true }];
@@ -132,25 +145,27 @@ export const toggleTimeSlotForDate = (
     ...timeSlotsByDate,
     [dateStr]: newSlots,
   };
-  
-  console.timeEnd('⏰ toggleTimeSlotForDate - Lazy function');
+
+  console.timeEnd("⏰ toggleTimeSlotForDate - Lazy function");
   return result;
 };
 
 export const formatSelectedDateHeader = (dateStr: string) => {
-  console.time('⏰ formatSelectedDateHeader - Lazy function');
-  
+  console.time("⏰ formatSelectedDateHeader - Lazy function");
+
   // Parser la date en mode local pour éviter les décalages timezone
-  const [year, month, day] = dateStr.split('-').map(Number);
+  const [year, month, day] = dateStr.split("-").map(Number);
   const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
 
   const result = {
-    dayName: date.toLocaleDateString('fr-FR', { weekday: 'short' }).toLowerCase(),
+    dayName: date
+      .toLocaleDateString("fr-FR", { weekday: "short" })
+      .toLowerCase(),
     dayNumber: date.getDate(),
-    month: date.toLocaleDateString('fr-FR', { month: 'short' }).toLowerCase()
+    month: date.toLocaleDateString("fr-FR", { month: "short" }).toLowerCase(),
   };
-  
-  console.timeEnd('⏰ formatSelectedDateHeader - Lazy function');
+
+  console.timeEnd("⏰ formatSelectedDateHeader - Lazy function");
   return result;
 };
 
@@ -158,26 +173,27 @@ export const isGranularityCompatible = (
   newGranularity: number,
   selectedDates: string[],
   timeSlotsByDate: Record<string, TimeSlot[]>,
-  currentGranularity: number
+  currentGranularity: number,
 ): boolean => {
-  console.time('⏰ isGranularityCompatible - Lazy function');
-  
+  console.time("⏰ isGranularityCompatible - Lazy function");
+
   if (newGranularity > currentGranularity) {
     for (const dateStr of selectedDates) {
       const slots = timeSlotsByDate[dateStr] || [];
-      const enabledSlots = slots.filter((slot) => slot.enabled)
-        .sort((a, b) => (a.hour * 60 + a.minute) - (b.hour * 60 + b.minute));
+      const enabledSlots = slots
+        .filter((slot) => slot.enabled)
+        .sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
 
       for (const slot of enabledSlots) {
         const slotMinutes = slot.hour * 60 + slot.minute;
         if (slotMinutes % newGranularity !== 0) {
-          console.timeEnd('⏰ isGranularityCompatible - Lazy function');
+          console.timeEnd("⏰ isGranularityCompatible - Lazy function");
           return false;
         }
       }
     }
   }
-  
-  console.timeEnd('⏰ isGranularityCompatible - Lazy function');
+
+  console.timeEnd("⏰ isGranularityCompatible - Lazy function");
   return true;
-}; 
+};
