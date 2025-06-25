@@ -19,25 +19,31 @@ Interface centralisée pour gérer tous les sondages et interactions
 
 ### Parcours 1 : Créateur de Sondage (Organisateur)
 
-#### Étape 1 : Arrivée sur DooDates
+#### Étape 1 : Arrivée sur DooDates ✅ VALIDÉE
 - **URL :** `http://localhost:8080/`
 - **Action :** Clic sur "Créer" 
 - **Destination :** `/create`
 - **Validation :** Navigation fluide, pas d'erreurs console
+- **Résultat :** ✅ Fonctionne parfaitement - Navigation instantanée, préchargement optimisé
 
 #### Étape 2 : Création du Sondage
-- **Interface :** PollCreator avec IA conversationnelle
-- **Saisie :** Titre, description, dates/créneaux
-- **IA :** Parsing automatique des descriptions naturelles
-- **Options de notification :** 
-  - ☐ Recevoir un email à chaque nouveau vote
-  - ☐ Recevoir un résumé quotidien des votes
-  - ☐ Recevoir une notification quand X votes sont atteints
+- **Interface :** PollCreator avec 2 modes de création
+
+##### Mode A : Création Manuelle
+- **Saisie directe :** Titre, description
+- **Sélection calendrier :** Interface calendrier progressif
 - **Validation :** 
   - Formulaire réactif et intuitif
-  - IA comprend et suggère des créneaux
   - Calendrier progressif fonctionne sur plusieurs années
-  - Options de notification sauvegardées
+  - Sélection multiple de dates/créneaux
+
+##### Mode B : Création avec IA Conversationnelle  
+- **Saisie naturelle :** Description en langage naturel
+- **IA :** Parsing automatique et suggestion de créneaux
+- **Validation :**
+  - IA comprend et suggère des créneaux pertinents
+  - Possibilité d'ajuster les suggestions
+  - Interface hybride IA + manuelle
 
 <!-- #### Étape 3 : Authentification (si nécessaire)
 - **Trigger :** Clic "Envoyer le sondage"
@@ -48,17 +54,22 @@ Interface centralisée pour gérer tous les sondages et interactions
   - Draft sauvegardé/restauré correctement
   - Pas de perte de données pendant l'auth -->
 
-#### Étape 4 : Finalisation et Envoi
+#### Étape 3 : Finalisation et Envoi
 - **Action :** Confirmation et création du sondage
+- **Options de notification :** 
+  - ☐ Recevoir un email à chaque nouveau vote
+  - ☐ Recevoir un résumé quotidien des votes
+  - ☐ Recevoir une notification quand X votes sont atteints
 - **Backend :** Sauvegarde en base Supabase
 - **Génération :** URL unique du sondage
 - **Redirection :** Vers page de partage ou dashboard
 - **Validation :**
+  - Options de notification sauvegardées
   - Sondage créé avec succès
   - URL générée et accessible
   - Données cohérentes en base
 
-#### Étape 5 : Partage du Sondage
+#### Étape 4 : Partage du Sondage
 - **Interface :** Page de partage avec liens
 - **Options :** Copier lien, email, réseaux sociaux
 - **Accès :** Dashboard pour suivre les réponses
@@ -207,10 +218,11 @@ Interface centralisée pour gérer tous les sondages et interactions
 ### Tests Fonctionnels
 
 #### 1. Flow Créateur Complet
-- [ ] Navigation `/` → `/create` fluide
-- [ ] IA parsing fonctionne correctement
+- [x] Navigation `/` → `/create` fluide ✅
+- [ ] **Mode A** - Création manuelle avec calendrier
+- [ ] **Mode B** - IA parsing fonctionne correctement  
 - [ ] Calendrier progressif navigation multi-années
-- [ ] Options de notification configurables
+- [ ] Options de notification configurables (Étape 3)
 <!-- - [ ] Authentification sans perte de données -->
 - [ ] Création sondage réussie
 - [ ] URL générée accessible
