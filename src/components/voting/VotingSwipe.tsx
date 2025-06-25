@@ -587,7 +587,7 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
           const getRankingBadge = (rank: number) => {
             if (rank === 1) {
               return (
-                <div className="absolute top-3 right-3 z-30 bg-green-500 text-white px-3 py-2 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg border-2 border-white">
+                <div className="absolute top-3 left-3 z-30 bg-green-500 text-white px-3 py-2 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg border-2 border-white">
                   1er
                 </div>
               );

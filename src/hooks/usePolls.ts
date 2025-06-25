@@ -68,19 +68,23 @@ export function usePolls() {
 
     try {
       const slug = generateSlug(pollData.title);
-      console.log('Création sondage - Slug généré:', slug);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Création sondage - Slug généré:', slug);
+      }
 
       // 1. Créer le sondage principal
-      console.log('Étape 1: Création du sondage principal...');
-      console.log('Données à insérer:', {
-        creator_id: user.id,
-        title: pollData.title,
-        description: pollData.description,
-        slug: slug,
-        settings: pollData.settings,
-        status: 'active',
-        expires_at: pollData.settings.expiresAt || null,
-      });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Étape 1: Création du sondage principal...');
+        console.log('Données à insérer:', {
+          creator_id: user.id,
+          title: pollData.title,
+          description: pollData.description,
+          slug: slug,
+          settings: pollData.settings,
+          status: 'active',
+          expires_at: pollData.settings.expiresAt || null,
+        });
+      }
       
       const insertData = {
         creator_id: user.id,

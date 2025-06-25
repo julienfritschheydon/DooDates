@@ -30,7 +30,7 @@ const Sidebar = () => {
       {/* Mobile Menu Button - Toggle uniquement */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-doo-gradient rounded-xl shadow-lg border border-gray-200"
+        className="lg:hidden fixed top-4 left-4 z-[100] p-3 bg-doo-gradient rounded-xl shadow-lg border border-gray-200 hover:scale-105 transition-transform duration-200"
       >
         <Menu className="w-5 h-5 text-white" />
       </button>
@@ -38,7 +38,7 @@ const Sidebar = () => {
       {/* Overlay for mobile */}
       {isOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-[90]"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -47,7 +47,7 @@ const Sidebar = () => {
       <div className={`
         doo-sidebar 
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        fixed lg:static top-0 left-0 h-full w-64 bg-white z-40
+        fixed lg:static top-0 left-0 h-full w-64 bg-white z-[95]
         transform transition-transform duration-300 ease-in-out
         flex flex-col border-r border-gray-200
       `}>
@@ -65,17 +65,38 @@ const Sidebar = () => {
           
           <div className="space-y-2">
             <button 
-              className="doo-button-primary w-full flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
-              disabled
-              title="Chat IA - Bientôt disponible"
+              onClick={() => {
+                // Naviguer vers le chat IA et déclencher un nouveau chat
+                navigate('/chat');
+                setIsOpen(false);
+              }}
+              className="doo-button-primary w-full flex items-center justify-center gap-2"
+              title="Démarrer une nouvelle conversation avec l'IA"
             >
               <Plus className="w-4 h-4" />
               Nouveau Chat
             </button>
-            <p className="text-xs text-gray-400 text-center">Chat IA - Bientôt disponible</p>
             
             <button 
-              onClick={() => navigate('/demo/swipe')}
+              onClick={() => {
+                // Nettoyer le localStorage avant de naviguer vers un nouveau sondage
+                localStorage.removeItem('doodates-draft');
+                // Forcer le rechargement pour réinitialiser complètement l'état
+                window.location.href = '/create';
+                setIsOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-sm text-sm"
+              title="Créer un nouveau sondage"
+            >
+              <Calendar className="w-4 h-4" />
+              Nouveau Sondage
+            </button>
+            
+            <button 
+              onClick={() => {
+                navigate('/demo/swipe');
+                setIsOpen(false);
+              }}
               className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-rose-600 text-white px-4 py-2 rounded-lg hover:from-pink-600 hover:to-rose-700 transition-all duration-200 shadow-sm text-sm"
               title="Tester l'interface de vote swipe"
             >
