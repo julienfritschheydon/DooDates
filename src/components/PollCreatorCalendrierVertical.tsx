@@ -40,7 +40,7 @@
 //   const { user } = useAuth();
 //   const { createPoll, loading: pollLoading, error: pollError } = usePolls();
 //   const [createdPollSlug, setCreatedPollSlug] = useState<string | null>(null);
-  
+
 //   const [state, setState] = useState<PollCreationState>({
 //     selectedDates: [],
 //     currentMonth: new Date(),
@@ -305,7 +305,7 @@
 //     const month = (date.getMonth() + 1).toString().padStart(2, '0');
 //     const day = date.getDate().toString().padStart(2, '0');
 //     const dateStr = `${year}-${month}-${day}`;
-    
+
 //     setState((prev) => ({
 //       ...prev,
 //       selectedDates: prev.selectedDates.includes(dateStr)
@@ -435,7 +435,7 @@
 //     // Parser la date en mode local pour éviter les décalages timezone
 //     const [year, month, day] = dateStr.split('-').map(Number);
 //     const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
-    
+
 //     return {
 //       dayName: date.toLocaleDateString('fr-FR', { weekday: 'short' }),
 //       dayNumber: date.getDate(),
@@ -446,7 +446,7 @@
 //   const canFinalize = () => {
 //     const hasDates = state.selectedDates.length > 0;
 //     const noEmailErrors = state.emailErrors.length === 0;
-    
+
 //     return hasDates && noEmailErrors;
 //   };
 
@@ -488,7 +488,7 @@
 //     // Créer le sondage
 //     const result = await createPoll(pollData);
 //     console.log('Résultat createPoll:', result);
-    
+
 //     if (result.error) {
 //       console.error('Erreur lors de la création du sondage:', result.error);
 //       return;
@@ -497,12 +497,12 @@
 //     if (result.poll) {
 //       console.log('Sondage créé avec succès:', result.poll);
 //       setCreatedPollSlug(result.poll.slug);
-      
+
 //       // Nettoyer le brouillon
 //       localStorage.removeItem('doodates-draft');
-      
+
 //       console.log('createdPollSlug défini à:', result.poll.slug);
-      
+
 //       // Optionnel : rediriger vers le sondage créé
 //       // window.location.href = `/poll/${poll.slug}`;
 //     } else {
@@ -514,13 +514,13 @@
 
 //   const copyPollLink = async () => {
 //     try {
-//       const pollUrl = createdPollSlug 
+//       const pollUrl = createdPollSlug
 //         ? `https://doodates.app/poll/${createdPollSlug}`
 //         : `https://doodates.app/poll/${state.pollTitle.replace(/\s+/g, '-').toLowerCase() || 'nouveau-sondage'}`;
-      
+
 //       await navigator.clipboard.writeText(pollUrl);
 //       setState(prev => ({ ...prev, pollLinkCopied: true }));
-      
+
 //       // Reset après 3 secondes
 //       setTimeout(() => {
 //         setState(prev => ({ ...prev, pollLinkCopied: false }));
@@ -821,7 +821,7 @@
 //                     </div>
 //                   )}
 //                 </div>
-                
+
 //                 {/* Bouton Partager affiché après la section horaires */}
 //                 <div className="mt-4">
 //                   <button
@@ -834,7 +834,7 @@
 //                 </div>
 //               </div>
 //             )}
-            
+
 //             {/* Bouton Partager affiché si pas d'horaires sélectionnés */}
 //             {state.selectedDates.length > 0 && !state.showTimeSlots && (
 //               <div className="mt-4">
@@ -847,7 +847,7 @@
 //                 </button>
 //               </div>
 //             )}
-            
+
 //             {/* Section partage accessible depuis le bouton principal */}
 //             {state.showShare && (
 //               <div className="mt-6 p-4 bg-gray-50 rounded-lg">
@@ -866,7 +866,7 @@
 //                       placeholder="Ex: Réunion équipe marketing"
 //                     />
 //                   </div>
-                  
+
 //                   <div>
 //                     <label className="block text-sm font-medium text-gray-700 mb-2">
 //                       Emails des participants (séparés par des virgules)
@@ -887,7 +887,7 @@
 //                     <div className="flex gap-2">
 //                       <input
 //                         type="text"
-//                         value={createdPollSlug 
+//                         value={createdPollSlug
 //                           ? `https://doodates.app/poll/${createdPollSlug}`
 //                           : `https://doodates.app/poll/${state.pollTitle.replace(/\s+/g, '-').toLowerCase() || 'nouveau-sondage'}`
 //                         }
@@ -999,10 +999,10 @@
 //                       className="w-full py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
 //                     >
 //                       {pollLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-//                       {pollLoading 
-//                         ? 'Création en cours...' 
-//                         : createdPollSlug 
-//                         ? 'Sondage créé !' 
+//                       {pollLoading
+//                         ? 'Création en cours...'
+//                         : createdPollSlug
+//                         ? 'Sondage créé !'
 //                         : (state.participantEmails.trim() ? 'Partager' : 'Enregistrer')
 //                       }
 //                     </button>

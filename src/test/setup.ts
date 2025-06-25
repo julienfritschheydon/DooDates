@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
 // Configuration globale pour les tests Vitest
 global.ResizeObserver = class ResizeObserver {
@@ -12,7 +12,7 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 // Mock pour window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (query: string) => ({
     matches: false,
@@ -34,9 +34,9 @@ const localStorageMock = {
   clear: () => {},
 };
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+Object.defineProperty(window, "localStorage", {
+  value: localStorageMock,
 });
 
 // Mock pour scrollIntoView
-Element.prototype.scrollIntoView = () => {}; 
+Element.prototype.scrollIntoView = () => {};

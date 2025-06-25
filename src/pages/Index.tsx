@@ -1,6 +1,6 @@
-import React from 'react';
-import TopNav from '../components/TopNav';
-import ChatInterface from '../components/ChatInterface';
+import React from "react";
+import TopNav from "../components/TopNav";
+import ChatInterface from "../components/ChatInterface";
 
 const Index = () => {
   return (

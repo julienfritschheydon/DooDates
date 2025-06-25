@@ -109,7 +109,12 @@
     @apply bg-background text-foreground font-inter;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     /* stylelint-disable-next-line at-rule-no-unknown */
     @apply font-geist;
   }

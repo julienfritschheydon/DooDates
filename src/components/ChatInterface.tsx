@@ -1,5 +1,5 @@
-import React from 'react';
-import GeminiChatInterface from './GeminiChatInterface';
+import React from "react";
+import GeminiChatInterface from "./GeminiChatInterface";
 
 const ChatInterface = () => {
   return <GeminiChatInterface />;

@@ -1,21 +1,21 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import PollCreator from '../PollCreator';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
+import PollCreator from "../PollCreator";
 
 // Mock all dependencies to avoid complex integration issues
-vi.mock('../../hooks/usePolls', () => ({
+vi.mock("../../hooks/usePolls", () => ({
   usePolls: () => ({
     loading: false,
     error: null,
     createPoll: vi.fn(),
     getUserPolls: vi.fn(),
     getPollBySlug: vi.fn(),
-    updatePollStatus: vi.fn()
-  })
+    updatePollStatus: vi.fn(),
+  }),
 }));
 
-vi.mock('../../contexts/AuthContext', () => ({
+vi.mock("../../contexts/AuthContext", () => ({
   useAuth: () => ({
     user: null,
     profile: null,
@@ -27,107 +27,103 @@ vi.mock('../../contexts/AuthContext', () => ({
     signInWithGoogle: vi.fn(),
     signOut: vi.fn(),
     updateProfile: vi.fn(),
-    refreshProfile: vi.fn()
-  })
+    refreshProfile: vi.fn(),
+  }),
 }));
 
-vi.mock('../../lib/google-calendar', () => ({
+vi.mock("../../lib/google-calendar", () => ({
   googleCalendar: {
     connect: vi.fn(),
     disconnect: vi.fn(),
-    isConnected: vi.fn(() => false)
-  }
+    isConnected: vi.fn(() => false),
+  },
 }));
 
-vi.mock('../../lib/gemini', () => ({
-  generatePollSuggestion: vi.fn()
+vi.mock("../../lib/gemini", () => ({
+  generatePollSuggestion: vi.fn(),
 }));
 
 // Mock Calendar component with proper Date object handling
-vi.mock('../Calendar', () => ({
+vi.mock("../Calendar", () => ({
   default: ({ onDateToggle, selectedDates }: any) => (
     <div data-testid="calendar">
-      <button onClick={() => onDateToggle(new Date('2025-07-01'))}>
+      <button onClick={() => onDateToggle(new Date("2025-07-01"))}>
         Select Date
       </button>
-      <div data-testid="selected-dates">
-        {selectedDates.join(', ')}
-      </div>
+      <div data-testid="selected-dates">{selectedDates.join(", ")}</div>
     </div>
-  )
+  ),
 }));
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <BrowserRouter>
-    {children}
-  </BrowserRouter>
+  <BrowserRouter>{children}</BrowserRouter>
 );
 
-describe('PollCreator', () => {
+describe("PollCreator", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('Basic Rendering', () => {
-    it('should render the poll creator form', () => {
+  describe("Basic Rendering", () => {
+    it("should render the poll creator form", () => {
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Check if calendar is present
-      expect(screen.getByTestId('calendar')).toBeInTheDocument();
+      expect(screen.getByTestId("calendar")).toBeInTheDocument();
     });
 
-    it('should render share button', () => {
+    it("should render share button", () => {
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      const shareButton = screen.getByRole('button', { name: /partager/i });
+      const shareButton = screen.getByRole("button", { name: /partager/i });
       expect(shareButton).toBeInTheDocument();
     });
 
-    it('should render calendar navigation buttons', () => {
+    it("should render calendar navigation buttons", () => {
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // The calendar should have a date selection button
-      const selectDateButton = screen.getByText('Select Date');
+      const selectDateButton = screen.getByText("Select Date");
       expect(selectDateButton).toBeInTheDocument();
     });
   });
 
-  describe('Date Selection', () => {
-    it('should allow date selection through calendar', () => {
+  describe("Date Selection", () => {
+    it("should allow date selection through calendar", () => {
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      const selectDateButton = screen.getByText('Select Date');
+      const selectDateButton = screen.getByText("Select Date");
       fireEvent.click(selectDateButton);
 
-      const selectedDates = screen.getByTestId('selected-dates');
-      expect(selectedDates).toHaveTextContent('2025-07-01');
+      const selectedDates = screen.getByTestId("selected-dates");
+      expect(selectedDates).toHaveTextContent("2025-07-01");
     });
 
-    it('should show time slot controls when dates are selected', () => {
+    it("should show time slot controls when dates are selected", () => {
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Select a date first
-      const selectDateButton = screen.getByText('Select Date');
+      const selectDateButton = screen.getByText("Select Date");
       fireEvent.click(selectDateButton);
 
       // Should show time slot controls
@@ -135,15 +131,15 @@ describe('PollCreator', () => {
     });
   });
 
-  describe('Share Functionality', () => {
-    it('should show share form when share button is clicked', async () => {
+  describe("Share Functionality", () => {
+    it("should show share form when share button is clicked", async () => {
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      const shareButton = screen.getByRole('button', { name: /partager/i });
+      const shareButton = screen.getByRole("button", { name: /partager/i });
       fireEvent.click(shareButton);
 
       // Should show the share form sections
@@ -152,14 +148,14 @@ describe('PollCreator', () => {
       });
     });
 
-    it('should show form inputs after clicking share', async () => {
+    it("should show form inputs after clicking share", async () => {
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      const shareButton = screen.getByRole('button', { name: /partager/i });
+      const shareButton = screen.getByRole("button", { name: /partager/i });
       fireEvent.click(shareButton);
 
       // Wait for form to appear - check for form sections instead of specific inputs
@@ -167,152 +163,157 @@ describe('PollCreator', () => {
         const titleInput = screen.queryByPlaceholderText(/réunion équipe/i);
         const emailInput = screen.queryByPlaceholderText(/email1@exemple.com/i);
         const linkSection = screen.queryByText(/lien du sondage/i);
-        
+
         // At least one form element should be present after clicking share
         expect(titleInput || emailInput || linkSection).toBeTruthy();
       });
     });
   });
 
-  describe('Gemini Integration', () => {
-    it('should initialize with Gemini suggestion data', () => {
+  describe("Gemini Integration", () => {
+    it("should initialize with Gemini suggestion data", () => {
       const mockSuggestion = {
-        title: 'Réunion automatique',
-        dates: ['2025-07-01', '2025-07-02'],
+        title: "Réunion automatique",
+        dates: ["2025-07-01", "2025-07-02"],
         timeSlots: [],
-        type: 'date' as const
+        type: "date" as const,
       };
 
       render(
         <TestWrapper>
           <PollCreator initialData={mockSuggestion} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Should show the selected dates from Gemini
-      const selectedDates = screen.getByTestId('selected-dates');
-      expect(selectedDates).toHaveTextContent('2025-07-01, 2025-07-02');
+      const selectedDates = screen.getByTestId("selected-dates");
+      expect(selectedDates).toHaveTextContent("2025-07-01, 2025-07-02");
     });
 
-    it('should handle datetime suggestions with time slots', () => {
+    it("should handle datetime suggestions with time slots", () => {
       const mockSuggestion = {
-        title: 'Réunion avec horaires',
-        dates: ['2025-07-01'],
+        title: "Réunion avec horaires",
+        dates: ["2025-07-01"],
         timeSlots: [
           {
-            start: '09:00',
-            end: '10:00',
-            dates: ['2025-07-01'],
-            description: 'Matin'
-          }
+            start: "09:00",
+            end: "10:00",
+            dates: ["2025-07-01"],
+            description: "Matin",
+          },
         ],
-        type: 'datetime' as const
+        type: "datetime" as const,
       };
 
       render(
         <TestWrapper>
           <PollCreator initialData={mockSuggestion} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Should show the selected date and time slot controls
-      const selectedDates = screen.getByTestId('selected-dates');
-      expect(selectedDates).toHaveTextContent('2025-07-01');
-      
+      const selectedDates = screen.getByTestId("selected-dates");
+      expect(selectedDates).toHaveTextContent("2025-07-01");
+
       // Should show time slot controls for datetime suggestions - use getAllByText for multiple matches
       const horaireElements = screen.getAllByText(/horaires/i);
       expect(horaireElements.length).toBeGreaterThan(0);
     });
   });
 
-  describe('Time Slot Management', () => {
-    it('should show time slot configuration options', () => {
+  describe("Time Slot Management", () => {
+    it("should show time slot configuration options", () => {
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Select a date to enable time slots
-      const selectDateButton = screen.getByText('Select Date');
+      const selectDateButton = screen.getByText("Select Date");
       fireEvent.click(selectDateButton);
 
       // Should show time slot configuration - check for time-related controls
       const horaireElements = screen.getAllByText(/horaires/i);
       expect(horaireElements.length).toBeGreaterThan(0);
-      
+
       // Check for time slot related text that should be visible - more flexible check
-      const moreHoursElement = screen.queryByText(/afficher plus d'horaires/i) || 
-                              screen.queryByText(/plus d'horaires/i) ||
-                              screen.queryByText(/horaires/i);
+      const moreHoursElement =
+        screen.queryByText(/afficher plus d'horaires/i) ||
+        screen.queryByText(/plus d'horaires/i) ||
+        screen.queryByText(/horaires/i);
       expect(moreHoursElement).toBeTruthy();
     });
 
-    it('should handle granularity settings', () => {
+    it("should handle granularity settings", () => {
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Select a date to enable time slots
-      const selectDateButton = screen.getByText('Select Date');
+      const selectDateButton = screen.getByText("Select Date");
       fireEvent.click(selectDateButton);
 
       // Should show granularity controls - check for settings icon or time controls
-      const settingsIcon = screen.queryByRole('button', { name: /settings/i });
+      const settingsIcon = screen.queryByRole("button", { name: /settings/i });
       const timeControls = screen.getAllByText(/horaires/i);
-      
+
       // At least one control should be present
       expect(settingsIcon || timeControls.length > 0).toBeTruthy();
     });
   });
 
-  describe('Calendar Integration', () => {
-    it('should show calendar connection option', () => {
+  describe("Calendar Integration", () => {
+    it("should show calendar connection option", () => {
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Select a date to show calendar options
-      const selectDateButton = screen.getByText('Select Date');
+      const selectDateButton = screen.getByText("Select Date");
       fireEvent.click(selectDateButton);
 
       // Should show calendar connection option
-      expect(screen.getByText(/connecter votre calendrier/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/connecter votre calendrier/i),
+      ).toBeInTheDocument();
     });
   });
 
-  describe('Responsive Behavior', () => {
-    it('should render without errors on different viewport sizes', () => {
+  describe("Responsive Behavior", () => {
+    it("should render without errors on different viewport sizes", () => {
       // Mock different viewport sizes
       const originalInnerWidth = window.innerWidth;
-      
+
       // Test mobile
-      Object.defineProperty(window, 'innerWidth', {
+      Object.defineProperty(window, "innerWidth", {
         writable: true,
         configurable: true,
-        value: 375
+        value: 375,
       });
 
       render(
         <TestWrapper>
           <PollCreator />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Should render basic elements
-      expect(screen.getByTestId('calendar')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /partager/i })).toBeInTheDocument();
+      expect(screen.getByTestId("calendar")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /partager/i }),
+      ).toBeInTheDocument();
 
       // Restore original width
-      Object.defineProperty(window, 'innerWidth', {
+      Object.defineProperty(window, "innerWidth", {
         writable: true,
         configurable: true,
-        value: originalInnerWidth
+        value: originalInnerWidth,
       });
     });
   });
-}); 
+});

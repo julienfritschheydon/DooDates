@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { SignInSchema, SignInInput } from '../../lib/schemas';
-import { useAuth } from '../../contexts/AuthContext';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Alert, AlertDescription } from '../ui/alert';
-import { Loader2, Mail, Lock } from 'lucide-react';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SignInSchema, SignInInput } from "../../lib/schemas";
+import { useAuth } from "../../contexts/AuthContext";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Alert, AlertDescription } from "../ui/alert";
+import { Loader2, Mail, Lock } from "lucide-react";
 
 interface SignInFormProps {
   onSuccess?: () => void;
@@ -30,20 +36,20 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
 
   const onSubmit = async (data: SignInInput) => {
     setIsSubmitting(true);
-    
+
     try {
       const { error } = await signIn(data);
-      
+
       if (error) {
-        setError('root', { 
-          message: error.message || 'Erreur de connexion' 
+        setError("root", {
+          message: error.message || "Erreur de connexion",
         });
       } else {
         onSuccess?.();
       }
     } catch (err) {
-      setError('root', { 
-        message: 'Une erreur inattendue s\'est produite' 
+      setError("root", {
+        message: "Une erreur inattendue s'est produite",
       });
     } finally {
       setIsSubmitting(false);
@@ -53,16 +59,16 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
   const handleGoogleSignIn = async () => {
     try {
       const { error } = await signInWithGoogle();
-      
+
       if (error) {
-        setError('root', { 
-          message: error.message || 'Erreur de connexion Google' 
+        setError("root", {
+          message: error.message || "Erreur de connexion Google",
         });
       }
       // Note: La redirection Google se fait automatiquement
     } catch (err) {
-      setError('root', { 
-        message: 'Erreur de connexion Google' 
+      setError("root", {
+        message: "Erreur de connexion Google",
       });
     }
   };
@@ -75,7 +81,7 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
           Connectez-vous à votre compte DooDates
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Bouton Google */}
         <Button
@@ -129,7 +135,7 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
                 placeholder="votre@email.com"
                 autoComplete="email"
                 className="pl-10"
-                {...register('email')}
+                {...register("email")}
               />
             </div>
             {errors.email && (
@@ -147,11 +153,13 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
                 placeholder="••••••••"
                 autoComplete="current-password"
                 className="pl-10"
-                {...register('password')}
+                {...register("password")}
               />
             </div>
             {errors.password && (
-              <p className="text-sm text-destructive">{errors.password.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
@@ -164,9 +172,9 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
             </Alert>
           )}
 
-          <Button 
-            type="submit" 
-            className="w-full" 
+          <Button
+            type="submit"
+            className="w-full"
             disabled={isSubmitting || loading}
           >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -189,4 +197,4 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
       </CardContent>
     </Card>
   );
-} 
+}

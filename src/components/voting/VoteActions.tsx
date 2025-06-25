@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Send, User, Mail, Loader2 } from 'lucide-react';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Send, User, Mail, Loader2 } from "lucide-react";
 
 interface VoteActionsProps {
   voterInfo: { name: string; email: string };
@@ -15,24 +15,24 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
   onVoterInfoChange,
   onSubmit,
   isSubmitting,
-  hasVotes
+  hasVotes,
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
 
   const validateForm = () => {
     const newErrors: { name?: string; email?: string } = {};
-    
+
     if (!voterInfo.name.trim()) {
-      newErrors.name = 'Le nom est requis';
+      newErrors.name = "Le nom est requis";
     }
-    
+
     if (!voterInfo.email.trim()) {
-      newErrors.email = 'L\'email est requis';
+      newErrors.email = "L'email est requis";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterInfo.email)) {
-      newErrors.email = 'Email invalide';
+      newErrors.email = "Email invalide";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -42,18 +42,19 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
       setShowForm(true);
       return;
     }
-    
+
     if (!showForm) {
       setShowForm(true);
       return;
     }
-    
+
     if (validateForm()) {
       onSubmit();
     }
   };
 
-  const isFormValid = voterInfo.name.trim() && voterInfo.email.trim() && hasVotes;
+  const isFormValid =
+    voterInfo.name.trim() && voterInfo.email.trim() && hasVotes;
 
   return (
     <motion.div
@@ -64,9 +65,9 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
       {/* Formulaire votant */}
       <motion.div
         initial={false}
-        animate={{ 
-          height: showForm ? 'auto' : 0,
-          opacity: showForm ? 1 : 0
+        animate={{
+          height: showForm ? "auto" : 0,
+          opacity: showForm ? 1 : 0,
         }}
         transition={{ duration: 0.3 }}
         className="overflow-hidden"
@@ -88,12 +89,14 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
                 <input
                   type="text"
                   value={voterInfo.name}
-                  onChange={(e) => onVoterInfoChange({ ...voterInfo, name: e.target.value })}
+                  onChange={(e) =>
+                    onVoterInfoChange({ ...voterInfo, name: e.target.value })
+                  }
                   placeholder="Votre nom"
                   className={`
                     w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                     transition-colors text-sm
-                    ${errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gray-50'}
+                    ${errors.name ? "border-red-300 bg-red-50" : "border-gray-200 bg-gray-50"}
                   `}
                 />
               </div>
@@ -112,12 +115,14 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
                 <input
                   type="email"
                   value={voterInfo.email}
-                  onChange={(e) => onVoterInfoChange({ ...voterInfo, email: e.target.value })}
+                  onChange={(e) =>
+                    onVoterInfoChange({ ...voterInfo, email: e.target.value })
+                  }
                   placeholder="votre@email.com"
                   className={`
                     w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                     transition-colors text-sm
-                    ${errors.email ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gray-50'}
+                    ${errors.email ? "border-red-300 bg-red-50" : "border-gray-200 bg-gray-50"}
                   `}
                 />
               </div>
@@ -129,8 +134,8 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
 
           <div className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3">
             <p>
-              🔒 Vos informations sont utilisées uniquement pour identifier votre vote 
-              et vous permettre de le modifier ultérieurement.
+              🔒 Vos informations sont utilisées uniquement pour identifier
+              votre vote et vous permettre de le modifier ultérieurement.
             </p>
           </div>
         </div>
@@ -144,13 +149,14 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
         className={`
           w-full py-4 px-6 rounded-2xl font-semibold text-white
           flex items-center justify-center gap-3 transition-all duration-200
-          ${isFormValid && showForm
-            ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg'
-            : hasVotes
-            ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg'
-            : 'bg-gray-300 cursor-not-allowed'
+          ${
+            isFormValid && showForm
+              ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+              : hasVotes
+                ? "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg"
+                : "bg-gray-300 cursor-not-allowed"
           }
-          ${isSubmitting ? 'opacity-80' : ''}
+          ${isSubmitting ? "opacity-80" : ""}
         `}
       >
         {isSubmitting ? (
@@ -190,4 +196,4 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
       )}
     </motion.div>
   );
-}; 
+};

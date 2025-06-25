@@ -1,7 +1,7 @@
-import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { Button } from './ui/button';
-import { LogOut, User } from 'lucide-react';
+import React from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { Button } from "./ui/button";
+import { LogOut, User } from "lucide-react";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
@@ -11,41 +11,44 @@ export function UserMenu() {
   }
 
   const handleSignOut = async () => {
-    console.log('🔄 Début de la déconnexion...');
-    
+    console.log("🔄 Début de la déconnexion...");
+
     try {
       // Timeout pour éviter les blocages
       const signOutPromise = signOut();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout déconnexion')), 5000)
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Timeout déconnexion")), 5000),
       );
-      
-      const { error } = await Promise.race([signOutPromise, timeoutPromise]) as any;
-      
+
+      const { error } = (await Promise.race([
+        signOutPromise,
+        timeoutPromise,
+      ])) as any;
+
       if (error) {
-        console.error('❌ Erreur de déconnexion:', error);
+        console.error("❌ Erreur de déconnexion:", error);
         // Forcer la déconnexion locale même en cas d'erreur
         localStorage.clear();
         sessionStorage.clear();
-        window.location.href = '/';
+        window.location.href = "/";
       } else {
-        console.log('✅ Déconnexion réussie');
+        console.log("✅ Déconnexion réussie");
         // Nettoyer le stockage local
         localStorage.clear();
         sessionStorage.clear();
         // Redirection après déconnexion
-        window.location.href = '/';
+        window.location.href = "/";
       }
     } catch (err) {
-      console.error('❌ Erreur lors de la déconnexion:', err);
-      console.log('🔄 Forçage de la déconnexion locale...');
-      
+      console.error("❌ Erreur lors de la déconnexion:", err);
+      console.log("🔄 Forçage de la déconnexion locale...");
+
       // En cas d'erreur, forcer la déconnexion côté client
       localStorage.clear();
       sessionStorage.clear();
-      
+
       // Redirection forcée
-      window.location.href = '/';
+      window.location.href = "/";
     }
   };
 
@@ -57,12 +60,10 @@ export function UserMenu() {
           <div className="font-medium text-gray-900">
             {user.user_metadata?.full_name || user.email}
           </div>
-          <div className="text-gray-600">
-            {user.email}
-          </div>
+          <div className="text-gray-600">{user.email}</div>
         </div>
       </div>
-      
+
       <Button
         variant="outline"
         size="sm"
@@ -74,4 +75,4 @@ export function UserMenu() {
       </Button>
     </div>
   );
-} 
+}
