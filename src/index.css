@@ -1,7 +1,19 @@
-
+/* stylelint-disable-next-line at-rule-no-unknown */
 @tailwind base;
+/* stylelint-disable-next-line at-rule-no-unknown */
 @tailwind components;
+/* stylelint-disable-next-line at-rule-no-unknown */
 @tailwind utilities;
+
+/* Masquer la scrollbar horizontale */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 
 /* DooDates Design System - Phase 0 */
 
@@ -88,14 +100,17 @@
 
 @layer base {
   * {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply border-border;
   }
 
   body {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply bg-background text-foreground font-inter;
   }
 
   h1, h2, h3, h4, h5, h6 {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply font-geist;
   }
 }
@@ -103,52 +118,62 @@
 /* DooDates Custom Components */
 @layer components {
   .doo-chat-bubble {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply bg-white border border-gray-200 rounded-2xl p-4 shadow-sm 
            hover:shadow-md transition-all duration-200 animate-fade-in;
   }
 
   .doo-chat-bubble.ai {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply bg-chat-gradient border-doo-blue-200;
   }
 
   .doo-chat-bubble.user {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply bg-doo-blue-500 text-white border-doo-blue-500 ml-auto;
   }
 
   .doo-button-primary {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply bg-doo-gradient text-white font-medium px-6 py-3 rounded-xl
            hover:shadow-lg hover:scale-[1.02] transition-all duration-200
            focus:outline-none focus:ring-2 focus:ring-doo-blue-500 focus:ring-offset-2;
   }
 
   .doo-button-secondary {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply bg-white text-doo-blue-700 border-2 border-doo-blue-200 font-medium px-6 py-3 rounded-xl
            hover:bg-doo-blue-50 hover:border-doo-blue-300 transition-all duration-200
            focus:outline-none focus:ring-2 focus:ring-doo-blue-500 focus:ring-offset-2;
   }
 
   .doo-input {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl
            focus:border-doo-blue-500 focus:ring-2 focus:ring-doo-blue-100 focus:outline-none
            transition-all duration-200 placeholder:text-gray-400;
   }
 
   .doo-card {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply bg-white border border-gray-200 rounded-2xl p-6 shadow-sm
            hover:shadow-md transition-all duration-200;
   }
 
   .doo-sidebar {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply bg-white border-r border-gray-200 h-screen;
   }
 
   .doo-nav-item {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600
            hover:bg-doo-blue-50 hover:text-doo-blue-700 transition-all duration-200
            cursor-pointer;
   }
 
   .doo-nav-item.active {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply bg-doo-blue-100 text-doo-blue-700 font-medium;
   }
 }
@@ -156,18 +181,22 @@
 /* Micro-interactions et animations */
 @layer utilities {
   .doo-hover-lift {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply hover:translate-y-[-2px] transition-transform duration-200;
   }
 
   .doo-fade-in {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply animate-fade-in;
   }
 
   .doo-slide-in-right {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply animate-slide-in-right;
   }
 
   .doo-pulse-slow {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply animate-pulse-slow;
   }
 }
