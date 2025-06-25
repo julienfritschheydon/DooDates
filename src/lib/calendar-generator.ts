@@ -150,26 +150,66 @@ const yearlyCalendarCache = new Map<number, CalendarDay[]>();
 const CACHE_VERSION = '1.1';
 
 export function getPreGeneratedCalendar(): PreGeneratedCalendar {
-  console.log('🚀 Initialisation du calendrier optimisé...');
+  console.log('🚀 Initialisation du calendrier progressif...');
   
-  // Nettoyer l'ancien cache pour éviter les conflits
-  if (typeof window !== 'undefined') {
-    try {
-      localStorage.removeItem('doodates-calendar-cache');
-    } catch (e) {
-      // Ignore errors
-    }
+  // NOUVELLE OPTIMISATION: Calendrier progressif par année !
+  console.time('⚡ Calendrier progressif');
+  
+  // Import du système progressif
+  return import('./progressive-calendar').then(module => {
+    console.timeEnd('⚡ Calendrier progressif');
+    return module.getProgressiveCalendar();
+  }).catch(() => {
+    // Fallback: ancien système si le progressif échoue
+    console.log('📅 Fallback: calendrier statique');
+    return import('./calendar-data').then(module => {
+      return module.getStaticCalendar();
+    });
+  }).catch(() => {
+    // Fallback final: génération dynamique
+    console.log('📅 Fallback final: génération dynamique');
+    const generator = new CalendarGenerator();
+    const currentYear = new Date().getFullYear();
+    return generator.generateCalendar(currentYear, 2);
+  }) as any;
+}
+
+// Cache global pour le calendrier progressif
+let globalProgressiveCalendar: PreGeneratedCalendar | null = null;
+
+// Version synchrone pour compatibilité (utilise le cache global)
+export function getPreGeneratedCalendarSync(): PreGeneratedCalendar {
+  console.log('🚀 Calendrier synchrone avec cache...');
+  
+  // Vérifier d'abord le cache global du calendrier progressif
+  if (globalProgressiveCalendar) {
+    console.log('⚡ Calendrier progressif - Cache global synchrone');
+    return globalProgressiveCalendar;
   }
   
+  // Essayer d'importer le calendrier statique de manière synchrone
+  try {
+    const { getStaticCalendarSync } = require('./calendar-data');
+    const result = getStaticCalendarSync();
+    if (result.totalDays > 0) {
+      console.log('⚡ Calendrier statique synchrone');
+      return result;
+    }
+  } catch (e) {
+    console.warn('⚠️ Calendrier statique non disponible');
+  }
+  
+  // Fallback: génération dynamique minimale (1 an seulement)
+  console.log('📅 Fallback synchrone: génération 1 an');
   const generator = new CalendarGenerator();
-  
-  // Génération lazy : seulement les 10 prochaines années au démarrage
   const currentYear = new Date().getFullYear();
-  const initialCalendar = generator.generateCalendar(currentYear, 10);
-  
-  console.log(`✅ Calendrier initial généré: ${initialCalendar.totalDays} jours (${currentYear}-${currentYear + 9})`);
-  
-  return initialCalendar;
+  return generator.generateCalendar(currentYear, 1); // 1 an au lieu de 10
+}
+
+// Fonction pour initialiser le cache global (appelée par App.tsx)
+export function initializeGlobalCalendarCache(calendar: PreGeneratedCalendar) {
+  globalProgressiveCalendar = calendar;
+  console.log('📋 Cache global calendrier initialisé');
 }
 
 // Fonction pour obtenir des données d'une année spécifique (avec cache)
@@ -226,7 +266,8 @@ export class CalendarQuery {
   private baseCalendar: PreGeneratedCalendar;
 
   constructor() {
-    this.baseCalendar = getPreGeneratedCalendar();
+    // Utiliser la version synchrone pour éviter les problèmes d'async
+    this.baseCalendar = getPreGeneratedCalendarSync();
   }
 
   // Obtenir les jours dans une plage de dates (avec génération à la demande)

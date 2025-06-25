@@ -19,19 +19,32 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    'process.env': 'import.meta.env',
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+    'process.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL),
+    'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY),
+    'process.env.VITE_GEMINI_API_KEY': JSON.stringify(process.env.VITE_GEMINI_API_KEY),
+  },
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-toast', '@radix-ui/react-dialog', '@radix-ui/react-popover'],
-          calendar: ['date-fns', 'react-day-picker'],
-          motion: ['framer-motion'],
-          forms: ['react-hook-form', '@hookform/resolvers'],
-          supabase: ['@supabase/supabase-js', '@supabase/auth-ui-react'],
+          'react-vendor': ['react', 'react-dom'],
+          'ui-vendor': ['framer-motion', 'lucide-react'],
+          'supabase-vendor': ['@supabase/supabase-js'],
+          'gemini-vendor': ['@google/generative-ai']
         },
       },
     },
+    chunkSizeWarningLimit: 1000,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: process.env.NODE_ENV === 'production',
+        drop_debugger: true
+      }
+    }
   },
   optimizeDeps: {
     include: [

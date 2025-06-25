@@ -227,49 +227,123 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
 export function Auth() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, loading, signInWithGoogle } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
 
-  // Handle OAuth callback
+  // Détecter l'intention de connexion calendrier
+  const connectCalendar = searchParams.get('connect') === 'calendar';
+  const needsCalendarConnection = localStorage.getItem('doodates-connect-calendar') === 'true';
+
+  // Auto-connexion Google pour le calendrier (une seule fois)
   useEffect(() => {
-    const handleAuthCallback = async () => {
-      const error = searchParams.get('error');
-      const errorDescription = searchParams.get('error_description');
+    if ((connectCalendar || needsCalendarConnection) && !user && !loading && !autoConnectAttempted) {
+      console.log('🗓️ Connexion automatique au calendrier Google...');
+      setAutoConnectAttempted(true);
       
-      if (error) {
-        console.error('OAuth Error:', error, errorDescription);
-        // You could show an error message here
-        return;
-      }
+      const timer = setTimeout(async () => {
+        try {
+          const { error } = await signInWithGoogle();
+          if (error) {
+            console.error('❌ Erreur connexion Google Calendar:', error);
+            setAutoConnectAttempted(false); // Permettre une nouvelle tentative
+          }
+        } catch (err) {
+          console.error('❌ Erreur connexion Google Calendar:', err);
+          setAutoConnectAttempted(false); // Permettre une nouvelle tentative
+        }
+      }, 500);
 
-      // If we have a user after OAuth, redirect to home
-      if (user) {
-        navigate('/', { replace: true });
-      }
-    };
+      return () => clearTimeout(timer);
+    }
+  }, [connectCalendar, needsCalendarConnection, user, loading, autoConnectAttempted, signInWithGoogle]);
 
-    handleAuthCallback();
-  }, [searchParams, user, navigate]);
-
-  // Redirect authenticated users
+  // Redirection des utilisateurs authentifiés
   useEffect(() => {
     if (user && !loading) {
-      navigate('/', { replace: true });
+      const returnTo = localStorage.getItem('doodates-return-to');
+      if (returnTo === 'create') {
+        localStorage.removeItem('doodates-return-to');
+        localStorage.removeItem('doodates-connect-calendar');
+        navigate('/create', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     }
   }, [user, loading, navigate]);
 
   const handleAuthSuccess = () => {
-    navigate('/', { replace: true });
+    const returnTo = localStorage.getItem('doodates-return-to');
+    if (returnTo === 'create') {
+      localStorage.removeItem('doodates-return-to');
+      localStorage.removeItem('doodates-connect-calendar');
+      navigate('/create', { replace: true });
+    } else {
+      navigate('/', { replace: true });
+    }
   };
 
+  // Affichage du loading pendant l'authentification
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Authentification en cours...</p>
+        </div>
       </div>
     );
   }
 
+  // Interface spéciale pour la connexion calendrier
+  if (connectCalendar || needsCalendarConnection) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900">DooDates</h1>
+            <p className="mt-2 text-sm text-gray-600">
+              Connexion à votre calendrier Google
+            </p>
+          </div>
+
+          <div className="bg-white shadow rounded-lg p-6">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Connecter votre calendrier Google
+              </h2>
+              <p className="text-sm text-gray-600">
+                Nous vous redirigeons vers Google pour accéder à votre calendrier et suggérer les meilleurs créneaux disponibles.
+              </p>
+              {!autoConnectAttempted ? (
+                <div className="flex items-center justify-center mt-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-blue-600 mr-2" />
+                  <span className="text-sm text-gray-600">Connexion en cours...</span>
+                </div>
+              ) : (
+                <Button
+                  onClick={async () => {
+                    setAutoConnectAttempted(false);
+                    await signInWithGoogle();
+                  }}
+                  className="w-full"
+                >
+                  Réessayer la connexion
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Interface d'authentification normale
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -316,8 +390,14 @@ export function AuthCallback() {
       // Attendre que Supabase traite la session
       const timer = setTimeout(() => {
         if (user) {
-          console.log('User authenticated, redirecting to home');
-          navigate('/', { replace: true });
+          console.log('User authenticated, redirecting appropriately');
+          const returnTo = localStorage.getItem('doodates-return-to');
+          if (returnTo === 'create') {
+            localStorage.removeItem('doodates-return-to');
+            navigate('/create', { replace: true });
+          } else {
+            navigate('/', { replace: true });
+          }
         } else if (!loading) {
           console.log('No user found after callback, redirecting to auth');
           navigate('/auth', { replace: true });
@@ -342,4 +422,7 @@ export function AuthCallback() {
       </div>
     </div>
   );
-} 
+}
+
+// Export par défaut pour compatibilité avec l'import existant dans App.tsx
+export default Auth; 

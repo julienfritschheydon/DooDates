@@ -1,0 +1,28 @@
+#!/bin/sh
+echo "🚀 DooDates - Validation pre-push..."
+
+# 1. Suite complète de tests unitaires
+echo "🧪 Tests unitaires complets..."
+npm run test:unit
+if [ $? -ne 0 ]; then
+  echo "❌ Tests unitaires complets échoués - Push bloqué"
+  exit 1
+fi
+
+# 2. Tests d'intégration
+echo "🔗 Tests d'intégration..."
+npm run test:integration
+if [ $? -ne 0 ]; then
+  echo "❌ Tests d'intégration échoués - Push bloqué"
+  exit 1
+fi
+
+# 3. Build de production
+echo "🏗️ Build production..."
+npm run build
+if [ $? -ne 0 ]; then
+  echo "❌ Build production échoué - Push bloqué"
+  exit 1
+fi
+
+echo "✅ Pre-push validé - Push autorisé" 

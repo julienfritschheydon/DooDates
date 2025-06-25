@@ -3,6 +3,10 @@ import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { SignInInput, SignUpInput } from '../lib/schemas';
 
+// Variables d'environnement pour validation
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
 interface Profile {
   id: string;
   email: string;
@@ -162,20 +166,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
 
     try {
+      console.log('🔄 Tentative de connexion Google...');
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          scopes: 'email profile https://www.googleapis.com/auth/calendar.readonly',
         },
       });
 
-      return { error };
+      if (error) {
+        console.error('❌ Google OAuth Error:', error);
+        setError(`Erreur Google OAuth: ${error.message}`);
+        setLoading(false);
+        return { error };
+      }
+
+      console.log('✅ Redirection Google OAuth démarrée');
+      // Ne pas setLoading(false) ici car la redirection va se faire
+      return { error: null };
     } catch (err) {
-      const error = err as AuthError;
-      setError(error.message);
-      return { error };
-    } finally {
+      console.error('❌ Google OAuth Exception:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Erreur de connexion Google';
+      setError(`Erreur connexion: ${errorMessage}`);
       setLoading(false);
+      return { error: { message: errorMessage } as AuthError };
     }
   };
 

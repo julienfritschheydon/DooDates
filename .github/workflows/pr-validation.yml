@@ -1,0 +1,175 @@
+name: 🔍 PR Validation
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # Job 1: Tests Rapides (Parallèle)
+  quick-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-type: [unit, integration, ux-regression]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: 🔧 Install dependencies
+        run: npm ci
+      
+      - name: 🧪 Run ${{ matrix.test-type }} tests
+        run: npm run test:${{ matrix.test-type }}
+      
+      - name: 📊 Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.test-type }}
+          path: test-results/
+      
+      - name: 📈 Upload coverage
+        if: matrix.test-type == 'unit'
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+
+  # Job 2: Tests IA (Critique)
+  ai-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: 🔧 Install dependencies
+        run: npm ci
+      
+      - name: 🤖 Run AI Tests (Quick)
+        run: npm run test:gemini:quick
+        env:
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+      
+      - name: ✅ Validate AI Performance
+        run: |
+          SCORE=$(node -e "
+            const fs = require('fs');
+            if (fs.existsSync('./tests/reports/quick-report.json')) {
+              const report = require('./tests/reports/quick-report.json');
+              console.log(report.percentage || 0);
+            } else {
+              console.log(0);
+            }
+          ")
+          echo "Score IA: $SCORE%"
+          if (( $(echo "$SCORE < 70" | bc -l) )); then
+            echo "❌ Performance IA insuffisante: $SCORE%"
+            exit 1
+          fi
+          echo "✅ Performance IA validée: $SCORE%"
+      
+      - name: 📊 Upload AI test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ai-test-results
+          path: tests/reports/
+
+  # Job 3: Build & Type Check
+  build-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: 🔧 Install dependencies
+        run: npm ci
+      
+      - name: 🔍 TypeScript Check
+        run: npm run type-check
+      
+      - name: 🏗️ Build production
+        run: npm run build
+      
+      - name: 📦 Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: dist/
+
+  # Job 4: Code Quality
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: 🔧 Install dependencies
+        run: npm ci
+      
+      - name: 🔍 Lint check
+        run: npm run lint
+      
+      - name: 💅 Format check
+        run: npm run format:check
+      
+      - name: 🔒 Security audit
+        run: npm audit --audit-level moderate
+
+  # Job 5: Summary
+  validation-summary:
+    needs: [quick-tests, ai-validation, build-validation, code-quality]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: 📊 Validation Summary
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const jobs = [
+              { name: 'Tests Rapides', status: '${{ needs.quick-tests.result }}' },
+              { name: 'Validation IA', status: '${{ needs.ai-validation.result }}' },
+              { name: 'Build & Types', status: '${{ needs.build-validation.result }}' },
+              { name: 'Code Quality', status: '${{ needs.code-quality.result }}' }
+            ];
+            
+            const passed = jobs.filter(j => j.status === 'success').length;
+            const total = jobs.length;
+            const status = passed === total ? '✅' : '❌';
+            
+            const summary = `## ${status} Validation PR - ${passed}/${total} jobs réussis
+            
+            ${jobs.map(j => `- ${j.status === 'success' ? '✅' : '❌'} ${j.name}`).join('\n')}
+            
+            ${passed === total ? 
+              '🚀 **Toutes les validations sont passées ! Cette PR peut être mergée.**' : 
+              '⚠️ **Des validations ont échoué. Veuillez corriger avant de merger.**'
+            }`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            }); 

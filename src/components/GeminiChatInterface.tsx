@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Send, Sparkles, Plus, Wand2, Calendar, Clock, Settings, Copy, Check } from 'lucide-react';
 import { geminiService, type PollSuggestion } from '../lib/gemini';
 import PollCreator from './PollCreator';
+import { debounce } from 'lodash';
 
 interface Message {
   id: string;
@@ -33,9 +34,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({ onPollCreated
     // Message de bienvenue
     const welcomeMessage: Message = {
       id: 'welcome',
-      content: `Bonjour ! Je suis votre assistant IA pour créer des sondages DooDates. 
-
-Que puis-je créer pour vous ?`,
+      content: `Bonjour ! Que puis-je créer pour vous ?`,
       isAI: true,
       timestamp: new Date(),
     };
@@ -179,9 +178,7 @@ Que puis-je créer pour vous ?`,
     // Réinitialiser les messages avec le message de bienvenue
     const welcomeMessage: Message = {
       id: 'welcome',
-      content: `Bonjour ! Je suis votre assistant IA pour créer des sondages DooDates. 
-
-Que puis-je créer pour vous ?`,
+      content: `Bonjour ! Que puis-je créer pour vous ?`,
       isAI: true,
       timestamp: new Date(),
     };
@@ -211,35 +208,7 @@ Que puis-je créer pour vous ?`,
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Header - Fixe en haut */}
-      <div className="bg-white border-b shadow-sm p-3 md:p-4 sticky top-0 z-40">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-white" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h2 className="font-semibold text-gray-900 text-sm md:text-base truncate">Assistant IA DooDates</h2>
-              <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                  connectionStatus === 'connected' ? 'bg-green-500' : 
-                  connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
-                }`} />
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={handleNewChat}
-            className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex-shrink-0"
-            title="Démarrer une nouvelle conversation"
-          >
-            <Plus className="w-3 h-3 md:w-4 md:h-4" />
-            <span className="hidden sm:inline">Nouveau</span>
-          </button>
-        </div>
-      </div>
-
+    <div className="flex flex-col min-h-[calc(100vh-80px)]">
       {/* Zone de conversation - Défilante */}
       <div className="flex-1 overflow-y-auto bg-gradient-to-br from-blue-50 to-indigo-50">
         <div className="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-4">
@@ -345,7 +314,7 @@ Que puis-je créer pour vous ?`,
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Décrivez le sondage que vous souhaitez créer..."
+              placeholder="Décrivez votre sondage..."
               className="flex-1 resize-none rounded-xl border border-gray-200 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px] max-h-32 text-sm md:text-base"
               rows={1}
             />

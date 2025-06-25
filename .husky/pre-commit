@@ -1,0 +1,40 @@
+#!/bin/sh
+echo "🔍 DooDates - Validation pre-commit..."
+
+# 1. Tests unitaires rapides (< 30s)
+echo "🧪 Tests unitaires rapides..."
+npm run test:unit:fast
+if [ $? -ne 0 ]; then
+  echo "❌ Tests unitaires échoués - Commit bloqué"
+  exit 1
+fi
+
+# 2. Validation TypeScript
+echo "🔍 Vérification TypeScript..."
+npm run type-check
+if [ $? -ne 0 ]; then
+  echo "❌ Erreurs TypeScript - Commit bloqué"
+  exit 1
+fi
+
+# 3. Tests UX Régression (critique)
+echo "🎨 Tests UX Régression..."
+npm run test:ux-regression
+if [ $? -ne 0 ]; then
+  echo "❌ Régression UX détectée - Commit bloqué"
+  exit 1
+fi
+
+# 4. Tests d'intégration
+echo "🔗 Tests d'intégration..."
+npm run test:integration
+if [ $? -ne 0 ]; then
+  echo "❌ Tests d'intégration échoués - Commit bloqué"
+  exit 1
+fi
+
+# 5. Formatage automatique
+echo "💅 Formatage du code..."
+npm run format
+
+echo "✅ Pre-commit validé - Commit autorisé"

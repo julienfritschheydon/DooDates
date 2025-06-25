@@ -3,6 +3,7 @@ import { X, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Mail, Clock, Pl
 import Calendar from './Calendar';
 import { usePolls, type PollData } from '../hooks/usePolls';
 import { useAuth } from '../contexts/AuthContext';
+import { googleCalendar } from '../lib/google-calendar';
 import { UserMenu } from './UserMenu';
 import { type PollSuggestion } from '../lib/gemini';
 import { useNavigate } from 'react-router-dom';
@@ -350,6 +351,43 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu, initialDa
     return () => clearTimeout(autoSave);
   }, [state]);
 
+  // Restaurer le brouillon après connexion (une seule fois au montage)
+  useEffect(() => {
+    const pollDraft = localStorage.getItem('doodates-poll-draft');
+    if (pollDraft && !initialData) {
+      try {
+        const draftData = JSON.parse(pollDraft);
+        if (draftData.title || draftData.selectedDates?.length > 0) {
+          setState(prev => ({
+            ...prev,
+            pollTitle: draftData.title || '',
+            selectedDates: draftData.selectedDates || [],
+            participantEmails: draftData.participantEmails || '',
+          }));
+          setTimeSlotsByDate(draftData.timeSlotsByDate || {});
+          localStorage.removeItem('doodates-poll-draft');
+          console.log('📋 Brouillon restauré avec', draftData.selectedDates?.length || 0, 'dates');
+        } else {
+          // Brouillon vide, le supprimer
+          localStorage.removeItem('doodates-poll-draft');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la restauration du brouillon:', error);
+        localStorage.removeItem('doodates-poll-draft');
+      }
+    }
+  }, []); // Exécuter une seule fois au montage
+
+  // Vérifier la connexion calendrier automatiquement (une seule fois)
+  useEffect(() => {
+    if (user && !state.calendarConnected) {
+      const timer = setTimeout(() => {
+        connectCalendar('google');
+      }, 1000); // Délai pour éviter les conflits
+      return () => clearTimeout(timer);
+    }
+  }, [user]); // Enlever state.calendarConnected des dépendances pour éviter les boucles
+
   useEffect(() => {
     const draft = localStorage.getItem('doodates-draft');
     if (draft && initialData) { // On ne charge le draft que si on a des données initiales
@@ -391,11 +429,14 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu, initialDa
     }
   }, [initialData]); // Ajout de initialData comme dépendance
 
-  // Ajout d'un effet pour nettoyer le draft au montage
+  // Ajout d'un effet pour nettoyer le draft au montage (mais pas si on a un draft d'auth)
   useEffect(() => {
-    if (!initialData) {
+    const pollDraft = localStorage.getItem('doodates-poll-draft');
+    if (!initialData && !pollDraft) {
       console.log('🧹 Nettoyage du draft au démarrage');
       localStorage.removeItem('doodates-draft');
+    } else if (pollDraft) {
+      console.log('📋 Draft d\'auth détecté, conservation du draft normal');
     }
   }, []);
 
@@ -406,20 +447,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu, initialDa
   }, [state.selectedDates.length, state.showCalendarConnect]);
 
   const isGranularityCompatible = (newGranularity: number): boolean => {
-    if (newGranularity > state.timeGranularity) {
-      for (const dateStr of state.selectedDates) {
-        const slots = timeSlotsByDate[dateStr] || [];
-        const enabledSlots = slots.filter((slot) => slot.enabled)
-          .sort((a, b) => (a.hour * 60 + a.minute) - (b.hour * 60 + b.minute));
-
-        for (const slot of enabledSlots) {
-          const slotMinutes = slot.hour * 60 + slot.minute;
-          if (slotMinutes % newGranularity !== 0) {
-            return false;
-          }
-        }
-      }
+    if (timeSlotFunctions) {
+      return timeSlotFunctions.isGranularityCompatible(newGranularity, state.selectedDates, timeSlotsByDate, state.timeGranularity);
     }
+    // Fallback simple
     return true;
   };
 
@@ -529,60 +560,71 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu, initialDa
   // Debug responsive seulement en développement
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      const logResponsiveInfo = () => {
-        console.log('📱 Responsive Debug:', {
+      const handleResize = () => {
+        const newDimensions = {
           width: window.innerWidth,
           height: window.innerHeight,
           mobile: window.innerWidth < 768
-        });
+        };
+        console.log('📱 Responsive Debug:', newDimensions);
       };
 
-      // Log au montage
-      logResponsiveInfo();
-
-      // Log sur redimensionnement (avec throttling)
-      let timeout: NodeJS.Timeout;
-      const handleResize = () => {
-        clearTimeout(timeout);
-        timeout = setTimeout(logResponsiveInfo, 250);
+      // Throttle handleResize to prevent excessive calls
+      let resizeTimeout: NodeJS.Timeout;
+      const throttledHandleResize = () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(handleResize, 150); // Throttle to 150ms
       };
 
-      window.addEventListener('resize', handleResize);
+      window.addEventListener('resize', throttledHandleResize);
       return () => {
-        window.removeEventListener('resize', handleResize);
-        clearTimeout(timeout);
+        window.removeEventListener('resize', throttledHandleResize);
+        clearTimeout(resizeTimeout);
       };
     }
   }, []);
 
   // Modification de handleScroll pour limiter l'ajout de mois - avec throttling
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollLeft, scrollWidth, clientWidth } = e.currentTarget;
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log('📅 Calendar Scroll Info:', {
-        scrollLeft,
-        scrollWidth,
-        clientWidth,
-        'Visible Width': `${Math.round((clientWidth / scrollWidth) * 100)}%`,
-        'Scroll Progress': `${Math.round((scrollLeft / (scrollWidth - clientWidth)) * 100)}%`
-      });
-    }
-
-    // Charger plus de mois avec limite réduite pour de meilleures performances
-    if (scrollWidth - scrollLeft <= clientWidth + 200 && visibleMonths.length < 12) {
-      const lastMonth = visibleMonths[visibleMonths.length - 1];
-      const nextMonth = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1);
-
-      // Vérifier qu'on ne dépasse pas 1 an à partir d'aujourd'hui
-      const oneYearFromNow = new Date();
-      oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
-
-      if (nextMonth <= oneYearFromNow) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('📅 Ajout du mois:', nextMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }));
+    // Utiliser requestAnimationFrame pour optimiser les performances de scroll
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(() => {
+        const container = e.currentTarget;
+        const scrollLeft = container.scrollLeft;
+        const containerWidth = container.clientWidth;
+        const scrollWidth = container.scrollWidth;
+        
+        // Calculer le mois visible au centre
+        const monthWidth = containerWidth / 1.5; // Approximation
+        const visibleMonthIndex = Math.round(scrollLeft / monthWidth);
+        
+        if (visibleMonthIndex >= 0 && visibleMonthIndex < visibleMonths.length) {
+          const visibleMonth = visibleMonths[visibleMonthIndex];
+          if (visibleMonth && visibleMonth instanceof Date && !isNaN(visibleMonth.getTime())) {
+            setState(prev => ({
+              ...prev,
+              currentMonth: visibleMonth
+            }));
+          }
         }
-        setVisibleMonths(prev => [...prev, nextMonth]);
+      });
+    } else {
+      // Fallback sans requestAnimationFrame
+      const container = e.currentTarget;
+      const scrollLeft = container.scrollLeft;
+      const containerWidth = container.clientWidth;
+      
+      const monthWidth = containerWidth / 1.5;
+      const visibleMonthIndex = Math.round(scrollLeft / monthWidth);
+      
+      if (visibleMonthIndex >= 0 && visibleMonthIndex < visibleMonths.length) {
+        const visibleMonth = visibleMonths[visibleMonthIndex];
+        if (visibleMonth && visibleMonth instanceof Date && !isNaN(visibleMonth.getTime())) {
+          setState(prev => ({
+            ...prev,
+            currentMonth: visibleMonth
+          }));
+        }
       }
     }
   };
@@ -603,8 +645,73 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu, initialDa
     });
   };
 
-  const connectCalendar = (provider: 'google' | 'outlook') => {
-    setState((prev) => ({ ...prev, calendarConnected: true }));
+  const connectCalendar = async (provider: 'google' | 'outlook') => {
+    if (provider === 'google') {
+      try {
+        // Vérifier si l'utilisateur a déjà accès au calendrier
+        const hasAccess = await googleCalendar.hasCalendarAccess();
+        
+        if (hasAccess) {
+          console.log('🗓️ Accès Google Calendar confirmé');
+          setState((prev) => ({ ...prev, calendarConnected: true }));
+          
+          // Analyser les disponibilités pour les dates sélectionnées
+          if (state.selectedDates.length > 0) {
+            await analyzeCalendarAvailability();
+          }
+        } else if (user) {
+          console.log('🔄 Utilisateur connecté mais pas d\'accès calendrier');
+          setState((prev) => ({ ...prev, calendarConnected: true }));
+        } else {
+          console.log('🚫 Pas d\'accès Google Calendar');
+        }
+      } catch (error) {
+        console.error('❌ Erreur connexion calendrier:', error);
+      }
+    } else {
+      // TODO: Implémenter Outlook
+      console.log(`Connexion au calendrier ${provider} (non implémenté)`);
+    }
+  };
+
+  const analyzeCalendarAvailability = async () => {
+    try {
+      console.log('📊 Analyse des disponibilités calendrier...');
+      
+      const availability = await googleCalendar.analyzeAvailability(state.selectedDates);
+      
+      // Suggérer automatiquement les créneaux libres
+      const newTimeSlotsByDate = { ...timeSlotsByDate };
+      
+      Object.entries(availability).forEach(([date, { suggested }]) => {
+        if (suggested.length > 0) {
+          console.log(`✅ Créneaux suggérés pour ${date}:`, suggested);
+          
+          // Activer les créneaux suggérés
+          if (newTimeSlotsByDate[date]) {
+            suggested.forEach(slot => {
+              const startTime = new Date(slot.start);
+              const endTime = new Date(slot.end);
+              
+              // Activer tous les créneaux dans la plage suggérée
+              newTimeSlotsByDate[date].forEach(timeSlot => {
+                const slotTime = new Date(`${date}T${timeSlot.hour.toString().padStart(2, '0')}:${timeSlot.minute.toString().padStart(2, '0')}:00`);
+                
+                if (slotTime >= startTime && slotTime < endTime) {
+                  timeSlot.enabled = true;
+                }
+              });
+            });
+          }
+        }
+      });
+      
+      setTimeSlotsByDate(newTimeSlotsByDate);
+      console.log('🎯 Créneaux mis à jour avec les suggestions du calendrier');
+      
+    } catch (error) {
+      console.error('❌ Erreur analyse calendrier:', error);
+    }
   };
 
   const validateEmails = (emailString: string): { valid: string[]; errors: string[] } => {
@@ -639,123 +746,90 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu, initialDa
     }));
   };
 
-  const toggleTimeSlotForDate = (dateStr: string, hour: number, minute: number) => {
-    setTimeSlotsByDate((prev) => {
-      const currentSlots = prev[dateStr] || [];
-      const slotKey = `${hour}-${minute}`;
-      const existingSlot = currentSlots.find((s) => s.hour === hour && s.minute === minute);
-
-      let newSlots;
-      if (existingSlot) {
-        newSlots = currentSlots.map((slot) =>
-          slot.hour === hour && slot.minute === minute ? { ...slot, enabled: !slot.enabled } : slot
-        );
-      } else {
-        newSlots = [...currentSlots, { hour, minute, enabled: true }];
-      }
-
-      return {
-        ...prev,
-        [dateStr]: newSlots,
-      };
-    });
-  };
-
-  // Cache pour les créneaux horaires générés
-  const timeSlotCache = useRef<Map<number, { hour: number; minute: number; label: string }[]>>(new Map());
-
-  const generateTimeSlots = (): { hour: number; minute: number; label: string }[] => {
-    // Utiliser le cache si disponible
-    if (timeSlotCache.current.has(state.timeGranularity)) {
-      return timeSlotCache.current.get(state.timeGranularity)!;
+  // OPTIMISATION: Utilisation du cache global des fonctions TimeSlot
+  const [timeSlotFunctions, setTimeSlotFunctions] = useState<any>(() => {
+    // Essayer de récupérer immédiatement depuis le cache global
+    const globalFunctions = (window as any).getTimeSlotFunctions?.();
+    if (globalFunctions) {
+      console.log('⚡ TimeSlot Functions - Récupération instantanée du cache global');
+      return globalFunctions;
     }
-
-    const slots = [];
-    const totalMinutes = 24 * 60;
-
-    for (let minutes = 0; minutes < totalMinutes; minutes += state.timeGranularity) {
-      const hour = Math.floor(minutes / 60);
-      const minute = minutes % 60;
-      const label = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-      slots.push({ hour, minute, label });
-    }
-
-    // Mettre en cache
-    timeSlotCache.current.set(state.timeGranularity, slots);
-    return slots;
-  };
-
-  const getVisibleTimeSlots = () => {
-    const allSlots = generateTimeSlots();
-
-    if (state.showExtendedHours) {
-      return allSlots;
-    } else {
-      // Détecter la plage d'horaires pré-sélectionnés - optimisé
-      const enabledHours = new Set<number>();
+    return null;
+  });
+  
+  useEffect(() => {
+    // Si pas encore en cache, charger et utiliser le cache global
+    if (!timeSlotFunctions) {
+      console.time('⏰ TimeSlot Functions - Chargement avec cache global');
       
-      Object.values(timeSlotsByDate).forEach(slots => {
-        slots.filter(slot => slot.enabled).forEach(slot => {
-          enabledHours.add(slot.hour);
-        });
-      });
-
-      if (enabledHours.size > 0) {
-        // Si des créneaux sont pré-sélectionnés, afficher une plage autour d'eux
-        const minHour = Math.max(Math.min(...enabledHours) - 1, 0);
-        const maxHour = Math.min(Math.max(...enabledHours) + 2, 23);
-        return allSlots.filter((slot) => slot.hour >= minHour && slot.hour <= maxHour);
-      } else {
-        // Plage par défaut réduite si aucun créneau pré-sélectionné
-        return allSlots.filter((slot) => slot.hour >= 8 && slot.hour <= 20);
+      // Vérifier d'abord le cache global
+      const globalFunctions = (window as any).getTimeSlotFunctions?.();
+      if (globalFunctions) {
+        console.timeEnd('⏰ TimeSlot Functions - Chargement avec cache global');
+        setTimeSlotFunctions(globalFunctions);
+        return;
       }
+      
+      // Sinon, importer et mettre en cache
+      import('../lib/timeSlotFunctions').then(module => {
+        console.timeEnd('⏰ TimeSlot Functions - Chargement avec cache global');
+        setTimeSlotFunctions(module);
+      });
+    }
+  }, [timeSlotFunctions]);
+
+  const toggleTimeSlotForDate = async (dateStr: string, hour: number, minute: number) => {
+    if (timeSlotFunctions) {
+      // Utiliser la fonction lazy-loadée
+      const newTimeSlotsByDate = timeSlotFunctions.toggleTimeSlotForDate(dateStr, hour, minute, timeSlotsByDate);
+      setTimeSlotsByDate(newTimeSlotsByDate);
+    } else {
+      // Fallback simple si pas encore chargé
+      setTimeSlotsByDate((prev) => {
+        const currentSlots = prev[dateStr] || [];
+        const existingSlot = currentSlots.find((s) => s.hour === hour && s.minute === minute);
+
+        let newSlots;
+        if (existingSlot) {
+          newSlots = currentSlots.map((slot) =>
+            slot.hour === hour && slot.minute === minute ? { ...slot, enabled: !slot.enabled } : slot
+          );
+        } else {
+          newSlots = [...currentSlots, { hour, minute, enabled: true }];
+        }
+
+        return {
+          ...prev,
+          [dateStr]: newSlots,
+        };
+      });
     }
   };
 
-  const getTimeSlotBlocks = (dateStr: string): {
-    start: { hour: number; minute: number };
-    end: { hour: number; minute: number };
-  }[] => {
-    const slots = timeSlotsByDate[dateStr] || [];
-    const enabledSlots = slots.filter((slot) => slot.enabled)
-      .sort((a, b) => (a.hour * 60 + a.minute) - (b.hour * 60 + b.minute));
-
-    const blocks: {
-      start: { hour: number; minute: number };
-      end: { hour: number; minute: number };
-    }[] = [];
-
-    let currentBlock = null;
-
-    enabledSlots.forEach((slot) => {
-      const slotMinutes = slot.hour * 60 + slot.minute;
-
-      if (!currentBlock) {
-        currentBlock = { start: slot, end: slot };
-      } else {
-        const blockEndMinutes = currentBlock.end.hour * 60 + currentBlock.end.minute;
-
-        if (slotMinutes === blockEndMinutes + state.timeGranularity) {
-          currentBlock.end = slot;
-        } else {
-          blocks.push(currentBlock);
-          currentBlock = { start: slot, end: slot };
-        }
-      }
-    });
-
-    if (currentBlock) {
-      blocks.push(currentBlock);
+  // OPTIMISATION: Fonctions lazy-loadées avec fallbacks
+  const getVisibleTimeSlots = () => {
+    if (timeSlotFunctions) {
+      return timeSlotFunctions.getVisibleTimeSlots(state.showExtendedHours, state.timeGranularity, timeSlotsByDate);
     }
+    // Fallback simple
+    return [];
+  };
 
-    return blocks;
+  const getTimeSlotBlocks = (dateStr: string) => {
+    if (timeSlotFunctions) {
+      return timeSlotFunctions.getTimeSlotBlocks(dateStr, timeSlotsByDate, state.timeGranularity);
+    }
+    // Fallback simple
+    return [];
   };
 
   const formatSelectedDateHeader = (dateStr: string) => {
-    // Parser la date en mode local pour éviter les décalages timezone
+    if (timeSlotFunctions) {
+      return timeSlotFunctions.formatSelectedDateHeader(dateStr);
+    }
+    // Fallback simple
     const [year, month, day] = dateStr.split('-').map(Number);
-    const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
-
+    const date = new Date(year, month - 1, day);
     return {
       dayName: date.toLocaleDateString('fr-FR', { weekday: 'short' }).toLowerCase(),
       dayNumber: date.getDate(),
@@ -875,26 +949,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu, initialDa
 
   return (
     <div>
-      {/* Header avec bouton retour et menu */}
-      <div className="bg-white border-b px-2 py-3 flex items-center justify-between">
-        <button
-          onClick={handleBack}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <Menu className="w-6 h-6 text-gray-600" />
-        </button>
-
-        <h1 className="text-lg font-semibold text-gray-800">Nouveau sondage</h1>
-
-        {/* Croix de fermeture visible sur tous les écrans */}
-        <button
-          onClick={handleBack}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <X className="w-6 h-6 text-gray-600" />
-        </button>
-      </div>
-
       <div className="p-4 md:p-6 lg:p-8">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 lg:p-8">
@@ -927,12 +981,27 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu, initialDa
 
                               {state.selectedDates.length > 0 && (
                 <div className="space-y-4">
-                  {state.showCalendarConnect && (
+                  {state.showCalendarConnect && !state.calendarConnected && (
                     <div className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <a href="#" className="text-sm text-blue-600 hover:text-blue-800 underline">
+                        <button
+                          onClick={() => {
+                            // Sauvegarder l'état actuel avant redirection
+                            localStorage.setItem('doodates-return-to', 'create');
+                            localStorage.setItem('doodates-connect-calendar', 'true');
+                            localStorage.setItem('doodates-poll-draft', JSON.stringify({
+                              title: state.pollTitle,
+                              selectedDates: state.selectedDates,
+                              timeSlotsByDate: timeSlotsByDate,
+                              participantEmails: state.participantEmails
+                            }));
+                            // Rediriger vers la page de connexion avec intention calendrier
+                            window.location.href = '/auth?connect=calendar';
+                          }}
+                          className="text-sm text-blue-600 hover:text-blue-800 underline bg-transparent border-none cursor-pointer"
+                        >
                           Connecter votre calendrier (optionnel)
-                        </a>
+                        </button>
                         <button
                           onClick={() => setState((prev) => ({ ...prev, showCalendarConnect: false }))}
                           className="text-gray-400 hover:text-gray-600"
@@ -940,6 +1009,31 @@ const PollCreator: React.FC<PollCreatorProps> = ({ onBack, onOpenMenu, initialDa
                           <X className="w-4 h-4" />
                         </button>
                       </div>
+                    </div>
+                  )}
+
+                  {state.calendarConnected && (
+                    <div className="border border-green-200 bg-green-50 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-green-700">
+                          <Check className="w-4 h-4" />
+                          <span className="text-sm font-medium">Calendrier Google connecté</span>
+                        </div>
+                        {state.selectedDates.length > 0 && (
+                          <button
+                            onClick={analyzeCalendarAvailability}
+                            className="text-xs bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors"
+                          >
+                            📊 Analyser disponibilités
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-xs text-green-600 mt-1">
+                        {state.selectedDates.length > 0 
+                          ? 'Cliquez sur "Analyser disponibilités" pour suggérer des créneaux libres basés sur votre agenda.' 
+                          : 'Sélectionnez des dates pour analyser vos disponibilités.'
+                        }
+                      </p>
                     </div>
                   )}
 
