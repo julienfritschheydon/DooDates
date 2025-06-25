@@ -46,6 +46,7 @@ export interface GeminiResponse {
 
 export class GeminiService {
   private static instance: GeminiService;
+  private static warnedAboutApiKey = false;
   private genAI: GoogleGenerativeAI | null = null;
   private model: GenerativeModel | null = null;
   private lastRequestTime: number = 0;
@@ -65,8 +66,9 @@ export class GeminiService {
     this.calendarQuery = new CalendarQuery();
     
     // Pas d'initialisation immédiate de Gemini - sera fait lors du premier appel
-    if (!API_KEY && process.env.NODE_ENV === 'development') {
-      console.warn('VITE_GEMINI_API_KEY n\'est pas définie dans les variables d\'environnement');
+    if (!API_KEY && process.env.NODE_ENV === 'development' && !GeminiService.warnedAboutApiKey) {
+      console.warn('🔑 VITE_GEMINI_API_KEY non définie - Fonctionnalités IA désactivées');
+      GeminiService.warnedAboutApiKey = true;
     }
   }
 

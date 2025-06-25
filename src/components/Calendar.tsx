@@ -1,6 +1,7 @@
 import React, { useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { logger } from '../lib/logger';
 
 interface CalendarProps {
   visibleMonths: Date[];
@@ -23,12 +24,19 @@ const Calendar: React.FC<CalendarProps> = ({
   onMonthChange,
   onMonthsChange
 }) => {
+  // Timer optimisé pour éviter les conflits
+  const timerId = logger.time('Calendar - Rendu total', 'calendar');
+  logger.log(`Calendar - Début du rendu (${visibleMonths.length} mois, ${selectedDates.length} dates sélectionnées)`, 'calendar');
+  
   const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Mise en cache des jours du calendrier avec useMemo
   const generateCalendarDays = useMemo(() => {
-    return (monthDate: Date): CalendarDay[] => {
+    const memoTimerId = logger.time('Calendar - useMemo generateCalendarDays', 'calendar');
+    
+    const result = (monthDate: Date): CalendarDay[] => {
+      const dayTimerId = logger.time('Calendar - Génération des jours d\'un mois', 'calendar');
       // Générer seulement les jours du mois en cours
       const year = monthDate.getFullYear();
       const month = monthDate.getMonth();
@@ -51,8 +59,11 @@ const Calendar: React.FC<CalendarProps> = ({
         days.push({ date: currentDate, isCurrentMonth: true, isEmpty: false });
       }
       
+      logger.timeEnd(dayTimerId);
       return days;
     };
+    logger.timeEnd(memoTimerId);
+    return result;
   }, []); // Pas de dépendances car c'est une fonction pure
 
   const renderCalendarGrid = (month: Date, isMobile: boolean = false) => {
@@ -138,6 +149,9 @@ const Calendar: React.FC<CalendarProps> = ({
       }
     }
   };
+
+  // Terminer le timer principal avant le rendu
+  logger.timeEnd(timerId);
 
   return (
     <div className="w-full">

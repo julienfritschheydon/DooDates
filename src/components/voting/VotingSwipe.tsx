@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { ChevronLeft, TrendingUp, Users, Check, X, HelpCircle, ArrowUp, Star, ArrowRight, ArrowLeft } from 'lucide-react';
+import TopNav from '../TopNav';
 
 // Types pour la démo
 interface SwipeVote {
@@ -359,36 +360,41 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
 
   if (isComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="text-center text-white"
-        >
+      <div className="min-h-screen bg-gradient-to-br from-green-400 to-emerald-600">
+        <TopNav />
+        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-80px)]">
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="text-center text-white"
           >
-            <Check className="w-10 h-10 text-green-500" />
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6"
+            >
+              <Check className="w-10 h-10 text-green-500" />
+            </motion.div>
+            <h2 className="text-2xl font-bold mb-2">Vote enregistré !</h2>
+            <p className="opacity-90 mb-6">Merci {voterInfo.name} pour votre participation</p>
+            <button
+              onClick={onBack}
+              className="bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+            >
+              Voir les résultats
+            </button>
           </motion.div>
-          <h2 className="text-2xl font-bold mb-2">Vote enregistré !</h2>
-          <p className="opacity-90 mb-6">Merci {voterInfo.name} pour votre participation</p>
-          <button
-            onClick={onBack}
-            className="bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
-          >
-            Voir les résultats
-          </button>
-        </motion.div>
+        </div>
       </div>
     );
   }
 
   if (showForm) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50">
+        <TopNav />
+        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-80px)]">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -515,6 +521,7 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
              </p>
            </div>
         </motion.div>
+        </div>
       </div>
     );
   }
@@ -533,14 +540,10 @@ export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <TopNav />
       {/* Header compact */}
       <div className="p-4 relative bg-white border-b">
-        <button
-          onClick={onBack}
-          className="absolute top-4 left-4 w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
+
 
         {/* Titre et description sur une ligne sur mobile */}
         <div className="text-center px-12">
