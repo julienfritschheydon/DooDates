@@ -113,7 +113,8 @@
   }
 
   /* Correction spécifique pour Android PWA */
-  html, body {
+  html,
+  body {
     scroll-behavior: auto !important;
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;

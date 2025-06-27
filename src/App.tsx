@@ -60,23 +60,23 @@ const preloadPollCreator = async () => {
   pollCreatorLoadingPromise = (async () => {
     try {
       const startTime = performance.now();
-      
+
       // Précharger le module PollCreator
       const module = await import("./components/PollCreator");
       pollCreatorModule = module;
-      
+
       const endTime = performance.now();
       const loadTime = endTime - startTime;
-      
+
       // Marquer comme préchargé
       sessionStorage.setItem(CACHE_KEY, "true");
       sessionStorage.setItem("pollCreator-loadTime", loadTime.toString());
-      
+
       // Log seulement si temps de chargement élevé
       if (loadTime > 1000) {
         console.log(`📦 PollCreator - Rechargement lent: ${loadTime} ms`);
       }
-      
+
       return module;
     } catch (error) {
       console.error("❌ Erreur préchargement PollCreator:", error);
@@ -93,18 +93,18 @@ const preloadTimeSlotFunctions = async () => {
   if (timeSlotFunctionsModule) {
     return;
   }
-  
+
   try {
     const startTime = performance.now();
-    
+
     // Importer le module
     timeSlotFunctionsModule = await import("./lib/timeSlotFunctions");
-    
+
     const endTime = performance.now();
     const loadTime = endTime - startTime;
-    
+
     sessionStorage.setItem(TIMESLOT_CACHE_KEY, "loaded");
-    
+
     // Log seulement si rechargement session
     if (!sessionStorage.getItem(TIMESLOT_CACHE_KEY + "-session")) {
       //console.log(`⏰ TimeSlot Functions - Rechargement session: ${loadTime} ms`);
@@ -119,14 +119,16 @@ const preloadTimeSlotFunctions = async () => {
 const preloadProgressiveCalendar = async () => {
   try {
     const startTime = performance.now();
-    
+
     // Précharger le calendrier progressif
-    const { getProgressiveCalendar } = await import("./lib/progressive-calendar");
+    const { getProgressiveCalendar } = await import(
+      "./lib/progressive-calendar"
+    );
     await getProgressiveCalendar();
-    
+
     const endTime = performance.now();
     const loadTime = endTime - startTime;
-    
+
     // Log seulement les temps significatifs
     //if (loadTime > 500) {
     //  console.log(`📅 Préchargement calendrier progressif: ${loadTime} ms`);
@@ -140,14 +142,14 @@ const preloadProgressiveCalendar = async () => {
 const preloadStaticCalendar = async () => {
   try {
     const startTime = performance.now();
-    
+
     // Précharger le calendrier statique pour éviter le fallback
     const { getStaticCalendar } = await import("./lib/calendar-data");
     await getStaticCalendar();
-    
+
     const endTime = performance.now();
     const loadTime = endTime - startTime;
-    
+
     // Log seulement les temps significatifs
     if (loadTime > 100) {
       //console.log(`📅 Calendrier statique préchargé: ${loadTime} ms`);
@@ -265,7 +267,11 @@ const queryClient = new QueryClient({
 // Composant wrapper pour VotingSwipe qui extrait le pollId de l'URL
 const VotingSwipeWrapper = () => {
   const { pollId } = useParams<{ pollId: string }>();
-  return pollId ? <VotingSwipe pollId={pollId} /> : <div>ID du sondage manquant</div>;
+  return pollId ? (
+    <VotingSwipe pollId={pollId} />
+  ) : (
+    <div>ID du sondage manquant</div>
+  );
 };
 
 // Composant pour la démo avec un ID fixe
@@ -295,8 +301,11 @@ const App = () => (
               <Route path="/demo/ex-swipe" element={<ExVotingSwipeDemo />} /> */}
               <Route path="/create" element={<PollCreator />} />
               <Route path="/admin/:pollSlug/:adminToken" element={<Vote />} />
-              <Route path="/test/vote-submission" element={<TestVoteSubmission />} />
-              
+              <Route
+                path="/test/vote-submission"
+                element={<TestVoteSubmission />}
+              />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -41,9 +41,9 @@ export const formatDate = (dateString: string) => {
 
 // Formater l'heure de façon simple
 export const formatTime = (
-  timeSlots: Array<{ 
-    hour?: number; 
-    minute?: number; 
+  timeSlots: Array<{
+    hour?: number;
+    minute?: number;
     duration?: number;
     start_hour?: number;
     start_minute?: number;
@@ -54,26 +54,26 @@ export const formatTime = (
 ) => {
   if (!timeSlots?.length) return "Toute la journée";
   const slot = timeSlots[0];
-  
+
   // Si le format est celui de l'API (start_hour, end_hour)
   if (slot.start_hour !== undefined && slot.end_hour !== undefined) {
     const startHour = slot.start_hour;
     const startMinute = slot.start_minute || 0;
     const endHour = slot.end_hour;
     const endMinute = slot.end_minute || 0;
-    
+
     const start = `${startHour}h${startMinute ? startMinute.toString().padStart(2, "0") : ""}`;
     const end = `${endHour}h${endMinute ? endMinute.toString().padStart(2, "0") : ""}`;
-    
+
     return `${start} - ${end}`;
   }
-  
+
   // Sinon, utiliser l'ancien format (hour, minute, duration)
   if (slot.hour === undefined) {
     console.warn("formatTime: hour undefined in timeSlot", slot);
     return "Horaire non défini";
   }
-  
+
   const start = `${slot.hour}h${slot.minute ? slot.minute.toString().padStart(2, "0") : ""}`;
   if (slot.duration) {
     const endHour = Math.floor(

@@ -51,19 +51,19 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   useEffect(() => {
     // Test de connexion initial
     //console.log("🚀 GeminiChatInterface - Initialisation du composant");
-    
+
     // Réinitialiser les flags au montage du composant
     hasShownOfflineMessage.current = false;
     wasOffline.current = false;
-    
+
     testGeminiConnection();
 
     // Scroll vers le haut au démarrage pour corriger le focus sur Android
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    
+    window.scrollTo({ top: 0, behavior: "instant" });
+
     // Forcer le repositionnement après un court délai pour Android
     setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      window.scrollTo({ top: 0, behavior: "instant" });
     }, 100);
 
     // Retarder l'ajout du message de bienvenue pour éviter le conflit de scroll
@@ -83,16 +83,16 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
           return [welcomeMessage];
         }
         // Sinon, vérifier s'il n'y a pas déjà un message de bienvenue
-        const hasWelcome = prev.some(msg => msg.id === "welcome");
+        const hasWelcome = prev.some((msg) => msg.id === "welcome");
         if (!hasWelcome) {
           return [welcomeMessage, ...prev];
         }
         return prev;
       });
-      
+
       // Scroll de sécurité supplémentaire après le rendu complet
       setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'instant' });
+        window.scrollTo({ top: 0, behavior: "instant" });
       }, 100);
     }, 300); // Délai pour laisser le scroll vers le haut s'établir
 
@@ -109,7 +109,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     // Désactiver complètement le scroll automatique vers le bas sur mobile
     // pour éviter tout conflit avec la correction du focus Android
     const isMobile = window.innerWidth <= 768;
-    
+
     if (!isMobile) {
       scrollToBottom();
     }
@@ -118,8 +118,8 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   const scrollToBottom = () => {
     // Utiliser behavior: "instant" sur mobile pour éviter les conflits
     const isMobile = window.innerWidth <= 768;
-    messagesEndRef.current?.scrollIntoView({ 
-      behavior: isMobile ? "instant" : "smooth" 
+    messagesEndRef.current?.scrollIntoView({
+      behavior: isMobile ? "instant" : "smooth",
     });
   };
 
@@ -137,7 +137,8 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
           ...prev,
           {
             id: `reconnected-${Date.now()}`,
-            content: "✅ Je suis de nouveau disponible ! Vous pouvez maintenant créer vos sondages.",
+            content:
+              "✅ Je suis de nouveau disponible ! Vous pouvez maintenant créer vos sondages.",
             isAI: true,
             timestamp: new Date(),
           },
@@ -156,7 +157,8 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
             ...prev,
             {
               id: `error-${Date.now()}`,
-              content: "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...",
+              content:
+                "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...",
               isAI: true,
               timestamp: new Date(),
             },
@@ -185,7 +187,8 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
           ...prev,
           {
             id: `connection-error-${Date.now()}`,
-            content: "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...",
+            content:
+              "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...",
             isAI: true,
             timestamp: new Date(),
           },
@@ -357,30 +360,36 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-blue-500" />
-              <h1 className="text-lg font-semibold text-gray-800">Assistant DooDates</h1>
+              <h1 className="text-lg font-semibold text-gray-800">
+                Assistant DooDates
+              </h1>
             </div>
 
             {/* Indicateur de statut */}
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${
-                connectionStatus === "connected"
-                  ? "bg-green-500"
-                  : connectionStatus === "error"
-                  ? "bg-red-500"
-                  : "bg-yellow-500"
-              }`} />
-              <span className={`text-xs font-medium ${
-                connectionStatus === "connected"
-                  ? "text-green-600"
-                  : connectionStatus === "error"
-                  ? "text-red-600"
-                  : "text-yellow-600"
-              }`}>
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  connectionStatus === "connected"
+                    ? "bg-green-500"
+                    : connectionStatus === "error"
+                      ? "bg-red-500"
+                      : "bg-yellow-500"
+                }`}
+              />
+              <span
+                className={`text-xs font-medium ${
+                  connectionStatus === "connected"
+                    ? "text-green-600"
+                    : connectionStatus === "error"
+                      ? "text-red-600"
+                      : "text-yellow-600"
+                }`}
+              >
                 {connectionStatus === "connected"
                   ? "En ligne"
                   : connectionStatus === "error"
-                  ? "Hors ligne"
-                  : "Connexion..."}
+                    ? "Hors ligne"
+                    : "Connexion..."}
               </span>
             </div>
           </div>

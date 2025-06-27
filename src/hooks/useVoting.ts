@@ -1,5 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
-import { pollsApi, pollOptionsApi, votesApi, Poll, PollOption, Vote } from "@/lib/supabase-fetch";
+import {
+  pollsApi,
+  pollOptionsApi,
+  votesApi,
+  Poll,
+  PollOption,
+  Vote,
+} from "@/lib/supabase-fetch";
 
 interface VoterInfo {
   name: string;
@@ -181,7 +188,8 @@ export const useVoting = (pollSlug: string) => {
       // Vérifier si un vote existe déjà pour cet utilisateur
       const existingVotes = await votesApi.getByPollId(realPollId!);
       const existingVote = existingVotes.find(
-        vote => vote.voter_email.toLowerCase() === voterInfo.email.toLowerCase()
+        (vote) =>
+          vote.voter_email.toLowerCase() === voterInfo.email.toLowerCase(),
       );
 
       if (existingVote) {

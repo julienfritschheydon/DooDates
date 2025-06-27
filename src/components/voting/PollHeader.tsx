@@ -51,7 +51,9 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
             {totalParticipants}
           </span>
           <span className="text-blue-600 text-xs hidden sm:inline">
-            {totalParticipants === 0 || totalParticipants === 1 ? "participant" : "participants"}
+            {totalParticipants === 0 || totalParticipants === 1
+              ? "participant"
+              : "participants"}
           </span>
         </div>
 

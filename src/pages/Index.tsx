@@ -6,7 +6,7 @@ const Index = () => {
   useEffect(() => {
     // Correction focus Android - approche multi-étapes
     const scrollToTop = () => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
     };
@@ -16,10 +16,10 @@ const Index = () => {
 
     // Scroll après rendu initial
     setTimeout(scrollToTop, 50);
-    
+
     // Scroll après chargement complet (pour PWA)
     setTimeout(scrollToTop, 200);
-    
+
     // Scroll après stabilisation Android
     setTimeout(scrollToTop, 500);
 
@@ -34,12 +34,12 @@ const Index = () => {
       setTimeout(scrollToTop, 100);
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
     };
   }, []);
 

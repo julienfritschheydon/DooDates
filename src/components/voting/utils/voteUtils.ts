@@ -1,22 +1,19 @@
 /**
  * Utility functions for voting calculations and interactions
  */
-import { SwipeOption, SwipeVote, VoteType } from './types';
+import { SwipeOption, SwipeVote, VoteType } from "./types";
 
 // Calculer les stats pour l'option actuelle (SANS le vote utilisateur pour les barres de fond)
-export const getExistingStats = (
-  optionId: string,
-  votes: SwipeVote[]
-) => {
+export const getExistingStats = (optionId: string, votes: SwipeVote[]) => {
   const stats = { yes: 0, no: 0, maybe: 0 };
-  
+
   votes.forEach((vote) => {
     const selection = vote.selections[optionId];
     if (selection) {
       stats[selection]++;
     }
   });
-  
+
   return stats;
 };
 
@@ -24,15 +21,15 @@ export const getExistingStats = (
 export const getStatsWithUser = (
   optionId: string,
   votes: SwipeVote[],
-  userVotes: Record<string, VoteType>
+  userVotes: Record<string, VoteType>,
 ) => {
   const stats = getExistingStats(optionId, votes);
-  
+
   // Ajouter le vote utilisateur s'il existe
   if (userVotes[optionId]) {
     stats[userVotes[optionId]]++;
   }
-  
+
   return stats;
 };
 
@@ -40,7 +37,7 @@ export const getStatsWithUser = (
 export const calculateOptionScore = (
   optionId: string,
   votes: SwipeVote[],
-  userVotes: Record<string, VoteType>
+  userVotes: Record<string, VoteType>,
 ) => {
   const stats = getStatsWithUser(optionId, votes, userVotes);
   // Formule de score: (yes * 2) + (maybe * 1) - (no * 1)
@@ -51,7 +48,7 @@ export const calculateOptionScore = (
 export const getRanking = (
   options: SwipeOption[],
   votes: SwipeVote[],
-  userVotes: Record<string, VoteType>
+  userVotes: Record<string, VoteType>,
 ) => {
   // Calculer les scores pour chaque option
   const optionsWithScores = options.map((option) => ({

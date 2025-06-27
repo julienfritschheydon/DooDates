@@ -34,7 +34,9 @@ export const VoterForm: React.FC<VoterFormProps> = ({
   formErrors,
 }) => {
   // État local pour les informations de l'utilisateur
-  const [localVoterInfo, setLocalVoterInfo] = useState<VoterInfo>(voterInfo || { name: "", email: "" });
+  const [localVoterInfo, setLocalVoterInfo] = useState<VoterInfo>(
+    voterInfo || { name: "", email: "" },
+  );
   const [localFormErrors, setLocalFormErrors] = useState<FormErrors>({});
 
   // État pour la case à cocher "Recevoir par email"
@@ -142,7 +144,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
           </div>
 
           {/* Résumé des votes */}
-          <VoteSummary 
+          <VoteSummary
             options={options}
             votes={votes}
             userHasVoted={userHasVoted}
@@ -173,7 +175,9 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                 disabled={isSubmitting}
               />
               {localFormErrors.name && (
-                <p className="text-red-500 text-sm mt-1">{localFormErrors.name}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {localFormErrors.name}
+                </p>
               )}
             </div>
 
@@ -234,7 +238,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                 </p>
               </div>
             )}
-            
+
             {formErrors?.submit && formErrors.submit.includes("409") && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3">
                 <p className="text-amber-700 text-sm text-center">
