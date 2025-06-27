@@ -1,42 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
-
-interface Poll {
-  id: string;
-  title: string;
-  description?: string;
-  status: string;
-  creator_id: string;
-  created_at: string;
-}
-
-interface PollOption {
-  id: string;
-  poll_id: string;
-  option_date: string;
-  time_slots: Array<{
-    hour: number;
-    minute: number;
-    duration?: number;
-  }>;
-  display_order: number;
-}
-
-interface Vote {
-  id: string;
-  poll_id: string;
-  voter_email: string;
-  voter_name: string;
-  selections: Record<string, "yes" | "no" | "maybe">;
-  created_at: string;
-}
+import { pollsApi, pollOptionsApi, votesApi, Poll, PollOption, Vote } from "@/lib/supabase-fetch";
 
 interface VoterInfo {
   name: string;
   email: string;
 }
 
-export const useVoting = (pollId: string) => {
+export const useVoting = (pollSlug: string) => {
+  // State pour l'ID réel du poll (récupéré depuis le slug)
+  const [realPollId, setRealPollId] = useState<string | null>(null);
   const [poll, setPoll] = useState<Poll | null>(null);
   const [options, setOptions] = useState<PollOption[]>([]);
   const [votes, setVotes] = useState<Vote[]>([]);
@@ -68,35 +40,25 @@ export const useVoting = (pollId: string) => {
 
   // Charger les données du sondage
   const loadPollData = useCallback(async () => {
-    if (!pollId) return;
+    if (!pollSlug) return;
 
     try {
       setLoading(true);
       setError(null);
 
-      // Charger le sondage
-      const { data: pollData, error: pollError } = await supabase
-        .from("polls")
-        .select("*")
-        .eq("id", pollId)
-        .eq("status", "active")
-        .single();
+      // Charger le sondage par slug avec la nouvelle API
+      const pollData = await pollsApi.getBySlug(pollSlug);
 
-      if (pollError) {
-        setError("Sondage introuvable ou inactif");
+      if (!pollData) {
+        setError("Sondage introuvable");
         return;
       }
 
       setPoll(pollData);
+      setRealPollId(pollData.id); // Sauvegarder l'ID réel
 
       // Charger les options
-      const { data: optionsData, error: optionsError } = await supabase
-        .from("poll_options")
-        .select("*")
-        .eq("poll_id", pollId)
-        .order("display_order");
-
-      if (optionsError) throw optionsError;
+      const optionsData = await pollOptionsApi.getByPollId(pollData.id);
       setOptions(optionsData || []);
 
       // Initialiser les votes par défaut
@@ -105,37 +67,35 @@ export const useVoting = (pollId: string) => {
       }
 
       // Charger les votes existants
-      const { data: votesData, error: votesError } = await supabase
-        .from("votes")
-        .select("*")
-        .eq("poll_id", pollId);
-
-      if (votesError) throw votesError;
+      const votesData = await votesApi.getByPollId(pollData.id);
       setVotes(votesData || []);
     } catch (err) {
-      console.error("Erreur chargement sondage:", err);
-      setError("Erreur de chargement du sondage");
+      console.error("❌ useVoting - Erreur:", err);
+      setError(`Erreur de chargement: ${err}`);
     } finally {
       setLoading(false);
     }
-  }, [pollId, initializeDefaultVotes]);
+  }, [pollSlug, initializeDefaultVotes]);
 
   // Configuration du temps réel
   useEffect(() => {
-    if (!pollId) return;
+    if (!pollSlug) return;
 
     loadPollData();
 
+    // TEMPORAIRE : Désactiver le temps réel pour debug
+    // TODO: Réactiver une fois le problème WebSocket résolu
+    /*
     // Subscription aux changements en temps réel
     const channel = supabase
-      .channel(`poll-votes-${pollId}`)
+      .channel(`poll-votes-${realPollId || pollSlug}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "votes",
-          filter: `poll_id=eq.${pollId}`,
+          filter: `poll_id=eq.${realPollId}`,
         },
         (payload) => {
           console.log("📡 Vote mis à jour:", payload);
@@ -148,24 +108,20 @@ export const useVoting = (pollId: string) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [pollId, loadPollData]);
+    */
+  }, [pollSlug, loadPollData]);
 
   // Charger seulement les votes (pour optimiser les updates temps réel)
   const loadVotes = useCallback(async () => {
-    if (!pollId) return;
+    if (!realPollId) return;
 
     try {
-      const { data: votesData, error: votesError } = await supabase
-        .from("votes")
-        .select("*")
-        .eq("poll_id", pollId);
-
-      if (votesError) throw votesError;
+      const votesData = await votesApi.getByPollId(realPollId);
       setVotes(votesData || []);
     } catch (err) {
       console.error("Erreur chargement votes:", err);
     }
-  }, [pollId]);
+  }, [realPollId]);
 
   // Mettre à jour un vote (marquer comme explicite)
   const updateVote = useCallback(
@@ -222,19 +178,27 @@ export const useVoting = (pollId: string) => {
     setError(null);
 
     try {
-      const { error: submitError } = await supabase.from("votes").upsert(
-        {
-          poll_id: pollId,
+      // Vérifier si un vote existe déjà pour cet utilisateur
+      const existingVotes = await votesApi.getByPollId(realPollId!);
+      const existingVote = existingVotes.find(
+        vote => vote.voter_email.toLowerCase() === voterInfo.email.toLowerCase()
+      );
+
+      if (existingVote) {
+        // Mettre à jour le vote existant
+        await votesApi.update(existingVote.id, {
+          voter_name: voterInfo.name.trim(),
+          selections: currentVote,
+        });
+      } else {
+        // Créer un nouveau vote
+        await votesApi.create({
+          poll_id: realPollId!,
           voter_email: voterInfo.email.toLowerCase(),
           voter_name: voterInfo.name.trim(),
           selections: currentVote,
-        },
-        {
-          onConflict: "poll_id,voter_email",
-        },
-      );
-
-      if (submitError) throw submitError;
+        });
+      }
 
       // Réinitialiser après succès
       setCurrentVote({});
@@ -246,7 +210,7 @@ export const useVoting = (pollId: string) => {
     } finally {
       setSubmitting(false);
     }
-  }, [pollId, voterInfo, currentVote]);
+  }, [realPollId, voterInfo, currentVote]);
 
   // Calculer les statistiques de vote
   const getVoteStats = useCallback(

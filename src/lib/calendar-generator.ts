@@ -29,6 +29,8 @@ export interface PreGeneratedCalendar {
   weekdays: CalendarDay[];
 }
 
+import { getStaticCalendarSync } from "./calendar-data";
+
 class CalendarGenerator {
   private dayNames = [
     "dimanche",
@@ -80,9 +82,9 @@ class CalendarGenerator {
     const weekends: CalendarDay[] = [];
     const weekdays: CalendarDay[] = [];
 
-    console.log(
-      `🗓️ Génération du calendrier ${startYear}-${endYear} (${yearsCount} ans)`,
-    );
+    //console.log(
+    //  `🗓️ Génération du calendrier ${startYear}-${endYear} (${yearsCount} ans)`,
+    //);
 
     for (let year = startYear; year <= endYear; year++) {
       byYear[year] = [];
@@ -140,10 +142,9 @@ class CalendarGenerator {
       }
     }
 
-    console.log(
-      `✅ Calendrier généré: ${days.length} jours, ${weekends.length} week-ends, ${weekdays.length} jours ouvrables`,
-    );
-
+    //console.log(
+    //  `✅ Calendrier généré: ${days.length} jours, ${weekends.length} week-ends, ${weekdays.length} jours ouvrables`,
+    //);
     return {
       startYear,
       endYear,
@@ -211,20 +212,19 @@ let globalProgressiveCalendar: PreGeneratedCalendar | null = null;
 
 // Version synchrone pour compatibilité (utilise le cache global)
 export function getPreGeneratedCalendarSync(): PreGeneratedCalendar {
-  console.log("🚀 Calendrier synchrone avec cache...");
+  //console.log("🚀 Calendrier synchrone avec cache...");
 
   // Vérifier d'abord le cache global du calendrier progressif
   if (globalProgressiveCalendar) {
-    console.log("⚡ Calendrier progressif - Cache global synchrone");
+    //console.log("⚡ Calendrier progressif - Cache global synchrone");
     return globalProgressiveCalendar;
   }
 
   // Essayer d'importer le calendrier statique de manière synchrone
   try {
-    const { getStaticCalendarSync } = require("./calendar-data");
     const result = getStaticCalendarSync();
     if (result.totalDays > 0) {
-      console.log("⚡ Calendrier statique synchrone");
+      //console.log("⚡ Calendrier statique synchrone");
       return result;
     }
   } catch (e) {
@@ -232,7 +232,7 @@ export function getPreGeneratedCalendarSync(): PreGeneratedCalendar {
   }
 
   // Fallback: génération dynamique minimale (1 an seulement)
-  console.log("📅 Fallback synchrone: génération 1 an");
+  //console.log("📅 Fallback synchrone: génération 1 an");
   const generator = new CalendarGenerator();
   const currentYear = new Date().getFullYear();
   return generator.generateCalendar(currentYear, 1); // 1 an au lieu de 10

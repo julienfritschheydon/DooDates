@@ -1,69 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Users, Clock, Calendar, AlertCircle } from "lucide-react";
-import { VoteGrid } from "./VoteGrid";
-import { VoteActions } from "./VoteActions";
+import { AlertCircle, ShieldCheck } from "lucide-react";
 import { VoteResults } from "./VoteResults";
 import { useVoting } from "@/hooks/useVoting";
+import VotingSwipe from "./VotingSwipe";
+import { Poll } from "@/lib/supabase-fetch";
 
 interface VotingInterfaceProps {
   pollId: string;
   onBack?: () => void;
+  adminToken?: string;
 }
 
 export const VotingInterface: React.FC<VotingInterfaceProps> = ({
   pollId,
   onBack,
+  adminToken,
 }) => {
   const [showResults, setShowResults] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const {
     poll,
     options,
     votes,
-    currentVote,
-    userHasVoted,
-    voterInfo,
     loading,
-    submitting,
     error,
-    setVoterInfo,
-    updateVote,
-    submitVote,
-    hasVotes,
     totalVotes,
   } = useVoting(pollId);
 
-  // Haptic feedback pour mobile
-  const triggerHaptic = (type: "light" | "medium" | "heavy" = "light") => {
-    if (navigator.vibrate) {
-      const patterns = {
-        light: [10],
-        medium: [20],
-        heavy: [50],
-      };
-      navigator.vibrate(patterns[type]);
+  // Détecter si l'utilisateur est admin
+  useEffect(() => {
+    if (adminToken) {
+      // Vérifier si le token admin est valide
+      // Dans une implémentation réelle, on ferait une vérification côté serveur
+      setIsAdmin(true);
     }
-  };
-
-  // Gérer le changement de vote avec haptic feedback
-  const handleVoteChange = (
-    optionId: string,
-    value: "yes" | "no" | "maybe",
-  ) => {
-    updateVote(optionId, value);
-    triggerHaptic("light");
-  };
-
-  // Gérer la soumission avec haptic feedback
-  const handleSubmit = async () => {
-    triggerHaptic("medium");
-    const success = await submitVote();
-    if (success) {
-      triggerHaptic("heavy");
-      setShowResults(true);
-    }
-  };
+  }, [adminToken]);
 
   if (loading) {
     return (
@@ -108,113 +81,70 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header Mobile */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
+  // Afficher la bannière admin si l'utilisateur est admin
+  const AdminBanner = () => {
+    if (!isAdmin) return null;
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50"
+        className="mx-4 mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3"
       >
-        <div className="flex items-center justify-between p-4">
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ChevronLeft className="h-6 w-6 text-gray-600" />
-            </button>
-          )}
-
-          <div className="flex-1 text-center">
-            <h1 className="text-lg font-bold text-gray-800 truncate">
-              {poll.title}
-            </h1>
-            <div className="flex items-center justify-center gap-4 text-sm text-gray-500 mt-1">
-              <span className="flex items-center gap-1">
-                <Users className="h-4 w-4" />
-                {totalVotes} vote{totalVotes !== 1 ? "s" : ""}
-              </span>
-              <span className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                {options.length} option{options.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setShowResults(!showResults)}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <Clock className="h-6 w-6 text-gray-600" />
-          </button>
+        <div className="flex items-center gap-2 text-blue-700">
+          <ShieldCheck className="h-5 w-5" />
+          <span className="text-sm font-medium">
+            Mode administrateur activé. Vous pouvez gérer ce sondage.
+          </span>
         </div>
-      </motion.header>
+      </motion.div>
+    );
+  };
 
+  // Afficher les erreurs
+  const ErrorBanner = () => {
+    if (!error) return null;
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mx-4 mt-4 bg-red-50 border border-red-200 rounded-lg p-3"
+      >
+        <div className="flex items-center gap-2 text-red-700">
+          <AlertCircle className="h-4 w-4" />
+          <span className="text-sm font-medium">{error}</span>
+        </div>
+      </motion.div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Bannière admin si applicable */}
+      <AdminBanner />
+      
       {/* Affichage des erreurs */}
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mx-4 mt-4 bg-red-50 border border-red-200 rounded-lg p-3"
-        >
-          <div className="flex items-center gap-2 text-red-700">
-            <AlertCircle className="h-4 w-4" />
-            <span className="text-sm font-medium">{error}</span>
-          </div>
-        </motion.div>
-      )}
+      <ErrorBanner />
 
       <AnimatePresence mode="wait">
         {showResults ? (
           <VoteResults
             key="results"
-            poll={poll}
+            poll={poll as any}
             options={options}
             votes={votes}
             onBack={() => setShowResults(false)}
           />
         ) : (
-          <motion.div
-            key="voting"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="p-4 space-y-6"
-          >
-            {/* Description du sondage */}
-            {poll.description && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-white/80 rounded-2xl p-4 shadow-sm"
-              >
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  {poll.description}
-                </p>
-              </motion.div>
-            )}
-
-            {/* Grille de vote */}
-            <VoteGrid
-              options={options}
-              votes={votes}
-              currentVote={currentVote}
-              userHasVoted={userHasVoted}
-              onVoteChange={handleVoteChange}
-              onHaptic={triggerHaptic}
-            />
-
-            {/* Actions de vote */}
-            <VoteActions
-              voterInfo={voterInfo}
-              onVoterInfoChange={setVoterInfo}
-              onSubmit={handleSubmit}
-              isSubmitting={submitting}
-              hasVotes={hasVotes}
-            />
-          </motion.div>
+          <VotingSwipe 
+            pollId={pollId}
+            onBack={() => isAdmin ? setShowResults(true) : onBack && onBack()} 
+            onVoteSubmitted={() => {
+              // Optionnel: action à effectuer après soumission du vote
+              console.log("Vote soumis avec succès");
+            }}
+          />
         )}
       </AnimatePresence>
     </div>

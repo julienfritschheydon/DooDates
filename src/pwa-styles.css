@@ -1,0 +1,125 @@
+/* PWA Styles pour mode plein écran Android */
+
+/* Support des zones sécurisées (notch, barre de statut) */
+:root {
+  --safe-area-inset-top: env(safe-area-inset-top);
+  --safe-area-inset-right: env(safe-area-inset-right);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  --safe-area-inset-left: env(safe-area-inset-left);
+}
+
+/* Mode standalone PWA */
+@media (display-mode: standalone) {
+  html, body {
+    /* Forcer le plein écran */
+    height: 100vh !important;
+    height: 100dvh !important; /* Dynamic viewport height */
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    /* Éviter les zones système Android */
+    padding-top: var(--safe-area-inset-top);
+    padding-right: var(--safe-area-inset-right);
+    padding-bottom: var(--safe-area-inset-bottom);
+    padding-left: var(--safe-area-inset-left);
+    
+    /* Masquer la barre d'adresse sur Android */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Header de l'app en mode standalone */
+  .app-header {
+    position: fixed;
+    top: var(--safe-area-inset-top);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #3b82f6;
+    color: white;
+    padding: 12px 16px;
+  }
+  
+  /* Contenu principal avec offset pour header */
+  .main-content {
+    margin-top: calc(60px + var(--safe-area-inset-top));
+    min-height: calc(100vh - 60px - var(--safe-area-inset-top) - var(--safe-area-inset-bottom));
+  }
+}
+
+/* Mode fullscreen PWA */
+@media (display-mode: fullscreen) {
+  html, body {
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Masquer complètement les barres système */
+  body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Styles spécifiques Android Chrome */
+@media screen and (max-width: 768px) {
+  /* Forcer le plein écran sur mobile */
+  html, body {
+    height: 100vh;
+    height: -webkit-fill-available;
+    height: 100dvh; /* Dynamic viewport */
+    overflow-x: hidden;
+    position: fixed;
+    width: 100%;
+  }
+  
+  /* Masquer les éléments de navigation Chrome */
+  body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Root container plein écran */
+  #root {
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Splash screen PWA */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  .pwa-splash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #3b82f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+  }
+  
+  .pwa-splash.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
