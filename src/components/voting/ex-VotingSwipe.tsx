@@ -116,7 +116,7 @@
 
 // export const VotingSwipe: React.FC<VotingSwipeProps> = ({ onBack }) => {
 //   console.log('🚀 VotingSwipe component loaded');
-  
+
 //   // État local pour les votes (tous initialisés à "maybe")
 //   const [votes, setVotes] = useState<Record<string, 'yes' | 'no' | 'maybe'>>(() => {
 //     const initialVotes: Record<string, 'yes' | 'no' | 'maybe'> = {};
@@ -139,7 +139,7 @@
 //   const [voterInfo, setVoterInfo] = useState({ name: '', email: '' });
 //   const [isComplete, setIsComplete] = useState(false);
 //   const [currentSwipe, setCurrentSwipe] = useState<Record<string, 'yes' | 'no' | 'maybe' | null>>({});
-  
+
 //   // États pour le formulaire
 //   const [isSubmitting, setIsSubmitting] = useState(false);
 //   const [formErrors, setFormErrors] = useState<{ name?: string; email?: string; general?: string }>({});
@@ -155,14 +155,14 @@
 //   // Validation du formulaire
 //   const validateForm = () => {
 //     const errors: { name?: string; email?: string } = {};
-    
+
 //     // Validation du nom
 //     if (!voterInfo.name.trim()) {
 //       errors.name = 'Le nom est obligatoire';
 //     } else if (voterInfo.name.trim().length < 2) {
 //       errors.name = 'Le nom doit contenir au moins 2 caractères';
 //     }
-    
+
 //     // Validation de l'email
 //     if (!voterInfo.email.trim()) {
 //       errors.email = 'L\'email est obligatoire';
@@ -172,7 +172,7 @@
 //         errors.email = 'Veuillez saisir un email valide';
 //       }
 //     }
-    
+
 //     setFormErrors(errors);
 //     return Object.keys(errors).length === 0;
 //   };
@@ -197,7 +197,7 @@
 //     // Parser la date en mode local pour éviter les décalages timezone
 //     const [year, month, day] = dateString.split('-').map(Number);
 //     const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
-    
+
 //     const today = new Date();
 //     const tomorrow = new Date(today);
 //     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -295,7 +295,7 @@
 //       triggerHaptic('medium');
 //       handleVote(decision, optionId);
 //     }
-    
+
 //     // La ligne revient automatiquement grâce à dragElastic
 //   };
 
@@ -337,16 +337,16 @@
 //     try {
 //       // Simulation d'appel API
 //       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
 //       // Ici on ferait l'appel réel à Supabase
 //       // const { error } = await supabase.from('votes').insert({...});
-      
+
 //       triggerHaptic('heavy');
 //       setIsComplete(true);
 //     } catch (error) {
 //       console.error('Erreur lors de la soumission:', error);
-//       setFormErrors({ 
-//         general: 'Une erreur est survenue. Veuillez réessayer.' 
+//       setFormErrors({
+//         general: 'Une erreur est survenue. Veuillez réessayer.'
 //       });
 //       triggerHaptic('heavy');
 //     } finally {
@@ -417,7 +417,7 @@
 //                 const hasVoted = userHasVoted[option.id];
 //                 const voteLabel = vote === 'yes' ? '✅ Oui' : vote === 'no' ? '❌ Non' : '🤔 Peut-être';
 //                 const voteColor = vote === 'yes' ? 'text-green-600' : vote === 'no' ? 'text-red-600' : 'text-orange-600';
-                
+
 //                 return (
 //                   <div key={option.id} className="flex justify-between items-center">
 //                     <span className="text-gray-600">
@@ -445,8 +445,8 @@
 //                  value={voterInfo.name}
 //                  onChange={(e) => handleNameChange(e.target.value)}
 //                  className={`w-full p-4 border rounded-2xl text-lg transition-all ${
-//                    formErrors.name 
-//                      ? 'border-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500' 
+//                    formErrors.name
+//                      ? 'border-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500'
 //                      : 'border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
 //                  }`}
 //                  autoComplete="name"
@@ -456,7 +456,7 @@
 //                  <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
 //                )}
 //              </div>
-             
+
 //              <div>
 //                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
 //                  Votre email *
@@ -468,8 +468,8 @@
 //                  value={voterInfo.email}
 //                  onChange={(e) => handleEmailChange(e.target.value)}
 //                  className={`w-full p-4 border rounded-2xl text-lg transition-all ${
-//                    formErrors.email 
-//                      ? 'border-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500' 
+//                    formErrors.email
+//                      ? 'border-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500'
 //                      : 'border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
 //                  }`}
 //                  autoComplete="email"
@@ -488,13 +488,13 @@
 //                  <p className="text-red-600 text-sm text-center">{formErrors.general}</p>
 //                </div>
 //              )}
-             
+
 //              {(!voterInfo.name.trim() || !voterInfo.email.trim()) && !formErrors.general && (
 //                <p className="text-sm text-gray-500 text-center">
 //                  Veuillez remplir tous les champs obligatoires (*)
 //                </p>
 //              )}
-             
+
 //              <button
 //                onClick={handleSubmit}
 //                disabled={!voterInfo.name.trim() || !voterInfo.email.trim() || isSubmitting}
@@ -509,7 +509,7 @@
 //                  <>🗳️ Enregistrer mes votes</>
 //                )}
 //              </button>
-             
+
 //              <p className="text-xs text-gray-400 text-center">
 //                Vos informations restent privées et ne seront utilisées que pour ce sondage
 //              </p>
@@ -557,7 +557,7 @@
 //             <span className="text-blue-800 font-medium text-sm">{totalParticipants}</span>
 //             <span className="text-blue-600 text-xs hidden sm:inline">participants</span>
 //           </div>
-          
+
 //           <div className="bg-orange-50 border border-orange-200 rounded-full px-3 py-1.5 flex items-center gap-1.5">
 //             <div className="w-3 h-3 rounded-full bg-orange-500"></div>
 //             <span className="text-orange-600 text-xs hidden sm:inline">Expire le</span>
@@ -576,13 +576,13 @@
 //           const optionStats = getStatsWithUser(option.id);
 //           const userVote = votes[option.id];
 //           const rank = ranking[option.id];
-          
+
 //           // Debug pour la première ligne
 //           if (index === 0) {
 //             console.log('Première ligne - userHasVoted:', userHasVoted[option.id], 'optionId:', option.id);
 //             console.log('Condition flèches:', index === 0 && !userHasVoted[option.id]);
 //           }
-          
+
 //           // Badge pour le 1er : plus visible qu'une bordure
 //           const getRankingBadge = (rank: number) => {
 //             if (rank === 1) {
@@ -594,7 +594,7 @@
 //             }
 //             return null;
 //           };
-          
+
 //           return (
 //             <motion.div
 //               key={option.id}
@@ -604,16 +604,16 @@
 //               dragMomentum={false}
 //               dragSnapToOrigin  // Force le retour au centre après swipe
 //               initial={{ opacity: 0, x: -20 }}
-//               animate={{ 
-//                 opacity: 1, 
+//               animate={{
+//                 opacity: 1,
 //                 x: 0 // Ligne statique, plus d'animation
 //               }}
 //               transition={{
 //                 backgroundColor: { duration: 0.3 }
 //               }}
 //               className="bg-white rounded-xl p-4 border border-gray-200 cursor-grab active:cursor-grabbing transition-all duration-200 shadow-sm hover:shadow-md relative"
-//               whileDrag={{ 
-//                 scale: 1.02, 
+//               whileDrag={{
+//                 scale: 1.02,
 //                 rotate: 1,
 //                 boxShadow: "0 10px 25px rgba(0,0,0,0.1)"
 //               }}
@@ -622,37 +622,37 @@
 //                 // Effet de coloration graduelle pendant le drag
 //                 const element = event.currentTarget as HTMLElement;
 //                 if (!element) return; // Protection contre null
-                
+
 //                 const progress = Math.abs(info.offset.x) / 100;
 //                 const clampedProgress = Math.min(progress, 1);
-                
+
 //                 // Déterminer le swipe en cours - SWIPES INVERSÉS
 //                 let currentSwipeType: 'yes' | 'no' | 'maybe' | null = null;
 //                 const threshold = 20;
-                
+
 //                 if (info.offset.x < -threshold) {
 //                   // INVERSÉ: Swipe vers la GAUCHE = Vert (Oui)
 //                   currentSwipeType = 'yes';
-//                   element.style.background = `linear-gradient(270deg, 
-//                     rgba(34, 197, 94, ${0.1 + clampedProgress * 0.3}) 0%, 
+//                   element.style.background = `linear-gradient(270deg,
+//                     rgba(34, 197, 94, ${0.1 + clampedProgress * 0.3}) 0%,
 //                     transparent 100%)`;
 //                 } else if (info.offset.x > threshold) {
 //                   // INVERSÉ: Swipe vers la DROITE = Rouge (Non)
 //                   currentSwipeType = 'no';
-//                   element.style.background = `linear-gradient(90deg, 
-//                     rgba(239, 68, 68, ${0.1 + clampedProgress * 0.3}) 0%, 
+//                   element.style.background = `linear-gradient(90deg,
+//                     rgba(239, 68, 68, ${0.1 + clampedProgress * 0.3}) 0%,
 //                     transparent 100%)`;
 //                 } else if (info.offset.y < -threshold) {
 //                   // Swipe vers le haut = Orange (Peut-être)
 //                   currentSwipeType = 'maybe';
-//                   element.style.background = `linear-gradient(0deg, 
-//                     rgba(249, 115, 22, ${0.1 + clampedProgress * 0.3}) 0%, 
+//                   element.style.background = `linear-gradient(0deg,
+//                     rgba(249, 115, 22, ${0.1 + clampedProgress * 0.3}) 0%,
 //                     transparent 100%)`;
 //                 } else {
 //                   // Retour à la couleur normale
 //                   element.style.background = '';
 //                 }
-                
+
 //                 // Mettre à jour l'état du swipe en cours
 //                 setCurrentSwipe(prev => ({
 //                   ...prev,
@@ -665,13 +665,13 @@
 //                 if (element) {
 //                   element.style.background = '';
 //                 }
-                
+
 //                 // Nettoyer l'état du swipe en cours
 //                 setCurrentSwipe(prev => ({
 //                   ...prev,
 //                   [option.id]: null
 //                 }));
-                
+
 //                 handleOptionDragEnd(event, info, option.id);
 //               }}
 //             >
@@ -687,9 +687,9 @@
 //                 </div>
 //               </div>
 
-//               {/* 
-//                   🎨 BOUTONS DE VOTE AVEC SYSTÈME DOUBLE COUCHE 
-                  
+//               {/*
+//                   🎨 BOUTONS DE VOTE AVEC SYSTÈME DOUBLE COUCHE
+
 //                   Logique générale :
 //                   - Tous les votes sont initialisés à "maybe" par défaut
 //                   - userHasVoted[option.id] = false initialement, devient true après clic
@@ -703,14 +703,14 @@
 //                   return (
 //                   <>
 //                     {/* Flèche verte à GAUCHE du bouton OUI */}
-//                     <motion.div 
-//                       className="absolute z-20" 
-//                       style={{ 
+//                     <motion.div
+//                       className="absolute z-20"
+//                       style={{
 //                         left: '-40px',
 //                         top: '50%',
 //                         transform: 'translateY(-50%)'
 //                       }}
-//                       animate={{ 
+//                       animate={{
 //                         opacity: [2, 1, 2],
 //                         x: [25, 10, 25],
 //                         scale: [1, 1.1, 1]
@@ -726,16 +726,16 @@
 //                         <ArrowLeft className="w-4 h-4 text-green-600" />
 //                       </div>
 //                     </motion.div>
-                    
+
 //                     {/* Flèche rouge à DROITE du bouton NON */}
-//                     <motion.div 
-//                       className="absolute z-20" 
-//                       style={{ 
+//                     <motion.div
+//                       className="absolute z-20"
+//                       style={{
 //                         right: '-40px',
 //                         top: '50%',
 //                         transform: 'translateY(-50%)'
 //                       }}
-//                       animate={{ 
+//                       animate={{
 //                         opacity: [2, 1, 2],
 //                         x: [-25, -10, -25],
 //                         scale: [1, 1.1, 1]
@@ -755,11 +755,11 @@
 //                   );
 //                 })()}
 
-//                 {/* 
-//                     🟢 BOUTON YES (OUI) 
-                    
+//                 {/*
+//                     🟢 BOUTON YES (OUI)
+
 //                     Logique de coloration :
-//                     - Vote explicite : userVote === 'yes' && userHasVoted[option.id] 
+//                     - Vote explicite : userVote === 'yes' && userHasVoted[option.id]
 //                     - Swipe temporaire : currentSwipe[option.id] === 'yes'
 //                     - Pas d'état par défaut coloré (contrairement au bouton Maybe)
 //                   */}
@@ -788,23 +788,22 @@
 //                     </span>
 //                   </div>
 
-
-//                   {/* 
+//                   {/*
 //                   📊 RÉSUMÉ DE LA LOGIQUE COMPLÈTE :
-                  
+
 //                   COLORATION DES BOUTONS :
 //                   - YES : 2 cas (vote explicite + swipe)
-//                   - MAYBE : 3 cas (vote explicite + swipe + état par défaut)  
+//                   - MAYBE : 3 cas (vote explicite + swipe + état par défaut)
 //                   - NO : 2 cas (vote explicite + swipe)
-                  
+
 //                   SYSTÈME DOUBLE COUCHE :
 //                   - Barre fond : Votes existants / Total votants (toujours visible, couleur terne 30%)
 //                   - Barre surbrillance : +1 vote utilisateur / Total votants (conditionnelle, couleur vive 75%)
 //                   - Résultat : Impact visuel du vote utilisateur en superposition
-                  
+
 //                   EXEMPLE CONCRET avec 4 votes YES existants sur 5 votants :
 //                   - Barre fond : 4/5 = 80% de hauteur (vert terne à 30% opacité)
-//                   - Barre surbrillance : 1/5 = 20% de hauteur (vert vif à 75% opacité) 
+//                   - Barre surbrillance : 1/5 = 20% de hauteur (vert vif à 75% opacité)
 //                   - Position : surbrillance commence à 80% du bas
 //                   - Total visuel : 80% + 20% = 100% = 5 votes YES sur 5 votants
 //                 */}
@@ -818,7 +817,7 @@
 
 //                     return (
 //                       <>
-//                         {/* 
+//                         {/*
 //                             COUCHE 1 : Barre de fond (toujours visible)
 //                             - Montre les votes existants SANS le vote utilisateur
 //                             - Couleur terne avec faible opacité (30%)
@@ -834,7 +833,7 @@
 //                           style={{ transformOrigin: 'bottom' }}  // Animation du bas vers le haut
 //                         />
 
-//                         {/* 
+//                         {/*
 //                             COUCHE 2 : Barre de surbrillance (conditionnelle)
 //                             - S'affiche SEULEMENT si l'utilisateur vote
 //                             - Couleur vive avec forte opacité (75%)
@@ -861,12 +860,12 @@
 //                   })()}
 //                 </button>
 
-//                 {/* 
-//                     🟠 BOUTON MAYBE (PEUT-ÊTRE) 
-                    
+//                 {/*
+//                     🟠 BOUTON MAYBE (PEUT-ÊTRE)
+
 //                     Logique de coloration - LA PLUS COMPLEXE (3 cas) :
 //                     - Vote explicite : userVote === 'maybe' && userHasVoted[option.id]
-//                     - Swipe temporaire : currentSwipe[option.id] === 'maybe'  
+//                     - Swipe temporaire : currentSwipe[option.id] === 'maybe'
 //                     - État par défaut : !userHasVoted[option.id] && userVote === 'maybe'
 //                       (SEUL bouton coloré par défaut car tous commencent en "maybe")
 //                   */}
@@ -912,7 +911,7 @@
 //                           style={{ transformOrigin: 'bottom' }}
 //                         />
 
-//                         {/* 
+//                         {/*
 //                             COUCHE 2 : Barre de surbrillance orange
 //                             ATTENTION : Condition simplifiée (2 cas au lieu de 3)
 //                             - On n'affiche PAS la surbrillance pour l'état par défaut
@@ -938,9 +937,9 @@
 //                   })()}
 //                 </button>
 
-//                 {/* 
+//                 {/*
 //                     🔴 BOUTON NO (NON)
-                    
+
 //                     Logique de coloration - IDENTIQUE À YES :
 //                     - Vote explicite : userVote === 'no' && userHasVoted[option.id]
 //                     - Swipe temporaire : currentSwipe[option.id] === 'no'
@@ -1010,8 +1009,6 @@
 //                 </button>
 //               </div>
 
-
-
 //             </motion.div>
 //           );
 //         })}
@@ -1032,4 +1029,4 @@
 //       </motion.div>
 //     </div>
 //   );
-// }; 
+// };

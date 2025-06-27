@@ -149,15 +149,17 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         initialData.timeSlots.length > 0
           ? true
           : false,
-      timeSlots: initialData.timeSlots ? initialData.timeSlots.map(slot => {
-        // Convert start time string (e.g. "09:00") to hour and minute
-        const startParts = slot.start.split(':').map(Number);
-        return {
-          hour: startParts[0] || 0,
-          minute: startParts[1] || 0,
-          enabled: true
-        };
-      }) : [],
+      timeSlots: initialData.timeSlots
+        ? initialData.timeSlots.map((slot) => {
+            // Convert start time string (e.g. "09:00") to hour and minute
+            const startParts = slot.start.split(":").map(Number);
+            return {
+              hour: startParts[0] || 0,
+              minute: startParts[1] || 0,
+              enabled: true,
+            };
+          })
+        : [],
       notificationsEnabled: false,
       userEmail: "",
       showCalendarConnect: false,
@@ -165,7 +167,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       showDescription: false,
       emailErrors: [],
       showExtendedHours: false,
-      timeGranularity: initialData.timeSlots && initialData.timeSlots.length > 0 ? 60 : 60, // Default to 60 minutes
+      timeGranularity:
+        initialData.timeSlots && initialData.timeSlots.length > 0 ? 60 : 60, // Default to 60 minutes
       showGranularitySettings: false,
       pollLinkCopied: false,
       expirationDays: 30,
@@ -188,7 +191,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       initialData.dates.length > 0 &&
       (!state.selectedDates.length ||
         JSON.stringify(state.selectedDates) !==
-        JSON.stringify(initialData.dates))
+          JSON.stringify(initialData.dates))
     ) {
       console.log("🔄 Mise à jour des dates sélectionnées depuis initialData");
       setState((prev) => ({
@@ -1040,17 +1043,23 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       title: state.pollTitle,
       description: "", // Pas encore implémenté
       selectedDates: state.selectedDates,
-      timeSlotsByDate: state.selectedDates.reduce((acc, dateStr) => {
-        // Pour chaque date, récupérer les créneaux horaires si activés
-        acc[dateStr] = state.showTimeSlots
-          ? getTimeSlotBlocks(dateStr).map(slot => ({
-              hour: slot.start.hour,
-              minute: slot.start.minute,
-              enabled: true
-            }))
-          : [];
-        return acc;
-      }, {} as Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>),
+      timeSlotsByDate: state.selectedDates.reduce(
+        (acc, dateStr) => {
+          // Pour chaque date, récupérer les créneaux horaires si activés
+          acc[dateStr] = state.showTimeSlots
+            ? getTimeSlotBlocks(dateStr).map((slot) => ({
+                hour: slot.start.hour,
+                minute: slot.start.minute,
+                enabled: true,
+              }))
+            : [];
+          return acc;
+        },
+        {} as Record<
+          string,
+          Array<{ hour: number; minute: number; enabled: boolean }>
+        >,
+      ),
       participantEmails: state.participantEmails
         .split(/[,;\s]+/)
         .filter((email) => email.trim() !== ""),
@@ -1059,8 +1068,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         allowAnonymousVotes: true,
         allowMaybeVotes: true,
         sendNotifications: state.notificationsEnabled,
-        expiresAt: expiryDate.toISOString()
-      }
+        expiresAt: expiryDate.toISOString(),
+      },
     };
 
     console.log("Création du sondage avec les données:", pollData);
@@ -1093,7 +1102,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   const copyPollLink = async () => {
     try {
-      const baseUrl = import.meta.env.DEV ? window.location.origin : 'https://doodates.app';
+      const baseUrl = import.meta.env.DEV
+        ? window.location.origin
+        : "https://doodates.app";
       const pollUrl = createdPollSlug
         ? `${baseUrl}/vote/${createdPollSlug}`
         : `${baseUrl}/vote/${state.pollTitle.replace(/\s+/g, "-").toLowerCase() || "nouveau-sondage"}`;
@@ -1138,7 +1149,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   // Fonction pour rediriger vers la page d'accueil
   const handleBackToHome = () => {
-    navigate('/');
+    navigate("/");
   };
 
   // Fonction pour gérer le clic sur le bouton principal
@@ -1293,7 +1304,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   <h3 className="text-lg font-semibold text-gray-800">Horaires</h3> */}
                 </div>
 
-
                 {/* Paramètres d'expiration */}
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-3">
@@ -1319,8 +1329,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   {state.showExpirationSettings && (
                     <div className="bg-orange-50 rounded-xl p-4 mb-4 border border-orange-100">
                       <p className="text-sm text-gray-700 mb-3">
-                        Définissez la durée de validité de votre sondage. Après cette période,
-                        le sondage sera marqué comme expiré.
+                        Définissez la durée de validité de votre sondage. Après
+                        cette période, le sondage sera marqué comme expiré.
                       </p>
                       <div className="flex items-center gap-3">
                         <input
@@ -1331,7 +1341,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           onChange={(e) =>
                             setState((prev) => ({
                               ...prev,
-                              expirationDays: Math.max(1, Math.min(365, parseInt(e.target.value) || 30)),
+                              expirationDays: Math.max(
+                                1,
+                                Math.min(365, parseInt(e.target.value) || 30),
+                              ),
                             }))
                           }
                           className="w-20 px-3 py-2 border border-orange-200 rounded-lg bg-white text-center"
@@ -1405,11 +1418,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               }
                               disabled={!compatible}
                               className={`px-3 py-1 text-sm rounded-full transition-colors
-                                ${state.timeGranularity === option.value
-                                  ? "bg-blue-500 text-white"
-                                  : compatible
-                                    ? "bg-white border border-gray-300 hover:border-blue-300"
-                                    : "bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed"
+                                ${
+                                  state.timeGranularity === option.value
+                                    ? "bg-blue-500 text-white"
+                                    : compatible
+                                      ? "bg-white border border-gray-300 hover:border-blue-300"
+                                      : "bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed"
                                 }
                               `}
                             >
@@ -1478,9 +1492,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             const currentBlock = blocks.find(
                               (block) =>
                                 timeSlot.hour * 60 + timeSlot.minute >=
-                                block.start.hour * 60 + block.start.minute &&
+                                  block.start.hour * 60 + block.start.minute &&
                                 timeSlot.hour * 60 + timeSlot.minute <=
-                                block.end.hour * 60 + block.end.minute,
+                                  block.end.hour * 60 + block.end.minute,
                             );
                             const isBlockStart = blocks.some(
                               (block) =>
@@ -1603,9 +1617,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             const currentBlock = blocks.find(
                               (block) =>
                                 timeSlot.hour * 60 + timeSlot.minute >=
-                                block.start.hour * 60 + block.start.minute &&
+                                  block.start.hour * 60 + block.start.minute &&
                                 timeSlot.hour * 60 + timeSlot.minute <=
-                                block.end.hour * 60 + block.end.minute,
+                                  block.end.hour * 60 + block.end.minute,
                             );
                             const isBlockStart = blocks.some(
                               (block) =>
@@ -1678,11 +1692,16 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Bouton Afficher plus d'horaires */}
                 <div className="p-3 bg-gray-50 border-t">
                   <button
-                    onClick={() => setState((prev) => ({ ...prev, showExtendedHours: !prev.showExtendedHours }))}
+                    onClick={() =>
+                      setState((prev) => ({
+                        ...prev,
+                        showExtendedHours: !prev.showExtendedHours,
+                      }))
+                    }
                     className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
                   >
                     <Plus className="w-3 h-3" />
@@ -1722,7 +1741,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 <div className="space-y-6">
                   {/* Affichage utilisateur connecté */}
                   <UserMenu />
-                  
+
                   {/* Paramètres d'expiration */}
                   <div className="mb-6">
                     <div className="flex items-center justify-between mb-3">
@@ -1736,7 +1755,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         onClick={() =>
                           setState((prev) => ({
                             ...prev,
-                            showExpirationSettings: !prev.showExpirationSettings,
+                            showExpirationSettings:
+                              !prev.showExpirationSettings,
                           }))
                         }
                         className="text-sm text-orange-600 hover:text-orange-800 font-medium"
@@ -1873,7 +1893,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         Votre sondage est maintenant disponible à l'adresse :
                       </p>
                       <div className="mt-2 p-2 bg-white border border-green-200 rounded text-sm font-mono text-green-900 break-all">
-                        {import.meta.env.DEV ? 'http://localhost:8080' : 'https://doodates.app'}/vote/{createdPollSlug}
+                        {import.meta.env.DEV
+                          ? "http://localhost:8080"
+                          : "https://doodates.app"}
+                        /vote/{createdPollSlug}
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2 mt-3">
                         <button
@@ -1882,7 +1905,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           title="Copier le lien du sondage"
                         >
                           <Copy className="w-4 h-4" />
-                          <span>{state.pollLinkCopied ? "✓ Copié" : "Copier le lien"}</span>
+                          <span>
+                            {state.pollLinkCopied
+                              ? "✓ Copié"
+                              : "Copier le lien"}
+                          </span>
                         </button>
                         <button
                           onClick={handleMainButtonClick}
@@ -1893,11 +1920,17 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           <span>Nouveau sondage</span>
                         </button>
                       </div>
-                      {state.notificationsEnabled && state.participantEmails && (
-                        <div className="mt-2 text-sm text-green-700">
-                          📧 Emails envoyés aux participants ({validateEmails(state.participantEmails).valid.length} destinataires)
-                        </div>
-                      )}
+                      {state.notificationsEnabled &&
+                        state.participantEmails && (
+                          <div className="mt-2 text-sm text-green-700">
+                            📧 Emails envoyés aux participants (
+                            {
+                              validateEmails(state.participantEmails).valid
+                                .length
+                            }{" "}
+                            destinataires)
+                          </div>
+                        )}
 
                       {/* Lien d'administration pour sondages anonymes */}
                       {!user && (
@@ -1909,19 +1942,25 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             </span>
                           </div>
                           <p className="text-xs text-orange-700 mb-2">
-                            Gardez ce lien pour gérer votre sondage (modifier, supprimer) :
+                            Gardez ce lien pour gérer votre sondage (modifier,
+                            supprimer) :
                           </p>
                           <div className="flex gap-2">
                             <div className="flex-1 p-2 bg-white border border-orange-200 rounded text-xs font-mono text-orange-900 break-all">
-                              {import.meta.env.DEV ? 'http://localhost:8080' : 'https://doodates.app'}/admin/{createdPollSlug}/{createdPoll?.admin_token || 'ADMIN_TOKEN'}
+                              {import.meta.env.DEV
+                                ? "http://localhost:8080"
+                                : "https://doodates.app"}
+                              /admin/{createdPollSlug}/
+                              {createdPoll?.admin_token || "ADMIN_TOKEN"}
                             </div>
                             <button
                               onClick={() => {
-                                const adminUrl = `${import.meta.env.DEV ? 'http://localhost:8080' : 'https://doodates.app'}/admin/${createdPollSlug}/${createdPoll?.admin_token || 'ADMIN_TOKEN'}`;
+                                const adminUrl = `${import.meta.env.DEV ? "http://localhost:8080" : "https://doodates.app"}/admin/${createdPollSlug}/${createdPoll?.admin_token || "ADMIN_TOKEN"}`;
                                 navigator.clipboard.writeText(adminUrl);
                                 toast({
                                   title: "Lien copié !",
-                                  description: "Le lien d'administration a été copié dans le presse-papiers.",
+                                  description:
+                                    "Le lien d'administration a été copié dans le presse-papiers.",
                                 });
                               }}
                               className="px-3 py-2 text-xs bg-orange-100 hover:bg-orange-200 text-orange-800 rounded border border-orange-300 transition-colors flex-shrink-0"
@@ -1930,7 +1969,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             </button>
                           </div>
                           <p className="text-xs text-orange-600 mt-2">
-                            ⚠️ <strong>Important :</strong> Sauvegardez ce lien ! Sans compte, c'est le seul moyen de gérer votre sondage.
+                            ⚠️ <strong>Important :</strong> Sauvegardez ce lien
+                            ! Sans compte, c'est le seul moyen de gérer votre
+                            sondage.
                           </p>
                         </div>
                       )}
@@ -1967,11 +2008,14 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   <div className="pt-4">
                     <button
                       onClick={handleMainButtonClick}
-                      disabled={createdPollSlug ? false : (!canFinalize() || pollLoading)}
-                      className={`w-full py-4 rounded-2xl font-semibold text-lg shadow-lg transition-all flex items-center justify-center gap-2 ${createdPollSlug
+                      disabled={
+                        createdPollSlug ? false : !canFinalize() || pollLoading
+                      }
+                      className={`w-full py-4 rounded-2xl font-semibold text-lg shadow-lg transition-all flex items-center justify-center gap-2 ${
+                        createdPollSlug
                           ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:bg-green-700 cursor-pointer"
                           : "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                        }`}
+                      }`}
                     >
                       {pollLoading && (
                         <Loader2 className="w-4 h-4 animate-spin" />

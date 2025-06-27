@@ -30,23 +30,51 @@ export const VoteButton: React.FC<VoteButtonProps> = ({
   // Configuration based on vote type
   const config = {
     yes: {
-      icon: <Check className={`w-5 h-5 mb-1 ${isActive || currentSwipe === "yes" ? "text-green-700" : "text-green-600"}`} />,
-      textColor: isActive || currentSwipe === "yes" ? "text-green-700" : "text-green-600",
-      bgColor: isActive || currentSwipe === "yes" ? "bg-green-50 border-green-500 ring-2 ring-green-400" : "bg-white border-gray-200 hover:bg-green-50",
+      icon: (
+        <Check
+          className={`w-5 h-5 mb-1 ${isActive || currentSwipe === "yes" ? "text-green-700" : "text-green-600"}`}
+        />
+      ),
+      textColor:
+        isActive || currentSwipe === "yes"
+          ? "text-green-700"
+          : "text-green-600",
+      bgColor:
+        isActive || currentSwipe === "yes"
+          ? "bg-green-50 border-green-500 ring-2 ring-green-400"
+          : "bg-white border-gray-200 hover:bg-green-50",
       barColor: "bg-green-200/30",
       highlightColor: "bg-green-500/75",
     },
     no: {
-      icon: <X className={`w-5 h-5 mb-1 ${isActive || currentSwipe === "no" ? "text-red-700" : "text-red-600"}`} />,
-      textColor: isActive || currentSwipe === "no" ? "text-red-700" : "text-red-600",
-      bgColor: isActive || currentSwipe === "no" ? "bg-red-50 border-red-500 ring-2 ring-red-400" : "bg-white border-gray-200 hover:bg-red-50",
+      icon: (
+        <X
+          className={`w-5 h-5 mb-1 ${isActive || currentSwipe === "no" ? "text-red-700" : "text-red-600"}`}
+        />
+      ),
+      textColor:
+        isActive || currentSwipe === "no" ? "text-red-700" : "text-red-600",
+      bgColor:
+        isActive || currentSwipe === "no"
+          ? "bg-red-50 border-red-500 ring-2 ring-red-400"
+          : "bg-white border-gray-200 hover:bg-red-50",
       barColor: "bg-red-200/30",
       highlightColor: "bg-red-500/75",
     },
     maybe: {
-      icon: <HelpCircle className={`w-5 h-5 mb-1 ${isActive || currentSwipe === "maybe" ? "text-orange-700" : "text-orange-600"}`} />,
-      textColor: isActive || currentSwipe === "maybe" ? "text-orange-700" : "text-orange-600",
-      bgColor: isActive || currentSwipe === "maybe" ? "bg-orange-50 border-orange-500 ring-2 ring-orange-400" : "bg-white border-gray-200 hover:bg-orange-50",
+      icon: (
+        <HelpCircle
+          className={`w-5 h-5 mb-1 ${isActive || currentSwipe === "maybe" ? "text-orange-700" : "text-orange-600"}`}
+        />
+      ),
+      textColor:
+        isActive || currentSwipe === "maybe"
+          ? "text-orange-700"
+          : "text-orange-600",
+      bgColor:
+        isActive || currentSwipe === "maybe"
+          ? "bg-orange-50 border-orange-500 ring-2 ring-orange-400"
+          : "bg-white border-gray-200 hover:bg-orange-50",
       barColor: "bg-orange-200/30",
       highlightColor: "bg-orange-500/75",
     },
@@ -56,9 +84,9 @@ export const VoteButton: React.FC<VoteButtonProps> = ({
 
   // Logique pour déterminer si le bouton est actif
   // Pour "maybe", il y a un cas spécial où il est actif par défaut
-  const isButtonActive = 
-    isActive || 
-    currentSwipe === voteType || 
+  const isButtonActive =
+    isActive ||
+    currentSwipe === voteType ||
     (voteType === "maybe" && !userHasVoted);
 
   return (
@@ -68,7 +96,9 @@ export const VoteButton: React.FC<VoteButtonProps> = ({
     >
       <div className="flex flex-col items-center text-center relative z-10">
         {buttonConfig.icon}
-        <span className={`text-sm font-bold ${isButtonActive ? buttonConfig.textColor : buttonConfig.textColor.replace("text-", "hover:text-")}`}>
+        <span
+          className={`text-sm font-bold ${isButtonActive ? buttonConfig.textColor : buttonConfig.textColor.replace("text-", "hover:text-")}`}
+        >
           {count}
         </span>
       </div>

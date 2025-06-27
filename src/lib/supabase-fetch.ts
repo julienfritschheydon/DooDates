@@ -2,10 +2,10 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const headers = {
-  'apikey': SUPABASE_ANON_KEY,
-  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-  'Content-Type': 'application/json',
-  'Prefer': 'return=representation'
+  apikey: SUPABASE_ANON_KEY,
+  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+  "Content-Type": "application/json",
+  Prefer: "return=representation",
 };
 
 export interface Poll {
@@ -56,21 +56,23 @@ export const pollsApi = {
   async getBySlug(slug: string): Promise<Poll | null> {
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/polls?slug=eq.${slug}&status=eq.active`,
-      { headers }
+      { headers },
     );
-    
+
     const data = await handleResponse(response);
     return data.length > 0 ? data[0] : null;
   },
 
   // Créer un nouveau sondage
-  async create(poll: Omit<Poll, 'id' | 'created_at' | 'updated_at'>): Promise<Poll> {
+  async create(
+    poll: Omit<Poll, "id" | "created_at" | "updated_at">,
+  ): Promise<Poll> {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/polls`, {
-      method: 'POST',
+      method: "POST",
       headers,
-      body: JSON.stringify(poll)
+      body: JSON.stringify(poll),
     });
-    
+
     const data = await handleResponse(response);
     return data[0];
   },
@@ -78,14 +80,14 @@ export const pollsApi = {
   // Mettre à jour un sondage
   async update(id: string, updates: Partial<Poll>): Promise<Poll> {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/polls?id=eq.${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers,
-      body: JSON.stringify(updates)
+      body: JSON.stringify(updates),
     });
-    
+
     const data = await handleResponse(response);
     return data[0];
-  }
+  },
 };
 
 // API pour les options de sondage
@@ -94,22 +96,22 @@ export const pollOptionsApi = {
   async getByPollId(pollId: string): Promise<PollOption[]> {
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/poll_options?poll_id=eq.${pollId}&order=display_order.asc`,
-      { headers }
+      { headers },
     );
-    
+
     return handleResponse(response);
   },
 
   // Créer des options pour un sondage
-  async createMany(options: Omit<PollOption, 'id'>[]): Promise<PollOption[]> {
+  async createMany(options: Omit<PollOption, "id">[]): Promise<PollOption[]> {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/poll_options`, {
-      method: 'POST',
+      method: "POST",
       headers,
-      body: JSON.stringify(options)
+      body: JSON.stringify(options),
     });
-    
+
     return handleResponse(response);
-  }
+  },
 };
 
 // API pour les votes
@@ -118,20 +120,20 @@ export const votesApi = {
   async getByPollId(pollId: string): Promise<Vote[]> {
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/votes?poll_id=eq.${pollId}`,
-      { headers }
+      { headers },
     );
-    
+
     return handleResponse(response);
   },
 
   // Créer un nouveau vote
-  async create(vote: Omit<Vote, 'id' | 'created_at'>): Promise<Vote> {
+  async create(vote: Omit<Vote, "id" | "created_at">): Promise<Vote> {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
-      method: 'POST',
+      method: "POST",
       headers,
-      body: JSON.stringify(vote)
+      body: JSON.stringify(vote),
     });
-    
+
     const data = await handleResponse(response);
     return data[0];
   },
@@ -139,24 +141,24 @@ export const votesApi = {
   // Mettre à jour un vote existant
   async update(id: string, updates: Partial<Vote>): Promise<Vote> {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers,
-      body: JSON.stringify(updates)
+      body: JSON.stringify(updates),
     });
-    
+
     const data = await handleResponse(response);
     return data[0];
-  }
+  },
 };
 
 // Fonction de test pour vérifier la connectivité
 export const testConnection = async (): Promise<boolean> => {
   try {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/polls?limit=1`, {
-      headers
+      headers,
     });
     return response.ok;
   } catch {
     return false;
   }
-}; 
+};

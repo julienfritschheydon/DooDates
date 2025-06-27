@@ -196,10 +196,10 @@ const OptionCard: React.FC<{
     return timeSlots
       .map((slot) => {
         // Validation des données avant utilisation
-        if (typeof slot.hour !== 'number' || typeof slot.minute !== 'number') {
+        if (typeof slot.hour !== "number" || typeof slot.minute !== "number") {
           return "Horaire invalide";
         }
-        
+
         const start = `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")}`;
         if (slot.duration && slot.duration > 0) {
           const endHour = Math.floor(

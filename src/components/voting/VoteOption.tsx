@@ -1,6 +1,13 @@
 import React from "react";
 import { motion, PanInfo, useAnimation } from "framer-motion";
-import { Check, X, HelpCircle, ArrowRight, ArrowLeft, Star } from "lucide-react";
+import {
+  Check,
+  X,
+  HelpCircle,
+  ArrowRight,
+  ArrowLeft,
+  Star,
+} from "lucide-react";
 import { SwipeOption, VoteType } from "./utils/types";
 import { formatDate, formatTime } from "./utils/dateUtils";
 import { triggerHaptic } from "./utils/voteUtils";
@@ -14,8 +21,16 @@ interface VoteOptionProps {
   handleVote: (optionId: string, voteType: VoteType) => void;
   handleSwipe: (optionId: string, direction: number) => void;
   handleOptionDragEnd: (event: any, info: PanInfo, optionId: string) => void;
-  getStatsWithUser: (optionId: string) => { yes: number; maybe: number; no: number };
-  getExistingStats: (optionId: string) => { yes: number; maybe: number; no: number };
+  getStatsWithUser: (optionId: string) => {
+    yes: number;
+    maybe: number;
+    no: number;
+  };
+  getExistingStats: (optionId: string) => {
+    yes: number;
+    maybe: number;
+    no: number;
+  };
   getRanking: (type: string) => Record<string, number> | number;
   anyUserHasVoted: boolean;
 }
@@ -71,9 +86,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
             {formatDate(option.option_date)}
           </span>
           <span className="text-gray-400">•</span>
-          <span className="text-gray-600">
-            {formatTime(option.time_slots)}
-          </span>
+          <span className="text-gray-600">{formatTime(option.time_slots)}</span>
         </div>
       </div>
 
@@ -165,8 +178,8 @@ const VoteOption: React.FC<VoteOptionProps> = ({
           {(() => {
             const totalVotants =
               getExistingStats(option.id).yes +
-              getExistingStats(option.id).maybe +
-              getExistingStats(option.id).no || 1;
+                getExistingStats(option.id).maybe +
+                getExistingStats(option.id).no || 1;
             const votesExistantsYes = getExistingStats(option.id).yes;
             const ajoutVoteUtilisateur = 1;
 
@@ -184,7 +197,8 @@ const VoteOption: React.FC<VoteOptionProps> = ({
                 />
 
                 {/* COUCHE 2 : Barre de surbrillance */}
-                {(userVote === "yes" && userHasVoted) || currentSwipe === "yes" ? (
+                {(userVote === "yes" && userHasVoted) ||
+                currentSwipe === "yes" ? (
                   <motion.div
                     className="absolute bg-green-500/75"
                     initial={{ height: 0 }}
@@ -208,7 +222,9 @@ const VoteOption: React.FC<VoteOptionProps> = ({
         <button
           onClick={() => handleVote(option.id, "maybe" as VoteType)}
           className={`relative overflow-hidden rounded-lg p-3 transition-all border-2 ${
-            (userVote === "maybe" && userHasVoted) || currentSwipe === "maybe" || (!userHasVoted && userVote === "maybe")
+            (userVote === "maybe" && userHasVoted) ||
+            currentSwipe === "maybe" ||
+            (!userHasVoted && userVote === "maybe")
               ? "bg-orange-50 border-orange-500 ring-2 ring-orange-400"
               : "bg-white border-gray-200 hover:bg-orange-50"
           }`}
@@ -216,14 +232,18 @@ const VoteOption: React.FC<VoteOptionProps> = ({
           <div className="flex flex-col items-center text-center relative z-10">
             <HelpCircle
               className={`w-5 h-5 mb-1 ${
-                (userVote === "maybe" && userHasVoted) || currentSwipe === "maybe" || (!userHasVoted && userVote === "maybe")
+                (userVote === "maybe" && userHasVoted) ||
+                currentSwipe === "maybe" ||
+                (!userHasVoted && userVote === "maybe")
                   ? "text-orange-700"
                   : "text-orange-600"
               }`}
             />
             <span
               className={`text-sm font-bold ${
-                (userVote === "maybe" && userHasVoted) || currentSwipe === "maybe" || (!userHasVoted && userVote === "maybe")
+                (userVote === "maybe" && userHasVoted) ||
+                currentSwipe === "maybe" ||
+                (!userHasVoted && userVote === "maybe")
                   ? "text-orange-700"
                   : "text-orange-600"
               }`}
@@ -236,8 +256,8 @@ const VoteOption: React.FC<VoteOptionProps> = ({
           {(() => {
             const totalVotants =
               getExistingStats(option.id).yes +
-              getExistingStats(option.id).maybe +
-              getExistingStats(option.id).no || 1;
+                getExistingStats(option.id).maybe +
+                getExistingStats(option.id).no || 1;
             const votesExistantsMaybe = getExistingStats(option.id).maybe;
             const ajoutVoteUtilisateur = 1;
 
@@ -309,8 +329,8 @@ const VoteOption: React.FC<VoteOptionProps> = ({
           {(() => {
             const totalVotants =
               getExistingStats(option.id).yes +
-              getExistingStats(option.id).maybe +
-              getExistingStats(option.id).no || 1;
+                getExistingStats(option.id).maybe +
+                getExistingStats(option.id).no || 1;
             const votesExistantsNo = getExistingStats(option.id).no;
             const ajoutVoteUtilisateur = 1;
 
@@ -328,7 +348,8 @@ const VoteOption: React.FC<VoteOptionProps> = ({
                 />
 
                 {/* COUCHE 2 : Barre de surbrillance */}
-                {(userVote === "no" && userHasVoted) || currentSwipe === "no" ? (
+                {(userVote === "no" && userHasVoted) ||
+                currentSwipe === "no" ? (
                   <motion.div
                     className="absolute bg-red-500/75"
                     initial={{ height: 0 }}

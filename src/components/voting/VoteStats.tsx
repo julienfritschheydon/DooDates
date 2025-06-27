@@ -13,7 +13,7 @@ interface VoteStatsProps {
 
 /**
  * Composant VoteStats - Affiche les statistiques de vote avec un système de double couche
- * 
+ *
  * Système double couche :
  * - Barre fond : Votes existants / Total votants (toujours visible, couleur terne 30%)
  * - Barre surbrillance : +1 vote utilisateur / Total votants (conditionnelle, couleur vive 75%)
@@ -56,9 +56,7 @@ export const VoteStats: React.FC<VoteStatsProps> = ({
   const ajoutVoteUtilisateur = 1;
 
   // Déterminer si on doit afficher la barre de surbrillance
-  const showHighlight = 
-    (userHasVoted && isActive) || 
-    (userSwipe === voteType);
+  const showHighlight = (userHasVoted && isActive) || userSwipe === voteType;
 
   return (
     <>

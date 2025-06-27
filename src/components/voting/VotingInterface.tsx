@@ -20,14 +20,8 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
   const [showResults, setShowResults] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const {
-    poll,
-    options,
-    votes,
-    loading,
-    error,
-    totalVotes,
-  } = useVoting(pollId);
+  const { poll, options, votes, loading, error, totalVotes } =
+    useVoting(pollId);
 
   // Détecter si l'utilisateur est admin
   useEffect(() => {
@@ -84,7 +78,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
   // Afficher la bannière admin si l'utilisateur est admin
   const AdminBanner = () => {
     if (!isAdmin) return null;
-    
+
     return (
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -104,7 +98,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
   // Afficher les erreurs
   const ErrorBanner = () => {
     if (!error) return null;
-    
+
     return (
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -123,7 +117,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
     <div className="min-h-screen bg-gray-50">
       {/* Bannière admin si applicable */}
       <AdminBanner />
-      
+
       {/* Affichage des erreurs */}
       <ErrorBanner />
 
@@ -137,9 +131,9 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
             onBack={() => setShowResults(false)}
           />
         ) : (
-          <VotingSwipe 
+          <VotingSwipe
             pollId={pollId}
-            onBack={() => isAdmin ? setShowResults(true) : onBack && onBack()} 
+            onBack={() => (isAdmin ? setShowResults(true) : onBack && onBack())}
             onVoteSubmitted={() => {
               // Optionnel: action à effectuer après soumission du vote
               console.log("Vote soumis avec succès");

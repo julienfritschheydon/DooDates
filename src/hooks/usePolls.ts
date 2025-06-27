@@ -67,7 +67,7 @@ export function usePolls() {
 
   const generateAdminToken = useCallback((): string => {
     // Générer un token d'administration pour les sondages anonymes
-    return uuidv4().replace(/-/g, ''); // Token sans tirets pour plus de sécurité
+    return uuidv4().replace(/-/g, ""); // Token sans tirets pour plus de sécurité
   }, []);
 
   const createPoll = useCallback(
@@ -80,11 +80,11 @@ export function usePolls() {
       try {
         const slug = generateSlug(pollData.title);
         const adminToken = user ? null : generateAdminToken(); // Token admin seulement pour sondages anonymes
-        
+
         console.log("Création sondage:", {
           slug,
           isAnonymous: !user,
-          adminToken: adminToken ? "généré" : "non requis"
+          adminToken: adminToken ? "généré" : "non requis",
         });
 
         // 1. Créer le sondage principal
@@ -107,7 +107,7 @@ export function usePolls() {
           // Pour les sondages anonymes, pas besoin de token JWT
           if (!user) {
             console.log("🆓 Création sondage anonyme - pas de token requis");
-            
+
             // Utiliser la clé API publique pour les sondages anonymes
             const response = await fetch(
               `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls`,
@@ -152,7 +152,9 @@ export function usePolls() {
             }
 
             if (!token) {
-              throw new Error("Token d'authentification non trouvé pour utilisateur connecté");
+              throw new Error(
+                "Token d'authentification non trouvé pour utilisateur connecté",
+              );
             }
 
             // Faire l'insertion avec token d'authentification
@@ -186,51 +188,59 @@ export function usePolls() {
 
         // 2. Créer les options de dates
         console.log("🗓️ Étape 2: Création des options de dates...");
-        
-        if (pollData.selectedDates.length === 0) {
-          console.log("ℹ️ Aucune date sélectionnée, sondage sans options prédéfinies");
-        } else {
-        const pollOptions = pollData.selectedDates.map((date, index) => {
-          const timeSlots = pollData.timeSlotsByDate[date] || [];
 
-          // Transformer les créneaux au format attendu par la DB
-          const formattedTimeSlots = timeSlots
-            .filter((slot) => slot.enabled)
-            .map((slot, slotIndex) => {
+        if (pollData.selectedDates.length === 0) {
+          console.log(
+            "ℹ️ Aucune date sélectionnée, sondage sans options prédéfinies",
+          );
+        } else {
+          const pollOptions = pollData.selectedDates.map((date, index) => {
+            const timeSlots = pollData.timeSlotsByDate[date] || [];
+
+            // Transformer les créneaux au format attendu par la DB
+            const formattedTimeSlots = timeSlots
+              .filter((slot) => slot.enabled)
+              .map((slot, slotIndex) => {
                 // Calculer l'heure de fin correctement
-                const totalMinutes = slot.hour * 60 + slot.minute + pollData.settings.timeGranularity;
+                const totalMinutes =
+                  slot.hour * 60 +
+                  slot.minute +
+                  pollData.settings.timeGranularity;
                 const endHour = Math.floor(totalMinutes / 60);
                 const endMinute = totalMinutes % 60;
 
-              return {
-                id: `slot-${slotIndex + 1}`,
-                start_hour: slot.hour,
-                start_minute: slot.minute,
+                return {
+                  id: `slot-${slotIndex + 1}`,
+                  start_hour: slot.hour,
+                  start_minute: slot.minute,
                   end_hour: endHour,
                   end_minute: endMinute,
                   label: `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")} - ${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}`,
-              };
-            });
+                };
+              });
 
-          return {
-            poll_id: poll.id,
-            option_date: date,
-            time_slots: formattedTimeSlots,
-            display_order: index,
-          };
-        });
+            return {
+              poll_id: poll.id,
+              option_date: date,
+              time_slots: formattedTimeSlots,
+              display_order: index,
+            };
+          });
 
           console.log("📋 Options à créer:", pollOptions);
 
           // Utiliser fetch() direct pour les options (comme pour le sondage principal)
-        try {
+          try {
             console.log("🔄 Début insertion des options...");
-            console.log("📋 Détail des options à insérer:", JSON.stringify(pollOptions, null, 2));
-            
+            console.log(
+              "📋 Détail des options à insérer:",
+              JSON.stringify(pollOptions, null, 2),
+            );
+
             // Pour les sondages anonymes, pas besoin de token JWT
             if (!user) {
               console.log("🆓 Création sondage anonyme - pas de token requis");
-              
+
               // Utiliser la clé API publique pour les sondages anonymes
               const optionsResponse = await fetch(
                 `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/poll_options`,
@@ -245,12 +255,22 @@ export function usePolls() {
                 },
               );
 
-              console.log("📡 Réponse insertion options:", optionsResponse.status, optionsResponse.statusText);
+              console.log(
+                "📡 Réponse insertion options:",
+                optionsResponse.status,
+                optionsResponse.statusText,
+              );
 
               if (!optionsResponse.ok) {
                 const errorText = await optionsResponse.text();
-                console.error("❌ Erreur HTTP options:", optionsResponse.status, errorText);
-                throw new Error(`Erreur HTTP ${optionsResponse.status}: ${errorText}`);
+                console.error(
+                  "❌ Erreur HTTP options:",
+                  optionsResponse.status,
+                  errorText,
+                );
+                throw new Error(
+                  `Erreur HTTP ${optionsResponse.status}: ${errorText}`,
+                );
               }
 
               const optionsData = await optionsResponse.json();
@@ -258,7 +278,9 @@ export function usePolls() {
             } else {
               // Pour les utilisateurs connectés, récupérer le token JWT
               let token = null;
-              const supabaseSession = localStorage.getItem("supabase.auth.token");
+              const supabaseSession = localStorage.getItem(
+                "supabase.auth.token",
+              );
               if (supabaseSession) {
                 const sessionData = JSON.parse(supabaseSession);
                 token =
@@ -277,7 +299,9 @@ export function usePolls() {
               }
 
               if (!token) {
-                throw new Error("Token d'authentification non trouvé pour utilisateur connecté");
+                throw new Error(
+                  "Token d'authentification non trouvé pour utilisateur connecté",
+                );
               }
 
               // Faire l'insertion avec token d'authentification
@@ -295,19 +319,32 @@ export function usePolls() {
                 },
               );
 
-              console.log("📡 Réponse insertion options:", optionsResponse.status, optionsResponse.statusText);
+              console.log(
+                "📡 Réponse insertion options:",
+                optionsResponse.status,
+                optionsResponse.statusText,
+              );
 
               if (!optionsResponse.ok) {
                 const errorText = await optionsResponse.text();
-                console.error("❌ Erreur HTTP options:", optionsResponse.status, errorText);
-                throw new Error(`Erreur HTTP ${optionsResponse.status}: ${errorText}`);
+                console.error(
+                  "❌ Erreur HTTP options:",
+                  optionsResponse.status,
+                  errorText,
+                );
+                throw new Error(
+                  `Erreur HTTP ${optionsResponse.status}: ${errorText}`,
+                );
               }
 
               const optionsData = await optionsResponse.json();
               console.log("✅ Options créées avec succès:", optionsData);
             }
           } catch (optionsError) {
-            console.error("💥 Exception lors de la création des options:", optionsError);
+            console.error(
+              "💥 Exception lors de la création des options:",
+              optionsError,
+            );
             console.error("💥 Stack trace:", optionsError?.stack);
 
             // Nettoyer le sondage créé en cas d'erreur
@@ -317,7 +354,7 @@ export function usePolls() {
             } catch (cleanupError) {
               console.error("Erreur nettoyage:", cleanupError);
             }
-            
+
             throw optionsError;
           }
         }
@@ -326,19 +363,24 @@ export function usePolls() {
         console.log("Debug email:", {
           sendNotifications: pollData.settings.sendNotifications,
           emailsCount: pollData.participantEmails.length,
-          emails: pollData.participantEmails
+          emails: pollData.participantEmails,
         });
-        
-        if (pollData.settings.sendNotifications && pollData.participantEmails.length > 0) {
+
+        if (
+          pollData.settings.sendNotifications &&
+          pollData.participantEmails.length > 0
+        ) {
           console.log("🚀 Étape 3: Envoi des notifications email...");
           try {
             const emailResult = await EmailService.sendPollCreatedNotification(
               pollData.title,
               poll.slug,
-              user?.email || user?.user_metadata?.full_name || "Un organisateur",
-              pollData.participantEmails
+              user?.email ||
+                user?.user_metadata?.full_name ||
+                "Un organisateur",
+              pollData.participantEmails,
             );
-            
+
             if (emailResult.success) {
               console.log("📧 Emails envoyés avec succès");
             } else {
@@ -352,7 +394,7 @@ export function usePolls() {
         } else {
           console.log("❌ Pas d'envoi d'emails:", {
             notifications: pollData.settings.sendNotifications,
-            emailCount: pollData.participantEmails.length
+            emailCount: pollData.participantEmails.length,
           });
         }
 

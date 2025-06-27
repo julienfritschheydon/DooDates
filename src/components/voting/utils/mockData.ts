@@ -2,7 +2,7 @@
  * Mock data for the voting components
  * This will be gradually replaced with real data from the API
  */
-import { Poll, SwipeOption, SwipeVote } from './types';
+import { Poll, SwipeOption, SwipeVote } from "./types";
 
 // Mock poll data
 export const mockPoll: Poll = {

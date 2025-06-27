@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { SwipeOption, SwipeVote, VoterInfo, VoteType } from "../utils/types";
 import { triggerHaptic } from "../utils/voteUtils";
-import { fetchPoll, fetchPollOptions, fetchPollVotes, submitVote } from "../services/voteService";
+import {
+  fetchPoll,
+  fetchPollOptions,
+  fetchPollVotes,
+  submitVote,
+} from "../services/voteService";
 
 interface UseVotingServiceProps {
   pollId: string;
@@ -24,7 +29,10 @@ interface VotingServiceState {
   isVoteComplete: boolean;
 }
 
-export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServiceProps) => {
+export const useVotingService = ({
+  pollId,
+  onVoteSubmitted,
+}: UseVotingServiceProps) => {
   // État global du service de vote
   const [state, setState] = useState<VotingServiceState>({
     poll: null,
@@ -70,29 +78,35 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
     try {
       // Charger le sondage
       const pollData = await fetchPoll(pollId);
-      
+
       // Utiliser l'ID réel du sondage pour charger les options et les votes
       const realPollId = pollData.id;
-      console.log("🔑 UUID réel du sondage:", realPollId, "(slug original:", pollId, ")");
-      
+      console.log(
+        "🔑 UUID réel du sondage:",
+        realPollId,
+        "(slug original:",
+        pollId,
+        ")",
+      );
+
       // Charger les options
       const optionsData = await fetchPollOptions(realPollId);
-      
+
       // Charger les votes existants
       const votesData = await fetchPollVotes(realPollId);
-      
+
       // Initialiser les votes de l'utilisateur à "maybe" par défaut
       // et les marquer comme votés par défaut
       const initialVotes: Record<string, VoteType> = {};
       const initialUserHasVoted: Record<string, boolean> = {};
       const initialCurrentSwipe: Record<string, VoteType | null> = {};
-      
+
       optionsData.forEach((option: SwipeOption) => {
         initialVotes[option.id] = "maybe";
         initialUserHasVoted[option.id] = true; // Marquer comme voté par défaut
         initialCurrentSwipe[option.id] = null;
       });
-      
+
       setState((prev) => ({
         ...prev,
         poll: pollData,
@@ -104,12 +118,12 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
         currentSwipe: initialCurrentSwipe,
         isLoading: false,
       }));
-      
+
       console.log("💾 Données chargées:", {
         pollData,
         realPollId,
         optionsCount: optionsData.length,
-        votesCount: votesData.length
+        votesCount: votesData.length,
       });
     } catch (error) {
       console.error("Erreur lors du chargement des données:", error);
@@ -144,7 +158,7 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
 
     return stats;
   };
-  
+
   // Fonction pour obtenir le classement
   const getRanking = (optionId: string): Record<string, number> | number => {
     // Calculer le score pour chaque option
@@ -162,14 +176,14 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
     if (optionId === "all") {
       const allRankings: Record<string, number> = {};
       let currentRank = 1;
-      
+
       scores.forEach((item, index) => {
         if (index > 0 && item.score < scores[index - 1].score) {
           currentRank = index + 1;
         }
         allRankings[item.optionId] = currentRank;
       });
-      
+
       return allRankings;
     }
 
@@ -192,7 +206,7 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
       userHasVoted: {
         ...prev.userHasVoted,
         [optionId]: true,
-      }
+      },
     }));
   };
 
@@ -218,7 +232,7 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
       userHasVoted: {
         ...prev.userHasVoted,
         [optionId]: true,
-      }
+      },
     }));
   };
 
@@ -230,7 +244,7 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
       currentSwipe: {
         ...prev.currentSwipe,
         [optionId]: null,
-      }
+      },
     }));
 
     // Déterminer la direction du swipe
@@ -253,7 +267,7 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
       currentSwipe: {
         ...prev.currentSwipe,
         [optionId]: swipeType,
-      }
+      },
     }));
   };
 
@@ -274,13 +288,21 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
 
   // Fonction pour soumettre les votes
   const handleSubmit = async () => {
-    console.log("🚀 Début de la soumission des votes", { votes, voterInfo, pollIdOriginal: pollId, realPollId });
-    
+    console.log("🚀 Début de la soumission des votes", {
+      votes,
+      voterInfo,
+      pollIdOriginal: pollId,
+      realPollId,
+    });
+
     if (!voterInfo) {
       console.warn("❌ Soumission annulée: informations du votant manquantes");
       setState((prev) => ({
         ...prev,
-        formErrors: { ...prev.formErrors, general: "Veuillez remplir vos informations" }
+        formErrors: {
+          ...prev.formErrors,
+          general: "Veuillez remplir vos informations",
+        },
       }));
       return;
     }
@@ -290,41 +312,48 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
       console.error("❌ Soumission annulée: UUID du sondage manquant");
       setState((prev) => ({
         ...prev,
-        formErrors: { ...prev.formErrors, general: "Erreur technique. Veuillez réessayer." }
+        formErrors: {
+          ...prev.formErrors,
+          general: "Erreur technique. Veuillez réessayer.",
+        },
       }));
       return;
     }
 
     setState((prev) => ({ ...prev, isSubmitting: true, formErrors: {} }));
-    
+
     try {
       // Préparer les données pour la soumission
       if (!voterInfo) {
         throw new Error("Informations du votant manquantes");
       }
 
-      console.log("📤 Envoi des votes au serveur", { 
+      console.log("📤 Envoi des votes au serveur", {
         pollId: realPollId, // Utiliser l'UUID réel, pas le slug
-        voterInfo, 
+        voterInfo,
         votes,
-        totalVotes: Object.keys(votes).length
+        totalVotes: Object.keys(votes).length,
       });
 
       // Soumettre les votes avec les 3 arguments séparés, en utilisant l'UUID réel
       await submitVote(
         realPollId, // Utiliser l'UUID réel, pas le slug
         voterInfo,
-        votes
+        votes,
       );
-      
+
       console.log("✅ Soumission des votes réussie");
-      
+
       // Feedback tactile pour la soumission réussie
       triggerHaptic("heavy");
-      
+
       // Marquer comme terminé
-      setState((prev) => ({ ...prev, isSubmitting: false, isVoteComplete: true }));
-      
+      setState((prev) => ({
+        ...prev,
+        isSubmitting: false,
+        isVoteComplete: true,
+      }));
+
       // Appeler le callback si fourni
       if (onVoteSubmitted) {
         console.log("📣 Exécution du callback onVoteSubmitted");
@@ -332,26 +361,29 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
       }
     } catch (error: any) {
       console.error("❌ Erreur lors de la soumission des votes:", error);
-      
+
       // Feedback tactile pour l'erreur
       triggerHaptic("heavy");
-      
+
       // Gérer spécifiquement l'erreur 409 (conflit - vote déjà existant)
       if (error.message && error.message.includes("409")) {
         setState((prev) => ({
           ...prev,
           isSubmitting: false,
-          formErrors: { 
-            ...prev.formErrors, 
-            submit: "409: Vous avez déjà voté pour ce sondage avec cet email."
-          }
+          formErrors: {
+            ...prev.formErrors,
+            submit: "409: Vous avez déjà voté pour ce sondage avec cet email.",
+          },
         }));
       } else {
         // Gérer les autres erreurs
         setState((prev) => ({
           ...prev,
           isSubmitting: false,
-          formErrors: { ...prev.formErrors, submit: "Erreur lors de la soumission. Veuillez réessayer." }
+          formErrors: {
+            ...prev.formErrors,
+            submit: "Erreur lors de la soumission. Veuillez réessayer.",
+          },
         }));
       }
     }
@@ -385,26 +417,26 @@ export const useVotingService = ({ pollId, onVoteSubmitted }: UseVotingServicePr
     voterInfo,
     formErrors,
     isVoteComplete,
-    
+
     // Fonctions de statistiques et classement
     getExistingStats,
     getStatsWithUser,
     getRanking,
-    
+
     // Fonctions de gestion des votes
     handleVote,
     handleSwipe,
     handleOptionDragEnd,
     updateCurrentSwipe,
-    
+
     // Fonctions de gestion du formulaire
     showVoterForm,
     hideVoterForm,
     setVoterInfoData,
-    
+
     // Fonction de soumission
     handleSubmit,
-    
+
     // Utilitaires
     getVoteText,
   };

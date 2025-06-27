@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { motion, useMotionValue, useTransform, PanInfo, useAnimation } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  PanInfo,
+  useAnimation,
+} from "framer-motion";
 import {
   ChevronLeft,
   TrendingUp,
@@ -11,7 +17,7 @@ import {
   Star,
   ArrowRight,
   ArrowLeft,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react";
 
 // Import components
@@ -22,7 +28,14 @@ import PollHeader from "./PollHeader";
 import VoteOption from "./VoteOption";
 
 // Import types and utilities
-import { SwipeOption, SwipeVote, VoterInfo, FormErrors, VoteType, Poll } from "./utils/types";
+import {
+  SwipeOption,
+  SwipeVote,
+  VoterInfo,
+  FormErrors,
+  VoteType,
+  Poll,
+} from "./utils/types";
 import { formatDate, formatTime } from "./utils/dateUtils";
 import { triggerHaptic } from "./utils/voteUtils";
 
@@ -65,7 +78,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
     hideVoterForm,
     setVoterInfoData,
     handleSubmit,
-    getVoteText
+    getVoteText,
   } = useVotingService({ pollId, onVoteSubmitted });
 
   // Gérer le retour
@@ -102,7 +115,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* En-tête avec titre et bouton retour */}
-      <PollHeader 
+      <PollHeader
         poll={poll}
         existingVotes={existingVotes}
         onBack={handleBack}
@@ -121,7 +134,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
             </h3>
             <div className="text-sm text-gray-500">Swipez pour voter</div>
           </div>
-          
+
           {options.map((option, index) => (
             <VoteOption
               key={option.id}
@@ -136,7 +149,9 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
               getStatsWithUser={getStatsWithUser}
               getExistingStats={getExistingStats}
               getRanking={getRanking}
-              anyUserHasVoted={Object.values(userHasVoted).some((voted) => voted)}
+              anyUserHasVoted={Object.values(userHasVoted).some(
+                (voted) => voted,
+              )}
             />
           ))}
         </div>
@@ -149,11 +164,9 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
             className="w-full py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-blue-500 to-purple-600 text-white"
             onClick={showVoterForm}
           >
-            {remainingVotes > 0 && totalVotes > 0 ? (
-              `Envoyer mes votes (${totalVotes}/${options.length})`
-            ) : (
-              "Envoyer mes votes"
-            )}
+            {remainingVotes > 0 && totalVotes > 0
+              ? `Envoyer mes votes (${totalVotes}/${options.length})`
+              : "Envoyer mes votes"}
           </button>
         </div>
       )}
