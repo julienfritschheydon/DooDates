@@ -8,18 +8,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("Missing Supabase environment variables");
 }
 
-// Client Supabase avec configuration optimisée
+// Client Supabase avec configuration minimale pour debug
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-    flowType: "pkce", // Plus sécurisé
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false,
   },
-  realtime: {
-    params: {
-      eventsPerSecond: 10,
-    },
+  global: {
+    fetch: fetch.bind(globalThis),
   },
 });
 

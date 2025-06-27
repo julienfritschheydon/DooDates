@@ -33,7 +33,7 @@ class ProgressiveCalendarManager {
       return this.loadingPromises.get(year)!;
     }
 
-    console.time(`📥 Chargement année ${year}`);
+    //console.time(`📥 Chargement année ${year}`);
 
     // Utiliser requestIdleCallback pour les chargements non-critiques
     const loadingPromise = new Promise<YearCalendarData>((resolve, reject) => {
@@ -67,8 +67,8 @@ class ProgressiveCalendarManager {
       const yearData = await loadingPromise;
       this.loadedYears.set(year, yearData);
       this.loadingPromises.delete(year);
-      console.timeEnd(`📥 Chargement année ${year}`);
-      console.log(`✅ Année ${year} chargée: ${yearData.totalDays} jours`);
+      // console.timeEnd(`📥 Chargement année ${year}`);
+      // console.log(`✅ Année ${year} chargée: ${yearData.totalDays} jours`);
       return yearData;
     } catch (error) {
       this.loadingPromises.delete(year);

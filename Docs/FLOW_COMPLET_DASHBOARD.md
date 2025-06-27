@@ -26,48 +26,73 @@ Interface centralisée pour gérer tous les sondages et interactions
 - **Validation :** Navigation fluide, pas d'erreurs console
 - **Résultat :** ✅ Fonctionne parfaitement - Navigation instantanée, préchargement optimisé
 
-#### Étape 2 : Création du Sondage
+#### Étape 2 : Création du Sondage ✅ TERMINÉE
 - **Interface :** PollCreator avec 2 modes de création
 
-##### Mode A : Création Manuelle
+##### Mode A : Création Manuelle ✅ TERMINÉE
 - **Saisie directe :** Titre, description
 - **Sélection calendrier :** Interface calendrier progressif
 - **Validation :** 
-  - Formulaire réactif et intuitif
-  - Calendrier progressif fonctionne sur plusieurs années
-  - Sélection multiple de dates/créneaux
+  - ✅ Formulaire réactif et intuitif - DONE
+  - ✅ Calendrier progressif fonctionne sur plusieurs années - DONE
+  - ✅ Sélection multiple de dates/créneaux - DONE
+  - ✅ Réception de l'email pour voter - DONE
+  - ✅ Le lien pour voter marche - OUI
+  - ✅ Le lien pour l'administration marche - PAGE BIDON MAIS DONE
 
-##### Mode B : Création avec IA Conversationnelle  
-- **Saisie naturelle :** Description en langage naturel
-- **IA :** Parsing automatique et suggestion de créneaux
+##### Mode B : Création avec IA Conversationnelle ✅ TERMINÉE
+- **Saisie naturelle :** Description en langage naturel - DONE
+- **IA :** Parsing automatique et suggestion de créneaux - DONE
 - **Validation :**
-  - IA comprend et suggère des créneaux pertinents
-  - Possibilité d'ajuster les suggestions
-  - Interface hybride IA + manuelle
+  - ✅ IA comprend et suggère des créneaux pertinents - DONE
+  - ✅ Interface hybride IA + manuelle - DONE
 
-<!-- #### Étape 3 : Authentification (si nécessaire)
-- **Trigger :** Clic "Envoyer le sondage"
-- **Flow :** Redirection vers `/auth` si non connecté
-- **Options :** Email/password ou Google OAuth
-- **Retour :** Automatique vers `/create` avec données sauvegardées
-- **Validation :** 
-  - Draft sauvegardé/restauré correctement
-  - Pas de perte de données pendant l'auth -->
 
-#### Étape 3 : Finalisation et Envoi
+
+#### Étape 3 : Finalisation et Envoi ✅ CORRIGÉE
 - **Action :** Confirmation et création du sondage
 - **Options de notification :** 
-  - ☐ Recevoir un email à chaque nouveau vote
-  - ☐ Recevoir un résumé quotidien des votes
-  - ☐ Recevoir une notification quand X votes sont atteints
+  - ☐ Recevoir un email à chaque nouveau vote - PAS ENCORE
 - **Backend :** Sauvegarde en base Supabase
 - **Génération :** URL unique du sondage
 - **Redirection :** Vers page de partage ou dashboard
 - **Validation :**
-  - Options de notification sauvegardées
-  - Sondage créé avec succès
-  - URL générée et accessible
-  - Données cohérentes en base
+  - ✅ Sondages anonymes fonctionnent (bug token d'authentification corrigé)
+  - ✅ Sondage créé avec succès
+  - ✅ URL générée et accessible
+  - ✅ Données cohérentes en base
+  - ✅ Interface PollCreator refactorisée (boutons redondants supprimés)
+  - ✅ "Afficher plus d'horaires" repositionné sous le tableau
+  - ✅ "Expiration du sondage" déplacé dans la section partage
+  - ✅ **Système d'emails fonctionnel** : Backend sécurisé via simple-email-server.cjs
+  - 🔧 **Templates d'emails à corriger** : Contenu, URLs, formatage (voir détails ci-dessous)
+
+#### Étape 3.1 : Système d'Emails - TRAVAIL EN COURS
+- **Infrastructure :** ✅ Backend email fonctionnel (simple-email-server.cjs + Resend API)
+- **Sécurité :** ✅ Clé API protégée via .env, appels backend sécurisés
+- **Livraison :** ✅ Emails reçus avec succès (test Gmail validé)
+
+**Templates à corriger :**
+1. **Email création sondage** 🔧
+   - Problème : Affiche la date au lieu des infos du sondage
+   - Problème : URL incorrecte (`/poll/Un%20organisateur` au lieu du slug correct)
+   - À faire : Template HTML professionnel avec contenu dynamique
+
+2. **Email confirmation vote** 🔧
+   - À faire : Template de confirmation après vote
+   - À faire : Récapitulatif des choix du votant
+   - À faire : Lien vers résultats du sondage
+
+3. **Email notification nouveau vote** 🔧
+   - À faire : Notification pour le créateur du sondage
+   - À faire : Statistiques de participation
+   - À faire : Lien vers dashboard admin
+
+**Prochaines étapes :**
+- Corriger génération des URLs de sondage
+- Créer templates HTML professionnels
+- Tester chaque type d'email individuellement
+- Valider contenu dynamique et formatage
 
 #### Étape 4 : Partage du Sondage
 - **Interface :** Page de partage avec liens
@@ -158,6 +183,14 @@ Interface centralisée pour gérer tous les sondages et interactions
   - Modifications sauvegardées instantanément
   - Effet immédiat sur nouvelles notifications
 
+#### Étape BONUS = QUAND ON SERA PUBLIE : Authentification
+- **Trigger :** Clic "Envoyer le sondage"
+- **Flow :** Redirection vers `/auth` si non connecté
+- **Options :** Email/password ou Google OAuth
+- **Retour :** Automatique vers `/create` avec données sauvegardées
+- **Validation :** 
+  - Draft sauvegardé/restauré correctement
+  - Pas de perte de données pendant l'auth
 ---
 
 ## 📊 DASHBOARD UTILISATEUR - SPÉCIFICATIONS

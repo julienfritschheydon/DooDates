@@ -3,10 +3,17 @@ import { VotingInterface } from "@/components/voting/VotingInterface";
 import TopNav from "../components/TopNav";
 
 const Vote = () => {
-  const { pollId } = useParams<{ pollId: string }>();
+  const { pollId, pollSlug, adminToken } = useParams<{ 
+    pollId?: string; 
+    pollSlug?: string; 
+    adminToken?: string; 
+  }>();
   const navigate = useNavigate();
 
-  if (!pollId) {
+  // Déterminer l'ID du sondage (soit pollId pour /vote/:pollId, soit pollSlug pour /admin/:pollSlug/:adminToken)
+  const actualPollId = pollId || pollSlug;
+
+  if (!actualPollId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100">
         <TopNav />
@@ -33,7 +40,8 @@ const Vote = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <TopNav />
-      <VotingInterface pollId={pollId} onBack={() => navigate("/")} />
+      {/* VotingInterface maintenant gère l'affichage du message admin en interne */}
+      <VotingInterface pollId={actualPollId} onBack={() => navigate("/")} adminToken={adminToken} />
     </div>
   );
 };

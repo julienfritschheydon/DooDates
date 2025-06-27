@@ -9,15 +9,15 @@ let staticCalendarData: any = null;
 
 async function loadStaticCalendarData() {
   if (!staticCalendarData) {
-    console.time("📥 Import JSON statique");
+    //console.time("📥 Import JSON statique");
     try {
       // Import dynamique pour éviter d'alourdir le bundle principal
       const module = await import("../data/calendar-10years.json");
       staticCalendarData = module.default;
-      console.timeEnd("📥 Import JSON statique");
-      console.log(
-        `✅ Calendrier JSON chargé: ${staticCalendarData.totalDays} jours (${staticCalendarData.startYear}-${staticCalendarData.endYear})`,
-      );
+      //console.timeEnd("📥 Import JSON statique");
+      //console.log(
+      //  `✅ Calendrier JSON chargé: ${staticCalendarData.totalDays} jours (${staticCalendarData.startYear}-${staticCalendarData.endYear})`,
+      //);
     } catch (error) {
       console.error("❌ Erreur import calendrier JSON:", error);
       throw error;
@@ -31,11 +31,11 @@ let cachedCalendar: PreGeneratedCalendar | null = null;
 
 export async function getStaticCalendar(): Promise<PreGeneratedCalendar> {
   if (cachedCalendar) {
-    console.log("⚡ Calendrier statique - Cache mémoire instantané");
+    //console.log("⚡ Calendrier statique - Cache mémoire instantané");
     return cachedCalendar;
   }
 
-  console.log("🚀 Chargement du calendrier JSON statique...");
+  //console.log("🚀 Chargement du calendrier JSON statique...");
   const data = await loadStaticCalendarData();
 
   // Convertir en format PreGeneratedCalendar
@@ -51,14 +51,14 @@ export async function getStaticCalendar(): Promise<PreGeneratedCalendar> {
     weekdays: data.weekdays,
   };
 
-  console.log("🎯 Calendrier statique prêt !");
+  //console.log("🎯 Calendrier statique prêt !");
   return cachedCalendar;
 }
 
 // Version synchrone pour compatibilité (avec fallback)
 export function getStaticCalendarSync(): PreGeneratedCalendar {
   if (cachedCalendar) {
-    console.log("⚡ Calendrier statique sync - Cache mémoire");
+    //console.log("⚡ Calendrier statique sync - Cache mémoire");
     return cachedCalendar;
   }
 

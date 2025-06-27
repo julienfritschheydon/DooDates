@@ -53,14 +53,14 @@ export function UserMenu() {
   };
 
   return (
-    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-      <div className="flex items-center gap-2 flex-1">
-        <User className="w-4 h-4 text-gray-600" />
-        <div className="text-sm">
-          <div className="font-medium text-gray-900">
+    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg max-w-full">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <User className="w-4 h-4 text-gray-600 flex-shrink-0" />
+        <div className="text-sm min-w-0 flex-1">
+          <div className="font-medium text-gray-900 truncate">
             {user.user_metadata?.full_name || user.email}
           </div>
-          <div className="text-gray-600">{user.email}</div>
+          <div className="text-gray-600 truncate">{user.email}</div>
         </div>
       </div>
 
@@ -68,10 +68,11 @@ export function UserMenu() {
         variant="outline"
         size="sm"
         onClick={handleSignOut}
-        className="flex items-center gap-1"
+        className="flex items-center gap-1 flex-shrink-0 text-xs px-2 py-1"
       >
         <LogOut className="w-3 h-3" />
-        Déconnexion
+        <span className="hidden sm:inline">Déconnexion</span>
+        <span className="sm:hidden">↗</span>
       </Button>
     </div>
   );

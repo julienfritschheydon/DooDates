@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import { v4 as uuidv4 } from "uuid";
+import { EmailService } from "../lib/email-service";
 
 export interface PollData {
   title: string;
@@ -64,100 +65,119 @@ export function usePolls() {
     ); // Ajouter un ID unique
   }, []);
 
+  const generateAdminToken = useCallback((): string => {
+    // Générer un token d'administration pour les sondages anonymes
+    return uuidv4().replace(/-/g, ''); // Token sans tirets pour plus de sécurité
+  }, []);
+
   const createPoll = useCallback(
     async (pollData: PollData): Promise<{ poll?: Poll; error?: string }> => {
-      if (!user) {
-        return { error: "Utilisateur non connecté" };
-      }
+      // Permettre la création avec ou sans utilisateur connecté
 
       setLoading(true);
       setError(null);
 
       try {
         const slug = generateSlug(pollData.title);
-        if (process.env.NODE_ENV === "development") {
-          console.log("Création sondage - Slug généré:", slug);
-        }
+        const adminToken = user ? null : generateAdminToken(); // Token admin seulement pour sondages anonymes
+        
+        console.log("Création sondage:", {
+          slug,
+          isAnonymous: !user,
+          adminToken: adminToken ? "généré" : "non requis"
+        });
 
         // 1. Créer le sondage principal
-        if (process.env.NODE_ENV === "development") {
-          console.log("Étape 1: Création du sondage principal...");
-          console.log("Données à insérer:", {
-            creator_id: user.id,
-            title: pollData.title,
-            description: pollData.description,
-            slug: slug,
-            settings: pollData.settings,
-            status: "active",
-            expires_at: pollData.settings.expiresAt || null,
-          });
-        }
-
         const insertData = {
-          creator_id: user.id,
+          creator_id: user?.id || null, // null pour les sondages anonymes
           title: pollData.title,
           description: pollData.description || null,
           slug: slug,
+          admin_token: adminToken, // Token pour gérer les sondages anonymes
           settings: pollData.settings,
           status: "active" as const,
           expires_at: pollData.settings.expiresAt || null,
         };
 
-        console.log("Tentative d'insertion avec:", insertData);
+        // console.log("Tentative d'insertion avec:", insertData);
 
         // Utiliser fetch direct car le client supabase se bloque
         let poll;
         try {
-          // Récupérer le token JWT
-          let token = null;
-          const supabaseSession = localStorage.getItem("supabase.auth.token");
-          if (supabaseSession) {
-            const sessionData = JSON.parse(supabaseSession);
-            token =
-              sessionData?.access_token ||
-              sessionData?.currentSession?.access_token;
-          }
-
-          if (!token) {
-            const authData = localStorage.getItem(
-              `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
-            );
-            if (authData) {
-              const parsed = JSON.parse(authData);
-              token = parsed?.access_token;
-            }
-          }
-
-          if (!token) {
-            throw new Error("Token d'authentification non trouvé");
-          }
-
-          // Faire l'insertion avec fetch
-          const response = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls`,
-            {
-              method: "POST",
-              headers: {
-                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-                Prefer: "return=representation",
+          // Pour les sondages anonymes, pas besoin de token JWT
+          if (!user) {
+            console.log("🆓 Création sondage anonyme - pas de token requis");
+            
+            // Utiliser la clé API publique pour les sondages anonymes
+            const response = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls`,
+              {
+                method: "POST",
+                headers: {
+                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                  "Content-Type": "application/json",
+                  Prefer: "return=representation",
+                },
+                body: JSON.stringify(insertData),
               },
-              body: JSON.stringify(insertData),
-            },
-          );
+            );
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Erreur HTTP ${response.status}: ${errorText}`);
-          }
+            if (!response.ok) {
+              const errorData = await response.text();
+              console.error("Erreur API Supabase:", response.status, errorData);
+              throw new Error(`Erreur ${response.status}: ${errorData}`);
+            }
 
-          const data = await response.json();
-          poll = data[0]; // PostgREST retourne un array
-          console.log("Sondage principal créé:", poll);
+            const result = await response.json();
+            poll = Array.isArray(result) ? result[0] : result;
+          } else {
+            // Pour les utilisateurs connectés, récupérer le token JWT
+            let token = null;
+            const supabaseSession = localStorage.getItem("supabase.auth.token");
+            if (supabaseSession) {
+              const sessionData = JSON.parse(supabaseSession);
+              token =
+                sessionData?.access_token ||
+                sessionData?.currentSession?.access_token;
+            }
 
-          if (!poll || !poll.id) {
-            throw new Error("Réponse invalide du serveur");
+            if (!token) {
+              const authData = localStorage.getItem(
+                `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
+              );
+              if (authData) {
+                const parsed = JSON.parse(authData);
+                token = parsed?.access_token;
+              }
+            }
+
+            if (!token) {
+              throw new Error("Token d'authentification non trouvé pour utilisateur connecté");
+            }
+
+            // Faire l'insertion avec token d'authentification
+            const response = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls`,
+              {
+                method: "POST",
+                headers: {
+                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                  Prefer: "return=representation",
+                },
+                body: JSON.stringify(insertData),
+              },
+            );
+
+            if (!response.ok) {
+              const errorData = await response.text();
+              console.error("Erreur API Supabase:", response.status, errorData);
+              throw new Error(`Erreur ${response.status}: ${errorData}`);
+            }
+
+            const result = await response.json();
+            poll = Array.isArray(result) ? result[0] : result;
           }
         } catch (fetchError) {
           console.error("Erreur création sondage:", fetchError);
@@ -165,7 +185,11 @@ export function usePolls() {
         }
 
         // 2. Créer les options de dates
-        console.log("Étape 2: Création des options de dates...");
+        console.log("🗓️ Étape 2: Création des options de dates...");
+        
+        if (pollData.selectedDates.length === 0) {
+          console.log("ℹ️ Aucune date sélectionnée, sondage sans options prédéfinies");
+        } else {
         const pollOptions = pollData.selectedDates.map((date, index) => {
           const timeSlots = pollData.timeSlotsByDate[date] || [];
 
@@ -173,18 +197,18 @@ export function usePolls() {
           const formattedTimeSlots = timeSlots
             .filter((slot) => slot.enabled)
             .map((slot, slotIndex) => {
-              const endHour =
-                slot.hour + Math.floor(pollData.settings.timeGranularity / 60);
-              const endMinute =
-                slot.minute + (pollData.settings.timeGranularity % 60);
+                // Calculer l'heure de fin correctement
+                const totalMinutes = slot.hour * 60 + slot.minute + pollData.settings.timeGranularity;
+                const endHour = Math.floor(totalMinutes / 60);
+                const endMinute = totalMinutes % 60;
 
               return {
                 id: `slot-${slotIndex + 1}`,
                 start_hour: slot.hour,
                 start_minute: slot.minute,
-                end_hour: endHour >= 24 ? endHour - 24 : endHour,
-                end_minute: endMinute >= 60 ? endMinute - 60 : endMinute,
-                label: `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")} - ${(endHour >= 24 ? endHour - 24 : endHour).toString().padStart(2, "0")}:${(endMinute >= 60 ? endMinute - 60 : endMinute).toString().padStart(2, "0")}`,
+                  end_hour: endHour,
+                  end_minute: endMinute,
+                  label: `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")} - ${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}`,
               };
             });
 
@@ -196,83 +220,147 @@ export function usePolls() {
           };
         });
 
-        console.log("Options à créer:", pollOptions);
+          console.log("📋 Options à créer:", pollOptions);
 
-        // Utiliser fetch direct pour les options aussi
+          // Utiliser fetch() direct pour les options (comme pour le sondage principal)
         try {
-          // Récupérer le token JWT (même logique que pour le poll)
-          let token = null;
-          const supabaseSession = localStorage.getItem("supabase.auth.token");
-          if (supabaseSession) {
-            const sessionData = JSON.parse(supabaseSession);
-            token =
-              sessionData?.access_token ||
-              sessionData?.currentSession?.access_token;
-          }
+            console.log("🔄 Début insertion des options...");
+            console.log("📋 Détail des options à insérer:", JSON.stringify(pollOptions, null, 2));
+            
+            // Pour les sondages anonymes, pas besoin de token JWT
+            if (!user) {
+              console.log("🆓 Création sondage anonyme - pas de token requis");
+              
+              // Utiliser la clé API publique pour les sondages anonymes
+              const optionsResponse = await fetch(
+                `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/poll_options`,
+                {
+                  method: "POST",
+                  headers: {
+                    apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                    "Content-Type": "application/json",
+                    Prefer: "return=representation",
+                  },
+                  body: JSON.stringify(pollOptions),
+                },
+              );
 
-          if (!token) {
-            const authData = localStorage.getItem(
-              `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
-            );
-            if (authData) {
-              const parsed = JSON.parse(authData);
-              token = parsed?.access_token;
+              console.log("📡 Réponse insertion options:", optionsResponse.status, optionsResponse.statusText);
+
+              if (!optionsResponse.ok) {
+                const errorText = await optionsResponse.text();
+                console.error("❌ Erreur HTTP options:", optionsResponse.status, errorText);
+                throw new Error(`Erreur HTTP ${optionsResponse.status}: ${errorText}`);
+              }
+
+              const optionsData = await optionsResponse.json();
+              console.log("✅ Options créées avec succès:", optionsData);
+            } else {
+              // Pour les utilisateurs connectés, récupérer le token JWT
+              let token = null;
+              const supabaseSession = localStorage.getItem("supabase.auth.token");
+              if (supabaseSession) {
+                const sessionData = JSON.parse(supabaseSession);
+                token =
+                  sessionData?.access_token ||
+                  sessionData?.currentSession?.access_token;
+              }
+
+              if (!token) {
+                const authData = localStorage.getItem(
+                  `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
+                );
+                if (authData) {
+                  const parsed = JSON.parse(authData);
+                  token = parsed?.access_token;
+                }
+              }
+
+              if (!token) {
+                throw new Error("Token d'authentification non trouvé pour utilisateur connecté");
+              }
+
+              // Faire l'insertion avec token d'authentification
+              const optionsResponse = await fetch(
+                `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/poll_options`,
+                {
+                  method: "POST",
+                  headers: {
+                    apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    Prefer: "return=representation",
+                  },
+                  body: JSON.stringify(pollOptions),
+                },
+              );
+
+              console.log("📡 Réponse insertion options:", optionsResponse.status, optionsResponse.statusText);
+
+              if (!optionsResponse.ok) {
+                const errorText = await optionsResponse.text();
+                console.error("❌ Erreur HTTP options:", optionsResponse.status, errorText);
+                throw new Error(`Erreur HTTP ${optionsResponse.status}: ${errorText}`);
+              }
+
+              const optionsData = await optionsResponse.json();
+              console.log("✅ Options créées avec succès:", optionsData);
             }
-          }
-
-          if (!token) {
-            throw new Error("Token d'authentification non trouvé");
-          }
-
-          // Faire l'insertion des options avec fetch
-          const optionsResponse = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/poll_options`,
-            {
-              method: "POST",
-              headers: {
-                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-                Prefer: "return=minimal",
-              },
-              body: JSON.stringify(pollOptions),
-            },
-          );
-
-          if (!optionsResponse.ok) {
-            const errorText = await optionsResponse.text();
-            console.error("Erreur création options:", errorText);
+          } catch (optionsError) {
+            console.error("💥 Exception lors de la création des options:", optionsError);
+            console.error("💥 Stack trace:", optionsError?.stack);
 
             // Nettoyer le sondage créé en cas d'erreur
-            await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls?id=eq.${poll.id}`,
-              {
-                method: "DELETE",
-                headers: {
-                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                  Authorization: `Bearer ${token}`,
-                },
-              },
-            );
-
-            throw new Error(
-              `Erreur HTTP ${optionsResponse.status}: ${errorText}`,
-            );
+            console.log("🧹 Nettoyage du sondage suite à l'erreur...");
+            try {
+              await supabase.from("polls").delete().eq("id", poll.id);
+            } catch (cleanupError) {
+              console.error("Erreur nettoyage:", cleanupError);
+            }
+            
+            throw optionsError;
           }
-
-          console.log("Options créées avec succès");
-        } catch (optionsError) {
-          console.error("Erreur création options:", optionsError);
-          throw optionsError;
         }
 
-        // 3. Analytics (optionnel - ne doit pas bloquer la création)
-        // Désactivé temporairement car le client Supabase se bloque
-        console.log(
-          "Analytics désactivées temporairement pour éviter les blocages",
-        );
+        // 3. Envoyer les emails aux participants si demandé
+        console.log("Debug email:", {
+          sendNotifications: pollData.settings.sendNotifications,
+          emailsCount: pollData.participantEmails.length,
+          emails: pollData.participantEmails
+        });
+        
+        if (pollData.settings.sendNotifications && pollData.participantEmails.length > 0) {
+          console.log("🚀 Étape 3: Envoi des notifications email...");
+          try {
+            const emailResult = await EmailService.sendPollCreatedNotification(
+              pollData.title,
+              poll.slug,
+              user?.email || user?.user_metadata?.full_name || "Un organisateur",
+              pollData.participantEmails
+            );
+            
+            if (emailResult.success) {
+              console.log("📧 Emails envoyés avec succès");
+            } else {
+              console.warn("Erreur envoi emails:", emailResult.error);
+              // Ne pas faire échouer la création du sondage si l'email échoue
+            }
+          } catch (emailError) {
+            console.warn("Erreur lors de l'envoi des emails:", emailError);
+            // Ne pas faire échouer la création du sondage si l'email échoue
+          }
+        } else {
+          console.log("❌ Pas d'envoi d'emails:", {
+            notifications: pollData.settings.sendNotifications,
+            emailCount: pollData.participantEmails.length
+          });
+        }
 
-        console.log("Sondage créé avec succès:", poll);
+        // 4. Analytics (optionnel - ne doit pas bloquer la création)
+        // Désactivé temporairement car le client Supabase se bloque
+        // console.log("Analytics désactivées temporairement pour éviter les blocages");
+
+        console.log("✅ Sondage créé avec succès:", poll.slug);
         return { poll };
       } catch (err: any) {
         const errorMessage =

@@ -41,58 +41,168 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   const [connectionStatus, setConnectionStatus] = useState<
     "unknown" | "connected" | "error"
   >("unknown");
+
+  // Utiliser useRef pour persister les flags entre les re-rendus
+  const hasShownOfflineMessage = useRef(false);
+  const wasOffline = useRef(false);
+  const reconnectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Test de connexion initial
+    //console.log("🚀 GeminiChatInterface - Initialisation du composant");
+    
+    // Réinitialiser les flags au montage du composant
+    hasShownOfflineMessage.current = false;
+    wasOffline.current = false;
+    
     testGeminiConnection();
 
-    // Message de bienvenue
-    const welcomeMessage: Message = {
-      id: "welcome",
-      content: `Bonjour ! Que puis-je créer pour vous ?`,
-      isAI: true,
-      timestamp: new Date(),
-    };
+    // Scroll vers le haut au démarrage pour corriger le focus sur Android
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    // Forcer le repositionnement après un court délai pour Android
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 100);
 
-    setMessages([welcomeMessage]);
+    // Retarder l'ajout du message de bienvenue pour éviter le conflit de scroll
+    setTimeout(() => {
+      //console.log("💬 Ajout du message de bienvenue initial");
+      const welcomeMessage: Message = {
+        id: "welcome",
+        content: `Bonjour ! Que puis-je créer pour vous ?`,
+        isAI: true,
+        timestamp: new Date(),
+      };
+
+      // Ajouter le message de bienvenue SANS écraser les messages existants
+      setMessages((prev) => {
+        // Si c'est le premier message, le mettre en premier
+        if (prev.length === 0) {
+          return [welcomeMessage];
+        }
+        // Sinon, vérifier s'il n'y a pas déjà un message de bienvenue
+        const hasWelcome = prev.some(msg => msg.id === "welcome");
+        if (!hasWelcome) {
+          return [welcomeMessage, ...prev];
+        }
+        return prev;
+      });
+      
+      // Scroll de sécurité supplémentaire après le rendu complet
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }, 100);
+    }, 300); // Délai pour laisser le scroll vers le haut s'établir
+
+    // Cleanup au démontage du composant
+    return () => {
+      //console.log("🔄 GeminiChatInterface - Nettoyage du composant");
+      if (reconnectionTimeoutRef.current) {
+        clearTimeout(reconnectionTimeoutRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    // Désactiver complètement le scroll automatique vers le bas sur mobile
+    // pour éviter tout conflit avec la correction du focus Android
+    const isMobile = window.innerWidth <= 768;
+    
+    if (!isMobile) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Utiliser behavior: "instant" sur mobile pour éviter les conflits
+    const isMobile = window.innerWidth <= 768;
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: isMobile ? "instant" : "smooth" 
+    });
   };
 
   const testGeminiConnection = async () => {
+    //console.log("🔌 Test de connexion Gemini en cours...");
     try {
       const isConnected = await geminiService.testConnection();
-      setConnectionStatus(isConnected ? "connected" : "error");
+      const newStatus = isConnected ? "connected" : "error";
+      //console.log(`🔌 Résultat connexion Gemini: ${isConnected ? "✅ Connecté" : "❌ Déconnecté"}`);
 
-      if (!isConnected) {
-        // Ajouter un message d'erreur si la connexion échoue
+      // Si l'IA était hors ligne et redevient disponible
+      if (wasOffline.current && isConnected && connectionStatus === "error") {
+        //console.log("🔄 Gemini reconnecté - Ajout message de reconnexion");
         setMessages((prev) => [
           ...prev,
           {
-            id: `error-${Date.now()}`,
-            content:
-              "Je suis actuellement indisponible. Je vais réessayer de me connecter dans quelques instants...",
+            id: `reconnected-${Date.now()}`,
+            content: "✅ Je suis de nouveau disponible ! Vous pouvez maintenant créer vos sondages.",
             isAI: true,
             timestamp: new Date(),
           },
         ]);
+        wasOffline.current = false;
+        hasShownOfflineMessage.current = false;
+      }
 
-        // Réessayer dans 5 secondes
-        setTimeout(testGeminiConnection, 5000);
+      setConnectionStatus(newStatus);
+
+      if (!isConnected) {
+        // Afficher le message d'erreur seulement la première fois
+        if (!hasShownOfflineMessage.current) {
+          //console.log("⚠️ Gemini indisponible - Ajout message d'erreur");
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `error-${Date.now()}`,
+              content: "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...",
+              isAI: true,
+              timestamp: new Date(),
+            },
+          ]);
+          hasShownOfflineMessage.current = true;
+          wasOffline.current = true;
+        }
+
+        // Nettoyer le timeout précédent s'il existe
+        if (reconnectionTimeoutRef.current) {
+          clearTimeout(reconnectionTimeoutRef.current);
+        }
+
+        // Réessayer dans 10 secondes
+        reconnectionTimeoutRef.current = setTimeout(() => {
+          testGeminiConnection();
+        }, 10000);
       }
     } catch (error) {
       setConnectionStatus("error");
       console.error("Erreur de connexion à Gemini:", error);
 
-      // Réessayer dans 5 secondes
-      setTimeout(testGeminiConnection, 5000);
+      // Afficher le message d'erreur seulement la première fois
+      if (!hasShownOfflineMessage.current) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `connection-error-${Date.now()}`,
+            content: "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...",
+            isAI: true,
+            timestamp: new Date(),
+          },
+        ]);
+        hasShownOfflineMessage.current = true;
+        wasOffline.current = true;
+      }
+
+      // Nettoyer le timeout précédent s'il existe
+      if (reconnectionTimeoutRef.current) {
+        clearTimeout(reconnectionTimeoutRef.current);
+      }
+
+      // Réessayer dans 10 secondes
+      reconnectionTimeoutRef.current = setTimeout(() => {
+        testGeminiConnection();
+      }, 10000);
     }
   };
 
@@ -111,16 +221,16 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     setIsLoading(true);
 
     try {
-      console.log("🎯 Envoi de la demande à Gemini:", userMessage.content);
+      //console.log("🎯 Envoi de la demande à Gemini:", userMessage.content);
       // Essayer de générer un sondage
       const pollResponse = await geminiService.generatePollFromText(
         userMessage.content,
       );
 
       if (pollResponse.success && pollResponse.data) {
-        console.log("✨ Réponse de Gemini reçue:", pollResponse.data);
-        console.log("📅 Dates reçues:", pollResponse.data.dates);
-        console.log("⏰ Créneaux reçus:", pollResponse.data.timeSlots);
+        //console.log("✨ Réponse de Gemini reçue:", pollResponse.data);
+        //console.log("📅 Dates reçues:", pollResponse.data.dates);
+        //console.log("⏰ Créneaux reçus:", pollResponse.data.timeSlots);
 
         const aiResponse: Message = {
           id: `ai-${Date.now()}`,
@@ -132,10 +242,10 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
         setMessages((prev) => [...prev, aiResponse]);
       } else {
-        console.log(
-          "❌ Échec de la génération du sondage:",
-          pollResponse.error,
-        );
+        //console.log(
+        //  "❌ Échec de la génération du sondage:",
+        //  pollResponse.error,
+        //);
         // Si l'erreur est liée aux quotas, afficher un message spécifique
         if (
           pollResponse.error?.includes("quota") ||
@@ -154,7 +264,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         }
 
         // Fallback vers chat simple si la génération de sondage échoue
-        console.log("🔄 Tentative de fallback vers le chat simple");
+        //console.log("🔄 Tentative de fallback vers le chat simple");
         const chatResponse = await geminiService.chatAboutPoll(
           userMessage.content,
         );
@@ -189,9 +299,9 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   };
 
   const handleUsePollSuggestion = (suggestion: PollSuggestion) => {
-    console.log("🎯 Envoi des données vers PollCreator:", suggestion);
-    console.log("📅 Dates à traiter:", suggestion.dates);
-    console.log("⏰ Créneaux à configurer:", suggestion.timeSlots);
+    //console.log("🎯 Envoi des données vers PollCreator:", suggestion);
+    //console.log("📅 Dates à traiter:", suggestion.dates);
+    //console.log("⏰ Créneaux à configurer:", suggestion.timeSlots);
     setSelectedPollData(suggestion);
     setShowPollCreator(true);
   };
@@ -204,6 +314,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   };
 
   const handleNewChat = () => {
+    //console.log("🆕 Création d'un nouveau chat - Réinitialisation");
     // Réinitialiser les messages avec le message de bienvenue
     const welcomeMessage: Message = {
       id: "welcome",
@@ -212,6 +323,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
       timestamp: new Date(),
     };
 
+    //console.log("💬 Nouveau chat - Ajout message de bienvenue");
     setMessages([welcomeMessage]);
     setInputValue("");
     setIsLoading(false);
@@ -220,6 +332,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
     // Appeler le callback si fourni
     if (onNewChat) {
+      //console.log("📞 Appel du callback onNewChat");
       onNewChat();
     }
   };
@@ -237,7 +350,51 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-80px)]">
+    <div className="flex flex-col min-h-[calc(100vh-80px)] min-h-[calc(100dvh-80px)]">
+      {/* En-tête avec indicateur de statut */}
+      <div className="bg-white border-b p-3 md:p-4 sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-blue-500" />
+              <h1 className="text-lg font-semibold text-gray-800">Assistant DooDates</h1>
+            </div>
+
+            {/* Indicateur de statut */}
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${
+                connectionStatus === "connected"
+                  ? "bg-green-500"
+                  : connectionStatus === "error"
+                  ? "bg-red-500"
+                  : "bg-yellow-500"
+              }`} />
+              <span className={`text-xs font-medium ${
+                connectionStatus === "connected"
+                  ? "text-green-600"
+                  : connectionStatus === "error"
+                  ? "text-red-600"
+                  : "text-yellow-600"
+              }`}>
+                {connectionStatus === "connected"
+                  ? "En ligne"
+                  : connectionStatus === "error"
+                  ? "Hors ligne"
+                  : "Connexion..."}
+              </span>
+            </div>
+          </div>
+
+          <button
+            onClick={handleNewChat}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Nouveau chat</span>
+          </button>
+        </div>
+      </div>
+
       {/* Zone de conversation - Défilante */}
       <div className="flex-1 overflow-y-auto bg-gradient-to-br from-blue-50 to-indigo-50">
         <div className="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-4">
@@ -365,7 +522,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
       </div>
 
       {/* Zone de saisie - Fixe en bas */}
-      <div className="bg-white border-t p-3 md:p-4 sticky bottom-0">
+      <div className="bg-white border-t p-3 md:p-4 md:sticky md:bottom-0">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-end gap-2">
             <textarea

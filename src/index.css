@@ -107,6 +107,24 @@
   body {
     /* stylelint-disable-next-line at-rule-no-unknown */
     @apply bg-background text-foreground font-inter;
+    /* Correction focus Android */
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Correction spécifique pour Android PWA */
+  html, body {
+    scroll-behavior: auto !important;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Forcer le positionnement en haut sur mobile */
+  @media (max-width: 768px) {
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
   }
 
   h1,

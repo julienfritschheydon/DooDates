@@ -1,12 +1,14 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useCallback } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { Auth, AuthCallback } from "./pages/Auth";
-import { VotingSwipe } from "./components/voting/VotingSwipe";
+import VotingSwipe from "./components/voting/VotingSwipe";
+// import { VotingSwipe as ExVotingSwipe } from "./components/voting/ex-VotingSwipe";
+import TestVoteSubmission from "./components/voting/TestVoteSubmission";
 import { Loader2 } from "lucide-react";
 
 // Composant de loading optimisé
@@ -23,6 +25,7 @@ const LoadingSpinner = () => (
 // Pages avec preload hint pour les pages critiques
 const Index = lazy(() => import("./pages/Index"));
 const Vote = lazy(() => import("./pages/Vote"));
+
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Cache persistant pour résister au HMR de Vite
@@ -42,118 +45,130 @@ const markModuleAsLoaded = () => {
   sessionStorage.setItem(CACHE_KEY, "true");
 };
 
-const preloadPollCreator = () => {
+// Préchargement intelligent du PollCreator (fonction simple)
+const preloadPollCreator = async () => {
   if (pollCreatorModule) {
-    console.log("📦 PollCreator - Module déjà en cache (mémoire)");
-    return Promise.resolve(pollCreatorModule);
+    return pollCreatorModule;
   }
 
-  if (isModulePreloaded()) {
-    console.log("📦 PollCreator - Module marqué comme pré-chargé (session)");
-    const timerId = `📦 PollCreator - Rechargement optimisé - ${Date.now()}`;
-    console.time(timerId);
-    return import("./pages/PollCreator").then((module) => {
-      console.timeEnd(timerId);
-      pollCreatorModule = module;
-      return module;
-    });
-  }
-
+  // Si une promesse de préchargement est déjà en cours
   if (pollCreatorLoadingPromise) {
-    console.log("📦 PollCreator - Utilisation de la promesse existante");
     return pollCreatorLoadingPromise;
   }
 
-  console.time("📦 PollCreator - Premier chargement complet");
-  pollCreatorLoadingPromise = Promise.all([
-    import("./pages/PollCreator"),
-    import("./components/PollCreator"),
-    import("./components/Calendar"),
-  ])
-    .then(([pageModule]) => {
-      console.timeEnd("📦 PollCreator - Premier chargement complet");
-      pollCreatorModule = pageModule;
-      markModuleAsLoaded(); // Marquer comme chargé
-      pollCreatorLoadingPromise = null;
-      return pageModule;
-    })
-    .catch((error) => {
-      console.error("❌ Erreur preload PollCreator:", error);
+  // Démarrer le préchargement
+  pollCreatorLoadingPromise = (async () => {
+    try {
+      const startTime = performance.now();
+      
+      // Précharger le module PollCreator
+      const module = await import("./components/PollCreator");
+      pollCreatorModule = module;
+      
+      const endTime = performance.now();
+      const loadTime = endTime - startTime;
+      
+      // Marquer comme préchargé
+      sessionStorage.setItem(CACHE_KEY, "true");
+      sessionStorage.setItem("pollCreator-loadTime", loadTime.toString());
+      
+      // Log seulement si temps de chargement élevé
+      if (loadTime > 1000) {
+        console.log(`📦 PollCreator - Rechargement lent: ${loadTime} ms`);
+      }
+      
+      return module;
+    } catch (error) {
+      console.error("❌ Erreur préchargement PollCreator:", error);
       pollCreatorLoadingPromise = null;
       throw error;
-    });
+    }
+  })();
 
   return pollCreatorLoadingPromise;
+};
+
+// Préchargement TimeSlot Functions (fonction simple)
+const preloadTimeSlotFunctions = async () => {
+  if (timeSlotFunctionsModule) {
+    return;
+  }
+  
+  try {
+    const startTime = performance.now();
+    
+    // Importer le module
+    timeSlotFunctionsModule = await import("./lib/timeSlotFunctions");
+    
+    const endTime = performance.now();
+    const loadTime = endTime - startTime;
+    
+    sessionStorage.setItem(TIMESLOT_CACHE_KEY, "loaded");
+    
+    // Log seulement si rechargement session
+    if (!sessionStorage.getItem(TIMESLOT_CACHE_KEY + "-session")) {
+      //console.log(`⏰ TimeSlot Functions - Rechargement session: ${loadTime} ms`);
+      sessionStorage.setItem(TIMESLOT_CACHE_KEY + "-session", "true");
+    }
+  } catch (error) {
+    console.error("❌ Erreur préchargement TimeSlot Functions:", error);
+  }
+};
+
+// Préchargement calendrier progressif (fonction simple)
+const preloadProgressiveCalendar = async () => {
+  try {
+    const startTime = performance.now();
+    
+    // Précharger le calendrier progressif
+    const { getProgressiveCalendar } = await import("./lib/progressive-calendar");
+    await getProgressiveCalendar();
+    
+    const endTime = performance.now();
+    const loadTime = endTime - startTime;
+    
+    // Log seulement les temps significatifs
+    //if (loadTime > 500) {
+    //  console.log(`📅 Préchargement calendrier progressif: ${loadTime} ms`);
+    //}
+  } catch (error) {
+    console.error("❌ Erreur préchargement calendrier:", error);
+  }
+};
+
+// Préchargement du calendrier statique
+const preloadStaticCalendar = async () => {
+  try {
+    const startTime = performance.now();
+    
+    // Précharger le calendrier statique pour éviter le fallback
+    const { getStaticCalendar } = await import("./lib/calendar-data");
+    await getStaticCalendar();
+    
+    const endTime = performance.now();
+    const loadTime = endTime - startTime;
+    
+    // Log seulement les temps significatifs
+    if (loadTime > 100) {
+      //console.log(`📅 Calendrier statique préchargé: ${loadTime} ms`);
+    }
+  } catch (error) {
+    console.warn("⚠️ Erreur préchargement calendrier statique:", error);
+  }
 };
 
 // Démarrer le preload immédiatement + fonctions TimeSlot
 preloadPollCreator();
 
 // Précharger aussi les fonctions TimeSlot globalement avec cache
-const preloadTimeSlotFunctions = () => {
-  if (timeSlotFunctionsModule) {
-    console.log("⏰ TimeSlot Functions - Déjà en cache");
-    return Promise.resolve(timeSlotFunctionsModule);
-  }
-
-  if (sessionStorage.getItem(TIMESLOT_CACHE_KEY) === "true") {
-    console.time("⏰ TimeSlot Functions - Rechargement session");
-    return import("./lib/timeSlotFunctions").then((module) => {
-      console.timeEnd("⏰ TimeSlot Functions - Rechargement session");
-      timeSlotFunctionsModule = module;
-      return module;
-    });
-  }
-
-  console.time("⏰ TimeSlot Functions - Premier chargement");
-  return import("./lib/timeSlotFunctions").then((module) => {
-    console.timeEnd("⏰ TimeSlot Functions - Premier chargement");
-    timeSlotFunctionsModule = module;
-    sessionStorage.setItem(TIMESLOT_CACHE_KEY, "true");
-    return module;
-  });
-};
-
-// Précharger le calendrier progressif dès le démarrage
-const preloadProgressiveCalendar = () => {
-  console.time("📅 Préchargement calendrier progressif");
-  return import("./lib/progressive-calendar")
-    .then((progressiveModule) => {
-      return import("./lib/calendar-generator").then((generatorModule) => {
-        return progressiveModule.getProgressiveCalendar().then((calendar) => {
-          generatorModule.initializeGlobalCalendarCache(calendar);
-          console.timeEnd("📅 Préchargement calendrier progressif");
-          console.log("✅ Calendrier progressif préchargé et cache initialisé");
-          return calendar;
-        });
-      });
-    })
-    .catch((error) => {
-      console.warn("⚠️ Erreur préchargement calendrier progressif:", error);
-      // Fallback: calendrier statique
-      console.time("📅 Fallback: calendrier statique");
-      return import("./lib/calendar-data")
-        .then((module) => {
-          console.timeEnd("📅 Fallback: calendrier statique");
-          return module.getStaticCalendar();
-        })
-        .then(() => {
-          console.log("✅ Calendrier statique préchargé (fallback)");
-        })
-        .catch((fallbackError) => {
-          console.warn("⚠️ Erreur fallback calendrier:", fallbackError);
-        });
-    });
-};
-
 preloadTimeSlotFunctions();
 preloadProgressiveCalendar();
+preloadStaticCalendar();
 
 // Préchargement complet en arrière-plan (après 1 seconde)
 setTimeout(() => {
-  console.log("🚀 Préchargement complet en arrière-plan...");
-  console.time("📦 Préchargement complet");
-
+  //console.log("🚀 Préchargement complet en arrière-plan...");
+  //console.time("📦 Préchargement complet");
   // Diviser le préchargement en chunks plus petits pour éviter les violations
   const preloadInBatches = async () => {
     // Batch 1: Composants critiques (petits)
@@ -194,10 +209,10 @@ setTimeout(() => {
 
   preloadInBatches()
     .then(() => {
-      console.timeEnd("📦 Préchargement complet");
-      console.log(
-        "✅ Préchargement complet terminé - Navigation instantanée !",
-      );
+      // console.timeEnd("📦 Préchargement complet");
+      // console.log(
+      //   "✅ Préchargement complet terminé - Navigation instantanée !",
+      // );
     })
     .catch((error) => {
       console.warn("⚠️ Erreur préchargement complet:", error);
@@ -247,6 +262,22 @@ const queryClient = new QueryClient({
   console.log("ℹ️ Préchargement déjà effectué en arrière-plan");
 };
 
+// Composant wrapper pour VotingSwipe qui extrait le pollId de l'URL
+const VotingSwipeWrapper = () => {
+  const { pollId } = useParams<{ pollId: string }>();
+  return pollId ? <VotingSwipe pollId={pollId} /> : <div>ID du sondage manquant</div>;
+};
+
+// Composant pour la démo avec un ID fixe
+// const VotingSwipeDemo = () => {
+//   return <VotingSwipe pollId="demo-poll-id" />;
+// };
+
+// Composant pour afficher l'ancienne version ex-VotingSwipe
+// const ExVotingSwipeDemo = () => {
+//   return <ExVotingSwipe onBack={() => window.history.back()} />;
+// };
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -259,9 +290,13 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/vote/:pollId" element={<Vote />} />
-              <Route path="/vote-swipe/:pollId" element={<VotingSwipe />} />
-              <Route path="/demo/swipe" element={<VotingSwipe />} />
+              {/* <Route path="/vote-swipe/:pollId" element={<VotingSwipeWrapper />} /> */}
+              {/* <Route path="/demo/swipe" element={<VotingSwipeDemo />} />
+              <Route path="/demo/ex-swipe" element={<ExVotingSwipeDemo />} /> */}
               <Route path="/create" element={<PollCreator />} />
+              <Route path="/admin/:pollSlug/:adminToken" element={<Vote />} />
+              <Route path="/test/vote-submission" element={<TestVoteSubmission />} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
