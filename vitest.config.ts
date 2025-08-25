@@ -8,6 +8,17 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
+    include: [
+      'src/**/*.test.{ts,tsx}',
+    ],
+    // Ne pas collecter les tests Playwright E2E avec Vitest
+    exclude: [
+      'node_modules/**',
+      'tests/**',
+      'tests/e2e/**',
+      'playwright-report/**',
+      'test-results/**',
+    ],
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: [
@@ -24,4 +35,4 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src')
     }
   }
-}); 
+});

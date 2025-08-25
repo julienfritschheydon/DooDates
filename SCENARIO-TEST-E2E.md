@@ -5,7 +5,6 @@
 ### **Phase 1 : Création de Sondage**
 - [ ] **Page d'accueil** : Interface charge correctement
 - [ ] **Bouton +** : Ouvre le créateur de sondage
-- [ ] **Titre obligatoire** : Impossible de continuer sans titre
 - [ ] **Sélection dates** : Calendrier fonctionne, sélection multiple
 - [ ] **Navigation mois** : Flèches précédent/suivant
 - [ ] **Mémoire dates** : Dates conservées entre changements de mois
@@ -18,6 +17,7 @@
 - [ ] **Heures étendues** : Bouton + pour étendre 7h-22h
 
 ### **Phase 3 : Finalisation & Sauvegarde**
+- [ ] **Titre obligatoire** : Impossible de continuer sans titre
 - [ ] **Bouton "Partager sondage"** : Finalise la création
 - [ ] **Redirection dashboard** : Retour automatique
 - [ ] **Sondage visible** : Apparaît dans la liste
@@ -78,8 +78,6 @@
 - [ ] **Boutons retour** : Fonctionnent partout
 - [ ] **Menu TopNav** : Navigation fluide
 - [ ] **Responsive mobile** : Interface adaptée
-- [ ] **PWA** : Installation possible
-- [ ] **Offline basique** : Fonctionne sans réseau
 
 ### **Phase 12 : Edge Cases**
 - [ ] **Sondage sans horaires** : Vote simple dates

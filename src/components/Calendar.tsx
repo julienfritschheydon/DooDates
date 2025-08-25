@@ -124,6 +124,7 @@ const Calendar: React.FC<CalendarProps> = ({
                 whileTap={{ scale: 0.95 }}
                 onClick={() => !isPastDay && onDateToggle(date)}
                 disabled={isPastDay}
+                data-date={date.toISOString().split('T')[0]}
                 className={`${isMobile ? "w-9 h-9" : "w-10 h-10"} text-sm rounded-lg transition-all duration-200 font-medium flex items-center justify-center
                   ${
                     isPastDay
@@ -174,7 +175,7 @@ const Calendar: React.FC<CalendarProps> = ({
   logger.timeEnd(timerId);
 
   return (
-    <div className="w-full">
+    <div className="w-full" data-testid="calendar">
       {/* Mobile: Un seul mois avec navigation */}
       <div className="block md:hidden">
         {visibleMonths.length > 0 && (
