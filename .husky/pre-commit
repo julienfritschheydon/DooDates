@@ -1,6 +1,24 @@
 #!/bin/sh
 echo "🔍 DooDates - Validation pre-commit..."
 
+# Mode rapide optionnel pour accélérer les commits locaux
+# Activez-le avec FAST_HOOKS=1 pour ignorer les vérifications lourdes
+if [ "$FAST_HOOKS" = "1" ]; then
+  echo "⚡ Mode rapide activé (FAST_HOOKS=1) - tests lourds ignorés"
+  echo "🧪 Tests unitaires rapides..."
+  npm run test:unit:fast
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Commit bloqué"
+    exit 1
+  fi
+
+  echo "💅 Formatage du code..."
+  npm run format
+
+  echo "✅ Pre-commit (rapide) validé - Commit autorisé"
+  exit 0
+fi
+
 # 1. Tests unitaires rapides (< 30s)
 echo "🧪 Tests unitaires rapides..."
 npm run test:unit:fast
