@@ -12,11 +12,15 @@ if (typeof jest !== 'undefined') {
 // Variables d'environnement pour les tests
 process.env.NODE_ENV = 'test';
 
-// Vérifier que l'API key est chargée
-if (process.env.VITE_GEMINI_API_KEY) {
-  console.log('✅ API key Gemini chargée pour les tests');
-} else {
-  console.warn('⚠️ API key Gemini non trouvée dans .env.local');
+// Vérifier que l'API key est chargée (réduire le bruit en CI)
+const hasGeminiKey = !!process.env.VITE_GEMINI_API_KEY;
+const isCI = process.env.GITHUB_ACTIONS === 'true';
+if (!isCI) {
+  if (hasGeminiKey) {
+    console.log('✅ API key Gemini chargée pour les tests');
+  } else {
+    console.info('ℹ️ API key Gemini non trouvée (tests IA seront ignorés si non requise)');
+  }
 }
 
 // Mock des console.log pour les tests sauf erreurs
@@ -26,4 +30,4 @@ const originalConsoleError = console.error;
 // Configuration pour les tests asynchrones
 if (typeof global !== 'undefined') {
   global.setTimeout = setTimeout;
-} 
+}
