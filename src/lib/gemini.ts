@@ -3,7 +3,23 @@ import { GenerativeModel } from "@google/generative-ai";
 import CalendarQuery, { CalendarDay } from "./calendar-generator";
 
 // Configuration pour Gemini
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+// Supporte Vite (navigateur) et Jest/Node sans référencer `import.meta` au parse-time.
+// - En Node/Jest: lecture via process.env
+// - En Vite: fallback via accès dynamique à import.meta.env dans une fonction (try/catch)
+function getViteEnv(): any | undefined {
+  try {
+    // L'appel dynamique évite l'erreur de syntaxe dans Node/Jest
+    // eslint-disable-next-line no-new-func
+    return new Function("return import.meta && import.meta.env;")();
+  } catch {
+    return undefined;
+  }
+}
+
+const API_KEY: string | undefined =
+  (typeof process !== "undefined" && (process.env as any)?.VITE_GEMINI_API_KEY) ||
+  (getViteEnv()?.VITE_GEMINI_API_KEY as string | undefined) ||
+  undefined;
 
 // Initialisation différée pour éviter le blocage au chargement
 let genAI: GoogleGenerativeAI | null = null;
