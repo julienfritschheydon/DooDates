@@ -30,8 +30,11 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
     });
   };
 
-  // Compter le total des participants uniques
-  const totalParticipants = existingVotes.length;
+  // Utiliser directement localStorage comme le Dashboard
+  const localVotes = JSON.parse(localStorage.getItem('dev-votes') || '[]');
+  const pollVotes = localVotes.filter((vote: any) => vote.poll_id === poll?.id);
+  const uniqueVoters = new Set(pollVotes.map((vote: any) => vote.voter_email)).size;
+  const totalParticipants = uniqueVoters;
 
   return (
     <div className="p-4 relative bg-white border-b">

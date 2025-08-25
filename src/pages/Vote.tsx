@@ -3,15 +3,16 @@ import { VotingInterface } from "@/components/voting/VotingInterface";
 import TopNav from "../components/TopNav";
 
 const Vote = () => {
-  const { pollId, pollSlug, adminToken } = useParams<{
+  const { pollId, pollSlug, adminToken, slug } = useParams<{
     pollId?: string;
     pollSlug?: string;
     adminToken?: string;
+    slug?: string;
   }>();
   const navigate = useNavigate();
 
-  // Déterminer l'ID du sondage (soit pollId pour /vote/:pollId, soit pollSlug pour /admin/:pollSlug/:adminToken)
-  const actualPollId = pollId || pollSlug;
+  // Déterminer l'ID du sondage (soit pollId pour /vote/:pollId, soit pollSlug pour /admin/:pollSlug/:adminToken, soit slug pour /poll/:slug)
+  const actualPollId = pollId || pollSlug || slug;
 
   if (!actualPollId) {
     return (

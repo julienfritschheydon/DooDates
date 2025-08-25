@@ -19,8 +19,8 @@ export interface SwipeOption {
     hour: number;
     minute: number;
     duration?: number;
-  }>;
-  display_order: number;
+  }> | null;
+  display_order?: number;
 }
 
 export interface VoterInfo {
@@ -42,7 +42,7 @@ export interface Poll {
   title: string;
   description: string;
   status: string;
-  creator_id: string;
+  creator_id?: string;
   created_at: string;
   expires_at: string;
 }

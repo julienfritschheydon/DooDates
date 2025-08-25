@@ -12,12 +12,14 @@ export interface Poll {
   id: string;
   slug: string;
   title: string;
-  description?: string;
+  description: string;
   status: string;
   creator_id?: string;
   admin_token?: string;
   created_at: string;
   updated_at: string;
+  expires_at?: string;
+  dates?: string[];
 }
 
 export interface PollOption {
@@ -28,8 +30,9 @@ export interface PollOption {
     hour: number;
     minute: number;
     duration?: number;
-  }>;
-  display_order: number;
+  }> | null;
+  display_order?: number;
+  created_at?: string;
 }
 
 export interface Vote {
