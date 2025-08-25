@@ -1,6 +1,11 @@
 #!/bin/sh
 echo "🚀 DooDates - Validation pre-push..."
 
+# Ressources accrues pour éviter OOM et fiabiliser Vitest
+export NODE_OPTIONS="--max-old-space-size=4096"
+export VITEST_MAX_THREADS=1
+export VITEST_POOL=forks
+
 # 1. Suite complète de tests unitaires
 echo "🧪 Tests unitaires complets..."
 npm run test:unit
