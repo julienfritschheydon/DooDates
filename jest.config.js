@@ -15,7 +15,8 @@ export default {
         target: 'ES2020',
         moduleResolution: 'node',
         allowSyntheticDefaultImports: true,
-        esModuleInterop: true
+        esModuleInterop: true,
+        resolveJsonModule: true
       }
     }]
   },
@@ -32,4 +33,4 @@ export default {
   ],
   verbose: true,
   maxWorkers: 1 // Un seul worker pour éviter les limits de rate Gemini
-}; 
+};
