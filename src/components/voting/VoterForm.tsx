@@ -173,6 +173,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                 }`}
                 autoComplete="name"
                 disabled={isSubmitting}
+                data-testid="voter-name"
               />
               {localFormErrors.name && (
                 <p className="text-red-500 text-sm mt-1">
@@ -255,6 +256,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
               } text-white`}
+              data-testid="submit-votes"
             >
               {isSubmitting ? "Envoi en cours..." : "Envoyer mes votes"}
             </button>

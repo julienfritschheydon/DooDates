@@ -36,6 +36,7 @@ const Dashboard: React.FC = () => {
     "all",
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [copySuccessSlug, setCopySuccessSlug] = useState<string | null>(null);
 
   // États locaux pour gérer les sondages avec statistiques
   const [polls, setPolls] = useState<DashboardPoll[]>([]);
@@ -130,6 +131,8 @@ const Dashboard: React.FC = () => {
           title: "Lien copié",
           description: "Le lien du sondage a été copié dans le presse-papiers.",
         });
+        setCopySuccessSlug(slug);
+        setTimeout(() => setCopySuccessSlug(null), 1500);
       } else {
         // Fallback pour les navigateurs qui ne supportent pas l'API clipboard
         const textArea = document.createElement("textarea");
@@ -142,6 +145,8 @@ const Dashboard: React.FC = () => {
           title: "Lien copié",
           description: "Le lien du sondage a été copié dans le presse-papiers.",
         });
+        setCopySuccessSlug(slug);
+        setTimeout(() => setCopySuccessSlug(null), 1500);
       }
     } catch (error) {
       console.error("Erreur lors de la copie:", error);
@@ -264,35 +269,36 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Filtres et recherche */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="flex-1">
-            <div className="relative">
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Rechercher un sondage..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                data-testid="search-polls"
               />
             </div>
-          </div>
-          <div className="flex gap-2">
-            {["all", "draft", "active", "closed"].map((status) => (
-              <button
-                key={status}
-                onClick={() => setFilter(status as any)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  filter === status
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                }`}
-              >
-                {status === "all"
-                  ? "Tous"
-                  : getStatusLabel(status as DashboardPoll["status"])}
-              </button>
-            ))}
+            <div className="flex gap-2">
+              {["all", "draft", "active", "closed"].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilter(status as any)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    filter === status
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                  }`}
+                >
+                  {status === "all"
+                    ? "Tous"
+                    : getStatusLabel(status as DashboardPoll["status"])}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -302,6 +308,7 @@ const Dashboard: React.FC = () => {
             <div
               key={poll.id}
               className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+              data-testid="poll-item"
             >
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
@@ -317,35 +324,30 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="flex items-center space-x-2 ml-4">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        poll.status === "active"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : poll.status === "draft"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        getStatusColor(poll.status)
                       }`}
+                      data-testid="poll-status"
                     >
-                      {poll.status === "active"
-                        ? "Actif"
-                        : poll.status === "draft"
-                          ? "Brouillon"
-                          : poll.status === "closed"
-                            ? "Fermé"
-                            : "Archivé"}
+                      {poll.status === "active" ? "Actif" : "Fermé"}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  <div className="flex items-center space-x-4">
-                    <span className="flex items-center">
-                      <Users className="h-4 w-4 mr-1" />
-                      {(poll as DashboardPoll).participants_count || 0}
-                    </span>
-                    <span className="flex items-center">
-                      <BarChart3 className="h-4 w-4 mr-1" />
-                      {(poll as DashboardPoll).votes_count || 0}
-                    </span>
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      <span data-testid="participants-count">
+                        {poll.participants_count || 0} participants
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Vote className="w-4 h-4" />
+                      <span data-testid="votes-count">
+                        {poll.votes_count || 0} votes
+                      </span>
+                    </div>
                   </div>
                   <span className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
@@ -358,6 +360,7 @@ const Dashboard: React.FC = () => {
                   <button
                     onClick={() => navigate(`/poll/${poll.slug}/results`)}
                     className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
+                    data-testid="results-button"
                   >
                     <BarChart3 className="w-4 h-4 flex-shrink-0" />
                     <span className="hidden lg:inline">Résultats</span>
@@ -365,6 +368,7 @@ const Dashboard: React.FC = () => {
                   <button
                     onClick={() => navigate(`/poll/${poll.slug}`)}
                     className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
+                    data-testid="vote-button"
                   >
                     <Vote className="w-4 h-4 flex-shrink-0" />
                     <span className="hidden lg:inline">Voter</span>
@@ -372,6 +376,7 @@ const Dashboard: React.FC = () => {
                   <button
                     onClick={() => navigate(`/create?edit=${poll.id}`)}
                     className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
+                    data-testid="view-poll-button"
                   >
                     <Edit className="w-4 h-4 flex-shrink-0" />
                     <span className="hidden lg:inline">Modifier</span>
@@ -379,6 +384,7 @@ const Dashboard: React.FC = () => {
                   <button
                     onClick={() => handleDuplicatePoll(poll as DashboardPoll)}
                     className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
+                    data-testid="duplicate-poll-button"
                   >
                     <Copy className="w-4 h-4 flex-shrink-0" />
                     <span className="hidden lg:inline">Copier</span>
@@ -390,6 +396,7 @@ const Dashboard: React.FC = () => {
                     }}
                     className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
                     title="Copier le lien"
+                    data-testid="copy-link-button"
                   >
                     <Share2 className="w-4 h-4 flex-shrink-0" />
                     <span className="hidden lg:inline">Lien</span>
@@ -416,10 +423,14 @@ const Dashboard: React.FC = () => {
                     }}
                     className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
                     title="Supprimer"
+                    data-testid="delete-poll-button"
                   >
                     <Trash2 className="w-4 h-4 flex-shrink-0" />
                     <span className="hidden lg:inline">Supprimer</span>
                   </button>
+                  {copySuccessSlug === poll.slug && (
+                    <span data-testid="copy-success" className="sr-only">Copied</span>
+                  )}
                 </div>
               </div>
             </div>

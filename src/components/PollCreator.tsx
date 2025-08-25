@@ -23,7 +23,6 @@ import { UserMenu } from "./UserMenu";
 import { type PollSuggestion } from "../lib/gemini";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import TopNav from "./TopNav";
 
 interface TimeSlot {
   hour: number;
@@ -1056,6 +1055,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     hour: number,
     minute: number,
   ) => {
+    console.log(`🎯 Clic sur créneau: ${hour}:${minute.toString().padStart(2, '0')} pour ${dateStr}`);
+    
     if (timeSlotFunctions) {
       // Utiliser la fonction lazy-loadée
       const newTimeSlotsByDate = timeSlotFunctions.toggleTimeSlotForDate(
@@ -1065,8 +1066,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         timeSlotsByDate,
       );
       setTimeSlotsByDate(newTimeSlotsByDate);
+      console.log(`✅ Créneau ${hour}:${minute.toString().padStart(2, '0')} mis à jour`);
     } else {
       // Fallback simple si pas encore chargé
+      console.log(`⚠️ Fallback: mise à jour créneau ${hour}:${minute.toString().padStart(2, '0')}`);
       setTimeSlotsByDate((prev) => {
         const currentSlots = prev[dateStr] || [];
         const existingSlot = currentSlots.find(
@@ -1140,6 +1143,13 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   };
 
   const handleFinalize = async () => {
+    console.log("📝 handleFinalize: start", {
+      title: state.pollTitle,
+      selectedDates: state.selectedDates.length,
+      showTimeSlots: state.showTimeSlots,
+      timeGranularity: state.timeGranularity,
+      notificationsEnabled: state.notificationsEnabled,
+    });
     // Calculer la date d'expiration (aujourd'hui + expirationDays)
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + state.expirationDays);
@@ -1232,10 +1242,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     } else {
       // Mode création : créer un nouveau sondage
       console.log("🆕 Création d'un nouveau sondage");
+      console.log("📤 Appel createPoll avec:", pollData);
       result = await createPoll(pollData);
     }
 
-    console.log("Résultat:", result);
+    console.log("📨 Résultat create/update:", result);
 
     if (result.error) {
       console.error("Erreur lors de la création du sondage:", result.error);
@@ -1243,14 +1254,14 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     }
 
     if (result.poll) {
-      console.log("Sondage créé avec succès:", result.poll);
+      console.log("✅ Sondage créé avec succès:", result.poll);
       setCreatedPollSlug(result.poll.slug);
       setCreatedPoll(result.poll);
 
       // Nettoyer le brouillon
       localStorage.removeItem("doodates-draft");
 
-      console.log("createdPollSlug défini à:", result.poll.slug);
+      console.log("🏷️ createdPollSlug défini à:", result.poll.slug);
 
       // Optionnel : rediriger vers le sondage créé
       // window.location.href = `/poll/${poll.slug}`;
@@ -1308,23 +1319,37 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   // Fonction pour rediriger vers la page d'accueil
   const handleBackToHome = () => {
+    console.log("↩️ Navigation vers la page d'accueil après création");
     navigate("/");
   };
 
   // Fonction pour gérer le clic sur le bouton principal
   const handleMainButtonClick = () => {
+    console.log("🖱️ Clic bouton principal", {
+      createdPollSlug,
+      canFinalize: canFinalize(),
+      pollLoading,
+      label: pollLoading
+        ? "Création en cours..."
+        : createdPollSlug
+          ? "Sondage créé !"
+          : state.participantEmails.trim()
+            ? "Partager"
+            : "Enregistrer",
+    });
     if (createdPollSlug) {
       // Si le sondage est créé, rediriger vers la page d'accueil
+      console.log("➡️ Bouton après création: redirection accueil");
       handleBackToHome();
     } else {
       // Sinon, créer le sondage
+      console.log("🚀 Lancement de handleFinalize (création)");
       handleFinalize();
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <TopNav />
       <div className="p-4 md:p-6 lg:p-8 xl:p-12">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 lg:p-8 xl:p-12">
@@ -1440,13 +1465,23 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
                   <div className="flex gap-3">
                     <button
-                      onClick={() =>
-                        setState((prev) => ({
-                          ...prev,
-                          showTimeSlots: !prev.showTimeSlots,
-                        }))
-                      }
+                      onClick={() => {
+                        console.log('🕒 Bouton Horaires cliqué - toggle showTimeSlots');
+                        setState((prev) => {
+                          const newState = {
+                            ...prev,
+                            showTimeSlots: !prev.showTimeSlots,
+                          };
+                          console.log('🕒 État après clic:', { 
+                            selectedDates: prev.selectedDates.length, 
+                            showTimeSlots: newState.showTimeSlots,
+                            conditionMet: prev.selectedDates.length > 0 && newState.showTimeSlots
+                          });
+                          return newState;
+                        });
+                      }}
                       className="flex items-center gap-2 px-4 py-2 text-base border border-gray-300 rounded-lg hover:border-blue-300 transition-colors"
+                      data-testid="add-time-slots-button"
                     >
                       <Clock className="w-5 h-5" />
                       Horaires
@@ -1603,8 +1638,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     </div>
                   )}
                 </div>
-                {/* Mobile: Section horaires compacte */}
-                <div className="block md:hidden">
+
+                {/* Mobile: Section horaires avec scroll */}
+                <div className="md:hidden" data-testid="time-slots-section">
                   <div className="border rounded-lg bg-white overflow-hidden">
                     {/* En-têtes des dates */}
                     <div className="flex bg-gray-50">
@@ -1633,7 +1669,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     </div>
 
                     {/* Créneaux horaires */}
-                    <div className="max-h-48 overflow-y-auto">
+                    <div className="max-h-48 overflow-y-auto" data-testid="time-slots-grid">
                       {getVisibleTimeSlots().map((timeSlot) => (
                         <div
                           key={`${timeSlot.hour}-${timeSlot.minute}`}
@@ -1642,7 +1678,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           <div className="w-16 p-2 text-xs text-gray-600 flex items-center justify-center border-r bg-gray-50">
                             {timeSlot.label}
                           </div>
-                          {state.selectedDates.map((dateStr) => {
+                          {state.selectedDates.map((dateStr, colIndex) => {
                             const slot = timeSlotsByDate[dateStr]?.find(
                               (s) =>
                                 s.hour === timeSlot.hour &&
@@ -1672,6 +1708,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             return (
                               <button
                                 key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
+                                data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
                                 onClick={() =>
                                   toggleTimeSlotForDate(
                                     dateStr,
@@ -1729,7 +1766,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 </div>
 
                 {/* Desktop: Section horaires avec scroll */}
-                <div className="hidden md:block">
+                <div className="hidden md:block" data-testid="time-slots-section">
                   <div className="border rounded-lg bg-white overflow-hidden">
                     {/* En-têtes des dates */}
                     <div className="flex bg-gray-50">
@@ -1758,7 +1795,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     </div>
 
                     {/* Créneaux horaires */}
-                    <div className="max-h-48 overflow-y-auto">
+                    <div className="max-h-48 overflow-y-auto" data-testid="time-slots-grid">
                       {getVisibleTimeSlots().map((timeSlot) => (
                         <div
                           key={`${timeSlot.hour}-${timeSlot.minute}`}
@@ -1767,7 +1804,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           <div className="w-16 p-2 text-xs text-gray-600 flex items-center justify-center border-r bg-gray-50">
                             {timeSlot.label}
                           </div>
-                          {state.selectedDates.map((dateStr) => {
+                          {state.selectedDates.map((dateStr, colIndex) => {
                             const slot = timeSlotsByDate[dateStr]?.find(
                               (s) =>
                                 s.hour === timeSlot.hour &&
@@ -1797,6 +1834,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             return (
                               <button
                                 key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
+                                data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
                                 onClick={() =>
                                   toggleTimeSlotForDate(
                                     dateStr,
@@ -1880,7 +1918,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
               <button
                 onClick={() => {
                   setState((prev) => ({ ...prev, showShare: true }));
-                  // Scroll vers le bas pour voir les champs de partage
+                  // Scroll vers la section partage après un délai pour permettre le rendu
                   setTimeout(() => {
                     shareRef.current?.scrollIntoView({
                       behavior: "smooth",
@@ -1889,6 +1927,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   }, 100);
                 }}
                 className="w-full py-4 px-6 rounded-2xl font-semibold text-lg text-white flex items-center justify-center gap-3 transition-all duration-200 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg"
+                data-testid="share-poll-button"
               >
                 <Share2 className="w-5 h-5" />
                 <span>Partager</span>
@@ -1971,6 +2010,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         }
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         placeholder="Ex: Réunion équipe marketing"
+                        data-testid="poll-title"
                       />
                     </div>
 

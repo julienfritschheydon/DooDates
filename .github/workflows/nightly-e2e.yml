@@ -1,0 +1,47 @@
+name: 🌙 Nightly E2E Matrix
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Tous les jours à 02:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  e2e-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [
+          'chromium',
+          'firefox',
+          'webkit',
+          'Mobile Chrome',
+          'Mobile Safari'
+        ]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🧭 Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: 🧪 Run Playwright E2E (${{ matrix.project }})
+        run: |
+          npx playwright test --project="${{ matrix.project }}" --reporter=html
+
+      - name: 📊 Upload Playwright report (${{ matrix.project }})
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: playwright-report
+          retention-days: 7
