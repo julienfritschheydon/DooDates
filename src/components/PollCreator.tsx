@@ -1055,8 +1055,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     hour: number,
     minute: number,
   ) => {
-    console.log(`🎯 Clic sur créneau: ${hour}:${minute.toString().padStart(2, '0')} pour ${dateStr}`);
-    
+    console.log(
+      `🎯 Clic sur créneau: ${hour}:${minute.toString().padStart(2, "0")} pour ${dateStr}`,
+    );
+
     if (timeSlotFunctions) {
       // Utiliser la fonction lazy-loadée
       const newTimeSlotsByDate = timeSlotFunctions.toggleTimeSlotForDate(
@@ -1066,10 +1068,14 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         timeSlotsByDate,
       );
       setTimeSlotsByDate(newTimeSlotsByDate);
-      console.log(`✅ Créneau ${hour}:${minute.toString().padStart(2, '0')} mis à jour`);
+      console.log(
+        `✅ Créneau ${hour}:${minute.toString().padStart(2, "0")} mis à jour`,
+      );
     } else {
       // Fallback simple si pas encore chargé
-      console.log(`⚠️ Fallback: mise à jour créneau ${hour}:${minute.toString().padStart(2, '0')}`);
+      console.log(
+        `⚠️ Fallback: mise à jour créneau ${hour}:${minute.toString().padStart(2, "0")}`,
+      );
       setTimeSlotsByDate((prev) => {
         const currentSlots = prev[dateStr] || [];
         const existingSlot = currentSlots.find(
@@ -1466,16 +1472,20 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   <div className="flex gap-3">
                     <button
                       onClick={() => {
-                        console.log('🕒 Bouton Horaires cliqué - toggle showTimeSlots');
+                        console.log(
+                          "🕒 Bouton Horaires cliqué - toggle showTimeSlots",
+                        );
                         setState((prev) => {
                           const newState = {
                             ...prev,
                             showTimeSlots: !prev.showTimeSlots,
                           };
-                          console.log('🕒 État après clic:', { 
-                            selectedDates: prev.selectedDates.length, 
+                          console.log("🕒 État après clic:", {
+                            selectedDates: prev.selectedDates.length,
                             showTimeSlots: newState.showTimeSlots,
-                            conditionMet: prev.selectedDates.length > 0 && newState.showTimeSlots
+                            conditionMet:
+                              prev.selectedDates.length > 0 &&
+                              newState.showTimeSlots,
                           });
                           return newState;
                         });
@@ -1669,7 +1679,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     </div>
 
                     {/* Créneaux horaires */}
-                    <div className="max-h-48 overflow-y-auto" data-testid="time-slots-grid">
+                    <div
+                      className="max-h-48 overflow-y-auto"
+                      data-testid="time-slots-grid"
+                    >
                       {getVisibleTimeSlots().map((timeSlot) => (
                         <div
                           key={`${timeSlot.hour}-${timeSlot.minute}`}
@@ -1766,7 +1779,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 </div>
 
                 {/* Desktop: Section horaires avec scroll */}
-                <div className="hidden md:block" data-testid="time-slots-section">
+                <div
+                  className="hidden md:block"
+                  data-testid="time-slots-section"
+                >
                   <div className="border rounded-lg bg-white overflow-hidden">
                     {/* En-têtes des dates */}
                     <div className="flex bg-gray-50">
@@ -1795,7 +1811,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     </div>
 
                     {/* Créneaux horaires */}
-                    <div className="max-h-48 overflow-y-auto" data-testid="time-slots-grid">
+                    <div
+                      className="max-h-48 overflow-y-auto"
+                      data-testid="time-slots-grid"
+                    >
                       {getVisibleTimeSlots().map((timeSlot) => (
                         <div
                           key={`${timeSlot.hour}-${timeSlot.minute}`}
