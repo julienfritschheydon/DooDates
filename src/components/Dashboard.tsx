@@ -324,9 +324,9 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="flex items-center space-x-2 ml-4">
                     <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        getStatusColor(poll.status)
-                      }`}
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                        poll.status,
+                      )}`}
                       data-testid="poll-status"
                     >
                       {poll.status === "active" ? "Actif" : "Fermé"}
@@ -429,7 +429,9 @@ const Dashboard: React.FC = () => {
                     <span className="hidden lg:inline">Supprimer</span>
                   </button>
                   {copySuccessSlug === poll.slug && (
-                    <span data-testid="copy-success" className="sr-only">Copied</span>
+                    <span data-testid="copy-success" className="sr-only">
+                      Copied
+                    </span>
                   )}
                 </div>
               </div>
