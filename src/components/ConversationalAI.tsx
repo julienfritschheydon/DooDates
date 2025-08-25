@@ -37,7 +37,9 @@ interface ConversationalAIProps {
   onPollCreated?: (pollData: PollDraft) => void;
 }
 
-const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) => {
+const ConversationalAI: React.FC<ConversationalAIProps> = ({
+  onPollCreated,
+}) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +51,8 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
     // Message de bienvenue
     const welcomeMessage: Message = {
       id: "welcome",
-      content: "Bonjour ! Décrivez-moi le sondage que vous souhaitez créer. Par exemple : 'Organise une réunion avec Paul et Marie mardi ou mercredi après-midi'",
+      content:
+        "Bonjour ! Décrivez-moi le sondage que vous souhaitez créer. Par exemple : 'Organise une réunion avec Paul et Marie mardi ou mercredi après-midi'",
       isAI: true,
       timestamp: new Date(),
     };
@@ -60,19 +63,28 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const simulateAIResponse = async (userMessage: string): Promise<{ content: string; pollData?: PollDraft }> => {
+  const simulateAIResponse = async (
+    userMessage: string,
+  ): Promise<{ content: string; pollData?: PollDraft }> => {
     // Simulation d'analyse IA
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Si l'utilisateur demande explicitement de changer le titre
-    if (userMessage.toLowerCase().includes("titre") && (userMessage.toLowerCase().includes("changer") || userMessage.toLowerCase().includes("modifier"))) {
+    if (
+      userMessage.toLowerCase().includes("titre") &&
+      (userMessage.toLowerCase().includes("changer") ||
+        userMessage.toLowerCase().includes("modifier"))
+    ) {
       return {
         content: "Quel nouveau titre souhaitez-vous donner à votre sondage ?",
       };
     }
 
     // Détection de patterns simples pour création initiale
-    if (userMessage.toLowerCase().includes("réunion") || userMessage.toLowerCase().includes("meeting")) {
+    if (
+      userMessage.toLowerCase().includes("réunion") ||
+      userMessage.toLowerCase().includes("meeting")
+    ) {
       const pollData: PollDraft = {
         title: "Réunion équipe",
         dates: ["2025-08-26", "2025-08-27"],
@@ -82,25 +94,32 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
       };
 
       return {
-        content: "J'ai créé un brouillon de sondage pour votre réunion. Vous pouvez modifier n'importe quel élément en cliquant sur l'icône d'édition.",
+        content:
+          "J'ai créé un brouillon de sondage pour votre réunion. Vous pouvez modifier n'importe quel élément en cliquant sur l'icône d'édition.",
         pollData,
       };
     }
 
-    if (userMessage.toLowerCase().includes("modifier") || userMessage.toLowerCase().includes("changer")) {
+    if (
+      userMessage.toLowerCase().includes("modifier") ||
+      userMessage.toLowerCase().includes("changer")
+    ) {
       return {
-        content: "Que souhaitez-vous modifier exactement ? Vous pouvez cliquer sur l'icône d'édition à côté de chaque élément du brouillon.",
+        content:
+          "Que souhaitez-vous modifier exactement ? Vous pouvez cliquer sur l'icône d'édition à côté de chaque élément du brouillon.",
       };
     }
 
     if (userMessage.toLowerCase().includes("date")) {
       return {
-        content: "Quelles nouvelles dates proposez-vous ? Vous pouvez dire par exemple 'lundi et mardi prochains'.",
+        content:
+          "Quelles nouvelles dates proposez-vous ? Vous pouvez dire par exemple 'lundi et mardi prochains'.",
       };
     }
 
     return {
-      content: "Je comprends que vous voulez créer un sondage. Pouvez-vous me donner plus de détails ? Par exemple : le type d'événement, les dates possibles, et qui doit participer ?",
+      content:
+        "Je comprends que vous voulez créer un sondage. Pouvez-vous me donner plus de détails ? Par exemple : le type d'événement, les dates possibles, et qui doit participer ?",
     };
   };
 
@@ -114,13 +133,13 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
     setIsLoading(true);
 
     try {
       const aiResponse = await simulateAIResponse(inputValue);
-      
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: aiResponse.content,
@@ -129,8 +148,8 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
         pollData: aiResponse.pollData,
       };
 
-      setMessages(prev => [...prev, aiMessage]);
-      
+      setMessages((prev) => [...prev, aiMessage]);
+
       if (aiResponse.pollData) {
         setCurrentDraft(aiResponse.pollData);
       }
@@ -147,19 +166,19 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
 
   const handleEditDraft = (field: keyof PollDraft, value: any) => {
     if (!currentDraft) return;
-    
-    setCurrentDraft(prev => prev ? { ...prev, [field]: value } : null);
-    
+
+    setCurrentDraft((prev) => (prev ? { ...prev, [field]: value } : null));
+
     // Simuler une réponse IA confirmant la modification
     const confirmMessage: Message = {
       id: Date.now().toString(),
-      content: `Parfait ! J'ai mis à jour ${field === 'title' ? 'le titre' : field === 'dates' ? 'les dates' : field === 'participants' ? 'les participants' : 'la description'} de votre sondage.`,
+      content: `Parfait ! J'ai mis à jour ${field === "title" ? "le titre" : field === "dates" ? "les dates" : field === "participants" ? "les participants" : "la description"} de votre sondage.`,
       isAI: true,
       timestamp: new Date(),
       pollData: { ...currentDraft, [field]: value },
     };
-    
-    setMessages(prev => [...prev, confirmMessage]);
+
+    setMessages((prev) => [...prev, confirmMessage]);
   };
 
   const handleCreatePoll = () => {
@@ -172,26 +191,35 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
     }
   };
 
-  const PollDraftCard: React.FC<{ pollData: PollDraft; onEdit: (field: keyof PollDraft, value: any) => void }> = ({ 
-    pollData, 
-    onEdit 
-  }) => {
-    const [editingField, setEditingField] = useState<keyof PollDraft | null>(null);
+  const PollDraftCard: React.FC<{
+    pollData: PollDraft;
+    onEdit: (field: keyof PollDraft, value: any) => void;
+  }> = ({ pollData, onEdit }) => {
+    const [editingField, setEditingField] = useState<keyof PollDraft | null>(
+      null,
+    );
     const [editValue, setEditValue] = useState("");
 
     const startEdit = (field: keyof PollDraft) => {
       setEditingField(field);
-      setEditValue(Array.isArray(pollData[field]) ? (pollData[field] as any[]).join(", ") : pollData[field] as string || "");
+      setEditValue(
+        Array.isArray(pollData[field])
+          ? (pollData[field] as any[]).join(", ")
+          : (pollData[field] as string) || "",
+      );
     };
 
     const saveEdit = () => {
       if (!editingField) return;
-      
+
       let value: any = editValue;
-      if (editingField === 'dates' || editingField === 'participants') {
-        value = editValue.split(",").map(item => item.trim()).filter(Boolean);
+      if (editingField === "dates" || editingField === "participants") {
+        value = editValue
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
       }
-      
+
       onEdit(editingField, value);
       setEditingField(null);
       setEditValue("");
@@ -210,14 +238,16 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
       >
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="w-4 h-4 text-blue-600" />
-          <span className="text-sm font-medium text-blue-800">Brouillon de sondage</span>
+          <span className="text-sm font-medium text-blue-800">
+            Brouillon de sondage
+          </span>
         </div>
 
         <div className="space-y-3">
           {/* Titre */}
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              {editingField === 'title' ? (
+              {editingField === "title" ? (
                 <div className="flex gap-2">
                   <input
                     value={editValue}
@@ -225,18 +255,26 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
                     className="flex-1 px-2 py-1 border border-blue-300 rounded text-sm"
                     placeholder="Titre du sondage"
                   />
-                  <button onClick={saveEdit} className="text-green-600 hover:text-green-700">
+                  <button
+                    onClick={saveEdit}
+                    className="text-green-600 hover:text-green-700"
+                  >
                     <Check className="w-4 h-4" />
                   </button>
-                  <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
+                  <button
+                    onClick={cancelEdit}
+                    className="text-red-600 hover:text-red-700"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">{pollData.title}</span>
-                  <button 
-                    onClick={() => startEdit('title')}
+                  <span className="font-medium text-gray-900">
+                    {pollData.title}
+                  </span>
+                  <button
+                    onClick={() => startEdit("title")}
                     className="text-blue-600 hover:text-blue-700"
                   >
                     <Edit3 className="w-3 h-3" />
@@ -250,7 +288,7 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
           <div className="flex items-start gap-2">
             <Calendar className="w-4 h-4 text-gray-500 mt-0.5" />
             <div className="flex-1">
-              {editingField === 'dates' ? (
+              {editingField === "dates" ? (
                 <div className="flex gap-2">
                   <input
                     value={editValue}
@@ -258,20 +296,28 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
                     className="flex-1 px-2 py-1 border border-blue-300 rounded text-sm"
                     placeholder="Dates séparées par des virgules"
                   />
-                  <button onClick={saveEdit} className="text-green-600 hover:text-green-700">
+                  <button
+                    onClick={saveEdit}
+                    className="text-green-600 hover:text-green-700"
+                  >
                     <Check className="w-4 h-4" />
                   </button>
-                  <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
+                  <button
+                    onClick={cancelEdit}
+                    className="text-red-600 hover:text-red-700"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-700">
-                    {pollData.dates.map(date => new Date(date).toLocaleDateString()).join(", ")}
+                    {pollData.dates
+                      .map((date) => new Date(date).toLocaleDateString())
+                      .join(", ")}
                   </span>
-                  <button 
-                    onClick={() => startEdit('dates')}
+                  <button
+                    onClick={() => startEdit("dates")}
                     className="text-blue-600 hover:text-blue-700"
                   >
                     <Edit3 className="w-3 h-3" />
@@ -286,7 +332,9 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-gray-500" />
               <span className="text-sm text-gray-700">
-                {pollData.timeSlots.map(slot => `${slot.start} - ${slot.end}`).join(", ")}
+                {pollData.timeSlots
+                  .map((slot) => `${slot.start} - ${slot.end}`)
+                  .join(", ")}
               </span>
             </div>
           )}
@@ -295,7 +343,7 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
           <div className="flex items-start gap-2">
             <Users className="w-4 h-4 text-gray-500 mt-0.5" />
             <div className="flex-1">
-              {editingField === 'participants' ? (
+              {editingField === "participants" ? (
                 <div className="flex gap-2">
                   <input
                     value={editValue}
@@ -303,23 +351,28 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
                     className="flex-1 px-2 py-1 border border-blue-300 rounded text-sm"
                     placeholder="Emails séparés par des virgules"
                   />
-                  <button onClick={saveEdit} className="text-green-600 hover:text-green-700">
+                  <button
+                    onClick={saveEdit}
+                    className="text-green-600 hover:text-green-700"
+                  >
                     <Check className="w-4 h-4" />
                   </button>
-                  <button onClick={cancelEdit} className="text-red-600 hover:text-red-700">
+                  <button
+                    onClick={cancelEdit}
+                    className="text-red-600 hover:text-red-700"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-700">
-                    {pollData.participants.length > 0 
+                    {pollData.participants.length > 0
                       ? pollData.participants.join(", ")
-                      : "Aucun participant ajouté"
-                    }
+                      : "Aucun participant ajouté"}
                   </span>
-                  <button 
-                    onClick={() => startEdit('participants')}
+                  <button
+                    onClick={() => startEdit("participants")}
                     className="text-blue-600 hover:text-blue-700"
                   >
                     <Edit3 className="w-3 h-3" />
@@ -372,8 +425,8 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
               >
                 <p className="text-sm">{message.content}</p>
                 {message.pollData && (
-                  <PollDraftCard 
-                    pollData={message.pollData} 
+                  <PollDraftCard
+                    pollData={message.pollData}
                     onEdit={handleEditDraft}
                   />
                 )}
@@ -396,7 +449,7 @@ const ConversationalAI: React.FC<ConversationalAIProps> = ({ onPollCreated }) =>
             </div>
           </motion.div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
 

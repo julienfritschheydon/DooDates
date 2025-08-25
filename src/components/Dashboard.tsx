@@ -32,7 +32,9 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [filter, setFilter] = useState<"all" | "draft" | "active" | "closed">("all");
+  const [filter, setFilter] = useState<"all" | "draft" | "active" | "closed">(
+    "all",
+  );
   const [searchQuery, setSearchQuery] = useState("");
 
   // États locaux pour gérer les sondages avec statistiques
@@ -44,25 +46,28 @@ const Dashboard: React.FC = () => {
     setLoading(true);
     try {
       // En mode développement local, récupérer depuis localStorage
-      const localPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
-      const localVotes = JSON.parse(localStorage.getItem('dev-votes') || '[]');
-      
+      const localPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+      const localVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
+
       // Calculer les statistiques pour chaque sondage
       const pollsWithStats = localPolls.map((poll: any) => {
-        const pollVotes = localVotes.filter((vote: any) => vote.poll_id === poll.id);
-        const uniqueVoters = new Set(pollVotes.map((vote: any) => vote.voter_email)).size;
-        
-        
+        const pollVotes = localVotes.filter(
+          (vote: any) => vote.poll_id === poll.id,
+        );
+        const uniqueVoters = new Set(
+          pollVotes.map((vote: any) => vote.voter_email),
+        ).size;
+
         return {
           ...poll,
           participants_count: uniqueVoters,
-          votes_count: pollVotes.length
+          votes_count: pollVotes.length,
         };
       });
-      
+
       setPolls(pollsWithStats);
     } catch (error) {
-      console.error('Erreur lors du chargement des sondages:', error);
+      console.error("Erreur lors du chargement des sondages:", error);
     } finally {
       setLoading(false);
     }
@@ -80,27 +85,39 @@ const Dashboard: React.FC = () => {
 
   const filteredPolls = polls.filter((poll) => {
     const matchesFilter = filter === "all" || poll.status === filter;
-    const matchesSearch = poll.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = poll.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
   const getStatusColor = (status: DashboardPoll["status"]) => {
     switch (status) {
-      case "draft": return "bg-gray-100 text-gray-800";
-      case "active": return "bg-green-100 text-green-800";
-      case "closed": return "bg-blue-100 text-blue-800";
-      case "archived": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "draft":
+        return "bg-gray-100 text-gray-800";
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "closed":
+        return "bg-blue-100 text-blue-800";
+      case "archived":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusLabel = (status: DashboardPoll["status"]) => {
     switch (status) {
-      case "draft": return "Brouillon";
-      case "active": return "Actif";
-      case "closed": return "Terminé";
-      case "archived": return "Archivé";
-      default: return status;
+      case "draft":
+        return "Brouillon";
+      case "active":
+        return "Actif";
+      case "closed":
+        return "Terminé";
+      case "archived":
+        return "Archivé";
+      default:
+        return status;
     }
   };
 
@@ -115,11 +132,11 @@ const Dashboard: React.FC = () => {
         });
       } else {
         // Fallback pour les navigateurs qui ne supportent pas l'API clipboard
-        const textArea = document.createElement('textarea');
+        const textArea = document.createElement("textarea");
         textArea.value = url;
         document.body.appendChild(textArea);
         textArea.select();
-        document.execCommand('copy');
+        document.execCommand("copy");
         document.body.removeChild(textArea);
         toast({
           title: "Lien copié",
@@ -127,10 +144,11 @@ const Dashboard: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Erreur lors de la copie:', error);
+      console.error("Erreur lors de la copie:", error);
       toast({
         title: "Erreur",
-        description: "Impossible de copier le lien. Veuillez le copier manuellement.",
+        description:
+          "Impossible de copier le lien. Veuillez le copier manuellement.",
         variant: "destructive",
       });
     }
@@ -167,9 +185,11 @@ const Dashboard: React.FC = () => {
       };
 
       // Sauvegarder dans localStorage
-      const existingPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
+      const existingPolls = JSON.parse(
+        localStorage.getItem("dev-polls") || "[]",
+      );
       existingPolls.push(duplicatedPoll);
-      localStorage.setItem('dev-polls', JSON.stringify(existingPolls));
+      localStorage.setItem("dev-polls", JSON.stringify(existingPolls));
 
       // Rafraîchir la liste
       getUserPolls();
@@ -198,18 +218,27 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <TopNav />
-      
+
       {/* Indicateur Mode Développement Local */}
       <div className="bg-amber-100 dark:bg-amber-900 border-l-4 border-amber-500 p-3 mb-4">
         <div className="flex items-center">
           <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <svg
+              className="h-5 w-5 text-amber-500"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
           <div className="ml-3">
             <p className="text-sm text-amber-700 dark:text-amber-200">
-              🚧 <strong>Mode Développement Local</strong> - Les sondages sont stockés localement (localStorage)
+              🚧 <strong>Mode Développement Local</strong> - Les sondages sont
+              stockés localement (localStorage)
             </p>
           </div>
         </div>
@@ -221,7 +250,8 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-gray-900">Mes Sondages</h1>
             <span className="text-sm text-gray-500">
-              {filteredPolls.length} sondage{filteredPolls.length !== 1 ? "s" : ""}
+              {filteredPolls.length} sondage
+              {filteredPolls.length !== 1 ? "s" : ""}
             </span>
           </div>
           <button
@@ -258,7 +288,9 @@ const Dashboard: React.FC = () => {
                     : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                 }`}
               >
-                {status === "all" ? "Tous" : getStatusLabel(status as DashboardPoll["status"])}
+                {status === "all"
+                  ? "Tous"
+                  : getStatusLabel(status as DashboardPoll["status"])}
               </button>
             ))}
           </div>
@@ -289,13 +321,17 @@ const Dashboard: React.FC = () => {
                         poll.status === "active"
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                           : poll.status === "draft"
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                            : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
                       }`}
                     >
-                      {poll.status === "active" ? "Actif" : 
-                       poll.status === "draft" ? "Brouillon" : 
-                       poll.status === "closed" ? "Fermé" : "Archivé"}
+                      {poll.status === "active"
+                        ? "Actif"
+                        : poll.status === "draft"
+                          ? "Brouillon"
+                          : poll.status === "closed"
+                            ? "Fermé"
+                            : "Archivé"}
                     </span>
                   </div>
                 </div>
@@ -362,9 +398,16 @@ const Dashboard: React.FC = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       // Supprimer le sondage du localStorage
-                      const existingPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
-                      const updatedPolls = existingPolls.filter((p: any) => p.id !== poll.id);
-                      localStorage.setItem('dev-polls', JSON.stringify(updatedPolls));
+                      const existingPolls = JSON.parse(
+                        localStorage.getItem("dev-polls") || "[]",
+                      );
+                      const updatedPolls = existingPolls.filter(
+                        (p: any) => p.id !== poll.id,
+                      );
+                      localStorage.setItem(
+                        "dev-polls",
+                        JSON.stringify(updatedPolls),
+                      );
                       getUserPolls(); // Recharger la liste
                       toast({
                         title: "Sondage supprimé",
@@ -390,12 +433,10 @@ const Dashboard: React.FC = () => {
               {searchQuery ? "Aucun sondage trouvé" : "Aucun sondage"}
             </h3>
             <p className="text-gray-500 mb-6">
-              {searchQuery 
+              {searchQuery
                 ? "Essayez avec d'autres mots-clés"
-                : "Créez votre premier sondage pour commencer"
-              }
+                : "Créez votre premier sondage pour commencer"}
             </p>
-            
 
             {!searchQuery && (
               <button
