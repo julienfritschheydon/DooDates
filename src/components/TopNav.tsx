@@ -25,7 +25,25 @@ const TopNav = () => {
         </button>
 
         {/* Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 lg:gap-3">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="flex items-center justify-center gap-1 lg:gap-2 bg-gray-100 text-gray-700 px-3 lg:px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200 shadow-sm text-sm"
+            title="Mes sondages"
+          >
+            <Calendar className="w-4 h-4" />
+            <span className="hidden sm:inline">Mes sondages</span>
+          </button>
+
+          <button
+            onClick={() => navigate("/ai-chat")}
+            className="flex items-center justify-center gap-1 lg:gap-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all duration-200 shadow-sm text-sm"
+            title="Chat IA"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span className="hidden sm:inline">IA</span>
+          </button>
+
           <button
             onClick={() => {
               // Nettoyer le localStorage avant de naviguer vers un nouveau sondage
@@ -33,22 +51,11 @@ const TopNav = () => {
               // Forcer le rechargement pour réinitialiser complètement l'état
               window.location.href = "/create";
             }}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-sm text-sm"
+            className="flex items-center justify-center gap-1 lg:gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-sm text-sm"
             title="Créer un nouveau sondage"
           >
             <Calendar className="w-4 h-4" />
-            Créer
-          </button>
-
-          <button
-            onClick={() => {
-              navigate("/demo/swipe");
-            }}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-rose-600 text-white px-4 py-2 rounded-lg hover:from-pink-600 hover:to-rose-700 transition-all duration-200 shadow-sm text-sm"
-            title="Tester l'interface de vote swipe"
-          >
-            <Smartphone className="w-4 h-4" />
-            Vote
+            <span className="hidden sm:inline">Créer</span>
           </button>
         </div>
       </div>

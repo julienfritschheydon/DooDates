@@ -51,6 +51,8 @@ const VoteOption: React.FC<VoteOptionProps> = ({
 }) => {
   const controls = useAnimation();
   const rank = getRanking("all")[option.id];
+  
+  console.log(`🏆 Option ${option.id} - Rank: ${rank}`, getRanking("all"));
 
   // Badge pour le 1er : plus visible qu'une bordure
   const getRankingBadge = (rank: number) => {
@@ -119,30 +121,6 @@ const VoteOption: React.FC<VoteOptionProps> = ({
               </div>
             </motion.div>
 
-            {/* Flèche rouge à DROITE du bouton NON */}
-            <motion.div
-              className="absolute z-20"
-              style={{
-                right: "-40px",
-                top: "50%",
-                transform: "translateY(-50%)",
-              }}
-              animate={{
-                opacity: [2, 1, 2],
-                x: [-25, -10, -25],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 2,
-                ease: "easeInOut",
-                delay: 1.2,
-              }}
-            >
-              <div className="bg-red-500/20 border border-red-300 rounded-full p-2 shadow-lg">
-                <ArrowRight className="w-4 h-4 text-red-600" />
-              </div>
-            </motion.div>
           </>
         )}
 
@@ -369,6 +347,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
           })()}
         </button>
       </div>
+
     </motion.div>
   );
 };

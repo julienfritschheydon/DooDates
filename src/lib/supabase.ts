@@ -1,14 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Configuration Supabase
+// 🚧 MODE DÉVELOPPEMENT LOCAL ACTIVÉ
+// L'URL Supabase actuelle n'est plus accessible
+// Configuration commentée en attendant une nouvelle URL valide
+
+/*
+// Configuration Supabase originale (URL inaccessible)
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Missing Supabase environment variables");
+  throw new Error("Variables d'environnement Supabase manquantes");
 }
 
-// Client Supabase avec configuration minimale pour debug
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: false,
@@ -19,6 +23,28 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     fetch: fetch.bind(globalThis),
   },
 });
+*/
+
+// Configuration temporaire pour éviter les erreurs
+const MOCK_SUPABASE_URL = 'https://mock.supabase.co';
+const MOCK_SUPABASE_KEY = 'mock-key';
+
+export const supabase = createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_KEY, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false,
+  },
+  global: {
+    fetch: fetch.bind(globalThis),
+  },
+});
+
+// Mode développement local détecté
+export const isLocalDevelopment = true;
+
+console.warn('🚧 Mode développement local activé - Supabase désactivé');
+console.log('📝 Les données sont stockées dans localStorage');
 
 // Types pour TypeScript
 export type Database = {

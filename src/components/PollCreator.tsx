@@ -23,6 +23,7 @@ import { UserMenu } from "./UserMenu";
 import { type PollSuggestion } from "../lib/gemini";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import TopNav from "./TopNav";
 
 interface TimeSlot {
   hour: number;
@@ -55,7 +56,7 @@ interface PollCreationState {
 interface PollCreatorProps {
   onBack?: () => void;
   onOpenMenu?: () => void;
-  initialData?: PollSuggestion | null;
+  initialData?: PollSuggestion;
   withBackground?: boolean;
 }
 
@@ -68,6 +69,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const { user } = useAuth();
   const navigate = useNavigate();
   const { createPoll, loading: pollLoading, error: pollError } = usePolls();
+  
+  // Récupérer l'ID du sondage à éditer depuis l'URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const editPollId = urlParams.get('edit');
   const [createdPollSlug, setCreatedPollSlug] = useState<string | null>(null);
   const [createdPoll, setCreatedPoll] = useState<any>(null);
   const { toast } = useToast();
@@ -88,13 +93,105 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     setCreatedPollSlug(null);
   };
 
-  // Nettoyage du draft si c'est un nouveau sondage
+  // Charger les données du sondage à éditer
   useEffect(() => {
-    if (!initialData) {
+    if (editPollId) {
+      console.log("🔄 Mode édition détecté pour l'ID:", editPollId);
+      // Nettoyer le draft avant de charger les données
+      localStorage.removeItem("doodates-draft");
+      
+      const existingPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
+      const pollToEdit = existingPolls.find((poll: any) => poll.id === editPollId);
+      
+      if (pollToEdit) {
+        console.log("📝 Chargement du sondage à éditer:", pollToEdit);
+        
+        // Extraire les dates depuis les options du sondage
+        const pollDates = [];
+        
+        // Méthode 1: Depuis settings.selectedDates
+        if (pollToEdit.settings?.selectedDates?.length > 0) {
+          console.log("📅 Méthode 1: Dates trouvées dans settings.selectedDates:", pollToEdit.settings.selectedDates);
+          pollDates.push(...pollToEdit.settings.selectedDates);
+        } 
+        
+        // Méthode 2: Depuis les options du sondage (mapping ID -> date)
+        if (pollDates.length === 0 && pollToEdit.options) {
+          console.log("📅 Méthode 2: Extraction depuis poll.options...");
+          pollToEdit.options.forEach((option: any) => {
+            if (option.option_date && !pollDates.includes(option.option_date)) {
+              pollDates.push(option.option_date);
+            }
+          });
+          console.log("📅 Dates extraites depuis options:", pollDates);
+        }
+        
+        // Méthode 3: Fallback - générer des dates par défaut
+        if (pollDates.length === 0) {
+          console.log("📅 Méthode 3: Génération de dates par défaut...");
+          const today = new Date();
+          for (let i = 0; i < 3; i++) {
+            const futureDate = new Date(today);
+            futureDate.setDate(today.getDate() + i + 1);
+            pollDates.push(futureDate.toISOString().split('T')[0]);
+          }
+        }
+        
+        console.log("📅 Dates finales extraites pour l'édition:", pollDates);
+        
+        // Réinitialiser complètement l'état avec toutes les propriétés requises
+        const newState = {
+          pollTitle: pollToEdit.title || "",
+          selectedDates: pollDates,
+          currentMonth: pollDates[0] ? new Date(pollDates[0]) : new Date(),
+          showTimeSlots: pollToEdit.settings?.showTimeSlots || false,
+          participantEmails: pollToEdit.settings?.participantEmails || "",
+          calendarConnected: false,
+          timeSlots: [],
+          notificationsEnabled: false,
+          userEmail: "",
+          showCalendarConnect: false,
+          showShare: false,
+          showDescription: false,
+          emailErrors: [],
+          showExtendedHours: false,
+          timeGranularity: 60,
+          showGranularitySettings: false,
+          pollLinkCopied: false,
+          expirationDays: 30,
+          showExpirationSettings: false
+        };
+        
+        setState(newState);
+        
+        // Charger les créneaux horaires si disponibles
+        if (pollToEdit.settings?.timeSlotsByDate) {
+          console.log("⏰ Chargement des créneaux horaires:", pollToEdit.settings.timeSlotsByDate);
+          setTimeSlotsByDate(pollToEdit.settings.timeSlotsByDate);
+          
+          // Activer l'affichage des créneaux horaires si des créneaux existent
+          const hasTimeSlots = Object.values(pollToEdit.settings.timeSlotsByDate).some(
+            (slots: any) => slots && slots.length > 0
+          );
+          if (hasTimeSlots) {
+            console.log("⏰ Activation de l'affichage des créneaux horaires");
+            newState.showTimeSlots = true;
+          }
+        } else {
+          setTimeSlotsByDate({});
+        }
+        
+        // Charger la granularité temporelle
+        if (pollToEdit.settings?.timeGranularity) {
+          console.log("⚙️ Chargement de la granularité:", pollToEdit.settings.timeGranularity);
+          newState.timeGranularity = pollToEdit.settings.timeGranularity;
+        }
+      }
+    } else if (!initialData) {
       console.log("🧹 Nouveau sondage : nettoyage du draft");
       localStorage.removeItem("doodates-draft");
     }
-  }, []);
+  }, [editPollId]);
 
   const initializeWithGeminiData = (): PollCreationState => {
     if (!initialData) {
@@ -500,8 +597,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const draftLoadedRef = useRef(false);
 
   useEffect(() => {
-    // Ne charger le draft qu'une seule fois
-    if (draftLoadedRef.current) return;
+    // Ne charger le draft qu'une seule fois et pas en mode édition
+    if (draftLoadedRef.current || editPollId) return;
     draftLoadedRef.current = true;
 
     const draft = localStorage.getItem("doodates-draft");
@@ -551,18 +648,20 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         initialData ? "draft non trouvé" : "nouveau sondage",
       );
     }
-  }, []); // Exécuter une seule fois au montage
+  }, [editPollId]); // Ajouter editPollId comme dépendance
 
   // Ajout d'un effet pour nettoyer le draft au montage (mais pas si on a un draft d'auth)
   useEffect(() => {
     const pollDraft = localStorage.getItem("doodates-poll-draft");
-    if (!initialData && !pollDraft) {
+    if (!initialData && !pollDraft && !editPollId) {
       console.log("🧹 Nettoyage du draft au démarrage");
       localStorage.removeItem("doodates-draft");
     } else if (pollDraft) {
       console.log("📋 Draft d'auth détecté, conservation du draft normal");
+    } else if (editPollId) {
+      console.log("✏️ Mode édition, pas de nettoyage du draft");
     }
-  }, []);
+  }, [editPollId]);
 
   useEffect(() => {
     if (state.selectedDates.length > 0 && !state.showCalendarConnect) {
@@ -1028,12 +1127,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   };
 
   const handleFinalize = async () => {
-    // Création possible avec ou sans compte
-    if (!user) {
-      console.log("🆓 Création d'un sondage anonyme");
-      // Continuer sans redirection - sondage anonyme autorisé
-    }
-
     // Calculer la date d'expiration (aujourd'hui + expirationDays)
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + state.expirationDays);
@@ -1072,11 +1165,56 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       },
     };
 
-    console.log("Création du sondage avec les données:", pollData);
-
-    // Créer le sondage
-    const result = await createPoll(pollData);
-    console.log("Résultat createPoll:", result);
+    let result;
+    
+    if (editPollId) {
+      // Mode édition : mettre à jour le sondage existant
+      console.log("✏️ Mise à jour du sondage existant:", editPollId);
+      
+      // Vérifier s'il y a des votes existants
+      const existingVotes = JSON.parse(localStorage.getItem('dev-votes') || '[]');
+      const pollVotes = existingVotes.filter((vote: any) => vote.poll_id === editPollId);
+      
+      if (pollVotes.length > 0) {
+        console.log("⚠️ Votes existants détectés:", pollVotes.length);
+        // Stratégie : Autoriser la modification mais conserver les votes compatibles
+        // Les votes sur des dates supprimées seront perdus
+      }
+      
+      // Mettre à jour le sondage dans localStorage
+      const existingPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
+      const pollIndex = existingPolls.findIndex((poll: any) => poll.id === editPollId);
+      
+      if (pollIndex >= 0) {
+        const updatedPoll = {
+          ...existingPolls[pollIndex],
+          title: pollData.title,
+          settings: {
+            ...existingPolls[pollIndex].settings,
+            ...pollData.settings,
+            selectedDates: pollData.selectedDates,
+            timeSlotsByDate: timeSlotsByDate, // Utiliser l'état local des créneaux
+            showTimeSlots: state.showTimeSlots,
+            timeGranularity: state.timeGranularity
+          },
+          updated_at: new Date().toISOString()
+        };
+        
+        existingPolls[pollIndex] = updatedPoll;
+        localStorage.setItem('dev-polls', JSON.stringify(existingPolls));
+        
+        result = { poll: updatedPoll };
+        console.log("✅ Sondage mis à jour avec succès");
+      } else {
+        result = { error: "Sondage non trouvé" };
+      }
+    } else {
+      // Mode création : créer un nouveau sondage
+      console.log("🆕 Création d'un nouveau sondage");
+      result = await createPoll(pollData);
+    }
+    
+    console.log("Résultat:", result);
 
     if (result.error) {
       console.error("Erreur lors de la création du sondage:", result.error);
@@ -1164,11 +1302,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   };
 
   return (
-    <div>
-      <div className="p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <TopNav />
+      <div className="p-4 md:p-6 lg:p-8 xl:p-12">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 lg:p-8">
-            <div className="space-y-6 md:space-y-8">
+          <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 lg:p-8 xl:p-12">
+            <div className="space-y-6 md:space-y-8 lg:space-y-10">
               <div className="w-full overflow-hidden">
                 <Calendar
                   visibleMonths={visibleMonths}

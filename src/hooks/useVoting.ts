@@ -49,36 +49,68 @@ export const useVoting = (pollSlug: string) => {
   const loadPollData = useCallback(async () => {
     if (!pollSlug) return;
 
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      setError(null);
-
-      // Charger le sondage par slug avec la nouvelle API
-      const pollData = await pollsApi.getBySlug(pollSlug);
-
+      // Mode développement local - récupération depuis localStorage
+      console.log("🔍 useVoting: Recherche du sondage:", pollSlug);
+      const localPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
+      
+      const pollData = localPolls.find((p: Poll) => p.slug === pollSlug);
+      
       if (!pollData) {
-        setError("Sondage introuvable");
-        return;
+        throw new Error(`Sondage avec slug "${pollSlug}" non trouvé`);
       }
 
+      console.log("🔍 useVoting: Sondage trouvé:", pollData);
+      console.log("🔍 useVoting: Settings du sondage:", pollData.settings);
       setPoll(pollData);
-      setRealPollId(pollData.id); // Sauvegarder l'ID réel
+      setRealPollId(pollData.id);
 
-      // Charger les options
-      const optionsData = await pollOptionsApi.getByPollId(pollData.id);
-      setOptions(optionsData || []);
+      // Créer des options basiques à partir des settings
+      let mockOptions: PollOption[] = [];
+      
+      if (pollData.settings?.selectedDates && pollData.settings.selectedDates.length > 0) {
+        mockOptions = pollData.settings.selectedDates.map((date: string, index: number) => ({
+          id: `option-${index}`,
+          poll_id: pollData.id,
+          option_date: date,
+          time_slots: pollData.settings?.timeSlotsByDate?.[date] || null,
+          display_order: index
+        }));
+      } else {
+        // Fallback: créer des options par défaut si aucune date n'est trouvée
+        console.warn("🚧 Aucune date trouvée dans settings, création d'options par défaut");
+        mockOptions = [
+          {
+            id: `option-0`,
+            poll_id: pollData.id,
+            option_date: new Date().toISOString().split('T')[0],
+            time_slots: null,
+            display_order: 0
+          },
+          {
+            id: `option-1`, 
+            poll_id: pollData.id,
+            option_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            time_slots: null,
+            display_order: 1
+          }
+        ];
+      }
+
+      console.log("🔍 useVoting: Options créées:", mockOptions);
+      setOptions(mockOptions);
 
       // Initialiser les votes par défaut
-      if (optionsData) {
-        initializeDefaultVotes(optionsData);
-      }
+      initializeDefaultVotes(mockOptions);
 
-      // Charger les votes existants
-      const votesData = await votesApi.getByPollId(pollData.id);
-      setVotes(votesData || []);
-    } catch (err) {
-      console.error("❌ useVoting - Erreur:", err);
-      setError(`Erreur de chargement: ${err}`);
+      // Pour le mode développement, pas de votes existants
+      setVotes([]);
+    } catch (err: any) {
+      console.error("Erreur lors du chargement du sondage:", err);
+      setError(err.message || "Erreur lors du chargement du sondage");
     } finally {
       setLoading(false);
     }
@@ -165,7 +197,6 @@ export const useVoting = (pollSlug: string) => {
   const submitVote = useCallback(async (): Promise<boolean> => {
     if (
       !voterInfo.name.trim() ||
-      !voterInfo.email.trim() ||
       Object.keys(currentVote).length === 0
     ) {
       setError(
@@ -174,39 +205,80 @@ export const useVoting = (pollSlug: string) => {
       return false;
     }
 
-    // Validation email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(voterInfo.email)) {
-      setError("Adresse email invalide");
-      return false;
+    // Validation email seulement si fourni
+    if (voterInfo.email && voterInfo.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(voterInfo.email)) {
+        setError("Adresse email invalide");
+        return false;
+      }
     }
 
     setSubmitting(true);
     setError(null);
 
     try {
-      // Vérifier si un vote existe déjà pour cet utilisateur
-      const existingVotes = await votesApi.getByPollId(realPollId!);
-      const existingVote = existingVotes.find(
-        (vote) =>
-          vote.voter_email.toLowerCase() === voterInfo.email.toLowerCase(),
-      );
+      console.log("🔍 submitUserVote - Mode développement local détecté");
+      console.log("🔍 submitUserVote - Données du vote:", {
+        pollId: realPollId,
+        voterInfo,
+        currentVote
+      });
 
-      if (existingVote) {
-        // Mettre à jour le vote existant
-        await votesApi.update(existingVote.id, {
-          voter_name: voterInfo.name.trim(),
-          selections: currentVote,
-        });
-      } else {
-        // Créer un nouveau vote
-        await votesApi.create({
-          poll_id: realPollId!,
-          voter_email: voterInfo.email.toLowerCase(),
-          voter_name: voterInfo.name.trim(),
-          selections: currentVote,
-        });
+      // En mode développement local, sauvegarder dans localStorage
+      const voteData = {
+        id: `vote-${Date.now()}`,
+        poll_id: realPollId!,
+        voter_email: voterInfo.email ? voterInfo.email.toLowerCase() : `anonymous-${Date.now()}@local.dev`,
+        voter_name: voterInfo.name.trim(),
+        vote_data: currentVote,
+        created_at: new Date().toISOString()
+      };
+
+      // Récupérer les votes existants
+      const existingVotes = JSON.parse(localStorage.getItem('dev-votes') || '[]');
+      
+      // Vérifier si un vote existe déjà pour cet utilisateur sur ce sondage
+      // Pour les revotes, on utilise l'email existant s'il y en a un
+      const currentVoterEmail = voterInfo.email ? voterInfo.email.toLowerCase() : null;
+      
+      // Chercher d'abord par email s'il est fourni
+      let existingVoteIndex = -1;
+      if (currentVoterEmail) {
+        existingVoteIndex = existingVotes.findIndex(
+          (vote: any) => 
+            vote.poll_id === realPollId && 
+            vote.voter_email.toLowerCase() === currentVoterEmail
+        );
       }
+      
+      // Si pas trouvé par email, chercher par nom pour les votes anonymes
+      if (existingVoteIndex === -1) {
+        existingVoteIndex = existingVotes.findIndex(
+          (vote: any) => 
+            vote.poll_id === realPollId && 
+            vote.voter_name === voterInfo.name.trim() &&
+            vote.voter_email.includes('anonymous')
+        );
+      }
+
+      if (existingVoteIndex >= 0) {
+        // Mettre à jour le vote existant en conservant l'email original
+        const originalEmail = existingVotes[existingVoteIndex].voter_email;
+        existingVotes[existingVoteIndex] = { 
+          ...existingVotes[existingVoteIndex], 
+          ...voteData,
+          voter_email: originalEmail // Conserver l'email original pour éviter les doublons
+        };
+        console.log("🔄 Vote mis à jour pour:", originalEmail);
+      } else {
+        // Ajouter un nouveau vote
+        existingVotes.push(voteData);
+        console.log("✅ Nouveau vote ajouté pour:", voteData.voter_email);
+      }
+
+      // Sauvegarder dans localStorage
+      localStorage.setItem('dev-votes', JSON.stringify(existingVotes));
 
       // Réinitialiser après succès
       setCurrentVote({});
@@ -226,8 +298,12 @@ export const useVoting = (pollSlug: string) => {
       const counts = { yes: 0, no: 0, maybe: 0 };
       const voterNames: string[] = [];
 
-      votes.forEach((vote) => {
-        const selection = vote.selections[optionId];
+      // Charger les votes depuis localStorage pour avoir les données à jour
+      const localVotes = JSON.parse(localStorage.getItem('dev-votes') || '[]');
+      const pollVotes = localVotes.filter((vote: any) => vote.poll_id === realPollId);
+
+      pollVotes.forEach((vote: any) => {
+        const selection = vote.vote_data?.[optionId];
         if (selection && counts.hasOwnProperty(selection)) {
           counts[selection]++;
           if (selection === "yes") {
@@ -242,7 +318,7 @@ export const useVoting = (pollSlug: string) => {
         total: counts.yes + counts.no + counts.maybe,
       };
     },
-    [votes],
+    [realPollId],
   );
 
   // Trouver la meilleure option
@@ -251,7 +327,7 @@ export const useVoting = (pollSlug: string) => {
 
     const optionsWithScores = options.map((option) => {
       const stats = getVoteStats(option.id);
-      const score = stats.counts.yes - stats.counts.no * 0.5;
+      const score = stats.counts.yes * 2 + stats.counts.maybe * 1 - stats.counts.no * 1;
       return {
         option,
         score,
@@ -259,9 +335,13 @@ export const useVoting = (pollSlug: string) => {
       };
     });
 
-    return optionsWithScores.reduce((best, current) =>
-      current.score > best.score ? current : best,
-    );
+    // Trier par score décroissant, puis par nombre de "oui" en cas d'égalité
+    optionsWithScores.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return b.stats.counts.yes - a.stats.counts.yes;
+    });
+
+    return optionsWithScores[0];
   }, [options, getVoteStats]);
 
   return {

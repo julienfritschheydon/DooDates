@@ -26,8 +26,8 @@ interface PollOption {
     hour: number;
     minute: number;
     duration?: number;
-  }>;
-  display_order: number;
+  }> | null;
+  display_order?: number;
 }
 
 interface Vote {

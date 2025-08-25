@@ -8,7 +8,6 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { Auth, AuthCallback } from "./pages/Auth";
 import VotingSwipe from "./components/voting/VotingSwipe";
 // import { VotingSwipe as ExVotingSwipe } from "./components/voting/ex-VotingSwipe";
-import TestVoteSubmission from "./components/voting/TestVoteSubmission";
 import { Loader2 } from "lucide-react";
 
 // Composant de loading optimisé
@@ -25,6 +24,9 @@ const LoadingSpinner = () => (
 // Pages avec preload hint pour les pages critiques
 const Index = lazy(() => import("./pages/Index"));
 const Vote = lazy(() => import("./pages/Vote"));
+const Results = lazy(() => import("./pages/Results"));
+const Dashboard = lazy(() => import("./components/Dashboard"));
+const ConversationalAI = lazy(() => import("./components/ConversationalAI"));
 
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -293,18 +295,18 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/chat" element={<Index />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/ai-chat" element={<ConversationalAI />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/poll/:slug" element={<Vote />} />
+              <Route path="/poll/:slug/results" element={<Results />} />
               <Route path="/vote/:pollId" element={<Vote />} />
               {/* <Route path="/vote-swipe/:pollId" element={<VotingSwipeWrapper />} /> */}
               {/* <Route path="/demo/swipe" element={<VotingSwipeDemo />} />
               <Route path="/demo/ex-swipe" element={<ExVotingSwipeDemo />} /> */}
               <Route path="/create" element={<PollCreator />} />
               <Route path="/admin/:pollSlug/:adminToken" element={<Vote />} />
-              <Route
-                path="/test/vote-submission"
-                element={<TestVoteSubmission />}
-              />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
