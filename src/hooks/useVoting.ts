@@ -55,10 +55,10 @@ export const useVoting = (pollSlug: string) => {
     try {
       // Mode développement local - récupération depuis localStorage
       console.log("🔍 useVoting: Recherche du sondage:", pollSlug);
-      const localPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
-      
+      const localPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+
       const pollData = localPolls.find((p: Poll) => p.slug === pollSlug);
-      
+
       if (!pollData) {
         throw new Error(`Sondage avec slug "${pollSlug}" non trouvé`);
       }
@@ -70,33 +70,42 @@ export const useVoting = (pollSlug: string) => {
 
       // Créer des options basiques à partir des settings
       let mockOptions: PollOption[] = [];
-      
-      if (pollData.settings?.selectedDates && pollData.settings.selectedDates.length > 0) {
-        mockOptions = pollData.settings.selectedDates.map((date: string, index: number) => ({
-          id: `option-${index}`,
-          poll_id: pollData.id,
-          option_date: date,
-          time_slots: pollData.settings?.timeSlotsByDate?.[date] || null,
-          display_order: index
-        }));
+
+      if (
+        pollData.settings?.selectedDates &&
+        pollData.settings.selectedDates.length > 0
+      ) {
+        mockOptions = pollData.settings.selectedDates.map(
+          (date: string, index: number) => ({
+            id: `option-${index}`,
+            poll_id: pollData.id,
+            option_date: date,
+            time_slots: pollData.settings?.timeSlotsByDate?.[date] || null,
+            display_order: index,
+          }),
+        );
       } else {
         // Fallback: créer des options par défaut si aucune date n'est trouvée
-        console.warn("🚧 Aucune date trouvée dans settings, création d'options par défaut");
+        console.warn(
+          "🚧 Aucune date trouvée dans settings, création d'options par défaut",
+        );
         mockOptions = [
           {
             id: `option-0`,
             poll_id: pollData.id,
-            option_date: new Date().toISOString().split('T')[0],
+            option_date: new Date().toISOString().split("T")[0],
             time_slots: null,
-            display_order: 0
+            display_order: 0,
           },
           {
-            id: `option-1`, 
+            id: `option-1`,
             poll_id: pollData.id,
-            option_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            option_date: new Date(Date.now() + 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0],
             time_slots: null,
-            display_order: 1
-          }
+            display_order: 1,
+          },
         ];
       }
 
@@ -195,10 +204,7 @@ export const useVoting = (pollSlug: string) => {
 
   // Soumettre le vote
   const submitVote = useCallback(async (): Promise<boolean> => {
-    if (
-      !voterInfo.name.trim() ||
-      Object.keys(currentVote).length === 0
-    ) {
+    if (!voterInfo.name.trim() || Object.keys(currentVote).length === 0) {
       setError(
         "Veuillez remplir vos informations et sélectionner au moins une option",
       );
@@ -222,53 +228,59 @@ export const useVoting = (pollSlug: string) => {
       console.log("🔍 submitUserVote - Données du vote:", {
         pollId: realPollId,
         voterInfo,
-        currentVote
+        currentVote,
       });
 
       // En mode développement local, sauvegarder dans localStorage
       const voteData = {
         id: `vote-${Date.now()}`,
         poll_id: realPollId!,
-        voter_email: voterInfo.email ? voterInfo.email.toLowerCase() : `anonymous-${Date.now()}@local.dev`,
+        voter_email: voterInfo.email
+          ? voterInfo.email.toLowerCase()
+          : `anonymous-${Date.now()}@local.dev`,
         voter_name: voterInfo.name.trim(),
         vote_data: currentVote,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       };
 
       // Récupérer les votes existants
-      const existingVotes = JSON.parse(localStorage.getItem('dev-votes') || '[]');
-      
+      const existingVotes = JSON.parse(
+        localStorage.getItem("dev-votes") || "[]",
+      );
+
       // Vérifier si un vote existe déjà pour cet utilisateur sur ce sondage
       // Pour les revotes, on utilise l'email existant s'il y en a un
-      const currentVoterEmail = voterInfo.email ? voterInfo.email.toLowerCase() : null;
-      
+      const currentVoterEmail = voterInfo.email
+        ? voterInfo.email.toLowerCase()
+        : null;
+
       // Chercher d'abord par email s'il est fourni
       let existingVoteIndex = -1;
       if (currentVoterEmail) {
         existingVoteIndex = existingVotes.findIndex(
-          (vote: any) => 
-            vote.poll_id === realPollId && 
-            vote.voter_email.toLowerCase() === currentVoterEmail
+          (vote: any) =>
+            vote.poll_id === realPollId &&
+            vote.voter_email.toLowerCase() === currentVoterEmail,
         );
       }
-      
+
       // Si pas trouvé par email, chercher par nom pour les votes anonymes
       if (existingVoteIndex === -1) {
         existingVoteIndex = existingVotes.findIndex(
-          (vote: any) => 
-            vote.poll_id === realPollId && 
+          (vote: any) =>
+            vote.poll_id === realPollId &&
             vote.voter_name === voterInfo.name.trim() &&
-            vote.voter_email.includes('anonymous')
+            vote.voter_email.includes("anonymous"),
         );
       }
 
       if (existingVoteIndex >= 0) {
         // Mettre à jour le vote existant en conservant l'email original
         const originalEmail = existingVotes[existingVoteIndex].voter_email;
-        existingVotes[existingVoteIndex] = { 
-          ...existingVotes[existingVoteIndex], 
+        existingVotes[existingVoteIndex] = {
+          ...existingVotes[existingVoteIndex],
           ...voteData,
-          voter_email: originalEmail // Conserver l'email original pour éviter les doublons
+          voter_email: originalEmail, // Conserver l'email original pour éviter les doublons
         };
         console.log("🔄 Vote mis à jour pour:", originalEmail);
       } else {
@@ -278,7 +290,7 @@ export const useVoting = (pollSlug: string) => {
       }
 
       // Sauvegarder dans localStorage
-      localStorage.setItem('dev-votes', JSON.stringify(existingVotes));
+      localStorage.setItem("dev-votes", JSON.stringify(existingVotes));
 
       // Réinitialiser après succès
       setCurrentVote({});
@@ -299,8 +311,10 @@ export const useVoting = (pollSlug: string) => {
       const voterNames: string[] = [];
 
       // Charger les votes depuis localStorage pour avoir les données à jour
-      const localVotes = JSON.parse(localStorage.getItem('dev-votes') || '[]');
-      const pollVotes = localVotes.filter((vote: any) => vote.poll_id === realPollId);
+      const localVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
+      const pollVotes = localVotes.filter(
+        (vote: any) => vote.poll_id === realPollId,
+      );
 
       pollVotes.forEach((vote: any) => {
         const selection = vote.vote_data?.[optionId];
@@ -327,7 +341,8 @@ export const useVoting = (pollSlug: string) => {
 
     const optionsWithScores = options.map((option) => {
       const stats = getVoteStats(option.id);
-      const score = stats.counts.yes * 2 + stats.counts.maybe * 1 - stats.counts.no * 1;
+      const score =
+        stats.counts.yes * 2 + stats.counts.maybe * 1 - stats.counts.no * 1;
       return {
         option,
         score,

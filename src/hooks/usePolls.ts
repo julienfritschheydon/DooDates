@@ -86,46 +86,64 @@ export function usePolls() {
           slug,
           isAnonymous: !user,
           adminToken: adminToken ? "généré" : "non requis",
-          supabaseUrl: import.meta.env.VITE_SUPABASE_URL ? "✅ configurée" : "❌ manquante",
+          supabaseUrl: import.meta.env.VITE_SUPABASE_URL
+            ? "✅ configurée"
+            : "❌ manquante",
           supabaseUrlValue: import.meta.env.VITE_SUPABASE_URL,
           supabaseKeyExists: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
         });
 
         // Vérifier les variables d'environnement Supabase
-        if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        if (
+          !import.meta.env.VITE_SUPABASE_URL ||
+          !import.meta.env.VITE_SUPABASE_ANON_KEY
+        ) {
           const missingVars = [];
-          if (!import.meta.env.VITE_SUPABASE_URL) missingVars.push('VITE_SUPABASE_URL');
-          if (!import.meta.env.VITE_SUPABASE_ANON_KEY) missingVars.push('VITE_SUPABASE_ANON_KEY');
-          
-          throw new Error(`Variables d'environnement manquantes: ${missingVars.join(', ')}. Veuillez configurer votre fichier .env`);
+          if (!import.meta.env.VITE_SUPABASE_URL)
+            missingVars.push("VITE_SUPABASE_URL");
+          if (!import.meta.env.VITE_SUPABASE_ANON_KEY)
+            missingVars.push("VITE_SUPABASE_ANON_KEY");
+
+          throw new Error(
+            `Variables d'environnement manquantes: ${missingVars.join(", ")}. Veuillez configurer votre fichier .env`,
+          );
         }
 
         // Mode développement local si Supabase inaccessible
-        const isDevelopmentMode = import.meta.env.DEV && import.meta.env.VITE_SUPABASE_URL?.includes('ifbhbcktfqxxoxqlinzm');
-        
+        const isDevelopmentMode =
+          import.meta.env.DEV &&
+          import.meta.env.VITE_SUPABASE_URL?.includes("ifbhbcktfqxxoxqlinzm");
+
         if (isDevelopmentMode) {
-          console.warn("🚧 Mode développement local - Simulation de la création de sondage");
-          
+          console.warn(
+            "🚧 Mode développement local - Simulation de la création de sondage",
+          );
+
           // Simuler la création avec localStorage
           const mockPoll: Poll = {
             id: `local-${Date.now()}`,
-            creator_id: user?.id || 'anonymous',
+            creator_id: user?.id || "anonymous",
             title: pollData.title,
             description: pollData.description || null,
             slug,
             settings: pollData.settings,
-            status: 'active',
+            status: "active",
             expires_at: pollData.settings.expiresAt || null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
-          
+
           // Sauvegarder en localStorage pour le développement
-          const existingPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
+          const existingPolls = JSON.parse(
+            localStorage.getItem("dev-polls") || "[]",
+          );
           existingPolls.push(mockPoll);
-          localStorage.setItem('dev-polls', JSON.stringify(existingPolls));
-          
-          console.log("✅ Sondage créé en mode développement local:", mockPoll.slug);
+          localStorage.setItem("dev-polls", JSON.stringify(existingPolls));
+
+          console.log(
+            "✅ Sondage créé en mode développement local:",
+            mockPoll.slug,
+          );
           return { poll: mockPoll };
         }
 
@@ -167,21 +185,25 @@ export function usePolls() {
             if (!response.ok) {
               const errorData = await response.text();
               console.error("Erreur API Supabase:", response.status, errorData);
-              
+
               // Messages d'erreur plus explicites
               let errorMessage = `Erreur ${response.status}`;
               if (response.status === 401) {
-                errorMessage = "Erreur d'authentification. Veuillez vous reconnecter.";
+                errorMessage =
+                  "Erreur d'authentification. Veuillez vous reconnecter.";
               } else if (response.status === 403) {
-                errorMessage = "Permissions insuffisantes pour créer un sondage.";
+                errorMessage =
+                  "Permissions insuffisantes pour créer un sondage.";
               } else if (response.status === 400) {
-                errorMessage = "Données invalides. Vérifiez les informations du sondage.";
+                errorMessage =
+                  "Données invalides. Vérifiez les informations du sondage.";
               } else if (response.status >= 500) {
-                errorMessage = "Erreur serveur. Veuillez réessayer dans quelques instants.";
+                errorMessage =
+                  "Erreur serveur. Veuillez réessayer dans quelques instants.";
               } else {
                 errorMessage = `Erreur ${response.status}: ${errorData}`;
               }
-              
+
               throw new Error(errorMessage);
             }
 
@@ -232,21 +254,25 @@ export function usePolls() {
             if (!response.ok) {
               const errorData = await response.text();
               console.error("Erreur API Supabase:", response.status, errorData);
-              
+
               // Messages d'erreur plus explicites
               let errorMessage = `Erreur ${response.status}`;
               if (response.status === 401) {
-                errorMessage = "Erreur d'authentification. Veuillez vous reconnecter.";
+                errorMessage =
+                  "Erreur d'authentification. Veuillez vous reconnecter.";
               } else if (response.status === 403) {
-                errorMessage = "Permissions insuffisantes pour créer un sondage.";
+                errorMessage =
+                  "Permissions insuffisantes pour créer un sondage.";
               } else if (response.status === 400) {
-                errorMessage = "Données invalides. Vérifiez les informations du sondage.";
+                errorMessage =
+                  "Données invalides. Vérifiez les informations du sondage.";
               } else if (response.status >= 500) {
-                errorMessage = "Erreur serveur. Veuillez réessayer dans quelques instants.";
+                errorMessage =
+                  "Erreur serveur. Veuillez réessayer dans quelques instants.";
               } else {
                 errorMessage = `Erreur ${response.status}: ${errorData}`;
               }
-              
+
               throw new Error(errorMessage);
             }
 
@@ -498,16 +524,16 @@ export function usePolls() {
     try {
       // Mode développement local - récupération depuis localStorage
       console.log("🔍 getUserPolls: Récupération depuis localStorage");
-      const localPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
+      const localPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
       console.log("🔍 localStorage raw data:", localPolls);
-      
+
       // En mode développement local, récupérer TOUS les sondages (pas de filtrage par utilisateur)
       // car les sondages peuvent être créés de manière anonyme
       const userPolls = localPolls;
-      
+
       console.log("🔍 Tous les sondages récupérés:", userPolls);
-      console.log("🔍 User connecté:", user ? user.email : 'Aucun');
-      
+      console.log("🔍 User connecté:", user ? user.email : "Aucun");
+
       setPolls(userPolls);
       return { polls: userPolls };
     } catch (err: any) {
@@ -530,10 +556,12 @@ export function usePolls() {
       try {
         // Mode développement local - récupération depuis localStorage
         console.log("🔍 getPollBySlug: Recherche du sondage:", slug);
-        const localPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
-        
+        const localPolls = JSON.parse(
+          localStorage.getItem("dev-polls") || "[]",
+        );
+
         const poll = localPolls.find((p: Poll) => p.slug === slug);
-        
+
         if (!poll) {
           throw new Error(`Sondage avec slug "${slug}" non trouvé`);
         }
@@ -541,13 +569,14 @@ export function usePolls() {
         console.log("🔍 Sondage trouvé:", poll);
 
         // Pour le mode développement, créer des options basiques à partir des settings
-        const mockOptions: PollOption[] = poll.settings?.selectedDates?.map((date: string, index: number) => ({
-          id: `option-${index}`,
-          poll_id: poll.id,
-          option_date: date,
-          time_slots: poll.settings?.timeSlotsByDate?.[date] || null,
-          created_at: poll.created_at
-        })) || [];
+        const mockOptions: PollOption[] =
+          poll.settings?.selectedDates?.map((date: string, index: number) => ({
+            id: `option-${index}`,
+            poll_id: poll.id,
+            option_date: date,
+            time_slots: poll.settings?.timeSlotsByDate?.[date] || null,
+            created_at: poll.created_at,
+          })) || [];
 
         return { poll, options: mockOptions };
       } catch (err: any) {
@@ -604,25 +633,34 @@ export function usePolls() {
 
       try {
         console.log("🗑️ Suppression du sondage:", pollId);
-        
+
         // En mode développement local, supprimer du localStorage
-        const existingPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
-        const filteredPolls = existingPolls.filter((poll: any) => poll.id !== pollId);
-        localStorage.setItem('dev-polls', JSON.stringify(filteredPolls));
+        const existingPolls = JSON.parse(
+          localStorage.getItem("dev-polls") || "[]",
+        );
+        const filteredPolls = existingPolls.filter(
+          (poll: any) => poll.id !== pollId,
+        );
+        localStorage.setItem("dev-polls", JSON.stringify(filteredPolls));
 
         // Supprimer aussi les votes associés
-        const existingVotes = JSON.parse(localStorage.getItem('dev-votes') || '[]');
-        const filteredVotes = existingVotes.filter((vote: any) => vote.poll_id !== pollId);
-        localStorage.setItem('dev-votes', JSON.stringify(filteredVotes));
+        const existingVotes = JSON.parse(
+          localStorage.getItem("dev-votes") || "[]",
+        );
+        const filteredVotes = existingVotes.filter(
+          (vote: any) => vote.poll_id !== pollId,
+        );
+        localStorage.setItem("dev-votes", JSON.stringify(filteredVotes));
 
         console.log("✅ Sondage supprimé avec succès");
-        
+
         // Rafraîchir la liste des sondages
         await getUserPolls();
-        
+
         return {};
       } catch (err: any) {
-        const errorMessage = err.message || "Erreur lors de la suppression du sondage";
+        const errorMessage =
+          err.message || "Erreur lors de la suppression du sondage";
         setError(errorMessage);
         return { error: errorMessage };
       } finally {

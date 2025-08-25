@@ -51,7 +51,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
 }) => {
   const controls = useAnimation();
   const rank = getRanking("all")[option.id];
-  
+
   console.log(`🏆 Option ${option.id} - Rank: ${rank}`, getRanking("all"));
 
   // Badge pour le 1er : plus visible qu'une bordure
@@ -120,7 +120,6 @@ const VoteOption: React.FC<VoteOptionProps> = ({
                 <ArrowLeft className="w-4 h-4 text-green-600" />
               </div>
             </motion.div>
-
           </>
         )}
 
@@ -347,7 +346,6 @@ const VoteOption: React.FC<VoteOptionProps> = ({
           })()}
         </button>
       </div>
-
     </motion.div>
   );
 };

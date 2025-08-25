@@ -69,10 +69,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const { user } = useAuth();
   const navigate = useNavigate();
   const { createPoll, loading: pollLoading, error: pollError } = usePolls();
-  
+
   // Récupérer l'ID du sondage à éditer depuis l'URL
   const urlParams = new URLSearchParams(window.location.search);
-  const editPollId = urlParams.get('edit');
+  const editPollId = urlParams.get("edit");
   const [createdPollSlug, setCreatedPollSlug] = useState<string | null>(null);
   const [createdPoll, setCreatedPoll] = useState<any>(null);
   const { toast } = useToast();
@@ -99,22 +99,29 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       console.log("🔄 Mode édition détecté pour l'ID:", editPollId);
       // Nettoyer le draft avant de charger les données
       localStorage.removeItem("doodates-draft");
-      
-      const existingPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
-      const pollToEdit = existingPolls.find((poll: any) => poll.id === editPollId);
-      
+
+      const existingPolls = JSON.parse(
+        localStorage.getItem("dev-polls") || "[]",
+      );
+      const pollToEdit = existingPolls.find(
+        (poll: any) => poll.id === editPollId,
+      );
+
       if (pollToEdit) {
         console.log("📝 Chargement du sondage à éditer:", pollToEdit);
-        
+
         // Extraire les dates depuis les options du sondage
         const pollDates = [];
-        
+
         // Méthode 1: Depuis settings.selectedDates
         if (pollToEdit.settings?.selectedDates?.length > 0) {
-          console.log("📅 Méthode 1: Dates trouvées dans settings.selectedDates:", pollToEdit.settings.selectedDates);
+          console.log(
+            "📅 Méthode 1: Dates trouvées dans settings.selectedDates:",
+            pollToEdit.settings.selectedDates,
+          );
           pollDates.push(...pollToEdit.settings.selectedDates);
-        } 
-        
+        }
+
         // Méthode 2: Depuis les options du sondage (mapping ID -> date)
         if (pollDates.length === 0 && pollToEdit.options) {
           console.log("📅 Méthode 2: Extraction depuis poll.options...");
@@ -125,7 +132,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           });
           console.log("📅 Dates extraites depuis options:", pollDates);
         }
-        
+
         // Méthode 3: Fallback - générer des dates par défaut
         if (pollDates.length === 0) {
           console.log("📅 Méthode 3: Génération de dates par défaut...");
@@ -133,12 +140,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           for (let i = 0; i < 3; i++) {
             const futureDate = new Date(today);
             futureDate.setDate(today.getDate() + i + 1);
-            pollDates.push(futureDate.toISOString().split('T')[0]);
+            pollDates.push(futureDate.toISOString().split("T")[0]);
           }
         }
-        
+
         console.log("📅 Dates finales extraites pour l'édition:", pollDates);
-        
+
         // Réinitialiser complètement l'état avec toutes les propriétés requises
         const newState = {
           pollTitle: pollToEdit.title || "",
@@ -159,20 +166,23 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           showGranularitySettings: false,
           pollLinkCopied: false,
           expirationDays: 30,
-          showExpirationSettings: false
+          showExpirationSettings: false,
         };
-        
+
         setState(newState);
-        
+
         // Charger les créneaux horaires si disponibles
         if (pollToEdit.settings?.timeSlotsByDate) {
-          console.log("⏰ Chargement des créneaux horaires:", pollToEdit.settings.timeSlotsByDate);
-          setTimeSlotsByDate(pollToEdit.settings.timeSlotsByDate);
-          
-          // Activer l'affichage des créneaux horaires si des créneaux existent
-          const hasTimeSlots = Object.values(pollToEdit.settings.timeSlotsByDate).some(
-            (slots: any) => slots && slots.length > 0
+          console.log(
+            "⏰ Chargement des créneaux horaires:",
+            pollToEdit.settings.timeSlotsByDate,
           );
+          setTimeSlotsByDate(pollToEdit.settings.timeSlotsByDate);
+
+          // Activer l'affichage des créneaux horaires si des créneaux existent
+          const hasTimeSlots = Object.values(
+            pollToEdit.settings.timeSlotsByDate,
+          ).some((slots: any) => slots && slots.length > 0);
           if (hasTimeSlots) {
             console.log("⏰ Activation de l'affichage des créneaux horaires");
             newState.showTimeSlots = true;
@@ -180,10 +190,13 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         } else {
           setTimeSlotsByDate({});
         }
-        
+
         // Charger la granularité temporelle
         if (pollToEdit.settings?.timeGranularity) {
-          console.log("⚙️ Chargement de la granularité:", pollToEdit.settings.timeGranularity);
+          console.log(
+            "⚙️ Chargement de la granularité:",
+            pollToEdit.settings.timeGranularity,
+          );
           newState.timeGranularity = pollToEdit.settings.timeGranularity;
         }
       }
@@ -1166,25 +1179,33 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     };
 
     let result;
-    
+
     if (editPollId) {
       // Mode édition : mettre à jour le sondage existant
       console.log("✏️ Mise à jour du sondage existant:", editPollId);
-      
+
       // Vérifier s'il y a des votes existants
-      const existingVotes = JSON.parse(localStorage.getItem('dev-votes') || '[]');
-      const pollVotes = existingVotes.filter((vote: any) => vote.poll_id === editPollId);
-      
+      const existingVotes = JSON.parse(
+        localStorage.getItem("dev-votes") || "[]",
+      );
+      const pollVotes = existingVotes.filter(
+        (vote: any) => vote.poll_id === editPollId,
+      );
+
       if (pollVotes.length > 0) {
         console.log("⚠️ Votes existants détectés:", pollVotes.length);
         // Stratégie : Autoriser la modification mais conserver les votes compatibles
         // Les votes sur des dates supprimées seront perdus
       }
-      
+
       // Mettre à jour le sondage dans localStorage
-      const existingPolls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
-      const pollIndex = existingPolls.findIndex((poll: any) => poll.id === editPollId);
-      
+      const existingPolls = JSON.parse(
+        localStorage.getItem("dev-polls") || "[]",
+      );
+      const pollIndex = existingPolls.findIndex(
+        (poll: any) => poll.id === editPollId,
+      );
+
       if (pollIndex >= 0) {
         const updatedPoll = {
           ...existingPolls[pollIndex],
@@ -1195,14 +1216,14 @@ const PollCreator: React.FC<PollCreatorProps> = ({
             selectedDates: pollData.selectedDates,
             timeSlotsByDate: timeSlotsByDate, // Utiliser l'état local des créneaux
             showTimeSlots: state.showTimeSlots,
-            timeGranularity: state.timeGranularity
+            timeGranularity: state.timeGranularity,
           },
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         };
-        
+
         existingPolls[pollIndex] = updatedPoll;
-        localStorage.setItem('dev-polls', JSON.stringify(existingPolls));
-        
+        localStorage.setItem("dev-polls", JSON.stringify(existingPolls));
+
         result = { poll: updatedPoll };
         console.log("✅ Sondage mis à jour avec succès");
       } else {
@@ -1213,7 +1234,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       console.log("🆕 Création d'un nouveau sondage");
       result = await createPoll(pollData);
     }
-    
+
     console.log("Résultat:", result);
 
     if (result.error) {

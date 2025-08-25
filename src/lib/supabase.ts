@@ -26,8 +26,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 */
 
 // Configuration temporaire pour éviter les erreurs
-const MOCK_SUPABASE_URL = 'https://mock.supabase.co';
-const MOCK_SUPABASE_KEY = 'mock-key';
+const MOCK_SUPABASE_URL = "https://mock.supabase.co";
+const MOCK_SUPABASE_KEY = "mock-key";
 
 export const supabase = createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_KEY, {
   auth: {
@@ -43,8 +43,8 @@ export const supabase = createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_KEY, {
 // Mode développement local détecté
 export const isLocalDevelopment = true;
 
-console.warn('🚧 Mode développement local activé - Supabase désactivé');
-console.log('📝 Les données sont stockées dans localStorage');
+console.warn("🚧 Mode développement local activé - Supabase désactivé");
+console.log("📝 Les données sont stockées dans localStorage");
 
 // Types pour TypeScript
 export type Database = {

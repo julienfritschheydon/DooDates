@@ -75,27 +75,32 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
   } = useVoting(pollId);
 
   // États locaux pour l'interface swipe
-  const [currentSwipe, setCurrentSwipe] = useState<Record<string, VoteType | null>>({});
+  const [currentSwipe, setCurrentSwipe] = useState<
+    Record<string, VoteType | null>
+  >({});
   const [showForm, setShowForm] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isVoteComplete, setIsVoteComplete] = useState(false);
 
   // Fonctions utilitaires manquantes
   const handleSwipe = (optionId: string, direction: VoteType) => {
-    setCurrentSwipe(prev => ({ ...prev, [optionId]: direction }));
+    setCurrentSwipe((prev) => ({ ...prev, [optionId]: direction }));
     // Appliquer immédiatement le vote
     handleVote(optionId, direction);
   };
 
-  const handleOptionDragEnd = (optionId: string, direction: VoteType | null) => {
+  const handleOptionDragEnd = (
+    optionId: string,
+    direction: VoteType | null,
+  ) => {
     if (direction) {
       handleVote(optionId, direction);
     }
-    setCurrentSwipe(prev => ({ ...prev, [optionId]: null }));
+    setCurrentSwipe((prev) => ({ ...prev, [optionId]: null }));
   };
 
   const updateCurrentSwipe = (optionId: string, direction: VoteType | null) => {
-    setCurrentSwipe(prev => ({ ...prev, [optionId]: direction }));
+    setCurrentSwipe((prev) => ({ ...prev, [optionId]: direction }));
   };
 
   const showVoterForm = () => setShowForm(true);
@@ -107,10 +112,14 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
 
   const getVoteText = (vote: VoteType) => {
     switch (vote) {
-      case 'yes': return 'Oui';
-      case 'no': return 'Non';
-      case 'maybe': return 'Peut-être';
-      default: return '';
+      case "yes":
+        return "Oui";
+      case "no":
+        return "Non";
+      case "maybe":
+        return "Peut-être";
+      default:
+        return "";
     }
   };
 
@@ -118,15 +127,17 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
     console.log("🔍 VotingSwipe handleSubmit appelé avec:", voterInfo);
     console.log("📊 Votes actuels à soumettre:", votes);
     setVoterInfoData(voterInfo);
-    
+
     // Vérifier qu'il y a des votes à soumettre
     const hasVotesToSubmit = Object.keys(votes).length > 0;
     if (!hasVotesToSubmit) {
       console.warn("⚠️ Aucun vote à soumettre");
-      setFormErrors({ general: "Veuillez voter sur au moins une option avant de soumettre." });
+      setFormErrors({
+        general: "Veuillez voter sur au moins une option avant de soumettre.",
+      });
       return;
     }
-    
+
     const success = await submitUserVote();
     if (success) {
       setIsVoteComplete(true);
@@ -137,7 +148,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
 
   const resetVotes = () => {
     // Réinitialiser tous les votes
-    options.forEach(option => removeVote(option.id));
+    options.forEach((option) => removeVote(option.id));
   };
 
   // Gérer le retour
@@ -175,11 +186,17 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
     <div className="flex flex-col h-screen bg-gray-50">
       {/* En-tête avec titre et bouton retour */}
       <PollHeader
-        poll={poll ? { 
-          ...poll, 
-          description: poll.description || '',
-          expires_at: poll.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() 
-        } : null}
+        poll={
+          poll
+            ? {
+                ...poll,
+                description: poll.description || "",
+                expires_at:
+                  poll.expires_at ||
+                  new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+              }
+            : null
+        }
         existingVotes={existingVotes}
         onBack={handleBack}
         totalVotes={userTotalVotes}
@@ -207,15 +224,25 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
               userHasVoted={userHasVoted[option.id]}
               currentSwipe={currentSwipe[option.id]}
               handleVote={(optionId: string, voteType: VoteType) => {
-                console.log('🗳️ Vote cliqué:', optionId, voteType);
+                console.log("🗳️ Vote cliqué:", optionId, voteType);
                 handleVote(optionId, voteType);
               }}
               handleSwipe={(optionId: string, direction: number) => {
-                const voteType = direction > 0 ? 'yes' : direction < 0 ? 'no' : 'maybe';
+                const voteType =
+                  direction > 0 ? "yes" : direction < 0 ? "no" : "maybe";
                 handleSwipe(optionId, voteType);
               }}
-              handleOptionDragEnd={(event: any, info: any, optionId: string) => {
-                const direction = info.offset.x > 100 ? 'yes' : info.offset.x < -100 ? 'no' : null;
+              handleOptionDragEnd={(
+                event: any,
+                info: any,
+                optionId: string,
+              ) => {
+                const direction =
+                  info.offset.x > 100
+                    ? "yes"
+                    : info.offset.x < -100
+                      ? "no"
+                      : null;
                 handleOptionDragEnd(optionId, direction);
               }}
               getStatsWithUser={(optionId: string) => {
@@ -223,7 +250,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                 return {
                   yes: stats.counts.yes,
                   maybe: stats.counts.maybe,
-                  no: stats.counts.no
+                  no: stats.counts.no,
                 };
               }}
               getExistingStats={(optionId: string) => {
@@ -231,18 +258,21 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                 return {
                   yes: stats.counts.yes,
                   maybe: stats.counts.maybe,
-                  no: stats.counts.no
+                  no: stats.counts.no,
                 };
               }}
               getRanking={(type: string) => {
-                if (type === 'all') {
+                if (type === "all") {
                   // Calculer le score réel de chaque option
                   const optionsWithScores = options.map((option) => {
                     const stats = getVoteStats(option.id);
-                    const score = stats.counts.yes * 2 + stats.counts.maybe - stats.counts.no;
+                    const score =
+                      stats.counts.yes * 2 +
+                      stats.counts.maybe -
+                      stats.counts.no;
                     return {
                       id: option.id,
-                      score
+                      score,
                     };
                   });
 
@@ -254,7 +284,10 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                   let currentRank = 1;
 
                   optionsWithScores.forEach((option, index) => {
-                    if (index > 0 && option.score < optionsWithScores[index - 1].score) {
+                    if (
+                      index > 0 &&
+                      option.score < optionsWithScores[index - 1].score
+                    ) {
                       currentRank = index + 1;
                     }
                     rankings[option.id] = currentRank;

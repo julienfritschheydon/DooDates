@@ -23,7 +23,13 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
   const { poll, options, votes, loading, error, totalVotes } =
     useVoting(pollId);
 
-  console.log("🔍 VotingInterface - État:", { poll, options: options?.length, votes: votes?.length, loading, error });
+  console.log("🔍 VotingInterface - État:", {
+    poll,
+    options: options?.length,
+    votes: votes?.length,
+    loading,
+    error,
+  });
 
   // Détecter si l'utilisateur est admin
   useEffect(() => {
