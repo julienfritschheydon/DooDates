@@ -124,7 +124,7 @@ const Calendar: React.FC<CalendarProps> = ({
                 whileTap={{ scale: 0.95 }}
                 onClick={() => !isPastDay && onDateToggle(date)}
                 disabled={isPastDay}
-                data-date={date.toISOString().split('T')[0]}
+                data-date={date.toISOString().split("T")[0]}
                 className={`${isMobile ? "w-9 h-9" : "w-10 h-10"} text-sm rounded-lg transition-all duration-200 font-medium flex items-center justify-center
                   ${
                     isPastDay

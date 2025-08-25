@@ -17,7 +17,8 @@ function getViteEnv(): any | undefined {
 }
 
 const API_KEY: string | undefined =
-  (typeof process !== "undefined" && (process.env as any)?.VITE_GEMINI_API_KEY) ||
+  (typeof process !== "undefined" &&
+    (process.env as any)?.VITE_GEMINI_API_KEY) ||
   (getViteEnv()?.VITE_GEMINI_API_KEY as string | undefined) ||
   undefined;
 
