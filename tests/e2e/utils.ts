@@ -17,25 +17,39 @@ export function attachConsoleGuard(
   }
 ): ConsoleGuard {
   const errors: string[] = [];
-  // Par défaut, ignorer les erreurs de presse-papiers fréquentes en headless
-  const defaultAllow = [
+  // Base: ignorer les erreurs clipboard fréquentes en headless
+  const baseAllow = [
     /Clipboard.*(denied|NotAllowed)/i,
     /Failed to execute 'writeText' on 'Clipboard'/i,
     /navigator\.clipboard/i,
-    // Erreurs réseau externes non critiques (polices, CORS, SW) qui ne doivent pas faire échouer l'E2E
+    // Réseau/ressources externes bénignes en E2E multi-navigateurs
     /fonts\.gstatic\.com/i,
     /downloadable font: download failed/i,
     /Cross-Origin Request Blocked/i,
     /CORS request did not succeed/i,
     /ServiceWorker .*FetchEvent.*NetworkError/i,
     /sw\.js/i,
-    // Test de connectivité Gemini (dev-only)
+    /Failed to load resource/i,
+    /Erreur lors du test de connexion Gemini/i,
+    /generativelanguage\.googleapis\.com/i,
+  ];
+  // Dev-noise (activé seulement si E2E_DEV_NOISE=1): erreurs réseau externes, Vite/React transitoires, etc.
+  const devNoiseAllow = [
+    /fonts\.gstatic\.com/i,
+    /downloadable font: download failed/i,
+    /Cross-Origin Request Blocked/i,
+    /CORS request did not succeed/i,
+    /ServiceWorker .*FetchEvent.*NetworkError/i,
+    /sw\.js/i,
     /Erreur lors du test de connexion Gemini/i,
     /generativelanguage\.googleapis\.com/i,
     /access control checks/i,
-    // WebKit + Vite dev sporadic module import error when navigating/tearing down
     /Importing a module script failed\./i,
+    /error loading dynamically imported module/i,
+    /The above error occurred in the <Route\.Provider> component/i,
+    /The above error occurred in one of your React components/i,
   ];
+  const defaultAllow = process.env.E2E_DEV_NOISE === '1' ? [...baseAllow, ...devNoiseAllow] : baseAllow;
   const allow = options?.allowlist ? [...defaultAllow, ...options.allowlist] : defaultAllow;
 
   const isAllowed = (text: string) => allow.some((r) => r.test(text));

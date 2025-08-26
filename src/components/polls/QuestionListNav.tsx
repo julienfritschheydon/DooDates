@@ -27,6 +27,9 @@ export default function QuestionListNav({
               : "bg-white hover:bg-gray-50")
           }
           title={q.title || `Q${idx + 1}`}
+          data-testid="question-nav"
+          data-qid={q.id}
+          data-index={idx + 1}
         >
           {`Q${idx + 1}`}
         </button>

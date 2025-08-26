@@ -215,6 +215,7 @@ export default function FormEditor({
           type="button"
           onClick={onAddQuestion}
           className="w-full rounded-md border px-3 py-2"
+          data-testid="form-add-question-button"
         >
           Ajouter une question
         </button>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { VoterInfo, FormErrors, SwipeOption, VoteType } from "./utils/types";
@@ -39,6 +39,10 @@ export const VoterForm: React.FC<VoterFormProps> = ({
   );
   const [localFormErrors, setLocalFormErrors] = useState<FormErrors>({});
 
+  // Refs pour la gestion du focus sur la première erreur
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const emailInputRef = useRef<HTMLInputElement | null>(null);
+
   // État pour la case à cocher "Recevoir par email"
   const [wantToReceiveEmail, setWantToReceiveEmail] = useState<boolean>(false);
 
@@ -66,6 +70,12 @@ export const VoterForm: React.FC<VoterFormProps> = ({
     }
 
     setLocalFormErrors(errors);
+    // Déplacer le focus vers le premier champ en erreur pour l'accessibilité
+    if (errors.name) {
+      nameInputRef.current?.focus();
+    } else if (errors.email) {
+      emailInputRef.current?.focus();
+    }
     return Object.keys(errors).length === 0;
   };
 
@@ -129,6 +139,10 @@ export const VoterForm: React.FC<VoterFormProps> = ({
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-3xl p-8 w-full max-w-md shadow-xl"
         >
+          {/* Zone live pour annoncer les erreurs aux technologies d'assistance */}
+          <div className="sr-only" aria-live="polite" id="voter-form-live-region">
+            {localFormErrors.general || localFormErrors.name || localFormErrors.email || ""}
+          </div>
           {/* Header avec bouton retour */}
           <div className="flex items-center justify-between mb-6">
             <button
@@ -174,9 +188,12 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                 autoComplete="name"
                 disabled={isSubmitting}
                 data-testid="voter-name"
+                aria-invalid={localFormErrors.name ? true : undefined}
+                aria-describedby={localFormErrors.name ? "name-error" : undefined}
+                ref={nameInputRef}
               />
               {localFormErrors.name && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-sm mt-1" id="name-error">
                   {localFormErrors.name}
                 </p>
               )}
@@ -220,9 +237,12 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                   }`}
                   autoComplete="email"
                   disabled={isSubmitting}
+                  aria-invalid={localFormErrors.email ? true : undefined}
+                  aria-describedby={localFormErrors.email ? "email-error" : undefined}
+                  ref={emailInputRef}
                 />
                 {localFormErrors.email && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="text-red-500 text-sm mt-1" id="email-error">
                     {localFormErrors.email}
                   </p>
                 )}

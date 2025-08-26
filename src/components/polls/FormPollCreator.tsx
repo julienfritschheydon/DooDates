@@ -254,6 +254,7 @@ export default function FormPollCreator({
               className="rounded-md border h-10 px-3 text-sm"
               title="Annuler la création"
               aria-label="Annuler la création"
+              data-testid="form-cancel-button"
             >
               <span className="sm:hidden inline-flex">
                 <Undo2 className="w-4 h-4" />
@@ -268,6 +269,7 @@ export default function FormPollCreator({
               className="rounded-md border h-10 px-3 text-sm"
               title="Enregistrer le brouillon"
               aria-label="Enregistrer le brouillon"
+              data-testid="form-save-draft-button"
             >
               <span className="sm:hidden inline-flex">
                 <Save className="w-4 h-4" />
@@ -282,6 +284,7 @@ export default function FormPollCreator({
               className="rounded-md bg-black text-white h-10 px-3 text-sm"
               title="Finaliser le formulaire"
               aria-label="Finaliser le formulaire"
+              data-testid="form-finalize-button"
             >
               <span className="sm:hidden inline-flex">
                 <Check className="w-4 h-4" />
