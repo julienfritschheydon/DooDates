@@ -157,18 +157,51 @@ test.describe('DooDates - Test Ultra Simple', () => {
       page.waitForSelector('.grid.grid-cols-3 button', { timeout: 10000 }).catch(() => null),
     ]);
 
+    // S'assurer que la liste de vote est bien dans le viewport (le 3e item peut nécessiter un scroll)
+    const votingScrollArea = page.locator('div.flex-1.overflow-y-auto');
+    if (await votingScrollArea.count()) {
+      await votingScrollArea.scrollIntoViewIfNeeded();
+      // Décaler légèrement pour éviter la barre collante en bas
+      await votingScrollArea.evaluate((el) => el.scrollBy(0, -120));
+    }
+
     // Cliquer sur le premier bouton de vote (équivaut à "Oui" sur la première option)
     const firstVoteButton = page.locator('.grid.grid-cols-3 button').first();
     await expect(firstVoteButton).toBeVisible({ timeout: 10000 });
     await robustClick(firstVoteButton);
 
     // Ouvrir le formulaire via le bouton fixe "Envoyer mes votes"
-    const openSubmit = page.getByRole('button', { name: /Envoyer mes votes/i }).first();
+    const openSubmit = page.getByTestId('open-voter-form').first();
     await expect(openSubmit).toBeVisible({ timeout: 10000 });
+    // Stratégie: toujours scroller en bas pour garantir le clic sur le bouton fixe
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await robustClick(openSubmit);
 
-    // Remplir le nom requis dans le formulaire (sélecteurs déterministes)
+    // Attendre le rendu du formulaire (animation framer-motion) puis fallbacks si nécessaire
     const nameInput = page.getByTestId('voter-name');
+    const submitVotesBtn = page.getByTestId('submit-votes');
+    const voterFormHeading = page.getByRole('heading', { name: 'Finaliser mon vote' });
+    const waitForFormVisible = async (timeout = 8000) => {
+      await Promise.race([
+        nameInput.waitFor({ state: 'visible', timeout }).catch(() => null),
+        submitVotesBtn.waitFor({ state: 'visible', timeout }).catch(() => null),
+        voterFormHeading.waitFor({ state: 'visible', timeout }).catch(() => null),
+      ]);
+    };
+    // Tenter jusqu'à 3 fois de faire apparaître le formulaire
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await waitForFormVisible(6000);
+      if ((await nameInput.count()) || (await submitVotesBtn.count())) break;
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.waitForTimeout(100);
+      await robustClick(openSubmit);
+      await voterFormHeading.waitFor({ state: 'visible', timeout: 2000 }).catch(() => null);
+      // Dernier recours: click DOM direct sur le data-testid
+      await page.evaluate(() => {
+        const btn = document.querySelector('[data-testid="open-voter-form"]') as HTMLButtonElement | null;
+        if (btn) btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      });
+    }
     await expect(nameInput).toBeVisible({ timeout: 10000 });
     await nameInput.fill('Votant 1');
 

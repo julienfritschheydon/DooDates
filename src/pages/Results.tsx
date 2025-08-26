@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { BarChart3, Users, Calendar, ArrowLeft, Vote } from "lucide-react";
+import { BarChart3, Users, Calendar, ArrowLeft } from "lucide-react";
 import TopNav from "../components/TopNav";
+import PollActions from "@/components/polls/PollActions";
+import { Poll } from "@/lib/pollStorage";
 
 interface VoteData {
   poll_id: string;
@@ -11,16 +13,7 @@ interface VoteData {
   created_at: string;
 }
 
-interface Poll {
-  id: string;
-  title: string;
-  slug: string;
-  created_at: string;
-  settings?: {
-    selectedDates?: string[];
-    timeSlotsByDate?: Record<string, any[]>;
-  };
-}
+// Le type Poll est importé depuis lib/pollStorage pour cohérence
 
 const Results: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -28,6 +21,8 @@ const Results: React.FC = () => {
   const [poll, setPoll] = useState<Poll | null>(null);
   const [votes, setVotes] = useState<VoteData[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Enforcer: un sondage doit avoir des dates. Pas de fallback synthétique ici.
 
   useEffect(() => {
     if (!slug) return;
@@ -47,7 +42,7 @@ const Results: React.FC = () => {
         if (vote.poll_id !== foundPoll.id) return false;
 
         // Filtrer les votes pour ne garder que les dates du sondage
-        if (foundPoll.settings?.selectedDates) {
+        if (foundPoll.settings?.selectedDates && foundPoll.settings.selectedDates.length > 0) {
           const filteredVoteData: Record<string, "yes" | "no" | "maybe"> = {};
           Object.keys(vote.vote_data).forEach((optionId) => {
             // Extraire la date de l'option ID ou utiliser une logique de mapping
@@ -97,34 +92,16 @@ const Results: React.FC = () => {
 
   // Calculer les statistiques
   const getAllDates = () => {
-    // Utiliser uniquement les dates du sondage depuis settings.selectedDates
-    if (poll?.settings?.selectedDates) {
-      return poll.settings.selectedDates.sort();
-    }
-
-    // Fallback: dates depuis les votes (ancien comportement)
-    const dates = new Set<string>();
-    votes.forEach((vote) => {
-      Object.keys(vote.vote_data).forEach((optionId) => {
-        const optionIndex = parseInt(optionId.replace("option-", ""));
-        if (
-          !isNaN(optionIndex) &&
-          poll?.settings?.selectedDates?.[optionIndex]
-        ) {
-          dates.add(poll.settings.selectedDates[optionIndex]);
-        }
-      });
-    });
-
-    return Array.from(dates).sort();
+    return poll?.settings?.selectedDates
+      ? [...poll.settings.selectedDates].sort()
+      : [];
   };
 
   const getVoteStats = (date: string) => {
     // Trouver l'index de la date dans selectedDates pour mapper aux option IDs
-    const dateIndex = poll?.settings?.selectedDates?.indexOf(date);
-    if (dateIndex === -1 || dateIndex === undefined) {
-      return { yes: 0, no: 0, maybe: 0, total: 0 };
-    }
+    const dates = poll?.settings?.selectedDates || [];
+    const dateIndex = dates.indexOf(date);
+    if (dateIndex < 0) return { yes: 0, no: 0, maybe: 0, total: 0 };
 
     const optionId = `option-${dateIndex}`;
     const dateVotes = votes
@@ -174,14 +151,12 @@ const Results: React.FC = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-4 mb-8">
-          <button
-            onClick={() => window.open(`/poll/${slug}`, "_blank")}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Vote className="w-4 h-4" />
-            Participer au vote
-          </button>
+        <div className="flex flex-wrap items-center gap-2 mb-8">
+          <PollActions
+            poll={poll}
+            showVoteButton
+            onAfterDelete={() => navigate("/dashboard")}
+          />
         </div>
 
         {/* Statistiques globales */}
@@ -244,7 +219,11 @@ const Results: React.FC = () => {
               Résultats détaillés
             </h2>
           </div>
-
+          {allDates.length === 0 ? (
+            <div className="p-6 text-sm text-red-700 bg-red-50 dark:bg-red-900/30 dark:text-red-200">
+              Ce sondage n'a aucune date configurée. Veuillez Modifier le sondage pour ajouter des dates.
+            </div>
+          ) : (
           <div className="overflow-x-auto">
             <table className="w-full" data-testid="results-table">
               <thead className="bg-gray-50 dark:bg-gray-700">
@@ -315,10 +294,11 @@ const Results: React.FC = () => {
               </tbody>
             </table>
           </div>
+          )}
         </div>
 
         {/* Table des votes par participant */}
-        {votes.length > 0 && (
+        {votes.length > 0 && allDates.length > 0 && (
           <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -380,7 +360,11 @@ const Results: React.FC = () => {
                           </div>
                         </td>
                         {allDates.map((date) => {
-                          const voteValue = vote.vote_data[date];
+                          // Mapper la date vers l'optionId correspondant (option-<index>) via selectedDates
+                          const dates = poll?.settings?.selectedDates || [];
+                          const dateIndex = dates.indexOf(date);
+                          const optionId = dateIndex >= 0 ? `option-${dateIndex}` : undefined;
+                          const voteValue = optionId ? vote.vote_data[optionId] : undefined;
                           return (
                             <td
                               key={date}

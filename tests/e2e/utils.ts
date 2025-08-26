@@ -101,3 +101,41 @@ export async function robustClick(locator: ReturnType<Page['locator']>) {
   await new Promise((res) => setTimeout(res, 200));
   await locator.click({ force: true, timeout: 5000 });
 }
+
+/**
+ * Injecte des sondages dans localStorage avant le chargement de la page.
+ * Utilise addInitScript pour que l'état soit présent dès le premier document.
+ */
+export async function seedLocalStorage(page: Page, polls: any[]) {
+  await page.addInitScript(({ polls }) => {
+    try {
+      localStorage.setItem('dev-polls', JSON.stringify(polls));
+    } catch {}
+  }, { polls });
+}
+
+/**
+ * Attend l'affichage d'un toast contenant le texte fourni.
+ * Robuste aux variantes d'implémentation (aria-live, data-testid, texte brut).
+ */
+export async function assertToast(page: Page, text: string, timeoutMs: number = 5000) {
+  const candidates = [
+    page.getByRole('status'),
+    page.getByRole('alert'),
+    page.getByTestId('toast-root'),
+    page.getByText(text, { exact: false }),
+  ];
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    for (const loc of candidates) {
+      try {
+        if (await loc.first().isVisible()) {
+          const has = await loc.first().getByText(text, { exact: false }).count();
+          if (has || (await loc.first().textContent())?.includes(text)) return;
+        }
+      } catch {}
+    }
+    await page.waitForTimeout(100);
+  }
+  await expect(page.getByText(text, { exact: false })).toBeVisible();
+}

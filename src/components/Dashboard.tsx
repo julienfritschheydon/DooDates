@@ -1,47 +1,45 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import {
   Calendar,
   Plus,
   Users,
   BarChart3,
-  Eye,
-  Copy,
-  Trash2,
-  AlertCircle,
-  Edit,
   Search,
-  Filter,
-  Share2,
   Vote,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { usePolls } from "../hooks/usePolls";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import TopNav from "./TopNav";
-import { Poll } from "@/types/poll";
+import { enableFormPoll } from "@/config/flags";
+import { Poll as StoragePoll } from "@/lib/pollStorage";
+import PollActions from "@/components/polls/PollActions";
 
 // Interface pour les sondages du dashboard (basée sur Poll)
-interface DashboardPoll extends Poll {
+interface DashboardPoll extends StoragePoll {
   votes_count?: number;
   participants_count?: number;
+}
+
+// Brouillons Form local (format minimal du spike)
+interface FormDraftItem {
+  id: string;
+  type: "form";
+  title: string;
+  questions: any[];
 }
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [filter, setFilter] = useState<"all" | "draft" | "active" | "closed">(
     "all",
   );
   const [searchQuery, setSearchQuery] = useState("");
-  const [copySuccessSlug, setCopySuccessSlug] = useState<string | null>(null);
 
   // États locaux pour gérer les sondages avec statistiques
   const [polls, setPolls] = useState<DashboardPoll[]>([]);
   const [loading, setLoading] = useState(false);
-  const { deletePoll } = usePolls();
+  const [formDrafts, setFormDrafts] = useState<FormDraftItem[]>([]);
 
   const getUserPolls = async () => {
     setLoading(true);
@@ -76,6 +74,14 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     getUserPolls();
+    // Charger les brouillons formulaire locaux
+    try {
+      const raw = localStorage.getItem("dev-form-polls");
+      const parsed = raw ? (JSON.parse(raw) as FormDraftItem[]) : [];
+      setFormDrafts(Array.isArray(parsed) ? parsed : []);
+    } catch {
+      setFormDrafts([]);
+    }
   }, []);
 
   // Debug: afficher l'état des polls
@@ -122,96 +128,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleCopyLink = async (slug: string) => {
-    const url = `${window.location.origin}/poll/${slug}`;
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(url);
-        toast({
-          title: "Lien copié",
-          description: "Le lien du sondage a été copié dans le presse-papiers.",
-        });
-        setCopySuccessSlug(slug);
-        setTimeout(() => setCopySuccessSlug(null), 1500);
-      } else {
-        // Fallback pour les navigateurs qui ne supportent pas l'API clipboard
-        const textArea = document.createElement("textarea");
-        textArea.value = url;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
-        toast({
-          title: "Lien copié",
-          description: "Le lien du sondage a été copié dans le presse-papiers.",
-        });
-        setCopySuccessSlug(slug);
-        setTimeout(() => setCopySuccessSlug(null), 1500);
-      }
-    } catch (error) {
-      console.error("Erreur lors de la copie:", error);
-      toast({
-        title: "Erreur",
-        description:
-          "Impossible de copier le lien. Veuillez le copier manuellement.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeletePoll = async (pollId: string) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce sondage ?")) {
-      try {
-        await deletePoll(pollId);
-        toast({
-          title: "Sondage supprimé",
-          description: "Le sondage a été supprimé avec succès.",
-        });
-      } catch (error) {
-        toast({
-          title: "Erreur",
-          description: "Impossible de supprimer le sondage.",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
-  const handleDuplicatePoll = async (poll: DashboardPoll) => {
-    try {
-      // Créer une copie du sondage avec un nouveau titre
-      const duplicatedPoll = {
-        ...poll,
-        title: `${poll.title} (Copie)`,
-        slug: `${poll.slug}-copy-${Date.now()}`,
-        id: `local-${Date.now()}`,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      // Sauvegarder dans localStorage
-      const existingPolls = JSON.parse(
-        localStorage.getItem("dev-polls") || "[]",
-      );
-      existingPolls.push(duplicatedPoll);
-      localStorage.setItem("dev-polls", JSON.stringify(existingPolls));
-
-      // Rafraîchir la liste
-      getUserPolls();
-
-      toast({
-        title: "Sondage copié",
-        description: "Le sondage a été copié avec succès.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de copier le sondage.",
-        variant: "destructive",
-      });
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -250,6 +166,28 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {enableFormPoll && formDrafts.length > 0 && (
+          <div className="mb-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                Brouillons Formulaires
+              </h2>
+              <span className="text-xs text-gray-500">{formDrafts.length} brouillon{formDrafts.length > 1 ? "s" : ""}</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {formDrafts.map((d) => (
+                <button
+                  key={d.id}
+                  onClick={() => navigate(`/create?type=form&draftId=${encodeURIComponent(d.id)}`)}
+                  className="px-3 py-1.5 text-xs rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  title={`${d.title || "Sans titre"} • ${d.questions?.length || 0} question(s)`}
+                >
+                  {d.title?.trim() || "Sans titre"}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {/* En-tête avec titre et compteur */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -260,7 +198,18 @@ const Dashboard: React.FC = () => {
             </span>
           </div>
           <button
-            onClick={() => navigate("/create")}
+            onClick={() => {
+              if (enableFormPoll) {
+                const choice = window.prompt(
+                  "Type de sondage ? Tapez 'form' pour Formulaire, sinon appuyez sur Entrée pour Date",
+                  "",
+                );
+                const isForm = (choice || "").trim().toLowerCase() === "form";
+                navigate(isForm ? "/create?type=form" : "/create");
+              } else {
+                navigate("/create");
+              }
+            }}
             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
@@ -373,66 +322,13 @@ const Dashboard: React.FC = () => {
                     <Vote className="w-4 h-4 flex-shrink-0" />
                     <span className="hidden lg:inline">Voter</span>
                   </button>
-                  <button
-                    onClick={() => navigate(`/create?edit=${poll.id}`)}
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
-                    data-testid="view-poll-button"
-                  >
-                    <Edit className="w-4 h-4 flex-shrink-0" />
-                    <span className="hidden lg:inline">Modifier</span>
-                  </button>
-                  <button
-                    onClick={() => handleDuplicatePoll(poll as DashboardPoll)}
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
-                    data-testid="duplicate-poll-button"
-                  >
-                    <Copy className="w-4 h-4 flex-shrink-0" />
-                    <span className="hidden lg:inline">Copier</span>
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopyLink(poll.slug);
-                    }}
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
-                    title="Copier le lien"
-                    data-testid="copy-link-button"
-                  >
-                    <Share2 className="w-4 h-4 flex-shrink-0" />
-                    <span className="hidden lg:inline">Lien</span>
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Supprimer le sondage du localStorage
-                      const existingPolls = JSON.parse(
-                        localStorage.getItem("dev-polls") || "[]",
-                      );
-                      const updatedPolls = existingPolls.filter(
-                        (p: any) => p.id !== poll.id,
-                      );
-                      localStorage.setItem(
-                        "dev-polls",
-                        JSON.stringify(updatedPolls),
-                      );
-                      getUserPolls(); // Recharger la liste
-                      toast({
-                        title: "Sondage supprimé",
-                        description: "Le sondage a été supprimé avec succès.",
-                      });
-                    }}
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
-                    title="Supprimer"
-                    data-testid="delete-poll-button"
-                  >
-                    <Trash2 className="w-4 h-4 flex-shrink-0" />
-                    <span className="hidden lg:inline">Supprimer</span>
-                  </button>
-                  {copySuccessSlug === poll.slug && (
-                    <span data-testid="copy-success" className="sr-only">
-                      Copied
-                    </span>
-                  )}
+                  <PollActions
+                    poll={poll as any}
+                    showVoteButton={false}
+                    variant="compact"
+                    onAfterDuplicate={getUserPolls}
+                    onAfterDelete={getUserPolls}
+                  />
                 </div>
               </div>
             </div>
@@ -453,7 +349,18 @@ const Dashboard: React.FC = () => {
 
             {!searchQuery && (
               <button
-                onClick={() => navigate("/create")}
+                onClick={() => {
+                  if (enableFormPoll) {
+                    const choice = window.prompt(
+                      "Type de sondage ? Tapez 'form' pour Formulaire, sinon appuyez sur Entrée pour Date",
+                      "",
+                    );
+                    const isForm = (choice || "").trim().toLowerCase() === "form";
+                    navigate(isForm ? "/create?type=form" : "/create");
+                  } else {
+                    navigate("/create");
+                  }
+                }}
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Créer un sondage

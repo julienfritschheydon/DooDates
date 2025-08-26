@@ -40,7 +40,7 @@ jobs:
 
       - name: 📊 Upload Playwright report (${{ matrix.project }})
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ matrix.project }}
           path: playwright-report

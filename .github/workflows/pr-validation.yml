@@ -19,20 +19,20 @@ jobs:
           node-version: '20'
           cache: 'npm'
       
-      - name: 🔧 Install dependencies
+      - name: Install dependencies
         run: npm ci
       
-      - name: 🧪 Run ${{ matrix.test-type }} tests
+      - name: Run ${{ matrix.test-type }} tests
         run: npm run test:${{ matrix.test-type }}
       
-      - name: 📊 Upload test results
+      - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.test-type }}
           path: test-results/
       
-      - name: 📈 Upload coverage
+      - name: Upload coverage
         if: matrix.test-type == 'unit'
         uses: codecov/codecov-action@v3
         with:
@@ -42,27 +42,27 @@ jobs:
   ai-validation:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: 📦 Setup Node.js 20
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
       
-      - name: 🔧 Install dependencies
+      - name: Install dependencies
         run: npm ci
       
-      - name: 🤖 Run AI Tests (Quick)
+      - name: Run AI Tests (Quick)
         run: npm run test:gemini:quick
         env:
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
       
-      - name: ✅ Validate AI Performance
+      - name: Validate AI Performance
         run: |
           if [ ! -f ./tests/reports/quick-report.json ]; then
-            echo "ℹ️ Aucun rapport AI détecté (tests IA ignorés). Validation AI sautée."
+            echo "Aucun rapport AI détecté (tests IA ignorés). Validation AI sautée."
             exit 0
           fi
           SCORE=$(node -e "
@@ -72,13 +72,13 @@ jobs:
           ")
           echo "Score IA: $SCORE%"
           if (( $(echo "$SCORE < 70" | bc -l) )); then
-            echo "❌ Performance IA insuffisante: $SCORE%"
+            echo "Performance IA insuffisante: $SCORE%"
             exit 1
           fi
-          echo "✅ Performance IA validée: $SCORE%"
+          echo "Performance IA validée: $SCORE%"
       
-      - name: 📊 Upload AI test results
-        uses: actions/upload-artifact@v3
+      - name: Upload AI test results
+        uses: actions/upload-artifact@v4
         with:
           name: ai-test-results
           path: tests/reports/
@@ -87,26 +87,26 @@ jobs:
   build-validation:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: 📦 Setup Node.js 20
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
       
-      - name: 🔧 Install dependencies
+      - name: Install dependencies
         run: npm ci
       
-      - name: 🔍 TypeScript Check
+      - name: TypeScript Check
         run: npm run type-check
       
-      - name: 🏗️ Build production
+      - name: Build production
         run: npm run build
       
-      - name: 📦 Upload build artifacts
-        uses: actions/upload-artifact@v3
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: dist/
@@ -115,52 +115,52 @@ jobs:
   code-quality:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: 📦 Setup Node.js 20
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
       
-      - name: 🔧 Install dependencies
+      - name: Install dependencies
         run: npm ci
       
-      - name: 🔍 Lint check
+      - name: Lint check
         run: npm run lint
       
-      - name: 💅 Format check
+      - name: Format check
         run: npm run format:check
       
-      - name: 🔒 Security audit
+      - name: Security audit
         run: npm audit --audit-level moderate
 
   # Job 5: E2E Smoke (Chromium only)
   e2e-smoke:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Setup Node.js 20
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      - name: 🔧 Install dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: 🧭 Install Playwright (Chromium only)
+      - name: Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
 
-      - name: 🧪 Run Playwright E2E (Chromium, smoke)
+      - name: Run Playwright E2E (Chromium, smoke)
         run: npx playwright test --project=chromium --reporter=html
 
-      - name: 📊 Upload Playwright HTML report
+      - name: Upload Playwright HTML report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: playwright-report
