@@ -140,8 +140,15 @@ export const VoterForm: React.FC<VoterFormProps> = ({
           className="bg-white rounded-3xl p-8 w-full max-w-md shadow-xl"
         >
           {/* Zone live pour annoncer les erreurs aux technologies d'assistance */}
-          <div className="sr-only" aria-live="polite" id="voter-form-live-region">
-            {localFormErrors.general || localFormErrors.name || localFormErrors.email || ""}
+          <div
+            className="sr-only"
+            aria-live="polite"
+            id="voter-form-live-region"
+          >
+            {localFormErrors.general ||
+              localFormErrors.name ||
+              localFormErrors.email ||
+              ""}
           </div>
           {/* Header avec bouton retour */}
           <div className="flex items-center justify-between mb-6">
@@ -189,7 +196,9 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                 disabled={isSubmitting}
                 data-testid="voter-name"
                 aria-invalid={localFormErrors.name ? true : undefined}
-                aria-describedby={localFormErrors.name ? "name-error" : undefined}
+                aria-describedby={
+                  localFormErrors.name ? "name-error" : undefined
+                }
                 ref={nameInputRef}
               />
               {localFormErrors.name && (
@@ -238,7 +247,9 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                   autoComplete="email"
                   disabled={isSubmitting}
                   aria-invalid={localFormErrors.email ? true : undefined}
-                  aria-describedby={localFormErrors.email ? "email-error" : undefined}
+                  aria-describedby={
+                    localFormErrors.email ? "email-error" : undefined
+                  }
                   ref={emailInputRef}
                 />
                 {localFormErrors.email && (

@@ -232,7 +232,8 @@ export default function FormPollVote({ idOrSlug }: Props) {
                   </div>
                   {kind === "multiple" && q.maxChoices ? (
                     <div className="text-xs text-gray-500">
-                      {Array.isArray(val) ? (val as string[]).length : 0}/{q.maxChoices} sélectionné(s)
+                      {Array.isArray(val) ? (val as string[]).length : 0}/
+                      {q.maxChoices} sélectionné(s)
                     </div>
                   ) : null}
                 </div>
@@ -277,7 +278,9 @@ export default function FormPollVote({ idOrSlug }: Props) {
                         ? (val as string[]).length
                         : 0;
                       const disableExtra =
-                        !checked && q.maxChoices && selectedCount >= q.maxChoices;
+                        !checked &&
+                        q.maxChoices &&
+                        selectedCount >= q.maxChoices;
                       return (
                         <label key={opt.id} className="flex items-center gap-2">
                           <input
