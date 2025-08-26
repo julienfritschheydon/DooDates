@@ -7,6 +7,7 @@ import {
   duplicatePoll,
   getPollBySlugOrId,
   getPolls,
+  getAllPolls,
   savePolls,
   type Poll,
 } from "@/lib/pollStorage";
@@ -112,5 +113,85 @@ describe("pollStorage", () => {
     await expect(copyToClipboard("world")).resolves.toBeUndefined();
 
     expect(exec).toHaveBeenCalledWith("copy");
+  });
+
+  it("getAllPolls() should return both date and form polls (unified storage)", () => {
+    const datePoll = makePoll({ id: "d1", slug: "date-one", type: "date" as any });
+    const formPoll: Poll = {
+      id: "f1",
+      title: "Formulaire",
+      slug: "form-one",
+      created_at: new Date(2024, 0, 1).toISOString(),
+      status: "draft",
+      updated_at: new Date(2024, 0, 1).toISOString(),
+      type: "form",
+      questions: [{ id: "q1", label: "Question?" }],
+    };
+
+    // Save via savePolls (bypasses validation to simulate persisted state)
+    savePolls([datePoll, formPoll]);
+
+    const onlyDate = getPolls();
+    expect(onlyDate.find((p) => p.id === "d1")).toBeTruthy();
+    expect(onlyDate.find((p) => p.id === "f1")).toBeFalsy();
+
+    const all = getAllPolls();
+    expect(all.find((p) => p.id === "d1")).toBeTruthy();
+    expect(all.find((p) => p.id === "f1" && (p as any).type === "form")).toBeTruthy();
+  });
+
+  it("migrateFormDraftsIntoUnified should merge dev-form-polls into dev-polls on read", () => {
+    // Prepare legacy form drafts under dev-form-polls
+    const legacyForms = [
+      {
+        id: "legacy-1",
+        title: "Ancien Form",
+        questions: [{ id: "q1", label: "Nom?" }],
+        status: "draft",
+      },
+    ];
+    window.localStorage.setItem("dev-form-polls", JSON.stringify(legacyForms));
+
+    // Initially unified is empty
+    expect(window.localStorage.getItem("dev-polls")).toBeNull();
+
+    // Trigger migration by reading
+    const all = getAllPolls();
+
+    // Should now contain the migrated form poll with type=form
+    const migrated = all.find((p) => p.id === "legacy-1");
+    expect(migrated).toBeTruthy();
+    expect((migrated as any).type).toBe("form");
+
+    // Old key should be cleaned up
+    expect(window.localStorage.getItem("dev-form-polls")).toBeNull();
+  });
+
+  it("addPoll() should validate form polls: title is required", () => {
+    // Valid form poll
+    const okForm: Poll = {
+      id: "f-ok",
+      title: "Titre",
+      slug: "f-ok",
+      created_at: new Date().toISOString(),
+      status: "draft",
+      updated_at: new Date().toISOString(),
+      type: "form",
+      questions: [],
+    };
+    expect(() => addPoll(okForm)).not.toThrow();
+
+    // Invalid form poll (empty title)
+    const badForm: Poll = {
+      id: "f-bad",
+      title: " ",
+      slug: "f-bad",
+      created_at: new Date().toISOString(),
+      status: "draft",
+      updated_at: new Date().toISOString(),
+      type: "form",
+      questions: [],
+    };
+    expect(() => addPoll(badForm)).toThrow();
   });
 });

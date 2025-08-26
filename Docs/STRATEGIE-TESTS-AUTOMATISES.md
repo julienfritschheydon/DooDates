@@ -1,11 +1,26 @@
 # DooDates - Stratégie de Tests Automatisés Complète
 
-**Document créé le 25 juin 2025 - Statut actuel : 98.5% tests réussis**
 
 ## 🎯 Objectif : Tests 100% Automatisés
-
+ 
+> Mise à jour 2025-08-26 — Référence actuelle
 **Vision :** Aucun code ne passe en production sans validation automatique complète.
 **Principe :** Fail Fast, Fix Fast - Détection immédiate des régressions.
+
+- Workflows actifs (références exactes dans `.github/workflows/`):
+  - `pr-validation.yml`
+  - `gemini-tests.yml`
+  - `nightly-e2e.yml`
+  - `notify-nightly-failure.yml`
+  - `production-deploy-fixed.yml`
+- Scripts de tests disponibles (extraits de `package.json`):
+  - Jest: `test`, `test:watch`, `test:gemini`, `test:gemini:quick`, `test:gemini:production`
+  - Vitest: `test:unit`, `test:unit:fast`, `test:unit:watch`, `test:unit:coverage`, `test:integration`, `test:ux-regression`
+  - Playwright: `test:e2e`, `test:e2e:ui`, `test:e2e:headed`
+  - Utilitaires: `type-check`, `lint:fix`, `format`, `format:check`, `validate:e2e`
+
+Les sections ci-dessous décrivant d'autres workflows/tests non listés ci-dessus sont à considérer comme « Planned » et pourront être activées ultérieurement.
+
 
 ---
 
@@ -17,9 +32,28 @@
 ```bash
 # .husky/pre-commit - S'exécute avant chaque commit
 #!/bin/sh
-echo "🔍 Validation pre-commit DooDates..."
+echo "🔍 DooDates - Validation pre-commit..."
+
+# Mode rapide optionnel pour accélérer les commits locaux
+# Activez-le avec FAST_HOOKS=1 pour ignorer les vérifications lourdes
+if [ "$FAST_HOOKS" = "1" ]; then
+  echo "⚡ Mode rapide activé (FAST_HOOKS=1) - tests lourds ignorés"
+  echo "🧪 Tests unitaires rapides..."
+  npm run test:unit:fast
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Commit bloqué"
+    exit 1
+  fi
+
+  echo "💅 Formatage du code..."
+  npm run format
+
+  echo "✅ Pre-commit (rapide) validé - Commit autorisé"
+  exit 0
+fi
 
 # 1. Tests unitaires rapides (< 30s)
+echo "🧪 Tests unitaires rapides..."
 npm run test:unit:fast
 if [ $? -ne 0 ]; then
   echo "❌ Tests unitaires échoués - Commit bloqué"
@@ -27,22 +61,32 @@ if [ $? -ne 0 ]; then
 fi
 
 # 2. Validation TypeScript
+echo "🔍 Vérification TypeScript..."
 npm run type-check
 if [ $? -ne 0 ]; then
   echo "❌ Erreurs TypeScript - Commit bloqué"
   exit 1
 fi
 
-# 3. Linting automatique
-npm run lint:fix
-npm run format
-
-# 4. Tests UX Régression (critique)
+# 3. Tests UX Régression (critique)
+echo "🎨 Tests UX Régression..."
 npm run test:ux-regression
 if [ $? -ne 0 ]; then
   echo "❌ Régression UX détectée - Commit bloqué"
   exit 1
 fi
+
+# 4. Tests d'intégration
+echo "🔗 Tests d'intégration..."
+npm run test:integration
+if [ $? -ne 0 ]; then
+  echo "❌ Tests d'intégration échoués - Commit bloqué"
+  exit 1
+fi
+
+# 5. Formatage automatique
+echo "💅 Formatage du code..."
+npm run format
 
 echo "✅ Pre-commit validé - Commit autorisé"
 ```
@@ -51,9 +95,15 @@ echo "✅ Pre-commit validé - Commit autorisé"
 ```bash
 # .husky/pre-push - S'exécute avant chaque push
 #!/bin/sh
-echo "🚀 Validation pre-push DooDates..."
+echo "🚀 DooDates - Validation pre-push..."
+
+# Ressources accrues pour éviter OOM et fiabiliser Vitest
+export NODE_OPTIONS="--max-old-space-size=4096"
+export VITEST_MAX_THREADS=1
+export VITEST_POOL=forks
 
 # 1. Suite complète de tests unitaires
+echo "🧪 Tests unitaires complets..."
 npm run test:unit
 if [ $? -ne 0 ]; then
   echo "❌ Tests unitaires complets échoués - Push bloqué"
@@ -61,6 +111,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # 2. Tests d'intégration
+echo "🔗 Tests d'intégration..."
 npm run test:integration
 if [ $? -ne 0 ]; then
   echo "❌ Tests d'intégration échoués - Push bloqué"
@@ -68,6 +119,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # 3. Build de production
+echo "🏗️ Build production..."
 npm run build
 if [ $? -ne 0 ]; then
   echo "❌ Build production échoué - Push bloqué"

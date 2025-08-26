@@ -2,6 +2,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { VotingInterface } from "@/components/voting/VotingInterface";
 import TopNav from "../components/TopNav";
 import React from "react";
+import { getPollBySlugOrId } from "@/lib/pollStorage";
+import FormPollVote from "@/components/polls/FormPollVote";
 
 const Vote = () => {
   const { pollId, pollSlug, adminToken, slug } = useParams<{
@@ -37,6 +39,12 @@ const Vote = () => {
         </div>
       </div>
     );
+  }
+
+  // Router vers le bon flux selon le type de sondage
+  const p = getPollBySlugOrId(actualPollId);
+  if (p?.type === "form") {
+    return <FormPollVote idOrSlug={actualPollId} />;
   }
 
   return (

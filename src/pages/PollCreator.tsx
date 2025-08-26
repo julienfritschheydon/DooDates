@@ -5,6 +5,11 @@ import FormPollCreator, {
 } from "@/components/polls/FormPollCreator";
 import TopNav from "../components/TopNav";
 import { useNavigate, useLocation } from "react-router-dom";
+import {
+  getAllPolls,
+  savePolls,
+  type Poll as StoragePoll,
+} from "@/lib/pollStorage";
 
 const PollCreator = () => {
   const navigate = useNavigate();
@@ -13,45 +18,72 @@ const PollCreator = () => {
   const isForm = (params.get("type") || "").toLowerCase() === "form";
   const draftIdParam = params.get("draftId") || undefined;
 
-  const saveFormDraft = (draft: FormPollDraft) => {
-    try {
-      const key = "dev-form-polls";
-      const raw =
-        typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
-      const arr: FormPollDraft[] = raw
-        ? (JSON.parse(raw) as FormPollDraft[])
-        : [];
-      // Remplacer si même id, sinon pousser
-      const idx = arr.findIndex((d) => d.id === draft.id);
-      if (idx >= 0) arr[idx] = draft;
-      else arr.push(draft);
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(key, JSON.stringify(arr));
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        "Impossible d'enregistrer le brouillon form dans localStorage",
-        e,
-      );
+  const upsertFormPollFromDraft = (
+    draft: FormPollDraft,
+    targetStatus: StoragePoll["status"],
+  ) => {
+    const all = getAllPolls();
+    const existingIndex = all.findIndex((p) => p.id === draft.id);
+
+    const now = new Date().toISOString();
+    const random = Math.random().toString(36).slice(2);
+    const mkSlug = () =>
+      (draft.title || "form").toLowerCase().trim().replace(/\s+/g, "-") +
+      `-${Date.now().toString(36)}-${random}`;
+
+    if (existingIndex >= 0) {
+      const existing = all[existingIndex];
+      const updated: StoragePoll = {
+        ...existing,
+        title: draft.title.trim(),
+        type: "form",
+        questions: draft.questions,
+        status: targetStatus || existing.status || "draft",
+        updated_at: now,
+      };
+      all[existingIndex] = updated;
+      savePolls(all);
+      return updated;
     }
+
+    const created: StoragePoll = {
+      id: draft.id, // réutiliser l'id du brouillon comme id local
+      title: draft.title.trim() || "Sans titre",
+      slug: mkSlug(),
+      created_at: now,
+      updated_at: now,
+      description: undefined,
+      status: targetStatus || "draft",
+      type: "form",
+      questions: draft.questions,
+    };
+    all.push(created);
+    savePolls(all);
+    return created;
   };
 
   const latestFormDraft: FormPollDraft | undefined = useMemo(() => {
     try {
-      const key = "dev-form-polls";
-      const raw =
-        typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
-      const arr: FormPollDraft[] = raw
-        ? (JSON.parse(raw) as FormPollDraft[])
-        : [];
-      if (!Array.isArray(arr) || arr.length === 0) return undefined;
+      const all = getAllPolls();
+      const forms = all.filter((p) => (p as StoragePoll).type === "form");
+      if (forms.length === 0) return undefined;
       if (draftIdParam) {
-        const found = arr.find((d) => d.id === draftIdParam);
-        if (found) return found;
+        const found = forms.find((p) => p.id === draftIdParam);
+        if (found)
+          return {
+            id: found.id,
+            type: "form",
+            title: found.title || "",
+            questions: (found as any)?.questions || [],
+          } as FormPollDraft;
       }
-      // Retourner le dernier en fin de tableau si pas de draftId valide
-      return arr[arr.length - 1];
+      const last = forms[forms.length - 1];
+      return {
+        id: last.id,
+        type: "form",
+        title: last.title || "",
+        questions: (last as any)?.questions || [],
+      } as FormPollDraft;
     } catch {
       return undefined;
     }
@@ -66,11 +98,11 @@ const PollCreator = () => {
             initialDraft={latestFormDraft}
             onCancel={() => navigate("/")}
             onSave={(draft) => {
-              saveFormDraft(draft);
+              upsertFormPollFromDraft(draft, "draft");
               // Rester sur la page pour continuer l'édition
             }}
             onFinalize={(draft) => {
-              saveFormDraft(draft);
+              upsertFormPollFromDraft(draft, "active");
               // Pour l'instant, on retourne au dashboard après finalisation
               navigate("/");
             }}
