@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import QuestionCard from "./QuestionCard";
 import type { Question } from "./QuestionCard";
 import QuestionListNav from "./QuestionListNav";
@@ -28,17 +34,29 @@ export type FormEditorProps = {
  * - Navigation via a small Q1..Qn list
  * - Exposes change events upward so persistence can be centralized
  */
-export default function FormEditor({ value, onChange, onCancel, onAddQuestion, onSaveDraft, onFinalize }: FormEditorProps) {
-  const [activeId, setActiveId] = useState<string | null>(value.questions[0]?.id ?? null);
+export default function FormEditor({
+  value,
+  onChange,
+  onCancel,
+  onAddQuestion,
+  onSaveDraft,
+  onFinalize,
+}: FormEditorProps) {
+  const [activeId, setActiveId] = useState<string | null>(
+    value.questions[0]?.id ?? null,
+  );
   const [isTitleEditing, setIsTitleEditing] = useState<boolean>(!value.title);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
 
-  const activeIndex = useMemo(() => value.questions.findIndex(q => q.id === activeId), [value.questions, activeId]);
+  const activeIndex = useMemo(
+    () => value.questions.findIndex((q) => q.id === activeId),
+    [value.questions, activeId],
+  );
   const activeQuestion = activeIndex >= 0 ? value.questions[activeIndex] : null;
 
   const setTitle = useCallback(
     (title: string) => onChange({ ...value, title }),
-    [value, onChange]
+    [value, onChange],
   );
 
   // When a new question is added externally (parent updates value.questions),
@@ -54,7 +72,9 @@ export default function FormEditor({ value, onChange, onCancel, onAddQuestion, o
         // Best-effort focus on the question title input
         // to streamline keyboard input after adding a question.
         requestAnimationFrame(() => {
-          const el = document.querySelector<HTMLInputElement>('input[placeholder="Intitulé de la question"]');
+          const el = document.querySelector<HTMLInputElement>(
+            'input[placeholder="Intitulé de la question"]',
+          );
           el?.focus();
         });
       }
@@ -64,27 +84,36 @@ export default function FormEditor({ value, onChange, onCancel, onAddQuestion, o
 
   const updateQuestion = useCallback(
     (qId: string, patch: Partial<Question>) => {
-      const next = value.questions.map(q => (q.id === qId ? { ...q, ...patch } : q));
+      const next = value.questions.map((q) =>
+        q.id === qId ? { ...q, ...patch } : q,
+      );
       onChange({ ...value, questions: next });
     },
-    [value, onChange]
+    [value, onChange],
   );
 
   const reorder = useCallback(
     (from: number, to: number) => {
-      if (from === to || from < 0 || to < 0 || from >= value.questions.length || to >= value.questions.length) return;
+      if (
+        from === to ||
+        from < 0 ||
+        to < 0 ||
+        from >= value.questions.length ||
+        to >= value.questions.length
+      )
+        return;
       const next = value.questions.slice();
       const [moved] = next.splice(from, 1);
       next.splice(to, 0, moved);
       onChange({ ...value, questions: next });
       setActiveId(moved.id);
     },
-    [value, onChange]
+    [value, onChange],
   );
 
   const duplicate = useCallback(
     (qId: string) => {
-      const idx = value.questions.findIndex(q => q.id === qId);
+      const idx = value.questions.findIndex((q) => q.id === qId);
       if (idx === -1) return;
       const source = value.questions[idx];
       const clone: Question = {
@@ -96,19 +125,19 @@ export default function FormEditor({ value, onChange, onCancel, onAddQuestion, o
       onChange({ ...value, questions: next });
       setActiveId(clone.id);
     },
-    [value, onChange]
+    [value, onChange],
   );
 
   const remove = useCallback(
     (qId: string) => {
-      const idx = value.questions.findIndex(q => q.id === qId);
+      const idx = value.questions.findIndex((q) => q.id === qId);
       if (idx === -1) return;
-      const next = value.questions.filter(q => q.id !== qId);
+      const next = value.questions.filter((q) => q.id !== qId);
       onChange({ ...value, questions: next });
       const fallback = next[Math.max(0, idx - 1)]?.id ?? next[0]?.id ?? null;
       setActiveId(fallback);
     },
-    [value, onChange]
+    [value, onChange],
   );
 
   return (
@@ -132,7 +161,12 @@ export default function FormEditor({ value, onChange, onCancel, onAddQuestion, o
           />
         ) : (
           <div className="flex-1 min-w-[220px] flex items-center gap-2">
-            <h2 className="font-medium text-base sm:text-lg truncate" title={value.title}>{value.title}</h2>
+            <h2
+              className="font-medium text-base sm:text-lg truncate"
+              title={value.title}
+            >
+              {value.title}
+            </h2>
             <button
               type="button"
               onClick={() => {
@@ -166,7 +200,12 @@ export default function FormEditor({ value, onChange, onCancel, onAddQuestion, o
             onDuplicate={() => duplicate(activeQuestion.id)}
             onDelete={() => remove(activeQuestion.id)}
             onMoveUp={() => reorder(activeIndex, Math.max(0, activeIndex - 1))}
-            onMoveDown={() => reorder(activeIndex, Math.min(value.questions.length - 1, activeIndex + 1))}
+            onMoveDown={() =>
+              reorder(
+                activeIndex,
+                Math.min(value.questions.length - 1, activeIndex + 1),
+              )
+            }
           />
         )}
       </div>

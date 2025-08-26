@@ -116,7 +116,11 @@ describe("pollStorage", () => {
   });
 
   it("getAllPolls() should return both date and form polls (unified storage)", () => {
-    const datePoll = makePoll({ id: "d1", slug: "date-one", type: "date" as any });
+    const datePoll = makePoll({
+      id: "d1",
+      slug: "date-one",
+      type: "date" as any,
+    });
     const formPoll: Poll = {
       id: "f1",
       title: "Formulaire",
@@ -137,7 +141,9 @@ describe("pollStorage", () => {
 
     const all = getAllPolls();
     expect(all.find((p) => p.id === "d1")).toBeTruthy();
-    expect(all.find((p) => p.id === "f1" && (p as any).type === "form")).toBeTruthy();
+    expect(
+      all.find((p) => p.id === "f1" && (p as any).type === "form"),
+    ).toBeTruthy();
   });
 
   it("migrateFormDraftsIntoUnified should merge dev-form-polls into dev-polls on read", () => {

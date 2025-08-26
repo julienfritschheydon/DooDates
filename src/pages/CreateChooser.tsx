@@ -25,7 +25,8 @@ export default function CreateChooser() {
               <div>
                 <h2 className="text-xl font-semibold">Sondage Dates</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Proposez des jours et horaires. Idéal pour organiser des réunions.
+                  Proposez des jours et horaires. Idéal pour organiser des
+                  réunions.
                 </p>
                 <ul className="mt-3 text-sm text-gray-700 list-disc pl-5 space-y-1">
                   <li>Sélection de dates sur calendrier</li>

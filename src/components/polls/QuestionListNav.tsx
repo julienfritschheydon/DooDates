@@ -7,7 +7,11 @@ export type QuestionListNavProps = {
   onSelect: (id: string) => void;
 };
 
-export default function QuestionListNav({ questions, activeId, onSelect }: QuestionListNavProps) {
+export default function QuestionListNav({
+  questions,
+  activeId,
+  onSelect,
+}: QuestionListNavProps) {
   return (
     <div className="sticky top-2 z-10 -mx-2 px-2 py-1 bg-white/80 supports-[backdrop-filter]:backdrop-blur flex flex-wrap items-center gap-2">
       {questions.map((q, idx) => (
