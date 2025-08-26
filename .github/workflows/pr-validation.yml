@@ -166,9 +166,50 @@ jobs:
           path: playwright-report
           retention-days: 7
 
+  # Job 5b: E2E Matrix (Desktop + Mobile)
+  e2e-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [
+          'chromium',
+          'firefox',
+          'webkit',
+          'Mobile Chrome',
+          'Mobile Safari'
+        ]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🧭 Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: 🧪 Run Playwright E2E (${{ matrix.project }})
+        run: |
+          npx playwright test --project="${{ matrix.project }}" --reporter=html
+
+      - name: 📊 Upload Playwright report (${{ matrix.project }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: playwright-report
+          retention-days: 7
+
   # Job 6: Summary
   validation-summary:
-    needs: [quick-tests, ai-validation, build-validation, code-quality, e2e-smoke]
+    needs: [quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-matrix]
     runs-on: ubuntu-latest
     if: always()
 
@@ -182,7 +223,8 @@ jobs:
               { name: 'Validation IA', status: '${{ needs.ai-validation.result }}' },
               { name: 'Build & Types', status: '${{ needs.build-validation.result }}' },
               { name: 'Code Quality', status: '${{ needs.code-quality.result }}' },
-              { name: 'E2E Smoke (Chromium)', status: '${{ needs.e2e-smoke.result }}' }
+              { name: 'E2E Smoke (Chromium)', status: '${{ needs.e2e-smoke.result }}' },
+              { name: 'E2E Matrix (All Projects)', status: '${{ needs.e2e-matrix.result }}' }
             ];
             
             const passed = jobs.filter(j => j.status === 'success').length;

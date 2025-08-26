@@ -97,6 +97,7 @@ const Results: React.FC = () => {
               <button
                 onClick={() => navigate("/dashboard")}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                data-testid="dashboard-button"
               >
                 Retour au tableau de bord
               </button>
@@ -155,11 +156,20 @@ const Results: React.FC = () => {
           </>
         }
         actions={
-          <PollActions
-            poll={poll}
-            showVoteButton
-            onAfterDelete={() => navigate("/dashboard")}
-          />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="px-3 py-2 rounded border hover:bg-gray-50 dark:hover:bg-gray-800"
+              data-testid="dashboard-button"
+            >
+              ← Tableau de bord
+            </button>
+            <PollActions
+              poll={poll}
+              showVoteButton
+              onAfterDelete={() => navigate("/dashboard")}
+            />
+          </div>
         }
         kpis={[
           {
@@ -206,6 +216,7 @@ const Results: React.FC = () => {
                   <button
                     onClick={() => navigate("/dashboard")}
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    data-testid="dashboard-button"
                   >
                     Retour au tableau de bord
                   </button>

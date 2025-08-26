@@ -8,6 +8,8 @@ on:
 jobs:
   e2e-matrix:
     runs-on: ubuntu-latest
+    env:
+      E2E_DEV_NOISE: '1'
     strategy:
       fail-fast: false
       matrix:

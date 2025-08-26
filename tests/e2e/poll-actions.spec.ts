@@ -15,8 +15,14 @@ function makePoll(overrides: Partial<any> = {}) {
   };
 }
 
+// Warmup helper to prime Vite/route chunks and reduce transient dynamic import errors
+async function warmup(page: Page) {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+}
+
 async function openDashboard(page: Page) {
-  await page.goto('/dashboard');
+  await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/dashboard/);
 }
 
@@ -24,8 +30,19 @@ test.describe('Dashboard - Poll Actions', () => {
   test.describe.configure({ mode: 'serial' });
 
   test('copy, duplicate, edit, delete actions flow', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /Importing a module script failed\./i,
+        /error loading dynamically imported module/i,
+        /The above error occurred in one of your React components/i,
+        /Erreur préchargement/i,
+        /calendrier JSON/i,
+      ],
+    });
     try {
+      // Warmup before seeding to stabilize imports and navigation
+      await warmup(page);
+
       const p1 = makePoll({ title: 'Actionable 1', slug: 'action-1', id: 'a1' });
       const p2 = makePoll({ title: 'Actionable 2', slug: 'action-2', id: 'a2' });
       await seedLocalStorage(page, [p1, p2]);

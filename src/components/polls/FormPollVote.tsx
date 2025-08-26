@@ -29,8 +29,17 @@ export default function FormPollVote({ idOrSlug }: Props) {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
   };
 
-  const toggleMulti = (qid: string, optionId: string, checked: boolean) => {
+  const toggleMulti = (
+    qid: string,
+    optionId: string,
+    checked: boolean,
+    maxChoices?: number,
+  ) => {
     const prev = (answers[qid] as string[]) || [];
+    // Empêcher le dépassement en temps réel si une limite est définie
+    if (checked && maxChoices && prev.length >= maxChoices) {
+      return;
+    }
     let next = prev;
     if (checked) {
       next = Array.from(new Set([...prev, optionId]));
@@ -223,7 +232,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
                   </div>
                   {kind === "multiple" && q.maxChoices ? (
                     <div className="text-xs text-gray-500">
-                      Max {q.maxChoices} choix
+                      {Array.isArray(val) ? (val as string[]).length : 0}/{q.maxChoices} sélectionné(s)
                     </div>
                   ) : null}
                 </div>
@@ -264,16 +273,28 @@ export default function FormPollVote({ idOrSlug }: Props) {
                       const checked = Array.isArray(val)
                         ? (val as string[]).includes(opt.id)
                         : false;
+                      const selectedCount = Array.isArray(val)
+                        ? (val as string[]).length
+                        : 0;
+                      const disableExtra =
+                        !checked && q.maxChoices && selectedCount >= q.maxChoices;
                       return (
                         <label key={opt.id} className="flex items-center gap-2">
                           <input
                             type="checkbox"
                             checked={checked}
                             onChange={(e) =>
-                              toggleMulti(qid, opt.id, e.currentTarget.checked)
+                              toggleMulti(
+                                qid,
+                                opt.id,
+                                e.currentTarget.checked,
+                                q.maxChoices,
+                              )
                             }
                             aria-labelledby={`q-${qid}-label`}
                             aria-required={q.required ? true : undefined}
+                            disabled={!!disableExtra}
+                            data-testid="multi-option"
                           />
                           <span>{opt.label || "Option"}</span>
                         </label>
@@ -296,8 +317,9 @@ export default function FormPollVote({ idOrSlug }: Props) {
           <button
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            data-testid="form-submit"
           >
-            Envoyer
+            Envoyer mes réponses
           </button>
         </div>
       </form>

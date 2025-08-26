@@ -161,6 +161,8 @@ export default function QuestionCard({
             className="rounded-md border px-2 py-1 text-sm sm:text-base"
             value={question.kind}
             onChange={(e) => setKind(e.target.value as QuestionKind)}
+            data-testid="question-kind"
+            data-qid={question.id}
           >
             <option value="single">Choix unique</option>
             <option value="multiple">Choix multiples</option>
@@ -174,6 +176,8 @@ export default function QuestionCard({
             className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
             title="Monter"
             aria-label="Monter"
+            data-testid="question-move-up"
+            data-qid={question.id}
           >
             <ArrowUp className="w-4 h-4" />
           </button>
@@ -183,6 +187,8 @@ export default function QuestionCard({
             className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
             title="Descendre"
             aria-label="Descendre"
+            data-testid="question-move-down"
+            data-qid={question.id}
           >
             <ArrowDown className="w-4 h-4" />
           </button>
@@ -192,6 +198,8 @@ export default function QuestionCard({
             className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
             title="Dupliquer"
             aria-label="Dupliquer"
+            data-testid="question-duplicate"
+            data-qid={question.id}
           >
             <Copy className="w-4 h-4" />
           </button>
@@ -201,6 +209,8 @@ export default function QuestionCard({
             className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
             title="Supprimer"
             aria-label="Supprimer"
+            data-testid="question-delete"
+            data-qid={question.id}
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -212,6 +222,8 @@ export default function QuestionCard({
         placeholder="Intitulé de la question"
         value={question.title}
         onChange={(e) => setTitle(e.target.value)}
+        data-testid="question-title-input"
+        data-qid={question.id}
       />
 
       {(question.kind === "single" || question.kind === "multiple") && (
@@ -224,6 +236,9 @@ export default function QuestionCard({
                   className="flex-1 rounded-md border px-2 py-1 text-sm sm:text-base"
                   value={opt.label}
                   onChange={(e) => updateOption(opt.id, e.target.value)}
+                  data-testid="question-option-input"
+                  data-qid={question.id}
+                  data-optid={opt.id}
                 />
                 <button
                   type="button"
@@ -231,6 +246,9 @@ export default function QuestionCard({
                   className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
                   title="Supprimer l'option"
                   aria-label="Supprimer l'option"
+                  data-testid="question-option-remove"
+                  data-qid={question.id}
+                  data-optid={opt.id}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -246,6 +264,8 @@ export default function QuestionCard({
                 className="w-20 rounded-md border px-2 py-1 text-sm sm:text-base"
                 value={question.maxChoices ?? 1}
                 onChange={(e) => setMaxChoices(parseInt(e.target.value, 10))}
+                data-testid="question-maxchoices"
+                data-qid={question.id}
               />
             </div>
           )}
@@ -260,6 +280,8 @@ export default function QuestionCard({
             className="inline-flex items-center rounded-md border h-8 sm:h-9 px-2 sm:px-3 text-sm"
             title="Ajouter une option"
             aria-label="Ajouter une option"
+            data-testid="question-add-option"
+            data-qid={question.id}
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline ml-2">Ajouter une option</span>
@@ -270,6 +292,8 @@ export default function QuestionCard({
             type="checkbox"
             checked={!!question.required}
             onChange={(e) => setRequired(e.target.checked)}
+            data-testid="question-required"
+            data-qid={question.id}
           />
           Obligatoire
         </label>
