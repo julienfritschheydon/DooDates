@@ -117,23 +117,28 @@ export default function FormPollCreator({
         title: q.title,
         required: !!q.required,
         options: q.options ?? [],
-        maxChoices: q.kind === "multiple" ? q.maxChoices ?? 1 : undefined,
+        maxChoices: q.kind === "multiple" ? (q.maxChoices ?? 1) : undefined,
       };
       return base;
     });
 
   // --- Persistence helpers (unified local storage) ---
   function slugify(s: string): string {
-    return s
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "")
-      .slice(0, 60) || `form-${uid()}`;
+    return (
+      s
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "")
+        .slice(0, 60) || `form-${uid()}`
+    );
   }
 
-  function upsertFormPoll(draft: FormPollDraft, status: Poll["status"] = "draft") {
+  function upsertFormPoll(
+    draft: FormPollDraft,
+    status: Poll["status"] = "draft",
+  ) {
     const all = getAllPolls();
     const now = new Date().toISOString();
     const existingIdx = all.findIndex((p) => p.id === draft.id);
@@ -141,7 +146,9 @@ export default function FormPollCreator({
       id: draft.id,
       title: draft.title.trim(),
       slug:
-        existingIdx >= 0 ? all[existingIdx].slug : `${slugify(draft.title)}-${uid()}`,
+        existingIdx >= 0
+          ? all[existingIdx].slug
+          : `${slugify(draft.title)}-${uid()}`,
       created_at: existingIdx >= 0 ? all[existingIdx].created_at : now,
       status,
       updated_at: now,
@@ -248,7 +255,9 @@ export default function FormPollCreator({
               title="Annuler la création"
               aria-label="Annuler la création"
             >
-              <span className="sm:hidden inline-flex"><Undo2 className="w-4 h-4" /></span>
+              <span className="sm:hidden inline-flex">
+                <Undo2 className="w-4 h-4" />
+              </span>
               <span className="hidden sm:inline">Annuler</span>
             </button>
           )}
@@ -260,7 +269,9 @@ export default function FormPollCreator({
               title="Enregistrer le brouillon"
               aria-label="Enregistrer le brouillon"
             >
-              <span className="sm:hidden inline-flex"><Save className="w-4 h-4" /></span>
+              <span className="sm:hidden inline-flex">
+                <Save className="w-4 h-4" />
+              </span>
               <span className="hidden sm:inline">Enregistrer</span>
             </button>
           )}
@@ -272,7 +283,9 @@ export default function FormPollCreator({
               title="Finaliser le formulaire"
               aria-label="Finaliser le formulaire"
             >
-              <span className="sm:hidden inline-flex"><Check className="w-4 h-4" /></span>
+              <span className="sm:hidden inline-flex">
+                <Check className="w-4 h-4" />
+              </span>
               <span className="hidden sm:inline">Finaliser</span>
             </button>
           )}

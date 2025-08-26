@@ -4,7 +4,13 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./TopNav";
 import { enableFormPoll } from "@/config/flags";
-import { Poll as StoragePoll, getAllPolls, getFormResponses, getRespondentId, getVoterId } from "@/lib/pollStorage";
+import {
+  Poll as StoragePoll,
+  getAllPolls,
+  getFormResponses,
+  getRespondentId,
+  getVoterId,
+} from "@/lib/pollStorage";
 import PollActions from "@/components/polls/PollActions";
 
 // Interface pour les sondages du dashboard (basée sur Poll)
@@ -12,7 +18,6 @@ interface DashboardPoll extends StoragePoll {
   votes_count?: number;
   participants_count?: number;
 }
-
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -46,8 +51,12 @@ const Dashboard: React.FC = () => {
           };
         }
 
-        const pollVotes = localVotes.filter((vote: any) => vote.poll_id === poll.id);
-        const uniqueVoters = new Set(pollVotes.map((vote: any) => getVoterId(vote))).size;
+        const pollVotes = localVotes.filter(
+          (vote: any) => vote.poll_id === poll.id,
+        );
+        const uniqueVoters = new Set(
+          pollVotes.map((vote: any) => getVoterId(vote)),
+        ).size;
         return {
           ...poll,
           participants_count: uniqueVoters,

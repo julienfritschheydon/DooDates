@@ -141,12 +141,17 @@ const Results: React.FC = () => {
         subtitle={
           <>
             {(() => {
-              const uniqueVoters = new Set(votes.map((v) => getVoterId(v))).size;
+              const uniqueVoters = new Set(votes.map((v) => getVoterId(v)))
+                .size;
               return uniqueVoters;
-            })()} participant{(() => {
-              const uniqueVoters = new Set(votes.map((v) => getVoterId(v))).size;
+            })()}{" "}
+            participant
+            {(() => {
+              const uniqueVoters = new Set(votes.map((v) => getVoterId(v)))
+                .size;
               return uniqueVoters > 1 ? "s" : "";
-            })()} • {allDates.length} date{allDates.length > 1 ? "s" : ""}
+            })()}{" "}
+            • {allDates.length} date{allDates.length > 1 ? "s" : ""}
           </>
         }
         actions={
@@ -196,11 +201,7 @@ const Results: React.FC = () => {
           {allDates.length === 0 ? (
             <div className="p-6">
               <ResultsEmpty
-                message={
-                  <>
-                    Ce sondage n'a aucune date configurée.
-                  </>
-                }
+                message={<>Ce sondage n'a aucune date configurée.</>}
                 action={
                   <button
                     onClick={() => navigate("/dashboard")}
@@ -317,13 +318,13 @@ const Results: React.FC = () => {
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {(() => {
-                    const byId = new Map<string, typeof votes[number]>();
+                    const byId = new Map<string, (typeof votes)[number]>();
                     for (const v of votes) {
                       const id = getVoterId(v);
                       if (!byId.has(id)) byId.set(id, v);
                     }
-                    const uniqueVoters = Array.from(byId.values()).sort((a, b) =>
-                      a.voter_name.localeCompare(b.voter_name),
+                    const uniqueVoters = Array.from(byId.values()).sort(
+                      (a, b) => a.voter_name.localeCompare(b.voter_name),
                     );
 
                     return uniqueVoters.map((vote, index) => (
@@ -394,7 +395,7 @@ const Results: React.FC = () => {
             </div>
           </div>
         )}
-        </ResultsLayout>
+      </ResultsLayout>
     </div>
   );
 };

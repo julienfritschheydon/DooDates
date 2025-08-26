@@ -363,7 +363,10 @@ function assertValidFormAnswer(poll: Poll, items: FormResponseItem[]): void {
     // Required
     if (q.required) {
       if (!it) throw new Error("Missing required answer");
-      if (q.kind === "text" && (typeof it.value !== "string" || !it.value.trim())) {
+      if (
+        q.kind === "text" &&
+        (typeof it.value !== "string" || !it.value.trim())
+      ) {
         throw new Error("Text answer required");
       }
       if (q.kind === "single" && (typeof it.value !== "string" || !it.value)) {
@@ -402,11 +405,14 @@ export function addFormResponse(params: {
   const existingIdx = all.findIndex(
     (r) =>
       r.pollId === params.pollId &&
-      ((r.respondentName || "").trim().toLowerCase()) === targetKey
+      (r.respondentName || "").trim().toLowerCase() === targetKey,
   );
   const now = new Date().toISOString();
   const resp: FormResponse = {
-    id: existingIdx >= 0 ? all[existingIdx].id : `resp-${Date.now()}-${Math.random().toString(36).slice(2,6)}`,
+    id:
+      existingIdx >= 0
+        ? all[existingIdx].id
+        : `resp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     pollId: params.pollId,
     respondentName: normalizedName ? normalizedName : undefined,
     created_at: now,
@@ -451,13 +457,15 @@ export function getFormResults(pollId: string): FormResults {
       if (kind === "single") {
         const optId = typeof it.value === "string" ? it.value : undefined;
         if (!optId) continue;
-        countsByQuestion[q.id][optId] = (countsByQuestion[q.id][optId] || 0) + 1;
+        countsByQuestion[q.id][optId] =
+          (countsByQuestion[q.id][optId] || 0) + 1;
         continue;
       }
       if (kind === "multiple") {
         const arr = Array.isArray(it.value) ? it.value : [];
         for (const optId of arr) {
-          countsByQuestion[q.id][optId] = (countsByQuestion[q.id][optId] || 0) + 1;
+          countsByQuestion[q.id][optId] =
+            (countsByQuestion[q.id][optId] || 0) + 1;
         }
       }
     }
@@ -495,7 +503,12 @@ export function getDeviceId(): string {
 }
 
 // For date-poll votes stored in dev-votes
-export function getVoterId(vote: { voter_email?: string; voter_name?: string; id?: string; created_at?: string }): string {
+export function getVoterId(vote: {
+  voter_email?: string;
+  voter_name?: string;
+  id?: string;
+  created_at?: string;
+}): string {
   const email = (vote?.voter_email || "").trim().toLowerCase();
   if (email) return email;
   const name = (vote?.voter_name || "").trim().toLowerCase();
