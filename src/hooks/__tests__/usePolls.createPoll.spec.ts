@@ -35,7 +35,9 @@ describe("usePolls.createPoll", () => {
       },
     };
 
-    const res = await act(async () => await result.current.createPoll(pollData));
+    const res = await act(
+      async () => await result.current.createPoll(pollData),
+    );
 
     expect(res.error).toBeUndefined();
     expect(res.poll).toBeTruthy();
@@ -53,21 +55,22 @@ describe("usePolls.createPoll", () => {
   it("rejects creation when selectedDates is empty", async () => {
     const { result } = renderHook(() => usePolls());
 
-    const res = await act(async () =>
-      await result.current.createPoll({
-        title: "Sans dates",
-        description: "",
-        selectedDates: [],
-        timeSlotsByDate: {},
-        participantEmails: [],
-        settings: {
-          timeGranularity: 30,
-          allowAnonymousVotes: true,
-          allowMaybeVotes: true,
-          sendNotifications: false,
-          expiresAt: new Date().toISOString(),
-        },
-      } as any),
+    const res = await act(
+      async () =>
+        await result.current.createPoll({
+          title: "Sans dates",
+          description: "",
+          selectedDates: [],
+          timeSlotsByDate: {},
+          participantEmails: [],
+          settings: {
+            timeGranularity: 30,
+            allowAnonymousVotes: true,
+            allowMaybeVotes: true,
+            sendNotifications: false,
+            expiresAt: new Date().toISOString(),
+          },
+        } as any),
     );
 
     expect(res.error).toBeTruthy();

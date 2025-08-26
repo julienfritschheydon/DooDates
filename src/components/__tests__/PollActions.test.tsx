@@ -6,7 +6,7 @@ import { PollActions } from "@/components/polls/PollActions";
 
 // Mock useToast to avoid real UI side effects
 vi.mock("@/hooks/use-toast", () => ({
-  useToast: () => ({ toast: vi.fn() })
+  useToast: () => ({ toast: vi.fn() }),
 }));
 
 // Mock pollStorage functions used internally by PollActions (defined inside factory to avoid hoisting issues)
@@ -14,13 +14,16 @@ vi.mock("@/lib/pollStorage", async (importOriginal) => {
   const mod = await importOriginal<any>();
   return {
     ...mod,
-    duplicatePoll: vi.fn((p: Poll) => ({
-      ...p,
-      id: "dup",
-      slug: `${p.slug}-copy-1`,
-      title: `${p.title} (Copie)`,
-      created_at: new Date().toISOString(),
-    } as Poll)),
+    duplicatePoll: vi.fn(
+      (p: Poll) =>
+        ({
+          ...p,
+          id: "dup",
+          slug: `${p.slug}-copy-1`,
+          title: `${p.title} (Copie)`,
+          created_at: new Date().toISOString(),
+        }) as Poll,
+    ),
     deletePollById: vi.fn(),
     copyToClipboard: vi.fn().mockResolvedValue(undefined),
     buildPublicLink: vi.fn((slug: string) => `http://localhost/poll/${slug}`),
@@ -28,7 +31,12 @@ vi.mock("@/lib/pollStorage", async (importOriginal) => {
 });
 
 // After mocks are set up, import the mocked functions to assert calls
-import { duplicatePoll, deletePollById, copyToClipboard, buildPublicLink } from "@/lib/pollStorage";
+import {
+  duplicatePoll,
+  deletePollById,
+  copyToClipboard,
+  buildPublicLink,
+} from "@/lib/pollStorage";
 
 // Mock react-router navigate to avoid actual navigation
 const navigateMock = vi.fn();
@@ -54,7 +62,12 @@ describe("PollActions", () => {
     const onAfterDuplicate = vi.fn();
 
     render(
-      <PollActions poll={basePoll} showVoteButton={false} variant="compact" onAfterDuplicate={onAfterDuplicate} />
+      <PollActions
+        poll={basePoll}
+        showVoteButton={false}
+        variant="compact"
+        onAfterDuplicate={onAfterDuplicate}
+      />,
     );
 
     fireEvent.click(screen.getByTestId("poll-action-duplicate"));
@@ -70,7 +83,12 @@ describe("PollActions", () => {
     const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
 
     render(
-      <PollActions poll={basePoll} showVoteButton={false} variant="compact" onAfterDelete={onAfterDelete} />
+      <PollActions
+        poll={basePoll}
+        showVoteButton={false}
+        variant="compact"
+        onAfterDelete={onAfterDelete}
+      />,
     );
 
     fireEvent.click(screen.getByTestId("poll-action-delete"));
@@ -81,7 +99,9 @@ describe("PollActions", () => {
   });
 
   it("navigates to edit when clicking edit if no onEdit provided", async () => {
-    render(<PollActions poll={basePoll} showVoteButton={false} variant="compact" />);
+    render(
+      <PollActions poll={basePoll} showVoteButton={false} variant="compact" />,
+    );
 
     fireEvent.click(screen.getByTestId("poll-action-edit"));
 
@@ -91,7 +111,14 @@ describe("PollActions", () => {
   it("uses custom onEdit when provided", async () => {
     const onEdit = vi.fn();
 
-    render(<PollActions poll={basePoll} showVoteButton={false} variant="compact" onEdit={onEdit} />);
+    render(
+      <PollActions
+        poll={basePoll}
+        showVoteButton={false}
+        variant="compact"
+        onEdit={onEdit}
+      />,
+    );
 
     fireEvent.click(screen.getByTestId("poll-action-edit"));
 
@@ -100,11 +127,15 @@ describe("PollActions", () => {
   });
 
   it("copies the poll link on copy action", async () => {
-    render(<PollActions poll={basePoll} showVoteButton={false} variant="compact" />);
+    render(
+      <PollActions poll={basePoll} showVoteButton={false} variant="compact" />,
+    );
 
     fireEvent.click(screen.getByTestId("poll-action-copy-link"));
 
     expect(buildPublicLink).toHaveBeenCalledWith("reunion");
-    expect(copyToClipboard).toHaveBeenCalledWith("http://localhost/poll/reunion");
+    expect(copyToClipboard).toHaveBeenCalledWith(
+      "http://localhost/poll/reunion",
+    );
   });
 });

@@ -1951,22 +1951,24 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                       Aperçu (lecture seule)
                     </h3>
                     <p className="text-xs text-gray-500">
-                      Cet aperçu utilise l'interface de vote, mais les interactions sont désactivées.
+                      Cet aperçu utilise l'interface de vote, mais les
+                      interactions sont désactivées.
                     </p>
                   </div>
                   <div className="p-4 pointer-events-none select-none">
                     {(() => {
                       // Construire les options à partir des dates sélectionnées et créneaux activés
-                      const previewOptions = state.selectedDates.map((dateStr, idx) => ({
-                        id: `opt-${idx}`,
-                        poll_id: "preview",
-                        option_date: dateStr,
-                        time_slots:
-                          (timeSlotsByDate[dateStr] || [])
+                      const previewOptions = state.selectedDates.map(
+                        (dateStr, idx) => ({
+                          id: `opt-${idx}`,
+                          poll_id: "preview",
+                          option_date: dateStr,
+                          time_slots: (timeSlotsByDate[dateStr] || [])
                             .filter((s) => s.enabled)
                             .map((s) => ({ hour: s.hour, minute: s.minute })),
-                        display_order: idx,
-                      }));
+                          display_order: idx,
+                        }),
+                      );
 
                       const emptyVotes: Array<{
                         id: string;
@@ -1977,7 +1979,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         created_at: string;
                       }> = [];
 
-                      const currentVote: Record<string, "yes" | "no" | "maybe"> = {};
+                      const currentVote: Record<
+                        string,
+                        "yes" | "no" | "maybe"
+                      > = {};
                       const userHasVoted: Record<string, boolean> = {};
 
                       return (
@@ -1986,8 +1991,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           votes={emptyVotes}
                           currentVote={currentVote}
                           userHasVoted={userHasVoted}
-                          onVoteChange={() => { /* lecture seule */ }}
-                          onHaptic={() => { /* désactivé */ }}
+                          onVoteChange={() => {
+                            /* lecture seule */
+                          }}
+                          onHaptic={() => {
+                            /* désactivé */
+                          }}
                         />
                       );
                     })()}

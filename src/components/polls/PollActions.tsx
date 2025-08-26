@@ -38,9 +38,16 @@ export const PollActions: React.FC<PollActionsProps> = ({
     try {
       const url = buildPublicLink(poll.slug);
       await copyToClipboard(url);
-      toast({ title: "Lien copié", description: "Le lien du sondage a été copié." });
+      toast({
+        title: "Lien copié",
+        description: "Le lien du sondage a été copié.",
+      });
     } catch {
-      toast({ title: "Erreur", description: "Impossible de copier le lien.", variant: "destructive" });
+      toast({
+        title: "Erreur",
+        description: "Impossible de copier le lien.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -52,21 +59,36 @@ export const PollActions: React.FC<PollActionsProps> = ({
   const handleDuplicate = () => {
     try {
       const dup = duplicatePoll(poll);
-      toast({ title: "Sondage copié", description: "Le sondage a été copié avec succès." });
+      toast({
+        title: "Sondage copié",
+        description: "Le sondage a été copié avec succès.",
+      });
       onAfterDuplicate?.(dup);
     } catch {
-      toast({ title: "Erreur", description: "Impossible de copier le sondage.", variant: "destructive" });
+      toast({
+        title: "Erreur",
+        description: "Impossible de copier le sondage.",
+        variant: "destructive",
+      });
     }
   };
 
   const handleDelete = () => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce sondage ?")) return;
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce sondage ?"))
+      return;
     try {
       deletePollById(poll.id);
-      toast({ title: "Sondage supprimé", description: "Le sondage a été supprimé avec succès." });
+      toast({
+        title: "Sondage supprimé",
+        description: "Le sondage a été supprimé avec succès.",
+      });
       onAfterDelete?.();
     } catch {
-      toast({ title: "Erreur", description: "Impossible de supprimer le sondage.", variant: "destructive" });
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le sondage.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -118,7 +140,9 @@ export const PollActions: React.FC<PollActionsProps> = ({
         data-testid="poll-action-delete"
       >
         <Trash2 className="w-4 h-4" />
-        {variant === "full" && <span className="hidden sm:inline">Supprimer</span>}
+        {variant === "full" && (
+          <span className="hidden sm:inline">Supprimer</span>
+        )}
       </button>
     </div>
   );

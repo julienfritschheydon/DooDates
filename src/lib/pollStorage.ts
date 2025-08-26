@@ -30,7 +30,7 @@ function hasWindow(): boolean {
 export function getPolls(): Poll[] {
   try {
     const raw = hasWindow() ? window.localStorage.getItem(STORAGE_KEY) : null;
-    const parsed = raw ? ((JSON.parse(raw) as unknown) as Poll[]) : [];
+    const parsed = raw ? (JSON.parse(raw) as unknown as Poll[]) : [];
     // Validation lecture: ne retourner que des sondages avec des dates valides
     const valid: Poll[] = [];
     for (const p of parsed) {
@@ -57,11 +57,15 @@ export function savePolls(polls: Poll[]): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(polls));
 }
 
-export function getPollBySlugOrId(idOrSlug: string | undefined | null): Poll | null {
+export function getPollBySlugOrId(
+  idOrSlug: string | undefined | null,
+): Poll | null {
   if (!idOrSlug) return null;
   const polls = getPolls();
   return (
-    polls.find((p) => p.slug === idOrSlug) || polls.find((p) => p.id === idOrSlug) || null
+    polls.find((p) => p.slug === idOrSlug) ||
+    polls.find((p) => p.id === idOrSlug) ||
+    null
   );
 }
 
@@ -95,7 +99,10 @@ export function duplicatePoll(poll: Poll): Poll {
 }
 
 export function buildPublicLink(slug: string): string {
-  const origin = hasWindow() && window.location?.origin ? window.location.origin : "http://localhost";
+  const origin =
+    hasWindow() && window.location?.origin
+      ? window.location.origin
+      : "http://localhost";
   return `${origin}/poll/${slug}`;
 }
 
@@ -124,12 +131,18 @@ export async function copyToClipboard(text: string): Promise<void> {
 
 // --- Validation helpers ---
 function isNonEmptyStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.length > 0 && value.every((v) => typeof v === "string" && v.trim().length > 0);
+  return (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every((v) => typeof v === "string" && v.trim().length > 0)
+  );
 }
 
 function validatePoll(poll: Poll): void {
   const dates = poll?.settings?.selectedDates;
   if (!isNonEmptyStringArray(dates)) {
-    throw new Error("Invalid poll: settings.selectedDates must be a non-empty array of strings");
+    throw new Error(
+      "Invalid poll: settings.selectedDates must be a non-empty array of strings",
+    );
   }
 }

@@ -80,8 +80,13 @@ export function usePolls() {
 
       try {
         // Validation stricte: au moins une date doit être sélectionnée
-        if (!Array.isArray(pollData.selectedDates) || pollData.selectedDates.length === 0) {
-          throw new Error("Sélectionnez au moins une date pour créer le sondage.");
+        if (
+          !Array.isArray(pollData.selectedDates) ||
+          pollData.selectedDates.length === 0
+        ) {
+          throw new Error(
+            "Sélectionnez au moins une date pour créer le sondage.",
+          );
         }
 
         const slug = generateSlug(pollData.title);
@@ -307,7 +312,9 @@ export function usePolls() {
             .map((slot, slotIndex) => {
               // Calculer l'heure de fin correctement
               const totalMinutes =
-                slot.hour * 60 + slot.minute + pollData.settings.timeGranularity;
+                slot.hour * 60 +
+                slot.minute +
+                pollData.settings.timeGranularity;
               const endHour = Math.floor(totalMinutes / 60);
               const endMinute = totalMinutes % 60;
 
@@ -370,7 +377,9 @@ export function usePolls() {
                 optionsResponse.status,
                 errorText,
               );
-              throw new Error(`Erreur HTTP ${optionsResponse.status}: ${errorText}`);
+              throw new Error(
+                `Erreur HTTP ${optionsResponse.status}: ${errorText}`,
+              );
             }
 
             const optionsData = await optionsResponse.json();
@@ -430,7 +439,9 @@ export function usePolls() {
                 optionsResponse.status,
                 errorText,
               );
-              throw new Error(`Erreur HTTP ${optionsResponse.status}: ${errorText}`);
+              throw new Error(
+                `Erreur HTTP ${optionsResponse.status}: ${errorText}`,
+              );
             }
 
             const optionsData = await optionsResponse.json();
