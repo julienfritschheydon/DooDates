@@ -25,6 +25,8 @@ const LoadingSpinner = () => (
 const Index = lazy(() => import("./pages/Index"));
 const Vote = lazy(() => import("./pages/Vote"));
 const Results = lazy(() => import("./pages/Results"));
+const CreateChooser = lazy(() => import("./pages/CreateChooser"));
+const FormCreator = lazy(() => import("./pages/FormCreator"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const ConversationalAI = lazy(() => import("./components/ConversationalAI"));
 
@@ -305,7 +307,9 @@ const App = () => (
               {/* <Route path="/vote-swipe/:pollId" element={<VotingSwipeWrapper />} /> */}
               {/* <Route path="/demo/swipe" element={<VotingSwipeDemo />} />
               <Route path="/demo/ex-swipe" element={<ExVotingSwipeDemo />} /> */}
-              <Route path="/create" element={<PollCreator />} />
+              <Route path="/create" element={<CreateChooser />} />
+              <Route path="/create/date" element={<PollCreator />} />
+              <Route path="/create/form" element={<FormCreator />} />
               <Route path="/admin/:pollSlug/:adminToken" element={<Vote />} />
 
               <Route path="*" element={<NotFound />} />

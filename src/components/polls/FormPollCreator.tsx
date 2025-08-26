@@ -1,4 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Undo2, Save, Check } from "lucide-react";
+import FormEditor from "./FormEditor";
+import type { Question as EditorQuestion } from "./QuestionCard";
+import { getAllPolls, savePolls, type Poll } from "../../lib/pollStorage";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
 export type FormQuestionType = "single" | "multiple" | "text";
@@ -61,6 +65,7 @@ export default function FormPollCreator({
     initialDraft?.questions || [],
   );
   const [draftId] = useState<string>(initialDraft?.id || "draft-" + uid());
+  const autosaveTimer = useRef<number | null>(null);
 
   // Si le brouillon change (montée en props), synchroniser l'état
   useEffect(() => {
@@ -81,6 +86,93 @@ export default function FormPollCreator({
   );
 
   const canSave = useMemo(() => validateDraft(currentDraft).ok, [currentDraft]);
+
+  // --- Mapping helpers between local AnyFormQuestion and EditorQuestion ---
+  const toEditorQuestions = (qs: AnyFormQuestion[]): EditorQuestion[] =>
+    qs.map((q) => ({
+      id: q.id,
+      title: q.title,
+      kind: (q.type === "text" ? "text" : q.type) as EditorQuestion["kind"],
+      required: q.required,
+      options: (q as SingleOrMultipleQuestion).options,
+      maxChoices: (q as SingleOrMultipleQuestion).maxChoices,
+    }));
+
+  const fromEditorQuestions = (qs: EditorQuestion[]): AnyFormQuestion[] =>
+    qs.map((q) => {
+      if (q.kind === "text") {
+        const base: TextQuestion = {
+          id: q.id,
+          type: "text",
+          title: q.title,
+          required: !!q.required,
+          placeholder: "",
+          maxLength: 300,
+        };
+        return base;
+      }
+      const base: SingleOrMultipleQuestion = {
+        id: q.id,
+        type: q.kind === "multiple" ? "multiple" : "single",
+        title: q.title,
+        required: !!q.required,
+        options: q.options ?? [],
+        maxChoices: q.kind === "multiple" ? q.maxChoices ?? 1 : undefined,
+      };
+      return base;
+    });
+
+  // --- Persistence helpers (unified local storage) ---
+  function slugify(s: string): string {
+    return s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "")
+      .slice(0, 60) || `form-${uid()}`;
+  }
+
+  function upsertFormPoll(draft: FormPollDraft, status: Poll["status"] = "draft") {
+    const all = getAllPolls();
+    const now = new Date().toISOString();
+    const existingIdx = all.findIndex((p) => p.id === draft.id);
+    const base: Poll = {
+      id: draft.id,
+      title: draft.title.trim(),
+      slug:
+        existingIdx >= 0 ? all[existingIdx].slug : `${slugify(draft.title)}-${uid()}`,
+      created_at: existingIdx >= 0 ? all[existingIdx].created_at : now,
+      status,
+      updated_at: now,
+      type: "form",
+      questions: draft.questions,
+    };
+    if (existingIdx >= 0) {
+      all[existingIdx] = base;
+    } else {
+      all.push(base);
+    }
+    savePolls(all);
+    return base;
+  }
+
+  // Autosave on title/questions changes (debounced)
+  useEffect(() => {
+    if (!currentDraft.title.trim()) return; // avoid saving empty title drafts
+    if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = window.setTimeout(() => {
+      try {
+        upsertFormPoll(currentDraft, "draft");
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn("Autosave form poll failed", e);
+      }
+    }, 800);
+    return () => {
+      if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
+    };
+  }, [currentDraft.title, currentDraft.questions]);
 
   const addQuestion = (type: FormQuestionType) => {
     if (type === "text") {
@@ -124,15 +216,10 @@ export default function FormPollCreator({
       alert("Veuillez corriger: \n- " + result.errors.join("\n- "));
       return;
     }
+    const saved = upsertFormPoll(draft, "draft");
     if (onSave) onSave(draft);
-    // Spike: par défaut, afficher dans la console
-    if (!onSave) {
-      // eslint-disable-next-line no-console
-      console.log("FormPoll draft", draft);
-      alert(
-        "Brouillon FormPoll prêt (voir console). Stockage local à l'étape suivante.",
-      );
-    }
+    // eslint-disable-next-line no-console
+    console.log("FormPoll draft enregistré", saved);
   };
 
   const handleFinalize = () => {
@@ -142,392 +229,81 @@ export default function FormPollCreator({
       alert("Veuillez corriger: \n- " + result.errors.join("\n- "));
       return;
     }
+    const saved = upsertFormPoll(draft, "active");
     if (onFinalize) onFinalize(draft);
+    // eslint-disable-next-line no-console
+    console.log("FormPoll finalisé", saved);
   };
 
   return (
     <div className="p-4 sm:p-6">
-      <h2 className="text-xl font-semibold mb-4">
-        Créer un sondage Formulaire
-      </h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        {/* Colonne Édition */}
-        <div>
-          {/* Titre */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Titre
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ex: Préférences déjeuner"
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Questions */}
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-2 mb-3">
-              <button
-                type="button"
-                onClick={() => addQuestion("single")}
-                className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200"
-              >
-                + Choix unique
-              </button>
-              <button
-                type="button"
-                onClick={() => addQuestion("multiple")}
-                className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200"
-              >
-                + Choix multiples
-              </button>
-              <button
-                type="button"
-                onClick={() => addQuestion("text")}
-                className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200"
-              >
-                + Réponse texte
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {questions.map((q, idx) => (
-                <div key={q.id} className="border rounded-md p-3 bg-white">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm text-gray-500">
-                      Question {idx + 1} • {labelType(q.type)}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeQuestion(q.id)}
-                      className="text-red-600 text-sm hover:underline"
-                    >
-                      Supprimer
-                    </button>
-                  </div>
-
-                  {/* Intitulé */}
-                  <input
-                    type="text"
-                    value={q.title}
-                    onChange={(e) =>
-                      updateQuestion(q.id, (old) => ({
-                        ...old,
-                        title: e.target.value,
-                      }))
-                    }
-                    placeholder="Intitulé de la question"
-                    className="w-full px-3 py-2 border rounded-md mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-
-                  {/* Commun: requis */}
-                  <label className="inline-flex items-center gap-2 text-sm mb-3">
-                    <input
-                      type="checkbox"
-                      checked={q.required}
-                      onChange={(e) =>
-                        updateQuestion(q.id, (old) => ({
-                          ...old,
-                          required: e.target.checked,
-                        }))
-                      }
-                    />
-                    <span>Réponse obligatoire</span>
-                  </label>
-
-                  {q.type !== "text" ? (
-                    <div>
-                      {/* Options */}
-                      <div className="space-y-2 mb-3">
-                        {(q as SingleOrMultipleQuestion).options.map(
-                          (opt, i) => (
-                            <div
-                              key={opt.id}
-                              className="flex items-center gap-2"
-                            >
-                              <span className="w-14 text-xs text-gray-500">
-                                Option {i + 1}
-                              </span>
-                              <input
-                                type="text"
-                                value={opt.label}
-                                onChange={(e) =>
-                                  updateQuestion(q.id, (old) => {
-                                    const target =
-                                      old as SingleOrMultipleQuestion;
-                                    const next = target.options.map((o) =>
-                                      o.id === opt.id
-                                        ? { ...o, label: e.target.value }
-                                        : o,
-                                    );
-                                    return {
-                                      ...target,
-                                      options: next,
-                                    } as AnyFormQuestion;
-                                  })
-                                }
-                                className="flex-1 px-3 py-2 border rounded-md"
-                              />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  updateQuestion(q.id, (old) => {
-                                    const target =
-                                      old as SingleOrMultipleQuestion;
-                                    const next = target.options.filter(
-                                      (o) => o.id !== opt.id,
-                                    );
-                                    return {
-                                      ...target,
-                                      options: next,
-                                    } as AnyFormQuestion;
-                                  })
-                                }
-                                className="text-red-600 text-xs hover:underline"
-                              >
-                                retirer
-                              </button>
-                            </div>
-                          ),
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateQuestion(q.id, (old) => {
-                              const target = old as SingleOrMultipleQuestion;
-                              const next = [
-                                ...target.options,
-                                {
-                                  id: uid(),
-                                  label: `Option ${target.options.length + 1}`,
-                                },
-                              ];
-                              return {
-                                ...target,
-                                options: next,
-                              } as AnyFormQuestion;
-                            })
-                          }
-                          className="px-3 py-1.5 text-sm bg-gray-100 rounded hover:bg-gray-200"
-                        >
-                          + Ajouter une option
-                        </button>
-                        <span className="text-xs text-gray-500">
-                          2–10 options
-                        </span>
-                      </div>
-
-                      {q.type === "multiple" && (
-                        <div className="mb-2">
-                          <label className="block text-sm text-gray-700 mb-1">
-                            Nombre maximum de choix
-                          </label>
-                          <input
-                            type="number"
-                            min={1}
-                            max={
-                              (q as SingleOrMultipleQuestion).options.length ||
-                              1
-                            }
-                            value={
-                              (q as SingleOrMultipleQuestion).maxChoices || 1
-                            }
-                            onChange={(e) =>
-                              updateQuestion(
-                                q.id,
-                                (old) =>
-                                  ({
-                                    ...(old as SingleOrMultipleQuestion),
-                                    maxChoices: clamp(
-                                      parseInt(e.target.value || "1", 10),
-                                      1,
-                                      (old as SingleOrMultipleQuestion).options
-                                        .length || 1,
-                                    ),
-                                  }) as AnyFormQuestion,
-                              )
-                            }
-                            className="w-24 px-2 py-1 border rounded"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div>
-                        <label className="block text-sm text-gray-700 mb-1">
-                          Placeholder
-                        </label>
-                        <input
-                          type="text"
-                          value={(q as TextQuestion).placeholder || ""}
-                          onChange={(e) =>
-                            updateQuestion(
-                              q.id,
-                              (old) =>
-                                ({
-                                  ...(old as TextQuestion),
-                                  placeholder: e.target.value,
-                                }) as AnyFormQuestion,
-                            )
-                          }
-                          className="w-full px-3 py-2 border rounded-md"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-700 mb-1">
-                          Longueur max
-                        </label>
-                        <input
-                          type="number"
-                          min={50}
-                          max={1000}
-                          value={(q as TextQuestion).maxLength || 300}
-                          onChange={(e) =>
-                            updateQuestion(
-                              q.id,
-                              (old) =>
-                                ({
-                                  ...(old as TextQuestion),
-                                  maxLength: clamp(
-                                    parseInt(e.target.value || "300", 10),
-                                    50,
-                                    1000,
-                                  ),
-                                }) as AnyFormQuestion,
-                            )
-                          }
-                          className="w-28 px-2 py-1 border rounded"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3 mt-6">
+      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <h2 className="text-xl font-semibold">Nouveau formulaire</h2>
+        <div className="flex flex-wrap gap-2 justify-end">
+          {onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 rounded-md border"
+              className="rounded-md border h-10 px-3 text-sm"
+              title="Annuler la création"
+              aria-label="Annuler la création"
             >
-              Annuler
+              <span className="sm:hidden inline-flex"><Undo2 className="w-4 h-4" /></span>
+              <span className="hidden sm:inline">Annuler</span>
             </button>
+          )}
+          {onSave && (
             <button
               type="button"
-              disabled={!canSave}
               onClick={handleSave}
-              className={`px-4 py-2 rounded-md text-white ${canSave ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-300"}`}
+              className="rounded-md border h-10 px-3 text-sm"
+              title="Enregistrer le brouillon"
+              aria-label="Enregistrer le brouillon"
             >
-              Enregistrer le brouillon
+              <span className="sm:hidden inline-flex"><Save className="w-4 h-4" /></span>
+              <span className="hidden sm:inline">Enregistrer</span>
             </button>
+          )}
+          {onFinalize && (
             <button
               type="button"
-              disabled={!canSave}
               onClick={handleFinalize}
-              className={`px-4 py-2 rounded-md text-white ${canSave ? "bg-emerald-600 hover:bg-emerald-700" : "bg-gray-300"}`}
+              className="rounded-md bg-black text-white h-10 px-3 text-sm"
+              title="Finaliser le formulaire"
+              aria-label="Finaliser le formulaire"
             >
-              Finaliser
+              <span className="sm:hidden inline-flex"><Check className="w-4 h-4" /></span>
+              <span className="hidden sm:inline">Finaliser</span>
             </button>
-          </div>
-        </div>
-
-        {/* Colonne Aperçu */}
-        <div className="bg-white border border-gray-200 rounded-md p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-gray-800">Aperçu</h3>
-            <span className="text-xs text-gray-500">Lecture seule</span>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-lg font-medium text-gray-900">
-                {title?.trim() || "Sans titre"}
-              </h4>
-            </div>
-            {questions.length === 0 && (
-              <p className="text-sm text-gray-500">
-                Ajoutez des questions pour voir l'aperçu.
-              </p>
-            )}
-            {questions.map((q, idx) => (
-              <div key={q.id} className="border rounded p-3">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="text-sm text-gray-900 font-medium">
-                    {idx + 1}. {q.title?.trim() || "Sans intitulé"}
-                  </div>
-                  {q.required && (
-                    <span className="text-xs text-red-600">Obligatoire</span>
-                  )}
-                </div>
-
-                {q.type === "text" && (
-                  <textarea
-                    disabled
-                    placeholder={
-                      (q as TextQuestion).placeholder || "Votre réponse"
-                    }
-                    className="w-full px-3 py-2 border rounded bg-gray-50 text-gray-600"
-                  />
-                )}
-                {q.type === "single" && (
-                  <div className="space-y-2">
-                    {(q as SingleOrMultipleQuestion).options.map((opt) => (
-                      <label
-                        key={opt.id}
-                        className="flex items-center gap-2 text-sm text-gray-700"
-                      >
-                        <input type="radio" disabled name={`q-${q.id}`} />
-                        <span>{opt.label || "Option"}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-                {q.type === "multiple" && (
-                  <div className="space-y-2">
-                    <div className="text-xs text-gray-500 mb-1">
-                      Max {(q as SingleOrMultipleQuestion).maxChoices || 1}{" "}
-                      choix
-                    </div>
-                    {(q as SingleOrMultipleQuestion).options.map((opt) => (
-                      <label
-                        key={opt.id}
-                        className="flex items-center gap-2 text-sm text-gray-700"
-                      >
-                        <input type="checkbox" disabled />
-                        <span>{opt.label || "Option"}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          )}
         </div>
       </div>
+
+      <FormEditor
+        value={{ id: draftId, title, questions: toEditorQuestions(questions) }}
+        onChange={(next) => {
+          setTitle(next.title);
+          setQuestions(fromEditorQuestions(next.questions));
+        }}
+        onCancel={onCancel}
+        onAddQuestion={() => {
+          // default to single choice when adding via editor button
+          setQuestions((prev) => [
+            ...prev,
+            {
+              id: uid(),
+              type: "single",
+              title: "Nouvelle question",
+              required: false,
+              options: defaultOptions(),
+            } as SingleOrMultipleQuestion,
+          ]);
+        }}
+        onSaveDraft={handleSave}
+        onFinalize={handleFinalize}
+      />
     </div>
   );
-}
-
-function labelType(t: FormQuestionType) {
-  switch (t) {
-    case "single":
-      return "Choix unique";
-    case "multiple":
-      return "Choix multiples";
-    case "text":
-      return "Réponse texte";
-    default:
-      return t;
-  }
 }
 
 function clamp(v: number, min: number, max: number) {

@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Smartphone, Sparkles } from "lucide-react";
-import { enableFormPoll } from "@/config/flags";
 
 const TopNav = () => {
   const navigate = useNavigate();
@@ -52,17 +51,7 @@ const TopNav = () => {
             onClick={() => {
               // Nettoyer le localStorage avant de naviguer vers un nouveau sondage
               localStorage.removeItem("doodates-draft");
-              if (enableFormPoll) {
-                const choice = window.prompt(
-                  "Type de sondage ? Tapez 'form' pour Formulaire, sinon appuyez sur Entrée pour Date",
-                  "",
-                );
-                const isForm = (choice || "").trim().toLowerCase() === "form";
-                window.location.href = isForm ? "/create?type=form" : "/create";
-                return;
-              }
-              // Forcer le rechargement pour réinitialiser complètement l'état
-              window.location.href = "/create";
+              navigate("/create");
             }}
             className="flex items-center justify-center gap-1 lg:gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-sm text-sm"
             title="Créer un nouveau sondage"

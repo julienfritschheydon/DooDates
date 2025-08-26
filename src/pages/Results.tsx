@@ -3,7 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { BarChart3, Users, Calendar, ArrowLeft } from "lucide-react";
 import TopNav from "../components/TopNav";
 import PollActions from "@/components/polls/PollActions";
-import { Poll } from "@/lib/pollStorage";
+import { Poll, getPollBySlugOrId, getVoterId } from "@/lib/pollStorage";
+import FormPollResults from "@/components/polls/FormPollResults";
+import ResultsLayout from "@/components/polls/ResultsLayout";
+import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
 
 interface VoteData {
   poll_id: string;
@@ -18,6 +21,13 @@ interface VoteData {
 const Results: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  // Router vers résultats FormPoll si nécessaire
+  if (slug) {
+    const p = getPollBySlugOrId(slug);
+    if (p?.type === "form") {
+      return <FormPollResults idOrSlug={slug} />;
+    }
+  }
   const [poll, setPoll] = useState<Poll | null>(null);
   const [votes, setVotes] = useState<VoteData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,25 +79,29 @@ const Results: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <TopNav />
+        <ResultsLoading label="Chargement des résultats..." />
       </div>
     );
   }
 
   if (!poll) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Sondage non trouvé
-          </h1>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            Retour au dashboard
-          </button>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <TopNav />
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <ResultsEmpty
+            message={<>Sondage introuvable.</>}
+            action={
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Retour au tableau de bord
+              </button>
+            }
+          />
         </div>
       </div>
     );
@@ -122,99 +136,56 @@ const Results: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <TopNav />
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Résultats : {poll.title}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {(() => {
-                const uniqueVoters = new Set(votes.map((v) => v.voter_email))
-                  .size;
-                return uniqueVoters;
-              })()}{" "}
-              participant
-              {(() => {
-                const uniqueVoters = new Set(votes.map((v) => v.voter_email))
-                  .size;
-                return uniqueVoters > 1 ? "s" : "";
-              })()}{" "}
-              • {allDates.length} date{allDates.length > 1 ? "s" : ""}
-            </p>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex flex-wrap items-center gap-2 mb-8">
+      <ResultsLayout
+        title={`Résultats : ${poll.title}`}
+        subtitle={
+          <>
+            {(() => {
+              const uniqueVoters = new Set(votes.map((v) => getVoterId(v))).size;
+              return uniqueVoters;
+            })()} participant{(() => {
+              const uniqueVoters = new Set(votes.map((v) => getVoterId(v))).size;
+              return uniqueVoters > 1 ? "s" : "";
+            })()} • {allDates.length} date{allDates.length > 1 ? "s" : ""}
+          </>
+        }
+        actions={
           <PollActions
             poll={poll}
             showVoteButton
             onAfterDelete={() => navigate("/dashboard")}
           />
-        </div>
-
-        {/* Statistiques globales */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-            <div className="flex items-center gap-3">
-              <Users className="w-8 h-8 text-blue-600" />
-              <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {(() => {
-                    const uniqueVoters = new Set(
-                      votes.map((v) => v.voter_email),
-                    ).size;
-                    return uniqueVoters;
-                  })()}
-                </p>
-                <p className="text-gray-600 dark:text-gray-400">Participants</p>
+        }
+        kpis={[
+          {
+            label: "Participants",
+            value: (
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-blue-600" />
+                <span>{new Set(votes.map((v) => getVoterId(v))).size}</span>
               </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-8 h-8 text-green-600" />
-              <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {allDates.length}
-                </p>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Dates proposées
-                </p>
+            ),
+          },
+          {
+            label: "Dates proposées",
+            value: (
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-green-600" />
+                <span>{allDates.length}</span>
               </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-            <div className="flex items-center gap-3">
-              <BarChart3 className="w-8 h-8 text-purple-600" />
-              <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {(() => {
-                    const uniqueVoters = new Set(
-                      votes.map((v) => v.voter_email),
-                    ).size;
-                    return uniqueVoters;
-                  })()}
-                </p>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Votants uniques
-                </p>
+            ),
+          },
+          {
+            label: "Votants uniques",
+            value: (
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-purple-600" />
+                <span>{new Set(votes.map((v) => getVoterId(v))).size}</span>
               </div>
-            </div>
-          </div>
-        </div>
-
+            ),
+          },
+        ]}
+      >
         {/* Résultats par date */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -223,14 +194,27 @@ const Results: React.FC = () => {
             </h2>
           </div>
           {allDates.length === 0 ? (
-            <div className="p-6 text-sm text-red-700 bg-red-50 dark:bg-red-900/30 dark:text-red-200">
-              Ce sondage n'a aucune date configurée. Veuillez Modifier le
-              sondage pour ajouter des dates.
+            <div className="p-6">
+              <ResultsEmpty
+                message={
+                  <>
+                    Ce sondage n'a aucune date configurée.
+                  </>
+                }
+                action={
+                  <button
+                    onClick={() => navigate("/dashboard")}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Retour au tableau de bord
+                  </button>
+                }
+              />
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full" data-testid="results-table">
-                <thead className="bg-gray-50 dark:bg-gray-700">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Date
@@ -333,13 +317,14 @@ const Results: React.FC = () => {
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {(() => {
-                    const uniqueVoters = Array.from(
-                      new Set(votes.map((v) => v.voter_email)),
-                    )
-                      .map(
-                        (email) => votes.find((v) => v.voter_email === email)!,
-                      )
-                      .sort((a, b) => a.voter_name.localeCompare(b.voter_name));
+                    const byId = new Map<string, typeof votes[number]>();
+                    for (const v of votes) {
+                      const id = getVoterId(v);
+                      if (!byId.has(id)) byId.set(id, v);
+                    }
+                    const uniqueVoters = Array.from(byId.values()).sort((a, b) =>
+                      a.voter_name.localeCompare(b.voter_name),
+                    );
 
                     return uniqueVoters.map((vote, index) => (
                       <tr
@@ -409,7 +394,7 @@ const Results: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
+        </ResultsLayout>
     </div>
   );
 };

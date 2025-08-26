@@ -53,7 +53,11 @@ export const PollActions: React.FC<PollActionsProps> = ({
 
   const handleEdit = () => {
     if (onEdit) return onEdit(poll.id);
-    navigate(`/create?edit=${poll.id}`);
+    if ((poll as any)?.type === "form") {
+      navigate(`/create/form?edit=${poll.id}`);
+    } else {
+      navigate(`/create?edit=${poll.id}`);
+    }
   };
 
   const handleDuplicate = () => {

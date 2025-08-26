@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./TopNav";
 import { enableFormPoll } from "@/config/flags";
-import { Poll as StoragePoll } from "@/lib/pollStorage";
+import { Poll as StoragePoll, getAllPolls, getFormResponses, getRespondentId, getVoterId } from "@/lib/pollStorage";
 import PollActions from "@/components/polls/PollActions";
 
 // Interface pour les sondages du dashboard (basée sur Poll)
@@ -13,13 +13,6 @@ interface DashboardPoll extends StoragePoll {
   participants_count?: number;
 }
 
-// Brouillons Form local (format minimal du spike)
-interface FormDraftItem {
-  id: string;
-  type: "form";
-  title: string;
-  questions: any[];
-}
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -32,24 +25,29 @@ const Dashboard: React.FC = () => {
   // États locaux pour gérer les sondages avec statistiques
   const [polls, setPolls] = useState<DashboardPoll[]>([]);
   const [loading, setLoading] = useState(false);
-  const [formDrafts, setFormDrafts] = useState<FormDraftItem[]>([]);
+  // Les formulaires sont désormais intégrés au stockage unifié via getAllPolls()
 
   const getUserPolls = async () => {
     setLoading(true);
     try {
-      // En mode développement local, récupérer depuis localStorage
-      const localPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+      // En mode développement local, récupérer depuis le stockage unifié
+      const localPolls = getAllPolls();
       const localVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
 
       // Calculer les statistiques pour chaque sondage
       const pollsWithStats = localPolls.map((poll: any) => {
-        const pollVotes = localVotes.filter(
-          (vote: any) => vote.poll_id === poll.id,
-        );
-        const uniqueVoters = new Set(
-          pollVotes.map((vote: any) => vote.voter_email),
-        ).size;
+        if (poll?.type === "form") {
+          const resps = getFormResponses(poll.id);
+          const unique = new Set(resps.map((r) => getRespondentId(r))).size;
+          return {
+            ...poll,
+            participants_count: unique,
+            votes_count: resps.length,
+          };
+        }
 
+        const pollVotes = localVotes.filter((vote: any) => vote.poll_id === poll.id);
+        const uniqueVoters = new Set(pollVotes.map((vote: any) => getVoterId(vote))).size;
         return {
           ...poll,
           participants_count: uniqueVoters,
@@ -67,14 +65,6 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     getUserPolls();
-    // Charger les brouillons formulaire locaux
-    try {
-      const raw = localStorage.getItem("dev-form-polls");
-      const parsed = raw ? (JSON.parse(raw) as FormDraftItem[]) : [];
-      setFormDrafts(Array.isArray(parsed) ? parsed : []);
-    } catch {
-      setFormDrafts([]);
-    }
   }, []);
 
   // Debug: afficher l'état des polls
@@ -159,34 +149,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {enableFormPoll && formDrafts.length > 0 && (
-          <div className="mb-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
-                Brouillons Formulaires
-              </h2>
-              <span className="text-xs text-gray-500">
-                {formDrafts.length} brouillon{formDrafts.length > 1 ? "s" : ""}
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {formDrafts.map((d) => (
-                <button
-                  key={d.id}
-                  onClick={() =>
-                    navigate(
-                      `/create?type=form&draftId=${encodeURIComponent(d.id)}`,
-                    )
-                  }
-                  className="px-3 py-1.5 text-xs rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  title={`${d.title || "Sans titre"} • ${d.questions?.length || 0} question(s)`}
-                >
-                  {d.title?.trim() || "Sans titre"}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Les brouillons formulaires sont migrés et listés comme sondages via getAllPolls() */}
         {/* En-tête avec titre et compteur */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -277,7 +240,7 @@ const Dashboard: React.FC = () => {
                       )}`}
                       data-testid="poll-status"
                     >
-                      {poll.status === "active" ? "Actif" : "Fermé"}
+                      {getStatusLabel(poll.status)}
                     </span>
                   </div>
                 </div>

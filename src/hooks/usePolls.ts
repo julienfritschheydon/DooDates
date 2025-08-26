@@ -33,6 +33,8 @@ export interface Poll {
   expires_at?: string;
   created_at: string;
   updated_at: string;
+  // Type facultatif pour compatibilité avec le stockage unifié local (date | form)
+  type?: "date" | "form";
 }
 
 export interface PollOption {
@@ -147,6 +149,7 @@ export function usePolls() {
             expires_at: pollData.settings.expiresAt || null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+            type: "date",
           };
 
           // Sauvegarder en localStorage pour le développement
