@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import PollCreatorComponent from "@/components/PollCreator";
-import FormPollCreator, { type FormPollDraft } from "@/components/polls/FormPollCreator";
+import FormPollCreator, {
+  type FormPollDraft,
+} from "@/components/polls/FormPollCreator";
 import TopNav from "../components/TopNav";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -14,25 +16,35 @@ const PollCreator = () => {
   const saveFormDraft = (draft: FormPollDraft) => {
     try {
       const key = "dev-form-polls";
-      const raw = typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
-      const arr: FormPollDraft[] = raw ? (JSON.parse(raw) as FormPollDraft[]) : [];
+      const raw =
+        typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
+      const arr: FormPollDraft[] = raw
+        ? (JSON.parse(raw) as FormPollDraft[])
+        : [];
       // Remplacer si même id, sinon pousser
       const idx = arr.findIndex((d) => d.id === draft.id);
-      if (idx >= 0) arr[idx] = draft; else arr.push(draft);
+      if (idx >= 0) arr[idx] = draft;
+      else arr.push(draft);
       if (typeof window !== "undefined") {
         window.localStorage.setItem(key, JSON.stringify(arr));
       }
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.warn("Impossible d'enregistrer le brouillon form dans localStorage", e);
+      console.warn(
+        "Impossible d'enregistrer le brouillon form dans localStorage",
+        e,
+      );
     }
   };
 
   const latestFormDraft: FormPollDraft | undefined = useMemo(() => {
     try {
       const key = "dev-form-polls";
-      const raw = typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
-      const arr: FormPollDraft[] = raw ? (JSON.parse(raw) as FormPollDraft[]) : [];
+      const raw =
+        typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
+      const arr: FormPollDraft[] = raw
+        ? (JSON.parse(raw) as FormPollDraft[])
+        : [];
       if (!Array.isArray(arr) || arr.length === 0) return undefined;
       if (draftIdParam) {
         const found = arr.find((d) => d.id === draftIdParam);

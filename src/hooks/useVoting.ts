@@ -69,7 +69,10 @@ export const useVoting = (pollSlug: string) => {
       setRealPollId(pollData.id);
 
       // Créer les options à partir des settings (invariant: au moins 1 date requise)
-      if (!pollData.settings?.selectedDates || pollData.settings.selectedDates.length === 0) {
+      if (
+        !pollData.settings?.selectedDates ||
+        pollData.settings.selectedDates.length === 0
+      ) {
         throw new Error("Ce sondage n'a pas de dates configurées");
       }
 
@@ -90,9 +93,7 @@ export const useVoting = (pollSlug: string) => {
       initializeDefaultVotes(mockOptions);
 
       // Charger les votes existants depuis localStorage (mode dev)
-      const localVotes = JSON.parse(
-        localStorage.getItem("dev-votes") || "[]",
-      );
+      const localVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
       const pollVotes = localVotes.filter(
         (v: any) => v.poll_id === pollData.id,
       );

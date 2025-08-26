@@ -42,7 +42,10 @@ const Results: React.FC = () => {
         if (vote.poll_id !== foundPoll.id) return false;
 
         // Filtrer les votes pour ne garder que les dates du sondage
-        if (foundPoll.settings?.selectedDates && foundPoll.settings.selectedDates.length > 0) {
+        if (
+          foundPoll.settings?.selectedDates &&
+          foundPoll.settings.selectedDates.length > 0
+        ) {
           const filteredVoteData: Record<string, "yes" | "no" | "maybe"> = {};
           Object.keys(vote.vote_data).forEach((optionId) => {
             // Extraire la date de l'option ID ou utiliser une logique de mapping
@@ -221,79 +224,80 @@ const Results: React.FC = () => {
           </div>
           {allDates.length === 0 ? (
             <div className="p-6 text-sm text-red-700 bg-red-50 dark:bg-red-900/30 dark:text-red-200">
-              Ce sondage n'a aucune date configurée. Veuillez Modifier le sondage pour ajouter des dates.
+              Ce sondage n'a aucune date configurée. Veuillez Modifier le
+              sondage pour ajouter des dates.
             </div>
           ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full" data-testid="results-table">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Oui
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Peut-être
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Non
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Total
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {allDates.map((date) => {
-                  const stats = getVoteStats(date);
-                  const maxVotes = Math.max(stats.yes, stats.maybe, stats.no);
+            <div className="overflow-x-auto">
+              <table className="w-full" data-testid="results-table">
+                <thead className="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Oui
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Peut-être
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Non
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {allDates.map((date) => {
+                    const stats = getVoteStats(date);
+                    const maxVotes = Math.max(stats.yes, stats.maybe, stats.no);
 
-                  return (
-                    <tr
-                      key={date}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {new Date(date).toLocaleDateString("fr-FR", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-3 h-3 rounded-full ${stats.yes === maxVotes && stats.yes > 0 ? "bg-green-500" : "bg-green-300"}`}
-                          ></div>
-                          {stats.yes}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-3 h-3 rounded-full ${stats.maybe === maxVotes && stats.maybe > 0 ? "bg-yellow-500" : "bg-yellow-300"}`}
-                          ></div>
-                          {stats.maybe}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-red-300"></div>
-                          {stats.no}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {stats.total}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                    return (
+                      <tr
+                        key={date}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                          {new Date(date).toLocaleDateString("fr-FR", {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-3 h-3 rounded-full ${stats.yes === maxVotes && stats.yes > 0 ? "bg-green-500" : "bg-green-300"}`}
+                            ></div>
+                            {stats.yes}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-3 h-3 rounded-full ${stats.maybe === maxVotes && stats.maybe > 0 ? "bg-yellow-500" : "bg-yellow-300"}`}
+                            ></div>
+                            {stats.maybe}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-red-300"></div>
+                            {stats.no}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          {stats.total}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
@@ -363,8 +367,11 @@ const Results: React.FC = () => {
                           // Mapper la date vers l'optionId correspondant (option-<index>) via selectedDates
                           const dates = poll?.settings?.selectedDates || [];
                           const dateIndex = dates.indexOf(date);
-                          const optionId = dateIndex >= 0 ? `option-${dateIndex}` : undefined;
-                          const voteValue = optionId ? vote.vote_data[optionId] : undefined;
+                          const optionId =
+                            dateIndex >= 0 ? `option-${dateIndex}` : undefined;
+                          const voteValue = optionId
+                            ? vote.vote_data[optionId]
+                            : undefined;
                           return (
                             <td
                               key={date}

@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Calendar,
-  Plus,
-  Users,
-  BarChart3,
-  Search,
-  Vote,
-} from "lucide-react";
+import { Calendar, Plus, Users, BarChart3, Search, Vote } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./TopNav";
@@ -172,13 +165,19 @@ const Dashboard: React.FC = () => {
               <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
                 Brouillons Formulaires
               </h2>
-              <span className="text-xs text-gray-500">{formDrafts.length} brouillon{formDrafts.length > 1 ? "s" : ""}</span>
+              <span className="text-xs text-gray-500">
+                {formDrafts.length} brouillon{formDrafts.length > 1 ? "s" : ""}
+              </span>
             </div>
             <div className="flex flex-wrap gap-2">
               {formDrafts.map((d) => (
                 <button
                   key={d.id}
-                  onClick={() => navigate(`/create?type=form&draftId=${encodeURIComponent(d.id)}`)}
+                  onClick={() =>
+                    navigate(
+                      `/create?type=form&draftId=${encodeURIComponent(d.id)}`,
+                    )
+                  }
                   className="px-3 py-1.5 text-xs rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                   title={`${d.title || "Sans titre"} • ${d.questions?.length || 0} question(s)`}
                 >
@@ -355,7 +354,8 @@ const Dashboard: React.FC = () => {
                       "Type de sondage ? Tapez 'form' pour Formulaire, sinon appuyez sur Entrée pour Date",
                       "",
                     );
-                    const isForm = (choice || "").trim().toLowerCase() === "form";
+                    const isForm =
+                      (choice || "").trim().toLowerCase() === "form";
                     navigate(isForm ? "/create?type=form" : "/create");
                   } else {
                     navigate("/create");

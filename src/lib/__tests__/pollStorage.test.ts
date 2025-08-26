@@ -19,10 +19,9 @@ const makePoll = (overrides: Partial<Poll> = {}): Poll => ({
   description: overrides.description,
   status: overrides.status ?? "active",
   // Ensure minimal valid settings for validation
-  settings:
-    overrides.settings ?? {
-      selectedDates: ["2025-08-26"],
-    },
+  settings: overrides.settings ?? {
+    selectedDates: ["2025-08-26"],
+  },
   updated_at: overrides.updated_at,
 });
 
@@ -32,7 +31,8 @@ function installLocalStorage(preset: Record<string, string> = {}) {
   Object.defineProperty(window, "localStorage", {
     value: {
       getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
-      setItem: (key: string, value: string) => void store.set(key, String(value)),
+      setItem: (key: string, value: string) =>
+        void store.set(key, String(value)),
       removeItem: (key: string) => void store.delete(key),
       clear: () => void store.clear(),
     },
@@ -104,7 +104,10 @@ describe("pollStorage", () => {
     Object.assign(navigator, { clipboard: undefined as any });
 
     const exec = vi.fn();
-    Object.defineProperty(document, "execCommand", { value: exec, configurable: true });
+    Object.defineProperty(document, "execCommand", {
+      value: exec,
+      configurable: true,
+    });
 
     await expect(copyToClipboard("world")).resolves.toBeUndefined();
 
