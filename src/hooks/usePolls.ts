@@ -79,7 +79,18 @@ export function usePolls() {
       setError(null);
 
       try {
+        // Validation stricte: au moins une date doit être sélectionnée
+        if (!Array.isArray(pollData.selectedDates) || pollData.selectedDates.length === 0) {
+          throw new Error("Sélectionnez au moins une date pour créer le sondage.");
+        }
+
         const slug = generateSlug(pollData.title);
+        // Toujours embarquer les dates et créneaux dans settings pour cohérence UI
+        const mergedSettings = {
+          ...pollData.settings,
+          selectedDates: pollData.selectedDates,
+          timeSlotsByDate: pollData.timeSlotsByDate,
+        } as any;
         const adminToken = user ? null : generateAdminToken(); // Token admin seulement pour sondages anonymes
 
         console.log("Création sondage:", {
@@ -126,7 +137,7 @@ export function usePolls() {
             title: pollData.title,
             description: pollData.description || null,
             slug,
-            settings: pollData.settings,
+            settings: mergedSettings,
             status: "active",
             expires_at: pollData.settings.expiresAt || null,
             created_at: new Date().toISOString(),
@@ -154,7 +165,7 @@ export function usePolls() {
           description: pollData.description || null,
           slug: slug,
           admin_token: adminToken, // Token pour gérer les sondages anonymes
-          settings: pollData.settings,
+          settings: mergedSettings,
           status: "active" as const,
           expires_at: pollData.settings.expiresAt || null,
         };
@@ -287,174 +298,160 @@ export function usePolls() {
         // 2. Créer les options de dates
         console.log(" Étape 2: Création des options de dates...");
 
-        if (pollData.selectedDates.length === 0) {
+        const pollOptions = pollData.selectedDates.map((date, index) => {
+          const timeSlots = pollData.timeSlotsByDate[date] || [];
+
+          // Transformer les créneaux au format attendu par la DB
+          const formattedTimeSlots = timeSlots
+            .filter((slot) => slot.enabled)
+            .map((slot, slotIndex) => {
+              // Calculer l'heure de fin correctement
+              const totalMinutes =
+                slot.hour * 60 + slot.minute + pollData.settings.timeGranularity;
+              const endHour = Math.floor(totalMinutes / 60);
+              const endMinute = totalMinutes % 60;
+
+              return {
+                id: `slot-${slotIndex + 1}`,
+                start_hour: slot.hour,
+                start_minute: slot.minute,
+                end_hour: endHour,
+                end_minute: endMinute,
+                label: `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")} - ${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}`,
+              };
+            });
+
+          return {
+            poll_id: poll.id,
+            option_date: date,
+            time_slots: formattedTimeSlots,
+            display_order: index,
+          };
+        });
+
+        console.log(" Options à créer:", pollOptions);
+
+        // Utiliser fetch() direct pour les options (comme pour le sondage principal)
+        try {
+          console.log(" Début insertion des options...");
           console.log(
-            " Aucune date sélectionnée, sondage sans options prédéfinies",
+            " Détail des options à insérer:",
+            JSON.stringify(pollOptions, null, 2),
           );
-        } else {
-          const pollOptions = pollData.selectedDates.map((date, index) => {
-            const timeSlots = pollData.timeSlotsByDate[date] || [];
 
-            // Transformer les créneaux au format attendu par la DB
-            const formattedTimeSlots = timeSlots
-              .filter((slot) => slot.enabled)
-              .map((slot, slotIndex) => {
-                // Calculer l'heure de fin correctement
-                const totalMinutes =
-                  slot.hour * 60 +
-                  slot.minute +
-                  pollData.settings.timeGranularity;
-                const endHour = Math.floor(totalMinutes / 60);
-                const endMinute = totalMinutes % 60;
+          // Pour les sondages anonymes, pas besoin de token JWT
+          if (!user) {
+            console.log(" Création sondage anonyme - pas de token requis");
 
-                return {
-                  id: `slot-${slotIndex + 1}`,
-                  start_hour: slot.hour,
-                  start_minute: slot.minute,
-                  end_hour: endHour,
-                  end_minute: endMinute,
-                  label: `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")} - ${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}`,
-                };
-              });
+            // Utiliser la clé API publique pour les sondages anonymes
+            const optionsResponse = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/poll_options`,
+              {
+                method: "POST",
+                headers: {
+                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                  "Content-Type": "application/json",
+                  Prefer: "return=representation",
+                },
+                body: JSON.stringify(pollOptions),
+              },
+            );
 
-            return {
-              poll_id: poll.id,
-              option_date: date,
-              time_slots: formattedTimeSlots,
-              display_order: index,
-            };
-          });
-
-          console.log(" Options à créer:", pollOptions);
-
-          // Utiliser fetch() direct pour les options (comme pour le sondage principal)
-          try {
-            console.log(" Début insertion des options...");
             console.log(
-              " Détail des options à insérer:",
-              JSON.stringify(pollOptions, null, 2),
+              " Réponse insertion options:",
+              optionsResponse.status,
+              optionsResponse.statusText,
             );
 
-            // Pour les sondages anonymes, pas besoin de token JWT
-            if (!user) {
-              console.log(" Création sondage anonyme - pas de token requis");
-
-              // Utiliser la clé API publique pour les sondages anonymes
-              const optionsResponse = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/poll_options`,
-                {
-                  method: "POST",
-                  headers: {
-                    apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                    "Content-Type": "application/json",
-                    Prefer: "return=representation",
-                  },
-                  body: JSON.stringify(pollOptions),
-                },
-              );
-
-              console.log(
-                " Réponse insertion options:",
+            if (!optionsResponse.ok) {
+              const errorText = await optionsResponse.text();
+              console.error(
+                " Erreur HTTP options:",
                 optionsResponse.status,
-                optionsResponse.statusText,
+                errorText,
               );
-
-              if (!optionsResponse.ok) {
-                const errorText = await optionsResponse.text();
-                console.error(
-                  " Erreur HTTP options:",
-                  optionsResponse.status,
-                  errorText,
-                );
-                throw new Error(
-                  `Erreur HTTP ${optionsResponse.status}: ${errorText}`,
-                );
-              }
-
-              const optionsData = await optionsResponse.json();
-              console.log(" Options créées avec succès:", optionsData);
-            } else {
-              // Pour les utilisateurs connectés, récupérer le token JWT
-              let token = null;
-              const supabaseSession = localStorage.getItem(
-                "supabase.auth.token",
-              );
-              if (supabaseSession) {
-                const sessionData = JSON.parse(supabaseSession);
-                token =
-                  sessionData?.access_token ||
-                  sessionData?.currentSession?.access_token;
-              }
-
-              if (!token) {
-                const authData = localStorage.getItem(
-                  `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
-                );
-                if (authData) {
-                  const parsed = JSON.parse(authData);
-                  token = parsed?.access_token;
-                }
-              }
-
-              if (!token) {
-                throw new Error(
-                  "Token d'authentification non trouvé pour utilisateur connecté",
-                );
-              }
-
-              // Faire l'insertion avec token d'authentification
-              const optionsResponse = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/poll_options`,
-                {
-                  method: "POST",
-                  headers: {
-                    apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                    Prefer: "return=representation",
-                  },
-                  body: JSON.stringify(pollOptions),
-                },
-              );
-
-              console.log(
-                " Réponse insertion options:",
-                optionsResponse.status,
-                optionsResponse.statusText,
-              );
-
-              if (!optionsResponse.ok) {
-                const errorText = await optionsResponse.text();
-                console.error(
-                  " Erreur HTTP options:",
-                  optionsResponse.status,
-                  errorText,
-                );
-                throw new Error(
-                  `Erreur HTTP ${optionsResponse.status}: ${errorText}`,
-                );
-              }
-
-              const optionsData = await optionsResponse.json();
-              console.log(" Options créées avec succès:", optionsData);
+              throw new Error(`Erreur HTTP ${optionsResponse.status}: ${errorText}`);
             }
-          } catch (optionsError) {
-            console.error(
-              " Exception lors de la création des options:",
-              optionsError,
+
+            const optionsData = await optionsResponse.json();
+            console.log(" Options créées avec succès:", optionsData);
+          } else {
+            // Pour les utilisateurs connectés, récupérer le token JWT
+            let token = null;
+            const supabaseSession = localStorage.getItem("supabase.auth.token");
+            if (supabaseSession) {
+              const sessionData = JSON.parse(supabaseSession);
+              token =
+                sessionData?.access_token ||
+                sessionData?.currentSession?.access_token;
+            }
+
+            if (!token) {
+              const authData = localStorage.getItem(
+                `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
+              );
+              if (authData) {
+                const parsed = JSON.parse(authData);
+                token = parsed?.access_token;
+              }
+            }
+
+            if (!token) {
+              throw new Error(
+                "Token d'authentification non trouvé pour utilisateur connecté",
+              );
+            }
+
+            // Faire l'insertion avec token d'authentification
+            const optionsResponse = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/poll_options`,
+              {
+                method: "POST",
+                headers: {
+                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                  Prefer: "return=representation",
+                },
+                body: JSON.stringify(pollOptions),
+              },
             );
-            console.error(" Stack trace:", optionsError?.stack);
 
-            // Nettoyer le sondage créé en cas d'erreur
-            console.log(" Nettoyage du sondage suite à l'erreur...");
-            try {
-              await supabase.from("polls").delete().eq("id", poll.id);
-            } catch (cleanupError) {
-              console.error("Erreur nettoyage:", cleanupError);
+            console.log(
+              " Réponse insertion options:",
+              optionsResponse.status,
+              optionsResponse.statusText,
+            );
+
+            if (!optionsResponse.ok) {
+              const errorText = await optionsResponse.text();
+              console.error(
+                " Erreur HTTP options:",
+                optionsResponse.status,
+                errorText,
+              );
+              throw new Error(`Erreur HTTP ${optionsResponse.status}: ${errorText}`);
             }
 
-            throw optionsError;
+            const optionsData = await optionsResponse.json();
+            console.log(" Options créées avec succès:", optionsData);
           }
+        } catch (optionsError) {
+          console.error(
+            " Exception lors de la création des options:",
+            optionsError,
+          );
+          console.error(" Stack trace:", optionsError?.stack);
+
+          // Nettoyer le sondage créé en cas d'erreur
+          console.log(" Nettoyage du sondage suite à l'erreur...");
+          try {
+            await supabase.from("polls").delete().eq("id", poll.id);
+          } catch (cleanupError) {
+            console.error("Erreur nettoyage:", cleanupError);
+          }
+
+          throw optionsError;
         }
 
         // 3. Envoyer les emails aux participants si demandé

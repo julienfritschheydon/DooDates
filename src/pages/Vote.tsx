@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { VotingInterface } from "@/components/voting/VotingInterface";
 import TopNav from "../components/TopNav";
+import React from "react";
 
 const Vote = () => {
   const { pollId, pollSlug, adminToken, slug } = useParams<{
@@ -41,7 +42,7 @@ const Vote = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <TopNav />
-      {/* VotingInterface maintenant gère l'affichage du message admin en interne */}
+      {/* VotingInterface gère l'affichage pour admin en interne */}
       <VotingInterface
         pollId={actualPollId}
         onBack={() => navigate("/")}

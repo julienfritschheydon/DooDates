@@ -311,6 +311,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
           <button
             className="w-full py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-blue-500 to-purple-600 text-white"
             onClick={() => setShowForm(true)}
+            data-testid="open-voter-form"
           >
             {remainingVotes > 0 && userTotalVotes > 0
               ? `Envoyer mes votes (${userTotalVotes}/${options.length})`

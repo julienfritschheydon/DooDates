@@ -23,6 +23,7 @@ import { UserMenu } from "./UserMenu";
 import { type PollSuggestion } from "../lib/gemini";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { VoteGrid } from "@/components/voting/VoteGrid";
 
 interface TimeSlot {
   hour: number;
@@ -1144,8 +1145,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   const canFinalize = () => {
     const noEmailErrors = state.emailErrors.length === 0;
-    // Permettre la création de sondages vides (avec juste un titre)
-    return noEmailErrors;
+    const hasAtLeastOneDate = state.selectedDates.length > 0;
+    return noEmailErrors && hasAtLeastOneDate;
   };
 
   const handleFinalize = async () => {
@@ -1156,6 +1157,15 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       timeGranularity: state.timeGranularity,
       notificationsEnabled: state.notificationsEnabled,
     });
+    // Bloquer si aucune date n'est sélectionnée
+    if (state.selectedDates.length === 0) {
+      toast({
+        title: "Sélectionnez au moins une date",
+        description: "Ajoutez une date pour créer le sondage.",
+        variant: "destructive",
+      });
+      return;
+    }
     // Calculer la date d'expiration (aujourd'hui + expirationDays)
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + state.expirationDays);
@@ -1932,6 +1942,60 @@ const PollCreator: React.FC<PollCreatorProps> = ({
               </div>
             )}
 
+            {/* Aperçu en direct du sondage (lecture seule) */}
+            {state.selectedDates.length > 0 && (
+              <div className="mt-8">
+                <div className="bg-white border rounded-2xl shadow-sm">
+                  <div className="px-4 py-3 border-b bg-gray-50 rounded-t-2xl">
+                    <h3 className="text-sm font-semibold text-gray-800">
+                      Aperçu (lecture seule)
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      Cet aperçu utilise l'interface de vote, mais les interactions sont désactivées.
+                    </p>
+                  </div>
+                  <div className="p-4 pointer-events-none select-none">
+                    {(() => {
+                      // Construire les options à partir des dates sélectionnées et créneaux activés
+                      const previewOptions = state.selectedDates.map((dateStr, idx) => ({
+                        id: `opt-${idx}`,
+                        poll_id: "preview",
+                        option_date: dateStr,
+                        time_slots:
+                          (timeSlotsByDate[dateStr] || [])
+                            .filter((s) => s.enabled)
+                            .map((s) => ({ hour: s.hour, minute: s.minute })),
+                        display_order: idx,
+                      }));
+
+                      const emptyVotes: Array<{
+                        id: string;
+                        poll_id: string;
+                        voter_email: string;
+                        voter_name: string;
+                        selections: Record<string, "yes" | "no" | "maybe">;
+                        created_at: string;
+                      }> = [];
+
+                      const currentVote: Record<string, "yes" | "no" | "maybe"> = {};
+                      const userHasVoted: Record<string, boolean> = {};
+
+                      return (
+                        <VoteGrid
+                          options={previewOptions}
+                          votes={emptyVotes}
+                          currentVote={currentVote}
+                          userHasVoted={userHasVoted}
+                          onVoteChange={() => { /* lecture seule */ }}
+                          onHaptic={() => { /* désactivé */ }}
+                        />
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Bouton Partager - Toujours visible */}
             <div className="mt-8">
               <button
@@ -2210,16 +2274,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             <span>Corrigez les emails invalides</span>
                           </li>
                         )}
-                        {state.selectedDates.length === 0 &&
-                          state.emailErrors.length === 0 && (
-                            <li className="flex items-center gap-2">
-                              <span className="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0"></span>
-                              <span>
-                                Vous pouvez créer un sondage vide (les
-                                participants pourront proposer des dates)
-                              </span>
-                            </li>
-                          )}
+                        {state.selectedDates.length === 0 && (
+                          <li className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0"></span>
+                            <span>Sélectionnez au moins une date</span>
+                          </li>
+                        )}
                       </ul>
                     </div>
                   )}

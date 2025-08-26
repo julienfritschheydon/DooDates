@@ -68,46 +68,20 @@ export const useVoting = (pollSlug: string) => {
       setPoll(pollData);
       setRealPollId(pollData.id);
 
-      // Créer des options basiques à partir des settings
-      let mockOptions: PollOption[] = [];
-
-      if (
-        pollData.settings?.selectedDates &&
-        pollData.settings.selectedDates.length > 0
-      ) {
-        mockOptions = pollData.settings.selectedDates.map(
-          (date: string, index: number) => ({
-            id: `option-${index}`,
-            poll_id: pollData.id,
-            option_date: date,
-            time_slots: pollData.settings?.timeSlotsByDate?.[date] || null,
-            display_order: index,
-          }),
-        );
-      } else {
-        // Fallback: créer des options par défaut si aucune date n'est trouvée
-        console.warn(
-          "🚧 Aucune date trouvée dans settings, création d'options par défaut",
-        );
-        mockOptions = [
-          {
-            id: `option-0`,
-            poll_id: pollData.id,
-            option_date: new Date().toISOString().split("T")[0],
-            time_slots: null,
-            display_order: 0,
-          },
-          {
-            id: `option-1`,
-            poll_id: pollData.id,
-            option_date: new Date(Date.now() + 24 * 60 * 60 * 1000)
-              .toISOString()
-              .split("T")[0],
-            time_slots: null,
-            display_order: 1,
-          },
-        ];
+      // Créer les options à partir des settings (invariant: au moins 1 date requise)
+      if (!pollData.settings?.selectedDates || pollData.settings.selectedDates.length === 0) {
+        throw new Error("Ce sondage n'a pas de dates configurées");
       }
+
+      const mockOptions: PollOption[] = pollData.settings.selectedDates.map(
+        (date: string, index: number) => ({
+          id: `option-${index}`,
+          poll_id: pollData.id,
+          option_date: date,
+          time_slots: pollData.settings?.timeSlotsByDate?.[date] || null,
+          display_order: index,
+        }),
+      );
 
       console.log("🔍 useVoting: Options créées:", mockOptions);
       setOptions(mockOptions);
@@ -115,8 +89,22 @@ export const useVoting = (pollSlug: string) => {
       // Initialiser les votes par défaut
       initializeDefaultVotes(mockOptions);
 
-      // Pour le mode développement, pas de votes existants
-      setVotes([]);
+      // Charger les votes existants depuis localStorage (mode dev)
+      const localVotes = JSON.parse(
+        localStorage.getItem("dev-votes") || "[]",
+      );
+      const pollVotes = localVotes.filter(
+        (v: any) => v.poll_id === pollData.id,
+      );
+      const mappedVotes = pollVotes.map((v: any) => ({
+        id: v.id,
+        poll_id: v.poll_id,
+        voter_email: v.voter_email,
+        voter_name: v.voter_name,
+        selections: v.vote_data || {},
+        created_at: v.created_at,
+      }));
+      setVotes(mappedVotes);
     } catch (err: any) {
       console.error("Erreur lors du chargement du sondage:", err);
       setError(err.message || "Erreur lors du chargement du sondage");
@@ -291,6 +279,20 @@ export const useVoting = (pollSlug: string) => {
 
       // Sauvegarder dans localStorage
       localStorage.setItem("dev-votes", JSON.stringify(existingVotes));
+
+      // Recharger l'état votes depuis localStorage pour mettre à jour l'UI
+      const updatedPollVotes = existingVotes.filter(
+        (v: any) => v.poll_id === realPollId,
+      );
+      const updatedMapped = updatedPollVotes.map((v: any) => ({
+        id: v.id,
+        poll_id: v.poll_id,
+        voter_email: v.voter_email,
+        voter_name: v.voter_name,
+        selections: v.vote_data || {},
+        created_at: v.created_at,
+      }));
+      setVotes(updatedMapped);
 
       // Réinitialiser après succès
       setCurrentVote({});
