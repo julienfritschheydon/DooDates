@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { attachConsoleGuard, robustClick, waitForCopySuccess } from './utils';
+import { attachConsoleGuard, robustClick, waitForCopySuccess, warmup } from './utils';
 
 // Helper: navigate month carousel until a given date is visible (used on mobile views)
 async function openMonthContaining(page: Page, dateStr: string) {
@@ -36,6 +36,7 @@ test.describe('Mobile Voting UX', () => {
     });
     try {
       test.slow();
+      await warmup(page);
       await page.goto('/');
       await expect(page).toHaveTitle(/DooDates/);
 
@@ -194,9 +195,7 @@ test.describe('Mobile Voting UX', () => {
     });
     try {
       test.slow();
-      // Warmup Vite dev server to avoid transient dynamic import errors on first render
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
-      await page.reload({ waitUntil: 'domcontentloaded' });
+      await warmup(page);
       await page.goto('/create');
       await robustClick(page.getByRole('link', { name: /Sondage Formulaire.*Commencer/i }));
       await expect(page).toHaveURL(/\/create\/form/);
