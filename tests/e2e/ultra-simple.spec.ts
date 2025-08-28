@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { attachConsoleGuard, robustClick, waitForCopySuccess } from './utils';
+import { attachConsoleGuard, robustClick, waitForCopySuccess, warmup } from './utils';
 
 // Simple scoped logger to align console outputs
 function mkLogger(scope: string) {
@@ -11,11 +11,6 @@ test.describe('DooDates - Test Ultra Simple', () => {
   // Orchestration: exécuter en série pour éviter toute flakiness liée au partage d'état (étape D)
   test.describe.configure({ mode: 'serial' });
   
-  // Warmup helper: prime Vite/route chunks to avoid transient dynamic import errors
-  async function warmup(page: Page) {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await page.reload({ waitUntil: 'domcontentloaded' });
-  }
   
   // Helper: naviguer vers le mois suivant sur mobile jusqu'à rendre visible une date précise
   async function openMonthContaining(page: Page, dateStr: string) {

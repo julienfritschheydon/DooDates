@@ -153,3 +153,9 @@ export async function assertToast(page: Page, text: string, timeoutMs: number = 
   }
   await expect(page.getByText(text, { exact: false })).toBeVisible();
 }
+
+// Warmup helper: prime Vite/route chunks to avoid transient dynamic import errors on first render
+export async function warmup(page: Page) {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+}

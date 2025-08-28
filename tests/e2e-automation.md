@@ -1,5 +1,31 @@
 # 🤖 Automatisation Tests E2E DooDates
 
+## E2E conventions (Playwright)
+
+- **Warmup**: utilisez le helper partagé `warmup(page)` pour amorcer Vite/les routes et réduire les erreurs transitoires d'import dynamique. Source: `tests/e2e/utils.ts` (lien: https://github.com/julienfritschheydon/DooDates/blob/main/tests/e2e/utils.ts)
+- **Garde console**: encapsulez chaque test avec la garde `attachConsoleGuard` et vérification en `finally`.
+
+Exemple minimal:
+
+```ts
+import { test, expect } from '@playwright/test';
+import { warmup, attachConsoleGuard } from './utils'; // chemin réel dans tests/e2e
+
+test('Example with warmup + console guard', async ({ page }) => {
+  const guard = attachConsoleGuard(page, {
+    allowlist: [/Importing a module script failed\./i, /error loading dynamically imported module/i],
+  });
+  try {
+    await warmup(page); // prime dev server + routes
+    await page.goto('/');
+    await expect(page).toHaveTitle(/DooDates/);
+  } finally {
+    await guard.assertClean();
+    guard.stop();
+  }
+});
+```
+
 ## **Option 1 : Tests Playwright (Recommandé)**
 
 ### Installation

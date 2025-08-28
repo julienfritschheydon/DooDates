@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { attachConsoleGuard, robustClick, seedLocalStorage, waitForCopySuccess } from './utils';
+import { attachConsoleGuard, robustClick, seedLocalStorage, waitForCopySuccess, warmup } from './utils';
 
 function makePoll(overrides: Partial<any> = {}) {
   return {
@@ -13,12 +13,6 @@ function makePoll(overrides: Partial<any> = {}) {
     settings: overrides.settings,
     updated_at: overrides.updated_at,
   };
-}
-
-// Warmup helper to prime Vite/route chunks and reduce transient dynamic import errors
-async function warmup(page: Page) {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await page.reload({ waitUntil: 'domcontentloaded' });
 }
 
 async function openDashboard(page: Page) {
