@@ -1,5 +1,6 @@
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const IS_LOCAL_MODE = !SUPABASE_URL || !SUPABASE_ANON_KEY;
 
 const headers = {
   apikey: SUPABASE_ANON_KEY,
@@ -54,7 +55,37 @@ const handleResponse = async (response: Response) => {
 };
 
 // API pour les sondages
-export const pollsApi = {
+export const pollsApi = IS_LOCAL_MODE
+  ? {
+      async getBySlug(slug: string): Promise<Poll | null> {
+        const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+        return polls.find((p: Poll) => p.slug === slug) || null;
+      },
+      async create(poll: Omit<Poll, "id" | "created_at" | "updated_at">): Promise<Poll> {
+        const now = new Date().toISOString();
+        const newPoll: Poll = {
+          ...poll,
+          id: `local-${Date.now()}`,
+          created_at: now,
+          updated_at: now,
+        } as Poll;
+        const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+        polls.push(newPoll);
+        localStorage.setItem("dev-polls", JSON.stringify(polls));
+        return newPoll;
+      },
+      async update(id: string, updates: Partial<Poll>): Promise<Poll> {
+        const polls: Poll[] = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+        const idx = polls.findIndex((p) => p.id === id);
+        if (idx >= 0) {
+          polls[idx] = { ...polls[idx], ...updates, updated_at: new Date().toISOString() } as Poll;
+          localStorage.setItem("dev-polls", JSON.stringify(polls));
+          return polls[idx];
+        }
+        throw new Error("Poll not found");
+      },
+    }
+  : {
   // Récupérer un sondage par slug
   async getBySlug(slug: string): Promise<Poll | null> {
     const response = await fetch(
@@ -94,7 +125,29 @@ export const pollsApi = {
 };
 
 // API pour les options de sondage
-export const pollOptionsApi = {
+export const pollOptionsApi = IS_LOCAL_MODE
+  ? {
+      async getByPollId(pollId: string): Promise<PollOption[]> {
+        const polls: any[] = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+        const poll = polls.find((p) => p.id === pollId);
+        if (!poll) return [];
+        const dates: string[] = poll.settings?.selectedDates || [];
+        const map: Record<string, any[]> = poll.settings?.timeSlotsByDate || {};
+        return dates.map((d, i) => ({
+          id: `option-${i}`,
+          poll_id: pollId,
+          option_date: d,
+          time_slots: map[d] || null,
+          display_order: i,
+          created_at: poll.created_at,
+        }));
+      },
+      async createMany(options: Omit<PollOption, "id">[]): Promise<PollOption[]> {
+        // No-op in local mode: options are derived from settings
+        return options.map((o, i) => ({ ...o, id: `option-${i}`, created_at: new Date().toISOString() } as PollOption));
+      },
+    }
+  : {
   // Récupérer les options d'un sondage
   async getByPollId(pollId: string): Promise<PollOption[]> {
     const response = await fetch(
@@ -118,7 +171,31 @@ export const pollOptionsApi = {
 };
 
 // API pour les votes
-export const votesApi = {
+export const votesApi = IS_LOCAL_MODE
+  ? {
+      async getByPollId(pollId: string): Promise<Vote[]> {
+        const votes: Vote[] = JSON.parse(localStorage.getItem("dev-votes") || "[]");
+        return votes.filter((v) => v.poll_id === pollId);
+      },
+      async create(vote: Omit<Vote, "id" | "created_at">): Promise<Vote> {
+        const newVote: Vote = { ...(vote as any), id: `vote-${Date.now()}`, created_at: new Date().toISOString() } as Vote;
+        const votes: Vote[] = JSON.parse(localStorage.getItem("dev-votes") || "[]");
+        votes.push(newVote);
+        localStorage.setItem("dev-votes", JSON.stringify(votes));
+        return newVote;
+      },
+      async update(id: string, updates: Partial<Vote>): Promise<Vote> {
+        const votes: Vote[] = JSON.parse(localStorage.getItem("dev-votes") || "[]");
+        const idx = votes.findIndex((v) => v.id === id);
+        if (idx >= 0) {
+          votes[idx] = { ...votes[idx], ...updates } as Vote;
+          localStorage.setItem("dev-votes", JSON.stringify(votes));
+          return votes[idx];
+        }
+        throw new Error("Vote not found");
+      },
+    }
+  : {
   // Récupérer les votes d'un sondage
   async getByPollId(pollId: string): Promise<Vote[]> {
     const response = await fetch(

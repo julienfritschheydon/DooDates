@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { SignInInput, SignUpInput } from "../lib/schemas";
+import { isLocalDevelopment } from "../lib/supabase";
 
 // Variables d'environnement pour validation
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -61,6 +62,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Récupération du profil utilisateur
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
+    if (isLocalDevelopment) {
+      // En mode local/mock, ne pas appeler Supabase
+      return null;
+    }
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -84,6 +89,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) {
       return { error: { message: "Utilisateur non connecté" } };
+    }
+
+    if (isLocalDevelopment) {
+      // No-op en mode local/mock
+      return { error: null };
     }
 
     try {
@@ -238,7 +248,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setSession(session);
         setUser(session?.user ?? null);
 
-        if (session?.user) {
+        if (session?.user && !isLocalDevelopment) {
           const profileData = await fetchProfile(session.user.id);
           setProfile(profileData);
         }
@@ -259,7 +269,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(session?.user ?? null);
       setError(null);
 
-      if (session?.user) {
+      if (session?.user && !isLocalDevelopment) {
         // Récupérer le profil pour les nouveaux utilisateurs
         const profileData = await fetchProfile(session.user.id);
         setProfile(profileData);
@@ -270,7 +280,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(false);
 
       // Analytics pour les événements d'auth
-      if (event === "SIGNED_IN") {
+      if (event === "SIGNED_IN" && !isLocalDevelopment) {
         // Tracker la connexion
         supabase.from("analytics_events").insert({
           event_type: "user_signed_in",
@@ -280,7 +290,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           },
           user_id: session?.user?.id,
         });
-      } else if (event === "SIGNED_OUT") {
+      } else if (event === "SIGNED_OUT" && !isLocalDevelopment) {
         // Tracker la déconnexion
         supabase.from("analytics_events").insert({
           event_type: "user_signed_out",
