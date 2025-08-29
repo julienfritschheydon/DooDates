@@ -83,6 +83,20 @@ export function attachConsoleGuard(
 }
 
 /**
+ * Active le mode local E2E côté application avant le premier document.
+ * Doit être appelé AVANT tout page.goto().
+ */
+export async function enableE2ELocalMode(page: Page) {
+  await page.addInitScript(() => {
+    try {
+      (window as any).__E2E__ = true;
+      localStorage.setItem('e2e', '1');
+      localStorage.setItem('dev-local-mode', '1');
+    } catch {}
+  });
+}
+
+/**
  * Attend un indicateur de succès de copie pour gérer les environnements sans clipboard API.
  * Usage: cliquez sur le bouton de copie, puis appelez waitForCopySuccess(page)
  */

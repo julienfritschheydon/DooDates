@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { attachConsoleGuard, robustClick, seedLocalStorage, waitForCopySuccess, warmup } from './utils';
+import { attachConsoleGuard, robustClick, seedLocalStorage, waitForCopySuccess, warmup, enableE2ELocalMode } from './utils';
 
 function makePoll(overrides: Partial<any> = {}) {
   return {
@@ -35,6 +35,7 @@ test.describe('Dashboard - Poll Actions', () => {
     });
     try {
       // Warmup before seeding to stabilize imports and navigation
+      await enableE2ELocalMode(page);
       await warmup(page);
 
       const p1 = makePoll({ title: 'Actionable 1', slug: 'action-1', id: 'a1' });

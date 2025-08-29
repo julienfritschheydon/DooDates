@@ -111,10 +111,24 @@ export function usePolls() {
           supabaseKeyExists: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
         });
 
-        // Mode local/mock si Supabase n'est pas configuré ou en environnement de test/Vitest
+        // Mode local/mock si Supabase n'est pas configuré, en environnement de test/Vitest,
+        // ou si le runtime E2E (Playwright) est actif via indicateur global/localStorage.
         const isLocalMode =
           import.meta.env.MODE === "test" ||
           Boolean(import.meta.env.VITEST) ||
+          // Détection runtime E2E côté navigateur
+          (typeof window !== "undefined" && (() => {
+            try {
+              return (
+                (window as any).__E2E__ === true ||
+                localStorage.getItem("e2e") === "1" ||
+                localStorage.getItem("dev-local-mode") === "1"
+              );
+            } catch (_) {
+              return false;
+            }
+          })()) ||
+          // Fallback: variables d'env manquantes
           !import.meta.env.VITE_SUPABASE_URL ||
           !import.meta.env.VITE_SUPABASE_ANON_KEY;
 

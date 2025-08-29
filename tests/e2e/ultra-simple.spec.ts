@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { attachConsoleGuard, robustClick, waitForCopySuccess, warmup } from './utils';
+import { attachConsoleGuard, robustClick, waitForCopySuccess, warmup, enableE2ELocalMode } from './utils';
 
 // Simple scoped logger to align console outputs
 function mkLogger(scope: string) {
@@ -65,6 +65,8 @@ test.describe('DooDates - Test Ultra Simple', () => {
     try {
     // Safari/WebKit can be slower on CI/mobile viewports → extend timeout heuristically
     test.slow();
+    // Enable E2E local mode before any navigation so the app uses local mocks
+    await enableE2ELocalMode(page);
     // Warmup and verify app loads
     await warmup(page);
     await expect(page).toHaveTitle(/DooDates/);
