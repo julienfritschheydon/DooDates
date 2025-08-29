@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { attachConsoleGuard, robustClick, waitForCopySuccess, warmup } from './utils';
+import { attachConsoleGuard, robustClick, waitForCopySuccess, warmup, enableE2ELocalMode } from './utils';
 
 // Helper: navigate month carousel until a given date is visible (used on mobile views)
 async function openMonthContaining(page: Page, dateStr: string) {
@@ -36,6 +36,8 @@ test.describe('Mobile Voting UX', () => {
     });
     try {
       test.slow();
+      // Enable E2E local mode prior to any navigation
+      await enableE2ELocalMode(page);
       await warmup(page);
       await page.goto('/');
       await expect(page).toHaveTitle(/DooDates/);
@@ -195,6 +197,8 @@ test.describe('Mobile Voting UX', () => {
     });
     try {
       test.slow();
+      // Enable E2E local mode prior to any navigation
+      await enableE2ELocalMode(page);
       await warmup(page);
       await page.goto('/create');
       await robustClick(page.getByRole('link', { name: /Sondage Formulaire.*Commencer/i }));

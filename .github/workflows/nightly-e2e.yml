@@ -3,7 +3,17 @@ name: 🌙 Nightly E2E Matrix
 on:
   schedule:
     - cron: '0 2 * * *' # Tous les jours à 02:00 UTC
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to comment with nightly E2E results (optional)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pages: write      # For GitHub Pages deployment
+  id-token: write   # Required by actions/deploy-pages
 
 jobs:
   e2e-matrix:
@@ -46,4 +56,96 @@ jobs:
         with:
           name: playwright-report-${{ matrix.project }}
           path: playwright-report
-          retention-days: 7
+          retention-days: 14
+
+  publish-reports:
+    name: 🚀 Publish consolidated Playwright reports to Pages
+    if: always()
+    needs: [e2e-matrix]
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Download all reports
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: 🗂️ Prepare site structure
+        run: |
+          set -e
+          mkdir -p site
+          # Normalize artifact folder names and move Playwright reports under site/
+          for d in artifacts/*; do
+            name=$(basename "$d")
+            # transform names like 'playwright-report-Mobile Chrome' -> 'mobile-chrome'
+            cleaned=$(echo "$name" | sed -E 's/^playwright-report-//; s/[A-Z]/\L&/g; s/ /-/g')
+            if [ -d "$d/playwright-report" ]; then
+              mkdir -p "site/$cleaned"
+              cp -r "$d/playwright-report/"* "site/$cleaned/"
+            fi
+          done
+          # Index page linking to each project report
+          cat > site/index.html << 'EOF'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <title>DooDates Nightly E2E Reports</title>
+            <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;padding:24px;background:#0d1117;color:#c9d1d9} a{color:#58a6ff} h1{margin-top:0} ul{line-height:1.9}</style>
+          </head>
+          <body>
+            <h1>Nightly E2E Reports</h1>
+            <p>Run ID: ${GITHUB_RUN_ID} • <a href="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}">Workflow run</a></p>
+            <ul>
+              <li><a href="./chromium/">Chromium</a></li>
+              <li><a href="./firefox/">Firefox</a></li>
+              <li><a href="./webkit/">WebKit</a></li>
+              <li><a href="./mobile-chrome/">Mobile Chrome</a></li>
+              <li><a href="./mobile-safari/">Mobile Safari</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: 📤 Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: 🚀 Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
+        with:
+          timeout: 600000
+
+  pr-comment:
+    name: 💬 Comment PR with nightly summary
+    needs: [e2e-matrix, publish-reports]
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compose summary
+        id: summary
+        run: |
+          PASSED="${{ needs.e2e-matrix.result }}"
+          if [ "$PASSED" = "success" ]; then ICON=✅; else ICON=❌; fi
+          echo "icon=$ICON" >> $GITHUB_OUTPUT
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = parseInt(core.getInput('pr_number'));
+            const icon = '${{ steps.summary.outputs.icon }}';
+            const pagesUrl = `https://${{ github.repository_owner }}.github.io/${context.repo.repo}/`;
+            const body = `# ${icon} Nightly E2E Matrix\n\n`+
+              `Workflow: [view run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})\n\n`+
+              `Reports: ${pagesUrl}\n\n`+
+              `Jobs: chromium, firefox, webkit, mobile-chrome, mobile-safari`;
+            await github.rest.issues.createComment({
+              issue_number: pr,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
+        with:
+          pr_number: ${{ inputs.pr_number }}

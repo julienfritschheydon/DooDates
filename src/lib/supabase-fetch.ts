@@ -1,8 +1,26 @@
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Local/test mode detection:
+// - Vitest or Vite test mode
+// - Missing Supabase env vars
+// - Playwright E2E: runtime flag injected before app init via addInitScript
 const IS_LOCAL_MODE =
   import.meta.env.MODE === "test" ||
   Boolean(import.meta.env.VITEST) ||
+  // Runtime E2E flags (set by Playwright before bundle runs)
+  (typeof window !== "undefined" &&
+    ((window as any).__E2E__ === true ||
+      (() => {
+        try {
+          return (
+            localStorage.getItem("e2e") === "1" ||
+            localStorage.getItem("dev-local-mode") === "1"
+          );
+        } catch {
+          return false;
+        }
+      })())) ||
+  // Fallback when env vars are missing
   !SUPABASE_URL ||
   !SUPABASE_ANON_KEY;
 
