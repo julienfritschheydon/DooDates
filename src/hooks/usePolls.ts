@@ -111,30 +111,14 @@ export function usePolls() {
           supabaseKeyExists: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
         });
 
-        // Vérifier les variables d'environnement Supabase
-        if (
+        // Mode local/mock si Supabase n'est pas configuré (utilisé aussi en CI E2E)
+        const isLocalMode =
           !import.meta.env.VITE_SUPABASE_URL ||
-          !import.meta.env.VITE_SUPABASE_ANON_KEY
-        ) {
-          const missingVars = [];
-          if (!import.meta.env.VITE_SUPABASE_URL)
-            missingVars.push("VITE_SUPABASE_URL");
-          if (!import.meta.env.VITE_SUPABASE_ANON_KEY)
-            missingVars.push("VITE_SUPABASE_ANON_KEY");
+          !import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-          throw new Error(
-            `Variables d'environnement manquantes: ${missingVars.join(", ")}. Veuillez configurer votre fichier .env`,
-          );
-        }
-
-        // Mode développement local si Supabase inaccessible
-        const isDevelopmentMode =
-          import.meta.env.DEV &&
-          import.meta.env.VITE_SUPABASE_URL?.includes("ifbhbcktfqxxoxqlinzm");
-
-        if (isDevelopmentMode) {
+        if (isLocalMode) {
           console.warn(
-            "🚧 Mode développement local - Simulation de la création de sondage",
+            "🚧 Supabase non configuré - Simulation locale de la création de sondage",
           );
 
           // Simuler la création avec localStorage
