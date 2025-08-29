@@ -9,6 +9,9 @@ jobs:
   email-on-failure:
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     runs-on: ubuntu-latest
+    env:
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
     steps:
       - name: Prepare email payload
         id: prep
@@ -24,19 +27,19 @@ jobs:
           cat > payload.json << 'EOF'
           {
             "from": "DooDates CI <noreply@doodates.app>",
-            "to": ["${{ secrets.ALERT_EMAIL_TO }}"],
+            "to": ["${{ env.ALERT_EMAIL_TO }}"],
             "subject": "${{ steps.prep.outputs.SUBJECT }}",
             "html": "<h2>Nightly E2E Failure</h2><p>Workflow: $NAME</p><p>Status: <b>$STATUS</b></p><p>Branch: $BRANCH</p><p>Commit: $COMMIT_SHA</p><p><a href='$RUN_URL'>View run</a></p>"
           }
           EOF
       - name: Send email via Resend
-        if: ${{ secrets.RESEND_API_KEY && secrets.ALERT_EMAIL_TO }}
+        if: ${{ env.RESEND_API_KEY != '' && env.ALERT_EMAIL_TO != '' }}
         run: |
           curl -sS -X POST https://api.resend.com/emails \
-            -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
+            -H "Authorization: Bearer ${{ env.RESEND_API_KEY }}" \
             -H "Content-Type: application/json" \
             --data-binary @payload.json
       - name: Skip notice (missing secrets)
-        if: ${{ !secrets.RESEND_API_KEY || !secrets.ALERT_EMAIL_TO }}
+        if: ${{ env.RESEND_API_KEY == '' || env.ALERT_EMAIL_TO == '' }}
         run: |
           echo "Missing RESEND_API_KEY or ALERT_EMAIL_TO secrets. Configure repository secrets to enable email alerts."
