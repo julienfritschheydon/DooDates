@@ -111,8 +111,10 @@ export function usePolls() {
           supabaseKeyExists: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
         });
 
-        // Mode local/mock si Supabase n'est pas configuré (utilisé aussi en CI E2E)
+        // Mode local/mock si Supabase n'est pas configuré ou en environnement de test/Vitest
         const isLocalMode =
+          import.meta.env.MODE === "test" ||
+          Boolean(import.meta.env.VITEST) ||
           !import.meta.env.VITE_SUPABASE_URL ||
           !import.meta.env.VITE_SUPABASE_ANON_KEY;
 
