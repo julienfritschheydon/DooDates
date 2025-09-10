@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronLeft, Users } from "lucide-react";
+import { ChevronLeft, Users, Bot, MessageCircle } from "lucide-react";
 import { Poll, SwipeVote } from "./utils/types";
 
 interface PollHeaderProps {
@@ -9,6 +9,7 @@ interface PollHeaderProps {
   totalVotes?: number;
   remainingVotes?: number;
   progressPercent?: number;
+  onViewConversation?: (conversationId: string) => void;
 }
 
 export const PollHeader: React.FC<PollHeaderProps> = ({
@@ -18,6 +19,7 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
   totalVotes = 0,
   remainingVotes = 0,
   progressPercent = 0,
+  onViewConversation,
 }) => {
   // Formater la date d'expiration
   const formatExpiryDate = (dateString: string) => {
@@ -48,7 +50,7 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
       </div>
 
       {/* Badges info compacts */}
-      <div className="flex justify-center gap-2 sm:gap-4 mt-4 mb-2">
+      <div className="flex justify-center gap-2 sm:gap-4 mt-4 mb-2 flex-wrap">
         <div className="bg-blue-50 border border-blue-200 rounded-full px-3 py-1.5 flex items-center gap-1.5">
           <Users className="w-3 h-3 text-blue-600" />
           <span className="text-blue-800 font-medium text-sm">
@@ -70,6 +72,29 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
             {poll?.expires_at && formatExpiryDate(poll.expires_at)}
           </span>
         </div>
+
+        {/* AI Created Badge */}
+        {poll?.created_by_ai && (
+          <div className="bg-purple-50 border border-purple-200 rounded-full px-3 py-1.5 flex items-center gap-1.5">
+            <Bot className="w-3 h-3 text-purple-600" />
+            <span className="text-purple-800 font-medium text-sm">
+              Créé par IA
+            </span>
+          </div>
+        )}
+
+        {/* Conversation Link Badge */}
+        {poll?.conversation_id && onViewConversation && (
+          <button
+            onClick={() => onViewConversation(poll.conversation_id!)}
+            className="bg-green-50 border border-green-200 rounded-full px-3 py-1.5 flex items-center gap-1.5 hover:bg-green-100 transition-colors"
+          >
+            <MessageCircle className="w-3 h-3 text-green-600" />
+            <span className="text-green-800 font-medium text-sm">
+              Voir conversation
+            </span>
+          </button>
+        )}
       </div>
     </div>
   );

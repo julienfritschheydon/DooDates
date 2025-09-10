@@ -3,6 +3,17 @@
 // - Centralise l'accès à localStorage et la logique de duplication/suppression
 // - Fournit aussi des helpers d'URL et de copie presse-papier
 
+import {
+  readFromStorage,
+  writeToStorage,
+  addToStorage,
+  findById,
+  updateInStorage,
+  deleteFromStorage,
+  readRecordStorage,
+  writeRecordStorage
+} from './storage/storageUtils';
+
 export interface PollSettings {
   selectedDates?: string[];
   timeSlotsByDate?: Record<string, any[]>;
@@ -86,8 +97,7 @@ export function getPolls(): Poll[] {
     migrateFormDraftsIntoUnified();
 
     // 2) Lecture depuis le stockage unifié
-    const raw = hasWindow() ? window.localStorage.getItem(STORAGE_KEY) : null;
-    const parsed = raw ? (JSON.parse(raw) as unknown as Poll[]) : [];
+    const parsed = readFromStorage(STORAGE_KEY, memoryPollCache, []);
 
     // 3) Validation lecture: retourner uniquement les sondages de type "date"
     //    (compatibilité ascendante avec les consommateurs actuels du module)
@@ -114,8 +124,7 @@ export function getPolls(): Poll[] {
 }
 
 export function savePolls(polls: Poll[]): void {
-  if (!hasWindow()) return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(polls));
+  writeToStorage(STORAGE_KEY, polls, memoryPollCache);
 }
 
 export function getPollBySlugOrId(
@@ -303,7 +312,7 @@ function migrateFormDraftsIntoUnified(): void {
     }
 
     if (migrated > 0) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(unified));
+      writeToStorage(STORAGE_KEY, unified, memoryPollCache);
       // Nettoyage: on peut vider l'ancien stockage spécifique
       window.localStorage.removeItem(FORM_STORAGE_KEY);
     }
@@ -315,13 +324,11 @@ function migrateFormDraftsIntoUnified(): void {
 
 // --- Réponses FormPoll: stockage local et agrégations ---
 
+const memoryResponsesCache = new Map<string, FormResponse>();
+
 function readAllResponses(): FormResponse[] {
   try {
-    const fromStorage: FormResponse[] = (() => {
-      if (!hasWindow()) return [];
-      const raw = window.localStorage.getItem(FORM_RESPONSES_KEY);
-      return raw ? (JSON.parse(raw) as FormResponse[]) : [];
-    })();
+    const fromStorage = readFromStorage(FORM_RESPONSES_KEY, memoryResponsesCache, []);
     // Merge with in-memory cache (avoid duplicates by id)
     const byId = new Map<string, FormResponse>();
     for (const r of memoryResponses) byId.set(r.id, r);
@@ -339,8 +346,7 @@ function readAllResponses(): FormResponse[] {
 function writeAllResponses(resps: FormResponse[]): void {
   // Update memory cache first (write-through)
   memoryResponses = resps.slice();
-  if (!hasWindow()) return;
-  window.localStorage.setItem(FORM_RESPONSES_KEY, JSON.stringify(resps));
+  writeToStorage(FORM_RESPONSES_KEY, resps, memoryResponsesCache);
 }
 
 function getFormPollById(pollId: string): Poll | null {
@@ -489,7 +495,7 @@ export function getDeviceId(): string {
   if (DEVICE_ID_CACHE) return DEVICE_ID_CACHE;
   if (!hasWindow()) return (DEVICE_ID_CACHE = "server");
   const key = "dd-device-id";
-  const existing = window.localStorage.getItem(key);
+  const existing = hasWindow() ? window.localStorage.getItem(key) : null;
   if (existing && existing.trim()) {
     DEVICE_ID_CACHE = existing;
     return existing;
@@ -497,7 +503,9 @@ export function getDeviceId(): string {
   const generated = `dev-${Date.now().toString(36)}-${Math.random()
     .toString(36)
     .slice(2, 8)}`;
-  window.localStorage.setItem(key, generated);
+  if (hasWindow()) {
+    window.localStorage.setItem(key, generated);
+  }
   DEVICE_ID_CACHE = generated;
   return generated;
 }

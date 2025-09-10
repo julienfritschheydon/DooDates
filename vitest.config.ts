@@ -1,13 +1,21 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    'import.meta.env.VITE_SUPABASE_URL': '"https://test.supabase.co"',
+    'import.meta.env.VITE_SUPABASE_ANON_KEY': '"test-anon-key"'
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
+    typecheck: {
+      tsconfig: './tsconfig.json'
+    },
     include: [
       'src/**/*.test.{ts,tsx}',
     ],
@@ -15,20 +23,19 @@ export default defineConfig({
     exclude: [
       'node_modules/**',
       'tests/**',
-      'tests/e2e/**',
-      'playwright-report/**',
-      'test-results/**',
     ],
     coverage: {
-      reporter: ['text', 'json', 'html'],
+      provider: 'v8',
+      reporter: ['html', 'json', 'text'],
       exclude: [
-        'node_modules/',
-        'src/test/',
+        'node_modules/**',
+        'tests/**',
+        'src/test/**',
         '**/*.d.ts',
         '**/*.config.*',
-        'tests/'
-      ]
-    }
+        '**/coverage/**',
+      ],
+    },
   },
   resolve: {
     alias: {

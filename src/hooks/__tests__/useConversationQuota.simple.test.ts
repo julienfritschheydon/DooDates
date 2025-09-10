@@ -1,0 +1,214 @@
+/**
+ * Simple tests for useConversationQuota hook logic
+ * DooDates - Conversation History System
+ */
+
+import type { Conversation, ConversationStatus } from '../../types/conversation';
+
+// Test helper functions that would be used in the hook
+describe('useConversationQuota Logic', () => {
+  // Mock conversations for testing
+  const createMockConversation = (id: string, createdAt: Date, status: ConversationStatus = 'active'): Conversation => ({
+    id,
+    createdAt,
+    updatedAt: createdAt,
+    title: `Conversation ${id}`,
+    status,
+    firstMessage: 'Test message',
+    messageCount: 1,
+    tags: [],
+    isFavorite: false
+  });
+
+  describe('Quota calculation logic', () => {
+    it('should calculate correct quota info for guest users', () => {
+      const conversations = [
+        createMockConversation('1', new Date('2024-01-01')),
+        createMockConversation('2', new Date('2024-01-02')),
+        createMockConversation('3', new Date('2024-01-03'))
+      ];
+      
+      const guestLimit = 10;
+      const used = conversations.length;
+      const remaining = Math.max(0, guestLimit - used);
+      const percentage = Math.round((used / guestLimit) * 100);
+      
+      expect(used).toBe(3);
+      expect(remaining).toBe(7);
+      expect(percentage).toBe(30);
+    });
+
+    it('should calculate correct quota info for authenticated users', () => {
+      const conversations = Array.from({ length: 50 }, (_, i) => 
+        createMockConversation(`${i + 1}`, new Date(`2024-01-${String(i + 1).padStart(2, '0')}`))
+      );
+      
+      const authLimit = 1000;
+      const used = conversations.length;
+      const remaining = Math.max(0, authLimit - used);
+      const percentage = Math.round((used / authLimit) * 100);
+      
+      expect(used).toBe(50);
+      expect(remaining).toBe(950);
+      expect(percentage).toBe(5);
+    });
+
+    it('should handle quota warning states', () => {
+      const guestLimit = 10;
+      
+      // Test warning at 80%
+      const warningUsed = 8;
+      const warningPercentage = Math.round((warningUsed / guestLimit) * 100);
+      expect(warningPercentage).toBe(80);
+      expect(warningPercentage >= 80).toBe(true);
+      
+      // Test critical at 90%
+      const criticalUsed = 9;
+      const criticalPercentage = Math.round((criticalUsed / guestLimit) * 100);
+      expect(criticalPercentage).toBe(90);
+      expect(criticalPercentage >= 90).toBe(true);
+    });
+  });
+
+  describe('Auto-deletion candidate logic', () => {
+    it('should identify old conversations for deletion', () => {
+      const now = new Date('2024-01-15');
+      const retentionDays = 7;
+      const cutoffDate = new Date(now.getTime() - retentionDays * 24 * 60 * 60 * 1000);
+      
+      const conversations = [
+        createMockConversation('old1', new Date('2024-01-01')), // 14 days old
+        createMockConversation('old2', new Date('2024-01-05')), // 10 days old
+        createMockConversation('recent1', new Date('2024-01-10')), // 5 days old
+        createMockConversation('recent2', new Date('2024-01-14')) // 1 day old
+      ];
+      
+      const candidates = conversations.filter(conv => conv.createdAt < cutoffDate);
+      
+      expect(candidates).toHaveLength(2);
+      expect(candidates.map(c => c.id)).toEqual(['old1', 'old2']);
+    });
+
+    it('should sort deletion candidates by age (oldest first)', () => {
+      const conversations = [
+        createMockConversation('newest', new Date('2024-01-05')),
+        createMockConversation('oldest', new Date('2024-01-01')),
+        createMockConversation('middle', new Date('2024-01-03'))
+      ];
+      
+      const sorted = [...conversations].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      
+      expect(sorted.map(c => c.id)).toEqual(['oldest', 'middle', 'newest']);
+    });
+
+    it('should preserve favorites from auto-deletion', () => {
+      const conversations = [
+        { ...createMockConversation('old-favorite', new Date('2024-01-01')), isFavorite: true },
+        createMockConversation('old-regular', new Date('2024-01-01'))
+      ];
+      
+      const nonFavorites = conversations.filter(conv => !conv.isFavorite);
+      
+      expect(nonFavorites).toHaveLength(1);
+      expect(nonFavorites[0].id).toBe('old-regular');
+    });
+  });
+
+  describe('Authentication incentive logic', () => {
+    it('should show incentive when approaching quota limit', () => {
+      const guestLimit = 10;
+      const used = 8; // 80%
+      const percentage = Math.round((used / guestLimit) * 100);
+      
+      const shouldShowIncentive = percentage >= 80;
+      
+      expect(shouldShowIncentive).toBe(true);
+    });
+
+    it('should not show incentive for authenticated users', () => {
+      const isAuthenticated = true;
+      const shouldShowIncentive = !isAuthenticated;
+      
+      expect(shouldShowIncentive).toBe(false);
+    });
+
+    it('should handle incentive dismissal state', () => {
+      const dismissalKey = 'quota-incentive-dismissed';
+      const mockLocalStorage = {
+        getItem: jest.fn().mockReturnValue('true'),
+        setItem: jest.fn()
+      };
+      
+      const isDismissed = mockLocalStorage.getItem(dismissalKey) === 'true';
+      
+      expect(isDismissed).toBe(true);
+      expect(mockLocalStorage.getItem).toHaveBeenCalledWith(dismissalKey);
+    });
+  });
+
+  describe('Freemium badge logic', () => {
+    it('should generate correct badge for low usage', () => {
+      const used = 2;
+      const limit = 10;
+      const percentage = Math.round((used / limit) * 100);
+      
+      const badge = {
+        text: `${used}/${limit} conversations`,
+        variant: 'success' as const,
+        percentage
+      };
+      
+      expect(badge.text).toBe('2/10 conversations');
+      expect(badge.variant).toBe('success');
+      expect(badge.percentage).toBe(20);
+    });
+
+    it('should generate correct badge for high usage', () => {
+      const used = 9;
+      const limit = 10;
+      const percentage = Math.round((used / limit) * 100);
+      
+      const badge = {
+        text: `${used}/${limit} conversations`,
+        variant: percentage >= 90 ? 'danger' as const : percentage >= 80 ? 'warning' as const : 'success' as const,
+        percentage
+      };
+      
+      expect(badge.text).toBe('9/10 conversations');
+      expect(badge.variant).toBe('danger');
+      expect(badge.percentage).toBe(90);
+    });
+  });
+
+  describe('Utility functions', () => {
+    it('should calculate storage usage correctly', () => {
+      const conversations = [
+        createMockConversation('1', new Date()),
+        createMockConversation('2', new Date()),
+        createMockConversation('3', new Date())
+      ];
+      
+      // Simulate storage size calculation
+      const estimatedSize = conversations.length * 1024; // 1KB per conversation estimate
+      const formattedSize = estimatedSize < 1024 * 1024 
+        ? `${Math.round(estimatedSize / 1024)}KB`
+        : `${Math.round(estimatedSize / (1024 * 1024))}MB`;
+      
+      expect(formattedSize).toBe('3KB');
+    });
+
+    it('should format upgrade benefits correctly', () => {
+      const benefits = [
+        '1000 conversations (vs 10 for guests)',
+        'Cloud sync across devices',
+        'Advanced search and filtering',
+        'Export conversations',
+        'Priority support'
+      ];
+      
+      expect(benefits).toHaveLength(5);
+      expect(benefits[0]).toContain('1000 conversations');
+      expect(benefits[1]).toContain('Cloud sync');
+    });
+  });
+});

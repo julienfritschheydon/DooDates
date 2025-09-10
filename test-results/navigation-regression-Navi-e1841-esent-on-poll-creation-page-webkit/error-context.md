@@ -1,0 +1,43 @@
+# Page snapshot
+
+```yaml
+- navigation:
+  - button "DooDates AI Scheduling":
+    - img
+    - heading "DooDates" [level=1]
+    - paragraph: AI Scheduling
+  - button "Mes sondages":
+    - img
+    - text: Mes sondages
+  - button "IA":
+    - img
+    - text: IA
+  - button "Créer":
+    - img
+    - text: Créer
+- main:
+  - heading "Créer un nouveau sondage" [level=1]
+  - paragraph: Choisissez le type de sondage qui correspond à votre besoin.
+  - link "Sondage Dates Proposez des jours et horaires. Idéal pour organiser des réunions. Sélection de dates sur calendrier Créneaux horaires optionnels Résultats agrégés par disponibilités Commencer →":
+    - /url: /create/date
+    - img
+    - heading "Sondage Dates" [level=2]
+    - paragraph: Proposez des jours et horaires. Idéal pour organiser des réunions.
+    - list:
+      - listitem: Sélection de dates sur calendrier
+      - listitem: Créneaux horaires optionnels
+      - listitem: Résultats agrégés par disponibilités
+    - text: Commencer →
+  - link "Sondage Formulaire Questions à choix unique/multiples ou texte libre. Questions personnalisées Limite de choix pour questions multiples Résultats agrégés automatiques Commencer →":
+    - /url: /create/form
+    - img
+    - heading "Sondage Formulaire" [level=2]
+    - paragraph: Questions à choix unique/multiples ou texte libre.
+    - list:
+      - listitem: Questions personnalisées
+      - listitem: Limite de choix pour questions multiples
+      - listitem: Résultats agrégés automatiques
+    - text: Commencer →
+- region "Notifications (F8)":
+  - list
+```

@@ -2,25 +2,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GenerativeModel } from "@google/generative-ai";
 import CalendarQuery, { CalendarDay } from "./calendar-generator";
 
-// Configuration pour Gemini
-// Supporte Vite (navigateur) et Jest/Node sans référencer `import.meta` au parse-time.
-// - En Node/Jest: lecture via process.env
-// - En Vite: fallback via accès dynamique à import.meta.env dans une fonction (try/catch)
-function getViteEnv(): any | undefined {
-  try {
-    // L'appel dynamique évite l'erreur de syntaxe dans Node/Jest
-    // eslint-disable-next-line no-new-func
-    return new Function("return import.meta && import.meta.env;")();
-  } catch {
-    return undefined;
-  }
-}
+// Configuration pour Gemini - Simplifié pour Vite
+const API_KEY: string | undefined = import.meta.env.VITE_GEMINI_API_KEY;
 
-const API_KEY: string | undefined =
-  (typeof process !== "undefined" &&
-    (process.env as any)?.VITE_GEMINI_API_KEY) ||
-  (getViteEnv()?.VITE_GEMINI_API_KEY as string | undefined) ||
-  undefined;
+// Debug logging pour diagnostiquer le problème de clé API
+if (import.meta.env.DEV) {
+  console.log("🔍 Debug Gemini API Key:");
+  console.log("- import.meta.env.VITE_GEMINI_API_KEY:", API_KEY ? `✅ Available (${API_KEY.substring(0, 10)}...)` : "❌ Missing");
+  console.log("- All env vars:", import.meta.env);
+}
 
 // Initialisation différée pour éviter le blocage au chargement
 let genAI: GoogleGenerativeAI | null = null;
@@ -85,7 +75,7 @@ export class GeminiService {
     // Pas d'initialisation immédiate de Gemini - sera fait lors du premier appel
     if (
       !API_KEY &&
-      process.env.NODE_ENV === "development" &&
+      import.meta.env.DEV &&
       !GeminiService.warnedAboutApiKey
     ) {
       console.warn(
@@ -128,7 +118,7 @@ export class GeminiService {
     }
 
     try {
-      if (process.env.NODE_ENV === "development") {
+      if (import.meta.env.DEV) {
         console.log("🔍 Génération du prompt pour:", userInput);
       }
 
@@ -137,7 +127,7 @@ export class GeminiService {
       const response = await result.response;
       const text = response.text();
 
-      if (process.env.NODE_ENV === "development") {
+      if (import.meta.env.DEV) {
         console.log("📝 Réponse brute de Gemini:", text);
       }
 
@@ -145,7 +135,7 @@ export class GeminiService {
       const pollData = this.parseGeminiResponse(text);
 
       if (pollData) {
-        if (process.env.NODE_ENV === "development") {
+        if (import.meta.env.DEV) {
           console.log("✅ Dates proposées par Gemini:", pollData.dates);
           console.log("⏰ Créneaux proposés:", pollData.timeSlots);
         }
@@ -488,7 +478,7 @@ Exemple "matin" (8h-12h):
      - Si "week-end" ou "weekend" est demandé, générer UNIQUEMENT des samedis et dimanches (JAMAIS de vendredi)
      - Ne JAMAIS changer le jour de la semaine
    * IMPORTANT : Comprendre les expressions temporelles :
-     - "cette semaine" = semaine actuelle (du ${new Date(currentYear, currentMonth - 1, new Date().getDate()).toISOString().split("T")[0]} à 7 jours)
+     - "cette semaine" = semaine actuelle (du ${today.toISOString().split("T")[0]} à 7 jours)
      - "la semaine prochaine" = semaine suivante (les 7 jours après dimanche de cette semaine)
      - "ce week-end" = samedi-dimanche de cette semaine
      - "le week-end prochain" = samedi-dimanche de la semaine prochaine

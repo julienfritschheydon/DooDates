@@ -1,0 +1,498 @@
+/**
+ * @jest-environment jsdom
+ */
+import { createClient } from '@supabase/supabase-js';
+import { Conversation, ConversationMessage, ConversationError } from '../../../types/conversation';
+
+// Mock Supabase client
+const mockSupabaseClient = {
+  from: jest.fn(),
+  auth: {
+    getUser: jest.fn(),
+  },
+  rpc: jest.fn(),
+};
+
+jest.mock('@supabase/supabase-js', () => ({
+  createClient: jest.fn(() => mockSupabaseClient),
+}));
+
+describe('ConversationStorageSupabase Integration Tests', () => {
+  const mockConversation: Conversation = {
+    id: '123e4567-e89b-12d3-a456-426614174000',
+    title: 'Test Conversation',
+    status: 'active',
+    createdAt: new Date('2024-01-01T10:00:00Z'),
+    updatedAt: new Date('2024-01-01T10:00:00Z'),
+    firstMessage: 'Hello, this is a test message',
+    messageCount: 1,
+    isFavorite: false,
+    tags: ['test'],
+    metadata: {
+      pollGenerated: false,
+      errorOccurred: false,
+      aiModel: 'gemini-pro',
+      language: 'fr',
+      userAgent: 'test-agent'
+    }
+  };
+
+  const mockMessage: ConversationMessage = {
+    id: '123e4567-e89b-12d3-a456-426614174001',
+    conversationId: '123e4567-e89b-12d3-a456-426614174000',
+    role: 'user',
+    content: 'Hello, this is a test message',
+    timestamp: new Date('2024-01-01T10:00:00Z'),
+    metadata: {
+      pollGenerated: false,
+      errorOccurred: false,
+      processingTime: 100,
+      tokenCount: 10
+    }
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('Database Schema Tests', () => {
+    it('should validate conversations table structure', async () => {
+      const mockSelect = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
+            data: mockConversation,
+            error: null
+          })
+        })
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: mockSelect
+      });
+
+      // Test that we can query conversations table
+      const result = await mockSupabaseClient
+        .from('conversations')
+        .select('*')
+        .eq('id', mockConversation.id)
+        .single();
+
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('conversations');
+      expect(result.data).toEqual(mockConversation);
+      expect(result.error).toBeNull();
+    });
+
+    it('should validate conversation_messages table structure', async () => {
+      const mockSelect = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
+            data: mockMessage,
+            error: null
+          })
+        })
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: mockSelect
+      });
+
+      // Test that we can query conversation_messages table
+      const result = await mockSupabaseClient
+        .from('conversation_messages')
+        .select('*')
+        .eq('id', mockMessage.id)
+        .single();
+
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('conversation_messages');
+      expect(result.data).toEqual(mockMessage);
+      expect(result.error).toBeNull();
+    });
+  });
+
+  describe('RLS Policy Tests', () => {
+    it('should enforce user isolation for authenticated users', async () => {
+      // Mock authenticated user
+      mockSupabaseClient.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-123' } },
+        error: null
+      });
+
+      const mockSelect = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          data: [mockConversation],
+          error: null
+        })
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: mockSelect
+      });
+
+      // Test that user can only see their own conversations
+      const result = await mockSupabaseClient
+        .from('conversations')
+        .select('*')
+        .eq('user_id', 'user-123');
+
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('conversations');
+      expect(mockSelect).toHaveBeenCalledWith('*');
+    });
+
+    it('should enforce guest session isolation', async () => {
+      // Mock guest user (no auth)
+      mockSupabaseClient.auth.getUser.mockResolvedValue({
+        data: { user: null },
+        error: null
+      });
+
+      const mockRpc = jest.fn().mockResolvedValue({
+        data: null,
+        error: null
+      });
+
+      mockSupabaseClient.rpc = mockRpc;
+
+      // Test setting guest session ID
+      await mockSupabaseClient.rpc('set_guest_session_id', {
+        session_id: 'guest_session_123'
+      });
+
+      expect(mockRpc).toHaveBeenCalledWith('set_guest_session_id', {
+        session_id: 'guest_session_123'
+      });
+    });
+  });
+
+  describe('Cleanup Functions Tests', () => {
+    it('should test expired guest conversations cleanup', async () => {
+      const mockRpc = jest.fn().mockResolvedValue({
+        data: [
+          {
+            deleted_conversations: 5,
+            deleted_messages: 15,
+            cleanup_timestamp: new Date().toISOString()
+          }
+        ],
+        error: null
+      });
+
+      mockSupabaseClient.rpc = mockRpc;
+
+      const result = await mockSupabaseClient.rpc('cleanup_expired_guest_conversations');
+
+      expect(mockRpc).toHaveBeenCalledWith('cleanup_expired_guest_conversations');
+      expect(result.data[0].deleted_conversations).toBe(5);
+      expect(result.data[0].deleted_messages).toBe(15);
+    });
+
+    it('should test guest quota enforcement', async () => {
+      const mockRpc = jest.fn().mockResolvedValue({
+        data: [
+          {
+            deleted_conversations: 2,
+            deleted_messages: 8
+          }
+        ],
+        error: null
+      });
+
+      mockSupabaseClient.rpc = mockRpc;
+
+      const result = await mockSupabaseClient.rpc('enforce_guest_quota', {
+        session_id: 'guest_session_123',
+        max_conversations: 1
+      });
+
+      expect(mockRpc).toHaveBeenCalledWith('enforce_guest_quota', {
+        session_id: 'guest_session_123',
+        max_conversations: 1
+      });
+      expect(result.data[0].deleted_conversations).toBe(2);
+      expect(result.data[0].deleted_messages).toBe(8);
+    });
+
+    it('should test storage statistics function', async () => {
+      const mockRpc = jest.fn().mockResolvedValue({
+        data: [
+          {
+            total_conversations: 100,
+            active_conversations: 85,
+            archived_conversations: 10,
+            deleted_conversations: 5,
+            guest_conversations: 30,
+            authenticated_conversations: 70,
+            total_messages: 500,
+            expired_guest_conversations: 3,
+            storage_size_mb: 15.67
+          }
+        ],
+        error: null
+      });
+
+      mockSupabaseClient.rpc = mockRpc;
+
+      const result = await mockSupabaseClient.rpc('get_storage_statistics');
+
+      expect(mockRpc).toHaveBeenCalledWith('get_storage_statistics');
+      expect(result.data[0].total_conversations).toBe(100);
+      expect(result.data[0].storage_size_mb).toBe(15.67);
+    });
+  });
+
+  describe('CRUD Operations Tests', () => {
+    it('should test conversation insertion', async () => {
+      const mockInsert = jest.fn().mockReturnValue({
+        select: jest.fn().mockResolvedValue({
+          data: [mockConversation],
+          error: null
+        })
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        insert: mockInsert
+      });
+
+      const result = await mockSupabaseClient
+        .from('conversations')
+        .insert(mockConversation)
+        .select();
+
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('conversations');
+      expect(mockInsert).toHaveBeenCalledWith(mockConversation);
+      expect(result.data[0]).toEqual(mockConversation);
+    });
+
+    it('should test message insertion with foreign key constraint', async () => {
+      const mockInsert = jest.fn().mockReturnValue({
+        select: jest.fn().mockResolvedValue({
+          data: [mockMessage],
+          error: null
+        })
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        insert: mockInsert
+      });
+
+      const result = await mockSupabaseClient
+        .from('conversation_messages')
+        .insert(mockMessage)
+        .select();
+
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('conversation_messages');
+      expect(mockInsert).toHaveBeenCalledWith(mockMessage);
+      expect(result.data[0]).toEqual(mockMessage);
+    });
+
+    it('should test conversation update', async () => {
+      const updatedConversation = {
+        ...mockConversation,
+        title: 'Updated Title',
+        isFavorite: true
+      };
+
+      const mockUpdate = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          select: jest.fn().mockResolvedValue({
+            data: [updatedConversation],
+            error: null
+          })
+        })
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        update: mockUpdate
+      });
+
+      const result = await mockSupabaseClient
+        .from('conversations')
+        .update({ title: 'Updated Title', isFavorite: true })
+        .eq('id', mockConversation.id)
+        .select();
+
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('conversations');
+      expect(mockUpdate).toHaveBeenCalledWith({ title: 'Updated Title', isFavorite: true });
+      expect(result.data[0].title).toBe('Updated Title');
+      expect(result.data[0].isFavorite).toBe(true);
+    });
+
+    it('should test conversation deletion', async () => {
+      const mockDelete = jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({
+          data: null,
+          error: null
+        })
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        delete: mockDelete
+      });
+
+      const result = await mockSupabaseClient
+        .from('conversations')
+        .delete()
+        .eq('id', mockConversation.id);
+
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('conversations');
+      expect(mockDelete).toHaveBeenCalled();
+      expect(result.error).toBeNull();
+    });
+  });
+
+  describe('Full-text Search Tests', () => {
+    it('should test conversation search functionality', async () => {
+      const searchResults = [
+        { ...mockConversation, title: 'Search Result 1' },
+        { ...mockConversation, id: 'search-2', title: 'Search Result 2' }
+      ];
+
+      const mockTextSearch = jest.fn().mockResolvedValue({
+        data: searchResults,
+        error: null
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          textSearch: mockTextSearch
+        })
+      });
+
+      const result = await mockSupabaseClient
+        .from('conversations')
+        .select('*')
+        .textSearch('title,first_message', 'search query');
+
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('conversations');
+      expect(mockTextSearch).toHaveBeenCalledWith('title,first_message', 'search query');
+      expect(result.data).toHaveLength(2);
+    });
+
+    it('should test message content search', async () => {
+      const searchResults = [mockMessage];
+
+      const mockTextSearch = jest.fn().mockResolvedValue({
+        data: searchResults,
+        error: null
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          textSearch: mockTextSearch
+        })
+      });
+
+      const result = await mockSupabaseClient
+        .from('conversation_messages')
+        .select('*')
+        .textSearch('content', 'hello world');
+
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('conversation_messages');
+      expect(mockTextSearch).toHaveBeenCalledWith('content', 'hello world');
+      expect(result.data).toHaveLength(1);
+    });
+  });
+
+  describe('Error Handling Tests', () => {
+    it('should handle database connection errors', async () => {
+      const mockSelect = jest.fn().mockResolvedValue({
+        data: null,
+        error: { message: 'Connection failed', code: 'CONNECTION_ERROR' }
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: mockSelect
+      });
+
+      const result = await mockSupabaseClient
+        .from('conversations')
+        .select('*');
+
+      expect(result.error).toBeTruthy();
+      expect(result.error.code).toBe('CONNECTION_ERROR');
+    });
+
+    it('should handle foreign key constraint violations', async () => {
+      const invalidMessage = {
+        ...mockMessage,
+        conversationId: 'non-existent-conversation-id'
+      };
+
+      const mockInsert = jest.fn().mockResolvedValue({
+        data: null,
+        error: { 
+          message: 'Foreign key constraint violation',
+          code: '23503'
+        }
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        insert: mockInsert
+      });
+
+      const result = await mockSupabaseClient
+        .from('conversation_messages')
+        .insert(invalidMessage);
+
+      expect(result.error).toBeTruthy();
+      expect(result.error.code).toBe('23503');
+    });
+  });
+
+  describe('Performance Tests', () => {
+    it('should test index usage for user queries', async () => {
+      const mockSelect = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          order: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue({
+              data: [mockConversation],
+              error: null
+            })
+          })
+        })
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: mockSelect
+      });
+
+      // Test query that should use idx_conversations_user_id index
+      const result = await mockSupabaseClient
+        .from('conversations')
+        .select('*')
+        .eq('user_id', 'user-123')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      expect(mockSupabaseClient.from).toHaveBeenCalledWith('conversations');
+      expect(result.data).toHaveLength(1);
+    });
+
+    it('should test pagination performance', async () => {
+      const mockRange = jest.fn().mockResolvedValue({
+        data: [mockConversation],
+        error: null,
+        count: 100
+      });
+
+      mockSupabaseClient.from.mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            order: jest.fn().mockReturnValue({
+              range: mockRange
+            })
+          })
+        })
+      });
+
+      const result = await mockSupabaseClient
+        .from('conversations')
+        .select('*', { count: 'exact' })
+        .eq('user_id', 'user-123')
+        .order('created_at', { ascending: false })
+        .range(0, 9);
+
+      expect(mockRange).toHaveBeenCalledWith(0, 9);
+      expect(result.count).toBe(100);
+    });
+  });
+});

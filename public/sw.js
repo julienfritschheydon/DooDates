@@ -37,6 +37,14 @@ self.addEventListener('activate', (event) => {
 
 // Interception des requêtes réseau
 self.addEventListener('fetch', (event) => {
+  // Skip caching for development mode and external requests
+  if (event.request.url.includes('localhost') || 
+      event.request.url.includes('127.0.0.1') ||
+      event.request.url.includes('chrome-extension') ||
+      !event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -44,9 +52,14 @@ self.addEventListener('fetch', (event) => {
         if (response) {
           return response;
         }
-        return fetch(event.request);
-      }
-    )
+        return fetch(event.request).catch(() => {
+          // Fallback silencieux en cas d'échec
+          return new Response('Service unavailable', { 
+            status: 503, 
+            statusText: 'Service Unavailable' 
+          });
+        });
+      })
   );
 });
 

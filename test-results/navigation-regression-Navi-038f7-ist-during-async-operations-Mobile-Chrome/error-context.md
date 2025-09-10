@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- navigation:
+  - button "DooDates AI Scheduling":
+    - img
+    - heading "DooDates" [level=1]
+    - paragraph: AI Scheduling
+  - button "Mes sondages":
+    - img
+  - button "Chat IA":
+    - img
+  - button "Créer un nouveau sondage":
+    - img
+- img
+- paragraph:
+  - text: 🚧
+  - strong: Mode Développement Local
+  - text: "- Les sondages sont stockés localement (localStorage)"
+- button "Mes Sondages":
+  - img
+  - text: Mes Sondages
+- button "Mes Conversations":
+  - img
+  - text: Mes Conversations
+- text: 0 sondages
+- button:
+  - img
+- img
+- textbox "Rechercher un sondage..."
+- button "Tous"
+- button "Brouillon"
+- button "Actif"
+- button "Terminé"
+- img
+- heading "Aucun sondage" [level=3]
+- paragraph: Créez votre premier sondage pour commencer
+- button "Créer un sondage"
+- region "Notifications (F8)":
+  - list
+```

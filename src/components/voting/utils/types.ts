@@ -45,4 +45,12 @@ export interface Poll {
   creator_id?: string;
   created_at: string;
   expires_at: string;
+  // AI conversation linking
+  conversation_id?: string;
+  created_by_ai?: boolean;
+  ai_metadata?: {
+    conversation_title?: string;
+    message_id?: string;
+    generated_at?: string;
+  };
 }

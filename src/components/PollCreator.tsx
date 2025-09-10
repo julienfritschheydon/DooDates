@@ -16,7 +16,9 @@ import {
   Loader2,
 } from "lucide-react";
 import Calendar from "./Calendar";
-import { usePolls, type PollData } from "../hooks/usePolls";
+import { usePolls, type PollData } from '../hooks/usePolls';
+import { PollCreatorService } from '../services/PollCreatorService';
+import type { PollCreationState as ServicePollCreationState, TimeSlot as ServiceTimeSlot } from '../services/PollCreatorService';
 import { useAuth } from "../contexts/AuthContext";
 import { googleCalendar } from "../lib/google-calendar";
 import { UserMenu } from "./UserMenu";
@@ -24,6 +26,7 @@ import { type PollSuggestion } from "../lib/gemini";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { VoteGrid } from "@/components/voting/VoteGrid";
+import TopNav from "./TopNav";
 
 interface TimeSlot {
   hour: number;
@@ -48,6 +51,7 @@ interface PollCreationState {
   showExtendedHours: boolean;
   timeGranularity: number;
   showGranularitySettings: boolean;
+  showCalendarConnection: boolean;
   pollLinkCopied: boolean;
   expirationDays: number;
   showExpirationSettings: boolean;
@@ -76,11 +80,74 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const [createdPollSlug, setCreatedPollSlug] = useState<string | null>(null);
   const [createdPoll, setCreatedPoll] = useState<any>(null);
   const { toast } = useToast();
+  const shareRef = useRef<HTMLDivElement>(null);
+
+  // Helper functions
+  const canFinalize = () => PollCreatorService.canFinalize(state);
+  const handleFinalize = async () => {
+    try {
+      const result = await createPoll({
+        title: state.pollTitle,
+        description: null,
+        selectedDates: state.selectedDates,
+        timeSlotsByDate: timeSlotsByDate,
+        participantEmails: state.participantEmails.split(',').map(email => email.trim()).filter(Boolean),
+        settings: {
+          timeGranularity: state.timeGranularity,
+          allowAnonymousVotes: true,
+          allowMaybeVotes: true,
+          sendNotifications: state.notificationsEnabled,
+          expiresAt: state.expirationDays ? new Date(Date.now() + state.expirationDays * 24 * 60 * 60 * 1000).toISOString() : undefined
+        }
+      });
+      if (result.poll) {
+        setCreatedPollSlug(result.poll.slug);
+      }
+    } catch (error) {
+      console.error('Error creating poll:', error);
+    }
+  };
+  const toggleDate = (dateString: string) => PollCreatorService.toggleDate(dateString, state.selectedDates, setState);
+  const isGranularityCompatible = (granularity: number, timeSlots: TimeSlot[]) => PollCreatorService.isGranularityCompatible(granularity, timeSlots);
+  const handleGranularityChange = (granularity: number) => PollCreatorService.handleGranularityChange(granularity, setState);
+  const initialGranularityState = PollCreatorService.initialGranularityState;
+  const undoGranularityChange = () => PollCreatorService.undoGranularityChange(setState);
+  const validateEmails = (emailString: string) => PollCreatorService.validateEmails(emailString);
+  
+  const handleEmailInput = (emailString: string) => {
+    setState(prev => ({
+      ...prev,
+      participantEmails: emailString,
+      emailErrors: PollCreatorService.validateEmails(emailString)
+    }));
+  };
+  
+  const getVisibleTimeSlots = () => {
+    const slots = [];
+    const startHour = state.showExtendedHours ? 6 : 8;
+    const endHour = state.showExtendedHours ? 23 : 20;
+    
+    for (let hour = startHour; hour <= endHour; hour++) {
+      for (let minute = 0; minute < 60; minute += state.timeGranularity) {
+        slots.push({
+          hour,
+          minute,
+          label: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+        });
+      }
+    }
+    return slots;
+  };
+  
+  const getTimeSlotBlocks = (dateStr: string) => {
+    return PollCreatorService.getTimeSlotBlocks(timeSlotsByDate[dateStr] || [], state.timeGranularity);
+  };
+  
 
   // Fonction pour réinitialiser complètement l'état
   const resetPollState = () => {
     localStorage.removeItem("doodates-draft");
-    const initialState = initializeWithGeminiData();
+    const initialState = PollCreatorService.initializeWithGeminiData(initialData) as PollCreationState;
     // Vérification de sécurité pour s'assurer que currentMonth est un objet Date valide
     if (
       !(initialState.currentMonth instanceof Date) ||
@@ -95,47 +162,48 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   // Charger les données du sondage à éditer
   useEffect(() => {
-    if (editPollId) {
-      console.log("🔄 Mode édition détecté pour l'ID:", editPollId);
-      // Nettoyer le draft avant de charger les données
-      localStorage.removeItem("doodates-draft");
+    if (!editPollId) {
+      if (!initialData) {
+        localStorage.removeItem("doodates-draft");
+      }
+      return;
+    }
 
-      const existingPolls = JSON.parse(
-        localStorage.getItem("dev-polls") || "[]",
-      );
-      const pollToEdit = existingPolls.find(
-        (poll: any) => poll.id === editPollId,
-      );
+    let isMounted = true;
 
-      if (pollToEdit) {
-        console.log("📝 Chargement du sondage à éditer:", pollToEdit);
+    const loadPollData = async () => {
+      try {
+        // Nettoyer le draft avant de charger les données
+        localStorage.removeItem("doodates-draft");
+
+        const existingPolls = JSON.parse(
+          localStorage.getItem("dev-polls") || "[]",
+        );
+        const pollToEdit = existingPolls.find(
+          (poll: any) => poll.id === editPollId,
+        );
+
+        if (!pollToEdit || !isMounted) return;
 
         // Extraire les dates depuis les options du sondage
         const pollDates = [];
 
         // Méthode 1: Depuis settings.selectedDates
         if (pollToEdit.settings?.selectedDates?.length > 0) {
-          console.log(
-            "📅 Méthode 1: Dates trouvées dans settings.selectedDates:",
-            pollToEdit.settings.selectedDates,
-          );
           pollDates.push(...pollToEdit.settings.selectedDates);
         }
 
         // Méthode 2: Depuis les options du sondage (mapping ID -> date)
         if (pollDates.length === 0 && pollToEdit.options) {
-          console.log("📅 Méthode 2: Extraction depuis poll.options...");
           pollToEdit.options.forEach((option: any) => {
             if (option.option_date && !pollDates.includes(option.option_date)) {
               pollDates.push(option.option_date);
             }
           });
-          console.log("📅 Dates extraites depuis options:", pollDates);
         }
 
         // Méthode 3: Fallback - générer des dates par défaut
         if (pollDates.length === 0) {
-          console.log("📅 Méthode 3: Génération de dates par défaut...");
           const today = new Date();
           for (let i = 0; i < 3; i++) {
             const futureDate = new Date(today);
@@ -144,7 +212,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           }
         }
 
-        console.log("📅 Dates finales extraites pour l'édition:", pollDates);
 
         // Réinitialiser complètement l'état avec toutes les propriétés requises
         const newState = {
@@ -167,127 +234,46 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           pollLinkCopied: false,
           expirationDays: 30,
           showExpirationSettings: false,
+          showCalendarConnection: false,
         };
 
-        setState(newState);
+        if (isMounted) {
+          setState(newState);
 
-        // Charger les créneaux horaires si disponibles
-        if (pollToEdit.settings?.timeSlotsByDate) {
-          console.log(
-            "⏰ Chargement des créneaux horaires:",
-            pollToEdit.settings.timeSlotsByDate,
-          );
-          setTimeSlotsByDate(pollToEdit.settings.timeSlotsByDate);
+          // Charger les créneaux horaires si disponibles
+          if (pollToEdit.settings?.timeSlotsByDate) {
+            setTimeSlotsByDate(pollToEdit.settings.timeSlotsByDate);
 
-          // Activer l'affichage des créneaux horaires si des créneaux existent
-          const hasTimeSlots = Object.values(
-            pollToEdit.settings.timeSlotsByDate,
-          ).some((slots: any) => slots && slots.length > 0);
-          if (hasTimeSlots) {
-            console.log("⏰ Activation de l'affichage des créneaux horaires");
-            newState.showTimeSlots = true;
+            // Activer l'affichage des créneaux horaires si des créneaux existent
+            const hasTimeSlots = Object.values(
+              pollToEdit.settings.timeSlotsByDate,
+            ).some((slots: any) => slots && slots.length > 0);
+            if (hasTimeSlots) {
+              newState.showTimeSlots = true;
+            }
+          } else {
+            setTimeSlotsByDate({});
           }
-        } else {
-          setTimeSlotsByDate({});
-        }
 
-        // Charger la granularité temporelle
-        if (pollToEdit.settings?.timeGranularity) {
-          console.log(
-            "⚙️ Chargement de la granularité:",
-            pollToEdit.settings.timeGranularity,
-          );
-          newState.timeGranularity = pollToEdit.settings.timeGranularity;
-        }
-      }
-    } else if (!initialData) {
-      console.log("🧹 Nouveau sondage : nettoyage du draft");
-      localStorage.removeItem("doodates-draft");
-    }
-  }, [editPollId]);
-
-  const initializeWithGeminiData = (): PollCreationState => {
-    if (!initialData) {
-      return {
-        selectedDates: [],
-        currentMonth: new Date(),
-        calendarConnected: false,
-        pollTitle: "",
-        participantEmails: "",
-        showTimeSlots: false,
-        timeSlots: [],
-        notificationsEnabled: false,
-        userEmail: "",
-        showCalendarConnect: false,
-        showShare: false,
-        showDescription: false,
-        emailErrors: [],
-        showExtendedHours: false,
-        timeGranularity: 60,
-        showGranularitySettings: false,
-        pollLinkCopied: false,
-        expirationDays: 30,
-        showExpirationSettings: false,
-      };
-    }
-
-    // Définir le mois initial comme le premier mois des dates sélectionnées
-    let initialMonth = new Date();
-    if (initialData.dates && initialData.dates.length > 0) {
-      try {
-        const parsedDate = new Date(initialData.dates[0]);
-        if (!isNaN(parsedDate.getTime()) && parsedDate instanceof Date) {
-          // Check if date is valid
-          initialMonth = parsedDate;
+          // Charger la granularité temporelle
+          if (pollToEdit.settings?.timeGranularity) {
+            newState.timeGranularity = pollToEdit.settings.timeGranularity;
+          }
         }
       } catch (error) {
-        console.error("Error parsing initial date:", error);
-        // Garantir que initialMonth reste un objet Date valide
-        initialMonth = new Date();
+        console.error('Error loading poll data:', error);
       }
-    }
-
-    return {
-      selectedDates: initialData.dates || [],
-      currentMonth: initialMonth,
-      calendarConnected: false,
-      pollTitle: initialData.title || "",
-      participantEmails: "",
-      showTimeSlots:
-        initialData.type === "datetime" &&
-        initialData.timeSlots &&
-        initialData.timeSlots.length > 0
-          ? true
-          : false,
-      timeSlots: initialData.timeSlots
-        ? initialData.timeSlots.map((slot) => {
-            // Convert start time string (e.g. "09:00") to hour and minute
-            const startParts = slot.start.split(":").map(Number);
-            return {
-              hour: startParts[0] || 0,
-              minute: startParts[1] || 0,
-              enabled: true,
-            };
-          })
-        : [],
-      notificationsEnabled: false,
-      userEmail: "",
-      showCalendarConnect: false,
-      showShare: false,
-      showDescription: false,
-      emailErrors: [],
-      showExtendedHours: false,
-      timeGranularity:
-        initialData.timeSlots && initialData.timeSlots.length > 0 ? 60 : 60, // Default to 60 minutes
-      showGranularitySettings: false,
-      pollLinkCopied: false,
-      expirationDays: 30,
-      showExpirationSettings: false,
     };
-  };
+
+    loadPollData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [editPollId, initialData]);
 
   const [state, setState] = useState<PollCreationState>(
-    initializeWithGeminiData(),
+    PollCreatorService.initializeWithGeminiData(initialData) as PollCreationState,
   );
   const [visibleMonths, setVisibleMonths] = useState<Date[]>([]);
   const [timeSlotsByDate, setTimeSlotsByDate] = useState<
@@ -303,988 +289,13 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         JSON.stringify(state.selectedDates) !==
           JSON.stringify(initialData.dates))
     ) {
-      console.log("🔄 Mise à jour des dates sélectionnées depuis initialData");
       setState((prev) => ({
         ...prev,
         selectedDates: initialData.dates,
         showTimeSlots: true,
       }));
     }
-
-    // Vérifier si le mois actuel correspond aux dates sélectionnées
-    if (
-      state.selectedDates.length > 0 &&
-      state.currentMonth &&
-      state.currentMonth instanceof Date
-    ) {
-      try {
-        const firstSelectedDate = new Date(state.selectedDates[0]);
-        if (!isNaN(firstSelectedDate.getTime())) {
-          const currentMonthStart = new Date(
-            state.currentMonth.getFullYear(),
-            state.currentMonth.getMonth(),
-            1,
-          );
-
-          if (
-            firstSelectedDate.getMonth() !== currentMonthStart.getMonth() ||
-            firstSelectedDate.getFullYear() !== currentMonthStart.getFullYear()
-          ) {
-            setState((prev) => ({
-              ...prev,
-              currentMonth: firstSelectedDate,
-            }));
-          }
-        } else {
-          console.error(
-            "Invalid date format in selectedDates:",
-            state.selectedDates[0],
-          );
-        }
-      } catch (error) {
-        console.error("Error processing selected date:", error);
-      }
-    }
-  }, [initialData, state.selectedDates]);
-
-  const [initialGranularityState, setInitialGranularityState] = useState<{
-    granularity: number;
-    timeSlots: Record<string, TimeSlot[]>;
-  } | null>(null);
-  const [previousGranularityState, setPreviousGranularityState] = useState<{
-    granularity: number;
-    timeSlots: Record<string, TimeSlot[]>;
-  } | null>(null);
-
-  const shareRef = useRef<HTMLDivElement>(null);
-
-  const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      navigate("/");
-    }
-  };
-
-  useEffect(() => {
-    // Déterminer le mois de départ basé sur les données initiales ou la date actuelle
-    let startMonth = new Date();
-
-    if (initialData?.dates && initialData.dates.length > 0) {
-      try {
-        const firstSelectedDate = new Date(initialData.dates[0]);
-        if (!isNaN(firstSelectedDate.getTime())) {
-          startMonth = firstSelectedDate;
-          console.log(
-            "📅 Mois de départ basé sur la première date sélectionnée:",
-            startMonth.toLocaleDateString("fr-FR", {
-              month: "long",
-              year: "numeric",
-            }),
-          );
-        }
-      } catch (error) {
-        console.error("Error parsing initial date for visible months:", error);
-      }
-    }
-
-    const months: Date[] = [];
-
-    // Générer 3 mois à partir du mois de départ
-    for (let i = 0; i < 3; i++) {
-      const month = new Date(
-        startMonth.getFullYear(),
-        startMonth.getMonth() + i,
-        1,
-      );
-      months.push(month);
-    }
-
-    console.log(
-      "📅 Mois générés (optimisé):",
-      months.map((m) =>
-        m.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }),
-      ),
-    );
-    setVisibleMonths(months);
   }, [initialData]);
-
-  // Nouvel effet pour présélectionner les dates
-  useEffect(() => {
-    if (initialData?.dates && initialData.dates.length > 0) {
-      console.log("🎯 Présélection des dates:", initialData.dates);
-
-      // PROTECTION CRITIQUE : Filtrer les dates passées dans initialData
-      const today = new Date();
-      const todayStr = today.toISOString().split("T")[0];
-
-      const validDates = initialData.dates.filter((dateStr) => {
-        const isValid = dateStr >= todayStr;
-        if (!isValid) {
-          console.warn(
-            `🚫 Date passée éliminée dans PollCreator: ${dateStr} (avant ${todayStr})`,
-          );
-        }
-        return isValid;
-      });
-
-      if (validDates.length > 0) {
-        console.log(
-          `✅ Dates pré-sélectionnées validées: ${validDates.length}/${initialData.dates.length} dates futures`,
-        );
-        setState((prev) => ({
-          ...prev,
-          selectedDates: validDates,
-          showTimeSlots: true,
-        }));
-      } else {
-        console.warn(
-          "🚨 Toutes les dates initiales étaient passées, aucune pré-sélection",
-        );
-      }
-    }
-  }, [initialData]);
-
-  // Effet pour gérer les créneaux horaires - optimisé avec useMemo
-  useEffect(() => {
-    if (initialData?.timeSlots && initialData.timeSlots.length > 0) {
-      console.log(
-        "⏰ Configuration des créneaux horaires:",
-        initialData.timeSlots,
-      );
-
-      // Délai pour permettre le rendu initial
-      const timeoutId = setTimeout(() => {
-        const newTimeSlotsByDate: Record<string, TimeSlot[]> = {};
-
-        // Optimisation: générer les créneaux seulement pour les heures pertinentes
-        initialData.dates.forEach((dateStr) => {
-          const slots: TimeSlot[] = [];
-
-          // Déterminer la plage d'heures nécessaire basée sur les créneaux Gemini
-          let minHour = 7; // Heure par défaut
-          let maxHour = 22; // Heure par défaut
-
-          if (initialData.timeSlots) {
-            const hours = initialData.timeSlots.flatMap((slot) => {
-              const [startHour] = slot.start.split(":").map(Number);
-              const [endHour] = slot.end.split(":").map(Number);
-              return [startHour, endHour];
-            });
-
-            if (hours.length > 0) {
-              minHour = Math.max(Math.min(...hours) - 1, 0);
-              maxHour = Math.min(Math.max(...hours) + 1, 23);
-            }
-          }
-
-          // Générer seulement les créneaux dans la plage pertinente
-          for (let hour = minHour; hour <= maxHour; hour++) {
-            for (let minute = 0; minute < 60; minute += state.timeGranularity) {
-              slots.push({ hour, minute, enabled: false });
-            }
-          }
-          newTimeSlotsByDate[dateStr] = slots;
-        });
-
-        // Activer les créneaux basés sur les suggestions Gemini
-        initialData.timeSlots.forEach((geminiSlot) => {
-          const [startHour, startMinute] = geminiSlot.start
-            .split(":")
-            .map(Number);
-          const [endHour, endMinute] = geminiSlot.end.split(":").map(Number);
-
-          // Déterminer les dates auxquelles appliquer ce créneau
-          const targetDates = geminiSlot.dates || initialData.dates;
-
-          console.log(
-            `🎯 Activation créneau ${geminiSlot.start}-${geminiSlot.end} pour dates:`,
-            targetDates,
-          );
-
-          targetDates.forEach((dateStr) => {
-            if (newTimeSlotsByDate[dateStr]) {
-              // Activer tous les créneaux dans la plage
-              newTimeSlotsByDate[dateStr].forEach((slot) => {
-                const slotTime = slot.hour * 60 + slot.minute;
-                const startTime = startHour * 60 + startMinute;
-                const endTime = endHour * 60 + endMinute;
-
-                if (slotTime >= startTime && slotTime < endTime) {
-                  slot.enabled = true;
-                  console.log(
-                    `✅ Activé pour ${dateStr}: ${slot.hour}:${slot.minute.toString().padStart(2, "0")}`,
-                  );
-                }
-              });
-            }
-          });
-        });
-
-        setTimeSlotsByDate(newTimeSlotsByDate);
-      }, 100); // Petit délai pour permettre le rendu initial
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [initialData?.timeSlots, initialData?.dates, state.timeGranularity]);
-
-  useEffect(() => {
-    const newTimeSlotsByDate: Record<string, TimeSlot[]> = {};
-    state.selectedDates.forEach((dateStr) => {
-      if (!timeSlotsByDate[dateStr]) {
-        newTimeSlotsByDate[dateStr] = Array.from({ length: 24 }, (_, i) => ({
-          hour: i,
-          minute: 0,
-          enabled: false,
-        }));
-      } else {
-        newTimeSlotsByDate[dateStr] = timeSlotsByDate[dateStr];
-      }
-    });
-    setTimeSlotsByDate(newTimeSlotsByDate);
-  }, [state.selectedDates]);
-
-  useEffect(() => {
-    const autoSave = setTimeout(() => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      // Ne pas filtrer les dates futures, même si elles sont dans la même période de l'année
-      const validDates = state.selectedDates;
-
-      if (validDates.length > 0 || state.pollTitle || state.participantEmails) {
-        const cleanState = {
-          ...state,
-          selectedDates: validDates,
-        };
-        localStorage.setItem("doodates-draft", JSON.stringify(cleanState));
-      } else {
-        localStorage.removeItem("doodates-draft");
-      }
-    }, 1000);
-    return () => clearTimeout(autoSave);
-  }, [state]);
-
-  // Restaurer le brouillon après connexion (une seule fois au montage)
-  useEffect(() => {
-    const pollDraft = localStorage.getItem("doodates-poll-draft");
-    if (pollDraft && !initialData) {
-      try {
-        const draftData = JSON.parse(pollDraft);
-        if (draftData.title || draftData.selectedDates?.length > 0) {
-          setState((prev) => ({
-            ...prev,
-            pollTitle: draftData.title || "",
-            selectedDates: draftData.selectedDates || [],
-            participantEmails: draftData.participantEmails || "",
-          }));
-          setTimeSlotsByDate(draftData.timeSlotsByDate || {});
-          localStorage.removeItem("doodates-poll-draft");
-          console.log(
-            "📋 Brouillon restauré avec",
-            draftData.selectedDates?.length || 0,
-            "dates",
-          );
-        } else {
-          // Brouillon vide, le supprimer
-          localStorage.removeItem("doodates-poll-draft");
-        }
-      } catch (error) {
-        console.error("Erreur lors de la restauration du brouillon:", error);
-        localStorage.removeItem("doodates-poll-draft");
-      }
-    }
-  }, []); // Exécuter une seule fois au montage
-
-  // Vérifier la connexion calendrier automatiquement (une seule fois)
-  useEffect(() => {
-    if (user && !state.calendarConnected) {
-      const timer = setTimeout(() => {
-        connectCalendar("google");
-      }, 1000); // Délai pour éviter les conflits
-      return () => clearTimeout(timer);
-    }
-  }, [user]); // Enlever state.calendarConnected des dépendances pour éviter les boucles
-
-  // Utiliser un ref pour éviter les re-exécutions
-  const draftLoadedRef = useRef(false);
-
-  useEffect(() => {
-    // Ne charger le draft qu'une seule fois et pas en mode édition
-    if (draftLoadedRef.current || editPollId) return;
-    draftLoadedRef.current = true;
-
-    const draft = localStorage.getItem("doodates-draft");
-    if (draft && initialData) {
-      // On ne charge le draft que si on a des données initiales
-      try {
-        const parsed = JSON.parse(draft);
-        console.log("📝 Draft trouvé dans localStorage:", {
-          dates: parsed.selectedDates,
-          title: parsed.pollTitle,
-        });
-
-        // Ne pas filtrer les dates si elles viennent des données initiales
-        if (initialData) {
-          console.log("⚠️ InitialData présent, on garde le draft tel quel");
-          setState((prev) => ({ ...prev, ...parsed }));
-        } else {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-
-          const validDates =
-            parsed.selectedDates?.filter((dateStr: string) => {
-              const date = new Date(dateStr);
-              return date >= today;
-            }) || [];
-
-          console.log("🔍 Dates valides filtrées:", validDates);
-
-          if (validDates.length > 0 || parsed.selectedDates?.length === 0) {
-            setState((prev) => ({
-              ...prev,
-              ...parsed,
-              selectedDates: validDates,
-            }));
-          } else {
-            console.log("🗑️ Suppression du draft (dates expirées)");
-            localStorage.removeItem("doodates-draft");
-          }
-        }
-      } catch (e) {
-        console.warn("❌ Erreur lors du chargement du draft:", e);
-        localStorage.removeItem("doodates-draft");
-      }
-    } else {
-      console.log(
-        "ℹ️ Pas de draft chargé:",
-        initialData ? "draft non trouvé" : "nouveau sondage",
-      );
-    }
-  }, [editPollId]); // Ajouter editPollId comme dépendance
-
-  // Ajout d'un effet pour nettoyer le draft au montage (mais pas si on a un draft d'auth)
-  useEffect(() => {
-    const pollDraft = localStorage.getItem("doodates-poll-draft");
-    if (!initialData && !pollDraft && !editPollId) {
-      console.log("🧹 Nettoyage du draft au démarrage");
-      localStorage.removeItem("doodates-draft");
-    } else if (pollDraft) {
-      console.log("📋 Draft d'auth détecté, conservation du draft normal");
-    } else if (editPollId) {
-      console.log("✏️ Mode édition, pas de nettoyage du draft");
-    }
-  }, [editPollId]);
-
-  useEffect(() => {
-    if (state.selectedDates.length > 0 && !state.showCalendarConnect) {
-      setState((prev) => ({ ...prev, showCalendarConnect: true }));
-    }
-  }, [state.selectedDates.length, state.showCalendarConnect]);
-
-  const isGranularityCompatible = (newGranularity: number): boolean => {
-    if (timeSlotFunctions) {
-      return timeSlotFunctions.isGranularityCompatible(
-        newGranularity,
-        state.selectedDates,
-        timeSlotsByDate,
-        state.timeGranularity,
-      );
-    }
-    // Fallback simple
-    return true;
-  };
-
-  const handleGranularityChange = (newGranularity: number) => {
-    if (!isGranularityCompatible(newGranularity)) {
-      return;
-    }
-
-    if (!initialGranularityState) {
-      setInitialGranularityState({
-        granularity: state.timeGranularity,
-        timeSlots: { ...timeSlotsByDate },
-      });
-    }
-
-    if (newGranularity < state.timeGranularity) {
-      const newTimeSlotsByDate: Record<string, TimeSlot[]> = {};
-
-      for (const dateStr of state.selectedDates) {
-        const slots = timeSlotsByDate[dateStr] || [];
-        const newSlots: TimeSlot[] = [];
-
-        const totalMinutes = 24 * 60;
-        for (
-          let minutes = 0;
-          minutes < totalMinutes;
-          minutes += newGranularity
-        ) {
-          const hour = Math.floor(minutes / 60);
-          const minute = minutes % 60;
-
-          const blocks = getTimeSlotBlocks(dateStr);
-          let isEnabled = false;
-
-          for (const block of blocks) {
-            const blockStartMinutes =
-              block.start.hour * 60 + block.start.minute;
-            const blockEndMinutes =
-              block.end.hour * 60 + block.end.minute + state.timeGranularity;
-
-            if (minutes >= blockStartMinutes && minutes < blockEndMinutes) {
-              isEnabled = true;
-              break;
-            }
-          }
-
-          newSlots.push({ hour, minute, enabled: isEnabled });
-        }
-
-        newTimeSlotsByDate[dateStr] = newSlots;
-      }
-
-      setTimeSlotsByDate(newTimeSlotsByDate);
-    }
-
-    setState((prev) => ({ ...prev, timeGranularity: newGranularity }));
-  };
-
-  const undoGranularityChange = () => {
-    if (initialGranularityState) {
-      setState((prev) => ({
-        ...prev,
-        timeGranularity: initialGranularityState.granularity,
-      }));
-      setTimeSlotsByDate(initialGranularityState.timeSlots);
-      setInitialGranularityState(null);
-    }
-  };
-
-  const generateCalendarForMonth = (monthDate: Date) => {
-    if (!monthDate) {
-      console.warn(
-        "⚠️ generateCalendarForMonth appelé avec monthDate undefined",
-      );
-      return [];
-    }
-    console.log(
-      "📅 Génération du calendrier pour le mois:",
-      monthDate.toISOString(),
-    );
-    const year = monthDate.getFullYear();
-    const month = monthDate.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-
-    // Ajuster le premier jour pour commencer par lundi (1) au lieu de dimanche (0)
-    let firstDayOfWeek = firstDay.getDay() || 7;
-    firstDayOfWeek = firstDayOfWeek === 0 ? 7 : firstDayOfWeek;
-
-    console.log("📊 Informations du calendrier:", {
-      premierJour: firstDay.toISOString(),
-      dernierJour: lastDay.toISOString(),
-      premierJourSemaine: firstDayOfWeek,
-    });
-
-    const days = [];
-
-    // Ajouter les jours du mois précédent
-    for (let i = 1; i < firstDayOfWeek; i++) {
-      const prevDate = new Date(year, month, 1 - (firstDayOfWeek - i));
-      days.push({ date: prevDate, isCurrentMonth: false });
-    }
-
-    // Ajouter les jours du mois en cours
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      const currentDate = new Date(year, month, i);
-      days.push({ date: currentDate, isCurrentMonth: true });
-    }
-
-    // Ajouter les jours du mois suivant
-    const remainingDays = 42 - days.length; // 6 semaines * 7 jours = 42
-    for (let i = 1; i <= remainingDays; i++) {
-      const nextDate = new Date(year, month + 1, i);
-      days.push({ date: nextDate, isCurrentMonth: false });
-    }
-
-    console.log(`📅 Calendrier généré avec ${days.length} jours`);
-    return days;
-  };
-
-  // Debug responsive seulement en développement
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      const handleResize = () => {
-        const newDimensions = {
-          width: window.innerWidth,
-          height: window.innerHeight,
-          mobile: window.innerWidth < 768,
-        };
-        console.log("📱 Responsive Debug:", newDimensions);
-      };
-
-      // Throttle handleResize to prevent excessive calls
-      let resizeTimeout: NodeJS.Timeout;
-      const throttledHandleResize = () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(handleResize, 150); // Throttle to 150ms
-      };
-
-      window.addEventListener("resize", throttledHandleResize);
-      return () => {
-        window.removeEventListener("resize", throttledHandleResize);
-        clearTimeout(resizeTimeout);
-      };
-    }
-  }, []);
-
-  // Modification de handleScroll pour limiter l'ajout de mois - avec throttling
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    // Utiliser requestAnimationFrame pour optimiser les performances de scroll
-    if (typeof requestAnimationFrame !== "undefined") {
-      requestAnimationFrame(() => {
-        const container = e.currentTarget;
-        const scrollLeft = container.scrollLeft;
-        const containerWidth = container.clientWidth;
-        const scrollWidth = container.scrollWidth;
-
-        // Calculer le mois visible au centre
-        const monthWidth = containerWidth / 1.5; // Approximation
-        const visibleMonthIndex = Math.round(scrollLeft / monthWidth);
-
-        if (
-          visibleMonthIndex >= 0 &&
-          visibleMonthIndex < visibleMonths.length
-        ) {
-          const visibleMonth = visibleMonths[visibleMonthIndex];
-          if (
-            visibleMonth &&
-            visibleMonth instanceof Date &&
-            !isNaN(visibleMonth.getTime())
-          ) {
-            setState((prev) => ({
-              ...prev,
-              currentMonth: visibleMonth,
-            }));
-          }
-        }
-      });
-    } else {
-      // Fallback sans requestAnimationFrame
-      const container = e.currentTarget;
-      const scrollLeft = container.scrollLeft;
-      const containerWidth = container.clientWidth;
-
-      const monthWidth = containerWidth / 1.5;
-      const visibleMonthIndex = Math.round(scrollLeft / monthWidth);
-
-      if (visibleMonthIndex >= 0 && visibleMonthIndex < visibleMonths.length) {
-        const visibleMonth = visibleMonths[visibleMonthIndex];
-        if (
-          visibleMonth &&
-          visibleMonth instanceof Date &&
-          !isNaN(visibleMonth.getTime())
-        ) {
-          setState((prev) => ({
-            ...prev,
-            currentMonth: visibleMonth,
-          }));
-        }
-      }
-    }
-  };
-
-  const toggleDate = (date: Date) => {
-    // Utiliser le format local pour éviter les problèmes de timezone
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
-    const dateStr = `${year}-${month}-${day}`;
-
-    setState((prev) => {
-      const newDates = prev.selectedDates.includes(dateStr)
-        ? prev.selectedDates.filter((d) => d !== dateStr)
-        : [...prev.selectedDates, dateStr].sort();
-
-      return { ...prev, selectedDates: newDates };
-    });
-  };
-
-  const connectCalendar = async (provider: "google" | "outlook") => {
-    if (provider === "google") {
-      try {
-        // Vérifier si l'utilisateur a déjà accès au calendrier
-        const hasAccess = await googleCalendar.hasCalendarAccess();
-
-        if (hasAccess) {
-          console.log("🗓️ Accès Google Calendar confirmé");
-          setState((prev) => ({ ...prev, calendarConnected: true }));
-
-          // Analyser les disponibilités pour les dates sélectionnées
-          if (state.selectedDates.length > 0) {
-            await analyzeCalendarAvailability();
-          }
-        } else if (user) {
-          console.log("🔄 Utilisateur connecté mais pas d'accès calendrier");
-          setState((prev) => ({ ...prev, calendarConnected: true }));
-        } else {
-          console.log("🚫 Pas d'accès Google Calendar");
-        }
-      } catch (error) {
-        console.error("❌ Erreur connexion calendrier:", error);
-      }
-    } else {
-      // TODO: Implémenter Outlook
-      console.log(`Connexion au calendrier ${provider} (non implémenté)`);
-    }
-  };
-
-  const analyzeCalendarAvailability = async () => {
-    try {
-      console.log("📊 Analyse des disponibilités calendrier...");
-
-      const availability = await googleCalendar.analyzeAvailability(
-        state.selectedDates,
-      );
-
-      // Suggérer automatiquement les créneaux libres
-      const newTimeSlotsByDate = { ...timeSlotsByDate };
-
-      Object.entries(availability).forEach(([date, { suggested }]) => {
-        if (suggested.length > 0) {
-          console.log(`✅ Créneaux suggérés pour ${date}:`, suggested);
-
-          // Activer les créneaux suggérés
-          if (newTimeSlotsByDate[date]) {
-            suggested.forEach((slot) => {
-              const startTime = new Date(slot.start);
-              const endTime = new Date(slot.end);
-
-              // Activer tous les créneaux dans la plage suggérée
-              newTimeSlotsByDate[date].forEach((timeSlot) => {
-                const slotTime = new Date(
-                  `${date}T${timeSlot.hour.toString().padStart(2, "0")}:${timeSlot.minute.toString().padStart(2, "0")}:00`,
-                );
-
-                if (slotTime >= startTime && slotTime < endTime) {
-                  timeSlot.enabled = true;
-                }
-              });
-            });
-          }
-        }
-      });
-
-      setTimeSlotsByDate(newTimeSlotsByDate);
-      console.log("🎯 Créneaux mis à jour avec les suggestions du calendrier");
-    } catch (error) {
-      console.error("❌ Erreur analyse calendrier:", error);
-    }
-  };
-
-  const validateEmails = (
-    emailString: string,
-  ): { valid: string[]; errors: string[] } => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const emails = emailString
-      .split(/[,;\s\n]+/)
-      .map((email) => email.trim())
-      .filter((email) => email.length > 0);
-
-    const valid: string[] = [];
-    const errors: string[] = [];
-
-    emails.forEach((email) => {
-      if (emailRegex.test(email)) {
-        valid.push(email);
-      } else {
-        errors.push(`Email invalide: ${email}`);
-      }
-    });
-
-    return { valid, errors };
-  };
-
-  const handleEmailInput = (value: string) => {
-    setState((prev) => ({ ...prev, participantEmails: value }));
-
-    const { valid, errors } = validateEmails(value);
-    setState((prev) => ({
-      ...prev,
-      emailErrors: errors,
-      notificationsEnabled: valid.length > 0, // Activer les notifications si emails valides
-    }));
-  };
-
-  // OPTIMISATION: Utilisation du cache global des fonctions TimeSlot
-  const [timeSlotFunctions, setTimeSlotFunctions] = useState<any>(() => {
-    // Essayer de récupérer immédiatement depuis le cache global
-    const globalFunctions = (window as any).getTimeSlotFunctions?.();
-    if (globalFunctions) {
-      console.log(
-        "⚡ TimeSlot Functions - Récupération instantanée du cache global",
-      );
-      return globalFunctions;
-    }
-    return null;
-  });
-
-  useEffect(() => {
-    // Si pas encore en cache, charger et utiliser le cache global
-    if (!timeSlotFunctions) {
-      console.time("⏰ TimeSlot Functions - Chargement avec cache global");
-
-      // Vérifier d'abord le cache global
-      const globalFunctions = (window as any).getTimeSlotFunctions?.();
-      if (globalFunctions) {
-        console.timeEnd("⏰ TimeSlot Functions - Chargement avec cache global");
-        setTimeSlotFunctions(globalFunctions);
-        return;
-      }
-
-      // Sinon, importer et mettre en cache
-      import("../lib/timeSlotFunctions").then((module) => {
-        console.timeEnd("⏰ TimeSlot Functions - Chargement avec cache global");
-        setTimeSlotFunctions(module);
-      });
-    }
-  }, [timeSlotFunctions]);
-
-  const toggleTimeSlotForDate = async (
-    dateStr: string,
-    hour: number,
-    minute: number,
-  ) => {
-    console.log(
-      `🎯 Clic sur créneau: ${hour}:${minute.toString().padStart(2, "0")} pour ${dateStr}`,
-    );
-
-    if (timeSlotFunctions) {
-      // Utiliser la fonction lazy-loadée
-      const newTimeSlotsByDate = timeSlotFunctions.toggleTimeSlotForDate(
-        dateStr,
-        hour,
-        minute,
-        timeSlotsByDate,
-      );
-      setTimeSlotsByDate(newTimeSlotsByDate);
-      console.log(
-        `✅ Créneau ${hour}:${minute.toString().padStart(2, "0")} mis à jour`,
-      );
-    } else {
-      // Fallback simple si pas encore chargé
-      console.log(
-        `⚠️ Fallback: mise à jour créneau ${hour}:${minute.toString().padStart(2, "0")}`,
-      );
-      setTimeSlotsByDate((prev) => {
-        const currentSlots = prev[dateStr] || [];
-        const existingSlot = currentSlots.find(
-          (s) => s.hour === hour && s.minute === minute,
-        );
-
-        let newSlots;
-        if (existingSlot) {
-          newSlots = currentSlots.map((slot) =>
-            slot.hour === hour && slot.minute === minute
-              ? { ...slot, enabled: !slot.enabled }
-              : slot,
-          );
-        } else {
-          newSlots = [...currentSlots, { hour, minute, enabled: true }];
-        }
-
-        return {
-          ...prev,
-          [dateStr]: newSlots,
-        };
-      });
-    }
-  };
-
-  // OPTIMISATION: Fonctions lazy-loadées avec fallbacks
-  const getVisibleTimeSlots = () => {
-    if (timeSlotFunctions) {
-      return timeSlotFunctions.getVisibleTimeSlots(
-        state.showExtendedHours,
-        state.timeGranularity,
-        timeSlotsByDate,
-      );
-    }
-    // Fallback simple
-    return [];
-  };
-
-  const getTimeSlotBlocks = (dateStr: string) => {
-    if (timeSlotFunctions) {
-      return timeSlotFunctions.getTimeSlotBlocks(
-        dateStr,
-        timeSlotsByDate,
-        state.timeGranularity,
-      );
-    }
-    // Fallback simple
-    return [];
-  };
-
-  const formatSelectedDateHeader = (dateStr: string) => {
-    if (timeSlotFunctions) {
-      return timeSlotFunctions.formatSelectedDateHeader(dateStr);
-    }
-    // Fallback simple
-    const [year, month, day] = dateStr.split("-").map(Number);
-    const date = new Date(year, month - 1, day);
-    return {
-      dayName: date
-        .toLocaleDateString("fr-FR", { weekday: "short" })
-        .toLowerCase(),
-      dayNumber: date.getDate(),
-      month: date.toLocaleDateString("fr-FR", { month: "short" }).toLowerCase(),
-    };
-  };
-
-  const canFinalize = () => {
-    const noEmailErrors = state.emailErrors.length === 0;
-    const hasAtLeastOneDate = state.selectedDates.length > 0;
-    return noEmailErrors && hasAtLeastOneDate;
-  };
-
-  const handleFinalize = async () => {
-    console.log("📝 handleFinalize: start", {
-      title: state.pollTitle,
-      selectedDates: state.selectedDates.length,
-      showTimeSlots: state.showTimeSlots,
-      timeGranularity: state.timeGranularity,
-      notificationsEnabled: state.notificationsEnabled,
-    });
-    // Bloquer si aucune date n'est sélectionnée
-    if (state.selectedDates.length === 0) {
-      toast({
-        title: "Sélectionnez au moins une date",
-        description: "Ajoutez une date pour créer le sondage.",
-        variant: "destructive",
-      });
-      return;
-    }
-    // Calculer la date d'expiration (aujourd'hui + expirationDays)
-    const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + state.expirationDays);
-
-    // Préparer les données du sondage
-    const pollData: PollData = {
-      title: state.pollTitle,
-      description: "", // Pas encore implémenté
-      selectedDates: state.selectedDates,
-      timeSlotsByDate: state.selectedDates.reduce(
-        (acc, dateStr) => {
-          // Pour chaque date, récupérer les créneaux horaires si activés
-          acc[dateStr] = state.showTimeSlots
-            ? getTimeSlotBlocks(dateStr).map((slot) => ({
-                hour: slot.start.hour,
-                minute: slot.start.minute,
-                enabled: true,
-              }))
-            : [];
-          return acc;
-        },
-        {} as Record<
-          string,
-          Array<{ hour: number; minute: number; enabled: boolean }>
-        >,
-      ),
-      participantEmails: state.participantEmails
-        .split(/[,;\s]+/)
-        .filter((email) => email.trim() !== ""),
-      settings: {
-        timeGranularity: state.timeGranularity,
-        allowAnonymousVotes: true,
-        allowMaybeVotes: true,
-        sendNotifications: state.notificationsEnabled,
-        expiresAt: expiryDate.toISOString(),
-      },
-    };
-
-    let result;
-
-    if (editPollId) {
-      // Mode édition : mettre à jour le sondage existant
-      console.log("✏️ Mise à jour du sondage existant:", editPollId);
-
-      // Vérifier s'il y a des votes existants
-      const existingVotes = JSON.parse(
-        localStorage.getItem("dev-votes") || "[]",
-      );
-      const pollVotes = existingVotes.filter(
-        (vote: any) => vote.poll_id === editPollId,
-      );
-
-      if (pollVotes.length > 0) {
-        console.log("⚠️ Votes existants détectés:", pollVotes.length);
-        // Stratégie : Autoriser la modification mais conserver les votes compatibles
-        // Les votes sur des dates supprimées seront perdus
-      }
-
-      // Mettre à jour le sondage dans localStorage
-      const existingPolls = JSON.parse(
-        localStorage.getItem("dev-polls") || "[]",
-      );
-      const pollIndex = existingPolls.findIndex(
-        (poll: any) => poll.id === editPollId,
-      );
-
-      if (pollIndex >= 0) {
-        const updatedPoll = {
-          ...existingPolls[pollIndex],
-          title: pollData.title,
-          settings: {
-            ...existingPolls[pollIndex].settings,
-            ...pollData.settings,
-            selectedDates: pollData.selectedDates,
-            timeSlotsByDate: timeSlotsByDate, // Utiliser l'état local des créneaux
-            showTimeSlots: state.showTimeSlots,
-            timeGranularity: state.timeGranularity,
-          },
-          updated_at: new Date().toISOString(),
-        };
-
-        existingPolls[pollIndex] = updatedPoll;
-        localStorage.setItem("dev-polls", JSON.stringify(existingPolls));
-
-        result = { poll: updatedPoll };
-        console.log("✅ Sondage mis à jour avec succès");
-      } else {
-        result = { error: "Sondage non trouvé" };
-      }
-    } else {
-      // Mode création : créer un nouveau sondage
-      console.log("🆕 Création d'un nouveau sondage");
-      console.log("📤 Appel createPoll avec:", pollData);
-      result = await createPoll(pollData);
-    }
-
-    console.log("📨 Résultat create/update:", result);
-
-    if (result.error) {
-      console.error("Erreur lors de la création du sondage:", result.error);
-      return;
-    }
-
-    if (result.poll) {
-      console.log("✅ Sondage créé avec succès:", result.poll);
-      setCreatedPollSlug(result.poll.slug);
-      setCreatedPoll(result.poll);
-
-      // Nettoyer le brouillon
-      localStorage.removeItem("doodates-draft");
-
-      console.log("🏷️ createdPollSlug défini à:", result.poll.slug);
-
-      // Optionnel : rediriger vers le sondage créé
-      // window.location.href = `/poll/${poll.slug}`;
-    } else {
-      console.error("Aucun sondage retourné malgré l'absence d'erreur");
-    }
-  };
 
   const copyPollLink = async () => {
     try {
@@ -1324,26 +335,33 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   // Effet pour activer automatiquement les horaires si des créneaux sont présélectionnés
   useEffect(() => {
-    if (initialData?.timeSlots && initialData.timeSlots.length > 0) {
-      setState((prev) => ({
-        ...prev,
-        showTimeSlots: true,
-        showGranularitySettings: false, // Ne pas ouvrir automatiquement le panneau
-      }));
-    }
+    if (!initialData?.timeSlots?.length) return;
+    
+    setState((prev) => ({
+      ...prev,
+      showTimeSlots: true,
+      showGranularitySettings: false, // Ne pas ouvrir automatiquement le panneau
+    }));
   }, [initialData]);
 
-  // Fonction pour rediriger vers la page d'accueil
+  // Fonction pour rediriger vers le dashboard
   const handleBackToHome = () => {
-    console.log("↩️ Navigation vers la page d'accueil après création");
-    navigate("/");
+    // Get conversation ID from URL parameters (passed from GeminiChatInterface)
+    const urlParams = new URLSearchParams(window.location.search);
+    const conversationId = urlParams.get('conversationId');
+    
+    if (conversationId) {
+      navigate(`/dashboard?resume=${conversationId}`);
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   // Fonction pour gérer le clic sur le bouton principal
   const handleMainButtonClick = () => {
     console.log("🖱️ Clic bouton principal", {
       createdPollSlug,
-      canFinalize: canFinalize(),
+      canFinalize: PollCreatorService.canFinalize(state),
       pollLoading,
       label: pollLoading
         ? "Création en cours..."
@@ -1354,8 +372,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
             : "Enregistrer",
     });
     if (createdPollSlug) {
-      // Si le sondage est créé, rediriger vers la page d'accueil
-      console.log("➡️ Bouton après création: redirection accueil");
+      // Si le sondage est créé, rediriger vers le dashboard
+      console.log("➡️ Bouton après création: redirection dashboard");
       handleBackToHome();
     } else {
       // Sinon, créer le sondage
@@ -1366,6 +384,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <TopNav />
       <div className="p-4 md:p-6 lg:p-8 xl:p-12">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 lg:p-8 xl:p-12">
@@ -1374,7 +393,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 <Calendar
                   visibleMonths={visibleMonths}
                   selectedDates={state.selectedDates}
-                  onDateToggle={toggleDate}
+                  onDateToggle={(date: Date) => toggleDate(date.toISOString().split('T')[0])}
                   onMonthChange={(direction) => {
                     if (direction === "prev") {
                       const prevMonth = new Date(visibleMonths[0]);
@@ -1464,7 +483,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         </div>
                         {state.selectedDates.length > 0 && (
                           <button
-                            onClick={analyzeCalendarAvailability}
+                            onClick={() => PollCreatorService.analyzeCalendarAvailability(state.selectedDates)}
                             className="text-xs bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors"
                           >
                             📊 Analyser disponibilités
@@ -1622,14 +641,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           { value: 120, label: "2 heures" },
                           { value: 240, label: "4 heures" },
                         ].map((option) => {
-                          const compatible = isGranularityCompatible(
-                            option.value,
-                          );
+                          const compatible = PollCreatorService.isGranularityCompatible(option.value, state.timeSlots);
                           return (
                             <button
                               key={option.value}
                               onClick={() =>
-                                handleGranularityChange(option.value)
+                                PollCreatorService.handleGranularityChange(option.value, setState)
                               }
                               disabled={!compatible}
                               className={`px-3 py-1 text-sm rounded-full transition-colors
@@ -1647,9 +664,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           );
                         })}
                       </div>
-                      {initialGranularityState && (
+                      {PollCreatorService.initialGranularityState && (
                         <button
-                          onClick={undoGranularityChange}
+                          onClick={() => PollCreatorService.undoGranularityChange(setState)}
                           className="mt-3 text-sm text-gray-600 hover:text-gray-800"
                         >
                           Annuler les changements
@@ -1668,7 +685,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         Heure
                       </div>
                       {state.selectedDates.map((dateStr) => {
-                        const dateInfo = formatSelectedDateHeader(dateStr);
+                        const dateInfo = PollCreatorService.formatSelectedDateHeader(dateStr);
                         return (
                           <div
                             key={dateStr}
@@ -1733,25 +750,21 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
                                 data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
                                 onClick={() =>
-                                  toggleTimeSlotForDate(
-                                    dateStr,
-                                    timeSlot.hour,
-                                    timeSlot.minute,
-                                  )
+                                  PollCreatorService.toggleDate(dateStr, state.selectedDates, setState)
                                 }
                                 className={`flex-1 relative transition-colors hover:bg-gray-50 border-r
-                                    ${slot?.enabled ? "bg-green-50" : "bg-white"}
+                                  ${slot?.enabled ? "bg-green-50" : "bg-white"}
                                   ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
-                                  `}
+                                `}
                               >
                                 {slot?.enabled && (
                                   <div
                                     className={`absolute bg-green-500 transition-all
-                                      ${isBlockStart && isBlockEnd ? "inset-1 rounded-lg" : ""}
-                                      ${isBlockStart && !isBlockEnd ? "inset-x-1 top-1 bottom-0 rounded-t-lg" : ""}
-                                      ${isBlockEnd && !isBlockStart ? "inset-x-1 bottom-1 top-0 rounded-b-lg" : ""}
-                                      ${isBlockMiddle ? "inset-x-1 top-0 bottom-0" : ""}
-                                    `}
+                                    ${isBlockStart && isBlockEnd ? "inset-1 rounded-lg" : ""}
+                                    ${isBlockStart && !isBlockEnd ? "inset-x-1 top-1 bottom-0 rounded-t-lg" : ""}
+                                    ${isBlockEnd && !isBlockStart ? "inset-x-1 bottom-1 top-0 rounded-b-lg" : ""}
+                                    ${isBlockMiddle ? "inset-x-1 top-0 bottom-0" : ""}
+                                  `}
                                   >
                                     {isBlockStart && (
                                       <div className="absolute top-0.5 left-0.5 right-0.5">
@@ -1800,7 +813,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         Heure
                       </div>
                       {state.selectedDates.map((dateStr) => {
-                        const dateInfo = formatSelectedDateHeader(dateStr);
+                        const dateInfo = PollCreatorService.formatSelectedDateHeader(dateStr);
                         return (
                           <div
                             key={dateStr}
@@ -1865,11 +878,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
                                 data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
                                 onClick={() =>
-                                  toggleTimeSlotForDate(
-                                    dateStr,
-                                    timeSlot.hour,
-                                    timeSlot.minute,
-                                  )
+                                  PollCreatorService.toggleDate(dateStr, state.selectedDates, setState)
                                 }
                                 className={`flex-1 relative transition-colors hover:bg-gray-50 border-r
                                   ${slot?.enabled ? "bg-green-50" : "bg-white"}
@@ -2217,8 +1226,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           <div className="mt-2 text-sm text-green-700">
                             📧 Emails envoyés aux participants (
                             {
-                              validateEmails(state.participantEmails).valid
-                                .length
+                              state.participantEmails.split(',').filter(email => 
+                              email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+                            ).length
                             }{" "}
                             destinataires)
                           </div>

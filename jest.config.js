@@ -2,10 +2,13 @@
 export default {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
-  roots: ['<rootDir>/tests'],
+  roots: ['<rootDir>/tests', '<rootDir>/src'],
   testMatch: [
     '**/__tests__/**/*.{js,jsx,ts,tsx}',
     '**/*.(test|spec).{js,jsx,ts,tsx}'
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/tests/e2e/'
   ],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
@@ -16,7 +19,8 @@ export default {
         moduleResolution: 'node',
         allowSyntheticDefaultImports: true,
         esModuleInterop: true,
-        resolveJsonModule: true
+        resolveJsonModule: true,
+        jsx: 'react-jsx'
       }
     }]
   },
