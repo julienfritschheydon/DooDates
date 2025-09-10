@@ -116,18 +116,20 @@ export function usePolls() {
         const isLocalMode =
           import.meta.env.MODE === "test" ||
           Boolean(import.meta.env.VITEST) ||
+          import.meta.env.MODE === "development" ||
           // Détection runtime E2E côté navigateur
-          (typeof window !== "undefined" && (() => {
-            try {
-              return (
-                (window as any).__E2E__ === true ||
-                localStorage.getItem("e2e") === "1" ||
-                localStorage.getItem("dev-local-mode") === "1"
-              );
-            } catch (_) {
-              return false;
-            }
-          })()) ||
+          (typeof window !== "undefined" &&
+            (() => {
+              try {
+                return (
+                  (window as any).__E2E__ === true ||
+                  localStorage.getItem("e2e") === "1" ||
+                  localStorage.getItem("dev-local-mode") === "1"
+                );
+              } catch (_) {
+                return false;
+              }
+            })()) ||
           // Fallback: variables d'env manquantes
           !import.meta.env.VITE_SUPABASE_URL ||
           !import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -159,10 +161,6 @@ export function usePolls() {
           existingPolls.push(mockPoll);
           localStorage.setItem("dev-polls", JSON.stringify(existingPolls));
 
-          console.log(
-            "✅ Sondage créé en mode développement local:",
-            mockPoll.slug,
-          );
           return { poll: mockPoll };
         }
 
@@ -178,7 +176,6 @@ export function usePolls() {
           expires_at: pollData.settings.expiresAt || null,
         };
 
-        // console.log("Tentative d'insertion avec:", insertData);
 
         // Utiliser fetch direct car le client supabase se bloque
         let poll;
@@ -300,6 +297,10 @@ export function usePolls() {
           }
         } catch (fetchError) {
           console.error("Erreur création sondage:", fetchError);
+          // Améliorer le message d'erreur pour l'utilisateur
+          if (fetchError instanceof TypeError && fetchError.message.includes('fetch')) {
+            throw new Error("Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.");
+          }
           throw fetchError;
         }
 
@@ -310,26 +311,34 @@ export function usePolls() {
           const timeSlots = pollData.timeSlotsByDate[date] || [];
 
           // Transformer les créneaux au format attendu par la DB
-          const formattedTimeSlots = timeSlots
-            .filter((slot) => slot.enabled)
-            .map((slot, slotIndex) => {
-              // Calculer l'heure de fin correctement
-              const totalMinutes =
-                slot.hour * 60 +
-                slot.minute +
-                pollData.settings.timeGranularity;
-              const endHour = Math.floor(totalMinutes / 60);
-              const endMinute = totalMinutes % 60;
+          const enabledSlots = timeSlots.filter((slot) => slot.enabled);
+          
+          // Trier les créneaux par heure et minute
+          const sortedSlots = enabledSlots.sort((a, b) => {
+            if (a.hour !== b.hour) return a.hour - b.hour;
+            return a.minute - b.minute;
+          });
 
-              return {
-                id: `slot-${slotIndex + 1}`,
-                start_hour: slot.hour,
-                start_minute: slot.minute,
-                end_hour: endHour,
-                end_minute: endMinute,
-                label: `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")} - ${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}`,
-              };
-            });
+          const formattedTimeSlots = sortedSlots.map((slot, slotIndex) => {
+            // Calculer l'heure de fin correctement
+            const totalMinutes =
+              slot.hour * 60 +
+              slot.minute +
+              (pollData.settings?.timeGranularity || 30);
+            const endHour = Math.floor(totalMinutes / 60);
+            const endMinute = totalMinutes % 60;
+
+            return {
+              id: `slot-${date}-${slotIndex + 1}`,
+              start_hour: slot.hour,
+              start_minute: slot.minute,
+              end_hour: endHour,
+              end_minute: endMinute,
+              duration: pollData.settings?.timeGranularity || 30,
+              label: `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")} - ${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}`,
+            };
+          });
+
 
           return {
             poll_id: poll.id,
@@ -339,15 +348,9 @@ export function usePolls() {
           };
         });
 
-        console.log(" Options à créer:", pollOptions);
 
         // Utiliser fetch() direct pour les options (comme pour le sondage principal)
         try {
-          console.log(" Début insertion des options...");
-          console.log(
-            " Détail des options à insérer:",
-            JSON.stringify(pollOptions, null, 2),
-          );
 
           // Pour les sondages anonymes, pas besoin de token JWT
           if (!user) {
@@ -457,8 +460,20 @@ export function usePolls() {
           );
           console.error(" Stack trace:", optionsError?.stack);
 
+          // Améliorer le message d'erreur pour l'utilisateur
+          let userFriendlyMessage = "Erreur lors de la création des options du sondage.";
+          
+          if (optionsError instanceof TypeError && optionsError.message.includes('fetch')) {
+            userFriendlyMessage = "Problème de connexion réseau lors de la création des options. Vérifiez votre connexion internet et réessayez.";
+          } else if (optionsError.message.includes('HTTP 401')) {
+            userFriendlyMessage = "Erreur d'authentification. Veuillez vous reconnecter et réessayer.";
+          } else if (optionsError.message.includes('HTTP 403')) {
+            userFriendlyMessage = "Permissions insuffisantes pour créer ce sondage.";
+          } else if (optionsError.message.includes('HTTP 422')) {
+            userFriendlyMessage = "Données du sondage invalides. Vérifiez les dates et créneaux horaires sélectionnés.";
+          }
+
           // Nettoyer le sondage créé en cas d'erreur
-          console.log(" Nettoyage du sondage suite à l'erreur...");
           try {
             await supabase.from("polls").delete().eq("id", poll.id);
           } catch (cleanupError) {
@@ -469,17 +484,11 @@ export function usePolls() {
         }
 
         // 3. Envoyer les emails aux participants si demandé
-        console.log("Debug email:", {
-          sendNotifications: pollData.settings.sendNotifications,
-          emailsCount: pollData.participantEmails.length,
-          emails: pollData.participantEmails,
-        });
 
         if (
           pollData.settings.sendNotifications &&
           pollData.participantEmails.length > 0
         ) {
-          console.log(" Étape 3: Envoi des notifications email...");
           try {
             const emailResult = await EmailService.sendPollCreatedNotification(
               pollData.title,
@@ -491,7 +500,7 @@ export function usePolls() {
             );
 
             if (emailResult.success) {
-              console.log(" Emails envoyés avec succès");
+              console.log("Emails envoyés avec succès");
             } else {
               console.warn("Erreur envoi emails:", emailResult.error);
               // Ne pas faire échouer la création du sondage si l'email échoue
@@ -500,29 +509,37 @@ export function usePolls() {
             console.warn("Erreur lors de l'envoi des emails:", emailError);
             // Ne pas faire échouer la création du sondage si l'email échoue
           }
-        } else {
-          console.log(" Pas d'envoi d'emails:", {
-            notifications: pollData.settings.sendNotifications,
-            emailCount: pollData.participantEmails.length,
-          });
         }
 
         // 4. Analytics (optionnel - ne doit pas bloquer la création)
-        // Désactivé temporairement car le client Supabase se bloque
-        // console.log("Analytics désactivées temporairement pour éviter les blocages");
-
-        console.log(" Sondage créé avec succès:", poll.slug);
+        
         return { poll };
-      } catch (err: any) {
-        const errorMessage =
-          err.message || "Erreur lors de la création du sondage";
-        setError(errorMessage);
-        return { error: errorMessage };
+
+      } catch (error: any) {
+        console.error("Erreur lors de la création du sondage:", error);
+        
+        // Améliorer les messages d'erreur pour l'utilisateur
+        let userFriendlyMessage = "Erreur lors de la création du sondage";
+        
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          userFriendlyMessage = "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
+        } else if (error.message.includes('Failed to fetch')) {
+          userFriendlyMessage = "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
+        } else if (error.message.includes('NetworkError')) {
+          userFriendlyMessage = "Erreur réseau. Vérifiez votre connexion internet.";
+        } else if (error.message.includes('CORS')) {
+          userFriendlyMessage = "Erreur de configuration serveur. Contactez le support.";
+        } else if (error.message) {
+          userFriendlyMessage = error.message;
+        }
+        
+        setError(userFriendlyMessage);
+        return { error: userFriendlyMessage };
       } finally {
         setLoading(false);
       }
     },
-    [user, generateSlug],
+    [user, generateSlug, generateAdminToken],
   );
 
   const getUserPolls = useCallback(async (): Promise<{
@@ -534,16 +551,12 @@ export function usePolls() {
 
     try {
       // Mode développement local - récupération depuis localStorage
-      console.log("🔍 getUserPolls: Récupération depuis localStorage");
       const localPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
-      console.log("🔍 localStorage raw data:", localPolls);
 
       // En mode développement local, récupérer TOUS les sondages (pas de filtrage par utilisateur)
       // car les sondages peuvent être créés de manière anonyme
       const userPolls = localPolls;
 
-      console.log("🔍 Tous les sondages récupérés:", userPolls);
-      console.log("🔍 User connecté:", user ? user.email : "Aucun");
 
       setPolls(userPolls);
       return { polls: userPolls };
@@ -566,7 +579,6 @@ export function usePolls() {
 
       try {
         // Mode développement local - récupération depuis localStorage
-        console.log("🔍 getPollBySlug: Recherche du sondage:", slug);
         const localPolls = JSON.parse(
           localStorage.getItem("dev-polls") || "[]",
         );
@@ -577,7 +589,6 @@ export function usePolls() {
           throw new Error(`Sondage avec slug "${slug}" non trouvé`);
         }
 
-        console.log("🔍 Sondage trouvé:", poll);
 
         // Pour le mode développement, créer des options basiques à partir des settings
         const mockOptions: PollOption[] =
@@ -643,7 +654,6 @@ export function usePolls() {
       setError(null);
 
       try {
-        console.log("🗑️ Suppression du sondage:", pollId);
 
         // En mode développement local, supprimer du localStorage
         const existingPolls = JSON.parse(
@@ -663,7 +673,6 @@ export function usePolls() {
         );
         localStorage.setItem("dev-votes", JSON.stringify(filteredVotes));
 
-        console.log("✅ Sondage supprimé avec succès");
 
         // Rafraîchir la liste des sondages
         await getUserPolls();

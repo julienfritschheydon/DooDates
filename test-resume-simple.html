@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Resume - Simple</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .step { margin: 10px 0; padding: 10px; border-left: 4px solid #007cba; background: #f9f9f9; }
+        .success { border-left-color: #28a745; }
+        .error { border-left-color: #dc3545; }
+        button { padding: 8px 16px; margin: 5px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        a { color: #007cba; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Conversation Resume</h1>
+    
+    <div class="step">
+        <h3>Step 1: Create Test Conversation</h3>
+        <button onclick="createTestConversation()">Create Test Conversation</button>
+        <div id="create-result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 2: Test Resume URL</h3>
+        <div id="resume-links"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 3: Verify Storage</h3>
+        <button onclick="verifyStorage()">Check Storage</button>
+        <div id="storage-result"></div>
+    </div>
+
+    <script>
+        let testConversationId = null;
+
+        function createTestConversation() {
+            const resultDiv = document.getElementById('create-result');
+            const linksDiv = document.getElementById('resume-links');
+            
+            try {
+                // Generate unique test ID
+                testConversationId = 'local-' + Date.now() + '-test';
+                
+                // Create conversation data structure
+                const storageData = {
+                    conversations: {},
+                    messages: {},
+                    metadata: {
+                        version: '1.0.0',
+                        createdAt: new Date().toISOString(),
+                        lastAccessed: new Date().toISOString(),
+                        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                        isGuest: true
+                    }
+                };
+
+                // Check for existing data
+                const storageKey = 'doodates_conversations';
+                const existingData = localStorage.getItem(storageKey);
+                if (existingData) {
+                    try {
+                        const decompressed = LZString.decompress(existingData);
+                        const existing = JSON.parse(decompressed);
+                        storageData.conversations = existing.conversations || {};
+                        storageData.messages = existing.messages || {};
+                        storageData.metadata = existing.metadata || storageData.metadata;
+                    } catch (e) {
+                        console.log('Using fresh storage structure');
+                    }
+                }
+
+                // Add test conversation
+                storageData.conversations[testConversationId] = {
+                    id: testConversationId,
+                    title: 'Test Resume Conversation',
+                    status: 'active',
+                    firstMessage: 'Hello! This is a test conversation to verify the resume functionality works correctly.',
+                    messageCount: 1,
+                    isFavorite: false,
+                    tags: ['test', 'resume'],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    metadata: {
+                        pollGenerated: false,
+                        errorOccurred: false,
+                        aiModel: 'gemini-pro',
+                        language: 'fr'
+                    }
+                };
+
+                // Add test message
+                storageData.messages[testConversationId] = [{
+                    id: 'msg-' + Date.now(),
+                    conversationId: testConversationId,
+                    content: 'Hello! This is a test conversation to verify the resume functionality works correctly.',
+                    role: 'user',
+                    timestamp: new Date().toISOString()
+                }];
+
+                // Save to localStorage
+                const compressed = LZString.compress(JSON.stringify(storageData));
+                localStorage.setItem(storageKey, compressed);
+
+                // Show success
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        ✅ Test conversation created successfully!<br>
+                        <strong>ID:</strong> ${testConversationId}<br>
+                        <strong>Title:</strong> Test Resume Conversation
+                    </div>
+                `;
+
+                // Generate resume links
+                const resumeUrl = `${window.location.origin}/chat?resume=${testConversationId}`;
+                linksDiv.innerHTML = `
+                    <p>Click to test resume functionality:</p>
+                    <p><a href="${resumeUrl}" target="_blank">${resumeUrl}</a></p>
+                    <p><em>This should load the conversation without errors and show the test message.</em></p>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Error creating test conversation: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function verifyStorage() {
+            const resultDiv = document.getElementById('storage-result');
+            
+            try {
+                const storageKey = 'doodates_conversations';
+                const data = localStorage.getItem(storageKey);
+                
+                if (!data) {
+                    resultDiv.innerHTML = '<div class="error">❌ No storage data found</div>';
+                    return;
+                }
+
+                const decompressed = LZString.decompress(data);
+                const parsed = JSON.parse(decompressed);
+                
+                const conversationIds = Object.keys(parsed.conversations || {});
+                const messageIds = Object.keys(parsed.messages || {});
+                
+                let html = '<div class="success">✅ Storage verification:</div>';
+                html += `<p><strong>Total conversations:</strong> ${conversationIds.length}</p>`;
+                html += `<p><strong>Total message threads:</strong> ${messageIds.length}</p>`;
+                
+                if (testConversationId && parsed.conversations[testConversationId]) {
+                    html += `<p><strong>Test conversation found:</strong> ✅</p>`;
+                    html += `<p><strong>Test messages found:</strong> ${parsed.messages[testConversationId] ? '✅' : '❌'}</p>`;
+                } else {
+                    html += `<p><strong>Test conversation:</strong> Not found or not created yet</p>`;
+                }
+                
+                html += '<p><strong>All conversation IDs:</strong></p>';
+                html += '<ul>';
+                conversationIds.forEach(id => {
+                    const conv = parsed.conversations[id];
+                    html += `<li>${id} - "${conv.title || 'No title'}"</li>`;
+                });
+                html += '</ul>';
+                
+                resultDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Error verifying storage: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-verify storage on load
+        window.onload = function() {
+            verifyStorage();
+        };
+    </script>
+</body>
+</html>

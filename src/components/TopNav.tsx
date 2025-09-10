@@ -38,7 +38,7 @@ const TopNav = () => {
           </button>
 
           <button
-            onClick={() => navigate("/ai-chat")}
+            onClick={() => navigate("/chat")}
             className="flex items-center justify-center gap-1 lg:gap-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-3 lg:px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all duration-200 shadow-sm text-sm"
             title="Chat IA"
             data-testid="ai-chat-button"

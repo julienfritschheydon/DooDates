@@ -1,0 +1,274 @@
+/**
+ * Tests for usePollConversationLink hook
+ * DooDates - Bidirectional Navigation Tests
+ */
+
+import { renderHook, act } from '@testing-library/react';
+import { usePollConversationLink } from '../usePollConversationLink';
+import { useConversations } from '../useConversations';
+
+// Mock the useConversations hook
+jest.mock('../useConversations');
+const mockUseConversations = useConversations as jest.MockedFunction<typeof useConversations>;
+
+// Mock localStorage
+const mockLocalStorage = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+};
+Object.defineProperty(window, 'localStorage', {
+  value: mockLocalStorage,
+});
+
+// Mock window.location
+const mockLocation = {
+  href: 'http://localhost:3000',
+  toString: () => 'http://localhost:3000',
+};
+Object.defineProperty(window, 'location', {
+  value: mockLocation,
+  writable: true,
+});
+
+describe('usePollConversationLink', () => {
+  const mockUpdateConversation = {
+    mutateAsync: jest.fn(),
+    isLoading: false,
+    error: null,
+  };
+
+  const mockUseConversation = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseConversations.mockReturnValue({
+      updateConversation: mockUpdateConversation,
+      useConversation: mockUseConversation,
+    } as any);
+  });
+
+  describe('linkPollToConversation', () => {
+    it('should successfully link a poll to a conversation', async () => {
+      mockUpdateConversation.mutateAsync.mockResolvedValue({});
+      
+      const { result } = renderHook(() => usePollConversationLink());
+
+      await act(async () => {
+        const success = await result.current.linkPollToConversation('conv-1', {
+          pollId: 'poll-1',
+          pollTitle: 'Test Poll',
+          messageId: 'msg-1',
+        });
+        
+        expect(success).toBe(true);
+      });
+
+      expect(mockUpdateConversation.mutateAsync).toHaveBeenCalledWith({
+        id: 'conv-1',
+        updates: {
+          tags: ['poll:poll-1'],
+        },
+      });
+    });
+
+    it('should handle linking errors gracefully', async () => {
+      mockUpdateConversation.mutateAsync.mockRejectedValue(new Error('Update failed'));
+      
+      const { result } = renderHook(() => usePollConversationLink());
+
+      await act(async () => {
+        const success = await result.current.linkPollToConversation('conv-1', {
+          pollId: 'poll-1',
+          pollTitle: 'Test Poll',
+          messageId: 'msg-1',
+        });
+        
+        expect(success).toBe(false);
+      });
+    });
+  });
+
+  describe('getPollLinkMetadata', () => {
+    it('should generate correct poll link metadata', () => {
+      const { result } = renderHook(() => usePollConversationLink());
+
+      const metadata = result.current.getPollLinkMetadata(
+        'conv-1',
+        'msg-1',
+        'Test Conversation'
+      );
+
+      expect(metadata).toEqual({
+        conversationId: 'conv-1',
+        messageId: 'msg-1',
+        conversationTitle: 'Test Conversation',
+        generatedAt: expect.any(String),
+      });
+    });
+  });
+
+  describe('navigateToConversation', () => {
+    it('should set up navigation to conversation', () => {
+      const { result } = renderHook(() => usePollConversationLink());
+
+      act(() => {
+        result.current.navigateToConversation('conv-1');
+      });
+
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+        'resumeConversation',
+        JSON.stringify({
+          conversationId: 'conv-1',
+          source: 'poll',
+          timestamp: expect.any(String),
+        })
+      );
+
+      expect(window.location.href).toContain('conversation=conv-1');
+      expect(window.location.href).toContain('source=poll');
+    });
+  });
+
+  describe('navigateToPoll', () => {
+    it('should navigate to poll with conversation source', () => {
+      const { result } = renderHook(() => usePollConversationLink());
+
+      act(() => {
+        result.current.navigateToPoll('poll-1');
+      });
+
+      expect(window.location.href).toBe('/poll/poll-1?source=conversation');
+    });
+  });
+
+  describe('hasLinkedPoll', () => {
+    it('should detect when conversation has linked polls', () => {
+      mockUseConversation.mockReturnValue({
+        conversation: {
+          id: 'conv-1',
+          tags: ['poll:poll-1', 'other-tag'],
+        },
+      });
+
+      const { result } = renderHook(() => usePollConversationLink());
+
+      const hasLink = result.current.hasLinkedPoll('conv-1');
+      expect(hasLink).toBe(true);
+    });
+
+    it('should return false when conversation has no linked polls', () => {
+      mockUseConversation.mockReturnValue({
+        conversation: {
+          id: 'conv-1',
+          tags: ['other-tag'],
+        },
+      });
+
+      const { result } = renderHook(() => usePollConversationLink());
+
+      const hasLink = result.current.hasLinkedPoll('conv-1');
+      expect(hasLink).toBe(false);
+    });
+
+    it('should handle missing conversation data', () => {
+      mockUseConversation.mockReturnValue({
+        conversation: null,
+      });
+
+      const { result } = renderHook(() => usePollConversationLink());
+
+      const hasLink = result.current.hasLinkedPoll('conv-1');
+      expect(hasLink).toBe(false);
+    });
+  });
+
+  describe('getLinkedPoll', () => {
+    it('should extract poll information from conversation tags', () => {
+      mockUseConversation.mockReturnValue({
+        conversation: {
+          id: 'conv-1',
+          tags: ['poll:poll-1', 'other-tag'],
+        },
+      });
+
+      const { result } = renderHook(() => usePollConversationLink());
+
+      const linkedPoll = result.current.getLinkedPoll('conv-1');
+      expect(linkedPoll).toEqual({
+        pollId: 'poll-1',
+        pollTitle: 'Poll',
+        createdAt: expect.any(String),
+      });
+    });
+
+    it('should return undefined when no poll is linked', () => {
+      mockUseConversation.mockReturnValue({
+        conversation: {
+          id: 'conv-1',
+          tags: ['other-tag'],
+        },
+      });
+
+      const { result } = renderHook(() => usePollConversationLink());
+
+      const linkedPoll = result.current.getLinkedPoll('conv-1');
+      expect(linkedPoll).toBeUndefined();
+    });
+  });
+
+  describe('integration scenarios', () => {
+    it('should handle complete poll creation and linking workflow', async () => {
+      mockUpdateConversation.mutateAsync.mockResolvedValue({});
+      
+      const { result } = renderHook(() => usePollConversationLink());
+
+      // Step 1: Get metadata for linking
+      const metadata = result.current.getPollLinkMetadata('conv-1', 'msg-1', 'Test Conv');
+      expect(metadata.conversationId).toBe('conv-1');
+
+      // Step 2: Link poll to conversation
+      await act(async () => {
+        const success = await result.current.linkPollToConversation('conv-1', {
+          pollId: 'poll-1',
+          pollTitle: 'Test Poll',
+          messageId: 'msg-1',
+        });
+        expect(success).toBe(true);
+      });
+
+      // Step 3: Verify linking worked
+      mockUseConversation.mockReturnValue({
+        conversation: {
+          id: 'conv-1',
+          tags: ['poll:poll-1'],
+        },
+      });
+
+      const hasLink = result.current.hasLinkedPoll('conv-1');
+      expect(hasLink).toBe(true);
+
+      const linkedPoll = result.current.getLinkedPoll('conv-1');
+      expect(linkedPoll?.pollId).toBe('poll-1');
+    });
+
+    it('should handle navigation between poll and conversation', () => {
+      const { result } = renderHook(() => usePollConversationLink());
+
+      // Navigate from conversation to poll
+      act(() => {
+        result.current.navigateToPoll('poll-1');
+      });
+      expect(window.location.href).toBe('/poll/poll-1?source=conversation');
+
+      // Navigate from poll back to conversation
+      act(() => {
+        result.current.navigateToConversation('conv-1');
+      });
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+        'resumeConversation',
+        expect.stringContaining('conv-1')
+      );
+    });
+  });
+});

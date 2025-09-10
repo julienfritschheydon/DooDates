@@ -1,0 +1,145 @@
+[33mcommit 81cd1a2e237ff6e809344e6fb32bdbe7127fe9e4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: julienfritschheydon <julien.fritsch@gmail.com>
+Date:   Fri Aug 29 13:27:23 2025 +0200
+
+    feat: add GitHub Pages deployment of E2E reports with PR comments
+
+ .github/workflows/nightly-e2e.yml | 106 [32m+++++++++++++++++++++++++++++++++++++[m[31m-[m
+ Docs/2. Planning.md               |   7 [32m+++[m
+ src/hooks/usePolls.ts             |  16 [32m+++++[m[31m-[m
+ src/lib/supabase-fetch.ts         |  18 [32m+++++++[m
+ tests/e2e/mobile-voting.spec.ts   |   6 [32m++[m[31m-[m
+ tests/e2e/poll-actions.spec.ts    |   3 [32m+[m[31m-[m
+ tests/e2e/ultra-simple.spec.ts    |   4 [32m+[m[31m-[m
+ tests/e2e/utils.ts                |  14 [32m+++++[m
+ 8 files changed, 168 insertions(+), 6 deletions(-)
+
+[33mcommit c1a34fce9afae1cd09c4cf65058519720220d467[m
+Author: julienfritschheydon <julien.fritsch@gmail.com>
+Date:   Fri Aug 29 10:30:50 2025 +0200
+
+    feat: enable local mode in test environment by checking VITEST and MODE flags
+
+ src/hooks/usePolls.ts     |   4 [32m+[m[31m-[m
+ src/lib/supabase-fetch.ts | 233 [32m+++++++++++++++++++++++++++[m[31m-------------------[m
+ 2 files changed, 140 insertions(+), 97 deletions(-)
+
+[33mcommit aa8f0cfcccbcc34a5fff1ba6728827d46bdc34e2[m
+Author: julienfritschheydon <julien.fritsch@gmail.com>
+Date:   Fri Aug 29 10:09:48 2025 +0200
+
+    fixing the nightly E2E Matrix.
+
+ "Docs/10. A faire r\303\251guli\303\250rement.md" |  1 [32m+[m
+ Docs/2. Planning.md                               |  1 [32m+[m
+ src/contexts/AuthContext.tsx                      | 18 [32m+++[m[31m--[m
+ src/hooks/usePolls.ts                             | 26 [32m++[m[31m-----[m
+ src/lib/supabase-fetch.ts                         | 83 [32m++++++++++++++++++++++[m[31m-[m
+ 5 files changed, 101 insertions(+), 28 deletions(-)
+
+[33mcommit 09c1da7b92003ece928a9731a5314cbd855fe96c[m
+Author: julienfritschheydon <julien.fritsch@gmail.com>
+Date:   Fri Aug 29 09:46:27 2025 +0200
+
+    refactor: move email alert secrets to environment variables for better access control
+
+ .github/workflows/notify-nightly-failure.yml | 11 [32m+++++++[m[31m----[m
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+[33mcommit 16e4b49609b4e4f412b4d494dc50f7c96c58c140[m
+Author: julienfritschheydon <julien.fritsch@gmail.com>
+Date:   Thu Aug 28 23:33:48 2025 +0200
+
+    feat: add e2e test suite with calendar integration docs and utils
+
+ "Docs/10. A faire r\303\251guli\303\250rement.md" |   2 [32m+[m
+ Docs/2. Planning.md                               | 183 [32m+++++++++++++++++[m[31m-----[m
+ Docs/Calendar-Integration-Decision.md             |  97 [32m++++++++++++[m
+ Docs/Sans-Compte-OwnerToken.md                    |  83 [32m++++++++++[m
+ playwright-report/index.html                      |   2 [32m+[m[31m-[m
+ tests/e2e-automation.md                           |  26 [32m+++[m
+ tests/e2e/mobile-voting.spec.ts                   |   7 [32m+[m[31m-[m
+ tests/e2e/poll-actions.spec.ts                    |   8 [32m+[m[31m-[m
+ tests/e2e/ultra-simple.spec.ts                    |   7 [32m+[m[31m-[m
+ tests/e2e/utils.ts                                |   6 [32m+[m
+ 10 files changed, 368 insertions(+), 53 deletions(-)
+
+[33mcommit bd41902fbe57652ce2d3756d246e136bb22ac31e[m
+Author: julienfritschheydon <julien.fritsch@gmail.com>
+Date:   Wed Aug 27 00:12:32 2025 +0200
+
+    feat: implement form poll voting components and planning docs
+
+ Docs/2. Planning.md                   | 20 [32m++++++++++[m[31m----------[m
+ src/components/polls/FormPollVote.tsx |  7 [32m+++++[m[31m--[m
+ src/components/voting/VoterForm.tsx   | 19 [32m+++++++++++++++[m[31m----[m
+ 3 files changed, 30 insertions(+), 16 deletions(-)
+
+[33mcommit e4a0a1932d9c6d4aceabc2224f6f710c0526c130[m
+Author: julienfritschheydon <julien.fritsch@gmail.com>
+Date:   Wed Aug 27 00:11:30 2025 +0200
+
+    feat: add core poll components and e2e test infrastructure
+
+ .github/workflows/nightly-e2e.yml                  |   2 [32m+[m
+ .github/workflows/pr-validation.yml                |  46 [32m++[m[31m-[m
+ Docs/10. Plan-Dual-Poll-Types.md                   | 109 [31m------[m
+ Docs/2. Planning.md                                | 170 [32m++++++[m[31m---[m
+ .../11c2e063be70acca4f9b253624121faeefde8d58.zip   | Bin [31m1682524[m -> [32m0[m bytes
+ .../691f2f5ca8ae50f2108e1c838c675cecb396cfc6.png   | Bin [31m56582[m -> [32m0[m bytes
+ .../e21f357463eebbb6a182ec01bff9ab4e4ea63414.png   | Bin [31m11168[m -> [32m0[m bytes
+ playwright-report/index.html                       |   2 [32m+[m[31m-[m
+ .../trace/assets/codeMirrorModule-DECADVLv.js      |  24 [31m--[m
+ .../trace/assets/defaultSettingsView-Cjl_e5YM.js   | 256 [31m-------------[m
+ .../trace/codeMirrorModule.C3UTv-Ge.css            |   1 [31m-[m
+ playwright-report/trace/codicon.DCmgc-ay.ttf       | Bin [31m80340[m -> [32m0[m bytes
+ .../trace/defaultSettingsView.NYBT19Ch.css         |   1 [31m-[m
+ playwright-report/trace/index.BjQ9je-p.js          |   2 [31m-[m
+ playwright-report/trace/index.CFOW-Ezb.css         |   1 [31m-[m
+ playwright-report/trace/index.html                 |  43 [31m---[m
+ playwright-report/trace/playwright-logo.svg        |   9 [31m-[m
+ playwright-report/trace/snapshot.html              |  21 [31m--[m
+ playwright-report/trace/sw.bundle.js               |   3 [31m-[m
+ playwright-report/trace/uiMode.BatfzHMG.css        |   1 [31m-[m
+ playwright-report/trace/uiMode.D5wwC2E1.js         |   5 [31m-[m
+ playwright-report/trace/uiMode.html                |  17 [31m-[m
+ playwright-report/trace/xtermModule.Beg8tuEN.css   |  32 [31m--[m
+ src/components/polls/FormEditor.tsx                |   1 [32m+[m
+ src/components/polls/FormPollCreator.tsx           |   3 [32m+[m
+ src/components/polls/FormPollVote.tsx              |  30 [32m+[m[31m-[m
+ src/components/polls/QuestionCard.tsx              |  24 [32m++[m
+ src/components/polls/QuestionListNav.tsx           |   3 [32m+[m
+ src/components/voting/VoterForm.tsx                |  26 [32m+[m[31m-[m
+ src/pages/Results.tsx                              |  21 [32m+[m[31m-[m
+ .../trace.zip                                      | Bin [31m1682524[m -> [32m0[m bytes
+ tests/e2e/mobile-voting.spec.ts                    | 296 [32m+++++++++++++++[m
+ tests/e2e/poll-actions.spec.ts                     |  21 [32m+[m[31m-[m
+ tests/e2e/ultra-simple.spec.ts                     | 398 [32m++++++[m[31m---------------[m
+ tests/e2e/utils.ts                                 |  24 [32m+[m[31m-[m
+ 35 files changed, 714 insertions(+), 878 deletions(-)
+
+[33mcommit 8f43451e701f692bc5a1426eeb016046df3db180[m
+Author: julienfritschheydon <julien.fritsch@gmail.com>
+Date:   Tue Aug 26 18:28:24 2025 +0200
+
+    feat: add initial form poll components and unified storage system
+
+ src/components/Dashboard.tsx             |  17 [32m+[m[31m-[m
+ src/components/polls/FormEditor.tsx      |  73 [32m++++++[m[31m--[m
+ src/components/polls/FormPollCreator.tsx |  39 [32m++[m[31m--[m
+ src/components/polls/FormPollResults.tsx | 303 [32m++++++++++++++++++[m[31m-------------[m
+ src/components/polls/FormPollVote.tsx    |  21 [32m++[m[31m-[m
+ src/components/polls/QuestionCard.tsx    | 109 [32m+++++++++[m[31m--[m
+ src/components/polls/QuestionListNav.tsx |   6 [32m+[m[31m-[m
+ src/components/polls/ResultsLayout.tsx   |  17 [32m+[m[31m-[m
+ src/components/polls/ResultsStates.tsx   |  28 [32m++[m[31m-[m
+ src/lib/__tests__/pollStorage.test.ts    |  10 [32m+[m[31m-[m
+ src/lib/pollStorage.ts                   |  25 [32m++[m[31m-[m
+ src/lib/pollStorage.unicity.test.ts      |  76 [32m++++[m[31m----[m
+ src/pages/CreateChooser.tsx              |   3 [32m+[m[31m-[m
+ src/pages/FormCreator.tsx                |  15 [32m+[m[31m-[m
+ src/pages/Results.tsx                    |  27 [32m+[m[31m--[m
+ 15 files changed, 515 insertions(+), 254 deletions(-)
+
+[33mcommit 443e13f6efbbf8461bb3da6a6ba01fa3809afed4[m
+Author: juli

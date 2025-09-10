@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DooDates Storage Inspector</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .key { font-weight: bold; color: #333; }
+        .value { background: #f5f5f5; padding: 10px; border-radius: 3px; white-space: pre-wrap; }
+        .empty { color: #999; font-style: italic; }
+        button { padding: 10px 15px; margin: 5px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #005a87; }
+    </style>
+</head>
+<body>
+    <h1>🔍 DooDates Storage Inspector</h1>
+    
+    <button onclick="refreshData()">🔄 Actualiser</button>
+    <button onclick="clearStorage()">🗑️ Vider le stockage</button>
+    
+    <div class="section">
+        <h2>📦 Clés localStorage DooDates</h2>
+        <div id="keys-list"></div>
+    </div>
+    
+    <div class="section">
+        <h2>💬 Conversations</h2>
+        <div id="conversations-data"></div>
+    </div>
+    
+    <div class="section">
+        <h2>📝 Messages</h2>
+        <div id="messages-data"></div>
+    </div>
+    
+    <div class="section">
+        <h2>🔧 Métadonnées</h2>
+        <div id="metadata-data"></div>
+    </div>
+
+    <script>
+        function refreshData() {
+            // Find all DooDates related keys
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.includes('doodates')) {
+                    keys.push(key);
+                }
+            }
+            
+            document.getElementById('keys-list').innerHTML = keys.length > 0 
+                ? keys.map(key => `<div class="key">${key}</div>`).join('')
+                : '<div class="empty">Aucune clé DooDates trouvée</div>';
+            
+            // Check conversations storage
+            const conversationsKey = 'doodates-conversations-local';
+            const conversationsData = localStorage.getItem(conversationsKey);
+            
+            if (conversationsData) {
+                try {
+                    // Try to parse as compressed data first
+                    let parsed;
+                    if (window.LZString) {
+                        const decompressed = LZString.decompress(conversationsData);
+                        parsed = decompressed ? JSON.parse(decompressed) : JSON.parse(conversationsData);
+                    } else {
+                        parsed = JSON.parse(conversationsData);
+                    }
+                    
+                    document.getElementById('conversations-data').innerHTML = 
+                        `<div class="value">${JSON.stringify(parsed.conversations || parsed, null, 2)}</div>`;
+                    
+                    document.getElementById('messages-data').innerHTML = 
+                        `<div class="value">${JSON.stringify(parsed.messages || [], null, 2)}</div>`;
+                    
+                    document.getElementById('metadata-data').innerHTML = 
+                        `<div class="value">${JSON.stringify(parsed.metadata || {}, null, 2)}</div>`;
+                        
+                } catch (e) {
+                    document.getElementById('conversations-data').innerHTML = 
+                        `<div class="empty">Erreur de parsing: ${e.message}</div>
+                         <div class="value">Données brutes: ${conversationsData.substring(0, 500)}...</div>`;
+                }
+            } else {
+                document.getElementById('conversations-data').innerHTML = 
+                    '<div class="empty">Aucune donnée de conversation trouvée</div>';
+                document.getElementById('messages-data').innerHTML = 
+                    '<div class="empty">Aucun message trouvé</div>';
+                document.getElementById('metadata-data').innerHTML = 
+                    '<div class="empty">Aucune métadonnée trouvée</div>';
+            }
+        }
+        
+        function clearStorage() {
+            if (confirm('Êtes-vous sûr de vouloir vider le stockage DooDates ?')) {
+                const keys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.includes('doodates')) {
+                        keys.push(key);
+                    }
+                }
+                keys.forEach(key => localStorage.removeItem(key));
+                refreshData();
+                alert('Stockage vidé !');
+            }
+        }
+        
+        // Load data on page load
+        refreshData();
+    </script>
+</body>
+</html>

@@ -28,8 +28,6 @@ const Results = lazy(() => import("./pages/Results"));
 const CreateChooser = lazy(() => import("./pages/CreateChooser"));
 const FormCreator = lazy(() => import("./pages/FormCreator"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
-const ConversationalAI = lazy(() => import("./components/ConversationalAI"));
-
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Cache persistant pour résister au HMR de Vite
@@ -213,16 +211,9 @@ setTimeout(() => {
     }
   };
 
-  preloadInBatches()
-    .then(() => {
-      // console.timeEnd("📦 Préchargement complet");
-      // console.log(
-      //   "✅ Préchargement complet terminé - Navigation instantanée !",
-      // );
-    })
-    .catch((error) => {
-      console.warn("⚠️ Erreur préchargement complet:", error);
-    });
+  preloadInBatches().catch((error) => {
+    console.warn("⚠️ Erreur préchargement complet:", error);
+  });
 }, 1000);
 
 // Exposer globalement pour utilisation dans PollCreator
@@ -238,18 +229,28 @@ const PollCreator = lazy(() => {
 
   if (isModulePreloaded()) {
     console.time("📦 PollCreator - Cache session rapide");
-    return import("./pages/PollCreator").then((module) => {
-      console.timeEnd("📦 PollCreator - Cache session rapide");
-      pollCreatorModule = module;
-      return module;
-    });
+    return import("./pages/PollCreator")
+      .then((module) => {
+        console.timeEnd("📦 PollCreator - Cache session rapide");
+        pollCreatorModule = module;
+        return module;
+      })
+      .catch((error) => {
+        console.error("Erreur chargement PollCreator (cache):", error);
+        throw error;
+      });
   }
 
   console.time("📦 PollCreator - Chargement initial");
-  return preloadPollCreator().then((module) => {
-    console.timeEnd("📦 PollCreator - Chargement initial");
-    return module;
-  });
+  return preloadPollCreator()
+    .then((module) => {
+      console.timeEnd("📦 PollCreator - Chargement initial");
+      return module;
+    })
+    .catch((error) => {
+      console.error("Erreur chargement PollCreator (initial):", error);
+      throw error;
+    });
 });
 
 const queryClient = new QueryClient({
@@ -298,7 +299,6 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/chat" element={<Index />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/ai-chat" element={<ConversationalAI />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/poll/:slug" element={<Vote />} />
