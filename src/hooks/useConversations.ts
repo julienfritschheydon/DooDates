@@ -5,7 +5,6 @@ import {
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query";
-import { ConversationError } from "../types/conversation";
 import { logger } from "@/lib/logger";
 import * as ConversationStorage from "../lib/storage/ConversationStorageSimple";
 import { useAuth } from "../contexts/AuthContext";
@@ -651,11 +650,13 @@ export function useConversations(config: UseConversationsConfig = {}) {
     };
 
     // Placeholder for real-time subscription setup
-    logger.debug('Real-time sync would be enabled here', 'conversation', { userId: user.id });
+    logger.debug("Real-time sync would be enabled here", "conversation", {
+      userId: user.id,
+    });
 
     return () => {
       // Cleanup real-time subscriptions
-      logger.debug('Real-time sync cleanup', 'conversation');
+      logger.debug("Real-time sync cleanup", "conversation");
     };
   }, [enableRealtime, user, queryClient, queryKeys]);
 

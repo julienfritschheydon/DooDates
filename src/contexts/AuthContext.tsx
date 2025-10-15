@@ -75,13 +75,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .single();
 
       if (error) {
-        logger.error('Error fetching profile', 'auth', error);
+        logger.error("Error fetching profile", "auth", error);
         return null;
       }
 
       return data;
     } catch (err) {
-      logger.error('Error in fetchProfile', 'auth', err);
+      logger.error("Error in fetchProfile", "auth", err);
       return null;
     }
   };
@@ -177,7 +177,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
 
     try {
-      logger.info('Tentative de connexion Google', 'auth');
+      logger.info("Tentative de connexion Google", "auth");
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -193,17 +193,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if (error) {
-        logger.error('Google OAuth Error', 'auth', error);
+        logger.error("Google OAuth Error", "auth", error);
         setError(`Erreur Google OAuth: ${error.message}`);
         setLoading(false);
         return { error };
       }
 
-      logger.info('Redirection Google OAuth démarrée', 'auth');
+      logger.info("Redirection Google OAuth démarrée", "auth");
       // Ne pas setLoading(false) ici car la redirection va se faire
       return { error: null };
     } catch (err) {
-      logger.error('Google OAuth Exception', 'auth', err);
+      logger.error("Google OAuth Exception", "auth", err);
       const errorMessage =
         err instanceof Error ? err.message : "Erreur de connexion Google";
       setError(`Erreur connexion: ${errorMessage}`);

@@ -77,12 +77,14 @@ const preloadPollCreator = async () => {
 
       // Log seulement si temps de chargement élevé
       if (loadTime > 1000) {
-        logger.warn('PollCreator - Rechargement lent', 'performance', { loadTime });
+        logger.warn("PollCreator - Rechargement lent", "performance", {
+          loadTime,
+        });
       }
 
       return module;
     } catch (error) {
-      logger.error('Erreur préchargement PollCreator', 'general', error);
+      logger.error("Erreur préchargement PollCreator", "general", error);
       pollCreatorLoadingPromise = null;
       throw error;
     }
@@ -114,7 +116,11 @@ const preloadTimeSlotFunctions = async () => {
       sessionStorage.setItem(TIMESLOT_CACHE_KEY + "-session", "true");
     }
   } catch (error) {
-    logger.error('Erreur préchargement TimeSlot Functions', 'performance', error);
+    logger.error(
+      "Erreur préchargement TimeSlot Functions",
+      "performance",
+      error,
+    );
   }
 };
 
@@ -137,7 +143,7 @@ const preloadProgressiveCalendar = async () => {
     //  console.log(`📅 Préchargement calendrier progressif: ${loadTime} ms`);
     //}
   } catch (error) {
-    logger.error('Erreur préchargement calendrier', 'calendar', error);
+    logger.error("Erreur préchargement calendrier", "calendar", error);
   }
 };
 
@@ -158,7 +164,7 @@ const preloadStaticCalendar = async () => {
       //console.log(`📅 Calendrier statique préchargé: ${loadTime} ms`);
     }
   } catch (error) {
-    logger.warn('Erreur préchargement calendrier statique', 'calendar', error);
+    logger.warn("Erreur préchargement calendrier statique", "calendar", error);
   }
 };
 
@@ -202,7 +208,7 @@ setTimeout(() => {
         import("@supabase/supabase-js"),
         import("lucide-react"),
       ]).catch((error) => {
-        logger.warn('Erreur préchargement gros modules', 'performance', error);
+        logger.warn("Erreur préchargement gros modules", "performance", error);
       });
     });
 
@@ -213,7 +219,7 @@ setTimeout(() => {
   };
 
   preloadInBatches().catch((error) => {
-    logger.warn('Erreur préchargement complet', 'performance', error);
+    logger.warn("Erreur préchargement complet", "performance", error);
   });
 }, 1000);
 
@@ -222,14 +228,12 @@ setTimeout(() => {
 
 const PollCreator = lazy(() => {
   if (pollCreatorModule) {
-    const timerId = logger.time('PollCreator - Cache mémoire', 'performance');
-    const result = Promise.resolve(pollCreatorModule);
-    logger.timeEnd(timerId);
-    return result;
+    // Module already in memory - no need to measure time
+    return Promise.resolve(pollCreatorModule);
   }
 
   if (isModulePreloaded()) {
-    const timerId = logger.time('PollCreator - Cache session', 'performance');
+    const timerId = logger.time("PollCreator - Cache session", "performance");
     return import("./pages/PollCreator")
       .then((module) => {
         logger.timeEnd(timerId);
@@ -237,19 +241,22 @@ const PollCreator = lazy(() => {
         return module;
       })
       .catch((error) => {
-        logger.error('Erreur chargement PollCreator (cache)', 'general', error);
+        logger.error("Erreur chargement PollCreator (cache)", "general", error);
         throw error;
       });
   }
 
-  const timerId = logger.time('PollCreator - Chargement initial', 'performance');
+  const timerId = logger.time(
+    "PollCreator - Chargement initial",
+    "performance",
+  );
   return preloadPollCreator()
     .then((module) => {
       logger.timeEnd(timerId);
       return module;
     })
     .catch((error) => {
-      logger.error('Erreur chargement PollCreator (initial)', 'general', error);
+      logger.error("Erreur chargement PollCreator (initial)", "general", error);
       throw error;
     });
 });
@@ -267,7 +274,7 @@ const queryClient = new QueryClient({
 
 // Plus besoin de préchargement au survol - tout se charge en arrière-plan
 (window as any).preloadPollCreator = () => {
-  logger.info('Préchargement déjà effectué en arrière-plan', 'performance');
+  logger.info("Préchargement déjà effectué en arrière-plan", "performance");
 };
 
 // Composant wrapper pour VotingSwipe qui extrait le pollId de l'URL

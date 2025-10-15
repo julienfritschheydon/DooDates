@@ -227,6 +227,7 @@ export function ConversationCard({
               <div className="flex items-center gap-2 mb-1">
                 {isRenaming ? (
                   <Input
+                    data-testid="rename-input"
                     value={renameValue}
                     onChange={(e) => setRenameValue(e.target.value)}
                     onBlur={handleRenameSubmit}
@@ -418,7 +419,9 @@ export function ConversationCard({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="delete-cancel-button">Annuler</AlertDialogCancel>
+            <AlertDialogCancel data-testid="delete-cancel-button">
+              Annuler
+            </AlertDialogCancel>
             <AlertDialogAction
               data-testid="delete-confirm-button"
               onClick={handleDelete}

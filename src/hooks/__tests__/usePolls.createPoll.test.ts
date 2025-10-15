@@ -15,29 +15,12 @@ vi.mock("../../contexts/AuthContext", () => {
   };
 });
 
+import { setupMockLocalStorage } from "../../__tests__/helpers/testHelpers";
+
 describe("usePolls.createPoll", () => {
   beforeEach(() => {
-    // Replace the global noop localStorage (defined in src/test/setup.ts)
-    // with a working in-memory implementation for this test file
-    const store: Record<string, string> = {};
-    const memLocalStorage = {
-      getItem: (key: string) => (key in store ? store[key] : null),
-      setItem: (key: string, value: string) => {
-        store[key] = value;
-      },
-      removeItem: (key: string) => {
-        delete store[key];
-      },
-      clear: () => {
-        Object.keys(store).forEach((k) => delete store[k]);
-      },
-    };
-    Object.defineProperty(window, "localStorage", {
-      value: memLocalStorage,
-      configurable: true,
-      writable: true,
-    });
-    window.localStorage.clear();
+    // Setup localStorage using helper
+    setupMockLocalStorage();
     // Ensure dev mode branch is taken by stubbing Vite env
     // Use the specific host fragment checked in usePolls to enable local dev mode
     vi.stubEnv("VITE_SUPABASE_URL", "https://ifbhbcktfqxxoxqlinzm.supabase.co");

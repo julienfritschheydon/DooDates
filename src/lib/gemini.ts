@@ -9,7 +9,7 @@ const API_KEY: string | undefined = import.meta.env.VITE_GEMINI_API_KEY;
 
 // Debug logging pour diagnostiquer le problème de clé API
 if (import.meta.env.DEV) {
-  // Debug Gemini API Key availability
+  // Logs de debug disponibles si nécessaire
 }
 
 // Initialisation différée pour éviter le blocage au chargement
@@ -20,7 +20,8 @@ let model: GenerativeModel | null = null;
 const initializeGemini = () => {
   if (!genAI && API_KEY) {
     genAI = new GoogleGenerativeAI(API_KEY);
-    model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    // Utilisation de gemini-2.0-flash (stable, rapide, largement supporté)
+    model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   }
   return { genAI, model };
 };
@@ -31,7 +32,26 @@ const RATE_LIMIT = {
   REQUESTS_PER_DAY: 960, // Quota pour le chat
 };
 
-export interface PollSuggestion {
+// Types pour Form Polls (questionnaires)
+export interface FormQuestion {
+  title: string;
+  type: "single" | "multiple" | "text";
+  required: boolean;
+  options?: string[]; // Pour single/multiple
+  maxChoices?: number; // Pour multiple
+  placeholder?: string; // Pour text
+  maxLength?: number; // Pour text
+}
+
+export interface FormPollSuggestion {
+  title: string;
+  description?: string;
+  questions: FormQuestion[];
+  type: "form";
+}
+
+// Types pour Date Polls (sondages de dates)
+export interface DatePollSuggestion {
   title: string;
   description?: string;
   dates: string[];
@@ -43,6 +63,9 @@ export interface PollSuggestion {
   type: "date" | "datetime" | "custom";
   participants?: string[];
 }
+
+// Union type pour supporter les deux types de sondages
+export type PollSuggestion = DatePollSuggestion | FormPollSuggestion;
 
 export interface GeminiResponse {
   success: boolean;
@@ -74,7 +97,7 @@ export class GeminiService {
 
     // Pas d'initialisation immédiate de Gemini - sera fait lors du premier appel
     if (!API_KEY && import.meta.env.DEV && !GeminiService.warnedAboutApiKey) {
-      logger.warn('Gemini API Key not configured, using mock response', 'api');
+      logger.warn("Gemini API Key not configured, using mock response", "api");
       GeminiService.warnedAboutApiKey = true;
     }
   }
@@ -113,6 +136,76 @@ export class GeminiService {
     }
   }
 
+  /**
+   * Détecte le type de sondage demandé par l'utilisateur
+   * @param userInput Texte de la demande utilisateur
+   * @returns "form" pour questionnaire, "date" pour sondage de dates
+   */
+  private detectPollType(userInput: string): "date" | "form" {
+    const inputLower = userInput.toLowerCase();
+
+    // Mots-clés pour Form Polls (questionnaires)
+    const formKeywords = [
+      "questionnaire",
+      "sondage d'opinion",
+      "enquête",
+      "formulaire",
+      "questions",
+      "choix multiple",
+      "avis",
+      "feedback",
+      "satisfaction",
+      "préférences",
+      "vote sur",
+      "classement",
+      "évaluation",
+      "opinion",
+      "retour",
+      "impression",
+    ];
+
+    // Mots-clés pour Date Polls (sondages de dates)
+    const dateKeywords = [
+      "date",
+      "rendez-vous",
+      "réunion",
+      "disponibilité",
+      "planning",
+      "horaire",
+      "créneau",
+      "semaine",
+      "jour",
+      "mois",
+      "calendrier",
+      "rdv",
+      "rencontre",
+      "meeting",
+    ];
+
+    // Compter les occurrences de chaque type de mot-clé
+    const formScore = formKeywords.filter((kw) =>
+      inputLower.includes(kw),
+    ).length;
+    const dateScore = dateKeywords.filter((kw) =>
+      inputLower.includes(kw),
+    ).length;
+
+    if (import.meta.env.DEV) {
+      logger.info(
+        `Poll type detection: formScore=${formScore}, dateScore=${dateScore}`,
+        "api",
+      );
+    }
+
+    // Si score Form > Date → Form Poll
+    if (formScore > dateScore) {
+      return "form";
+    }
+
+    // Sinon → Date Poll (défaut pour backward compatibility)
+    return "date";
+  }
+
   async generatePollFromText(userInput: string): Promise<GeminiResponse> {
     // Initialisation différée
     const initialized = await this.ensureInitialized();
@@ -125,30 +218,53 @@ export class GeminiService {
     }
 
     try {
+      // NOUVEAU : Détecter le type de sondage demandé
+      const pollType = this.detectPollType(userInput);
+
       if (import.meta.env.DEV) {
-        // Generating prompt for user input
+        logger.info(
+          `Generating ${pollType === "form" ? "Form Poll" : "Date Poll"} from user input`,
+          "api",
+        );
       }
 
-      const prompt = this.buildPollGenerationPrompt(userInput);
+      // Router vers le bon prompt selon le type
+      const prompt =
+        pollType === "form"
+          ? this.buildFormPollPrompt(userInput)
+          : this.buildPollGenerationPrompt(userInput);
+
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
 
       if (import.meta.env.DEV) {
-        // Raw Gemini response received
+        logger.info("Raw Gemini response received", "api");
       }
 
-      // Parser la réponse JSON
-      const pollData = this.parseGeminiResponse(text);
+      // Parser selon le type détecté
+      const pollData =
+        pollType === "form"
+          ? this.parseFormPollResponse(text)
+          : this.parseGeminiResponse(text);
 
       if (pollData) {
+        const successMessage =
+          pollType === "form"
+            ? "Questionnaire généré avec succès !"
+            : "Sondage généré avec succès !";
+
         if (import.meta.env.DEV) {
-          // Gemini proposed dates and time slots successfully
+          logger.info(
+            `${pollType === "form" ? "Form Poll" : "Date Poll"} successfully generated`,
+            "api",
+          );
         }
+
         return {
           success: true,
           data: pollData,
-          message: "Sondage généré avec succès !",
+          message: successMessage,
         };
       } else {
         const parseError = ErrorFactory.validation(
@@ -168,7 +284,7 @@ export class GeminiService {
         };
       }
     } catch (error) {
-      logger.error('Error in Gemini chat', 'api', error);
+      logger.error("Error in Gemini chat", "api", error);
       const generationError = handleError(
         error,
         {
@@ -648,7 +764,100 @@ Réponds de manière utile et amicale. Tu peux :
 Reste concis et pratique. Réponds en français.`;
   }
 
-  private parseGeminiResponse(text: string): PollSuggestion | null {
+  /**
+   * Construit le prompt système pour la génération de Form Polls (questionnaires)
+   * @param userInput Texte de la demande utilisateur
+   * @returns Prompt système complet pour Gemini
+   */
+  private buildFormPollPrompt(userInput: string): string {
+    return `Tu es l'IA DooDates, expert en création de questionnaires et formulaires.
+
+OBJECTIF: Créer un questionnaire/sondage d'opinion à partir de la demande utilisateur.
+
+Demande: "${userInput}"
+
+RÈGLES DE GÉNÉRATION:
+1. **TITRE** - Clair et descriptif (max 100 caractères)
+2. **QUESTIONS** - 3 à 10 questions pertinentes et logiques
+3. **TYPES DE QUESTIONS**:
+   - "single" : Choix unique (radio buttons) - pour sélectionner UNE option
+   - "multiple" : Choix multiples (checkboxes) - pour sélectionner PLUSIEURS options
+   - "text" : Réponse libre - pour commentaires ou informations textuelles
+4. **OPTIONS** - Pour single/multiple : 2 à 8 options claires par question
+5. **COHÉRENCE** - Questions logiques, ordonnées et sans redondance
+6. **PERTINENCE** - Adapter précisément au contexte de la demande
+
+EXEMPLES DE QUESTIONS PAR TYPE:
+
+**Single choice (choix unique):**
+{
+  "title": "Quel est votre niveau d'expérience ?",
+  "type": "single",
+  "required": true,
+  "options": ["Débutant", "Intermédiaire", "Avancé", "Expert"]
+}
+
+**Multiple choice (choix multiples):**
+{
+  "title": "Quels langages maîtrisez-vous ? (3 max)",
+  "type": "multiple",
+  "required": false,
+  "options": ["JavaScript", "Python", "Java", "C++", "Go", "Rust"],
+  "maxChoices": 3
+}
+
+**Text (réponse libre):**
+{
+  "title": "Avez-vous des suggestions pour améliorer le service ?",
+  "type": "text",
+  "required": false,
+  "placeholder": "Vos commentaires ici...",
+  "maxLength": 500
+}
+
+FORMAT JSON REQUIS:
+{
+  "title": "Titre du questionnaire",
+  "description": "Description optionnelle (1-2 phrases)",
+  "questions": [
+    {
+      "title": "Texte de la question",
+      "type": "single" | "multiple" | "text",
+      "required": true | false,
+      "options": ["Option 1", "Option 2", "..."], // SEULEMENT pour single/multiple
+      "maxChoices": 3, // SEULEMENT pour multiple (optionnel)
+      "placeholder": "Texte d'aide", // SEULEMENT pour text (optionnel)
+      "maxLength": 500 // SEULEMENT pour text (optionnel)
+    }
+  ],
+  "type": "form"
+}
+
+BONNES PRATIQUES:
+- Questions courtes et claires (max 120 caractères)
+- Options mutuellement exclusives (pas de chevauchement)
+- Ordre logique : questions générales → spécifiques
+- Équilibrer questions obligatoires/optionnelles
+- Éviter les questions biaisées ou suggestives
+- Au moins 1 question obligatoire, maximum 70% obligatoires
+
+AVANT DE RÉPONDRE:
+1. Identifier le sujet principal et l'objectif du questionnaire
+2. Générer 3-10 questions pertinentes et variées
+3. Choisir le type approprié pour chaque question
+4. Vérifier la cohérence et l'absence de redondance
+5. S'assurer que les options sont claires et complètes
+6. Valider que le questionnaire répond à la demande
+
+IMPORTANT:
+- Si la demande est vague, générer un questionnaire généraliste cohérent
+- Privilégier la qualité à la quantité (mieux 5 bonnes questions que 10 médiocres)
+- Toujours inclure au moins 1 question "text" pour les commentaires libres
+
+Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
+  }
+
+  private parseGeminiResponse(text: string): DatePollSuggestion | null {
     try {
       // Nettoyer le texte pour extraire le JSON
       const cleanText = text.trim();
@@ -719,6 +928,108 @@ Reste concis et pratique. Réponds en français.`;
         operation: "parseGeminiResponse",
       });
 
+      return null;
+    }
+  }
+
+  /**
+   * Parse la réponse Gemini pour les Form Polls (questionnaires)
+   * @param text Réponse brute de Gemini
+   * @returns FormPollSuggestion validée ou null
+   */
+  private parseFormPollResponse(text: string): FormPollSuggestion | null {
+    try {
+      // Nettoyer le texte pour extraire le JSON
+      const cleanText = text.trim();
+      const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+
+      if (jsonMatch) {
+        const jsonStr = jsonMatch[0];
+        const parsed = JSON.parse(jsonStr);
+
+        // Validation structure Form Poll
+        if (
+          parsed.title &&
+          parsed.questions &&
+          Array.isArray(parsed.questions) &&
+          parsed.questions.length > 0 &&
+          parsed.type === "form"
+        ) {
+          // Valider chaque question
+          const validQuestions = parsed.questions.filter((q: FormQuestion) => {
+            // Validation basique
+            if (!q.title || !q.type) {
+              return false;
+            }
+
+            // Vérifier que le type est valide
+            if (!["single", "multiple", "text"].includes(q.type)) {
+              return false;
+            }
+
+            // Questions single/multiple DOIVENT avoir des options
+            if (q.type === "single" || q.type === "multiple") {
+              if (!Array.isArray(q.options) || q.options.length < 2) {
+                logger.warn(
+                  `Question "${q.title}" de type ${q.type} ignorée : options invalides`,
+                  "api",
+                );
+                return false;
+              }
+            }
+
+            return true;
+          });
+
+          // Il faut au moins 1 question valide
+          if (validQuestions.length === 0) {
+            logError(
+              ErrorFactory.validation(
+                "No valid questions in form poll",
+                "Aucune question valide dans le questionnaire",
+              ),
+              {
+                component: "GeminiService",
+                operation: "parseFormPollResponse",
+              },
+            );
+            return null;
+          }
+
+          if (import.meta.env.DEV) {
+            logger.info(
+              `Form Poll parsed: ${validQuestions.length} valid questions`,
+              "api",
+            );
+          }
+
+          return {
+            title: parsed.title,
+            description: parsed.description,
+            questions: validQuestions.map((q: FormQuestion) => ({
+              title: q.title,
+              type: q.type,
+              required: q.required !== false, // Par défaut true
+              options: q.options,
+              maxChoices: q.maxChoices,
+              placeholder: q.placeholder,
+              maxLength: q.maxLength,
+            })),
+            type: "form",
+          };
+        }
+      }
+
+      return null;
+    } catch (error) {
+      logError(
+        handleError(
+          error,
+          { component: "GeminiService", operation: "parseFormPollResponse" },
+          "Erreur lors du parsing de la réponse Gemini pour FormPoll",
+        ),
+        { component: "GeminiService", operation: "parseFormPollResponse" },
+      );
       return null;
     }
   }

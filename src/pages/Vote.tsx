@@ -21,6 +21,7 @@ const Vote = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100">
         <TopNav />
+        <div className="pt-20">
         <div className="flex items-center justify-center p-4 min-h-[calc(100vh-80px)]">
           <div className="text-center">
             <h2 className="text-xl font-bold text-gray-800 mb-2">
@@ -37,6 +38,7 @@ const Vote = () => {
             </button>
           </div>
         </div>
+        </div>
       </div>
     );
   }
@@ -50,12 +52,14 @@ const Vote = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <TopNav />
-      {/* VotingInterface gère l'affichage pour admin en interne */}
-      <VotingInterface
-        pollId={actualPollId}
-        onBack={() => navigate("/")}
-        adminToken={adminToken}
-      />
+      <div className="pt-20">
+        {/* VotingInterface gère l'affichage pour admin en interne */}
+        <VotingInterface
+          pollId={actualPollId}
+          onBack={() => navigate("/")}
+          adminToken={adminToken}
+        />
+      </div>
     </div>
   );
 };

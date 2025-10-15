@@ -25,24 +25,22 @@ import type {
   Conversation,
   ConversationMessage,
 } from "../../../types/conversation";
+import {
+  createMockConversation as createBaseConversation,
+  createMockMessage as createBaseMessage,
+} from "../../../__tests__/helpers/testHelpers";
 
-// Mock data helpers
+// Mock data helpers - using helpers
 function createMockConversation(
   id: string,
   title: string = "Test Conversation",
 ): Conversation {
-  return {
+  return createBaseConversation({
     id,
     title,
-    status: "active",
-    createdAt: new Date(),
-    updatedAt: new Date(),
     firstMessage: "Test message",
     messageCount: 2,
-    isFavorite: false,
-    tags: [],
-    relatedPollId: undefined,
-  };
+  });
 }
 
 function createMockMessage(
@@ -50,13 +48,11 @@ function createMockMessage(
   conversationId: string,
   content: string,
 ): ConversationMessage {
-  return {
+  return createBaseMessage({
     id,
     conversationId,
-    role: "user",
     content,
-    timestamp: new Date(),
-  };
+  });
 }
 
 function createMockPoll(id: string, conversationId: string) {

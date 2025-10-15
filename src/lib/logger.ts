@@ -6,8 +6,16 @@
  * - Remplacement des console.log
  */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-type LogCategory = 'calendar' | 'performance' | 'auth' | 'api' | 'conversation' | 'poll' | 'vote' | 'general';
+type LogLevel = "debug" | "info" | "warn" | "error";
+type LogCategory =
+  | "calendar"
+  | "performance"
+  | "auth"
+  | "api"
+  | "conversation"
+  | "poll"
+  | "vote"
+  | "general";
 
 interface LogEntry {
   id: string;
@@ -27,8 +35,8 @@ class Logger {
   private isDev = import.meta.env.DEV;
   private config: LogConfig = {
     enableProduction: false,
-    minLevel: 'debug',
-    silentCategories: ['calendar'], // Désactiver les logs calendar par défaut
+    minLevel: "debug",
+    silentCategories: ["calendar"], // Désactiver les logs calendar par défaut
     enableMonitoring: false,
   };
 
@@ -80,23 +88,23 @@ class Logger {
 
   // Méthodes principales pour remplacer console.log
   debug(message: string, category: LogCategory = "general", data?: any): void {
-    this.logWithLevel('debug', message, category, data);
+    this.logWithLevel("debug", message, category, data);
   }
 
   info(message: string, category: LogCategory = "general", data?: any): void {
-    this.logWithLevel('info', message, category, data);
+    this.logWithLevel("info", message, category, data);
   }
 
   warn(message: string, category: LogCategory = "general", data?: any): void {
-    this.logWithLevel('warn', message, category, data);
+    this.logWithLevel("warn", message, category, data);
   }
 
   error(message: string, category: LogCategory = "general", error?: any): void {
-    this.logWithLevel('error', message, category, error);
-    
+    this.logWithLevel("error", message, category, error);
+
     // En production, envoyer au service de monitoring
     if (!this.isDev && this.config.enableMonitoring) {
-      this.sendToMonitoring('error', message, category, error);
+      this.sendToMonitoring("error", message, category, error);
     }
   }
 
@@ -105,7 +113,12 @@ class Logger {
     this.info(message, category, data);
   }
 
-  private logWithLevel(level: LogLevel, message: string, category: LogCategory, data?: any): void {
+  private logWithLevel(
+    level: LogLevel,
+    message: string,
+    category: LogCategory,
+    data?: any,
+  ): void {
     // En production, ne logger que si explicitement activé
     if (!this.isDev && !this.config.enableProduction) return;
 
@@ -113,7 +126,7 @@ class Logger {
     if (this.config.silentCategories.includes(category)) return;
 
     // Filtrage par niveau
-    const levels: LogLevel[] = ['debug', 'info', 'warn', 'error'];
+    const levels: LogLevel[] = ["debug", "info", "warn", "error"];
     const currentLevelIndex = levels.indexOf(level);
     const minLevelIndex = levels.indexOf(this.config.minLevel);
     if (currentLevelIndex < minLevelIndex) return;
@@ -123,27 +136,27 @@ class Logger {
     const prefix = `${levelEmoji} ${emoji}`;
 
     switch (level) {
-      case 'debug':
-        console.debug(prefix, message, data || '');
+      case "debug":
+        console.debug(prefix, message, data || "");
         break;
-      case 'info':
-        console.info(prefix, message, data || '');
+      case "info":
+        console.info(prefix, message, data || "");
         break;
-      case 'warn':
-        console.warn(prefix, message, data || '');
+      case "warn":
+        console.warn(prefix, message, data || "");
         break;
-      case 'error':
-        console.error(prefix, message, data || '');
+      case "error":
+        console.error(prefix, message, data || "");
         break;
     }
   }
 
   private getLevelEmoji(level: LogLevel): string {
     const emojis: Record<LogLevel, string> = {
-      debug: '🐛',
-      info: 'ℹ️',
-      warn: '⚠️',
-      error: '❌',
+      debug: "🐛",
+      info: "ℹ️",
+      warn: "⚠️",
+      error: "❌",
     };
     return emojis[level];
   }
@@ -171,15 +184,22 @@ class Logger {
     if (silent && !this.config.silentCategories.includes(category)) {
       this.config.silentCategories.push(category);
     } else if (!silent) {
-      this.config.silentCategories = this.config.silentCategories.filter(c => c !== category);
+      this.config.silentCategories = this.config.silentCategories.filter(
+        (c) => c !== category,
+      );
     }
   }
 
   // Envoyer les erreurs critiques au service de monitoring (production)
-  private sendToMonitoring(level: LogLevel, message: string, category: string, data?: any): void {
+  private sendToMonitoring(
+    level: LogLevel,
+    message: string,
+    category: string,
+    data?: any,
+  ): void {
     // TODO: Intégrer avec Sentry, LogRocket, ou autre service
     // Exemple: Sentry.captureException(new Error(message));
-    
+
     // Pour l'instant, stocker localement pour debug
     try {
       const logEntry = {
@@ -191,16 +211,18 @@ class Logger {
         userAgent: navigator.userAgent,
         url: window.location.href,
       };
-      
-      const logs = JSON.parse(localStorage.getItem('doodates-error-logs') || '[]');
+
+      const logs = JSON.parse(
+        localStorage.getItem("doodates-error-logs") || "[]",
+      );
       logs.push(logEntry);
-      
+
       // Garder seulement les 50 dernières erreurs
       if (logs.length > 50) {
         logs.shift();
       }
-      
-      localStorage.setItem('doodates-error-logs', JSON.stringify(logs));
+
+      localStorage.setItem("doodates-error-logs", JSON.stringify(logs));
     } catch (e) {
       // Ignorer les erreurs de stockage
     }
@@ -209,7 +231,7 @@ class Logger {
   // Récupérer les logs pour debug
   getStoredLogs(): any[] {
     try {
-      return JSON.parse(localStorage.getItem('doodates-error-logs') || '[]');
+      return JSON.parse(localStorage.getItem("doodates-error-logs") || "[]");
     } catch {
       return [];
     }
@@ -222,7 +244,7 @@ class Logger {
 
   // Nettoyer les logs stockés
   clearStoredLogs(): void {
-    localStorage.removeItem('doodates-error-logs');
+    localStorage.removeItem("doodates-error-logs");
   }
 }
 

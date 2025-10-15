@@ -12,14 +12,18 @@ import { useConversations } from "../useConversations";
 vi.mock("../useConversations");
 const mockUseConversations = vi.mocked(useConversations);
 
-// Mock localStorage
+// Mock localStorage with Vitest mocks
 const mockLocalStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
+  clear: vi.fn(),
+  length: 0,
+  key: vi.fn(),
 };
 Object.defineProperty(window, "localStorage", {
   value: mockLocalStorage,
+  writable: true,
 });
 
 describe("usePollDeletionCascade", () => {

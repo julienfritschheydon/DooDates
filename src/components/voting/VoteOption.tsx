@@ -53,7 +53,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
   const controls = useAnimation();
   const rank = getRanking("all")[option.id];
 
-  logger.debug('Option ranking', 'vote', { optionId: option.id, rank });
+  logger.debug("Option ranking", "vote", { optionId: option.id, rank });
 
   // Badge pour le 1er : plus visible qu'une bordure
   const getRankingBadge = (rank: number) => {

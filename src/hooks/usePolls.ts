@@ -383,7 +383,9 @@ export function usePolls() {
             }
 
             const optionsData = await optionsResponse.json();
-            logger.info('Options créées avec succès', 'poll', { optionsCount: optionsData.length });
+            logger.info("Options créées avec succès", "poll", {
+              optionsCount: optionsData.length,
+            });
           } else {
             // Pour les utilisateurs connectés, récupérer le token JWT
             let token = null;
@@ -516,11 +518,11 @@ export function usePolls() {
             if (emailResult.success) {
               // Emails sent successfully
             } else {
-              logger.warn('Email sending error', 'api', emailResult.error);
+              logger.warn("Email sending error", "api", emailResult.error);
               // Ne pas faire échouer la création du sondage si l'email échoue
             }
           } catch (emailError) {
-            logger.warn('Error sending emails', 'api', emailError);
+            logger.warn("Error sending emails", "api", emailError);
             // Ne pas faire échouer la création du sondage si l'email échoue
           }
         }

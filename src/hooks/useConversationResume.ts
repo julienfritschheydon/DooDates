@@ -53,7 +53,9 @@ export const useConversationResume = (): UseConversationResumeReturn => {
           newSearchParams.set("resume", conversationId);
           setSearchParams(newSearchParams, { replace: true });
 
-          logger.debug('Successfully resumed conversation', 'conversation', { title: conversation.title });
+          logger.debug("Successfully resumed conversation", "conversation", {
+            title: conversation.title,
+          });
         } else {
           throw ErrorFactory.storage(
             "Conversation not found",
@@ -67,7 +69,9 @@ export const useConversationResume = (): UseConversationResumeReturn => {
             ? error.message
             : "Failed to resume conversation";
         setResumeError(errorMessage);
-        logger.error('Failed to resume conversation', 'conversation', { error });
+        logger.error("Failed to resume conversation", "conversation", {
+          error,
+        });
 
         // Remove invalid resume parameter from URL to prevent infinite loop
         const newSearchParams = new URLSearchParams(searchParams);

@@ -121,10 +121,12 @@ export const VoterForm: React.FC<VoterFormProps> = ({
     }
 
     try {
-      logger.debug('VoterForm - Soumission', 'vote', { voterName: localVoterInfo.name });
+      logger.debug("VoterForm - Soumission", "vote", {
+        voterName: localVoterInfo.name,
+      });
       await onSubmit(localVoterInfo);
     } catch (error) {
-      logger.error('Erreur lors de la soumission', 'vote', error);
+      logger.error("Erreur lors de la soumission", "vote", error);
       setLocalFormErrors({
         general: "Une erreur est survenue. Veuillez réessayer.",
       });

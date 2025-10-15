@@ -9,6 +9,7 @@ import type {
   ConversationStatus,
 } from "../../types/conversation";
 import type { SearchFilters, SearchOptions } from "../../types/search";
+import { createMockConversation as createBaseConversation } from "../../__tests__/helpers/testHelpers";
 
 // Mock the useConversations hook
 vi.mock("../useConversations", () => ({
@@ -21,7 +22,7 @@ vi.mock("../useDebounce", () => ({
 }));
 
 describe("useConversationSearch Logic", () => {
-  // Mock conversations for testing
+  // Mock conversations for testing - using helper
   const createMockConversation = (
     id: string,
     title: string,
@@ -31,18 +32,18 @@ describe("useConversationSearch Logic", () => {
     isFavorite = false,
     createdAt = new Date("2024-01-01"),
     relatedPollId?: string,
-  ): Conversation => ({
-    id,
-    createdAt,
-    updatedAt: createdAt,
-    title,
-    status,
-    firstMessage,
-    messageCount: 1,
-    tags,
-    isFavorite,
-    relatedPollId,
-  });
+  ): Conversation =>
+    createBaseConversation({
+      id,
+      title,
+      firstMessage,
+      status,
+      tags,
+      isFavorite,
+      createdAt,
+      updatedAt: createdAt,
+      relatedPollId,
+    });
 
   const mockConversations: Conversation[] = [
     createMockConversation(

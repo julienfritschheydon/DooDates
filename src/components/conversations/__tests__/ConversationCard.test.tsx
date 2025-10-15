@@ -3,34 +3,42 @@
  * DooDates - Conversation History System
  */
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
-import { ConversationCard } from '../ConversationCard';
-import type { Conversation } from '../../../types/conversation';
+import React from "react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { ConversationCard } from "../ConversationCard";
+import type { Conversation } from "../../../types/conversation";
+
+import { createMockConversation } from "../../../__tests__/helpers/testHelpers";
 
 // Mock date-fns to have consistent test results
-vi.mock('date-fns', () => ({
-  formatDistanceToNow: vi.fn(() => 'il y a 2 heures'),
+vi.mock("date-fns", () => ({
+  formatDistanceToNow: vi.fn(() => "il y a 2 heures"),
   fr: {},
-  enUS: {}
+  enUS: {},
 }));
 
-describe('ConversationCard', () => {
-  // Mock conversation data
-  const createMockConversation = (overrides: Partial<Conversation> = {}): Conversation => ({
-    id: 'conv-1',
-    title: 'RÃ©union Ã©quipe dÃ©veloppement',
-    status: 'active',
-    createdAt: new Date('2024-01-01T10:00:00Z'),
-    updatedAt: new Date('2024-01-01T12:00:00Z'),
-    firstMessage: 'Bonjour, je voudrais organiser une rÃ©union avec l\'Ã©quipe de dÃ©veloppement pour discuter du nouveau projet.',
-    messageCount: 5,
-    isFavorite: false,
-    tags: ['travail', 'rÃ©union'],
-    ...overrides
-  });
+describe("ConversationCard", () => {
+  // Mock conversation data using helper
+  const createTestConversation = (
+    overrides: Partial<Conversation> = {},
+  ): Conversation =>
+    createMockConversation({
+      id: "conv-1",
+      title: "Réunion équipe développement",
+      firstMessage:
+        "Bonjour, je voudrais organiser une réunion avec l'équipe de développement pour discuter du nouveau projet.",
+      messageCount: 5,
+      tags: ["travail", "réunion"],
+      ...overrides,
+    });
 
   // Mock callbacks
   const mockCallbacks = {
@@ -38,461 +46,526 @@ describe('ConversationCard', () => {
     onRename: vi.fn(),
     onDelete: vi.fn(),
     onToggleFavorite: vi.fn(),
-    onViewPoll: vi.fn()
+    onViewPoll: vi.fn(),
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('Basic Rendering', () => {
-    it('should render conversation title and preview', () => {
+  describe("Basic Rendering", () => {
+    it("should render conversation title and preview", () => {
+      const conversation = createTestConversation();
+      render(<ConversationCard conversation={conversation} />);
+
+      expect(
+        screen.getByText("RÃ©union Ã©quipe dÃ©veloppement"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Bonjour, je voudrais organiser une rÃ©union/),
+      ).toBeInTheDocument();
+    });
+
+    it("should display message count and relative time", () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText('RÃ©union Ã©quipe dÃ©veloppement')).toBeInTheDocument();
-      expect(screen.getByText(/Bonjour, je voudrais organiser une rÃ©union/)).toBeInTheDocument();
+      expect(screen.getByText("5 messages")).toBeInTheDocument();
+      expect(screen.getByText("il y a 2 heures")).toBeInTheDocument();
     });
 
-    it('should display message count and relative time', () => {
+    it("should show tags when present", () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText('5 messages')).toBeInTheDocument();
-      expect(screen.getByText('il y a 2 heures')).toBeInTheDocument();
+      expect(screen.getByText("travail")).toBeInTheDocument();
+      expect(screen.getByText("rÃ©union")).toBeInTheDocument();
     });
 
-    it('should show tags when present', () => {
-      const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} />);
-
-      expect(screen.getByText('travail')).toBeInTheDocument();
-      expect(screen.getByText('rÃ©union')).toBeInTheDocument();
-    });
-
-    it('should truncate long preview text', () => {
-      const longMessage = 'A'.repeat(200);
-      const conversation = createMockConversation({ firstMessage: longMessage });
+    it("should truncate long preview text", () => {
+      const longMessage = "A".repeat(200);
+      const conversation = createMockConversation({
+        firstMessage: longMessage,
+      });
       render(<ConversationCard conversation={conversation} />);
 
       // Text should be truncated with "..."
-      const card = screen.getByTestId('conversation-card');
-      expect(card.textContent).toContain('...');
+      const card = screen.getByTestId("conversation-card");
+      expect(card.textContent).toContain("...");
     });
   });
 
-  describe('Status Indicators', () => {
-    it('should show active status with yellow indicator', () => {
-      const conversation = createMockConversation({ status: 'active' });
+  describe("Status Indicators", () => {
+    it("should show active status with yellow indicator", () => {
+      const conversation = createMockConversation({ status: "active" });
       render(<ConversationCard conversation={conversation} />);
 
       expect(screen.getByText(/En cours/)).toBeInTheDocument();
       // Status badge with emoji exists
-      const card = screen.getByTestId('conversation-card');
-      expect(card.textContent).toContain('En cours');
+      const card = screen.getByTestId("conversation-card");
+      expect(card.textContent).toContain("En cours");
     });
 
-    it('should show completed status with green indicator when no poll', () => {
-      const conversation = createMockConversation({ status: 'completed' });
+    it("should show completed status with green indicator when no poll", () => {
+      const conversation = createMockConversation({ status: "completed" });
       render(<ConversationCard conversation={conversation} />);
 
       expect(screen.getByText(/Termin/)).toBeInTheDocument();
     });
 
-    it('should show poll link indicator when conversation has related poll', () => {
-      const conversation = createMockConversation({ 
-        status: 'completed',
-        relatedPollId: 'poll-123'
+    it("should show poll link indicator when conversation has related poll", () => {
+      const conversation = createMockConversation({
+        status: "completed",
+        relatedPollId: "poll-123",
       });
       render(<ConversationCard conversation={conversation} />);
 
       expect(screen.getByText(/Sondage cr/)).toBeInTheDocument();
-      expect(screen.getByText('Voir sondage')).toBeInTheDocument();
+      expect(screen.getByText("Voir sondage")).toBeInTheDocument();
     });
 
-    it('should show archived status with folder indicator', () => {
-      const conversation = createMockConversation({ status: 'archived' });
+    it("should show archived status with folder indicator", () => {
+      const conversation = createMockConversation({ status: "archived" });
       render(<ConversationCard conversation={conversation} />);
 
       expect(screen.getByText(/Archiv/)).toBeInTheDocument();
     });
   });
 
-  describe('Favorite Status', () => {
-    it('should show star icon when conversation is favorite', () => {
+  describe("Favorite Status", () => {
+    it("should show star icon when conversation is favorite", () => {
       const conversation = createMockConversation({ isFavorite: true });
       render(<ConversationCard conversation={conversation} />);
 
       // Star icon is an SVG element
-      const card = screen.getByTestId('conversation-card');
-      expect(card.querySelector('.text-yellow-500.fill-current')).toBeInTheDocument();
+      const card = screen.getByTestId("conversation-card");
+      expect(
+        card.querySelector(".text-yellow-500.fill-current"),
+      ).toBeInTheDocument();
     });
 
-    it('should not show star icon when conversation is not favorite', () => {
+    it("should not show star icon when conversation is not favorite", () => {
       const conversation = createMockConversation({ isFavorite: false });
       render(<ConversationCard conversation={conversation} />);
 
-      const card = screen.getByTestId('conversation-card');
-      expect(card.querySelector('.text-yellow-500.fill-current')).not.toBeInTheDocument();
+      const card = screen.getByTestId("conversation-card");
+      expect(
+        card.querySelector(".text-yellow-500.fill-current"),
+      ).not.toBeInTheDocument();
     });
   });
 
-  describe('User Interactions', () => {
-    it('should call onResume when title is clicked', async () => {
+  describe("User Interactions", () => {
+    it("should call onResume when title is clicked", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const title = screen.getByText('RÃ©union Ã©quipe dÃ©veloppement');
+      const title = screen.getByText("RÃ©union Ã©quipe dÃ©veloppement");
       await userEvent.click(title);
 
-      expect(mockCallbacks.onResume).toHaveBeenCalledWith('conv-1');
+      expect(mockCallbacks.onResume).toHaveBeenCalledWith("conv-1");
     });
 
-    it('should call onResume when preview text is clicked', async () => {
+    it("should call onResume when preview text is clicked", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const preview = screen.getByText(/Bonjour, je voudrais organiser une rÃ©union/);
+      const preview = screen.getByText(
+        /Bonjour, je voudrais organiser une rÃ©union/,
+      );
       await userEvent.click(preview);
 
-      expect(mockCallbacks.onResume).toHaveBeenCalledWith('conv-1');
+      expect(mockCallbacks.onResume).toHaveBeenCalledWith("conv-1");
     });
 
-    it('should call onViewPoll when poll link is clicked', async () => {
-      const conversation = createMockConversation({ 
-        relatedPollId: 'poll-123'
+    it("should call onViewPoll when poll link is clicked", async () => {
+      const conversation = createMockConversation({
+        relatedPollId: "poll-123",
       });
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const pollLink = screen.getByText('Voir sondage');
+      const pollLink = screen.getByText("Voir sondage");
       await userEvent.click(pollLink);
 
-      expect(mockCallbacks.onViewPoll).toHaveBeenCalledWith('poll-123');
+      expect(mockCallbacks.onViewPoll).toHaveBeenCalledWith("poll-123");
     });
   });
 
-  describe('Actions Menu', () => {
-    it('should open actions menu when more button is clicked', async () => {
+  describe("Actions Menu", () => {
+    it("should open actions menu when more button is clicked", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
       // Hover to make menu visible
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
       // Use getAllByText since "Reprendre" appears twice (menu + quick action)
-      expect(screen.getAllByText('Reprendre')[0]).toBeInTheDocument();
-      expect(screen.getByText('Renommer')).toBeInTheDocument();
-      expect(screen.getByText('Ajouter aux favoris')).toBeInTheDocument();
-      expect(screen.getByText('Supprimer')).toBeInTheDocument();
+      expect(screen.getAllByText("Reprendre")[0]).toBeInTheDocument();
+      expect(screen.getByText("Renommer")).toBeInTheDocument();
+      expect(screen.getByText("Ajouter aux favoris")).toBeInTheDocument();
+      expect(screen.getByText("Supprimer")).toBeInTheDocument();
     });
 
     it('should show "Retirer des favoris" when conversation is favorite', async () => {
       const conversation = createMockConversation({ isFavorite: true });
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
-      expect(screen.getByText('Retirer des favoris')).toBeInTheDocument();
+      expect(screen.getByText("Retirer des favoris")).toBeInTheDocument();
     });
 
-    it('should call onResume when quick action button is clicked', async () => {
+    it("should call onResume when quick action button is clicked", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
       // Click the quick action resume button
-      const resumeButton = screen.getByTestId('resume-button');
+      const resumeButton = screen.getByTestId("resume-button");
       await userEvent.click(resumeButton);
 
-      expect(mockCallbacks.onResume).toHaveBeenCalledWith('conv-1');
+      expect(mockCallbacks.onResume).toHaveBeenCalledWith("conv-1");
     });
 
-    it('should call onToggleFavorite when favorite menu item is clicked', async () => {
+    it("should call onToggleFavorite when favorite menu item is clicked", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
-      const favoriteMenuItem = screen.getByText('Ajouter aux favoris');
+      const favoriteMenuItem = screen.getByText("Ajouter aux favoris");
       await userEvent.click(favoriteMenuItem);
 
-      expect(mockCallbacks.onToggleFavorite).toHaveBeenCalledWith('conv-1');
+      expect(mockCallbacks.onToggleFavorite).toHaveBeenCalledWith("conv-1");
     });
   });
 
-  describe('Rename Functionality', () => {
-    it.skip('should enter rename mode when rename menu item is clicked', async () => {
+  describe("Rename Functionality", () => {
+    it.skip("should enter rename mode when rename menu item is clicked", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
-      const renameMenuItem = screen.getByText('Renommer');
+      const renameMenuItem = screen.getByText("Renommer");
       await userEvent.click(renameMenuItem);
 
       // Wait for menu to close and input to appear
-      await waitFor(() => {
-        const input = screen.queryByRole('textbox');
-        expect(input).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          const input = screen.queryByTestId("rename-input");
+          expect(input).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
     });
 
-    it.skip('should call onRename when Enter is pressed in rename input', async () => {
+    it.skip("should call onRename when Enter is pressed in rename input", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
-      const renameMenuItem = screen.getByText('Renommer');
+      const renameMenuItem = screen.getByText("Renommer");
       await userEvent.click(renameMenuItem);
 
-      await waitFor(() => {
-        expect(screen.queryByRole('textbox')).toBeInTheDocument();
-      }, { timeout: 3000 });
-      
-      const input = screen.getByRole('textbox');
-      await userEvent.clear(input);
-      await userEvent.type(input, 'Nouveau titre');
-      await userEvent.keyboard('{Enter}');
+      await waitFor(
+        () => {
+          expect(screen.queryByRole("textbox")).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
-      expect(mockCallbacks.onRename).toHaveBeenCalledWith('conv-1', 'Nouveau titre');
+      const input = screen.getByRole("textbox");
+      await userEvent.clear(input);
+      await userEvent.type(input, "Nouveau titre");
+      await userEvent.keyboard("{Enter}");
+
+      expect(mockCallbacks.onRename).toHaveBeenCalledWith(
+        "conv-1",
+        "Nouveau titre",
+      );
     });
 
-    it.skip('should cancel rename when Escape is pressed', async () => {
+    it.skip("should cancel rename when Escape is pressed", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
-      const renameMenuItem = screen.getByText('Renommer');
+      const renameMenuItem = screen.getByText("Renommer");
       await userEvent.click(renameMenuItem);
 
-      await waitFor(() => {
-        expect(screen.queryByRole('textbox')).toBeInTheDocument();
-      }, { timeout: 3000 });
-      
-      const input = screen.getByRole('textbox');
+      await waitFor(
+        () => {
+          expect(screen.queryByRole("textbox")).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+
+      const input = screen.getByRole("textbox");
       await userEvent.clear(input);
-      await userEvent.type(input, 'Nouveau titre');
-      await userEvent.keyboard('{Escape}');
+      await userEvent.type(input, "Nouveau titre");
+      await userEvent.keyboard("{Escape}");
 
       // After escape, title should be visible again (not input)
       await waitFor(() => {
-        expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+        expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
       });
       expect(mockCallbacks.onRename).not.toHaveBeenCalled();
     });
 
-    it.skip('should not call onRename if title is unchanged', async () => {
+    it.skip("should not call onRename if title is unchanged", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
-      const renameMenuItem = screen.getByText('Renommer');
+      const renameMenuItem = screen.getByText("Renommer");
       await userEvent.click(renameMenuItem);
 
-      await waitFor(() => {
-        expect(screen.queryByRole('textbox')).toBeInTheDocument();
-      }, { timeout: 3000 });
-      
-      const input = screen.getByRole('textbox');
-      await userEvent.keyboard('{Enter}');
+      await waitFor(
+        () => {
+          expect(screen.queryByRole("textbox")).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+
+      const input = screen.getByRole("textbox");
+      await userEvent.keyboard("{Enter}");
 
       expect(mockCallbacks.onRename).not.toHaveBeenCalled();
     });
   });
 
-  describe('Delete Functionality', () => {
-    it('should show delete confirmation dialog when delete is clicked', async () => {
+  describe("Delete Functionality", () => {
+    it("should show delete confirmation dialog when delete is clicked", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
-      const deleteMenuItem = screen.getByText('Supprimer');
+      const deleteMenuItem = screen.getByText("Supprimer");
       await userEvent.click(deleteMenuItem);
 
-      expect(screen.getByText('Supprimer la conversation')).toBeInTheDocument();
-      expect(screen.getByText(/tes-vous s.*r de vouloir supprimer/i)).toBeInTheDocument();
+      expect(screen.getByText("Supprimer la conversation")).toBeInTheDocument();
+      expect(
+        screen.getByText(/tes-vous s.*r de vouloir supprimer/i),
+      ).toBeInTheDocument();
     });
 
-    it('should call onDelete when delete is confirmed', async () => {
+    it("should call onDelete when delete is confirmed", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
-      const deleteMenuItem = screen.getByText('Supprimer');
+      const deleteMenuItem = screen.getByText("Supprimer");
       await userEvent.click(deleteMenuItem);
 
-      const confirmButton = screen.getByTestId('delete-confirm-button');
+      const confirmButton = screen.getByTestId("delete-confirm-button");
       await userEvent.click(confirmButton);
 
-      expect(mockCallbacks.onDelete).toHaveBeenCalledWith('conv-1');
+      expect(mockCallbacks.onDelete).toHaveBeenCalledWith("conv-1");
     });
 
-    it('should not call onDelete when delete is cancelled', async () => {
+    it("should not call onDelete when delete is cancelled", async () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
-      const deleteMenuItem = screen.getByText('Supprimer');
+      const deleteMenuItem = screen.getByText("Supprimer");
       await userEvent.click(deleteMenuItem);
 
-      const cancelButton = screen.getByTestId('delete-cancel-button');
+      const cancelButton = screen.getByTestId("delete-cancel-button");
       await userEvent.click(cancelButton);
 
       expect(mockCallbacks.onDelete).not.toHaveBeenCalled();
     });
 
-    it('should mention poll preservation in delete dialog when poll exists', async () => {
-      const conversation = createMockConversation({ 
-        relatedPollId: 'poll-123'
+    it("should mention poll preservation in delete dialog when poll exists", async () => {
+      const conversation = createMockConversation({
+        relatedPollId: "poll-123",
       });
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
-      const moreButton = screen.getByRole('button', { name: /actions/i });
+      const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
-      const deleteMenuItem = screen.getByText('Supprimer');
+      const deleteMenuItem = screen.getByText("Supprimer");
       await userEvent.click(deleteMenuItem);
 
-      expect(screen.getByText(/Le sondage associ.*ne sera pas affect/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Le sondage associ.*ne sera pas affect/i),
+      ).toBeInTheDocument();
     });
   });
 
-  describe('Quick Actions', () => {
-    it('should show resume quick action', () => {
+  describe("Quick Actions", () => {
+    it("should show resume quick action", () => {
       const conversation = createMockConversation();
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const resumeButton = screen.getByTestId('resume-button');
+      const resumeButton = screen.getByTestId("resume-button");
       expect(resumeButton).toBeInTheDocument();
-      expect(resumeButton).toHaveTextContent('Reprendre');
+      expect(resumeButton).toHaveTextContent("Reprendre");
     });
 
-    it('should show poll quick action when poll exists', () => {
-      const conversation = createMockConversation({ 
-        relatedPollId: 'poll-123'
+    it("should show poll quick action when poll exists", () => {
+      const conversation = createMockConversation({
+        relatedPollId: "poll-123",
       });
-      render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
+      render(
+        <ConversationCard conversation={conversation} {...mockCallbacks} />,
+      );
 
-      const pollButton = screen.getByTestId('view-poll-button');
+      const pollButton = screen.getByTestId("view-poll-button");
       expect(pollButton).toBeInTheDocument();
-      expect(pollButton).toHaveTextContent('Sondage');
+      expect(pollButton).toHaveTextContent("Sondage");
     });
   });
 
-  describe('Compact Mode', () => {
-    it('should apply compact styling when compact prop is true', () => {
+  describe("Compact Mode", () => {
+    it("should apply compact styling when compact prop is true", () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} compact={true} />);
 
       // Compact mode should render
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       expect(card).toBeInTheDocument();
     });
   });
 
-  describe('Language Support', () => {
-    it('should handle English language preference', () => {
+  describe("Language Support", () => {
+    it("should handle English language preference", () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} language="en" />);
 
       // The component should still render (date formatting is mocked)
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       expect(card).toBeInTheDocument();
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle conversation with no tags', () => {
+  describe("Edge Cases", () => {
+    it("should handle conversation with no tags", () => {
       const conversation = createMockConversation({ tags: [] });
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.queryByText('travail')).not.toBeInTheDocument();
+      expect(screen.queryByText("travail")).not.toBeInTheDocument();
       // Card should still render
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       expect(card).toBeInTheDocument();
     });
 
-    it('should handle conversation with many tags', () => {
-      const conversation = createMockConversation({ 
-        tags: ['tag1', 'tag2', 'tag3', 'tag4', 'tag5'] 
+    it("should handle conversation with many tags", () => {
+      const conversation = createMockConversation({
+        tags: ["tag1", "tag2", "tag3", "tag4", "tag5"],
       });
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText('tag1')).toBeInTheDocument();
-      expect(screen.getByText('tag2')).toBeInTheDocument();
-      expect(screen.getByText('+3')).toBeInTheDocument(); // Shows remaining count
+      expect(screen.getByText("tag1")).toBeInTheDocument();
+      expect(screen.getByText("tag2")).toBeInTheDocument();
+      expect(screen.getByText("+3")).toBeInTheDocument(); // Shows remaining count
     });
 
-    it('should handle single message count', () => {
+    it("should handle single message count", () => {
       const conversation = createMockConversation({ messageCount: 1 });
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText('1 message')).toBeInTheDocument();
+      expect(screen.getByText("1 message")).toBeInTheDocument();
     });
 
-    it('should handle empty first message', () => {
-      const conversation = createMockConversation({ firstMessage: '' });
+    it("should handle empty first message", () => {
+      const conversation = createMockConversation({ firstMessage: "" });
       render(<ConversationCard conversation={conversation} />);
 
       // Should still render the card without crashing
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       expect(card).toBeInTheDocument();
     });
 
-    it('should handle missing callbacks gracefully', () => {
+    it("should handle missing callbacks gracefully", () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} />);
 
       // Should render without crashing even without callbacks
-      const card = screen.getByTestId('conversation-card');
+      const card = screen.getByTestId("conversation-card");
       expect(card).toBeInTheDocument();
     });
   });

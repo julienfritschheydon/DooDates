@@ -18,8 +18,18 @@ import {
   MessageCircle,
   ArrowLeft,
 } from "lucide-react";
-import { geminiService, type PollSuggestion } from "../lib/gemini";
+import {
+  geminiService,
+  type PollSuggestion,
+  type FormPollSuggestion,
+  type DatePollSuggestion,
+} from "../lib/gemini";
 import PollCreator from "./PollCreator";
+import FormPollCreator, {
+  type FormPollDraft,
+  type AnyFormQuestion,
+  type FormOption,
+} from "./polls/FormPollCreator";
 import { debounce } from "lodash";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { useConversationResume } from "../hooks/useConversationResume";
@@ -51,6 +61,51 @@ interface GeminiChatInterfaceProps {
   onPollCreated?: (pollData: PollSuggestion) => void;
   onNewChat?: () => void;
 }
+
+// Fonction de conversion FormPollSuggestion (Gemini) → FormPollDraft (FormPollCreator)
+const convertFormSuggestionToDraft = (
+  suggestion: FormPollSuggestion,
+): FormPollDraft => {
+  const uid = () => Math.random().toString(36).slice(2, 10);
+
+  const questions: AnyFormQuestion[] = suggestion.questions.map((q) => {
+    const baseQuestion = {
+      id: uid(),
+      title: q.title,
+      required: q.required,
+      type: q.type,
+    };
+
+    if (q.type === "single" || q.type === "multiple") {
+      const options: FormOption[] = (q.options || []).map((opt) => ({
+        id: uid(),
+        label: opt,
+      }));
+
+      return {
+        ...baseQuestion,
+        type: q.type,
+        options,
+        ...(q.maxChoices && { maxChoices: q.maxChoices }),
+      } as AnyFormQuestion;
+    } else {
+      // type === "text"
+      return {
+        ...baseQuestion,
+        type: "text",
+        ...(q.placeholder && { placeholder: q.placeholder }),
+        ...(q.maxLength && { maxLength: q.maxLength }),
+      } as AnyFormQuestion;
+    }
+  });
+
+  return {
+    id: uid(),
+    type: "form",
+    title: suggestion.title,
+    questions,
+  };
+};
 
 const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   onPollCreated,
@@ -115,7 +170,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         const welcomeMessage: Message = {
           id: `welcome-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           content:
-            "Bonjour ! 👋 Je suis votre assistant DooDates. Je peux vous aider à organiser des événements et créer des sondages de dates. Comment puis-je vous aider aujourd'hui ?",
+            "Bonjour ! 👋 Je suis votre assistant IA pour créer des sondages de dates et des questionnaires. Décrivez-moi ce que vous souhaitez !",
           isAI: true,
           timestamp: new Date(),
         };
@@ -614,9 +669,29 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
       window.history.replaceState({}, "", newUrl);
     }
 
+    // Router vers le bon composant selon le type
+    const isFormPoll = selectedPollData?.type === "form";
+
+    if (isFormPoll && selectedPollData) {
+      // Convertir FormPollSuggestion en FormPollDraft
+      const formDraft = convertFormSuggestionToDraft(
+        selectedPollData as FormPollSuggestion,
+      );
+
+      return (
+        <FormPollCreator
+          initialDraft={formDraft}
+          onCancel={() => {
+            setShowPollCreator(false);
+            setSelectedPollData(null);
+          }}
+        />
+      );
+    }
+
     return (
       <PollCreator
-        initialData={selectedPollData || undefined}
+        initialData={(selectedPollData as DatePollSuggestion) || undefined}
         onBack={() => {
           setShowPollCreator(false);
           setSelectedPollData(null);
@@ -626,9 +701,9 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-80px)] min-h-[calc(100dvh-80px)]">
+    <div className="flex flex-col">
       {/* Barre d'état compacte */}
-      <div className="bg-white border-b p-2 md:p-3">
+      <div className="sticky top-[80px] z-40 bg-white border-b p-2 md:p-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
@@ -672,8 +747,8 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         </div>
       </div>
 
-      {/* Zone de conversation - Défilante */}
-      <div className="flex-1 overflow-y-auto bg-gradient-to-br from-blue-50 to-indigo-50">
+      {/* Zone de conversation */}
+      <div className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-50 pb-32">
         <div className="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-4">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
@@ -685,13 +760,24 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                   Bonjour ! 👋
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Je suis votre assistant IA pour créer des sondages DooDates.
-                  Décrivez-moi ce que vous souhaitez organiser !
+                  Je suis votre assistant IA pour créer des sondages de dates et
+                  des questionnaires. Décrivez-moi ce que vous souhaitez !
                 </p>
-                <div className="text-sm text-gray-500">
-                  <p className="mb-1">Exemples :</p>
-                  <p>• "Créer un sondage pour un déjeuner mardi"</p>
-                  <p>• "Organiser une réunion la semaine prochaine"</p>
+                <div className="text-sm text-gray-500 space-y-2">
+                  <div>
+                    <p className="font-medium text-gray-700 mb-1">
+                      📅 Sondages de dates :
+                    </p>
+                    <p>• "Réunion d'équipe la semaine prochaine"</p>
+                    <p>• "Déjeuner mardi ou mercredi"</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-700 mb-1">
+                      📝 Questionnaires :
+                    </p>
+                    <p>• "Questionnaire de satisfaction client"</p>
+                    <p>• "Sondage d'opinion sur notre produit"</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -724,80 +810,151 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                           </h3>
                         </div>
 
-                        <div className="space-y-3">
-                          <div className="space-y-2 md:space-y-3">
-                            {message.pollSuggestion.dates.map((date, index) => {
-                              // Trouver les créneaux horaires pour cette date
-                              const dateTimeSlots =
-                                message.pollSuggestion.timeSlots?.filter(
-                                  (slot) =>
-                                    !slot.dates ||
-                                    slot.dates.includes(date) ||
-                                    slot.dates.length === 0,
-                                ) || [];
+                        {/* Description si présente */}
+                        {message.pollSuggestion.description && (
+                          <p className="text-sm text-gray-600 mb-3">
+                            {message.pollSuggestion.description}
+                          </p>
+                        )}
 
-                              return (
-                                <div
-                                  key={date}
-                                  className="bg-gray-50 rounded-lg p-3 md:p-4"
-                                >
-                                  <div className="flex items-start gap-2 md:gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5"></div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="font-medium text-gray-800 text-sm md:text-base leading-tight">
-                                        {new Date(date).toLocaleDateString(
-                                          "fr-FR",
-                                          {
-                                            weekday: "long",
-                                            day: "numeric",
-                                            month: "long",
-                                            year: "numeric",
-                                          },
-                                        )}
-                                      </div>
-                                      {dateTimeSlots.length > 0 && (
-                                        <div className="mt-1.5 md:mt-2 flex items-start gap-1 text-xs md:text-sm text-gray-600">
-                                          <span className="text-green-600 flex-shrink-0">
-                                            ⏰
-                                          </span>
-                                          <div className="min-w-0 flex-1">
-                                            {dateTimeSlots.length <= 2 ? (
-                                              <span className="block break-words">
-                                                {dateTimeSlots
-                                                  .map(
-                                                    (slot) =>
-                                                      `${slot.start} - ${slot.end}`,
-                                                  )
-                                                  .join(", ")}
+                        <div className="space-y-3">
+                          {/* Affichage conditionnel selon le type */}
+                          {message.pollSuggestion.type === "form" ? (
+                            /* Affichage Form Poll (questionnaire) */
+                            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-200">
+                              <div className="flex items-center gap-2 mb-3 text-purple-700">
+                                <MessageCircle className="w-5 h-5" />
+                                <span className="font-medium text-sm">
+                                  {message.pollSuggestion.questions?.length ||
+                                    0}{" "}
+                                  questions
+                                </span>
+                              </div>
+
+                              <div className="space-y-2 max-h-48 overflow-y-auto">
+                                {message.pollSuggestion.questions?.map(
+                                  (question, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="bg-white rounded-lg p-3 text-sm"
+                                    >
+                                      <div className="flex items-start gap-2">
+                                        <span className="text-purple-600 font-medium flex-shrink-0">
+                                          {idx + 1}.
+                                        </span>
+                                        <div className="flex-1">
+                                          <p className="text-gray-800 font-medium">
+                                            {question.title}
+                                          </p>
+                                          <div className="flex items-center gap-2 mt-1">
+                                            <span
+                                              className={`text-xs px-2 py-0.5 rounded ${
+                                                question.type === "single"
+                                                  ? "bg-blue-100 text-blue-700"
+                                                  : question.type === "multiple"
+                                                    ? "bg-green-100 text-green-700"
+                                                    : "bg-gray-100 text-gray-700"
+                                              }`}
+                                            >
+                                              {question.type === "single"
+                                                ? "Choix unique"
+                                                : question.type === "multiple"
+                                                  ? "Choix multiples"
+                                                  : "Texte libre"}
+                                            </span>
+                                            {question.required && (
+                                              <span className="text-xs text-red-600">
+                                                Obligatoire
                                               </span>
-                                            ) : (
-                                              <div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            /* Affichage Date Poll (dates/horaires) */
+                            <div className="space-y-2 md:space-y-3">
+                              {(
+                                message.pollSuggestion as import("../lib/gemini").DatePollSuggestion
+                              ).dates?.map((date, index) => {
+                                // Trouver les créneaux horaires pour cette date
+                                const dateTimeSlots =
+                                  (
+                                    message.pollSuggestion as import("../lib/gemini").DatePollSuggestion
+                                  ).timeSlots?.filter(
+                                    (slot) =>
+                                      !slot.dates ||
+                                      slot.dates.includes(date) ||
+                                      slot.dates.length === 0,
+                                  ) || [];
+
+                                return (
+                                  <div
+                                    key={date}
+                                    className="bg-gray-50 rounded-lg p-3 md:p-4"
+                                  >
+                                    <div className="flex items-start gap-2 md:gap-3">
+                                      <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5"></div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-gray-800 text-sm md:text-base leading-tight">
+                                          {new Date(date).toLocaleDateString(
+                                            "fr-FR",
+                                            {
+                                              weekday: "long",
+                                              day: "numeric",
+                                              month: "long",
+                                              year: "numeric",
+                                            },
+                                          )}
+                                        </div>
+                                        {dateTimeSlots.length > 0 && (
+                                          <div className="mt-1.5 md:mt-2 flex items-start gap-1 text-xs md:text-sm text-gray-600">
+                                            <span className="text-green-600 flex-shrink-0">
+                                              ⏰
+                                            </span>
+                                            <div className="min-w-0 flex-1">
+                                              {dateTimeSlots.length <= 2 ? (
                                                 <span className="block break-words">
                                                   {dateTimeSlots
-                                                    .slice(0, 2)
                                                     .map(
                                                       (slot) =>
                                                         `${slot.start} - ${slot.end}`,
                                                     )
                                                     .join(", ")}
-                                                  {dateTimeSlots.length > 2 &&
-                                                    "..."}
                                                 </span>
-                                                <span className="text-blue-600 text-xs font-medium">
-                                                  +{dateTimeSlots.length - 2}{" "}
-                                                  créneaux
-                                                </span>
-                                              </div>
-                                            )}
+                                              ) : (
+                                                <div>
+                                                  <span className="block break-words">
+                                                    {dateTimeSlots
+                                                      .slice(0, 2)
+                                                      .map(
+                                                        (slot) =>
+                                                          `${slot.start} - ${slot.end}`,
+                                                      )
+                                                      .join(", ")}
+                                                    {dateTimeSlots.length > 2 &&
+                                                      "..."}
+                                                  </span>
+                                                  <span className="text-blue-600 text-xs font-medium">
+                                                    +{dateTimeSlots.length - 2}{" "}
+                                                    créneaux
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
                                           </div>
-                                        </div>
-                                      )}
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              );
-                            })}
-                          </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -805,10 +962,23 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                         onClick={() =>
                           handleUsePollSuggestion(message.pollSuggestion!)
                         }
-                        className="w-full mt-3 md:mt-4 inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium text-sm md:text-base"
+                        className={`w-full mt-3 md:mt-4 inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 text-white rounded-lg transition-colors font-medium text-sm md:text-base ${
+                          message.pollSuggestion.type === "form"
+                            ? "bg-purple-600 hover:bg-purple-700"
+                            : "bg-green-500 hover:bg-green-600"
+                        }`}
                       >
-                        <Calendar className="w-4 h-4 flex-shrink-0" />
-                        <span>Créer ce sondage</span>
+                        {message.pollSuggestion.type === "form" ? (
+                          <>
+                            <MessageCircle className="w-4 h-4 flex-shrink-0" />
+                            <span>Créer ce questionnaire</span>
+                          </>
+                        ) : (
+                          <>
+                            <Calendar className="w-4 h-4 flex-shrink-0" />
+                            <span>Créer ce sondage</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   )}

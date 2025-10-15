@@ -41,7 +41,9 @@ export const usePollDeletionCascade = () => {
             },
           });
 
-          logger.info('Removed poll link from conversation', 'conversation', { conversationId: conversation.id });
+          logger.info("Removed poll link from conversation", "conversation", {
+            conversationId: conversation.id,
+          });
         }
 
         return true;
@@ -81,7 +83,7 @@ export const usePollDeletionCascade = () => {
           const updatedPolls = polls.filter((poll: any) => poll.id !== pollId);
           localStorage.setItem("dev-polls", JSON.stringify(updatedPolls));
 
-          logger.info('Poll deleted successfully', 'poll', { pollId });
+          logger.info("Poll deleted successfully", "poll", { pollId });
 
           return {
             success: true,
@@ -233,7 +235,9 @@ export const usePollDeletionCascade = () => {
         }
       }
 
-      logger.info('Cleaned up orphaned conversation links', 'conversation', { cleanedCount });
+      logger.info("Cleaned up orphaned conversation links", "conversation", {
+        cleanedCount,
+      });
       return cleanedCount;
     } catch (error) {
       const processedError = handleError(

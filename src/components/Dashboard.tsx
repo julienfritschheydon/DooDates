@@ -163,6 +163,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <TopNav />
+      <div className="pt-20">
 
       {/* Indicateur Mode Développement Local */}
       <div className="bg-amber-100 dark:bg-amber-900 border-l-4 border-amber-500 p-3 mb-4">
@@ -360,17 +361,9 @@ const Dashboard: React.FC = () => {
                 {!searchQuery && (
                   <button
                     onClick={() => {
-                      if (enableFormPoll) {
-                        const choice = window.prompt(
-                          "Type de sondage ? Tapez 'form' pour Formulaire, sinon appuyez sur Entrée pour Date",
-                          "",
-                        );
-                        const isForm =
-                          (choice || "").trim().toLowerCase() === "form";
-                        navigate(isForm ? "/create?type=form" : "/create");
-                      } else {
-                        navigate("/create");
-                      }
+                      // Nettoyer le localStorage avant de naviguer vers un nouveau sondage
+                      localStorage.removeItem("doodates-draft");
+                      navigate("/create");
                     }}
                     className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                   >
@@ -396,6 +389,7 @@ const Dashboard: React.FC = () => {
             />
           </div>
         )}
+      </div>
       </div>
     </div>
   );

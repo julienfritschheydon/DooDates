@@ -266,10 +266,9 @@ export function Auth() {
         {
           component: "Auth",
           operation: "handleAutoConnect",
-          originalError: null,
         },
       );
-      logger.info('Connexion automatique au calendrier Google', 'auth');
+      logger.info("Connexion automatique au calendrier Google", "auth");
       setAutoConnectAttempted(true);
 
       const timer = setTimeout(async () => {
@@ -284,7 +283,6 @@ export function Auth() {
               {
                 component: "Auth",
                 operation: "handleAutoConnect",
-                originalError: error,
               },
             );
             setAutoConnectAttempted(false); // Permettre une nouvelle tentative
@@ -298,7 +296,6 @@ export function Auth() {
             {
               component: "Auth",
               operation: "handleAutoConnect",
-              originalError: err,
             },
           );
           setAutoConnectAttempted(false); // Permettre une nouvelle tentative
@@ -465,7 +462,7 @@ export function AuthCallback() {
       // Attendre que Supabase traite la session
       const timer = setTimeout(() => {
         if (user) {
-          logger.info('User authenticated, redirecting appropriately', 'auth');
+          logger.info("User authenticated, redirecting appropriately", "auth");
           const returnTo = localStorage.getItem("doodates-return-to");
           if (returnTo === "create") {
             localStorage.removeItem("doodates-return-to");
@@ -474,7 +471,10 @@ export function AuthCallback() {
             navigate("/", { replace: true });
           }
         } else if (!loading) {
-          logger.warn('No user found after callback, redirecting to auth', 'auth');
+          logger.warn(
+            "No user found after callback, redirecting to auth",
+            "auth",
+          );
           navigate("/auth", { replace: true });
         }
       }, 2000); // Augmenté à 2 secondes pour laisser plus de temps

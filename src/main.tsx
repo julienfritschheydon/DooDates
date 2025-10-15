@@ -20,7 +20,7 @@ function forceFullscreenOnAndroid() {
     // Forcer le plein écran si disponible
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {
-        logger.debug('Fullscreen non supporté sur ce navigateur', 'general');
+        logger.debug("Fullscreen non supporté sur ce navigateur", "general");
       });
     }
 
@@ -29,7 +29,7 @@ function forceFullscreenOnAndroid() {
       try {
         (window.screen.orientation as any).lock("portrait-primary");
       } catch (e) {
-        logger.debug('Orientation lock non supporté', 'general');
+        logger.debug("Orientation lock non supporté", "general");
       }
     }
   }
@@ -41,13 +41,15 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register("/sw.js")
       .then((registration) => {
-        logger.info('Service Worker enregistré avec succès', 'general', { scope: registration.scope });
+        logger.info("Service Worker enregistré avec succès", "general", {
+          scope: registration.scope,
+        });
 
         // Forcer le plein écran après enregistrement SW
         setTimeout(forceFullscreenOnAndroid, 1000);
       })
       .catch((error) => {
-        logger.warn('Échec enregistrement Service Worker', 'general', error);
+        logger.warn("Échec enregistrement Service Worker", "general", error);
       });
   });
 }

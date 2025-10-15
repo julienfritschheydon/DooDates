@@ -280,7 +280,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
           url: window.location.href,
         });
       } catch (error) {
-        logger.debug('Partage annulé', 'general');
+        logger.debug("Partage annulé", "general");
       }
     } else {
       // Fallback: copier le lien

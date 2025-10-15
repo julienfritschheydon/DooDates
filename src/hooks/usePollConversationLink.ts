@@ -51,7 +51,10 @@ export const usePollConversationLink = () => {
           },
         });
 
-        logger.info('Poll linked to conversation', 'poll', { conversationId, pollId: pollData.pollId });
+        logger.info("Poll linked to conversation", "poll", {
+          conversationId,
+          pollId: pollData.pollId,
+        });
         return true;
       } catch (error) {
         logError("Failed to link poll to conversation:", error);

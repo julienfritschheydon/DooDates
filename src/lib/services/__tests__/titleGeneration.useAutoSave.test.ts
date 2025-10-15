@@ -27,24 +27,23 @@ vi.mock("../../../contexts/AuthContext", () => ({
   useAuth: () => ({ user: { id: "test-user" } }),
 }));
 
+import { createMockConversation } from "../../../__tests__/helpers/testHelpers";
+
 describe("titleGeneration + useAutoSave Integration", () => {
   const mockConversationStorage = ConversationStorage as any;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Setup default mocks
-    mockConversationStorage.createConversation.mockReturnValue({
-      id: "conv-123",
-      title: "Test Conversation",
-      status: "active",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      firstMessage: "Hello",
-      messageCount: 1,
-      isFavorite: false,
-      tags: [],
-    });
+    // Setup default mocks using helper
+    mockConversationStorage.createConversation.mockReturnValue(
+      createMockConversation({
+        id: "conv-123",
+        title: "Test Conversation",
+        firstMessage: "Hello",
+        messageCount: 1,
+      }),
+    );
 
     mockConversationStorage.getMessages.mockReturnValue([]);
     mockConversationStorage.addMessages.mockImplementation(() => {});

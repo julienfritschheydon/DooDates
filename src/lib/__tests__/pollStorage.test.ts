@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   addPoll,
   buildPublicLink,
@@ -14,11 +14,13 @@ import {
 
 const makePoll = (overrides: Partial<Poll> = {}): Poll => ({
   id: overrides.id ?? "local-1",
-  title: overrides.title ?? "RÃ©union",
+  title: overrides.title ?? "Réunion",
   slug: overrides.slug ?? "reunion",
   created_at: overrides.created_at ?? new Date(2020, 0, 1).toISOString(),
   description: overrides.description,
   status: overrides.status ?? "active",
+  creator_id: overrides.creator_id ?? "user-1",
+  dates: overrides.dates ?? ["2025-08-26"],
   // Ensure minimal valid settings for validation
   settings: overrides.settings ?? {
     selectedDates: ["2025-08-26"],
@@ -26,20 +28,15 @@ const makePoll = (overrides: Partial<Poll> = {}): Poll => ({
   updated_at: overrides.updated_at,
 });
 
-// In-memory localStorage for this suite
+import { setupMockLocalStorage } from "../../__tests__/helpers/testHelpers";
+
+// In-memory localStorage for this suite - using helper
 function installLocalStorage(preset: Record<string, string> = {}) {
-  const store = new Map<string, string>(Object.entries(preset));
-  Object.defineProperty(window, "localStorage", {
-    value: {
-      getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
-      setItem: (key: string, value: string) =>
-        void store.set(key, String(value)),
-      removeItem: (key: string) => void store.delete(key),
-      clear: () => void store.clear(),
-    },
-    configurable: true,
+  setupMockLocalStorage();
+  // Set preset values if any
+  Object.entries(preset).forEach(([key, value]) => {
+    window.localStorage.setItem(key, value);
   });
-  return store;
 }
 
 describe("pollStorage", () => {
@@ -121,7 +118,7 @@ describe("pollStorage", () => {
       slug: "date-one",
       type: "date" as any,
     });
-    const formPoll: Poll = {
+    const formPoll = {
       id: "f1",
       title: "Formulaire",
       slug: "form-one",
@@ -129,8 +126,10 @@ describe("pollStorage", () => {
       status: "draft",
       updated_at: new Date(2024, 0, 1).toISOString(),
       type: "form",
+      creator_id: "user-1",
+      dates: [],
       questions: [{ id: "q1", label: "Question?" }],
-    };
+    } as unknown as Poll;
 
     // Save via savePolls (bypasses validation to simulate persisted state)
     savePolls([datePoll, formPoll]);
@@ -178,7 +177,7 @@ describe("pollStorage", () => {
 
   it("addPoll() should validate form polls: title is required", () => {
     // Valid form poll
-    const okForm: Poll = {
+    const okForm = {
       id: "f-ok",
       title: "Titre",
       slug: "f-ok",
@@ -186,12 +185,14 @@ describe("pollStorage", () => {
       status: "draft",
       updated_at: new Date().toISOString(),
       type: "form",
+      creator_id: "user-1",
+      dates: [],
       questions: [],
-    };
+    } as unknown as Poll;
     expect(() => addPoll(okForm)).not.toThrow();
 
     // Invalid form poll (empty title)
-    const badForm: Poll = {
+    const badForm = {
       id: "f-bad",
       title: " ",
       slug: "f-bad",
@@ -199,8 +200,10 @@ describe("pollStorage", () => {
       status: "draft",
       updated_at: new Date().toISOString(),
       type: "form",
+      creator_id: "user-1",
+      dates: [],
       questions: [],
-    };
+    } as unknown as Poll;
     expect(() => addPoll(badForm)).toThrow();
   });
 });
