@@ -109,3 +109,36 @@ Les git hooks sont maintenant **débloqués** et n'empêcheront plus les commits
 **Raison** : Migration Jest → Vitest en cours  
 **Impact** : Aucun - Les tests actifs couvrent les fonctionnalités principales  
 **Priorité** : Moyenne - À corriger lors du prochain cycle de refactoring
+
+---
+
+## 🎯 PLAN DE MIGRATION (En cours)
+
+**Stratégie** : Migration progressive avec test + commit après chaque fichier
+
+### Phase 1 : Tests Simples (Priorité Haute)
+- [ ] **Étape 1** : `usePollConversationLink.test.ts` - Simple, peu de mocks
+- [ ] **Étape 2** : `usePollDeletionCascade.test.ts` - Simple, peu de mocks
+- [ ] **Étape 3** : `useFreemiumQuota.test.ts` - Mocks simples
+
+### Phase 2 : Tests Composants (Priorité Moyenne)
+- [ ] **Étape 4** : `QuotaIndicator.test.tsx` - Composant UI simple
+- [ ] **Étape 5** : `ConversationActions.test.tsx` - Actions simples
+- [ ] **Étape 6** : `ConversationCard.test.tsx` - Card component
+
+### Phase 3 : Tests Complexes (Priorité Haute mais difficiles)
+- [ ] **Étape 7** : `useConversations.test.ts` - Hook critique avec plusieurs mocks
+- [ ] **Étape 8** : `useAutoSave.test.ts` - Timeout + timer mocks
+- [ ] **Étape 9** : `useConversationStorage.test.ts` - Problème de module resolution
+
+### Phase 4 : Tests Intégration (Priorité Basse)
+- [ ] **Étape 10** : `ConversationHistory.test.tsx` - Intégration complexe
+- [ ] **Étape 11** : `GeminiChatInterface.integration.test.tsx` - Intégration AI
+- [ ] **Étape 12** : `unified-flow.test.ts` - Corriger imports puis migrer
+
+---
+
+## 📊 Progression
+
+**Total** : 0/12 tests migrés  
+**Dernière mise à jour** : 15/10/2025 10:30
