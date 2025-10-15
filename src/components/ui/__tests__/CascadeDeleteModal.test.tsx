@@ -194,7 +194,7 @@ describe("CascadeDeleteModal", () => {
       expect(onClose).toHaveBeenCalledTimes(1);
     });
 
-    it.skip("should reset confirmation text when modal reopens", async () => {
+    it("should reset confirmation text when modal reopens", async () => {
       const user = userEvent.setup();
       const { rerender } = render(
         <CascadeDeleteModal {...defaultProps} isOpen={false} />,
@@ -216,7 +216,7 @@ describe("CascadeDeleteModal", () => {
         "Tapez SUPPRIMER pour confirmer",
       );
       expect(newInput).toHaveValue("");
-    });
+    }, 10000); // Augmenter timeout à 10s
   });
 
   describe("Traductions i18n", () => {
@@ -242,7 +242,7 @@ describe("CascadeDeleteModal", () => {
       ).toBeInTheDocument();
     });
 
-    it.skip("should use correct confirmation word for English", async () => {
+    it("should use correct confirmation word for English", async () => {
       const user = userEvent.setup();
       const onConfirm = vi.fn();
       render(
@@ -269,7 +269,7 @@ describe("CascadeDeleteModal", () => {
 
       await user.click(deleteButton);
       expect(onConfirm).toHaveBeenCalledTimes(1);
-    });
+    }, 10000); // Augmenter timeout à 10s
 
     it("should show correct item type labels in English", () => {
       render(<CascadeDeleteModal {...defaultProps} language="en" />);
