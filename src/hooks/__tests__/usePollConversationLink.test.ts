@@ -124,7 +124,7 @@ describe("usePollConversationLink", () => {
         "resumeConversation",
         expect.stringContaining("conv-1"),
       );
-      
+
       // Vérifier que la chaîne JSON contient les bonnes données
       const setItemCall = mockLocalStorage.setItem.mock.calls[0];
       const savedData = JSON.parse(setItemCall[1]);
@@ -277,7 +277,7 @@ describe("usePollConversationLink", () => {
       act(() => {
         result.current.navigateToConversation("conv-1");
       });
-      
+
       // Verify localStorage was called with conversation data
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         "resumeConversation",
