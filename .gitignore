@@ -159,3 +159,26 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Development and testing utilities
+disable-*.ps1
+disable-*.js
+restore-*.ps1
+clear-storage.html
+memory/
+.gemini/
+DooDates/
+templates/
+
+# Test and integration directories
+tests/integration/
+src/test/integration/
+src/components/modals/__tests__/
+src/components/voting/__tests__/
+src/types/__tests__/
+
+# Workspace files
+*.code-workspace
+
+# Specification drafts
+SPECIFICATIONS-*.md
