@@ -130,7 +130,7 @@ describe("usePollDeletionCascade", () => {
       );
     });
 
-    it.skip("should handle poll deletion failure", async () => {
+    it("should handle poll deletion failure", async () => {
       mockUpdateConversation.mutateAsync.mockResolvedValue({});
       mockLocalStorage.getItem.mockImplementation(() => {
         throw new Error("Storage error");
@@ -143,7 +143,8 @@ describe("usePollDeletionCascade", () => {
           await result.current.deletePollWithCascade("poll-1");
 
         expect(result_deletion.success).toBe(false);
-        expect(result_deletion.error).toContain("Failed to delete poll");
+        // Le message d'erreur contient "Storage error" (provenant de l'erreur throw)
+        expect(result_deletion.error).toContain("Storage error");
       });
     });
   });
