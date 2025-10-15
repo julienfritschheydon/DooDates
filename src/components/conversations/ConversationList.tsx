@@ -3,39 +3,42 @@
  * DooDates - Conversation History System
  */
 
-import React, { useMemo, useState, useCallback } from 'react';
-import { 
-  MessageCircle, 
-  Search, 
-  Plus, 
+import React, { useMemo, useState, useCallback } from "react";
+import {
+  MessageCircle,
+  Search,
+  Plus,
   Filter,
   SortAsc,
   SortDesc,
-  Loader2
-} from 'lucide-react';
+  Loader2,
+} from "lucide-react";
 
-import { ConversationCard } from './ConversationCard';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Badge } from '../ui/badge';
+import { ConversationCard } from "./ConversationCard";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from "../ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { Skeleton } from '../ui/skeleton';
-import { cn } from '../../lib/utils';
-import { useConversationSearch } from '../../hooks/useConversationSearch';
-import type { Conversation, ConversationStatus } from '../../types/conversation';
+} from "../ui/dropdown-menu";
+import { Skeleton } from "../ui/skeleton";
+import { cn } from "../../lib/utils";
+import { useConversationSearch } from "../../hooks/useConversationSearch";
+import type {
+  Conversation,
+  ConversationStatus,
+} from "../../types/conversation";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -61,7 +64,7 @@ export interface ConversationListProps {
   /** Callback when user wants to create new conversation */
   onCreateNew?: () => void;
   /** Current user's language preference */
-  language?: 'fr' | 'en';
+  language?: "fr" | "en";
   /** Whether to show search and filters */
   showSearch?: boolean;
   /** Whether to use compact card layout */
@@ -72,8 +75,8 @@ export interface ConversationListProps {
   height?: number;
 }
 
-type SortOption = 'updatedAt' | 'createdAt' | 'title' | 'messageCount';
-type SortOrder = 'asc' | 'desc';
+type SortOption = "updatedAt" | "createdAt" | "title" | "messageCount";
+type SortOrder = "asc" | "desc";
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -83,29 +86,30 @@ type SortOrder = 'asc' | 'desc';
  * Sorts conversations based on criteria
  */
 function sortConversations(
-  conversations: Conversation[], 
-  sortBy: SortOption, 
-  sortOrder: SortOrder
+  conversations: Conversation[],
+  sortBy: SortOption,
+  sortOrder: SortOrder,
 ): Conversation[] {
   return [...conversations].sort((a, b) => {
     let comparison = 0;
-    
+
     switch (sortBy) {
-      case 'updatedAt':
-      case 'createdAt':
-        comparison = new Date(a[sortBy]).getTime() - new Date(b[sortBy]).getTime();
+      case "updatedAt":
+      case "createdAt":
+        comparison =
+          new Date(a[sortBy]).getTime() - new Date(b[sortBy]).getTime();
         break;
-      case 'title':
+      case "title":
         comparison = a.title.localeCompare(b.title);
         break;
-      case 'messageCount':
+      case "messageCount":
         comparison = a.messageCount - b.messageCount;
         break;
       default:
         comparison = 0;
     }
-    
-    return sortOrder === 'asc' ? comparison : -comparison;
+
+    return sortOrder === "asc" ? comparison : -comparison;
   });
 }
 
@@ -113,16 +117,35 @@ function sortConversations(
  * Gets status filter options with counts
  */
 function getStatusFilterOptions(conversations: Conversation[]) {
-  const counts = conversations.reduce((acc, conv) => {
-    acc[conv.status] = (acc[conv.status] || 0) + 1;
-    return acc;
-  }, {} as Record<ConversationStatus, number>);
+  const counts = conversations.reduce(
+    (acc, conv) => {
+      acc[conv.status] = (acc[conv.status] || 0) + 1;
+      return acc;
+    },
+    {} as Record<ConversationStatus, number>,
+  );
 
   return [
-    { value: 'all', label: `Toutes (${conversations.length})`, count: conversations.length },
-    { value: 'active', label: `En cours (${counts.active || 0})`, count: counts.active || 0 },
-    { value: 'completed', label: `Terminées (${counts.completed || 0})`, count: counts.completed || 0 },
-    { value: 'archived', label: `Archivées (${counts.archived || 0})`, count: counts.archived || 0 },
+    {
+      value: "all",
+      label: `Toutes (${conversations.length})`,
+      count: conversations.length,
+    },
+    {
+      value: "active",
+      label: `En cours (${counts.active || 0})`,
+      count: counts.active || 0,
+    },
+    {
+      value: "completed",
+      label: `Terminées (${counts.completed || 0})`,
+      count: counts.completed || 0,
+    },
+    {
+      value: "archived",
+      label: `Archivées (${counts.archived || 0})`,
+      count: counts.archived || 0,
+    },
   ];
 }
 
@@ -132,7 +155,12 @@ function getStatusFilterOptions(conversations: Conversation[]) {
 
 function ConversationSkeleton({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={cn("p-4 border rounded-lg space-y-3", compact && "p-3 space-y-2")}>
+    <div
+      className={cn(
+        "p-4 border rounded-lg space-y-3",
+        compact && "p-3 space-y-2",
+      )}
+    >
       <div className="flex items-start justify-between">
         <div className="space-y-2 flex-1">
           <Skeleton className="h-4 w-3/4" />
@@ -163,10 +191,10 @@ function ConversationSkeleton({ compact = false }: { compact?: boolean }) {
 // EMPTY STATE COMPONENT
 // ============================================================================
 
-function EmptyState({ 
-  onCreateNew, 
-  isFiltered = false 
-}: { 
+function EmptyState({
+  onCreateNew,
+  isFiltered = false,
+}: {
   onCreateNew?: () => void;
   isFiltered?: boolean;
 }) {
@@ -178,7 +206,8 @@ function EmptyState({
           Aucune conversation trouvée
         </h3>
         <p className="text-gray-500 mb-4 max-w-sm">
-          Essayez de modifier vos critères de recherche ou de filtrage pour voir plus de résultats.
+          Essayez de modifier vos critères de recherche ou de filtrage pour voir
+          plus de résultats.
         </p>
       </div>
     );
@@ -191,7 +220,8 @@ function EmptyState({
         Aucune conversation pour le moment
       </h3>
       <p className="text-gray-500 mb-6 max-w-sm">
-        Commencez votre première conversation avec l'IA pour créer des sondages intelligents.
+        Commencez votre première conversation avec l'IA pour créer des sondages
+        intelligents.
       </p>
       {onCreateNew && (
         <Button onClick={onCreateNew} className="gap-2">
@@ -217,16 +247,18 @@ export function ConversationList({
   onToggleFavorite,
   onViewPoll,
   onCreateNew,
-  language = 'fr',
+  language = "fr",
   showSearch = true,
   compact = false,
   className,
-  height = 600
+  height = 600,
 }: ConversationListProps) {
   // Local state for sorting and filtering
-  const [sortBy, setSortBy] = useState<SortOption>('updatedAt');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
-  const [statusFilter, setStatusFilter] = useState<ConversationStatus | 'all'>('all');
+  const [sortBy, setSortBy] = useState<SortOption>("updatedAt");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [statusFilter, setStatusFilter] = useState<ConversationStatus | "all">(
+    "all",
+  );
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   // Search functionality
@@ -237,10 +269,10 @@ export function ConversationList({
     clearSearch,
     query,
     totalCount,
-    isLoading: isSearching
+    isLoading: isSearching,
   } = useConversationSearch({
-    status: statusFilter === 'all' ? undefined : statusFilter,
-    isFavorite: showFavoritesOnly ? true : undefined
+    status: statusFilter === "all" ? undefined : statusFilter,
+    isFavorite: showFavoritesOnly ? true : undefined,
   });
 
   // Use search results if search is active, otherwise use provided conversations
@@ -250,45 +282,54 @@ export function ConversationList({
   }, [searchResults, conversations, query, sortBy, sortOrder]);
 
   // Status filter options with counts
-  const statusOptions = useMemo(() => 
-    getStatusFilterOptions(conversations), 
-    [conversations]
+  const statusOptions = useMemo(
+    () => getStatusFilterOptions(conversations),
+    [conversations],
   );
 
   // Handlers
-  const handleSearchChange = useCallback((value: string) => {
-    setQuery(value);
-  }, [setQuery]);
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setQuery(value);
+    },
+    [setQuery],
+  );
 
-  const handleStatusFilterChange = useCallback((value: string) => {
-    const status = value as ConversationStatus | 'all';
-    setStatusFilter(status);
-    setFilters({
-      status: status === 'all' ? undefined : status,
-      isFavorite: showFavoritesOnly ? true : undefined
-    });
-  }, [setFilters, showFavoritesOnly]);
+  const handleStatusFilterChange = useCallback(
+    (value: string) => {
+      const status = value as ConversationStatus | "all";
+      setStatusFilter(status);
+      setFilters({
+        status: status === "all" ? undefined : status,
+        isFavorite: showFavoritesOnly ? true : undefined,
+      });
+    },
+    [setFilters, showFavoritesOnly],
+  );
 
   const handleToggleFavorites = useCallback(() => {
     const newValue = !showFavoritesOnly;
     setShowFavoritesOnly(newValue);
     setFilters({
-      status: statusFilter === 'all' ? undefined : statusFilter,
-      isFavorite: newValue ? true : undefined
+      status: statusFilter === "all" ? undefined : statusFilter,
+      isFavorite: newValue ? true : undefined,
     });
   }, [showFavoritesOnly, setFilters, statusFilter]);
 
-  const handleSortChange = useCallback((newSortBy: SortOption) => {
-    if (newSortBy === sortBy) {
-      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(newSortBy);
-      setSortOrder('desc');
-    }
-  }, [sortBy]);
+  const handleSortChange = useCallback(
+    (newSortBy: SortOption) => {
+      if (newSortBy === sortBy) {
+        setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+      } else {
+        setSortBy(newSortBy);
+        setSortOrder("desc");
+      }
+    },
+    [sortBy],
+  );
 
   const handleClearFilters = useCallback(() => {
-    setStatusFilter('all');
+    setStatusFilter("all");
     setShowFavoritesOnly(false);
     clearSearch();
   }, [clearSearch]);
@@ -330,7 +371,8 @@ export function ConversationList({
           Erreur de chargement
         </h3>
         <p className="text-gray-500 mb-4">
-          {error.message || 'Une erreur est survenue lors du chargement des conversations.'}
+          {error.message ||
+            "Une erreur est survenue lors du chargement des conversations."}
         </p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Réessayer
@@ -339,7 +381,8 @@ export function ConversationList({
     );
   }
 
-  const hasActiveFilters = statusFilter !== 'all' || showFavoritesOnly || Boolean(query);
+  const hasActiveFilters =
+    statusFilter !== "all" || showFavoritesOnly || Boolean(query);
   const isEmpty = displayConversations.length === 0;
 
   return (
@@ -354,7 +397,7 @@ export function ConversationList({
               placeholder="Rechercher dans les conversations..."
               className="pl-10"
               onChange={(e) => handleSearchChange(e.target.value)}
-              value={query || ''}
+              value={query || ""}
             />
             {(isSearching || isLoading) && (
               <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />
@@ -364,12 +407,15 @@ export function ConversationList({
           {/* Filters and Sort */}
           <div className="flex flex-wrap gap-2 items-center">
             {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+            <Select
+              value={statusFilter}
+              onValueChange={handleStatusFilterChange}
+            >
               <SelectTrigger className="w-auto min-w-[120px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {statusOptions.map(option => (
+                {statusOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -391,21 +437,27 @@ export function ConversationList({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
-                  {sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
+                  {sortOrder === "asc" ? (
+                    <SortAsc className="h-4 w-4" />
+                  ) : (
+                    <SortDesc className="h-4 w-4" />
+                  )}
                   Trier
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => handleSortChange('updatedAt')}>
+                <DropdownMenuItem onClick={() => handleSortChange("updatedAt")}>
                   Dernière modification
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleSortChange('createdAt')}>
+                <DropdownMenuItem onClick={() => handleSortChange("createdAt")}>
                   Date de création
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleSortChange('title')}>
+                <DropdownMenuItem onClick={() => handleSortChange("title")}>
                   Titre
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleSortChange('messageCount')}>
+                <DropdownMenuItem
+                  onClick={() => handleSortChange("messageCount")}
+                >
                   Nombre de messages
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -425,8 +477,9 @@ export function ConversationList({
 
             {/* Results Count */}
             <div className="ml-auto text-sm text-gray-500">
-              {displayConversations.length} conversation{displayConversations.length > 1 ? 's' : ''}
-              {query && ` trouvée${displayConversations.length > 1 ? 's' : ''}`}
+              {displayConversations.length} conversation
+              {displayConversations.length > 1 ? "s" : ""}
+              {query && ` trouvée${displayConversations.length > 1 ? "s" : ""}`}
             </div>
           </div>
         </div>
@@ -434,16 +487,10 @@ export function ConversationList({
 
       {/* Conversations List */}
       {isEmpty ? (
-        <EmptyState 
-          onCreateNew={onCreateNew} 
-          isFiltered={hasActiveFilters}
-        />
+        <EmptyState onCreateNew={onCreateNew} isFiltered={hasActiveFilters} />
       ) : (
         <div className="border rounded-lg overflow-hidden">
-          <div 
-            className="overflow-y-auto"
-            style={{ height: `${height}px` }}
-          >
+          <div className="overflow-y-auto" style={{ height: `${height}px` }}>
             {displayConversations.map((conversation, index) => (
               <div key={conversation.id} className="px-1 py-1">
                 <ConversationCard

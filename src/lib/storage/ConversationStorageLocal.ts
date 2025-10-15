@@ -1,16 +1,16 @@
-import { compress, decompress } from 'lz-string';
-import { 
-  Conversation, 
-  ConversationMessage, 
+import { compress, decompress } from "lz-string";
+import {
+  Conversation,
+  ConversationMessage,
   ConversationError,
-  CONVERSATION_LIMITS 
-} from '../../types/conversation';
-import { 
-  validateConversation, 
+  CONVERSATION_LIMITS,
+} from "../../types/conversation";
+import {
+  validateConversation,
   validateConversationMessage,
-  ConversationQuotaSchema 
-} from '../validation/conversation';
-import { handleError, ErrorFactory, logError } from '../error-handling';
+  ConversationQuotaSchema,
+} from "../validation/conversation";
+import { handleError, ErrorFactory, logError } from "../error-handling";
 
 /**
  * Interface pour les métadonnées de stockage localStorage
@@ -37,8 +37,8 @@ interface StorageData {
  * Avec compression LZ-string, gestion des quotas et expiration automatique
  */
 export class ConversationStorageLocal {
-  private static readonly STORAGE_KEY = 'doodates_conversations';
-  private static readonly STORAGE_VERSION = '1.0.0';
+  private static readonly STORAGE_KEY = "doodates_conversations";
+  private static readonly STORAGE_VERSION = "1.0.0";
   private static readonly EXPIRATION_DAYS = 30;
   private static readonly GUEST_QUOTA_LIMIT = 10;
 
@@ -56,17 +56,19 @@ export class ConversationStorageLocal {
             version: this.STORAGE_VERSION,
             createdAt: new Date().toISOString(),
             lastAccessed: new Date().toISOString(),
-            expiresAt: new Date(Date.now() + this.EXPIRATION_DAYS * 24 * 60 * 60 * 1000).toISOString(),
-            isGuest
-          }
+            expiresAt: new Date(
+              Date.now() + this.EXPIRATION_DAYS * 24 * 60 * 60 * 1000,
+            ).toISOString(),
+            isGuest,
+          },
         };
         this.saveStorageData(initialData);
       }
     } catch (error) {
       throw new ConversationError(
-        'Impossible d\'initialiser le stockage localStorage',
-        'STORAGE_INIT_ERROR',
-        { originalError: error }
+        "Impossible d'initialiser le stockage localStorage",
+        "STORAGE_INIT_ERROR",
+        { originalError: error },
       );
     }
   }
@@ -74,7 +76,9 @@ export class ConversationStorageLocal {
   /**
    * Crée une nouvelle conversation
    */
-  static async createConversation(conversation: Omit<Conversation, 'id' | 'createdAt' | 'updatedAt'>): Promise<Conversation> {
+  static async createConversation(
+    conversation: Omit<Conversation, "id" | "createdAt" | "updatedAt">,
+  ): Promise<Conversation> {
     const newConversation: Conversation = {
       ...conversation,
       id: `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -83,17 +87,17 @@ export class ConversationStorageLocal {
     };
 
     await this.saveConversation(newConversation);
-    
+
     // Verify the conversation was actually saved
     const savedConversation = this.getConversation(newConversation.id);
     if (!savedConversation) {
       throw new ConversationError(
         `Failed to verify conversation creation: ${newConversation.id}`,
-        'CONVERSATION_CREATION_VERIFICATION_FAILED',
-        { conversationId: newConversation.id }
+        "CONVERSATION_CREATION_VERIFICATION_FAILED",
+        { conversationId: newConversation.id },
       );
     }
-    
+
     return newConversation;
   }
 
@@ -106,17 +110,17 @@ export class ConversationStorageLocal {
       const validationResult = validateConversation(conversation);
       if (!validationResult.success) {
         throw new ConversationError(
-          'Données de conversation invalides',
-          'VALIDATION_ERROR',
-          { errors: validationResult.error?.issues }
+          "Données de conversation invalides",
+          "VALIDATION_ERROR",
+          { errors: validationResult.error?.issues },
         );
       }
 
       const data = this.getStorageData();
       if (!data) {
         throw new ConversationError(
-          'Stockage non initialisé',
-          'STORAGE_NOT_INITIALIZED'
+          "Stockage non initialisé",
+          "STORAGE_NOT_INITIALIZED",
         );
       }
 
@@ -124,16 +128,16 @@ export class ConversationStorageLocal {
       if (data.metadata.isGuest) {
         const existingCount = Object.keys(data.conversations).length;
         const isUpdate = conversation.id in data.conversations;
-        
+
         if (!isUpdate && existingCount >= this.GUEST_QUOTA_LIMIT) {
           throw new ConversationError(
             `Quota dépassé: maximum ${this.GUEST_QUOTA_LIMIT} conversation(s) pour les invités`,
-            'QUOTA_EXCEEDED',
-            { 
-              currentCount: existingCount, 
+            "QUOTA_EXCEEDED",
+            {
+              currentCount: existingCount,
               limit: this.GUEST_QUOTA_LIMIT,
-              isGuest: true 
-            }
+              isGuest: true,
+            },
           );
         }
       }
@@ -142,24 +146,24 @@ export class ConversationStorageLocal {
       if (this.isExpired(data.metadata)) {
         this.clearExpiredData();
         throw new ConversationError(
-          'Données expirées, stockage réinitialisé',
-          'DATA_EXPIRED'
+          "Données expirées, stockage réinitialisé",
+          "DATA_EXPIRED",
         );
       }
 
       // Sauvegarde
       data.conversations[conversation.id] = conversation;
       data.metadata.lastAccessed = new Date().toISOString();
-      
+
       this.saveStorageData(data);
     } catch (error) {
       if (error instanceof ConversationError) {
         throw error;
       }
       throw new ConversationError(
-        'Erreur lors de la sauvegarde de la conversation',
-        'SAVE_ERROR',
-        { originalError: error }
+        "Erreur lors de la sauvegarde de la conversation",
+        "SAVE_ERROR",
+        { originalError: error },
       );
     }
   }
@@ -167,16 +171,19 @@ export class ConversationStorageLocal {
   /**
    * Sauvegarde les messages d'une conversation
    */
-  static async saveMessages(conversationId: string, messages: ConversationMessage[]): Promise<void> {
+  static async saveMessages(
+    conversationId: string,
+    messages: ConversationMessage[],
+  ): Promise<void> {
     try {
       // Validation des messages
       for (const message of messages) {
         const validationResult = validateConversationMessage(message);
         if (!validationResult.success) {
           throw new ConversationError(
-            'Données de message invalides',
-            'VALIDATION_ERROR',
-            { errors: validationResult.error?.issues }
+            "Données de message invalides",
+            "VALIDATION_ERROR",
+            { errors: validationResult.error?.issues },
           );
         }
       }
@@ -184,8 +191,8 @@ export class ConversationStorageLocal {
       const data = this.getStorageData();
       if (!data) {
         throw new ConversationError(
-          'Stockage non initialisé',
-          'STORAGE_NOT_INITIALIZED'
+          "Stockage non initialisé",
+          "STORAGE_NOT_INITIALIZED",
         );
       }
 
@@ -193,8 +200,8 @@ export class ConversationStorageLocal {
       if (this.isExpired(data.metadata)) {
         this.clearExpiredData();
         throw new ConversationError(
-          'Données expirées, stockage réinitialisé',
-          'DATA_EXPIRED'
+          "Données expirées, stockage réinitialisé",
+          "DATA_EXPIRED",
         );
       }
 
@@ -202,23 +209,23 @@ export class ConversationStorageLocal {
       if (!data.conversations[conversationId]) {
         const notFoundError = ErrorFactory.storage(
           `Conversation parente introuvable: ${conversationId}`,
-          'Conversation non trouvée dans le stockage local'
+          "Conversation non trouvée dans le stockage local",
         );
-        
+
         logError(notFoundError, {
-          component: 'ConversationStorageLocal',
-          operation: 'addMessages'
+          component: "ConversationStorageLocal",
+          operation: "addMessages",
         });
-        
+
         throw new ConversationError(
           `Conversation parente introuvable: ${conversationId}`,
-          'CONVERSATION_NOT_FOUND',
-          { 
-            conversationId, 
+          "CONVERSATION_NOT_FOUND",
+          {
+            conversationId,
             availableConversations: Object.keys(data.conversations),
             storageDataKeys: Object.keys(data),
-            conversationsCount: Object.keys(data.conversations).length
-          }
+            conversationsCount: Object.keys(data.conversations).length,
+          },
         );
       }
 
@@ -226,18 +233,21 @@ export class ConversationStorageLocal {
       if (!data.messages[conversationId]) {
         data.messages[conversationId] = [];
       }
-      data.messages[conversationId] = [...data.messages[conversationId], ...messages];
+      data.messages[conversationId] = [
+        ...data.messages[conversationId],
+        ...messages,
+      ];
       data.metadata.lastAccessed = new Date().toISOString();
-      
+
       this.saveStorageData(data);
     } catch (error) {
       if (error instanceof ConversationError) {
         throw error;
       }
       throw new ConversationError(
-        'Erreur lors de la sauvegarde des messages',
-        'SAVE_ERROR',
-        { originalError: error }
+        "Erreur lors de la sauvegarde des messages",
+        "SAVE_ERROR",
+        { originalError: error },
       );
     }
   }
@@ -265,9 +275,9 @@ export class ConversationStorageLocal {
       return Object.values(data.conversations);
     } catch (error) {
       throw new ConversationError(
-        'Erreur lors de la récupération des conversations',
-        'FETCH_ERROR',
-        { originalError: error }
+        "Erreur lors de la récupération des conversations",
+        "FETCH_ERROR",
+        { originalError: error },
       );
     }
   }
@@ -289,7 +299,7 @@ export class ConversationStorageLocal {
       }
 
       const conversation = data.conversations[id] || null;
-      
+
       if (conversation) {
         // Mise à jour du lastAccessed
         data.metadata.lastAccessed = new Date().toISOString();
@@ -299,9 +309,9 @@ export class ConversationStorageLocal {
       return conversation;
     } catch (error) {
       throw new ConversationError(
-        'Erreur lors de la récupération de la conversation',
-        'FETCH_ERROR',
-        { originalError: error }
+        "Erreur lors de la récupération de la conversation",
+        "FETCH_ERROR",
+        { originalError: error },
       );
     }
   }
@@ -309,7 +319,10 @@ export class ConversationStorageLocal {
   /**
    * Récupère une conversation avec ses messages
    */
-  static async getConversationWithMessages(id: string): Promise<{ conversation: Conversation; messages: ConversationMessage[] } | null> {
+  static async getConversationWithMessages(id: string): Promise<{
+    conversation: Conversation;
+    messages: ConversationMessage[];
+  } | null> {
     try {
       const data = this.getStorageData();
       if (!data) {
@@ -324,7 +337,7 @@ export class ConversationStorageLocal {
 
       const conversation = data.conversations[id];
       const messages = data.messages[id] || [];
-      
+
       if (!conversation) {
         return null;
       }
@@ -336,9 +349,9 @@ export class ConversationStorageLocal {
       return { conversation, messages };
     } catch (error) {
       throw new ConversationError(
-        'Erreur lors de la récupération de la conversation avec messages',
-        'FETCH_ERROR',
-        { originalError: error }
+        "Erreur lors de la récupération de la conversation avec messages",
+        "FETCH_ERROR",
+        { originalError: error },
       );
     }
   }
@@ -346,7 +359,9 @@ export class ConversationStorageLocal {
   /**
    * Récupère les messages d'une conversation
    */
-  static async getMessages(conversationId: string): Promise<ConversationMessage[]> {
+  static async getMessages(
+    conversationId: string,
+  ): Promise<ConversationMessage[]> {
     try {
       const data = this.getStorageData();
       if (!data) {
@@ -360,7 +375,7 @@ export class ConversationStorageLocal {
       }
 
       const messages = data.messages[conversationId] || [];
-      
+
       // Mise à jour du lastAccessed
       data.metadata.lastAccessed = new Date().toISOString();
       this.saveStorageData(data);
@@ -368,9 +383,9 @@ export class ConversationStorageLocal {
       return messages;
     } catch (error) {
       throw new ConversationError(
-        'Erreur lors de la récupération des messages',
-        'FETCH_ERROR',
-        { originalError: error }
+        "Erreur lors de la récupération des messages",
+        "FETCH_ERROR",
+        { originalError: error },
       );
     }
   }
@@ -388,13 +403,13 @@ export class ConversationStorageLocal {
       delete data.conversations[id];
       delete data.messages[id];
       data.metadata.lastAccessed = new Date().toISOString();
-      
+
       this.saveStorageData(data);
     } catch (error) {
       throw new ConversationError(
-        'Erreur lors de la suppression de la conversation',
-        'DELETE_ERROR',
-        { originalError: error }
+        "Erreur lors de la suppression de la conversation",
+        "DELETE_ERROR",
+        { originalError: error },
       );
     }
   }
@@ -407,9 +422,9 @@ export class ConversationStorageLocal {
       localStorage.removeItem(this.STORAGE_KEY);
     } catch (error) {
       throw new ConversationError(
-        'Erreur lors du vidage du stockage',
-        'CLEAR_ERROR',
-        { originalError: error }
+        "Erreur lors du vidage du stockage",
+        "CLEAR_ERROR",
+        { originalError: error },
       );
     }
   }
@@ -426,11 +441,11 @@ export class ConversationStorageLocal {
 
       const used = Object.keys(data.conversations).length;
       const limit = data.metadata.isGuest ? this.GUEST_QUOTA_LIMIT : -1; // -1 = illimité
-      
+
       return {
         used,
         limit,
-        isGuest: data.metadata.isGuest
+        isGuest: data.metadata.isGuest,
       };
     } catch (error) {
       return { used: 0, limit: this.GUEST_QUOTA_LIMIT, isGuest: true };
@@ -440,7 +455,10 @@ export class ConversationStorageLocal {
   /**
    * Exporte toutes les données pour migration vers Supabase
    */
-  static exportForMigration(): { conversations: Conversation[]; messages: Record<string, ConversationMessage[]> } | null {
+  static exportForMigration(): {
+    conversations: Conversation[];
+    messages: Record<string, ConversationMessage[]>;
+  } | null {
     try {
       const data = this.getStorageData();
       if (!data) {
@@ -449,13 +467,13 @@ export class ConversationStorageLocal {
 
       return {
         conversations: Object.values(data.conversations),
-        messages: data.messages
+        messages: data.messages,
       };
     } catch (error) {
       throw new ConversationError(
-        'Erreur lors de l\'export des données',
-        'EXPORT_ERROR',
-        { originalError: error }
+        "Erreur lors de l'export des données",
+        "EXPORT_ERROR",
+        { originalError: error },
       );
     }
   }
@@ -473,18 +491,18 @@ export class ConversationStorageLocal {
       const decompressed = decompress(compressed);
       if (!decompressed) {
         throw ErrorFactory.storage(
-          'Échec de la décompression des données',
-          'Erreur lors de la lecture des données sauvegardées'
+          "Échec de la décompression des données",
+          "Erreur lors de la lecture des données sauvegardées",
         );
       }
 
       const data = JSON.parse(decompressed) as StorageData;
-      
+
       // Validation de la structure
       if (!data.conversations || !data.messages || !data.metadata) {
         throw ErrorFactory.storage(
-          'Structure de données invalide dans le stockage',
-          'Données corrompues détectées'
+          "Structure de données invalide dans le stockage",
+          "Données corrompues détectées",
         );
       }
 
@@ -492,21 +510,25 @@ export class ConversationStorageLocal {
     } catch (error) {
       // En cas de corruption, on supprime les données corrompues
       localStorage.removeItem(this.STORAGE_KEY);
-      
-      const corruptionError = handleError(error, {
-        component: 'ConversationStorageLocal',
-        operation: 'getStorageData'
-      }, 'Données corrompues détectées et supprimées');
-      
+
+      const corruptionError = handleError(
+        error,
+        {
+          component: "ConversationStorageLocal",
+          operation: "getStorageData",
+        },
+        "Données corrompues détectées et supprimées",
+      );
+
       logError(corruptionError, {
-        component: 'ConversationStorageLocal',
-        operation: 'getStorageData'
+        component: "ConversationStorageLocal",
+        operation: "getStorageData",
       });
-      
+
       throw new ConversationError(
-        'Données corrompues détectées et supprimées',
-        'DATA_CORRUPTION',
-        { originalError: error }
+        "Données corrompues détectées et supprimées",
+        "DATA_CORRUPTION",
+        { originalError: error },
       );
     }
   }
@@ -522,15 +544,15 @@ export class ConversationStorageLocal {
     } catch (error) {
       if (error instanceof DOMException && error.code === 22) {
         throw new ConversationError(
-          'Quota de stockage localStorage dépassé',
-          'STORAGE_QUOTA_EXCEEDED',
-          { originalError: error }
+          "Quota de stockage localStorage dépassé",
+          "STORAGE_QUOTA_EXCEEDED",
+          { originalError: error },
         );
       }
       throw new ConversationError(
-        'Erreur lors de la sauvegarde',
-        'SAVE_ERROR',
-        { originalError: error }
+        "Erreur lors de la sauvegarde",
+        "SAVE_ERROR",
+        { originalError: error },
       );
     }
   }

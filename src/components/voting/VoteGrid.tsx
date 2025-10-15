@@ -201,7 +201,12 @@ const OptionCard: React.FC<{
 
     // Grouper les créneaux consécutifs pour créer des plages
     const groupedSlots: Array<{ start: string; end: string }> = [];
-    let currentGroup: { startHour: number; startMinute: number; endHour: number; endMinute: number } | null = null;
+    let currentGroup: {
+      startHour: number;
+      startMinute: number;
+      endHour: number;
+      endMinute: number;
+    } | null = null;
 
     sortedSlots.forEach((slot) => {
       // Validation des données avant utilisation
@@ -210,7 +215,9 @@ const OptionCard: React.FC<{
       }
 
       const slotDuration = slot.duration || 30; // Durée par défaut de 30 minutes
-      const endHour = Math.floor((slot.hour * 60 + slot.minute + slotDuration) / 60);
+      const endHour = Math.floor(
+        (slot.hour * 60 + slot.minute + slotDuration) / 60,
+      );
       const endMinute = (slot.hour * 60 + slot.minute + slotDuration) % 60;
 
       if (!currentGroup) {
@@ -223,20 +230,25 @@ const OptionCard: React.FC<{
         };
       } else {
         // Vérifier si ce créneau est consécutif au précédent
-        const currentEndTime = currentGroup.endHour * 60 + currentGroup.endMinute;
+        const currentEndTime =
+          currentGroup.endHour * 60 + currentGroup.endMinute;
         const slotStartTime = slot.hour * 60 + slot.minute;
 
-        if (slotStartTime <= currentEndTime + 15) { // Tolérance de 15 minutes
+        if (slotStartTime <= currentEndTime + 15) {
+          // Tolérance de 15 minutes
           // Étendre le groupe actuel
           currentGroup.endHour = Math.max(currentGroup.endHour, endHour);
-          currentGroup.endMinute = currentGroup.endHour === endHour ? Math.max(currentGroup.endMinute, endMinute) : endMinute;
+          currentGroup.endMinute =
+            currentGroup.endHour === endHour
+              ? Math.max(currentGroup.endMinute, endMinute)
+              : endMinute;
         } else {
           // Finaliser le groupe précédent et commencer un nouveau
           groupedSlots.push({
             start: `${currentGroup.startHour.toString().padStart(2, "0")}:${currentGroup.startMinute.toString().padStart(2, "0")}`,
             end: `${currentGroup.endHour.toString().padStart(2, "0")}:${currentGroup.endMinute.toString().padStart(2, "0")}`,
           });
-          
+
           currentGroup = {
             startHour: slot.hour,
             startMinute: slot.minute,
@@ -256,7 +268,7 @@ const OptionCard: React.FC<{
     }
 
     return groupedSlots
-      .map(group => `${group.start} - ${group.end}`)
+      .map((group) => `${group.start} - ${group.end}`)
       .join(", ");
   };
 

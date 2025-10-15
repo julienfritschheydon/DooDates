@@ -3,7 +3,10 @@
  * DooDates - Conversation History System
  */
 
-import type { Conversation, ConversationMessage } from '../../types/conversation';
+import type {
+  Conversation,
+  ConversationMessage,
+} from "../../types/conversation";
 import {
   readFromStorage,
   writeToStorage,
@@ -15,11 +18,11 @@ import {
   readRecordStorage,
   writeRecordStorage,
   addRecords,
-  deleteRecords
-} from './storageUtils';
+  deleteRecords,
+} from "./storageUtils";
 
-const CONVERSATIONS_KEY = 'doodates-conversations';
-const MESSAGES_KEY = 'doodates-messages';
+const CONVERSATIONS_KEY = "doodates-conversations";
+const MESSAGES_KEY = "doodates-messages";
 
 // Memory cache for robustness
 const conversationCache = new Map<string, Conversation>();
@@ -78,21 +81,27 @@ export function getMessages(conversationId: string): ConversationMessage[] {
 /**
  * Save messages for a conversation
  */
-export function saveMessages(conversationId: string, messages: ConversationMessage[]): void {
+export function saveMessages(
+  conversationId: string,
+  messages: ConversationMessage[],
+): void {
   writeRecordStorage(MESSAGES_KEY, messageCache, conversationId, messages);
 }
 
 /**
  * Add messages to a conversation (append)
  */
-export function addMessages(conversationId: string, newMessages: ConversationMessage[]): void {
+export function addMessages(
+  conversationId: string,
+  newMessages: ConversationMessage[],
+): void {
   // Get existing messages and add new ones
   const existingMessages = getMessages(conversationId);
   const updatedMessages = [...existingMessages, ...newMessages];
-  
+
   // Save messages first
   saveMessages(conversationId, updatedMessages);
-  
+
   // Update message count in conversation
   const conversation = getConversation(conversationId);
   if (conversation) {
@@ -100,7 +109,7 @@ export function addMessages(conversationId: string, newMessages: ConversationMes
     updateConversation({
       ...conversation,
       messageCount: allMessages.length,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
   }
 }
@@ -115,10 +124,10 @@ export function deleteMessages(conversationId: string): void {
     updateConversation({
       ...conversation,
       messageCount: 0,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
   }
-  
+
   // Delete the messages
   deleteRecords(MESSAGES_KEY, messageCache, conversationId);
 }
@@ -126,10 +135,12 @@ export function deleteMessages(conversationId: string): void {
 /**
  * Get conversation with its messages
  */
-export function getConversationWithMessages(id: string): { conversation: Conversation; messages: ConversationMessage[] } | null {
+export function getConversationWithMessages(
+  id: string,
+): { conversation: Conversation; messages: ConversationMessage[] } | null {
   const conversation = getConversation(id);
   if (!conversation) return null;
-  
+
   const messages = getMessages(id);
   return { conversation, messages };
 }
@@ -146,16 +157,16 @@ export function createConversation(data: {
   const conversation: Conversation = {
     id: `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     title: data.title,
-    status: 'active',
+    status: "active",
     createdAt: now,
     updatedAt: now,
     firstMessage: data.firstMessage.slice(0, 100),
     messageCount: 0,
     isFavorite: false,
     tags: [],
-    userId: data.userId || 'guest'
+    userId: data.userId || "guest",
   };
-  
+
   addConversation(conversation);
   return conversation;
 }
@@ -164,16 +175,27 @@ export function createConversation(data: {
  * Clear all conversation data
  */
 export function clearAll(): void {
-  clearStorage([CONVERSATIONS_KEY, MESSAGES_KEY], [conversationCache, messageCache]);
+  clearStorage(
+    [CONVERSATIONS_KEY, MESSAGES_KEY],
+    [conversationCache, messageCache],
+  );
 }
 
 /**
  * Export all data for debugging
  */
-export function exportData(): { conversations: Conversation[]; messages: Record<string, ConversationMessage[]> } {
+export function exportData(): {
+  conversations: Conversation[];
+  messages: Record<string, ConversationMessage[]>;
+} {
   const conversations = getConversations();
-  const raw = typeof window !== "undefined" ? window.localStorage.getItem(MESSAGES_KEY) : null;
-  const messages = raw ? (JSON.parse(raw) as Record<string, ConversationMessage[]>) : {};
-  
+  const raw =
+    typeof window !== "undefined"
+      ? window.localStorage.getItem(MESSAGES_KEY)
+      : null;
+  const messages = raw
+    ? (JSON.parse(raw) as Record<string, ConversationMessage[]>)
+    : {};
+
   return { conversations, messages };
 }

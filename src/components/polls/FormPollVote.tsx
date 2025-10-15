@@ -1,7 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPollBySlugOrId, addFormResponse } from "../../lib/pollStorage";
-import type { Poll, FormQuestionShape, FormQuestionOption } from "../../lib/pollStorage";
+import type {
+  Poll,
+  FormQuestionShape,
+  FormQuestionOption,
+} from "../../lib/pollStorage";
 
 type AnswerValue = string | string[];
 
@@ -23,7 +27,10 @@ export default function FormPollVote({ idOrSlug }: Props) {
     setLoading(false);
   }, [idOrSlug]);
 
-  const questions = useMemo(() => (poll?.questions ?? []) as FormQuestionShape[], [poll]);
+  const questions = useMemo(
+    () => (poll?.questions ?? []) as FormQuestionShape[],
+    [poll],
+  );
 
   const updateAnswer = (qid: string, value: AnswerValue) => {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
@@ -117,7 +124,8 @@ export default function FormPollVote({ idOrSlug }: Props) {
       });
       setSubmitted(true);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de l'enregistrement";
+      const errorMessage =
+        err instanceof Error ? err.message : "Erreur lors de l'enregistrement";
       setError(errorMessage);
     }
   };

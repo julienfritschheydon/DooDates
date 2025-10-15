@@ -3,7 +3,7 @@
  * DooDates - Conversation History System
  */
 
-import type { CacheEntry, CacheOptions } from '../types/search';
+import type { CacheEntry, CacheOptions } from "../types/search";
 
 export class SearchCache<T> {
   private cache = new Map<string, CacheEntry<T>>();
@@ -20,7 +20,7 @@ export class SearchCache<T> {
    */
   get(key: string): T | null {
     const entry = this.cache.get(key);
-    
+
     if (!entry) {
       return null;
     }
@@ -54,7 +54,7 @@ export class SearchCache<T> {
     const entry: CacheEntry<T> = {
       data,
       timestamp: Date.now(),
-      hits: 1
+      hits: 1,
     };
 
     this.cache.set(key, entry);
@@ -69,7 +69,7 @@ export class SearchCache<T> {
       return;
     }
 
-    const regex = new RegExp(pattern, 'i');
+    const regex = new RegExp(pattern, "i");
     const keysToDelete: string[] = [];
 
     for (const key of this.cache.keys()) {
@@ -78,7 +78,7 @@ export class SearchCache<T> {
       }
     }
 
-    keysToDelete.forEach(key => this.cache.delete(key));
+    keysToDelete.forEach((key) => this.cache.delete(key));
   }
 
   /**
@@ -103,7 +103,7 @@ export class SearchCache<T> {
 
     return {
       size: this.cache.size,
-      hitRate: totalEntries > 0 ? totalHits / totalEntries : 0
+      hitRate: totalEntries > 0 ? totalHits / totalEntries : 0,
     };
   }
 
@@ -120,6 +120,6 @@ export class SearchCache<T> {
       }
     }
 
-    keysToDelete.forEach(key => this.cache.delete(key));
+    keysToDelete.forEach((key) => this.cache.delete(key));
   }
 }

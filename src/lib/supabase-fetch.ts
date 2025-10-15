@@ -67,16 +67,20 @@ export interface Vote {
   created_at: string;
 }
 
-import { ErrorFactory } from './error-handling';
+import { ErrorFactory } from "./error-handling";
 
 // Fonction utilitaire pour gérer les erreurs
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const error = await response.text();
-    throw ErrorFactory.api(`HTTP ${response.status}: ${error}`, 'Erreur de communication avec le serveur', { 
-      status: response.status, 
-      responseText: error 
-    });
+    throw ErrorFactory.api(
+      `HTTP ${response.status}: ${error}`,
+      "Erreur de communication avec le serveur",
+      {
+        status: response.status,
+        responseText: error,
+      },
+    );
   }
   return response.json();
 };

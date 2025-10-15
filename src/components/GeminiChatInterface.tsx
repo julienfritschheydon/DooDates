@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   Send,
   Sparkles,
@@ -16,16 +22,16 @@ import { geminiService, type PollSuggestion } from "../lib/gemini";
 import PollCreator from "./PollCreator";
 import { debounce } from "lodash";
 import { useAutoSave } from "../hooks/useAutoSave";
-import { useConversationResume } from '../hooks/useConversationResume';
-import { ConversationService } from '../services/ConversationService';
-import { QuotaService, type AuthIncentiveType } from '../services/QuotaService';
+import { useConversationResume } from "../hooks/useConversationResume";
+import { ConversationService } from "../services/ConversationService";
+import { QuotaService, type AuthIncentiveType } from "../services/QuotaService";
 import { useQuota } from "../hooks/useQuota";
 import AuthIncentiveModal from "./modals/AuthIncentiveModal";
 import QuotaIndicator from "./ui/QuotaIndicator";
 import { useNavigate } from "react-router-dom";
-import { conversationProtection } from '../services/ConversationProtection';
-import { performanceMonitor } from '../services/PerformanceMonitor';
-import { useInfiniteLoopProtection } from '../services/InfiniteLoopProtection';
+import { conversationProtection } from "../services/ConversationProtection";
+import { performanceMonitor } from "../services/PerformanceMonitor";
+import { useInfiniteLoopProtection } from "../services/InfiniteLoopProtection";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 
 // Global initialization guard to prevent multiple conversation creation
@@ -62,12 +68,12 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
   // Auto-save and conversation resume hooks
   const navigate = useNavigate();
-  const autoSave = useAutoSave({ 
-    debug: true
+  const autoSave = useAutoSave({
+    debug: true,
   });
   const conversationResume = useConversationResume();
   const quota = useQuota();
-  const loopProtection = useInfiniteLoopProtection('gemini-chat-interface');
+  const loopProtection = useInfiniteLoopProtection("gemini-chat-interface");
 
   // Utiliser useRef pour persister les flags entre les re-rendus
   const hasShownOfflineMessage = useRef(false);
@@ -105,17 +111,18 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     initializationPromise = (async () => {
       try {
         // Initializing new conversation
-        
+
         const welcomeMessage: Message = {
           id: `welcome-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          content: "Bonjour ! 👋 Je suis votre assistant DooDates. Je peux vous aider à organiser des événements et créer des sondages de dates. Comment puis-je vous aider aujourd'hui ?",
+          content:
+            "Bonjour ! 👋 Je suis votre assistant DooDates. Je peux vous aider à organiser des événements et créer des sondages de dates. Comment puis-je vous aider aujourd'hui ?",
           isAI: true,
           timestamp: new Date(),
         };
 
         setMessages([welcomeMessage]);
         // Adding welcome message
-        
+
         // Auto-save the welcome message
         await autoSave.addMessage({
           id: welcomeMessage.id,
@@ -127,34 +134,47 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         conversationProtection.completeCreation(welcomeMessage.id);
         // Conversation initialized successfully
       } catch (error) {
-        const processedError = handleError(error, {
-          component: 'GeminiChatInterface',
-          operation: 'initializeNewConversation'
-        }, 'Erreur lors de l\'initialisation de la conversation');
-        
+        const processedError = handleError(
+          error,
+          {
+            component: "GeminiChatInterface",
+            operation: "initializeNewConversation",
+          },
+          "Erreur lors de l'initialisation de la conversation",
+        );
+
         logError(processedError, {
-          component: 'GeminiChatInterface',
-          operation: 'initializeNewConversation'
+          component: "GeminiChatInterface",
+          operation: "initializeNewConversation",
         });
-        
+
         conversationProtection.failCreation();
         performanceMonitor.trackError();
-        
+
         // Show user-friendly error message
-        if (error instanceof Error && error.message.includes('Quota dépassé')) {
-          setMessages([{
-            id: 'quota-error',
-            content: '⚠️ Limite de conversations atteinte. Vous avez déjà créé le nombre maximum de conversations autorisées. Veuillez supprimer une conversation existante ou vous connecter pour augmenter votre limite.',
-            isAI: true,
-            timestamp: new Date()
-          }]);
-        } else if (error instanceof Error && error.message.includes('Conversation limit reached')) {
-          setMessages([{
-            id: 'limit-error',
-            content: '⚠️ Limite de conversations atteinte. Vous avez déjà créé le nombre maximum de conversations autorisées. Veuillez supprimer une conversation existante ou vous connecter pour augmenter votre limite.',
-            isAI: true,
-            timestamp: new Date()
-          }]);
+        if (error instanceof Error && error.message.includes("Quota dépassé")) {
+          setMessages([
+            {
+              id: "quota-error",
+              content:
+                "⚠️ Limite de conversations atteinte. Vous avez déjà créé le nombre maximum de conversations autorisées. Veuillez supprimer une conversation existante ou vous connecter pour augmenter votre limite.",
+              isAI: true,
+              timestamp: new Date(),
+            },
+          ]);
+        } else if (
+          error instanceof Error &&
+          error.message.includes("Conversation limit reached")
+        ) {
+          setMessages([
+            {
+              id: "limit-error",
+              content:
+                "⚠️ Limite de conversations atteinte. Vous avez déjà créé le nombre maximum de conversations autorisées. Veuillez supprimer une conversation existante ou vous connecter pour augmenter votre limite.",
+              isAI: true,
+              timestamp: new Date(),
+            },
+          ]);
         }
       } finally {
         isInitializing = false;
@@ -173,18 +193,18 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
     hasInitialized.current = true;
     let isMounted = true;
-    
+
     // Initialize component setup first
     hasShownOfflineMessage.current = false;
     wasOffline.current = false;
     testGeminiConnection();
-    
+
     // Scroll fixes for Android
     window.scrollTo({ top: 0, behavior: "instant" });
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: "instant" });
     }, 100);
-    
+
     const resumeConversation = async () => {
       // Additional guard: prevent multiple resume attempts
       if (isInitializing || !isMounted) {
@@ -194,28 +214,30 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
       try {
         const result = await ConversationService.resumeFromUrl(autoSave);
-        
+
         if (!isMounted) return;
-        
+
         if (result && result.conversation && result.messages) {
           // Resuming conversation from URL
-          
+
           // Get messages from the conversation
           const messages = result.messages;
-          
+
           if (messages && messages.length > 0) {
             // Convert conversation messages to chat interface format
-            const chatMessages = ConversationService.convertMessagesToChat(messages);
-    
+            const chatMessages =
+              ConversationService.convertMessagesToChat(messages);
+
             if (isMounted) {
               setMessages(chatMessages);
               // Conversation resumed successfully
             }
-            
           } else {
             // No messages found in resumed conversation
             // No messages found, show resume indicator
-            const resumeMessage = ConversationService.createResumeMessage(result.conversation.title);
+            const resumeMessage = ConversationService.createResumeMessage(
+              result.conversation.title,
+            );
             if (isMounted) {
               setMessages([resumeMessage]);
             }
@@ -227,16 +249,20 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
           }
         }
       } catch (error) {
-        const processedError = handleError(error, {
-          component: 'GeminiChatInterface',
-          operation: 'resumeConversation'
-        }, 'Erreur lors de la reprise de conversation');
-        
+        const processedError = handleError(
+          error,
+          {
+            component: "GeminiChatInterface",
+            operation: "resumeConversation",
+          },
+          "Erreur lors de la reprise de conversation",
+        );
+
         logError(processedError, {
-          component: 'GeminiChatInterface',
-          operation: 'resumeConversation'
+          component: "GeminiChatInterface",
+          operation: "resumeConversation",
         });
-        
+
         if (isMounted && !isInitializing) {
           await initializeNewConversation();
         }
@@ -245,7 +271,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
     // Add small delay to prevent race conditions on component mount
     const timeoutId = setTimeout(resumeConversation, 150);
-    
+
     return () => {
       isMounted = false;
       clearTimeout(timeoutId);
@@ -329,15 +355,19 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
       }
     } catch (error) {
       setConnectionStatus("error");
-      
-      const processedError = handleError(error, {
-        component: 'GeminiChatInterface',
-        operation: 'testConnection'
-      }, 'Erreur de connexion à Gemini');
-      
+
+      const processedError = handleError(
+        error,
+        {
+          component: "GeminiChatInterface",
+          operation: "testConnection",
+        },
+        "Erreur de connexion à Gemini",
+      );
+
       logError(processedError, {
-        component: 'GeminiChatInterface',
-        operation: 'testConnection'
+        component: "GeminiChatInterface",
+        operation: "testConnection",
       });
 
       // Afficher le message d'erreur seulement la première fois
@@ -439,7 +469,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
             timestamp: new Date(),
           };
           setMessages((prev) => [...prev, quotaMessage]);
-          
+
           // Auto-save quota message
           await autoSave.addMessage({
             id: quotaMessage.id,
@@ -457,7 +487,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
             timestamp: new Date(),
           };
           setMessages((prev) => [...prev, errorMessage]);
-          
+
           // Auto-save error message
           await autoSave.addMessage({
             id: errorMessage.id,
@@ -468,24 +498,37 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         }
       }
     } catch (error) {
-      const processedError = handleError(error, {
-        component: 'GeminiChatInterface',
-        operation: 'generateResponse'
-      }, 'Erreur lors de la génération de réponse');
-      
+      const processedError = handleError(
+        error,
+        {
+          component: "GeminiChatInterface",
+          operation: "generateResponse",
+        },
+        "Erreur lors de la génération de réponse",
+      );
+
       logError(processedError, {
-        component: 'GeminiChatInterface',
-        operation: 'generateResponse'
+        component: "GeminiChatInterface",
+        operation: "generateResponse",
       });
-      
-      let errorContent = "Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?";
-      
-      if (processedError.message?.includes('quota') || processedError.message?.includes('limit')) {
-        errorContent = "Limite de quota atteinte. Veuillez réessayer plus tard ou vous connecter pour plus de requêtes.";
-      } else if (processedError.message?.includes('network') || processedError.message?.includes('fetch')) {
-        errorContent = "Problème de connexion réseau. Vérifiez votre connexion internet.";
+
+      let errorContent =
+        "Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?";
+
+      if (
+        processedError.message?.includes("quota") ||
+        processedError.message?.includes("limit")
+      ) {
+        errorContent =
+          "Limite de quota atteinte. Veuillez réessayer plus tard ou vous connecter pour plus de requêtes.";
+      } else if (
+        processedError.message?.includes("network") ||
+        processedError.message?.includes("fetch")
+      ) {
+        errorContent =
+          "Problème de connexion réseau. Vérifiez votre connexion internet.";
       }
-      
+
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         content: errorContent,
@@ -537,14 +580,18 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         onNewChat();
       }
     } catch (error) {
-      const processedError = handleError(error, {
-        component: 'GeminiChatInterface',
-        operation: 'handleNewChat'
-      }, 'Erreur lors de la création d\'un nouveau chat');
-      
+      const processedError = handleError(
+        error,
+        {
+          component: "GeminiChatInterface",
+          operation: "handleNewChat",
+        },
+        "Erreur lors de la création d'un nouveau chat",
+      );
+
       logError(processedError, {
-        component: 'GeminiChatInterface',
-        operation: 'handleNewChat'
+        component: "GeminiChatInterface",
+        operation: "handleNewChat",
       });
     }
   };
@@ -554,17 +601,19 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     // Use the real conversation ID (not temp-) if available
     const realConversationId = autoSave.getRealConversationId();
     const conversationId = realConversationId || autoSave.conversationId;
-    const pollCreatorUrl = conversationId ? `?conversationId=${conversationId}` : '';
-    
+    const pollCreatorUrl = conversationId
+      ? `?conversationId=${conversationId}`
+      : "";
+
     // Setting up PollCreator with conversation ID
-    
+
     // Update URL to include conversation ID
-    if (conversationId && !window.location.search.includes('conversationId')) {
+    if (conversationId && !window.location.search.includes("conversationId")) {
       const newUrl = `${window.location.pathname}${pollCreatorUrl}`;
       // Updating URL with conversation ID
-      window.history.replaceState({}, '', newUrl);
+      window.history.replaceState({}, "", newUrl);
     }
-    
+
     return (
       <PollCreator
         initialData={selectedPollData || undefined}
@@ -588,19 +637,19 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                   connectionStatus === "connected"
                     ? "bg-green-500"
                     : connectionStatus === "error"
-                    ? "bg-red-500"
-                    : "bg-yellow-500"
+                      ? "bg-red-500"
+                      : "bg-yellow-500"
                 }`}
               ></div>
               <span className="text-sm text-gray-600">
                 {connectionStatus === "connected"
                   ? "IA connectée"
                   : connectionStatus === "error"
-                  ? "IA déconnectée"
-                  : "Connexion..."}
+                    ? "IA déconnectée"
+                    : "Connexion..."}
               </span>
             </div>
-            
+
             {/* Quota indicator for guest users */}
             {!quota.isAuthenticated && (
               <QuotaIndicator
@@ -608,7 +657,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                 limit={quota.status.conversations.limit}
                 type="conversations"
                 size="sm"
-                onClick={() => quota.showAuthIncentive('conversation_limit')}
+                onClick={() => quota.showAuthIncentive("conversation_limit")}
               />
             )}
           </div>
@@ -636,7 +685,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                   Bonjour ! 👋
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Je suis votre assistant IA pour créer des sondages DooDates. 
+                  Je suis votre assistant IA pour créer des sondages DooDates.
                   Décrivez-moi ce que vous souhaitez organiser !
                 </p>
                 <div className="text-sm text-gray-500">
@@ -648,12 +697,12 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
             </div>
           ) : (
             messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.isAI ? "justify-start" : "justify-end"}`}
-            >
               <div
-                className={`
+                key={message.id}
+                className={`flex ${message.isAI ? "justify-start" : "justify-end"}`}
+              >
+                <div
+                  className={`
                   max-w-[90%] md:max-w-[80%] rounded-2xl p-3 md:p-4 shadow-sm
                   ${
                     message.isAI
@@ -661,111 +710,111 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                       : "bg-blue-500 text-white"
                   }
                 `}
-              >
-                {message.content}
-                {message.pollSuggestion && (
-                  <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
-                    <div className="border-t border-gray-100 pt-3 md:pt-4">
-                      <div className="flex items-start gap-2 mb-3 md:mb-4">
-                        <span className="text-lg md:text-xl flex-shrink-0">
-                          📋
-                        </span>
-                        <h3 className="text-base md:text-lg font-medium text-gray-900 leading-tight">
-                          {message.pollSuggestion.title}
-                        </h3>
-                      </div>
+                >
+                  {message.content}
+                  {message.pollSuggestion && (
+                    <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
+                      <div className="border-t border-gray-100 pt-3 md:pt-4">
+                        <div className="flex items-start gap-2 mb-3 md:mb-4">
+                          <span className="text-lg md:text-xl flex-shrink-0">
+                            📋
+                          </span>
+                          <h3 className="text-base md:text-lg font-medium text-gray-900 leading-tight">
+                            {message.pollSuggestion.title}
+                          </h3>
+                        </div>
 
-                      <div className="space-y-3">
-                        <div className="space-y-2 md:space-y-3">
-                          {message.pollSuggestion.dates.map((date, index) => {
-                            // Trouver les créneaux horaires pour cette date
-                            const dateTimeSlots =
-                              message.pollSuggestion.timeSlots?.filter(
-                                (slot) =>
-                                  !slot.dates ||
-                                  slot.dates.includes(date) ||
-                                  slot.dates.length === 0,
-                              ) || [];
+                        <div className="space-y-3">
+                          <div className="space-y-2 md:space-y-3">
+                            {message.pollSuggestion.dates.map((date, index) => {
+                              // Trouver les créneaux horaires pour cette date
+                              const dateTimeSlots =
+                                message.pollSuggestion.timeSlots?.filter(
+                                  (slot) =>
+                                    !slot.dates ||
+                                    slot.dates.includes(date) ||
+                                    slot.dates.length === 0,
+                                ) || [];
 
-                            return (
-                              <div
-                                key={date}
-                                className="bg-gray-50 rounded-lg p-3 md:p-4"
-                              >
-                                <div className="flex items-start gap-2 md:gap-3">
-                                  <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5"></div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-gray-800 text-sm md:text-base leading-tight">
-                                      {new Date(date).toLocaleDateString(
-                                        "fr-FR",
-                                        {
-                                          weekday: "long",
-                                          day: "numeric",
-                                          month: "long",
-                                          year: "numeric",
-                                        },
-                                      )}
-                                    </div>
-                                    {dateTimeSlots.length > 0 && (
-                                      <div className="mt-1.5 md:mt-2 flex items-start gap-1 text-xs md:text-sm text-gray-600">
-                                        <span className="text-green-600 flex-shrink-0">
-                                          ⏰
-                                        </span>
-                                        <div className="min-w-0 flex-1">
-                                          {dateTimeSlots.length <= 2 ? (
-                                            <span className="block break-words">
-                                              {dateTimeSlots
-                                                .map(
-                                                  (slot) =>
-                                                    `${slot.start} - ${slot.end}`,
-                                                )
-                                                .join(", ")}
-                                            </span>
-                                          ) : (
-                                            <div>
+                              return (
+                                <div
+                                  key={date}
+                                  className="bg-gray-50 rounded-lg p-3 md:p-4"
+                                >
+                                  <div className="flex items-start gap-2 md:gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5"></div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-medium text-gray-800 text-sm md:text-base leading-tight">
+                                        {new Date(date).toLocaleDateString(
+                                          "fr-FR",
+                                          {
+                                            weekday: "long",
+                                            day: "numeric",
+                                            month: "long",
+                                            year: "numeric",
+                                          },
+                                        )}
+                                      </div>
+                                      {dateTimeSlots.length > 0 && (
+                                        <div className="mt-1.5 md:mt-2 flex items-start gap-1 text-xs md:text-sm text-gray-600">
+                                          <span className="text-green-600 flex-shrink-0">
+                                            ⏰
+                                          </span>
+                                          <div className="min-w-0 flex-1">
+                                            {dateTimeSlots.length <= 2 ? (
                                               <span className="block break-words">
                                                 {dateTimeSlots
-                                                  .slice(0, 2)
                                                   .map(
                                                     (slot) =>
                                                       `${slot.start} - ${slot.end}`,
                                                   )
                                                   .join(", ")}
-                                                {dateTimeSlots.length > 2 &&
-                                                  "..."}
                                               </span>
-                                              <span className="text-blue-600 text-xs font-medium">
-                                                +{dateTimeSlots.length - 2}{" "}
-                                                créneaux
-                                              </span>
-                                            </div>
-                                          )}
+                                            ) : (
+                                              <div>
+                                                <span className="block break-words">
+                                                  {dateTimeSlots
+                                                    .slice(0, 2)
+                                                    .map(
+                                                      (slot) =>
+                                                        `${slot.start} - ${slot.end}`,
+                                                    )
+                                                    .join(", ")}
+                                                  {dateTimeSlots.length > 2 &&
+                                                    "..."}
+                                                </span>
+                                                <span className="text-blue-600 text-xs font-medium">
+                                                  +{dateTimeSlots.length - 2}{" "}
+                                                  créneaux
+                                                </span>
+                                              </div>
+                                            )}
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <button
-                      onClick={() =>
-                        handleUsePollSuggestion(message.pollSuggestion!)
-                      }
-                      className="w-full mt-3 md:mt-4 inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium text-sm md:text-base"
-                    >
-                      <Calendar className="w-4 h-4 flex-shrink-0" />
-                      <span>Créer ce sondage</span>
-                    </button>
-                  </div>
-                )}
+                      <button
+                        onClick={() =>
+                          handleUsePollSuggestion(message.pollSuggestion!)
+                        }
+                        className="w-full mt-3 md:mt-4 inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium text-sm md:text-base"
+                      >
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
+                        <span>Créer ce sondage</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            ))
           )}
           <div ref={messagesEndRef} />
         </div>
@@ -807,11 +856,11 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         onClose={quota.closeAuthModal}
         onSignUp={() => {
           // Navigate to sign up
-          window.location.href = '/auth/signup';
+          window.location.href = "/auth/signup";
         }}
         onSignIn={() => {
           // Navigate to sign in
-          window.location.href = '/auth/signin';
+          window.location.href = "/auth/signin";
         }}
         trigger={quota.authModalTrigger}
         currentUsage={{

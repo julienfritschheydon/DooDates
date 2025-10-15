@@ -3,7 +3,7 @@
  * Prevents cascading operations and resource exhaustion
  */
 
-import { handleError, ErrorFactory, logError } from '../lib/error-handling';
+import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 
 interface OperationTracker {
   count: number;
@@ -28,7 +28,7 @@ class InfiniteLoopProtectionService {
       this.operations.set(operationKey, {
         count: 1,
         lastReset: now,
-        isBlocked: false
+        isBlocked: false,
       });
       return true;
     }
@@ -46,9 +46,9 @@ class InfiniteLoopProtectionService {
       logError(
         ErrorFactory.rateLimit(
           `Operation "${operationKey}" is blocked due to excessive calls`,
-          'Trop de tentatives. Veuillez patienter avant de réessayer.'
+          "Trop de tentatives. Veuillez patienter avant de réessayer.",
         ),
-        { component: 'InfiniteLoopProtection', operation: operationKey }
+        { component: "InfiniteLoopProtection", operation: operationKey },
       );
       return false;
     }
@@ -61,12 +61,12 @@ class InfiniteLoopProtectionService {
       tracker.isBlocked = true;
       logError(
         ErrorFactory.critical(
-          `INFINITE LOOP DETECTED: Operation "${operationKey}" blocked for ${this.BLOCK_DURATION/1000}s`,
-          'Système temporairement bloqué pour éviter une surcharge.'
+          `INFINITE LOOP DETECTED: Operation "${operationKey}" blocked for ${this.BLOCK_DURATION / 1000}s`,
+          "Système temporairement bloqué pour éviter une surcharge.",
         ),
-        { component: 'InfiniteLoopProtection', operation: operationKey }
+        { component: "InfiniteLoopProtection", operation: operationKey },
       );
-      
+
       // Auto-unblock after duration
       setTimeout(() => {
         tracker.isBlocked = false;
@@ -111,7 +111,7 @@ export function protectFromInfiniteLoop(operationKey: string) {
   return function <T extends (...args: any[]) => any>(
     target: any,
     propertyName: string,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const method = descriptor.value!;
 
@@ -120,9 +120,9 @@ export function protectFromInfiniteLoop(operationKey: string) {
         logError(
           ErrorFactory.rateLimit(
             `Operation ${operationKey} blocked by infinite loop protection`,
-            'Opération bloquée temporairement.'
+            "Opération bloquée temporairement.",
           ),
-          { component: 'InfiniteLoopProtection', operation: operationKey }
+          { component: "InfiniteLoopProtection", operation: operationKey },
         );
         return Promise.resolve();
       }
@@ -138,6 +138,6 @@ export function useInfiniteLoopProtection(operationKey: string) {
   return {
     canExecute: () => infiniteLoopProtection.canExecute(operationKey),
     resetOperation: () => infiniteLoopProtection.resetOperation(operationKey),
-    getStats: () => infiniteLoopProtection.getStats(operationKey)
+    getStats: () => infiniteLoopProtection.getStats(operationKey),
   };
 }

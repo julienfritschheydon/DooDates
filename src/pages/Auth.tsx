@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignUpSchema, SignUpInput } from "../lib/schemas";
 import { Loader2, Mail, Lock, User } from "lucide-react";
-import { logError, ErrorFactory } from '../lib/error-handling';
+import { logError, ErrorFactory } from "../lib/error-handling";
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -257,11 +257,17 @@ export function Auth() {
       !loading &&
       !autoConnectAttempted
     ) {
-      logError(ErrorFactory.auth('Google Calendar connection error', 'Erreur de connexion Google Calendar'), {
-        component: 'Auth',
-        operation: 'handleAutoConnect',
-        originalError: null
-      });
+      logError(
+        ErrorFactory.auth(
+          "Google Calendar connection error",
+          "Erreur de connexion Google Calendar",
+        ),
+        {
+          component: "Auth",
+          operation: "handleAutoConnect",
+          originalError: null,
+        },
+      );
       console.log("🗓️ Connexion automatique au calendrier Google...");
       setAutoConnectAttempted(true);
 
@@ -269,19 +275,31 @@ export function Auth() {
         try {
           const { error } = await signInWithGoogle();
           if (error) {
-            logError(ErrorFactory.auth('Google Calendar connection error', 'Erreur de connexion Google Calendar'), {
-              component: 'Auth',
-              operation: 'handleAutoConnect',
-              originalError: error
-            });
+            logError(
+              ErrorFactory.auth(
+                "Google Calendar connection error",
+                "Erreur de connexion Google Calendar",
+              ),
+              {
+                component: "Auth",
+                operation: "handleAutoConnect",
+                originalError: error,
+              },
+            );
             setAutoConnectAttempted(false); // Permettre une nouvelle tentative
           }
         } catch (err) {
-          logError(ErrorFactory.auth('Google Calendar connection error', 'Erreur de connexion Google Calendar'), {
-            component: 'Auth', 
-            operation: 'handleAutoConnect',
-            originalError: err
-          });
+          logError(
+            ErrorFactory.auth(
+              "Google Calendar connection error",
+              "Erreur de connexion Google Calendar",
+            ),
+            {
+              component: "Auth",
+              operation: "handleAutoConnect",
+              originalError: err,
+            },
+          );
           setAutoConnectAttempted(false); // Permettre une nouvelle tentative
         }
       }, 500);
@@ -434,10 +452,10 @@ export function AuthCallback() {
       const errorDescription = searchParams.get("error_description");
 
       if (error) {
-        logError(ErrorFactory.auth('OAuth Error', 'Erreur OAuth'), {
-          component: 'Auth',
-          operation: 'handleOAuthCallback', 
-          metadata: { error, errorDescription }
+        logError(ErrorFactory.auth("OAuth Error", "Erreur OAuth"), {
+          component: "Auth",
+          operation: "handleOAuthCallback",
+          metadata: { error, errorDescription },
         });
         navigate("/auth", { replace: true });
         return;

@@ -8,12 +8,12 @@ const NotFound = () => {
   useEffect(() => {
     const notFoundError = ErrorFactory.validation(
       `404 Error: User attempted to access non-existent route: ${location.pathname}`,
-      'Page non trouvée'
+      "Page non trouvée",
     );
-    
+
     logError(notFoundError, {
-      component: 'NotFound',
-      operation: 'routeAccess'
+      component: "NotFound",
+      operation: "routeAccess",
     });
   }, [location.pathname]);
 

@@ -20,16 +20,20 @@ async function loadStaticCalendarData() {
       //  `✅ Calendrier JSON chargé: ${staticCalendarData.totalDays} jours (${staticCalendarData.startYear}-${staticCalendarData.endYear})`,
       //);
     } catch (error) {
-      const calendarError = handleError(error, {
-        component: 'calendar-data',
-        operation: 'loadStaticCalendarData'
-      }, 'Erreur lors du chargement des données de calendrier');
-      
+      const calendarError = handleError(
+        error,
+        {
+          component: "calendar-data",
+          operation: "loadStaticCalendarData",
+        },
+        "Erreur lors du chargement des données de calendrier",
+      );
+
       logError(calendarError, {
-        component: 'calendar-data',
-        operation: 'loadStaticCalendarData'
+        component: "calendar-data",
+        operation: "loadStaticCalendarData",
       });
-      
+
       throw calendarError;
     }
   }

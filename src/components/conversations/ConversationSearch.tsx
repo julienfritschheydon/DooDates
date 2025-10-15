@@ -3,27 +3,27 @@
  * DooDates - Conversation History System
  */
 
-import React, { useState, useCallback } from 'react';
-import { 
-  Search, 
+import React, { useState, useCallback } from "react";
+import {
+  Search,
   Filter,
   X,
   Calendar,
   Tag,
   Star,
-  MessageCircle
-} from 'lucide-react';
+  MessageCircle,
+} from "lucide-react";
 
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Badge } from '../ui/badge';
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from "../ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,15 +31,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
-} from '../ui/dropdown-menu';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '../ui/popover';
-import { Calendar as CalendarComponent } from '../ui/calendar';
-import { cn } from '../../lib/utils';
-import type { ConversationStatus } from '../../types/conversation';
+} from "../ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar as CalendarComponent } from "../ui/calendar";
+import { cn } from "../../lib/utils";
+import type { ConversationStatus } from "../../types/conversation";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -49,7 +45,7 @@ export interface SearchFilters {
   /** Search query for full-text search */
   query?: string;
   /** Filter by conversation status */
-  status?: ConversationStatus | 'all';
+  status?: ConversationStatus | "all";
   /** Filter by favorite status */
   isFavorite?: boolean;
   /** Filter by date range */
@@ -75,7 +71,7 @@ export interface ConversationSearchProps {
   /** Placeholder text for search input */
   placeholder?: string;
   /** Language for UI text */
-  language?: 'fr' | 'en';
+  language?: "fr" | "en";
   /** Custom className */
   className?: string;
 }
@@ -85,44 +81,64 @@ export interface ConversationSearchProps {
 // ============================================================================
 
 const STATUS_OPTIONS = [
-  { value: 'all', label: 'Tous les statuts', labelEn: 'All statuses' },
-  { value: 'active', label: 'Actives', labelEn: 'Active' },
-  { value: 'completed', label: 'Terminées', labelEn: 'Completed' },
-  { value: 'archived', label: 'Archivées', labelEn: 'Archived' },
+  { value: "all", label: "Tous les statuts", labelEn: "All statuses" },
+  { value: "active", label: "Actives", labelEn: "Active" },
+  { value: "completed", label: "Terminées", labelEn: "Completed" },
+  { value: "archived", label: "Archivées", labelEn: "Archived" },
 ] as const;
 
 const QUICK_FILTERS = [
-  { key: 'isFavorite', label: 'Favoris', labelEn: 'Favorites', icon: Star },
-  { key: 'hasRelatedPoll', label: 'Avec sondage', labelEn: 'With poll', icon: MessageCircle },
+  { key: "isFavorite", label: "Favoris", labelEn: "Favorites", icon: Star },
+  {
+    key: "hasRelatedPoll",
+    label: "Avec sondage",
+    labelEn: "With poll",
+    icon: MessageCircle,
+  },
 ] as const;
 
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
 
-function getStatusLabel(status: string, language: 'fr' | 'en' = 'fr'): string {
-  const option = STATUS_OPTIONS.find(opt => opt.value === status);
-  return option ? (language === 'fr' ? option.label : option.labelEn) : status;
+function getStatusLabel(status: string, language: "fr" | "en" = "fr"): string {
+  const option = STATUS_OPTIONS.find((opt) => opt.value === status);
+  return option ? (language === "fr" ? option.label : option.labelEn) : status;
 }
 
-function formatDateRange(dateRange: { from?: Date; to?: Date }, language: 'fr' | 'en' = 'fr'): string {
-  if (!dateRange.from && !dateRange.to) return '';
-  
+function formatDateRange(
+  dateRange: { from?: Date; to?: Date },
+  language: "fr" | "en" = "fr",
+): string {
+  if (!dateRange.from && !dateRange.to) return "";
+
   const formatDate = (date: Date) => {
-    return language === 'fr' 
-      ? date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-      : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return language === "fr"
+      ? date.toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+      : date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
   };
 
   if (dateRange.from && dateRange.to) {
     return `${formatDate(dateRange.from)} - ${formatDate(dateRange.to)}`;
   } else if (dateRange.from) {
-    return language === 'fr' ? `Depuis ${formatDate(dateRange.from)}` : `From ${formatDate(dateRange.from)}`;
+    return language === "fr"
+      ? `Depuis ${formatDate(dateRange.from)}`
+      : `From ${formatDate(dateRange.from)}`;
   } else if (dateRange.to) {
-    return language === 'fr' ? `Jusqu'au ${formatDate(dateRange.to)}` : `Until ${formatDate(dateRange.to)}`;
+    return language === "fr"
+      ? `Jusqu'au ${formatDate(dateRange.to)}`
+      : `Until ${formatDate(dateRange.to)}`;
   }
-  
-  return '';
+
+  return "";
 }
 
 // ============================================================================
@@ -135,73 +151,90 @@ export function ConversationSearch({
   availableTags = [],
   showAdvancedFilters = true,
   placeholder,
-  language = 'fr',
-  className
+  language = "fr",
+  className,
 }: ConversationSearchProps) {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [tempDateRange, setTempDateRange] = useState<{ from?: Date; to?: Date }>({});
+  const [tempDateRange, setTempDateRange] = useState<{
+    from?: Date;
+    to?: Date;
+  }>({});
 
   // Text content based on language
   const text = {
-    searchPlaceholder: language === 'fr' 
-      ? 'Rechercher dans les conversations...' 
-      : 'Search conversations...',
-    filters: language === 'fr' ? 'Filtres' : 'Filters',
-    clearFilters: language === 'fr' ? 'Effacer les filtres' : 'Clear filters',
-    dateRange: language === 'fr' ? 'Période' : 'Date range',
-    tags: language === 'fr' ? 'Tags' : 'Tags',
-    apply: language === 'fr' ? 'Appliquer' : 'Apply',
-    cancel: language === 'fr' ? 'Annuler' : 'Cancel',
-    noFilters: language === 'fr' ? 'Aucun filtre actif' : 'No active filters',
+    searchPlaceholder:
+      language === "fr"
+        ? "Rechercher dans les conversations..."
+        : "Search conversations...",
+    filters: language === "fr" ? "Filtres" : "Filters",
+    clearFilters: language === "fr" ? "Effacer les filtres" : "Clear filters",
+    dateRange: language === "fr" ? "Période" : "Date range",
+    tags: language === "fr" ? "Tags" : "Tags",
+    apply: language === "fr" ? "Appliquer" : "Apply",
+    cancel: language === "fr" ? "Annuler" : "Cancel",
+    noFilters: language === "fr" ? "Aucun filtre actif" : "No active filters",
   };
 
   // Handle search query change
-  const handleQueryChange = useCallback((value: string) => {
-    const newFilters = { ...filters, query: value || undefined };
-    onFiltersChange?.(newFilters);
-  }, [filters, onFiltersChange]);
+  const handleQueryChange = useCallback(
+    (value: string) => {
+      const newFilters = { ...filters, query: value || undefined };
+      onFiltersChange?.(newFilters);
+    },
+    [filters, onFiltersChange],
+  );
 
   // Handle status filter change
-  const handleStatusChange = useCallback((status: string) => {
-    const newFilters = { 
-      ...filters, 
-      status: status === 'all' ? undefined : status as ConversationStatus 
-    };
-    onFiltersChange?.(newFilters);
-  }, [filters, onFiltersChange]);
+  const handleStatusChange = useCallback(
+    (status: string) => {
+      const newFilters = {
+        ...filters,
+        status: status === "all" ? undefined : (status as ConversationStatus),
+      };
+      onFiltersChange?.(newFilters);
+    },
+    [filters, onFiltersChange],
+  );
 
   // Handle quick filter toggle
-  const handleQuickFilterToggle = useCallback((filterKey: string) => {
-    const newFilters = { 
-      ...filters, 
-      [filterKey]: !filters[filterKey as keyof SearchFilters] 
-    };
-    onFiltersChange?.(newFilters);
-  }, [filters, onFiltersChange]);
+  const handleQuickFilterToggle = useCallback(
+    (filterKey: string) => {
+      const newFilters = {
+        ...filters,
+        [filterKey]: !filters[filterKey as keyof SearchFilters],
+      };
+      onFiltersChange?.(newFilters);
+    },
+    [filters, onFiltersChange],
+  );
 
   // Handle date range change
   const handleDateRangeApply = useCallback(() => {
-    const newFilters = { 
-      ...filters, 
-      dateRange: tempDateRange.from || tempDateRange.to ? tempDateRange : undefined 
+    const newFilters = {
+      ...filters,
+      dateRange:
+        tempDateRange.from || tempDateRange.to ? tempDateRange : undefined,
     };
     onFiltersChange?.(newFilters);
     setIsDatePickerOpen(false);
   }, [filters, onFiltersChange, tempDateRange]);
 
   // Handle tag toggle
-  const handleTagToggle = useCallback((tag: string) => {
-    const currentTags = filters.tags || [];
-    const newTags = currentTags.includes(tag)
-      ? currentTags.filter(t => t !== tag)
-      : [...currentTags, tag];
-    
-    const newFilters = { 
-      ...filters, 
-      tags: newTags.length > 0 ? newTags : undefined 
-    };
-    onFiltersChange?.(newFilters);
-  }, [filters, onFiltersChange]);
+  const handleTagToggle = useCallback(
+    (tag: string) => {
+      const currentTags = filters.tags || [];
+      const newTags = currentTags.includes(tag)
+        ? currentTags.filter((t) => t !== tag)
+        : [...currentTags, tag];
+
+      const newFilters = {
+        ...filters,
+        tags: newTags.length > 0 ? newTags : undefined,
+      };
+      onFiltersChange?.(newFilters);
+    },
+    [filters, onFiltersChange],
+  );
 
   // Clear all filters
   const handleClearFilters = useCallback(() => {
@@ -210,10 +243,10 @@ export function ConversationSearch({
   }, [onFiltersChange]);
 
   // Count active filters
-  const activeFiltersCount = Object.values(filters).filter(value => {
+  const activeFiltersCount = Object.values(filters).filter((value) => {
     if (value === undefined || value === null) return false;
     if (Array.isArray(value)) return value.length > 0;
-    if (typeof value === 'object') return Object.keys(value).length > 0;
+    if (typeof value === "object") return Object.keys(value).length > 0;
     return true;
   }).length;
 
@@ -224,7 +257,7 @@ export function ConversationSearch({
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           placeholder={placeholder || text.searchPlaceholder}
-          value={filters.query || ''}
+          value={filters.query || ""}
           onChange={(e) => handleQueryChange(e.target.value)}
           className="pl-10 pr-4"
         />
@@ -232,7 +265,7 @@ export function ConversationSearch({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => handleQueryChange('')}
+            onClick={() => handleQueryChange("")}
             className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
           >
             <X className="h-3 w-3" />
@@ -244,7 +277,7 @@ export function ConversationSearch({
       <div className="flex flex-wrap items-center gap-2">
         {/* Status Filter */}
         <Select
-          value={filters.status || 'all'}
+          value={filters.status || "all"}
           onValueChange={handleStatusChange}
         >
           <SelectTrigger className="w-auto min-w-[120px]">
@@ -253,7 +286,7 @@ export function ConversationSearch({
           <SelectContent>
             {STATUS_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {language === 'fr' ? option.label : option.labelEn}
+                {language === "fr" ? option.label : option.labelEn}
               </SelectItem>
             ))}
           </SelectContent>
@@ -263,7 +296,7 @@ export function ConversationSearch({
         {QUICK_FILTERS.map((filter) => {
           const Icon = filter.icon;
           const isActive = Boolean(filters[filter.key as keyof SearchFilters]);
-          
+
           return (
             <Button
               key={filter.key}
@@ -273,7 +306,7 @@ export function ConversationSearch({
               className="flex items-center gap-1"
             >
               <Icon className="h-3 w-3" />
-              {language === 'fr' ? filter.label : filter.labelEn}
+              {language === "fr" ? filter.label : filter.labelEn}
             </Button>
           );
         })}
@@ -282,11 +315,18 @@ export function ConversationSearch({
         {showAdvancedFilters && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+              >
                 <Filter className="h-3 w-3" />
                 {text.filters}
                 {activeFiltersCount > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 w-4 p-0 text-xs"
+                  >
                     {activeFiltersCount}
                   </Badge>
                 )}
@@ -294,7 +334,10 @@ export function ConversationSearch({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               {/* Date Range Filter */}
-              <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+              <Popover
+                open={isDatePickerOpen}
+                onOpenChange={setIsDatePickerOpen}
+              >
                 <PopoverTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Calendar className="mr-2 h-4 w-4" />
@@ -381,26 +424,25 @@ export function ConversationSearch({
         <div className="flex flex-wrap items-center gap-2">
           {filters.query && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              <Search className="h-3 w-3" />
-              "{filters.query}"
+              <Search className="h-3 w-3" />"{filters.query}"
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleQueryChange('')}
+                onClick={() => handleQueryChange("")}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
               >
                 <X className="h-2 w-2" />
               </Button>
             </Badge>
           )}
-          
-          {filters.status && filters.status !== 'all' && (
+
+          {filters.status && filters.status !== "all" && (
             <Badge variant="secondary" className="flex items-center gap-1">
               {getStatusLabel(filters.status, language)}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleStatusChange('all')}
+                onClick={() => handleStatusChange("all")}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
               >
                 <X className="h-2 w-2" />
@@ -411,11 +453,11 @@ export function ConversationSearch({
           {filters.isFavorite && (
             <Badge variant="secondary" className="flex items-center gap-1">
               <Star className="h-3 w-3" />
-              {language === 'fr' ? 'Favoris' : 'Favorites'}
+              {language === "fr" ? "Favoris" : "Favorites"}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleQuickFilterToggle('isFavorite')}
+                onClick={() => handleQuickFilterToggle("isFavorite")}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
               >
                 <X className="h-2 w-2" />
@@ -426,11 +468,11 @@ export function ConversationSearch({
           {filters.hasRelatedPoll && (
             <Badge variant="secondary" className="flex items-center gap-1">
               <MessageCircle className="h-3 w-3" />
-              {language === 'fr' ? 'Avec sondage' : 'With poll'}
+              {language === "fr" ? "Avec sondage" : "With poll"}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleQuickFilterToggle('hasRelatedPoll')}
+                onClick={() => handleQuickFilterToggle("hasRelatedPoll")}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
               >
                 <X className="h-2 w-2" />
@@ -445,7 +487,9 @@ export function ConversationSearch({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onFiltersChange?.({ ...filters, dateRange: undefined })}
+                onClick={() =>
+                  onFiltersChange?.({ ...filters, dateRange: undefined })
+                }
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
               >
                 <X className="h-2 w-2" />
@@ -454,7 +498,11 @@ export function ConversationSearch({
           )}
 
           {filters.tags?.map((tag) => (
-            <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+            <Badge
+              key={tag}
+              variant="secondary"
+              className="flex items-center gap-1"
+            >
               <Tag className="h-3 w-3" />
               {tag}
               <Button

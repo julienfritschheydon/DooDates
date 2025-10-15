@@ -1,10 +1,21 @@
 import { useState, useCallback } from "react";
-import { Poll as TypesPoll, PollOption, PollData as TypesPollData } from "../types/poll";
+import {
+  Poll as TypesPoll,
+  PollOption,
+  PollData as TypesPollData,
+} from "../types/poll";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import { EmailService } from "../lib/email-service";
-import { v4 as uuidv4 } from 'uuid';
-import { getPollBySlugOrId, deletePollById, addPoll, getAllPolls, deleteVotesByPollId, Poll as StoragePoll } from "../lib/pollStorage";
+import { v4 as uuidv4 } from "uuid";
+import {
+  getPollBySlugOrId,
+  deletePollById,
+  addPoll,
+  getAllPolls,
+  deleteVotesByPollId,
+  Poll as StoragePoll,
+} from "../lib/pollStorage";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 
 export interface PollData {
@@ -57,7 +68,9 @@ export function usePolls() {
   }, []);
 
   const createPoll = useCallback(
-    async (pollData: PollData): Promise<{ poll?: StoragePoll; error?: string }> => {
+    async (
+      pollData: PollData,
+    ): Promise<{ poll?: StoragePoll; error?: string }> => {
       // Permettre la création avec ou sans utilisateur connecté
 
       setLoading(true);
@@ -71,7 +84,7 @@ export function usePolls() {
         ) {
           throw ErrorFactory.validation(
             "No dates selected for poll creation",
-            "Sélectionnez au moins une date pour créer le sondage."
+            "Sélectionnez au moins une date pour créer le sondage.",
           );
         }
 
@@ -133,9 +146,11 @@ export function usePolls() {
           addPoll(mockPoll);
 
           // Émettre un événement pour notifier les composants de la création
-          window.dispatchEvent(new CustomEvent('pollCreated', { 
-            detail: { poll: mockPoll } 
-          }));
+          window.dispatchEvent(
+            new CustomEvent("pollCreated", {
+              detail: { poll: mockPoll },
+            }),
+          );
 
           return { poll: mockPoll };
         }
@@ -152,11 +167,9 @@ export function usePolls() {
           expires_at: pollData.settings.expiresAt || null,
         };
 
-
         // Utiliser fetch() direct pour les sondages (comme pour les options)
         let poll: any;
         try {
-
           // Pour les sondages anonymes, pas besoin de token JWT
           if (!user) {
             // Creating anonymous poll - no token required
@@ -179,16 +192,16 @@ export function usePolls() {
               const errorData = await response.text();
               const apiError = ErrorFactory.api(
                 `Erreur API Supabase ${response.status}`,
-                'Erreur lors de la création du sondage',
-                { status: response.status, errorData }
+                "Erreur lors de la création du sondage",
+                { status: response.status, errorData },
               );
-              
+
               logError(apiError, {
-                component: 'usePolls',
-                operation: 'createPoll',
-                status: response.status
+                component: "usePolls",
+                operation: "createPoll",
+                status: response.status,
               });
-              
+
               throw apiError;
             }
 
@@ -217,14 +230,14 @@ export function usePolls() {
 
             if (!token) {
               const authError = ErrorFactory.auth(
-                "Token d'authentification non trouvé pour utilisateur connecté"
+                "Token d'authentification non trouvé pour utilisateur connecté",
               );
-              
+
               logError(authError, {
-                component: 'usePolls',
-                operation: 'createPollOptions'
+                component: "usePolls",
+                operation: "createPollOptions",
               });
-              
+
               throw authError;
             }
 
@@ -247,16 +260,16 @@ export function usePolls() {
               const errorData = await response.text();
               const apiError = ErrorFactory.api(
                 `Erreur API Supabase ${response.status}`,
-                'Erreur lors de la création du sondage',
-                { status: response.status, errorData }
+                "Erreur lors de la création du sondage",
+                { status: response.status, errorData },
               );
-              
+
               logError(apiError, {
-                component: 'usePolls',
-                operation: 'createPoll',
-                status: response.status
+                component: "usePolls",
+                operation: "createPoll",
+                status: response.status,
               });
-              
+
               throw apiError;
             }
 
@@ -264,12 +277,24 @@ export function usePolls() {
             poll = Array.isArray(result) ? result[0] : result;
           }
         } catch (fetchError) {
-          logError(fetchError as Error, { component: 'usePolls', operation: 'createPoll' });
+          logError(fetchError as Error, {
+            component: "usePolls",
+            operation: "createPoll",
+          });
           // Améliorer le message d'erreur pour l'utilisateur
-          if (fetchError instanceof TypeError && fetchError.message.includes('fetch')) {
-            throw ErrorFactory.network(fetchError.message, "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.");
+          if (
+            fetchError instanceof TypeError &&
+            fetchError.message.includes("fetch")
+          ) {
+            throw ErrorFactory.network(
+              fetchError.message,
+              "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.",
+            );
           }
-          throw handleError(fetchError, { component: 'usePolls', operation: 'createPoll' });
+          throw handleError(fetchError, {
+            component: "usePolls",
+            operation: "createPoll",
+          });
         }
 
         // Step 2: Creating date options
@@ -279,7 +304,7 @@ export function usePolls() {
 
           // Transformer les créneaux au format attendu par la DB
           const enabledSlots = timeSlots.filter((slot) => slot.enabled);
-          
+
           // Trier les créneaux par heure et minute
           const sortedSlots = enabledSlots.sort((a, b) => {
             if (a.hour !== b.hour) return a.hour - b.hour;
@@ -306,7 +331,6 @@ export function usePolls() {
             };
           });
 
-
           return {
             poll_id: poll.id,
             option_date: date,
@@ -315,10 +339,8 @@ export function usePolls() {
           };
         });
 
-
         // Utiliser fetch() direct pour les options (comme pour le sondage principal)
         try {
-
           // Pour les sondages anonymes, pas besoin de token JWT
           if (!user) {
             // Creating anonymous poll - no token required
@@ -347,15 +369,15 @@ export function usePolls() {
               const errorText = await optionsResponse.text();
               const optionsError = ErrorFactory.api(
                 `Erreur création options ${optionsResponse.status}`,
-                'Erreur lors de la création des options du sondage',
-                { status: optionsResponse.status, errorText }
+                "Erreur lors de la création des options du sondage",
+                { status: optionsResponse.status, errorText },
               );
-              
+
               logError(optionsError, {
-                component: 'usePolls',
-                operation: 'createPollOptions'
+                component: "usePolls",
+                operation: "createPollOptions",
               });
-              
+
               throw optionsError;
             }
 
@@ -384,14 +406,14 @@ export function usePolls() {
 
             if (!token) {
               const authError = ErrorFactory.auth(
-                "Token d'authentification non trouvé pour utilisateur connecté"
+                "Token d'authentification non trouvé pour utilisateur connecté",
               );
-              
+
               logError(authError, {
-                component: 'usePolls',
-                operation: 'createPollOptions'
+                component: "usePolls",
+                operation: "createPollOptions",
               });
-              
+
               throw authError;
             }
 
@@ -420,15 +442,15 @@ export function usePolls() {
               const errorText = await optionsResponse.text();
               const optionsError = ErrorFactory.api(
                 `Erreur création options ${optionsResponse.status}`,
-                'Erreur lors de la création des options du sondage',
-                { status: optionsResponse.status, errorText }
+                "Erreur lors de la création des options du sondage",
+                { status: optionsResponse.status, errorText },
               );
-              
+
               logError(optionsError, {
-                component: 'usePolls',
-                operation: 'createPollOptions'
+                component: "usePolls",
+                operation: "createPollOptions",
               });
-              
+
               throw optionsError;
             }
 
@@ -436,30 +458,38 @@ export function usePolls() {
             // Options created successfully
           }
         } catch (optionsError) {
-          const processedError = handleError(optionsError, {
-            component: 'usePolls',
-            operation: 'createPollOptions'
-          }, 'Erreur lors de la création des options du sondage');
-          
+          const processedError = handleError(
+            optionsError,
+            {
+              component: "usePolls",
+              operation: "createPollOptions",
+            },
+            "Erreur lors de la création des options du sondage",
+          );
+
           logError(processedError, {
-            component: 'usePolls',
-            operation: 'createPollOptions',
-            pollId: poll.id
+            component: "usePolls",
+            operation: "createPollOptions",
+            pollId: poll.id,
           });
 
           // Nettoyer le sondage créé en cas d'erreur sur les options
           try {
             await supabase.from("polls").delete().eq("id", poll.id);
           } catch (cleanupError) {
-            const cleanupErr = handleError(cleanupError, {
-              component: 'usePolls',
-              operation: 'pollCleanup'
-            }, 'Erreur lors du nettoyage du sondage');
-            
+            const cleanupErr = handleError(
+              cleanupError,
+              {
+                component: "usePolls",
+                operation: "pollCleanup",
+              },
+              "Erreur lors du nettoyage du sondage",
+            );
+
             logError(cleanupErr, {
-              component: 'usePolls',
-              operation: 'pollCleanup',
-              pollId: poll.id
+              component: "usePolls",
+              operation: "pollCleanup",
+              pollId: poll.id,
             });
           }
 
@@ -495,35 +525,42 @@ export function usePolls() {
         }
 
         // 4. Analytics (optionnel - ne doit pas bloquer la création)
-        
-        return { poll };
 
+        return { poll };
       } catch (error: any) {
-        const processedError = handleError(error, {
-          component: 'usePolls',
-          operation: 'createPoll'
-        }, 'Erreur lors de la création du sondage');
-        
+        const processedError = handleError(
+          error,
+          {
+            component: "usePolls",
+            operation: "createPoll",
+          },
+          "Erreur lors de la création du sondage",
+        );
+
         logError(processedError, {
-          component: 'usePolls',
-          operation: 'createPoll'
+          component: "usePolls",
+          operation: "createPoll",
         });
 
         // Améliorer les messages d'erreur pour l'utilisateur
         let userFriendlyMessage = "Erreur lors de la création du sondage";
-        
-        if (error instanceof TypeError && error.message.includes('fetch')) {
-          userFriendlyMessage = "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
-        } else if (error.message.includes('Failed to fetch')) {
-          userFriendlyMessage = "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
-        } else if (error.message.includes('NetworkError')) {
-          userFriendlyMessage = "Erreur réseau. Vérifiez votre connexion internet.";
-        } else if (error.message.includes('CORS')) {
-          userFriendlyMessage = "Erreur de configuration serveur. Contactez le support.";
+
+        if (error instanceof TypeError && error.message.includes("fetch")) {
+          userFriendlyMessage =
+            "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
+        } else if (error.message.includes("Failed to fetch")) {
+          userFriendlyMessage =
+            "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
+        } else if (error.message.includes("NetworkError")) {
+          userFriendlyMessage =
+            "Erreur réseau. Vérifiez votre connexion internet.";
+        } else if (error.message.includes("CORS")) {
+          userFriendlyMessage =
+            "Erreur de configuration serveur. Contactez le support.";
         } else if (error.message) {
           userFriendlyMessage = error.message;
         }
-        
+
         setError(userFriendlyMessage);
         return { error: userFriendlyMessage };
       } finally {
@@ -559,7 +596,11 @@ export function usePolls() {
   const getPollBySlug = useCallback(
     async (
       slug: string,
-    ): Promise<{ poll?: StoragePoll; options?: PollOption[]; error?: string }> => {
+    ): Promise<{
+      poll?: StoragePoll;
+      options?: PollOption[];
+      error?: string;
+    }> => {
       setLoading(true);
       setError(null);
 
@@ -571,15 +612,15 @@ export function usePolls() {
           const notFoundError = ErrorFactory.validation(
             `Sondage avec slug "${slug}" non trouvé`,
             "Sondage non trouvé",
-            { slug }
+            { slug },
           );
-          
+
           logError(notFoundError, {
-            component: 'usePolls',
-            operation: 'getPollBySlug',
-            slug
+            component: "usePolls",
+            operation: "getPollBySlug",
+            slug,
           });
-          
+
           throw notFoundError;
         }
 

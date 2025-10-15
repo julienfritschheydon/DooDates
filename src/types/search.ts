@@ -3,7 +3,7 @@
  * DooDates - Conversation History System
  */
 
-import type { Conversation, ConversationStatus } from './conversation';
+import type { Conversation, ConversationStatus } from "./conversation";
 
 // ============================================================================
 // SEARCH INTERFACES
@@ -13,7 +13,7 @@ export interface SearchFilters {
   /** Search query for full-text search */
   query?: string;
   /** Filter by conversation status */
-  status?: ConversationStatus | 'all';
+  status?: ConversationStatus | "all";
   /** Filter by favorite status */
   isFavorite?: boolean;
   /** Filter by date range */
@@ -57,7 +57,7 @@ export interface SearchResult {
 
 export interface SearchHighlight {
   /** Field where match was found */
-  field: 'title' | 'firstMessage' | 'tags' | 'messages';
+  field: "title" | "firstMessage" | "tags" | "messages";
   /** Highlighted text with markers */
   text: string;
   /** Start position of match */

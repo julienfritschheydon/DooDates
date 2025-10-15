@@ -1,5 +1,11 @@
 import React from "react";
-import { ChevronLeft, Users, Bot, MessageCircle, ExternalLink } from "lucide-react";
+import {
+  ChevronLeft,
+  Users,
+  Bot,
+  MessageCircle,
+  ExternalLink,
+} from "lucide-react";
 import { Poll, SwipeVote } from "./utils/types";
 
 interface PollHeaderProps {

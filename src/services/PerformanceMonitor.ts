@@ -2,7 +2,7 @@
  * Performance Monitor - Detects and prevents resource exhaustion
  */
 
-import { handleError, ErrorFactory, logError } from '../lib/error-handling';
+import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 
 interface PerformanceMetrics {
   apiCalls: number;
@@ -18,14 +18,14 @@ class PerformanceMonitorService {
     conversationsCreated: 0,
     memoryUsage: 0,
     errorRate: 0,
-    lastReset: Date.now()
+    lastReset: Date.now(),
   };
 
   private readonly THRESHOLDS = {
     MAX_API_CALLS_PER_MINUTE: 50,
     MAX_CONVERSATIONS_PER_SESSION: 5,
     MAX_ERROR_RATE: 0.3, // 30%
-    RESET_INTERVAL: 60000 // 1 minute
+    RESET_INTERVAL: 60000, // 1 minute
   };
 
   private alerts: Array<string | Error> = [];
@@ -36,12 +36,14 @@ class PerformanceMonitorService {
   trackApiCall(): void {
     this.resetIfNeeded();
     this.metrics.apiCalls++;
-    
+
     if (this.metrics.apiCalls > this.THRESHOLDS.MAX_API_CALLS_PER_MINUTE) {
-      this.addAlert(ErrorFactory.critical(
-        'EXCESSIVE API CALLS DETECTED - Possible infinite loop',
-        'Trop d\'appels API détectés. Le système va se protéger.'
-      ));
+      this.addAlert(
+        ErrorFactory.critical(
+          "EXCESSIVE API CALLS DETECTED - Possible infinite loop",
+          "Trop d'appels API détectés. Le système va se protéger.",
+        ),
+      );
     }
   }
 
@@ -51,12 +53,17 @@ class PerformanceMonitorService {
   trackConversationCreation(): void {
     this.resetIfNeeded();
     this.metrics.conversationsCreated++;
-    
-    if (this.metrics.conversationsCreated > this.THRESHOLDS.MAX_CONVERSATIONS_PER_SESSION) {
-      this.addAlert(ErrorFactory.critical(
-        'EXCESSIVE CONVERSATION CREATION - Infinite loop detected',
-        'Trop de conversations créées. Boucle infinie détectée.'
-      ));
+
+    if (
+      this.metrics.conversationsCreated >
+      this.THRESHOLDS.MAX_CONVERSATIONS_PER_SESSION
+    ) {
+      this.addAlert(
+        ErrorFactory.critical(
+          "EXCESSIVE CONVERSATION CREATION - Infinite loop detected",
+          "Trop de conversations créées. Boucle infinie détectée.",
+        ),
+      );
     }
   }
 
@@ -65,15 +72,18 @@ class PerformanceMonitorService {
    */
   trackError(): void {
     this.resetIfNeeded();
-    const totalOperations = this.metrics.apiCalls + this.metrics.conversationsCreated;
+    const totalOperations =
+      this.metrics.apiCalls + this.metrics.conversationsCreated;
     if (totalOperations > 0) {
       this.metrics.errorRate = this.alerts.length / totalOperations;
-      
+
       if (this.metrics.errorRate > this.THRESHOLDS.MAX_ERROR_RATE) {
-        this.addAlert(ErrorFactory.critical(
-          'HIGH ERROR RATE - System instability detected',
-          'Taux d\'erreur élevé détecté. Instabilité du système.'
-        ));
+        this.addAlert(
+          ErrorFactory.critical(
+            "HIGH ERROR RATE - System instability detected",
+            "Taux d'erreur élevé détecté. Instabilité du système.",
+          ),
+        );
       }
     }
   }
@@ -85,7 +95,8 @@ class PerformanceMonitorService {
     this.resetIfNeeded();
     return (
       this.metrics.apiCalls <= this.THRESHOLDS.MAX_API_CALLS_PER_MINUTE &&
-      this.metrics.conversationsCreated <= this.THRESHOLDS.MAX_CONVERSATIONS_PER_SESSION &&
+      this.metrics.conversationsCreated <=
+        this.THRESHOLDS.MAX_CONVERSATIONS_PER_SESSION &&
       this.metrics.errorRate <= this.THRESHOLDS.MAX_ERROR_RATE
     );
   }
@@ -93,12 +104,15 @@ class PerformanceMonitorService {
   /**
    * Get current metrics
    */
-  getMetrics(): PerformanceMetrics & { alerts: Array<string | Error>; isHealthy: boolean } {
+  getMetrics(): PerformanceMetrics & {
+    alerts: Array<string | Error>;
+    isHealthy: boolean;
+  } {
     this.resetIfNeeded();
     return {
       ...this.metrics,
       alerts: [...this.alerts],
-      isHealthy: this.isHealthy()
+      isHealthy: this.isHealthy(),
     };
   }
 
@@ -107,19 +121,19 @@ class PerformanceMonitorService {
    */
   private addAlert(message: string | Error): void {
     const alertKey = message instanceof Error ? message.message : message;
-    const existingAlert = this.alerts.find(alert => 
-      (alert instanceof Error ? alert.message : alert) === alertKey
+    const existingAlert = this.alerts.find(
+      (alert) => (alert instanceof Error ? alert.message : alert) === alertKey,
     );
-    
+
     if (!existingAlert) {
       this.alerts.push(message);
-      
+
       if (message instanceof Error) {
-        logError(message, { component: 'PerformanceMonitor' });
+        logError(message, { component: "PerformanceMonitor" });
       } else {
         console.error(message);
       }
-      
+
       // Send to external monitoring if available
       this.sendToMonitoring(alertKey);
     }
@@ -136,7 +150,7 @@ class PerformanceMonitorService {
         conversationsCreated: 0,
         memoryUsage: 0,
         errorRate: 0,
-        lastReset: now
+        lastReset: now,
       };
       this.alerts = [];
     }
@@ -147,9 +161,9 @@ class PerformanceMonitorService {
    */
   private sendToMonitoring(message: string): void {
     // Could integrate with Sentry, LogRocket, etc.
-    if (typeof window !== 'undefined' && 'navigator' in window) {
+    if (typeof window !== "undefined" && "navigator" in window) {
       // Browser environment - could send to analytics
-      console.warn('Performance alert:', message);
+      console.warn("Performance alert:", message);
     }
   }
 
@@ -158,13 +172,16 @@ class PerformanceMonitorService {
    */
   emergencyShutdown(): void {
     const shutdownError = ErrorFactory.critical(
-      'EMERGENCY SHUTDOWN - System critically unhealthy',
-      'Arrêt d\'urgence du système pour éviter des dommages.'
+      "EMERGENCY SHUTDOWN - System critically unhealthy",
+      "Arrêt d'urgence du système pour éviter des dommages.",
     );
-    
-    logError(shutdownError, { component: 'PerformanceMonitor', operation: 'emergencyShutdown' });
+
+    logError(shutdownError, {
+      component: "PerformanceMonitor",
+      operation: "emergencyShutdown",
+    });
     this.addAlert(shutdownError);
-    
+
     // Disable all operations
     window.location.reload();
   }

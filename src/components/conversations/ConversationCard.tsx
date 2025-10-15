@@ -3,31 +3,31 @@
  * DooDates - Conversation History System
  */
 
-import React, { useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { fr, enUS } from 'date-fns/locale';
-import { 
-  MessageCircle, 
-  Calendar, 
-  Star, 
-  MoreVertical, 
-  Play, 
-  Edit2, 
+import React, { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+import { fr, enUS } from "date-fns/locale";
+import {
+  MessageCircle,
+  Calendar,
+  Star,
+  MoreVertical,
+  Play,
+  Edit2,
   Trash2,
   ExternalLink,
-  Clock
-} from 'lucide-react';
+  Clock,
+} from "lucide-react";
 
-import { Card, CardContent, CardHeader } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+} from "../ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,10 +37,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../ui/alert-dialog';
-import { Input } from '../ui/input';
-import { cn } from '../../lib/utils';
-import type { Conversation } from '../../types/conversation';
+} from "../ui/alert-dialog";
+import { Input } from "../ui/input";
+import { cn } from "../../lib/utils";
+import type { Conversation } from "../../types/conversation";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -60,7 +60,7 @@ export interface ConversationCardProps {
   /** Callback when user wants to view related poll */
   onViewPoll?: (pollId: string) => void;
   /** Current user's language preference */
-  language?: 'fr' | 'en';
+  language?: "fr" | "en";
   /** Whether the card is in compact mode */
   compact?: boolean;
   /** Custom className */
@@ -74,33 +74,36 @@ export interface ConversationCardProps {
 /**
  * Gets the appropriate status indicator for a conversation
  */
-function getStatusIndicator(status: Conversation['status'], hasRelatedPoll: boolean) {
+function getStatusIndicator(
+  status: Conversation["status"],
+  hasRelatedPoll: boolean,
+) {
   switch (status) {
-    case 'active':
+    case "active":
       return {
-        emoji: '🟡',
-        label: 'En cours',
-        color: 'bg-yellow-100 text-yellow-800 border-yellow-200'
+        emoji: "🟡",
+        label: "En cours",
+        color: "bg-yellow-100 text-yellow-800 border-yellow-200",
       };
-    case 'completed':
+    case "completed":
       return {
-        emoji: hasRelatedPoll ? '🔗' : '🟢',
-        label: hasRelatedPoll ? 'Sondage créé' : 'Terminée',
-        color: hasRelatedPoll 
-          ? 'bg-blue-100 text-blue-800 border-blue-200'
-          : 'bg-green-100 text-green-800 border-green-200'
+        emoji: hasRelatedPoll ? "🔗" : "🟢",
+        label: hasRelatedPoll ? "Sondage créé" : "Terminée",
+        color: hasRelatedPoll
+          ? "bg-blue-100 text-blue-800 border-blue-200"
+          : "bg-green-100 text-green-800 border-green-200",
       };
-    case 'archived':
+    case "archived":
       return {
-        emoji: '📁',
-        label: 'Archivée',
-        color: 'bg-gray-100 text-gray-600 border-gray-200'
+        emoji: "📁",
+        label: "Archivée",
+        color: "bg-gray-100 text-gray-600 border-gray-200",
       };
     default:
       return {
-        emoji: '❓',
-        label: 'Inconnu',
-        color: 'bg-gray-100 text-gray-600 border-gray-200'
+        emoji: "❓",
+        label: "Inconnu",
+        color: "bg-gray-100 text-gray-600 border-gray-200",
       };
   }
 }
@@ -110,17 +113,17 @@ function getStatusIndicator(status: Conversation['status'], hasRelatedPoll: bool
  */
 function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength).trim() + '...';
+  return text.slice(0, maxLength).trim() + "...";
 }
 
 /**
  * Formats relative time with localization
  */
-function formatRelativeTime(date: Date, language: 'fr' | 'en' = 'fr'): string {
-  const locale = language === 'fr' ? fr : enUS;
-  return formatDistanceToNow(date, { 
-    addSuffix: true, 
-    locale 
+function formatRelativeTime(date: Date, language: "fr" | "en" = "fr"): string {
+  const locale = language === "fr" ? fr : enUS;
+  return formatDistanceToNow(date, {
+    addSuffix: true,
+    locale,
   });
 }
 
@@ -135,9 +138,9 @@ export function ConversationCard({
   onDelete,
   onToggleFavorite,
   onViewPoll,
-  language = 'fr',
+  language = "fr",
   compact = false,
-  className
+  className,
 }: ConversationCardProps) {
   // State for rename functionality
   const [isRenaming, setIsRenaming] = useState(false);
@@ -148,7 +151,10 @@ export function ConversationCard({
   const hasRelatedPoll = Boolean(conversation.relatedPollId);
   const statusInfo = getStatusIndicator(conversation.status, hasRelatedPoll);
   const relativeTime = formatRelativeTime(conversation.updatedAt, language);
-  const previewText = truncateText(conversation.firstMessage, compact ? 60 : 100);
+  const previewText = truncateText(
+    conversation.firstMessage,
+    compact ? 60 : 100,
+  );
 
   // Event handlers
   const handleResume = () => {
@@ -173,9 +179,9 @@ export function ConversationCard({
   };
 
   const handleRenameKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleRenameSubmit();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       handleRenameCancel();
     }
   };
@@ -197,20 +203,23 @@ export function ConversationCard({
 
   return (
     <>
-      <Card className={cn(
-        "group hover:shadow-md transition-all duration-200 cursor-pointer",
-        "border-l-4",
-        conversation.status === 'active' && "border-l-yellow-400",
-        conversation.status === 'completed' && hasRelatedPoll && "border-l-blue-400",
-        conversation.status === 'completed' && !hasRelatedPoll && "border-l-green-400",
-        conversation.status === 'archived' && "border-l-gray-300",
-        compact && "py-2",
-        className
-      )}>
-        <CardHeader className={cn(
-          "pb-2",
-          compact && "pb-1 pt-3"
-        )}>
+      <Card
+        className={cn(
+          "group hover:shadow-md transition-all duration-200 cursor-pointer",
+          "border-l-4",
+          conversation.status === "active" && "border-l-yellow-400",
+          conversation.status === "completed" &&
+            hasRelatedPoll &&
+            "border-l-blue-400",
+          conversation.status === "completed" &&
+            !hasRelatedPoll &&
+            "border-l-green-400",
+          conversation.status === "archived" && "border-l-gray-300",
+          compact && "py-2",
+          className,
+        )}
+      >
+        <CardHeader className={cn("pb-2", compact && "pb-1 pt-3")}>
           <div className="flex items-start justify-between gap-3">
             {/* Title and Status */}
             <div className="flex-1 min-w-0">
@@ -225,7 +234,7 @@ export function ConversationCard({
                     autoFocus
                   />
                 ) : (
-                  <h3 
+                  <h3
                     className="font-medium text-sm leading-tight truncate cursor-pointer hover:text-blue-600"
                     onClick={handleResume}
                     title={conversation.title}
@@ -233,15 +242,15 @@ export function ConversationCard({
                     {conversation.title}
                   </h3>
                 )}
-                
+
                 {conversation.isFavorite && (
                   <Star className="h-3 w-3 text-yellow-500 fill-current flex-shrink-0" />
                 )}
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={cn("text-xs px-2 py-0.5", statusInfo.color)}
                 >
                   <span className="mr-1">{statusInfo.emoji}</span>
@@ -279,18 +288,22 @@ export function ConversationCard({
                   <Play className="h-4 w-4 mr-2" />
                   Reprendre
                 </DropdownMenuItem>
-                
+
                 <DropdownMenuItem onClick={handleRenameStart}>
                   <Edit2 className="h-4 w-4 mr-2" />
                   Renommer
                 </DropdownMenuItem>
-                
+
                 <DropdownMenuItem onClick={handleToggleFavorite}>
-                  <Star className={cn(
-                    "h-4 w-4 mr-2",
-                    conversation.isFavorite && "fill-current text-yellow-500"
-                  )} />
-                  {conversation.isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                  <Star
+                    className={cn(
+                      "h-4 w-4 mr-2",
+                      conversation.isFavorite && "fill-current text-yellow-500",
+                    )}
+                  />
+                  {conversation.isFavorite
+                    ? "Retirer des favoris"
+                    : "Ajouter aux favoris"}
                 </DropdownMenuItem>
 
                 {hasRelatedPoll && (
@@ -304,7 +317,7 @@ export function ConversationCard({
                 )}
 
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setShowDeleteDialog(true)}
                   className="text-red-600 focus:text-red-600"
                 >
@@ -316,12 +329,9 @@ export function ConversationCard({
           </div>
         </CardHeader>
 
-        <CardContent className={cn(
-          "pt-0",
-          compact && "pb-3"
-        )}>
+        <CardContent className={cn("pt-0", compact && "pb-3")}>
           {/* Preview Text */}
-          <p 
+          <p
             className="text-sm text-gray-600 mb-3 cursor-pointer hover:text-gray-800"
             onClick={handleResume}
             title={conversation.firstMessage}
@@ -334,9 +344,10 @@ export function ConversationCard({
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
                 <MessageCircle className="h-3 w-3" />
-                {conversation.messageCount} message{conversation.messageCount > 1 ? 's' : ''}
+                {conversation.messageCount} message
+                {conversation.messageCount > 1 ? "s" : ""}
               </span>
-              
+
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {relativeTime}
@@ -347,9 +358,9 @@ export function ConversationCard({
             {conversation.tags.length > 0 && (
               <div className="flex gap-1">
                 {conversation.tags.slice(0, 2).map((tag, index) => (
-                  <Badge 
-                    key={index} 
-                    variant="secondary" 
+                  <Badge
+                    key={index}
+                    variant="secondary"
                     className="text-xs px-1.5 py-0.5"
                   >
                     {tag}
@@ -397,14 +408,15 @@ export function ConversationCard({
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer la conversation</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer la conversation "{conversation.title}" ? 
-              Cette action est irréversible et supprimera également tous les messages associés.
+              Êtes-vous sûr de vouloir supprimer la conversation "
+              {conversation.title}" ? Cette action est irréversible et
+              supprimera également tous les messages associés.
               {hasRelatedPoll && " Le sondage associé ne sera pas affecté."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
             >

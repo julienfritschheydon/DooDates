@@ -29,7 +29,7 @@ export class EmailService {
         const errorData = await response.json().catch(() => ({}));
         throw ErrorFactory.network(
           `HTTP ${response.status}: ${errorData.error || "Unknown error"}`,
-          "Erreur lors de l'envoi de l'email. Vérifiez votre connexion."
+          "Erreur lors de l'envoi de l'email. Vérifiez votre connexion.",
         );
       }
 
@@ -38,10 +38,14 @@ export class EmailService {
 
       return result;
     } catch (error: any) {
-      throw handleError(error, {
-        component: 'EmailService',
-        operation: 'sendEmail'
-      }, 'Erreur lors de l\'envoi de l\'email');
+      throw handleError(
+        error,
+        {
+          component: "EmailService",
+          operation: "sendEmail",
+        },
+        "Erreur lors de l'envoi de l'email",
+      );
     }
   }
 
@@ -144,11 +148,15 @@ export class EmailService {
     results.forEach((result, index) => {
       if (result.status === "rejected") {
         logError(
-          handleError(result.reason, {
-            component: 'EmailService',
-            operation: 'sendBatchEmails'
-          }, 'Erreur lors de l\'envoi d\'email en lot'),
-          { component: 'EmailService', operation: 'sendBatchEmails' }
+          handleError(
+            result.reason,
+            {
+              component: "EmailService",
+              operation: "sendBatchEmails",
+            },
+            "Erreur lors de l'envoi d'email en lot",
+          ),
+          { component: "EmailService", operation: "sendBatchEmails" },
         );
       }
     });
@@ -165,11 +173,15 @@ export class EmailService {
       return response.ok;
     } catch (error) {
       logError(
-        handleError(error, {
-          component: 'EmailService',
-          operation: 'testConnection'
-        }, 'Test de connectivité échoué'),
-        { component: 'EmailService', operation: 'testConnection' }
+        handleError(
+          error,
+          {
+            component: "EmailService",
+            operation: "testConnection",
+          },
+          "Test de connectivité échoué",
+        ),
+        { component: "EmailService", operation: "testConnection" },
       );
       return false;
     }
@@ -267,10 +279,7 @@ export class EmailService {
       // Vote confirmation email sent successfully
       return { success: true };
     } catch (error) {
-      console.error(
-        "EmailService vote confirmation error:",
-        error,
-      );
+      console.error("EmailService vote confirmation error:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Erreur inconnue",

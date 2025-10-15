@@ -3,9 +3,16 @@
  * DooDates - Freemium Quota Management
  */
 
-import React from 'react';
-import { X, Crown, MessageCircle, Users, Calendar, Sparkles } from 'lucide-react';
-import { type AuthIncentiveType } from '../../services/QuotaService';
+import React from "react";
+import {
+  X,
+  Crown,
+  MessageCircle,
+  Users,
+  Calendar,
+  Sparkles,
+} from "lucide-react";
+import { type AuthIncentiveType } from "../../services/QuotaService";
 
 interface AuthIncentiveModalProps {
   isOpen: boolean;
@@ -33,74 +40,77 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
 
   const getModalContent = () => {
     switch (trigger) {
-      case 'conversation_limit':
+      case "conversation_limit":
         return {
-          title: 'Limite de conversations atteinte',
-          subtitle: 'Créez un compte pour continuer à utiliser DooDates',
+          title: "Limite de conversations atteinte",
+          subtitle: "Créez un compte pour continuer à utiliser DooDates",
           icon: <MessageCircle className="w-12 h-12 text-purple-600" />,
           description: `Vous avez utilisé ${currentUsage?.conversations || 0}/${currentUsage?.maxConversations || 10} conversations gratuites.`,
           benefits: [
-            '1000 conversations sauvegardées',
-            'Historique permanent de vos échanges',
-            'Synchronisation multi-appareils',
-            'Sauvegarde automatique dans le cloud'
-          ]
+            "1000 conversations sauvegardées",
+            "Historique permanent de vos échanges",
+            "Synchronisation multi-appareils",
+            "Sauvegarde automatique dans le cloud",
+          ],
         };
-      
-      case 'poll_limit':
+
+      case "poll_limit":
         return {
-          title: 'Créez plus de sondages',
-          subtitle: 'Débloquez la création illimitée de sondages',
+          title: "Créez plus de sondages",
+          subtitle: "Débloquez la création illimitée de sondages",
           icon: <Calendar className="w-12 h-12 text-blue-600" />,
-          description: 'Les utilisateurs invités sont limités dans la création de sondages.',
+          description:
+            "Les utilisateurs invités sont limités dans la création de sondages.",
           benefits: [
-            'Sondages illimités',
-            'Historique de tous vos sondages',
-            'Statistiques avancées',
-            'Export des résultats'
-          ]
+            "Sondages illimités",
+            "Historique de tous vos sondages",
+            "Statistiques avancées",
+            "Export des résultats",
+          ],
         };
-      
-      case 'feature_unlock':
+
+      case "feature_unlock":
         return {
-          title: 'Fonctionnalité Premium',
-          subtitle: 'Cette fonctionnalité nécessite un compte',
+          title: "Fonctionnalité Premium",
+          subtitle: "Cette fonctionnalité nécessite un compte",
           icon: <Crown className="w-12 h-12 text-yellow-600" />,
-          description: 'Accédez à toutes les fonctionnalités avancées de DooDates.',
+          description:
+            "Accédez à toutes les fonctionnalités avancées de DooDates.",
           benefits: [
-            'Toutes les fonctionnalités premium',
-            'Support prioritaire',
-            'Nouvelles fonctionnalités en avant-première',
-            'Personnalisation avancée'
-          ]
+            "Toutes les fonctionnalités premium",
+            "Support prioritaire",
+            "Nouvelles fonctionnalités en avant-première",
+            "Personnalisation avancée",
+          ],
         };
-      
-      case 'storage_full':
+
+      case "storage_full":
         return {
-          title: 'Stockage local saturé',
-          subtitle: 'Sauvegardez vos données dans le cloud',
+          title: "Stockage local saturé",
+          subtitle: "Sauvegardez vos données dans le cloud",
           icon: <Users className="w-12 h-12 text-green-600" />,
-          description: 'Votre navigateur approche de sa limite de stockage.',
+          description: "Votre navigateur approche de sa limite de stockage.",
           benefits: [
-            'Stockage cloud illimité',
-            'Sauvegarde automatique',
-            'Accès depuis tous vos appareils',
-            'Sécurité renforcée'
-          ]
+            "Stockage cloud illimité",
+            "Sauvegarde automatique",
+            "Accès depuis tous vos appareils",
+            "Sécurité renforcée",
+          ],
         };
-      
+
       default:
         return {
-          title: 'Débloquez DooDates Premium',
-          subtitle: 'Profitez de toutes les fonctionnalités',
+          title: "Débloquez DooDates Premium",
+          subtitle: "Profitez de toutes les fonctionnalités",
           icon: <Sparkles className="w-12 h-12 text-purple-600" />,
-          description: 'Créez un compte gratuit pour accéder à toutes les fonctionnalités.',
+          description:
+            "Créez un compte gratuit pour accéder à toutes les fonctionnalités.",
           benefits: [
-            'Fonctionnalités complètes',
-            'Sauvegarde cloud',
-            'Support premium',
-            'Mises à jour prioritaires'
-          ]
+            "Fonctionnalités complètes",
+            "Sauvegarde cloud",
+            "Support premium",
+            "Mises à jour prioritaires",
+          ],
         };
     }
   };
@@ -118,18 +128,14 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
-          
-          <div className="flex justify-center mb-4">
-            {content.icon}
-          </div>
-          
+
+          <div className="flex justify-center mb-4">{content.icon}</div>
+
           <h2 className="text-xl font-bold text-gray-900 mb-2">
             {content.title}
           </h2>
-          
-          <p className="text-gray-600 text-sm">
-            {content.subtitle}
-          </p>
+
+          <p className="text-gray-600 text-sm">{content.subtitle}</p>
         </div>
 
         {/* Content */}
@@ -146,7 +152,10 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
             </h3>
             <ul className="space-y-2">
               {content.benefits.map((benefit, index) => (
-                <li key={index} className="flex items-center gap-3 text-sm text-gray-700">
+                <li
+                  key={index}
+                  className="flex items-center gap-3 text-sm text-gray-700"
+                >
                   <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
                   {benefit}
                 </li>
@@ -158,16 +167,18 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           {currentUsage && (
             <div className="mb-6 p-4 bg-gray-50 rounded-lg">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">Utilisation actuelle</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Utilisation actuelle
+                </span>
                 <span className="text-sm text-gray-600">
                   {currentUsage.conversations}/{currentUsage.maxConversations}
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+                <div
                   className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                  style={{ 
-                    width: `${Math.min((currentUsage.conversations / currentUsage.maxConversations) * 100, 100)}%` 
+                  style={{
+                    width: `${Math.min((currentUsage.conversations / currentUsage.maxConversations) * 100, 100)}%`,
                   }}
                 ></div>
               </div>
@@ -183,7 +194,7 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
               <Crown className="w-4 h-4" />
               Créer un compte gratuit
             </button>
-            
+
             <button
               onClick={onSignIn}
               className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"

@@ -1,24 +1,24 @@
 /**
  * Centralized Error Handling System for DooDates
- * 
+ *
  * This module provides consistent error handling patterns across the application.
  * It standardizes how errors are logged, reported, and handled.
  */
 
 export enum ErrorSeverity {
-  LOW = 'low',
-  MEDIUM = 'medium', 
-  HIGH = 'high',
-  CRITICAL = 'critical'
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+  CRITICAL = "critical",
 }
 
 export enum ErrorCategory {
-  NETWORK = 'network',
-  VALIDATION = 'validation',
-  STORAGE = 'storage',
-  AUTH = 'auth',
-  API = 'api',
-  SYSTEM = 'system'
+  NETWORK = "network",
+  VALIDATION = "validation",
+  STORAGE = "storage",
+  AUTH = "auth",
+  API = "api",
+  SYSTEM = "system",
 }
 
 export interface ErrorContext {
@@ -46,10 +46,10 @@ export class DooDatesError extends Error {
     userMessage: string,
     severity: ErrorSeverity = ErrorSeverity.MEDIUM,
     category: ErrorCategory = ErrorCategory.SYSTEM,
-    context: ErrorContext = {}
+    context: ErrorContext = {},
   ) {
     super(message);
-    this.name = 'DooDatesError';
+    this.name = "DooDatesError";
     this.severity = severity;
     this.category = category;
     this.context = context;
@@ -63,7 +63,7 @@ export class DooDatesError extends Error {
  */
 export function logError(
   error: Error | DooDatesError,
-  context: ErrorContext = {}
+  context: ErrorContext = {},
 ): void {
   const errorInfo = {
     message: error.message,
@@ -74,19 +74,19 @@ export function logError(
     ...(error instanceof DooDatesError && {
       severity: error.severity,
       category: error.category,
-      userMessage: error.userMessage
-    })
+      userMessage: error.userMessage,
+    }),
   };
 
   // Always log to console in development
   if (import.meta.env.DEV) {
-    console.error('🚨 DooDates Error:', errorInfo);
+    console.error("🚨 DooDates Error:", errorInfo);
   }
 
   // In production, send to monitoring service
   if (import.meta.env.PROD) {
     // TODO: Send to external monitoring service (Sentry, LogRocket, etc.)
-    console.error('Error logged:', errorInfo);
+    console.error("Error logged:", errorInfo);
   }
 }
 
@@ -96,7 +96,7 @@ export function logError(
 export function handleError(
   error: unknown,
   context: ErrorContext = {},
-  fallbackMessage: string = "Une erreur inattendue s'est produite"
+  fallbackMessage: string = "Une erreur inattendue s'est produite",
 ): DooDatesError {
   let processedError: DooDatesError;
 
@@ -108,7 +108,7 @@ export function handleError(
       fallbackMessage,
       ErrorSeverity.MEDIUM,
       ErrorCategory.SYSTEM,
-      context
+      context,
     );
   } else {
     processedError = new DooDatesError(
@@ -116,7 +116,7 @@ export function handleError(
       fallbackMessage,
       ErrorSeverity.MEDIUM,
       ErrorCategory.SYSTEM,
-      context
+      context,
     );
   }
 
@@ -128,26 +128,77 @@ export function handleError(
  * Create specific error types for common scenarios
  */
 export const ErrorFactory = {
-  network: (message: string, userMessage: string = "Problème de connexion réseau") =>
-    new DooDatesError(message, userMessage, ErrorSeverity.HIGH, ErrorCategory.NETWORK),
+  network: (
+    message: string,
+    userMessage: string = "Problème de connexion réseau",
+  ) =>
+    new DooDatesError(
+      message,
+      userMessage,
+      ErrorSeverity.HIGH,
+      ErrorCategory.NETWORK,
+    ),
 
-  validation: (message: string, userMessage: string = "Données invalides", metadata?: Record<string, any>) =>
-    new DooDatesError(message, userMessage, ErrorSeverity.MEDIUM, ErrorCategory.VALIDATION, { metadata }),
+  validation: (
+    message: string,
+    userMessage: string = "Données invalides",
+    metadata?: Record<string, any>,
+  ) =>
+    new DooDatesError(
+      message,
+      userMessage,
+      ErrorSeverity.MEDIUM,
+      ErrorCategory.VALIDATION,
+      { metadata },
+    ),
 
   storage: (message: string, userMessage: string = "Erreur de sauvegarde") =>
-    new DooDatesError(message, userMessage, ErrorSeverity.HIGH, ErrorCategory.STORAGE),
+    new DooDatesError(
+      message,
+      userMessage,
+      ErrorSeverity.HIGH,
+      ErrorCategory.STORAGE,
+    ),
 
   auth: (message: string, userMessage: string = "Erreur d'authentification") =>
-    new DooDatesError(message, userMessage, ErrorSeverity.HIGH, ErrorCategory.AUTH),
+    new DooDatesError(
+      message,
+      userMessage,
+      ErrorSeverity.HIGH,
+      ErrorCategory.AUTH,
+    ),
 
-  api: (message: string, userMessage: string = "Erreur du service", metadata?: Record<string, any>) =>
-    new DooDatesError(message, userMessage, ErrorSeverity.HIGH, ErrorCategory.API, { metadata }),
+  api: (
+    message: string,
+    userMessage: string = "Erreur du service",
+    metadata?: Record<string, any>,
+  ) =>
+    new DooDatesError(
+      message,
+      userMessage,
+      ErrorSeverity.HIGH,
+      ErrorCategory.API,
+      { metadata },
+    ),
 
   rateLimit: (message: string, userMessage: string = "Trop de tentatives") =>
-    new DooDatesError(message, userMessage, ErrorSeverity.MEDIUM, ErrorCategory.VALIDATION),
+    new DooDatesError(
+      message,
+      userMessage,
+      ErrorSeverity.MEDIUM,
+      ErrorCategory.VALIDATION,
+    ),
 
-  critical: (message: string, userMessage: string = "Erreur critique du système") =>
-    new DooDatesError(message, userMessage, ErrorSeverity.CRITICAL, ErrorCategory.SYSTEM)
+  critical: (
+    message: string,
+    userMessage: string = "Erreur critique du système",
+  ) =>
+    new DooDatesError(
+      message,
+      userMessage,
+      ErrorSeverity.CRITICAL,
+      ErrorCategory.SYSTEM,
+    ),
 };
 
 /**
@@ -156,7 +207,7 @@ export const ErrorFactory = {
 export async function withErrorHandling<T>(
   operation: () => Promise<T>,
   context: ErrorContext,
-  fallbackMessage?: string
+  fallbackMessage?: string,
 ): Promise<T> {
   try {
     return await operation();

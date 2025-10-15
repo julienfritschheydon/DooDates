@@ -14,7 +14,7 @@ export const performanceMonitor = {
     errorRate: 0,
     lastReset: Date.now(),
     alerts: [],
-    isHealthy: true
+    isHealthy: true,
   })),
-  emergencyShutdown: jest.fn()
+  emergencyShutdown: jest.fn(),
 };

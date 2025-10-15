@@ -1,7 +1,7 @@
-import React from 'react';
-import { render, RenderOptions } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { vi } from 'vitest';
+import React from "react";
+import { render, RenderOptions } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { vi } from "vitest";
 // Mock types for AuthContext since they're not exported
 interface Profile {
   id: string;
@@ -27,29 +27,30 @@ interface AuthContextType {
   signOut: () => Promise<{ error?: any }>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error?: any }>;
 }
-import type { User } from '@supabase/supabase-js';
+import type { User } from "@supabase/supabase-js";
 
 // Create a test QueryClient with disabled retries and caching
-export const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      gcTime: 0,
+export const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        gcTime: 0,
+      },
+      mutations: {
+        retry: false,
+      },
     },
-    mutations: {
-      retry: false,
-    },
-  },
-});
+  });
 
 // Mock user for testing
 export const mockUser: User = {
-  id: 'test-user-id',
-  email: 'test@example.com',
-  created_at: '2024-01-01T00:00:00Z',
-  updated_at: '2024-01-01T00:00:00Z',
-  aud: 'authenticated',
-  role: 'authenticated',
+  id: "test-user-id",
+  email: "test@example.com",
+  created_at: "2024-01-01T00:00:00Z",
+  updated_at: "2024-01-01T00:00:00Z",
+  aud: "authenticated",
+  role: "authenticated",
   app_metadata: {},
   user_metadata: {},
   identities: [],
@@ -89,15 +90,19 @@ interface TestWrapperProps {
 }
 
 // Test wrapper with QueryClient and AuthContext
-export const TestWrapper: React.FC<TestWrapperProps> = ({ 
-  children, 
+export const TestWrapper: React.FC<TestWrapperProps> = ({
+  children,
   queryClient = createTestQueryClient(),
-  authContext = mockAuthContext
+  authContext = mockAuthContext,
 }) => {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Mock AuthContext Provider - using React.createContext */}
-      {React.createElement(React.createContext<AuthContextType | null>(null).Provider, { value: authContext }, children)}
+      {React.createElement(
+        React.createContext<AuthContextType | null>(null).Provider,
+        { value: authContext },
+        children,
+      )}
     </QueryClientProvider>
   );
 };
@@ -108,11 +113,11 @@ export const renderWithProviders = (
   options?: {
     queryClient?: QueryClient;
     authContext?: AuthContextType;
-    renderOptions?: Omit<RenderOptions, 'wrapper'>;
-  }
+    renderOptions?: Omit<RenderOptions, "wrapper">;
+  },
 ) => {
   const { queryClient, authContext, renderOptions } = options || {};
-  
+
   const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <TestWrapper queryClient={queryClient} authContext={authContext}>
       {children}
@@ -123,9 +128,12 @@ export const renderWithProviders = (
 };
 
 // Helper to render with guest context
-export const renderWithGuestContext = (ui: React.ReactElement, options?: RenderOptions) => {
-  return renderWithProviders(ui, { 
+export const renderWithGuestContext = (
+  ui: React.ReactElement,
+  options?: RenderOptions,
+) => {
+  return renderWithProviders(ui, {
     authContext: mockGuestAuthContext,
-    renderOptions: options 
+    renderOptions: options,
   });
 };

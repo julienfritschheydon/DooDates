@@ -12,6 +12,6 @@ export const conversationProtection = {
     initializationInProgress: false,
     lastConversationCreated: null,
     creationAttempts: 0,
-    canCreate: true
-  }))
+    canCreate: true,
+  })),
 };

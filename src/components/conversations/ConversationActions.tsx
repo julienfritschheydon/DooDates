@@ -3,8 +3,8 @@
  * DooDates - Conversation History System
  */
 
-import React, { useState, useCallback } from 'react';
-import { 
+import React, { useState, useCallback } from "react";
+import {
   MoreHorizontal,
   Play,
   Edit3,
@@ -16,18 +16,18 @@ import {
   ExternalLink,
   Copy,
   Download,
-  Share2
-} from 'lucide-react';
+  Share2,
+} from "lucide-react";
 
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+} from "../ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +35,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog';
+} from "../ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,10 +45,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../ui/alert-dialog';
-import { toast } from '../ui/use-toast';
-import { cn } from '../../lib/utils';
-import type { Conversation, ConversationStatus } from '../../types/conversation';
+} from "../ui/alert-dialog";
+import { toast } from "../ui/use-toast";
+import { cn } from "../../lib/utils";
+import type {
+  Conversation,
+  ConversationStatus,
+} from "../../types/conversation";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -72,13 +75,13 @@ export interface ConversationActionsProps {
   /** Callback when user wants to share conversation */
   onShare?: (conversationId: string) => void;
   /** Callback when user wants to export conversation */
-  onExport?: (conversationId: string, format: 'json' | 'txt' | 'pdf') => void;
+  onExport?: (conversationId: string, format: "json" | "txt" | "pdf") => void;
   /** Show as inline actions instead of dropdown */
   inline?: boolean;
   /** Show only primary actions */
   compact?: boolean;
   /** Language for UI text */
-  language?: 'fr' | 'en';
+  language?: "fr" | "en";
   /** Custom className */
   className?: string;
 }
@@ -88,7 +91,7 @@ interface RenameDialogProps {
   currentTitle: string;
   onClose: () => void;
   onConfirm: (newTitle: string) => void;
-  language: 'fr' | 'en';
+  language: "fr" | "en";
 }
 
 interface DeleteDialogProps {
@@ -96,32 +99,35 @@ interface DeleteDialogProps {
   conversationTitle: string;
   onClose: () => void;
   onConfirm: () => void;
-  language: 'fr' | 'en';
+  language: "fr" | "en";
 }
 
 // ============================================================================
 // SUB-COMPONENTS
 // ============================================================================
 
-function RenameDialog({ 
-  isOpen, 
-  currentTitle, 
-  onClose, 
-  onConfirm, 
-  language 
+function RenameDialog({
+  isOpen,
+  currentTitle,
+  onClose,
+  onConfirm,
+  language,
 }: RenameDialogProps) {
   const [title, setTitle] = useState(currentTitle);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const text = {
-    title: language === 'fr' ? 'Renommer la conversation' : 'Rename conversation',
-    description: language === 'fr' 
-      ? 'Donnez un nouveau nom à cette conversation.' 
-      : 'Give this conversation a new name.',
-    placeholder: language === 'fr' ? 'Nom de la conversation' : 'Conversation name',
-    cancel: language === 'fr' ? 'Annuler' : 'Cancel',
-    save: language === 'fr' ? 'Enregistrer' : 'Save',
-    saving: language === 'fr' ? 'Enregistrement...' : 'Saving...',
+    title:
+      language === "fr" ? "Renommer la conversation" : "Rename conversation",
+    description:
+      language === "fr"
+        ? "Donnez un nouveau nom à cette conversation."
+        : "Give this conversation a new name.",
+    placeholder:
+      language === "fr" ? "Nom de la conversation" : "Conversation name",
+    cancel: language === "fr" ? "Annuler" : "Cancel",
+    save: language === "fr" ? "Enregistrer" : "Save",
+    saving: language === "fr" ? "Enregistrement..." : "Saving...",
   };
 
   const handleSubmit = useCallback(async () => {
@@ -135,30 +141,36 @@ function RenameDialog({
       await onConfirm(title.trim());
       onClose();
       toast({
-        title: language === 'fr' ? 'Conversation renommée' : 'Conversation renamed',
-        description: language === 'fr' 
-          ? 'Le nom de la conversation a été mis à jour.' 
-          : 'The conversation name has been updated.',
+        title:
+          language === "fr" ? "Conversation renommée" : "Conversation renamed",
+        description:
+          language === "fr"
+            ? "Le nom de la conversation a été mis à jour."
+            : "The conversation name has been updated.",
       });
     } catch (error) {
       toast({
-        title: language === 'fr' ? 'Erreur' : 'Error',
-        description: language === 'fr' 
-          ? 'Impossible de renommer la conversation.' 
-          : 'Failed to rename conversation.',
-        variant: 'destructive',
+        title: language === "fr" ? "Erreur" : "Error",
+        description:
+          language === "fr"
+            ? "Impossible de renommer la conversation."
+            : "Failed to rename conversation.",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
   }, [title, currentTitle, onConfirm, onClose, language]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  }, [handleSubmit]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    },
+    [handleSubmit],
+  );
 
   // Reset title when dialog opens
   React.useEffect(() => {
@@ -186,16 +198,14 @@ function RenameDialog({
           />
         </div>
         <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             {text.cancel}
           </Button>
-          <Button 
+          <Button
             onClick={handleSubmit}
-            disabled={isSubmitting || !title.trim() || title.trim() === currentTitle}
+            disabled={
+              isSubmitting || !title.trim() || title.trim() === currentTitle
+            }
           >
             {isSubmitting ? text.saving : text.save}
           </Button>
@@ -205,24 +215,26 @@ function RenameDialog({
   );
 }
 
-function DeleteDialog({ 
-  isOpen, 
-  conversationTitle, 
-  onClose, 
-  onConfirm, 
-  language 
+function DeleteDialog({
+  isOpen,
+  conversationTitle,
+  onClose,
+  onConfirm,
+  language,
 }: DeleteDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const text = {
-    title: language === 'fr' ? 'Supprimer la conversation' : 'Delete conversation',
-    description: language === 'fr' 
-      ? 'Êtes-vous sûr de vouloir supprimer cette conversation ? Cette action est irréversible.' 
-      : 'Are you sure you want to delete this conversation? This action cannot be undone.',
-    conversationName: language === 'fr' ? 'Conversation :' : 'Conversation:',
-    cancel: language === 'fr' ? 'Annuler' : 'Cancel',
-    delete: language === 'fr' ? 'Supprimer' : 'Delete',
-    deleting: language === 'fr' ? 'Suppression...' : 'Deleting...',
+    title:
+      language === "fr" ? "Supprimer la conversation" : "Delete conversation",
+    description:
+      language === "fr"
+        ? "Êtes-vous sûr de vouloir supprimer cette conversation ? Cette action est irréversible."
+        : "Are you sure you want to delete this conversation? This action cannot be undone.",
+    conversationName: language === "fr" ? "Conversation :" : "Conversation:",
+    cancel: language === "fr" ? "Annuler" : "Cancel",
+    delete: language === "fr" ? "Supprimer" : "Delete",
+    deleting: language === "fr" ? "Suppression..." : "Deleting...",
   };
 
   const handleConfirm = useCallback(async () => {
@@ -230,18 +242,21 @@ function DeleteDialog({
     try {
       await onConfirm();
       toast({
-        title: language === 'fr' ? 'Conversation supprimée' : 'Conversation deleted',
-        description: language === 'fr' 
-          ? 'La conversation a été supprimée définitivement.' 
-          : 'The conversation has been permanently deleted.',
+        title:
+          language === "fr" ? "Conversation supprimée" : "Conversation deleted",
+        description:
+          language === "fr"
+            ? "La conversation a été supprimée définitivement."
+            : "The conversation has been permanently deleted.",
       });
     } catch (error) {
       toast({
-        title: language === 'fr' ? 'Erreur' : 'Error',
-        description: language === 'fr' 
-          ? 'Impossible de supprimer la conversation.' 
-          : 'Failed to delete conversation.',
-        variant: 'destructive',
+        title: language === "fr" ? "Erreur" : "Error",
+        description:
+          language === "fr"
+            ? "Impossible de supprimer la conversation."
+            : "Failed to delete conversation.",
+        variant: "destructive",
       });
     } finally {
       setIsDeleting(false);
@@ -293,29 +308,30 @@ export function ConversationActions({
   onExport,
   inline = false,
   compact = false,
-  language = 'fr',
-  className
+  language = "fr",
+  className,
 }: ConversationActionsProps) {
   const [showRenameDialog, setShowRenameDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Text content based on language
   const text = {
-    resume: language === 'fr' ? 'Reprendre' : 'Resume',
-    rename: language === 'fr' ? 'Renommer' : 'Rename',
-    delete: language === 'fr' ? 'Supprimer' : 'Delete',
-    favorite: language === 'fr' ? 'Ajouter aux favoris' : 'Add to favorites',
-    unfavorite: language === 'fr' ? 'Retirer des favoris' : 'Remove from favorites',
-    archive: language === 'fr' ? 'Archiver' : 'Archive',
-    unarchive: language === 'fr' ? 'Désarchiver' : 'Unarchive',
-    viewPoll: language === 'fr' ? 'Voir le sondage' : 'View poll',
-    share: language === 'fr' ? 'Partager' : 'Share',
-    copy: language === 'fr' ? 'Copier le lien' : 'Copy link',
-    export: language === 'fr' ? 'Exporter' : 'Export',
-    exportJson: language === 'fr' ? 'Exporter en JSON' : 'Export as JSON',
-    exportTxt: language === 'fr' ? 'Exporter en texte' : 'Export as text',
-    exportPdf: language === 'fr' ? 'Exporter en PDF' : 'Export as PDF',
-    moreActions: language === 'fr' ? 'Plus d\'actions' : 'More actions',
+    resume: language === "fr" ? "Reprendre" : "Resume",
+    rename: language === "fr" ? "Renommer" : "Rename",
+    delete: language === "fr" ? "Supprimer" : "Delete",
+    favorite: language === "fr" ? "Ajouter aux favoris" : "Add to favorites",
+    unfavorite:
+      language === "fr" ? "Retirer des favoris" : "Remove from favorites",
+    archive: language === "fr" ? "Archiver" : "Archive",
+    unarchive: language === "fr" ? "Désarchiver" : "Unarchive",
+    viewPoll: language === "fr" ? "Voir le sondage" : "View poll",
+    share: language === "fr" ? "Partager" : "Share",
+    copy: language === "fr" ? "Copier le lien" : "Copy link",
+    export: language === "fr" ? "Exporter" : "Export",
+    exportJson: language === "fr" ? "Exporter en JSON" : "Export as JSON",
+    exportTxt: language === "fr" ? "Exporter en texte" : "Export as text",
+    exportPdf: language === "fr" ? "Exporter en PDF" : "Export as PDF",
+    moreActions: language === "fr" ? "Plus d'actions" : "More actions",
   };
 
   // Action handlers
@@ -323,10 +339,13 @@ export function ConversationActions({
     onResume?.(conversation.id);
   }, [onResume, conversation.id]);
 
-  const handleRename = useCallback((newTitle: string) => {
-    onRename?.(conversation.id, newTitle);
-    setShowRenameDialog(false);
-  }, [onRename, conversation.id]);
+  const handleRename = useCallback(
+    (newTitle: string) => {
+      onRename?.(conversation.id, newTitle);
+      setShowRenameDialog(false);
+    },
+    [onRename, conversation.id],
+  );
 
   const handleDelete = useCallback(() => {
     onDelete?.(conversation.id);
@@ -336,28 +355,44 @@ export function ConversationActions({
   const handleToggleFavorite = useCallback(() => {
     const newFavoriteStatus = !conversation.isFavorite;
     onToggleFavorite?.(conversation.id, newFavoriteStatus);
-    
+
     toast({
-      title: newFavoriteStatus 
-        ? (language === 'fr' ? 'Ajouté aux favoris' : 'Added to favorites')
-        : (language === 'fr' ? 'Retiré des favoris' : 'Removed from favorites'),
+      title: newFavoriteStatus
+        ? language === "fr"
+          ? "Ajouté aux favoris"
+          : "Added to favorites"
+        : language === "fr"
+          ? "Retiré des favoris"
+          : "Removed from favorites",
       description: newFavoriteStatus
-        ? (language === 'fr' ? 'Cette conversation est maintenant dans vos favoris.' : 'This conversation is now in your favorites.')
-        : (language === 'fr' ? 'Cette conversation a été retirée de vos favoris.' : 'This conversation has been removed from your favorites.'),
+        ? language === "fr"
+          ? "Cette conversation est maintenant dans vos favoris."
+          : "This conversation is now in your favorites."
+        : language === "fr"
+          ? "Cette conversation a été retirée de vos favoris."
+          : "This conversation has been removed from your favorites.",
     });
   }, [onToggleFavorite, conversation.id, conversation.isFavorite, language]);
 
   const handleToggleArchive = useCallback(() => {
-    const newArchivedStatus = conversation.status !== 'archived';
+    const newArchivedStatus = conversation.status !== "archived";
     onToggleArchive?.(conversation.id, newArchivedStatus);
-    
+
     toast({
-      title: newArchivedStatus 
-        ? (language === 'fr' ? 'Conversation archivée' : 'Conversation archived')
-        : (language === 'fr' ? 'Conversation désarchivée' : 'Conversation unarchived'),
+      title: newArchivedStatus
+        ? language === "fr"
+          ? "Conversation archivée"
+          : "Conversation archived"
+        : language === "fr"
+          ? "Conversation désarchivée"
+          : "Conversation unarchived",
       description: newArchivedStatus
-        ? (language === 'fr' ? 'Cette conversation a été archivée.' : 'This conversation has been archived.')
-        : (language === 'fr' ? 'Cette conversation a été désarchivée.' : 'This conversation has been unarchived.'),
+        ? language === "fr"
+          ? "Cette conversation a été archivée."
+          : "This conversation has been archived."
+        : language === "fr"
+          ? "Cette conversation a été désarchivée."
+          : "This conversation has been unarchived.",
     });
   }, [onToggleArchive, conversation.id, conversation.status, language]);
 
@@ -376,48 +411,54 @@ export function ConversationActions({
       const url = `${window.location.origin}/conversations/${conversation.id}`;
       await navigator.clipboard.writeText(url);
       toast({
-        title: language === 'fr' ? 'Lien copié' : 'Link copied',
-        description: language === 'fr' 
-          ? 'Le lien de la conversation a été copié dans le presse-papiers.' 
-          : 'The conversation link has been copied to clipboard.',
+        title: language === "fr" ? "Lien copié" : "Link copied",
+        description:
+          language === "fr"
+            ? "Le lien de la conversation a été copié dans le presse-papiers."
+            : "The conversation link has been copied to clipboard.",
       });
     } catch (error) {
       toast({
-        title: language === 'fr' ? 'Erreur' : 'Error',
-        description: language === 'fr' 
-          ? 'Impossible de copier le lien.' 
-          : 'Failed to copy link.',
-        variant: 'destructive',
+        title: language === "fr" ? "Erreur" : "Error",
+        description:
+          language === "fr"
+            ? "Impossible de copier le lien."
+            : "Failed to copy link.",
+        variant: "destructive",
       });
     }
   }, [conversation.id, language]);
 
-  const handleExport = useCallback((format: 'json' | 'txt' | 'pdf') => {
-    onExport?.(conversation.id, format);
-    toast({
-      title: language === 'fr' ? 'Export en cours' : 'Export started',
-      description: language === 'fr' 
-        ? `L'export de la conversation en ${format.toUpperCase()} a commencé.` 
-        : `Conversation export to ${format.toUpperCase()} has started.`,
-    });
-  }, [onExport, conversation.id, language]);
+  const handleExport = useCallback(
+    (format: "json" | "txt" | "pdf") => {
+      onExport?.(conversation.id, format);
+      toast({
+        title: language === "fr" ? "Export en cours" : "Export started",
+        description:
+          language === "fr"
+            ? `L'export de la conversation en ${format.toUpperCase()} a commencé.`
+            : `Conversation export to ${format.toUpperCase()} has started.`,
+      });
+    },
+    [onExport, conversation.id, language],
+  );
 
   // Primary actions (always visible)
   const primaryActions = [
     {
-      key: 'resume',
+      key: "resume",
       label: text.resume,
       icon: Play,
       onClick: handleResume,
-      variant: 'default' as const,
-      show: conversation.status !== 'archived',
+      variant: "default" as const,
+      show: conversation.status !== "archived",
     },
     {
-      key: 'favorite',
+      key: "favorite",
       label: conversation.isFavorite ? text.unfavorite : text.favorite,
       icon: conversation.isFavorite ? StarOff : Star,
       onClick: handleToggleFavorite,
-      variant: 'outline' as const,
+      variant: "outline" as const,
       show: true,
     },
   ];
@@ -425,63 +466,63 @@ export function ConversationActions({
   // Secondary actions (in dropdown)
   const secondaryActions = [
     {
-      key: 'rename',
+      key: "rename",
       label: text.rename,
       icon: Edit3,
       onClick: () => setShowRenameDialog(true),
       show: !compact,
     },
     {
-      key: 'archive',
-      label: conversation.status === 'archived' ? text.unarchive : text.archive,
-      icon: conversation.status === 'archived' ? ArchiveRestore : Archive,
+      key: "archive",
+      label: conversation.status === "archived" ? text.unarchive : text.archive,
+      icon: conversation.status === "archived" ? ArchiveRestore : Archive,
       onClick: handleToggleArchive,
       show: true,
     },
     {
-      key: 'viewPoll',
+      key: "viewPoll",
       label: text.viewPoll,
       icon: ExternalLink,
       onClick: handleViewPoll,
       show: Boolean(conversation.relatedPollId),
     },
     {
-      key: 'share',
+      key: "share",
       label: text.share,
       icon: Share2,
       onClick: handleShare,
       show: !compact && Boolean(onShare),
     },
     {
-      key: 'copyLink',
+      key: "copyLink",
       label: text.copy,
       icon: Copy,
       onClick: handleCopyLink,
       show: !compact,
     },
     {
-      key: 'exportJson',
+      key: "exportJson",
       label: text.exportJson,
       icon: Download,
-      onClick: () => handleExport('json'),
+      onClick: () => handleExport("json"),
       show: !compact && Boolean(onExport),
     },
     {
-      key: 'exportTxt',
+      key: "exportTxt",
       label: text.exportTxt,
       icon: Download,
-      onClick: () => handleExport('txt'),
+      onClick: () => handleExport("txt"),
       show: !compact && Boolean(onExport),
     },
     {
-      key: 'exportPdf',
+      key: "exportPdf",
       label: text.exportPdf,
       icon: Download,
-      onClick: () => handleExport('pdf'),
+      onClick: () => handleExport("pdf"),
       show: !compact && Boolean(onExport),
     },
     {
-      key: 'delete',
+      key: "delete",
       label: text.delete,
       icon: Trash2,
       onClick: () => setShowDeleteDialog(true),
@@ -495,8 +536,8 @@ export function ConversationActions({
     return (
       <div className={cn("flex items-center gap-2", className)}>
         {primaryActions
-          .filter(action => action.show)
-          .map(action => {
+          .filter((action) => action.show)
+          .map((action) => {
             const Icon = action.icon;
             return (
               <Button
@@ -511,7 +552,7 @@ export function ConversationActions({
               </Button>
             );
           })}
-        
+
         {/* Secondary actions dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -522,19 +563,21 @@ export function ConversationActions({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {secondaryActions
-              .filter(action => action.show)
+              .filter((action) => action.show)
               .map((action, index) => {
                 const Icon = action.icon;
-                const isLast = index === secondaryActions.filter(a => a.show).length - 1;
-                const needsSeparator = action.key === 'delete' || action.key === 'exportJson';
-                
+                const isLast =
+                  index === secondaryActions.filter((a) => a.show).length - 1;
+                const needsSeparator =
+                  action.key === "delete" || action.key === "exportJson";
+
                 return (
                   <React.Fragment key={action.key}>
                     {needsSeparator && <DropdownMenuSeparator />}
                     <DropdownMenuItem
                       onClick={action.onClick}
                       className={cn(
-                        action.destructive && "text-red-600 focus:text-red-600"
+                        action.destructive && "text-red-600 focus:text-red-600",
                       )}
                     >
                       <Icon className="mr-2 h-4 w-4" />
@@ -554,7 +597,7 @@ export function ConversationActions({
           onConfirm={handleRename}
           language={language}
         />
-        
+
         <DeleteDialog
           isOpen={showDeleteDialog}
           conversationTitle={conversation.title}
@@ -579,8 +622,8 @@ export function ConversationActions({
         <DropdownMenuContent align="end">
           {/* Primary actions */}
           {primaryActions
-            .filter(action => action.show)
-            .map(action => {
+            .filter((action) => action.show)
+            .map((action) => {
               const Icon = action.icon;
               return (
                 <DropdownMenuItem key={action.key} onClick={action.onClick}>
@@ -589,23 +632,24 @@ export function ConversationActions({
                 </DropdownMenuItem>
               );
             })}
-          
+
           <DropdownMenuSeparator />
-          
+
           {/* Secondary actions */}
           {secondaryActions
-            .filter(action => action.show)
+            .filter((action) => action.show)
             .map((action, index) => {
               const Icon = action.icon;
-              const needsSeparator = action.key === 'delete' || action.key === 'exportJson';
-              
+              const needsSeparator =
+                action.key === "delete" || action.key === "exportJson";
+
               return (
                 <React.Fragment key={action.key}>
                   {needsSeparator && <DropdownMenuSeparator />}
                   <DropdownMenuItem
                     onClick={action.onClick}
                     className={cn(
-                      action.destructive && "text-red-600 focus:text-red-600"
+                      action.destructive && "text-red-600 focus:text-red-600",
                     )}
                   >
                     <Icon className="mr-2 h-4 w-4" />
@@ -625,7 +669,7 @@ export function ConversationActions({
         onConfirm={handleRename}
         language={language}
       />
-      
+
       <DeleteDialog
         isOpen={showDeleteDialog}
         conversationTitle={conversation.title}

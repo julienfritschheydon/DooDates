@@ -3,9 +3,9 @@
  * DooDates - Freemium Quota Management System
  */
 
-import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useConversations } from './useConversations';
+import { useState, useCallback, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { useConversations } from "./useConversations";
 
 export interface QuotaLimits {
   conversations: number;
@@ -59,7 +59,9 @@ export const useFreemiumQuota = () => {
   const { user } = useAuth();
   const conversations = useConversations();
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authModalTrigger, setAuthModalTrigger] = useState<'conversation_limit' | 'poll_limit' | 'feature_locked' | 'storage_full'>('conversation_limit');
+  const [authModalTrigger, setAuthModalTrigger] = useState<
+    "conversation_limit" | "poll_limit" | "feature_locked" | "storage_full"
+  >("conversation_limit");
 
   const isAuthenticated = !!user;
   const limits = isAuthenticated ? AUTHENTICATED_LIMITS : GUEST_LIMITS;
@@ -69,41 +71,41 @@ export const useFreemiumQuota = () => {
     // Get conversation count from localStorage (dev implementation)
     let conversationCount = 0;
     try {
-      const storageData = localStorage.getItem('doodates_conversations');
+      const storageData = localStorage.getItem("doodates_conversations");
       if (storageData) {
         // Check if data is valid JSON before parsing
-        if (storageData.startsWith('{') || storageData.startsWith('[')) {
+        if (storageData.startsWith("{") || storageData.startsWith("[")) {
           const data = JSON.parse(storageData);
           conversationCount = Object.keys(data.conversations || {}).length;
         } else {
           // Data is corrupted, clear it
-          localStorage.removeItem('doodates_conversations');
+          localStorage.removeItem("doodates_conversations");
           conversationCount = 0;
         }
       }
     } catch (error) {
-      console.warn('Could not get conversation count:', error);
+      console.warn("Could not get conversation count:", error);
       // Clear corrupted data
-      localStorage.removeItem('doodates_conversations');
+      localStorage.removeItem("doodates_conversations");
       conversationCount = 0;
     }
-    
+
     // Estimate storage usage from localStorage
     let storageUsed = 0;
     try {
       const storage = JSON.stringify(localStorage);
       storageUsed = new Blob([storage]).size / (1024 * 1024); // Convert to MB
     } catch (error) {
-      console.warn('Could not calculate storage usage:', error);
+      console.warn("Could not calculate storage usage:", error);
     }
 
     // Get poll count from localStorage (dev implementation)
     let pollCount = 0;
     try {
-      const polls = JSON.parse(localStorage.getItem('dev-polls') || '[]');
+      const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
       pollCount = polls.length;
     } catch (error) {
-      console.warn('Could not get poll count:', error);
+      console.warn("Could not get poll count:", error);
     }
 
     return {
@@ -146,14 +148,21 @@ export const useFreemiumQuota = () => {
     return !status.polls.isAtLimit;
   }, [getQuotaStatus]);
 
-  const canUseFeature = useCallback((feature: string) => {
-    // Some features are locked for guest users
-    if (!isAuthenticated) {
-      const lockedFeatures = ['export', 'advanced_analytics', 'custom_branding'];
-      return !lockedFeatures.includes(feature);
-    }
-    return true;
-  }, [isAuthenticated]);
+  const canUseFeature = useCallback(
+    (feature: string) => {
+      // Some features are locked for guest users
+      if (!isAuthenticated) {
+        const lockedFeatures = [
+          "export",
+          "advanced_analytics",
+          "custom_branding",
+        ];
+        return !lockedFeatures.includes(feature);
+      }
+      return true;
+    },
+    [isAuthenticated],
+  );
 
   // Show authentication incentive modal
   const showAuthIncentive = useCallback((trigger: typeof authModalTrigger) => {
@@ -164,40 +173,52 @@ export const useFreemiumQuota = () => {
   // Check and enforce limits
   const checkConversationLimit = useCallback(() => {
     if (!canCreateConversation()) {
-      showAuthIncentive('conversation_limit');
+      showAuthIncentive("conversation_limit");
       return false;
     }
-    
+
     const status = getQuotaStatus();
     if (status.conversations.isNearLimit && !isAuthenticated) {
       // Show warning but allow action
-      console.warn(`Approaching conversation limit: ${status.conversations.used}/${status.conversations.limit}`);
+      console.warn(
+        `Approaching conversation limit: ${status.conversations.used}/${status.conversations.limit}`,
+      );
     }
-    
+
     return true;
-  }, [canCreateConversation, showAuthIncentive, getQuotaStatus, isAuthenticated]);
+  }, [
+    canCreateConversation,
+    showAuthIncentive,
+    getQuotaStatus,
+    isAuthenticated,
+  ]);
 
   const checkPollLimit = useCallback(() => {
     if (!canCreatePoll()) {
-      showAuthIncentive('poll_limit');
+      showAuthIncentive("poll_limit");
       return false;
     }
     return true;
   }, [canCreatePoll, showAuthIncentive]);
 
-  const checkFeatureAccess = useCallback((feature: string) => {
-    if (!canUseFeature(feature)) {
-      showAuthIncentive('feature_locked');
-      return false;
-    }
-    return true;
-  }, [canUseFeature, showAuthIncentive]);
+  const checkFeatureAccess = useCallback(
+    (feature: string) => {
+      if (!canUseFeature(feature)) {
+        showAuthIncentive("feature_locked");
+        return false;
+      }
+      return true;
+    },
+    [canUseFeature, showAuthIncentive],
+  );
 
   // Monitor storage usage
   useEffect(() => {
     const status = getQuotaStatus();
     if (status.storage.isNearLimit && !isAuthenticated) {
-      console.warn(`Storage usage high: ${status.storage.used.toFixed(1)}MB/${status.storage.limit}MB`);
+      console.warn(
+        `Storage usage high: ${status.storage.used.toFixed(1)}MB/${status.storage.limit}MB`,
+      );
     }
   }, [getQuotaStatus, isAuthenticated]);
 
@@ -225,7 +246,8 @@ export const useFreemiumQuota = () => {
     closeAuthModal: () => setShowAuthModal(false),
 
     // Utility functions
-    getRemainingConversations: () => Math.max(0, limits.conversations - calculateUsage().conversations),
+    getRemainingConversations: () =>
+      Math.max(0, limits.conversations - calculateUsage().conversations),
     getRemainingPolls: () => Math.max(0, limits.polls - calculateUsage().polls),
     getStoragePercentage: () => getQuotaStatus().storage.percentage,
   };
