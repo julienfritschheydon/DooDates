@@ -3,13 +3,13 @@
  * DooDates - Poll Deletion Cascade Tests
  */
 
-import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { usePollDeletionCascade } from '../usePollDeletionCascade';
-import { useConversations } from '../useConversations';
+import { renderHook, act } from "@testing-library/react";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { usePollDeletionCascade } from "../usePollDeletionCascade";
+import { useConversations } from "../useConversations";
 
 // Mock the useConversations hook
-vi.mock('../useConversations');
+vi.mock("../useConversations");
 const mockUseConversations = vi.mocked(useConversations);
 
 // Mock localStorage
@@ -18,11 +18,11 @@ const mockLocalStorage = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
 };
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: mockLocalStorage,
 });
 
-describe('usePollDeletionCascade', () => {
+describe("usePollDeletionCascade", () => {
   const mockUpdateConversation = {
     mutateAsync: vi.fn(),
     isLoading: false,
@@ -32,19 +32,19 @@ describe('usePollDeletionCascade', () => {
   const mockConversations = {
     conversations: [
       {
-        id: 'conv-1',
-        title: 'Test Conversation 1',
-        tags: ['poll:poll-1', 'other-tag'],
+        id: "conv-1",
+        title: "Test Conversation 1",
+        tags: ["poll:poll-1", "other-tag"],
       },
       {
-        id: 'conv-2',
-        title: 'Test Conversation 2',
-        tags: ['poll:poll-2'],
+        id: "conv-2",
+        title: "Test Conversation 2",
+        tags: ["poll:poll-2"],
       },
       {
-        id: 'conv-3',
-        title: 'Test Conversation 3',
-        tags: ['other-tag'],
+        id: "conv-3",
+        title: "Test Conversation 3",
+        tags: ["other-tag"],
       },
     ],
   };
@@ -58,122 +58,126 @@ describe('usePollDeletionCascade', () => {
 
     // Setup default localStorage polls
     mockLocalStorage.getItem.mockImplementation((key) => {
-      if (key === 'dev-polls') {
+      if (key === "dev-polls") {
         return JSON.stringify([
-          { id: 'poll-1', title: 'Poll 1' },
-          { id: 'poll-2', title: 'Poll 2' },
+          { id: "poll-1", title: "Poll 1" },
+          { id: "poll-2", title: "Poll 2" },
         ]);
       }
       return null;
     });
   });
 
-  describe('cleanupConversationLink', () => {
-    it('should remove poll links from conversations', async () => {
+  describe("cleanupConversationLink", () => {
+    it("should remove poll links from conversations", async () => {
       mockUpdateConversation.mutateAsync.mockResolvedValue({});
-      
+
       const { result } = renderHook(() => usePollDeletionCascade());
 
       await act(async () => {
-        const success = await result.current.cleanupConversationLink('poll-1');
+        const success = await result.current.cleanupConversationLink("poll-1");
         expect(success).toBe(true);
       });
 
       expect(mockUpdateConversation.mutateAsync).toHaveBeenCalledWith({
-        id: 'conv-1',
+        id: "conv-1",
         updates: {
-          tags: ['other-tag'],
+          tags: ["other-tag"],
         },
       });
     });
 
-    it('should handle cleanup errors gracefully', async () => {
-      mockUpdateConversation.mutateAsync.mockRejectedValue(new Error('Update failed'));
-      
+    it("should handle cleanup errors gracefully", async () => {
+      mockUpdateConversation.mutateAsync.mockRejectedValue(
+        new Error("Update failed"),
+      );
+
       const { result } = renderHook(() => usePollDeletionCascade());
 
       await act(async () => {
-        const success = await result.current.cleanupConversationLink('poll-1');
+        const success = await result.current.cleanupConversationLink("poll-1");
         expect(success).toBe(false);
       });
     });
   });
 
-  describe('deletePollWithCascade', () => {
-    it('should delete poll and cleanup conversation links', async () => {
+  describe("deletePollWithCascade", () => {
+    it("should delete poll and cleanup conversation links", async () => {
       mockUpdateConversation.mutateAsync.mockResolvedValue({});
-      
+
       const { result } = renderHook(() => usePollDeletionCascade());
 
       await act(async () => {
-        const result_deletion = await result.current.deletePollWithCascade('poll-1');
-        
+        const result_deletion =
+          await result.current.deletePollWithCascade("poll-1");
+
         expect(result_deletion.success).toBe(true);
         expect(result_deletion.conversationUpdated).toBe(true);
       });
 
       // Verify conversation was updated
       expect(mockUpdateConversation.mutateAsync).toHaveBeenCalledWith({
-        id: 'conv-1',
+        id: "conv-1",
         updates: {
-          tags: ['other-tag'],
+          tags: ["other-tag"],
         },
       });
 
       // Verify poll was removed from localStorage
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'dev-polls',
-        JSON.stringify([{ id: 'poll-2', title: 'Poll 2' }])
+        "dev-polls",
+        JSON.stringify([{ id: "poll-2", title: "Poll 2" }]),
       );
     });
 
-    it.skip('should handle poll deletion failure', async () => {
+    it.skip("should handle poll deletion failure", async () => {
       mockUpdateConversation.mutateAsync.mockResolvedValue({});
       mockLocalStorage.getItem.mockImplementation(() => {
-        throw new Error('Storage error');
+        throw new Error("Storage error");
       });
-      
+
       const { result } = renderHook(() => usePollDeletionCascade());
 
       await act(async () => {
-        const result_deletion = await result.current.deletePollWithCascade('poll-1');
-        
+        const result_deletion =
+          await result.current.deletePollWithCascade("poll-1");
+
         expect(result_deletion.success).toBe(false);
-        expect(result_deletion.error).toContain('Failed to delete poll');
+        expect(result_deletion.error).toContain("Failed to delete poll");
       });
     });
   });
 
-  describe('checkPollLinks', () => {
-    it('should identify conversations linked to a poll', () => {
+  describe("checkPollLinks", () => {
+    it("should identify conversations linked to a poll", () => {
       const { result } = renderHook(() => usePollDeletionCascade());
 
-      const linkInfo = result.current.checkPollLinks('poll-1');
-      
+      const linkInfo = result.current.checkPollLinks("poll-1");
+
       expect(linkInfo.hasLinks).toBe(true);
-      expect(linkInfo.linkedConversations).toEqual(['conv-1']);
+      expect(linkInfo.linkedConversations).toEqual(["conv-1"]);
     });
 
-    it('should return empty results for unlinked polls', () => {
+    it("should return empty results for unlinked polls", () => {
       const { result } = renderHook(() => usePollDeletionCascade());
 
-      const linkInfo = result.current.checkPollLinks('poll-nonexistent');
-      
+      const linkInfo = result.current.checkPollLinks("poll-nonexistent");
+
       expect(linkInfo.hasLinks).toBe(false);
       expect(linkInfo.linkedConversations).toEqual([]);
     });
   });
 
-  describe('getOrphanedLinks', () => {
-    it('should identify conversations with non-existent poll links', () => {
+  describe("getOrphanedLinks", () => {
+    it("should identify conversations with non-existent poll links", () => {
       // Add a conversation with a non-existent poll link
       const conversationsWithOrphan = {
         conversations: [
           ...mockConversations.conversations,
           {
-            id: 'conv-orphan',
-            title: 'Orphaned Conversation',
-            tags: ['poll:poll-deleted'],
+            id: "conv-orphan",
+            title: "Orphaned Conversation",
+            tags: ["poll:poll-deleted"],
           },
         ],
       };
@@ -186,10 +190,10 @@ describe('usePollDeletionCascade', () => {
       const { result } = renderHook(() => usePollDeletionCascade());
 
       const orphanedIds = result.current.getOrphanedLinks();
-      expect(orphanedIds).toContain('conv-orphan');
+      expect(orphanedIds).toContain("conv-orphan");
     });
 
-    it('should return empty array when no orphaned links exist', () => {
+    it("should return empty array when no orphaned links exist", () => {
       const { result } = renderHook(() => usePollDeletionCascade());
 
       const orphanedIds = result.current.getOrphanedLinks();
@@ -197,15 +201,15 @@ describe('usePollDeletionCascade', () => {
     });
   });
 
-  describe('cleanupOrphanedLinks', () => {
-    it('should clean up orphaned conversation links', async () => {
+  describe("cleanupOrphanedLinks", () => {
+    it("should clean up orphaned conversation links", async () => {
       // Setup conversation with orphaned link
       const conversationsWithOrphan = {
         conversations: [
           {
-            id: 'conv-orphan',
-            title: 'Orphaned Conversation',
-            tags: ['poll:poll-deleted', 'valid-tag'],
+            id: "conv-orphan",
+            title: "Orphaned Conversation",
+            tags: ["poll:poll-deleted", "valid-tag"],
           },
         ],
       };
@@ -216,7 +220,7 @@ describe('usePollDeletionCascade', () => {
       } as any);
 
       mockUpdateConversation.mutateAsync.mockResolvedValue({});
-      
+
       const { result } = renderHook(() => usePollDeletionCascade());
 
       await act(async () => {
@@ -225,20 +229,20 @@ describe('usePollDeletionCascade', () => {
       });
 
       expect(mockUpdateConversation.mutateAsync).toHaveBeenCalledWith({
-        id: 'conv-orphan',
+        id: "conv-orphan",
         updates: {
-          tags: ['valid-tag'],
+          tags: ["valid-tag"],
         },
       });
     });
 
-    it('should handle cleanup errors gracefully', async () => {
+    it("should handle cleanup errors gracefully", async () => {
       const conversationsWithOrphan = {
         conversations: [
           {
-            id: 'conv-orphan',
-            title: 'Orphaned Conversation',
-            tags: ['poll:poll-deleted'],
+            id: "conv-orphan",
+            title: "Orphaned Conversation",
+            tags: ["poll:poll-deleted"],
           },
         ],
       };
@@ -248,8 +252,10 @@ describe('usePollDeletionCascade', () => {
         updateConversation: mockUpdateConversation,
       } as any);
 
-      mockUpdateConversation.mutateAsync.mockRejectedValue(new Error('Update failed'));
-      
+      mockUpdateConversation.mutateAsync.mockRejectedValue(
+        new Error("Update failed"),
+      );
+
       const { result } = renderHook(() => usePollDeletionCascade());
 
       await act(async () => {
@@ -259,20 +265,21 @@ describe('usePollDeletionCascade', () => {
     });
   });
 
-  describe('integration scenarios', () => {
-    it('should handle complete poll deletion workflow', async () => {
+  describe("integration scenarios", () => {
+    it("should handle complete poll deletion workflow", async () => {
       mockUpdateConversation.mutateAsync.mockResolvedValue({});
-      
+
       const { result } = renderHook(() => usePollDeletionCascade());
 
       // Step 1: Check what conversations are linked
-      const linkInfo = result.current.checkPollLinks('poll-1');
+      const linkInfo = result.current.checkPollLinks("poll-1");
       expect(linkInfo.hasLinks).toBe(true);
-      expect(linkInfo.linkedConversations).toEqual(['conv-1']);
+      expect(linkInfo.linkedConversations).toEqual(["conv-1"]);
 
       // Step 2: Delete poll with cascade
       await act(async () => {
-        const deletionResult = await result.current.deletePollWithCascade('poll-1');
+        const deletionResult =
+          await result.current.deletePollWithCascade("poll-1");
         expect(deletionResult.success).toBe(true);
         expect(deletionResult.conversationUpdated).toBe(true);
       });
@@ -282,24 +289,24 @@ describe('usePollDeletionCascade', () => {
       expect(mockLocalStorage.setItem).toHaveBeenCalled();
     });
 
-    it('should handle orphaned link cleanup maintenance', async () => {
+    it("should handle orphaned link cleanup maintenance", async () => {
       // Setup scenario with orphaned links
       const conversationsWithOrphans = {
         conversations: [
           {
-            id: 'conv-1',
-            title: 'Valid Conversation',
-            tags: ['poll:poll-1'],
+            id: "conv-1",
+            title: "Valid Conversation",
+            tags: ["poll:poll-1"],
           },
           {
-            id: 'conv-orphan1',
-            title: 'Orphaned 1',
-            tags: ['poll:deleted-poll-1'],
+            id: "conv-orphan1",
+            title: "Orphaned 1",
+            tags: ["poll:deleted-poll-1"],
           },
           {
-            id: 'conv-orphan2',
-            title: 'Orphaned 2',
-            tags: ['poll:deleted-poll-2', 'other-tag'],
+            id: "conv-orphan2",
+            title: "Orphaned 2",
+            tags: ["poll:deleted-poll-2", "other-tag"],
           },
         ],
       };
@@ -310,12 +317,12 @@ describe('usePollDeletionCascade', () => {
       } as any);
 
       mockUpdateConversation.mutateAsync.mockResolvedValue({});
-      
+
       const { result } = renderHook(() => usePollDeletionCascade());
 
       // Step 1: Identify orphaned links
       const orphanedIds = result.current.getOrphanedLinks();
-      expect(orphanedIds).toEqual(['conv-orphan1', 'conv-orphan2']);
+      expect(orphanedIds).toEqual(["conv-orphan1", "conv-orphan2"]);
 
       // Step 2: Clean up orphaned links
       await act(async () => {
