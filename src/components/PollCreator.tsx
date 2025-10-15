@@ -31,16 +31,19 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { googleCalendar } from "../lib/google-calendar";
 import { UserMenu } from "./UserMenu";
-import { type PollSuggestion } from "../lib/gemini";
+import {
+  geminiService,
+  type PollSuggestion,
+  type DatePollSuggestion,
+} from "../lib/gemini";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { VoteGrid } from "@/components/voting/VoteGrid";
-import TopNav from "./TopNav";
 
 interface PollCreatorProps {
   onBack?: () => void;
   onOpenMenu?: () => void;
-  initialData?: PollSuggestion;
+  initialData?: DatePollSuggestion;
   withBackground?: boolean;
 }
 
@@ -91,7 +94,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         setCreatedPollSlug(result.poll.slug);
       }
     } catch (error) {
-      logger.error('Error creating poll', 'poll', error);
+      logger.error("Error creating poll", "poll", error);
     }
   };
   const toggleDate = (dateString: string) =>
@@ -258,7 +261,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           }
         }
       } catch (error) {
-        logger.error('Error loading poll data', 'poll', error);
+        logger.error("Error loading poll data", "poll", error);
       }
     };
 
@@ -278,6 +281,19 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const [timeSlotsByDate, setTimeSlotsByDate] = useState<
     Record<string, TimeSlot[]>
   >({});
+
+  // Initialize visible months on mount
+  useEffect(() => {
+    if (visibleMonths.length === 0) {
+      const today = new Date();
+      const months: Date[] = [];
+      for (let i = 0; i < 6; i++) {
+        const month = new Date(today.getFullYear(), today.getMonth() + i, 1);
+        months.push(month);
+      }
+      setVisibleMonths(months);
+    }
+  }, []);
 
   // Effet pour s'assurer que les dates sont bien initialisées
   useEffect(() => {
@@ -313,7 +329,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         setState((prev) => ({ ...prev, pollLinkCopied: false }));
       }, 3000);
     } catch (err) {
-      logger.error('Erreur lors de la copie', 'poll', err);
+      logger.error("Erreur lors de la copie", "poll", err);
     }
   };
 
@@ -335,6 +351,42 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   // Effet pour activer automatiquement les horaires si des créneaux sont présélectionnés
   useEffect(() => {
     if (!initialData?.timeSlots?.length) return;
+
+    // Convertir les timeSlots de Gemini en timeSlotsByDate
+    const convertedTimeSlots: Record<string, TimeSlot[]> = {};
+
+    initialData.timeSlots.forEach((slot) => {
+      // Parser start et end (format "HH:mm")
+      const [startHour, startMinute] = slot.start.split(":").map(Number);
+      const [endHour, endMinute] = slot.end.split(":").map(Number);
+
+      // Créneaux applicables à toutes les dates sélectionnées si slot.dates non spécifié
+      const applicableDates = slot.dates || initialData.dates || [];
+
+      applicableDates.forEach((dateStr) => {
+        if (!convertedTimeSlots[dateStr]) {
+          convertedTimeSlots[dateStr] = [];
+        }
+
+        // Ajouter le créneau de début
+        convertedTimeSlots[dateStr].push({
+          hour: startHour,
+          minute: startMinute,
+          enabled: true,
+        });
+
+        // Optionnel : Ajouter aussi le créneau de fin si différent
+        if (endHour !== startHour || endMinute !== startMinute) {
+          convertedTimeSlots[dateStr].push({
+            hour: endHour,
+            minute: endMinute,
+            enabled: true,
+          });
+        }
+      });
+    });
+
+    setTimeSlotsByDate(convertedTimeSlots);
 
     setState((prev) => ({
       ...prev,
@@ -358,7 +410,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   // Fonction pour gérer le clic sur le bouton principal
   const handleMainButtonClick = () => {
-    logger.debug('Clic bouton principal', 'poll', {
+    logger.debug("Clic bouton principal", "poll", {
       createdPollSlug,
       canFinalize: PollCreatorService.canFinalize(state),
       pollLoading,
@@ -372,18 +424,17 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     });
     if (createdPollSlug) {
       // Si le sondage est créé, rediriger vers le dashboard
-      logger.debug('Bouton après création: redirection dashboard', 'poll');
+      logger.debug("Bouton après création: redirection dashboard", "poll");
       handleBackToHome();
     } else {
       // Sinon, créer le sondage
-      logger.debug('Lancement de handleFinalize (création)', 'poll');
+      logger.debug("Lancement de handleFinalize (création)", "poll");
       handleFinalize();
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <TopNav />
       <div className="p-4 md:p-6 lg:p-8 xl:p-12">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 lg:p-8 xl:p-12">
@@ -506,13 +557,16 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   <div className="flex gap-3">
                     <button
                       onClick={() => {
-                        logger.debug('Bouton Horaires cliqué - toggle showTimeSlots', 'poll');
+                        logger.debug(
+                          "Bouton Horaires cliqué - toggle showTimeSlots",
+                          "poll",
+                        );
                         setState((prev) => {
                           const newState = {
                             ...prev,
                             showTimeSlots: !prev.showTimeSlots,
                           };
-                          logger.debug('État après clic', 'poll', {
+                          logger.debug("État après clic", "poll", {
                             selectedDates: prev.selectedDates.length,
                             showTimeSlots: newState.showTimeSlots,
                             conditionMet:

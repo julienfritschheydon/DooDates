@@ -13,7 +13,13 @@ import {
   StorageProvider,
   CONVERSATION_LIMITS,
 } from "../types/conversation";
-import { handleError, ErrorFactory, logError } from "../lib/error-handling";
+import {
+  handleError,
+  ErrorFactory,
+  logError,
+  ErrorSeverity,
+  ErrorCategory,
+} from "../lib/error-handling";
 
 /**
  * Storage mode detection result
@@ -80,7 +86,7 @@ export function useConversationStorage(
 
   // Storage instances
   const [localStorage] = useState(() => {
-    logger.debug('Using localStorage for guest user', 'conversation');
+    logger.debug("Using localStorage for guest user", "conversation");
     ConversationStorageLocal.initialize(true);
     return ConversationStorageLocal;
   });
@@ -200,15 +206,21 @@ export function useConversationStorage(
               throw new ConversationError(
                 `Cannot save messages: conversation ${conversationId} not found`,
                 "CONVERSATION_NOT_FOUND_BEFORE_MESSAGE_SAVE",
+                ErrorSeverity.HIGH,
+                ErrorCategory.STORAGE,
                 { conversationId },
               );
             }
 
-            logger.debug('Conversation verified before saving messages:', {
-              conversationId,
-              conversationTitle: conversation.title,
-              messageCount: messages.length,
-            });
+            logger.debug(
+              "Conversation verified before saving messages",
+              "conversation",
+              {
+                conversationId,
+                conversationTitle: conversation.title,
+                messageCount: messages.length,
+              },
+            );
 
             return ConversationStorageLocal.saveMessages(
               conversationId,
@@ -295,7 +307,11 @@ export function useConversationStorage(
         throw new ConversationError(
           "Failed to fetch conversations",
           "FETCH_ERROR",
-          { originalError: error, provider: storageMode.provider },
+          ErrorSeverity.MEDIUM,
+          ErrorCategory.STORAGE,
+          {
+            metadata: { originalError: error, provider: storageMode.provider },
+          },
         );
       }
     },
@@ -319,10 +335,14 @@ export function useConversationStorage(
             throw new ConversationError(
               `Failed to fetch conversation ${conversationId}`,
               "FETCH_ERROR",
+              ErrorSeverity.MEDIUM,
+              ErrorCategory.STORAGE,
               {
-                originalError: error,
-                provider: storageMode.provider,
                 conversationId,
+                metadata: {
+                  originalError: error,
+                  provider: storageMode.provider,
+                },
               },
             );
           }
@@ -356,10 +376,14 @@ export function useConversationStorage(
             throw new ConversationError(
               `Failed to fetch messages for conversation ${conversationId}`,
               "FETCH_ERROR",
+              ErrorSeverity.MEDIUM,
+              ErrorCategory.STORAGE,
               {
-                originalError: error,
-                provider: storageMode.provider,
                 conversationId,
+                metadata: {
+                  originalError: error,
+                  provider: storageMode.provider,
+                },
               },
             );
           }
@@ -389,9 +413,11 @@ export function useConversationStorage(
       // Check quota before creating
       if (storageMode.quotaInfo.isAtLimit) {
         throw new ConversationError(
-          "Quota de conversations atteint",
+          "Quota de conversations dépassé",
           "QUOTA_EXCEEDED",
-          { quotaInfo: storageMode.quotaInfo },
+          ErrorSeverity.HIGH,
+          ErrorCategory.STORAGE,
+          { metadata: { quotaInfo: storageMode.quotaInfo } },
         );
       }
 
@@ -402,7 +428,11 @@ export function useConversationStorage(
         throw new ConversationError(
           "Failed to create conversation",
           "CREATE_ERROR",
-          { originalError: error, provider: storageMode.provider },
+          ErrorSeverity.HIGH,
+          ErrorCategory.STORAGE,
+          {
+            metadata: { originalError: error, provider: storageMode.provider },
+          },
         );
       }
     },
@@ -439,10 +469,11 @@ export function useConversationStorage(
         throw new ConversationError(
           `Failed to update conversation ${id}`,
           "UPDATE_ERROR",
+          ErrorSeverity.HIGH,
+          ErrorCategory.STORAGE,
           {
-            originalError: error,
-            provider: storageMode.provider,
             conversationId: id,
+            metadata: { originalError: error, provider: storageMode.provider },
           },
         );
       }
@@ -479,10 +510,11 @@ export function useConversationStorage(
         throw new ConversationError(
           `Failed to delete conversation ${conversationId}`,
           "DELETE_ERROR",
+          ErrorSeverity.HIGH,
+          ErrorCategory.STORAGE,
           {
-            originalError: error,
-            provider: storageMode.provider,
             conversationId,
+            metadata: { originalError: error, provider: storageMode.provider },
           },
         );
       }
@@ -558,7 +590,9 @@ export function useConversationStorage(
         throw new ConversationError(
           `Failed to add message to conversation ${conversationId}`,
           "CREATE_ERROR",
-          processedError,
+          ErrorSeverity.HIGH,
+          ErrorCategory.STORAGE,
+          { conversationId, metadata: { originalError: processedError } },
         );
       }
     },
@@ -574,7 +608,11 @@ export function useConversationStorage(
         throw new ConversationError(
           "Failed to clear all data",
           "DELETE_ERROR",
-          { originalError: error, provider: storageMode.provider },
+          ErrorSeverity.HIGH,
+          ErrorCategory.STORAGE,
+          {
+            metadata: { originalError: error, provider: storageMode.provider },
+          },
         );
       }
     },
@@ -619,7 +657,9 @@ export function useConversationStorage(
         throw new ConversationError(
           "Supabase storage not available",
           "CONFIGURATION_ERROR",
-          { provider },
+          ErrorSeverity.HIGH,
+          ErrorCategory.SYSTEM,
+          { metadata: { provider } },
         );
       }
 

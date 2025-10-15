@@ -12,7 +12,7 @@ export function UserMenu() {
   }
 
   const handleSignOut = async () => {
-    logger.info('Début de la déconnexion', 'auth');
+    logger.info("Début de la déconnexion", "auth");
 
     try {
       // Timeout pour éviter les blocages
@@ -27,13 +27,13 @@ export function UserMenu() {
       ])) as any;
 
       if (error) {
-        logger.error('Erreur de déconnexion', 'auth', error);
+        logger.error("Erreur de déconnexion", "auth", error);
         // Forcer la déconnexion locale même en cas d'erreur
         localStorage.clear();
         sessionStorage.clear();
         window.location.href = "/";
       } else {
-        logger.info('Déconnexion réussie', 'auth');
+        logger.info("Déconnexion réussie", "auth");
         // Nettoyer le stockage local
         localStorage.clear();
         sessionStorage.clear();
@@ -41,8 +41,8 @@ export function UserMenu() {
         window.location.href = "/";
       }
     } catch (err) {
-      logger.error('Erreur lors de la déconnexion', 'auth', err);
-      logger.warn('Forçage de la déconnexion locale', 'auth');
+      logger.error("Erreur lors de la déconnexion", "auth", err);
+      logger.warn("Forçage de la déconnexion locale", "auth");
 
       // En cas d'erreur, forcer la déconnexion côté client
       localStorage.clear();

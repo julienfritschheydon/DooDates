@@ -7,23 +7,22 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ConversationHeader } from "../ConversationHeader";
 import type { Conversation } from "../../../types/conversation";
+import { createMockConversation as createBaseConversation } from "../../../__tests__/helpers/testHelpers";
 
-// Mock data
+// Mock data - using helper
 const createMockConversation = (
   overrides: Partial<Conversation> = {},
-): Conversation => ({
-  id: "conv-1",
-  title: "Test Conversation",
-  status: "active",
-  createdAt: new Date("2024-01-15T10:00:00Z"),
-  updatedAt: new Date("2024-01-15T14:30:00Z"),
-  firstMessage: "Hello, this is the first message",
-  messageCount: 5,
-  isFavorite: false,
-  tags: [],
-  relatedPollId: undefined,
-  ...overrides,
-});
+): Conversation =>
+  createBaseConversation({
+    id: "conv-1",
+    title: "Test Conversation",
+    createdAt: new Date("2024-01-15T10:00:00Z"),
+    updatedAt: new Date("2024-01-15T14:30:00Z"),
+    firstMessage: "Hello, this is the first message",
+    messageCount: 5,
+    relatedPollId: undefined,
+    ...overrides,
+  });
 
 describe("ConversationHeader", () => {
   const defaultProps = {

@@ -22,19 +22,16 @@ Object.assign(navigator, {
   },
 });
 
+import { createMockConversation } from "../../../__tests__/helpers/testHelpers";
+
 describe("ConversationActions", () => {
-  const mockConversation: Conversation = {
+  const mockConversation: Conversation = createMockConversation({
     id: "conv-1",
     title: "Test Conversation",
-    status: "active",
-    isFavorite: false,
-    createdAt: new Date("2024-01-01"),
-    updatedAt: new Date("2024-01-02"),
     firstMessage: "This is the first message preview",
     messageCount: 0,
-    tags: [],
     relatedPollId: "poll-1",
-  };
+  });
 
   const mockCallbacks = {
     onResume: vi.fn(),

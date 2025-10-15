@@ -21,20 +21,20 @@ import {
 } from "../titleGeneration";
 
 import type { ConversationMessage } from "../../../types/conversation";
+import { createMockMessage } from "../../../__tests__/helpers/testHelpers";
 
-// Helper to create test messages
+// Helper to create test messages - using helper
 function createMessage(
   role: "user" | "assistant",
   content: string,
   id: string = `msg-${Date.now()}-${Math.random()}`,
 ): ConversationMessage {
-  return {
+  return createMockMessage({
     id,
     conversationId: "test-conv",
     role,
     content,
-    timestamp: new Date(),
-  };
+  });
 }
 
 describe("titleGeneration", () => {

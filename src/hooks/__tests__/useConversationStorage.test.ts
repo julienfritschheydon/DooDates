@@ -138,28 +138,22 @@ vi.mock("../../services/ConversationMigrationService", () => ({
   migrateConversations: vi.fn().mockResolvedValue({ success: true }),
 }));
 
+import {
+  createMockUser,
+  createMockConversation,
+  createMockMessage,
+  createQueryWrapper,
+  createTestQueryClient,
+} from "../../__tests__/helpers/testHelpers";
+
 describe("useConversationStorage", () => {
   let queryClient: QueryClient;
 
-  const mockUser: User = {
-    id: "test-user-id",
-    email: "test@example.com",
-    app_metadata: {},
-    user_metadata: {},
-    aud: "authenticated",
-    created_at: "2024-01-01T00:00:00Z",
-  };
-
-  const mockConversation: Conversation = {
+  const mockUser = createMockUser();
+  const mockConversation = createMockConversation({
     id: "123e4567-e89b-12d3-a456-426614174000",
-    title: "Test Conversation",
-    status: "active",
-    createdAt: new Date("2024-01-01T10:00:00Z"),
-    updatedAt: new Date("2024-01-01T10:00:00Z"),
     firstMessage: "Hello, this is a test message",
     messageCount: 1,
-    isFavorite: false,
-    tags: ["test"],
     metadata: {
       pollGenerated: false,
       errorOccurred: false,
@@ -167,37 +161,19 @@ describe("useConversationStorage", () => {
       language: "fr" as const,
       userAgent: "test-agent",
     },
-  };
+  });
 
-  const mockMessage: ConversationMessage = {
+  const mockMessage = createMockMessage({
     id: "123e4567-e89b-12d3-a456-426614174001",
     conversationId: "123e4567-e89b-12d3-a456-426614174000",
-    role: "user",
     content: "Hello, this is a test message",
-    timestamp: new Date("2024-01-01T10:00:00Z"),
     metadata: {
       pollGenerated: false,
       errorOccurred: false,
       processingTime: 100,
       tokenCount: 10,
     },
-  };
-
-  const createWrapper = () => {
-    const queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false },
-        mutations: { retry: false },
-      },
-    });
-
-    return ({ children }: { children: React.ReactNode }) =>
-      React.createElement(
-        QueryClientProvider,
-        { client: queryClient },
-        children,
-      );
-  };
+  });
 
   beforeEach(() => {
     queryClient = new QueryClient({
@@ -227,7 +203,9 @@ describe("useConversationStorage", () => {
     // Mock ConversationStorageLocal methods
     vi.mocked(ConversationStorageLocal.getConversations).mockResolvedValue([]);
     vi.mocked(ConversationStorageLocal.getConversation).mockResolvedValue(null);
-    vi.mocked(ConversationStorageLocal.createConversation).mockResolvedValue(mockConversation);
+    vi.mocked(ConversationStorageLocal.createConversation).mockResolvedValue(
+      mockConversation,
+    );
     vi.mocked(ConversationStorageLocal.deleteConversation).mockResolvedValue();
     vi.mocked(ConversationStorageLocal.exportForMigration).mockReturnValue({
       conversations: [],
@@ -238,7 +216,7 @@ describe("useConversationStorage", () => {
   describe("Basic Hook Functionality", () => {
     it("should initialize correctly with default options", async () => {
       const { result } = renderHook(() => useConversationStorage(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await waitFor(() => {
@@ -253,7 +231,7 @@ describe("useConversationStorage", () => {
 
     it("should detect guest mode when user is not authenticated", async () => {
       const { result } = renderHook(() => useConversationStorage(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await waitFor(() => {
@@ -285,7 +263,7 @@ describe("useConversationStorage", () => {
             supabaseKey: "test-key",
           }),
         {
-          wrapper: createWrapper(),
+          wrapper: createQueryWrapper(),
         },
       );
 
@@ -300,10 +278,12 @@ describe("useConversationStorage", () => {
   describe("Data Operations", () => {
     it("should fetch conversations successfully", async () => {
       const mockConversations = [mockConversation];
-      vi.mocked(ConversationStorageLocal.getConversations).mockResolvedValue(mockConversations);
+      vi.mocked(ConversationStorageLocal.getConversations).mockResolvedValue(
+        mockConversations,
+      );
 
       const { result } = renderHook(() => useConversationStorage(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await waitFor(() => {
@@ -314,11 +294,13 @@ describe("useConversationStorage", () => {
     });
 
     it("should create conversation successfully", async () => {
-      const newConv = { ...mockConversation, title: 'New Conversation' };
-      vi.mocked(ConversationStorageLocal.createConversation).mockResolvedValue(newConv);
+      const newConv = { ...mockConversation, title: "New Conversation" };
+      vi.mocked(ConversationStorageLocal.createConversation).mockResolvedValue(
+        newConv,
+      );
 
       const { result } = renderHook(() => useConversationStorage(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await waitFor(() => {
@@ -327,10 +309,10 @@ describe("useConversationStorage", () => {
 
       act(() => {
         result.current.createConversation.mutate({
-          title: 'New Conversation',
-          userId: 'test-user',
-          status: 'active',
-          firstMessage: 'Hello',
+          title: "New Conversation",
+          userId: "test-user",
+          status: "active",
+          firstMessage: "Hello",
           messageCount: 0,
           isFavorite: false,
           tags: [],
@@ -343,17 +325,19 @@ describe("useConversationStorage", () => {
     });
 
     it("should update conversation successfully", async () => {
-      const updatedConv = { ...mockConversation, title: 'Updated' };
-      vi.mocked(ConversationStorageLocal.getConversation).mockResolvedValue(updatedConv);
+      const updatedConv = { ...mockConversation, title: "Updated" };
+      vi.mocked(ConversationStorageLocal.getConversation).mockResolvedValue(
+        updatedConv,
+      );
 
       const { result } = renderHook(() => useConversationStorage(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       act(() => {
         result.current.updateConversation.mutate({
           id: mockConversation.id,
-          updates: { title: 'Updated' },
+          updates: { title: "Updated" },
         });
       });
 
@@ -363,10 +347,12 @@ describe("useConversationStorage", () => {
     });
 
     it("should delete conversation successfully", async () => {
-      vi.mocked(ConversationStorageLocal.deleteConversation).mockResolvedValue();
+      vi.mocked(
+        ConversationStorageLocal.deleteConversation,
+      ).mockResolvedValue();
 
       const { result } = renderHook(() => useConversationStorage(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       act(() => {
@@ -380,15 +366,15 @@ describe("useConversationStorage", () => {
 
     it("should add message successfully", async () => {
       const message: ConversationMessage = {
-        id: 'msg-1',
+        id: "msg-1",
         conversationId: mockConversation.id,
-        role: 'user',
-        content: 'Test message',
+        role: "user",
+        content: "Test message",
         timestamp: new Date(),
       };
 
       const { result } = renderHook(() => useConversationStorage(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       act(() => {
@@ -421,14 +407,17 @@ describe("useConversationStorage", () => {
         refreshProfile: vi.fn(),
       });
 
-      const mockConversations = [mockConversation, { ...mockConversation, id: 'conv-2' }];
+      const mockConversations = [
+        mockConversation,
+        { ...mockConversation, id: "conv-2" },
+      ];
       vi.mocked(ConversationStorageLocal.exportForMigration).mockReturnValue({
         conversations: mockConversations,
         messages: {},
       });
 
       const { result } = renderHook(() => useConversationStorage(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await waitFor(() => {
@@ -452,7 +441,7 @@ describe("useConversationStorage", () => {
       });
 
       const { result } = renderHook(() => useConversationStorage(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await waitFor(() => {
@@ -468,7 +457,7 @@ describe("useConversationStorage", () => {
   describe("Error Handling", () => {
     it("should provide error handling structure", async () => {
       const { result } = renderHook(() => useConversationStorage(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       // Test that error handling properties exist
@@ -495,7 +484,7 @@ describe("useConversationStorage", () => {
           return { storage, conversation };
         },
         {
-          wrapper: createWrapper(),
+          wrapper: createQueryWrapper(),
         },
       );
 
@@ -517,7 +506,7 @@ describe("useConversationStorage", () => {
           return { storage, messages };
         },
         {
-          wrapper: createWrapper(),
+          wrapper: createQueryWrapper(),
         },
       );
 

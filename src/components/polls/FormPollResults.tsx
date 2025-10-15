@@ -86,7 +86,9 @@ export default function FormPollResults({ idOrSlug }: Props) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <TopNav />
+        <div className="pt-20">
         <ResultsLoading label="Chargement des résultats..." />
+        </div>
       </div>
     );
   }
@@ -95,8 +97,10 @@ export default function FormPollResults({ idOrSlug }: Props) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <TopNav />
+        <div className="pt-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <ResultsEmpty message={<>Sondage formulaire introuvable.</>} />
+        </div>
         </div>
       </div>
     );
@@ -107,6 +111,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <TopNav />
+      <div className="pt-20">
       <ResultsLayout
         title={`Résultats : ${poll.title}`}
         subtitle={
@@ -304,6 +309,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
           </div>
         )}
       </ResultsLayout>
+      </div>
     </div>
   );
 }

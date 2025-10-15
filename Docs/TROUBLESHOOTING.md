@@ -1,8 +1,71 @@
 # Guide de Dépannage DooDates
 
-**Dernière mise à jour : 23 Juin 2025**
+**Dernière mise à jour : 15 Octobre 2025**
 
 ## 🚨 Problèmes Critiques et Solutions
+
+### NOUVEAU - Menu Sticky Disparaît au Scroll (15/10/2025) ✅ RÉSOLU
+
+**Symptôme :**
+Le TopNav (menu principal avec logo + boutons) disparaît lors du scroll dans les pages, notamment sur la page de chat/accueil.
+
+**Cause :**
+Le positionnement `sticky` ne fonctionne pas correctement dans un contexte de scroll complexe avec `overflow-y-auto` dans les composants enfants. Le scroll interne empêche le sticky de fonctionner.
+
+**Solution Appliquée :**
+
+#### 1. TopNav en `fixed` (au lieu de `sticky`)
+```tsx
+// src/components/TopNav.tsx
+<nav className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b...">
+```
+
+#### 2. Padding-top sur TOUTES les pages (80px pour compenser le menu fixe)
+
+**Pages modifiées :**
+- `src/pages/Index.tsx` - Page chat/accueil
+- `src/pages/Vote.tsx` - Page de vote
+- `src/pages/Results.tsx` - Page résultats
+- `src/pages/PollCreator.tsx` - Créateur de sondage
+- `src/pages/FormCreator.tsx` - Créateur de formulaire
+- `src/pages/CreateChooser.tsx` - Choix du type de sondage
+- `src/components/Dashboard.tsx` - Tableau de bord
+- `src/components/polls/FormPollResults.tsx` - Résultats formulaire
+
+**Pattern appliqué partout :**
+```tsx
+<div className="min-h-screen bg-gray-50">
+  <TopNav />
+  <div className="pt-20">  {/* 80px padding-top */}
+    {/* Contenu de la page */}
+  </div>
+</div>
+```
+
+#### 3. Header Chat sticky sous le TopNav
+
+```tsx
+// src/components/GeminiChatInterface.tsx
+<div className="sticky top-[80px] z-40 bg-white border-b...">
+  {/* IA connectée + Conversations + Nouveau chat */}
+</div>
+```
+
+**Hiérarchie Z-index :**
+- TopNav : `z-50` (tout en haut)
+- Header Chat : `z-40` (sous le TopNav mais au-dessus du contenu)
+
+**Résultat :**
+ Le menu reste **TOUJOURS** visible en haut de page, peu importe le scroll  
+ Le header chat reste collé sous le TopNav sur la page d'accueil  
+ Fonctionne sur toutes les pages (mobile et desktop)
+
+**Fichiers modifiés :**
+- `src/components/TopNav.tsx` : `fixed` au lieu de `sticky`
+- `src/components/GeminiChatInterface.tsx` : Header sticky + retrait `overflow-y-auto`
+- 8 fichiers de pages : Ajout `pt-20` pour compenser le TopNav fixe
+
+---
 
 ### NOUVEAU - Erreur 401 RLS et Client Supabase Timeout
 

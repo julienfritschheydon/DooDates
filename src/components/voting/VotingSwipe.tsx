@@ -125,13 +125,16 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
   };
 
   const handleSubmit = async (voterInfo: VoterInfo) => {
-    logger.debug('VotingSwipe handleSubmit appelé', 'vote', { voterName: voterInfo.name, votesCount: Object.keys(votes).length });
+    logger.debug("VotingSwipe handleSubmit appelé", "vote", {
+      voterName: voterInfo.name,
+      votesCount: Object.keys(votes).length,
+    });
     setVoterInfoData(voterInfo);
 
     // Vérifier qu'il y a des votes à soumettre
     const hasVotesToSubmit = Object.keys(votes).length > 0;
     if (!hasVotesToSubmit) {
-      logger.warn('Aucun vote à soumettre', 'vote');
+      logger.warn("Aucun vote à soumettre", "vote");
       setFormErrors({
         general: "Veuillez voter sur au moins une option avant de soumettre.",
       });
@@ -224,7 +227,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
               userHasVoted={userHasVoted[option.id]}
               currentSwipe={currentSwipe[option.id]}
               handleVote={(optionId: string, voteType: VoteType) => {
-                logger.debug('Vote cliqué', 'vote', { optionId, voteType });
+                logger.debug("Vote cliqué", "vote", { optionId, voteType });
                 handleVote(optionId, voteType);
               }}
               handleSwipe={(optionId: string, direction: number) => {

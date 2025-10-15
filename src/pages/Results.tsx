@@ -81,7 +81,9 @@ const Results: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <TopNav />
+        <div className="pt-20">
         <ResultsLoading label="Chargement des résultats..." />
+        </div>
       </div>
     );
   }
@@ -90,6 +92,7 @@ const Results: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <TopNav />
+        <div className="pt-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <ResultsEmpty
             message={<>Sondage introuvable.</>}
@@ -103,6 +106,7 @@ const Results: React.FC = () => {
               </button>
             }
           />
+        </div>
         </div>
       </div>
     );
@@ -137,6 +141,7 @@ const Results: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <TopNav />
+      <div className="pt-20">
       <ResultsLayout
         title={`Résultats : ${poll.title}`}
         subtitle={
@@ -407,6 +412,7 @@ const Results: React.FC = () => {
           </div>
         )}
       </ResultsLayout>
+      </div>
     </div>
   );
 };

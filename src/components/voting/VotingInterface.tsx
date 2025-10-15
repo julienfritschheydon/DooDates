@@ -25,7 +25,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
   const { poll, options, votes, loading, error, totalVotes } =
     useVoting(pollId);
 
-  logger.debug('VotingInterface - État', 'vote', {
+  logger.debug("VotingInterface - État", "vote", {
     pollId,
     optionsCount: options?.length,
     votesCount: votes?.length,
@@ -146,7 +146,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
             onBack={() => (isAdmin ? setShowResults(true) : onBack && onBack())}
             onVoteSubmitted={() => {
               // Optionnel: action à effectuer après soumission du vote
-              logger.info('Vote soumis', 'vote');
+              logger.info("Vote soumis", "vote");
             }}
           />
         )}

@@ -56,7 +56,7 @@ export const useVoting = (pollSlug: string) => {
 
     try {
       // Mode développement local - récupération depuis localStorage
-      logger.debug('Recherche du sondage', 'vote', { pollSlug });
+      logger.debug("Recherche du sondage", "vote", { pollSlug });
       const localPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
 
       const pollData = localPolls.find((p: Poll) => p.slug === pollSlug);
@@ -74,10 +74,10 @@ export const useVoting = (pollSlug: string) => {
         throw notFoundError;
       }
 
-      logger.info('Sondage trouvé', 'vote', { 
-        pollId: pollData.id, 
+      logger.info("Sondage trouvé", "vote", {
+        pollId: pollData.id,
         pollTitle: pollData.title,
-        settings: pollData.settings 
+        settings: pollData.settings,
       });
       setPoll(pollData);
       setRealPollId(pollData.id);
@@ -109,7 +109,9 @@ export const useVoting = (pollSlug: string) => {
         }),
       );
 
-      logger.debug('Options créées', 'vote', { optionsCount: mockOptions.length });
+      logger.debug("Options créées", "vote", {
+        optionsCount: mockOptions.length,
+      });
       setOptions(mockOptions);
 
       // Initialiser les votes par défaut
@@ -263,7 +265,7 @@ export const useVoting = (pollSlug: string) => {
     setError(null);
 
     try {
-      logger.debug('Soumission du vote en mode local', 'vote', {
+      logger.debug("Soumission du vote en mode local", "vote", {
         pollId: realPollId,
         voterName: voterInfo.name,
         votesCount: Object.keys(currentVote).length,
@@ -320,11 +322,13 @@ export const useVoting = (pollSlug: string) => {
           ...voteData,
           voter_email: originalEmail, // Conserver l'email original pour éviter les doublons
         };
-        logger.info('Vote mis à jour', 'vote', { voterEmail: originalEmail });
+        logger.info("Vote mis à jour", "vote", { voterEmail: originalEmail });
       } else {
         // Ajouter un nouveau vote
         existingVotes.push(voteData);
-        logger.info('Nouveau vote ajouté', 'vote', { voterEmail: voteData.voter_email });
+        logger.info("Nouveau vote ajouté", "vote", {
+          voterEmail: voteData.voter_email,
+        });
       }
 
       // Sauvegarder dans localStorage

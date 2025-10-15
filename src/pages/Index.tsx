@@ -46,7 +46,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <TopNav />
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-4xl mx-auto pt-20">
         <ChatInterface />
       </div>
     </div>

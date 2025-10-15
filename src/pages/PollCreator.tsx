@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import PollCreatorComponent from "@/components/PollCreator";
 import FormPollCreator, {
   type FormPollDraft,
+  type AnyFormQuestion,
 } from "@/components/polls/FormPollCreator";
 import TopNav from "../components/TopNav";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -9,6 +10,7 @@ import {
   getAllPolls,
   savePolls,
   type Poll as StoragePoll,
+  type FormQuestionShape,
 } from "@/lib/pollStorage";
 
 const PollCreator = () => {
@@ -17,6 +19,22 @@ const PollCreator = () => {
   const params = new URLSearchParams(location.search);
   const isForm = (params.get("type") || "").toLowerCase() === "form";
   const draftIdParam = params.get("draftId") || undefined;
+
+  // Helper to convert AnyFormQuestion to FormQuestionShape
+  const convertToFormQuestionShape = (
+    questions: AnyFormQuestion[]
+  ): FormQuestionShape[] => {
+    return questions.map((q) => ({
+      id: q.id,
+      kind: q.type, // Map 'type' to 'kind'
+      title: q.title,
+      required: q.required,
+      options: (q as any).options,
+      maxChoices: (q as any).maxChoices,
+      placeholder: (q as any).placeholder,
+      maxLength: (q as any).maxLength,
+    }));
+  };
 
   const upsertFormPollFromDraft = (
     draft: FormPollDraft,
@@ -37,7 +55,7 @@ const PollCreator = () => {
         ...existing,
         title: draft.title.trim(),
         type: "form",
-        questions: draft.questions,
+        questions: convertToFormQuestionShape(draft.questions),
         status: targetStatus || existing.status || "draft",
         updated_at: now,
       };
@@ -48,6 +66,7 @@ const PollCreator = () => {
 
     const created: StoragePoll = {
       id: draft.id, // réutiliser l'id du brouillon comme id local
+      creator_id: "anonymous",
       title: draft.title.trim() || "Sans titre",
       slug: mkSlug(),
       created_at: now,
@@ -55,7 +74,8 @@ const PollCreator = () => {
       description: undefined,
       status: targetStatus || "draft",
       type: "form",
-      questions: draft.questions,
+      dates: [],
+      questions: convertToFormQuestionShape(draft.questions),
     };
     all.push(created);
     savePolls(all);
@@ -92,7 +112,7 @@ const PollCreator = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <TopNav />
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-4xl mx-auto pt-20">
         {isForm ? (
           <FormPollCreator
             initialDraft={latestFormDraft}

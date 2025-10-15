@@ -154,7 +154,9 @@ export default function FormPollCreator({
       status,
       updated_at: now,
       type: "form",
-      questions: draft.questions,
+      creator_id: "",
+      dates: [],
+      questions: draft.questions.map((q) => ({ ...q, kind: q.type })),
     };
     if (existingIdx >= 0) {
       all[existingIdx] = base;
@@ -173,7 +175,7 @@ export default function FormPollCreator({
       try {
         upsertFormPoll(currentDraft, "draft");
       } catch (e) {
-        logger.warn('Autosave form poll failed', 'poll', e);
+        logger.warn("Autosave form poll failed", "poll", e);
       }
     }, 800);
     return () => {
@@ -225,7 +227,7 @@ export default function FormPollCreator({
     }
     const saved = upsertFormPoll(draft, "draft");
     if (onSave) onSave(draft);
-    logger.info('FormPoll draft enregistré', 'poll', { pollId: saved.id });
+    logger.info("FormPoll draft enregistré", "poll", { pollId: saved.id });
   };
 
   const handleFinalize = () => {
@@ -237,7 +239,7 @@ export default function FormPollCreator({
     }
     const saved = upsertFormPoll(draft, "active");
     if (onFinalize) onFinalize(draft);
-    logger.info('FormPoll finalisé', 'poll', { pollId: saved.id });
+    logger.info("FormPoll finalisé", "poll", { pollId: saved.id });
   };
 
   return (

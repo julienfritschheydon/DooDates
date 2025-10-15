@@ -4,12 +4,15 @@
  */
 
 import { renderHook, act } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React, { ReactNode } from "react";
 import { useConversations } from "../useConversations";
 import * as ConversationStorage from "../../lib/storage/ConversationStorageSimple";
 import { useAuth } from "../../contexts/AuthContext";
 import { Conversation } from "../../types/conversation";
+import {
+  createQueryWrapper,
+  createMockConversation as createBaseConversation,
+  createMockUser,
+} from "../../__tests__/helpers/testHelpers";
 
 // Mock dependencies
 vi.mock("../../lib/storage/ConversationStorageSimple");
@@ -18,39 +21,23 @@ vi.mock("../../contexts/AuthContext");
 const mockConversationStorage = ConversationStorage as any;
 const mockUseAuth = useAuth as any;
 
-// Test wrapper with QueryClient
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-
-  return ({ children }: { children: ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
-// Mock conversations data
+// Mock conversations data avec helper
 const createMockConversation = (
   id: string,
   title: string,
   isFavorite: boolean = false,
   favorite_rank?: number,
   updatedAt: Date = new Date(),
-): Conversation => ({
-  id,
-  title,
-  status: "active",
-  createdAt: new Date("2024-01-01"),
-  updatedAt,
-  firstMessage: `Premier message de ${title}`,
-  messageCount: 1,
-  isFavorite,
-  favorite_rank,
-  tags: [],
-  userId: "test-user",
-});
+): Conversation =>
+  createBaseConversation({
+    id,
+    title,
+    updatedAt,
+    firstMessage: `Premier message de ${title}`,
+    isFavorite,
+    favorite_rank,
+    userId: "test-user",
+  });
 
 describe("useConversations - Favorites Sorting", () => {
   beforeEach(() => {
@@ -58,14 +45,7 @@ describe("useConversations - Favorites Sorting", () => {
 
     // Mock auth context
     mockUseAuth.mockReturnValue({
-      user: {
-        id: "test-user",
-        email: "test@example.com",
-        app_metadata: {},
-        user_metadata: {},
-        aud: "authenticated",
-        created_at: "2024-01-01T00:00:00Z",
-      } as any,
+      user: createMockUser({ id: "test-user" }),
       profile: null,
       session: null,
       loading: false,
@@ -108,7 +88,7 @@ describe("useConversations - Favorites Sorting", () => {
       mockConversationStorage.getConversations.mockReturnValue(conversations);
 
       const { result } = renderHook(() => useConversations(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await act(async () => {
@@ -137,7 +117,7 @@ describe("useConversations - Favorites Sorting", () => {
       mockConversationStorage.getConversations.mockReturnValue(conversations);
 
       const { result } = renderHook(() => useConversations(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await act(async () => {
@@ -175,7 +155,7 @@ describe("useConversations - Favorites Sorting", () => {
       mockConversationStorage.getConversations.mockReturnValue(conversations);
 
       const { result } = renderHook(() => useConversations(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await act(async () => {
@@ -226,7 +206,7 @@ describe("useConversations - Favorites Sorting", () => {
       mockConversationStorage.getConversations.mockReturnValue(conversations);
 
       const { result } = renderHook(() => useConversations(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await act(async () => {
@@ -255,7 +235,7 @@ describe("useConversations - Favorites Sorting", () => {
       );
 
       const { result } = renderHook(() => useConversations(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await act(async () => {
@@ -292,7 +272,7 @@ describe("useConversations - Favorites Sorting", () => {
       );
 
       const { result } = renderHook(() => useConversations(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await act(async () => {
@@ -329,7 +309,7 @@ describe("useConversations - Favorites Sorting", () => {
       );
 
       const { result } = renderHook(() => useConversations(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await act(async () => {
@@ -386,7 +366,7 @@ describe("useConversations - Favorites Sorting", () => {
             sortOrder: "asc",
           }),
         {
-          wrapper: createWrapper(),
+          wrapper: createQueryWrapper(),
         },
       );
 
@@ -431,7 +411,7 @@ describe("useConversations - Favorites Sorting", () => {
             sortOrder: "desc",
           }),
         {
-          wrapper: createWrapper(),
+          wrapper: createQueryWrapper(),
         },
       );
 
@@ -475,7 +455,7 @@ describe("useConversations - Favorites Sorting", () => {
             sortOrder: "asc",
           }),
         {
-          wrapper: createWrapper(),
+          wrapper: createQueryWrapper(),
         },
       );
 
@@ -519,7 +499,7 @@ describe("useConversations - Favorites Sorting", () => {
       mockConversationStorage.getConversations.mockReturnValue(conversations);
 
       const { result } = renderHook(() => useConversations(), {
-        wrapper: createWrapper(),
+        wrapper: createQueryWrapper(),
       });
 
       await act(async () => {
