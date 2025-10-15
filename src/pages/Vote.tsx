@@ -14,7 +14,7 @@ const Vote = () => {
   }>();
   const navigate = useNavigate();
 
-  // Déterminer l'ID du sondage (soit pollId pour /vote/:pollId, soit pollSlug pour /admin/:pollSlug/:adminToken, soit slug pour /poll/:slug)
+  // Déterminer l'ID du sondage (soit pollId pour /vote/:pollId, soit pollSlug pour /poll/:pollSlug/results/:adminToken, soit slug pour /poll/:slug)
   const actualPollId = pollId || pollSlug || slug;
 
   if (!actualPollId) {

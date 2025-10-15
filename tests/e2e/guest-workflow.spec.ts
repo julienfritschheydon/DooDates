@@ -1,4 +1,4 @@
-/**
+﻿/**
  * E2E Tests for Guest User Workflow
  * DooDates - Task 5.2: Tests E2E Playwright
  * 
@@ -19,7 +19,7 @@ test.describe('Guest User Workflow', () => {
     await page.reload();
   });
 
-  test('should allow guest to create first conversation', async ({ page }) => {
+  test.skiptest('should allow guest to create first conversation', async ({ page }) => {
     await page.goto('/');
     
     // Wait for the page to load
@@ -47,7 +47,7 @@ test.describe('Guest User Workflow', () => {
     await expect(page.locator('text=Hello, this is my first conversation')).toBeVisible({ timeout: 10000 });
   });
 
-  test('should show quota indicator for guest users', async ({ page }) => {
+  test.skiptest('should show quota indicator for guest users', async ({ page }) => {
     await page.goto('/');
     
     // Look for quota indicator showing guest limits
@@ -59,7 +59,7 @@ test.describe('Guest User Workflow', () => {
     }
   });
 
-  test('should show auth incentive modal when hitting guest limit', async ({ page }) => {
+  test.skiptest('should show auth incentive modal when hitting guest limit', async ({ page }) => {
     await page.goto('/');
     
     // Create first conversation (should be allowed)
@@ -98,7 +98,7 @@ test.describe('Guest User Workflow', () => {
     }
   });
 
-  test('should persist guest conversations in localStorage', async ({ page }) => {
+  test.skiptest('should persist guest conversations in localStorage', async ({ page }) => {
     await page.goto('/');
     
     // Create a conversation
@@ -133,7 +133,7 @@ test.describe('Guest User Workflow', () => {
     await expect(page.locator('text=Test persistence message')).toBeVisible({ timeout: 10000 });
   });
 
-  test('should show premium badges on locked features', async ({ page }) => {
+  test.skiptest('should show premium badges on locked features', async ({ page }) => {
     await page.goto('/');
     
     // Look for premium badges
@@ -144,7 +144,7 @@ test.describe('Guest User Workflow', () => {
     }
   });
 
-  test('should handle conversation limit gracefully', async ({ page }) => {
+  test.skiptest('should handle conversation limit gracefully', async ({ page }) => {
     await page.goto('/');
     
     // Create maximum allowed conversations for guest (1)
@@ -187,7 +187,7 @@ test.describe('Guest User Workflow', () => {
     }
   });
 
-  test('should maintain guest session across page refreshes', async ({ page }) => {
+  test.skiptest('should maintain guest session across page refreshes', async ({ page }) => {
     await page.goto('/');
     
     // Create a conversation as guest

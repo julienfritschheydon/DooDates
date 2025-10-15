@@ -1,15 +1,15 @@
-/**
- * Tests de régression UX pour DooDates
+﻿/**
+ * Tests de rÃ©gression UX pour DooDates
  *
- * Ce fichier s'assure que l'expérience utilisateur reste cohérente entre les versions :
- * - Comportements d'interface attendus (clics, navigations, états)
- * - Formats d'affichage des données (dates, heures, textes)
- * - Réponses temporelles des interactions (pas de régression de performance)
- * - Cohérence des messages d'erreur et de validation
- * - Workflows utilisateur complets (création → partage → vote)
+ * Ce fichier s'assure que l'expÃ©rience utilisateur reste cohÃ©rente entre les versions :
+ * - Comportements d'interface attendus (clics, navigations, Ã©tats)
+ * - Formats d'affichage des donnÃ©es (dates, heures, textes)
+ * - RÃ©ponses temporelles des interactions (pas de rÃ©gression de performance)
+ * - CohÃ©rence des messages d'erreur et de validation
+ * - Workflows utilisateur complets (crÃ©ation â†’ partage â†’ vote)
  *
- * Ces tests détectent les changements non intentionnels qui pourraient
- * dégrader l'expérience utilisateur sans casser la fonctionnalité.
+ * Ces tests dÃ©tectent les changements non intentionnels qui pourraient
+ * dÃ©grader l'expÃ©rience utilisateur sans casser la fonctionnalitÃ©.
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -25,7 +25,7 @@ describe("UX Regression Tests - DooDates", () => {
     vi.clearAllMocks();
   });
 
-  describe("🎨 Interface Consistency", () => {
+  describe("ðŸŽ¨ Interface Consistency", () => {
     it("should maintain consistent time slot format across all functions", () => {
       const slots = generateTimeSlots(false, 30);
 
@@ -37,7 +37,7 @@ describe("UX Regression Tests - DooDates", () => {
 
       // UX Expectation: Labels should be user-friendly (no 24:00, starts from reasonable hour)
       expect(slots[0].hour).toBeGreaterThanOrEqual(6); // Pas avant 6h du matin
-      expect(slots[slots.length - 1].hour).toBeLessThanOrEqual(23); // Pas après 23h
+      expect(slots[slots.length - 1].hour).toBeLessThanOrEqual(23); // Pas aprÃ¨s 23h
     });
 
     it("should maintain consistent date display format", () => {
@@ -55,7 +55,7 @@ describe("UX Regression Tests - DooDates", () => {
         expect(typeof formatted.dayName).toBe("string");
         expect(formatted.dayName.length).toBeGreaterThan(2); // "Lun", "Mar", etc.
         expect(typeof formatted.month).toBe("string");
-        expect(formatted.month.length).toBeGreaterThan(2); // "Jan", "Fév", etc.
+        expect(formatted.month.length).toBeGreaterThan(2); // "Jan", "FÃ©v", etc.
 
         // UX Expectation: Day number is always positive integer
         expect(formatted.dayNumber).toBeGreaterThan(0);
@@ -68,7 +68,7 @@ describe("UX Regression Tests - DooDates", () => {
       const validationTests = [
         { input: "", expected: false, type: "empty title" },
         { input: "a".repeat(256), expected: false, type: "too long title" },
-        { input: "Réunion équipe", expected: true, type: "normal title" },
+        { input: "RÃ©union Ã©quipe", expected: true, type: "normal title" },
         { input: "Meeting 2025", expected: true, type: "title with numbers" },
       ];
 
@@ -80,7 +80,7 @@ describe("UX Regression Tests - DooDates", () => {
     });
   });
 
-  describe("⚡ Performance Consistency", () => {
+  describe("âš¡ Performance Consistency", () => {
     it("should generate time slots within acceptable time", () => {
       const startTime = performance.now();
 
@@ -112,11 +112,11 @@ describe("UX Regression Tests - DooDates", () => {
       const endTime = performance.now();
       const executionTime = endTime - startTime;
 
-      expect(executionTime).toBeLessThan(100); // Max 100ms for 50 operations (réaliste)
+      expect(executionTime).toBeLessThan(100); // Max 100ms for 50 operations (rÃ©aliste)
     });
   });
 
-  describe("🔄 State Management Consistency", () => {
+  describe("ðŸ”„ State Management Consistency", () => {
     it("should maintain predictable time slot state transitions", () => {
       let timeSlotsByDate = {};
       const date = "2025-07-01";
@@ -189,13 +189,13 @@ describe("UX Regression Tests - DooDates", () => {
     });
   });
 
-  describe("📱 User Journey Consistency", () => {
+  describe("ðŸ“± User Journey Consistency", () => {
     it("should support consistent poll creation workflow", () => {
       // UX Expectation: Complete user journey should work predictably
 
       // Step 1: User creates poll configuration
       const userInput = {
-        title: "Réunion mensuelle équipe",
+        title: "RÃ©union mensuelle Ã©quipe",
         emails: ["alice@company.com", "bob@company.com", "charlie@company.com"],
       };
 
@@ -267,12 +267,12 @@ describe("UX Regression Tests - DooDates", () => {
     });
   });
 
-  describe("🌐 Localization Consistency", () => {
+  describe("ðŸŒ Localization Consistency", () => {
     it("should maintain French localization across all outputs", () => {
       const testDates = [
         "2025-01-01", // Jour de l'An
-        "2025-07-14", // Fête nationale
-        "2025-12-25", // Noël
+        "2025-07-14", // FÃªte nationale
+        "2025-12-25", // NoÃ«l
       ];
 
       testDates.forEach((date) => {
@@ -287,17 +287,17 @@ describe("UX Regression Tests - DooDates", () => {
         // UX Expectation: French month names
         const frenchMonths = [
           "Jan",
-          "Fév",
+          "FÃ©v",
           "Mar",
           "Avr",
           "Mai",
           "Jun",
           "Jul",
-          "Aoû",
+          "AoÃ»",
           "Sep",
           "Oct",
           "Nov",
-          "Déc",
+          "DÃ©c",
         ];
         const isMonthNameFrench = frenchMonths.some((month) =>
           formatted.month.toLowerCase().includes(month.toLowerCase()),

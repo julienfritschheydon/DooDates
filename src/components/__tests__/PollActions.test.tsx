@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import type { Poll } from "@/lib/pollStorage";
@@ -47,7 +47,7 @@ vi.mock("react-router-dom", async (importOriginal) => {
 
 const basePoll: Poll = {
   id: "p1",
-  title: "Réunion",
+  title: "RÃ©union",
   slug: "reunion",
   created_at: new Date(2020, 0, 1).toISOString(),
   status: "active",

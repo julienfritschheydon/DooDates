@@ -1,43 +1,100 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment jsdom
  */
 import * as React from 'react';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { User } from '@supabase/supabase-js';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { useConversationStorage } from '../useConversationStorage';
 import { useAuth } from '../../contexts/AuthContext';
 import { Conversation, ConversationMessage } from '../../types/conversation';
 
 // Mock dependencies
-jest.mock('../../contexts/AuthContext', () => ({
-  useAuth: jest.fn(),
+vi.mock('../../contexts/AuthContext', () => ({
+  useAuth: vi.fn(),
   AuthProvider: ({ children }: { children: React.ReactNode }) => children
 }));
 
-const mockUseAuth = jest.mocked(useAuth);
+const mockUseAuth = vi.mocked(useAuth);
 
 // Mock the modules
-jest.mock('../../lib/storage/ConversationStorageLocal', () => {
-  const mockConstructor = jest.fn().mockImplementation(() => ({
-    getAllConversations: jest.fn().mockResolvedValue([]),
-    getConversation: jest.fn().mockResolvedValue(null),
-    getMessages: jest.fn().mockResolvedValue([]),
-    createConversation: jest.fn().mockResolvedValue({}),
-    updateConversation: jest.fn().mockResolvedValue({}),
-    deleteConversation: jest.fn().mockResolvedValue(undefined),
-    addMessage: jest.fn().mockResolvedValue({})
-  }));
-  
-  (mockConstructor as any).exportForMigration = jest.fn();
-  
-  return {
-    ConversationStorageLocal: mockConstructor
-  };
-});
+vi.mock('../../lib/storage/ConversationStorageLocal', () => ({
+  ConversationStorageLocal: class {
+    static STORAGE_KEY = 'doodates_conversations';
+    static STORAGE_VERSION = '1.0.0';
+    static EXPIRATION_DAYS = 30;
+    static GUEST_QUOTA_LIMIT = 10;
 
-jest.mock('../../lib/storage/ConversationMigrationService', () => ({
-  ConversationMigrationService: jest.fn()
+    constructor() {
+      this.initialize = vi.fn().mockResolvedValue(undefined);
+      this.createConversation = vi.fn().mockResolvedValue({});
+      this.saveConversation = vi.fn().mockResolvedValue(undefined);
+      this.saveMessages = vi.fn().mockResolvedValue(undefined);
+      this.getConversations = vi.fn().mockResolvedValue([]);
+      this.getConversation = vi.fn().mockResolvedValue(null);
+      this.getConversationWithMessages = vi.fn().mockResolvedValue({ conversation: null, messages: [] });
+      this.getMessages = vi.fn().mockResolvedValue([]);
+      this.deleteConversation = vi.fn().mockResolvedValue(undefined);
+      this.clearAll = vi.fn().mockResolvedValue(undefined);
+      this.getQuotaInfo = vi.fn().mockReturnValue({ used: 0, limit: 10, isGuest: true });
+      this.exportForMigration = vi.fn().mockReturnValue({ conversations: [], messages: {} });
+    }
+
+    // Mock methods will be added by the constructor
+    initialize: (isGuest: boolean) => Promise<void>;
+    createConversation: (conversation: any) => Promise<any>;
+    saveConversation: (conversation: any) => Promise<void>;
+    saveMessages: (conversationId: string, messages: any[]) => Promise<void>;
+    getConversations: () => Promise<any[]>;
+    getConversation: (id: string) => Promise<any>;
+    getConversationWithMessages: (id: string) => Promise<{ conversation: any; messages: any[] }>;
+    getMessages: (conversationId: string) => Promise<any[]>;
+    deleteConversation: (id: string) => Promise<void>;
+    clearAll: () => Promise<void>;
+    getQuotaInfo: () => { used: number; limit: number; isGuest: boolean };
+    exportForMigration: () => { conversations: any[]; messages: Record<string, any[]> };
+  }
+}));
+
+vi.mock('../../lib/storage/ConversationStorageSupabase', () => ({
+  ConversationStorageSupabase: class {
+    static STORAGE_KEY = 'doodates_conversations_supabase';
+    static STORAGE_VERSION = '1.0.0';
+
+    constructor() {
+      this.initialize = vi.fn().mockResolvedValue(undefined);
+      this.createConversation = vi.fn().mockResolvedValue({});
+      this.saveConversation = vi.fn().mockResolvedValue(undefined);
+      this.saveMessages = vi.fn().mockResolvedValue(undefined);
+      this.getConversations = vi.fn().mockResolvedValue([]);
+      this.getConversation = vi.fn().mockResolvedValue(null);
+      this.getConversationWithMessages = vi.fn().mockResolvedValue({ conversation: null, messages: [] });
+      this.getMessages = vi.fn().mockResolvedValue([]);
+      this.deleteConversation = vi.fn().mockResolvedValue(undefined);
+      this.clearAll = vi.fn().mockResolvedValue(undefined);
+      this.getQuotaInfo = vi.fn().mockReturnValue({ used: 0, limit: 1000, isGuest: false });
+      this.exportForMigration = vi.fn().mockReturnValue({ conversations: [], messages: {} });
+    }
+
+    // Mock methods will be added by the constructor
+    initialize: (isGuest: boolean) => Promise<void>;
+    createConversation: (conversation: any) => Promise<any>;
+    saveConversation: (conversation: any) => Promise<void>;
+    saveMessages: (conversationId: string, messages: any[]) => Promise<void>;
+    getConversations: () => Promise<any[]>;
+    getConversation: (id: string) => Promise<any>;
+    getConversationWithMessages: (id: string) => Promise<{ conversation: any; messages: any[] }>;
+    getMessages: (conversationId: string) => Promise<any[]>;
+    deleteConversation: (id: string) => Promise<void>;
+    clearAll: () => Promise<void>;
+    getQuotaInfo: () => { used: number; limit: number; isGuest: boolean };
+    exportForMigration: () => { conversations: any[]; messages: Record<string, any[]> };
+  }
+}));
+
+vi.mock('../../services/ConversationMigrationService', () => ({
+  migrateConversations: vi.fn().mockResolvedValue({ success: true }),
 }));
 
 describe('useConversationStorage', () => {
@@ -105,7 +162,7 @@ describe('useConversationStorage', () => {
       }
     });
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Setup default auth mock
     mockUseAuth.mockReturnValue({
@@ -114,12 +171,12 @@ describe('useConversationStorage', () => {
       profile: null,
       session: null,
       error: null,
-      signIn: jest.fn(),
-      signOut: jest.fn(),
-      signUp: jest.fn(),
-      signInWithGoogle: jest.fn(),
-      updateProfile: jest.fn(),
-      refreshProfile: jest.fn()
+      signIn: vi.fn(),
+      signOut: vi.fn(),
+      signUp: vi.fn(),
+      signInWithGoogle: vi.fn(),
+      updateProfile: vi.fn(),
+      refreshProfile: vi.fn()
     });
 
     // Mock static method for ConversationStorageLocal
@@ -128,19 +185,6 @@ describe('useConversationStorage', () => {
       conversations: [mockConversation],
       messages: { [mockConversation.id]: [mockMessage] }
     });
-
-    const { ConversationMigrationService } = require('../../lib/storage/ConversationMigrationService');
-    ConversationMigrationService.mockImplementation(() => ({
-      isMigrationNeeded: jest.fn().mockResolvedValue(false),
-      migrate: jest.fn().mockResolvedValue({
-        success: true,
-        migratedConversations: 0,
-        migratedMessages: 0,
-        errors: [],
-        duration: 0,
-        rollbackPerformed: false
-      })
-    }));
   });
 
   describe('Basic Hook Functionality', () => {
@@ -178,12 +222,12 @@ describe('useConversationStorage', () => {
         profile: null,
         session: null,
         error: null,
-        signIn: jest.fn(),
-        signOut: jest.fn(),
-        signUp: jest.fn(),
-        signInWithGoogle: jest.fn(),
-        updateProfile: jest.fn(),
-        refreshProfile: jest.fn()
+        signIn: vi.fn(),
+        signOut: vi.fn(),
+        signUp: vi.fn(),
+        signInWithGoogle: vi.fn(),
+        updateProfile: vi.fn(),
+        refreshProfile: vi.fn()
       });
 
       const { result } = renderHook(() => useConversationStorage({

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+﻿import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   addPoll,
   buildPublicLink,
@@ -14,7 +14,7 @@ import {
 
 const makePoll = (overrides: Partial<Poll> = {}): Poll => ({
   id: overrides.id ?? "local-1",
-  title: overrides.title ?? "Réunion",
+  title: overrides.title ?? "RÃ©union",
   slug: overrides.slug ?? "reunion",
   created_at: overrides.created_at ?? new Date(2020, 0, 1).toISOString(),
   description: overrides.description,
@@ -146,8 +146,8 @@ describe("pollStorage", () => {
     ).toBeTruthy();
   });
 
-  it("migrateFormDraftsIntoUnified should merge dev-form-polls into dev-polls on read", () => {
-    // Prepare legacy form drafts under dev-form-polls
+  it("migrateFormDraftsIntoUnified should merge doodates_form_polls into doodates_polls on read", () => {
+    // Prepare legacy form drafts under doodates_form_polls
     const legacyForms = [
       {
         id: "legacy-1",
@@ -156,10 +156,10 @@ describe("pollStorage", () => {
         status: "draft",
       },
     ];
-    window.localStorage.setItem("dev-form-polls", JSON.stringify(legacyForms));
+    window.localStorage.setItem("doodates_form_polls", JSON.stringify(legacyForms));
 
     // Initially unified is empty
-    expect(window.localStorage.getItem("dev-polls")).toBeNull();
+    expect(window.localStorage.getItem("doodates_polls")).toBeNull();
 
     // Trigger migration by reading
     const all = getAllPolls();
@@ -170,7 +170,7 @@ describe("pollStorage", () => {
     expect((migrated as any).type).toBe("form");
 
     // Old key should be cleaned up
-    expect(window.localStorage.getItem("dev-form-polls")).toBeNull();
+    expect(window.localStorage.getItem("doodates_form_polls")).toBeNull();
   });
 
   it("addPoll() should validate form polls: title is required", () => {

@@ -13,7 +13,7 @@ Spec-Driven Development flips the script on traditional software development. Fo
 Initialize Spec Kit in your project:
 
 ```bash
-uvx --from git+https://github.com/github/spec-kit.git specify init <PROJECT_NAME>
+uv --from git+https://github.com/github/spec-kit.git specify init <PROJECT_NAME>
 ```
 
 ## Core Commands

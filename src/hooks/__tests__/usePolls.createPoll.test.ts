@@ -61,7 +61,7 @@ describe("usePolls.createPoll", () => {
     const { result } = renderHook(() => usePolls());
 
     const pollData: any = {
-      title: "Réunion produit",
+      title: "RÃ©union produit",
       description: "",
       selectedDates: ["2025-09-01", "2025-09-02"],
       timeSlotsByDate: {
@@ -88,7 +88,8 @@ describe("usePolls.createPoll", () => {
     expect(res.error).toBeUndefined();
     expect(res.poll).toBeTruthy();
 
-    const stored = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+    // Vérifier que le sondage est bien stocké avec la clé correcte
+    const stored = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
     expect(Array.isArray(stored)).toBe(true);
     expect(stored.length).toBe(1);
 

@@ -310,7 +310,7 @@ const App = () => (
               <Route path="/create" element={<CreateChooser />} />
               <Route path="/create/date" element={<PollCreator />} />
               <Route path="/create/form" element={<FormCreator />} />
-              <Route path="/admin/:pollSlug/:adminToken" element={<Vote />} />
+              <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>

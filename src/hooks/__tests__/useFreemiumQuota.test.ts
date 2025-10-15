@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests for useFreemiumQuota hook
  * DooDates - Freemium Quota Management Tests
  */
