@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ConversationMigrationService, MigrationProgress, MigrationResult } from './ConversationMigrationService';
+import { handleError, ErrorFactory, logError } from '../error-handling';
 
 /**
  * Hook for managing conversation migration from localStorage to Supabase
@@ -32,7 +33,13 @@ export function useMigration(supabaseUrl: string, supabaseKey: string) {
               setProgress(progressUpdate);
             },
             onError: (error) => {
-              console.error('Migration error:', error);
+              logError(
+                handleError(error, {
+                  component: 'useMigration',
+                  operation: 'migration'
+                }, 'Erreur durant la migration'),
+                { component: 'useMigration', operation: 'migration' }
+              );
             },
             onComplete: (migrationResult) => {
               setResult(migrationResult);
@@ -42,7 +49,13 @@ export function useMigration(supabaseUrl: string, supabaseKey: string) {
           setMigrationService(service);
         }
       } catch (error) {
-        console.error('Failed to initialize migration:', error);
+        logError(
+          handleError(error, {
+            component: 'useMigration',
+            operation: 'initialize'
+          }, 'Échec de l\'initialisation de la migration'),
+          { component: 'useMigration', operation: 'initialize' }
+        );
         setMigrationNeeded(false);
       } finally {
         setIsInitialized(true);
@@ -63,7 +76,13 @@ export function useMigration(supabaseUrl: string, supabaseKey: string) {
       const migrationResult = await migrationService.migrate();
       return migrationResult;
     } catch (error) {
-      console.error('Migration failed:', error);
+      logError(
+        handleError(error, {
+          component: 'useMigration',
+          operation: 'startMigration'
+        }, 'Échec du démarrage de la migration'),
+        { component: 'useMigration', operation: 'startMigration' }
+      );
       return null;
     }
   }, [migrationService]);

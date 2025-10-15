@@ -19,6 +19,7 @@ import Calendar from "./Calendar";
 import { usePolls, type PollData } from '../hooks/usePolls';
 import { PollCreatorService } from '../services/PollCreatorService';
 import type { PollCreationState as ServicePollCreationState, TimeSlot as ServiceTimeSlot } from '../services/PollCreatorService';
+import { PollCreationBusinessLogic, type PollCreationState, type TimeSlot } from '../services/PollCreationBusinessLogic';
 import { useAuth } from "../contexts/AuthContext";
 import { googleCalendar } from "../lib/google-calendar";
 import { UserMenu } from "./UserMenu";
@@ -28,34 +29,6 @@ import { useToast } from "@/hooks/use-toast";
 import { VoteGrid } from "@/components/voting/VoteGrid";
 import TopNav from "./TopNav";
 
-interface TimeSlot {
-  hour: number;
-  minute: number;
-  enabled: boolean;
-}
-
-interface PollCreationState {
-  selectedDates: string[];
-  currentMonth: Date;
-  calendarConnected: boolean;
-  pollTitle: string;
-  participantEmails: string;
-  showTimeSlots: boolean;
-  timeSlots: TimeSlot[];
-  notificationsEnabled: boolean;
-  userEmail: string;
-  showCalendarConnect: boolean;
-  showShare: boolean;
-  showDescription: boolean;
-  emailErrors: string[];
-  showExtendedHours: boolean;
-  timeGranularity: number;
-  showGranularitySettings: boolean;
-  showCalendarConnection: boolean;
-  pollLinkCopied: boolean;
-  expirationDays: number;
-  showExpirationSettings: boolean;
-}
 
 interface PollCreatorProps {
   onBack?: () => void;
@@ -1252,12 +1225,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               {import.meta.env.DEV
                                 ? "http://localhost:8080"
                                 : "https://doodates.app"}
-                              /admin/{createdPollSlug}/
-                              {createdPoll?.admin_token || "ADMIN_TOKEN"}
+                              /poll/{createdPollSlug}/results
                             </div>
                             <button
                               onClick={() => {
-                                const adminUrl = `${import.meta.env.DEV ? "http://localhost:8080" : "https://doodates.app"}/admin/${createdPollSlug}/${createdPoll?.admin_token || "ADMIN_TOKEN"}`;
+                                const adminUrl = `${import.meta.env.DEV ? "http://localhost:8080" : "https://doodates.app"}/poll/${createdPollSlug}/results`;
                                 navigator.clipboard.writeText(adminUrl);
                                 toast({
                                   title: "Lien copié !",

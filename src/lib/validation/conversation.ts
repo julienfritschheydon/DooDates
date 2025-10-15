@@ -63,7 +63,6 @@ export const ConversationSchema = z.object({
     .int('Le nombre de messages doit être un entier')
     .min(0, 'Le nombre de messages ne peut pas être négatif'),
   relatedPollId: z.string().uuid().optional(),
-  relatedPollSlug: z.string().optional(),
   isFavorite: z.boolean(),
   tags: z.array(z.string()).default([]),
   metadata: ConversationMetadataSchema,
@@ -104,7 +103,6 @@ export const UpdateConversationRequestSchema = z.object({
   isFavorite: z.boolean().optional(),
   tags: z.array(z.string()).optional(),
   relatedPollId: z.string().uuid().optional(),
-  relatedPollSlug: z.string().optional()
 });
 
 export const AddMessageRequestSchema = z.object({

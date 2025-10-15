@@ -57,7 +57,7 @@ export interface ConversationListProps {
   /** Callback when user toggles favorite status */
   onToggleFavorite?: (conversationId: string) => void;
   /** Callback when user wants to view related poll */
-  onViewPoll?: (pollId: string, pollSlug?: string) => void;
+  onViewPoll?: (pollId: string) => void;
   /** Callback when user wants to create new conversation */
   onCreateNew?: () => void;
   /** Current user's language preference */

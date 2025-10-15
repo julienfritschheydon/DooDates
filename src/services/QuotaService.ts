@@ -3,6 +3,8 @@
  * Extracted from quota hooks to improve separation of concerns
  */
 
+import { logError, ErrorFactory } from '../lib/error-handling';
+
 export type AuthIncentiveType = 'quota_warning' | 'quota_exceeded' | 'feature_unlock' | 'conversation_limit' | 'poll_limit' | 'storage_full';
 
 export interface QuotaLimits {
@@ -67,7 +69,11 @@ export class QuotaService {
       }
       return totalSize / (1024 * 1024); // Convert to MB
     } catch (error) {
-      console.warn('Error calculating storage size:', error);
+      logError(ErrorFactory.storage('Error calculating storage size', 'Erreur de calcul de taille de stockage'), { 
+        component: 'QuotaService', 
+        operation: 'calculateTotalStorageSize',
+        originalError: error 
+      });
       return 0;
     }
   }
@@ -87,7 +93,11 @@ export class QuotaService {
       
       return storageData.split('\n').filter(line => line.trim()).length;
     } catch (error) {
-      console.warn('Error counting conversations:', error);
+      logError(ErrorFactory.storage('Error counting conversations', 'Erreur de comptage des conversations'), { 
+        component: 'QuotaService', 
+        operation: 'countConversations',
+        originalError: error 
+      });
       return 0;
     }
   }
@@ -103,7 +113,11 @@ export class QuotaService {
       const parsed = JSON.parse(storageData);
       return Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
     } catch (error) {
-      console.warn('Error counting polls:', error);
+      logError(ErrorFactory.storage('Error counting polls', 'Erreur de comptage des sondages'), { 
+        component: 'QuotaService', 
+        operation: 'countPolls',
+        originalError: error 
+      });
       return 0;
     }
   }
@@ -183,7 +197,11 @@ export class QuotaService {
 
       return oldConversationIds;
     } catch (error) {
-      console.warn('Error finding old conversations:', error);
+      logError(ErrorFactory.storage('Error finding old conversations', 'Erreur de recherche d\'anciennes conversations'), { 
+        component: 'QuotaService', 
+        operation: 'findOldConversations',
+        originalError: error 
+      });
       return [];
     }
   }
@@ -220,7 +238,11 @@ export class QuotaService {
 
       return deletedCount;
     } catch (error) {
-      console.warn('Error deleting conversations:', error);
+      logError(ErrorFactory.storage('Error deleting conversations', 'Erreur de suppression des conversations'), { 
+        component: 'QuotaService', 
+        operation: 'deleteConversations',
+        originalError: error 
+      });
       return 0;
     }
   }

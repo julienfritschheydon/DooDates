@@ -58,7 +58,7 @@ export interface ConversationCardProps {
   /** Callback when user toggles favorite status */
   onToggleFavorite?: (conversationId: string) => void;
   /** Callback when user wants to view related poll */
-  onViewPoll?: (pollId: string, pollSlug?: string) => void;
+  onViewPoll?: (pollId: string) => void;
   /** Current user's language preference */
   language?: 'fr' | 'en';
   /** Whether the card is in compact mode */
@@ -191,7 +191,7 @@ export function ConversationCard({
 
   const handleViewPoll = () => {
     if (conversation.relatedPollId) {
-      onViewPoll?.(conversation.relatedPollId, conversation.relatedPollSlug);
+      onViewPoll?.(conversation.relatedPollId);
     }
   };
 

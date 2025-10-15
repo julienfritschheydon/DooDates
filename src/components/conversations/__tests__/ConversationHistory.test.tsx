@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { ConversationHistory } from '../ConversationHistory';
 import { useConversations } from '../../../hooks/useConversations';
@@ -12,11 +13,11 @@ import { useConversationSearch } from '../../../hooks/useConversationSearch';
 import type { Conversation, ConversationStatus } from '../../../types/conversation';
 
 // Mock the hooks
-jest.mock('../../../hooks/useConversations');
-jest.mock('../../../hooks/useConversationSearch');
+vi.mock('../../../hooks/useConversations');
+vi.mock('../../../hooks/useConversationSearch');
 
 // Mock the child components
-jest.mock('../ConversationList', () => ({
+vi.mock('../ConversationList', () => ({
   ConversationList: ({ onPreviewConversation, onCreateConversation }: any) => (
     <div data-testid="conversation-list">
       <button onClick={() => onPreviewConversation?.({ id: 'conv-1', title: 'Test Conversation' })}>
@@ -55,8 +56,8 @@ jest.mock('../ConversationPreview', () => ({
   ),
 }));
 
-const mockUseConversations = useConversations as jest.MockedFunction<typeof useConversations>;
-const mockUseConversationSearch = useConversationSearch as jest.MockedFunction<typeof useConversationSearch>;
+const mockUseConversations = vi.mocked(useConversations);
+const mockUseConversationSearch = vi.mocked(useConversationSearch);
 
 describe('ConversationHistory', () => {
   const mockConversations: Conversation[] = [
@@ -122,14 +123,14 @@ describe('ConversationHistory', () => {
       render(<ConversationHistory {...mockCallbacks} />);
 
       expect(screen.getByText('Historique des conversations')).toBeInTheDocument();
-      expect(screen.getByText('Gérez et consultez vos conversations passées')).toBeInTheDocument();
+      expect(screen.getByText('GÃ©rez et consultez vos conversations passÃ©es')).toBeInTheDocument();
     });
 
     it('renders in compact mode without subtitle', () => {
       render(<ConversationHistory {...mockCallbacks} compact />);
 
       expect(screen.getByText('Historique des conversations')).toBeInTheDocument();
-      expect(screen.queryByText('Gérez et consultez vos conversations passées')).not.toBeInTheDocument();
+      expect(screen.queryByText('GÃ©rez et consultez vos conversations passÃ©es')).not.toBeInTheDocument();
     });
 
     it('renders child components', () => {
@@ -176,46 +177,46 @@ describe('ConversationHistory', () => {
 
       render(<ConversationHistory {...mockCallbacks} />);
 
-      expect(screen.queryByText('Réessayer')).not.toBeInTheDocument();
+      expect(screen.queryByText('RÃ©essayer')).not.toBeInTheDocument();
     });
   });
 
   describe('Error State', () => {
     it('shows error message and retry button', () => {
-      const mockRefetch = jest.fn();
+      const mockOnDelete = vi.fn();
       mockUseConversations.mockReturnValue({
         data: [],
         isLoading: false,
         isError: true,
         error: new Error('Network error'),
-        refetch: mockRefetch,
+        refetch: vi.fn(),
         isRefetching: false,
       } as any);
 
       render(<ConversationHistory {...mockCallbacks} />);
 
-      expect(screen.getByText('Erreur de connexion. Vérifiez votre connexion internet.')).toBeInTheDocument();
-      expect(screen.getByText('Réessayer')).toBeInTheDocument();
+      expect(screen.getByText('Erreur de connexion. VÃ©rifiez votre connexion internet.')).toBeInTheDocument();
+      expect(screen.getByText('RÃ©essayer')).toBeInTheDocument();
     });
 
     it('calls refetch when retry button is clicked', async () => {
       const user = userEvent.setup();
-      const mockRefetch = jest.fn();
+      const mockOnDelete = vi.fn();
       mockUseConversations.mockReturnValue({
         data: [],
         isLoading: false,
         isError: true,
         error: new Error('Server error'),
-        refetch: mockRefetch,
+        refetch: vi.fn(),
         isRefetching: false,
       } as any);
 
       render(<ConversationHistory {...mockCallbacks} />);
 
-      const retryButton = screen.getByText('Réessayer');
+      const retryButton = screen.getByText('RÃ©essayer');
       await user.click(retryButton);
 
-      expect(mockRefetch).toHaveBeenCalled();
+      expect(mockUseConversations.mock.results[0].value.refetch).toHaveBeenCalled();
     });
 
     it('shows different error messages based on error type', () => {
@@ -224,13 +225,13 @@ describe('ConversationHistory', () => {
         isLoading: false,
         isError: true,
         error: new Error('500 Internal Server Error'),
-        refetch: jest.fn(),
+        refetch: vi.fn(),
         isRefetching: false,
       } as any);
 
       render(<ConversationHistory {...mockCallbacks} />);
 
-      expect(screen.getByText('Erreur serveur. Veuillez réessayer plus tard.')).toBeInTheDocument();
+      expect(screen.getByText('Erreur serveur. Veuillez rÃ©essayer plus tard.')).toBeInTheDocument();
     });
   });
 
@@ -241,14 +242,14 @@ describe('ConversationHistory', () => {
         isLoading: false,
         isError: false,
         error: null,
-        refetch: jest.fn(),
+        refetch: vi.fn(),
         isRefetching: false,
       } as any);
 
       render(<ConversationHistory {...mockCallbacks} />);
 
-      expect(screen.getByText('Aucune conversation trouvée')).toBeInTheDocument();
-      expect(screen.getByText('Créer votre première conversation')).toBeInTheDocument();
+      expect(screen.getByText('Aucune conversation trouvÃ©e')).toBeInTheDocument();
+      expect(screen.getByText('CrÃ©er votre premiÃ¨re conversation')).toBeInTheDocument();
     });
 
     it('calls onCreateConversation when create button is clicked', async () => {
@@ -258,13 +259,13 @@ describe('ConversationHistory', () => {
         isLoading: false,
         isError: false,
         error: null,
-        refetch: jest.fn(),
+        refetch: vi.fn(),
         isRefetching: false,
       } as any);
 
       render(<ConversationHistory {...mockCallbacks} />);
 
-      const createButton = screen.getByText('Créer votre première conversation');
+      const createButton = screen.getByText('CrÃ©er votre premiÃ¨re conversation');
       await user.click(createButton);
 
       expect(mockCallbacks.onCreateConversation).toHaveBeenCalled();
@@ -276,7 +277,7 @@ describe('ConversationHistory', () => {
         isLoading: false,
         isError: false,
         error: null,
-        refetch: jest.fn(),
+        refetch: vi.fn(),
         isRefetching: false,
       } as any);
 
@@ -287,7 +288,7 @@ describe('ConversationHistory', () => {
 
       render(<ConversationHistory {...mockCallbacks} />);
 
-      expect(screen.queryByText('Aucune conversation trouvée')).not.toBeInTheDocument();
+      expect(screen.queryByText('Aucune conversation trouvÃ©e')).not.toBeInTheDocument();
     });
   });
 
@@ -295,7 +296,7 @@ describe('ConversationHistory', () => {
     it('shows refresh button when not loading', () => {
       render(<ConversationHistory {...mockCallbacks} />);
 
-      expect(screen.getByText('Réessayer')).toBeInTheDocument();
+      expect(screen.getByText('RÃ©essayer')).toBeInTheDocument();
     });
 
     it('shows refreshing state when refetching', () => {
@@ -304,7 +305,7 @@ describe('ConversationHistory', () => {
         isLoading: false,
         isError: false,
         error: null,
-        refetch: jest.fn(),
+        refetch: vi.fn(),
         isRefetching: true,
       } as any);
 
@@ -315,7 +316,7 @@ describe('ConversationHistory', () => {
 
     it('calls refetch when refresh button is clicked', async () => {
       const user = userEvent.setup();
-      const mockRefetch = jest.fn();
+      const mockRefetch = vi.fn();
       mockUseConversations.mockReturnValue({
         data: mockConversations,
         isLoading: false,
@@ -327,7 +328,7 @@ describe('ConversationHistory', () => {
 
       render(<ConversationHistory {...mockCallbacks} />);
 
-      const refreshButton = screen.getByText('Réessayer');
+      const refreshButton = screen.getByText('RÃ©essayer');
       await user.click(refreshButton);
 
       expect(mockRefetch).toHaveBeenCalled();
@@ -524,7 +525,7 @@ describe('ConversationHistory', () => {
     it('has accessible buttons', () => {
       render(<ConversationHistory {...mockCallbacks} />);
 
-      const refreshButton = screen.getByRole('button', { name: /réessayer/i });
+      const refreshButton = screen.getByRole('button', { name: /rÃ©essayer/i });
       expect(refreshButton).toBeInTheDocument();
     });
   });

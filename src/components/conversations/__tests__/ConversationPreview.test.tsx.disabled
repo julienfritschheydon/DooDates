@@ -1,0 +1,618 @@
+﻿/**
+ * Tests for ConversationPreview Component
+ * DooDates - Conversation History System
+ */
+
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ConversationPreview } from '../ConversationPreview';
+import type { Conversation, ConversationMessage } from '../../../types/conversation';
+
+describe('ConversationPreview', () => {
+  const mockMessages: ConversationMessage[] = [
+    {
+      id: 'msg-1',
+      role: 'user',
+      content: 'Hello, I need help organizing a meeting.',
+      conversationId: 'conv-1',
+      timestamp: new Date('2024-01-01T10:00:00Z'),
+      metadata: {},
+    },
+    {
+      id: 'msg-2',
+      role: 'assistant',
+      content: 'I\'d be happy to help you organize a meeting. What dates are you considering?',
+      conversationId: 'conv-1',
+      timestamp: new Date('2024-01-01T10:05:00Z'),
+      metadata: {},
+    },
+    {
+      id: 'msg-3',
+      role: 'user',
+      content: 'I was thinking about next Tuesday or Wednesday.',
+      conversationId: 'conv-1',
+      timestamp: new Date('2024-01-01T10:02:00Z'),
+      metadata: {},
+    },
+  ];
+
+  const mockConversation: Conversation = {
+    id: 'conv-1',
+    title: 'Meeting Organization',
+    status: 'active',
+    isFavorite: false,
+    createdAt: new Date('2024-01-01T10:00:00Z'),
+    updatedAt: new Date('2024-01-01T10:02:00Z'),
+    firstMessage: 'Hello, I need help organizing a meeting.',
+    messageCount: 3,
+    tags: [],
+    relatedPollId: 'poll-1',
+  };
+
+  const mockCallbacks = {
+    onClose: jest.fn(),
+    onResume: jest.fn(),
+    onViewPoll: jest.fn(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('Basic Rendering', () => {
+    it('renders when open with conversation', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('Meeting Organization')).toBeInTheDocument();
+      expect(screen.getByText('Active')).toBeInTheDocument();
+    });
+
+    it('does not render when closed', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={false}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.queryByText('Meeting Organization')).not.toBeInTheDocument();
+    });
+
+    it('does not render when conversation is null', () => {
+      render(
+        <ConversationPreview
+          conversation={null}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.queryByText('Meeting Organization')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Conversation Header', () => {
+    it('displays conversation title and status', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('Meeting Organization')).toBeInTheDocument();
+      expect(screen.getByText('Active')).toBeInTheDocument();
+    });
+
+    it('shows favorite badge when conversation is favorite', () => {
+      const favoriteConversation = { ...mockConversation, isFavorite: true };
+      
+      render(
+        <ConversationPreview
+          conversation={favoriteConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('Favori')).toBeInTheDocument();
+    });
+
+    it('displays conversation metadata', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('3 messages')).toBeInTheDocument();
+      expect(screen.getByText(/CrÃ©Ã©e le/)).toBeInTheDocument();
+      expect(screen.getByText(/DerniÃ¨re mise Ã  jour/)).toBeInTheDocument();
+    });
+
+    it('shows view poll button when relatedPollId exists', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('Voir le sondage')).toBeInTheDocument();
+    });
+
+    it('does not show view poll button when no relatedPollId', () => {
+      const conversationWithoutPoll = { ...mockConversation, relatedPollId: undefined };
+      
+      render(
+        <ConversationPreview
+          conversation={conversationWithoutPoll}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.queryByText('Voir le sondage')).not.toBeInTheDocument();
+    });
+
+    it('shows resume button for active conversations', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('Reprendre la conversation')).toBeInTheDocument();
+    });
+
+    it('does not show resume button for archived conversations', () => {
+      const archivedConversation = { ...mockConversation, status: 'archived' as const };
+      
+      render(
+        <ConversationPreview
+          conversation={archivedConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.queryByText('Reprendre la conversation')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Messages Display', () => {
+    it('displays all messages', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('Hello, I need help organizing a meeting.')).toBeInTheDocument();
+      expect(screen.getByText('I\'d be happy to help you organize a meeting. What dates are you considering?')).toBeInTheDocument();
+      expect(screen.getByText('I was thinking about next Tuesday or Wednesday.')).toBeInTheDocument();
+    });
+
+    it('shows correct role labels', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getAllByText('Vous')).toHaveLength(2); // Two user messages
+      expect(screen.getByText('Assistant')).toBeInTheDocument();
+    });
+
+    it('displays message timestamps', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      // Should show relative time for recent messages
+      const timeElements = screen.getAllByText(/Il y a|Ã€ l'instant/);
+      expect(timeElements.length).toBeGreaterThan(0);
+    });
+
+    it('shows empty state when no messages', () => {
+      const emptyConversation = { ...mockConversation, messages: [] };
+      
+      render(
+        <ConversationPreview
+          conversation={emptyConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('Aucun message dans cette conversation.')).toBeInTheDocument();
+    });
+  });
+
+  describe('Message Navigation', () => {
+    it('shows navigation controls when multiple messages exist', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('Message prÃ©cÃ©dent')).toBeInTheDocument();
+      expect(screen.getByText('Message suivant')).toBeInTheDocument();
+      expect(screen.getByText('1 / 3')).toBeInTheDocument();
+    });
+
+    it('does not show navigation for single message', () => {
+      const singleMessageConversation = {
+        ...mockConversation,
+        firstMessage: mockMessages[0].content,
+        messageCount: 1
+      };
+      
+      render(
+        <ConversationPreview
+          conversation={singleMessageConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.queryByText('Message prÃ©cÃ©dent')).not.toBeInTheDocument();
+      expect(screen.queryByText('Message suivant')).not.toBeInTheDocument();
+    });
+
+    it('navigates to next message when next button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      const nextButton = screen.getByText('Message suivant');
+      await user.click(nextButton);
+
+      expect(screen.getByText('2 / 3')).toBeInTheDocument();
+    });
+
+    it('navigates to previous message when previous button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      // First go to next message
+      const nextButton = screen.getByText('Message suivant');
+      await user.click(nextButton);
+
+      // Then go back
+      const prevButton = screen.getByText('Message prÃ©cÃ©dent');
+      await user.click(prevButton);
+
+      expect(screen.getByText('1 / 3')).toBeInTheDocument();
+    });
+
+    it('disables previous button at first message', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      const prevButton = screen.getByText('Message prÃ©cÃ©dent');
+      expect(prevButton).toBeDisabled();
+    });
+
+    it('disables next button at last message', async () => {
+      const user = userEvent.setup();
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      // Navigate to last message
+      const nextButton = screen.getByText('Message suivant');
+      await user.click(nextButton);
+      await user.click(nextButton);
+
+      expect(screen.getByText('3 / 3')).toBeInTheDocument();
+      expect(nextButton).toBeDisabled();
+    });
+  });
+
+  describe('Scroll Controls', () => {
+    it('shows scroll to top and bottom buttons', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('Retour en haut')).toBeInTheDocument();
+      expect(screen.getByText('Aller en bas')).toBeInTheDocument();
+    });
+  });
+
+  describe('Action Callbacks', () => {
+    it('calls onResume when resume button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      const resumeButton = screen.getByText('Reprendre la conversation');
+      await user.click(resumeButton);
+
+      expect(mockCallbacks.onResume).toHaveBeenCalledWith('conv-1');
+      expect(mockCallbacks.onClose).toHaveBeenCalled();
+    });
+
+    it('calls onViewPoll when view poll button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      const viewPollButton = screen.getByText('Voir le sondage');
+      await user.click(viewPollButton);
+
+      expect(mockCallbacks.onViewPoll).toHaveBeenCalledWith('poll-1');
+    });
+
+    it('calls onClose when close button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      const closeButton = screen.getByText('Fermer');
+      await user.click(closeButton);
+
+      expect(mockCallbacks.onClose).toHaveBeenCalled();
+    });
+
+    it('calls onClose when footer resume button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      // Find the resume button in the footer (not the header)
+      const resumeButtons = screen.getAllByText('Reprendre');
+      const footerResumeButton = resumeButtons[resumeButtons.length - 1];
+      
+      await user.click(footerResumeButton);
+
+      expect(mockCallbacks.onResume).toHaveBeenCalledWith('conv-1');
+      expect(mockCallbacks.onClose).toHaveBeenCalled();
+    });
+  });
+
+  describe('Keyboard Navigation', () => {
+    it('closes dialog when Escape is pressed', async () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      fireEvent.keyDown(window, { key: 'Escape' });
+
+      expect(mockCallbacks.onClose).toHaveBeenCalled();
+    });
+
+    it('navigates messages with Ctrl+Arrow keys', async () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      // Navigate down
+      fireEvent.keyDown(window, { key: 'ArrowDown', ctrlKey: true });
+      
+      await waitFor(() => {
+        expect(screen.getByText('2 / 3')).toBeInTheDocument();
+      });
+
+      // Navigate up
+      fireEvent.keyDown(window, { key: 'ArrowUp', ctrlKey: true });
+      
+      await waitFor(() => {
+        expect(screen.getByText('1 / 3')).toBeInTheDocument();
+      });
+    });
+
+    it('shows keyboard shortcuts help text', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('Utilisez Ctrl+â†‘/â†“ pour naviguer, Ã‰chap pour fermer')).toBeInTheDocument();
+    });
+  });
+
+  describe('Language Support', () => {
+    it('renders English text when language is set to en', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+          language="en"
+        />
+      );
+
+      expect(screen.getByText('Resume conversation')).toBeInTheDocument();
+      expect(screen.getByText('View poll')).toBeInTheDocument();
+      expect(screen.getByText('Close')).toBeInTheDocument();
+      expect(screen.getByText('You')).toBeInTheDocument();
+      expect(screen.getByText('Assistant')).toBeInTheDocument();
+    });
+
+    it('shows English keyboard shortcuts help', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+          language="en"
+        />
+      );
+
+      expect(screen.getByText('Use Ctrl+â†‘/â†“ to navigate, Esc to close')).toBeInTheDocument();
+    });
+
+    it('shows English empty state message', () => {
+      const emptyConversation = { ...mockConversation, messages: [] };
+      
+      render(
+        <ConversationPreview
+          conversation={emptyConversation}
+          isOpen={true}
+          {...mockCallbacks}
+          language="en"
+        />
+      );
+
+      expect(screen.getByText('No messages in this conversation.')).toBeInTheDocument();
+    });
+  });
+
+  describe('Message Metadata', () => {
+    it('displays message metadata when present', () => {
+      const messageWithMetadata: ConversationMessage = {
+        ...mockMessages[0],
+        metadata: {
+          processingTime: 1500,
+          tokenCount: 25
+        }
+      };
+
+      const conversationWithMetadata = {
+        ...mockConversation,
+        firstMessage: messageWithMetadata.content,
+        messageCount: 1
+      };
+
+      render(
+        <ConversationPreview
+          conversation={conversationWithMetadata}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('processingTime:')).toBeInTheDocument();
+      expect(screen.getByText('1500')).toBeInTheDocument();
+      expect(screen.getByText('tokenCount:')).toBeInTheDocument();
+      expect(screen.getByText('25')).toBeInTheDocument();
+    });
+
+    it('does not show metadata section when empty', () => {
+      render(
+        <ConversationPreview
+          conversation={mockConversation}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      // Should not show any metadata labels
+      expect(screen.queryByText('processingTime:')).not.toBeInTheDocument();
+      expect(screen.queryByText('tokenCount:')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('System Messages', () => {
+    it('renders system messages with different styling', () => {
+      const systemMessage: ConversationMessage = {
+        id: 'msg-system',
+        role: 'user',
+        conversationId: 'conv-1',
+        content: 'Conversation started',
+        timestamp: new Date('2024-01-01T09:59:00Z'),
+        metadata: {},
+      };
+
+      const conversationWithSystem = {
+        ...mockConversation,
+        firstMessage: 'Conversation started',
+        messageCount: 4,
+        tags: []
+      };
+
+      render(
+        <ConversationPreview
+          conversation={conversationWithSystem}
+          isOpen={true}
+          {...mockCallbacks}
+        />
+      );
+
+      expect(screen.getByText('SystÃ¨me')).toBeInTheDocument();
+      expect(screen.getByText('Conversation started')).toBeInTheDocument();
+    });
+  });
+});

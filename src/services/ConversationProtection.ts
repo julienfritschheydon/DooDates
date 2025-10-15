@@ -3,6 +3,7 @@
  */
 
 import { infiniteLoopProtection } from './InfiniteLoopProtection';
+import { logError, ErrorFactory } from '../lib/error-handling';
 
 class ConversationProtectionService {
   private static instance: ConversationProtectionService;
@@ -35,7 +36,11 @@ class ConversationProtectionService {
 
     // Check creation attempts
     if (this.creationAttempts >= this.MAX_CREATION_ATTEMPTS) {
-      console.error('🚨 Too many conversation creation attempts');
+      logError(ErrorFactory.rateLimit('Too many conversation creation attempts', 'Trop de tentatives de création de conversation'), {
+        component: 'ConversationProtection',
+        operation: 'canCreateConversation',
+        metadata: { attempts: this.creationAttempts, maxAttempts: this.MAX_CREATION_ATTEMPTS }
+      });
       return false;
     }
 

@@ -2,6 +2,8 @@
  * Performance Monitor - Detects and prevents resource exhaustion
  */
 
+import { handleError, ErrorFactory, logError } from '../lib/error-handling';
+
 interface PerformanceMetrics {
   apiCalls: number;
   conversationsCreated: number;
@@ -26,7 +28,7 @@ class PerformanceMonitorService {
     RESET_INTERVAL: 60000 // 1 minute
   };
 
-  private alerts: string[] = [];
+  private alerts: Array<string | Error> = [];
 
   /**
    * Track API call
@@ -36,7 +38,10 @@ class PerformanceMonitorService {
     this.metrics.apiCalls++;
     
     if (this.metrics.apiCalls > this.THRESHOLDS.MAX_API_CALLS_PER_MINUTE) {
-      this.addAlert('🚨 EXCESSIVE API CALLS DETECTED - Possible infinite loop');
+      this.addAlert(ErrorFactory.critical(
+        'EXCESSIVE API CALLS DETECTED - Possible infinite loop',
+        'Trop d\'appels API détectés. Le système va se protéger.'
+      ));
     }
   }
 
@@ -48,7 +53,10 @@ class PerformanceMonitorService {
     this.metrics.conversationsCreated++;
     
     if (this.metrics.conversationsCreated > this.THRESHOLDS.MAX_CONVERSATIONS_PER_SESSION) {
-      this.addAlert('🚨 EXCESSIVE CONVERSATION CREATION - Infinite loop detected');
+      this.addAlert(ErrorFactory.critical(
+        'EXCESSIVE CONVERSATION CREATION - Infinite loop detected',
+        'Trop de conversations créées. Boucle infinie détectée.'
+      ));
     }
   }
 
@@ -62,7 +70,10 @@ class PerformanceMonitorService {
       this.metrics.errorRate = this.alerts.length / totalOperations;
       
       if (this.metrics.errorRate > this.THRESHOLDS.MAX_ERROR_RATE) {
-        this.addAlert('🚨 HIGH ERROR RATE - System instability detected');
+        this.addAlert(ErrorFactory.critical(
+          'HIGH ERROR RATE - System instability detected',
+          'Taux d\'erreur élevé détecté. Instabilité du système.'
+        ));
       }
     }
   }
@@ -82,7 +93,7 @@ class PerformanceMonitorService {
   /**
    * Get current metrics
    */
-  getMetrics(): PerformanceMetrics & { alerts: string[]; isHealthy: boolean } {
+  getMetrics(): PerformanceMetrics & { alerts: Array<string | Error>; isHealthy: boolean } {
     this.resetIfNeeded();
     return {
       ...this.metrics,
@@ -94,13 +105,23 @@ class PerformanceMonitorService {
   /**
    * Add alert
    */
-  private addAlert(message: string): void {
-    if (!this.alerts.includes(message)) {
+  private addAlert(message: string | Error): void {
+    const alertKey = message instanceof Error ? message.message : message;
+    const existingAlert = this.alerts.find(alert => 
+      (alert instanceof Error ? alert.message : alert) === alertKey
+    );
+    
+    if (!existingAlert) {
       this.alerts.push(message);
-      console.error(message);
+      
+      if (message instanceof Error) {
+        logError(message, { component: 'PerformanceMonitor' });
+      } else {
+        console.error(message);
+      }
       
       // Send to external monitoring if available
-      this.sendToMonitoring(message);
+      this.sendToMonitoring(alertKey);
     }
   }
 
@@ -136,8 +157,13 @@ class PerformanceMonitorService {
    * Emergency shutdown if system is critically unhealthy
    */
   emergencyShutdown(): void {
-    console.error('🚨 EMERGENCY SHUTDOWN - System critically unhealthy');
-    this.addAlert('EMERGENCY SHUTDOWN ACTIVATED');
+    const shutdownError = ErrorFactory.critical(
+      'EMERGENCY SHUTDOWN - System critically unhealthy',
+      'Arrêt d\'urgence du système pour éviter des dommages.'
+    );
+    
+    logError(shutdownError, { component: 'PerformanceMonitor', operation: 'emergencyShutdown' });
+    this.addAlert(shutdownError);
     
     // Disable all operations
     window.location.reload();

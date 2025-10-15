@@ -77,16 +77,32 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     getUserPolls();
     
+    // Listen for poll creation events
+    const handlePollCreated = () => {
+      getUserPolls(); // Refresh the list when a new poll is created
+    };
+    
+    window.addEventListener('pollCreated', handlePollCreated);
+    
     // Check for resume parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
-    const resumeConversationId = urlParams.get('resume');
+    const resumeConversationId = urlParams.get('conversationId');
+    
     if (resumeConversationId) {
-      // Clean the URL to remove resume parameter - stay on dashboard
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, '', cleanUrl);
+      // Clear the URL parameter
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('conversationId');
+      window.history.replaceState({}, '', newUrl.toString());
+      
+      // Navigate to conversation
+      navigate(`/?conversationId=${resumeConversationId}`);
     }
-  }, [navigate]);
 
+    // Cleanup function to remove event listener
+    return () => {
+      window.removeEventListener('pollCreated', handlePollCreated);
+    };
+  }, [navigate]);
 
   const filteredPolls = polls.filter((poll) => {
     const matchesFilter = filter === "all" || poll.status === filter;

@@ -86,15 +86,40 @@ export function saveMessages(conversationId: string, messages: ConversationMessa
  * Add messages to a conversation (append)
  */
 export function addMessages(conversationId: string, newMessages: ConversationMessage[]): void {
+  // Get existing messages and add new ones
   const existingMessages = getMessages(conversationId);
   const updatedMessages = [...existingMessages, ...newMessages];
+  
+  // Save messages first
   saveMessages(conversationId, updatedMessages);
+  
+  // Update message count in conversation
+  const conversation = getConversation(conversationId);
+  if (conversation) {
+    const allMessages = getMessages(conversationId);
+    updateConversation({
+      ...conversation,
+      messageCount: allMessages.length,
+      updatedAt: new Date()
+    });
+  }
 }
 
 /**
  * Delete messages for a conversation
  */
 export function deleteMessages(conversationId: string): void {
+  // Update conversation to reset message count before deleting
+  const conversation = getConversation(conversationId);
+  if (conversation) {
+    updateConversation({
+      ...conversation,
+      messageCount: 0,
+      updatedAt: new Date()
+    });
+  }
+  
+  // Delete the messages
   deleteRecords(MESSAGES_KEY, messageCache, conversationId);
 }
 
