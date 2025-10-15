@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import TopNav from "@/components/TopNav";
-import { getPollBySlugOrId, Poll, addFormResponse } from "@/lib/pollStorage";
+import { getPollBySlugOrId, addFormResponse } from "../../lib/pollStorage";
+import type { Poll, FormQuestionShape, FormQuestionOption } from "../../lib/pollStorage";
 
 type AnswerValue = string | string[];
 
@@ -23,7 +23,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
     setLoading(false);
   }, [idOrSlug]);
 
-  const questions = useMemo(() => (poll?.questions ?? []) as any[], [poll]);
+  const questions = useMemo(() => (poll?.questions ?? []) as FormQuestionShape[], [poll]);
 
   const updateAnswer = (qid: string, value: AnswerValue) => {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
@@ -116,8 +116,9 @@ export default function FormPollVote({ idOrSlug }: Props) {
         items,
       });
       setSubmitted(true);
-    } catch (err: any) {
-      setError(err?.message || "Erreur lors de l'enregistrement");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Erreur lors de l'enregistrement";
+      setError(errorMessage);
     }
   };
 
@@ -142,7 +143,6 @@ export default function FormPollVote({ idOrSlug }: Props) {
   if (submitted) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TopNav />
         <div className="max-w-2xl mx-auto p-6">
           <h1 className="text-2xl font-bold mb-2">
             Merci pour votre participation !
@@ -163,7 +163,6 @@ export default function FormPollVote({ idOrSlug }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopNav />
       <form
         onSubmit={onSubmit}
         className="max-w-2xl mx-auto p-6 space-y-6"
@@ -204,7 +203,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
         </div>
 
         <div className="space-y-6">
-          {questions.map((q: any) => {
+          {questions.map((q: FormQuestionShape) => {
             const kind: string = q.kind || q.type || "single";
             const qid: string = q.id;
             const val = answers[qid];
@@ -252,7 +251,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
 
                 {kind === "single" && (
                   <div className="space-y-2">
-                    {(q.options || []).map((opt: any) => (
+                    {(q.options || []).map((opt: FormQuestionOption) => (
                       <label key={opt.id} className="flex items-center gap-2">
                         <input
                           type="radio"
@@ -270,7 +269,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
 
                 {kind === "multiple" && (
                   <div className="space-y-2">
-                    {(q.options || []).map((opt: any) => {
+                    {(q.options || []).map((opt: FormQuestionOption) => {
                       const checked = Array.isArray(val)
                         ? (val as string[]).includes(opt.id)
                         : false;

@@ -3,6 +3,7 @@
 // Plus AUCUN calcul à l'exécution !
 
 import type { PreGeneratedCalendar } from "./calendar-generator";
+import { handleError, ErrorFactory, logError } from "./error-handling";
 
 // Import statique du JSON pré-généré (5.58 MB)
 let staticCalendarData: any = null;
@@ -19,8 +20,17 @@ async function loadStaticCalendarData() {
       //  `✅ Calendrier JSON chargé: ${staticCalendarData.totalDays} jours (${staticCalendarData.startYear}-${staticCalendarData.endYear})`,
       //);
     } catch (error) {
-      console.error("❌ Erreur import calendrier JSON:", error);
-      throw error;
+      const calendarError = handleError(error, {
+        component: 'calendar-data',
+        operation: 'loadStaticCalendarData'
+      }, 'Erreur lors du chargement des données de calendrier');
+      
+      logError(calendarError, {
+        component: 'calendar-data',
+        operation: 'loadStaticCalendarData'
+      });
+      
+      throw calendarError;
     }
   }
   return staticCalendarData;

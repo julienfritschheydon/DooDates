@@ -142,9 +142,7 @@ class CalendarGenerator {
       }
     }
 
-    //console.log(
-    //  `✅ Calendrier généré: ${days.length} jours, ${weekends.length} week-ends, ${weekdays.length} jours ouvrables`,
-    //);
+    // Calendar generated successfully
     return {
       startYear,
       endYear,
@@ -180,7 +178,7 @@ const yearlyCalendarCache = new Map<number, CalendarDay[]>();
 const CACHE_VERSION = "1.1";
 
 export function getPreGeneratedCalendar(): PreGeneratedCalendar {
-  console.log("🚀 Initialisation du calendrier progressif...");
+  // Initializing progressive calendar
 
   // NOUVELLE OPTIMISATION: Calendrier progressif par année !
   console.time("⚡ Calendrier progressif");
@@ -193,14 +191,14 @@ export function getPreGeneratedCalendar(): PreGeneratedCalendar {
     })
     .catch(() => {
       // Fallback: ancien système si le progressif échoue
-      console.log("📅 Fallback: calendrier statique");
+      // Fallback: using static calendar
       return import("./calendar-data").then((module) => {
         return module.getStaticCalendar();
       });
     })
     .catch(() => {
       // Fallback final: génération dynamique
-      console.log("📅 Fallback final: génération dynamique");
+      // Final fallback: dynamic generation
       const generator = new CalendarGenerator();
       const currentYear = new Date().getFullYear();
       return generator.generateCalendar(currentYear, 2);
@@ -212,11 +210,11 @@ let globalProgressiveCalendar: PreGeneratedCalendar | null = null;
 
 // Version synchrone pour compatibilité (utilise le cache global)
 export function getPreGeneratedCalendarSync(): PreGeneratedCalendar {
-  //console.log("🚀 Calendrier synchrone avec cache...");
+  // Synchronous calendar with cache
 
   // Vérifier d'abord le cache global du calendrier progressif
   if (globalProgressiveCalendar) {
-    //console.log("⚡ Calendrier progressif - Cache global synchrone");
+    // Progressive calendar - global sync cache
     return globalProgressiveCalendar;
   }
 
@@ -224,15 +222,15 @@ export function getPreGeneratedCalendarSync(): PreGeneratedCalendar {
   try {
     const result = getStaticCalendarSync();
     if (result.totalDays > 0) {
-      //console.log("⚡ Calendrier statique synchrone");
+      // Static synchronous calendar
       return result;
     }
   } catch (e) {
-    console.warn("⚠️ Calendrier statique non disponible");
+    console.warn("Static calendar not available");
   }
 
   // Fallback: génération dynamique minimale (1 an seulement)
-  //console.log("📅 Fallback synchrone: génération 1 an");
+  // Synchronous fallback: 1 year generation
   const generator = new CalendarGenerator();
   const currentYear = new Date().getFullYear();
   return generator.generateCalendar(currentYear, 1); // 1 an au lieu de 10
@@ -241,7 +239,7 @@ export function getPreGeneratedCalendarSync(): PreGeneratedCalendar {
 // Fonction pour initialiser le cache global (appelée par App.tsx)
 export function initializeGlobalCalendarCache(calendar: PreGeneratedCalendar) {
   globalProgressiveCalendar = calendar;
-  console.log("📋 Cache global calendrier initialisé");
+  // Global calendar cache initialized
 }
 
 // Fonction pour obtenir des données d'une année spécifique (avec cache)
@@ -263,7 +261,7 @@ export function getYearCalendar(year: number): CalendarDay[] {
         }
       }
     } catch (e) {
-      console.warn(`Cache localStorage non disponible pour l'année ${year}`);
+      console.warn(`localStorage cache not available for year ${year}`);
     }
   }
 
@@ -290,7 +288,7 @@ export function getYearCalendar(year: number): CalendarDay[] {
       );
     } catch (e) {
       console.warn(
-        `Impossible de sauvegarder l'année ${year} en localStorage (quota dépassé)`,
+        `Cannot save year ${year} to localStorage (quota exceeded)`,
       );
     }
   }
@@ -445,7 +443,7 @@ export function clearCalendarCache(): void {
     try {
       localStorage.removeItem("doodates-calendar-cache");
     } catch (e) {
-      console.warn("Impossible de nettoyer le cache global");
+      console.warn("Cannot clean global cache");
     }
 
     // Nettoyer les caches par année
@@ -455,12 +453,12 @@ export function clearCalendarCache(): void {
         try {
           localStorage.removeItem(key);
         } catch (e) {
-          console.warn(`Impossible de nettoyer le cache ${key}`);
+          console.warn(`Cannot clean cache ${key}`);
         }
       }
     }
 
-    console.log("🧹 Cache calendrier nettoyé");
+    // Calendar cache cleaned
   }
 
   // Nettoyer le cache mémoire

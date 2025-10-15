@@ -1,4 +1,5 @@
-import { Poll, Vote } from "../types/poll";
+import { Poll, Vote } from "./pollStorage";
+import { handleError, ErrorFactory, logError } from "./error-handling";
 
 /**
  * Service d'envoi d'emails via fonction serverless
@@ -14,7 +15,7 @@ export class EmailService {
    */
   private static async sendEmail(type: string, data: any): Promise<any> {
     try {
-      console.log(`📧 [EmailService] Envoi email type: ${type}`, data);
+      // Sending email of type: ${type}
 
       const response = await fetch(this.API_ENDPOINT, {
         method: "POST",
@@ -26,21 +27,21 @@ export class EmailService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(
+        throw ErrorFactory.network(
           `HTTP ${response.status}: ${errorData.error || "Unknown error"}`,
+          "Erreur lors de l'envoi de l'email. Vérifiez votre connexion."
         );
       }
 
       const result = await response.json();
-      console.log(
-        `✅ [EmailService] Email ${type} envoyé avec succès:`,
-        result,
-      );
+      // Email sent successfully
 
       return result;
     } catch (error: any) {
-      console.error(`❌ [EmailService] Erreur envoi email ${type}:`, error);
-      throw error;
+      throw handleError(error, {
+        component: 'EmailService',
+        operation: 'sendEmail'
+      }, 'Erreur lors de l\'envoi de l\'email');
     }
   }
 
@@ -100,7 +101,7 @@ export class EmailService {
     totalVotes: number,
   ): Promise<void> {
     if (!poll.creatorEmail) {
-      console.warn("⚠️ [EmailService] Pas d'email créateur dans le sondage");
+      console.warn("EmailService: No creator email in poll");
       return;
     }
 
@@ -142,9 +143,12 @@ export class EmailService {
 
     results.forEach((result, index) => {
       if (result.status === "rejected") {
-        console.error(
-          `❌ [EmailService] Erreur email batch ${index}:`,
-          result.reason,
+        logError(
+          handleError(result.reason, {
+            component: 'EmailService',
+            operation: 'sendBatchEmails'
+          }, 'Erreur lors de l\'envoi d\'email en lot'),
+          { component: 'EmailService', operation: 'sendBatchEmails' }
         );
       }
     });
@@ -160,7 +164,13 @@ export class EmailService {
       });
       return response.ok;
     } catch (error) {
-      console.error("❌ [EmailService] Test de connectivité échoué:", error);
+      logError(
+        handleError(error, {
+          component: 'EmailService',
+          operation: 'testConnection'
+        }, 'Test de connectivité échoué'),
+        { component: 'EmailService', operation: 'testConnection' }
+      );
       return false;
     }
   }
@@ -174,7 +184,7 @@ export class EmailService {
   ): Promise<{ success: boolean; error?: string }> {
     try {
       if (!participantEmails || participantEmails.length === 0) {
-        console.warn("⚠️ [EmailService] Aucun email participant fourni");
+        console.warn("EmailService: No participant emails provided");
         return { success: true };
       }
 
@@ -190,7 +200,7 @@ export class EmailService {
 
       return { success: true };
     } catch (error: any) {
-      console.error("❌ [EmailService] Erreur sendPollCreated:", error);
+      console.error("EmailService sendPollCreated error:", error);
       return { success: false, error: error.message };
     }
   }
@@ -221,7 +231,7 @@ export class EmailService {
 
       return { success: true };
     } catch (error: any) {
-      console.error("❌ [EmailService] Erreur sendVoteNotification:", error);
+      console.error("EmailService sendVoteNotification error:", error);
       return { success: false, error: error.message };
     }
   }
@@ -237,13 +247,13 @@ export class EmailService {
       const testEmail = "julien.fritsch@gmail.com";
 
       if (!voterEmail && !testEmail) {
-        console.warn("⚠️ [EmailService] Pas d'email votant fourni");
+        console.warn("EmailService: No voter email provided");
         return { success: true };
       }
 
       const pollUrl = `${window.location.origin}/poll/${pollSlug}`;
 
-      console.log(`📧 [TEST] Envoi email confirmation vote vers: ${testEmail}`);
+      // Sending vote confirmation email to test address
 
       await this.sendEmail("vote_confirmation", {
         voterEmail: testEmail, // Use test email instead of voterEmail
@@ -254,11 +264,11 @@ export class EmailService {
         pollId: pollSlug,
       });
 
-      console.log("✅ [EmailService] Email de confirmation de vote envoyé");
+      // Vote confirmation email sent successfully
       return { success: true };
     } catch (error) {
       console.error(
-        "❌ [EmailService] Erreur envoi email confirmation vote:",
+        "EmailService vote confirmation error:",
         error,
       );
       return {
@@ -282,13 +292,13 @@ export class EmailService {
       const testEmail = "julien.fritsch@gmail.com";
 
       if (!creatorEmail && !testEmail) {
-        console.warn("⚠️ [EmailService] Pas d'email créateur fourni");
+        console.warn("EmailService: No creator email provided");
         return { success: true };
       }
 
       const pollUrl = `${window.location.origin}/poll/${pollSlug}`;
 
-      console.log(`📧 [TEST] Envoi email création sondage vers: ${testEmail}`);
+      // Sending poll creation email to test address
 
       await this.sendEmail("poll_created", {
         creatorEmail: testEmail, // Use test email instead of creatorEmail
@@ -297,10 +307,10 @@ export class EmailService {
         selectedDates,
       });
 
-      console.log("✅ [EmailService] Email de création de sondage envoyé");
+      // Poll creation email sent successfully
       return { success: true };
     } catch (error) {
-      console.error("❌ [EmailService] Erreur envoi email création:", error);
+      console.error("EmailService poll creation error:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Erreur inconnue",
