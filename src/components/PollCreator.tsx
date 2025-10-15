@@ -16,10 +16,17 @@ import {
   Loader2,
 } from "lucide-react";
 import Calendar from "./Calendar";
-import { usePolls, type PollData } from '../hooks/usePolls';
-import { PollCreatorService } from '../services/PollCreatorService';
-import type { PollCreationState as ServicePollCreationState, TimeSlot as ServiceTimeSlot } from '../services/PollCreatorService';
-import { PollCreationBusinessLogic, type PollCreationState, type TimeSlot } from '../services/PollCreationBusinessLogic';
+import { usePolls, type PollData } from "../hooks/usePolls";
+import { PollCreatorService } from "../services/PollCreatorService";
+import type {
+  PollCreationState as ServicePollCreationState,
+  TimeSlot as ServiceTimeSlot,
+} from "../services/PollCreatorService";
+import {
+  PollCreationBusinessLogic,
+  type PollCreationState,
+  type TimeSlot,
+} from "../services/PollCreationBusinessLogic";
 import { useAuth } from "../contexts/AuthContext";
 import { googleCalendar } from "../lib/google-calendar";
 import { UserMenu } from "./UserMenu";
@@ -28,7 +35,6 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { VoteGrid } from "@/components/voting/VoteGrid";
 import TopNav from "./TopNav";
-
 
 interface PollCreatorProps {
   onBack?: () => void;
@@ -64,63 +70,81 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         description: null,
         selectedDates: state.selectedDates,
         timeSlotsByDate: timeSlotsByDate,
-        participantEmails: state.participantEmails.split(',').map(email => email.trim()).filter(Boolean),
+        participantEmails: state.participantEmails
+          .split(",")
+          .map((email) => email.trim())
+          .filter(Boolean),
         settings: {
           timeGranularity: state.timeGranularity,
           allowAnonymousVotes: true,
           allowMaybeVotes: true,
           sendNotifications: state.notificationsEnabled,
-          expiresAt: state.expirationDays ? new Date(Date.now() + state.expirationDays * 24 * 60 * 60 * 1000).toISOString() : undefined
-        }
+          expiresAt: state.expirationDays
+            ? new Date(
+                Date.now() + state.expirationDays * 24 * 60 * 60 * 1000,
+              ).toISOString()
+            : undefined,
+        },
       });
       if (result.poll) {
         setCreatedPollSlug(result.poll.slug);
       }
     } catch (error) {
-      console.error('Error creating poll:', error);
+      console.error("Error creating poll:", error);
     }
   };
-  const toggleDate = (dateString: string) => PollCreatorService.toggleDate(dateString, state.selectedDates, setState);
-  const isGranularityCompatible = (granularity: number, timeSlots: TimeSlot[]) => PollCreatorService.isGranularityCompatible(granularity, timeSlots);
-  const handleGranularityChange = (granularity: number) => PollCreatorService.handleGranularityChange(granularity, setState);
+  const toggleDate = (dateString: string) =>
+    PollCreatorService.toggleDate(dateString, state.selectedDates, setState);
+  const isGranularityCompatible = (
+    granularity: number,
+    timeSlots: TimeSlot[],
+  ) => PollCreatorService.isGranularityCompatible(granularity, timeSlots);
+  const handleGranularityChange = (granularity: number) =>
+    PollCreatorService.handleGranularityChange(granularity, setState);
   const initialGranularityState = PollCreatorService.initialGranularityState;
-  const undoGranularityChange = () => PollCreatorService.undoGranularityChange(setState);
-  const validateEmails = (emailString: string) => PollCreatorService.validateEmails(emailString);
-  
+  const undoGranularityChange = () =>
+    PollCreatorService.undoGranularityChange(setState);
+  const validateEmails = (emailString: string) =>
+    PollCreatorService.validateEmails(emailString);
+
   const handleEmailInput = (emailString: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       participantEmails: emailString,
-      emailErrors: PollCreatorService.validateEmails(emailString)
+      emailErrors: PollCreatorService.validateEmails(emailString),
     }));
   };
-  
+
   const getVisibleTimeSlots = () => {
     const slots = [];
     const startHour = state.showExtendedHours ? 6 : 8;
     const endHour = state.showExtendedHours ? 23 : 20;
-    
+
     for (let hour = startHour; hour <= endHour; hour++) {
       for (let minute = 0; minute < 60; minute += state.timeGranularity) {
         slots.push({
           hour,
           minute,
-          label: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+          label: `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`,
         });
       }
     }
     return slots;
   };
-  
+
   const getTimeSlotBlocks = (dateStr: string) => {
-    return PollCreatorService.getTimeSlotBlocks(timeSlotsByDate[dateStr] || [], state.timeGranularity);
+    return PollCreatorService.getTimeSlotBlocks(
+      timeSlotsByDate[dateStr] || [],
+      state.timeGranularity,
+    );
   };
-  
 
   // Fonction pour réinitialiser complètement l'état
   const resetPollState = () => {
     localStorage.removeItem("doodates-draft");
-    const initialState = PollCreatorService.initializeWithGeminiData(initialData) as PollCreationState;
+    const initialState = PollCreatorService.initializeWithGeminiData(
+      initialData,
+    ) as PollCreationState;
     // Vérification de sécurité pour s'assurer que currentMonth est un objet Date valide
     if (
       !(initialState.currentMonth instanceof Date) ||
@@ -185,7 +209,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           }
         }
 
-
         // Réinitialiser complètement l'état avec toutes les propriétés requises
         const newState = {
           pollTitle: pollToEdit.title || "",
@@ -234,7 +257,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           }
         }
       } catch (error) {
-        console.error('Error loading poll data:', error);
+        console.error("Error loading poll data:", error);
       }
     };
 
@@ -246,7 +269,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   }, [editPollId, initialData]);
 
   const [state, setState] = useState<PollCreationState>(
-    PollCreatorService.initializeWithGeminiData(initialData) as PollCreationState,
+    PollCreatorService.initializeWithGeminiData(
+      initialData,
+    ) as PollCreationState,
   );
   const [visibleMonths, setVisibleMonths] = useState<Date[]>([]);
   const [timeSlotsByDate, setTimeSlotsByDate] = useState<
@@ -309,7 +334,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   // Effet pour activer automatiquement les horaires si des créneaux sont présélectionnés
   useEffect(() => {
     if (!initialData?.timeSlots?.length) return;
-    
+
     setState((prev) => ({
       ...prev,
       showTimeSlots: true,
@@ -321,8 +346,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const handleBackToHome = () => {
     // Get conversation ID from URL parameters (passed from GeminiChatInterface)
     const urlParams = new URLSearchParams(window.location.search);
-    const conversationId = urlParams.get('conversationId');
-    
+    const conversationId = urlParams.get("conversationId");
+
     if (conversationId) {
       navigate(`/dashboard?resume=${conversationId}`);
     } else {
@@ -366,7 +391,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 <Calendar
                   visibleMonths={visibleMonths}
                   selectedDates={state.selectedDates}
-                  onDateToggle={(date: Date) => toggleDate(date.toISOString().split('T')[0])}
+                  onDateToggle={(date: Date) =>
+                    toggleDate(date.toISOString().split("T")[0])
+                  }
                   onMonthChange={(direction) => {
                     if (direction === "prev") {
                       const prevMonth = new Date(visibleMonths[0]);
@@ -456,7 +483,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         </div>
                         {state.selectedDates.length > 0 && (
                           <button
-                            onClick={() => PollCreatorService.analyzeCalendarAvailability(state.selectedDates)}
+                            onClick={() =>
+                              PollCreatorService.analyzeCalendarAvailability(
+                                state.selectedDates,
+                              )
+                            }
                             className="text-xs bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors"
                           >
                             📊 Analyser disponibilités
@@ -614,12 +645,19 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           { value: 120, label: "2 heures" },
                           { value: 240, label: "4 heures" },
                         ].map((option) => {
-                          const compatible = PollCreatorService.isGranularityCompatible(option.value, state.timeSlots);
+                          const compatible =
+                            PollCreatorService.isGranularityCompatible(
+                              option.value,
+                              state.timeSlots,
+                            );
                           return (
                             <button
                               key={option.value}
                               onClick={() =>
-                                PollCreatorService.handleGranularityChange(option.value, setState)
+                                PollCreatorService.handleGranularityChange(
+                                  option.value,
+                                  setState,
+                                )
                               }
                               disabled={!compatible}
                               className={`px-3 py-1 text-sm rounded-full transition-colors
@@ -639,7 +677,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                       </div>
                       {PollCreatorService.initialGranularityState && (
                         <button
-                          onClick={() => PollCreatorService.undoGranularityChange(setState)}
+                          onClick={() =>
+                            PollCreatorService.undoGranularityChange(setState)
+                          }
                           className="mt-3 text-sm text-gray-600 hover:text-gray-800"
                         >
                           Annuler les changements
@@ -658,7 +698,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         Heure
                       </div>
                       {state.selectedDates.map((dateStr) => {
-                        const dateInfo = PollCreatorService.formatSelectedDateHeader(dateStr);
+                        const dateInfo =
+                          PollCreatorService.formatSelectedDateHeader(dateStr);
                         return (
                           <div
                             key={dateStr}
@@ -723,7 +764,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
                                 data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
                                 onClick={() =>
-                                  PollCreatorService.toggleDate(dateStr, state.selectedDates, setState)
+                                  PollCreatorService.toggleDate(
+                                    dateStr,
+                                    state.selectedDates,
+                                    setState,
+                                  )
                                 }
                                 className={`flex-1 relative transition-colors hover:bg-gray-50 border-r
                                   ${slot?.enabled ? "bg-green-50" : "bg-white"}
@@ -786,7 +831,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                         Heure
                       </div>
                       {state.selectedDates.map((dateStr) => {
-                        const dateInfo = PollCreatorService.formatSelectedDateHeader(dateStr);
+                        const dateInfo =
+                          PollCreatorService.formatSelectedDateHeader(dateStr);
                         return (
                           <div
                             key={dateStr}
@@ -851,7 +897,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
                                 data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
                                 onClick={() =>
-                                  PollCreatorService.toggleDate(dateStr, state.selectedDates, setState)
+                                  PollCreatorService.toggleDate(
+                                    dateStr,
+                                    state.selectedDates,
+                                    setState,
+                                  )
                                 }
                                 className={`flex-1 relative transition-colors hover:bg-gray-50 border-r
                                   ${slot?.enabled ? "bg-green-50" : "bg-white"}
@@ -1199,9 +1249,15 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           <div className="mt-2 text-sm text-green-700">
                             📧 Emails envoyés aux participants (
                             {
-                              state.participantEmails.split(',').filter(email => 
-                              email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-                            ).length
+                              state.participantEmails
+                                .split(",")
+                                .filter(
+                                  (email) =>
+                                    email.trim() &&
+                                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                                      email.trim(),
+                                    ),
+                                ).length
                             }{" "}
                             destinataires)
                           </div>

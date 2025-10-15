@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Plus, Users, BarChart3, Search, Vote, MessageSquare } from "lucide-react";
+import {
+  Calendar,
+  Plus,
+  Users,
+  BarChart3,
+  Search,
+  Vote,
+  MessageSquare,
+} from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./TopNav";
@@ -27,7 +35,9 @@ const Dashboard: React.FC = () => {
     "all",
   );
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"polls" | "conversations">("polls");
+  const [activeTab, setActiveTab] = useState<"polls" | "conversations">(
+    "polls",
+  );
 
   // États locaux pour gérer les sondages avec statistiques
   const [polls, setPolls] = useState<DashboardPoll[]>([]);
@@ -76,31 +86,31 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     getUserPolls();
-    
+
     // Listen for poll creation events
     const handlePollCreated = () => {
       getUserPolls(); // Refresh the list when a new poll is created
     };
-    
-    window.addEventListener('pollCreated', handlePollCreated);
-    
+
+    window.addEventListener("pollCreated", handlePollCreated);
+
     // Check for resume parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
-    const resumeConversationId = urlParams.get('conversationId');
-    
+    const resumeConversationId = urlParams.get("conversationId");
+
     if (resumeConversationId) {
       // Clear the URL parameter
       const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete('conversationId');
-      window.history.replaceState({}, '', newUrl.toString());
-      
+      newUrl.searchParams.delete("conversationId");
+      window.history.replaceState({}, "", newUrl.toString());
+
       // Navigate to conversation
       navigate(`/?conversationId=${resumeConversationId}`);
     }
 
     // Cleanup function to remove event listener
     return () => {
-      window.removeEventListener('pollCreated', handlePollCreated);
+      window.removeEventListener("pollCreated", handlePollCreated);
     };
   }, [navigate]);
 

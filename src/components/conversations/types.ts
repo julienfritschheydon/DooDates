@@ -3,10 +3,17 @@
  * DooDates - Conversation History System
  */
 
-import type { Conversation, ConversationSearchFilters } from '../../types/conversation';
+import type {
+  Conversation,
+  ConversationSearchFilters,
+} from "../../types/conversation";
 
-export type ConversationSortBy = 'createdAt' | 'updatedAt' | 'title' | 'messageCount';
-export type SortOrder = 'asc' | 'desc';
+export type ConversationSortBy =
+  | "createdAt"
+  | "updatedAt"
+  | "title"
+  | "messageCount";
+export type SortOrder = "asc" | "desc";
 
 export interface ConversationListProps {
   conversations: Conversation[];
@@ -18,7 +25,7 @@ export interface ConversationListProps {
   onResumeConversation?: (conversationId: string) => void;
   onViewPoll?: (pollId: string) => void;
   onCreateConversation?: () => void;
-  language?: 'fr' | 'en';
+  language?: "fr" | "en";
   compact?: boolean;
 }
 
@@ -27,7 +34,7 @@ export interface ConversationSearchProps {
   onFiltersChange: (filters: ConversationSearchFilters) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
-  language?: 'fr' | 'en';
+  language?: "fr" | "en";
   compact?: boolean;
 }
 
@@ -40,9 +47,9 @@ export interface ConversationActionsProps {
   onResume?: (conversationId: string) => void;
   onViewPoll?: (pollId: string) => void;
   onCopyLink?: (conversationId: string) => void;
-  onExport?: (conversationId: string, format: 'json' | 'txt' | 'pdf') => void;
-  mode?: 'dropdown' | 'inline';
-  language?: 'fr' | 'en';
+  onExport?: (conversationId: string, format: "json" | "txt" | "pdf") => void;
+  mode?: "dropdown" | "inline";
+  language?: "fr" | "en";
   compact?: boolean;
 }
 
@@ -52,13 +59,13 @@ export interface ConversationPreviewProps {
   onClose: () => void;
   onResume: (conversationId: string) => void;
   onViewPoll?: (pollId: string) => void;
-  language?: 'fr' | 'en';
+  language?: "fr" | "en";
 }
 
 // Extended Message interface for preview component
 export interface Message {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   createdAt: Date;
   metadata?: Record<string, any>;

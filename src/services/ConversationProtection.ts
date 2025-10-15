@@ -2,8 +2,8 @@
  * Conversation-specific protection against infinite creation
  */
 
-import { infiniteLoopProtection } from './InfiniteLoopProtection';
-import { logError, ErrorFactory } from '../lib/error-handling';
+import { infiniteLoopProtection } from "./InfiniteLoopProtection";
+import { logError, ErrorFactory } from "../lib/error-handling";
 
 class ConversationProtectionService {
   private static instance: ConversationProtectionService;
@@ -14,7 +14,8 @@ class ConversationProtectionService {
 
   static getInstance(): ConversationProtectionService {
     if (!ConversationProtectionService.instance) {
-      ConversationProtectionService.instance = new ConversationProtectionService();
+      ConversationProtectionService.instance =
+        new ConversationProtectionService();
     }
     return ConversationProtectionService.instance;
   }
@@ -24,23 +25,32 @@ class ConversationProtectionService {
    */
   canCreateConversation(): boolean {
     // Use global infinite loop protection
-    if (!infiniteLoopProtection.canExecute('conversation_creation')) {
+    if (!infiniteLoopProtection.canExecute("conversation_creation")) {
       return false;
     }
 
     // Check if initialization is already in progress
     if (this.initializationInProgress) {
-      console.log('🔒 Conversation creation already in progress');
+      console.log("🔒 Conversation creation already in progress");
       return false;
     }
 
     // Check creation attempts
     if (this.creationAttempts >= this.MAX_CREATION_ATTEMPTS) {
-      logError(ErrorFactory.rateLimit('Too many conversation creation attempts', 'Trop de tentatives de création de conversation'), {
-        component: 'ConversationProtection',
-        operation: 'canCreateConversation',
-        metadata: { attempts: this.creationAttempts, maxAttempts: this.MAX_CREATION_ATTEMPTS }
-      });
+      logError(
+        ErrorFactory.rateLimit(
+          "Too many conversation creation attempts",
+          "Trop de tentatives de création de conversation",
+        ),
+        {
+          component: "ConversationProtection",
+          operation: "canCreateConversation",
+          metadata: {
+            attempts: this.creationAttempts,
+            maxAttempts: this.MAX_CREATION_ATTEMPTS,
+          },
+        },
+      );
       return false;
     }
 
@@ -89,9 +99,10 @@ class ConversationProtectionService {
       initializationInProgress: this.initializationInProgress,
       lastConversationCreated: this.lastConversationCreated,
       creationAttempts: this.creationAttempts,
-      canCreate: this.canCreateConversation()
+      canCreate: this.canCreateConversation(),
     };
   }
 }
 
-export const conversationProtection = ConversationProtectionService.getInstance();
+export const conversationProtection =
+  ConversationProtectionService.getInstance();

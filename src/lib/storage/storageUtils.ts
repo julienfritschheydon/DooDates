@@ -1,4 +1,4 @@
-import { logError, ErrorFactory } from '../error-handling';
+import { logError, ErrorFactory } from "../error-handling";
 
 /**
  * Common localStorage utilities for polls and conversations
@@ -14,9 +14,9 @@ export function hasWindow(): boolean {
  * Generic localStorage read with memory cache
  */
 export function readFromStorage<T>(
-  key: string, 
+  key: string,
   cache: Map<string, T>,
-  defaultValue: T[] = []
+  defaultValue: T[] = [],
 ): T[] {
   try {
     // Try memory cache first
@@ -27,23 +27,29 @@ export function readFromStorage<T>(
     // Read from localStorage
     const raw = hasWindow() ? window.localStorage.getItem(key) : null;
     const items = raw ? (JSON.parse(raw) as T[]) : defaultValue;
-    
+
     // Update memory cache if items have id property
     if (Array.isArray(items)) {
-      items.forEach(item => {
-        if (item && typeof item === 'object' && 'id' in item) {
+      items.forEach((item) => {
+        if (item && typeof item === "object" && "id" in item) {
           cache.set((item as any).id, item);
         }
       });
     }
-    
+
     return items;
   } catch (error) {
-    logError(ErrorFactory.storage(`Failed to read from ${key}`, `Échec de lecture depuis ${key}`), {
-      component: 'storageUtils',
-      operation: 'readFromStorage',
-      metadata: { key, originalError: error }
-    });
+    logError(
+      ErrorFactory.storage(
+        `Failed to read from ${key}`,
+        `Échec de lecture depuis ${key}`,
+      ),
+      {
+        component: "storageUtils",
+        operation: "readFromStorage",
+        metadata: { key, originalError: error },
+      },
+    );
     return defaultValue;
   }
 }
@@ -54,27 +60,33 @@ export function readFromStorage<T>(
 export function writeToStorage<T>(
   key: string,
   items: T[],
-  cache: Map<string, T>
+  cache: Map<string, T>,
 ): void {
   if (!hasWindow()) return;
-  
+
   try {
     // Update memory cache
     cache.clear();
-    items.forEach(item => {
-      if (item && typeof item === 'object' && 'id' in item) {
+    items.forEach((item) => {
+      if (item && typeof item === "object" && "id" in item) {
         cache.set((item as any).id, item);
       }
     });
-    
+
     // Save to localStorage
     window.localStorage.setItem(key, JSON.stringify(items));
   } catch (error) {
-    logError(ErrorFactory.storage(`Failed to write to ${key}`, `Échec d'écriture vers ${key}`), {
-      component: 'storageUtils',
-      operation: 'writeToStorage',
-      metadata: { key, originalError: error }
-    });
+    logError(
+      ErrorFactory.storage(
+        `Failed to write to ${key}`,
+        `Échec d'écriture vers ${key}`,
+      ),
+      {
+        component: "storageUtils",
+        operation: "writeToStorage",
+        metadata: { key, originalError: error },
+      },
+    );
   }
 }
 
@@ -84,7 +96,7 @@ export function writeToStorage<T>(
 export function addToStorage<T>(
   key: string,
   item: T,
-  cache: Map<string, T>
+  cache: Map<string, T>,
 ): void {
   const items = readFromStorage(key, cache);
   items.push(item);
@@ -97,12 +109,12 @@ export function addToStorage<T>(
 export function findById<T>(
   id: string,
   key: string,
-  cache: Map<string, T>
+  cache: Map<string, T>,
 ): T | null {
   // Try memory cache first
   const cached = cache.get(id);
   if (cached) return cached;
-  
+
   // Search in all items
   const items = readFromStorage(key, cache);
   return items.find((item: any) => item.id === id) || null;
@@ -114,11 +126,13 @@ export function findById<T>(
 export function updateInStorage<T>(
   key: string,
   updatedItem: T,
-  cache: Map<string, T>
+  cache: Map<string, T>,
 ): void {
   const items = readFromStorage(key, cache);
-  const index = items.findIndex((item: any) => item.id === (updatedItem as any).id);
-  
+  const index = items.findIndex(
+    (item: any) => item.id === (updatedItem as any).id,
+  );
+
   if (index >= 0) {
     items[index] = updatedItem;
     writeToStorage(key, items, cache);
@@ -131,7 +145,7 @@ export function updateInStorage<T>(
 export function deleteFromStorage<T>(
   key: string,
   id: string,
-  cache: Map<string, T>
+  cache: Map<string, T>,
 ): void {
   const items = readFromStorage(key, cache);
   const filtered = items.filter((item: any) => item.id !== id);
@@ -144,16 +158,22 @@ export function deleteFromStorage<T>(
  */
 export function clearStorage(keys: string[], caches: Map<string, any>[]): void {
   if (!hasWindow()) return;
-  
+
   try {
-    keys.forEach(key => window.localStorage.removeItem(key));
-    caches.forEach(cache => cache.clear());
+    keys.forEach((key) => window.localStorage.removeItem(key));
+    caches.forEach((cache) => cache.clear());
   } catch (error) {
-    logError(ErrorFactory.storage('Failed to clear storage', 'Échec de nettoyage du stockage'), {
-      component: 'storageUtils',
-      operation: 'clearStorage',
-      metadata: { keys, originalError: error }
-    });
+    logError(
+      ErrorFactory.storage(
+        "Failed to clear storage",
+        "Échec de nettoyage du stockage",
+      ),
+      {
+        component: "storageUtils",
+        operation: "clearStorage",
+        metadata: { keys, originalError: error },
+      },
+    );
   }
 }
 
@@ -163,7 +183,7 @@ export function clearStorage(keys: string[], caches: Map<string, any>[]): void {
 export function readRecordStorage<T>(
   key: string,
   cache: Map<string, T[]>,
-  recordId: string
+  recordId: string,
 ): T[] {
   try {
     // Try memory cache first
@@ -173,19 +193,25 @@ export function readRecordStorage<T>(
     // Read from localStorage
     const raw = hasWindow() ? window.localStorage.getItem(key) : null;
     const allRecords = raw ? (JSON.parse(raw) as Record<string, T[]>) : {};
-    
+
     const records = allRecords[recordId] || [];
-    
+
     // Update memory cache
     cache.set(recordId, records);
-    
+
     return records;
   } catch (error) {
-    logError(ErrorFactory.storage(`Failed to read records from ${key}`, `Échec de lecture des enregistrements depuis ${key}`), {
-      component: 'storageUtils',
-      operation: 'readRecordStorage',
-      metadata: { key, recordId, originalError: error }
-    });
+    logError(
+      ErrorFactory.storage(
+        `Failed to read records from ${key}`,
+        `Échec de lecture des enregistrements depuis ${key}`,
+      ),
+      {
+        component: "storageUtils",
+        operation: "readRecordStorage",
+        metadata: { key, recordId, originalError: error },
+      },
+    );
     return [];
   }
 }
@@ -197,21 +223,21 @@ export function writeRecordStorage<T>(
   key: string,
   cache: Map<string, T[]>,
   recordId: string,
-  records: T[]
+  records: T[],
 ): void {
   if (!hasWindow()) return;
-  
+
   try {
     // Read all records
     const raw = window.localStorage.getItem(key);
     const allRecords = raw ? (JSON.parse(raw) as Record<string, T[]>) : {};
-    
+
     // Update records for this ID
     allRecords[recordId] = records;
-    
+
     // Update memory cache
     cache.set(recordId, records);
-    
+
     // Save back to localStorage
     window.localStorage.setItem(key, JSON.stringify(allRecords));
   } catch (error) {
@@ -230,7 +256,7 @@ export function addRecords<T>(
   key: string,
   cache: Map<string, T[]>,
   recordId: string,
-  newRecords: T[]
+  newRecords: T[],
 ): void {
   const existingRecords = readRecordStorage(key, cache, recordId);
   const allRecords = [...existingRecords, ...newRecords];
@@ -243,23 +269,29 @@ export function addRecords<T>(
 export function deleteRecords<T>(
   key: string,
   cache: Map<string, T[]>,
-  recordId: string
+  recordId: string,
 ): void {
   if (!hasWindow()) return;
-  
+
   try {
     const raw = window.localStorage.getItem(key);
     const allRecords = raw ? (JSON.parse(raw) as Record<string, T[]>) : {};
-    
+
     delete allRecords[recordId];
     cache.delete(recordId);
-    
+
     window.localStorage.setItem(key, JSON.stringify(allRecords));
   } catch (error) {
-    logError(ErrorFactory.storage(`Failed to delete records from ${key}`, `Échec de suppression des enregistrements depuis ${key}`), {
-      component: 'storageUtils', 
-      operation: 'deleteRecordStorage',
-      metadata: { key, recordId, originalError: error }
-    });
+    logError(
+      ErrorFactory.storage(
+        `Failed to delete records from ${key}`,
+        `Échec de suppression des enregistrements depuis ${key}`,
+      ),
+      {
+        component: "storageUtils",
+        operation: "deleteRecordStorage",
+        metadata: { key, recordId, originalError: error },
+      },
+    );
   }
 }

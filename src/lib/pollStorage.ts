@@ -11,8 +11,8 @@ import {
   updateInStorage,
   deleteFromStorage,
   readRecordStorage,
-  writeRecordStorage
-} from './storage/storageUtils';
+  writeRecordStorage,
+} from "./storage/storageUtils";
 // import { compress, decompress } from "./compression"; // TODO: Implement compression module
 import { handleError, ErrorFactory, logError } from "./error-handling";
 
@@ -80,7 +80,7 @@ interface UnknownPollData {
   [key: string]: unknown;
 }
 
-// Define interface for legacy form poll data during migration  
+// Define interface for legacy form poll data during migration
 interface LegacyFormPoll {
   id?: string;
   created_at?: string;
@@ -147,35 +147,43 @@ export function getPolls(): Poll[] {
       } catch (e) {
         // Use proper typing for unknown poll data
         const pollData = p as unknown as UnknownPollData;
-        const validationError = handleError(e, {
-          component: 'pollStorage',
-          operation: 'getPolls',
-          pollId: pollData?.id
-        }, 'Poll invalide ignoré');
-        
+        const validationError = handleError(
+          e,
+          {
+            component: "pollStorage",
+            operation: "getPolls",
+            pollId: pollData?.id,
+          },
+          "Poll invalide ignoré",
+        );
+
         logError(validationError, {
-          component: 'pollStorage',
-          operation: 'validateDatePoll',
+          component: "pollStorage",
+          operation: "validateDatePoll",
           pollData: {
             id: pollData?.id,
             slug: pollData?.slug,
-            title: pollData?.title
-          }
+            title: pollData?.title,
+          },
         });
       }
     }
     return validDatePolls;
   } catch (error) {
-    const storageError = handleError(error, {
-      component: 'pollStorage',
-      operation: 'getAllPolls'
-    }, 'Erreur lors de la lecture de tous les sondages');
-    
+    const storageError = handleError(
+      error,
+      {
+        component: "pollStorage",
+        operation: "getAllPolls",
+      },
+      "Erreur lors de la lecture de tous les sondages",
+    );
+
     logError(storageError, {
-      component: 'pollStorage',
-      operation: 'getAllPolls'
+      component: "pollStorage",
+      operation: "getAllPolls",
     });
-    
+
     return [];
   }
 }
@@ -262,14 +270,14 @@ export async function copyToClipboard(text: string): Promise<void> {
   // Environnement non-browser: on ne peut pas copier, on échoue proprement
   const clipboardError = ErrorFactory.critical(
     "Clipboard non disponible dans cet environnement",
-    "Impossible de copier dans le presse-papier"
+    "Impossible de copier dans le presse-papier",
   );
-  
+
   logError(clipboardError, {
-    component: 'pollStorage',
-    operation: 'copyToClipboard'
+    component: "pollStorage",
+    operation: "copyToClipboard",
   });
-  
+
   throw clipboardError;
 }
 
@@ -289,14 +297,14 @@ function validatePoll(poll: Poll): void {
     if (!isNonEmptyStringArray(dates)) {
       const validationError = ErrorFactory.validation(
         "Invalid date poll: settings.selectedDates must be a non-empty array of strings",
-        "Le sondage doit contenir au moins une date valide"
+        "Le sondage doit contenir au moins une date valide",
       );
-      
+
       logError(validationError, {
-        component: 'pollStorage',
-        operation: 'validateDatePoll'
+        component: "pollStorage",
+        operation: "validateDatePoll",
       });
-      
+
       throw validationError;
     }
     return;
@@ -306,14 +314,14 @@ function validatePoll(poll: Poll): void {
     if (!poll?.title || typeof poll.title !== "string" || !poll.title.trim()) {
       const validationError = ErrorFactory.validation(
         "Invalid form poll: title must be a non-empty string",
-        "Le titre du formulaire est obligatoire"
+        "Le titre du formulaire est obligatoire",
       );
-      
+
       logError(validationError, {
-        component: 'pollStorage',
-        operation: 'validateFormPoll'
+        component: "pollStorage",
+        operation: "validateFormPoll",
       });
-      
+
       throw validationError;
     }
     return;
@@ -343,36 +351,44 @@ export function getAllPolls(): Poll[] {
       } catch (e) {
         // Use proper typing for unknown poll data
         const pollData = p as unknown as UnknownPollData;
-        const validationError = handleError(e, {
-          component: 'pollStorage',
-          operation: 'getAllPolls',
-          pollId: pollData?.id
-        }, 'Poll invalide ignoré');
-        
+        const validationError = handleError(
+          e,
+          {
+            component: "pollStorage",
+            operation: "getAllPolls",
+            pollId: pollData?.id,
+          },
+          "Poll invalide ignoré",
+        );
+
         logError(validationError, {
-          component: 'pollStorage',
-          operation: 'validateUnifiedPoll',
+          component: "pollStorage",
+          operation: "validateUnifiedPoll",
           pollData: {
             id: pollData?.id,
             slug: pollData?.slug,
             title: pollData?.title,
-            type: pollData?.type
-          }
+            type: pollData?.type,
+          },
         });
       }
     }
     return valid;
   } catch (error) {
-    const storageError = handleError(error, {
-      component: 'pollStorage',
-      operation: 'getAllPolls'
-    }, 'Erreur lors de la lecture de tous les sondages');
-    
+    const storageError = handleError(
+      error,
+      {
+        component: "pollStorage",
+        operation: "getAllPolls",
+      },
+      "Erreur lors de la lecture de tous les sondages",
+    );
+
     logError(storageError, {
-      component: 'pollStorage',
-      operation: 'getAllPolls'
+      component: "pollStorage",
+      operation: "getAllPolls",
     });
-    
+
     return [];
   }
 }
@@ -393,9 +409,9 @@ function migrateFormDraftsIntoUnified(): void {
     const existingIds = new Set(unified.map((p) => p.id));
     let migrated = 0;
     for (const f of forms) {
-      const id = (f && typeof f === "object" ? (f as LegacyFormPoll).id : undefined) as
-        | string
-        | undefined;
+      const id = (
+        f && typeof f === "object" ? (f as LegacyFormPoll).id : undefined
+      ) as string | undefined;
       if (id && existingIds.has(id)) continue;
       const formPoll: Poll = {
         id: id || `form-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -425,14 +441,18 @@ function migrateFormDraftsIntoUnified(): void {
       window.localStorage.removeItem(FORM_STORAGE_KEY);
     }
   } catch (e) {
-    const migrationError = handleError(e, {
-      component: 'pollStorage',
-      operation: 'migrateFormDrafts'
-    }, 'Migration des brouillons formulaires échouée');
-    
+    const migrationError = handleError(
+      e,
+      {
+        component: "pollStorage",
+        operation: "migrateFormDrafts",
+      },
+      "Migration des brouillons formulaires échouée",
+    );
+
     logError(migrationError, {
-      component: 'pollStorage',
-      operation: 'migrateFormDrafts'
+      component: "pollStorage",
+      operation: "migrateFormDrafts",
     });
   }
 }
@@ -443,7 +463,11 @@ const memoryResponsesCache = new Map<string, FormResponse>();
 
 function readAllResponses(): FormResponse[] {
   try {
-    const fromStorage = readFromStorage(FORM_RESPONSES_KEY, memoryResponsesCache, []);
+    const fromStorage = readFromStorage(
+      FORM_RESPONSES_KEY,
+      memoryResponsesCache,
+      [],
+    );
     // Merge with in-memory cache (avoid duplicates by id)
     const byId = new Map<string, FormResponse>();
     for (const r of memoryResponses) byId.set(r.id, r);
@@ -453,16 +477,20 @@ function readAllResponses(): FormResponse[] {
     memoryResponses = merged;
     return merged;
   } catch (error) {
-    const readError = handleError(error, {
-      component: 'pollStorage',
-      operation: 'readAllResponses'
-    }, 'Erreur lors de la lecture des réponses');
-    
+    const readError = handleError(
+      error,
+      {
+        component: "pollStorage",
+        operation: "readAllResponses",
+      },
+      "Erreur lors de la lecture des réponses",
+    );
+
     logError(readError, {
-      component: 'pollStorage',
-      operation: 'readAllResponses'
+      component: "pollStorage",
+      operation: "readAllResponses",
     });
-    
+
     // Fallback to memory cache if JSON parse fails or other issue
     return memoryResponses.slice();
   }
@@ -496,15 +524,15 @@ function assertValidFormAnswer(poll: Poll, items: FormResponseItem[]): void {
       if (!it) {
         const validationError = ErrorFactory.validation(
           "Missing required answer",
-          "Réponse obligatoire manquante"
+          "Réponse obligatoire manquante",
         );
-        
+
         logError(validationError, {
-          component: 'pollStorage',
-          operation: 'assertValidFormAnswer',
-          questionId: q.id
+          component: "pollStorage",
+          operation: "assertValidFormAnswer",
+          questionId: q.id,
         });
-        
+
         throw validationError;
       }
       if (
@@ -513,44 +541,44 @@ function assertValidFormAnswer(poll: Poll, items: FormResponseItem[]): void {
       ) {
         const validationError = ErrorFactory.validation(
           "Text answer required",
-          "Réponse textuelle obligatoire"
+          "Réponse textuelle obligatoire",
         );
-        
+
         logError(validationError, {
-          component: 'pollStorage',
-          operation: 'assertValidFormAnswer',
-          questionId: q.id
+          component: "pollStorage",
+          operation: "assertValidFormAnswer",
+          questionId: q.id,
         });
-        
+
         throw validationError;
       }
       if (q.kind === "single" && (typeof it.value !== "string" || !it.value)) {
         const validationError = ErrorFactory.validation(
           "Single choice required",
-          "Choix unique obligatoire"
+          "Choix unique obligatoire",
         );
-        
+
         logError(validationError, {
-          component: 'pollStorage',
-          operation: 'assertValidFormAnswer',
-          questionId: q.id
+          component: "pollStorage",
+          operation: "assertValidFormAnswer",
+          questionId: q.id,
         });
-        
+
         throw validationError;
       }
       if (q.kind === "multiple") {
         if (!Array.isArray(it.value) || it.value.length === 0) {
           const validationError = ErrorFactory.validation(
             "At least one choice required",
-            "Au moins un choix obligatoire"
+            "Au moins un choix obligatoire",
           );
-          
+
           logError(validationError, {
-            component: 'pollStorage',
-            operation: 'assertValidFormAnswer',
-            questionId: q.id
+            component: "pollStorage",
+            operation: "assertValidFormAnswer",
+            questionId: q.id,
           });
-          
+
           throw validationError;
         }
       }
@@ -561,16 +589,16 @@ function assertValidFormAnswer(poll: Poll, items: FormResponseItem[]): void {
       if (Array.isArray(v) && v.length > q.maxChoices) {
         const validationError = ErrorFactory.validation(
           "Too many choices",
-          "Trop de choix sélectionnés"
+          "Trop de choix sélectionnés",
         );
-        
+
         logError(validationError, {
-          component: 'pollStorage',
-          operation: 'assertValidFormAnswer',
+          component: "pollStorage",
+          operation: "assertValidFormAnswer",
           questionId: q.id,
-          maxChoices: q.maxChoices
+          maxChoices: q.maxChoices,
         });
-        
+
         throw validationError;
       }
     }
@@ -586,15 +614,15 @@ export function addFormResponse(params: {
   if (!poll) {
     const notFoundError = ErrorFactory.validation(
       "Form poll not found",
-      "Sondage de formulaire introuvable"
+      "Sondage de formulaire introuvable",
     );
-    
+
     logError(notFoundError, {
-      component: 'pollStorage',
-      operation: 'addFormResponse',
-      pollId: params.pollId
+      component: "pollStorage",
+      operation: "addFormResponse",
+      pollId: params.pollId,
     });
-    
+
     throw notFoundError;
   }
   // Validation (required + maxChoices)
@@ -634,15 +662,15 @@ export function getFormResults(pollId: string): FormResults {
   if (!poll) {
     const notFoundError = ErrorFactory.validation(
       "Form poll not found",
-      "Sondage de formulaire introuvable"
+      "Sondage de formulaire introuvable",
     );
-    
+
     logError(notFoundError, {
-      component: 'pollStorage',
-      operation: 'getFormResults',
-      pollId
+      component: "pollStorage",
+      operation: "getFormResults",
+      pollId,
     });
-    
+
     throw notFoundError;
   }
   const all = readAllResponses().filter((r) => r.pollId === pollId);
@@ -752,16 +780,20 @@ export function getAllVotes(): Vote[] {
     const stored = localStorage.getItem(VOTES_STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
-    const storageError = handleError(error, {
-      component: 'pollStorage',
-      operation: 'getAllPolls'
-    }, 'Erreur lors de la lecture de tous les sondages');
-    
+    const storageError = handleError(
+      error,
+      {
+        component: "pollStorage",
+        operation: "getAllPolls",
+      },
+      "Erreur lors de la lecture de tous les sondages",
+    );
+
     logError(storageError, {
-      component: 'pollStorage',
-      operation: 'getAllPolls'
+      component: "pollStorage",
+      operation: "getAllPolls",
     });
-    
+
     return [];
   }
 }
@@ -770,21 +802,25 @@ export function saveVotes(votes: Vote[]): void {
   try {
     localStorage.setItem(VOTES_STORAGE_KEY, JSON.stringify(votes));
   } catch (error) {
-    const handledError = handleError(error, { 
-      component: 'pollStorage', 
-      operation: 'saveVotes' 
-    }, "Erreur lors de la sauvegarde des votes");
+    const handledError = handleError(
+      error,
+      {
+        component: "pollStorage",
+        operation: "saveVotes",
+      },
+      "Erreur lors de la sauvegarde des votes",
+    );
     throw handledError;
   }
 }
 
 export function getVotesByPollId(pollId: string): Vote[] {
-  return getAllVotes().filter(vote => vote.poll_id === pollId);
+  return getAllVotes().filter((vote) => vote.poll_id === pollId);
 }
 
 export function deleteVotesByPollId(pollId: string): void {
   const allVotes = getAllVotes();
-  const filteredVotes = allVotes.filter(vote => vote.poll_id !== pollId);
+  const filteredVotes = allVotes.filter((vote) => vote.poll_id !== pollId);
   saveVotes(filteredVotes);
 }
 

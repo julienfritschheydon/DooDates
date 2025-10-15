@@ -3,8 +3,8 @@
  * Extracted from hooks to improve separation of concerns
  */
 
-import type { Conversation, ConversationMessage } from '../types/conversation';
-import { logError, ErrorFactory } from '../lib/error-handling';
+import type { Conversation, ConversationMessage } from "../types/conversation";
+import { logError, ErrorFactory } from "../lib/error-handling";
 
 export interface PollSuggestion {
   title: string;
@@ -31,24 +31,33 @@ export class ConversationService {
   /**
    * Resume conversation from URL parameter
    */
-  static async resumeFromUrl(autoSave: any): Promise<{ conversation: Conversation; messages: ConversationMessage[] } | null> {
+  static async resumeFromUrl(autoSave: any): Promise<{
+    conversation: Conversation;
+    messages: ConversationMessage[];
+  } | null> {
     try {
       const urlParams = new URLSearchParams(window.location.search);
-      const resumeId = urlParams.get('resume');
-      
+      const resumeId = urlParams.get("resume");
+
       if (!resumeId) {
         return null;
       }
-      
+
       const result = await autoSave.resumeConversation(resumeId);
       return result;
     } catch (error) {
-      logError(ErrorFactory.storage('Error resuming conversation from URL', 'Erreur lors de la reprise de conversation'), {
-        component: 'ConversationService',
-        operation: 'resumeConversationFromUrl',
-        conversationId: resumeId,
-        originalError: error
-      });
+      logError(
+        ErrorFactory.storage(
+          "Error resuming conversation from URL",
+          "Erreur lors de la reprise de conversation",
+        ),
+        {
+          component: "ConversationService",
+          operation: "resumeConversationFromUrl",
+          conversationId: resumeId,
+          originalError: error,
+        },
+      );
       return null;
     }
   }
@@ -57,19 +66,22 @@ export class ConversationService {
    * Convert conversation messages to chat interface format
    */
   static convertMessagesToChat(messages: ConversationMessage[]): Message[] {
-    return messages.map(msg => ({
+    return messages.map((msg) => ({
       id: msg.id,
       content: msg.content,
-      isAI: msg.role === 'assistant',
+      isAI: msg.role === "assistant",
       timestamp: new Date(msg.timestamp),
-      pollSuggestion: msg.metadata?.pollGenerated && msg.metadata?.title ? {
-        title: msg.metadata.title,
-        description: msg.metadata.description,
-        dates: msg.metadata.dates || [],
-        timeSlots: msg.metadata.timeSlots,
-        type: msg.metadata.type || 'date',
-        participants: msg.metadata.participants
-      } as PollSuggestion : undefined,
+      pollSuggestion:
+        msg.metadata?.pollGenerated && msg.metadata?.title
+          ? ({
+              title: msg.metadata.title,
+              description: msg.metadata.description,
+              dates: msg.metadata.dates || [],
+              timeSlots: msg.metadata.timeSlots,
+              type: msg.metadata.type || "date",
+              participants: msg.metadata.participants,
+            } as PollSuggestion)
+          : undefined,
     }));
   }
 
@@ -90,32 +102,45 @@ export class ConversationService {
    */
   static async loadResumedConversation(
     autoSave: any,
-    setMessages: (messages: Message[]) => void
+    setMessages: (messages: Message[]) => void,
   ): Promise<void> {
     try {
       const result = await this.resumeFromUrl(autoSave);
-      
+
       if (result && result.conversation && result.messages) {
-        console.log('🔄 Resuming conversation from URL:', result.conversation.title);
-        
+        console.log(
+          "🔄 Resuming conversation from URL:",
+          result.conversation.title,
+        );
+
         const messages = result.messages;
-        
+
         if (messages && messages.length > 0) {
           const chatMessages = this.convertMessagesToChat(messages);
           setMessages(chatMessages);
-          console.log(`✅ Resumed conversation: ${result.conversation.title} with ${chatMessages.length} messages`);
+          console.log(
+            `✅ Resumed conversation: ${result.conversation.title} with ${chatMessages.length} messages`,
+          );
         } else {
-          const resumeMessage = this.createResumeMessage(result.conversation.title);
+          const resumeMessage = this.createResumeMessage(
+            result.conversation.title,
+          );
           setMessages([resumeMessage]);
         }
       }
     } catch (error) {
-      logError(ErrorFactory.storage('Error loading resumed conversation', 'Erreur lors du chargement de la conversation reprise'), {
-        component: 'ConversationService',
-        operation: 'loadResumedConversation', 
-        conversationId: result?.conversation?.id,
-        originalError: error
-      });
+      logError(
+        ErrorFactory.storage(
+          "Error loading resumed conversation",
+          "Erreur lors du chargement de la conversation reprise",
+        ),
+        {
+          component: "ConversationService",
+          operation: "loadResumedConversation",
+          conversationId: result?.conversation?.id,
+          originalError: error,
+        },
+      );
     }
   }
 }

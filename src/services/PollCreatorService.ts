@@ -3,8 +3,8 @@
  * Extracted from PollCreator component to improve separation of concerns
  */
 
-import type { PollData } from '../hooks/usePolls';
-import { handleError, ErrorFactory, logError } from '../lib/error-handling';
+import type { PollData } from "../hooks/usePolls";
+import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 
 export interface TimeSlot {
   hour: number;
@@ -40,9 +40,11 @@ export class PollCreatorService {
    * Check if poll can be finalized
    */
   static canFinalize(state: PollCreationState): boolean {
-    return state.selectedDates.length > 0 && 
-           state.pollTitle.trim().length > 0 &&
-           state.emailErrors.length === 0;
+    return (
+      state.selectedDates.length > 0 &&
+      state.pollTitle.trim().length > 0 &&
+      state.emailErrors.length === 0
+    );
   }
 
   /**
@@ -51,12 +53,12 @@ export class PollCreatorService {
   static async handleFinalize(
     state: PollCreationState,
     createPoll: (pollData: PollData) => Promise<string>,
-    onPollCreated?: (slug: string) => void
+    onPollCreated?: (slug: string) => void,
   ): Promise<void> {
     if (!this.canFinalize(state)) {
       throw ErrorFactory.validation(
-        'Poll cannot be finalized - missing required fields',
-        'Veuillez remplir tous les champs requis pour finaliser le sondage.'
+        "Poll cannot be finalized - missing required fields",
+        "Veuillez remplir tous les champs requis pour finaliser le sondage.",
       );
     }
 
@@ -64,28 +66,39 @@ export class PollCreatorService {
       title: state.pollTitle,
       description: null,
       selectedDates: state.selectedDates,
-      timeSlotsByDate: state.showTimeSlots ? 
-        state.selectedDates.reduce((acc, date) => {
-          acc[date] = state.timeSlots;
-          return acc;
-        }, {} as Record<string, typeof state.timeSlots>) : {},
-      participantEmails: state.participantEmails.split(',').map(email => email.trim()).filter(Boolean),
+      timeSlotsByDate: state.showTimeSlots
+        ? state.selectedDates.reduce(
+            (acc, date) => {
+              acc[date] = state.timeSlots;
+              return acc;
+            },
+            {} as Record<string, typeof state.timeSlots>,
+          )
+        : {},
+      participantEmails: state.participantEmails
+        .split(",")
+        .map((email) => email.trim())
+        .filter(Boolean),
       settings: {
         timeGranularity: state.timeGranularity,
         allowAnonymousVotes: true,
         allowMaybeVotes: true,
         sendNotifications: state.notificationsEnabled,
-      }
+      },
     };
 
     try {
       const slug = await createPoll(pollData);
       onPollCreated?.(slug);
     } catch (error) {
-      throw handleError(error, {
-        component: 'PollCreatorService',
-        operation: 'handleFinalize'
-      }, 'Erreur lors de la création du sondage');
+      throw handleError(
+        error,
+        {
+          component: "PollCreatorService",
+          operation: "handleFinalize",
+        },
+        "Erreur lors de la création du sondage",
+      );
     }
   }
 
@@ -95,13 +108,13 @@ export class PollCreatorService {
   static toggleDate(
     dateString: string,
     selectedDates: string[],
-    setState: (updater: (prev: PollCreationState) => PollCreationState) => void
+    setState: (updater: (prev: PollCreationState) => PollCreationState) => void,
   ): void {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       selectedDates: prev.selectedDates.includes(dateString)
-        ? prev.selectedDates.filter(d => d !== dateString)
-        : [...prev.selectedDates, dateString]
+        ? prev.selectedDates.filter((d) => d !== dateString)
+        : [...prev.selectedDates, dateString],
     }));
   }
 
@@ -111,24 +124,31 @@ export class PollCreatorService {
   static async analyzeCalendarAvailability(dates: string[]): Promise<any[]> {
     try {
       // Placeholder for calendar integration
-      logError(new Error('Calendar integration not implemented'), {
-        component: 'PollCreatorService',
-        operation: 'analyzeCalendarAvailability'
+      logError(new Error("Calendar integration not implemented"), {
+        component: "PollCreatorService",
+        operation: "analyzeCalendarAvailability",
       });
       return [];
     } catch (error) {
-      throw handleError(error, {
-        component: 'PollCreatorService',
-        operation: 'analyzeCalendarAvailability'
-      }, 'Erreur lors de l\'analyse du calendrier');
+      throw handleError(
+        error,
+        {
+          component: "PollCreatorService",
+          operation: "analyzeCalendarAvailability",
+        },
+        "Erreur lors de l'analyse du calendrier",
+      );
     }
   }
 
   /**
    * Check if granularity is compatible with selected time slots
    */
-  static isGranularityCompatible(granularity: number, timeSlots: TimeSlot[]): boolean {
-    return timeSlots.every(slot => (slot.minute % granularity) === 0);
+  static isGranularityCompatible(
+    granularity: number,
+    timeSlots: TimeSlot[],
+  ): boolean {
+    return timeSlots.every((slot) => slot.minute % granularity === 0);
   }
 
   /**
@@ -136,12 +156,12 @@ export class PollCreatorService {
    */
   static handleGranularityChange(
     newGranularity: number,
-    setState: (updater: (prev: PollCreationState) => PollCreationState) => void
+    setState: (updater: (prev: PollCreationState) => PollCreationState) => void,
   ): void {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeGranularity: newGranularity,
-      showGranularitySettings: false
+      showGranularitySettings: false,
     }));
   }
 
@@ -156,12 +176,12 @@ export class PollCreatorService {
    * Undo granularity change
    */
   static undoGranularityChange(
-    setState: (updater: (prev: PollCreationState) => PollCreationState) => void
+    setState: (updater: (prev: PollCreationState) => PollCreationState) => void,
   ): void {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       timeGranularity: this.initialGranularityState,
-      showGranularitySettings: false
+      showGranularitySettings: false,
     }));
   }
 
@@ -175,16 +195,16 @@ export class PollCreatorService {
     fullFormat: string;
   } {
     const date = new Date(dateString);
-    const dayName = date.toLocaleDateString('fr-FR', { weekday: 'long' });
+    const dayName = date.toLocaleDateString("fr-FR", { weekday: "long" });
     const dayNumber = date.getDate().toString();
-    const month = date.toLocaleDateString('fr-FR', { month: 'short' });
-    const fullFormat = date.toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    const month = date.toLocaleDateString("fr-FR", { month: "short" });
+    const fullFormat = date.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
-    
+
     return { dayName, dayNumber, month, fullFormat };
   }
 
@@ -194,13 +214,13 @@ export class PollCreatorService {
   static getVisibleTimeSlots(
     dateString: string,
     timeSlots: TimeSlot[],
-    showExtendedHours: boolean
+    showExtendedHours: boolean,
   ): TimeSlot[] {
     const startHour = showExtendedHours ? 6 : 8;
     const endHour = showExtendedHours ? 23 : 20;
-    
-    return timeSlots.filter(slot => 
-      slot.hour >= startHour && slot.hour <= endHour
+
+    return timeSlots.filter(
+      (slot) => slot.hour >= startHour && slot.hour <= endHour,
     );
   }
 
@@ -210,7 +230,7 @@ export class PollCreatorService {
   static getTimeSlotBlocks(timeSlots: TimeSlot[], granularity: number): any[] {
     const blocks = [];
     let currentBlock = null;
-    
+
     for (const slot of timeSlots) {
       if (slot.enabled) {
         if (!currentBlock) {
@@ -223,11 +243,11 @@ export class PollCreatorService {
         currentBlock = null;
       }
     }
-    
+
     if (currentBlock) {
       blocks.push(currentBlock);
     }
-    
+
     return blocks;
   }
 
@@ -238,15 +258,15 @@ export class PollCreatorService {
     dateString: string,
     hour: number,
     minute: number,
-    setState: (updater: (prev: PollCreationState) => PollCreationState) => void
+    setState: (updater: (prev: PollCreationState) => PollCreationState) => void,
   ): void {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      timeSlots: prev.timeSlots.map(slot =>
+      timeSlots: prev.timeSlots.map((slot) =>
         slot.hour === hour && slot.minute === minute
           ? { ...slot, enabled: !slot.enabled }
-          : slot
-      )
+          : slot,
+      ),
     }));
   }
 
@@ -255,17 +275,17 @@ export class PollCreatorService {
    */
   static initializeTimeSlots(granularity: number = 30): TimeSlot[] {
     const slots: TimeSlot[] = [];
-    
+
     for (let hour = 8; hour <= 20; hour++) {
       for (let minute = 0; minute < 60; minute += granularity) {
         slots.push({
           hour,
           minute,
-          enabled: false
+          enabled: false,
         });
       }
     }
-    
+
     return slots;
   }
 
@@ -273,16 +293,19 @@ export class PollCreatorService {
    * Validate email addresses
    */
   static validateEmails(emailString: string): string[] {
-    const emails = emailString.split(',').map(email => email.trim()).filter(Boolean);
+    const emails = emailString
+      .split(",")
+      .map((email) => email.trim())
+      .filter(Boolean);
     const errors: string[] = [];
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    emails.forEach(email => {
+
+    emails.forEach((email) => {
       if (!emailRegex.test(email)) {
         errors.push(`Email invalide: ${email}`);
       }
     });
-    
+
     return errors;
   }
 
@@ -294,12 +317,12 @@ export class PollCreatorService {
       selectedDates: [],
       currentMonth: new Date(),
       calendarConnected: false,
-      pollTitle: '',
-      participantEmails: '',
+      pollTitle: "",
+      participantEmails: "",
       showTimeSlots: false,
       timeSlots: this.initializeTimeSlots(),
       notificationsEnabled: true,
-      userEmail: '',
+      userEmail: "",
       showCalendarConnect: false,
       showShare: false,
       showDescription: false,
@@ -310,15 +333,15 @@ export class PollCreatorService {
       showCalendarConnection: false,
       pollLinkCopied: false,
       expirationDays: 30,
-      showExpirationSettings: false
+      showExpirationSettings: false,
     };
 
     if (initialData) {
       return {
         ...baseState,
-        pollTitle: initialData.title || '',
+        pollTitle: initialData.title || "",
         selectedDates: initialData.dates || [],
-        participantEmails: initialData.participants?.join(', ') || '',
+        participantEmails: initialData.participants?.join(", ") || "",
         showTimeSlots: !!initialData.timeSlots,
       };
     }

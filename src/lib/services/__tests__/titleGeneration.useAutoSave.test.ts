@@ -3,46 +3,49 @@
  * DooDates - Phase 2.2 Integration Testing
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { useAutoSave } from '../../../hooks/useAutoSave';
-import { generateConversationTitle, shouldRegenerateTitle } from '../titleGeneration';
-import * as ConversationStorage from '../../storage/ConversationStorageSimple';
+import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import { renderHook, act } from "@testing-library/react";
+import { useAutoSave } from "../../../hooks/useAutoSave";
+import {
+  generateConversationTitle,
+  shouldRegenerateTitle,
+} from "../titleGeneration";
+import * as ConversationStorage from "../../storage/ConversationStorageSimple";
 
 // Mock ConversationStorage
-vi.mock('../../storage/ConversationStorageSimple', () => ({
+vi.mock("../../storage/ConversationStorageSimple", () => ({
   createConversation: vi.fn(),
   addMessages: vi.fn(),
   getConversation: vi.fn(),
   getMessages: vi.fn(),
   getConversationWithMessages: vi.fn(),
-  updateConversation: vi.fn()
+  updateConversation: vi.fn(),
 }));
 
 // Mock useAuth
-vi.mock('../../../contexts/AuthContext', () => ({
-  useAuth: () => ({ user: { id: 'test-user' } })
+vi.mock("../../../contexts/AuthContext", () => ({
+  useAuth: () => ({ user: { id: "test-user" } }),
 }));
 
-describe('titleGeneration + useAutoSave Integration', () => {
+describe("titleGeneration + useAutoSave Integration", () => {
   const mockConversationStorage = ConversationStorage as any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup default mocks
     mockConversationStorage.createConversation.mockReturnValue({
-      id: 'conv-123',
-      title: 'Test Conversation',
-      status: 'active',
+      id: "conv-123",
+      title: "Test Conversation",
+      status: "active",
       createdAt: new Date(),
       updatedAt: new Date(),
-      firstMessage: 'Hello',
+      firstMessage: "Hello",
       messageCount: 1,
       isFavorite: false,
-      tags: []
+      tags: [],
     });
-    
+
     mockConversationStorage.getMessages.mockReturnValue([]);
     mockConversationStorage.addMessages.mockImplementation(() => {});
   });
@@ -51,8 +54,8 @@ describe('titleGeneration + useAutoSave Integration', () => {
     vi.restoreAllMocks();
   });
 
-  describe('Title Generation Integration', () => {
-    it('should generate intelligent title from conversation messages', async () => {
+  describe("Title Generation Integration", () => {
+    it("should generate intelligent title from conversation messages", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       // Start new conversation
@@ -63,29 +66,30 @@ describe('titleGeneration + useAutoSave Integration', () => {
       // Add scheduling-related messages
       const messages = [
         {
-          id: 'msg-1',
-          content: 'Bonjour, je voudrais organiser une réunion équipe',
+          id: "msg-1",
+          content: "Bonjour, je voudrais organiser une réunion équipe",
           isAI: false,
-          timestamp: new Date()
+          timestamp: new Date(),
         },
         {
-          id: 'msg-2', 
-          content: 'Parfait ! Quand souhaitez-vous organiser cette réunion ?',
+          id: "msg-2",
+          content: "Parfait ! Quand souhaitez-vous organiser cette réunion ?",
           isAI: true,
-          timestamp: new Date()
+          timestamp: new Date(),
         },
         {
-          id: 'msg-3',
-          content: 'Mardi ou mercredi prochain serait idéal',
+          id: "msg-3",
+          content: "Mardi ou mercredi prochain serait idéal",
           isAI: false,
-          timestamp: new Date()
+          timestamp: new Date(),
         },
         {
-          id: 'msg-4',
-          content: 'Excellent ! Je vais créer un sondage pour mardi et mercredi.',
+          id: "msg-4",
+          content:
+            "Excellent ! Je vais créer un sondage pour mardi et mercredi.",
           isAI: true,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ];
 
       // Add messages to conversation
@@ -96,24 +100,27 @@ describe('titleGeneration + useAutoSave Integration', () => {
       }
 
       // Convert to ConversationMessage format for title generation
-      const conversationMessages = messages.map(msg => ({
+      const conversationMessages = messages.map((msg) => ({
         id: msg.id,
-        conversationId: 'conv-123',
-        role: msg.isAI ? 'assistant' as const : 'user' as const,
+        conversationId: "conv-123",
+        role: msg.isAI ? ("assistant" as const) : ("user" as const),
         content: msg.content,
-        timestamp: msg.timestamp
+        timestamp: msg.timestamp,
       }));
 
       // Test title generation
-      const titleResult = generateConversationTitle(conversationMessages, { maxTurns: 4, language: 'fr' });
-      
+      const titleResult = generateConversationTitle(conversationMessages, {
+        maxTurns: 4,
+        language: "fr",
+      });
+
       expect(titleResult.success).toBe(true);
       expect(titleResult.title).toMatch(/réunion|équipe|mardi|mercredi/i);
       expect(titleResult.title.length).toBeGreaterThan(10);
       expect(titleResult.title.length).toBeLessThanOrEqual(50);
     });
 
-    it('should determine when to regenerate titles based on message count', async () => {
+    it("should determine when to regenerate titles based on message count", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       await act(async () => {
@@ -123,17 +130,17 @@ describe('titleGeneration + useAutoSave Integration', () => {
       // Test with 2 messages (should regenerate)
       const twoMessages = [
         {
-          id: 'msg-1',
-          content: 'Hello',
+          id: "msg-1",
+          content: "Hello",
           isAI: false,
-          timestamp: new Date()
+          timestamp: new Date(),
         },
         {
-          id: 'msg-2',
-          content: 'Hi there!',
+          id: "msg-2",
+          content: "Hi there!",
           isAI: true,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ];
 
       for (const message of twoMessages) {
@@ -142,24 +149,28 @@ describe('titleGeneration + useAutoSave Integration', () => {
         });
       }
 
-      const shouldRegenerate2 = shouldRegenerateTitle('Auto-generated title', false, 2);
+      const shouldRegenerate2 = shouldRegenerateTitle(
+        "Auto-generated title",
+        false,
+        2,
+      );
       expect(shouldRegenerate2).toBe(true);
 
       // Test with 4 messages (should regenerate)
       const fourMessages = [
         ...twoMessages,
         {
-          id: 'msg-3',
-          content: 'How can I help?',
+          id: "msg-3",
+          content: "How can I help?",
           isAI: true,
-          timestamp: new Date()
+          timestamp: new Date(),
         },
         {
-          id: 'msg-4',
-          content: 'I need to schedule a meeting',
+          id: "msg-4",
+          content: "I need to schedule a meeting",
           isAI: false,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ];
 
       for (const message of fourMessages.slice(2)) {
@@ -168,15 +179,23 @@ describe('titleGeneration + useAutoSave Integration', () => {
         });
       }
 
-      const shouldRegenerate4 = shouldRegenerateTitle('Auto-generated title', false, 4);
+      const shouldRegenerate4 = shouldRegenerateTitle(
+        "Auto-generated title",
+        false,
+        4,
+      );
       expect(shouldRegenerate4).toBe(true);
 
       // Test with 6 messages (should regenerate - early conversation with even count)
-      const shouldRegenerate6 = shouldRegenerateTitle('Auto-generated title', false, 6);
+      const shouldRegenerate6 = shouldRegenerateTitle(
+        "Auto-generated title",
+        false,
+        6,
+      );
       expect(shouldRegenerate6).toBe(true);
     });
 
-    it('should not regenerate custom titles', async () => {
+    it("should not regenerate custom titles", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       await act(async () => {
@@ -185,10 +204,10 @@ describe('titleGeneration + useAutoSave Integration', () => {
 
       // Add some messages
       const message = {
-        id: 'msg-1',
-        content: 'Test message',
+        id: "msg-1",
+        content: "Test message",
         isAI: false,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       await act(async () => {
@@ -196,11 +215,15 @@ describe('titleGeneration + useAutoSave Integration', () => {
       });
 
       // Test that custom titles are preserved
-      const shouldRegenerate = shouldRegenerateTitle('My Custom Meeting Title', true, 4);
+      const shouldRegenerate = shouldRegenerateTitle(
+        "My Custom Meeting Title",
+        true,
+        4,
+      );
       expect(shouldRegenerate).toBe(false);
     });
 
-    it('should handle multilingual content correctly', async () => {
+    it("should handle multilingual content correctly", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       await act(async () => {
@@ -210,17 +233,17 @@ describe('titleGeneration + useAutoSave Integration', () => {
       // French scheduling conversation
       const frenchMessages = [
         {
-          id: 'msg-1',
-          content: 'Organisons une réunion pour discuter du projet',
+          id: "msg-1",
+          content: "Organisons une réunion pour discuter du projet",
           isAI: false,
-          timestamp: new Date()
+          timestamp: new Date(),
         },
         {
-          id: 'msg-2',
-          content: 'Parfait ! Quel jour vous conviendrait le mieux ?',
+          id: "msg-2",
+          content: "Parfait ! Quel jour vous conviendrait le mieux ?",
           isAI: true,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ];
 
       for (const message of frenchMessages) {
@@ -229,34 +252,36 @@ describe('titleGeneration + useAutoSave Integration', () => {
         });
       }
 
-      const conversationMessages = frenchMessages.map(msg => ({
+      const conversationMessages = frenchMessages.map((msg) => ({
         id: msg.id,
-        conversationId: 'conv-123',
-        role: msg.isAI ? 'assistant' as const : 'user' as const,
+        conversationId: "conv-123",
+        role: msg.isAI ? ("assistant" as const) : ("user" as const),
         content: msg.content,
-        timestamp: msg.timestamp
+        timestamp: msg.timestamp,
       }));
 
-      const titleResult = generateConversationTitle(conversationMessages, { language: 'fr' });
-      
+      const titleResult = generateConversationTitle(conversationMessages, {
+        language: "fr",
+      });
+
       expect(titleResult.success).toBe(true);
       expect(titleResult.title).toMatch(/réunion|projet/i);
     });
 
-    it('should integrate with conversation storage updates', async () => {
+    it("should integrate with conversation storage updates", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       // Mock conversation retrieval
       const mockConversation = {
-        id: 'conv-123',
-        title: 'Initial Title',
-        status: 'active' as const,
+        id: "conv-123",
+        title: "Initial Title",
+        status: "active" as const,
         createdAt: new Date(),
         updatedAt: new Date(),
-        firstMessage: 'Hello',
+        firstMessage: "Hello",
         messageCount: 2,
         isFavorite: false,
-        tags: []
+        tags: [],
       };
 
       mockConversationStorage.getConversation.mockReturnValue(mockConversation);
@@ -268,17 +293,17 @@ describe('titleGeneration + useAutoSave Integration', () => {
       // Add messages that should trigger title regeneration
       const messages = [
         {
-          id: 'msg-1',
-          content: 'Je veux planifier une réunion d\'équipe',
+          id: "msg-1",
+          content: "Je veux planifier une réunion d'équipe",
           isAI: false,
-          timestamp: new Date()
+          timestamp: new Date(),
         },
         {
-          id: 'msg-2',
-          content: 'Excellente idée ! Quand souhaitez-vous la programmer ?',
+          id: "msg-2",
+          content: "Excellente idée ! Quand souhaitez-vous la programmer ?",
           isAI: true,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ];
 
       for (const message of messages) {
@@ -289,16 +314,16 @@ describe('titleGeneration + useAutoSave Integration', () => {
 
       // Verify that addMessages was called (conversation storage integration)
       expect(mockConversationStorage.addMessages).toHaveBeenCalled();
-      
+
       // Verify the conversation creation was called with proper title
       expect(mockConversationStorage.createConversation).toHaveBeenCalledWith({
-        title: expect.stringContaining('Je veux planifier une réunion'),
-        firstMessage: 'Je veux planifier une réunion d\'équipe',
-        userId: 'test-user'
+        title: expect.stringContaining("Je veux planifier une réunion"),
+        firstMessage: "Je veux planifier une réunion d'équipe",
+        userId: "test-user",
       });
     });
 
-    it('should handle edge cases gracefully', async () => {
+    it("should handle edge cases gracefully", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       await act(async () => {
@@ -307,10 +332,10 @@ describe('titleGeneration + useAutoSave Integration', () => {
 
       // Test with very short message
       const shortMessage = {
-        id: 'msg-1',
-        content: 'Hi',
+        id: "msg-1",
+        content: "Hi",
         isAI: false,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       await act(async () => {
@@ -319,10 +344,10 @@ describe('titleGeneration + useAutoSave Integration', () => {
 
       // Test with very long message
       const longMessage = {
-        id: 'msg-2',
-        content: 'A'.repeat(200), // Very long message
+        id: "msg-2",
+        content: "A".repeat(200), // Very long message
         isAI: true,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       await act(async () => {
@@ -333,7 +358,7 @@ describe('titleGeneration + useAutoSave Integration', () => {
       expect(mockConversationStorage.addMessages).toHaveBeenCalledTimes(2);
     });
 
-    it('should preserve conversation state during title generation', async () => {
+    it("should preserve conversation state during title generation", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       await act(async () => {
@@ -344,10 +369,10 @@ describe('titleGeneration + useAutoSave Integration', () => {
 
       // Add message
       const message = {
-        id: 'msg-1',
-        content: 'Test message for title generation',
+        id: "msg-1",
+        content: "Test message for title generation",
         isAI: false,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       await act(async () => {
@@ -360,13 +385,13 @@ describe('titleGeneration + useAutoSave Integration', () => {
     });
   });
 
-  describe('Error Handling Integration', () => {
-    it('should handle title generation errors gracefully', async () => {
+  describe("Error Handling Integration", () => {
+    it("should handle title generation errors gracefully", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       // Mock storage error
       mockConversationStorage.addMessages.mockImplementation(() => {
-        throw new Error('Storage error');
+        throw new Error("Storage error");
       });
 
       await act(async () => {
@@ -375,10 +400,10 @@ describe('titleGeneration + useAutoSave Integration', () => {
 
       // Add message that would normally trigger title generation
       const message = {
-        id: 'msg-1',
-        content: 'This should cause an error',
+        id: "msg-1",
+        content: "This should cause an error",
         isAI: false,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       // Should not throw error
@@ -390,11 +415,11 @@ describe('titleGeneration + useAutoSave Integration', () => {
       expect(mockConversationStorage.addMessages).toHaveBeenCalled();
     });
 
-    it('should handle empty message arrays in title generation', () => {
-      const titleResult = generateConversationTitle([], { language: 'fr' });
-      
+    it("should handle empty message arrays in title generation", () => {
+      const titleResult = generateConversationTitle([], { language: "fr" });
+
       expect(titleResult.success).toBe(false);
-      expect(titleResult.title).toBe('');
+      expect(titleResult.title).toBe("");
     });
   });
 });

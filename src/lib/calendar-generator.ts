@@ -287,9 +287,7 @@ export function getYearCalendar(year: number): CalendarDay[] {
         }),
       );
     } catch (e) {
-      console.warn(
-        `Cannot save year ${year} to localStorage (quota exceeded)`,
-      );
+      console.warn(`Cannot save year ${year} to localStorage (quota exceeded)`);
     }
   }
 

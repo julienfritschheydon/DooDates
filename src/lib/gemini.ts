@@ -72,14 +72,8 @@ export class GeminiService {
     this.calendarQuery = new CalendarQuery();
 
     // Pas d'initialisation immédiate de Gemini - sera fait lors du premier appel
-    if (
-      !API_KEY &&
-      import.meta.env.DEV &&
-      !GeminiService.warnedAboutApiKey
-    ) {
-      console.warn(
-        "VITE_GEMINI_API_KEY not defined - AI features disabled",
-      );
+    if (!API_KEY && import.meta.env.DEV && !GeminiService.warnedAboutApiKey) {
+      console.warn("VITE_GEMINI_API_KEY not defined - AI features disabled");
       GeminiService.warnedAboutApiKey = true;
     }
   }
@@ -100,16 +94,20 @@ export class GeminiService {
       this.isInitialized = true;
       return true;
     } catch (error) {
-      const initError = handleError(error, {
-        component: 'GeminiService',
-        operation: 'ensureInitialized'
-      }, 'Erreur lors de l\'initialisation de Gemini');
-      
+      const initError = handleError(
+        error,
+        {
+          component: "GeminiService",
+          operation: "ensureInitialized",
+        },
+        "Erreur lors de l'initialisation de Gemini",
+      );
+
       logError(initError, {
-        component: 'GeminiService',
-        operation: 'ensureInitialized'
+        component: "GeminiService",
+        operation: "ensureInitialized",
       });
-      
+
       return false;
     }
   }
@@ -154,14 +152,14 @@ export class GeminiService {
       } else {
         const parseError = ErrorFactory.validation(
           "Failed to parse Gemini response",
-          "Impossible de générer le sondage à partir de votre demande"
+          "Impossible de générer le sondage à partir de votre demande",
         );
-        
+
         logError(parseError, {
-          component: 'GeminiService',
-          operation: 'parseGeminiResponse'
+          component: "GeminiService",
+          operation: "parseGeminiResponse",
         });
-        
+
         return {
           success: false,
           message: "Impossible de générer le sondage à partir de votre demande",
@@ -169,16 +167,20 @@ export class GeminiService {
         };
       }
     } catch (error) {
-      const generationError = handleError(error, {
-        component: 'GeminiService',
-        operation: 'generatePollFromText'
-      }, 'Erreur lors de la génération du sondage');
-      
+      const generationError = handleError(
+        error,
+        {
+          component: "GeminiService",
+          operation: "generatePollFromText",
+        },
+        "Erreur lors de la génération du sondage",
+      );
+
       logError(generationError, {
-        component: 'GeminiService',
-        operation: 'generatePollFromText'
+        component: "GeminiService",
+        operation: "generatePollFromText",
       });
-      
+
       return {
         success: false,
         message: "Erreur lors de la communication avec le service IA",
@@ -199,16 +201,20 @@ export class GeminiService {
       const response = await result.response;
       return response.text();
     } catch (error) {
-      const chatError = handleError(error, {
-        component: 'GeminiService',
-        operation: 'chatAboutPoll'
-      }, 'Erreur lors du chat avec Gemini');
-      
+      const chatError = handleError(
+        error,
+        {
+          component: "GeminiService",
+          operation: "chatAboutPoll",
+        },
+        "Erreur lors du chat avec Gemini",
+      );
+
       logError(chatError, {
-        component: 'GeminiService',
-        operation: 'chatAboutPoll'
+        component: "GeminiService",
+        operation: "chatAboutPoll",
       });
-      
+
       return "Désolé, je n'ai pas pu traiter votre demande.";
     }
   }
@@ -671,14 +677,14 @@ Reste concis et pratique. Réponds en français.`;
           if (validDates.length === 0) {
             const dateError = ErrorFactory.validation(
               "All dates were in the past, suggestion rejected",
-              "Toutes les dates proposées sont dans le passé"
+              "Toutes les dates proposées sont dans le passé",
             );
-            
+
             logError(dateError, {
-              component: 'GeminiService',
-              operation: 'parseGeminiResponse'
+              component: "GeminiService",
+              operation: "parseGeminiResponse",
             });
-            
+
             return null;
           }
 
@@ -697,16 +703,20 @@ Reste concis et pratique. Réponds en français.`;
 
       return null;
     } catch (error) {
-      const parseError = handleError(error, {
-        component: 'GeminiService',
-        operation: 'parseGeminiResponse'
-      }, 'Erreur lors du parsing de la réponse Gemini');
-      
+      const parseError = handleError(
+        error,
+        {
+          component: "GeminiService",
+          operation: "parseGeminiResponse",
+        },
+        "Erreur lors du parsing de la réponse Gemini",
+      );
+
       logError(parseError, {
-        component: 'GeminiService',
-        operation: 'parseGeminiResponse'
+        component: "GeminiService",
+        operation: "parseGeminiResponse",
       });
-      
+
       return null;
     }
   }
@@ -842,16 +852,20 @@ Reste concis et pratique. Réponds en français.`;
       const response = await result.response;
       return response !== null;
     } catch (error) {
-      const connectionError = handleError(error, {
-        component: 'GeminiService',
-        operation: 'testConnection'
-      }, 'Erreur lors du test de connexion Gemini');
-      
+      const connectionError = handleError(
+        error,
+        {
+          component: "GeminiService",
+          operation: "testConnection",
+        },
+        "Erreur lors du test de connexion Gemini",
+      );
+
       logError(connectionError, {
-        component: 'GeminiService',
-        operation: 'testConnection'
+        component: "GeminiService",
+        operation: "testConnection",
       });
-      
+
       return false;
     }
   }

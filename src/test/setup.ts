@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
-import { vi } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
 
 // Configuration globale pour les tests Vitest
 global.ResizeObserver = class ResizeObserver {
@@ -45,28 +45,33 @@ Object.defineProperty(window, "localStorage", {
 Element.prototype.scrollIntoView = () => {};
 
 // Mock pour import.meta.env
-vi.mock('import.meta', () => ({
+vi.mock("import.meta", () => ({
   env: {
-    VITE_SUPABASE_URL: 'https://test.supabase.co',
-    VITE_SUPABASE_ANON_KEY: 'test-anon-key'
-  }
+    VITE_SUPABASE_URL: "https://test.supabase.co",
+    VITE_SUPABASE_ANON_KEY: "test-anon-key",
+  },
 }));
 
 // Global test QueryClient
-export const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      gcTime: 0,
+export const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        gcTime: 0,
+      },
+      mutations: {
+        retry: false,
+      },
     },
-    mutations: {
-      retry: false,
-    },
-  },
-});
+  });
 
 // Test wrapper with QueryClient
 export const TestWrapper = ({ children }: { children: React.ReactNode }) => {
   const queryClient = createTestQueryClient();
-  return React.createElement(QueryClientProvider, { client: queryClient }, children);
+  return React.createElement(
+    QueryClientProvider,
+    { client: queryClient },
+    children,
+  );
 };

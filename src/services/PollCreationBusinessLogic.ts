@@ -3,7 +3,7 @@
  * Extrait du composant PollCreator.tsx pour séparer les préoccupations
  */
 
-import { logError, ErrorFactory } from '../lib/error-handling';
+import { logError, ErrorFactory } from "../lib/error-handling";
 
 export interface TimeSlot {
   hour: number;
@@ -50,7 +50,6 @@ export interface PollEditData {
 }
 
 export class PollCreationBusinessLogic {
-  
   /**
    * Initialise l'état par défaut pour la création d'un sondage
    */
@@ -82,17 +81,29 @@ export class PollCreationBusinessLogic {
   /**
    * Charge les données d'un sondage existant depuis localStorage
    */
-  static async loadPollData(editPollId: string): Promise<PollCreationState | null> {
+  static async loadPollData(
+    editPollId: string,
+  ): Promise<PollCreationState | null> {
     try {
-      const existingPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
-      const pollToEdit = existingPolls.find((poll: any) => poll.id === editPollId);
+      const existingPolls = JSON.parse(
+        localStorage.getItem("dev-polls") || "[]",
+      );
+      const pollToEdit = existingPolls.find(
+        (poll: any) => poll.id === editPollId,
+      );
 
       if (!pollToEdit) {
-        logError(ErrorFactory.validation('Poll not found for editing', 'Sondage à éditer non trouvé'), {
-          component: 'PollCreationBusinessLogic',
-          operation: 'loadPollData',
-          metadata: { editPollId }
-        });
+        logError(
+          ErrorFactory.validation(
+            "Poll not found for editing",
+            "Sondage à éditer non trouvé",
+          ),
+          {
+            component: "PollCreationBusinessLogic",
+            operation: "loadPollData",
+            metadata: { editPollId },
+          },
+        );
         return null;
       }
 
@@ -110,11 +121,17 @@ export class PollCreationBusinessLogic {
         expirationDays: pollToEdit.settings?.expirationDays || 30,
       };
     } catch (error) {
-      logError(ErrorFactory.storage('Error loading poll data', 'Erreur lors du chargement des données du sondage'), {
-        component: 'PollCreationBusinessLogic',
-        operation: 'loadPollData',
-        metadata: { editPollId, error }
-      });
+      logError(
+        ErrorFactory.storage(
+          "Error loading poll data",
+          "Erreur lors du chargement des données du sondage",
+        ),
+        {
+          component: "PollCreationBusinessLogic",
+          operation: "loadPollData",
+          metadata: { editPollId, error },
+        },
+      );
       return null;
     }
   }
@@ -157,21 +174,21 @@ export class PollCreationBusinessLogic {
    */
   static generateDefaultTimeSlots(): TimeSlot[] {
     const defaultSlots: TimeSlot[] = [];
-    
+
     // Créneaux standard de 9h à 18h
     for (let hour = 9; hour <= 17; hour++) {
       defaultSlots.push({
         hour,
         minute: 0,
-        enabled: false
+        enabled: false,
       });
       defaultSlots.push({
         hour,
         minute: 30,
-        enabled: false
+        enabled: false,
       });
     }
-    
+
     return defaultSlots;
   }
 
@@ -180,42 +197,45 @@ export class PollCreationBusinessLogic {
    */
   static generateExtendedTimeSlots(): TimeSlot[] {
     const extendedSlots: TimeSlot[] = [];
-    
+
     // Créneaux étendus de 8h à 20h
     for (let hour = 8; hour <= 19; hour++) {
       extendedSlots.push({
         hour,
         minute: 0,
-        enabled: false
+        enabled: false,
       });
       extendedSlots.push({
         hour,
         minute: 30,
-        enabled: false
+        enabled: false,
       });
     }
-    
+
     return extendedSlots;
   }
 
   /**
    * Valide les emails des participants
    */
-  static validateParticipantEmails(emailsString: string): { 
-    validEmails: string[]; 
-    errors: string[]; 
-    isValid: boolean; 
+  static validateParticipantEmails(emailsString: string): {
+    validEmails: string[];
+    errors: string[];
+    isValid: boolean;
   } {
     if (!emailsString.trim()) {
       return { validEmails: [], errors: [], isValid: true };
     }
 
-    const emails = emailsString.split(',').map(email => email.trim()).filter(Boolean);
+    const emails = emailsString
+      .split(",")
+      .map((email) => email.trim())
+      .filter(Boolean);
     const validEmails: string[] = [];
     const errors: string[] = [];
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     emails.forEach((email, index) => {
       if (emailRegex.test(email)) {
         validEmails.push(email);
@@ -227,7 +247,7 @@ export class PollCreationBusinessLogic {
     return {
       validEmails,
       errors,
-      isValid: errors.length === 0
+      isValid: errors.length === 0,
     };
   }
 
@@ -237,8 +257,10 @@ export class PollCreationBusinessLogic {
   static canFinalize(state: PollCreationState): boolean {
     const hasTitle = state.pollTitle.trim().length > 0;
     const hasDates = state.selectedDates.length > 0;
-    const emailValidation = this.validateParticipantEmails(state.participantEmails);
-    
+    const emailValidation = this.validateParticipantEmails(
+      state.participantEmails,
+    );
+
     return hasTitle && hasDates && emailValidation.isValid;
   }
 
@@ -256,17 +278,23 @@ export class PollCreationBusinessLogic {
           showTimeSlots: state.showTimeSlots,
           timeGranularity: state.timeGranularity,
           expirationDays: state.expirationDays,
-          savedAt: new Date().toISOString()
+          savedAt: new Date().toISOString(),
         };
-        
+
         localStorage.setItem("doodates-draft", JSON.stringify(draftData));
       }
     } catch (error) {
-      logError(ErrorFactory.storage('Error saving draft', 'Erreur lors de la sauvegarde automatique'), {
-        component: 'PollCreationBusinessLogic',
-        operation: 'saveDraft',
-        metadata: { error }
-      });
+      logError(
+        ErrorFactory.storage(
+          "Error saving draft",
+          "Erreur lors de la sauvegarde automatique",
+        ),
+        {
+          component: "PollCreationBusinessLogic",
+          operation: "saveDraft",
+          metadata: { error },
+        },
+      );
     }
   }
 
@@ -277,33 +305,39 @@ export class PollCreationBusinessLogic {
     try {
       const draftData = localStorage.getItem("doodates-draft");
       if (!draftData) return null;
-      
+
       const parsed = JSON.parse(draftData);
-      
+
       // Vérifier que le brouillon n'est pas trop ancien (plus de 24h)
       const savedAt = new Date(parsed.savedAt);
       const now = new Date();
       const hoursDiff = (now.getTime() - savedAt.getTime()) / (1000 * 60 * 60);
-      
+
       if (hoursDiff > 24) {
         localStorage.removeItem("doodates-draft");
         return null;
       }
-      
+
       return {
         pollTitle: parsed.pollTitle || "",
         selectedDates: parsed.selectedDates || [],
         participantEmails: parsed.participantEmails || "",
         showTimeSlots: parsed.showTimeSlots || false,
         timeGranularity: parsed.timeGranularity || 30,
-        expirationDays: parsed.expirationDays || 30
+        expirationDays: parsed.expirationDays || 30,
       };
     } catch (error) {
-      logError(ErrorFactory.storage('Error loading draft', 'Erreur lors du chargement du brouillon'), {
-        component: 'PollCreationBusinessLogic',
-        operation: 'loadDraft',
-        metadata: { error }
-      });
+      logError(
+        ErrorFactory.storage(
+          "Error loading draft",
+          "Erreur lors du chargement du brouillon",
+        ),
+        {
+          component: "PollCreationBusinessLogic",
+          operation: "loadDraft",
+          metadata: { error },
+        },
+      );
       return null;
     }
   }
@@ -315,11 +349,17 @@ export class PollCreationBusinessLogic {
     try {
       localStorage.removeItem("doodates-draft");
     } catch (error) {
-      logError(ErrorFactory.storage('Error cleaning up draft data', 'Erreur lors du nettoyage'), {
-        component: 'PollCreationBusinessLogic',
-        operation: 'cleanup',
-        metadata: { error }
-      });
+      logError(
+        ErrorFactory.storage(
+          "Error cleaning up draft data",
+          "Erreur lors du nettoyage",
+        ),
+        {
+          component: "PollCreationBusinessLogic",
+          operation: "cleanup",
+          metadata: { error },
+        },
+      );
     }
   }
 }

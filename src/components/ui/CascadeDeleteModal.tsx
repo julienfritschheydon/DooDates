@@ -3,8 +3,8 @@
  * Modal de confirmation pour suppression en cascade avec validation i18n
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { AlertTriangle, MessageCircle, BarChart3 } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from "react";
+import { AlertTriangle, MessageCircle, BarChart3 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,10 +12,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './dialog';
-import { Button } from './button';
-import { Input } from './input';
-import { cn } from '../../lib/utils';
+} from "./dialog";
+import { Button } from "./button";
+import { Input } from "./input";
+import { cn } from "../../lib/utils";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -23,7 +23,7 @@ import { cn } from '../../lib/utils';
 
 export interface CascadeItem {
   id: string;
-  type: 'conversation' | 'poll';
+  type: "conversation" | "poll";
   title: string;
 }
 
@@ -37,7 +37,7 @@ export interface CascadeDeleteModalProps {
   /** Items that will be deleted */
   items: CascadeItem[];
   /** Language for UI text */
-  language?: 'fr' | 'en';
+  language?: "fr" | "en";
   /** Loading state during deletion */
   isDeleting?: boolean;
   /** Custom className */
@@ -50,30 +50,30 @@ export interface CascadeDeleteModalProps {
 
 const translations = {
   fr: {
-    title: 'Suppression en cascade',
-    description: 'Vous allez supprimer définitivement les éléments suivants :',
-    warning: 'Cette action supprimera les DEUX éléments de façon permanente.',
-    confirmInstruction: 'Pour confirmer, tapez :',
-    confirmWord: 'SUPPRIMER',
-    placeholder: 'Tapez SUPPRIMER pour confirmer',
-    cancel: 'Annuler',
-    delete: 'Supprimer définitivement',
-    deleting: 'Suppression en cours...',
-    conversation: 'Conversation',
-    poll: 'Sondage',
+    title: "Suppression en cascade",
+    description: "Vous allez supprimer définitivement les éléments suivants :",
+    warning: "Cette action supprimera les DEUX éléments de façon permanente.",
+    confirmInstruction: "Pour confirmer, tapez :",
+    confirmWord: "SUPPRIMER",
+    placeholder: "Tapez SUPPRIMER pour confirmer",
+    cancel: "Annuler",
+    delete: "Supprimer définitivement",
+    deleting: "Suppression en cours...",
+    conversation: "Conversation",
+    poll: "Sondage",
   },
   en: {
-    title: 'Cascade deletion',
-    description: 'You are about to permanently delete the following items:',
-    warning: 'This action will permanently delete BOTH elements.',
-    confirmInstruction: 'To confirm, type:',
-    confirmWord: 'DELETE',
-    placeholder: 'Type DELETE to confirm',
-    cancel: 'Cancel',
-    delete: 'Delete permanently',
-    deleting: 'Deleting...',
-    conversation: 'Conversation',
-    poll: 'Poll',
+    title: "Cascade deletion",
+    description: "You are about to permanently delete the following items:",
+    warning: "This action will permanently delete BOTH elements.",
+    confirmInstruction: "To confirm, type:",
+    confirmWord: "DELETE",
+    placeholder: "Type DELETE to confirm",
+    cancel: "Cancel",
+    delete: "Delete permanently",
+    deleting: "Deleting...",
+    conversation: "Conversation",
+    poll: "Poll",
   },
 } as const;
 
@@ -86,19 +86,19 @@ export function CascadeDeleteModal({
   onClose,
   onConfirm,
   items,
-  language = 'fr',
+  language = "fr",
   isDeleting = false,
-  className
+  className,
 }: CascadeDeleteModalProps) {
-  const [confirmationText, setConfirmationText] = useState('');
-  
+  const [confirmationText, setConfirmationText] = useState("");
+
   const t = translations[language];
   const isConfirmationValid = confirmationText === t.confirmWord;
 
   // Reset confirmation text when modal opens/closes
   useEffect(() => {
     if (isOpen) {
-      setConfirmationText('');
+      setConfirmationText("");
     }
   }, [isOpen]);
 
@@ -110,20 +110,23 @@ export function CascadeDeleteModal({
   }, [isConfirmationValid, isDeleting, onConfirm]);
 
   // Handle keyboard shortcuts
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && isConfirmationValid && !isDeleting) {
-      e.preventDefault();
-      handleConfirm();
-    }
-    // Note: Escape is handled by Dialog component automatically
-  }, [isConfirmationValid, isDeleting, handleConfirm]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && isConfirmationValid && !isDeleting) {
+        e.preventDefault();
+        handleConfirm();
+      }
+      // Note: Escape is handled by Dialog component automatically
+    },
+    [isConfirmationValid, isDeleting, handleConfirm],
+  );
 
   // Get icon for item type
-  const getItemIcon = (type: CascadeItem['type']) => {
+  const getItemIcon = (type: CascadeItem["type"]) => {
     switch (type) {
-      case 'conversation':
+      case "conversation":
         return MessageCircle;
-      case 'poll':
+      case "poll":
         return BarChart3;
       default:
         return MessageCircle;
@@ -131,11 +134,11 @@ export function CascadeDeleteModal({
   };
 
   // Get item type label
-  const getItemTypeLabel = (type: CascadeItem['type']) => {
+  const getItemTypeLabel = (type: CascadeItem["type"]) => {
     switch (type) {
-      case 'conversation':
+      case "conversation":
         return t.conversation;
-      case 'poll':
+      case "poll":
         return t.poll;
       default:
         return t.conversation;
@@ -144,7 +147,7 @@ export function CascadeDeleteModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent 
+      <DialogContent
         className={cn("sm:max-w-[500px]", className)}
         onKeyDown={handleKeyDown}
       >
@@ -186,16 +189,17 @@ export function CascadeDeleteModal({
           <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <div className="flex items-start gap-2">
               <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-800">
-                {t.warning}
-              </p>
+              <p className="text-sm text-amber-800">{t.warning}</p>
             </div>
           </div>
 
           {/* Confirmation input */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-900">
-              {t.confirmInstruction} <span className="font-mono font-bold text-red-600">{t.confirmWord}</span>
+              {t.confirmInstruction}{" "}
+              <span className="font-mono font-bold text-red-600">
+                {t.confirmWord}
+              </span>
             </label>
             <Input
               value={confirmationText}
@@ -204,7 +208,9 @@ export function CascadeDeleteModal({
               className={cn(
                 "font-mono",
                 isConfirmationValid && "border-green-500 bg-green-50",
-                confirmationText && !isConfirmationValid && "border-red-500 bg-red-50"
+                confirmationText &&
+                  !isConfirmationValid &&
+                  "border-red-500 bg-red-50",
               )}
               disabled={isDeleting}
               autoFocus
@@ -215,11 +221,7 @@ export function CascadeDeleteModal({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isDeleting}
-          >
+          <Button variant="outline" onClick={onClose} disabled={isDeleting}>
             {t.cancel}
           </Button>
           <Button
@@ -228,7 +230,7 @@ export function CascadeDeleteModal({
             disabled={!isConfirmationValid || isDeleting}
             className={cn(
               "min-w-[140px]",
-              isConfirmationValid && "bg-red-600 hover:bg-red-700"
+              isConfirmationValid && "bg-red-600 hover:bg-red-700",
             )}
           >
             {isDeleting ? t.deleting : t.delete}

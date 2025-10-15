@@ -4,24 +4,38 @@
  * DooDates - Conversation History System
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { AlertCircle, RefreshCw, MessageSquare, Search, Eye, Database } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Alert, AlertDescription } from '../ui/alert';
-import { ConversationList } from './ConversationList';
-import { ConversationSearch } from './ConversationSearch';
-import { ConversationPreview } from './ConversationPreview';
-import { useConversations } from '../../hooks/useConversations';
-import { useConversationSearch } from '../../hooks/useConversationSearch';
-import type { Conversation, ConversationSearchFilters } from '../../types/conversation';
+import React, { useState, useCallback, useMemo } from "react";
+import {
+  AlertCircle,
+  RefreshCw,
+  MessageSquare,
+  Search,
+  Eye,
+  Database,
+} from "lucide-react";
+import { Button } from "../ui/button";
+import { Alert, AlertDescription } from "../ui/alert";
+import { ConversationList } from "./ConversationList";
+import { ConversationSearch } from "./ConversationSearch";
+import { ConversationPreview } from "./ConversationPreview";
+import { useConversations } from "../../hooks/useConversations";
+import { useConversationSearch } from "../../hooks/useConversationSearch";
+import type {
+  Conversation,
+  ConversationSearchFilters,
+} from "../../types/conversation";
 
 // Additional types for sorting and UI
-export type ConversationSortBy = 'createdAt' | 'updatedAt' | 'title' | 'messageCount';
-export type SortOrder = 'asc' | 'desc';
+export type ConversationSortBy =
+  | "createdAt"
+  | "updatedAt"
+  | "title"
+  | "messageCount";
+export type SortOrder = "asc" | "desc";
 
 interface ConversationHistoryProps {
   /** Language for UI text */
-  language?: 'fr' | 'en';
+  language?: "fr" | "en";
   /** Callback when user wants to resume a conversation */
   onResumeConversation?: (conversationId: string) => void;
   /** Callback when user wants to view a poll */
@@ -38,68 +52,63 @@ interface ConversationHistoryProps {
 
 const UI_TEXT = {
   fr: {
-    title: 'Historique des conversations',
-    subtitle: 'Gérez et consultez vos conversations passées',
-    error: 'Erreur lors du chargement des conversations',
-    retry: 'Réessayer',
-    refreshing: 'Actualisation...',
-    noConversations: 'Aucune conversation trouvée',
-    createFirst: 'Créer votre première conversation',
-    searchPlaceholder: 'Rechercher dans vos conversations...',
-    loadingError: 'Impossible de charger les conversations',
-    networkError: 'Erreur de connexion. Vérifiez votre connexion internet.',
-    serverError: 'Erreur serveur. Veuillez réessayer plus tard.',
-    unknownError: 'Une erreur inattendue s\'est produite.',
+    title: "Historique des conversations",
+    subtitle: "Gérez et consultez vos conversations passées",
+    error: "Erreur lors du chargement des conversations",
+    retry: "Réessayer",
+    refreshing: "Actualisation...",
+    noConversations: "Aucune conversation trouvée",
+    createFirst: "Créer votre première conversation",
+    searchPlaceholder: "Rechercher dans vos conversations...",
+    loadingError: "Impossible de charger les conversations",
+    networkError: "Erreur de connexion. Vérifiez votre connexion internet.",
+    serverError: "Erreur serveur. Veuillez réessayer plus tard.",
+    unknownError: "Une erreur inattendue s'est produite.",
   },
   en: {
-    title: 'Conversation History',
-    subtitle: 'Manage and view your past conversations',
-    error: 'Error loading conversations',
-    retry: 'Retry',
-    refreshing: 'Refreshing...',
-    noConversations: 'No conversations found',
-    createFirst: 'Create your first conversation',
-    searchPlaceholder: 'Search your conversations...',
-    loadingError: 'Unable to load conversations',
-    networkError: 'Connection error. Please check your internet connection.',
-    serverError: 'Server error. Please try again later.',
-    unknownError: 'An unexpected error occurred.',
+    title: "Conversation History",
+    subtitle: "Manage and view your past conversations",
+    error: "Error loading conversations",
+    retry: "Retry",
+    refreshing: "Refreshing...",
+    noConversations: "No conversations found",
+    createFirst: "Create your first conversation",
+    searchPlaceholder: "Search your conversations...",
+    loadingError: "Unable to load conversations",
+    networkError: "Connection error. Please check your internet connection.",
+    serverError: "Server error. Please try again later.",
+    unknownError: "An unexpected error occurred.",
   },
 };
 
 export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
-  language = 'fr',
+  language = "fr",
   onResumeConversation,
   onViewPoll,
   onCreateConversation,
   initialFilters = {},
   compact = false,
-  className = '',
+  className = "",
 }) => {
   const text = UI_TEXT[language];
-  
+
   // State for preview modal
-  const [previewConversation, setPreviewConversation] = useState<Conversation | null>(null);
+  const [previewConversation, setPreviewConversation] =
+    useState<Conversation | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  
+
   // State for search and debug view
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showDebugView, setShowDebugView] = useState(false);
-  
+
   // State for list sorting
-  const [sortBy, setSortBy] = useState<ConversationSortBy>('updatedAt');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
-  
+  const [sortBy, setSortBy] = useState<ConversationSortBy>("updatedAt");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+
   // Search and filter state
   const searchHook = useConversationSearch();
-  const {
-    query,
-    setQuery,
-    filters,
-    setFilters,
-    clearSearch,
-  } = searchHook;
-  
+  const { query, setQuery, filters, setFilters, clearSearch } = searchHook;
+
   // Mock search results and states for now
   const searchResults: Conversation[] = [];
   const isSearching = false;
@@ -120,37 +129,39 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   // Filter conversations based on search query
   const filteredConversations = useMemo(() => {
     if (!searchQuery.trim()) return conversations;
-    
+
     const query = searchQuery.toLowerCase();
-    return conversations.filter(conv => 
-      conv.title.toLowerCase().includes(query) ||
-      conv.id.toLowerCase().includes(query) ||
-      (conv.tags && conv.tags.some(tag => tag.toLowerCase().includes(query)))
+    return conversations.filter(
+      (conv) =>
+        conv.title.toLowerCase().includes(query) ||
+        conv.id.toLowerCase().includes(query) ||
+        (conv.tags &&
+          conv.tags.some((tag) => tag.toLowerCase().includes(query))),
     );
   }, [conversations, searchQuery]);
 
   // Get messages for debug view
   const getStoredMessages = useCallback((conversationId: string) => {
     try {
-      const storageKey = 'doodates-messages';
+      const storageKey = "doodates-messages";
       const rawStorage = localStorage.getItem(storageKey);
       const allMessages = rawStorage ? JSON.parse(rawStorage) : {};
       return allMessages[conversationId] || [];
     } catch (error) {
-      console.error('Error reading messages from storage:', error);
+      console.error("Error reading messages from storage:", error);
       return [];
     }
   }, []);
 
   // Debug logging
-  console.log('🔍 ConversationHistory DEBUG:', {
+  console.log("🔍 ConversationHistory DEBUG:", {
     conversationsHookStructure: Object.keys(conversationsHook),
     conversationsProperty: conversationsHook.conversations,
     conversationsCount: conversations.length,
-    conversations: conversations.map(c => ({ id: c.id, title: c.title })),
+    conversations: conversations.map((c) => ({ id: c.id, title: c.title })),
     isLoading,
     isError,
-    error: error?.message
+    error: error?.message,
   });
 
   // Memoized display conversations
@@ -161,45 +172,57 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   // Error message based on error type
   const errorMessage = useMemo(() => {
     if (!error) return text.unknownError;
-    
+
     const errorString = error.toString().toLowerCase();
-    if (errorString.includes('network') || errorString.includes('fetch')) {
+    if (errorString.includes("network") || errorString.includes("fetch")) {
       return text.networkError;
     }
-    if (errorString.includes('server') || errorString.includes('500')) {
+    if (errorString.includes("server") || errorString.includes("500")) {
       return text.serverError;
     }
     return text.loadingError;
   }, [error, text]);
 
   // Handlers
-  const handlePreviewConversation = useCallback((conversation: Conversation) => {
-    setPreviewConversation(conversation);
-    setIsPreviewOpen(true);
-  }, []);
+  const handlePreviewConversation = useCallback(
+    (conversation: Conversation) => {
+      setPreviewConversation(conversation);
+      setIsPreviewOpen(true);
+    },
+    [],
+  );
 
   const handleClosePreview = useCallback(() => {
     setIsPreviewOpen(false);
     setPreviewConversation(null);
   }, []);
 
-  const handleResumeFromPreview = useCallback((conversationId: string) => {
-    handleClosePreview();
-    onResumeConversation?.(conversationId);
-  }, [handleClosePreview, onResumeConversation]);
+  const handleResumeFromPreview = useCallback(
+    (conversationId: string) => {
+      handleClosePreview();
+      onResumeConversation?.(conversationId);
+    },
+    [handleClosePreview, onResumeConversation],
+  );
 
-  const handleViewPollFromPreview = useCallback((pollId: string) => {
-    onViewPoll?.(pollId);
-  }, [onViewPoll]);
+  const handleViewPollFromPreview = useCallback(
+    (pollId: string) => {
+      onViewPoll?.(pollId);
+    },
+    [onViewPoll],
+  );
 
   const handleRetry = useCallback(() => {
     refetch();
   }, [refetch]);
 
-  const handleSortChange = useCallback((newSortBy: ConversationSortBy, newSortOrder: SortOrder) => {
-    setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
-  }, []);
+  const handleSortChange = useCallback(
+    (newSortBy: ConversationSortBy, newSortOrder: SortOrder) => {
+      setSortBy(newSortBy);
+      setSortOrder(newSortOrder);
+    },
+    [],
+  );
 
   // Render error state
   if (isError) {
@@ -214,20 +237,14 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               {text.subtitle}
             </p>
           </div>
-          
+
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {errorMessage}
-            </AlertDescription>
+            <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
-          
+
           <div className="text-center">
-            <Button
-              onClick={handleRetry}
-              variant="outline"
-              className="gap-2"
-            >
+            <Button onClick={handleRetry} variant="outline" className="gap-2">
               <RefreshCw className="h-4 w-4" />
               {text.retry}
             </Button>
@@ -289,7 +306,9 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               disabled={isRefetching}
               className="gap-2"
             >
-              <RefreshCw className={`h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+              />
               {isRefetching ? text.refreshing : text.retry}
             </Button>
           </div>
@@ -306,20 +325,25 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               {filteredConversations.map((conv) => {
                 const storedMessages = getStoredMessages(conv.id);
                 return (
-                  <div key={conv.id} className="bg-white border border-gray-200 rounded p-3">
+                  <div
+                    key={conv.id}
+                    className="bg-white border border-gray-200 rounded p-3"
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex-1">
                         <h4 className="font-medium text-sm">{conv.title}</h4>
                         <p className="text-xs text-gray-500">ID: {conv.id}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 text-xs rounded ${
-                          storedMessages.length > 1 
-                            ? 'bg-green-100 text-green-800' 
-                            : storedMessages.length === 1
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs rounded ${
+                            storedMessages.length > 1
+                              ? "bg-green-100 text-green-800"
+                              : storedMessages.length === 1
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                          }`}
+                        >
                           {storedMessages.length} messages
                         </span>
                         {onResumeConversation && (
@@ -335,14 +359,19 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
                     {storedMessages.length > 0 && (
                       <div className="space-y-1">
                         {storedMessages.map((msg: any, idx: number) => (
-                          <div key={idx} className="text-xs bg-gray-50 p-2 rounded">
+                          <div
+                            key={idx}
+                            className="text-xs bg-gray-50 p-2 rounded"
+                          >
                             <div className="flex items-center gap-2 mb-1">
-                              <span className={`px-1 py-0.5 rounded text-xs ${
-                                msg.role === 'user' 
-                                  ? 'bg-blue-100 text-blue-800' 
-                                  : 'bg-green-100 text-green-800'
-                              }`}>
-                                {msg.role === 'user' ? 'Utilisateur' : 'IA'}
+                              <span
+                                className={`px-1 py-0.5 rounded text-xs ${
+                                  msg.role === "user"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-green-100 text-green-800"
+                                }`}
+                              >
+                                {msg.role === "user" ? "Utilisateur" : "IA"}
                               </span>
                               <span className="text-gray-500">{msg.id}</span>
                             </div>
@@ -376,24 +405,27 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
         )}
 
         {/* Empty State for No Results */}
-        {!isLoading && displayConversations.length === 0 && !hasActiveFilters && !query && (
-          <div className="text-center py-12">
-            <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-              {text.noConversations}
-            </h3>
-            {onCreateConversation && (
-              <Button
-                onClick={onCreateConversation}
-                variant="default"
-                className="gap-2"
-              >
-                <MessageSquare className="h-4 w-4" />
-                {text.createFirst}
-              </Button>
-            )}
-          </div>
-        )}
+        {!isLoading &&
+          displayConversations.length === 0 &&
+          !hasActiveFilters &&
+          !query && (
+            <div className="text-center py-12">
+              <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                {text.noConversations}
+              </h3>
+              {onCreateConversation && (
+                <Button
+                  onClick={onCreateConversation}
+                  variant="default"
+                  className="gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  {text.createFirst}
+                </Button>
+              )}
+            </div>
+          )}
 
         {/* Preview Modal */}
         <ConversationPreview

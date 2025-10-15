@@ -3,9 +3,14 @@
  * DooDates - Conversation History System
  */
 
-import type { Conversation } from '../types/conversation';
-import type { SearchFilters, SearchOptions, SearchResult, SearchHighlight } from '../types/search';
-import { SearchCache } from './SearchCache';
+import type { Conversation } from "../types/conversation";
+import type {
+  SearchFilters,
+  SearchOptions,
+  SearchResult,
+  SearchHighlight,
+} from "../types/search";
+import { SearchCache } from "./SearchCache";
 
 export class ConversationSearchService {
   private regexCache = new Map<string, RegExp>();
@@ -13,9 +18,12 @@ export class ConversationSearchService {
 
   constructor() {
     // Cleanup expired cache entries every 5 minutes
-    setInterval(() => {
-      this.resultCache.cleanup();
-    }, 5 * 60 * 1000);
+    setInterval(
+      () => {
+        this.resultCache.cleanup();
+      },
+      5 * 60 * 1000,
+    );
   }
 
   /**
@@ -24,15 +32,15 @@ export class ConversationSearchService {
   search(
     conversations: Conversation[],
     filters: SearchFilters,
-    options: SearchOptions = {}
+    options: SearchOptions = {},
   ): SearchResult {
     const { minQueryLength = 1 } = options;
-    const query = (filters.query || '').trim();
+    const query = (filters.query || "").trim();
 
     // Generate cache key
     const cacheKey = SearchCache.generateKey(query, {
       ...filters,
-      conversationCount: conversations.length
+      conversationCount: conversations.length,
     });
 
     // Try to get from cache first
@@ -58,9 +66,9 @@ export class ConversationSearchService {
   private performSearch(
     conversations: Conversation[],
     filters: SearchFilters,
-    options: SearchOptions
+    options: SearchOptions,
   ): SearchResult {
-    const query = (filters.query || '').trim();
+    const query = (filters.query || "").trim();
     const { minQueryLength = 1 } = options;
 
     // Early return for invalid queries
@@ -72,7 +80,7 @@ export class ConversationSearchService {
         filters,
         highlights: {},
         isLoading: false,
-        error: null
+        error: null,
       };
     }
 
@@ -89,7 +97,7 @@ export class ConversationSearchService {
           filters,
           highlights: {},
           isLoading: false,
-          error: null
+          error: null,
         };
       }
 
@@ -97,11 +105,11 @@ export class ConversationSearchService {
       const searchResults: Conversation[] = [];
       const highlights: Record<string, SearchHighlight[]> = {};
 
-      filteredConversations.forEach(conversation => {
+      filteredConversations.forEach((conversation) => {
         const { matches, highlights: convHighlights } = this.searchConversation(
           conversation,
           query,
-          options
+          options,
         );
 
         if (matches) {
@@ -119,7 +127,7 @@ export class ConversationSearchService {
         filters,
         highlights,
         isLoading: false,
-        error: null
+        error: null,
       };
     } catch (error) {
       return {
@@ -129,7 +137,7 @@ export class ConversationSearchService {
         filters,
         highlights: {},
         isLoading: false,
-        error: error instanceof Error ? error : new Error('Search failed')
+        error: error instanceof Error ? error : new Error("Search failed"),
       };
     }
   }
@@ -137,15 +145,25 @@ export class ConversationSearchService {
   /**
    * Apply filters to conversations
    */
-  private applyFilters(conversations: Conversation[], filters: SearchFilters): Conversation[] {
-    return conversations.filter(conversation => {
+  private applyFilters(
+    conversations: Conversation[],
+    filters: SearchFilters,
+  ): Conversation[] {
+    return conversations.filter((conversation) => {
       // Status filter
-      if (filters.status && filters.status !== 'all' && conversation.status !== filters.status) {
+      if (
+        filters.status &&
+        filters.status !== "all" &&
+        conversation.status !== filters.status
+      ) {
         return false;
       }
 
       // Favorite filter
-      if (filters.isFavorite !== undefined && conversation.isFavorite !== filters.isFavorite) {
+      if (
+        filters.isFavorite !== undefined &&
+        conversation.isFavorite !== filters.isFavorite
+      ) {
         return false;
       }
 
@@ -160,10 +178,10 @@ export class ConversationSearchService {
 
       // Tags filter
       if (filters.tags && filters.tags.length > 0) {
-        const hasAllTags = filters.tags.every(tag =>
-          conversation.tags.some(convTag =>
-            convTag.toLowerCase().includes(tag.toLowerCase())
-          )
+        const hasAllTags = filters.tags.every((tag) =>
+          conversation.tags.some((convTag) =>
+            convTag.toLowerCase().includes(tag.toLowerCase()),
+          ),
         );
         if (!hasAllTags) return false;
       }
@@ -184,7 +202,7 @@ export class ConversationSearchService {
   private searchConversation(
     conversation: Conversation,
     query: string,
-    options: SearchOptions
+    options: SearchOptions,
   ): { matches: boolean; highlights: SearchHighlight[] } {
     if (!query.trim()) return { matches: true, highlights: [] };
 
@@ -192,25 +210,42 @@ export class ConversationSearchService {
     let matches = false;
 
     // Search in title
-    const titleHighlights = this.highlightMatches(conversation.title, query, options);
+    const titleHighlights = this.highlightMatches(
+      conversation.title,
+      query,
+      options,
+    );
     if (titleHighlights.length > 0) {
       matches = true;
-      highlights.push(...titleHighlights.map(h => ({ ...h, field: 'title' as const })));
+      highlights.push(
+        ...titleHighlights.map((h) => ({ ...h, field: "title" as const })),
+      );
     }
 
     // Search in first message
-    const messageHighlights = this.highlightMatches(conversation.firstMessage, query, options);
+    const messageHighlights = this.highlightMatches(
+      conversation.firstMessage,
+      query,
+      options,
+    );
     if (messageHighlights.length > 0) {
       matches = true;
-      highlights.push(...messageHighlights.map(h => ({ ...h, field: 'firstMessage' as const })));
+      highlights.push(
+        ...messageHighlights.map((h) => ({
+          ...h,
+          field: "firstMessage" as const,
+        })),
+      );
     }
 
     // Search in tags
-    const tagsText = conversation.tags.join(' ');
+    const tagsText = conversation.tags.join(" ");
     const tagHighlights = this.highlightMatches(tagsText, query, options);
     if (tagHighlights.length > 0) {
       matches = true;
-      highlights.push(...tagHighlights.map(h => ({ ...h, field: 'tags' as const })));
+      highlights.push(
+        ...tagHighlights.map((h) => ({ ...h, field: "tags" as const })),
+      );
     }
 
     return { matches, highlights };
@@ -222,7 +257,7 @@ export class ConversationSearchService {
   private highlightMatches(
     text: string,
     query: string,
-    options: SearchOptions
+    options: SearchOptions,
   ): SearchHighlight[] {
     if (!query.trim() || !text) return [];
 
@@ -236,10 +271,13 @@ export class ConversationSearchService {
 
     while ((match = regex.exec(text)) !== null) {
       highlights.push({
-        field: 'title', // Will be overridden by caller
-        text: text.substring(Math.max(0, match.index - 20), match.index + match[0].length + 20),
+        field: "title", // Will be overridden by caller
+        text: text.substring(
+          Math.max(0, match.index - 20),
+          match.index + match[0].length + 20,
+        ),
         start: match.index,
-        end: match.index + match[0].length
+        end: match.index + match[0].length,
       });
 
       // Prevent infinite loop for zero-length matches
@@ -256,13 +294,13 @@ export class ConversationSearchService {
    */
   private getOrCreateRegex(query: string, caseSensitive: boolean): RegExp {
     const cacheKey = `${query}:${caseSensitive}`;
-    
+
     if (this.regexCache.has(cacheKey)) {
       return this.regexCache.get(cacheKey)!;
     }
 
     const escaped = this.escapeRegExp(query.trim());
-    const flags = caseSensitive ? 'g' : 'gi';
+    const flags = caseSensitive ? "g" : "gi";
     const regex = new RegExp(escaped, flags);
 
     // Limit regex cache size
@@ -281,7 +319,7 @@ export class ConversationSearchService {
    * Escape special regex characters
    */
   private escapeRegExp(string: string): string {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
   /**
@@ -297,7 +335,7 @@ export class ConversationSearchService {
   getCacheStats(): { results: any; regex: number } {
     return {
       results: this.resultCache.getStats(),
-      regex: this.regexCache.size
+      regex: this.regexCache.size,
     };
   }
 }

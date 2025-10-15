@@ -62,14 +62,14 @@ export const useVoting = (pollSlug: string) => {
 
       if (!pollData) {
         const notFoundError = ErrorFactory.validation(
-          `Sondage avec slug "${pollSlug}" non trouvé`
+          `Sondage avec slug "${pollSlug}" non trouvé`,
         );
-        
+
         logError(notFoundError, {
-          component: 'useVoting',
-          operation: 'loadPoll'
+          component: "useVoting",
+          operation: "loadPoll",
         });
-        
+
         throw notFoundError;
       }
 
@@ -84,14 +84,14 @@ export const useVoting = (pollSlug: string) => {
         pollData.settings.selectedDates.length === 0
       ) {
         const configError = ErrorFactory.validation(
-          "Ce sondage n'a pas de dates configurées"
+          "Ce sondage n'a pas de dates configurées",
         );
-        
+
         logError(configError, {
-          component: 'useVoting',
-          operation: 'loadPoll'
+          component: "useVoting",
+          operation: "loadPoll",
         });
-        
+
         throw configError;
       }
 
@@ -126,17 +126,23 @@ export const useVoting = (pollSlug: string) => {
       }));
       setVotes(mappedVotes);
     } catch (err: any) {
-      const processedError = handleError(err, {
-        component: 'useVoting',
-        operation: 'loadPoll'
-      }, 'Erreur lors du chargement du sondage');
-      
+      const processedError = handleError(
+        err,
+        {
+          component: "useVoting",
+          operation: "loadPoll",
+        },
+        "Erreur lors du chargement du sondage",
+      );
+
       logError(processedError, {
-        component: 'useVoting',
-        operation: 'loadPoll'
+        component: "useVoting",
+        operation: "loadPoll",
       });
-      
-      setError(processedError.message || "Erreur lors du chargement du sondage");
+
+      setError(
+        processedError.message || "Erreur lors du chargement du sondage",
+      );
     } finally {
       setLoading(false);
     }
@@ -184,14 +190,18 @@ export const useVoting = (pollSlug: string) => {
       const votesData = await votesApi.getByPollId(realPollId);
       setVotes(votesData || []);
     } catch (err) {
-      const processedError = handleError(err, {
-        component: 'useVoting',
-        operation: 'loadVotes'
-      }, 'Erreur lors du chargement des votes');
-      
+      const processedError = handleError(
+        err,
+        {
+          component: "useVoting",
+          operation: "loadVotes",
+        },
+        "Erreur lors du chargement des votes",
+      );
+
       logError(processedError, {
-        component: 'useVoting',
-        operation: 'loadVotes'
+        component: "useVoting",
+        operation: "loadVotes",
       });
     }
   }, [realPollId]);
@@ -335,17 +345,23 @@ export const useVoting = (pollSlug: string) => {
       setCurrentVote({});
       return true;
     } catch (err) {
-      const processedError = handleError(err, {
-        component: 'useVoting',
-        operation: 'submitVote'
-      }, 'Erreur lors de l\'enregistrement du vote');
-      
+      const processedError = handleError(
+        err,
+        {
+          component: "useVoting",
+          operation: "submitVote",
+        },
+        "Erreur lors de l'enregistrement du vote",
+      );
+
       logError(processedError, {
-        component: 'useVoting',
-        operation: 'submitVote'
+        component: "useVoting",
+        operation: "submitVote",
       });
-      
-      setError(processedError.message || "Erreur lors de l'enregistrement du vote");
+
+      setError(
+        processedError.message || "Erreur lors de l'enregistrement du vote",
+      );
       return false;
     } finally {
       setSubmitting(false);

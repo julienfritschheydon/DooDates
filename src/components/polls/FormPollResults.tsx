@@ -3,8 +3,18 @@ import TopNav from "@/components/TopNav";
 import PollActions from "@/components/polls/PollActions";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
-import { getPollBySlugOrId, getFormResults, getFormResponses, getRespondentId } from "@/lib/pollStorage";
-import type { Poll, FormQuestionShape, FormQuestionOption, FormResponse } from "@/lib/pollStorage";
+import {
+  getPollBySlugOrId,
+  getFormResults,
+  getFormResponses,
+  getRespondentId,
+} from "@/lib/pollStorage";
+import type {
+  Poll,
+  FormQuestionShape,
+  FormQuestionOption,
+  FormResponse,
+} from "@/lib/pollStorage";
 
 interface Props {
   idOrSlug: string;
@@ -34,7 +44,10 @@ export default function FormPollResults({ idOrSlug }: Props) {
     setLoading(false);
   }, [idOrSlug]);
 
-  const questions = useMemo(() => (poll?.questions ?? []) as FormQuestionShape[], [poll]);
+  const questions = useMemo(
+    () => (poll?.questions ?? []) as FormQuestionShape[],
+    [poll],
+  );
 
   // Deduplicate responses by stable respondent id
   const uniqueResponses = useMemo(() => {

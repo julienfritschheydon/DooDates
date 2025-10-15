@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "./database.types"; 
+import { Database } from "./database.types";
 import { handleError, ErrorFactory, logError } from "./error-handling";
 
 // 🚧 MODE DÉVELOPPEMENT LOCAL ACTIVÉ
@@ -221,12 +221,16 @@ export type Database = {
 
 // Helper pour les erreurs Supabase
 export function handleSupabaseError(error: any) {
-  const processedError = handleError(error, {
-    component: 'Supabase',
-    operation: 'database'
-  }, 'Erreur de base de données');
+  const processedError = handleError(
+    error,
+    {
+      component: "Supabase",
+      operation: "database",
+    },
+    "Erreur de base de données",
+  );
 
-  logError(processedError, { component: 'Supabase' });
+  logError(processedError, { component: "Supabase" });
 
   if (processedError?.userMessage) {
     return processedError.userMessage;
