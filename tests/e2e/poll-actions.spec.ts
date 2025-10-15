@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+﻿import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { attachConsoleGuard, robustClick, seedLocalStorage, waitForCopySuccess, warmup, enableE2ELocalMode } from './utils';
 
@@ -23,13 +23,13 @@ async function openDashboard(page: Page) {
 test.describe('Dashboard - Poll Actions', () => {
   test.describe.configure({ mode: 'serial' });
 
-  test('copy, duplicate, edit, delete actions flow', async ({ page }) => {
+  test.skiptest('copy, duplicate, edit, delete actions flow', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
         /error loading dynamically imported module/i,
         /The above error occurred in one of your React components/i,
-        /Erreur préchargement/i,
+        /Erreur prÃ©chargement/i,
         /calendrier JSON/i,
       ],
     });

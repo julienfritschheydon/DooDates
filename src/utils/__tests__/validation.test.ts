@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+﻿import { describe, it, expect } from "vitest";
 import {
   validateEmail,
   validatePollTitle,
@@ -35,9 +35,9 @@ describe("validation", () => {
 
   describe("validatePollTitle", () => {
     it("should validate correct titles", () => {
-      expect(validatePollTitle("Réunion équipe")).toBe(true);
+      expect(validatePollTitle("RÃ©union Ã©quipe")).toBe(true);
       expect(validatePollTitle("Meeting")).toBe(true);
-      expect(validatePollTitle("A")).toBe(true); // Minimum 1 caractère
+      expect(validatePollTitle("A")).toBe(true); // Minimum 1 caractÃ¨re
     });
 
     it("should reject invalid titles", () => {
@@ -55,7 +55,7 @@ describe("validation", () => {
     it("should validate correct date formats", () => {
       expect(isValidDate("2025-07-01")).toBe(true);
       expect(isValidDate("2025-12-31")).toBe(true);
-      expect(isValidDate("2024-02-29")).toBe(true); // Année bissextile
+      expect(isValidDate("2024-02-29")).toBe(true); // AnnÃ©e bissextile
     });
 
     it("should reject invalid date formats", () => {
@@ -63,11 +63,11 @@ describe("validation", () => {
       expect(isValidDate("2025-13-01")).toBe(false); // Mois invalide
       expect(isValidDate("2025-02-30")).toBe(false); // Jour invalide
       expect(isValidDate("25-07-01")).toBe(false); // Format incorrect
-      expect(isValidDate("2025/07/01")).toBe(false); // Mauvais séparateur
+      expect(isValidDate("2025/07/01")).toBe(false); // Mauvais sÃ©parateur
     });
 
     it("should handle edge cases", () => {
-      expect(isValidDate("2025-02-29")).toBe(false); // Pas une année bissextile
+      expect(isValidDate("2025-02-29")).toBe(false); // Pas une annÃ©e bissextile
       expect(isValidDate("2025-04-31")).toBe(false); // Avril n'a que 30 jours
     });
   });
@@ -97,15 +97,15 @@ describe("validation", () => {
     });
 
     it("should reject invalid time ranges", () => {
-      expect(validateTimeRange("10:00", "09:00")).toBe(false); // Fin avant début
-      expect(validateTimeRange("14:00", "14:00")).toBe(false); // Même heure
+      expect(validateTimeRange("10:00", "09:00")).toBe(false); // Fin avant dÃ©but
+      expect(validateTimeRange("14:00", "14:00")).toBe(false); // MÃªme heure
       expect(validateTimeRange("invalid", "10:00")).toBe(false); // Format invalide
       expect(validateTimeRange("09:00", "invalid")).toBe(false); // Format invalide
     });
 
     it("should handle edge cases", () => {
       expect(validateTimeRange("23:59", "00:00")).toBe(false); // Passage minuit
-      expect(validateTimeRange("00:00", "23:59")).toBe(true); // Journée complète
+      expect(validateTimeRange("00:00", "23:59")).toBe(true); // JournÃ©e complÃ¨te
     });
   });
 });

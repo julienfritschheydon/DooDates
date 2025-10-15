@@ -1,15 +1,14 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GenerativeModel } from "@google/generative-ai";
 import CalendarQuery, { CalendarDay } from "./calendar-generator";
+import { handleError, ErrorFactory, logError } from "./error-handling";
 
 // Configuration pour Gemini - Simplifié pour Vite
 const API_KEY: string | undefined = import.meta.env.VITE_GEMINI_API_KEY;
 
 // Debug logging pour diagnostiquer le problème de clé API
 if (import.meta.env.DEV) {
-  console.log("🔍 Debug Gemini API Key:");
-  console.log("- import.meta.env.VITE_GEMINI_API_KEY:", API_KEY ? `✅ Available (${API_KEY.substring(0, 10)}...)` : "❌ Missing");
-  console.log("- All env vars:", import.meta.env);
+  // Debug Gemini API Key availability
 }
 
 // Initialisation différée pour éviter le blocage au chargement
@@ -79,7 +78,7 @@ export class GeminiService {
       !GeminiService.warnedAboutApiKey
     ) {
       console.warn(
-        "🔑 VITE_GEMINI_API_KEY non définie - Fonctionnalités IA désactivées",
+        "VITE_GEMINI_API_KEY not defined - AI features disabled",
       );
       GeminiService.warnedAboutApiKey = true;
     }
@@ -101,7 +100,16 @@ export class GeminiService {
       this.isInitialized = true;
       return true;
     } catch (error) {
-      console.error("Erreur lors de l'initialisation de Gemini:", error);
+      const initError = handleError(error, {
+        component: 'GeminiService',
+        operation: 'ensureInitialized'
+      }, 'Erreur lors de l\'initialisation de Gemini');
+      
+      logError(initError, {
+        component: 'GeminiService',
+        operation: 'ensureInitialized'
+      });
+      
       return false;
     }
   }
@@ -119,7 +127,7 @@ export class GeminiService {
 
     try {
       if (import.meta.env.DEV) {
-        console.log("🔍 Génération du prompt pour:", userInput);
+        // Generating prompt for user input
       }
 
       const prompt = this.buildPollGenerationPrompt(userInput);
@@ -128,7 +136,7 @@ export class GeminiService {
       const text = response.text();
 
       if (import.meta.env.DEV) {
-        console.log("📝 Réponse brute de Gemini:", text);
+        // Raw Gemini response received
       }
 
       // Parser la réponse JSON
@@ -136,8 +144,7 @@ export class GeminiService {
 
       if (pollData) {
         if (import.meta.env.DEV) {
-          console.log("✅ Dates proposées par Gemini:", pollData.dates);
-          console.log("⏰ Créneaux proposés:", pollData.timeSlots);
+          // Gemini proposed dates and time slots successfully
         }
         return {
           success: true,
@@ -145,7 +152,16 @@ export class GeminiService {
           message: "Sondage généré avec succès !",
         };
       } else {
-        console.error("❌ Échec du parsing de la réponse Gemini");
+        const parseError = ErrorFactory.validation(
+          "Failed to parse Gemini response",
+          "Impossible de générer le sondage à partir de votre demande"
+        );
+        
+        logError(parseError, {
+          component: 'GeminiService',
+          operation: 'parseGeminiResponse'
+        });
+        
         return {
           success: false,
           message: "Impossible de générer le sondage à partir de votre demande",
@@ -153,7 +169,16 @@ export class GeminiService {
         };
       }
     } catch (error) {
-      console.error("🚨 Erreur lors de la génération du sondage:", error);
+      const generationError = handleError(error, {
+        component: 'GeminiService',
+        operation: 'generatePollFromText'
+      }, 'Erreur lors de la génération du sondage');
+      
+      logError(generationError, {
+        component: 'GeminiService',
+        operation: 'generatePollFromText'
+      });
+      
       return {
         success: false,
         message: "Erreur lors de la communication avec le service IA",
@@ -174,7 +199,16 @@ export class GeminiService {
       const response = await result.response;
       return response.text();
     } catch (error) {
-      console.error("Erreur lors du chat:", error);
+      const chatError = handleError(error, {
+        component: 'GeminiService',
+        operation: 'chatAboutPoll'
+      }, 'Erreur lors du chat avec Gemini');
+      
+      logError(chatError, {
+        component: 'GeminiService',
+        operation: 'chatAboutPoll'
+      });
+      
       return "Désolé, je n'ai pas pu traiter votre demande.";
     }
   }
@@ -614,7 +648,7 @@ Reste concis et pratique. Réponds en français.`;
 
       if (jsonMatch) {
         const jsonStr = jsonMatch[0];
-        console.log("🔄 Parsing de la réponse JSON:", jsonStr);
+        // Parsing JSON response
         const parsed = JSON.parse(jsonStr);
 
         // Valider la structure et les dates
@@ -627,7 +661,7 @@ Reste concis et pratique. Réponds en français.`;
             const isValidDate = dateStr >= todayStr;
             if (!isValidDate) {
               console.warn(
-                `🚫 Date passée éliminée par Gemini: ${dateStr} (avant ${todayStr})`,
+                `Past date filtered out: ${dateStr} (before ${todayStr})`,
               );
             }
             return isValidDate;
@@ -635,15 +669,20 @@ Reste concis et pratique. Réponds en français.`;
 
           // Si toutes les dates ont été filtrées, retourner null
           if (validDates.length === 0) {
-            console.error(
-              "🚨 Toutes les dates étaient passées, suggestion rejetée",
+            const dateError = ErrorFactory.validation(
+              "All dates were in the past, suggestion rejected",
+              "Toutes les dates proposées sont dans le passé"
             );
+            
+            logError(dateError, {
+              component: 'GeminiService',
+              operation: 'parseGeminiResponse'
+            });
+            
             return null;
           }
 
-          console.log(
-            `✅ Dates validées: ${validDates.length}/${parsed.dates.length} dates futures conservées`,
-          );
+          // Validated future dates successfully
 
           return {
             title: parsed.title,
@@ -658,7 +697,16 @@ Reste concis et pratique. Réponds en français.`;
 
       return null;
     } catch (error) {
-      console.error("🚨 Erreur lors du parsing de la réponse Gemini:", error);
+      const parseError = handleError(error, {
+        component: 'GeminiService',
+        operation: 'parseGeminiResponse'
+      }, 'Erreur lors du parsing de la réponse Gemini');
+      
+      logError(parseError, {
+        component: 'GeminiService',
+        operation: 'parseGeminiResponse'
+      });
+      
       return null;
     }
   }
@@ -794,7 +842,16 @@ Reste concis et pratique. Réponds en français.`;
       const response = await result.response;
       return response !== null;
     } catch (error) {
-      console.error("Erreur lors du test de connexion Gemini:", error);
+      const connectionError = handleError(error, {
+        component: 'GeminiService',
+        operation: 'testConnection'
+      }, 'Erreur lors du test de connexion Gemini');
+      
+      logError(connectionError, {
+        component: 'GeminiService',
+        operation: 'testConnection'
+      });
+      
       return false;
     }
   }

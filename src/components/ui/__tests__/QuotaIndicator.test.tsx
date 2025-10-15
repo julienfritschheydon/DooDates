@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests for QuotaIndicator component
  * DooDates - Quota Indicator Tests
  */

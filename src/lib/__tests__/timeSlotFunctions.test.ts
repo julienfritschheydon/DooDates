@@ -113,9 +113,9 @@ describe("timeSlotFunctions", () => {
     it("should handle different dates", () => {
       const result = formatSelectedDateHeader("2025-12-25");
 
-      expect(result.dayName).toBe("jeu."); // jeudi
+      expect(result.dayName).toMatchInlineSnapshot(`"jeu."`); // jeudi
       expect(result.dayNumber).toBe(25);
-      expect(result.month).toBe("déc."); // décembre
+      expect(result.month).toMatchInlineSnapshot(`"déc."`); // décembre
     });
   });
 });

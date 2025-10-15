@@ -3,17 +3,18 @@
  * DooDates - Conversation History System
  */
 
+import { vi } from 'vitest';
 import type { Conversation, ConversationStatus } from '../../types/conversation';
-import type { SearchFilters, SearchOptions } from '../useConversationSearch';
+import type { SearchFilters, SearchOptions } from '../../types/search';
 
 // Mock the useConversations hook
-jest.mock('../useConversations', () => ({
-  useConversations: jest.fn()
+vi.mock('../useConversations', () => ({
+  useConversations: vi.fn()
 }));
 
 // Mock the useDebounce hook
-jest.mock('../useDebounce', () => ({
-  useDebounce: jest.fn((value) => value) // Return value immediately for testing
+vi.mock('../useDebounce', () => ({
+  useDebounce: vi.fn((value) => value) // Return value immediately for testing
 }));
 
 describe('useConversationSearch Logic', () => {
@@ -349,13 +350,13 @@ describe('useConversationSearch Logic', () => {
     it('should handle Unicode characters', () => {
       const unicodeConversation = createMockConversation(
         'unicode',
-        'Réunion équipe 🚀',
-        'Café avec Marie ☕',
+        'RÃ©union Ã©quipe ðŸš€',
+        'CafÃ© avec Marie â˜•',
         'active',
-        ['français', '🎯']
+        ['franÃ§ais', 'ðŸŽ¯']
       );
       
-      const queries = ['Réunion', 'équipe', '🚀', 'Café', '☕', 'français', '🎯'];
+      const queries = ['RÃ©union', 'Ã©quipe', 'ðŸš€', 'CafÃ©', 'â˜•', 'franÃ§ais', 'ðŸŽ¯'];
       
       queries.forEach(query => {
         const titleMatch = unicodeConversation.title.includes(query);

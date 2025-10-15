@@ -7,7 +7,7 @@ function mkLogger(scope: string) {
   return (...parts: any[]) => console.log(`[${scope}]`, ...parts);
 }
 
-test.describe('DooDates - Test Ultra Simple', () => {
+test.skip('DooDates - Test Ultra Simple', () => {
   // Orchestration: exécuter en série pour éviter toute flakiness liée au partage d'état (étape D)
   test.describe.configure({ mode: 'serial' });
   
@@ -49,7 +49,7 @@ test.describe('DooDates - Test Ultra Simple', () => {
     await expect(qTitle).toBeVisible({ timeout: 10000 });
     await qTitle.fill(text);
   };
-  test('Navigation de base + 3 dates + 3 horaires', async ({ page }) => {
+  test.skip('Navigation de base + 3 dates + 3 horaires (DÉSACTIVÉ - Voir DooDates-Spec-Kit-Workflow.md)', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,

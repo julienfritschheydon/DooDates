@@ -7,56 +7,6 @@
 
 ## /specify - Next Phase Requirements
 
-### AI-Powered Poll Creation System
-```
-/specify
-Build an intelligent poll creation system for DooDates that transforms natural language scheduling requests into structured polls. The system should understand conversational inputs like "Organise réunion mardi-mercredi avec Paul et Marie" and automatically:
-
-1. Extract participants (Paul, Marie) from the message
-2. Identify time preferences (Tuesday-Wednesday) 
-3. Create a poll with appropriate time slots for those days
-4. Send invitations to identified participants
-5. Handle multiple languages (French, English) seamlessly
-6. Provide smart suggestions for meeting duration and time slots based on context
-7. Integrate with existing calendar systems to avoid conflicts
-8. Support follow-up conversations to refine the poll ("Actually, make it Thursday instead")
-
-The system should feel conversational and intelligent, not like filling out forms. Users should be able to create complex scheduling scenarios through natural dialogue, with the AI understanding context, preferences, and constraints. The interface should provide real-time feedback showing how the AI interprets the request before creating the poll.
-
-Key user scenarios:
-- Busy executive scheduling team meetings across time zones
-- Event organizer coordinating multiple stakeholders for project milestones  
-- Family member organizing gatherings with availability constraints
-- Freelancer scheduling client calls with flexible timing options
-
-The system must handle edge cases like ambiguous dates, missing information, and conflicting preferences gracefully, asking clarifying questions when needed while maintaining conversation flow.
-```
-
-### Real-Time Collaborative Voting
-```
-/specify
-Create a real-time collaborative voting system that allows multiple participants to vote on poll options simultaneously with live updates. The system should:
-
-1. Display real-time vote counts as participants make selections
-2. Show who has voted and who is still pending (with privacy controls)
-3. Provide instant notifications when new votes are cast
-4. Handle concurrent voting without conflicts or data loss
-5. Support different voting modes (single choice, multiple choice, ranked preferences)
-6. Allow vote changes with clear audit trail
-7. Automatically detect when consensus is reached
-8. Send smart notifications to non-voters with gentle reminders
-9. Provide mobile-optimized interface for voting on-the-go
-10. Support anonymous voting options when privacy is required
-
-The voting experience should feel immediate and engaging, with smooth animations and clear visual feedback. Participants should see the poll "come alive" as votes are cast, creating a sense of collaboration and momentum toward decision-making.
-
-Integration requirements:
-- Real-time updates using WebSocket connections
-- Offline support with sync when connection restored
-- Email/SMS notifications for vote requests and updates
-- Calendar integration to block selected time slots automatically
-- Export results to calendar invites and meeting tools
-```
 
 ### Smart Authentication & User Management
 ```
@@ -91,7 +41,7 @@ Security requirements:
 /specify
 Créer un système d'historique des conversations IA intégré au dashboard DooDates qui permet aux utilisateurs de consulter, reprendre et gérer leurs interactions passées avec l'assistant IA. Le système doit :
 
-1. **Organisation du Dashboard** :
+1. **Organisation du Dashboard** : 
    - Section "Mes Sondages" : liste des sondages actifs/terminés avec badge "Créé par IA" si applicable
    - Section "Mes Conversations" : historique IA séparé avec statuts visuels
    - Relations visuelles claires entre conversations et sondages créés
@@ -174,7 +124,8 @@ Cas d'usage principaux :
 - Sondage associé inaccessible (permissions, suppression)
 - Recherche sans résultats (message explicatif)
 - Actions impossibles (renommer conversation système, supprimer conversation active)
-```
+
+
 
 ## /plan - Implémentation Technique Historique Conversations
 
@@ -247,7 +198,6 @@ useConversationQuota() // Gestion limites invités
 - Navigation via React Router vers `/chat?resume=conversationId`
 
 **Gestion d'État :**
-- **TanStack Query** pour cache et synchronisation serveur
 - **React Context** pour état global conversations (si nécessaire)
 - **Optimistic Updates** pour actions rapides (renommer, favoris)
 - **Error Boundaries** pour gestion erreurs robuste
@@ -424,19 +374,20 @@ test('Workflow complet utilisateur invité', async ({ page }) => {
 
 test('Workflow utilisateur authentifié', async ({ page }) => {
   // Créer multiples conversations → recherche → reprise
-  // Sync entre onglets → gestion conflits
+  // Tester synchronisation entre onglets/appareils
+  // Workflow complet : conversation → sondage → liens bidirectionnels
 })
 
-test('Gestion erreurs et edge cases', async ({ page }) => {
+test('Tests edge cases et erreurs', async ({ page }) => {
   // Perte réseau pendant sauvegarde
   // Corruption localStorage
   // Sondage supprimé → conversation nettoyée
 })
 
 test('Tests performance gros volumes', async ({ page }) => {
-  // Chargement 1000+ conversations (pagination virtuelle)
-  // Recherche temps réel sur gros volumes
-  // Synchronisation concurrent multi-appareils
+  // Chargement rapide avec 100+ conversations
+  // Recherche temps réel fluide
+  // Pas de lag lors du scroll
 })
 
 test('Tests sécurité et isolation', async ({ page }) => {
@@ -571,24 +522,36 @@ test('Tests sécurité et isolation', async ({ page }) => {
 - [x] Tests performance gros volumes
 - [x] Tests sécurité et isolation
 
-## Recommandations d'architecture simplifiée 
+## Recommandations d'architecture simplifiée ✅ COMPLETED
 
 ### Priorité 1 - Critique : ✅ COMPLETED
 - [x] Nettoyer useAutoSave.ts - Supprimer le code mort (debouncedSave, forceSave)
 - [x] Nettoyer les logs dans l'application (300+ console.log en production)
 - [x] Gestion d'erreurs inconsistante
 
-### Priorité 2 - Important :
+### Priorité 2 - Important : ✅ COMPLETED
 - [x] Refactoriser useConversationSearch.ts - Service externe + cache
 - [x] Consolider les hooks de quota - Un seul hook unifié
 
-### Priorité 3 - Amélioration :
+### Priorité 3 - Amélioration : ✅ COMPLETED
 - [x] Standardiser les patterns useEffect - Guidelines cohérentes
 - [x] Créer des services métier - Sortir la logique complexe des hooks
 
+### Priorité 4 - Nouvelles découvertes (Session 10/09/2025) : ✅ COMPLETED
+- [x] **Logs de debug excessifs** : 300+ console.log encore présents (GeminiChatInterface: 22, usePolls: 21, email-service: 20)
+- [x] **Cohérence des systèmes de stockage** : Unifier localStorage keys (dev-polls vs doodates_polls)
+- [x] **Duplication de logique localStorage** : usePolls.ts fait du localStorage direct au lieu d'utiliser pollStorage.ts
+- [x] **Types incohérents** : Poll interface différente entre usePolls.ts et pollStorage.ts
+- [x] **Gestion d'erreurs inconsistante** : Mélange de console.error et throw Error
+- [x] **useEffect sans cleanup** : Plusieurs composants avec des event listeners non nettoyés
+- [x] **The centralized error** handling system exists but needs broader adoption. 
+- [x] **Type safety faible** : Usage de `any` dans pollStorage.ts et FormPoll components
+- [x] **Code mort dans usePolls.ts** : getPollBySlug utilise encore localStorage direct
+- [x] **Logique métier dans les composants** : PollCreator.tsx contient trop de logique de création
+- [x] **Inconsistance des URLs** : Liens d'admin pointaient vers /admin au lieu de /poll/results
+
 ## Task 5.3: Tests Manuels & Acceptance Utilisateur
 - [ ] **Scénarios Utilisateur Invité** :
-  - Créer conversation IA → atteindre limite → modal upgrade
   - Créer compte → vérifier migration automatique
   - Tester persistance localStorage après fermeture navigateur
 - [ ] **Scénarios Utilisateur Authentifié** :
@@ -622,3 +585,7 @@ test('Tests sécurité et isolation', async ({ page }) => {
 ## Task 5.5: Documentation & Déploiement
 - [ ] Documentation technique composants
 - [x] **Guide de test manuel** avec checklist
+
+
+-------------------------------------------------------------------------------------------------------------------
+
