@@ -1,14 +1,15 @@
-﻿/**
+/**
  * Tests for QuotaIndicator component
  * DooDates - Quota Indicator Tests
  */
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import QuotaIndicator from '../QuotaIndicator';
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   MessageSquare: () => <div data-testid="message-icon">MessageSquare</div>,
   BarChart3: () => <div data-testid="chart-icon">BarChart3</div>,
   Database: () => <div data-testid="database-icon">Database</div>,
