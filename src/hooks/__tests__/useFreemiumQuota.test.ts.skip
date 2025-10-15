@@ -1,25 +1,26 @@
-﻿/**
+/**
  * Tests for useFreemiumQuota hook
  * DooDates - Freemium Quota Management Tests
  */
 
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useFreemiumQuota } from '../useFreemiumQuota';
 import { useAuth } from '../../contexts/AuthContext';
 import { useConversations } from '../useConversations';
 
 // Mock dependencies
-jest.mock('../../contexts/AuthContext');
-jest.mock('../useConversations');
+vi.mock('../../contexts/AuthContext');
+vi.mock('../useConversations');
 
-const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
-const mockUseConversations = useConversations as jest.MockedFunction<typeof useConversations>;
+const mockUseAuth = vi.mocked(useAuth);
+const mockUseConversations = vi.mocked(useConversations);
 
 // Mock localStorage
 const mockLocalStorage = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
 };
 Object.defineProperty(window, 'localStorage', {
   value: mockLocalStorage,
@@ -27,7 +28,7 @@ Object.defineProperty(window, 'localStorage', {
 
 describe('useFreemiumQuota', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Default mock implementations
     mockUseAuth.mockReturnValue({
@@ -257,7 +258,7 @@ describe('useFreemiumQuota', () => {
         return null;
       });
 
-      const mockTrigger = jest.fn();
+      const mockTrigger = vi.fn();
       const { result } = renderHook(() => useFreemiumQuota());
 
       act(() => {
@@ -274,7 +275,7 @@ describe('useFreemiumQuota', () => {
         isAuthenticated: true,
       } as any);
 
-      const mockTrigger = jest.fn();
+      const mockTrigger = vi.fn();
       const { result } = renderHook(() => useFreemiumQuota());
 
       act(() => {

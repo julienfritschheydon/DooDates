@@ -117,9 +117,9 @@ Les git hooks sont maintenant **débloqués** et n'empêcheront plus les commits
 **Stratégie** : Migration progressive avec test + commit après chaque fichier
 
 ### Phase 1 : Tests Simples (Priorité Haute)
-- [ ] **Étape 1** : `usePollConversationLink.test.ts` - Simple, peu de mocks
-- [ ] **Étape 2** : `usePollDeletionCascade.test.ts` - Simple, peu de mocks
-- [ ] **Étape 3** : `useFreemiumQuota.test.ts` - Mocks simples
+- [x] **Étape 1** : `usePollConversationLink.test.ts` - ✅ 10/12 tests
+- [x] **Étape 2** : `usePollDeletionCascade.test.ts` - ✅ 11/12 tests  
+- [~] **Étape 3** : `useFreemiumQuota.test.ts` - ⏸️ API changée, besoin refactor
 
 ### Phase 2 : Tests Composants (Priorité Moyenne)
 - [ ] **Étape 4** : `QuotaIndicator.test.tsx` - Composant UI simple
@@ -140,5 +140,6 @@ Les git hooks sont maintenant **débloqués** et n'empêcheront plus les commits
 
 ## 📊 Progression
 
-**Total** : 0/12 tests migrés  
-**Dernière mise à jour** : 15/10/2025 10:30
+**Total** : 2/12 tests migrés (Phase 1: 2/3 ✅)
+**Tests réussis** : 21/24 tests passent (10+11)
+**Dernière mise à jour** : 15/10/2025 11:15
