@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @jest-environment jsdom
  */
 import { ConversationMigrationService, MigrationStatus, MigrationProgress, MigrationResult } from '../ConversationMigrationService';
