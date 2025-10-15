@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests for ConversationActions Component
  * DooDates - Conversation History System
  */
@@ -184,7 +184,7 @@ describe('ConversationActions', () => {
       await user.click(favoriteAction);
       
       expect(mockToast).toHaveBeenCalledWith({
-        title: 'Ajouté aux favoris',
+        title: 'AjoutÃ© aux favoris',
         description: 'Cette conversation est maintenant dans vos favoris.',
       });
     });
@@ -220,7 +220,7 @@ describe('ConversationActions', () => {
       const triggerButton = screen.getByRole('button');
       await user.click(triggerButton);
       
-      expect(screen.getByText('Désarchiver')).toBeInTheDocument();
+      expect(screen.getByText('DÃ©sarchiver')).toBeInTheDocument();
     });
 
     it('calls onToggleArchive with correct parameters', async () => {
@@ -466,8 +466,8 @@ describe('ConversationActions', () => {
         `${window.location.origin}/conversations/conv-1`
       );
       expect(mockToast).toHaveBeenCalledWith({
-        title: 'Lien copié',
-        description: 'Le lien de la conversation a été copié dans le presse-papiers.',
+        title: 'Lien copiÃ©',
+        description: 'Le lien de la conversation a Ã©tÃ© copiÃ© dans le presse-papiers.',
       });
     });
   });

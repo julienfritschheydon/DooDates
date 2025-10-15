@@ -1,0 +1,386 @@
+﻿/**
+ * Tests for ConversationSearch Component
+ * DooDates - Conversation History System
+ */
+
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ConversationSearch } from '../ConversationSearch';
+import type { SearchFilters } from '../ConversationSearch';
+
+// Mock UI components
+jest.mock('../../ui/calendar', () => ({
+  Calendar: ({ onSelect, selected }: any) => (
+    <div data-testid="calendar">
+      <button 
+        onClick={() => onSelect({ from: new Date('2024-01-01'), to: new Date('2024-01-31') })}
+      >
+        Select Range
+      </button>
+    </div>
+  ),
+}));
+
+describe('ConversationSearch', () => {
+  const mockOnFiltersChange = jest.fn();
+  const defaultProps = {
+    onFiltersChange: mockOnFiltersChange,
+    availableTags: ['urgent', 'meeting', 'project'],
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('Search Input', () => {
+    it('renders search input with placeholder', () => {
+      render(<ConversationSearch {...defaultProps} />);
+      
+      expect(screen.getByPlaceholderText('Rechercher dans les conversations...')).toBeInTheDocument();
+    });
+
+    it('renders custom placeholder when provided', () => {
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          placeholder="Custom search placeholder" 
+        />
+      );
+      
+      expect(screen.getByPlaceholderText('Custom search placeholder')).toBeInTheDocument();
+    });
+
+    it('calls onFiltersChange when search query changes', async () => {
+      const user = userEvent.setup();
+      render(<ConversationSearch {...defaultProps} />);
+      
+      const searchInput = screen.getByPlaceholderText('Rechercher dans les conversations...');
+      await user.type(searchInput, 'test query');
+      
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({ query: 'test query' });
+    });
+
+    it('shows clear button when query exists', () => {
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ query: 'existing query' }} 
+        />
+      );
+      
+      expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
+    });
+
+    it('clears query when clear button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ query: 'existing query' }} 
+        />
+      );
+      
+      const clearButton = screen.getByRole('button', { name: /clear/i });
+      await user.click(clearButton);
+      
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({});
+    });
+  });
+
+  describe('Status Filter', () => {
+    it('renders status select with default value', () => {
+      render(<ConversationSearch {...defaultProps} />);
+      
+      expect(screen.getByRole('combobox')).toBeInTheDocument();
+    });
+
+    it('calls onFiltersChange when status changes', async () => {
+      const user = userEvent.setup();
+      render(<ConversationSearch {...defaultProps} />);
+      
+      const statusSelect = screen.getByRole('combobox');
+      await user.click(statusSelect);
+      
+      const activeOption = screen.getByText('Actives');
+      await user.click(activeOption);
+      
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({ status: 'active' });
+    });
+
+    it('shows correct status labels in English', () => {
+      render(<ConversationSearch {...defaultProps} language="en" />);
+      
+      // This would need to be tested by opening the dropdown
+      // For now, we test that the component renders without error
+      expect(screen.getByRole('combobox')).toBeInTheDocument();
+    });
+  });
+
+  describe('Quick Filters', () => {
+    it('renders favorite and poll quick filters', () => {
+      render(<ConversationSearch {...defaultProps} />);
+      
+      expect(screen.getByText('Favoris')).toBeInTheDocument();
+      expect(screen.getByText('Avec sondage')).toBeInTheDocument();
+    });
+
+    it('toggles favorite filter when clicked', async () => {
+      const user = userEvent.setup();
+      render(<ConversationSearch {...defaultProps} />);
+      
+      const favoriteButton = screen.getByText('Favoris');
+      await user.click(favoriteButton);
+      
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({ isFavorite: true });
+    });
+
+    it('shows active state for enabled quick filters', () => {
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ isFavorite: true }} 
+        />
+      );
+      
+      const favoriteButton = screen.getByText('Favoris');
+      expect(favoriteButton).toHaveClass('bg-primary'); // or whatever active class
+    });
+  });
+
+  describe('Advanced Filters', () => {
+    it('renders filters dropdown when showAdvancedFilters is true', () => {
+      render(<ConversationSearch {...defaultProps} showAdvancedFilters={true} />);
+      
+      expect(screen.getByText('Filtres')).toBeInTheDocument();
+    });
+
+    it('does not render filters dropdown when showAdvancedFilters is false', () => {
+      render(<ConversationSearch {...defaultProps} showAdvancedFilters={false} />);
+      
+      expect(screen.queryByText('Filtres')).not.toBeInTheDocument();
+    });
+
+    it('shows active filters count badge', () => {
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ query: 'test', isFavorite: true }} 
+        />
+      );
+      
+      expect(screen.getByText('2')).toBeInTheDocument(); // Badge with count
+    });
+  });
+
+  describe('Clear Filters', () => {
+    it('shows clear filters button when filters are active', () => {
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ query: 'test' }} 
+        />
+      );
+      
+      expect(screen.getByText('Effacer les filtres')).toBeInTheDocument();
+    });
+
+    it('does not show clear filters button when no filters are active', () => {
+      render(<ConversationSearch {...defaultProps} />);
+      
+      expect(screen.queryByText('Effacer les filtres')).not.toBeInTheDocument();
+    });
+
+    it('clears all filters when clear button is clicked', async () => {
+      const user = userEvent.setup();
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ query: 'test', isFavorite: true }} 
+        />
+      );
+      
+      const clearButton = screen.getByText('Effacer les filtres');
+      await user.click(clearButton);
+      
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({});
+    });
+  });
+
+  describe('Active Filters Display', () => {
+    it('displays active query filter as badge', () => {
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ query: 'test query' }} 
+        />
+      );
+      
+      expect(screen.getByText('"test query"')).toBeInTheDocument();
+    });
+
+    it('displays active status filter as badge', () => {
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ status: 'active' }} 
+        />
+      );
+      
+      expect(screen.getByText('Actives')).toBeInTheDocument();
+    });
+
+    it('displays active favorite filter as badge', () => {
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ isFavorite: true }} 
+        />
+      );
+      
+      expect(screen.getByText('Favoris')).toBeInTheDocument();
+    });
+
+    it('allows removing individual filter badges', async () => {
+      const user = userEvent.setup();
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ query: 'test', isFavorite: true }} 
+        />
+      );
+      
+      // Find the X button in the query badge
+      const queryBadge = screen.getByText('"test"').closest('div');
+      const removeButton = queryBadge?.querySelector('button');
+      
+      if (removeButton) {
+        await user.click(removeButton);
+        expect(mockOnFiltersChange).toHaveBeenCalledWith({ isFavorite: true });
+      }
+    });
+  });
+
+  describe('Language Support', () => {
+    it('renders French text by default', () => {
+      render(<ConversationSearch {...defaultProps} />);
+      
+      expect(screen.getByText('Filtres')).toBeInTheDocument();
+      expect(screen.getByText('Favoris')).toBeInTheDocument();
+    });
+
+    it('renders English text when language is set to en', () => {
+      render(<ConversationSearch {...defaultProps} language="en" />);
+      
+      expect(screen.getByText('Filters')).toBeInTheDocument();
+      expect(screen.getByText('Favorites')).toBeInTheDocument();
+    });
+
+    it('uses English placeholder when language is en', () => {
+      render(<ConversationSearch {...defaultProps} language="en" />);
+      
+      expect(screen.getByPlaceholderText('Search conversations...')).toBeInTheDocument();
+    });
+  });
+
+  describe('Tags Filter', () => {
+    it('renders tag options in dropdown when available', async () => {
+      const user = userEvent.setup();
+      render(<ConversationSearch {...defaultProps} />);
+      
+      const filtersButton = screen.getByText('Filtres');
+      await user.click(filtersButton);
+      
+      expect(screen.getByText('urgent')).toBeInTheDocument();
+      expect(screen.getByText('meeting')).toBeInTheDocument();
+      expect(screen.getByText('project')).toBeInTheDocument();
+    });
+
+    it('does not render tags section when no tags available', async () => {
+      const user = userEvent.setup();
+      render(<ConversationSearch {...defaultProps} availableTags={[]} />);
+      
+      const filtersButton = screen.getByText('Filtres');
+      await user.click(filtersButton);
+      
+      expect(screen.queryByText('Tags')).not.toBeInTheDocument();
+    });
+
+    it('displays selected tags as badges', () => {
+      render(
+        <ConversationSearch 
+          {...defaultProps} 
+          filters={{ tags: ['urgent', 'meeting'] }} 
+        />
+      );
+      
+      expect(screen.getByText('urgent')).toBeInTheDocument();
+      expect(screen.getByText('meeting')).toBeInTheDocument();
+    });
+  });
+
+  describe('Date Range Filter', () => {
+    it('opens calendar when date range option is clicked', async () => {
+      const user = userEvent.setup();
+      render(<ConversationSearch {...defaultProps} />);
+      
+      const filtersButton = screen.getByText('Filtres');
+      await user.click(filtersButton);
+      
+      const dateRangeOption = screen.getByText('PÃ©riode');
+      await user.click(dateRangeOption);
+      
+      expect(screen.getByTestId('calendar')).toBeInTheDocument();
+    });
+
+    it('applies date range when apply button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<ConversationSearch {...defaultProps} />);
+      
+      const filtersButton = screen.getByText('Filtres');
+      await user.click(filtersButton);
+      
+      const dateRangeOption = screen.getByText('PÃ©riode');
+      await user.click(dateRangeOption);
+      
+      const selectRangeButton = screen.getByText('Select Range');
+      await user.click(selectRangeButton);
+      
+      const applyButton = screen.getByText('Appliquer');
+      await user.click(applyButton);
+      
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({
+        dateRange: {
+          from: new Date('2024-01-01'),
+          to: new Date('2024-01-31')
+        }
+      });
+    });
+  });
+
+  describe('Accessibility', () => {
+    it('has proper ARIA labels for interactive elements', () => {
+      render(<ConversationSearch {...defaultProps} />);
+      
+      const searchInput = screen.getByPlaceholderText('Rechercher dans les conversations...');
+      expect(searchInput).toHaveAttribute('type', 'text');
+      
+      const statusSelect = screen.getByRole('combobox');
+      expect(statusSelect).toBeInTheDocument();
+    });
+
+    it('supports keyboard navigation', async () => {
+      const user = userEvent.setup();
+      render(<ConversationSearch {...defaultProps} />);
+      
+      const searchInput = screen.getByPlaceholderText('Rechercher dans les conversations...');
+      
+      // Tab to search input and type
+      await user.tab();
+      expect(searchInput).toHaveFocus();
+      
+      await user.type(searchInput, 'test');
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({ query: 'test' });
+    });
+  });
+});

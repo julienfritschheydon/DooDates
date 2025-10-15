@@ -4,6 +4,7 @@
  */
 
 import type { PollData } from '../hooks/usePolls';
+import { handleError, ErrorFactory, logError } from '../lib/error-handling';
 
 export interface TimeSlot {
   hour: number;
@@ -53,7 +54,10 @@ export class PollCreatorService {
     onPollCreated?: (slug: string) => void
   ): Promise<void> {
     if (!this.canFinalize(state)) {
-      throw new Error('Poll cannot be finalized - missing required fields');
+      throw ErrorFactory.validation(
+        'Poll cannot be finalized - missing required fields',
+        'Veuillez remplir tous les champs requis pour finaliser le sondage.'
+      );
     }
 
     const pollData: PollData = {
@@ -74,8 +78,15 @@ export class PollCreatorService {
       }
     };
 
-    const slug = await createPoll(pollData);
-    onPollCreated?.(slug);
+    try {
+      const slug = await createPoll(pollData);
+      onPollCreated?.(slug);
+    } catch (error) {
+      throw handleError(error, {
+        component: 'PollCreatorService',
+        operation: 'handleFinalize'
+      }, 'Erreur lors de la création du sondage');
+    }
   }
 
   /**
@@ -98,9 +109,19 @@ export class PollCreatorService {
    * Analyze calendar availability (placeholder)
    */
   static async analyzeCalendarAvailability(dates: string[]): Promise<any[]> {
-    // Placeholder for calendar integration
-    console.log('Analyzing calendar availability for dates:', dates);
-    return [];
+    try {
+      // Placeholder for calendar integration
+      logError(new Error('Calendar integration not implemented'), {
+        component: 'PollCreatorService',
+        operation: 'analyzeCalendarAvailability'
+      });
+      return [];
+    } catch (error) {
+      throw handleError(error, {
+        component: 'PollCreatorService',
+        operation: 'analyzeCalendarAvailability'
+      }, 'Erreur lors de l\'analyse du calendrier');
+    }
   }
 
   /**

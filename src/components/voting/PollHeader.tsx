@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronLeft, Users, Bot, MessageCircle } from "lucide-react";
+import { ChevronLeft, Users, Bot, MessageCircle, ExternalLink } from "lucide-react";
 import { Poll, SwipeVote } from "./utils/types";
 
 interface PollHeaderProps {
@@ -83,7 +83,7 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
           </div>
         )}
 
-        {/* Conversation Link Badge */}
+        {/* Bidirectional Conversation Link Badge */}
         {poll?.conversation_id && onViewConversation && (
           <button
             onClick={() => onViewConversation(poll.conversation_id!)}
@@ -91,8 +91,9 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
           >
             <MessageCircle className="w-3 h-3 text-green-600" />
             <span className="text-green-800 font-medium text-sm">
-              Voir conversation
+              Lié à une conversation
             </span>
+            <ExternalLink className="w-3 h-3 text-green-600" />
           </button>
         )}
       </div>

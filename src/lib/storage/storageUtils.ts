@@ -1,3 +1,5 @@
+import { logError, ErrorFactory } from '../error-handling';
+
 /**
  * Common localStorage utilities for polls and conversations
  * DooDates - Shared Storage Pattern
@@ -37,7 +39,11 @@ export function readFromStorage<T>(
     
     return items;
   } catch (error) {
-    console.warn(`Failed to read from ${key}:`, error);
+    logError(ErrorFactory.storage(`Failed to read from ${key}`, `Échec de lecture depuis ${key}`), {
+      component: 'storageUtils',
+      operation: 'readFromStorage',
+      metadata: { key, originalError: error }
+    });
     return defaultValue;
   }
 }
@@ -64,7 +70,11 @@ export function writeToStorage<T>(
     // Save to localStorage
     window.localStorage.setItem(key, JSON.stringify(items));
   } catch (error) {
-    console.warn(`Failed to write to ${key}:`, error);
+    logError(ErrorFactory.storage(`Failed to write to ${key}`, `Échec d'écriture vers ${key}`), {
+      component: 'storageUtils',
+      operation: 'writeToStorage',
+      metadata: { key, originalError: error }
+    });
   }
 }
 
@@ -139,7 +149,11 @@ export function clearStorage(keys: string[], caches: Map<string, any>[]): void {
     keys.forEach(key => window.localStorage.removeItem(key));
     caches.forEach(cache => cache.clear());
   } catch (error) {
-    console.warn('Failed to clear storage:', error);
+    logError(ErrorFactory.storage('Failed to clear storage', 'Échec de nettoyage du stockage'), {
+      component: 'storageUtils',
+      operation: 'clearStorage',
+      metadata: { keys, originalError: error }
+    });
   }
 }
 
@@ -167,7 +181,11 @@ export function readRecordStorage<T>(
     
     return records;
   } catch (error) {
-    console.warn(`Failed to read records from ${key}:`, error);
+    logError(ErrorFactory.storage(`Failed to read records from ${key}`, `Échec de lecture des enregistrements depuis ${key}`), {
+      component: 'storageUtils',
+      operation: 'readRecordStorage',
+      metadata: { key, recordId, originalError: error }
+    });
     return [];
   }
 }
@@ -238,6 +256,10 @@ export function deleteRecords<T>(
     
     window.localStorage.setItem(key, JSON.stringify(allRecords));
   } catch (error) {
-    console.warn(`Failed to delete records from ${key}:`, error);
+    logError(ErrorFactory.storage(`Failed to delete records from ${key}`, `Échec de suppression des enregistrements depuis ${key}`), {
+      component: 'storageUtils', 
+      operation: 'deleteRecordStorage',
+      metadata: { key, recordId, originalError: error }
+    });
   }
 }

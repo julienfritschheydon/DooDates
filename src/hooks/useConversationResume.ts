@@ -7,6 +7,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAutoSave } from './useAutoSave';
+import { ErrorFactory } from '../lib/error-handling';
 import type { Conversation } from '../types/conversation';
 
 export interface UseConversationResumeReturn {
@@ -49,7 +50,7 @@ export const useConversationResume = (): UseConversationResumeReturn => {
         
         console.log('✅ Conversation resumed successfully:', conversation.title);
       } else {
-        throw new Error('Conversation not found');
+        throw ErrorFactory.storage('Conversation not found', 'Conversation non trouvée', { conversationId });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to resume conversation';

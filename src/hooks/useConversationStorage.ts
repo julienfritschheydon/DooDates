@@ -12,6 +12,7 @@ import {
   StorageProvider,
   CONVERSATION_LIMITS 
 } from '../types/conversation';
+import { handleError, ErrorFactory, logError } from '../lib/error-handling';
 
 /**
  * Storage mode detection result
@@ -134,8 +135,17 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
               // Use the createConversation method instead of manual creation
               return await ConversationStorageLocal.createConversation(conversation);
             } catch (error) {
-              console.error('Error in createConversation:', error);
-              throw error;
+              const processedError = handleError(error, {
+                component: 'useConversationStorage',
+                operation: 'createConversation'
+              }, 'Erreur lors de la création de la conversation');
+              
+              logError(processedError, {
+                component: 'useConversationStorage',
+                operation: 'createConversation'
+              });
+              
+              throw processedError;
             }
           },
           getConversations: () => {
@@ -158,10 +168,13 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
             const conversation = await ConversationStorageLocal.getConversation(conversationId);
             if (!conversation) {
               const availableConversations = await ConversationStorageLocal.getConversations();
-              console.error('🔍 Conversation verification failed before saving messages:', {
-                conversationId,
-                availableConversations: availableConversations.map(c => c.id),
-                timestamp: new Date().toISOString()
+              const verificationError = ErrorFactory.validation(
+                'Conversation non trouvée avant sauvegarde des messages'
+              );
+              
+              logError(verificationError, {
+                component: 'useConversationStorage',
+                operation: 'saveMessages'
               });
               throw new ConversationError(
                 `Cannot save messages: conversation ${conversationId} not found`,
@@ -387,32 +400,36 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
       message: ConversationMessage 
     }) => {
       try {
-        console.log('🔍 Attempting to save message:', { conversationId, messageId: message.id, role: message.role });
-        await activeStorage.saveMessages(conversationId, [message]);
+        // Update conversation's message count and updatedAt
+        queryClient.setQueryData(queryKeys.conversations, (old: Conversation[] | undefined) => {
+          return old?.map(conv => 
+            conv.id === conversationId 
+              ? { ...conv, messageCount: conv.messageCount + 1, updatedAt: new Date() }
+              : conv
+          ) || [];
+        });
+        
         // Return the message with conversationId for the onSuccess callback
         return message;
       } catch (error) {
-        console.error('❌ saveMessages failed:', error);
-        console.error('❌ Error details:', { conversationId, error: error.message, stack: error.stack });
+        const processedError = handleError(error, {
+          component: 'useConversationStorage',
+          operation: 'saveMessages',
+          conversationId
+        }, 'Erreur lors de la sauvegarde des messages');
+        
+        logError(processedError, {
+          component: 'useConversationStorage',
+          operation: 'saveMessages',
+          conversationId
+        });
+        
         throw new ConversationError(
           `Failed to add message to conversation ${conversationId}`,
           'CREATE_ERROR',
-          { originalError: error, provider: storageMode.provider, conversationId }
+          processedError
         );
       }
-    },
-    onSuccess: (_, { conversationId }) => {
-      // Invalidate messages cache to force refetch
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
-      
-      // Update conversation's message count and updatedAt
-      queryClient.setQueryData(queryKeys.conversations, (old: Conversation[] | undefined) => {
-        return old?.map(conv => 
-          conv.id === conversationId 
-            ? { ...conv, messageCount: conv.messageCount + 1, updatedAt: new Date() }
-            : conv
-        ) || [];
-      });
     },
     retry: retryAttempts,
   });

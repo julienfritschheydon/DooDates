@@ -1,4 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
+import { Database } from "./database.types"; 
+import { handleError, ErrorFactory, logError } from "./error-handling";
 
 // 🚧 MODE DÉVELOPPEMENT LOCAL ACTIVÉ
 // L'URL Supabase actuelle n'est plus accessible
@@ -10,7 +12,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Variables d'environnement Supabase manquantes");
+  throw ErrorFactory.critical("Variables d'environnement Supabase manquantes", "Configuration Supabase requise");
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -219,10 +221,15 @@ export type Database = {
 
 // Helper pour les erreurs Supabase
 export function handleSupabaseError(error: any) {
-  console.error("Supabase error:", error);
+  const processedError = handleError(error, {
+    component: 'Supabase',
+    operation: 'database'
+  }, 'Erreur de base de données');
 
-  if (error?.message) {
-    return error.message;
+  logError(processedError, { component: 'Supabase' });
+
+  if (processedError?.userMessage) {
+    return processedError.userMessage;
   }
 
   return "Une erreur inattendue s'est produite";

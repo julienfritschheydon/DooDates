@@ -20,14 +20,14 @@ describe('ConversationCard', () => {
   // Mock conversation data
   const createMockConversation = (overrides: Partial<Conversation> = {}): Conversation => ({
     id: 'conv-1',
-    title: 'Réunion équipe développement',
+    title: 'RÃ©union Ã©quipe dÃ©veloppement',
     status: 'active',
     createdAt: new Date('2024-01-01T10:00:00Z'),
     updatedAt: new Date('2024-01-01T12:00:00Z'),
-    firstMessage: 'Bonjour, je voudrais organiser une réunion avec l\'équipe de développement pour discuter du nouveau projet.',
+    firstMessage: 'Bonjour, je voudrais organiser une rÃ©union avec l\'Ã©quipe de dÃ©veloppement pour discuter du nouveau projet.',
     messageCount: 5,
     isFavorite: false,
-    tags: ['travail', 'réunion'],
+    tags: ['travail', 'rÃ©union'],
     ...overrides
   });
 
@@ -49,8 +49,8 @@ describe('ConversationCard', () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText('Réunion équipe développement')).toBeInTheDocument();
-      expect(screen.getByText(/Bonjour, je voudrais organiser une réunion/)).toBeInTheDocument();
+      expect(screen.getByText('RÃ©union Ã©quipe dÃ©veloppement')).toBeInTheDocument();
+      expect(screen.getByText(/Bonjour, je voudrais organiser une rÃ©union/)).toBeInTheDocument();
     });
 
     it('should display message count and relative time', () => {
@@ -66,7 +66,7 @@ describe('ConversationCard', () => {
       render(<ConversationCard conversation={conversation} />);
 
       expect(screen.getByText('travail')).toBeInTheDocument();
-      expect(screen.getByText('réunion')).toBeInTheDocument();
+      expect(screen.getByText('rÃ©union')).toBeInTheDocument();
     });
 
     it('should truncate long preview text', () => {
@@ -84,7 +84,7 @@ describe('ConversationCard', () => {
       const conversation = createMockConversation({ status: 'active' });
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText('🟡')).toBeInTheDocument();
+      expect(screen.getByText('ðŸŸ¡')).toBeInTheDocument();
       expect(screen.getByText('En cours')).toBeInTheDocument();
     });
 
@@ -92,20 +92,19 @@ describe('ConversationCard', () => {
       const conversation = createMockConversation({ status: 'completed' });
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText('🟢')).toBeInTheDocument();
-      expect(screen.getByText('Terminée')).toBeInTheDocument();
+      expect(screen.getByText('ðŸŸ¢')).toBeInTheDocument();
+      expect(screen.getByText('TerminÃ©e')).toBeInTheDocument();
     });
 
     it('should show poll link indicator when conversation has related poll', () => {
       const conversation = createMockConversation({ 
         status: 'completed',
-        relatedPollId: 'poll-123',
-        relatedPollSlug: 'reunion-equipe'
+        relatedPollId: 'poll-123'
       });
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText('🔗')).toBeInTheDocument();
-      expect(screen.getByText('Sondage créé')).toBeInTheDocument();
+      expect(screen.getByText('ðŸ”—')).toBeInTheDocument();
+      expect(screen.getByText('Sondage crÃ©Ã©')).toBeInTheDocument();
       expect(screen.getByText('Voir sondage')).toBeInTheDocument();
     });
 
@@ -113,8 +112,8 @@ describe('ConversationCard', () => {
       const conversation = createMockConversation({ status: 'archived' });
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText('📁')).toBeInTheDocument();
-      expect(screen.getByText('Archivée')).toBeInTheDocument();
+      expect(screen.getByText('ðŸ“')).toBeInTheDocument();
+      expect(screen.getByText('ArchivÃ©e')).toBeInTheDocument();
     });
   });
 
@@ -140,7 +139,7 @@ describe('ConversationCard', () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
 
-      const title = screen.getByText('Réunion équipe développement');
+      const title = screen.getByText('RÃ©union Ã©quipe dÃ©veloppement');
       await userEvent.click(title);
 
       expect(mockCallbacks.onResume).toHaveBeenCalledWith('conv-1');
@@ -150,7 +149,7 @@ describe('ConversationCard', () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
 
-      const preview = screen.getByText(/Bonjour, je voudrais organiser une réunion/);
+      const preview = screen.getByText(/Bonjour, je voudrais organiser une rÃ©union/);
       await userEvent.click(preview);
 
       expect(mockCallbacks.onResume).toHaveBeenCalledWith('conv-1');
@@ -158,15 +157,14 @@ describe('ConversationCard', () => {
 
     it('should call onViewPoll when poll link is clicked', async () => {
       const conversation = createMockConversation({ 
-        relatedPollId: 'poll-123',
-        relatedPollSlug: 'reunion-equipe'
+        relatedPollId: 'poll-123'
       });
       render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
 
       const pollLink = screen.getByText('Voir sondage');
       await userEvent.click(pollLink);
 
-      expect(mockCallbacks.onViewPoll).toHaveBeenCalledWith('poll-123', 'reunion-equipe');
+      expect(mockCallbacks.onViewPoll).toHaveBeenCalledWith('poll-123');
     });
   });
 
@@ -248,7 +246,7 @@ describe('ConversationCard', () => {
       const renameMenuItem = screen.getByText('Renommer');
       await userEvent.click(renameMenuItem);
 
-      const input = screen.getByDisplayValue('Réunion équipe développement');
+      const input = screen.getByDisplayValue('RÃ©union Ã©quipe dÃ©veloppement');
       expect(input).toBeInTheDocument();
       expect(input).toHaveFocus();
     });
@@ -266,7 +264,7 @@ describe('ConversationCard', () => {
       const renameMenuItem = screen.getByText('Renommer');
       await userEvent.click(renameMenuItem);
 
-      const input = screen.getByDisplayValue('Réunion équipe développement');
+      const input = screen.getByDisplayValue('RÃ©union Ã©quipe dÃ©veloppement');
       await userEvent.clear(input);
       await userEvent.type(input, 'Nouveau titre');
       await userEvent.keyboard('{Enter}');
@@ -287,12 +285,12 @@ describe('ConversationCard', () => {
       const renameMenuItem = screen.getByText('Renommer');
       await userEvent.click(renameMenuItem);
 
-      const input = screen.getByDisplayValue('Réunion équipe développement');
+      const input = screen.getByDisplayValue('RÃ©union Ã©quipe dÃ©veloppement');
       await userEvent.clear(input);
       await userEvent.type(input, 'Nouveau titre');
       await userEvent.keyboard('{Escape}');
 
-      expect(screen.getByText('Réunion équipe développement')).toBeInTheDocument();
+      expect(screen.getByText('RÃ©union Ã©quipe dÃ©veloppement')).toBeInTheDocument();
       expect(mockCallbacks.onRename).not.toHaveBeenCalled();
     });
 
@@ -309,7 +307,7 @@ describe('ConversationCard', () => {
       const renameMenuItem = screen.getByText('Renommer');
       await userEvent.click(renameMenuItem);
 
-      const input = screen.getByDisplayValue('Réunion équipe développement');
+      const input = screen.getByDisplayValue('RÃ©union Ã©quipe dÃ©veloppement');
       await userEvent.keyboard('{Enter}');
 
       expect(mockCallbacks.onRename).not.toHaveBeenCalled();
@@ -331,7 +329,7 @@ describe('ConversationCard', () => {
       await userEvent.click(deleteMenuItem);
 
       expect(screen.getByText('Supprimer la conversation')).toBeInTheDocument();
-      expect(screen.getByText(/Êtes-vous sûr de vouloir supprimer/)).toBeInTheDocument();
+      expect(screen.getByText(/ÃŠtes-vous sÃ»r de vouloir supprimer/)).toBeInTheDocument();
     });
 
     it('should call onDelete when delete is confirmed', async () => {
@@ -387,7 +385,7 @@ describe('ConversationCard', () => {
       const deleteMenuItem = screen.getByText('Supprimer');
       await userEvent.click(deleteMenuItem);
 
-      expect(screen.getByText(/Le sondage associé ne sera pas affecté/)).toBeInTheDocument();
+      expect(screen.getByText(/Le sondage associÃ© ne sera pas affectÃ©/)).toBeInTheDocument();
     });
   });
 
@@ -425,7 +423,7 @@ describe('ConversationCard', () => {
       render(<ConversationCard conversation={conversation} compact={true} />);
 
       // Compact mode should truncate preview text to 60 chars instead of 100
-      const preview = screen.getByText(/Bonjour, je voudrais organiser une réunion/);
+      const preview = screen.getByText(/Bonjour, je voudrais organiser une rÃ©union/);
       expect(preview.textContent).toHaveLength(63); // 60 chars + "..."
     });
   });
@@ -436,7 +434,7 @@ describe('ConversationCard', () => {
       render(<ConversationCard conversation={conversation} language="en" />);
 
       // The component should still render (date formatting is mocked)
-      expect(screen.getByText('Réunion équipe développement')).toBeInTheDocument();
+      expect(screen.getByText('RÃ©union Ã©quipe dÃ©veloppement')).toBeInTheDocument();
     });
   });
 
@@ -446,7 +444,7 @@ describe('ConversationCard', () => {
       render(<ConversationCard conversation={conversation} />);
 
       expect(screen.queryByText('travail')).not.toBeInTheDocument();
-      expect(screen.queryByText('réunion')).not.toBeInTheDocument();
+      expect(screen.queryByText('rÃ©union')).not.toBeInTheDocument();
     });
 
     it('should handle conversation with many tags', () => {
@@ -472,7 +470,7 @@ describe('ConversationCard', () => {
       render(<ConversationCard conversation={conversation} />);
 
       // Should still render the card without crashing
-      expect(screen.getByText('Réunion équipe développement')).toBeInTheDocument();
+      expect(screen.getByText('RÃ©union Ã©quipe dÃ©veloppement')).toBeInTheDocument();
     });
 
     it('should handle missing callbacks gracefully', () => {
@@ -480,7 +478,7 @@ describe('ConversationCard', () => {
       render(<ConversationCard conversation={conversation} />);
 
       // Should render without crashing even without callbacks
-      expect(screen.getByText('Réunion équipe développement')).toBeInTheDocument();
+      expect(screen.getByText('RÃ©union Ã©quipe dÃ©veloppement')).toBeInTheDocument();
     });
   });
 });

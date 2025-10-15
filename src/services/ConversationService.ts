@@ -4,6 +4,7 @@
  */
 
 import type { Conversation, ConversationMessage } from '../types/conversation';
+import { logError, ErrorFactory } from '../lib/error-handling';
 
 export interface PollSuggestion {
   title: string;
@@ -42,7 +43,12 @@ export class ConversationService {
       const result = await autoSave.resumeConversation(resumeId);
       return result;
     } catch (error) {
-      console.error('Error resuming conversation from URL:', error);
+      logError(ErrorFactory.storage('Error resuming conversation from URL', 'Erreur lors de la reprise de conversation'), {
+        component: 'ConversationService',
+        operation: 'resumeConversationFromUrl',
+        conversationId: resumeId,
+        originalError: error
+      });
       return null;
     }
   }
@@ -104,7 +110,12 @@ export class ConversationService {
         }
       }
     } catch (error) {
-      console.error('Error loading resumed conversation:', error);
+      logError(ErrorFactory.storage('Error loading resumed conversation', 'Erreur lors du chargement de la conversation reprise'), {
+        component: 'ConversationService',
+        operation: 'loadResumedConversation', 
+        conversationId: result?.conversation?.id,
+        originalError: error
+      });
     }
   }
 }

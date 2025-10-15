@@ -87,14 +87,14 @@ export interface Conversation {
   /** Nombre total de messages dans la conversation */
   messageCount: number;
   
-  /** ID du sondage créé depuis cette conversation (optionnel) */
+  /** ID du sondage lié à cette conversation (relation 1:1 stricte) */
   relatedPollId?: string;
-  
-  /** Slug du sondage pour navigation directe (optionnel) */
-  relatedPollSlug?: string;
   
   /** Indique si la conversation est marquée comme favorite */
   isFavorite: boolean;
+  
+  /** Rang de tri pour les favoris (1 = premier, 2 = deuxième, etc.) */
+  favorite_rank?: number;
   
   /** Tags pour recherche et filtrage */
   tags: string[];
@@ -167,7 +167,6 @@ export interface UpdateConversationRequest {
   isFavorite?: boolean;
   tags?: string[];
   relatedPollId?: string;
-  relatedPollSlug?: string;
 }
 
 export interface AddMessageRequest {
@@ -196,13 +195,17 @@ export interface ConversationSearchResult {
 // ERROR TYPES
 // ============================================================================
 
-export class ConversationError extends Error {
+import { DooDatesError, ErrorSeverity, ErrorCategory, ErrorContext, ErrorFactory } from '../lib/error-handling';
+
+export class ConversationError extends DooDatesError {
   constructor(
     message: string,
-    public code: string,
-    public details?: any
+    code: string,
+    severity: ErrorSeverity = ErrorSeverity.MEDIUM,
+    category: ErrorCategory = ErrorCategory.STORAGE,
+    context: ErrorContext = {}
   ) {
-    super(message);
+    super(message, message, severity, category, context);
     this.name = 'ConversationError';
   }
 }
@@ -218,6 +221,51 @@ export const CONVERSATION_ERROR_CODES = {
 } as const;
 
 export type ConversationErrorCode = typeof CONVERSATION_ERROR_CODES[keyof typeof CONVERSATION_ERROR_CODES];
+
+// Factory functions for conversation-specific errors
+export const ConversationErrorFactory = {
+  quotaExceeded: (maxConversations: number) => 
+    ErrorFactory.validation(
+      `Quota exceeded: maximum ${maxConversations} conversations allowed`,
+      `Quota dépassé: maximum ${maxConversations} conversation(s) autorisées`
+    ),
+  
+  notFound: (conversationId: string) =>
+    ErrorFactory.storage(
+      `Conversation not found: ${conversationId}`,
+      `Conversation non trouvée`
+    ),
+  
+  invalidRole: (role: string) =>
+    ErrorFactory.validation(
+      `Invalid message role: ${role}`,
+      `Rôle de message invalide`
+    ),
+  
+  storageFull: () =>
+    ErrorFactory.storage(
+      'Storage capacity exceeded',
+      'Capacité de stockage dépassée'
+    ),
+  
+  migrationFailed: (reason: string) =>
+    ErrorFactory.storage(
+      `Migration failed: ${reason}`,
+      'Échec de la migration'
+    ),
+  
+  syncConflict: (conversationId: string) =>
+    ErrorFactory.storage(
+      `Sync conflict for conversation: ${conversationId}`,
+      'Conflit de synchronisation'
+    ),
+  
+  corruptedData: (details: string) =>
+    ErrorFactory.storage(
+      `Corrupted data detected: ${details}`,
+      'Données corrompues détectées'
+    )
+};
 
 // ============================================================================
 // UTILITY TYPES

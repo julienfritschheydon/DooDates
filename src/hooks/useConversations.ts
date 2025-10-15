@@ -10,6 +10,8 @@ import {
   ConversationSearchResult,
   CONVERSATION_LIMITS 
 } from '../types/conversation';
+import { ErrorSeverity, ErrorCategory } from '../lib/error-handling';
+import { sortConversations, updateFavoriteRank, getNextFavoriteRank } from '../services/sort-comparator';
 
 /**
  * Conversation operation states
@@ -60,9 +62,9 @@ export interface UpdateConversationData {
   title?: string;
   status?: 'active' | 'completed' | 'archived';
   isFavorite?: boolean;
+  favorite_rank?: number;
   tags?: string[];
   relatedPollId?: string;
-  relatedPollSlug?: string;
 }
 
 /**
@@ -125,22 +127,11 @@ export function useConversations(config: UseConversationsConfig = {}) {
           return true;
         });
 
-        // Apply sorting
-        filteredConversations.sort((a, b) => {
-          const aValue = a[sortBy];
-          const bValue = b[sortBy];
-          
-          if (aValue instanceof Date && bValue instanceof Date) {
-            const comparison = aValue.getTime() - bValue.getTime();
-            return sortOrder === 'asc' ? comparison : -comparison;
-          }
-          
-          if (typeof aValue === 'string' && typeof bValue === 'string') {
-            const comparison = aValue.localeCompare(bValue);
-            return sortOrder === 'asc' ? comparison : -comparison;
-          }
-          
-          return 0;
+        // Apply unified sorting with favorites support
+        filteredConversations = sortConversations(filteredConversations, {
+          criteria: sortBy === 'updatedAt' ? 'activity' : sortBy,
+          order: sortOrder,
+          favoriteFirst: true
         });
 
         // Paginate
@@ -158,7 +149,9 @@ export function useConversations(config: UseConversationsConfig = {}) {
         throw new ConversationError(
           'Failed to fetch conversations',
           'FETCH_ERROR',
-          { originalError: error, filters, sortBy, sortOrder }
+          ErrorSeverity.HIGH,
+          ErrorCategory.STORAGE,
+          { metadata: { originalError: error, filters, sortBy, sortOrder } }
         );
       }
     },
@@ -307,10 +300,22 @@ export function useConversations(config: UseConversationsConfig = {}) {
     mutationFn: async ({ id, updates }: { id: string; updates: UpdateConversationData }) => {
       const conversation = ConversationStorage.getConversation(id);
       if (!conversation) {
-        throw new ConversationError('Conversation not found', 'NOT_FOUND', { conversationId: id });
+        throw new ConversationError('Conversation not found', 'NOT_FOUND', ErrorSeverity.MEDIUM, ErrorCategory.VALIDATION, { conversationId: id });
       }
       
-      const updatedConversation = { ...conversation, ...updates, updatedAt: new Date() };
+      let finalUpdates = { ...updates };
+      
+      // Gérer favorite_rank automatiquement
+      if (updates.isFavorite === true && !conversation.isFavorite) {
+        // Nouveau favori - assigner le prochain rang disponible
+        const allConversations = ConversationStorage.getConversations();
+        finalUpdates.favorite_rank = getNextFavoriteRank(allConversations);
+      } else if (updates.isFavorite === false && conversation.isFavorite) {
+        // Retirer des favoris - supprimer le rang
+        finalUpdates.favorite_rank = undefined;
+      }
+      
+      const updatedConversation = { ...conversation, ...finalUpdates, updatedAt: new Date() };
       ConversationStorage.updateConversation(updatedConversation);
       return updatedConversation;
     },
@@ -519,6 +524,21 @@ export function useConversations(config: UseConversationsConfig = {}) {
     };
     }, [enableRealtime, user, queryClient, queryKeys]);
 
+  // Reorder favorite conversations
+  const reorderFavorite = useCallback(async (conversationId: string, newRank: number) => {
+    const allConversations = ConversationStorage.getConversations();
+    const updatedConversations = updateFavoriteRank(allConversations, conversationId, newRank);
+    
+    // Update storage with new ranks
+    const targetConversation = updatedConversations.find(conv => conv.id === conversationId);
+    if (targetConversation) {
+      ConversationStorage.updateConversation(targetConversation);
+      
+      // Invalidate queries to trigger re-sort
+      queryClient.invalidateQueries({ queryKey: queryKeys.infinite });
+    }
+  }, [queryClient, queryKeys]);
+
   // Load more conversations
   const loadMore = useCallback(() => {
     if (conversationsQuery.hasNextPage && !conversationsQuery.isFetchingNextPage) {
@@ -599,6 +619,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
     loadMore,
     refresh,
     searchConversations,
+    reorderFavorite,
     
     // State flags
     isLoadingMore: conversationsQuery.isFetchingNextPage,

@@ -10,6 +10,7 @@ import {
   validateConversation, 
   validateConversationMessage 
 } from '../validation/conversation';
+import { handleError, ErrorFactory, logError } from '../error-handling';
 
 /**
  * Migration status types
@@ -478,7 +479,16 @@ export class ConversationMigrationService {
       // In a production environment, you might implement more sophisticated rollback logic
       
     } catch (error) {
-      console.error('Rollback failed:', error);
+      const rollbackError = handleError(error, {
+        component: 'ConversationMigrationService',
+        operation: 'rollback'
+      }, 'Échec du rollback de migration');
+      
+      logError(rollbackError, {
+        component: 'ConversationMigrationService',
+        operation: 'rollback'
+      });
+      
       throw new ConversationError(
         'Rollback failed',
         'ROLLBACK_ERROR',

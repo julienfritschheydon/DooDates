@@ -10,6 +10,7 @@ import {
   validateConversationMessage,
   ConversationQuotaSchema 
 } from '../validation/conversation';
+import { handleError, ErrorFactory, logError } from '../error-handling';
 
 /**
  * Interface pour les métadonnées de stockage localStorage
@@ -199,12 +200,14 @@ export class ConversationStorageLocal {
 
       // Vérification que la conversation parente existe
       if (!data.conversations[conversationId]) {
-        console.error('🔍 Conversation not found in storage:', {
-          conversationId,
-          availableConversations: Object.keys(data.conversations),
-          storageDataKeys: Object.keys(data),
-          conversationsCount: Object.keys(data.conversations).length,
-          timestamp: new Date().toISOString()
+        const notFoundError = ErrorFactory.storage(
+          `Conversation parente introuvable: ${conversationId}`,
+          'Conversation non trouvée dans le stockage local'
+        );
+        
+        logError(notFoundError, {
+          component: 'ConversationStorageLocal',
+          operation: 'addMessages'
         });
         
         throw new ConversationError(
@@ -469,20 +472,37 @@ export class ConversationStorageLocal {
 
       const decompressed = decompress(compressed);
       if (!decompressed) {
-        throw new Error('Échec de la décompression');
+        throw ErrorFactory.storage(
+          'Échec de la décompression des données',
+          'Erreur lors de la lecture des données sauvegardées'
+        );
       }
 
       const data = JSON.parse(decompressed) as StorageData;
       
       // Validation de la structure
       if (!data.conversations || !data.messages || !data.metadata) {
-        throw new Error('Structure de données invalide');
+        throw ErrorFactory.storage(
+          'Structure de données invalide dans le stockage',
+          'Données corrompues détectées'
+        );
       }
 
       return data;
     } catch (error) {
       // En cas de corruption, on supprime les données corrompues
       localStorage.removeItem(this.STORAGE_KEY);
+      
+      const corruptionError = handleError(error, {
+        component: 'ConversationStorageLocal',
+        operation: 'getStorageData'
+      }, 'Données corrompues détectées et supprimées');
+      
+      logError(corruptionError, {
+        component: 'ConversationStorageLocal',
+        operation: 'getStorageData'
+      });
+      
       throw new ConversationError(
         'Données corrompues détectées et supprimées',
         'DATA_CORRUPTION',

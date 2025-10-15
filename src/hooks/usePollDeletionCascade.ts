@@ -5,6 +5,7 @@
 
 import { useCallback } from 'react';
 import { useConversations } from './useConversations';
+import { handleError, ErrorFactory, logError } from '../lib/error-handling';
 
 export interface PollDeletionResult {
   success: boolean;
@@ -43,7 +44,16 @@ export const usePollDeletionCascade = () => {
 
       return true;
     } catch (error) {
-      console.error('Failed to cleanup conversation links:', error);
+      const processedError = handleError(error, {
+        component: 'usePollDeletionCascade',
+        operation: 'cleanupConversationLink'
+      }, 'Erreur lors du nettoyage des liens de conversation');
+      
+      logError(processedError, {
+        component: 'usePollDeletionCascade',
+        operation: 'cleanupConversationLink'
+      });
+      
       return false;
     }
   }, [conversations]);
@@ -71,19 +81,37 @@ export const usePollDeletionCascade = () => {
           conversationUpdated: conversationCleanup,
         };
       } catch (pollError) {
-        console.error('Failed to delete poll:', pollError);
+        const processedError = handleError(pollError, {
+          component: 'usePollDeletionCascade',
+          operation: 'deletePoll'
+        }, 'Erreur lors de la suppression du sondage');
+        
+        logError(processedError, {
+          component: 'usePollDeletionCascade',
+          operation: 'deletePoll'
+        });
+        
         return {
           success: false,
           conversationUpdated: conversationCleanup,
-          error: 'Failed to delete poll from storage',
+          error: processedError.message || 'Failed to delete poll'
         };
       }
     } catch (error) {
-      console.error('Poll deletion cascade failed:', error);
+      const processedError = handleError(error, {
+        component: 'usePollDeletionCascade',
+        operation: 'deletePollWithCascade'
+      }, 'Erreur lors de la suppression en cascade du sondage');
+      
+      logError(processedError, {
+        component: 'usePollDeletionCascade',
+        operation: 'deletePollWithCascade'
+      });
+      
       return {
         success: false,
         conversationUpdated: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: processedError.message || 'Poll deletion cascade failed'
       };
     }
   }, [cleanupConversationLink]);
@@ -128,7 +156,16 @@ export const usePollDeletionCascade = () => {
 
       return orphanedConversations;
     } catch (error) {
-      console.error('Failed to check for orphaned links:', error);
+      const processedError = handleError(error, {
+        component: 'usePollDeletionCascade',
+        operation: 'getOrphanedLinks'
+      }, 'Erreur lors de la vérification des liens orphelins');
+      
+      logError(processedError, {
+        component: 'usePollDeletionCascade',
+        operation: 'getOrphanedLinks'
+      });
+      
       return [];
     }
   }, [conversations.conversations.conversations]);
@@ -168,7 +205,16 @@ export const usePollDeletionCascade = () => {
       console.log(`✅ Cleaned up ${cleanedCount} orphaned conversation links`);
       return cleanedCount;
     } catch (error) {
-      console.error('Failed to cleanup orphaned links:', error);
+      const processedError = handleError(error, {
+        component: 'usePollDeletionCascade',
+        operation: 'cleanupOrphanedLinks'
+      }, 'Erreur lors du nettoyage des liens orphelins');
+      
+      logError(processedError, {
+        component: 'usePollDeletionCascade',
+        operation: 'cleanupOrphanedLinks'
+      });
+      
       return 0;
     }
   }, [getOrphanedLinks, conversations]);

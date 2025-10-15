@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { conversationProtection } from '../services/ConversationProtection';
 import { performanceMonitor } from '../services/PerformanceMonitor';
 import { useInfiniteLoopProtection } from '../services/InfiniteLoopProtection';
+import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 
 // Global initialization guard to prevent multiple conversation creation
 let isInitializing = false;
@@ -73,23 +74,24 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   const wasOffline = useRef(false);
   const reconnectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const hasInitialized = useRef(false);
 
   // Initialize new conversation
   const initializeNewConversation = useCallback(async () => {
     // Multi-layer protection against infinite loops
     if (!loopProtection.canExecute()) {
-      console.warn('🚫 [GeminiChatInterface] Initialization blocked by loop protection');
+      // Initialization blocked by loop protection
       return;
     }
 
     if (!conversationProtection.canCreateConversation()) {
-      console.warn('🚫 [GeminiChatInterface] Conversation creation blocked by protection service');
+      // Conversation creation blocked by protection service
       return;
     }
 
     // Prevent multiple simultaneous initialization attempts
     if (isInitializing) {
-      console.log('🔒 [GeminiChatInterface] Initialization already in progress, waiting...');
+      // Initialization already in progress, waiting...
       if (initializationPromise) {
         await initializationPromise;
       }
@@ -102,7 +104,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
     initializationPromise = (async () => {
       try {
-        console.log('🆕 [GeminiChatInterface] Initializing new conversation...');
+        // Initializing new conversation
         
         const welcomeMessage: Message = {
           id: `welcome-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -123,9 +125,18 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         });
 
         conversationProtection.completeCreation(welcomeMessage.id);
-        console.log('✅ [GeminiChatInterface] Conversation initialized successfully');
+        // Conversation initialized successfully
       } catch (error) {
-        console.error('❌ [GeminiChatInterface] Failed to initialize new conversation:', error);
+        const processedError = handleError(error, {
+          component: 'GeminiChatInterface',
+          operation: 'initializeNewConversation'
+        }, 'Erreur lors de l\'initialisation de la conversation');
+        
+        logError(processedError, {
+          component: 'GeminiChatInterface',
+          operation: 'initializeNewConversation'
+        });
+        
         conversationProtection.failCreation();
         performanceMonitor.trackError();
         
@@ -155,12 +166,29 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   }, [autoSave, loopProtection]);
 
   useEffect(() => {
+    // Prevent multiple initialization attempts
+    if (hasInitialized.current) {
+      return;
+    }
+
+    hasInitialized.current = true;
     let isMounted = true;
+    
+    // Initialize component setup first
+    hasShownOfflineMessage.current = false;
+    wasOffline.current = false;
+    testGeminiConnection();
+    
+    // Scroll fixes for Android
+    window.scrollTo({ top: 0, behavior: "instant" });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }, 100);
     
     const resumeConversation = async () => {
       // Additional guard: prevent multiple resume attempts
-      if (isInitializing) {
-        console.log('🔒 [GeminiChatInterface] Initialization in progress, skipping resume attempt');
+      if (isInitializing || !isMounted) {
+        // Initialization already handled, skipping
         return;
       }
 
@@ -170,7 +198,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         if (!isMounted) return;
         
         if (result && result.conversation && result.messages) {
-          console.log('🔄 Resuming conversation from URL:', result.conversation.title);
+          // Resuming conversation from URL
           
           // Get messages from the conversation
           const messages = result.messages;
@@ -181,11 +209,11 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     
             if (isMounted) {
               setMessages(chatMessages);
-              console.log(`✅ Resumed conversation: ${result.conversation.title} with ${chatMessages.length} messages`);
+              // Conversation resumed successfully
             }
             
           } else {
-            console.log('⚠️ No messages found in resumed conversation');
+            // No messages found in resumed conversation
             // No messages found, show resume indicator
             const resumeMessage = ConversationService.createResumeMessage(result.conversation.title);
             if (isMounted) {
@@ -193,13 +221,22 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
             }
           }
         } else {
-          console.log('🆕 No conversation to resume, initializing new conversation');
+          // No conversation to resume, initializing new conversation
           if (isMounted && !isInitializing) {
             await initializeNewConversation();
           }
         }
       } catch (error) {
-        console.error('Error resuming conversation:', error);
+        const processedError = handleError(error, {
+          component: 'GeminiChatInterface',
+          operation: 'resumeConversation'
+        }, 'Erreur lors de la reprise de conversation');
+        
+        logError(processedError, {
+          component: 'GeminiChatInterface',
+          operation: 'resumeConversation'
+        });
+        
         if (isMounted && !isInitializing) {
           await initializeNewConversation();
         }
@@ -207,52 +244,16 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     };
 
     // Add small delay to prevent race conditions on component mount
-    const timeoutId = setTimeout(resumeConversation, 100);
+    const timeoutId = setTimeout(resumeConversation, 150);
     
     return () => {
       isMounted = false;
       clearTimeout(timeoutId);
-    };
-  }, [conversationResume, initializeNewConversation]);
-
-  useEffect(() => {
-    // Test de connexion initial
-    // GeminiChatInterface component initialization
-
-    // Réinitialiser les flags au montage du composant
-    hasShownOfflineMessage.current = false;
-    wasOffline.current = false;
-
-    testGeminiConnection();
-
-    // Check for conversation resume
-    if (conversationResume.resumedConversation && !conversationResume.isResuming) {
-      // Loading resumed conversation
-      // Load messages from resumed conversation
-      ConversationService.loadResumedConversation(autoSave, setMessages).catch(error => {
-      console.error('Failed to load resumed conversation:', error);
-    });
-    } else if (!conversationResume.resumedConversation && !conversationResume.isResuming && !autoSave.conversationId) {
-      // Starting new conversation only if no conversation exists and not resuming
-      initializeNewConversation();
-    }
-
-    // Scroll vers le haut au démarrage pour corriger le focus sur Android
-    window.scrollTo({ top: 0, behavior: "instant" });
-
-    // Forcer le repositionnement après un court délai pour Android
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "instant" });
-    }, 100);
-
-    // Cleanup au démontage du composant
-    return () => {
-      //console.log("🔄 GeminiChatInterface - Nettoyage du composant");
       if (reconnectionTimeoutRef.current) {
         clearTimeout(reconnectionTimeoutRef.current);
       }
     };
-  }, [conversationResume.resumedConversation, conversationResume.isResuming, autoSave.conversationId]);
+  }, []); // Empty dependency array - only run once on mount
 
   useEffect(() => {
     // Désactiver complètement le scroll automatique vers le bas sur mobile
@@ -281,7 +282,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
       // Si l'IA était hors ligne et redevient disponible
       if (wasOffline.current && isConnected && connectionStatus === "error") {
-        console.log("🔄 Gemini reconnecté - Ajout message de reconnexion");
+        // Gemini reconnected - adding reconnection message
         setMessages((prev) => [
           ...prev,
           {
@@ -301,7 +302,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
       if (!isConnected) {
         // Afficher le message d'erreur seulement la première fois
         if (!hasShownOfflineMessage.current) {
-          console.log("⚠️ Gemini indisponible - Ajout message d'erreur");
+          // Gemini unavailable - adding error message
           setMessages((prev) => [
             ...prev,
             {
@@ -328,11 +329,20 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
       }
     } catch (error) {
       setConnectionStatus("error");
-      console.error("Erreur de connexion à Gemini:", error);
+      
+      const processedError = handleError(error, {
+        component: 'GeminiChatInterface',
+        operation: 'testConnection'
+      }, 'Erreur de connexion à Gemini');
+      
+      logError(processedError, {
+        component: 'GeminiChatInterface',
+        operation: 'testConnection'
+      });
 
       // Afficher le message d'erreur seulement la première fois
       if (!hasShownOfflineMessage.current) {
-        console.log("⚠️ Gemini indisponible - Ajout message d'erreur");
+        // Gemini unavailable - adding error message
         setMessages((prev) => [
           ...prev,
           {
@@ -387,16 +397,14 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     });
 
     try {
-      console.log("🎯 Envoi de la demande à Gemini:", userMessage.content);
+      // Sending request to Gemini
       // Essayer de générer un sondage
       const pollResponse = await geminiService.generatePollFromText(
         userMessage.content,
       );
 
       if (pollResponse.success && pollResponse.data) {
-        console.log("✨ Réponse de Gemini reçue:", pollResponse.data);
-        console.log("📅 Dates reçues:", pollResponse.data.dates);
-        console.log("⏰ Créneaux reçus:", pollResponse.data.timeSlots);
+        // Gemini response received successfully
 
         const aiResponse: Message = {
           id: `ai-${Date.now()}`,
@@ -417,10 +425,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
           pollSuggestion: aiResponse.pollSuggestion,
         });
       } else {
-        console.log(
-          "❌ Échec de la génération du sondage:",
-          pollResponse.error,
-        );
+        // Poll generation failed
         // Si l'erreur est liée aux quotas, afficher un message spécifique
         if (
           pollResponse.error?.includes("quota") ||
@@ -463,17 +468,22 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         }
       }
     } catch (error) {
-      console.error("Erreur lors de la génération:", error);
+      const processedError = handleError(error, {
+        component: 'GeminiChatInterface',
+        operation: 'generateResponse'
+      }, 'Erreur lors de la génération de réponse');
+      
+      logError(processedError, {
+        component: 'GeminiChatInterface',
+        operation: 'generateResponse'
+      });
       
       let errorContent = "Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?";
       
-      // Check for quota errors
-      if (error instanceof Error) {
-        if (error.message.includes('Quota dépassé') || error.message.includes('Conversation limit reached')) {
-          errorContent = "⚠️ Limite de conversations atteinte. Vous avez déjà créé le nombre maximum de conversations autorisées. Veuillez supprimer une conversation existante ou vous connecter pour augmenter votre limite.";
-        } else if (error.message.includes('Failed to create conversation')) {
-          errorContent = "⚠️ Impossible de créer une nouvelle conversation. Vous avez peut-être atteint votre limite. Essayez de supprimer d'anciennes conversations ou connectez-vous pour plus de fonctionnalités.";
-        }
+      if (processedError.message?.includes('quota') || processedError.message?.includes('limit')) {
+        errorContent = "Limite de quota atteinte. Veuillez réessayer plus tard ou vous connecter pour plus de requêtes.";
+      } else if (processedError.message?.includes('network') || processedError.message?.includes('fetch')) {
+        errorContent = "Problème de connexion réseau. Vérifiez votre connexion internet.";
       }
       
       const errorMessage: Message = {
@@ -497,9 +507,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   };
 
   const handleUsePollSuggestion = (suggestion: PollSuggestion) => {
-    console.log("🎯 Envoi des données vers PollCreator:", suggestion);
-    console.log("📅 Dates à traiter:", suggestion.dates);
-    console.log("⏰ Créneaux à configurer:", suggestion.timeSlots);
+    // Sending data to PollCreator
     setSelectedPollData(suggestion);
     setShowPollCreator(true);
   };
@@ -529,7 +537,15 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         onNewChat();
       }
     } catch (error) {
-      console.error("Erreur lors de la création d'un nouveau chat:", error);
+      const processedError = handleError(error, {
+        component: 'GeminiChatInterface',
+        operation: 'handleNewChat'
+      }, 'Erreur lors de la création d\'un nouveau chat');
+      
+      logError(processedError, {
+        component: 'GeminiChatInterface',
+        operation: 'handleNewChat'
+      });
     }
   };
 
@@ -540,21 +556,12 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     const conversationId = realConversationId || autoSave.conversationId;
     const pollCreatorUrl = conversationId ? `?conversationId=${conversationId}` : '';
     
-    console.log('🔍 DEBUG: PollCreator conversation ID:', {
-      autoSaveId: autoSave.conversationId,
-      realId: realConversationId,
-      finalId: conversationId,
-      currentUrl: window.location.href,
-      pollCreatorUrl: pollCreatorUrl
-    });
+    // Setting up PollCreator with conversation ID
     
     // Update URL to include conversation ID
     if (conversationId && !window.location.search.includes('conversationId')) {
       const newUrl = `${window.location.pathname}${pollCreatorUrl}`;
-      console.log('🔄 GeminiChatInterface: Updating URL with conversationId:', {
-        oldUrl: window.location.href,
-        newUrl: newUrl
-      });
+      // Updating URL with conversation ID
       window.history.replaceState({}, '', newUrl);
     }
     

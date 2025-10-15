@@ -67,11 +67,16 @@ export interface Vote {
   created_at: string;
 }
 
+import { ErrorFactory } from './error-handling';
+
 // Fonction utilitaire pour gérer les erreurs
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`HTTP ${response.status}: ${error}`);
+    throw ErrorFactory.api(`HTTP ${response.status}: ${error}`, 'Erreur de communication avec le serveur', { 
+      status: response.status, 
+      responseText: error 
+    });
   }
   return response.json();
 };
@@ -112,7 +117,7 @@ export const pollsApi = IS_LOCAL_MODE
           localStorage.setItem("dev-polls", JSON.stringify(polls));
           return polls[idx];
         }
-        throw new Error("Poll not found");
+        throw ErrorFactory.storage("Poll not found", "Sondage non trouvé");
       },
     }
   : {
@@ -248,7 +253,7 @@ export const votesApi = IS_LOCAL_MODE
           localStorage.setItem("dev-votes", JSON.stringify(votes));
           return votes[idx];
         }
-        throw new Error("Vote not found");
+        throw ErrorFactory.storage("Vote not found", "Vote non trouvé");
       },
     }
   : {
