@@ -1,8 +1,11 @@
 import { useState, useCallback } from "react";
+import { Poll as TypesPoll, PollOption, PollData as TypesPollData } from "../types/poll";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
-import { v4 as uuidv4 } from "uuid";
 import { EmailService } from "../lib/email-service";
+import { v4 as uuidv4 } from 'uuid';
+import { getPollBySlugOrId, deletePollById, addPoll, getAllPolls, deleteVotesByPollId, Poll as StoragePoll } from "../lib/pollStorage";
+import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 
 export interface PollData {
   title: string;
@@ -22,35 +25,15 @@ export interface PollData {
   };
 }
 
-export interface Poll {
-  id: string;
-  creator_id: string;
-  title: string;
-  description?: string;
-  slug: string;
-  settings: any;
-  status: "draft" | "active" | "closed" | "archived";
-  expires_at?: string;
-  created_at: string;
-  updated_at: string;
-  // Type facultatif pour compatibilité avec le stockage unifié local (date | form)
-  type?: "date" | "form";
-}
+// Poll interface is now imported from pollStorage.ts as StoragePoll
 
-export interface PollOption {
-  id: string;
-  poll_id: string;
-  option_date: string;
-  time_slots: any;
-  display_order: number;
-  created_at: string;
-}
+// PollOption interface is imported from ../types/poll
 
 export function usePolls() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [polls, setPolls] = useState<Poll[]>([]);
+  const [polls, setPolls] = useState<StoragePoll[]>([]);
 
   const generateSlug = useCallback((title: string): string => {
     return (
@@ -74,7 +57,7 @@ export function usePolls() {
   }, []);
 
   const createPoll = useCallback(
-    async (pollData: PollData): Promise<{ poll?: Poll; error?: string }> => {
+    async (pollData: PollData): Promise<{ poll?: StoragePoll; error?: string }> => {
       // Permettre la création avec ou sans utilisateur connecté
 
       setLoading(true);
@@ -86,8 +69,9 @@ export function usePolls() {
           !Array.isArray(pollData.selectedDates) ||
           pollData.selectedDates.length === 0
         ) {
-          throw new Error(
-            "Sélectionnez au moins une date pour créer le sondage.",
+          throw ErrorFactory.validation(
+            "No dates selected for poll creation",
+            "Sélectionnez au moins une date pour créer le sondage."
           );
         }
 
@@ -100,16 +84,7 @@ export function usePolls() {
         } as any;
         const adminToken = user ? null : generateAdminToken(); // Token admin seulement pour sondages anonymes
 
-        console.log("Création sondage:", {
-          slug,
-          isAnonymous: !user,
-          adminToken: adminToken ? "généré" : "non requis",
-          supabaseUrl: import.meta.env.VITE_SUPABASE_URL
-            ? "✅ configurée"
-            : "❌ manquante",
-          supabaseUrlValue: import.meta.env.VITE_SUPABASE_URL,
-          supabaseKeyExists: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
-        });
+        // Creating poll with generated slug and admin token if needed
 
         // Mode local/mock si Supabase n'est pas configuré, en environnement de test/Vitest,
         // ou si le runtime E2E (Playwright) est actif via indicateur global/localStorage.
@@ -135,31 +110,32 @@ export function usePolls() {
           !import.meta.env.VITE_SUPABASE_ANON_KEY;
 
         if (isLocalMode) {
-          console.warn(
-            "🚧 Supabase non configuré - Simulation locale de la création de sondage",
-          );
+          // Supabase not configured - using local simulation
 
           // Simuler la création avec localStorage
-          const mockPoll: Poll = {
+          const mockPoll: StoragePoll = {
             id: `local-${Date.now()}`,
             creator_id: user?.id || "anonymous",
             title: pollData.title,
-            description: pollData.description || null,
+            description: pollData.description || undefined,
             slug,
             settings: mergedSettings,
             status: "active",
-            expires_at: pollData.settings.expiresAt || null,
+            expires_at: pollData.settings.expiresAt || undefined,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+            creatorEmail: user?.email || undefined,
+            dates: pollData.selectedDates,
             type: "date",
           };
 
-          // Sauvegarder en localStorage pour le développement
-          const existingPolls = JSON.parse(
-            localStorage.getItem("dev-polls") || "[]",
-          );
-          existingPolls.push(mockPoll);
-          localStorage.setItem("dev-polls", JSON.stringify(existingPolls));
+          // Use centralized pollStorage instead of direct localStorage access
+          addPoll(mockPoll);
+
+          // Émettre un événement pour notifier les composants de la création
+          window.dispatchEvent(new CustomEvent('pollCreated', { 
+            detail: { poll: mockPoll } 
+          }));
 
           return { poll: mockPoll };
         }
@@ -177,12 +153,13 @@ export function usePolls() {
         };
 
 
-        // Utiliser fetch direct car le client supabase se bloque
-        let poll;
+        // Utiliser fetch() direct pour les sondages (comme pour les options)
+        let poll: any;
         try {
+
           // Pour les sondages anonymes, pas besoin de token JWT
           if (!user) {
-            console.log(" Création sondage anonyme - pas de token requis");
+            // Creating anonymous poll - no token required
 
             // Utiliser la clé API publique pour les sondages anonymes
             const response = await fetch(
@@ -200,27 +177,19 @@ export function usePolls() {
 
             if (!response.ok) {
               const errorData = await response.text();
-              console.error("Erreur API Supabase:", response.status, errorData);
-
-              // Messages d'erreur plus explicites
-              let errorMessage = `Erreur ${response.status}`;
-              if (response.status === 401) {
-                errorMessage =
-                  "Erreur d'authentification. Veuillez vous reconnecter.";
-              } else if (response.status === 403) {
-                errorMessage =
-                  "Permissions insuffisantes pour créer un sondage.";
-              } else if (response.status === 400) {
-                errorMessage =
-                  "Données invalides. Vérifiez les informations du sondage.";
-              } else if (response.status >= 500) {
-                errorMessage =
-                  "Erreur serveur. Veuillez réessayer dans quelques instants.";
-              } else {
-                errorMessage = `Erreur ${response.status}: ${errorData}`;
-              }
-
-              throw new Error(errorMessage);
+              const apiError = ErrorFactory.api(
+                `Erreur API Supabase ${response.status}`,
+                'Erreur lors de la création du sondage',
+                { status: response.status, errorData }
+              );
+              
+              logError(apiError, {
+                component: 'usePolls',
+                operation: 'createPoll',
+                status: response.status
+              });
+              
+              throw apiError;
             }
 
             const result = await response.json();
@@ -247,9 +216,16 @@ export function usePolls() {
             }
 
             if (!token) {
-              throw new Error(
-                "Token d'authentification non trouvé pour utilisateur connecté",
+              const authError = ErrorFactory.auth(
+                "Token d'authentification non trouvé pour utilisateur connecté"
               );
+              
+              logError(authError, {
+                component: 'usePolls',
+                operation: 'createPollOptions'
+              });
+              
+              throw authError;
             }
 
             // Faire l'insertion avec token d'authentification
@@ -269,43 +245,34 @@ export function usePolls() {
 
             if (!response.ok) {
               const errorData = await response.text();
-              console.error("Erreur API Supabase:", response.status, errorData);
-
-              // Messages d'erreur plus explicites
-              let errorMessage = `Erreur ${response.status}`;
-              if (response.status === 401) {
-                errorMessage =
-                  "Erreur d'authentification. Veuillez vous reconnecter.";
-              } else if (response.status === 403) {
-                errorMessage =
-                  "Permissions insuffisantes pour créer un sondage.";
-              } else if (response.status === 400) {
-                errorMessage =
-                  "Données invalides. Vérifiez les informations du sondage.";
-              } else if (response.status >= 500) {
-                errorMessage =
-                  "Erreur serveur. Veuillez réessayer dans quelques instants.";
-              } else {
-                errorMessage = `Erreur ${response.status}: ${errorData}`;
-              }
-
-              throw new Error(errorMessage);
+              const apiError = ErrorFactory.api(
+                `Erreur API Supabase ${response.status}`,
+                'Erreur lors de la création du sondage',
+                { status: response.status, errorData }
+              );
+              
+              logError(apiError, {
+                component: 'usePolls',
+                operation: 'createPoll',
+                status: response.status
+              });
+              
+              throw apiError;
             }
 
             const result = await response.json();
             poll = Array.isArray(result) ? result[0] : result;
           }
         } catch (fetchError) {
-          console.error("Erreur création sondage:", fetchError);
+          logError(fetchError as Error, { component: 'usePolls', operation: 'createPoll' });
           // Améliorer le message d'erreur pour l'utilisateur
           if (fetchError instanceof TypeError && fetchError.message.includes('fetch')) {
-            throw new Error("Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.");
+            throw ErrorFactory.network(fetchError.message, "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.");
           }
-          throw fetchError;
+          throw handleError(fetchError, { component: 'usePolls', operation: 'createPoll' });
         }
 
-        // 2. Créer les options de dates
-        console.log(" Étape 2: Création des options de dates...");
+        // Step 2: Creating date options
 
         const pollOptions = pollData.selectedDates.map((date, index) => {
           const timeSlots = pollData.timeSlotsByDate[date] || [];
@@ -354,7 +321,7 @@ export function usePolls() {
 
           // Pour les sondages anonymes, pas besoin de token JWT
           if (!user) {
-            console.log(" Création sondage anonyme - pas de token requis");
+            // Creating anonymous poll - no token required
 
             // Utiliser la clé API publique pour les sondages anonymes
             const optionsResponse = await fetch(
@@ -378,14 +345,18 @@ export function usePolls() {
 
             if (!optionsResponse.ok) {
               const errorText = await optionsResponse.text();
-              console.error(
-                " Erreur HTTP options:",
-                optionsResponse.status,
-                errorText,
+              const optionsError = ErrorFactory.api(
+                `Erreur création options ${optionsResponse.status}`,
+                'Erreur lors de la création des options du sondage',
+                { status: optionsResponse.status, errorText }
               );
-              throw new Error(
-                `Erreur HTTP ${optionsResponse.status}: ${errorText}`,
-              );
+              
+              logError(optionsError, {
+                component: 'usePolls',
+                operation: 'createPollOptions'
+              });
+              
+              throw optionsError;
             }
 
             const optionsData = await optionsResponse.json();
@@ -412,9 +383,16 @@ export function usePolls() {
             }
 
             if (!token) {
-              throw new Error(
-                "Token d'authentification non trouvé pour utilisateur connecté",
+              const authError = ErrorFactory.auth(
+                "Token d'authentification non trouvé pour utilisateur connecté"
               );
+              
+              logError(authError, {
+                component: 'usePolls',
+                operation: 'createPollOptions'
+              });
+              
+              throw authError;
             }
 
             // Faire l'insertion avec token d'authentification
@@ -440,44 +418,49 @@ export function usePolls() {
 
             if (!optionsResponse.ok) {
               const errorText = await optionsResponse.text();
-              console.error(
-                " Erreur HTTP options:",
-                optionsResponse.status,
-                errorText,
+              const optionsError = ErrorFactory.api(
+                `Erreur création options ${optionsResponse.status}`,
+                'Erreur lors de la création des options du sondage',
+                { status: optionsResponse.status, errorText }
               );
-              throw new Error(
-                `Erreur HTTP ${optionsResponse.status}: ${errorText}`,
-              );
+              
+              logError(optionsError, {
+                component: 'usePolls',
+                operation: 'createPollOptions'
+              });
+              
+              throw optionsError;
             }
 
             const optionsData = await optionsResponse.json();
-            console.log(" Options créées avec succès:", optionsData);
+            // Options created successfully
           }
         } catch (optionsError) {
-          console.error(
-            " Exception lors de la création des options:",
-            optionsError,
-          );
-          console.error(" Stack trace:", optionsError?.stack);
-
-          // Améliorer le message d'erreur pour l'utilisateur
-          let userFriendlyMessage = "Erreur lors de la création des options du sondage.";
+          const processedError = handleError(optionsError, {
+            component: 'usePolls',
+            operation: 'createPollOptions'
+          }, 'Erreur lors de la création des options du sondage');
           
-          if (optionsError instanceof TypeError && optionsError.message.includes('fetch')) {
-            userFriendlyMessage = "Problème de connexion réseau lors de la création des options. Vérifiez votre connexion internet et réessayez.";
-          } else if (optionsError.message.includes('HTTP 401')) {
-            userFriendlyMessage = "Erreur d'authentification. Veuillez vous reconnecter et réessayer.";
-          } else if (optionsError.message.includes('HTTP 403')) {
-            userFriendlyMessage = "Permissions insuffisantes pour créer ce sondage.";
-          } else if (optionsError.message.includes('HTTP 422')) {
-            userFriendlyMessage = "Données du sondage invalides. Vérifiez les dates et créneaux horaires sélectionnés.";
-          }
+          logError(processedError, {
+            component: 'usePolls',
+            operation: 'createPollOptions',
+            pollId: poll.id
+          });
 
-          // Nettoyer le sondage créé en cas d'erreur
+          // Nettoyer le sondage créé en cas d'erreur sur les options
           try {
             await supabase.from("polls").delete().eq("id", poll.id);
           } catch (cleanupError) {
-            console.error("Erreur nettoyage:", cleanupError);
+            const cleanupErr = handleError(cleanupError, {
+              component: 'usePolls',
+              operation: 'pollCleanup'
+            }, 'Erreur lors du nettoyage du sondage');
+            
+            logError(cleanupErr, {
+              component: 'usePolls',
+              operation: 'pollCleanup',
+              pollId: poll.id
+            });
           }
 
           throw optionsError;
@@ -500,13 +483,13 @@ export function usePolls() {
             );
 
             if (emailResult.success) {
-              console.log("Emails envoyés avec succès");
+              // Emails sent successfully
             } else {
-              console.warn("Erreur envoi emails:", emailResult.error);
+              console.warn("Email sending error:", emailResult.error);
               // Ne pas faire échouer la création du sondage si l'email échoue
             }
           } catch (emailError) {
-            console.warn("Erreur lors de l'envoi des emails:", emailError);
+            console.warn("Error sending emails:", emailError);
             // Ne pas faire échouer la création du sondage si l'email échoue
           }
         }
@@ -516,8 +499,16 @@ export function usePolls() {
         return { poll };
 
       } catch (error: any) {
-        console.error("Erreur lors de la création du sondage:", error);
+        const processedError = handleError(error, {
+          component: 'usePolls',
+          operation: 'createPoll'
+        }, 'Erreur lors de la création du sondage');
         
+        logError(processedError, {
+          component: 'usePolls',
+          operation: 'createPoll'
+        });
+
         // Améliorer les messages d'erreur pour l'utilisateur
         let userFriendlyMessage = "Erreur lors de la création du sondage";
         
@@ -543,20 +534,15 @@ export function usePolls() {
   );
 
   const getUserPolls = useCallback(async (): Promise<{
-    polls?: Poll[];
+    polls?: StoragePoll[];
     error?: string;
   }> => {
     setLoading(true);
     setError(null);
 
     try {
-      // Mode développement local - récupération depuis localStorage
-      const localPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
-
-      // En mode développement local, récupérer TOUS les sondages (pas de filtrage par utilisateur)
-      // car les sondages peuvent être créés de manière anonyme
-      const userPolls = localPolls;
-
+      // Mode développement local - utiliser getAllPolls() pour cohérence avec le Dashboard
+      const userPolls = getAllPolls();
 
       setPolls(userPolls);
       return { polls: userPolls };
@@ -573,22 +559,29 @@ export function usePolls() {
   const getPollBySlug = useCallback(
     async (
       slug: string,
-    ): Promise<{ poll?: Poll; options?: PollOption[]; error?: string }> => {
+    ): Promise<{ poll?: StoragePoll; options?: PollOption[]; error?: string }> => {
       setLoading(true);
       setError(null);
 
       try {
-        // Mode développement local - récupération depuis localStorage
-        const localPolls = JSON.parse(
-          localStorage.getItem("dev-polls") || "[]",
-        );
-
-        const poll = localPolls.find((p: Poll) => p.slug === slug);
+        // Use centralized pollStorage instead of direct localStorage access
+        const poll = getPollBySlugOrId(slug);
 
         if (!poll) {
-          throw new Error(`Sondage avec slug "${slug}" non trouvé`);
+          const notFoundError = ErrorFactory.validation(
+            `Sondage avec slug "${slug}" non trouvé`,
+            "Sondage non trouvé",
+            { slug }
+          );
+          
+          logError(notFoundError, {
+            component: 'usePolls',
+            operation: 'getPollBySlug',
+            slug
+          });
+          
+          throw notFoundError;
         }
-
 
         // Pour le mode développement, créer des options basiques à partir des settings
         const mockOptions: PollOption[] =
@@ -597,10 +590,11 @@ export function usePolls() {
             poll_id: poll.id,
             option_date: date,
             time_slots: poll.settings?.timeSlotsByDate?.[date] || null,
+            display_order: index,
             created_at: poll.created_at,
           })) || [];
 
-        return { poll, options: mockOptions };
+        return { poll: poll as StoragePoll, options: mockOptions };
       } catch (err: any) {
         const errorMessage = err.message || "Sondage non trouvé";
         setError(errorMessage);
@@ -615,7 +609,7 @@ export function usePolls() {
   const updatePollStatus = useCallback(
     async (
       pollId: string,
-      status: Poll["status"],
+      status: StoragePoll["status"],
     ): Promise<{ error?: string }> => {
       if (!user) {
         return { error: "Utilisateur non connecté" };
@@ -654,25 +648,11 @@ export function usePolls() {
       setError(null);
 
       try {
+        // Use centralized pollStorage instead of direct localStorage access
+        deletePollById(pollId);
 
-        // En mode développement local, supprimer du localStorage
-        const existingPolls = JSON.parse(
-          localStorage.getItem("dev-polls") || "[]",
-        );
-        const filteredPolls = existingPolls.filter(
-          (poll: any) => poll.id !== pollId,
-        );
-        localStorage.setItem("dev-polls", JSON.stringify(filteredPolls));
-
-        // Supprimer aussi les votes associés
-        const existingVotes = JSON.parse(
-          localStorage.getItem("dev-votes") || "[]",
-        );
-        const filteredVotes = existingVotes.filter(
-          (vote: any) => vote.poll_id !== pollId,
-        );
-        localStorage.setItem("dev-votes", JSON.stringify(filteredVotes));
-
+        // Use centralized vote storage instead of direct localStorage access
+        deleteVotesByPollId(pollId);
 
         // Rafraîchir la liste des sondages
         await getUserPolls();

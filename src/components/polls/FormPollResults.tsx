@@ -1,15 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import TopNav from "@/components/TopNav";
 import PollActions from "@/components/polls/PollActions";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
-import {
-  getPollBySlugOrId,
-  Poll,
-  getFormResults,
-  getFormResponses,
-  getRespondentId,
-} from "@/lib/pollStorage";
+import { getPollBySlugOrId, getFormResults, getFormResponses, getRespondentId } from "@/lib/pollStorage";
+import type { Poll, FormQuestionShape, FormQuestionOption, FormResponse } from "@/lib/pollStorage";
 
 interface Props {
   idOrSlug: string;
@@ -23,7 +18,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
     Record<string, Record<string, number>>
   >({});
   const [textAnswers, setTextAnswers] = useState<Record<string, string[]>>({});
-  const [responses, setResponses] = useState<any[]>([]);
+  const [responses, setResponses] = useState<FormResponse[]>([]);
   const [expandedText, setExpandedText] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -39,11 +34,11 @@ export default function FormPollResults({ idOrSlug }: Props) {
     setLoading(false);
   }, [idOrSlug]);
 
-  const questions = useMemo(() => (poll?.questions ?? []) as any[], [poll]);
+  const questions = useMemo(() => (poll?.questions ?? []) as FormQuestionShape[], [poll]);
 
   // Deduplicate responses by stable respondent id
   const uniqueResponses = useMemo(() => {
-    const map = new Map<string, any>();
+    const map = new Map<string, FormResponse>();
     for (const r of responses) {
       const id = getRespondentId(r);
       if (!map.has(id)) map.set(id, r);
@@ -127,7 +122,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
           <ResultsEmpty message={<>Aucune réponse pour le moment.</>} />
         ) : (
           <div className="space-y-6">
-            {questions.map((q: any) => {
+            {questions.map((q: FormQuestionShape) => {
               const qid: string = q.id;
               const kind: string = q.kind || q.type || "single";
               const stats = computed[qid];
@@ -148,7 +143,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
 
                   {kind !== "text" && (
                     <div className="space-y-2">
-                      {(q.options || []).map((opt: any) => {
+                      {(q.options || []).map((opt: FormQuestionOption) => {
                         const count = stats?.counts?.[opt.id] || 0;
                         const pct = totalRespondents
                           ? Math.round((count / totalRespondents) * 100)
@@ -250,10 +245,10 @@ export default function FormPollResults({ idOrSlug }: Props) {
                       </div>
                     </div>
                     <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                      {r.items.map((it: any) => {
+                      {r.items.map((it) => {
                         const q = questions.find(
-                          (qq: any) => qq.id === it.questionId,
-                        ) as any;
+                          (qq: FormQuestionShape) => qq.id === it.questionId,
+                        );
                         if (!q) return null;
                         const kind = q.kind || q.type || "single";
                         let answerDisplay: string = "";
@@ -261,8 +256,8 @@ export default function FormPollResults({ idOrSlug }: Props) {
                           answerDisplay =
                             typeof it.value === "string" ? it.value : "";
                         } else if (kind === "single") {
-                          const opt = (q.options || []).find(
-                            (o: any) => o.id === it.value,
+                          const opt = (q?.options || []).find(
+                            (o: FormQuestionOption) => o.id === it.value,
                           );
                           answerDisplay = opt
                             ? opt.label
@@ -270,8 +265,8 @@ export default function FormPollResults({ idOrSlug }: Props) {
                         } else {
                           const ids = Array.isArray(it.value) ? it.value : [];
                           const labels = ids.map((id: string) => {
-                            const o = (q.options || []).find(
-                              (oo: any) => oo.id === id,
+                            const o = (q?.options || []).find(
+                              (oo: FormQuestionOption) => oo.id === id,
                             );
                             return o ? o.label : id;
                           });

@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { handleError, ErrorFactory, logError } from "./error-handling";
 
 interface GoogleCalendarEvent {
   id: string;
@@ -44,7 +45,15 @@ export class GoogleCalendarService {
         console.log("🗓️ Token Google Calendar récupéré");
       }
     } catch (error) {
-      console.error("❌ Erreur récupération token:", error);
+      const tokenError = handleError(error, {
+        component: 'GoogleCalendarService',
+        operation: 'initializeToken'
+      }, 'Erreur lors de la récupération du token Google Calendar');
+      
+      logError(tokenError, {
+        component: 'GoogleCalendarService',
+        operation: 'initializeToken'
+      });
     }
   }
 
@@ -64,7 +73,17 @@ export class GoogleCalendarService {
     await this.refreshTokenIfNeeded();
 
     if (!this.accessToken) {
-      throw new Error("Pas de token Google Calendar disponible");
+      const authError = ErrorFactory.auth(
+        "Pas de token Google Calendar disponible",
+        "Connexion Google Calendar requise"
+      );
+      
+      logError(authError, {
+        component: 'GoogleCalendarService',
+        operation: 'getFreeBusy'
+      });
+      
+      throw authError;
     }
 
     try {
@@ -83,14 +102,35 @@ export class GoogleCalendarService {
       );
 
       if (!response.ok) {
-        throw new Error(`Erreur API Google Calendar: ${response.status}`);
+        const apiError = ErrorFactory.api(
+          `Erreur API Google Calendar: ${response.status}`,
+          'Erreur lors de la récupération des événements du calendrier',
+          { status: response.status }
+        );
+        
+        logError(apiError, {
+          component: 'GoogleCalendarService',
+          operation: 'getEvents',
+          status: response.status
+        });
+        
+        throw apiError;
       }
 
       const data = await response.json();
       return data.items || [];
     } catch (error) {
-      console.error("❌ Erreur récupération événements:", error);
-      throw error;
+      const processedError = handleError(error, {
+        component: 'GoogleCalendarService',
+        operation: 'getEvents'
+      }, 'Erreur lors de la récupération des événements');
+      
+      logError(processedError, {
+        component: 'GoogleCalendarService',
+        operation: 'getEvents'
+      });
+      
+      throw processedError;
     }
   }
 
@@ -104,7 +144,17 @@ export class GoogleCalendarService {
     await this.refreshTokenIfNeeded();
 
     if (!this.accessToken) {
-      throw new Error("Pas de token Google Calendar disponible");
+      const authError = ErrorFactory.auth(
+        "Pas de token Google Calendar disponible",
+        "Connexion Google Calendar requise"
+      );
+      
+      logError(authError, {
+        component: 'GoogleCalendarService',
+        operation: 'getFreeBusy'
+      });
+      
+      throw authError;
     }
 
     try {
@@ -125,14 +175,35 @@ export class GoogleCalendarService {
       );
 
       if (!response.ok) {
-        throw new Error(`Erreur API FreeBusy: ${response.status}`);
+        const apiError = ErrorFactory.api(
+          `Erreur API FreeBusy: ${response.status}`,
+          'Erreur lors de la vérification des créneaux occupés',
+          { status: response.status }
+        );
+        
+        logError(apiError, {
+          component: 'GoogleCalendarService',
+          operation: 'getFreeBusy',
+          status: response.status
+        });
+        
+        throw apiError;
       }
 
       const data: FreeBusyResponse = await response.json();
       return data.calendars.primary?.busy || [];
     } catch (error) {
-      console.error("❌ Erreur récupération créneaux occupés:", error);
-      throw error;
+      const processedError = handleError(error, {
+        component: 'GoogleCalendarService',
+        operation: 'getFreeBusy'
+      }, 'Erreur lors de la récupération des créneaux occupés');
+      
+      logError(processedError, {
+        component: 'GoogleCalendarService',
+        operation: 'getFreeBusy'
+      });
+      
+      throw processedError;
     }
   }
 
@@ -162,7 +233,17 @@ export class GoogleCalendarService {
           suggested: suggested,
         };
       } catch (error) {
-        console.error(`❌ Erreur analyse pour ${date}:`, error);
+        const analysisError = handleError(error, {
+          component: 'GoogleCalendarService',
+          operation: 'analyzeAvailability'
+        }, `Erreur lors de l'analyse pour ${date}`);
+        
+        logError(analysisError, {
+          component: 'GoogleCalendarService',
+          operation: 'analyzeAvailability',
+          metadata: { date }
+        });
+        
         result[date] = {
           busy: [],
           suggested: [],

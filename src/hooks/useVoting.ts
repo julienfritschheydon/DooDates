@@ -7,6 +7,7 @@ import {
   PollOption,
   Vote,
 } from "@/lib/supabase-fetch";
+import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 
 interface VoterInfo {
   name: string;
@@ -60,7 +61,16 @@ export const useVoting = (pollSlug: string) => {
       const pollData = localPolls.find((p: Poll) => p.slug === pollSlug);
 
       if (!pollData) {
-        throw new Error(`Sondage avec slug "${pollSlug}" non trouvé`);
+        const notFoundError = ErrorFactory.validation(
+          `Sondage avec slug "${pollSlug}" non trouvé`
+        );
+        
+        logError(notFoundError, {
+          component: 'useVoting',
+          operation: 'loadPoll'
+        });
+        
+        throw notFoundError;
       }
 
       console.log("🔍 useVoting: Sondage trouvé:", pollData);
@@ -73,7 +83,16 @@ export const useVoting = (pollSlug: string) => {
         !pollData.settings?.selectedDates ||
         pollData.settings.selectedDates.length === 0
       ) {
-        throw new Error("Ce sondage n'a pas de dates configurées");
+        const configError = ErrorFactory.validation(
+          "Ce sondage n'a pas de dates configurées"
+        );
+        
+        logError(configError, {
+          component: 'useVoting',
+          operation: 'loadPoll'
+        });
+        
+        throw configError;
       }
 
       const mockOptions: PollOption[] = pollData.settings.selectedDates.map(
@@ -107,8 +126,17 @@ export const useVoting = (pollSlug: string) => {
       }));
       setVotes(mappedVotes);
     } catch (err: any) {
-      console.error("Erreur lors du chargement du sondage:", err);
-      setError(err.message || "Erreur lors du chargement du sondage");
+      const processedError = handleError(err, {
+        component: 'useVoting',
+        operation: 'loadPoll'
+      }, 'Erreur lors du chargement du sondage');
+      
+      logError(processedError, {
+        component: 'useVoting',
+        operation: 'loadPoll'
+      });
+      
+      setError(processedError.message || "Erreur lors du chargement du sondage");
     } finally {
       setLoading(false);
     }
@@ -156,7 +184,15 @@ export const useVoting = (pollSlug: string) => {
       const votesData = await votesApi.getByPollId(realPollId);
       setVotes(votesData || []);
     } catch (err) {
-      console.error("Erreur chargement votes:", err);
+      const processedError = handleError(err, {
+        component: 'useVoting',
+        operation: 'loadVotes'
+      }, 'Erreur lors du chargement des votes');
+      
+      logError(processedError, {
+        component: 'useVoting',
+        operation: 'loadVotes'
+      });
     }
   }, [realPollId]);
 
@@ -299,8 +335,17 @@ export const useVoting = (pollSlug: string) => {
       setCurrentVote({});
       return true;
     } catch (err) {
-      console.error("Erreur soumission vote:", err);
-      setError("Erreur lors de l'enregistrement du vote");
+      const processedError = handleError(err, {
+        component: 'useVoting',
+        operation: 'submitVote'
+      }, 'Erreur lors de l\'enregistrement du vote');
+      
+      logError(processedError, {
+        component: 'useVoting',
+        operation: 'submitVote'
+      });
+      
+      setError(processedError.message || "Erreur lors de l'enregistrement du vote");
       return false;
     } finally {
       setSubmitting(false);
