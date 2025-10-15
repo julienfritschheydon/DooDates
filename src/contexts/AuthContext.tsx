@@ -3,6 +3,7 @@ import { User, Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { SignInInput, SignUpInput } from "../lib/schemas";
 import { isLocalDevelopment } from "../lib/supabase";
+import { logger } from "@/lib/logger";
 
 // Variables d'environnement pour validation
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -74,13 +75,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .single();
 
       if (error) {
-        console.error("Error fetching profile:", error);
+        logger.error('Error fetching profile', 'auth', error);
         return null;
       }
 
       return data;
     } catch (err) {
-      console.error("Error in fetchProfile:", err);
+      logger.error('Error in fetchProfile', 'auth', err);
       return null;
     }
   };
@@ -176,7 +177,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
 
     try {
-      console.log("🔄 Tentative de connexion Google...");
+      logger.info('Tentative de connexion Google', 'auth');
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -192,17 +193,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if (error) {
-        console.error("❌ Google OAuth Error:", error);
+        logger.error('Google OAuth Error', 'auth', error);
         setError(`Erreur Google OAuth: ${error.message}`);
         setLoading(false);
         return { error };
       }
 
-      console.log("✅ Redirection Google OAuth démarrée");
+      logger.info('Redirection Google OAuth démarrée', 'auth');
       // Ne pas setLoading(false) ici car la redirection va se faire
       return { error: null };
     } catch (err) {
-      console.error("❌ Google OAuth Exception:", err);
+      logger.error('Google OAuth Exception', 'auth', err);
       const errorMessage =
         err instanceof Error ? err.message : "Erreur de connexion Google";
       setError(`Erreur connexion: ${errorMessage}`);

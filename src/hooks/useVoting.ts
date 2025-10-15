@@ -8,6 +8,7 @@ import {
   Vote,
 } from "@/lib/supabase-fetch";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
+import { logger } from "@/lib/logger";
 
 interface VoterInfo {
   name: string;
@@ -55,7 +56,7 @@ export const useVoting = (pollSlug: string) => {
 
     try {
       // Mode développement local - récupération depuis localStorage
-      console.log("🔍 useVoting: Recherche du sondage:", pollSlug);
+      logger.debug('Recherche du sondage', 'vote', { pollSlug });
       const localPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
 
       const pollData = localPolls.find((p: Poll) => p.slug === pollSlug);
@@ -73,8 +74,11 @@ export const useVoting = (pollSlug: string) => {
         throw notFoundError;
       }
 
-      console.log("🔍 useVoting: Sondage trouvé:", pollData);
-      console.log("🔍 useVoting: Settings du sondage:", pollData.settings);
+      logger.info('Sondage trouvé', 'vote', { 
+        pollId: pollData.id, 
+        pollTitle: pollData.title,
+        settings: pollData.settings 
+      });
       setPoll(pollData);
       setRealPollId(pollData.id);
 
@@ -105,7 +109,7 @@ export const useVoting = (pollSlug: string) => {
         }),
       );
 
-      console.log("🔍 useVoting: Options créées:", mockOptions);
+      logger.debug('Options créées', 'vote', { optionsCount: mockOptions.length });
       setOptions(mockOptions);
 
       // Initialiser les votes par défaut
@@ -169,7 +173,7 @@ export const useVoting = (pollSlug: string) => {
           filter: `poll_id=eq.${realPollId}`,
         },
         (payload) => {
-          console.log("📡 Vote mis à jour:", payload);
+          logger.info('Vote mis à jour', 'vote', { payload });
           // Recharger seulement les votes pour optimiser
           loadVotes();
         },
@@ -259,11 +263,10 @@ export const useVoting = (pollSlug: string) => {
     setError(null);
 
     try {
-      console.log("🔍 submitUserVote - Mode développement local détecté");
-      console.log("🔍 submitUserVote - Données du vote:", {
+      logger.debug('Soumission du vote en mode local', 'vote', {
         pollId: realPollId,
-        voterInfo,
-        currentVote,
+        voterName: voterInfo.name,
+        votesCount: Object.keys(currentVote).length,
       });
 
       // En mode développement local, sauvegarder dans localStorage
@@ -317,11 +320,11 @@ export const useVoting = (pollSlug: string) => {
           ...voteData,
           voter_email: originalEmail, // Conserver l'email original pour éviter les doublons
         };
-        console.log("🔄 Vote mis à jour pour:", originalEmail);
+        logger.info('Vote mis à jour', 'vote', { voterEmail: originalEmail });
       } else {
         // Ajouter un nouveau vote
         existingVotes.push(voteData);
-        console.log("✅ Nouveau vote ajouté pour:", voteData.voter_email);
+        logger.info('Nouveau vote ajouté', 'vote', { voterEmail: voteData.voter_email });
       }
 
       // Sauvegarder dans localStorage

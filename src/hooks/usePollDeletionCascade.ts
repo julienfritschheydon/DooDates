@@ -6,6 +6,7 @@
 import { useCallback } from "react";
 import { useConversations } from "./useConversations";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
+import { logger } from "@/lib/logger";
 
 export interface PollDeletionResult {
   success: boolean;
@@ -40,9 +41,7 @@ export const usePollDeletionCascade = () => {
             },
           });
 
-          console.log(
-            `✅ Removed poll link from conversation ${conversation.id}`,
-          );
+          logger.info('Removed poll link from conversation', 'conversation', { conversationId: conversation.id });
         }
 
         return true;
@@ -82,7 +81,7 @@ export const usePollDeletionCascade = () => {
           const updatedPolls = polls.filter((poll: any) => poll.id !== pollId);
           localStorage.setItem("dev-polls", JSON.stringify(updatedPolls));
 
-          console.log(`✅ Poll ${pollId} deleted successfully`);
+          logger.info('Poll deleted successfully', 'poll', { pollId });
 
           return {
             success: true,
@@ -234,7 +233,7 @@ export const usePollDeletionCascade = () => {
         }
       }
 
-      console.log(`✅ Cleaned up ${cleanedCount} orphaned conversation links`);
+      logger.info('Cleaned up orphaned conversation links', 'conversation', { cleanedCount });
       return cleanedCount;
     } catch (error) {
       const processedError = handleError(

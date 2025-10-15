@@ -5,6 +5,7 @@ import { VoterInfo, FormErrors, SwipeOption, VoteType } from "./utils/types";
 import { formatDate, formatTime } from "./utils/dateUtils";
 import { triggerHaptic } from "./utils/voteUtils";
 import VoteSummary from "./VoteSummary"; // Importer le composant VoteSummary
+import { logger } from "@/lib/logger";
 
 interface VoterFormProps {
   options: SwipeOption[];
@@ -120,10 +121,10 @@ export const VoterForm: React.FC<VoterFormProps> = ({
     }
 
     try {
-      console.log("📝 VoterForm - Soumission avec les infos:", localVoterInfo);
+      logger.debug('VoterForm - Soumission', 'vote', { voterName: localVoterInfo.name });
       await onSubmit(localVoterInfo);
     } catch (error) {
-      console.error("❌ Erreur lors de la soumission:", error);
+      logger.error('Erreur lors de la soumission', 'vote', error);
       setLocalFormErrors({
         general: "Une erreur est survenue. Veuillez réessayer.",
       });

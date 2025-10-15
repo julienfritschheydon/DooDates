@@ -17,6 +17,7 @@ import {
   Poll as StoragePoll,
 } from "../lib/pollStorage";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
+import { logger } from "@/lib/logger";
 
 export interface PollData {
   title: string;
@@ -382,7 +383,7 @@ export function usePolls() {
             }
 
             const optionsData = await optionsResponse.json();
-            console.log(" Options créées avec succès:", optionsData);
+            logger.info('Options créées avec succès', 'poll', { optionsCount: optionsData.length });
           } else {
             // Pour les utilisateurs connectés, récupérer le token JWT
             let token = null;
@@ -515,11 +516,11 @@ export function usePolls() {
             if (emailResult.success) {
               // Emails sent successfully
             } else {
-              console.warn("Email sending error:", emailResult.error);
+              logger.warn('Email sending error', 'api', emailResult.error);
               // Ne pas faire échouer la création du sondage si l'email échoue
             }
           } catch (emailError) {
-            console.warn("Error sending emails:", emailError);
+            logger.warn('Error sending emails', 'api', emailError);
             // Ne pas faire échouer la création du sondage si l'email échoue
           }
         }

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, ShieldCheck } from "lucide-react";
-import { VoteResults } from "./VoteResults";
+import { triggerHaptic } from "./utils/voteUtils";
+import { logger } from "@/lib/logger";
 import { useVoting } from "@/hooks/useVoting";
 import VotingSwipe from "./VotingSwipe";
+import { VoteResults } from "./VoteResults";
 import { Poll } from "@/lib/supabase-fetch";
 
 interface VotingInterfaceProps {
@@ -23,12 +25,12 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
   const { poll, options, votes, loading, error, totalVotes } =
     useVoting(pollId);
 
-  console.log("🔍 VotingInterface - État:", {
-    poll,
-    options: options?.length,
-    votes: votes?.length,
+  logger.debug('VotingInterface - État', 'vote', {
+    pollId,
+    optionsCount: options?.length,
+    votesCount: votes?.length,
     loading,
-    error,
+    hasError: !!error,
   });
 
   // Détecter si l'utilisateur est admin
@@ -144,7 +146,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
             onBack={() => (isAdmin ? setShowResults(true) : onBack && onBack())}
             onVoteSubmitted={() => {
               // Optionnel: action à effectuer après soumission du vote
-              console.log("Vote soumis avec succès");
+              logger.info('Vote soumis', 'vote');
             }}
           />
         )}
