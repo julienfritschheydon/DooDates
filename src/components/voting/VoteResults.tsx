@@ -1,5 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { triggerHaptic } from "./utils/voteUtils";
+import { logger } from "@/lib/logger";
 import {
   ArrowLeft,
   Users,
@@ -278,7 +280,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
           url: window.location.href,
         });
       } catch (error) {
-        console.log("Partage annulé");
+        logger.debug('Partage annulé', 'general');
       }
     } else {
       // Fallback: copier le lien

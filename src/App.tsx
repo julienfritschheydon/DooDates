@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { Auth, AuthCallback } from "./pages/Auth";
+import { logger } from "@/lib/logger";
 import VotingSwipe from "./components/voting/VotingSwipe";
 // import { VotingSwipe as ExVotingSwipe } from "./components/voting/ex-VotingSwipe";
 import { Loader2 } from "lucide-react";
@@ -76,12 +77,12 @@ const preloadPollCreator = async () => {
 
       // Log seulement si temps de chargement élevé
       if (loadTime > 1000) {
-        console.log(`📦 PollCreator - Rechargement lent: ${loadTime} ms`);
+        logger.warn('PollCreator - Rechargement lent', 'performance', { loadTime });
       }
 
       return module;
     } catch (error) {
-      console.error("❌ Erreur préchargement PollCreator:", error);
+      logger.error('Erreur préchargement PollCreator', 'general', error);
       pollCreatorLoadingPromise = null;
       throw error;
     }
@@ -113,7 +114,7 @@ const preloadTimeSlotFunctions = async () => {
       sessionStorage.setItem(TIMESLOT_CACHE_KEY + "-session", "true");
     }
   } catch (error) {
-    console.error("❌ Erreur préchargement TimeSlot Functions:", error);
+    logger.error('Erreur préchargement TimeSlot Functions', 'performance', error);
   }
 };
 
@@ -136,7 +137,7 @@ const preloadProgressiveCalendar = async () => {
     //  console.log(`📅 Préchargement calendrier progressif: ${loadTime} ms`);
     //}
   } catch (error) {
-    console.error("❌ Erreur préchargement calendrier:", error);
+    logger.error('Erreur préchargement calendrier', 'calendar', error);
   }
 };
 
@@ -157,7 +158,7 @@ const preloadStaticCalendar = async () => {
       //console.log(`📅 Calendrier statique préchargé: ${loadTime} ms`);
     }
   } catch (error) {
-    console.warn("⚠️ Erreur préchargement calendrier statique:", error);
+    logger.warn('Erreur préchargement calendrier statique', 'calendar', error);
   }
 };
 
@@ -201,7 +202,7 @@ setTimeout(() => {
         import("@supabase/supabase-js"),
         import("lucide-react"),
       ]).catch((error) => {
-        console.warn("⚠️ Erreur préchargement gros modules:", error);
+        logger.warn('Erreur préchargement gros modules', 'performance', error);
       });
     });
 
@@ -212,7 +213,7 @@ setTimeout(() => {
   };
 
   preloadInBatches().catch((error) => {
-    console.warn("⚠️ Erreur préchargement complet:", error);
+    logger.warn('Erreur préchargement complet', 'performance', error);
   });
 }, 1000);
 
@@ -221,34 +222,34 @@ setTimeout(() => {
 
 const PollCreator = lazy(() => {
   if (pollCreatorModule) {
-    console.time("📦 PollCreator - Cache mémoire instantané");
+    const timerId = logger.time('PollCreator - Cache mémoire', 'performance');
     const result = Promise.resolve(pollCreatorModule);
-    console.timeEnd("📦 PollCreator - Cache mémoire instantané");
+    logger.timeEnd(timerId);
     return result;
   }
 
   if (isModulePreloaded()) {
-    console.time("📦 PollCreator - Cache session rapide");
+    const timerId = logger.time('PollCreator - Cache session', 'performance');
     return import("./pages/PollCreator")
       .then((module) => {
-        console.timeEnd("📦 PollCreator - Cache session rapide");
+        logger.timeEnd(timerId);
         pollCreatorModule = module;
         return module;
       })
       .catch((error) => {
-        console.error("Erreur chargement PollCreator (cache):", error);
+        logger.error('Erreur chargement PollCreator (cache)', 'general', error);
         throw error;
       });
   }
 
-  console.time("📦 PollCreator - Chargement initial");
+  const timerId = logger.time('PollCreator - Chargement initial', 'performance');
   return preloadPollCreator()
     .then((module) => {
-      console.timeEnd("📦 PollCreator - Chargement initial");
+      logger.timeEnd(timerId);
       return module;
     })
     .catch((error) => {
-      console.error("Erreur chargement PollCreator (initial):", error);
+      logger.error('Erreur chargement PollCreator (initial)', 'general', error);
       throw error;
     });
 });
@@ -266,7 +267,7 @@ const queryClient = new QueryClient({
 
 // Plus besoin de préchargement au survol - tout se charge en arrière-plan
 (window as any).preloadPollCreator = () => {
-  console.log("ℹ️ Préchargement déjà effectué en arrière-plan");
+  logger.info('Préchargement déjà effectué en arrière-plan', 'performance');
 };
 
 // Composant wrapper pour VotingSwipe qui extrait le pollId de l'URL

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { logger } from "@/lib/logger";
 import { ConversationStorageLocal } from "../lib/storage/ConversationStorageLocal";
 // ConversationStorageSupabase will be implemented in Task 1.3
 // import { ConversationStorageSupabase } from '../lib/storage/ConversationStorageSupabase';
@@ -79,7 +80,7 @@ export function useConversationStorage(
 
   // Storage instances
   const [localStorage] = useState(() => {
-    // Initialize localStorage storage for guest users
+    logger.debug('Using localStorage for guest user', 'conversation');
     ConversationStorageLocal.initialize(true);
     return ConversationStorageLocal;
   });
@@ -203,7 +204,7 @@ export function useConversationStorage(
               );
             }
 
-            console.log("✅ Conversation verified before saving messages:", {
+            logger.debug('Conversation verified before saving messages:', {
               conversationId,
               conversationTitle: conversation.title,
               messageCount: messages.length,

@@ -204,6 +204,7 @@ export function ConversationCard({
   return (
     <>
       <Card
+        data-testid="conversation-card"
         className={cn(
           "group hover:shadow-md transition-all duration-200 cursor-pointer",
           "border-l-4",
@@ -378,6 +379,7 @@ export function ConversationCard({
           {/* Quick Actions (always visible) */}
           <div className="flex gap-2 mt-3">
             <Button
+              data-testid="resume-button"
               variant="outline"
               size="sm"
               className="h-7 text-xs"
@@ -389,6 +391,7 @@ export function ConversationCard({
 
             {hasRelatedPoll && (
               <Button
+                data-testid="view-poll-button"
                 variant="outline"
                 size="sm"
                 className="h-7 text-xs"
@@ -415,8 +418,9 @@ export function ConversationCard({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel data-testid="delete-cancel-button">Annuler</AlertDialogCancel>
             <AlertDialogAction
+              data-testid="delete-confirm-button"
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
             >

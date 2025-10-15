@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SignUpSchema, SignUpInput } from "../lib/schemas";
 import { Loader2, Mail, Lock, User } from "lucide-react";
 import { logError, ErrorFactory } from "../lib/error-handling";
+import { logger } from "@/lib/logger";
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -268,7 +269,7 @@ export function Auth() {
           originalError: null,
         },
       );
-      console.log("🗓️ Connexion automatique au calendrier Google...");
+      logger.info('Connexion automatique au calendrier Google', 'auth');
       setAutoConnectAttempted(true);
 
       const timer = setTimeout(async () => {
@@ -464,7 +465,7 @@ export function AuthCallback() {
       // Attendre que Supabase traite la session
       const timer = setTimeout(() => {
         if (user) {
-          console.log("User authenticated, redirecting appropriately");
+          logger.info('User authenticated, redirecting appropriately', 'auth');
           const returnTo = localStorage.getItem("doodates-return-to");
           if (returnTo === "create") {
             localStorage.removeItem("doodates-return-to");
@@ -473,7 +474,7 @@ export function AuthCallback() {
             navigate("/", { replace: true });
           }
         } else if (!loading) {
-          console.log("No user found after callback, redirecting to auth");
+          logger.warn('No user found after callback, redirecting to auth', 'auth');
           navigate("/auth", { replace: true });
         }
       }, 2000); // Augmenté à 2 secondes pour laisser plus de temps

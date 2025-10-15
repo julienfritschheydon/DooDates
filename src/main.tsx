@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./pwa-styles.css";
+import { logger } from "@/lib/logger";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(<App />);
 
@@ -19,7 +20,7 @@ function forceFullscreenOnAndroid() {
     // Forcer le plein écran si disponible
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {
-        console.log("DooDates PWA: Fullscreen non supporté sur ce navigateur");
+        logger.debug('Fullscreen non supporté sur ce navigateur', 'general');
       });
     }
 
@@ -28,7 +29,7 @@ function forceFullscreenOnAndroid() {
       try {
         (window.screen.orientation as any).lock("portrait-primary");
       } catch (e) {
-        console.log("DooDates PWA: Orientation lock non supporté");
+        logger.debug('Orientation lock non supporté', 'general');
       }
     }
   }
@@ -40,16 +41,13 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register("/sw.js")
       .then((registration) => {
-        console.log(
-          "DooDates PWA: Service Worker enregistré avec succès",
-          registration.scope,
-        );
+        logger.info('Service Worker enregistré avec succès', 'general', { scope: registration.scope });
 
         // Forcer le plein écran après enregistrement SW
         setTimeout(forceFullscreenOnAndroid, 1000);
       })
       .catch((error) => {
-        console.log("DooDates PWA: Échec enregistrement Service Worker", error);
+        logger.warn('Échec enregistrement Service Worker', 'general', error);
       });
   });
 }

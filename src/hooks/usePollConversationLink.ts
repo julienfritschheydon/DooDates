@@ -4,6 +4,8 @@
  */
 
 import { useCallback } from "react";
+import { handleError, ErrorFactory, logError } from "../lib/error-handling";
+import { logger } from "@/lib/logger";
 import { useConversations } from "./useConversations";
 
 export interface PollLinkMetadata {
@@ -49,12 +51,10 @@ export const usePollConversationLink = () => {
           },
         });
 
-        console.log(
-          `✅ Linked poll ${pollData.pollId} to conversation ${conversationId}`,
-        );
+        logger.info('Poll linked to conversation', 'poll', { conversationId, pollId: pollData.pollId });
         return true;
       } catch (error) {
-        console.error("Failed to link poll to conversation:", error);
+        logError("Failed to link poll to conversation:", error);
         return false;
       }
     },

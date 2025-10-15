@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GenerativeModel } from "@google/generative-ai";
 import CalendarQuery, { CalendarDay } from "./calendar-generator";
 import { handleError, ErrorFactory, logError } from "./error-handling";
+import { logger } from "./logger";
 
 // Configuration pour Gemini - Simplifié pour Vite
 const API_KEY: string | undefined = import.meta.env.VITE_GEMINI_API_KEY;
@@ -73,7 +74,7 @@ export class GeminiService {
 
     // Pas d'initialisation immédiate de Gemini - sera fait lors du premier appel
     if (!API_KEY && import.meta.env.DEV && !GeminiService.warnedAboutApiKey) {
-      console.warn("VITE_GEMINI_API_KEY not defined - AI features disabled");
+      logger.warn('Gemini API Key not configured, using mock response', 'api');
       GeminiService.warnedAboutApiKey = true;
     }
   }
@@ -167,6 +168,7 @@ export class GeminiService {
         };
       }
     } catch (error) {
+      logger.error('Error in Gemini chat', 'api', error);
       const generationError = handleError(
         error,
         {

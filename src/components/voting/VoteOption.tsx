@@ -11,6 +11,7 @@ import {
 import { SwipeOption, VoteType } from "./utils/types";
 import { formatDate, formatTime } from "./utils/dateUtils";
 import { triggerHaptic } from "./utils/voteUtils";
+import { logger } from "@/lib/logger";
 
 interface VoteOptionProps {
   option: SwipeOption;
@@ -52,7 +53,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
   const controls = useAnimation();
   const rank = getRanking("all")[option.id];
 
-  console.log(`🏆 Option ${option.id} - Rank: ${rank}`, getRanking("all"));
+  logger.debug('Option ranking', 'vote', { optionId: option.id, rank });
 
   // Badge pour le 1er : plus visible qu'une bordure
   const getRankingBadge = (rank: number) => {

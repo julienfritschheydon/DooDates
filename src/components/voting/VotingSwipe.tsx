@@ -28,6 +28,7 @@ import PollHeader from "./PollHeader";
 import VoteOption from "./VoteOption";
 
 // Import types and utilities
+import { logger } from "@/lib/logger";
 import {
   SwipeOption,
   SwipeVote,
@@ -124,14 +125,13 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
   };
 
   const handleSubmit = async (voterInfo: VoterInfo) => {
-    console.log("🔍 VotingSwipe handleSubmit appelé avec:", voterInfo);
-    console.log("📊 Votes actuels à soumettre:", votes);
+    logger.debug('VotingSwipe handleSubmit appelé', 'vote', { voterName: voterInfo.name, votesCount: Object.keys(votes).length });
     setVoterInfoData(voterInfo);
 
     // Vérifier qu'il y a des votes à soumettre
     const hasVotesToSubmit = Object.keys(votes).length > 0;
     if (!hasVotesToSubmit) {
-      console.warn("⚠️ Aucun vote à soumettre");
+      logger.warn('Aucun vote à soumettre', 'vote');
       setFormErrors({
         general: "Veuillez voter sur au moins une option avant de soumettre.",
       });
@@ -224,7 +224,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
               userHasVoted={userHasVoted[option.id]}
               currentSwipe={currentSwipe[option.id]}
               handleVote={(optionId: string, voteType: VoteType) => {
-                console.log("🗳️ Vote cliqué:", optionId, voteType);
+                logger.debug('Vote cliqué', 'vote', { optionId, voteType });
                 handleVote(optionId, voteType);
               }}
               handleSwipe={(optionId: string, direction: number) => {

@@ -2,6 +2,7 @@ import React from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "./ui/button";
 import { LogOut, User } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
@@ -11,7 +12,7 @@ export function UserMenu() {
   }
 
   const handleSignOut = async () => {
-    console.log("🔄 Début de la déconnexion...");
+    logger.info('Début de la déconnexion', 'auth');
 
     try {
       // Timeout pour éviter les blocages
@@ -26,13 +27,13 @@ export function UserMenu() {
       ])) as any;
 
       if (error) {
-        console.error("❌ Erreur de déconnexion:", error);
+        logger.error('Erreur de déconnexion', 'auth', error);
         // Forcer la déconnexion locale même en cas d'erreur
         localStorage.clear();
         sessionStorage.clear();
         window.location.href = "/";
       } else {
-        console.log("✅ Déconnexion réussie");
+        logger.info('Déconnexion réussie', 'auth');
         // Nettoyer le stockage local
         localStorage.clear();
         sessionStorage.clear();
@@ -40,8 +41,8 @@ export function UserMenu() {
         window.location.href = "/";
       }
     } catch (err) {
-      console.error("❌ Erreur lors de la déconnexion:", err);
-      console.log("🔄 Forçage de la déconnexion locale...");
+      logger.error('Erreur lors de la déconnexion', 'auth', err);
+      logger.warn('Forçage de la déconnexion locale', 'auth');
 
       // En cas d'erreur, forcer la déconnexion côté client
       localStorage.clear();

@@ -12,6 +12,8 @@ import {
   shouldRegenerateTitle,
 } from "../lib/services/titleGeneration";
 import type { Conversation, ConversationMessage } from "../types/conversation";
+import { ConversationError } from "@/types/conversation";
+import { logger } from "@/lib/logger";
 
 export interface AutoSaveMessage {
   id: string;
@@ -61,7 +63,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
   const log = useCallback(
     (message: string, data?: any) => {
       if (debug && message.includes("Error")) {
-        console.log(`🔄 AutoSave: ${message}`, data || "");
+        logger.debug(`AutoSave: ${message}`, 'conversation', data || {});
       }
     },
     [debug],
@@ -212,7 +214,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         // Trigger title generation with debounce (1.5s)
         triggerTitleGeneration(activeConversationId, allMessages);
       } catch (error) {
-        console.error("Failed to save message immediately:", error);
+        logger.error('Failed to save message immediately', 'conversation', error);
         log("Error saving message", { error, messageId: message.id });
       }
     },

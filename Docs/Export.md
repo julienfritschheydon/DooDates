@@ -1,0 +1,221 @@
+# Spécifications Techniques - Export Features
+
+Détails d'implémentation pour les fonctionnalités d'export CSV.
+
+## Vue d'ensemble
+
+- **Format MVP** : CSV uniquement (rapide, interop, léger)
+- **Format Later** : PDF (résumé lisible) pour partage humain
+- **Format Pro** : XLSX réservé au palier payant (aligné sur Doodle)
+
+## Points d'entrée UX
+
+### Dashboard
+- **Composant** : `src/components/Dashboard.tsx`
+- **Action** : "Exporter" dans le menu `PollActions`
+- **État** : Désactivé si aucun vote/réponse
+
+### Page Résultats
+- **Route** : `/poll/:slug/results`
+- **Bouton** : "Exporter" visible uniquement pour le propriétaire
+- **État** : Désactivé si aucune donnée à exporter
+
+## Sécurité & Accès
+
+### MVP
+- Liens d'export **non indexables** par les moteurs de recherche
+- Pas d'URL signée côté client
+- Validation basique des permissions
+
+### Post-MVP
+- Implémenter protection complète pour respecter normes de sécurité
+- Prévention des accès non autorisés et hacks
+- Audit de sécurité complet
+
+## Format CSV - Spécifications Détaillées
+
+### Encodage & Séparateurs
+```
+- Encodage: UTF-8 avec BOM
+- Séparateur: virgule ","
+- Horodatages: ISO 8601 (UTC)
+- Colonne additionnelle: timezone_display
+```
+
+### Métadonnées en tête
+```csv
+poll_id,poll_slug,poll_title,type,created_at,status,exported_at
+```
+
+### Format DatePoll (wide)
+**Structure** : 1 ligne par répondant, 1 colonne par option (date/slot)
+
+**Valeurs possibles** : `YES`, `MAYBE`, `NO`, `EMPTY`
+
+**Colonnes** :
+```
+respondent_display, respondent_hash, submitted_at, source, [date1], [date2], ...
+```
+
+### Format DatePoll (long)
+**Structure** : 1 ligne par (répondant, option)
+
+**Colonnes** :
+```
+respondent_display, respondent_hash, submitted_at, source, date_option, choice
+```
+
+**Valeurs choice** : `yes`, `maybe`, `no`
+
+### Format FormPoll (long)
+**Structure** : 1 ligne par (répondant, question)
+
+**Colonnes** :
+```
+respondent_display, respondent_hash, submitted_at, source, question_id, question_title, kind, value, selected_count
+```
+
+**Notes** :
+- `value` : texte brut ou étiquettes jointes par `|`
+- `selected_count` : nombre de sélections pour questions à choix multiple
+
+### Colonnes communes
+
+```typescript
+// Toutes les colonnes communes à tous les formats
+{
+  respondent_display: string,  // Nom affiché du répondant
+  respondent_hash: string,      // Pseudo-ID stable local
+  submitted_at: string,         // ISO 8601 timestamp
+  source: 'link' | 'email' | 'qr'  // Source de participation
+}
+```
+
+## Comportements Techniques
+
+### Noms de colonnes
+- Format : `snake_case`
+- Stabilité : Pas de changement entre exports
+- Documentation : Maintenir un dictionnaire de colonnes
+
+### Échappement des valeurs
+```typescript
+// Échapper si présence de virgules ou nouvelles lignes
+function escapeCSV(value: string): string {
+  if (value.includes(',') || value.includes('\n')) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+```
+
+### Nommage des fichiers
+```
+Format: doodates_{type}_{slug}_{YYYYMMDD-HHmmss}.csv
+
+Exemples:
+- doodates_date_reunion-equipe_20251015-143022.csv
+- doodates_form_feedback-q4_20251015-143022.csv
+```
+
+### Génération côté client
+
+```typescript
+// Utiliser Blob API et URL.createObjectURL
+const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+const url = URL.createObjectURL(blob);
+const link = document.createElement('a');
+link.href = url;
+link.download = filename;
+link.click();
+URL.revokeObjectURL(url);
+```
+
+### Limites de taille
+
+- **Limite recommandée** : 10,000 lignes maximum
+- **Au-delà** : Proposer uniquement le format long
+- **Alternatives** : Pagination ou export en plusieurs fichiers
+
+## Implémentation
+
+### Hook personnalisé
+
+**Fichier** : `src/lib/exports.ts`
+
+```typescript
+export function useExportCsv(poll: Poll) {
+  const exportToCsv = () => {
+    // Génération CSV
+    const csv = toCsv(poll);
+    // Téléchargement
+    downloadCsv(csv, poll.slug);
+  };
+  
+  return { exportToCsv, isExporting, error };
+}
+```
+
+### Utilitaires requis
+
+```typescript
+// src/lib/exports.ts
+export function toCsv(poll: Poll): string;
+export function downloadCsv(content: string, filename: string): void;
+export function validateExportPermissions(poll: Poll, user: User): boolean;
+```
+
+## Tests Requis
+
+### Unit Tests
+```typescript
+describe('CSV Export', () => {
+  it('should generate valid CSV with BOM');
+  it('should encode values as UTF-8');
+  it('should format YES/MAYBE/NO correctly');
+  it('should escape special characters');
+  it('should handle empty responses');
+  it('should match snapshot for fixtures');
+});
+```
+
+### E2E Tests
+```typescript
+describe('Export UI', () => {
+  it('should show export button when user is owner');
+  it('should hide export button for non-owners');
+  it('should disable button when no votes');
+  it('should trigger download on click');
+  it('should show error if export fails');
+});
+```
+
+### Fixtures
+Créer des fixtures de test avec :
+- Différents types de polls (date/form)
+- Différents volumes de données
+- Cas limites (caractères spéciaux, dates invalides)
+
+## Migration Path
+
+### Phase 1 (MVP)
+- ✅ CSV format uniquement
+- ✅ Export côté client
+- ✅ Permissions basiques
+
+### Phase 2 (Post-MVP)
+- PDF generation (résumés lisibles)
+- Export serveur pour gros volumes
+- Statistiques d'export
+
+### Phase 3 (Pro)
+- XLSX format (feature payante)
+- Customisation des exports
+- Export automatique programmé
+- API d'export pour intégrations
+
+---
+
+**Voir aussi** :
+- [Questions Ouvertes](./Questions-Ouvertes.md) pour les décisions en attente
+- [2. Planning](./2. Planning.md) pour la roadmap globale

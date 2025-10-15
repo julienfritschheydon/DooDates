@@ -18,6 +18,7 @@ import {
 import Calendar from "./Calendar";
 import { usePolls, type PollData } from "../hooks/usePolls";
 import { PollCreatorService } from "../services/PollCreatorService";
+import { logger } from "@/lib/logger";
 import type {
   PollCreationState as ServicePollCreationState,
   TimeSlot as ServiceTimeSlot,
@@ -90,7 +91,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         setCreatedPollSlug(result.poll.slug);
       }
     } catch (error) {
-      console.error("Error creating poll:", error);
+      logger.error('Error creating poll', 'poll', error);
     }
   };
   const toggleDate = (dateString: string) =>
@@ -257,7 +258,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           }
         }
       } catch (error) {
-        console.error("Error loading poll data:", error);
+        logger.error('Error loading poll data', 'poll', error);
       }
     };
 
@@ -312,7 +313,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         setState((prev) => ({ ...prev, pollLinkCopied: false }));
       }, 3000);
     } catch (err) {
-      console.error("Erreur lors de la copie:", err);
+      logger.error('Erreur lors de la copie', 'poll', err);
     }
   };
 
@@ -357,7 +358,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   // Fonction pour gérer le clic sur le bouton principal
   const handleMainButtonClick = () => {
-    console.log("🖱️ Clic bouton principal", {
+    logger.debug('Clic bouton principal', 'poll', {
       createdPollSlug,
       canFinalize: PollCreatorService.canFinalize(state),
       pollLoading,
@@ -371,11 +372,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     });
     if (createdPollSlug) {
       // Si le sondage est créé, rediriger vers le dashboard
-      console.log("➡️ Bouton après création: redirection dashboard");
+      logger.debug('Bouton après création: redirection dashboard', 'poll');
       handleBackToHome();
     } else {
       // Sinon, créer le sondage
-      console.log("🚀 Lancement de handleFinalize (création)");
+      logger.debug('Lancement de handleFinalize (création)', 'poll');
       handleFinalize();
     }
   };
@@ -505,15 +506,13 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   <div className="flex gap-3">
                     <button
                       onClick={() => {
-                        console.log(
-                          "🕒 Bouton Horaires cliqué - toggle showTimeSlots",
-                        );
+                        logger.debug('Bouton Horaires cliqué - toggle showTimeSlots', 'poll');
                         setState((prev) => {
                           const newState = {
                             ...prev,
                             showTimeSlots: !prev.showTimeSlots,
                           };
-                          console.log("🕒 État après clic:", {
+                          logger.debug('État après clic', 'poll', {
                             selectedDates: prev.selectedDates.length,
                             showTimeSlots: newState.showTimeSlots,
                             conditionMet:

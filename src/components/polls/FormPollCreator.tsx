@@ -3,6 +3,7 @@ import { Undo2, Save, Check } from "lucide-react";
 import FormEditor from "./FormEditor";
 import type { Question as EditorQuestion } from "./QuestionCard";
 import { getAllPolls, savePolls, type Poll } from "../../lib/pollStorage";
+import { logger } from "@/lib/logger";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
 export type FormQuestionType = "single" | "multiple" | "text";
@@ -172,8 +173,7 @@ export default function FormPollCreator({
       try {
         upsertFormPoll(currentDraft, "draft");
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn("Autosave form poll failed", e);
+        logger.warn('Autosave form poll failed', 'poll', e);
       }
     }, 800);
     return () => {
@@ -225,8 +225,7 @@ export default function FormPollCreator({
     }
     const saved = upsertFormPoll(draft, "draft");
     if (onSave) onSave(draft);
-    // eslint-disable-next-line no-console
-    console.log("FormPoll draft enregistré", saved);
+    logger.info('FormPoll draft enregistré', 'poll', { pollId: saved.id });
   };
 
   const handleFinalize = () => {
@@ -238,8 +237,7 @@ export default function FormPollCreator({
     }
     const saved = upsertFormPoll(draft, "active");
     if (onFinalize) onFinalize(draft);
-    // eslint-disable-next-line no-console
-    console.log("FormPoll finalisé", saved);
+    logger.info('FormPoll finalisé', 'poll', { pollId: saved.id });
   };
 
   return (
