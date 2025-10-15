@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @jest-environment jsdom
  */
 import { createClient } from '@supabase/supabase-js';
