@@ -15,7 +15,7 @@ test.describe('Navigation Regression Tests', () => {
     await page.evaluate(() => localStorage.clear());
   });
 
-  test.skiptest('TopNav should be present on home page', async ({ page }) => {
+  test.skip('TopNav should be present on home page', async ({ page }) => {
     await page.goto('/');
     
     // Check for TopNav elements
@@ -27,7 +27,7 @@ test.describe('Navigation Regression Tests', () => {
     await expect(page.locator('[data-testid="home-button"] text=DooDates')).toBeVisible();
   });
 
-  test.skiptest('TopNav should be present on dashboard page', async ({ page }) => {
+  test.skip('TopNav should be present on dashboard page', async ({ page }) => {
     await page.goto('/dashboard');
     
     // Wait for dashboard to load
@@ -43,7 +43,7 @@ test.describe('Navigation Regression Tests', () => {
     await expect(page).toHaveURL('/');
   });
 
-  test.skiptest('TopNav should be present on poll creation page', async ({ page }) => {
+  test.skip('TopNav should be present on poll creation page', async ({ page }) => {
     await page.goto('/create');
     
     // Wait for poll creator to load
@@ -55,7 +55,7 @@ test.describe('Navigation Regression Tests', () => {
     await expect(page.locator('[data-testid="ai-chat-button"]')).toBeVisible();
   });
 
-  test.skiptest('TopNav should be present on AI chat page', async ({ page }) => {
+  test.skip('TopNav should be present on AI chat page', async ({ page }) => {
     await page.goto('/ai-chat');
     
     // Wait for chat interface to load
@@ -67,7 +67,7 @@ test.describe('Navigation Regression Tests', () => {
     await expect(page.locator('[data-testid="ai-chat-button"]')).toBeVisible();
   });
 
-  test.skiptest('TopNav should remain visible during poll creation flow', async ({ page }) => {
+  test.skip('TopNav should remain visible during poll creation flow', async ({ page }) => {
     await page.goto('/create');
     
     // Wait for poll creator to load
@@ -95,7 +95,7 @@ test.describe('Navigation Regression Tests', () => {
     }
   });
 
-  test.skiptest('TopNav navigation should work from all pages', async ({ page }) => {
+  test.skip('TopNav navigation should work from all pages', async ({ page }) => {
     const pages = [
       { url: '/', name: 'Home' },
       { url: '/dashboard', name: 'Dashboard' },
@@ -132,7 +132,7 @@ test.describe('Navigation Regression Tests', () => {
     }
   });
 
-  test.skiptest('TopNav should be responsive on mobile viewport', async ({ page }) => {
+  test.skip('TopNav should be responsive on mobile viewport', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     
@@ -151,7 +151,7 @@ test.describe('Navigation Regression Tests', () => {
     await expect(page.locator('[data-testid="home-button"]')).toBeVisible();
   });
 
-  test.skiptest('TopNav should handle error pages gracefully', async ({ page }) => {
+  test.skip('TopNav should handle error pages gracefully', async ({ page }) => {
     // Navigate to a non-existent page
     await page.goto('/non-existent-page');
     
@@ -166,7 +166,7 @@ test.describe('Navigation Regression Tests', () => {
     expect(isHome || hasTopNav).toBeTruthy();
   });
 
-  test.skiptest('TopNav should persist during async operations', async ({ page }) => {
+  test.skip('TopNav should persist during async operations', async ({ page }) => {
     await page.goto('/dashboard');
     
     // Wait for dashboard to load

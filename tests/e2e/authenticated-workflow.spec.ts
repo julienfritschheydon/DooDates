@@ -19,7 +19,7 @@ test.describe('Authenticated User Workflow', () => {
     await page.reload();
   });
 
-  test.skiptest('should allow user to sign up and access premium features', async ({ page }) => {
+  test.skip('should allow user to sign up and access premium features', async ({ page }) => {
     await page.goto('/');
     
     // Look for sign up button
@@ -56,7 +56,7 @@ test.describe('Authenticated User Workflow', () => {
     }
   });
 
-  test.skiptest('should allow authenticated users to create multiple conversations', async ({ page }) => {
+  test.skip('should allow authenticated users to create multiple conversations', async ({ page }) => {
     await page.goto('/');
     
     // Mock authentication state
@@ -95,7 +95,7 @@ test.describe('Authenticated User Workflow', () => {
     }
   });
 
-  test.skiptest('should migrate guest data when user authenticates', async ({ page }) => {
+  test.skip('should migrate guest data when user authenticates', async ({ page }) => {
     await page.goto('/');
     
     // Create conversation as guest first
@@ -142,7 +142,7 @@ test.describe('Authenticated User Workflow', () => {
     }
   });
 
-  test.skiptest('should access premium features when authenticated', async ({ page }) => {
+  test.skip('should access premium features when authenticated', async ({ page }) => {
     await page.goto('/');
     
     // Mock authentication
@@ -170,7 +170,7 @@ test.describe('Authenticated User Workflow', () => {
     expect(badgeCount).toBeLessThan(5);
   });
 
-  test.skiptest('should persist authenticated session across browser restarts', async ({ page }) => {
+  test.skip('should persist authenticated session across browser restarts', async ({ page }) => {
     await page.goto('/');
     
     // Mock authentication
@@ -215,7 +215,7 @@ test.describe('Authenticated User Workflow', () => {
     }
   });
 
-  test.skiptest('should handle sign out and return to guest mode', async ({ page }) => {
+  test.skip('should handle sign out and return to guest mode', async ({ page }) => {
     await page.goto('/');
     
     // Mock authentication
@@ -268,7 +268,7 @@ test.describe('Authenticated User Workflow', () => {
     await expect(page.locator('text=Authenticated conversation before signout')).not.toBeVisible();
   });
 
-  test.skiptest('should show correct quota progression for authenticated users', async ({ page }) => {
+  test.skip('should show correct quota progression for authenticated users', async ({ page }) => {
     await page.goto('/');
     
     // Mock authentication

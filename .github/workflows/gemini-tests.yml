@@ -1,16 +1,17 @@
 name: Tests Automatisés Gemini
 
 on:
-  schedule:
-    # Tous les lundis à 9h00 UTC (11h Paris)
-    - cron: '0 9 * * 1'
-  workflow_dispatch: # Permet de lancer manuellement
-  push:
-    branches: [ main ]
-    paths: 
-      - 'src/lib/gemini.ts'
-      - 'src/lib/enhanced-gemini.ts'
-      - 'tests/gemini-*.test.ts'
+  # DÉSACTIVÉ pour économiser coûts API Gemini
+  # Lancer manuellement uniquement via workflow_dispatch
+  # schedule:
+  #   - cron: '0 9 * * 1'
+  workflow_dispatch: # MANUEL UNIQUEMENT
+  # push:
+  #   branches: [ main ]
+  #   paths: 
+  #     - 'src/lib/gemini.ts'
+  #     - 'src/lib/enhanced-gemini.ts'
+  #     - 'tests/gemini-*.test.ts'
 
 jobs:
   test-gemini:
