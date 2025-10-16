@@ -62,19 +62,45 @@ Activer les tests E2E un par un pour **éviter les coûts API Gemini** et s'assu
 2. ✅ Corriger `test.skiptest()` → `test.skip()` - 41 bugs corrigés
 3. ✅ E2E nocturnes désactivés (activation progressive)
 
-### **📊 ÉTAT ACTUEL**
-- ✅ **25 tests ACTIFS** (125 avec 5 navigateurs)
-  - `authenticated-workflow.spec.ts` : 8 tests
-  - `edge-cases.spec.ts` : 10 tests
-  - `guest-workflow.spec.ts` : 7 tests
-- ⏸️ **27 tests DÉSACTIVÉS** à activer progressivement
+### **📊 ÉTAT ACTUEL** ⚠️ CORRECTION
+- ✅ **10 tests ACTIFS** (50 avec 5 navigateurs)
+  - `edge-cases.spec.ts` : 10 tests ✅ (⚠️ 6 échouent)
+- ⏸️ **42 tests DÉSACTIVÉS** à activer progressivement
+  - `authenticated-workflow.spec.ts` : 8 tests (tous `.skip()`)
+  - `guest-workflow.spec.ts` : 7 tests (tous `.skip()`)
+  - Autres : 27 tests (tous `.skip()`)
 - **0€ coûts API actuels**
 
 Voir détails complets : `E2E-STATUS.md`
 
 ---
 
-### Phase 2 : Sondages et Vote (5 tests) - SEMAINE 1-2
+### Phase 2 : Activer Tests Workflow (15 tests) - SEMAINE 1
+**Priorité 1 : Activer tests auth et guest**
+
+**Étape 1 : Débugger edge-cases** (6 tests échouent)
+```bash
+npx playwright show-report
+# Analyser les 6 erreurs et corriger
+```
+
+**Étape 2 : Activer authenticated-workflow (8 tests)**
+```bash
+# Retirer test.skip() manuellement ou avec script
+npx playwright test authenticated-workflow.spec.ts --project=chromium
+```
+
+**Étape 3 : Activer guest-workflow (7 tests)**
+```bash
+# Retirer test.skip() manuellement ou avec script
+npx playwright test guest-workflow.spec.ts --project=chromium
+```
+
+**Total Phase 2** : 25 tests actifs (edge-cases + auth + guest)
+
+---
+
+### Phase 3 : Sondages et Vote (5 tests) - SEMAINE 2
 **Priorité : Tests critiques sans API**
 
 ```bash
@@ -92,7 +118,7 @@ npx playwright test ultra-simple.spec.ts --project=chromium
 
 ---
 
-### Phase 3 : Sécurité (8 tests) - SEMAINE 3
+### Phase 4 : Sécurité (8 tests) - SEMAINE 3
 **Tests de robustesse**
 
 ```bash
@@ -103,7 +129,7 @@ Tests XSS, injection, isolation sessions
 
 ---
 
-### Phase 4 : Performance (7 tests) - SEMAINE 4
+### Phase 5 : Performance (7 tests) - SEMAINE 4
 **Tests de charge**
 
 ```bash
@@ -114,7 +140,7 @@ Tests conversations multiples, mémoire, concurrence
 
 ---
 
-### Phase 5 : Navigation (9 tests) - SEMAINE 5 🔴 ATTENTION
+### Phase 6 : Navigation (9 tests) - SEMAINE 5 🔴 ATTENTION
 **⚠️ CONTIENT TEST COÛTEUX `/ai-chat`**
 
 **Avant d'activer** :
@@ -242,12 +268,13 @@ Actions → 🌙 Nightly E2E Matrix → Run workflow
 ## 📈 Progression
 
 - [x] Phase 1 : Bugs corrigés ✅
-- [x] Tests actuels : 25 tests actifs (0€ API)
-- [ ] Phase 2 : 5 tests sondages/vote
-- [ ] Phase 3 : 8 tests sécurité  
-- [ ] Phase 4 : 7 tests performance
-- [ ] Phase 5 : 9 tests navigation (avec mock Gemini)
-- [ ] Nightly E2E : Réactivation après Phase 5
+- [x] Tests actuels : 10 tests actifs (edge-cases) - ⚠️ 6 échouent
+- [ ] Phase 2 : Activer 15 tests auth/guest + débugger edge-cases
+- [ ] Phase 3 : 5 tests sondages/vote
+- [ ] Phase 4 : 8 tests sécurité  
+- [ ] Phase 5 : 7 tests performance
+- [ ] Phase 6 : 9 tests navigation (avec mock Gemini)
+- [ ] Nightly E2E : Réactivation après Phase 6
 
 **Dernière mise à jour** : 16 octobre 2025 - Plan complet finalisé  
 **Documents** : `E2E-ACTIVATION-PLAN.md` (stratégie) + `E2E-STATUS.md` (détails)
