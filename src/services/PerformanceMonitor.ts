@@ -131,7 +131,14 @@ class PerformanceMonitorService {
       if (message instanceof Error) {
         logError(message, { component: "PerformanceMonitor" });
       } else {
-        console.error(message);
+        // Use centralized error logging for non-Error messages
+        logError(
+          ErrorFactory.critical(
+            message,
+            "Performance alert triggered"
+          ),
+          { component: "PerformanceMonitor" }
+        );
       }
 
       // Send to external monitoring if available

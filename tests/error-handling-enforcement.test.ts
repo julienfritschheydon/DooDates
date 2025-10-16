@@ -5,7 +5,7 @@
  * It scans the codebase for violations and fails the CI if inconsistent patterns are found.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { glob } from 'glob';
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -24,7 +24,8 @@ describe('Centralized Error Handling Enforcement', () => {
         '**/*.test.ts',
         '**/*.test.tsx',
         '**/components/ui/**', // Allow UI components to use context errors
-        '**/lib/error-handling.ts' // Allow the error handling file itself
+        '**/lib/error-handling.ts', // Allow the error handling file itself
+        '**/lib/logger.ts' // Allow the logger file (it IS the logging system)
       ]
     });
   });

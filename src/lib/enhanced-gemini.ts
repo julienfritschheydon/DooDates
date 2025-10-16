@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import CalendarQuery from "./calendar-generator";
+import { logError, ErrorFactory } from "./error-handling";
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -70,7 +71,10 @@ export class EnhancedGeminiService {
         this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
         return true;
       } catch (error) {
-        console.error("Erreur initialisation Gemini:", error);
+        logError(
+          ErrorFactory.api("Failed to initialize Gemini", "Erreur lors de l'initialisation de Gemini"),
+          { metadata: { originalError: error } }
+        );
         return false;
       }
     }
@@ -219,7 +223,10 @@ export class EnhancedGeminiService {
         };
       }
     } catch (error) {
-      console.error("🚨 Erreur génération améliorée:", error);
+      logError(
+        ErrorFactory.api("Enhanced generation failed", "Erreur lors de la génération améliorée"),
+        { metadata: { originalError: error } }
+      );
       return {
         success: false,
         message: "Erreur lors de la communication avec le service IA",
@@ -392,7 +399,10 @@ Réponds SEULEMENT avec le JSON validé.`;
 
       return null;
     } catch (error) {
-      console.error("🚨 Erreur parsing réponse améliorée:", error);
+      logError(
+        ErrorFactory.api("Failed to parse enhanced response", "Erreur lors du parsing de la réponse"),
+        { metadata: { originalError: error } }
+      );
       return null;
     }
   }
@@ -465,7 +475,10 @@ Réponds SEULEMENT avec le JSON validé.`;
       const response = await result.response;
       return response.text().includes("OK");
     } catch (error) {
-      console.error("Test connexion échoué:", error);
+      logError(
+        ErrorFactory.network("Connection test failed", "Test de connexion échoué"),
+        { metadata: { originalError: error } }
+      );
       return false;
     }
   }

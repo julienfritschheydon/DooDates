@@ -196,7 +196,10 @@ export class EmailService {
   ): Promise<{ success: boolean; error?: string }> {
     try {
       if (!participantEmails || participantEmails.length === 0) {
-        console.warn("EmailService: No participant emails provided");
+        logError(
+          ErrorFactory.validation("No participant emails provided", "Aucun email de participant fourni"),
+          { component: "EmailService" }
+        );
         return { success: true };
       }
 
@@ -212,7 +215,10 @@ export class EmailService {
 
       return { success: true };
     } catch (error: any) {
-      console.error("EmailService sendPollCreated error:", error);
+      logError(
+        ErrorFactory.api("Failed to send poll created email", "Erreur lors de l'envoi de l'email de création de sondage"),
+        { metadata: { originalError: error } }
+      );
       return { success: false, error: error.message };
     }
   }
@@ -243,7 +249,10 @@ export class EmailService {
 
       return { success: true };
     } catch (error: any) {
-      console.error("EmailService sendVoteNotification error:", error);
+      logError(
+        ErrorFactory.api("Failed to send vote notification email", "Erreur lors de l'envoi de la notification de vote"),
+        { metadata: { originalError: error } }
+      );
       return { success: false, error: error.message };
     }
   }
@@ -279,7 +288,10 @@ export class EmailService {
       // Vote confirmation email sent successfully
       return { success: true };
     } catch (error) {
-      console.error("EmailService vote confirmation error:", error);
+      logError(
+        ErrorFactory.api("Failed to send vote confirmation email", "Erreur lors de l'envoi de la confirmation de vote"),
+        { metadata: { originalError: error } }
+      );
       return {
         success: false,
         error: error instanceof Error ? error.message : "Erreur inconnue",
@@ -319,7 +331,10 @@ export class EmailService {
       // Poll creation email sent successfully
       return { success: true };
     } catch (error) {
-      console.error("EmailService poll creation error:", error);
+      logError(
+        ErrorFactory.api("Failed to send poll creation email", "Erreur lors de l'envoi de l'email de création"),
+        { metadata: { originalError: error } }
+      );
       return {
         success: false,
         error: error instanceof Error ? error.message : "Erreur inconnue",

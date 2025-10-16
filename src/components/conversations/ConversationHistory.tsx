@@ -20,6 +20,7 @@ import { ConversationSearch } from "./ConversationSearch";
 import { ConversationPreview } from "./ConversationPreview";
 import { useConversations } from "../../hooks/useConversations";
 import { useConversationSearch } from "../../hooks/useConversationSearch";
+import { logError, ErrorFactory } from "../../lib/error-handling";
 import type {
   Conversation,
   ConversationSearchFilters,
@@ -148,7 +149,10 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
       const allMessages = rawStorage ? JSON.parse(rawStorage) : {};
       return allMessages[conversationId] || [];
     } catch (error) {
-      console.error("Error reading messages from storage:", error);
+      logError(
+        ErrorFactory.storage("Failed to read messages from storage", "Erreur lors de la lecture des messages"),
+        { component: "ConversationHistory", conversationId, metadata: { originalError: error } }
+      );
       return [];
     }
   }, []);
