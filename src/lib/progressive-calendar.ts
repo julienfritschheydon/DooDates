@@ -201,7 +201,13 @@ class ProgressiveCalendarManager {
           `🔮 Préchargement anticipé de l'année ${nextYear} (mois ${month})`,
         );
         this.loadYear(nextYear).catch((error) => {
-          console.warn(`⚠️ Erreur préchargement ${nextYear}:`, error);
+          logError(
+            ErrorFactory.api(
+              `Failed to preload calendar year ${nextYear}`,
+              `Erreur lors du préchargement de l'année ${nextYear}`
+            ),
+            { metadata: { year: nextYear, originalError: error } }
+          );
         });
       }
     }

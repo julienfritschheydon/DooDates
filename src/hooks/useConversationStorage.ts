@@ -282,7 +282,10 @@ export function useConversationStorage(
             }
           }
         } catch (error) {
-          console.warn("Auto-migration failed:", error);
+          logError(
+            ErrorFactory.storage("Auto-migration failed", "Échec de la migration automatique"),
+            { component: "useConversationStorage", metadata: { originalError: error } }
+          );
         }
       };
 

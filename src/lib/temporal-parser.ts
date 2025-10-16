@@ -1,4 +1,6 @@
 import serina from "serina";
+import { parseISO, isValid, parse } from "date-fns";
+import { logError, ErrorFactory } from "./error-handling";
 import { parse as soonerOrLaterParse } from "soonerorlater";
 
 // Types pour le parsing temporel avancé
@@ -142,7 +144,10 @@ export class AdvancedTemporalParser {
         };
       }
     } catch (error) {
-      console.warn("Erreur Serina:", error);
+      logError(
+        ErrorFactory.api("Serina temporal parsing failed", "Erreur d'analyse temporelle Serina"),
+        { component: "temporal-parser", metadata: { originalError: error } }
+      );
     }
 
     return { dates: [], times: [] };
