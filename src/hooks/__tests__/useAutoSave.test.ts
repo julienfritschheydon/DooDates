@@ -222,7 +222,7 @@ describe("useAutoSave", () => {
    * 
    * SOLUTION FUTURE : Refactor avec délais configurables (4-6h)
    */
-  describe("Title Generation with Debounce", () => {
+  describe.skip("Title Generation with Debounce", () => {
     // Tests supprimés - Voir commentaire ci-dessus et TEST-STATUS.md
   });
 
@@ -241,7 +241,7 @@ describe("useAutoSave", () => {
    * 1. should resume existing conversation (Test #1 - déjà testé via Test 9)
    * 2. should handle resume errors (Test #3 - gestion erreur edge case)
    */
-  describe("resumeConversation", () => {
+  describe.skip("resumeConversation", () => {
     // Tests supprimés - Voir useAutoSave.isolated.test.ts
   });
 
@@ -272,7 +272,7 @@ describe("useAutoSave", () => {
    * TEST SUPPRIMÉ :
    * 1. should clear conversation state (Test #10)
    */
-  describe("clearConversation", () => {
+  describe.skip("clearConversation", () => {
     // Test supprimé - Fonction simple, testé manuellement
   });
 
