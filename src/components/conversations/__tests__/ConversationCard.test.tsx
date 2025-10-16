@@ -59,15 +59,15 @@ describe("ConversationCard", () => {
       render(<ConversationCard conversation={conversation} />);
 
       expect(
-        screen.getByText("RÃ©union Ã©quipe dÃ©veloppement"),
+        screen.getByText("Réunion équipe développement"),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/Bonjour, je voudrais organiser une rÃ©union/),
+        screen.getByText(/Bonjour, je voudrais organiser une réunion/),
       ).toBeInTheDocument();
     });
 
     it("should display message count and relative time", () => {
-      const conversation = createMockConversation();
+      const conversation = createTestConversation();
       render(<ConversationCard conversation={conversation} />);
 
       expect(screen.getByText("5 messages")).toBeInTheDocument();
@@ -75,11 +75,11 @@ describe("ConversationCard", () => {
     });
 
     it("should show tags when present", () => {
-      const conversation = createMockConversation();
+      const conversation = createTestConversation();
       render(<ConversationCard conversation={conversation} />);
 
       expect(screen.getByText("travail")).toBeInTheDocument();
-      expect(screen.getByText("rÃ©union")).toBeInTheDocument();
+      expect(screen.getByText("réunion")).toBeInTheDocument();
     });
 
     it("should truncate long preview text", () => {
@@ -157,25 +157,25 @@ describe("ConversationCard", () => {
 
   describe("User Interactions", () => {
     it("should call onResume when title is clicked", async () => {
-      const conversation = createMockConversation();
+      const conversation = createTestConversation();
       render(
         <ConversationCard conversation={conversation} {...mockCallbacks} />,
       );
 
-      const title = screen.getByText("RÃ©union Ã©quipe dÃ©veloppement");
+      const title = screen.getByText("Réunion équipe développement");
       await userEvent.click(title);
 
       expect(mockCallbacks.onResume).toHaveBeenCalledWith("conv-1");
     });
 
     it("should call onResume when preview text is clicked", async () => {
-      const conversation = createMockConversation();
+      const conversation = createTestConversation();
       render(
         <ConversationCard conversation={conversation} {...mockCallbacks} />,
       );
 
       const preview = screen.getByText(
-        /Bonjour, je voudrais organiser une rÃ©union/,
+        /Bonjour, je voudrais organiser une réunion/,
       );
       await userEvent.click(preview);
 
