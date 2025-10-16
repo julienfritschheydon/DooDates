@@ -55,38 +55,150 @@ Activer les tests E2E un par un pour **éviter les coûts API Gemini** et s'assu
 
 ---
 
-## 🔧 Plan d'Action
+## 🔧 Plan d'Action ✅ MISE À JOUR
 
-### Phase 1 : Correction des Bugs (MAINTENANT)
-1. ✅ Désactiver workflows automatiques Gemini et E2E
-2. ❌ Corriger `test.skiptest()` → `test.skip()` dans tous les fichiers
-3. ❌ Créer variable d'env `E2E_SKIP_GEMINI` pour bloquer appels API
+### Phase 1 : Correction des Bugs ✅ TERMINÉ
+1. ✅ Workflows automatiques sécurisés (Gemini sur changements + mensuel)
+2. ✅ Corriger `test.skiptest()` → `test.skip()` - 41 bugs corrigés
+3. ✅ E2E nocturnes désactivés (activation progressive)
 
-### Phase 2 : Tests Sans API (SEMAINE 1)
-**Activer dans cet ordre :**
-1. `guest-workflow.spec.ts` - Workflow invité sans API
-2. `authenticated-workflow.spec.ts` - Auth Supabase
-3. `mobile-voting.spec.ts` - Vote mobile
-4. `poll-actions.spec.ts` - CRUD sondages
+### **📊 ÉTAT ACTUEL**
+- ✅ **25 tests ACTIFS** (125 avec 5 navigateurs)
+  - `authenticated-workflow.spec.ts` : 8 tests
+  - `edge-cases.spec.ts` : 10 tests
+  - `guest-workflow.spec.ts` : 7 tests
+- ⏸️ **27 tests DÉSACTIVÉS** à activer progressivement
+- **0€ coûts API actuels**
 
-**Commande test individuel :**
+Voir détails complets : `E2E-STATUS.md`
+
+---
+
+### Phase 2 : Sondages et Vote (5 tests) - SEMAINE 1-2
+**Priorité : Tests critiques sans API**
+
 ```bash
-npx playwright test guest-workflow.spec.ts --project=chromium
+# Test 1 : Vote mobile (2 tests)
+npx playwright test mobile-voting.spec.ts --project=chromium
+
+# Test 2 : Actions sondages (1 test)  
+npx playwright test poll-actions.spec.ts --project=chromium
+
+# Test 3 : Navigation basique (2 tests) - ⚠️ Vérifier logs
+npx playwright test ultra-simple.spec.ts --project=chromium
 ```
 
-### Phase 3 : Tests Techniques (SEMAINE 2)
-5. `security-isolation.spec.ts` - Isolation données
-6. `performance.spec.ts` - Performance app
-7. `edge-cases.spec.ts` - Cas limites
+**Validation** : Aucun appel API détecté → Activer sur tous navigateurs
 
-### Phase 4 : Tests Navigation (SEMAINE 3)
-⚠️ **ATTENTION : Ces tests peuvent coûter cher !**
-8. `ultra-simple.spec.ts` - Navigation basique (vérifier routes `/create`)
-9. `navigation-regression.spec.ts` - TopNav + `/ai-chat` ⚠️ COÛTEUX
+---
 
-**Stratégie pour `/ai-chat` :**
-- Mock Gemini avec `page.route()` pour intercepter appels API
-- Ou skip complètement les tests AI chat
+### Phase 3 : Sécurité (8 tests) - SEMAINE 3
+**Tests de robustesse**
+
+```bash
+npx playwright test security-isolation.spec.ts --project=chromium
+```
+
+Tests XSS, injection, isolation sessions
+
+---
+
+### Phase 4 : Performance (7 tests) - SEMAINE 4
+**Tests de charge**
+
+```bash
+npx playwright test performance.spec.ts --project=chromium
+```
+
+Tests conversations multiples, mémoire, concurrence
+
+---
+
+### Phase 5 : Navigation (9 tests) - SEMAINE 5 🔴 ATTENTION
+**⚠️ CONTIENT TEST COÛTEUX `/ai-chat`**
+
+**Avant d'activer** :
+1. **Implémenter mock Gemini** (voir section ci-dessous)
+2. **OU skip le test AI chat** :
+   ```typescript
+   test.skip('TopNav AI chat page', async ({ page }) => {
+     // Skip - coût API Gemini
+   });
+   ```
+
+```bash
+# Seulement après mock
+npx playwright test navigation-regression.spec.ts --project=chromium
+```
+
+---
+
+## 💡 Protection Anti-Gemini (OBLIGATOIRE Phase 5)
+
+### **Option A : Mock Global dans playwright.config.ts** ⭐ RECOMMANDÉ
+```typescript
+// playwright.config.ts
+export default defineConfig({
+  // ... existing config
+  use: {
+    baseURL: 'http://localhost:8080',
+    
+    // 🛡️ Mock toutes les requêtes Gemini
+    async beforeEach({ page }) {
+      await page.route('**/generativelanguage.googleapis.com/**', route => {
+        console.log('🚫 Gemini API blocked (mock)');
+        route.fulfill({ 
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            candidates: [{
+              content: {
+                parts: [{ text: 'Mock response - E2E test' }]
+              }
+            }]
+          })
+        });
+      });
+    }
+  }
+});
+```
+
+### **Option B : Mock par Test**
+```typescript
+test('AI features', async ({ page }) => {
+  // Mock Gemini pour ce test uniquement
+  await page.route('**/generativelanguage.googleapis.com/**', route => {
+    route.fulfill({ 
+      status: 200,
+      body: JSON.stringify({ mock: true })
+    });
+  });
+  
+  // Test normal
+  await page.goto('/ai-chat');
+});
+```
+
+### **Option C : Skip Tests Coûteux**
+```typescript
+// navigation-regression.spec.ts
+test.skip('TopNav AI chat page', async ({ page }) => {
+  // ⚠️ Skip to avoid Gemini API costs
+  // Enable only after implementing global mock
+});
+```
+
+### **Option D : Variable d'Environnement**
+```bash
+# .env.test
+E2E_MOCK_GEMINI=true
+```
+
+```typescript
+// playwright.config.ts
+const shouldMockGemini = process.env.E2E_MOCK_GEMINI === 'true';
+```
 
 ---
 
@@ -129,9 +241,13 @@ Actions → 🌙 Nightly E2E Matrix → Run workflow
 
 ## 📈 Progression
 
-- [ ] Phase 1 : Bugs corrigés
-- [ ] Phase 2 : 4 tests sans API activés
-- [ ] Phase 3 : 3 tests techniques activés
-- [ ] Phase 4 : 2 tests navigation activés (avec mocks API)
+- [x] Phase 1 : Bugs corrigés ✅
+- [x] Tests actuels : 25 tests actifs (0€ API)
+- [ ] Phase 2 : 5 tests sondages/vote
+- [ ] Phase 3 : 8 tests sécurité  
+- [ ] Phase 4 : 7 tests performance
+- [ ] Phase 5 : 9 tests navigation (avec mock Gemini)
+- [ ] Nightly E2E : Réactivation après Phase 5
 
-**Dernière mise à jour** : 16 octobre 2025
+**Dernière mise à jour** : 16 octobre 2025 - Plan complet finalisé  
+**Documents** : `E2E-ACTIVATION-PLAN.md` (stratégie) + `E2E-STATUS.md` (détails)
