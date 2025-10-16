@@ -31,3 +31,19 @@ const originalConsoleError = console.error;
 if (typeof global !== 'undefined') {
   global.setTimeout = setTimeout;
 }
+
+// Polyfill pour import.meta.env (Vite) dans Jest
+if (typeof global !== 'undefined') {
+  // @ts-ignore
+  global.import = global.import || {};
+  // @ts-ignore
+  global.import.meta = global.import.meta || {};
+  // @ts-ignore
+  global.import.meta.env = {
+    DEV: process.env.NODE_ENV === 'development',
+    PROD: process.env.NODE_ENV === 'production',
+    VITE_GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY,
+    VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL,
+    VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
+  };
+}
