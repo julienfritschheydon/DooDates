@@ -150,8 +150,15 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
       return allMessages[conversationId] || [];
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to read messages from storage", "Erreur lors de la lecture des messages"),
-        { component: "ConversationHistory", conversationId, metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to read messages from storage",
+          "Erreur lors de la lecture des messages",
+        ),
+        {
+          component: "ConversationHistory",
+          conversationId,
+          metadata: { originalError: error },
+        },
       );
       return [];
     }

@@ -22,7 +22,7 @@ const PollCreator = () => {
 
   // Helper to convert AnyFormQuestion to FormQuestionShape
   const convertToFormQuestionShape = (
-    questions: AnyFormQuestion[]
+    questions: AnyFormQuestion[],
   ): FormQuestionShape[] => {
     return questions.map((q) => ({
       id: q.id,

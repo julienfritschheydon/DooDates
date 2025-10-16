@@ -7,8 +7,17 @@ import {
   CONVERSATION_ERROR_CODES,
   CONVERSATION_LIMITS,
 } from "../../types/conversation";
-import { validateConversation, validateConversationMessage } from "../validation/conversation";
-import { handleError, ErrorFactory, logError, ErrorSeverity, ErrorCategory } from "../error-handling";
+import {
+  validateConversation,
+  validateConversationMessage,
+} from "../validation/conversation";
+import {
+  handleError,
+  ErrorFactory,
+  logError,
+  ErrorSeverity,
+  ErrorCategory,
+} from "../error-handling";
 
 /**
  * Migration status types
@@ -130,8 +139,14 @@ export class ConversationMigrationService {
       return migrationFlag !== "true";
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to check migration status", "Échec de la vérification du statut de migration"),
-        { component: "ConversationMigrationService", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to check migration status",
+          "Échec de la vérification du statut de migration",
+        ),
+        {
+          component: "ConversationMigrationService",
+          metadata: { originalError: error },
+        },
       );
       return false;
     }
@@ -411,7 +426,12 @@ export class ConversationMigrationService {
             "UPLOAD_ERROR",
             ErrorSeverity.HIGH,
             ErrorCategory.NETWORK,
-            { metadata: { originalError: error, batch: conversations.map((c) => c.id) } },
+            {
+              metadata: {
+                originalError: error,
+                batch: conversations.map((c) => c.id),
+              },
+            },
           );
         }
 
@@ -456,7 +476,12 @@ export class ConversationMigrationService {
             "UPLOAD_ERROR",
             ErrorSeverity.HIGH,
             ErrorCategory.NETWORK,
-            { metadata: { originalError: error, batch: messages.map((m) => m.id) } },
+            {
+              metadata: {
+                originalError: error,
+                batch: messages.map((m) => m.id),
+              },
+            },
           );
         }
 
@@ -528,7 +553,7 @@ export class ConversationMigrationService {
                 conversations: conversationCount,
                 messages: messageCount,
               },
-            }
+            },
           },
         );
       }

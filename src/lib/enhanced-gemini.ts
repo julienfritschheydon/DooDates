@@ -72,8 +72,11 @@ export class EnhancedGeminiService {
         return true;
       } catch (error) {
         logError(
-          ErrorFactory.api("Failed to initialize Gemini", "Erreur lors de l'initialisation de Gemini"),
-          { metadata: { originalError: error } }
+          ErrorFactory.api(
+            "Failed to initialize Gemini",
+            "Erreur lors de l'initialisation de Gemini",
+          ),
+          { metadata: { originalError: error } },
         );
         return false;
       }
@@ -224,8 +227,11 @@ export class EnhancedGeminiService {
       }
     } catch (error) {
       logError(
-        ErrorFactory.api("Enhanced generation failed", "Erreur lors de la génération améliorée"),
-        { metadata: { originalError: error } }
+        ErrorFactory.api(
+          "Enhanced generation failed",
+          "Erreur lors de la génération améliorée",
+        ),
+        { metadata: { originalError: error } },
       );
       return {
         success: false,
@@ -400,8 +406,11 @@ Réponds SEULEMENT avec le JSON validé.`;
       return null;
     } catch (error) {
       logError(
-        ErrorFactory.api("Failed to parse enhanced response", "Erreur lors du parsing de la réponse"),
-        { metadata: { originalError: error } }
+        ErrorFactory.api(
+          "Failed to parse enhanced response",
+          "Erreur lors du parsing de la réponse",
+        ),
+        { metadata: { originalError: error } },
       );
       return null;
     }
@@ -476,8 +485,11 @@ Réponds SEULEMENT avec le JSON validé.`;
       return response.text().includes("OK");
     } catch (error) {
       logError(
-        ErrorFactory.network("Connection test failed", "Test de connexion échoué"),
-        { metadata: { originalError: error } }
+        ErrorFactory.network(
+          "Connection test failed",
+          "Test de connexion échoué",
+        ),
+        { metadata: { originalError: error } },
       );
       return false;
     }

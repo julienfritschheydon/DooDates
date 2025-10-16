@@ -283,8 +283,14 @@ export function useConversationStorage(
           }
         } catch (error) {
           logError(
-            ErrorFactory.storage("Auto-migration failed", "Échec de la migration automatique"),
-            { component: "useConversationStorage", metadata: { originalError: error } }
+            ErrorFactory.storage(
+              "Auto-migration failed",
+              "Échec de la migration automatique",
+            ),
+            {
+              component: "useConversationStorage",
+              metadata: { originalError: error },
+            },
           );
         }
       };

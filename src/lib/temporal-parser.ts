@@ -145,8 +145,11 @@ export class AdvancedTemporalParser {
       }
     } catch (error) {
       logError(
-        ErrorFactory.api("Serina temporal parsing failed", "Erreur d'analyse temporelle Serina"),
-        { component: "temporal-parser", metadata: { originalError: error } }
+        ErrorFactory.api(
+          "Serina temporal parsing failed",
+          "Erreur d'analyse temporelle Serina",
+        ),
+        { component: "temporal-parser", metadata: { originalError: error } },
       );
     }
 
