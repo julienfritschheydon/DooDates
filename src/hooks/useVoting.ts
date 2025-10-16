@@ -57,7 +57,9 @@ export const useVoting = (pollSlug: string) => {
     try {
       // Mode développement local - récupération depuis localStorage
       logger.debug("Recherche du sondage", "vote", { pollSlug });
-      const localPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+      const localPolls = JSON.parse(
+        localStorage.getItem("doodates_polls") || "[]",
+      );
 
       const pollData = localPolls.find((p: Poll) => p.slug === pollSlug);
 

@@ -4,7 +4,6 @@ import FormPollCreator, {
   type FormPollDraft,
   type AnyFormQuestion,
 } from "@/components/polls/FormPollCreator";
-import TopNav from "../components/TopNav";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   getAllPolls,
@@ -111,25 +110,26 @@ const PollCreator = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopNav />
-      <div className="w-full max-w-4xl mx-auto pt-20">
-        {isForm ? (
-          <FormPollCreator
-            initialDraft={latestFormDraft}
-            onCancel={() => navigate("/")}
-            onSave={(draft) => {
-              upsertFormPollFromDraft(draft, "draft");
-              // Rester sur la page pour continuer l'édition
-            }}
-            onFinalize={(draft) => {
-              upsertFormPollFromDraft(draft, "active");
-              // Pour l'instant, on retourne au dashboard après finalisation
-              navigate("/");
-            }}
-          />
-        ) : (
-          <PollCreatorComponent onBack={() => navigate("/")} />
-        )}
+      <div className="pt-20">
+        <div className="w-full max-w-4xl mx-auto">
+          {isForm ? (
+            <FormPollCreator
+              initialDraft={latestFormDraft}
+              onCancel={() => navigate("/")}
+              onSave={(draft) => {
+                upsertFormPollFromDraft(draft, "draft");
+                // Rester sur la page pour continuer l'édition
+              }}
+              onFinalize={(draft) => {
+                upsertFormPollFromDraft(draft, "active");
+                // Pour l'instant, on retourne au dashboard après finalisation
+                navigate("/");
+              }}
+            />
+          ) : (
+            <PollCreatorComponent onBack={() => navigate("/")} />
+          )}
+        </div>
       </div>
     </div>
   );

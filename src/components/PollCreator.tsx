@@ -434,8 +434,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="p-4 md:p-6 lg:p-8 xl:p-12">
+    <div className="bg-gray-50 dark:bg-gray-900">
+      <div className="px-4 md:px-6 lg:px-8 xl:px-12 pb-4 md:pb-6 lg:pb-8 xl:pb-12">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-lg shadow-sm border p-4 md:p-6 lg:p-8 xl:p-12">
             <div className="space-y-6 md:space-y-8 lg:space-y-10">
@@ -443,9 +443,14 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 <Calendar
                   visibleMonths={visibleMonths}
                   selectedDates={state.selectedDates}
-                  onDateToggle={(date: Date) =>
-                    toggleDate(date.toISOString().split("T")[0])
-                  }
+                  onDateToggle={(date: Date) => {
+                    // Convertir en string YYYY-MM-DD en heure locale (pas UTC)
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                    const day = String(date.getDate()).padStart(2, "0");
+                    const dateStr = `${year}-${month}-${day}`;
+                    toggleDate(dateStr);
+                  }}
                   onMonthChange={(direction) => {
                     if (direction === "prev") {
                       const prevMonth = new Date(visibleMonths[0]);

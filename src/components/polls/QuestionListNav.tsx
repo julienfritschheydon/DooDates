@@ -13,7 +13,7 @@ export default function QuestionListNav({
   onSelect,
 }: QuestionListNavProps) {
   return (
-    <div className="sticky top-2 z-10 -mx-2 px-2 py-1 bg-white/80 supports-[backdrop-filter]:backdrop-blur flex flex-wrap items-center gap-2">
+    <div className="sticky top-20 z-10 -mx-2 px-2 py-1 bg-white/80 supports-[backdrop-filter]:backdrop-blur flex flex-wrap items-center gap-2">
       {questions.map((q, idx) => (
         <button
           key={q.id}

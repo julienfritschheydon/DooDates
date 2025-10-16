@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import TopNav from "../components/TopNav";
 import ChatInterface from "../components/ChatInterface";
 
 const Index = () => {
@@ -45,7 +44,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopNav />
       <div className="w-full max-w-4xl mx-auto pt-20">
         <ChatInterface />
       </div>

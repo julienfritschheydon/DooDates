@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Copy, Edit, Share2, Trash2, Vote } from "lucide-react";
+import { Archive, Check, Copy, Edit, Share2, Trash2, Vote } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Poll,
@@ -8,6 +8,8 @@ import {
   copyToClipboard,
   deletePollById,
   duplicatePoll,
+  getPolls,
+  savePolls,
 } from "@/lib/pollStorage";
 
 export type PollActionsVariant = "compact" | "full";
@@ -20,6 +22,7 @@ interface PollActionsProps {
   onEdit?: (pollId: string) => void;
   onAfterDuplicate?: (newPoll: Poll) => void;
   onAfterDelete?: () => void;
+  onAfterArchive?: () => void;
 }
 
 export const PollActions: React.FC<PollActionsProps> = ({
@@ -30,18 +33,22 @@ export const PollActions: React.FC<PollActionsProps> = ({
   onEdit,
   onAfterDuplicate,
   onAfterDelete,
+  onAfterArchive,
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleCopyLink = async () => {
     try {
       const url = buildPublicLink(poll.slug);
       await copyToClipboard(url);
+      setIsCopied(true);
       toast({
         title: "Lien copié",
         description: "Le lien du sondage a été copié.",
       });
+      setTimeout(() => setIsCopied(false), 2000);
     } catch {
       toast({
         title: "Erreur",
@@ -72,6 +79,27 @@ export const PollActions: React.FC<PollActionsProps> = ({
       toast({
         title: "Erreur",
         description: "Impossible de copier le sondage.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleArchive = () => {
+    try {
+      const polls = getPolls();
+      const updatedPolls = polls.map((p) =>
+        p.id === poll.id ? { ...p, status: "archived" as const } : p,
+      );
+      savePolls(updatedPolls);
+      toast({
+        title: "Sondage archivé",
+        description: "Le sondage a été archivé avec succès.",
+      });
+      onAfterArchive?.();
+    } catch {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'archiver le sondage.",
         variant: "destructive",
       });
     }
@@ -111,12 +139,30 @@ export const PollActions: React.FC<PollActionsProps> = ({
 
       <button
         onClick={handleCopyLink}
-        className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
-        title="Copier le lien"
+        className={`p-2 rounded-md transition-all duration-300 flex items-center gap-1 ${
+          isCopied
+            ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+            : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+        }`}
+        title={isCopied ? "Lien copié !" : "Copier le lien"}
         data-testid="poll-action-copy-link"
+        disabled={isCopied}
       >
-        <Share2 className="w-4 h-4" />
-        {variant === "full" && <span className="hidden sm:inline">Lien</span>}
+        {isCopied ? (
+          <>
+            <Check className="w-4 h-4 animate-in zoom-in duration-200" />
+            {variant === "full" && (
+              <span className="hidden sm:inline font-medium">Copié !</span>
+            )}
+          </>
+        ) : (
+          <>
+            <Share2 className="w-4 h-4" />
+            {variant === "full" && (
+              <span className="hidden sm:inline">Lien</span>
+            )}
+          </>
+        )}
       </button>
 
       <button
@@ -136,6 +182,20 @@ export const PollActions: React.FC<PollActionsProps> = ({
         <Copy className="w-4 h-4" />
         {variant === "full" && <span>Copier</span>}
       </button>
+
+      {poll.status !== "archived" && (
+        <button
+          onClick={handleArchive}
+          className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
+          title="Archiver"
+          data-testid="poll-action-archive"
+        >
+          <Archive className="w-4 h-4" />
+          {variant === "full" && (
+            <span className="hidden sm:inline">Archiver</span>
+          )}
+        </button>
+      )}
 
       <button
         onClick={handleDelete}

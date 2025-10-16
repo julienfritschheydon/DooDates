@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { VotingInterface } from "@/components/voting/VotingInterface";
-import TopNav from "../components/TopNav";
 import React from "react";
 import { getPollBySlugOrId } from "@/lib/pollStorage";
 import FormPollVote from "@/components/polls/FormPollVote";
@@ -20,7 +19,6 @@ const Vote = () => {
   if (!actualPollId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100">
-        <TopNav />
         <div className="pt-20">
           <div className="flex items-center justify-center p-4 min-h-[calc(100vh-80px)]">
             <div className="text-center">
@@ -51,7 +49,6 @@ const Vote = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopNav />
       <div className="pt-20">
         {/* VotingInterface gère l'affichage pour admin en interne */}
         <VotingInterface
