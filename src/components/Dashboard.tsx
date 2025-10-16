@@ -8,6 +8,7 @@ import {
   Vote,
   MessageSquare,
 } from "lucide-react";
+import { logError, ErrorFactory } from "../lib/error-handling";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./TopNav";
@@ -78,7 +79,10 @@ const Dashboard: React.FC = () => {
 
       setPolls(pollsWithStats);
     } catch (error) {
-      console.error("Erreur lors du chargement des sondages:", error);
+      logError(
+        ErrorFactory.storage("Failed to load polls", "Erreur lors du chargement des sondages"),
+        { component: "Dashboard", metadata: { originalError: error } }
+      );
     } finally {
       setLoading(false);
     }

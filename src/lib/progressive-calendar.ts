@@ -2,6 +2,7 @@
 // Charge 1 an au début, puis anticipe quand on approche de la fin
 
 import type { PreGeneratedCalendar, CalendarDay } from "./calendar-generator";
+import { logError, ErrorFactory } from "./error-handling";
 
 interface YearCalendarData {
   year: number;
@@ -72,7 +73,13 @@ class ProgressiveCalendarManager {
       return yearData;
     } catch (error) {
       this.loadingPromises.delete(year);
-      console.error(`❌ Erreur chargement année ${year}:`, error);
+      logError(
+        ErrorFactory.api(
+          `Failed to load year ${year}`,
+          `Erreur lors du chargement de l'année ${year}`
+        ),
+        { metadata: { year, originalError: error } }
+      );
       throw error;
     }
   }
