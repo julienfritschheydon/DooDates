@@ -9,9 +9,9 @@
 
 | Fichier | Tests Actifs | Tests Skip | API Gemini? | Priorité |
 |---------|--------------|------------|-------------|----------|
-| **authenticated-workflow.spec.ts** | ✅ 8 | ❌ 0 | ❌ Non | 🟢 P1 - ACTIF |
-| **edge-cases.spec.ts** | ✅ 10 | ❌ 0 | ❌ Non | 🟢 P1 - ACTIF |
-| **guest-workflow.spec.ts** | ✅ 7 | ❌ 0 | ❌ Non | 🟢 P1 - ACTIF |
+| **edge-cases.spec.ts** | ✅ 10 | ❌ 0 | ❌ Non | 🟢 P1 - ACTIF ⚠️ 6 fail |
+| **authenticated-workflow.spec.ts** | ❌ 0 | ⏸️ 8 | ❌ Non | 🟡 P2 - À activer |
+| **guest-workflow.spec.ts** | ❌ 0 | ⏸️ 7 | ❌ Non | 🟡 P2 - À activer |
 | **ultra-simple.spec.ts** | ❌ 0 | ✅ 2 | ⚠️ `/create` | 🟡 P2 |
 | **mobile-voting.spec.ts** | ❌ 0 | ✅ 2 | ❌ Non | 🟡 P2 |
 | **poll-actions.spec.ts** | ❌ 0 | ✅ 1 | ❌ Non | 🟡 P2 |
@@ -19,25 +19,12 @@
 | **security-isolation.spec.ts** | ❌ 0 | ✅ 8 | ❌ Non | 🟡 P3 |
 | **performance.spec.ts** | ❌ 0 | ✅ 7 | ❌ Non | 🟡 P3 |
 
-**Tests actifs** : 25 tests (125 avec navigateurs)  
-**Tests désactivés** : 27 tests (135 avec navigateurs)
+**Tests actifs** : ✅ 10 tests (50 avec 5 navigateurs) - edge-cases uniquement  
+**Tests désactivés** : ⏸️ 42 tests (210 avec 5 navigateurs) - tous les autres
 
 ---
 
-## ✅ Tests Actuellement Actifs (25 tests)
-
-### **authenticated-workflow.spec.ts** - 8 tests ✅
-- ✅ Sign up et accès features premium
-- ✅ Création conversations multiples
-- ✅ Migration données guest → auth
-- ✅ Accès features premium
-- ✅ Persistence session
-- ✅ Sign out → retour guest
-- ✅ Progression quota
-
-**Status** : ACTIFS et fonctionnels
-
----
+## ✅ Tests Actuellement Actifs (10 tests)
 
 ### **edge-cases.spec.ts** - 10 tests ✅
 - ✅ Network failures gracefully
@@ -51,20 +38,33 @@
 - ✅ Sessions concurrentes
 - ✅ Données localStorage malformées
 
-**Status** : ACTIFS et fonctionnels
+**Status** : ACTIFS mais **6/10 tests échouent** (besoin debug)
 
 ---
 
-### **guest-workflow.spec.ts** - 7 tests ✅
-- ✅ Création première conversation
-- ✅ Indicateur quota
-- ✅ Modal incentive auth
-- ✅ Persistence localStorage
-- ✅ Badges premium
-- ✅ Gestion limite conversations
-- ✅ Maintien session après refresh
+### **authenticated-workflow.spec.ts** - 8 tests ⏸️ SKIP
+- ⏸️ Sign up et accès features premium
+- ⏸️ Création conversations multiples
+- ⏸️ Migration données guest → auth
+- ⏸️ Accès features premium
+- ⏸️ Persistence session
+- ⏸️ Sign out → retour guest
+- ⏸️ Progression quota
 
-**Status** : ACTIFS et fonctionnels
+**Status** : Tous marqués `test.skip()` - À ACTIVER
+
+---
+
+### **guest-workflow.spec.ts** - 7 tests ⏸️ SKIP
+- ⏸️ Création première conversation
+- ⏸️ Indicateur quota
+- ⏸️ Modal incentive auth
+- ⏸️ Persistence localStorage
+- ⏸️ Badges premium
+- ⏸️ Gestion limite conversations
+- ⏸️ Maintien session après refresh
+
+**Status** : Tous marqués `test.skip()` - À ACTIVER
 
 ---
 
