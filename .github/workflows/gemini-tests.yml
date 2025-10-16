@@ -1,23 +1,37 @@
 name: Tests Automatisés Gemini
 
 on:
-  # DÉSACTIVÉ pour économiser coûts API Gemini
-  # Lancer manuellement uniquement via workflow_dispatch
-  # schedule:
-  #   - cron: '0 9 * * 1'
-  workflow_dispatch: # MANUEL UNIQUEMENT
-  # push:
-  #   branches: [ main ]
-  #   paths: 
-  #     - 'src/lib/gemini.ts'
-  #     - 'src/lib/enhanced-gemini.ts'
-  #     - 'tests/gemini-*.test.ts'
+  schedule:
+    # ⏰ Tests automatiques 1x par MOIS (1er du mois à 9h UTC)
+    - cron: '0 9 1 * *'
+  workflow_dispatch: # ✅ Manuel possible à tout moment
+  push:
+    branches: [ main ]
+    paths:
+      # ✅ UNIQUEMENT si changements sur fichiers Gemini
+      - 'src/lib/gemini.ts'
+      - 'src/lib/enhanced-gemini.ts'
+      - 'src/lib/temporal-parser.ts'
+      - 'tests/gemini-*.test.ts'
+      - 'tests/setup.ts'  # Config Jest
+      - 'jest.config.js'  # Config Jest
 
 jobs:
   test-gemini:
     runs-on: ubuntu-latest
     
     steps:
+    - name: 📋 Show trigger reason
+      run: |
+        echo "🔔 Workflow triggered by: ${{ github.event_name }}"
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          echo "⏰ Monthly scheduled test"
+        elif [ "${{ github.event_name }}" = "push" ]; then
+          echo "📝 Gemini file modified"
+        else
+          echo "👋 Manual trigger"
+        fi
+    
     - name: Checkout code
       uses: actions/checkout@v4
       
