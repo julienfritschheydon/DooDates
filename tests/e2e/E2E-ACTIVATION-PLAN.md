@@ -5,9 +5,27 @@ Activer les tests E2E un par un pour **éviter les coûts API Gemini** et s'assu
 
 ---
 
-## 💰 Stratégie d'Économie API
+## 💰 Stratégie Tests Gemini (MISE À JOUR)
 
-### Tests qui UTILISENT l'API Gemini (À ÉVITER) :
+### **Tests Gemini** (`gemini-tests.yml`)
+✅ **Configuration intelligente activée** :
+- 🔄 **Automatique sur changements** : Tests UNIQUEMENT si modification de fichiers Gemini
+- ⏰ **Schedule mensuel** : 1er de chaque mois à 9h UTC (sécurité)
+- 👋 **Manuel** : Toujours possible via Actions
+
+**Fichiers surveillés** :
+- `src/lib/gemini.ts`
+- `src/lib/enhanced-gemini.ts`
+- `src/lib/temporal-parser.ts`
+- `tests/gemini-*.test.ts`
+
+**Coût estimé** : ~1-2 tests/mois maximum 💰
+
+---
+
+## 💰 Stratégie d'Économie API E2E
+
+### Tests E2E qui UTILISENT l'API Gemini (À ÉVITER) :
 - ❌ **Tout test utilisant `/ai-chat`** → Appels directs à Gemini
 - ❌ **Tests créant des sondages avec IA** → Parsing Gemini
 - ⚠️ **Tests de navigation incluant AI chat** → Charger la page coûte cher
