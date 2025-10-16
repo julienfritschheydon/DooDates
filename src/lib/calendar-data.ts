@@ -1,72 +1,55 @@
-// Calendrier VRAIMENT statique - Import du JSON pré-généré !
-// Généré une seule fois par le script: node scripts/generate-static-calendar.cjs
-// Plus AUCUN calcul à l'exécution !
+// Calendrier avec lazy loading intelligent par année
+// Charge seulement l'année nécessaire (260 KB) au lieu de tout (3.5 MB)
+// Utilise les fichiers précalculés calendar-2025.json, calendar-2026.json, etc.
 
 import type { PreGeneratedCalendar } from "./calendar-generator";
-import { handleError, ErrorFactory, logError } from "./error-handling";
+import { logError, ErrorFactory } from "./error-handling";
+import { progressiveCalendar } from "./progressive-calendar";
 
-// Import statique du JSON pré-généré (5.58 MB)
-let staticCalendarData: any = null;
-
-async function loadStaticCalendarData() {
-  if (!staticCalendarData) {
-    //console.time("📥 Import JSON statique");
-    try {
-      // Import dynamique pour éviter d'alourdir le bundle principal
-      const module = await import("../data/calendar-10years.json");
-      staticCalendarData = module.default;
-      //console.timeEnd("📥 Import JSON statique");
-      //console.log(
-      //  `✅ Calendrier JSON chargé: ${staticCalendarData.totalDays} jours (${staticCalendarData.startYear}-${staticCalendarData.endYear})`,
-      //);
-    } catch (error) {
-      const calendarError = handleError(
-        error,
-        {
-          component: "calendar-data",
-          operation: "loadStaticCalendarData",
-        },
-        "Erreur lors du chargement des données de calendrier",
-      );
-
-      logError(calendarError, {
-        component: "calendar-data",
-        operation: "loadStaticCalendarData",
-      });
-
-      throw calendarError;
-    }
-  }
-  return staticCalendarData;
-}
-
-// Version synchrone avec cache mémoire
+// Cache mémoire pour éviter les rechargements
 let cachedCalendar: PreGeneratedCalendar | null = null;
 
 export async function getStaticCalendar(): Promise<PreGeneratedCalendar> {
   if (cachedCalendar) {
-    //console.log("⚡ Calendrier statique - Cache mémoire instantané");
+    // Cache hit - instantané
     return cachedCalendar;
   }
 
-  //console.log("🚀 Chargement du calendrier JSON statique...");
-  const data = await loadStaticCalendarData();
+  try {
+    const currentYear = new Date().getFullYear();
 
-  // Convertir en format PreGeneratedCalendar
-  cachedCalendar = {
-    startYear: data.startYear,
-    endYear: data.endYear,
-    totalDays: data.totalDays,
-    days: data.days,
-    byYear: data.byYear,
-    byMonth: data.byMonth,
-    byDayOfWeek: data.byDayOfWeek,
-    weekends: data.weekends,
-    weekdays: data.weekdays,
-  };
+    // Charger année courante avec le système progressif (260 KB au lieu de 3.5 MB !)
+    const currentYearData = await progressiveCalendar.loadYear(currentYear);
 
-  //console.log("🎯 Calendrier statique prêt !");
-  return cachedCalendar;
+    // Précharger année suivante en arrière-plan (non-bloquant)
+    progressiveCalendar.loadYear(currentYear + 1).catch(() => {
+      // Ignore les erreurs de préchargement
+    });
+
+    // Convertir en format PreGeneratedCalendar pour compatibilité
+    cachedCalendar = {
+      startYear: currentYear,
+      endYear: currentYear,
+      totalDays: currentYearData.totalDays,
+      days: currentYearData.days,
+      byYear: { [currentYear]: currentYearData.days },
+      byMonth: currentYearData.byMonth,
+      byDayOfWeek: currentYearData.byDayOfWeek,
+      weekends: currentYearData.weekends,
+      weekdays: currentYearData.weekdays,
+    };
+
+    return cachedCalendar;
+  } catch (error) {
+    logError(
+      ErrorFactory.api(
+        "Failed to load calendar",
+        "Erreur lors du chargement du calendrier",
+      ),
+      { metadata: { originalError: error } },
+    );
+    throw error;
+  }
 }
 
 // Version synchrone pour compatibilité (avec fallback)
