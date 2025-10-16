@@ -1,4 +1,4 @@
-﻿/**
+/**
  * E2E Security and Data Isolation Tests
  * DooDates - Task 5.2: Tests E2E Playwright
  * 
@@ -11,9 +11,13 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { setupGeminiMock } from './global-setup';
 
 test.describe('Security and Data Isolation', () => {
   test.beforeEach(async ({ page }) => {
+    // Setup Gemini API mock to prevent costs
+    await setupGeminiMock(page);
+    
     await page.goto('/');
     await page.evaluate(() => localStorage.clear());
     await page.reload();
@@ -120,7 +124,7 @@ test.describe('Security and Data Isolation', () => {
     }
   });
 
-  test.skip('should sanitize user input properly', async ({ page }) => {
+  test('should sanitize user input properly', async ({ page }) => {
     await page.goto('/');
     
     const maliciousInputs = [
@@ -222,7 +226,7 @@ test.describe('Security and Data Isolation', () => {
     await expect(page.locator('text=Legitimate message')).toBeVisible();
   });
 
-  test.skip('should handle authentication token security', async ({ page }) => {
+  test('should handle authentication token security', async ({ page }) => {
     await page.goto('/');
     
     // Mock authentication
