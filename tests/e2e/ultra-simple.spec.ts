@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { attachConsoleGuard, robustClick, waitForCopySuccess, warmup, enableE2ELocalMode } from './utils';
+import { setupGeminiMock } from './global-setup';
 
 // Simple scoped logger to align console outputs
 function mkLogger(scope: string) {
@@ -11,6 +12,10 @@ test.describe('DooDates - Test Ultra Simple', () => {
   // Orchestration: exécuter en série pour éviter toute flakiness liée au partage d'état (étape D)
   test.describe.configure({ mode: 'serial' });
   
+  test.beforeEach(async ({ page }) => {
+    // Setup Gemini API mock to prevent costs
+    await setupGeminiMock(page);
+  });
   
   // Helper: naviguer vers le mois suivant sur mobile jusqu'à rendre visible une date précise
   async function openMonthContaining(page: Page, dateStr: string) {
