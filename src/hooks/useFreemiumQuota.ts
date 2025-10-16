@@ -3,8 +3,9 @@
  * DooDates - Freemium Quota Management System
  */
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { logError, ErrorFactory } from "../lib/error-handling";
 import { useConversations } from "./useConversations";
 
 export interface QuotaLimits {
@@ -84,7 +85,10 @@ export const useFreemiumQuota = () => {
         }
       }
     } catch (error) {
-      console.warn("Could not get conversation count:", error);
+      logError(
+        ErrorFactory.storage("Failed to get conversation count", "Impossible de compter les conversations"),
+        { component: "useFreemiumQuota", metadata: { originalError: error } }
+      );
       // Clear corrupted data
       localStorage.removeItem("doodates_conversations");
       conversationCount = 0;
@@ -96,7 +100,10 @@ export const useFreemiumQuota = () => {
       const storage = JSON.stringify(localStorage);
       storageUsed = new Blob([storage]).size / (1024 * 1024); // Convert to MB
     } catch (error) {
-      console.warn("Could not calculate storage usage:", error);
+      logError(
+        ErrorFactory.storage("Failed to calculate storage usage", "Impossible de calculer l'utilisation du stockage"),
+        { component: "useFreemiumQuota", metadata: { originalError: error } }
+      );
     }
 
     // Get poll count from localStorage (dev implementation)
@@ -105,7 +112,10 @@ export const useFreemiumQuota = () => {
       const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
       pollCount = polls.length;
     } catch (error) {
-      console.warn("Could not get poll count:", error);
+      logError(
+        ErrorFactory.storage("Failed to get poll count", "Impossible de compter les sondages"),
+        { component: "useFreemiumQuota", metadata: { originalError: error } }
+      );
     }
 
     return {

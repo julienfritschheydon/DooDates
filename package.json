@@ -14,7 +14,7 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:error-handling": "vitest run tests/error-handling-enforcement.test.ts",
+    "test:error-handling": "vitest run --config vitest.config.enforcement.ts",
     "test:gemini": "jest --testPathPattern=gemini",
     "test:ci": "vitest run --coverage",
     "test:full": "npm run test:gemini && echo '\n📊 Génération rapport...' && node -e \"console.log('Rapport disponible dans tests/reports/')\"",

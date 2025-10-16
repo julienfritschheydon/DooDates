@@ -7,6 +7,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useConversationStorage } from "./useConversationStorage";
+import { logError, ErrorFactory } from "../lib/error-handling";
 import {
   CONVERSATION_LIMITS,
   ConversationError,
@@ -392,7 +393,10 @@ export function useConversationQuota(
 
       return totalSize;
     } catch (error) {
-      console.warn("Failed to calculate storage usage:", error);
+      logError(
+        ErrorFactory.storage("Failed to calculate storage usage", "Impossible de calculer l'utilisation du stockage"),
+        { component: "useConversationQuota", metadata: { originalError: error } }
+      );
       return 0;
     }
   }, [storage.conversations.data]);
@@ -405,7 +409,10 @@ export function useConversationQuota(
       autoDeletion.daysUntilNextCleanup <= 0
     ) {
       executeAutoDeletion().catch((error) => {
-        console.warn("Auto-deletion failed:", error);
+        logError(
+          ErrorFactory.storage("Auto-deletion failed", "Échec de la suppression automatique"),
+          { component: "useConversationQuota", metadata: { originalError: error } }
+        );
       });
     }
   }, [autoDeletion, executeAutoDeletion]);

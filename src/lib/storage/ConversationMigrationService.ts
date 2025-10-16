@@ -131,7 +131,10 @@ export class ConversationMigrationService {
       );
       return migrationFlag !== "true";
     } catch (error) {
-      console.warn("Error checking migration status:", error);
+      logError(
+        ErrorFactory.storage("Failed to check migration status", "Échec de la vérification du statut de migration"),
+        { component: "ConversationMigrationService", metadata: { originalError: error } }
+      );
       return false;
     }
   }

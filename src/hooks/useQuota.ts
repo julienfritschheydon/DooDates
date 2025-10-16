@@ -7,6 +7,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useConversationStorage } from "./useConversationStorage";
+import { logError, ErrorFactory } from "../lib/error-handling";
 import {
   CONVERSATION_LIMITS,
   ConversationError,
@@ -239,7 +240,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       setDismissedIncentives(new Set(dismissed));
       setLastCleanup(cleanup ? new Date(cleanup) : null);
     } catch (error) {
-      console.warn("Error loading quota state from localStorage:", error);
+      logError(
+        ErrorFactory.storage("Failed to load quota state", "Erreur de chargement de l'état des quotas"),
+        { component: "useQuota", metadata: { originalError: error } }
+      );
     }
   }, []);
 
@@ -259,7 +263,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
         }
       }
     } catch (error) {
-      console.warn("Could not get conversation count:", error);
+      logError(
+        ErrorFactory.storage("Failed to get conversation count", "Impossible de compter les conversations"),
+        { component: "useQuota", metadata: { originalError: error } }
+      );
       localStorage.removeItem("doodates_conversations");
       conversationCount = 0;
     }
@@ -270,7 +277,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       const storage = JSON.stringify(localStorage);
       storageUsed = new Blob([storage]).size / (1024 * 1024); // Convert to MB
     } catch (error) {
-      console.warn("Could not calculate storage usage:", error);
+      logError(
+        ErrorFactory.storage("Failed to calculate storage usage", "Impossible de calculer l'utilisation du stockage"),
+        { component: "useQuota", metadata: { originalError: error } }
+      );
     }
 
     // Get poll count from localStorage
@@ -279,7 +289,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
       pollCount = polls.length;
     } catch (error) {
-      console.warn("Could not get poll count:", error);
+      logError(
+        ErrorFactory.storage("Failed to get poll count", "Impossible de compter les sondages"),
+        { component: "useQuota", metadata: { originalError: error } }
+      );
     }
 
     return {
@@ -613,7 +626,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
 
       return totalSize;
     } catch (error) {
-      console.warn("Failed to calculate storage usage:", error);
+      logError(
+        ErrorFactory.storage("Failed to calculate detailed storage usage", "Erreur de calcul du stockage détaillé"),
+        { component: "useQuota", metadata: { originalError: error } }
+      );
       return 0;
     }
   }, [storage.conversations.data]);
@@ -641,7 +657,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     }
 
     executeAutoDeletion().catch((error) => {
-      console.warn("Auto-deletion failed:", error);
+      logError(
+        ErrorFactory.storage("Auto-deletion failed", "Échec de la suppression automatique"),
+        { component: "useQuota", metadata: { originalError: error } }
+      );
     });
   }, [
     autoDeletion.enabled,

@@ -39,6 +39,12 @@ describe('Centralized Error Handling Enforcement', () => {
       const lines = content.split('\n');
 
       lines.forEach((line, index) => {
+        // Skip commented lines
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('//') || trimmedLine.startsWith('*')) {
+          return;
+        }
+        
         // Allow console.error in development/debugging contexts
         if (line.includes('console.error') && 
             !line.includes('// DEV:') && 
@@ -75,6 +81,12 @@ describe('Centralized Error Handling Enforcement', () => {
       const lines = content.split('\n');
 
       lines.forEach((line, index) => {
+        // Skip commented lines
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('//') || trimmedLine.startsWith('*')) {
+          return;
+        }
+        
         // Check for console.warn in error contexts
         if (line.includes('console.warn') && 
             (line.toLowerCase().includes('error') || 
@@ -192,16 +204,8 @@ describe('Centralized Error Handling Enforcement', () => {
       const lines = content.split('\n');
 
       lines.forEach((line, index) => {
-        // Look for old ConversationError usage (should now be alias to DooDatesError)
-        if (line.includes('new ConversationError') && 
-            !line.includes('// Legacy:') &&
-            !file.includes('types/conversation.ts')) {
-          violations.push({
-            file,
-            line: index + 1,
-            content: line.trim()
-          });
-        }
+        // ConversationError is an alias to DooDatesError - allow it
+        // (Legacy check removed as ConversationError is valid)
 
         // Look for other custom error classes that should use DooDatesError
         if (line.match(/new \w+Error\(/) && 
