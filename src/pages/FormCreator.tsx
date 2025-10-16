@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import TopNav from "@/components/TopNav";
 import FormPollCreator, {
   type FormPollDraft,
 } from "@/components/polls/FormPollCreator";
@@ -37,14 +36,15 @@ export default function FormCreator() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopNav />
-      <div className="max-w-4xl mx-auto p-4 sm:p-6 pt-20">
-        <FormPollCreator
-          initialDraft={initialDraft}
-          onCancel={handleCancel}
-          onSave={handleSave}
-          onFinalize={handleFinalize}
-        />
+      <div className="pt-20">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6">
+          <FormPollCreator
+            initialDraft={initialDraft}
+            onCancel={handleCancel}
+            onSave={handleSave}
+            onFinalize={handleFinalize}
+          />
+        </div>
       </div>
     </div>
   );

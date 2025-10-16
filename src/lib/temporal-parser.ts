@@ -2,6 +2,7 @@ import serina from "serina";
 import { parseISO, isValid, parse } from "date-fns";
 import { logError, ErrorFactory } from "./error-handling";
 import { parse as soonerOrLaterParse } from "soonerorlater";
+import { formatDateLocal, getTodayLocal } from "./date-utils";
 
 // Types pour le parsing temporel avancé
 export interface TemporalContext {
@@ -122,13 +123,12 @@ export class AdvancedTemporalParser {
       const result = serina(text);
 
       if (result.isValid && result.matches) {
-        const today = new Date(this.context.currentDate);
-        const todayStr = today.toISOString().split("T")[0];
+        const todayStr = getTodayLocal();
 
         const dates = result.matches
           .map((match) => match.dateTime)
           .filter((dt) => dt)
-          .map((dt) => new Date(dt).toISOString().split("T")[0])
+          .map((dt) => formatDateLocal(new Date(dt)))
           .filter((dateStr) => dateStr >= todayStr);
 
         const times = result.matches
@@ -232,7 +232,7 @@ export class AdvancedTemporalParser {
     const today = new Date(this.context.currentDate);
 
     // IMPORTANT: Filtrer toujours les dates passées
-    const todayStr = today.toISOString().split("T")[0];
+    const todayStr = getTodayLocal();
 
     // Cette semaine
     if (text.includes("this week") || text.includes("cette semaine")) {
@@ -243,7 +243,7 @@ export class AdvancedTemporalParser {
         // Lundi à vendredi
         const date = new Date(startOfWeek);
         date.setDate(startOfWeek.getDate() + i);
-        const dateStr = date.toISOString().split("T")[0];
+        const dateStr = formatDateLocal(date);
 
         // Ne garder que les dates futures ou aujourd'hui
         if (dateStr >= todayStr) {
@@ -261,7 +261,7 @@ export class AdvancedTemporalParser {
         // Lundi à vendredi
         const date = new Date(nextWeek);
         date.setDate(nextWeek.getDate() + i);
-        const dateStr = date.toISOString().split("T")[0];
+        const dateStr = formatDateLocal(date);
 
         // Les dates de la semaine prochaine sont toujours futures
         dates.push(dateStr);
@@ -272,7 +272,7 @@ export class AdvancedTemporalParser {
     if (text.includes("demain") || text.includes("tomorrow")) {
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
-      const tomorrowStr = tomorrow.toISOString().split("T")[0];
+      const tomorrowStr = formatDateLocal(tomorrow);
       dates.push(tomorrowStr);
     }
 
@@ -374,8 +374,7 @@ export class AdvancedTemporalParser {
     counterfactualChecks: ParsedTemporal["counterfactualChecks"],
   ): ParsedTemporal["extracted"] {
     // PROTECTION CRITIQUE : Ne jamais permettre les dates passées
-    const today = new Date(this.context.currentDate);
-    const todayStr = today.toISOString().split("T")[0];
+    const todayStr = getTodayLocal();
 
     // Prioriser les dates avec moins de conflits
     let allDates = [...serinaResult.dates, ...contextualDates];

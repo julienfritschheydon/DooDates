@@ -4,6 +4,7 @@
  */
 
 import { logError, ErrorFactory } from "../lib/error-handling";
+import { formatDateLocal } from "../lib/date-utils";
 
 export interface TimeSlot {
   hour: number;
@@ -162,7 +163,7 @@ export class PollCreationBusinessLogic {
       for (let i = 0; i < 3; i++) {
         const futureDate = new Date(today);
         futureDate.setDate(today.getDate() + i + 1);
-        pollDates.push(futureDate.toISOString().split("T")[0]);
+        pollDates.push(formatDateLocal(futureDate));
       }
     }
 

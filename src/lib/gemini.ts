@@ -3,6 +3,7 @@ import { GenerativeModel } from "@google/generative-ai";
 import CalendarQuery, { CalendarDay } from "./calendar-generator";
 import { handleError, ErrorFactory, logError } from "./error-handling";
 import { logger } from "./logger";
+import { formatDateLocal, getTodayLocal } from "./date-utils";
 
 // Configuration pour Gemini - Simplifié pour Vite
 const API_KEY: string | undefined = import.meta.env.VITE_GEMINI_API_KEY;
@@ -394,7 +395,7 @@ export class GeminiService {
     for (let i = 0; i < daysCount; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
-      dates.push(date.toISOString().split("T")[0]);
+      dates.push(formatDateLocal(date));
     }
 
     return dates;
@@ -595,27 +596,27 @@ QUESTIONS COUNTERFACTUAL POUR VALIDATION:
 ${counterfactualQuestions.map((q) => `- ${q}`).join("\n")}
 
 RÈGLE ABSOLUE - DATES PASSÉES INTERDITES:
-- Aujourd'hui: ${today.toISOString().split("T")[0]}
+- Aujourd'hui: ${getTodayLocal()}
 - Ne JAMAIS proposer de dates antérieures à aujourd'hui
-- Toutes les dates doivent être >= ${today.toISOString().split("T")[0]}
+- Toutes les dates doivent être >= ${getTodayLocal()}
 - Si "cette semaine" inclut des jours passés, commencer à partir d'aujourd'hui
 
 Demande: "${userInput}"
 
 INSTRUCTION SPÉCIALE DATES FUTURES UNIQUEMENT:
-- "cette semaine" = semaine actuelle (du ${today.toISOString().split("T")[0]} à 7 jours)
+- "cette semaine" = semaine actuelle (du ${getTodayLocal()} à 7 jours)
 - "semaine prochaine" = semaine suivante (toujours future)
-- "demain" = ${new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0]}
+- "demain" = ${formatDateLocal(new Date(today.getTime() + 24 * 60 * 60 * 1000))}
 
 RÈGLES DE GÉNÉRATION:
-1. **DATES FUTURES OBLIGATOIRES** - Vérifier que chaque date >= ${today.toISOString().split("T")[0]}
+1. **DATES FUTURES OBLIGATOIRES** - Vérifier que chaque date >= ${getTodayLocal()}
 2. **COHÉRENCE JOURS/DATES** - Si "lundi" demandé, vérifier que la date tombe un lundi
 3. **CRÉNEAUX MULTIPLES** - Générer 4-8 créneaux par plage horaire (ex: si "matin" → 8h-9h, 9h-10h, 10h-11h, 11h-12h)
 4. **RÉCURRENCE INTELLIGENTE** - "tous les jeudis pendant 2 mois" = 8-9 jeudis consécutifs
 5. **CONTRAINTES TEMPORELLES** - "matin"=8h-12h, "après-midi"=12h-18h, "soir"=18h-21h
 
 FORMATS STRICTS:
-- Date: "YYYY-MM-DD" (>= ${today.toISOString().split("T")[0]})
+- Date: "YYYY-MM-DD" (>= ${getTodayLocal()})
 - Heure: "HH:MM" format 24h
 - Type: "date" ou "datetime" selon les créneaux
 
@@ -636,7 +637,7 @@ Exemple "matin" (8h-12h):
      - Si "week-end" ou "weekend" est demandé, générer UNIQUEMENT des samedis et dimanches (JAMAIS de vendredi)
      - Ne JAMAIS changer le jour de la semaine
    * IMPORTANT : Comprendre les expressions temporelles :
-     - "cette semaine" = semaine actuelle (du ${today.toISOString().split("T")[0]} à 7 jours)
+     - "cette semaine" = semaine actuelle (du ${getTodayLocal()} à 7 jours)
      - "la semaine prochaine" = semaine suivante (les 7 jours après dimanche de cette semaine)
      - "ce week-end" = samedi-dimanche de cette semaine
      - "le week-end prochain" = samedi-dimanche de la semaine prochaine
@@ -732,7 +733,7 @@ FORMAT JSON EXACT:
 
 AVANT DE RÉPONDRE :
 1. Vérifier que TOUTES les dates correspondent aux jours demandés 
-2. CRITIQUE : Vérifier que TOUTES les dates sont >= ${today.toISOString().split("T")[0]}
+2. CRITIQUE : Vérifier que TOUTES les dates sont >= ${getTodayLocal()}
 3. IMPORTANT : Vérifier que TOUS les créneaux possibles sont générés dans chaque plage horaire (voir exemples ci-dessus)
 4. Si "week-end" est demandé, vérifier qu'il n'y a QUE des samedis et dimanches (PAS de vendredi) 
 5. Vérifier que TOUS les créneaux sont sur les bons jours
@@ -741,7 +742,7 @@ AVANT DE RÉPONDRE :
 8. Si "cette semaine" ou "la semaine prochaine", utiliser les vraies dates de la semaine concernée
 9. IMPORTANT : Respecter les références temporelles spécifiques vs récurrentes (voir règles ci-dessus)
 10. IMPORTANT : Compter les créneaux générés - il doit y en avoir 5-6 minimum par plage horaire demandée
-11. CRITIQUE : Éliminer immédiatement toute date < ${today.toISOString().split("T")[0]}
+11. CRITIQUE : Éliminer immédiatement toute date < ${getTodayLocal()}
 
 RESPECTE SCRUPULEUSEMENT ces règles et ce format.
 
@@ -870,8 +871,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
 
         // Valider la structure et les dates
         if (parsed.title && parsed.dates && Array.isArray(parsed.dates)) {
-          const today = new Date();
-          const todayStr = today.toISOString().split("T")[0];
+          const todayStr = getTodayLocal();
 
           // PROTECTION CRITIQUE : Filtrer strictement les dates passées
           const validDates = parsed.dates.filter((dateStr: string) => {

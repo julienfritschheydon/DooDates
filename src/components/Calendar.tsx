@@ -52,13 +52,14 @@ const Calendar: React.FC<CalendarProps> = ({
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
 
-      let firstDayOfWeek = firstDay.getDay() || 7;
-      firstDayOfWeek = firstDayOfWeek === 0 ? 7 : firstDayOfWeek;
+      // Convertir getDay() (0=Dim, 1=Lun) vers position dans notre grille (0=Lun, 6=Dim)
+      let firstDayOfWeek = firstDay.getDay(); // 0=Dim, 1=Lun, 2=Mar, etc.
+      firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // 0=Lun, 1=Mar, ..., 6=Dim
 
       const days = [];
 
       // Espaces vides au début pour aligner correctement le premier jour
-      for (let i = 1; i < firstDayOfWeek; i++) {
+      for (let i = 0; i < firstDayOfWeek; i++) {
         days.push({ date: null, isCurrentMonth: false, isEmpty: true });
       }
 
@@ -101,7 +102,7 @@ const Calendar: React.FC<CalendarProps> = ({
             if (isEmpty || !date) {
               return (
                 <div
-                  key={index}
+                  key={`empty-${index}`}
                   className={`${isMobile ? "w-9 h-9" : "w-10 h-10"}`}
                 />
               );
@@ -119,13 +120,21 @@ const Calendar: React.FC<CalendarProps> = ({
 
             return (
               <motion.button
-                key={index}
+                key={dateStr}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => !isPastDay && onDateToggle(date)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Empêcher la propagation du clic au parent
+                  if (!isPastDay) {
+                    onDateToggle(date);
+                  }
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation(); // Empêcher le drag du parent
+                }}
                 disabled={isPastDay}
-                data-date={date.toISOString().split("T")[0]}
-                className={`${isMobile ? "w-9 h-9" : "w-10 h-10"} text-sm rounded-lg transition-all duration-200 font-medium flex items-center justify-center
+                data-date={dateStr}
+                className={`${isMobile ? "w-9 h-9" : "w-10 h-10"} text-sm rounded-lg transition-all duration-200 font-medium flex items-center justify-center touch-none
                   ${
                     isPastDay
                       ? "text-gray-300 bg-gray-50 cursor-not-allowed"
@@ -135,6 +144,7 @@ const Calendar: React.FC<CalendarProps> = ({
                           ? "bg-green-50 text-green-600 border-2 border-green-200 hover:bg-green-100"
                           : "text-gray-700 hover:bg-gray-100"
                   }`}
+                style={{ touchAction: "none" }}
               >
                 {date.getDate()}
               </motion.button>
@@ -149,24 +159,34 @@ const Calendar: React.FC<CalendarProps> = ({
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollLeft, scrollWidth, clientWidth } = e.currentTarget;
 
-    // Charger plus de mois si on approche de la fin
+    // Charger plus de mois si on approche de la fin (jusqu'à 60 mois = 5 ans)
     if (
       scrollWidth - scrollLeft <= clientWidth + 200 &&
-      visibleMonths.length < 12
+      visibleMonths.length < 60
     ) {
       const lastMonth = visibleMonths[visibleMonths.length - 1];
-      const nextMonth = new Date(
-        lastMonth.getFullYear(),
-        lastMonth.getMonth() + 1,
-        1,
-      );
 
-      // Vérifier qu'on ne dépasse pas un an
-      const oneYearFromNow = new Date();
-      oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+      // Charger 3 mois à la fois pour navigation plus fluide
+      const newMonths: Date[] = [];
+      for (let i = 1; i <= 3; i++) {
+        const nextMonth = new Date(
+          lastMonth.getFullYear(),
+          lastMonth.getMonth() + i,
+          1,
+        );
 
-      if (nextMonth <= oneYearFromNow && onMonthsChange) {
-        onMonthsChange([...visibleMonths, nextMonth]);
+        // Vérifier qu'on ne dépasse pas 5 ans depuis AUJOURD'HUI (dynamique)
+        // Ex: En 2025 → jusqu'en 2030, En 2028 → jusqu'en 2033, etc.
+        const fiveYearsFromNow = new Date();
+        fiveYearsFromNow.setFullYear(fiveYearsFromNow.getFullYear() + 5);
+
+        if (nextMonth <= fiveYearsFromNow) {
+          newMonths.push(nextMonth);
+        }
+      }
+
+      if (newMonths.length > 0 && onMonthsChange) {
+        onMonthsChange([...visibleMonths, ...newMonths]);
       }
     }
   };
@@ -274,12 +294,36 @@ const Calendar: React.FC<CalendarProps> = ({
         )}
       </div>
 
-      {/* Desktop: Scroll avec snap amélioré */}
-      <div className="hidden md:block">
+      {/* Desktop: Scroll avec navigation par flèches */}
+      <div className="hidden md:block relative">
+        {/* Flèche gauche */}
+        <button
+          onClick={() => {
+            if (calendarRef.current) {
+              calendarRef.current.scrollBy({ left: -340, behavior: "smooth" });
+            }
+          }}
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all border border-gray-200 hover:shadow-xl"
+        >
+          <ChevronLeft className="w-6 h-6 text-gray-700" />
+        </button>
+
+        {/* Flèche droite */}
+        <button
+          onClick={() => {
+            if (calendarRef.current) {
+              calendarRef.current.scrollBy({ left: 340, behavior: "smooth" });
+            }
+          }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all border border-gray-200 hover:shadow-xl"
+        >
+          <ChevronRight className="w-6 h-6 text-gray-700" />
+        </button>
+
         <div
           ref={calendarRef}
           onScroll={handleScroll}
-          className="overflow-x-auto border rounded-lg p-3 bg-white"
+          className="overflow-x-auto border rounded-lg bg-white"
           style={{
             scrollSnapType: "x mandatory",
             scrollbarWidth: "none",
@@ -287,7 +331,7 @@ const Calendar: React.FC<CalendarProps> = ({
             WebkitOverflowScrolling: "touch",
           }}
         >
-          <div className="flex gap-4 min-w-max">
+          <div className="flex gap-4 min-w-max px-16 py-3">
             {visibleMonths.map((month, index) => (
               <motion.div
                 key={`${month.getFullYear()}-${month.getMonth()}`}

@@ -3,11 +3,18 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { Auth, AuthCallback } from "./pages/Auth";
 import { logger } from "@/lib/logger";
 import VotingSwipe from "./components/voting/VotingSwipe";
+import TopNav from "./components/TopNav";
 // import { VotingSwipe as ExVotingSwipe } from "./components/voting/ex-VotingSwipe";
 import { Loader2 } from "lucide-react";
 
@@ -297,35 +304,53 @@ const VotingSwipeWrapper = () => {
 //   return <ExVotingSwipe onBack={() => window.history.back()} />;
 // };
 
+// Composant Layout avec TopNav toujours visible
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+
+  // Pages qui ne doivent pas afficher le TopNav
+  const hideTopNavRoutes = ["/auth", "/auth/callback"];
+  const shouldShowTopNav = !hideTopNavRoutes.includes(location.pathname);
+
+  return (
+    <>
+      {shouldShowTopNav && <TopNav />}
+      {children}
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
         <BrowserRouter>
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/chat" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/poll/:slug" element={<Vote />} />
-              <Route path="/poll/:slug/results" element={<Results />} />
-              <Route path="/vote/:pollId" element={<Vote />} />
-              {/* <Route path="/vote-swipe/:pollId" element={<VotingSwipeWrapper />} /> */}
-              {/* <Route path="/demo/swipe" element={<VotingSwipeDemo />} />
-              <Route path="/demo/ex-swipe" element={<ExVotingSwipeDemo />} /> */}
-              <Route path="/create" element={<CreateChooser />} />
-              <Route path="/create/date" element={<PollCreator />} />
-              <Route path="/create/form" element={<FormCreator />} />
-              <Route
-                path="/poll/:pollSlug/results/:adminToken"
-                element={<Vote />}
-              />
+          <Layout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/chat" element={<Index />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/poll/:slug" element={<Vote />} />
+                <Route path="/poll/:slug/results" element={<Results />} />
+                <Route path="/vote/:pollId" element={<Vote />} />
+                {/* <Route path="/vote-swipe/:pollId" element={<VotingSwipeWrapper />} /> */}
+                {/* <Route path="/demo/swipe" element={<VotingSwipeDemo />} />
+                <Route path="/demo/ex-swipe" element={<ExVotingSwipeDemo />} /> */}
+                <Route path="/create" element={<CreateChooser />} />
+                <Route path="/create/date" element={<PollCreator />} />
+                <Route path="/create/form" element={<FormCreator />} />
+                <Route
+                  path="/poll/:pollSlug/results/:adminToken"
+                  element={<Vote />}
+                />
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </Layout>
         </BrowserRouter>
       </TooltipProvider>
       <Toaster />

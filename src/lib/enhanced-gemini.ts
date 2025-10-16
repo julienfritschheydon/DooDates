@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import CalendarQuery from "./calendar-generator";
 import { logError, ErrorFactory } from "./error-handling";
+import { formatDateLocal, getTodayLocal } from "./date-utils";
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -125,7 +126,7 @@ export class EnhancedGeminiService {
         const date = new Date(today);
         const daysToMonday = (today.getDay() + 6) % 7;
         date.setDate(today.getDate() - daysToMonday + (i - 1));
-        extractedDates.push(date.toISOString().split("T")[0]);
+        extractedDates.push(formatDateLocal(date));
       }
     }
 
@@ -136,7 +137,7 @@ export class EnhancedGeminiService {
         const date = new Date(today);
         const daysToNextMonday = 7 - ((today.getDay() + 6) % 7) + 7;
         date.setDate(today.getDate() + daysToNextMonday + (i - 1));
-        extractedDates.push(date.toISOString().split("T")[0]);
+        extractedDates.push(formatDateLocal(date));
       }
     }
 
@@ -318,7 +319,7 @@ INSTRUCTIONS AMÉLIORÉES AVEC COUNTERFACTUAL-CONSISTENCY:
    - "Si ce n'était PAS le ${userInput.includes("matin") ? "matin" : "moment"}, serait-ce cohérent ?"
 
 4. DATES ET HORAIRES INTELLIGENTS:
-   Date actuelle de référence: ${today.toISOString().split("T")[0]}
+   Date actuelle de référence: ${getTodayLocal()}
    * Générer 3-8 options selon le contexte
    * Respecter STRICTEMENT les jours de semaine demandés
    * Adapter les horaires aux contraintes détectées

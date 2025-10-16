@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { BarChart3, Users, Calendar, ArrowLeft } from "lucide-react";
-import TopNav from "../components/TopNav";
 import PollActions from "@/components/polls/PollActions";
-import { Poll, getPollBySlugOrId, getVoterId } from "@/lib/pollStorage";
+import {
+  Poll,
+  getPollBySlugOrId,
+  getVoterId,
+  getAllPolls,
+} from "@/lib/pollStorage";
 import FormPollResults from "@/components/polls/FormPollResults";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
@@ -37,8 +41,8 @@ const Results: React.FC = () => {
   useEffect(() => {
     if (!slug) return;
 
-    // Charger le sondage
-    const existingPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+    // Charger le sondage depuis le stockage unifié
+    const existingPolls = getAllPolls();
     const foundPoll = existingPolls.find((p: Poll) => p.slug === slug);
 
     if (foundPoll) {
@@ -80,7 +84,6 @@ const Results: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <TopNav />
         <div className="pt-20">
           <ResultsLoading label="Chargement des résultats..." />
         </div>
@@ -91,7 +94,6 @@ const Results: React.FC = () => {
   if (!poll) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <TopNav />
         <div className="pt-20">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <ResultsEmpty
@@ -140,7 +142,6 @@ const Results: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <TopNav />
       <div className="pt-20">
         <ResultsLayout
           title={`Résultats : ${poll.title}`}

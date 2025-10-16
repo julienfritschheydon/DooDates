@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from "react";
-import TopNav from "@/components/TopNav";
 import PollActions from "@/components/polls/PollActions";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
@@ -85,7 +84,6 @@ export default function FormPollResults({ idOrSlug }: Props) {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <TopNav />
         <div className="pt-20">
           <ResultsLoading label="Chargement des résultats..." />
         </div>
@@ -96,7 +94,6 @@ export default function FormPollResults({ idOrSlug }: Props) {
   if (!poll || poll.type !== "form") {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <TopNav />
         <div className="pt-20">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <ResultsEmpty message={<>Sondage formulaire introuvable.</>} />
@@ -110,7 +107,6 @@ export default function FormPollResults({ idOrSlug }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <TopNav />
       <div className="pt-20">
         <ResultsLayout
           title={`Résultats : ${poll.title}`}

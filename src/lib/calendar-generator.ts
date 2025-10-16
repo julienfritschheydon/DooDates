@@ -2,6 +2,8 @@
 // Ce fichier génère toutes les dates possibles avec leurs métadonnées
 // pour éviter les calculs répétitifs et améliorer les performances
 
+import { formatDateLocal } from "./date-utils";
+
 export interface CalendarDay {
   date: string; // Format YYYY-MM-DD
   year: number;
@@ -97,7 +99,7 @@ class CalendarGenerator {
 
         for (let day = 1; day <= daysInMonth; day++) {
           const date = new Date(year, month, day);
-          const dateStr = date.toISOString().split("T")[0];
+          const dateStr = formatDateLocal(date);
           const dayOfWeek = date.getDay();
 
           // Calculer le numéro de semaine

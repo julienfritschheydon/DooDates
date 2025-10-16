@@ -11,6 +11,7 @@ import {
   Calendar,
   TrendingUp,
 } from "lucide-react";
+import { formatDateLocal } from "../lib/date-utils";
 
 interface TemporalTestResult {
   input: string;
@@ -75,7 +76,7 @@ const TemporalTestInterface: React.FC = () => {
       for (let i = 1; i <= 5; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() - today.getDay() + i);
-        extractedDates.push(date.toISOString().split("T")[0]);
+        extractedDates.push(formatDateLocal(date));
       }
     }
 
@@ -131,13 +132,13 @@ const TemporalTestInterface: React.FC = () => {
         for (let i = 1; i <= 3; i++) {
           const date = new Date(today);
           date.setDate(today.getDate() + 7 + i);
-          dates.push(date.toISOString().split("T")[0]);
+          dates.push(formatDateLocal(date));
         }
       } else {
         for (let i = 1; i <= 3; i++) {
           const date = new Date(today);
           date.setDate(today.getDate() + i);
-          dates.push(date.toISOString().split("T")[0]);
+          dates.push(formatDateLocal(date));
         }
       }
     }

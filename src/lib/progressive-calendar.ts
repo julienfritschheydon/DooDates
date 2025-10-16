@@ -3,6 +3,7 @@
 
 import type { PreGeneratedCalendar, CalendarDay } from "./calendar-generator";
 import { logError, ErrorFactory } from "./error-handling";
+import { formatDateLocal } from "./date-utils";
 
 interface YearCalendarData {
   year: number;
@@ -138,7 +139,7 @@ class ProgressiveCalendarManager {
 
       for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
-        const dateStr = date.toISOString().split("T")[0];
+        const dateStr = formatDateLocal(date);
         const dayOfWeek = date.getDay();
 
         const calendarDay: CalendarDay = {

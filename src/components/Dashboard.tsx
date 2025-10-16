@@ -11,7 +11,6 @@ import {
 import { logError, ErrorFactory } from "../lib/error-handling";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import TopNav from "./TopNav";
 import { enableFormPoll } from "@/config/flags";
 import {
   Poll as StoragePoll,
@@ -27,14 +26,15 @@ import { ConversationHistory } from "./conversations/ConversationHistory";
 interface DashboardPoll extends StoragePoll {
   votes_count?: number;
   participants_count?: number;
+  topDates?: { date: string; score: number }[];
 }
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<"all" | "draft" | "active" | "closed">(
-    "all",
-  );
+  const [filter, setFilter] = useState<
+    "all" | "draft" | "active" | "closed" | "archived"
+  >("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"polls" | "conversations">(
     "polls",
@@ -70,10 +70,52 @@ const Dashboard: React.FC = () => {
         const uniqueVoters = new Set(
           pollVotes.map((vote: any) => getVoterId(vote)),
         ).size;
+
+        // Calculer les meilleures dates pour les sondages de type date
+        let topDates: { date: string; score: number }[] = [];
+
+        // Pour les sondages de dates, utiliser settings.selectedDates au lieu de options
+        const selectedDates = poll.settings?.selectedDates || poll.options;
+
+        if (
+          selectedDates &&
+          Array.isArray(selectedDates) &&
+          pollVotes.length > 0 &&
+          poll.type !== "form"
+        ) {
+          const dateScores = selectedDates.map(
+            (dateStr: any, index: number) => {
+              // Si c'est une string (selectedDates), sinon c'est un option object
+              const dateLabel =
+                typeof dateStr === "string"
+                  ? dateStr
+                  : dateStr.label || dateStr.title;
+              const optionId = `option-${index}`;
+
+              let score = 0;
+              pollVotes.forEach((vote: any) => {
+                // Chercher la sélection par ID d'option
+                const selection =
+                  vote.vote_data?.[optionId] || vote.selections?.[optionId];
+                if (selection === "yes") score += 3;
+                else if (selection === "maybe") score += 1;
+              });
+              return { date: dateLabel, score };
+            },
+          );
+
+          // Trier par score et prendre les 2 meilleures
+          topDates = dateScores
+            .filter((d) => d.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 2);
+        }
+
         return {
           ...poll,
           participants_count: uniqueVoters,
           votes_count: pollVotes.length,
+          topDates,
         };
       });
 
@@ -169,7 +211,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <TopNav />
       <div className="pt-20">
         {/* Indicateur Mode Développement Local */}
         <div className="bg-amber-100 dark:bg-amber-900 border-l-4 border-amber-500 p-3 mb-4">
@@ -249,21 +290,23 @@ const Dashboard: React.FC = () => {
                     />
                   </div>
                   <div className="flex gap-2">
-                    {["all", "draft", "active", "closed"].map((status) => (
-                      <button
-                        key={status}
-                        onClick={() => setFilter(status as any)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          filter === status
-                            ? "bg-blue-600 text-white"
-                            : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                        }`}
-                      >
-                        {status === "all"
-                          ? "Tous"
-                          : getStatusLabel(status as DashboardPoll["status"])}
-                      </button>
-                    ))}
+                    {["all", "draft", "active", "closed", "archived"].map(
+                      (status) => (
+                        <button
+                          key={status}
+                          onClick={() => setFilter(status as any)}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            filter === status
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                          }`}
+                        >
+                          {status === "all"
+                            ? "Tous"
+                            : getStatusLabel(status as DashboardPoll["status"])}
+                        </button>
+                      ),
+                    )}
                   </div>
                 </div>
               </div>
@@ -305,13 +348,15 @@ const Dashboard: React.FC = () => {
                           <div className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
                             <span data-testid="participants-count">
-                              {poll.participants_count || 0} participants
+                              {poll.participants_count || 0} participant
+                              {(poll.participants_count || 0) > 1 ? "s" : ""}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Vote className="w-4 h-4" />
                             <span data-testid="votes-count">
-                              {poll.votes_count || 0} votes
+                              {poll.votes_count || 0} vote
+                              {(poll.votes_count || 0) > 1 ? "s" : ""}
                             </span>
                           </div>
                         </div>
@@ -320,6 +365,40 @@ const Dashboard: React.FC = () => {
                           {new Date(poll.created_at).toLocaleDateString()}
                         </span>
                       </div>
+
+                      {/* Meilleures dates */}
+                      {poll.topDates && poll.topDates.length > 0 ? (
+                        <div className="mb-4">
+                          <div className="text-xs text-gray-500 mb-2 font-medium">
+                            🏆 Dates populaires :
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {poll.topDates.map((dateInfo, index) => (
+                              <span
+                                key={index}
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                  index === 0
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                    : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                                }`}
+                              >
+                                {index === 0 && "⭐ "}
+                                {dateInfo.date}
+                                <span className="ml-1 text-xs opacity-75">
+                                  ({dateInfo.score} pts)
+                                </span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        poll.votes_count > 0 &&
+                        poll.type !== "form" && (
+                          <div className="mb-4 text-xs text-gray-400">
+                            Aucune date n'a reçu de vote favorable
+                          </div>
+                        )
+                      )}
 
                       {/* Actions */}
                       <div className="flex items-center gap-2 flex-wrap">
@@ -345,6 +424,7 @@ const Dashboard: React.FC = () => {
                           variant="compact"
                           onAfterDuplicate={getUserPolls}
                           onAfterDelete={getUserPolls}
+                          onAfterArchive={getUserPolls}
                         />
                       </div>
                     </div>

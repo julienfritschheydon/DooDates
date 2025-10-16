@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "CallExpression[callee.object.property.name='toISOString'][callee.property.name='split']",
+        "message": "⚠️ N'utilise pas toISOString().split() pour des dates locales. Utilise formatDateLocal() de date-utils.ts à la place pour éviter les bugs de fuseau horaire."
+      }
+    ]
+  }
+}
