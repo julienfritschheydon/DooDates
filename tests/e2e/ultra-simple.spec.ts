@@ -7,7 +7,7 @@ function mkLogger(scope: string) {
   return (...parts: any[]) => console.log(`[${scope}]`, ...parts);
 }
 
-test.skip('DooDates - Test Ultra Simple', () => {
+test.describe('DooDates - Test Ultra Simple', () => {
   // Orchestration: exécuter en série pour éviter toute flakiness liée au partage d'état (étape D)
   test.describe.configure({ mode: 'serial' });
   
