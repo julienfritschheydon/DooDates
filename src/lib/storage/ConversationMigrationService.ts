@@ -4,13 +4,11 @@ import {
   Conversation,
   ConversationMessage,
   ConversationError,
+  CONVERSATION_ERROR_CODES,
   CONVERSATION_LIMITS,
 } from "../../types/conversation";
-import {
-  validateConversation,
-  validateConversationMessage,
-} from "../validation/conversation";
-import { handleError, ErrorFactory, logError } from "../error-handling";
+import { validateConversation, validateConversationMessage } from "../validation/conversation";
+import { handleError, ErrorFactory, logError, ErrorSeverity, ErrorCategory } from "../error-handling";
 
 /**
  * Migration status types
@@ -238,7 +236,9 @@ export class ConversationMigrationService {
       throw new ConversationError(
         "Failed to export localStorage data",
         "EXPORT_ERROR",
-        { originalError: error },
+        ErrorSeverity.HIGH,
+        ErrorCategory.STORAGE,
+        { metadata: { originalError: error } },
       );
     }
   }
@@ -285,7 +285,9 @@ export class ConversationMigrationService {
       throw new ConversationError(
         "Data validation failed",
         "VALIDATION_ERROR",
-        { validationErrors: errors },
+        ErrorSeverity.HIGH,
+        ErrorCategory.VALIDATION,
+        { metadata: { validationErrors: errors } },
       );
     }
   }
@@ -305,7 +307,9 @@ export class ConversationMigrationService {
         throw new ConversationError(
           "Failed to get user authentication status",
           "AUTH_ERROR",
-          { originalError: error },
+          ErrorSeverity.HIGH,
+          ErrorCategory.AUTH,
+          { metadata: { originalError: error } },
         );
       }
 
@@ -320,7 +324,9 @@ export class ConversationMigrationService {
       throw new ConversationError(
         "Failed to setup Supabase connection",
         "CONNECTION_ERROR",
-        { originalError: error },
+        ErrorSeverity.CRITICAL,
+        ErrorCategory.NETWORK,
+        { metadata: { originalError: error } },
       );
     }
   }
@@ -403,7 +409,9 @@ export class ConversationMigrationService {
           throw new ConversationError(
             `Failed to upload conversation batch after ${this.options.retryAttempts} attempts`,
             "UPLOAD_ERROR",
-            { originalError: error, batch: conversations.map((c) => c.id) },
+            ErrorSeverity.HIGH,
+            ErrorCategory.NETWORK,
+            { metadata: { originalError: error, batch: conversations.map((c) => c.id) } },
           );
         }
 
@@ -446,7 +454,9 @@ export class ConversationMigrationService {
           throw new ConversationError(
             `Failed to upload message batch after ${this.options.retryAttempts} attempts`,
             "UPLOAD_ERROR",
-            { originalError: error, batch: messages.map((m) => m.id) },
+            ErrorSeverity.HIGH,
+            ErrorCategory.NETWORK,
+            { metadata: { originalError: error, batch: messages.map((m) => m.id) } },
           );
         }
 
@@ -506,15 +516,19 @@ export class ConversationMigrationService {
         throw new ConversationError(
           "Migration verification failed - data count mismatch",
           "VERIFICATION_ERROR",
+          ErrorSeverity.CRITICAL,
+          ErrorCategory.STORAGE,
           {
-            expected: {
-              conversations: originalData.conversations.length,
-              messages: expectedMessages,
-            },
-            actual: {
-              conversations: conversationCount,
-              messages: messageCount,
-            },
+            metadata: {
+              expected: {
+                conversations: originalData.conversations.length,
+                messages: expectedMessages,
+              },
+              actual: {
+                conversations: conversationCount,
+                messages: messageCount,
+              },
+            }
           },
         );
       }
@@ -522,7 +536,9 @@ export class ConversationMigrationService {
       throw new ConversationError(
         "Migration verification failed",
         "VERIFICATION_ERROR",
-        { originalError: error },
+        ErrorSeverity.HIGH,
+        ErrorCategory.STORAGE,
+        { metadata: { originalError: error } },
       );
     }
   }
@@ -556,9 +572,13 @@ export class ConversationMigrationService {
         operation: "rollback",
       });
 
-      throw new ConversationError("Rollback failed", "ROLLBACK_ERROR", {
-        originalError: error,
-      });
+      throw new ConversationError(
+        "Rollback failed",
+        "ROLLBACK_ERROR",
+        ErrorSeverity.CRITICAL,
+        ErrorCategory.STORAGE,
+        { metadata: { originalError: error } },
+      );
     }
   }
 
