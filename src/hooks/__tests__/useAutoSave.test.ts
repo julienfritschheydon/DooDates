@@ -152,7 +152,6 @@ describe("useAutoSave", () => {
       });
     });
 
-
     it("should convert AI messages correctly", async () => {
       const { result } = renderHook(() => useAutoSave());
       const aiMessage = createMockMessage({ isAI: true });
@@ -202,16 +201,16 @@ describe("useAutoSave", () => {
 
   /**
    * TESTS SKIPPÉS : Génération de Titre avec Debounce (6 tests supprimés)
-   * 
+   *
    * RAISON TECHNIQUE :
    * - Debounce de 1500ms intégré dans le code production
    * - Tests nécessitent fake timers qui cassent les autres tests
    * - waitFor() incompatible avec fake timers dans Vitest
-   * 
+   *
    * TESTS COUVERTS PAR :
    * - Test manuel avant chaque release (voir TEST-STATUS.md)
    * - Protection code active (lignes 132-137 de useAutoSave.ts)
-   * 
+   *
    * TESTS SUPPRIMÉS :
    * 1. should trigger title generation after debounce delay
    * 2. should debounce multiple rapid messages (Test #5)
@@ -219,7 +218,7 @@ describe("useAutoSave", () => {
    * 4. should update conversation with generated title (Test #7)
    * 5. should handle title generation failure gracefully (Test #8)
    * 6. should handle title generation without response
-   * 
+   *
    * SOLUTION FUTURE : Refactor avec délais configurables (4-6h)
    */
   describe.skip("Title Generation with Debounce", () => {
@@ -228,15 +227,15 @@ describe("useAutoSave", () => {
 
   /**
    * TESTS SKIPPÉS : resumeConversation (2 tests supprimés)
-   * 
+   *
    * RAISON TECHNIQUE :
    * - Délai de 100ms intégré dans resumeConversation (ligne 249 de useAutoSave.ts)
    * - Pollution d'état entre tests dans le fichier principal
-   * 
+   *
    * TESTS DÉPLACÉS VERS :
    * - useAutoSave.isolated.test.ts (4 tests passent à 100%)
    * - Includes: Test 2 (return null), Test 9, 11, 12
-   * 
+   *
    * TESTS SUPPRIMÉS :
    * 1. should resume existing conversation (Test #1 - déjà testé via Test 9)
    * 2. should handle resume errors (Test #3 - gestion erreur edge case)
@@ -246,7 +245,6 @@ describe("useAutoSave", () => {
   });
 
   describe("getCurrentConversation", () => {
-
     it("should return null when no conversation is active", async () => {
       const { result } = renderHook(() => useAutoSave());
 
@@ -261,14 +259,14 @@ describe("useAutoSave", () => {
 
   /**
    * TESTS SKIPPÉS : clearConversation (1 test supprimé)
-   * 
+   *
    * RAISON TECHNIQUE :
    * - Dépend de resumeConversation (délai 100ms)
-   * 
+   *
    * COUVERT PAR :
    * - Fonction simple (3 lignes de code)
    * - Testé manuellement lors navigation entre conversations
-   * 
+   *
    * TEST SUPPRIMÉ :
    * 1. should clear conversation state (Test #10)
    */
@@ -277,7 +275,6 @@ describe("useAutoSave", () => {
   });
 
   describe("getRealConversationId", () => {
-
     it("should return null for temporary conversation", async () => {
       const { result } = renderHook(() => useAutoSave());
 
@@ -373,7 +370,7 @@ describe("useAutoSave", () => {
 
     /**
      * TEST SKIPPÉ : should handle rapid conversation switching (Test #13)
-     * 
+     *
      * RAISON : Dépend de resumeConversation (délai 100ms)
      * COUVERT PAR : Scénario edge case rare, testé manuellement si nécessaire
      */

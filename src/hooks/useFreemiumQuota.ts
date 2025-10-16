@@ -86,8 +86,11 @@ export const useFreemiumQuota = () => {
       }
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to get conversation count", "Impossible de compter les conversations"),
-        { component: "useFreemiumQuota", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to get conversation count",
+          "Impossible de compter les conversations",
+        ),
+        { component: "useFreemiumQuota", metadata: { originalError: error } },
       );
       // Clear corrupted data
       localStorage.removeItem("doodates_conversations");
@@ -101,8 +104,11 @@ export const useFreemiumQuota = () => {
       storageUsed = new Blob([storage]).size / (1024 * 1024); // Convert to MB
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to calculate storage usage", "Impossible de calculer l'utilisation du stockage"),
-        { component: "useFreemiumQuota", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to calculate storage usage",
+          "Impossible de calculer l'utilisation du stockage",
+        ),
+        { component: "useFreemiumQuota", metadata: { originalError: error } },
       );
     }
 
@@ -113,8 +119,11 @@ export const useFreemiumQuota = () => {
       pollCount = polls.length;
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to get poll count", "Impossible de compter les sondages"),
-        { component: "useFreemiumQuota", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to get poll count",
+          "Impossible de compter les sondages",
+        ),
+        { component: "useFreemiumQuota", metadata: { originalError: error } },
       );
     }
 

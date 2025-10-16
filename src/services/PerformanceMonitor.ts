@@ -133,11 +133,8 @@ class PerformanceMonitorService {
       } else {
         // Use centralized error logging for non-Error messages
         logError(
-          ErrorFactory.critical(
-            message,
-            "Performance alert triggered"
-          ),
-          { component: "PerformanceMonitor" }
+          ErrorFactory.critical(message, "Performance alert triggered"),
+          { component: "PerformanceMonitor" },
         );
       }
 

@@ -394,8 +394,14 @@ export function useConversationQuota(
       return totalSize;
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to calculate storage usage", "Impossible de calculer l'utilisation du stockage"),
-        { component: "useConversationQuota", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to calculate storage usage",
+          "Impossible de calculer l'utilisation du stockage",
+        ),
+        {
+          component: "useConversationQuota",
+          metadata: { originalError: error },
+        },
       );
       return 0;
     }
@@ -410,8 +416,14 @@ export function useConversationQuota(
     ) {
       executeAutoDeletion().catch((error) => {
         logError(
-          ErrorFactory.storage("Auto-deletion failed", "Échec de la suppression automatique"),
-          { component: "useConversationQuota", metadata: { originalError: error } }
+          ErrorFactory.storage(
+            "Auto-deletion failed",
+            "Échec de la suppression automatique",
+          ),
+          {
+            component: "useConversationQuota",
+            metadata: { originalError: error },
+          },
         );
       });
     }

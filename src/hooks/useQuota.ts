@@ -241,8 +241,11 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       setLastCleanup(cleanup ? new Date(cleanup) : null);
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to load quota state", "Erreur de chargement de l'état des quotas"),
-        { component: "useQuota", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to load quota state",
+          "Erreur de chargement de l'état des quotas",
+        ),
+        { component: "useQuota", metadata: { originalError: error } },
       );
     }
   }, []);
@@ -264,8 +267,11 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       }
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to get conversation count", "Impossible de compter les conversations"),
-        { component: "useQuota", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to get conversation count",
+          "Impossible de compter les conversations",
+        ),
+        { component: "useQuota", metadata: { originalError: error } },
       );
       localStorage.removeItem("doodates_conversations");
       conversationCount = 0;
@@ -278,8 +284,11 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       storageUsed = new Blob([storage]).size / (1024 * 1024); // Convert to MB
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to calculate storage usage", "Impossible de calculer l'utilisation du stockage"),
-        { component: "useQuota", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to calculate storage usage",
+          "Impossible de calculer l'utilisation du stockage",
+        ),
+        { component: "useQuota", metadata: { originalError: error } },
       );
     }
 
@@ -290,8 +299,11 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       pollCount = polls.length;
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to get poll count", "Impossible de compter les sondages"),
-        { component: "useQuota", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to get poll count",
+          "Impossible de compter les sondages",
+        ),
+        { component: "useQuota", metadata: { originalError: error } },
       );
     }
 
@@ -627,8 +639,11 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       return totalSize;
     } catch (error) {
       logError(
-        ErrorFactory.storage("Failed to calculate detailed storage usage", "Erreur de calcul du stockage détaillé"),
-        { component: "useQuota", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Failed to calculate detailed storage usage",
+          "Erreur de calcul du stockage détaillé",
+        ),
+        { component: "useQuota", metadata: { originalError: error } },
       );
       return 0;
     }
@@ -658,8 +673,11 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
 
     executeAutoDeletion().catch((error) => {
       logError(
-        ErrorFactory.storage("Auto-deletion failed", "Échec de la suppression automatique"),
-        { component: "useQuota", metadata: { originalError: error } }
+        ErrorFactory.storage(
+          "Auto-deletion failed",
+          "Échec de la suppression automatique",
+        ),
+        { component: "useQuota", metadata: { originalError: error } },
       );
     });
   }, [

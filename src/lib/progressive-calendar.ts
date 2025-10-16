@@ -76,9 +76,9 @@ class ProgressiveCalendarManager {
       logError(
         ErrorFactory.api(
           `Failed to load year ${year}`,
-          `Erreur lors du chargement de l'année ${year}`
+          `Erreur lors du chargement de l'année ${year}`,
         ),
-        { metadata: { year, originalError: error } }
+        { metadata: { year, originalError: error } },
       );
       throw error;
     }
@@ -204,9 +204,9 @@ class ProgressiveCalendarManager {
           logError(
             ErrorFactory.api(
               `Failed to preload calendar year ${nextYear}`,
-              `Erreur lors du préchargement de l'année ${nextYear}`
+              `Erreur lors du préchargement de l'année ${nextYear}`,
             ),
-            { metadata: { year: nextYear, originalError: error } }
+            { metadata: { year: nextYear, originalError: error } },
           );
         });
       }

@@ -197,8 +197,11 @@ export class EmailService {
     try {
       if (!participantEmails || participantEmails.length === 0) {
         logError(
-          ErrorFactory.validation("No participant emails provided", "Aucun email de participant fourni"),
-          { component: "EmailService" }
+          ErrorFactory.validation(
+            "No participant emails provided",
+            "Aucun email de participant fourni",
+          ),
+          { component: "EmailService" },
         );
         return { success: true };
       }
@@ -216,8 +219,11 @@ export class EmailService {
       return { success: true };
     } catch (error: any) {
       logError(
-        ErrorFactory.api("Failed to send poll created email", "Erreur lors de l'envoi de l'email de création de sondage"),
-        { metadata: { originalError: error } }
+        ErrorFactory.api(
+          "Failed to send poll created email",
+          "Erreur lors de l'envoi de l'email de création de sondage",
+        ),
+        { metadata: { originalError: error } },
       );
       return { success: false, error: error.message };
     }
@@ -250,8 +256,11 @@ export class EmailService {
       return { success: true };
     } catch (error: any) {
       logError(
-        ErrorFactory.api("Failed to send vote notification email", "Erreur lors de l'envoi de la notification de vote"),
-        { metadata: { originalError: error } }
+        ErrorFactory.api(
+          "Failed to send vote notification email",
+          "Erreur lors de l'envoi de la notification de vote",
+        ),
+        { metadata: { originalError: error } },
       );
       return { success: false, error: error.message };
     }
@@ -289,8 +298,11 @@ export class EmailService {
       return { success: true };
     } catch (error) {
       logError(
-        ErrorFactory.api("Failed to send vote confirmation email", "Erreur lors de l'envoi de la confirmation de vote"),
-        { metadata: { originalError: error } }
+        ErrorFactory.api(
+          "Failed to send vote confirmation email",
+          "Erreur lors de l'envoi de la confirmation de vote",
+        ),
+        { metadata: { originalError: error } },
       );
       return {
         success: false,
@@ -332,8 +344,11 @@ export class EmailService {
       return { success: true };
     } catch (error) {
       logError(
-        ErrorFactory.api("Failed to send poll creation email", "Erreur lors de l'envoi de l'email de création"),
-        { metadata: { originalError: error } }
+        ErrorFactory.api(
+          "Failed to send poll creation email",
+          "Erreur lors de l'envoi de l'email de création",
+        ),
+        { metadata: { originalError: error } },
       );
       return {
         success: false,

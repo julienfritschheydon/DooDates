@@ -1,6 +1,6 @@
 /**
  * Test de génération de titre - Scénario réel utilisateur
- * 
+ *
  * Test simple qui simule le parcours utilisateur :
  * 1. Créer conversation
  * 2. Envoyer 2 messages
@@ -81,13 +81,13 @@ const createMockMessage = (content: string, isAI = false) => ({
 describe("useAutoSave - Génération de Titre (Scénario Réel)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup mocks
     const conversation = createMockConversation();
     mockCreateConversation.mockReturnValue(conversation);
     mockGetConversation.mockReturnValue(conversation);
     mockGetConversations.mockReturnValue([conversation]);
-    
+
     mockGenerateTitle.mockReturnValue({
       success: true,
       title: "Planification réunion équipe",
@@ -106,14 +106,14 @@ describe("useAutoSave - Génération de Titre (Scénario Réel)", () => {
     // 2. Envoyer 1er message utilisateur
     await act(async () => {
       result.current.addMessage(
-        createMockMessage("Crée un sondage pour une réunion")
+        createMockMessage("Crée un sondage pour une réunion"),
       );
     });
 
     // 3. Envoyer 2e message (réponse IA avec sondage)
     await act(async () => {
       result.current.addMessage(
-        createMockMessage("Voici le sondage pour la réunion", true)
+        createMockMessage("Voici le sondage pour la réunion", true),
       );
     });
 
@@ -122,7 +122,7 @@ describe("useAutoSave - Génération de Titre (Scénario Réel)", () => {
       () => {
         expect(mockGenerateTitle).toHaveBeenCalled();
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
 
     // 5. Vérifier que saveConversations a été appelé avec le nouveau titre
@@ -133,10 +133,10 @@ describe("useAutoSave - Génération de Titre (Scénario Réel)", () => {
             expect.objectContaining({
               title: "Planification réunion équipe",
             }),
-          ])
+          ]),
         );
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
   }, 10000); // Timeout de 10s pour ce test
 });

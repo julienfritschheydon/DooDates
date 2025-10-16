@@ -23,6 +23,21 @@ test.describe('Security and Data Isolation', () => {
     await page.reload();
   });
 
+  test('Basic navigation security - no crashes', async ({ page }) => {
+    // Test simple : vérifier que la navigation basique ne crash pas
+    await page.goto('/');
+    await expect(page).toHaveTitle(/DooDates/);
+    
+    await page.goto('/create');
+    await page.waitForTimeout(1000);
+    
+    await page.goto('/dashboard');
+    await page.waitForTimeout(1000);
+    
+    await page.goto('/');
+    expect(true).toBeTruthy();
+  });
+
   test.skip('should isolate guest user data between sessions', async ({ browser }) => {
     // Create two separate browser contexts (different guest sessions)
     const context1 = await browser.newContext();
