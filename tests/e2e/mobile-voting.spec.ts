@@ -24,7 +24,7 @@ async function openMonthContaining(page: Page, dateStr: string) {
 test.describe('Mobile Voting UX', () => {
   test.describe.configure({ mode: 'serial' });
 
-  test.skiptest('DatePoll: sticky submit visibility + back to dashboard', async ({ page }) => {
+  test.skip('DatePoll: sticky submit visibility + back to dashboard', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -184,7 +184,7 @@ test.describe('Mobile Voting UX', () => {
     }
   });
 
-  test.skiptest('FormPoll: multi-option interactions (radio + multiple with live maxChoices)', async ({ page }) => {
+  test.skip('FormPoll: multi-option interactions (radio + multiple with live maxChoices)', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,

@@ -19,7 +19,7 @@ test.describe('Security and Data Isolation', () => {
     await page.reload();
   });
 
-  test.skiptest('should isolate guest user data between sessions', async ({ browser }) => {
+  test.skip('should isolate guest user data between sessions', async ({ browser }) => {
     // Create two separate browser contexts (different guest sessions)
     const context1 = await browser.newContext();
     const context2 = await browser.newContext();
@@ -76,7 +76,7 @@ test.describe('Security and Data Isolation', () => {
     await context2.close();
   });
 
-  test.skiptest('should prevent XSS attacks in message content', async ({ page }) => {
+  test.skip('should prevent XSS attacks in message content', async ({ page }) => {
     await page.goto('/');
     
     const xssPayloads = [
@@ -120,7 +120,7 @@ test.describe('Security and Data Isolation', () => {
     }
   });
 
-  test.skiptest('should sanitize user input properly', async ({ page }) => {
+  test.skip('should sanitize user input properly', async ({ page }) => {
     await page.goto('/');
     
     const maliciousInputs = [
@@ -160,7 +160,7 @@ test.describe('Security and Data Isolation', () => {
     }
   });
 
-  test.skiptest('should protect against localStorage manipulation', async ({ page }) => {
+  test.skip('should protect against localStorage manipulation', async ({ page }) => {
     await page.goto('/');
     
     // Create legitimate conversation
@@ -222,7 +222,7 @@ test.describe('Security and Data Isolation', () => {
     await expect(page.locator('text=Legitimate message')).toBeVisible();
   });
 
-  test.skiptest('should handle authentication token security', async ({ page }) => {
+  test.skip('should handle authentication token security', async ({ page }) => {
     await page.goto('/');
     
     // Mock authentication
@@ -270,7 +270,7 @@ test.describe('Security and Data Isolation', () => {
     }
   });
 
-  test.skiptest('should isolate authenticated user data', async ({ browser }) => {
+  test.skip('should isolate authenticated user data', async ({ browser }) => {
     // Create two authenticated user sessions
     const context1 = await browser.newContext();
     const context2 = await browser.newContext();
@@ -334,7 +334,7 @@ test.describe('Security and Data Isolation', () => {
     await context2.close();
   });
 
-  test.skiptest('should prevent session fixation attacks', async ({ page }) => {
+  test.skip('should prevent session fixation attacks', async ({ page }) => {
     await page.goto('/');
     
     // Set malicious session data
@@ -380,7 +380,7 @@ test.describe('Security and Data Isolation', () => {
     await expect(page.locator('text=Normal authenticated message')).toBeVisible();
   });
 
-  test.skiptest('should handle data validation and type safety', async ({ page }) => {
+  test.skip('should handle data validation and type safety', async ({ page }) => {
     await page.goto('/');
     
     // Inject invalid data types into localStorage

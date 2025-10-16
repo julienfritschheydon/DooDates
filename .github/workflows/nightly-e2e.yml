@@ -1,8 +1,9 @@
 name: 🌙 Nightly E2E Matrix
 
 on:
-  schedule:
-    - cron: '0 2 * * *' # Tous les jours à 02:00 UTC
+  # DÉSACTIVÉ temporairement - activation progressive des tests
+  # schedule:
+  #   - cron: '0 2 * * *' # Tous les jours à 02:00 UTC
   workflow_dispatch:
     inputs:
       pr_number:

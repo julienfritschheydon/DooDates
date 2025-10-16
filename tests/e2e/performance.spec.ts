@@ -18,7 +18,7 @@ test.describe('Performance Tests', () => {
     await page.reload();
   });
 
-  test.skiptest('should handle large number of conversations efficiently', async ({ page }) => {
+  test.skip('should handle large number of conversations efficiently', async ({ page }) => {
     await page.goto('/');
     
     // Mock authenticated user with high limits
@@ -65,7 +65,7 @@ test.describe('Performance Tests', () => {
     expect(count).toBeGreaterThan(10); // Should have created multiple conversations
   });
 
-  test.skiptest('should maintain performance with large messages', async ({ page }) => {
+  test.skip('should maintain performance with large messages', async ({ page }) => {
     await page.goto('/');
     
     // Create conversation with progressively larger messages
@@ -102,7 +102,7 @@ test.describe('Performance Tests', () => {
     }
   });
 
-  test.skiptest('should handle rapid user interactions without lag', async ({ page }) => {
+  test.skip('should handle rapid user interactions without lag', async ({ page }) => {
     await page.goto('/');
     
     const startTime = Date.now();
@@ -135,7 +135,7 @@ test.describe('Performance Tests', () => {
     await expect(createButton).toBeVisible();
   });
 
-  test.skiptest('should efficiently load existing conversations on startup', async ({ page }) => {
+  test.skip('should efficiently load existing conversations on startup', async ({ page }) => {
     // Pre-populate localStorage with many conversations
     await page.goto('/');
     await page.evaluate(() => {
@@ -173,7 +173,7 @@ test.describe('Performance Tests', () => {
     expect(conversationCount).toBeGreaterThan(5);
   });
 
-  test.skiptest('should handle memory efficiently with long session', async ({ page }) => {
+  test.skip('should handle memory efficiently with long session', async ({ page }) => {
     await page.goto('/');
     
     // Simulate long user session with many operations
@@ -221,7 +221,7 @@ test.describe('Performance Tests', () => {
     await expect(createButton).toBeVisible();
   });
 
-  test.skiptest('should handle concurrent operations efficiently', async ({ page }) => {
+  test.skip('should handle concurrent operations efficiently', async ({ page }) => {
     await page.goto('/');
     
     // Mock authenticated user
@@ -274,7 +274,7 @@ test.describe('Performance Tests', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test.skiptest('should maintain UI responsiveness during heavy operations', async ({ page }) => {
+  test.skip('should maintain UI responsiveness during heavy operations', async ({ page }) => {
     await page.goto('/');
     
     // Start heavy operation (create many conversations)

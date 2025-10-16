@@ -23,7 +23,7 @@ async function openDashboard(page: Page) {
 test.describe('Dashboard - Poll Actions', () => {
   test.describe.configure({ mode: 'serial' });
 
-  test.skiptest('copy, duplicate, edit, delete actions flow', async ({ page }) => {
+  test.skip('copy, duplicate, edit, delete actions flow', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
