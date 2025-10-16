@@ -1,0 +1,301 @@
+# Page snapshot
+
+```yaml
+- heading "octobre 2025" [level=3]
+- text: Lun Mar Mer Jeu Ven Sam Dim
+- button "1" [disabled]
+- button "2" [disabled]
+- button "3" [disabled]
+- button "4" [disabled]
+- button "5" [disabled]
+- button "6" [disabled]
+- button "7" [disabled]
+- button "8" [disabled]
+- button "9" [disabled]
+- button "10" [disabled]
+- button "11" [disabled]
+- button "12" [disabled]
+- button "13" [disabled]
+- button "14" [disabled]
+- button "15" [disabled]
+- button "16"
+- button "17"
+- button "18"
+- button "19"
+- button "20"
+- button "21"
+- button "22"
+- button "23"
+- button "24"
+- button "25"
+- button "26"
+- button "27"
+- button "28"
+- button "29"
+- button "30"
+- button "31"
+- heading "novembre 2025" [level=3]
+- text: Lun Mar Mer Jeu Ven Sam Dim
+- button "1"
+- button "2"
+- button "3"
+- button "4"
+- button "5"
+- button "6"
+- button "7"
+- button "8"
+- button "9"
+- button "10"
+- button "11"
+- button "12"
+- button "13"
+- button "14"
+- button "15"
+- button "16"
+- button "17"
+- button "18"
+- button "19"
+- button "20"
+- button "21"
+- button "22"
+- button "23"
+- button "24"
+- button "25"
+- button "26"
+- button "27"
+- button "28"
+- button "29"
+- button "30"
+- heading "décembre 2025" [level=3]
+- text: Lun Mar Mer Jeu Ven Sam Dim
+- button "1"
+- button "2"
+- button "3"
+- button "4"
+- button "5"
+- button "6"
+- button "7"
+- button "8"
+- button "9"
+- button "10"
+- button "11"
+- button "12"
+- button "13"
+- button "14"
+- button "15"
+- button "16"
+- button "17"
+- button "18"
+- button "19"
+- button "20"
+- button "21"
+- button "22"
+- button "23"
+- button "24"
+- button "25"
+- button "26"
+- button "27"
+- button "28"
+- button "29"
+- button "30"
+- button "31"
+- heading "janvier 2026" [level=3]
+- text: Lun Mar Mer Jeu Ven Sam Dim
+- button "1"
+- button "2"
+- button "3"
+- button "4"
+- button "5"
+- button "6"
+- button "7"
+- button "8"
+- button "9"
+- button "10"
+- button "11"
+- button "12"
+- button "13"
+- button "14"
+- button "15"
+- button "16"
+- button "17"
+- button "18"
+- button "19"
+- button "20"
+- button "21"
+- button "22"
+- button "23"
+- button "24"
+- button "25"
+- button "26"
+- button "27"
+- button "28"
+- button "29"
+- button "30"
+- button "31"
+- heading "février 2026" [level=3]
+- text: Lun Mar Mer Jeu Ven Sam Dim
+- button "1"
+- button "2"
+- button "3"
+- button "4"
+- button "5"
+- button "6"
+- button "7"
+- button "8"
+- button "9"
+- button "10"
+- button "11"
+- button "12"
+- button "13"
+- button "14"
+- button "15"
+- button "16"
+- button "17"
+- button "18"
+- button "19"
+- button "20"
+- button "21"
+- button "22"
+- button "23"
+- button "24"
+- button "25"
+- button "26"
+- button "27"
+- button "28"
+- heading "mars 2026" [level=3]
+- text: Lun Mar Mer Jeu Ven Sam Dim
+- button "1"
+- button "2"
+- button "3"
+- button "4"
+- button "5"
+- button "6"
+- button "7"
+- button "8"
+- button "9"
+- button "10"
+- button "11"
+- button "12"
+- button "13"
+- button "14"
+- button "15"
+- button "16"
+- button "17"
+- button "18"
+- button "19"
+- button "20"
+- button "21"
+- button "22"
+- button "23"
+- button "24"
+- button "25"
+- button "26"
+- button "27"
+- button "28"
+- button "29"
+- button "30"
+- button "31"
+- button "Horaires":
+  - img
+  - text: Horaires
+- heading "Aperçu (lecture seule)" [level=3]
+- paragraph: Cet aperçu utilise l'interface de vote, mais les interactions sont désactivées.
+- heading "Options disponibles" [level=2]
+- text: Swipez pour voter
+- img
+- heading "mercredi 15 octobre" [level=3]
+- img
+- text: Toute la journée 0 votes
+- img
+- text: "0"
+- img
+- text: "0"
+- img
+- text: "0"
+- button "Oui":
+  - img
+  - text: Oui
+- button "Peut-être":
+  - img
+  - text: Peut-être
+- button "Non":
+  - img
+  - text: Non
+- img
+- heading "jeudi 16 octobre" [level=3]
+- img
+- text: Toute la journée 0 votes
+- img
+- text: "0"
+- img
+- text: "0"
+- img
+- text: "0"
+- button "Oui":
+  - img
+  - text: Oui
+- button "Peut-être":
+  - img
+  - text: Peut-être
+- button "Non":
+  - img
+  - text: Non
+- img
+- heading "vendredi 17 octobre" [level=3]
+- img
+- text: Toute la journée 0 votes
+- img
+- text: "0"
+- img
+- text: "0"
+- img
+- text: "0"
+- button "Oui":
+  - img
+  - text: Oui
+- button "Peut-être":
+  - img
+  - text: Peut-être
+- button "Non":
+  - img
+  - text: Non
+- paragraph: "💡 Astuce : Glissez vers la droite pour \"Oui\", vers la gauche pour \"Non\""
+- button "Partager":
+  - img
+  - text: Partager
+- img
+- heading "Expiration du sondage" [level=3]
+- button "Modifier"
+- text: Titre du sondage (optionnel)
+- 'textbox "Ex: Réunion équipe marketing"': Mobile UX DatePoll
+- text: Emails des participants (séparés par des virgules)
+- textbox "email1@exemple.com, email2@exemple.com"
+- img
+- text: Connexion recommandée
+- paragraph: Connectez-vous pour gérer vos sondages et accéder à plus de fonctionnalités.
+- button "Se connecter maintenant"
+- img
+- text: Sondage créé avec succès !
+- paragraph: "Votre sondage est maintenant disponible à l'adresse :"
+- text: http://localhost:8080/vote/mobile-ux-datepoll-5773d9ca
+- button "Copier le lien":
+  - img
+  - text: Copier le lien
+- button "Nouveau sondage":
+  - img
+  - text: Nouveau sondage
+- img
+- text: 🔑 Lien d'administration (sondage anonyme)
+- paragraph: "Gardez ce lien pour gérer votre sondage (modifier, supprimer) :"
+- text: http://localhost:8080/poll/mobile-ux-datepoll-5773d9ca/results
+- button "📋 Copier"
+- paragraph:
+  - text: ⚠️
+  - strong: "Important :"
+  - text: Sauvegardez ce lien ! Sans compte, c'est le seul moyen de gérer votre sondage.
+- button "Sondage créé !":
+  - img
+  - text: Sondage créé !
+- region "Notifications (F8)":
+  - list
+```
