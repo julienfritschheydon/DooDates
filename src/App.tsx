@@ -17,6 +17,8 @@ import VotingSwipe from "./components/voting/VotingSwipe";
 import TopNav from "./components/TopNav";
 // import { VotingSwipe as ExVotingSwipe } from "./components/voting/ex-VotingSwipe";
 import { Loader2 } from "lucide-react";
+import { TopBar } from "./components/layout/TopBar";
+import { FEATURES } from "./lib/features";
 
 // Composant de loading optimisé
 const LoadingSpinner = () => (
@@ -37,6 +39,10 @@ const CreateChooser = lazy(() => import("./pages/CreateChooser"));
 const FormCreator = lazy(() => import("./pages/FormCreator"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Prototype pages (UX IA-First)
+const ChatLandingPrototype = lazy(() => import("./components/prototype/ChatLandingPrototype").then(m => ({ default: m.ChatLandingPrototype })));
+const WorkspacePage = lazy(() => import("./app/workspace/page").then(m => ({ default: m.default })));
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -320,18 +326,53 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <BrowserRouter>
-          <Layout>
-            <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/chat" element={<Index />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/auth" element={<Auth />} />
+// Layout Prototype avec Sidebar (pour AI-First UX)
+const LayoutPrototype = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+
+  // Pages qui ne doivent pas afficher la Sidebar (garde TopNav)
+  const useClassicLayout = location.pathname.startsWith("/poll/") || 
+                           location.pathname.startsWith("/create/") ||
+                           location.pathname.startsWith("/vote/") ||
+                           location.pathname.startsWith("/auth");
+
+  // Si page classique, utiliser TopNav
+  if (useClassicLayout) {
+    return <Layout>{children}</Layout>;
+  }
+
+  // Sinon, utiliser TopBar (nouveau layout ChatGPT-style)
+  return (
+    <div className="flex flex-col h-screen">
+      <TopBar />
+      <main className="flex-1 overflow-hidden">
+        {children}
+      </main>
+    </div>
+  );
+};
+
+const App = () => {
+  // Choisir le layout selon le feature flag
+  const AppLayout = FEATURES.AI_FIRST_UX ? LayoutPrototype : Layout;
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <BrowserRouter>
+            <AppLayout>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  {/* Route / conditionnelle selon feature flag */}
+                  <Route path="/" element={FEATURES.AI_FIRST_UX ? <ChatLandingPrototype /> : <Index />} />
+                  <Route path="/chat" element={<Index />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  
+                  {/* Nouvelles routes prototype */}
+                  <Route path="/workspace" element={<WorkspacePage />} />
+                  
+                  <Route path="/auth" element={<Auth />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/poll/:slug" element={<Vote />} />
                 <Route path="/poll/:slug/results" element={<Results />} />
@@ -350,13 +391,14 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
-          </Layout>
+          </AppLayout>
         </BrowserRouter>
       </TooltipProvider>
       <Toaster />
       <Sonner />
     </AuthProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
