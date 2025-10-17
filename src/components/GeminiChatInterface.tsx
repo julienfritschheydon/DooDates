@@ -43,6 +43,8 @@ import { conversationProtection } from "../services/ConversationProtection";
 import { performanceMonitor } from "../services/PerformanceMonitor";
 import { useInfiniteLoopProtection } from "../services/InfiniteLoopProtection";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
+import { logger } from "../lib/logger";
+import { useToast } from "@/hooks/use-toast";
 
 // Global initialization guard to prevent multiple conversation creation
 let isInitializing = false;
@@ -129,6 +131,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   const conversationResume = useConversationResume();
   const quota = useQuota();
   const loopProtection = useInfiniteLoopProtection("gemini-chat-interface");
+  const { toast } = useToast();
 
   // Utiliser useRef pour persister les flags entre les re-rendus
   const hasShownOfflineMessage = useRef(false);
@@ -462,9 +465,16 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
       return; // Modal will be shown by the quota hook
     }
 
+    // Détecter si c'est un markdown questionnaire long
+    const trimmedInput = inputValue.trim();
+    const isLongMarkdown = trimmedInput.length > 500 && /^#\s+.+$/m.test(trimmedInput);
+    const displayContent = isLongMarkdown 
+      ? `📋 Questionnaire détecté (${trimmedInput.length} caractères)\n\nAnalyse en cours...`
+      : trimmedInput;
+
     const userMessage: Message = {
-      id: Date.now().toString(),
-      content: inputValue.trim(),
+      id: `user-${Date.now()}`,
+      content: displayContent,
       isAI: false,
       timestamp: new Date(),
     };
@@ -473,10 +483,21 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     setInputValue("");
     setIsLoading(true);
 
-    // Auto-save user message
+    // Ajouter un message de progression si markdown détecté
+    if (isLongMarkdown) {
+      const progressMessage: Message = {
+        id: `progress-${Date.now()}`,
+        content: "🤖 Analyse du questionnaire markdown en cours...",
+        isAI: true,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, progressMessage]);
+    }
+
+    // Auto-save user message (avec le contenu original pour les markdown)
     await autoSave.addMessage({
       id: userMessage.id,
-      content: userMessage.content,
+      content: isLongMarkdown ? trimmedInput : userMessage.content,
       isAI: userMessage.isAI,
       timestamp: userMessage.timestamp,
     });
@@ -484,16 +505,23 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     try {
       // Sending request to Gemini
       // Essayer de générer un sondage
+      // IMPORTANT: Toujours envoyer le contenu ORIGINAL (trimmedInput), pas le displayContent
       const pollResponse = await geminiService.generatePollFromText(
-        userMessage.content,
+        trimmedInput,
       );
 
       if (pollResponse.success && pollResponse.data) {
         // Gemini response received successfully
+        
+        // Supprimer le message de progression si présent
+        if (isLongMarkdown) {
+          setMessages((prev) => prev.filter(msg => !msg.id.startsWith('progress-')));
+        }
 
+        const pollType = pollResponse.data.type === "form" ? "questionnaire" : "sondage de disponibilité";
         const aiResponse: Message = {
           id: `ai-${Date.now()}`,
-          content: `Voici votre sondage :`,
+          content: `Voici votre ${pollType} :`,
           isAI: true,
           timestamp: new Date(),
           pollSuggestion: pollResponse.data,
@@ -685,6 +713,22 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
             setShowPollCreator(false);
             setSelectedPollData(null);
           }}
+          onSave={(draft) => {
+            logger.info("Form Poll sauvegardé comme brouillon", "poll", { draftId: draft.id });
+            toast({
+              title: "✅ Brouillon enregistré",
+              description: "Votre questionnaire a été sauvegardé avec succès.",
+            });
+          }}
+          onFinalize={(draft) => {
+            logger.info("Form Poll finalisé", "poll", { draftId: draft.id });
+            toast({
+              title: "🎉 Questionnaire créé !",
+              description: "Votre formulaire est maintenant disponible.",
+            });
+            setShowPollCreator(false);
+            setSelectedPollData(null);
+          }}
         />
       );
     }
@@ -831,7 +875,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                                 </span>
                               </div>
 
-                              <div className="space-y-2 max-h-48 overflow-y-auto">
+                              <div className="space-y-2">
                                 {message.pollSuggestion.questions?.map(
                                   (question, idx) => (
                                     <div

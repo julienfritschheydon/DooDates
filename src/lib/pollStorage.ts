@@ -29,11 +29,12 @@ export interface PollSettings {
 }
 
 // --- Types FormPoll (réponses & résultats) ---
-export type FormQuestionKind = "single" | "multiple" | "text";
+export type FormQuestionKind = "single" | "multiple" | "text" | "matrix";
 
 export interface FormQuestionOption {
   id: string;
   label: string;
+  isOther?: boolean; // Option "Autre" avec champ texte libre
 }
 
 export interface FormQuestionShape {
@@ -48,12 +49,21 @@ export interface FormQuestionShape {
   // Additional properties for text questions
   placeholder?: string;
   maxLength?: number;
+  // Matrix-specific fields
+  matrixRows?: FormQuestionOption[]; // Lignes (aspects à évaluer)
+  matrixColumns?: FormQuestionOption[]; // Colonnes (échelle de réponse)
+  matrixType?: "single" | "multiple"; // Une seule réponse par ligne ou plusieurs
+  matrixColumnsNumeric?: boolean; // Colonnes numériques (1-5) au lieu de texte
 }
+
+// Import ConditionalRule type
+import type { ConditionalRule } from "../types/conditionalRules";
 
 export interface FormResponseItem {
   questionId: string;
   // single => string (optionId), multiple => string[] (optionIds), text => string
-  value: string | string[];
+  // matrix => Record<rowId, columnId | columnId[]>
+  value: string | string[] | Record<string, string | string[]>;
 }
 
 export interface FormResponse {
@@ -107,6 +117,7 @@ export interface Poll {
   type?: "date" | "form";
   // Champs spécifiques aux formulaires - properly typed now
   questions?: FormQuestionShape[];
+  conditionalRules?: ConditionalRule[]; // Règles pour questions conditionnelles
 }
 
 const STORAGE_KEY = "doodates_polls";
@@ -683,7 +694,7 @@ export function getFormResults(pollId: string): FormResults {
     qIndex.set(q.id, q);
     const kind = (q as any)?.kind || (q as any)?.type || "single";
     if (kind !== "text") countsByQuestion[q.id] = {};
-    else textAnswers[q.id] = [];
+    if (kind === "text") textAnswers[q.id] = [];
   }
 
   for (const r of all) {
@@ -709,6 +720,22 @@ export function getFormResults(pollId: string): FormResults {
         for (const optId of arr) {
           countsByQuestion[q.id][optId] =
             (countsByQuestion[q.id][optId] || 0) + 1;
+        }
+        continue;
+      }
+      if (kind === "matrix") {
+        // Pour matrices, compter chaque cellule (rowId_colId)
+        const matrixVal = it.value as Record<string, string | string[]>;
+        if (matrixVal && typeof matrixVal === 'object' && !Array.isArray(matrixVal)) {
+          for (const [rowId, colValue] of Object.entries(matrixVal)) {
+            const colIds = Array.isArray(colValue) ? colValue : [colValue];
+            for (const colId of colIds) {
+              if (colId) {
+                const key = `${rowId}_${colId}`;
+                countsByQuestion[q.id][key] = (countsByQuestion[q.id][key] || 0) + 1;
+              }
+            }
+          }
         }
       }
     }

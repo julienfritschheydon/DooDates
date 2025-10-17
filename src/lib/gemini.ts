@@ -49,6 +49,7 @@ export interface FormPollSuggestion {
   description?: string;
   questions: FormQuestion[];
   type: "form";
+  conditionalRules?: import("../types/conditionalRules").ConditionalRule[];
 }
 
 // Types pour Date Polls (sondages de dates)
@@ -138,6 +139,205 @@ export class GeminiService {
   }
 
   /**
+   * Détecte si l'input contient du markdown de questionnaire
+   */
+  private isMarkdownQuestionnaire(text: string): boolean {
+    const hasTitle = /^#\s+.+$/m.test(text);
+    const hasSections = /^##\s+.+$/m.test(text);
+    const hasQuestions = /^###\s*Q\d+/m.test(text);
+    // Support multiple checkbox formats: ☐, □, - [ ], etc.
+    const hasCheckboxes = /-\s*[☐□]|^-\s*\[\s*\]/m.test(text);
+
+    const isMarkdown = hasTitle && hasSections && hasQuestions && text.length > 200;
+    
+    if (import.meta.env.DEV) {
+      logger.info(
+        `Markdown detection: title=${hasTitle}, sections=${hasSections}, questions=${hasQuestions}, checkboxes=${hasCheckboxes}, length=${text.length}, result=${isMarkdown}`,
+        "api",
+      );
+    }
+
+    // Doit avoir au moins titre + questions ET sections
+    return isMarkdown;
+  }
+
+  /**
+   * Parse un questionnaire markdown et extrait la structure
+   */
+  private parseMarkdownQuestionnaire(markdown: string): string | null {
+    try {
+      // Nettoyer les commentaires HTML
+      let cleaned = markdown.replace(/<!--[\s\S]*?-->/g, "");
+      cleaned = cleaned.replace(/\n{3,}/g, "\n\n").trim();
+
+      // Extraire titre principal
+      const titleMatch = cleaned.match(/^#\s+(.+?)$/m);
+      if (!titleMatch) return null;
+      const title = titleMatch[1].trim();
+
+      // Construire un format UNIFORME simplifié pour Gemini
+      let prompt = `TITRE: ${title}\n\n`;
+      
+      // Extraire sections avec split() (méthode robuste testée)
+      const parts = cleaned.split(/(?=^##\s+)/gm);
+      const sections = parts.filter(part => part.startsWith('##') && !part.startsWith('###'));
+
+      if (import.meta.env.DEV) {
+        console.log(`📂 ${sections.length} sections détectées dans le markdown`);
+      }
+
+      let questionNumber = 0;
+      const conditionalPatterns: Array<{ questionNumber: number; title: string }> = [];
+
+      for (const sectionContent of sections) {
+        const lines = sectionContent.split('\n');
+        const sectionTitle = lines[0].replace(/^##\s+/, '').trim();
+
+        // Extraire questions avec split() (plus robuste que regex)
+        const questionParts = sectionContent.split(/(?=^###\s)/gm);
+        const questionBlocks = questionParts.filter(part => part.trim().startsWith('###'));
+
+        if (import.meta.env.DEV) {
+          console.log(`🔍 Section "${sectionTitle}" - ${questionBlocks.length} questions trouvées`);
+        }
+
+        for (const questionBlock of questionBlocks) {
+          questionNumber++;
+          
+          // Extraire le titre de la question (première ligne sans les ###)
+          const firstLine = questionBlock.split('\n')[0];
+          const questionTitle = firstLine.replace(/^###\s*(?:Q\d+[a-z]*\.|Q\d+[a-z]*|Question\s*\d+:?|\d+[\).]\s*)\s*/, '').trim();
+
+          // Détecter si la question est conditionnelle (Si NON, Si OUI, etc.)
+          const conditionalMatch = questionTitle.match(/^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i);
+          if (conditionalMatch) {
+            conditionalPatterns.push({
+              questionNumber,
+              title: questionTitle,
+            });
+          }
+
+          if (import.meta.env.DEV) {
+            console.log(`  📋 Question ${questionNumber}: "${questionTitle}"`);
+            console.log(`  📦 Bloc (${questionBlock.length} chars)`);
+            if (conditionalMatch) {
+              console.log(`  🔀 Condition détectée: Si ${conditionalMatch[1]}`);
+            }
+          }
+
+          // Détecter type de question
+          const lowerBlock = questionBlock.toLowerCase();
+          let type = "single";
+          let maxChoices = undefined;
+
+          // Texte libre (détection étendue)
+          if (
+            lowerBlock.includes("réponse libre") ||
+            lowerBlock.includes("texte libre") ||
+            lowerBlock.includes("votre réponse") ||
+            lowerBlock.includes("_votre réponse") ||
+            lowerBlock.includes("commentaires") ||
+            lowerBlock.includes("expliquez") ||
+            lowerBlock.includes("précisez") ||
+            lowerBlock.includes("détailler")
+          ) {
+            type = "text";
+          }
+          // Choix multiple avec contrainte
+          else {
+            const maxMatch = lowerBlock.match(/max\s+(\d+)|(\d+)\s+max/);
+            if (maxMatch) {
+              type = "multiple";
+              maxChoices = parseInt(maxMatch[1] || maxMatch[2]);
+            }
+            // Choix unique explicite
+            else if (
+              lowerBlock.includes("1 seule réponse") ||
+              lowerBlock.includes("une réponse") ||
+              lowerBlock.includes("une seule")
+            ) {
+              type = "single";
+            }
+          }
+
+          // Format UNIFORME simplifié
+          prompt += `QUESTION ${questionNumber} [${type}`;
+          if (maxChoices) prompt += `, max=${maxChoices}`;
+          prompt += `, required]:\n${questionTitle}\n`;
+
+          // Extraire options (support TOUS les formats)
+          if (type !== "text") {
+            // Support: -, *, •, ○, ☐, □, ✓, [ ]
+            const optionRegex = /^[\s]*[-*\u2022\u25cb\u2610\u25a1\u2713]\s*(?:\[\s*\])?\s*(.+)$/gm;
+            const options: string[] = [];
+            let optionMatch;
+            
+            while ((optionMatch = optionRegex.exec(questionBlock)) !== null) {
+              let option = optionMatch[1].trim();
+              
+              // Nettoyer les symboles checkbox résiduels (☐, □, ✓, [ ])
+              option = option.replace(/^[☐□✓\u2610\u25a1\u2713]\s*/, '');
+              option = option.replace(/^\[\s*\]\s*/, '');
+              option = option.trim();
+              
+              // Ignorer les sous-titres markdown et "Autre :"
+              if (!option.startsWith('#') && !option.startsWith('Autre :') && option.length > 0) {
+                options.push(option);
+              }
+            }
+            
+            if (options.length > 0) {
+              // Format simple : une ligne par option
+              options.forEach(opt => {
+                prompt += `- ${opt}\n`;
+              });
+              
+              if (import.meta.env.DEV) {
+                console.log(`  ✅ ${options.length} options extraites`);
+              }
+            } else if (import.meta.env.DEV) {
+              console.log(`  ⚠️  AVERTISSEMENT: Aucune option détectée`);
+            }
+          } else {
+            prompt += `(réponse libre)\n`;
+          }
+          
+          prompt += "\n";
+        }
+      }
+
+      // Ajouter les règles conditionnelles détectées
+      if (conditionalPatterns.length > 0) {
+        prompt += `\nRÈGLES CONDITIONNELLES:\n`;
+        for (const pattern of conditionalPatterns) {
+          const match = pattern.title.match(/^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i);
+          if (match) {
+            const condition = match[1].toUpperCase();
+            const dependsOnQuestion = pattern.questionNumber - 1;
+            prompt += `- Question ${pattern.questionNumber} s'affiche seulement si Question ${dependsOnQuestion} = "${condition === "OUI" ? "Oui" : "Non"}"\n`;
+          }
+        }
+        prompt += "\n";
+      }
+
+      if (import.meta.env.DEV) {
+        logger.info("📝 Prompt parsé envoyé à Gemini:", "api");
+        console.log("=== PROMPT PARSÉ ===");
+        console.log(prompt);
+        console.log("===================");
+        if (conditionalPatterns.length > 0) {
+          console.log(`🔀 ${conditionalPatterns.length} règle(s) conditionnelle(s) détectée(s)`);
+        }
+      }
+
+      return prompt;
+    } catch (error) {
+      logger.error("Erreur parsing markdown questionnaire", "api", error);
+      return null;
+    }
+  }
+
+  /**
    * Détecte le type de sondage demandé par l'utilisateur
    * @param userInput Texte de la demande utilisateur
    * @returns "form" pour questionnaire, "date" pour sondage de dates
@@ -219,8 +419,38 @@ export class GeminiService {
     }
 
     try {
-      // NOUVEAU : Détecter le type de sondage demandé
-      const pollType = this.detectPollType(userInput);
+      // NOUVEAU : Détecter si c'est du markdown
+      const isMarkdown = this.isMarkdownQuestionnaire(userInput);
+      let processedInput = userInput;
+      let pollType: "date" | "form";
+
+      if (import.meta.env.DEV && isMarkdown) {
+        logger.info("📋 Markdown original copié-collé:", "api");
+        console.log("=== MARKDOWN ORIGINAL ===");
+        console.log(userInput);
+        console.log("=========================");
+      }
+
+      if (isMarkdown) {
+        // Parser le markdown et convertir en prompt structuré
+        const parsedPrompt = this.parseMarkdownQuestionnaire(userInput);
+        if (parsedPrompt) {
+          processedInput = parsedPrompt;
+          pollType = "form"; // Les questionnaires markdown sont toujours des Form Polls
+          if (import.meta.env.DEV) {
+            logger.info(
+              "Markdown questionnaire détecté et parsé avec succès",
+              "api",
+            );
+          }
+        } else {
+          // Fallback si parsing échoue
+          pollType = this.detectPollType(userInput);
+        }
+      } else {
+        // Détection normale
+        pollType = this.detectPollType(userInput);
+      }
 
       if (import.meta.env.DEV) {
         logger.info(
@@ -230,10 +460,30 @@ export class GeminiService {
       }
 
       // Router vers le bon prompt selon le type
-      const prompt =
-        pollType === "form"
-          ? this.buildFormPollPrompt(userInput)
-          : this.buildPollGenerationPrompt(userInput);
+      let prompt: string;
+      if (pollType === "form") {
+        // Détecter si c'est un questionnaire structuré (markdown parsé) ou une simple demande
+        const isStructured = this.isStructuredQuestionnaire(processedInput);
+        prompt = isStructured
+          ? this.buildFormPollPromptCopy(processedInput)
+          : this.buildFormPollPromptGenerate(processedInput);
+        
+        if (import.meta.env.DEV) {
+          logger.info(
+            `Form Poll mode: ${isStructured ? "COPY (markdown parsé)" : "GENERATE (demande simple)"}`,
+            "api",
+          );
+        }
+      } else {
+        prompt = this.buildPollGenerationPrompt(processedInput);
+      }
+
+      if (import.meta.env.DEV) {
+        logger.info("🚀 Prompt COMPLET envoyé à Gemini:", "api");
+        console.log("=== PROMPT COMPLET ===");
+        console.log(prompt);
+        console.log("======================");
+      }
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
@@ -766,18 +1016,99 @@ Reste concis et pratique. Réponds en français.`;
   }
 
   /**
-   * Construit le prompt système pour la génération de Form Polls (questionnaires)
-   * @param userInput Texte de la demande utilisateur
-   * @returns Prompt système complet pour Gemini
+   * Détecte si l'input est un questionnaire structuré (markdown parsé) ou une simple demande
    */
-  private buildFormPollPrompt(userInput: string): string {
+  private isStructuredQuestionnaire(input: string): boolean {
+    // Détecter le nouveau format uniforme
+    return (
+      input.startsWith("TITRE:") &&
+      input.includes("QUESTION") &&
+      input.includes("[") &&
+      (input.includes("- ") || input.includes("(réponse libre)"))
+    );
+  }
+
+  /**
+   * Prompt pour COPIER un questionnaire existant (markdown parsé)
+   */
+  private buildFormPollPromptCopy(userInput: string): string {
+    return `Tu es l'IA DooDates, expert en conversion de questionnaires.
+
+OBJECTIF: Convertir EXACTEMENT ce questionnaire au format JSON sans AUCUNE modification.
+
+QUESTIONNAIRE À COPIER:
+${userInput}
+
+FORMAT DU QUESTIONNAIRE:
+- Ligne "TITRE:" suivi du titre exact
+- "QUESTION X [type, required]:" suivi du texte de la question
+- Options listées avec "- " (une par ligne)
+- "(réponse libre)" pour les questions texte
+- Section "RÈGLES CONDITIONNELLES:" si présente (optionnelle)
+
+RÈGLES ABSOLUES (MODE COPIE 100% FIDÈLE):
+1. ✅ COPIE MOT-À-MOT - Chaque texte doit être copié caractère par caractère
+2. ✅ AUCUNE REFORMULATION - Ne jamais paraphraser ou simplifier
+3. ✅ TOUT COPIER - Parenthèses, chiffres, ponctuations inclus
+4. ✅ ORDRE EXACT - Respecter l'ordre des questions et options
+
+EXEMPLES DE COPIE EXACTE:
+✅ "Je suis en file d'attente (pas encore démarré)" → COPIE TELLE QUELLE
+✅ "Très utile (5/5)" → COPIE TELLE QUELLE
+✅ "Moins de 3 mois" → COPIE TELLE QUELLE
+
+INTERDIT (exemples de ce qu'il NE FAUT PAS faire):
+❌ "Je suis en file d'attente (pas encore démarré)" → "En attente"
+❌ "Très utile (5/5)" → "Très positive"
+❌ "Moins de 3 mois" → "0-3 mois"
+❌ Supprimer des parenthèses
+❌ Changer des mots
+❌ Inverser l'ordre
+
+FORMAT JSON ATTENDU:
+{
+  "title": "Titre exact copié tel quel",
+  "questions": [
+    {
+      "title": "Question exacte copiée telle quelle",
+      "type": "single" | "multiple" | "text",
+      "required": true,
+      "options": ["Option 1 exacte", "Option 2 exacte"],
+      "maxChoices": X  // si [max=X] dans le type
+    }
+  ],
+  "conditionalRules": [  // OPTIONNEL - seulement si règles détectées
+    {
+      "questionId": "question-4",  // ID de la question à masquer/afficher
+      "dependsOn": "question-3",   // ID de la question dont elle dépend
+      "showIf": {
+        "operator": "equals",
+        "value": "Non"  // Valeur qui déclenche l'affichage
+      }
+    }
+  ],
+  "type": "form"
+}
+
+IMPORTANT pour les conditionalRules:
+- Les IDs des questions doivent correspondre à l'index dans le tableau questions
+- Exemple: Question 1 → "question-1", Question 4 → "question-4"
+- Si pas de règles conditionnelles, ne pas inclure le champ "conditionalRules"
+
+Réponds UNIQUEMENT avec le JSON, rien d'autre.`;
+  }
+
+  /**
+   * Prompt pour GÉNÉRER un questionnaire créatif (demande simple)
+   */
+  private buildFormPollPromptGenerate(userInput: string): string {
     return `Tu es l'IA DooDates, expert en création de questionnaires et formulaires.
 
-OBJECTIF: Créer un questionnaire/sondage d'opinion à partir de la demande utilisateur.
+OBJECTIF: Créer un questionnaire pertinent à partir de la demande utilisateur.
 
 Demande: "${userInput}"
 
-RÈGLES DE GÉNÉRATION:
+RÈGLES DE GÉNÉRATION (MODE CRÉATIF):
 1. **TITRE** - Clair et descriptif (max 100 caractères)
 2. **QUESTIONS** - 3 à 10 questions pertinentes et logiques
 3. **TYPES DE QUESTIONS**:
@@ -939,6 +1270,13 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
    */
   private parseFormPollResponse(text: string): FormPollSuggestion | null {
     try {
+      if (import.meta.env.DEV) {
+        logger.info("🤖 Réponse brute de Gemini:", "api");
+        console.log("=== RÉPONSE GEMINI ===");
+        console.log(text);
+        console.log("======================");
+      }
+
       // Nettoyer le texte pour extraire le JSON
       const cleanText = text.trim();
       const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
@@ -946,6 +1284,13 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
       if (jsonMatch) {
         const jsonStr = jsonMatch[0];
         const parsed = JSON.parse(jsonStr);
+
+        if (import.meta.env.DEV) {
+          logger.info("📊 JSON parsé de Gemini:", "api");
+          console.log("=== JSON PARSÉ ===");
+          console.log(JSON.stringify(parsed, null, 2));
+          console.log("==================");
+        }
 
         // Validation structure Form Poll
         if (
@@ -1003,7 +1348,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
             );
           }
 
-          return {
+          const finalPoll: FormPollSuggestion = {
             title: parsed.title,
             description: parsed.description,
             questions: validQuestions.map((q: FormQuestion) => ({
@@ -1015,8 +1360,18 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
               placeholder: q.placeholder,
               maxLength: q.maxLength,
             })),
-            type: "form",
+            type: "form" as const,
+            ...(parsed.conditionalRules && { conditionalRules: parsed.conditionalRules }),
           };
+
+          if (import.meta.env.DEV) {
+            logger.info("✅ Questionnaire FINAL validé et retourné:", "api");
+            console.log("=== QUESTIONNAIRE FINAL ===");
+            console.log(JSON.stringify(finalPoll, null, 2));
+            console.log("===========================");
+          }
+
+          return finalPoll;
         }
       }
 
