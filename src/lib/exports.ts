@@ -59,7 +59,7 @@ export function formPollToCSV(poll: Poll): string {
   if (poll.type !== "form") {
     throw ErrorFactory.validation(
       "Poll type must be 'form'",
-      "Ce sondage n'est pas de type formulaire"
+      "Ce sondage n'est pas de type formulaire",
     );
   }
 
@@ -202,7 +202,7 @@ export function exportFormPollToCSV(poll: Poll): void {
   if (poll.type !== "form") {
     throw ErrorFactory.validation(
       "This function only supports FormPoll",
-      "Cette fonction ne supporte que les formulaires"
+      "Cette fonction ne supporte que les formulaires",
     );
   }
 
@@ -236,7 +236,7 @@ function formPollToHTML(poll: Poll): string {
   if (poll.type !== "form") {
     throw ErrorFactory.validation(
       "Poll type must be 'form'",
-      "Ce sondage n'est pas de type formulaire"
+      "Ce sondage n'est pas de type formulaire",
     );
   }
 
@@ -479,7 +479,7 @@ export function exportFormPollToPDF(poll: Poll): void {
   if (poll.type !== "form") {
     throw ErrorFactory.validation(
       "This function only supports FormPoll",
-      "Cette fonction ne supporte que les formulaires"
+      "Cette fonction ne supporte que les formulaires",
     );
   }
 
@@ -490,7 +490,7 @@ export function exportFormPollToPDF(poll: Poll): void {
   if (!printWindow) {
     throw ErrorFactory.validation(
       "Popup blocked. Please allow popups for this site.",
-      "Veuillez autoriser les pop-ups pour ce site"
+      "Veuillez autoriser les pop-ups pour ce site",
     );
   }
 
@@ -505,7 +505,7 @@ export function exportFormPollToJSON(poll: Poll): void {
   if (poll.type !== "form") {
     throw ErrorFactory.validation(
       "This function only supports FormPoll",
-      "Cette fonction ne supporte que les formulaires"
+      "Cette fonction ne supporte que les formulaires",
     );
   }
 
@@ -554,7 +554,7 @@ export function exportFormPollToMarkdown(poll: Poll): void {
   if (poll.type !== "form") {
     throw ErrorFactory.validation(
       "This function only supports FormPoll",
-      "Cette fonction ne supporte que les formulaires"
+      "Cette fonction ne supporte que les formulaires",
     );
   }
 

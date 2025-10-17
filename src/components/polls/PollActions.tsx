@@ -191,9 +191,13 @@ export const PollActions: React.FC<PollActionsProps> = ({
           ? err
           : ErrorFactory.api(
               "Export error",
-              "Erreur lors de l'export du sondage"
+              "Erreur lors de l'export du sondage",
             ),
-        { component: "PollActions", operation: "handleExport", pollId: poll.id }
+        {
+          component: "PollActions",
+          operation: "handleExport",
+          pollId: poll.id,
+        },
       );
       toast({
         title: "Erreur d'export",
