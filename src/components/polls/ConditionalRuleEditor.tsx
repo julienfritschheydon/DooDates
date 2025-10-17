@@ -22,7 +22,7 @@ export default function ConditionalRuleEditor({
   onChange,
 }: ConditionalRuleEditorProps) {
   const currentRules = existingRules.filter((r) => r.questionId === questionId);
-  
+
   // Par défaut, ouvrir en mode édition s'il y a déjà des règles
   const [isEditing, setIsEditing] = useState(currentRules.length > 0);
 
@@ -35,7 +35,7 @@ export default function ConditionalRuleEditor({
 
   // Trouver l'index de la question actuelle
   const currentIndex = questions.findIndex((q) => q.id === questionId);
-  
+
   // Questions précédentes (celles dont on peut dépendre)
   const previousQuestions = questions.slice(0, currentIndex);
 
@@ -84,7 +84,12 @@ export default function ConditionalRuleEditor({
   // Trouver une règle globalement
   const getRuleGlobalIndex = (localIndex: number) => {
     return existingRules.findIndex(
-      (r, idx) => r.questionId === questionId && existingRules.slice(0, idx + 1).filter((r2) => r2.questionId === questionId).length === localIndex + 1
+      (r, idx) =>
+        r.questionId === questionId &&
+        existingRules
+          .slice(0, idx + 1)
+          .filter((r2) => r2.questionId === questionId).length ===
+          localIndex + 1,
     );
   };
 
@@ -134,13 +139,20 @@ export default function ConditionalRuleEditor({
 
       {currentRules.map((rule, localIdx) => {
         const globalIdx = getRuleGlobalIndex(localIdx);
-        const dependsOnQuestion = questions.find((q) => q.id === rule.dependsOn);
+        const dependsOnQuestion = questions.find(
+          (q) => q.id === rule.dependsOn,
+        );
 
         // Mode lecture : afficher juste le résumé
         if (!isEditing) {
           return (
-            <div key={localIdx} className="text-xs text-gray-700 bg-white p-2 rounded border border-gray-200">
-              <span className="text-blue-700 font-medium">"{dependsOnQuestion?.title || "Question"}"</span>{" "}
+            <div
+              key={localIdx}
+              className="text-xs text-gray-700 bg-white p-2 rounded border border-gray-200"
+            >
+              <span className="text-blue-700 font-medium">
+                "{dependsOnQuestion?.title || "Question"}"
+              </span>{" "}
               <span>
                 {rule.showIf.operator === "equals" && "est égal à"}
                 {rule.showIf.operator === "notEquals" && "est différent de"}
@@ -149,7 +161,12 @@ export default function ConditionalRuleEditor({
                 {rule.showIf.operator === "isNotEmpty" && "n'est pas vide"}
               </span>
               {rule.showIf.value && (
-                <> <span className="text-green-700 font-medium">"{rule.showIf.value}"</span></>
+                <>
+                  {" "}
+                  <span className="text-green-700 font-medium">
+                    "{rule.showIf.value}"
+                  </span>
+                </>
               )}
             </div>
           );
@@ -168,8 +185,11 @@ export default function ConditionalRuleEditor({
                     value={rule.dependsOn}
                     onChange={(e) => {
                       const newDependsOn = e.target.value;
-                      const newQuestion = questions.find((q) => q.id === newDependsOn);
-                      const firstOption = newQuestion?.options?.[0]?.label || "";
+                      const newQuestion = questions.find(
+                        (q) => q.id === newDependsOn,
+                      );
+                      const firstOption =
+                        newQuestion?.options?.[0]?.label || "";
                       updateRule(globalIdx, {
                         dependsOn: newDependsOn,
                         showIf: { ...rule.showIf, value: firstOption },
@@ -194,7 +214,8 @@ export default function ConditionalRuleEditor({
                       updateRule(globalIdx, {
                         showIf: {
                           ...rule.showIf,
-                          operator: e.target.value as ConditionalRule["showIf"]["operator"],
+                          operator: e.target
+                            .value as ConditionalRule["showIf"]["operator"],
                         },
                       })
                     }
@@ -208,65 +229,67 @@ export default function ConditionalRuleEditor({
                 </div>
 
                 {/* Sélection valeur (si opérateur nécessite une valeur) */}
-                {rule.showIf.operator !== "isEmpty" && rule.showIf.operator !== "isNotEmpty" && (
-                  <div>
-                    <label className="text-xs text-gray-600">Valeur</label>
-                    {/* Pour "contient", toujours afficher un input texte libre */}
-                    {rule.showIf.operator === "contains" ? (
-                      <input
-                        type="text"
-                        className="w-full text-sm border rounded px-2 py-1"
-                        value={
-                          Array.isArray(rule.showIf.value)
-                            ? rule.showIf.value[0]
-                            : rule.showIf.value || ""
-                        }
-                        onChange={(e) =>
-                          updateRule(globalIdx, {
-                            showIf: { ...rule.showIf, value: e.target.value },
-                          })
-                        }
-                        placeholder="Texte à rechercher"
-                      />
-                    ) : dependsOnQuestion?.options && dependsOnQuestion.options.length > 0 ? (
-                      <select
-                        className="w-full text-sm border rounded px-2 py-1"
-                        value={
-                          Array.isArray(rule.showIf.value)
-                            ? rule.showIf.value[0]
-                            : rule.showIf.value || ""
-                        }
-                        onChange={(e) =>
-                          updateRule(globalIdx, {
-                            showIf: { ...rule.showIf, value: e.target.value },
-                          })
-                        }
-                      >
-                        {dependsOnQuestion.options.map((opt) => (
-                          <option key={opt.id} value={opt.label}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        type="text"
-                        className="w-full text-sm border rounded px-2 py-1"
-                        value={
-                          Array.isArray(rule.showIf.value)
-                            ? rule.showIf.value[0]
-                            : rule.showIf.value || ""
-                        }
-                        onChange={(e) =>
-                          updateRule(globalIdx, {
-                            showIf: { ...rule.showIf, value: e.target.value },
-                          })
-                        }
-                        placeholder="Entrez une valeur"
-                      />
-                    )}
-                  </div>
-                )}
+                {rule.showIf.operator !== "isEmpty" &&
+                  rule.showIf.operator !== "isNotEmpty" && (
+                    <div>
+                      <label className="text-xs text-gray-600">Valeur</label>
+                      {/* Pour "contient", toujours afficher un input texte libre */}
+                      {rule.showIf.operator === "contains" ? (
+                        <input
+                          type="text"
+                          className="w-full text-sm border rounded px-2 py-1"
+                          value={
+                            Array.isArray(rule.showIf.value)
+                              ? rule.showIf.value[0]
+                              : rule.showIf.value || ""
+                          }
+                          onChange={(e) =>
+                            updateRule(globalIdx, {
+                              showIf: { ...rule.showIf, value: e.target.value },
+                            })
+                          }
+                          placeholder="Texte à rechercher"
+                        />
+                      ) : dependsOnQuestion?.options &&
+                        dependsOnQuestion.options.length > 0 ? (
+                        <select
+                          className="w-full text-sm border rounded px-2 py-1"
+                          value={
+                            Array.isArray(rule.showIf.value)
+                              ? rule.showIf.value[0]
+                              : rule.showIf.value || ""
+                          }
+                          onChange={(e) =>
+                            updateRule(globalIdx, {
+                              showIf: { ...rule.showIf, value: e.target.value },
+                            })
+                          }
+                        >
+                          {dependsOnQuestion.options.map((opt) => (
+                            <option key={opt.id} value={opt.label}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          className="w-full text-sm border rounded px-2 py-1"
+                          value={
+                            Array.isArray(rule.showIf.value)
+                              ? rule.showIf.value[0]
+                              : rule.showIf.value || ""
+                          }
+                          onChange={(e) =>
+                            updateRule(globalIdx, {
+                              showIf: { ...rule.showIf, value: e.target.value },
+                            })
+                          }
+                          placeholder="Entrez une valeur"
+                        />
+                      )}
+                    </div>
+                  )}
               </div>
 
               <button

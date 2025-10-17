@@ -40,7 +40,7 @@ export default function FormCreator() {
       console.error("❌ Poll non fourni après finalisation!");
       return;
     }
-    
+
     setPublishedPoll(savedPoll);
     setPublished(true);
   };
@@ -64,7 +64,8 @@ export default function FormCreator() {
                   Formulaire publié !
                 </h1>
                 <p className="text-gray-600">
-                  Votre formulaire "{publishedPoll.title}" est maintenant actif et prêt à recevoir des réponses.
+                  Votre formulaire "{publishedPoll.title}" est maintenant actif
+                  et prêt à recevoir des réponses.
                 </p>
               </div>
 
@@ -88,7 +89,9 @@ export default function FormCreator() {
 
               {/* Lien de partage */}
               <div className="pt-4 border-t">
-                <p className="text-sm text-gray-600 mb-2">Lien du formulaire :</p>
+                <p className="text-sm text-gray-600 mb-2">
+                  Lien du formulaire :
+                </p>
                 <div className="flex gap-2 items-center justify-center">
                   <code className="px-4 py-2 bg-gray-100 rounded text-sm font-mono text-gray-800">
                     {window.location.origin}/poll/{publishedPoll.id}/vote
@@ -99,7 +102,8 @@ export default function FormCreator() {
                       navigator.clipboard.writeText(url);
                       toast({
                         title: "Lien copié !",
-                        description: "Le lien du formulaire a été copié dans le presse-papiers.",
+                        description:
+                          "Le lien du formulaire a été copié dans le presse-papiers.",
                       });
                     }}
                     className="px-3 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-sm font-medium"

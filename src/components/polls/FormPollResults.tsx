@@ -192,44 +192,57 @@ export default function FormPollResults({ idOrSlug }: Props) {
                     {kind === "matrix" && (
                       <div className="overflow-x-auto">
                         <div className="text-xs text-gray-500 mb-2">
-                          {totalRespondents} réponse{totalRespondents > 1 ? "s" : ""}
+                          {totalRespondents} réponse
+                          {totalRespondents > 1 ? "s" : ""}
                         </div>
                         <table className="w-full border-collapse text-sm">
                           <thead>
                             <tr>
                               <th className="border p-2 bg-gray-50 text-left"></th>
-                              {(q.matrixColumns || []).map((col: FormQuestionOption) => (
-                                <th
-                                  key={col.id}
-                                  className="border p-2 bg-gray-50 text-center font-medium"
-                                >
-                                  {col.label}
-                                </th>
-                              ))}
+                              {(q.matrixColumns || []).map(
+                                (col: FormQuestionOption) => (
+                                  <th
+                                    key={col.id}
+                                    className="border p-2 bg-gray-50 text-center font-medium"
+                                  >
+                                    {col.label}
+                                  </th>
+                                ),
+                              )}
                             </tr>
                           </thead>
                           <tbody>
-                            {(q.matrixRows || []).map((row: FormQuestionOption) => (
-                              <tr key={row.id}>
-                                <td className="border p-2 font-medium bg-gray-50">
-                                  {row.label}
-                                </td>
-                                {(q.matrixColumns || []).map((col: FormQuestionOption) => {
-                                  const rowColKey = `${row.id}_${col.id}`;
-                                  const count = stats?.counts?.[rowColKey] || 0;
-                                  const pct = totalRespondents
-                                    ? Math.round((count / totalRespondents) * 100)
-                                    : 0;
-                                  return (
-                                    <td key={col.id} className="border p-2 text-center">
-                                      <div className="text-gray-700">
-                                        {count} ({pct}%)
-                                      </div>
-                                    </td>
-                                  );
-                                })}
-                              </tr>
-                            ))}
+                            {(q.matrixRows || []).map(
+                              (row: FormQuestionOption) => (
+                                <tr key={row.id}>
+                                  <td className="border p-2 font-medium bg-gray-50">
+                                    {row.label}
+                                  </td>
+                                  {(q.matrixColumns || []).map(
+                                    (col: FormQuestionOption) => {
+                                      const rowColKey = `${row.id}_${col.id}`;
+                                      const count =
+                                        stats?.counts?.[rowColKey] || 0;
+                                      const pct = totalRespondents
+                                        ? Math.round(
+                                            (count / totalRespondents) * 100,
+                                          )
+                                        : 0;
+                                      return (
+                                        <td
+                                          key={col.id}
+                                          className="border p-2 text-center"
+                                        >
+                                          <div className="text-gray-700">
+                                            {count} ({pct}%)
+                                          </div>
+                                        </td>
+                                      );
+                                    },
+                                  )}
+                                </tr>
+                              ),
+                            )}
                           </tbody>
                         </table>
                       </div>
@@ -324,18 +337,33 @@ export default function FormPollResults({ idOrSlug }: Props) {
                               typeof it.value === "string" ? it.value : "";
                           } else if (kind === "matrix") {
                             // Pour matrices, afficher un résumé
-                            const matrixVal = it.value as Record<string, string | string[]>;
-                            if (matrixVal && typeof matrixVal === 'object' && !Array.isArray(matrixVal)) {
-                              const rowLabels = (q.matrixRows || []).map((row: FormQuestionOption) => {
-                                const rowAnswer = matrixVal[row.id];
-                                if (!rowAnswer) return null;
-                                const colIds = Array.isArray(rowAnswer) ? rowAnswer : [rowAnswer];
-                                const colLabels = colIds.map((cid: string) => {
-                                  const col = (q.matrixColumns || []).find((c: FormQuestionOption) => c.id === cid);
-                                  return col ? col.label : cid;
-                                });
-                                return `${row.label}: ${colLabels.join(", ")}`;
-                              }).filter(Boolean);
+                            const matrixVal = it.value as Record<
+                              string,
+                              string | string[]
+                            >;
+                            if (
+                              matrixVal &&
+                              typeof matrixVal === "object" &&
+                              !Array.isArray(matrixVal)
+                            ) {
+                              const rowLabels = (q.matrixRows || [])
+                                .map((row: FormQuestionOption) => {
+                                  const rowAnswer = matrixVal[row.id];
+                                  if (!rowAnswer) return null;
+                                  const colIds = Array.isArray(rowAnswer)
+                                    ? rowAnswer
+                                    : [rowAnswer];
+                                  const colLabels = colIds.map(
+                                    (cid: string) => {
+                                      const col = (q.matrixColumns || []).find(
+                                        (c: FormQuestionOption) => c.id === cid,
+                                      );
+                                      return col ? col.label : cid;
+                                    },
+                                  );
+                                  return `${row.label}: ${colLabels.join(", ")}`;
+                                })
+                                .filter(Boolean);
                               answerDisplay = rowLabels.join(" • ");
                             } else {
                               answerDisplay = "—";

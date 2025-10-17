@@ -1,5 +1,13 @@
 import React, { useCallback, useState } from "react";
-import { ArrowUp, ArrowDown, Copy, Trash2, Edit2, Plus, GitBranch } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  Copy,
+  Trash2,
+  Edit2,
+  Plus,
+  GitBranch,
+} from "lucide-react";
 import type { ConditionalRule } from "../../types/conditionalRules";
 import ConditionalRuleEditor from "./ConditionalRuleEditor";
 
@@ -55,7 +63,9 @@ export default function QuestionCard({
 }: QuestionCardProps) {
   const [showConditionalEditor, setShowConditionalEditor] = useState(false);
   // Sauvegarder les options avant de changer de type (pour pouvoir les restaurer)
-  const [savedOptions, setSavedOptions] = useState<QuestionOption[] | undefined>(question.options);
+  const [savedOptions, setSavedOptions] = useState<
+    QuestionOption[] | undefined
+  >(question.options);
   const setTitle = useCallback(
     (title: string) => onChange({ title }),
     [onChange],
@@ -63,15 +73,18 @@ export default function QuestionCard({
   const setKind = useCallback(
     (kind: QuestionKind) => {
       // Sauvegarder les options actuelles si on quitte single/multiple
-      if ((question.kind === "single" || question.kind === "multiple") && question.options) {
+      if (
+        (question.kind === "single" || question.kind === "multiple") &&
+        question.options
+      ) {
         setSavedOptions(question.options);
       }
 
       // reset incompatible fields when switching kind
       if (kind === "text") {
-        onChange({ 
-          kind, 
-          options: undefined, 
+        onChange({
+          kind,
+          options: undefined,
           maxChoices: undefined,
           matrixRows: undefined,
           matrixColumns: undefined,
@@ -100,15 +113,16 @@ export default function QuestionCard({
         if (question.options && question.options.length > 0) {
           setSavedOptions(question.options);
         }
-        
+
         // Réutiliser les options existantes comme lignes de la matrice
-        const defaultRows = question.options && question.options.length > 0
-          ? question.options.map(opt => ({ id: opt.id, label: opt.label }))
-          : [
-              { id: rid(), label: "Ligne 1" },
-              { id: rid(), label: "Ligne 2" },
-            ];
-        
+        const defaultRows =
+          question.options && question.options.length > 0
+            ? question.options.map((opt) => ({ id: opt.id, label: opt.label }))
+            : [
+                { id: rid(), label: "Ligne 1" },
+                { id: rid(), label: "Ligne 2" },
+              ];
+
         onChange({
           kind,
           options: undefined,
@@ -125,7 +139,16 @@ export default function QuestionCard({
         });
       }
     },
-    [onChange, question.kind, question.options, question.maxChoices, question.matrixRows, question.matrixColumns, question.matrixType, savedOptions],
+    [
+      onChange,
+      question.kind,
+      question.options,
+      question.maxChoices,
+      question.matrixRows,
+      question.matrixColumns,
+      question.matrixType,
+      savedOptions,
+    ],
   );
   const setRequired = useCallback(
     (required: boolean) => onChange({ required }),
@@ -390,7 +413,9 @@ export default function QuestionCard({
               type="button"
               onClick={() => setShowConditionalEditor(!showConditionalEditor)}
               className={`inline-flex items-center gap-1 h-8 sm:h-9 px-2 sm:px-3 rounded-md border text-xs sm:text-sm ${
-                showConditionalEditor ? "bg-blue-50 border-blue-300 text-blue-700" : "hover:bg-gray-50"
+                showConditionalEditor
+                  ? "bg-blue-50 border-blue-300 text-blue-700"
+                  : "hover:bg-gray-50"
               }`}
               title="Règles conditionnelles"
               aria-label="Règles conditionnelles"
@@ -427,13 +452,17 @@ export default function QuestionCard({
                   onChange={(e) => updateOption(opt.id, e.target.value)}
                   readOnly={opt.isOther}
                   disabled={opt.isOther}
-                  placeholder={opt.isOther ? "Autre (champ libre pour l'utilisateur)" : ""}
+                  placeholder={
+                    opt.isOther ? "Autre (champ libre pour l'utilisateur)" : ""
+                  }
                   data-testid="question-option-input"
                   data-qid={question.id}
                   data-optid={opt.id}
                 />
                 {opt.isOther && (
-                  <span className="text-xs text-blue-600 whitespace-nowrap">+ Texte libre</span>
+                  <span className="text-xs text-blue-600 whitespace-nowrap">
+                    + Texte libre
+                  </span>
                 )}
                 {!opt.isOther && (
                   <button
@@ -478,7 +507,9 @@ export default function QuestionCard({
             <select
               className="rounded-md border px-2 py-1 text-sm"
               value={question.matrixType ?? "single"}
-              onChange={(e) => setMatrixType(e.target.value as "single" | "multiple")}
+              onChange={(e) =>
+                setMatrixType(e.target.value as "single" | "multiple")
+              }
             >
               <option value="single">Une seule réponse par ligne</option>
               <option value="multiple">Plusieurs réponses par ligne</option>
@@ -488,7 +519,9 @@ export default function QuestionCard({
           {/* Rows editor */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-500">Lignes (aspects à évaluer)</div>
+              <div className="text-sm text-gray-500">
+                Lignes (aspects à évaluer)
+              </div>
               <button
                 type="button"
                 onClick={addMatrixRow}
@@ -524,15 +557,23 @@ export default function QuestionCard({
           {/* Columns editor */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-500">Colonnes (échelle de réponse)</div>
+              <div className="text-sm text-gray-500">
+                Colonnes (échelle de réponse)
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={toggleMatrixColumnsNumeric}
                   className={`inline-flex items-center rounded-md border h-7 px-2 text-xs ${
-                    question.matrixColumnsNumeric ? "bg-blue-50 border-blue-300 text-blue-700" : ""
+                    question.matrixColumnsNumeric
+                      ? "bg-blue-50 border-blue-300 text-blue-700"
+                      : ""
                   }`}
-                  title={question.matrixColumnsNumeric ? "Passer en texte" : "Passer en numérique (1-5)"}
+                  title={
+                    question.matrixColumnsNumeric
+                      ? "Passer en texte"
+                      : "Passer en numérique (1-5)"
+                  }
                 >
                   {question.matrixColumnsNumeric ? "↻ Texte" : "↻ 1-5"}
                 </button>
@@ -612,16 +653,19 @@ export default function QuestionCard({
       </div>
 
       {/* Conditional Rules Editor */}
-      {showConditionalEditor && allQuestions && conditionalRules !== undefined && onConditionalRulesChange && (
-        <div className="mt-3">
-          <ConditionalRuleEditor
-            questionId={question.id}
-            questions={allQuestions}
-            existingRules={conditionalRules}
-            onChange={onConditionalRulesChange}
-          />
-        </div>
-      )}
+      {showConditionalEditor &&
+        allQuestions &&
+        conditionalRules !== undefined &&
+        onConditionalRulesChange && (
+          <div className="mt-3">
+            <ConditionalRuleEditor
+              questionId={question.id}
+              questions={allQuestions}
+              existingRules={conditionalRules}
+              onChange={onConditionalRulesChange}
+            />
+          </div>
+        )}
 
       {/* actions déplacées dans la barre d'entête pour gagner de l'espace vertical */}
     </div>

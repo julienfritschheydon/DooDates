@@ -38,7 +38,8 @@ describe("GeminiService - Conditional Rules Parsing", () => {
             ],
           },
           {
-            title: "Si NON, qu'est-ce qui aurait rendu votre crew mieux équilibré ?",
+            title:
+              "Si NON, qu'est-ce qui aurait rendu votre crew mieux équilibré ?",
             type: "text",
             required: true,
             placeholder: "Votre réponse",
@@ -67,7 +68,9 @@ describe("GeminiService - Conditional Rules Parsing", () => {
       expect(result?.conditionalRules![0].questionId).toBe("question-3");
       expect(result?.conditionalRules![0].dependsOn).toBe("question-2");
       expect(result?.conditionalRules![0].showIf.operator).toBe("equals");
-      expect(result?.conditionalRules![0].showIf.value).toBe("Non, pas vraiment");
+      expect(result?.conditionalRules![0].showIf.value).toBe(
+        "Non, pas vraiment",
+      );
     });
 
     it("should handle questionnaire without conditional rules", () => {
@@ -202,7 +205,9 @@ describe("GeminiService - Conditional Rules Parsing", () => {
 
       expect(parsedPrompt).not.toBeNull();
       expect(parsedPrompt).toContain("RÈGLES CONDITIONNELLES");
-      expect(parsedPrompt).toContain("Question 2 s'affiche seulement si Question 1");
+      expect(parsedPrompt).toContain(
+        "Question 2 s'affiche seulement si Question 1",
+      );
       expect(parsedPrompt).toContain('"Non"');
     });
 
@@ -223,7 +228,9 @@ describe("GeminiService - Conditional Rules Parsing", () => {
 
       expect(parsedPrompt).not.toBeNull();
       expect(parsedPrompt).toContain("RÈGLES CONDITIONNELLES");
-      expect(parsedPrompt).toContain("Question 2 s'affiche seulement si Question 1");
+      expect(parsedPrompt).toContain(
+        "Question 2 s'affiche seulement si Question 1",
+      );
       expect(parsedPrompt).toContain('"Oui"');
     });
 
@@ -270,9 +277,11 @@ describe("GeminiService - Conditional Rules Parsing", () => {
 
       expect(parsedPrompt).not.toBeNull();
       expect(parsedPrompt).toContain("RÈGLES CONDITIONNELLES");
-      
+
       // Should detect both conditional questions
-      const conditionalMatches = parsedPrompt?.match(/Question \d+ s'affiche seulement si/g);
+      const conditionalMatches = parsedPrompt?.match(
+        /Question \d+ s'affiche seulement si/g,
+      );
       expect(conditionalMatches).toHaveLength(2);
     });
 
@@ -294,9 +303,11 @@ describe("GeminiService - Conditional Rules Parsing", () => {
       const parsedPrompt = service.parseMarkdownQuestionnaire(markdown);
 
       expect(parsedPrompt).toContain("RÈGLES CONDITIONNELLES");
-      
+
       // Should detect both patterns despite different cases
-      const conditionalMatches = parsedPrompt?.match(/Question \d+ s'affiche seulement si/g);
+      const conditionalMatches = parsedPrompt?.match(
+        /Question \d+ s'affiche seulement si/g,
+      );
       expect(conditionalMatches?.length).toBeGreaterThanOrEqual(2);
     });
   });

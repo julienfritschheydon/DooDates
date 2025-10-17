@@ -43,7 +43,10 @@ export interface MatrixQuestion extends FormQuestionBase {
   matrixColumnsNumeric?: boolean; // Colonnes numériques
 }
 
-export type AnyFormQuestion = SingleOrMultipleQuestion | TextQuestion | MatrixQuestion;
+export type AnyFormQuestion =
+  | SingleOrMultipleQuestion
+  | TextQuestion
+  | MatrixQuestion;
 
 export interface FormPollDraft {
   id: string; // draft id (temporaire pour le spike)
@@ -362,9 +365,9 @@ export default function FormPollCreator({
       </div>
 
       <FormEditor
-        value={{ 
-          id: draftId, 
-          title, 
+        value={{
+          id: draftId,
+          title,
           questions: toEditorQuestions(questions),
           conditionalRules,
         }}
@@ -444,7 +447,10 @@ function validateDraft(draft: FormPollDraft): {
 
   // Valider les règles conditionnelles si présentes
   if (draft.conditionalRules && draft.conditionalRules.length > 0) {
-    const ruleErrors = validateConditionalRules(draft.conditionalRules, draft.questions);
+    const ruleErrors = validateConditionalRules(
+      draft.conditionalRules,
+      draft.questions,
+    );
     errors.push(...ruleErrors);
   }
 
