@@ -467,8 +467,9 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
     // Détecter si c'est un markdown questionnaire long
     const trimmedInput = inputValue.trim();
-    const isLongMarkdown = trimmedInput.length > 500 && /^#\s+.+$/m.test(trimmedInput);
-    const displayContent = isLongMarkdown 
+    const isLongMarkdown =
+      trimmedInput.length > 500 && /^#\s+.+$/m.test(trimmedInput);
+    const displayContent = isLongMarkdown
       ? `📋 Questionnaire détecté (${trimmedInput.length} caractères)\n\nAnalyse en cours...`
       : trimmedInput;
 
@@ -506,19 +507,23 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
       // Sending request to Gemini
       // Essayer de générer un sondage
       // IMPORTANT: Toujours envoyer le contenu ORIGINAL (trimmedInput), pas le displayContent
-      const pollResponse = await geminiService.generatePollFromText(
-        trimmedInput,
-      );
+      const pollResponse =
+        await geminiService.generatePollFromText(trimmedInput);
 
       if (pollResponse.success && pollResponse.data) {
         // Gemini response received successfully
-        
+
         // Supprimer le message de progression si présent
         if (isLongMarkdown) {
-          setMessages((prev) => prev.filter(msg => !msg.id.startsWith('progress-')));
+          setMessages((prev) =>
+            prev.filter((msg) => !msg.id.startsWith("progress-")),
+          );
         }
 
-        const pollType = pollResponse.data.type === "form" ? "questionnaire" : "sondage de disponibilité";
+        const pollType =
+          pollResponse.data.type === "form"
+            ? "questionnaire"
+            : "sondage de disponibilité";
         const aiResponse: Message = {
           id: `ai-${Date.now()}`,
           content: `Voici votre ${pollType} :`,
@@ -714,7 +719,9 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
             setSelectedPollData(null);
           }}
           onSave={(draft) => {
-            logger.info("Form Poll sauvegardé comme brouillon", "poll", { draftId: draft.id });
+            logger.info("Form Poll sauvegardé comme brouillon", "poll", {
+              draftId: draft.id,
+            });
             toast({
               title: "✅ Brouillon enregistré",
               description: "Votre questionnaire a été sauvegardé avec succès.",

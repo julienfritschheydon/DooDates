@@ -153,15 +153,19 @@ describe("Export Module", () => {
       };
 
       vi.spyOn(document, "createElement").mockReturnValue(mockLink as any);
-      vi.spyOn(document.body, "appendChild").mockImplementation(mockAppendChild);
-      vi.spyOn(document.body, "removeChild").mockImplementation(mockRemoveChild);
+      vi.spyOn(document.body, "appendChild").mockImplementation(
+        mockAppendChild,
+      );
+      vi.spyOn(document.body, "removeChild").mockImplementation(
+        mockRemoveChild,
+      );
 
       exportFormPollToCSV(mockPoll);
 
       // Vérifier que Blob a été créé avec le bon type
       expect(mockBlob).toHaveBeenCalledWith(
         expect.any(Array),
-        expect.objectContaining({ type: "text/csv;charset=utf-8;" })
+        expect.objectContaining({ type: "text/csv;charset=utf-8;" }),
       );
 
       // Vérifier que le lien a été créé et cliqué
@@ -178,7 +182,10 @@ describe("Export Module", () => {
           respondentName: 'Nom, avec "guillemets"',
           created_at: "2025-01-15T11:00:00.000Z",
           items: [
-            { questionId: "q2", value: 'Commentaire avec, virgule et "guillemets"' },
+            {
+              questionId: "q2",
+              value: 'Commentaire avec, virgule et "guillemets"',
+            },
           ],
         },
       ];
@@ -209,7 +216,9 @@ describe("Export Module", () => {
 
       // Vérifier que les valeurs avec virgules/guillemets sont échappées
       expect(csvContent).toContain('"Nom, avec ""guillemets"""');
-      expect(csvContent).toContain('"Commentaire avec, virgule et ""guillemets"""');
+      expect(csvContent).toContain(
+        '"Commentaire avec, virgule et ""guillemets"""',
+      );
     });
 
     it("génère un nom de fichier correct", () => {
@@ -224,13 +233,15 @@ describe("Export Module", () => {
       vi.spyOn(document.body, "appendChild").mockImplementation(vi.fn());
       vi.spyOn(document.body, "removeChild").mockImplementation(vi.fn());
 
-      global.Blob = vi.fn(() => ({} as Blob));
+      global.Blob = vi.fn(() => ({}) as Blob);
       global.URL.createObjectURL = vi.fn(() => "blob:mock");
       global.URL.revokeObjectURL = vi.fn();
 
       exportFormPollToCSV(mockPoll);
 
-      expect(mockLink.download).toMatch(/^doodates_form_test-questionnaire_\d{8}-\d{6}\.csv$/);
+      expect(mockLink.download).toMatch(
+        /^doodates_form_test-questionnaire_\d{8}-\d{6}\.csv$/,
+      );
     });
   });
 
@@ -385,7 +396,7 @@ describe("Export Module", () => {
 
       const htmlContent = mockPrintWindow.document.write.mock.calls[0][0];
       expect(htmlContent).toContain("<!DOCTYPE html>");
-      expect(htmlContent).toContain("<html lang=\"fr\">");
+      expect(htmlContent).toContain('<html lang="fr">');
       expect(htmlContent).toContain("window.print()");
       expect(htmlContent).toContain("@page");
       expect(htmlContent).toContain("results-table");
@@ -395,7 +406,7 @@ describe("Export Module", () => {
       vi.spyOn(window, "open").mockReturnValue(null);
 
       expect(() => exportFormPollToPDF(mockPoll)).toThrow(
-        "Popup blocked. Please allow popups for this site."
+        "Popup blocked. Please allow popups for this site.",
       );
     });
   });
@@ -405,16 +416,16 @@ describe("Export Module", () => {
       const datePoll = { ...mockPoll, type: "date" as const };
 
       expect(() => exportFormPollToCSV(datePoll)).toThrow(
-        "This function only supports FormPoll"
+        "This function only supports FormPoll",
       );
       expect(() => exportFormPollToJSON(datePoll)).toThrow(
-        "This function only supports FormPoll"
+        "This function only supports FormPoll",
       );
       expect(() => exportFormPollToMarkdown(datePoll)).toThrow(
-        "This function only supports FormPoll"
+        "This function only supports FormPoll",
       );
       expect(() => exportFormPollToPDF(datePoll)).toThrow(
-        "This function only supports FormPoll"
+        "This function only supports FormPoll",
       );
     });
   });

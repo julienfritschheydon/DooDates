@@ -290,7 +290,9 @@ _Votre réponse :_`;
       const result = service.parseMarkdownQuestionnaire(markdown);
 
       expect(result).not.toBeNull();
-      expect(result).toContain("TITRE: Questionnaire Participants Crews - 2025");
+      expect(result).toContain(
+        "TITRE: Questionnaire Participants Crews - 2025",
+      );
       expect(result).toContain("QUESTION 1 [single, required]");
       expect(result).toContain("QUESTION 2 [single, required]");
       expect(result).toContain("QUESTION 3 [multiple, max=3, required]");

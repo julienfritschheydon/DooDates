@@ -38,7 +38,9 @@ describe("conditionalEvaluator", () => {
         };
 
         expect(evaluateRule(rule, { q1: ["Option A", "Option B"] })).toBe(true);
-        expect(evaluateRule(rule, { q1: ["Option B", "Option C"] })).toBe(false);
+        expect(evaluateRule(rule, { q1: ["Option B", "Option C"] })).toBe(
+          false,
+        );
       });
     });
 
@@ -60,7 +62,9 @@ describe("conditionalEvaluator", () => {
           showIf: { operator: "contains", value: "Option A" },
         };
 
-        expect(evaluateRule(rule, { q1: ["Option B", "Option C"] })).toBe(false);
+        expect(evaluateRule(rule, { q1: ["Option B", "Option C"] })).toBe(
+          false,
+        );
       });
 
       it("should work with single value answers", () => {
@@ -115,7 +119,9 @@ describe("conditionalEvaluator", () => {
         };
 
         expect(evaluateRule(rule, { q1: ["Option B"] })).toBe(true);
-        expect(evaluateRule(rule, { q1: ["Option A", "Option B"] })).toBe(false);
+        expect(evaluateRule(rule, { q1: ["Option A", "Option B"] })).toBe(
+          false,
+        );
       });
     });
 
@@ -261,19 +267,19 @@ describe("conditionalEvaluator", () => {
       ];
 
       // Both conditions must be true
-      expect(
-        shouldShowQuestion("q3", rules, { q1: "Oui", q2: "Non" })
-      ).toBe(true);
+      expect(shouldShowQuestion("q3", rules, { q1: "Oui", q2: "Non" })).toBe(
+        true,
+      );
 
       // First condition false
-      expect(
-        shouldShowQuestion("q3", rules, { q1: "Non", q2: "Non" })
-      ).toBe(false);
+      expect(shouldShowQuestion("q3", rules, { q1: "Non", q2: "Non" })).toBe(
+        false,
+      );
 
       // Second condition false
-      expect(
-        shouldShowQuestion("q3", rules, { q1: "Oui", q2: "Oui" })
-      ).toBe(false);
+      expect(shouldShowQuestion("q3", rules, { q1: "Oui", q2: "Oui" })).toBe(
+        false,
+      );
     });
   });
 
@@ -365,17 +371,17 @@ describe("conditionalEvaluator", () => {
 
       // Scenario 1: User answers "Non, pas vraiment"
       expect(
-        shouldShowQuestion("q3bis", rules, { q3: "Non, pas vraiment" })
+        shouldShowQuestion("q3bis", rules, { q3: "Non, pas vraiment" }),
       ).toBe(true);
 
       // Scenario 2: User answers "Oui, très bien équilibré"
       expect(
-        shouldShowQuestion("q3bis", rules, { q3: "Oui, très bien équilibré" })
+        shouldShowQuestion("q3bis", rules, { q3: "Oui, très bien équilibré" }),
       ).toBe(false);
 
       // Scenario 3: User answers "Moyennement"
       expect(shouldShowQuestion("q3bis", rules, { q3: "Moyennement" })).toBe(
-        false
+        false,
       );
 
       // Scenario 4: User hasn't answered Q3 yet

@@ -66,16 +66,9 @@ export function formPollToCSV(poll: Poll): string {
 
   // Metadata header
   lines.push(
-    [
-      "poll_id",
-      "poll_slug",
-      "poll_title",
-      "type",
-      "created_at",
-      "exported_at",
-    ]
+    ["poll_id", "poll_slug", "poll_title", "type", "created_at", "exported_at"]
       .map(escapeCSV)
-      .join(",")
+      .join(","),
   );
 
   // Metadata values
@@ -89,7 +82,7 @@ export function formPollToCSV(poll: Poll): string {
       formatTimestamp(new Date()),
     ]
       .map(escapeCSV)
-      .join(",")
+      .join(","),
   );
 
   // Empty line separator
@@ -109,12 +102,12 @@ export function formPollToCSV(poll: Poll): string {
       "selected_count",
     ]
       .map(escapeCSV)
-      .join(",")
+      .join(","),
   );
 
   // Data rows
   const responses = getFormResponses(poll.id);
-  
+
   responses.forEach((response) => {
     const respondentDisplay = response.respondentName || "Anonymous";
     const respondentHash = response.id || "unknown";
@@ -133,25 +126,25 @@ export function formPollToCSV(poll: Poll): string {
         // Multiple choice: join with pipe
         value = item.value.join(" | ");
         selectedCount = item.value.length;
-      } else if (typeof item.value === 'object' && item.value !== null) {
+      } else if (typeof item.value === "object" && item.value !== null) {
         // Matrix: format as "Row1: Col1 | Row2: Col2"
         const matrixVal = item.value as Record<string, string | string[]>;
         const matrixRows = (question as any)?.matrixRows || [];
         const matrixCols = (question as any)?.matrixColumns || [];
-        
+
         const formatted = Object.entries(matrixVal).map(([rowId, colValue]) => {
           const row = matrixRows.find((r: any) => r.id === rowId);
           const rowLabel = row?.label || rowId;
-          
+
           const colIds = Array.isArray(colValue) ? colValue : [colValue];
           const colLabels = colIds.map((cid: string) => {
             const col = matrixCols.find((c: any) => c.id === cid);
             return col?.label || cid;
           });
-          
+
           return `${rowLabel}: ${colLabels.join(", ")}`;
         });
-        
+
         value = formatted.join(" | ");
         selectedCount = Object.keys(matrixVal).length;
       } else {
@@ -173,7 +166,7 @@ export function formPollToCSV(poll: Poll): string {
           selectedCount,
         ]
           .map(escapeCSV)
-          .join(",")
+          .join(","),
       );
     });
   });
@@ -256,8 +249,8 @@ function formPollToHTML(poll: Poll): string {
     `;
 
     // Count responses per question
-    const questionResponses = responses.flatMap(r => 
-      r.items.filter(item => item.questionId === question.id)
+    const questionResponses = responses.flatMap((r) =>
+      r.items.filter((item) => item.questionId === question.id),
     );
 
     if (question.type === "text") {
@@ -269,13 +262,14 @@ function formPollToHTML(poll: Poll): string {
     } else {
       // Count options for single/multiple choice
       const optionCounts: Record<string, number> = {};
-      questionResponses.forEach(item => {
+      questionResponses.forEach((item) => {
         if (Array.isArray(item.value)) {
-          item.value.forEach(v => {
+          item.value.forEach((v) => {
             optionCounts[v] = (optionCounts[v] || 0) + 1;
           });
         } else {
-          optionCounts[String(item.value)] = (optionCounts[String(item.value)] || 0) + 1;
+          optionCounts[String(item.value)] =
+            (optionCounts[String(item.value)] || 0) + 1;
         }
       });
 
@@ -290,9 +284,10 @@ function formPollToHTML(poll: Poll): string {
         <tbody>`;
 
       Object.entries(optionCounts).forEach(([option, count]) => {
-        const percentage = responses.length > 0 
-          ? ((count / responses.length) * 100).toFixed(1) 
-          : "0.0";
+        const percentage =
+          responses.length > 0
+            ? ((count / responses.length) * 100).toFixed(1)
+            : "0.0";
         questionsHTML += `
           <tr>
             <td>${escapeHTML(option)}</td>
@@ -476,13 +471,13 @@ export function exportFormPollToPDF(poll: Poll): void {
   }
 
   const html = formPollToHTML(poll);
-  
+
   // Open in new window for printing
   const printWindow = window.open("", "_blank");
   if (!printWindow) {
     throw new Error("Popup blocked. Please allow popups for this site.");
   }
-  
+
   printWindow.document.write(html);
   printWindow.document.close();
 }
@@ -496,7 +491,7 @@ export function exportFormPollToJSON(poll: Poll): void {
   }
 
   const responses = getFormResponses(poll.id);
-  
+
   const exportData = {
     meta: {
       poll_id: poll.id,
@@ -508,7 +503,7 @@ export function exportFormPollToJSON(poll: Poll): void {
       total_responses: responses.length,
     },
     questions: poll.questions,
-    responses: responses.map(r => ({
+    responses: responses.map((r) => ({
       id: r.id,
       respondent_name: r.respondentName || "Anonymous",
       created_at: r.created_at,
@@ -519,7 +514,9 @@ export function exportFormPollToJSON(poll: Poll): void {
 
   const jsonString = JSON.stringify(exportData, null, 2);
   const filename = generateFilename(poll, "json");
-  const blob = new Blob([jsonString], { type: "application/json;charset=utf-8;" });
+  const blob = new Blob([jsonString], {
+    type: "application/json;charset=utf-8;",
+  });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -564,8 +561,8 @@ export function exportFormPollToMarkdown(poll: Poll): void {
     if (question.required) markdown += ` • **Obligatoire**`;
     markdown += `\n\n`;
 
-    const questionResponses = responses.flatMap(r => 
-      r.items.filter(item => item.questionId === question.id)
+    const questionResponses = responses.flatMap((r) =>
+      r.items.filter((item) => item.questionId === question.id),
     );
 
     if (question.type === "text") {
@@ -578,11 +575,15 @@ export function exportFormPollToMarkdown(poll: Poll): void {
       // Matrix: display as table
       const matrixRows = (question as any)?.matrixRows || [];
       const matrixCols = (question as any)?.matrixColumns || [];
-      
+
       // Count responses per cell (rowId_colId)
       const cellCounts: Record<string, number> = {};
-      questionResponses.forEach(item => {
-        if (typeof item.value === 'object' && item.value !== null && !Array.isArray(item.value)) {
+      questionResponses.forEach((item) => {
+        if (
+          typeof item.value === "object" &&
+          item.value !== null &&
+          !Array.isArray(item.value)
+        ) {
           const matrixVal = item.value as Record<string, string | string[]>;
           Object.entries(matrixVal).forEach(([rowId, colValue]) => {
             const colIds = Array.isArray(colValue) ? colValue : [colValue];
@@ -593,32 +594,36 @@ export function exportFormPollToMarkdown(poll: Poll): void {
           });
         }
       });
-      
-      markdown += `### Résultats (${responses.length} réponse${responses.length > 1 ? 's' : ''})\n\n`;
-      markdown += `| | ${matrixCols.map((c: any) => c.label).join(' | ')} |\n`;
-      markdown += `|${matrixCols.map(() => '---').join('|')}---|\n`;
-      
+
+      markdown += `### Résultats (${responses.length} réponse${responses.length > 1 ? "s" : ""})\n\n`;
+      markdown += `| | ${matrixCols.map((c: any) => c.label).join(" | ")} |\n`;
+      markdown += `|${matrixCols.map(() => "---").join("|")}---|\n`;
+
       matrixRows.forEach((row: any) => {
         const rowLabel = row.label;
         const counts = matrixCols.map((col: any) => {
           const key = `${row.id}_${col.id}`;
           const count = cellCounts[key] || 0;
-          const pct = responses.length > 0 ? ((count / responses.length) * 100).toFixed(1) : "0.0";
+          const pct =
+            responses.length > 0
+              ? ((count / responses.length) * 100).toFixed(1)
+              : "0.0";
           return `${count} (${pct}%)`;
         });
-        markdown += `| ${rowLabel} | ${counts.join(' | ')} |\n`;
+        markdown += `| ${rowLabel} | ${counts.join(" | ")} |\n`;
       });
       markdown += `\n`;
     } else {
       // Count options
       const optionCounts: Record<string, number> = {};
-      questionResponses.forEach(item => {
+      questionResponses.forEach((item) => {
         if (Array.isArray(item.value)) {
-          item.value.forEach(v => {
+          item.value.forEach((v) => {
             optionCounts[v] = (optionCounts[v] || 0) + 1;
           });
         } else {
-          optionCounts[String(item.value)] = (optionCounts[String(item.value)] || 0) + 1;
+          optionCounts[String(item.value)] =
+            (optionCounts[String(item.value)] || 0) + 1;
         }
       });
 
@@ -627,9 +632,10 @@ export function exportFormPollToMarkdown(poll: Poll): void {
       markdown += `|--------|----------|-------------|\n`;
 
       Object.entries(optionCounts).forEach(([option, count]) => {
-        const percentage = responses.length > 0 
-          ? ((count / responses.length) * 100).toFixed(1) 
-          : "0.0";
+        const percentage =
+          responses.length > 0
+            ? ((count / responses.length) * 100).toFixed(1)
+            : "0.0";
         markdown += `| ${option} | ${count} | ${percentage}% |\n`;
       });
 

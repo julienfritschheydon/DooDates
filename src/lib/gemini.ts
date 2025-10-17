@@ -148,8 +148,9 @@ export class GeminiService {
     // Support multiple checkbox formats: ☐, □, - [ ], etc.
     const hasCheckboxes = /-\s*[☐□]|^-\s*\[\s*\]/m.test(text);
 
-    const isMarkdown = hasTitle && hasSections && hasQuestions && text.length > 200;
-    
+    const isMarkdown =
+      hasTitle && hasSections && hasQuestions && text.length > 200;
+
     if (import.meta.env.DEV) {
       logger.info(
         `Markdown detection: title=${hasTitle}, sections=${hasSections}, questions=${hasQuestions}, checkboxes=${hasCheckboxes}, length=${text.length}, result=${isMarkdown}`,
@@ -177,39 +178,57 @@ export class GeminiService {
 
       // Construire un format UNIFORME simplifié pour Gemini
       let prompt = `TITRE: ${title}\n\n`;
-      
+
       // Extraire sections avec split() (méthode robuste testée)
       const parts = cleaned.split(/(?=^##\s+)/gm);
-      const sections = parts.filter(part => part.startsWith('##') && !part.startsWith('###'));
+      const sections = parts.filter(
+        (part) => part.startsWith("##") && !part.startsWith("###"),
+      );
 
       if (import.meta.env.DEV) {
-        console.log(`📂 ${sections.length} sections détectées dans le markdown`);
+        console.log(
+          `📂 ${sections.length} sections détectées dans le markdown`,
+        );
       }
 
       let questionNumber = 0;
-      const conditionalPatterns: Array<{ questionNumber: number; title: string }> = [];
+      const conditionalPatterns: Array<{
+        questionNumber: number;
+        title: string;
+      }> = [];
 
       for (const sectionContent of sections) {
-        const lines = sectionContent.split('\n');
-        const sectionTitle = lines[0].replace(/^##\s+/, '').trim();
+        const lines = sectionContent.split("\n");
+        const sectionTitle = lines[0].replace(/^##\s+/, "").trim();
 
         // Extraire questions avec split() (plus robuste que regex)
         const questionParts = sectionContent.split(/(?=^###\s)/gm);
-        const questionBlocks = questionParts.filter(part => part.trim().startsWith('###'));
+        const questionBlocks = questionParts.filter((part) =>
+          part.trim().startsWith("###"),
+        );
 
         if (import.meta.env.DEV) {
-          console.log(`🔍 Section "${sectionTitle}" - ${questionBlocks.length} questions trouvées`);
+          console.log(
+            `🔍 Section "${sectionTitle}" - ${questionBlocks.length} questions trouvées`,
+          );
         }
 
         for (const questionBlock of questionBlocks) {
           questionNumber++;
-          
+
           // Extraire le titre de la question (première ligne sans les ###)
-          const firstLine = questionBlock.split('\n')[0];
-          const questionTitle = firstLine.replace(/^###\s*(?:Q\d+[a-z]*\.|Q\d+[a-z]*|Question\s*\d+:?|\d+[\).]\s*)\s*/, '').trim();
+          const firstLine = questionBlock.split("\n")[0];
+          const questionTitle = firstLine
+            .replace(
+              /^###\s*(?:Q\d+[a-z]*\.|Q\d+[a-z]*|Question\s*\d+:?|\d+[\).]\s*)\s*/,
+              "",
+            )
+            .trim();
 
           // Détecter si la question est conditionnelle (Si NON, Si OUI, etc.)
-          const conditionalMatch = questionTitle.match(/^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i);
+          const conditionalMatch = questionTitle.match(
+            /^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i,
+          );
           if (conditionalMatch) {
             conditionalPatterns.push({
               questionNumber,
@@ -268,30 +287,35 @@ export class GeminiService {
           // Extraire options (support TOUS les formats)
           if (type !== "text") {
             // Support: -, *, •, ○, ☐, □, ✓, [ ]
-            const optionRegex = /^[\s]*[-*\u2022\u25cb\u2610\u25a1\u2713]\s*(?:\[\s*\])?\s*(.+)$/gm;
+            const optionRegex =
+              /^[\s]*[-*\u2022\u25cb\u2610\u25a1\u2713]\s*(?:\[\s*\])?\s*(.+)$/gm;
             const options: string[] = [];
             let optionMatch;
-            
+
             while ((optionMatch = optionRegex.exec(questionBlock)) !== null) {
               let option = optionMatch[1].trim();
-              
+
               // Nettoyer les symboles checkbox résiduels (☐, □, ✓, [ ])
-              option = option.replace(/^[☐□✓\u2610\u25a1\u2713]\s*/, '');
-              option = option.replace(/^\[\s*\]\s*/, '');
+              option = option.replace(/^[☐□✓\u2610\u25a1\u2713]\s*/, "");
+              option = option.replace(/^\[\s*\]\s*/, "");
               option = option.trim();
-              
+
               // Ignorer les sous-titres markdown et "Autre :"
-              if (!option.startsWith('#') && !option.startsWith('Autre :') && option.length > 0) {
+              if (
+                !option.startsWith("#") &&
+                !option.startsWith("Autre :") &&
+                option.length > 0
+              ) {
                 options.push(option);
               }
             }
-            
+
             if (options.length > 0) {
               // Format simple : une ligne par option
-              options.forEach(opt => {
+              options.forEach((opt) => {
                 prompt += `- ${opt}\n`;
               });
-              
+
               if (import.meta.env.DEV) {
                 console.log(`  ✅ ${options.length} options extraites`);
               }
@@ -301,7 +325,7 @@ export class GeminiService {
           } else {
             prompt += `(réponse libre)\n`;
           }
-          
+
           prompt += "\n";
         }
       }
@@ -310,7 +334,9 @@ export class GeminiService {
       if (conditionalPatterns.length > 0) {
         prompt += `\nRÈGLES CONDITIONNELLES:\n`;
         for (const pattern of conditionalPatterns) {
-          const match = pattern.title.match(/^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i);
+          const match = pattern.title.match(
+            /^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i,
+          );
           if (match) {
             const condition = match[1].toUpperCase();
             const dependsOnQuestion = pattern.questionNumber - 1;
@@ -326,7 +352,9 @@ export class GeminiService {
         console.log(prompt);
         console.log("===================");
         if (conditionalPatterns.length > 0) {
-          console.log(`🔀 ${conditionalPatterns.length} règle(s) conditionnelle(s) détectée(s)`);
+          console.log(
+            `🔀 ${conditionalPatterns.length} règle(s) conditionnelle(s) détectée(s)`,
+          );
         }
       }
 
@@ -467,7 +495,7 @@ export class GeminiService {
         prompt = isStructured
           ? this.buildFormPollPromptCopy(processedInput)
           : this.buildFormPollPromptGenerate(processedInput);
-        
+
         if (import.meta.env.DEV) {
           logger.info(
             `Form Poll mode: ${isStructured ? "COPY (markdown parsé)" : "GENERATE (demande simple)"}`,
@@ -1361,7 +1389,9 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
               maxLength: q.maxLength,
             })),
             type: "form" as const,
-            ...(parsed.conditionalRules && { conditionalRules: parsed.conditionalRules }),
+            ...(parsed.conditionalRules && {
+              conditionalRules: parsed.conditionalRules,
+            }),
           };
 
           if (import.meta.env.DEV) {

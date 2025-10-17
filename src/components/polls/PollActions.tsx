@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Archive, Check, Copy, Download, Edit, Share2, Trash2, Vote } from "lucide-react";
+import {
+  Archive,
+  Check,
+  Copy,
+  Download,
+  Edit,
+  Share2,
+  Trash2,
+  Vote,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Poll,
@@ -11,12 +20,12 @@ import {
   getPolls,
   savePolls,
 } from "@/lib/pollStorage";
-import { 
-  exportFormPollToCSV, 
-  exportFormPollToPDF, 
-  exportFormPollToJSON, 
+import {
+  exportFormPollToCSV,
+  exportFormPollToPDF,
+  exportFormPollToJSON,
   exportFormPollToMarkdown,
-  hasExportableData 
+  hasExportableData,
 } from "@/lib/exports";
 
 export type PollActionsVariant = "compact" | "full";
@@ -137,7 +146,8 @@ export const PollActions: React.FC<PollActionsProps> = ({
       if (poll.type !== "form") {
         toast({
           title: "Non supporté",
-          description: "L'export n'est supporté que pour les formulaires actuellement.",
+          description:
+            "L'export n'est supporté que pour les formulaires actuellement.",
           variant: "destructive",
         });
         return;
@@ -155,7 +165,8 @@ export const PollActions: React.FC<PollActionsProps> = ({
           exportFormPollToPDF(poll);
           toast({
             title: "Export PDF",
-            description: "Une fenêtre d'impression s'est ouverte. Sélectionnez 'Enregistrer en PDF'.",
+            description:
+              "Une fenêtre d'impression s'est ouverte. Sélectionnez 'Enregistrer en PDF'.",
           });
           break;
         case "json":
@@ -177,7 +188,10 @@ export const PollActions: React.FC<PollActionsProps> = ({
       console.error("Export error:", err);
       toast({
         title: "Erreur d'export",
-        description: err instanceof Error ? err.message : "Impossible d'exporter le sondage.",
+        description:
+          err instanceof Error
+            ? err.message
+            : "Impossible d'exporter le sondage.",
         variant: "destructive",
       });
     }
@@ -235,11 +249,11 @@ export const PollActions: React.FC<PollActionsProps> = ({
             <Download className="w-4 h-4" />
             {variant === "full" && <span>Exporter</span>}
           </button>
-          
+
           {showExportMenu && (
             <>
-              <div 
-                className="fixed inset-0 z-10" 
+              <div
+                className="fixed inset-0 z-10"
                 onClick={() => setShowExportMenu(false)}
               />
               <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-20">

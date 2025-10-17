@@ -726,13 +726,18 @@ export function getFormResults(pollId: string): FormResults {
       if (kind === "matrix") {
         // Pour matrices, compter chaque cellule (rowId_colId)
         const matrixVal = it.value as Record<string, string | string[]>;
-        if (matrixVal && typeof matrixVal === 'object' && !Array.isArray(matrixVal)) {
+        if (
+          matrixVal &&
+          typeof matrixVal === "object" &&
+          !Array.isArray(matrixVal)
+        ) {
           for (const [rowId, colValue] of Object.entries(matrixVal)) {
             const colIds = Array.isArray(colValue) ? colValue : [colValue];
             for (const colId of colIds) {
               if (colId) {
                 const key = `${rowId}_${colId}`;
-                countsByQuestion[q.id][key] = (countsByQuestion[q.id][key] || 0) + 1;
+                countsByQuestion[q.id][key] =
+                  (countsByQuestion[q.id][key] || 0) + 1;
               }
             }
           }

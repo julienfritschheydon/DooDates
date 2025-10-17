@@ -3,7 +3,7 @@ import type { ConditionalRule } from "../types/conditionalRules";
 /**
  * Détecte les dépendances circulaires dans les règles conditionnelles
  * Exemple: Q1 → Q2 → Q3 → Q1 (invalide)
- * 
+ *
  * @param rules Règles conditionnelles
  * @param questionId ID de la question à vérifier
  * @param visited Questions déjà visitées (pour détecter les boucles)
@@ -12,7 +12,7 @@ import type { ConditionalRule } from "../types/conditionalRules";
 export function hasCircularDependency(
   rules: ConditionalRule[],
   questionId: string,
-  visited: Set<string> = new Set()
+  visited: Set<string> = new Set(),
 ): boolean {
   // Si la question est déjà visitée, on a une boucle
   if (visited.has(questionId)) {
@@ -44,7 +44,7 @@ export function hasCircularDependency(
 /**
  * Vérifie qu'une question conditionnelle dépend d'une question qui la précède
  * (une question ne peut pas dépendre d'une question suivante)
- * 
+ *
  * @param rules Règles conditionnelles
  * @param questions Liste des questions dans l'ordre
  * @param questionId ID de la question à vérifier
@@ -53,7 +53,7 @@ export function hasCircularDependency(
 export function dependsOnPreviousQuestion(
   rules: ConditionalRule[],
   questions: Array<{ id: string }>,
-  questionId: string
+  questionId: string,
 ): boolean {
   const questionIndex = questions.findIndex((q) => q.id === questionId);
   if (questionIndex === -1) return false;
@@ -70,7 +70,7 @@ export function dependsOnPreviousQuestion(
 
 /**
  * Vérifie qu'une valeur existe dans les options d'une question
- * 
+ *
  * @param questionId ID de la question
  * @param value Valeur à vérifier
  * @param questions Liste des questions avec leurs options
@@ -79,7 +79,7 @@ export function dependsOnPreviousQuestion(
 export function valueExistsInOptions(
   questionId: string,
   value: string,
-  questions: Array<{ id: string; options?: Array<{ label: string }> }>
+  questions: Array<{ id: string; options?: Array<{ label: string }> }>,
 ): boolean {
   const question = questions.find((q) => q.id === questionId);
   if (!question || !question.options) return false;
@@ -89,7 +89,7 @@ export function valueExistsInOptions(
 
 /**
  * Vérifie qu'une valeur est contenue dans au moins une option (correspondance partielle)
- * 
+ *
  * @param questionId ID de la question
  * @param value Valeur à vérifier (peut être partielle)
  * @param questions Liste des questions avec leurs options
@@ -98,27 +98,31 @@ export function valueExistsInOptions(
 export function valueContainedInOptions(
   questionId: string,
   value: string,
-  questions: Array<{ id: string; options?: Array<{ label: string }> }>
+  questions: Array<{ id: string; options?: Array<{ label: string }> }>,
 ): boolean {
   const question = questions.find((q) => q.id === questionId);
   if (!question || !question.options) return true; // Pour texte libre, pas de validation
 
   // Vérifier si au moins une option contient la valeur recherchée
-  return question.options.some((opt) => 
-    opt.label.toLowerCase().includes(value.toLowerCase())
+  return question.options.some((opt) =>
+    opt.label.toLowerCase().includes(value.toLowerCase()),
   );
 }
 
 /**
  * Valide toutes les règles conditionnelles d'un formulaire
- * 
+ *
  * @param rules Règles conditionnelles
  * @param questions Questions du formulaire
  * @returns Tableau des erreurs de validation
  */
 export function validateConditionalRules(
   rules: ConditionalRule[],
-  questions: Array<{ id: string; title: string; options?: Array<{ label: string }> }>
+  questions: Array<{
+    id: string;
+    title: string;
+    options?: Array<{ label: string }>;
+  }>,
 ): string[] {
   const errors: string[] = [];
 
@@ -133,22 +137,20 @@ export function validateConditionalRules(
 
     if (!dependsOnQuestion) {
       errors.push(
-        `Règle "${question.title}" : question dépendante ${rule.dependsOn} introuvable`
+        `Règle "${question.title}" : question dépendante ${rule.dependsOn} introuvable`,
       );
       continue;
     }
 
     // Vérifier dépendance circulaire
     if (hasCircularDependency(rules, rule.questionId)) {
-      errors.push(
-        `Règle "${question.title}" : dépendance circulaire détectée`
-      );
+      errors.push(`Règle "${question.title}" : dépendance circulaire détectée`);
     }
 
     // Vérifier que la dépendance est avant
     if (!dependsOnPreviousQuestion(rules, questions, rule.questionId)) {
       errors.push(
-        `Règle "${question.title}" : doit dépendre d'une question précédente`
+        `Règle "${question.title}" : doit dépendre d'une question précédente`,
       );
     }
 
@@ -159,7 +161,7 @@ export function validateConditionalRules(
         : rule.showIf.value;
       if (!valueExistsInOptions(rule.dependsOn, value, questions)) {
         errors.push(
-          `Règle "${question.title}" : valeur "${value}" introuvable dans "${dependsOnQuestion.title}"`
+          `Règle "${question.title}" : valeur "${value}" introuvable dans "${dependsOnQuestion.title}"`,
         );
       }
     }
@@ -170,7 +172,7 @@ export function validateConditionalRules(
         : rule.showIf.value;
       if (!valueExistsInOptions(rule.dependsOn, value, questions)) {
         errors.push(
-          `Règle "${question.title}" : valeur "${value}" introuvable dans "${dependsOnQuestion.title}"`
+          `Règle "${question.title}" : valeur "${value}" introuvable dans "${dependsOnQuestion.title}"`,
         );
       }
     }
@@ -183,7 +185,7 @@ export function validateConditionalRules(
         // Pour "contains", vérifier correspondance partielle
         if (!valueContainedInOptions(rule.dependsOn, value, questions)) {
           errors.push(
-            `Règle "${question.title}" : aucune option ne contient "${value}" dans "${dependsOnQuestion.title}"`
+            `Règle "${question.title}" : aucune option ne contient "${value}" dans "${dependsOnQuestion.title}"`,
           );
         }
       }
