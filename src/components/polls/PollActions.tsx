@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Archive, Check, Copy, Edit, Share2, Trash2, Vote } from "lucide-react";
+import { Archive, Check, Copy, Download, Edit, Share2, Trash2, Vote } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Poll,
@@ -11,6 +11,13 @@ import {
   getPolls,
   savePolls,
 } from "@/lib/pollStorage";
+import { 
+  exportFormPollToCSV, 
+  exportFormPollToPDF, 
+  exportFormPollToJSON, 
+  exportFormPollToMarkdown,
+  hasExportableData 
+} from "@/lib/exports";
 
 export type PollActionsVariant = "compact" | "full";
 
@@ -38,6 +45,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isCopied, setIsCopied] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   const handleCopyLink = async () => {
     try {
@@ -124,6 +132,57 @@ export const PollActions: React.FC<PollActionsProps> = ({
     }
   };
 
+  const handleExport = (format: "csv" | "pdf" | "json" | "markdown") => {
+    try {
+      if (poll.type !== "form") {
+        toast({
+          title: "Non supporté",
+          description: "L'export n'est supporté que pour les formulaires actuellement.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      switch (format) {
+        case "csv":
+          exportFormPollToCSV(poll);
+          toast({
+            title: "Export CSV réussi",
+            description: "Le fichier CSV a été téléchargé.",
+          });
+          break;
+        case "pdf":
+          exportFormPollToPDF(poll);
+          toast({
+            title: "Export PDF",
+            description: "Une fenêtre d'impression s'est ouverte. Sélectionnez 'Enregistrer en PDF'.",
+          });
+          break;
+        case "json":
+          exportFormPollToJSON(poll);
+          toast({
+            title: "Export JSON réussi",
+            description: "Le fichier JSON a été téléchargé.",
+          });
+          break;
+        case "markdown":
+          exportFormPollToMarkdown(poll);
+          toast({
+            title: "Export Markdown réussi",
+            description: "Le fichier Markdown a été téléchargé.",
+          });
+          break;
+      }
+    } catch (err) {
+      console.error("Export error:", err);
+      toast({
+        title: "Erreur d'export",
+        description: err instanceof Error ? err.message : "Impossible d'exporter le sondage.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className ?? ""}`}>
       {showVoteButton && (
@@ -164,6 +223,67 @@ export const PollActions: React.FC<PollActionsProps> = ({
           </>
         )}
       </button>
+
+      {poll.type === "form" && hasExportableData(poll) && (
+        <div className="relative">
+          <button
+            onClick={() => setShowExportMenu(!showExportMenu)}
+            className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-3 py-2 rounded-md text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors flex items-center gap-1"
+            title="Exporter"
+            data-testid="poll-action-export"
+          >
+            <Download className="w-4 h-4" />
+            {variant === "full" && <span>Exporter</span>}
+          </button>
+          
+          {showExportMenu && (
+            <>
+              <div 
+                className="fixed inset-0 z-10" 
+                onClick={() => setShowExportMenu(false)}
+              />
+              <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+                <button
+                  onClick={() => {
+                    handleExport("csv");
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-t-md"
+                >
+                  📊 CSV
+                </button>
+                <button
+                  onClick={() => {
+                    handleExport("pdf");
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  📄 PDF
+                </button>
+                <button
+                  onClick={() => {
+                    handleExport("json");
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  🔧 JSON
+                </button>
+                <button
+                  onClick={() => {
+                    handleExport("markdown");
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-b-md"
+                >
+                  📝 Markdown
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       <button
         onClick={handleEdit}

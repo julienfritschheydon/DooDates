@@ -161,4 +161,140 @@ describe("GeminiService - Poll Type Detection", () => {
       expect(result).toBe("date");
     });
   });
+
+  describe("isMarkdownQuestionnaire - Markdown Detection", () => {
+    it("détecte un questionnaire markdown valide", () => {
+      const markdown = `# Questionnaire Participants Crews 2025
+
+## Section 1 : Votre Expérience
+
+### Q1. Combien de temps avez-vous participé ?
+- ☐ Moins de 3 mois
+- ☐ 3 à 6 mois
+- ☐ Plus d'1 an
+
+### Q2. Cette expérience a été :
+- ☐ Très utile (5/5)
+- ☐ Utile (4/5)`;
+
+      // @ts-expect-error - Testing private method
+      const result = service.isMarkdownQuestionnaire(markdown);
+      expect(result).toBe(true);
+    });
+
+    it("rejette un texte simple sans markdown", () => {
+      const text = "Crée un questionnaire de satisfaction client";
+
+      // @ts-expect-error - Testing private method
+      const result = service.isMarkdownQuestionnaire(text);
+      expect(result).toBe(false);
+    });
+
+    it("rejette un markdown trop court", () => {
+      const markdown = `# Q1\n## Sect\n### Q1. Test\n- ☐ A`;
+
+      // @ts-expect-error - Testing private method
+      const result = service.isMarkdownQuestionnaire(markdown);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("parseMarkdownQuestionnaire - Structure Extraction", () => {
+    it("parse un questionnaire simple", () => {
+      const markdown = `# Questionnaire Satisfaction
+
+## Section 1 : Avis Général
+
+### Q1. Êtes-vous satisfait ?
+- ☐ Oui
+- ☐ Non
+
+### Q2. Commentaires (réponse libre)
+
+_Votre réponse :_`;
+
+      // @ts-expect-error - Testing private method
+      const result = service.parseMarkdownQuestionnaire(markdown);
+
+      expect(result).not.toBeNull();
+      expect(result).toContain("TITRE: Questionnaire Satisfaction");
+      expect(result).toContain("QUESTION 1");
+      expect(result).toContain("Êtes-vous satisfait");
+      expect(result).toContain("- Oui");
+      expect(result).toContain("- Non");
+      expect(result).toContain("QUESTION 2");
+      expect(result).toContain("(réponse libre)");
+    });
+
+    it("détecte les questions avec choix multiples et contrainte", () => {
+      const markdown = `# Test
+
+## Section 1
+
+### Q1. Sélectionnez vos préférences (Max 3 réponses)
+- ☐ Option 1
+- ☐ Option 2
+- ☐ Option 3`;
+
+      // @ts-expect-error - Testing private method
+      const result = service.parseMarkdownQuestionnaire(markdown);
+
+      expect(result).not.toBeNull();
+      expect(result).toContain("QUESTION 1 [multiple, max=3, required]");
+      expect(result).toContain("Sélectionnez vos préférences");
+    });
+
+    it("supprime les commentaires HTML", () => {
+      const markdown = `# Test
+
+<!-- COMMENTAIRE À SUPPRIMER -->
+
+## Section 1
+
+### Q1. Question
+- ☐ Réponse A`;
+
+      // @ts-expect-error - Testing private method
+      const result = service.parseMarkdownQuestionnaire(markdown);
+
+      expect(result).not.toBeNull();
+      expect(result).not.toContain("COMMENTAIRE");
+    });
+
+    it("parse le questionnaire Crews réel (extrait)", () => {
+      const markdown = `# Questionnaire Participants Crews - 2025
+
+## 📊 Section 1 : Votre Expérience Crew
+
+### Q1. Combien de temps avez-vous participé à un crew ?
+- ☐ Je suis en file d'attente
+- ☐ Moins de 3 mois
+- ☐ 3 à 6 mois
+
+### Q2. Globalement, cette expérience a été :
+- ☐ Très utile (5/5)
+- ☐ Utile (4/5)
+
+## 🎯 Section 2 : Animation
+
+### Q3. Parmi ces aspects, lesquels fonctionnaient LE MOINS BIEN ? (Max 3 réponses)
+- ☐ Trouver des dates
+- ☐ Avoir des rappels
+- ☐ Maintenir l'engagement
+
+### Q4. Commentaires libres
+
+_Votre réponse :_`;
+
+      // @ts-expect-error - Testing private method
+      const result = service.parseMarkdownQuestionnaire(markdown);
+
+      expect(result).not.toBeNull();
+      expect(result).toContain("TITRE: Questionnaire Participants Crews - 2025");
+      expect(result).toContain("QUESTION 1 [single, required]");
+      expect(result).toContain("QUESTION 2 [single, required]");
+      expect(result).toContain("QUESTION 3 [multiple, max=3, required]");
+      expect(result).toContain("QUESTION 4 [text, required]");
+    });
+  });
 });

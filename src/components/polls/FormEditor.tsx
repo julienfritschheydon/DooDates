@@ -8,12 +8,14 @@ import React, {
 import QuestionCard from "./QuestionCard";
 import type { Question } from "./QuestionCard";
 import QuestionListNav from "./QuestionListNav";
+import type { ConditionalRule } from "../../types/conditionalRules";
 
 // Types for a minimal Form Poll draft used by the editor
 export type FormPollDraft = {
   id: string;
   title: string;
   questions: Question[];
+  conditionalRules?: ConditionalRule[];
 };
 
 export type FormEditorProps = {
@@ -140,6 +142,13 @@ export default function FormEditor({
     [value, onChange],
   );
 
+  const updateConditionalRules = useCallback(
+    (rules: ConditionalRule[]) => {
+      onChange({ ...value, conditionalRules: rules });
+    },
+    [value, onChange],
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -206,6 +215,9 @@ export default function FormEditor({
                 Math.min(value.questions.length - 1, activeIndex + 1),
               )
             }
+            allQuestions={value.questions}
+            conditionalRules={value.conditionalRules ?? []}
+            onConditionalRulesChange={updateConditionalRules}
           />
         )}
       </div>

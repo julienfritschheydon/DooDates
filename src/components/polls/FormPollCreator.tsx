@@ -4,13 +4,16 @@ import FormEditor from "./FormEditor";
 import type { Question as EditorQuestion } from "./QuestionCard";
 import { getAllPolls, savePolls, type Poll } from "../../lib/pollStorage";
 import { logger } from "@/lib/logger";
+import type { ConditionalRule } from "../../types/conditionalRules";
+import { validateConditionalRules } from "../../lib/conditionalValidator";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
-export type FormQuestionType = "single" | "multiple" | "text";
+export type FormQuestionType = "single" | "multiple" | "text" | "matrix";
 
 export interface FormOption {
   id: string;
   label: string;
+  isOther?: boolean; // Option "Autre" avec champ texte libre
 }
 
 export interface FormQuestionBase {
@@ -32,20 +35,29 @@ export interface TextQuestion extends FormQuestionBase {
   maxLength?: number;
 }
 
-export type AnyFormQuestion = SingleOrMultipleQuestion | TextQuestion;
+export interface MatrixQuestion extends FormQuestionBase {
+  type: "matrix";
+  matrixRows: FormOption[]; // Lignes
+  matrixColumns: FormOption[]; // Colonnes
+  matrixType: "single" | "multiple"; // Type de réponse
+  matrixColumnsNumeric?: boolean; // Colonnes numériques
+}
+
+export type AnyFormQuestion = SingleOrMultipleQuestion | TextQuestion | MatrixQuestion;
 
 export interface FormPollDraft {
   id: string; // draft id (temporaire pour le spike)
   type: "form";
   title: string;
   questions: AnyFormQuestion[];
+  conditionalRules?: ConditionalRule[]; // Règles pour questions conditionnelles
 }
 
 interface FormPollCreatorProps {
   initialDraft?: FormPollDraft;
   onCancel?: () => void;
   onSave?: (draft: FormPollDraft) => void; // pour le spike: retour du draft, stockage géré ailleurs
-  onFinalize?: (draft: FormPollDraft) => void; // finaliser le brouillon
+  onFinalize?: (draft: FormPollDraft, savedPoll?: any) => void; // finaliser le brouillon
 }
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -65,6 +77,9 @@ export default function FormPollCreator({
   const [questions, setQuestions] = useState<AnyFormQuestion[]>(
     initialDraft?.questions || [],
   );
+  const [conditionalRules, setConditionalRules] = useState<ConditionalRule[]>(
+    initialDraft?.conditionalRules || [],
+  );
   const [draftId] = useState<string>(initialDraft?.id || "draft-" + uid());
   const autosaveTimer = useRef<number | null>(null);
 
@@ -73,6 +88,7 @@ export default function FormPollCreator({
     if (initialDraft) {
       setTitle(initialDraft.title || "");
       setQuestions(initialDraft.questions || []);
+      setConditionalRules(initialDraft.conditionalRules || []);
     }
   }, [initialDraft?.id]);
 
@@ -82,8 +98,9 @@ export default function FormPollCreator({
       type: "form",
       title,
       questions,
+      conditionalRules,
     }),
-    [draftId, title, questions],
+    [draftId, title, questions, conditionalRules],
   );
 
   const canSave = useMemo(() => validateDraft(currentDraft).ok, [currentDraft]);
@@ -93,10 +110,14 @@ export default function FormPollCreator({
     qs.map((q) => ({
       id: q.id,
       title: q.title,
-      kind: (q.type === "text" ? "text" : q.type) as EditorQuestion["kind"],
+      kind: q.type as EditorQuestion["kind"],
       required: q.required,
       options: (q as SingleOrMultipleQuestion).options,
       maxChoices: (q as SingleOrMultipleQuestion).maxChoices,
+      matrixRows: (q as MatrixQuestion).matrixRows,
+      matrixColumns: (q as MatrixQuestion).matrixColumns,
+      matrixType: (q as MatrixQuestion).matrixType,
+      matrixColumnsNumeric: (q as MatrixQuestion).matrixColumnsNumeric,
     }));
 
   const fromEditorQuestions = (qs: EditorQuestion[]): AnyFormQuestion[] =>
@@ -109,6 +130,19 @@ export default function FormPollCreator({
           required: !!q.required,
           placeholder: "",
           maxLength: 300,
+        };
+        return base;
+      }
+      if (q.kind === "matrix") {
+        const base: MatrixQuestion = {
+          id: q.id,
+          type: "matrix",
+          title: q.title,
+          required: !!q.required,
+          matrixRows: q.matrixRows ?? [],
+          matrixColumns: q.matrixColumns ?? [],
+          matrixType: q.matrixType ?? "single",
+          matrixColumnsNumeric: q.matrixColumnsNumeric,
         };
         return base;
       }
@@ -156,7 +190,19 @@ export default function FormPollCreator({
       type: "form",
       creator_id: "",
       dates: [],
-      questions: draft.questions.map((q) => ({ ...q, kind: q.type })),
+      questions: draft.questions.map((q) => {
+        const base: any = { ...q, kind: q.type };
+        // Assurer que tous les champs spécifiques sont présents
+        if (q.type === "matrix") {
+          const mq = q as MatrixQuestion;
+          base.matrixRows = mq.matrixRows;
+          base.matrixColumns = mq.matrixColumns;
+          base.matrixType = mq.matrixType;
+          base.matrixColumnsNumeric = mq.matrixColumnsNumeric;
+        }
+        return base;
+      }),
+      conditionalRules: draft.conditionalRules, // Persister les règles conditionnelles
     };
     if (existingIdx >= 0) {
       all[existingIdx] = base;
@@ -192,6 +238,25 @@ export default function FormPollCreator({
         required: false,
         placeholder: "",
         maxLength: 300,
+      };
+      setQuestions((prev) => [...prev, q]);
+      return;
+    }
+    if (type === "matrix") {
+      const q: MatrixQuestion = {
+        id: uid(),
+        type: "matrix",
+        title: "Nouvelle question matrice",
+        required: false,
+        matrixRows: [
+          { id: uid(), label: "Ligne 1" },
+          { id: uid(), label: "Ligne 2" },
+        ],
+        matrixColumns: [
+          { id: uid(), label: "Colonne 1" },
+          { id: uid(), label: "Colonne 2" },
+        ],
+        matrixType: "single",
       };
       setQuestions((prev) => [...prev, q]);
       return;
@@ -238,7 +303,8 @@ export default function FormPollCreator({
       return;
     }
     const saved = upsertFormPoll(draft, "active");
-    if (onFinalize) onFinalize(draft);
+    // Passer le poll sauvegardé complet (avec slug) au callback
+    if (onFinalize) onFinalize(draft, saved);
     logger.info("FormPoll finalisé", "poll", { pollId: saved.id });
   };
 
@@ -296,10 +362,18 @@ export default function FormPollCreator({
       </div>
 
       <FormEditor
-        value={{ id: draftId, title, questions: toEditorQuestions(questions) }}
+        value={{ 
+          id: draftId, 
+          title, 
+          questions: toEditorQuestions(questions),
+          conditionalRules,
+        }}
         onChange={(next) => {
           setTitle(next.title);
           setQuestions(fromEditorQuestions(next.questions));
+          if (next.conditionalRules !== undefined) {
+            setConditionalRules(next.conditionalRules);
+          }
         }}
         onCancel={onCancel}
         onAddQuestion={() => {
@@ -335,7 +409,17 @@ function validateDraft(draft: FormPollDraft): {
   if (draft.questions.length === 0) errors.push("Au moins une question");
   draft.questions.forEach((q, idx) => {
     if (!q.title.trim()) errors.push(`Question ${idx + 1}: intitulé requis`);
-    if (q.type !== "text") {
+    if (q.type === "matrix") {
+      const mq = q as MatrixQuestion;
+      if (!mq.matrixRows || mq.matrixRows.length < 1)
+        errors.push(`Question ${idx + 1}: minimum 1 ligne`);
+      if (!mq.matrixColumns || mq.matrixColumns.length < 2)
+        errors.push(`Question ${idx + 1}: minimum 2 colonnes`);
+      const emptyRow = mq.matrixRows?.find((r) => !r.label.trim());
+      if (emptyRow) errors.push(`Question ${idx + 1}: une ligne est vide`);
+      const emptyCol = mq.matrixColumns?.find((c) => !c.label.trim());
+      if (emptyCol) errors.push(`Question ${idx + 1}: une colonne est vide`);
+    } else if (q.type !== "text") {
       const sq = q as SingleOrMultipleQuestion;
       if (sq.options.length < 2)
         errors.push(`Question ${idx + 1}: minimum 2 options`);
@@ -357,5 +441,12 @@ function validateDraft(draft: FormPollDraft): {
         errors.push(`Question ${idx + 1}: maxLength <= 1000`);
     }
   });
+
+  // Valider les règles conditionnelles si présentes
+  if (draft.conditionalRules && draft.conditionalRules.length > 0) {
+    const ruleErrors = validateConditionalRules(draft.conditionalRules, draft.questions);
+    errors.push(...ruleErrors);
+  }
+
   return { ok: errors.length === 0, errors };
 }

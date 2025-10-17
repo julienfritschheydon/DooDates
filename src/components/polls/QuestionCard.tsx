@@ -1,11 +1,14 @@
-import React, { useCallback } from "react";
-import { ArrowUp, ArrowDown, Copy, Trash2, Edit2, Plus } from "lucide-react";
+import React, { useCallback, useState } from "react";
+import { ArrowUp, ArrowDown, Copy, Trash2, Edit2, Plus, GitBranch } from "lucide-react";
+import type { ConditionalRule } from "../../types/conditionalRules";
+import ConditionalRuleEditor from "./ConditionalRuleEditor";
 
-export type QuestionKind = "single" | "multiple" | "text";
+export type QuestionKind = "single" | "multiple" | "text" | "matrix";
 
 export type QuestionOption = {
   id: string;
   label: string;
+  isOther?: boolean; // Option "Autre" avec champ texte libre
 };
 
 export type Question = {
@@ -15,6 +18,11 @@ export type Question = {
   required?: boolean;
   options?: QuestionOption[]; // for single/multiple
   maxChoices?: number; // for multiple
+  // Matrix-specific fields
+  matrixRows?: QuestionOption[]; // Lignes (aspects à évaluer)
+  matrixColumns?: QuestionOption[]; // Colonnes (échelle de réponse)
+  matrixType?: "single" | "multiple"; // Une seule réponse par ligne ou plusieurs
+  matrixColumnsNumeric?: boolean; // Colonnes numériques (1-5) au lieu de texte
 };
 
 export type QuestionCardProps = {
@@ -26,6 +34,10 @@ export type QuestionCardProps = {
   onDelete: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  // Conditional rules support
+  allQuestions?: Question[];
+  conditionalRules?: ConditionalRule[];
+  onConditionalRulesChange?: (rules: ConditionalRule[]) => void;
 };
 
 export default function QuestionCard({
@@ -37,31 +49,83 @@ export default function QuestionCard({
   onDelete,
   onMoveUp,
   onMoveDown,
+  allQuestions,
+  conditionalRules,
+  onConditionalRulesChange,
 }: QuestionCardProps) {
+  const [showConditionalEditor, setShowConditionalEditor] = useState(false);
+  // Sauvegarder les options avant de changer de type (pour pouvoir les restaurer)
+  const [savedOptions, setSavedOptions] = useState<QuestionOption[] | undefined>(question.options);
   const setTitle = useCallback(
     (title: string) => onChange({ title }),
     [onChange],
   );
   const setKind = useCallback(
     (kind: QuestionKind) => {
+      // Sauvegarder les options actuelles si on quitte single/multiple
+      if ((question.kind === "single" || question.kind === "multiple") && question.options) {
+        setSavedOptions(question.options);
+      }
+
       // reset incompatible fields when switching kind
       if (kind === "text") {
-        onChange({ kind, options: undefined, maxChoices: undefined });
+        onChange({ 
+          kind, 
+          options: undefined, 
+          maxChoices: undefined,
+          matrixRows: undefined,
+          matrixColumns: undefined,
+          matrixType: undefined,
+        });
       } else if (kind === "single") {
         onChange({
           kind,
           maxChoices: undefined,
-          options: question.options ?? makeDefaultOptions(),
+          options: question.options ?? savedOptions ?? makeDefaultOptions(),
+          matrixRows: undefined,
+          matrixColumns: undefined,
+          matrixType: undefined,
         });
-      } else {
+      } else if (kind === "multiple") {
         onChange({
           kind,
-          options: question.options ?? makeDefaultOptions(),
+          options: question.options ?? savedOptions ?? makeDefaultOptions(),
           maxChoices: question.maxChoices ?? 1,
+          matrixRows: undefined,
+          matrixColumns: undefined,
+          matrixType: undefined,
+        });
+      } else if (kind === "matrix") {
+        // Sauvegarder les options avant de passer en matrice
+        if (question.options && question.options.length > 0) {
+          setSavedOptions(question.options);
+        }
+        
+        // Réutiliser les options existantes comme lignes de la matrice
+        const defaultRows = question.options && question.options.length > 0
+          ? question.options.map(opt => ({ id: opt.id, label: opt.label }))
+          : [
+              { id: rid(), label: "Ligne 1" },
+              { id: rid(), label: "Ligne 2" },
+            ];
+        
+        onChange({
+          kind,
+          options: undefined,
+          maxChoices: undefined,
+          matrixRows: question.matrixRows ?? defaultRows,
+          matrixColumns: question.matrixColumns ?? [
+            { id: rid(), label: "Pas du tout" },
+            { id: rid(), label: "Peu" },
+            { id: rid(), label: "Moyennement" },
+            { id: rid(), label: "Beaucoup" },
+            { id: rid(), label: "Énormément" },
+          ],
+          matrixType: question.matrixType ?? "single",
         });
       }
     },
-    [onChange, question.options, question.maxChoices],
+    [onChange, question.kind, question.options, question.maxChoices, question.matrixRows, question.matrixColumns, question.matrixType, savedOptions],
   );
   const setRequired = useCallback(
     (required: boolean) => onChange({ required }),
@@ -101,6 +165,112 @@ export default function QuestionCard({
     },
     [onChange],
   );
+
+  const toggleOtherOption = useCallback(() => {
+    const hasOther = question.options?.some((o) => o.isOther);
+    if (hasOther) {
+      // Supprimer l'option "Autre"
+      const next = (question.options ?? []).filter((o) => !o.isOther);
+      onChange({ options: next });
+    } else {
+      // Ajouter l'option "Autre"
+      const next = (question.options ?? []).concat({
+        id: rid(),
+        label: "Autre",
+        isOther: true,
+      });
+      onChange({ options: next });
+    }
+  }, [onChange, question.options]);
+
+  // Matrix-specific handlers
+  const addMatrixRow = useCallback(() => {
+    const next = (question.matrixRows ?? []).concat({
+      id: rid(),
+      label: "Ligne",
+    });
+    onChange({ matrixRows: next });
+  }, [onChange, question.matrixRows]);
+
+  const updateMatrixRow = useCallback(
+    (rowId: string, label: string) => {
+      const next = (question.matrixRows ?? []).map((r) =>
+        r.id === rowId ? { ...r, label } : r,
+      );
+      onChange({ matrixRows: next });
+    },
+    [onChange, question.matrixRows],
+  );
+
+  const removeMatrixRow = useCallback(
+    (rowId: string) => {
+      const next = (question.matrixRows ?? []).filter((r) => r.id !== rowId);
+      onChange({ matrixRows: next });
+    },
+    [onChange, question.matrixRows],
+  );
+
+  const addMatrixColumn = useCallback(() => {
+    const next = (question.matrixColumns ?? []).concat({
+      id: rid(),
+      label: "Colonne",
+    });
+    onChange({ matrixColumns: next });
+  }, [onChange, question.matrixColumns]);
+
+  const updateMatrixColumn = useCallback(
+    (colId: string, label: string) => {
+      const next = (question.matrixColumns ?? []).map((c) =>
+        c.id === colId ? { ...c, label } : c,
+      );
+      onChange({ matrixColumns: next });
+    },
+    [onChange, question.matrixColumns],
+  );
+
+  const removeMatrixColumn = useCallback(
+    (colId: string) => {
+      const next = (question.matrixColumns ?? []).filter((c) => c.id !== colId);
+      onChange({ matrixColumns: next });
+    },
+    [onChange, question.matrixColumns],
+  );
+
+  const setMatrixType = useCallback(
+    (type: "single" | "multiple") => {
+      onChange({ matrixType: type });
+    },
+    [onChange],
+  );
+
+  const toggleMatrixColumnsNumeric = useCallback(() => {
+    const isNumeric = !question.matrixColumnsNumeric;
+    if (isNumeric) {
+      // Passer en colonnes numériques (1-5)
+      onChange({
+        matrixColumnsNumeric: true,
+        matrixColumns: [
+          { id: rid(), label: "1" },
+          { id: rid(), label: "2" },
+          { id: rid(), label: "3" },
+          { id: rid(), label: "4" },
+          { id: rid(), label: "5" },
+        ],
+      });
+    } else {
+      // Revenir aux colonnes texte (échelle Likert)
+      onChange({
+        matrixColumnsNumeric: false,
+        matrixColumns: [
+          { id: rid(), label: "Pas du tout" },
+          { id: rid(), label: "Peu" },
+          { id: rid(), label: "Moyennement" },
+          { id: rid(), label: "Beaucoup" },
+          { id: rid(), label: "Énormément" },
+        ],
+      });
+    }
+  }, [onChange, question.matrixColumnsNumeric]);
 
   if (!isActive) {
     return (
@@ -167,6 +337,7 @@ export default function QuestionCard({
             <option value="single">Choix unique</option>
             <option value="multiple">Choix multiples</option>
             <option value="text">Texte court</option>
+            <option value="matrix">Matrice</option>
           </select>
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
@@ -214,6 +385,22 @@ export default function QuestionCard({
           >
             <Trash2 className="w-4 h-4" />
           </button>
+          {allQuestions && onConditionalRulesChange && (
+            <button
+              type="button"
+              onClick={() => setShowConditionalEditor(!showConditionalEditor)}
+              className={`inline-flex items-center gap-1 h-8 sm:h-9 px-2 sm:px-3 rounded-md border text-xs sm:text-sm ${
+                showConditionalEditor ? "bg-blue-50 border-blue-300 text-blue-700" : "hover:bg-gray-50"
+              }`}
+              title="Règles conditionnelles"
+              aria-label="Règles conditionnelles"
+              data-testid="question-conditional"
+              data-qid={question.id}
+            >
+              <GitBranch className="w-4 h-4" />
+              <span className="hidden sm:inline">Conditions</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -233,25 +420,35 @@ export default function QuestionCard({
             {(question.options ?? []).map((opt) => (
               <div key={opt.id} className="flex items-center gap-2">
                 <input
-                  className="flex-1 rounded-md border px-2 py-1 text-sm sm:text-base"
+                  className={`flex-1 rounded-md border px-2 py-1 text-sm sm:text-base ${
+                    opt.isOther ? "bg-blue-50 border-blue-200" : ""
+                  }`}
                   value={opt.label}
                   onChange={(e) => updateOption(opt.id, e.target.value)}
+                  readOnly={opt.isOther}
+                  disabled={opt.isOther}
+                  placeholder={opt.isOther ? "Autre (champ libre pour l'utilisateur)" : ""}
                   data-testid="question-option-input"
                   data-qid={question.id}
                   data-optid={opt.id}
                 />
-                <button
-                  type="button"
-                  onClick={() => removeOption(opt.id)}
-                  className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
-                  title="Supprimer l'option"
-                  aria-label="Supprimer l'option"
-                  data-testid="question-option-remove"
-                  data-qid={question.id}
-                  data-optid={opt.id}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {opt.isOther && (
+                  <span className="text-xs text-blue-600 whitespace-nowrap">+ Texte libre</span>
+                )}
+                {!opt.isOther && (
+                  <button
+                    type="button"
+                    onClick={() => removeOption(opt.id)}
+                    className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
+                    title="Supprimer l'option"
+                    aria-label="Supprimer l'option"
+                    data-testid="question-option-remove"
+                    data-qid={question.id}
+                    data-optid={opt.id}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -271,21 +468,136 @@ export default function QuestionCard({
           )}
         </div>
       )}
+
+      {/* Matrix editor */}
+      {question.kind === "matrix" && (
+        <div className="flex flex-col gap-3">
+          {/* Matrix type selector */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-500">Type de réponse</label>
+            <select
+              className="rounded-md border px-2 py-1 text-sm"
+              value={question.matrixType ?? "single"}
+              onChange={(e) => setMatrixType(e.target.value as "single" | "multiple")}
+            >
+              <option value="single">Une seule réponse par ligne</option>
+              <option value="multiple">Plusieurs réponses par ligne</option>
+            </select>
+          </div>
+
+          {/* Rows editor */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-500">Lignes (aspects à évaluer)</div>
+              <button
+                type="button"
+                onClick={addMatrixRow}
+                className="inline-flex items-center rounded-md border h-7 px-2 text-xs"
+                title="Ajouter une ligne"
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Ligne
+              </button>
+            </div>
+            <div className="flex flex-col gap-1">
+              {(question.matrixRows ?? []).map((row) => (
+                <div key={row.id} className="flex items-center gap-2">
+                  <input
+                    className="flex-1 rounded-md border px-2 py-1 text-sm"
+                    value={row.label}
+                    onChange={(e) => updateMatrixRow(row.id, e.target.value)}
+                    placeholder="Nom de la ligne"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeMatrixRow(row.id)}
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-md border"
+                    title="Supprimer la ligne"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Columns editor */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-500">Colonnes (échelle de réponse)</div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={toggleMatrixColumnsNumeric}
+                  className={`inline-flex items-center rounded-md border h-7 px-2 text-xs ${
+                    question.matrixColumnsNumeric ? "bg-blue-50 border-blue-300 text-blue-700" : ""
+                  }`}
+                  title={question.matrixColumnsNumeric ? "Passer en texte" : "Passer en numérique (1-5)"}
+                >
+                  {question.matrixColumnsNumeric ? "↻ Texte" : "↻ 1-5"}
+                </button>
+                <button
+                  type="button"
+                  onClick={addMatrixColumn}
+                  className="inline-flex items-center rounded-md border h-7 px-2 text-xs"
+                  title="Ajouter une colonne"
+                >
+                  <Plus className="w-3 h-3 mr-1" />
+                  Colonne
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              {(question.matrixColumns ?? []).map((col) => (
+                <div key={col.id} className="flex items-center gap-2">
+                  <input
+                    className="flex-1 rounded-md border px-2 py-1 text-sm"
+                    value={col.label}
+                    onChange={(e) => updateMatrixColumn(col.id, e.target.value)}
+                    placeholder="Nom de la colonne"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeMatrixColumn(col.id)}
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-md border"
+                    title="Supprimer la colonne"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Footer row: Add option (if applicable) + Required toggle side-by-side */}
       <div className="pt-1 flex items-center gap-3 flex-wrap">
         {(question.kind === "single" || question.kind === "multiple") && (
-          <button
-            type="button"
-            onClick={addOption}
-            className="inline-flex items-center rounded-md border h-8 sm:h-9 px-2 sm:px-3 text-sm"
-            title="Ajouter une option"
-            aria-label="Ajouter une option"
-            data-testid="question-add-option"
-            data-qid={question.id}
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline ml-2">Ajouter une option</span>
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={addOption}
+              className="inline-flex items-center rounded-md border h-8 sm:h-9 px-2 sm:px-3 text-sm"
+              title="Ajouter une option"
+              aria-label="Ajouter une option"
+              data-testid="question-add-option"
+              data-qid={question.id}
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline ml-2">Ajouter une option</span>
+            </button>
+            <label className="flex items-center gap-2 text-sm select-none">
+              <input
+                type="checkbox"
+                checked={question.options?.some((o) => o.isOther) ?? false}
+                onChange={toggleOtherOption}
+                data-testid="question-other-option"
+                data-qid={question.id}
+              />
+              Option "Autre"
+            </label>
+          </>
         )}
         <label className="flex items-center gap-2 text-sm select-none">
           <input
@@ -298,6 +610,19 @@ export default function QuestionCard({
           Obligatoire
         </label>
       </div>
+
+      {/* Conditional Rules Editor */}
+      {showConditionalEditor && allQuestions && conditionalRules !== undefined && onConditionalRulesChange && (
+        <div className="mt-3">
+          <ConditionalRuleEditor
+            questionId={question.id}
+            questions={allQuestions}
+            existingRules={conditionalRules}
+            onChange={onConditionalRulesChange}
+          />
+        </div>
+      )}
+
       {/* actions déplacées dans la barre d'entête pour gagner de l'espace vertical */}
     </div>
   );

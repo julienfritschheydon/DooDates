@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPollBySlugOrId, addFormResponse } from "../../lib/pollStorage";
+import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
 import type {
   Poll,
   FormQuestionShape,
   FormQuestionOption,
 } from "../../lib/pollStorage";
 
-type AnswerValue = string | string[];
+type AnswerValue = string | string[] | Record<string, string | string[]>;
 
 interface Props {
   idOrSlug: string;
@@ -18,6 +19,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
   const [loading, setLoading] = useState(true);
   const [voterName, setVoterName] = useState("");
   const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
+  const [otherTexts, setOtherTexts] = useState<Record<string, string>>({}); // Pour stocker les textes "Autre"
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
@@ -27,10 +29,45 @@ export default function FormPollVote({ idOrSlug }: Props) {
     setLoading(false);
   }, [idOrSlug]);
 
-  const questions = useMemo(
+  const allQuestions = useMemo(
     () => (poll?.questions ?? []) as FormQuestionShape[],
     [poll],
   );
+
+  // Convertir les réponses pour l'évaluation conditionnelle (convertir IDs en labels)
+  const simplifiedAnswers = useMemo(() => {
+    const simplified: Record<string, string | string[]> = {};
+    for (const [qid, val] of Object.entries(answers)) {
+      const question = allQuestions.find((q) => q.id === qid);
+      
+      if (typeof val === 'object' && !Array.isArray(val)) {
+        // Pour les matrices, on considère qu'une réponse existe si au moins une ligne est remplie
+        const hasAnswer = Object.values(val).some(v => 
+          Array.isArray(v) ? v.length > 0 : !!v
+        );
+        simplified[qid] = hasAnswer ? "answered" : "";
+      } else if (Array.isArray(val)) {
+        // Pour choix multiples, convertir les IDs en labels
+        simplified[qid] = val.map((optId) => {
+          const option = question?.options?.find((o) => o.id === optId);
+          return option?.label || optId;
+        });
+      } else if (typeof val === 'string') {
+        // Pour choix unique, convertir l'ID en label
+        const option = question?.options?.find((o) => o.id === val);
+        simplified[qid] = option?.label || val;
+      } else {
+        simplified[qid] = val;
+      }
+    }
+    return simplified;
+  }, [answers, allQuestions]);
+
+  // Filtrer les questions visibles selon les règles conditionnelles
+  const questions = useMemo(() => {
+    const rules = poll?.conditionalRules ?? [];
+    return allQuestions.filter((q) => shouldShowQuestion(q.id, rules, simplifiedAnswers));
+  }, [allQuestions, poll?.conditionalRules, simplifiedAnswers]);
 
   const updateAnswer = (qid: string, value: AnswerValue) => {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
@@ -79,6 +116,22 @@ export default function FormPollVote({ idOrSlug }: Props) {
           const arr = Array.isArray(val) ? (val as string[]) : [];
           if (arr.length === 0) {
             return `Au moins un choix requis pour: ${q.title || "Question"}`;
+          }
+        } else if (kind === "matrix") {
+          const matrixVal = val as Record<string, string | string[]> | undefined;
+          if (!matrixVal || Object.keys(matrixVal).length === 0) {
+            return `Réponse requise pour: ${q.title || "Question"}`;
+          }
+          // Vérifier que toutes les lignes ont une réponse
+          const allRowsAnswered = (q.matrixRows || []).every((row) => {
+            const rowAnswer = matrixVal[row.id];
+            if (Array.isArray(rowAnswer)) {
+              return rowAnswer.length > 0;
+            }
+            return !!rowAnswer;
+          });
+          if (!allRowsAnswered) {
+            return `Toutes les lignes doivent être remplies pour: ${q.title || "Question"}`;
           }
         }
       }
@@ -151,7 +204,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
   if (submitted) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="max-w-2xl mx-auto p-6">
+        <div className="max-w-2xl mx-auto p-6 pt-20">
           <h1 className="text-2xl font-bold mb-2">
             Merci pour votre participation !
           </h1>
@@ -173,7 +226,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
     <div className="min-h-screen bg-gray-50">
       <form
         onSubmit={onSubmit}
-        className="max-w-2xl mx-auto p-6 space-y-6"
+        className="max-w-2xl mx-auto p-6 pt-20 space-y-6"
         aria-describedby="form-live-region"
       >
         {/* Live region for announcing validation errors or status to assistive tech */}
@@ -233,7 +286,11 @@ export default function FormPollVote({ idOrSlug }: Props) {
                         ? "Réponse libre"
                         : kind === "single"
                           ? "Choix unique"
-                          : "Choix multiples"}
+                          : kind === "multiple"
+                            ? "Choix multiples"
+                            : kind === "matrix"
+                              ? "Matrice"
+                              : "Question"}
                       {q.required ? " • obligatoire" : ""}
                     </div>
                   </div>
@@ -260,17 +317,33 @@ export default function FormPollVote({ idOrSlug }: Props) {
                 {kind === "single" && (
                   <div className="space-y-2">
                     {(q.options || []).map((opt: FormQuestionOption) => (
-                      <label key={opt.id} className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name={qid}
-                          checked={val === opt.id}
-                          onChange={() => updateAnswer(qid, opt.id)}
-                          aria-labelledby={`q-${qid}-label`}
-                          aria-required={q.required ? true : undefined}
-                        />
-                        <span>{opt.label || "Option"}</span>
-                      </label>
+                      <div key={opt.id} className="space-y-1">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name={qid}
+                            checked={val === opt.id}
+                            onChange={() => updateAnswer(qid, opt.id)}
+                            aria-labelledby={`q-${qid}-label`}
+                            aria-required={q.required ? true : undefined}
+                          />
+                          <span>{opt.label || "Option"}</span>
+                          {opt.isOther && (
+                            <span className="text-xs text-blue-600">+ Texte libre</span>
+                          )}
+                        </label>
+                        {opt.isOther && val === opt.id && (
+                          <input
+                            type="text"
+                            className="w-full ml-6 border rounded px-3 py-2 text-sm"
+                            placeholder="Précisez votre réponse..."
+                            value={otherTexts[qid] || ""}
+                            onChange={(e) =>
+                              setOtherTexts((prev) => ({ ...prev, [qid]: e.target.value }))
+                            }
+                          />
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
@@ -289,27 +362,108 @@ export default function FormPollVote({ idOrSlug }: Props) {
                         q.maxChoices &&
                         selectedCount >= q.maxChoices;
                       return (
-                        <label key={opt.id} className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={(e) =>
-                              toggleMulti(
-                                qid,
-                                opt.id,
-                                e.currentTarget.checked,
-                                q.maxChoices,
-                              )
-                            }
-                            aria-labelledby={`q-${qid}-label`}
-                            aria-required={q.required ? true : undefined}
-                            disabled={!!disableExtra}
-                            data-testid="multi-option"
-                          />
-                          <span>{opt.label || "Option"}</span>
-                        </label>
+                        <div key={opt.id} className="space-y-1">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={(e) =>
+                                toggleMulti(
+                                  qid,
+                                  opt.id,
+                                  e.currentTarget.checked,
+                                  q.maxChoices,
+                                )
+                              }
+                              aria-labelledby={`q-${qid}-label`}
+                              aria-required={q.required ? true : undefined}
+                              disabled={!!disableExtra}
+                              data-testid="multi-option"
+                            />
+                            <span>{opt.label || "Option"}</span>
+                            {opt.isOther && (
+                              <span className="text-xs text-blue-600">+ Texte libre</span>
+                            )}
+                          </label>
+                          {opt.isOther && checked && (
+                            <input
+                              type="text"
+                              className="w-full ml-6 border rounded px-3 py-2 text-sm"
+                              placeholder="Précisez votre réponse..."
+                              value={otherTexts[`${qid}_${opt.id}`] || ""}
+                              onChange={(e) =>
+                                setOtherTexts((prev) => ({
+                                  ...prev,
+                                  [`${qid}_${opt.id}`]: e.target.value,
+                                }))
+                              }
+                            />
+                          )}
+                        </div>
                       );
                     })}
+                  </div>
+                )}
+
+                {kind === "matrix" && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="border p-2 bg-gray-50 text-left text-sm">
+                            {/* Empty corner cell */}
+                          </th>
+                          {(q.matrixColumns || []).map((col: FormQuestionOption) => (
+                            <th
+                              key={col.id}
+                              className="border p-2 bg-gray-50 text-center text-sm font-medium"
+                            >
+                              {col.label}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(q.matrixRows || []).map((row: FormQuestionOption) => {
+                          const rowValue = (val as Record<string, string | string[]>)?.[row.id];
+                          return (
+                            <tr key={row.id}>
+                              <td className="border p-2 text-sm font-medium">
+                                {row.label}
+                              </td>
+                              {(q.matrixColumns || []).map((col: FormQuestionOption) => {
+                                const isChecked = q.matrixType === "multiple"
+                                  ? Array.isArray(rowValue) && rowValue.includes(col.id)
+                                  : rowValue === col.id;
+                                return (
+                                  <td key={col.id} className="border p-2 text-center">
+                                    <input
+                                      type={q.matrixType === "multiple" ? "checkbox" : "radio"}
+                                      name={`${qid}-${row.id}`}
+                                      checked={isChecked}
+                                      onChange={(e) => {
+                                        const currentVal = (answers[qid] as Record<string, string | string[]>) || {};
+                                        if (q.matrixType === "multiple") {
+                                          const currentRowVal = (currentVal[row.id] as string[]) || [];
+                                          const newRowVal = e.target.checked
+                                            ? [...currentRowVal, col.id]
+                                            : currentRowVal.filter((id) => id !== col.id);
+                                          updateAnswer(qid, { ...currentVal, [row.id]: newRowVal });
+                                        } else {
+                                          updateAnswer(qid, { ...currentVal, [row.id]: col.id });
+                                        }
+                                      }}
+                                      aria-labelledby={`q-${qid}-label`}
+                                      aria-required={q.required ? true : undefined}
+                                    />
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
