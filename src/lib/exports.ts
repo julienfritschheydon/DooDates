@@ -5,6 +5,7 @@
 
 import type { Poll, FormResponse } from "./pollStorage";
 import { getFormResponses } from "./pollStorage";
+import { ErrorFactory } from "./error-handling";
 
 /**
  * Escape CSV values (RFC 4180 compliant)
@@ -56,7 +57,10 @@ function generateFilename(poll: Poll, extension: string = "csv"): string {
  */
 export function formPollToCSV(poll: Poll): string {
   if (poll.type !== "form") {
-    throw new Error("Poll type must be 'form'");
+    throw ErrorFactory.validation(
+      "Poll type must be 'form'",
+      "Ce sondage n'est pas de type formulaire"
+    );
   }
 
   const lines: string[] = [];
@@ -196,7 +200,10 @@ export function downloadCSV(content: string, poll: Poll): void {
  */
 export function exportFormPollToCSV(poll: Poll): void {
   if (poll.type !== "form") {
-    throw new Error("This function only supports FormPoll");
+    throw ErrorFactory.validation(
+      "This function only supports FormPoll",
+      "Cette fonction ne supporte que les formulaires"
+    );
   }
 
   const csv = formPollToCSV(poll);
@@ -227,7 +234,10 @@ export function canExport(poll: Poll, userId?: string): boolean {
  */
 function formPollToHTML(poll: Poll): string {
   if (poll.type !== "form") {
-    throw new Error("Poll type must be 'form'");
+    throw ErrorFactory.validation(
+      "Poll type must be 'form'",
+      "Ce sondage n'est pas de type formulaire"
+    );
   }
 
   const responses = getFormResponses(poll.id);
@@ -467,7 +477,10 @@ function escapeHTML(text: string): string {
  */
 export function exportFormPollToPDF(poll: Poll): void {
   if (poll.type !== "form") {
-    throw new Error("This function only supports FormPoll");
+    throw ErrorFactory.validation(
+      "This function only supports FormPoll",
+      "Cette fonction ne supporte que les formulaires"
+    );
   }
 
   const html = formPollToHTML(poll);
@@ -475,7 +488,10 @@ export function exportFormPollToPDF(poll: Poll): void {
   // Open in new window for printing
   const printWindow = window.open("", "_blank");
   if (!printWindow) {
-    throw new Error("Popup blocked. Please allow popups for this site.");
+    throw ErrorFactory.validation(
+      "Popup blocked. Please allow popups for this site.",
+      "Veuillez autoriser les pop-ups pour ce site"
+    );
   }
 
   printWindow.document.write(html);
@@ -487,7 +503,10 @@ export function exportFormPollToPDF(poll: Poll): void {
  */
 export function exportFormPollToJSON(poll: Poll): void {
   if (poll.type !== "form") {
-    throw new Error("This function only supports FormPoll");
+    throw ErrorFactory.validation(
+      "This function only supports FormPoll",
+      "Cette fonction ne supporte que les formulaires"
+    );
   }
 
   const responses = getFormResponses(poll.id);
@@ -533,7 +552,10 @@ export function exportFormPollToJSON(poll: Poll): void {
  */
 export function exportFormPollToMarkdown(poll: Poll): void {
   if (poll.type !== "form") {
-    throw new Error("This function only supports FormPoll");
+    throw ErrorFactory.validation(
+      "This function only supports FormPoll",
+      "Cette fonction ne supporte que les formulaires"
+    );
   }
 
   const responses = getFormResponses(poll.id);
