@@ -41,9 +41,9 @@ export default function FormCreator() {
       logError(
         ErrorFactory.validation(
           "Poll non fourni après finalisation",
-          "Une erreur s'est produite lors de la finalisation"
+          "Une erreur s'est produite lors de la finalisation",
         ),
-        { component: "FormCreator", operation: "handleFinalize" }
+        { component: "FormCreator", operation: "handleFinalize" },
       );
       return;
     }
