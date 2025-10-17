@@ -27,6 +27,7 @@ import {
   exportFormPollToMarkdown,
   hasExportableData,
 } from "@/lib/exports";
+import { ErrorFactory, logError } from "@/lib/error-handling";
 
 export type PollActionsVariant = "compact" | "full";
 
@@ -185,7 +186,15 @@ export const PollActions: React.FC<PollActionsProps> = ({
           break;
       }
     } catch (err) {
-      console.error("Export error:", err);
+      logError(
+        err instanceof Error
+          ? err
+          : ErrorFactory.api(
+              "Export error",
+              "Erreur lors de l'export du sondage"
+            ),
+        { component: "PollActions", operation: "handleExport", pollId: poll.id }
+      );
       toast({
         title: "Erreur d'export",
         description:

@@ -6,6 +6,7 @@ import FormPollCreator, {
   type FormPollDraft,
 } from "@/components/polls/FormPollCreator";
 import { getAllPolls } from "@/lib/pollStorage";
+import { ErrorFactory, logError } from "@/lib/error-handling";
 
 export default function FormCreator() {
   const navigate = useNavigate();
@@ -37,7 +38,13 @@ export default function FormCreator() {
   const handleFinalize = (draft: FormPollDraft, savedPoll?: any) => {
     // Utiliser le poll sauvegardé directement passé par le callback
     if (!savedPoll) {
-      console.error("❌ Poll non fourni après finalisation!");
+      logError(
+        ErrorFactory.validation(
+          "Poll non fourni après finalisation",
+          "Une erreur s'est produite lors de la finalisation"
+        ),
+        { component: "FormCreator", operation: "handleFinalize" }
+      );
       return;
     }
 
