@@ -200,6 +200,14 @@ IA: ✅ Titre modifié en "Apéro vendredi"
 
 ## 🔜 PROCHAINES ÉTAPES
 
+### **⚠️ Tests à corriger (URGENT)**
+
+**PollHeader.test.tsx - 17 tests échouent**
+- Cause : Composant PollHeader simplifié (badge conversation supprimé, bouton retour supprimé)
+- Action : Mettre à jour les tests pour correspondre à la nouvelle version simplifiée
+- Fichier : `src/components/voting/__tests__/PollHeader.test.tsx`
+- Priorité : HAUTE (bloque les commits sans --no-verify)
+
 ### **Tests à effectuer**
 
 **1. Groupement intelligent dates consécutives**
