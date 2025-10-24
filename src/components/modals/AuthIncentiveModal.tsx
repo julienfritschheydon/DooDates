@@ -119,12 +119,12 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#1e1e1e] rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="relative p-6 text-center border-b">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="absolute top-4 right-4 p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -165,7 +165,7 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
 
           {/* Usage indicator if available */}
           {currentUsage && (
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div className="mb-6 p-4 bg-[#0a0a0a] rounded-lg">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-gray-700">
                   Utilisation actuelle
@@ -174,7 +174,7 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
                   {currentUsage.conversations}/{currentUsage.maxConversations}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-700 rounded-full h-2">
                 <div
                   className="bg-purple-600 h-2 rounded-full transition-all duration-300"
                   style={{
@@ -197,7 +197,7 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
 
             <button
               onClick={onSignIn}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"
+              className="w-full bg-[#0a0a0a] hover:bg-[#2a2a2a] text-gray-300 font-medium py-3 px-4 rounded-lg transition-colors"
             >
               J'ai déjà un compte
             </button>

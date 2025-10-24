@@ -1,6 +1,13 @@
-import { Link } from 'react-router-dom';
-import { LayoutDashboard, Clock, BarChart3, Settings, User, Palette } from 'lucide-react';
-import { useActiveRoute } from '@/hooks/useActiveRoute';
+import { Link } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Clock,
+  BarChart3,
+  Settings,
+  User,
+  Palette,
+} from "lucide-react";
+import { useActiveRoute } from "@/hooks/useActiveRoute";
 
 interface SidebarContentProps {
   onItemClick?: () => void;
@@ -15,36 +22,36 @@ export function SidebarContent({ onItemClick }: SidebarContentProps) {
 
   const navItems = [
     {
-      href: '/workspace',
-      label: 'Mes sondages',
+      href: "/workspace",
+      label: "Mes sondages",
       icon: LayoutDashboard,
     },
     {
-      href: '/recent',
-      label: 'Récents',
+      href: "/recent",
+      label: "Récents",
       icon: Clock,
     },
     {
-      href: '/results',
-      label: 'Résultats',
+      href: "/results",
+      label: "Résultats",
       icon: BarChart3,
     },
     {
-      href: '/settings',
-      label: 'Paramètres',
+      href: "/settings",
+      label: "Paramètres",
       icon: Settings,
     },
   ];
 
   const bottomItems = [
     {
-      href: '/profile',
-      label: 'Profile',
+      href: "/profile",
+      label: "Profile",
       icon: User,
     },
     {
-      href: '/theme',
-      label: 'Thème',
+      href: "/theme",
+      label: "Thème",
       icon: Palette,
     },
   ];
@@ -74,8 +81,8 @@ export function SidebarContent({ onItemClick }: SidebarContentProps) {
                 transition-colors
                 ${
                   active
-                    ? 'bg-blue-50 text-blue-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? "bg-blue-50 text-blue-700 font-medium"
+                    : "text-gray-700 hover:bg-gray-100"
                 }
               `}
             >
@@ -102,8 +109,8 @@ export function SidebarContent({ onItemClick }: SidebarContentProps) {
                 transition-colors
                 ${
                   active
-                    ? 'bg-blue-50 text-blue-700 font-medium'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? "bg-blue-50 text-blue-700 font-medium"
+                    : "text-gray-600 hover:bg-gray-100"
                 }
               `}
             >

@@ -31,8 +31,8 @@ export const VoteStats: React.FC<VoteStatsProps> = ({
     switch (voteType) {
       case "yes":
         return {
-          bg: "bg-green-200/30",
-          highlight: "bg-green-500/75",
+          bg: "bg-blue-200/30",
+          highlight: "bg-blue-500/75",
         };
       case "maybe":
         return {

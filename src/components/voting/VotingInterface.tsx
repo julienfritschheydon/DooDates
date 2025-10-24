@@ -124,7 +124,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0a0a0a]">
       {/* Bannière admin si applicable */}
       <AdminBanner />
 

@@ -72,7 +72,7 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
         transition={{ duration: 0.3 }}
         className="overflow-hidden"
       >
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-4">
+        <div className="bg-[#1e1e1e] rounded-2xl p-4 shadow-sm border border-gray-700 space-y-4">
           <div className="flex items-center gap-2 mb-3">
             <User className="h-5 w-5 text-blue-600" />
             <h3 className="font-semibold text-gray-800">Vos informations</h3>

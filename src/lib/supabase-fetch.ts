@@ -56,6 +56,10 @@ export interface PollOption {
   }> | null;
   display_order?: number;
   created_at?: string;
+  // Champs pour les groupes de dates (week-ends, semaines, quinzaines)
+  date_group?: string[]; // Liste des dates du groupe
+  date_group_label?: string; // Label à afficher ("Week-end du 6-7 décembre")
+  date_group_type?: "weekend" | "week" | "fortnight" | "custom"; // Type de groupe
 }
 
 export interface Vote {

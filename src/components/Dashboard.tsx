@@ -7,6 +7,7 @@ import {
   Search,
   Vote,
   MessageSquare,
+  X,
 } from "lucide-react";
 import { logError, ErrorFactory } from "../lib/error-handling";
 import { useAuth } from "../contexts/AuthContext";
@@ -21,12 +22,34 @@ import {
 } from "@/lib/pollStorage";
 import PollActions from "@/components/polls/PollActions";
 import { ConversationHistory } from "./conversations/ConversationHistory";
+import { getConversations } from "@/lib/storage/ConversationStorageSimple";
 
 // Interface pour les sondages du dashboard (basée sur Poll)
 interface DashboardPoll extends StoragePoll {
   votes_count?: number;
   participants_count?: number;
   topDates?: { date: string; score: number }[];
+  relatedConversationId?: string;
+}
+
+// Fonction pour trouver la conversation liée à un sondage (rétrocompatibilité)
+function findRelatedConversation(poll: DashboardPoll): string | undefined {
+  // Si déjà défini, le retourner
+  if (poll.relatedConversationId) return poll.relatedConversationId;
+  
+  // Sinon, chercher une conversation avec le même titre de sondage
+  try {
+    const conversations = getConversations();
+    const match = conversations.find(conv => {
+      // Chercher dans les métadonnées si un sondage a été créé avec ce titre
+      const metadata = conv.metadata as any;
+      return metadata?.pollGenerated && 
+             metadata?.pollTitle?.toLowerCase() === poll.title.toLowerCase();
+    });
+    return match?.id;
+  } catch {
+    return undefined;
+  }
 }
 
 const Dashboard: React.FC = () => {
@@ -176,7 +199,7 @@ const Dashboard: React.FC = () => {
       case "draft":
         return "bg-gray-100 text-gray-800";
       case "active":
-        return "bg-green-100 text-green-800";
+        return "bg-blue-100 text-blue-800";
       case "closed":
         return "bg-blue-100 text-blue-800";
       case "archived":
@@ -203,17 +226,17 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <div className="pt-20">
         {/* Indicateur Mode Développement Local */}
-        <div className="bg-amber-100 dark:bg-amber-900 border-l-4 border-amber-500 p-3 mb-4">
+        <div className="bg-amber-900/20 border-l-4 border-amber-500 p-3 mb-4">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <svg
@@ -229,7 +252,7 @@ const Dashboard: React.FC = () => {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-amber-700 dark:text-amber-200">
+              <p className="text-sm text-amber-200">
                 🚧 <strong>Mode Développement Local</strong> - Les sondages sont
                 stockés localement (localStorage)
               </p>
@@ -241,13 +264,13 @@ const Dashboard: React.FC = () => {
           {/* Onglets de navigation */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-8">
-              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+              <div className="flex space-x-1 bg-[#1e1e1e] p-1 rounded-lg">
                 <button
                   onClick={() => setActiveTab("polls")}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     activeTab === "polls"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-[#3c4043] text-white shadow-sm"
+                      : "text-gray-400 hover:text-white"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -259,8 +282,8 @@ const Dashboard: React.FC = () => {
                   onClick={() => setActiveTab("conversations")}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     activeTab === "conversations"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-[#3c4043] text-white shadow-sm"
+                      : "text-gray-400 hover:text-white"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -270,6 +293,17 @@ const Dashboard: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {/* Bouton fermer pour revenir à l'accueil */}
+            <button
+              onClick={() => navigate("/")}
+              className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
+              title="Retour à l'accueil"
+              data-testid="close-dashboard"
+              aria-label="Retour"
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
 
           {/* Contenu conditionnel selon l'onglet actif */}
@@ -279,13 +313,13 @@ const Dashboard: React.FC = () => {
               <div className="mb-6">
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                   <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                     <input
                       type="text"
                       placeholder="Rechercher un sondage..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-4 py-2 bg-[#1e1e1e] border border-gray-700 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       data-testid="search-polls"
                     />
                   </div>
@@ -297,8 +331,8 @@ const Dashboard: React.FC = () => {
                           onClick={() => setFilter(status as any)}
                           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                             filter === status
-                              ? "bg-blue-600 text-white"
-                              : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                              ? "bg-blue-500 text-white"
+                              : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700"
                           }`}
                         >
                           {status === "all"
@@ -316,17 +350,17 @@ const Dashboard: React.FC = () => {
                 {filteredPolls.map((poll) => (
                   <div
                     key={poll.id}
-                    className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+                    className="bg-[#3c4043] rounded-lg shadow-sm border border-gray-700 hover:shadow-md transition-shadow"
                     data-testid="poll-item"
                   >
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                          <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">
                             {poll.title}
                           </h3>
                           {poll.description && (
-                            <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-2">
+                            <p className="text-gray-300 text-sm mb-3 line-clamp-2">
                               {poll.description}
                             </p>
                           )}
@@ -343,8 +377,8 @@ const Dashboard: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
+                        <div className="flex items-center gap-4 text-sm text-gray-400">
                           <div className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
                             <span data-testid="participants-count">
@@ -369,7 +403,7 @@ const Dashboard: React.FC = () => {
                       {/* Meilleures dates */}
                       {poll.topDates && poll.topDates.length > 0 ? (
                         <div className="mb-4">
-                          <div className="text-xs text-gray-500 mb-2 font-medium">
+                          <div className="text-xs text-gray-400 mb-2 font-medium">
                             🏆 Dates populaires :
                           </div>
                           <div className="flex flex-wrap gap-2">
@@ -378,8 +412,8 @@ const Dashboard: React.FC = () => {
                                 key={index}
                                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                                   index === 0
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                                    : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                                    ? "bg-blue-900/30 text-blue-400"
+                                    : "bg-purple-900/30 text-purple-400"
                                 }`}
                               >
                                 {index === 0 && "⭐ "}
@@ -400,11 +434,29 @@ const Dashboard: React.FC = () => {
                         )
                       )}
 
+                      {/* Badge conversation IA si le sondage a été créé par IA */}
+                      {(() => {
+                        const conversationId = findRelatedConversation(poll);
+                        return conversationId ? (
+                          <div className="mb-3 flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1 text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">
+                              💬 Créé par IA
+                            </span>
+                            <button
+                              onClick={() => navigate(`/?conversation=${conversationId}`)}
+                              className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                            >
+                              Reprendre la conversation →
+                            </button>
+                          </div>
+                        ) : null;
+                      })()}
+
                       {/* Actions */}
                       <div className="flex items-center gap-2 flex-wrap">
                         <button
                           onClick={() => navigate(`/poll/${poll.slug}/results`)}
-                          className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
+                          className="bg-[#1e1e1e] text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-1 min-w-0"
                           data-testid="results-button"
                         >
                           <BarChart3 className="w-4 h-4 flex-shrink-0" />
@@ -412,7 +464,7 @@ const Dashboard: React.FC = () => {
                         </button>
                         <button
                           onClick={() => navigate(`/poll/${poll.slug}`)}
-                          className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1 min-w-0"
+                          className="bg-[#1e1e1e] text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-1 min-w-0"
                           data-testid="vote-button"
                         >
                           <Vote className="w-4 h-4 flex-shrink-0" />
@@ -435,10 +487,10 @@ const Dashboard: React.FC = () => {
               {filteredPolls.length === 0 && (
                 <div className="text-center py-12">
                   <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <h3 className="text-lg font-medium text-white mb-2">
                     {searchQuery ? "Aucun sondage trouvé" : "Aucun sondage"}
                   </h3>
-                  <p className="text-gray-500 mb-6">
+                  <p className="text-gray-400 mb-6">
                     {searchQuery
                       ? "Essayez avec d'autres mots-clés"
                       : "Créez votre premier sondage pour commencer"}
@@ -451,7 +503,7 @@ const Dashboard: React.FC = () => {
                         localStorage.removeItem("doodates-draft");
                         navigate("/create");
                       }}
-                      className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                      className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
                     >
                       Créer un sondage
                     </button>
@@ -466,9 +518,12 @@ const Dashboard: React.FC = () => {
             <div className="mt-6">
               <ConversationHistory
                 onResumeConversation={(conversationId) => {
+                  console.log("🔄 Dashboard: Resuming conversation", conversationId);
                   navigate(`/chat?resume=${conversationId}`);
+                  console.log("✅ Dashboard: Navigated to /chat?resume=" + conversationId);
                 }}
                 onCreateConversation={() => {
+                  console.log("➕ Dashboard: Creating new conversation");
                   navigate("/chat");
                 }}
                 language="fr"

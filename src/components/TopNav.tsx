@@ -1,12 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Smartphone, Sparkles } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 const TopNav = () => {
   const navigate = useNavigate();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b border-gray-200 px-6 py-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-white dark:bg-gray-900 px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <button
@@ -18,18 +19,19 @@ const TopNav = () => {
             <Sparkles className="w-6 h-6 text-white drop-shadow-sm" />
           </div>
           <div>
-            <h1 className="font-geist font-bold text-lg text-gray-900">
+            <h1 className="font-geist font-bold text-lg text-gray-900 dark:text-white">
               DooDates
             </h1>
-            <p className="text-xs text-gray-500">AI Scheduling</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">AI Scheduling</p>
           </div>
         </button>
 
         {/* Actions */}
         <div className="flex items-center gap-2 lg:gap-3">
+          <ThemeToggle />
           <button
             onClick={() => navigate("/dashboard")}
-            className="flex items-center justify-center gap-1 lg:gap-2 bg-gray-100 text-gray-700 px-3 lg:px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200 shadow-sm text-sm"
+            className="flex items-center justify-center gap-1 lg:gap-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 lg:px-4 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm text-sm"
             title="Mes sondages"
             data-testid="dashboard-button"
           >

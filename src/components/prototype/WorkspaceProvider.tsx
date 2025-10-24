@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from "react";
 
 /**
  * Type simplifié Poll pour le prototype
@@ -6,7 +6,7 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 interface Poll {
   id: string;
   title: string;
-  type: 'date' | 'form';
+  type: "date" | "form";
   // ... autres champs selon besoin
 }
 
@@ -17,11 +17,13 @@ interface WorkspaceContextType {
   setIsLoading: (loading: boolean) => void;
 }
 
-const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
+const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
+  undefined,
+);
 
 /**
  * Provider pour state global du workspace
- * 
+ *
  * Gère le poll en cours et le partage entre:
  * - Chat IA (modifie le poll)
  * - Preview (affiche le poll)
@@ -32,7 +34,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <WorkspaceContext.Provider value={{ poll, setPoll, isLoading, setIsLoading }}>
+    <WorkspaceContext.Provider
+      value={{ poll, setPoll, isLoading, setIsLoading }}
+    >
       {children}
     </WorkspaceContext.Provider>
   );
@@ -44,7 +48,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 export function useWorkspace() {
   const context = useContext(WorkspaceContext);
   if (context === undefined) {
-    throw new Error('useWorkspace must be used within WorkspaceProvider');
+    throw new Error("useWorkspace must be used within WorkspaceProvider");
   }
   return context;
 }

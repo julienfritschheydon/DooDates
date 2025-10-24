@@ -42,11 +42,11 @@ const VoteButton: React.FC<{
   const config = {
     yes: {
       icon: Check,
-      bgColor: "bg-green-500",
-      bgColorBright: "bg-green-600",
-      hoverColor: "hover:bg-green-100",
-      textColor: "text-green-600",
-      borderColor: "border-green-500",
+      bgColor: "bg-blue-500",
+      bgColorBright: "bg-blue-600",
+      hoverColor: "hover:bg-blue-100",
+      textColor: "text-blue-600",
+      borderColor: "border-blue-500",
       label: "Oui",
     },
     no: {
@@ -94,8 +94,8 @@ const VoteButton: React.FC<{
         transition-all duration-200 border-2 active:scale-95
         ${
           isColored
-            ? `bg-white ${borderColor} shadow-lg scale-105`
-            : `bg-white ${textColor} ${hoverColor} border-gray-200`
+            ? `bg-[#3c4043] ${borderColor} shadow-lg scale-105`
+            : `bg-[#3c4043] ${textColor} ${hoverColor} border-gray-700`
         }
       `}
     >
@@ -113,7 +113,7 @@ const ProgressBar: React.FC<{
   userHasVoted: boolean;
 }> = ({ type, existingCount, totalExisting, userVote, userHasVoted }) => {
   const config = {
-    yes: { color: "bg-green-500", colorLight: "bg-green-200" },
+    yes: { color: "bg-blue-500", colorLight: "bg-blue-200" },
     no: { color: "bg-red-500", colorLight: "bg-red-200" },
     maybe: { color: "bg-orange-500", colorLight: "bg-orange-200" },
   };
@@ -164,6 +164,7 @@ const OptionCard: React.FC<{
   voteCounts: { yes: number; no: number; maybe: number };
   onVoteChange: (value: "yes" | "no" | "maybe") => void;
   onHaptic: (type: "light" | "medium" | "heavy") => void;
+  rank?: number;
 }> = ({
   option,
   currentVote,
@@ -171,6 +172,7 @@ const OptionCard: React.FC<{
   voteCounts,
   onVoteChange,
   onHaptic,
+  rank,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -279,11 +281,11 @@ const OptionCard: React.FC<{
 
     if (Math.abs(offset.x) > threshold) {
       if (offset.x > 0) {
-        // Swipe droite = Oui
-        onVoteChange("yes");
-      } else {
-        // Swipe gauche = Non
+        // Swipe droite = Non
         onVoteChange("no");
+      } else {
+        // Swipe gauche = Oui
+        onVoteChange("yes");
       }
       onHaptic("medium");
     }
@@ -299,18 +301,30 @@ const OptionCard: React.FC<{
   };
 
   const totalVotes = voteCounts.yes + voteCounts.no + voteCounts.maybe;
+  
+  // Extraire la première heure pour le scroll automatique
+  const firstHour = option.time_slots?.[0]?.hour ?? 0;
 
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      data-hour={firstHour}
       className={`
-        bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative
+        bg-[#1e1e1e] rounded-2xl shadow-sm border border-gray-700 overflow-hidden relative
         ${isDragging ? "shadow-lg scale-[1.02]" : ""}
         ${currentVote && userHasVoted ? "ring-2 ring-blue-200" : ""}
+        ${rank === 1 ? "border-2 border-blue-500" : ""}
       `}
     >
+      {/* Badge 1er */}
+      {rank === 1 && (
+        <div className="absolute -top-2 -left-2 z-30 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+          1er
+        </div>
+      )}
+      
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
@@ -321,14 +335,14 @@ const OptionCard: React.FC<{
       >
         {/* En-tête de l'option */}
         <div className="flex items-start gap-3 mb-4">
-          <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+          <div className="flex-shrink-0 w-12 h-12 bg-blue-900/30 rounded-xl flex items-center justify-center">
             <Calendar className="h-6 w-6 text-blue-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-800 capitalize">
+            <h3 className="font-semibold text-white capitalize">
               {formatDate(option.option_date)}
             </h3>
-            <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
+            <div className="flex items-center gap-1 text-sm text-gray-300 mt-1">
               <Clock className="h-3 w-3" />
               <span>{formatTimeSlots(option.time_slots)}</span>
             </div>
@@ -337,12 +351,12 @@ const OptionCard: React.FC<{
 
         {/* Système de barres de progression à double couche */}
         <div className="mb-4">
-          <div className="flex justify-between text-xs text-gray-500 mb-2">
+          <div className="flex justify-between text-xs text-gray-300 mb-2">
             <span>
               {totalVotes} vote{totalVotes !== 1 ? "s" : ""}
             </span>
             <span className="flex gap-2">
-              <span className="text-green-600 flex items-center gap-1">
+              <span className="text-blue-600 flex items-center gap-1">
                 <Check className="h-3 w-3" />
                 {voteCounts.yes}
               </span>
@@ -419,8 +433,8 @@ const OptionCard: React.FC<{
           animate={{ opacity: 1 }}
           className="absolute inset-0 bg-blue-500/10 flex items-center justify-center pointer-events-none"
         >
-          <div className="bg-white/90 rounded-lg px-3 py-1 text-sm font-medium text-gray-600">
-            ← Non | Oui →
+          <div className="bg-[#1e1e1e]/90 rounded-lg px-3 py-1 text-sm font-medium text-gray-300">
+            ← Oui | Non →
           </div>
         </motion.div>
       )}
@@ -459,6 +473,26 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
     );
   }
 
+  // Calculer les rangs basés sur le nombre de votes "oui"
+  const optionsWithScores = options.map(option => ({
+    ...option,
+    score: getVoteCounts(option.id).yes
+  }));
+  
+  // Trier par score décroissant
+  const sortedOptions = [...optionsWithScores].sort((a, b) => b.score - a.score);
+  
+  // Créer un map des rangs
+  const rankMap = new Map<string, number>();
+  sortedOptions.forEach((option, index) => {
+    // Si même score que le précédent, même rang
+    if (index > 0 && option.score === sortedOptions[index - 1].score) {
+      rankMap.set(option.id, rankMap.get(sortedOptions[index - 1].id)!);
+    } else {
+      rankMap.set(option.id, index + 1);
+    }
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -466,10 +500,10 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
       className="space-y-4"
     >
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">
+        <h2 className="text-lg font-semibold text-white">
           Options disponibles
         </h2>
-        <div className="text-sm text-gray-500">Swipez pour voter</div>
+        <div className="text-sm text-gray-400">Swipez pour voter</div>
       </div>
 
       <div className="space-y-3">
@@ -487,6 +521,7 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
               voteCounts={getVoteCounts(option.id)}
               onVoteChange={(value) => onVoteChange(option.id, value)}
               onHaptic={onHaptic}
+              rank={rankMap.get(option.id)}
             />
           </motion.div>
         ))}

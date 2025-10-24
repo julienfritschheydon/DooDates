@@ -81,7 +81,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
     if ((poll as any)?.type === "form") {
       navigate(`/create/form?edit=${poll.id}`);
     } else {
-      navigate(`/create?edit=${poll.id}`);
+      navigate(`/create/date?edit=${poll.id}`);
     }
   };
 
@@ -214,7 +214,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
     <div className={`flex flex-wrap items-center gap-2 ${className ?? ""}`}>
       {showVoteButton && (
         <button
-          onClick={() => window.open(`/poll/${poll.slug}`, "_blank")}
+          onClick={() => navigate(`/poll/${poll.slug}`)}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           data-testid="results-action-vote"
         >

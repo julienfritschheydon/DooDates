@@ -83,7 +83,7 @@ const Results: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <div className="pt-20">
           <ResultsLoading label="Chargement des résultats..." />
         </div>
@@ -93,7 +93,7 @@ const Results: React.FC = () => {
 
   if (!poll) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <div className="pt-20">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <ResultsEmpty
@@ -128,20 +128,39 @@ const Results: React.FC = () => {
     if (dateIndex < 0) return { yes: 0, no: 0, maybe: 0, total: 0 };
 
     const optionId = `option-${dateIndex}`;
+    
+    // Debug: Log pour comprendre la structure
+    console.log('🔍 getVoteStats Debug:', {
+      date,
+      dateIndex,
+      optionId,
+      votesCount: votes.length,
+      firstVote: votes[0],
+    });
+    
+    // Extraire les votes pour cette option
     const dateVotes = votes
-      .map((vote) => vote.vote_data[optionId])
+      .map((vote) => {
+        // Supporter les deux structures: vote_data (localStorage brut) et selections (mappé)
+        const voteValue = vote.vote_data?.[optionId] || (vote as any).selections?.[optionId];
+        console.log('  Vote:', vote.voter_name, 'pour', optionId, '=', voteValue);
+        return voteValue;
+      })
       .filter(Boolean);
+    
     const yes = dateVotes.filter((v) => v === "yes").length;
     const no = dateVotes.filter((v) => v === "no").length;
     const maybe = dateVotes.filter((v) => v === "maybe").length;
 
+    console.log('  Résultat:', { yes, no, maybe, total: dateVotes.length });
+    
     return { yes, no, maybe, total: dateVotes.length };
   };
 
   const allDates = getAllDates();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <div className="pt-20">
         <ResultsLayout
           title={`Résultats : ${poll.title}`}
@@ -208,9 +227,9 @@ const Results: React.FC = () => {
           ]}
         >
           {/* Résultats par date */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <div className="bg-[#1e1e1e] rounded-lg shadow overflow-hidden border border-gray-700">
+            <div className="p-6 border-b border-gray-700">
+              <h2 className="text-xl font-semibold text-white">
                 Résultats détaillés
               </h2>
             </div>
@@ -231,8 +250,8 @@ const Results: React.FC = () => {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-900">
+                <table className="min-w-full divide-y divide-gray-700">
+                  <thead className="bg-[#0a0a0a]">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Date
@@ -251,7 +270,7 @@ const Results: React.FC = () => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody className="bg-[#1e1e1e] divide-y divide-gray-700">
                     {allDates.map((date) => {
                       const stats = getVoteStats(date);
                       const maxVotes = Math.max(
@@ -263,9 +282,9 @@ const Results: React.FC = () => {
                       return (
                         <tr
                           key={date}
-                          className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                          className="hover:bg-[#2a2a2a]"
                         >
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                             {new Date(date).toLocaleDateString("fr-FR", {
                               weekday: "long",
                               year: "numeric",
@@ -273,7 +292,7 @@ const Results: React.FC = () => {
                               day: "numeric",
                             })}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                             <div className="flex items-center gap-2">
                               <div
                                 className={`w-3 h-3 rounded-full ${stats.yes === maxVotes && stats.yes > 0 ? "bg-green-500" : "bg-green-300"}`}
@@ -281,7 +300,7 @@ const Results: React.FC = () => {
                               {stats.yes}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                             <div className="flex items-center gap-2">
                               <div
                                 className={`w-3 h-3 rounded-full ${stats.maybe === maxVotes && stats.maybe > 0 ? "bg-yellow-500" : "bg-yellow-300"}`}
@@ -289,13 +308,13 @@ const Results: React.FC = () => {
                               {stats.maybe}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                             <div className="flex items-center gap-2">
                               <div className="w-3 h-3 rounded-full bg-red-300"></div>
                               {stats.no}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                             {stats.total}
                           </td>
                         </tr>
@@ -309,7 +328,7 @@ const Results: React.FC = () => {
 
           {/* Table des votes par participant */}
           {votes.length > 0 && allDates.length > 0 && (
-            <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div className="mt-8 bg-[#1e1e1e] rounded-lg shadow overflow-hidden border border-gray-700">
               <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Votes par participant
@@ -318,7 +337,7 @@ const Results: React.FC = () => {
 
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
+                  <thead className="bg-[#0a0a0a]">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Participant
@@ -337,7 +356,7 @@ const Results: React.FC = () => {
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody className="bg-[#1e1e1e] divide-y divide-gray-700">
                     {(() => {
                       const byId = new Map<string, (typeof votes)[number]>();
                       for (const v of votes) {
@@ -351,7 +370,7 @@ const Results: React.FC = () => {
                       return uniqueVoters.map((vote, index) => (
                         <tr
                           key={index}
-                          className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                          className="hover:bg-[#2a2a2a]"
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-3">
@@ -359,10 +378,10 @@ const Results: React.FC = () => {
                                 {vote.voter_name.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <p className="font-medium text-gray-900 dark:text-white">
+                                <p className="font-medium text-white">
                                   {vote.voter_name}
                                 </p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                <p className="text-sm text-gray-400">
                                   {new Date(vote.created_at).toLocaleDateString(
                                     "fr-FR",
                                   )}

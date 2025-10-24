@@ -73,8 +73,6 @@ DooDates = "IA conversationnelle qui génère des sondages"
 
 ## 📋 ROADMAP DÉTAILLÉE
 
----
-
 # 🟢 PHASE 1 : MVP IA-First (10-13h | 2-3 semaines)
 
 ## **Objectif : Prouver le concept, workflow basique fonctionnel**
@@ -223,7 +221,7 @@ export default function WorkspacePage({ params }: { params: { id: string } }) {
 
 ## **Objectif : Allers-retours IA ↔ Sondage fluides**
 
-### **2.1 Context management (2h)** ✅ DÉJÀ DANS NOW
+### **2.1 Context management (2h)**
 
 **Fichiers à créer :**
 ```typescript
@@ -259,7 +257,7 @@ export class ConversationContext {
 
 ---
 
-### **2.2 Modification sondages via IA (4h)** ✅ DÉJÀ DANS NOW
+### **2.2 Modification sondages via IA (4h)**
 
 **Fichiers à créer/modifier :**
 ```typescript
@@ -341,7 +339,7 @@ export function PollPreview({ poll, lastChange }: Props) {
 
 ---
 
-### **2.4 Export/Actions via IA (2h)** ✅ DÉJÀ DANS NOW
+### **2.4 Export/Actions via IA (2h)** 
 
 **Commandes IA :**
 ```typescript
@@ -551,7 +549,6 @@ export async function analyzeViaAI(
 
 ## 📊 RÉCAPITULATIF GLOBAL
 
-```
 ┌───────────────────────────────────────────────────────────────┐
 │ PHASE          DURÉE      FEATURES CLÉS          COMPLEXITÉ   │
 ├───────────────────────────────────────────────────────────────┤
@@ -571,140 +568,5 @@ export async function analyzeViaAI(
 │ TOTAL          55-67h     Expérience IA-first     2-3 mois    │
 │                9-13 sem   production-ready                    │
 └───────────────────────────────────────────────────────────────┘
-```
 
----
 
-## 🎯 STRATÉGIE RECOMMANDÉE
-
-### **Approche "Crawl → Walk → Run"**
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ CRAWL (Semaines 1-2)                                        │
-│ Continue plan NOW : IA Foundations                          │
-│ • Parsing dates (3h)                                        │
-│ • Modification sondages (4h)                                │
-│ • Export IA (2h)                                            │
-│ • Interface improvements (2h)                               │
-│ → Total : 11h                                               │
-│ → Résultat : Fondations IA solides                         │
-└─────────────────────────────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────────────────────────────┐
-│ WALK (Semaines 3-5)                                         │
-│ Implémenter Phase 1 MVP                                     │
-│ • Chat landing (4h)                                         │
-│ • Sidebar layout (5h)                                       │
-│ • Preview live (4h)                                         │
-│ → Total : 13h                                               │
-│ → Résultat : Proof of concept UX IA-first                  │
-└─────────────────────────────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────────────────────────────┐
-│ RUN (Semaines 6-10)                                         │
-│ Compléter Phase 2 + début Phase 3                          │
-│ • Preview réactive (6h)                                     │
-│ • Multi-turn (8h)                                           │
-│ • Smart suggestions (6h)                                    │
-│ → Total : 20h                                               │
-│ → Résultat : Expérience mature                             │
-└─────────────────────────────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────────────────────────────┐
-│ FLY (Semaines 11+)                                          │
-│ Polish et features avancées                                 │
-│ • Analytics conversationnels (10h)                          │
-│ • Polish final (12h)                                        │
-│ → Total : 22h                                               │
-│ → Résultat : Production-ready                              │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## ✅ BONNE NOUVELLE : Tu es déjà sur la bonne voie !
-
-### **Planning NOW (actuel) contient déjà :**
-
-```
-✅ Parsing dates/heures (3h)      → Nécessaire Phase 2
-✅ Modification sondages (4h)     → Cœur Phase 2
-✅ Export via IA (2h)              → Nécessaire Phase 2
-✅ Context Management (implicite)  → Base Phase 2
-✅ Interface improvements (2h)     → Utile toutes phases
-
-TOTAL : 11h de fondations déjà planifiées !
-```
-
-**Tu as environ 50% de Phase 2 déjà dans NOW** 🎉
-
----
-
-## 🚀 PROCHAINE ÉTAPE RECOMMANDÉE
-
-### **Option A : Continue NOW tel quel (2 semaines)**
-Termine les 11h planifiées :
-- Solidifie IA conversationnelle
-- Polish interface actuelle
-- **Puis décide** : MVP IA-first ou autres features ?
-
-### **Option B : Commit sur IA-first maintenant (3 mois)**
-Enchaîne :
-- NOW (11h) → Phase 1 (13h) → Phase 2 reste (6h) → Phase 3 partiel
-- **Avantage :** Différenciation maximale rapide
-- **Inconvénient :** Autres features en pause
-
-### **Option C : Hybride progressif (recommandé)**
-```
-Semaines 1-2 : NOW (IA foundations)
-Semaines 3-4 : Phase 1 MVP (UX IA-first)
-Semaines 5-6 : Pause IA, autres features (graphiques, etc.)
-Semaines 7-10 : Phase 2 complet
-Semaines 11+ : Itérations selon feedback
-```
-
----
-
-## 💡 MA RECOMMANDATION FINALE
-
-**OUI, c'est beaucoup de travail (55-67h total)**
-
-**MAIS :**
-1. ✅ C'est le différenciateur stratégique le plus fort
-2. ✅ Tu as déjà 11h de fondations dans NOW
-3. ✅ C'est faisable progressivement (3 phases claires)
-4. ✅ Chaque phase apporte de la valeur immédiate
-5. ✅ Tu peux lancer avec Phase 1 MVP (24h total)
-
-**Approche crawl → walk → run te permet de :**
-- Valider le concept rapidement (Phase 1 = 2-3 semaines)
-- Itérer selon feedback users
-- Prioriser Phase 3 features selon usage réel
-
----
-
-## 🎯 DÉCISION STRATÉGIQUE
-
-**Question clé pour toi :**
-
-### **Veux-tu que DooDates soit "IA-first" dès le lancement ?**
-
-**Si OUI :**
-- Investis les 24h (NOW + Phase 1) avant lancement
-- Landing = Chat IA
-- Expérience distinctive dès jour 1
-
-**Si NON (lancement plus tôt) :**
-- Lance avec interface classique améliorée
-- Ajoute IA-first UX en Phase 2 (3-6 mois post-launch)
-- Risque : Moins de différenciation initiale
-
-**Mon avis :** Investis les 24h avant lancement
-- C'est ton USP principal
-- Difficile de transformer après lancement
-- Users s'habituent à l'UX initiale
-
----
-
-**Tu veux qu'on détaille un plan précis pour les 2-3 prochaines semaines ?** 🚀

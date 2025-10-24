@@ -16,8 +16,8 @@ export const VoteSummary: React.FC<VoteSummaryProps> = ({
   getVoteText,
 }) => {
   return (
-    <div className="bg-gray-50 rounded-2xl p-4 mb-6">
-      <h3 className="font-semibold text-gray-700 mb-3">
+    <div className="bg-gray-800 rounded-2xl p-4 mb-6 border border-gray-700">
+      <h3 className="font-semibold text-white mb-3">
         Résumé de mes votes :
       </h3>
       <div className="space-y-2 text-sm">
@@ -27,19 +27,19 @@ export const VoteSummary: React.FC<VoteSummaryProps> = ({
           const voteLabel = getVoteText(vote);
           const voteColor =
             vote === "yes"
-              ? "text-green-600"
+              ? "text-green-400"
               : vote === "no"
-                ? "text-red-600"
-                : "text-orange-600";
+                ? "text-red-400"
+                : "text-orange-400";
 
           return (
             <div key={option.id} className="flex justify-between items-center">
-              <span className="text-gray-600">
+              <span className="text-gray-300">
                 {formatDate(option.option_date)} •{" "}
                 {formatTime(option.time_slots)}
               </span>
               <span
-                className={`font-medium ${hasVoted ? voteColor : "text-gray-400"}`}
+                className={`font-medium ${hasVoted ? voteColor : "text-gray-500"}`}
               >
                 {hasVoted ? voteLabel : "🤔 Peut-être"}
               </span>

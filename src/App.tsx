@@ -19,6 +19,7 @@ import TopNav from "./components/TopNav";
 import { Loader2 } from "lucide-react";
 import { TopBar } from "./components/layout/TopBar";
 import { FEATURES } from "./lib/features";
+import { ConversationProvider } from "./components/prototype/ConversationProvider";
 
 // Composant de loading optimisé
 const LoadingSpinner = () => (
@@ -36,13 +37,20 @@ const Index = lazy(() => import("./pages/Index"));
 const Vote = lazy(() => import("./pages/Vote"));
 const Results = lazy(() => import("./pages/Results"));
 const CreateChooser = lazy(() => import("./pages/CreateChooser"));
+const DateCreator = lazy(() => import("./pages/DateCreator"));
 const FormCreator = lazy(() => import("./pages/FormCreator"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Prototype pages (UX IA-First)
-const ChatLandingPrototype = lazy(() => import("./components/prototype/ChatLandingPrototype").then(m => ({ default: m.ChatLandingPrototype })));
-const WorkspacePage = lazy(() => import("./app/workspace/page").then(m => ({ default: m.default })));
+const ChatLandingPrototype = lazy(() =>
+  import("./components/prototype/ChatLandingPrototype").then((m) => ({
+    default: m.ChatLandingPrototype,
+  })),
+);
+const WorkspacePage = lazy(() =>
+  import("./app/workspace/page").then((m) => ({ default: m.default })),
+);
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -320,7 +328,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      {shouldShowTopNav && <TopNav />}
+      {/* {shouldShowTopNav && !FEATURES.AI_FIRST_UX && <TopNav />} */}
       {children}
     </>
   );
@@ -331,23 +339,21 @@ const LayoutPrototype = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   // Pages qui ne doivent pas afficher la Sidebar (garde TopNav)
-  const useClassicLayout = location.pathname.startsWith("/poll/") || 
-                           location.pathname.startsWith("/create/") ||
-                           location.pathname.startsWith("/vote/") ||
-                           location.pathname.startsWith("/auth");
+  const useClassicLayout =
+    location.pathname.startsWith("/poll/") ||
+    location.pathname.startsWith("/create/") ||
+    location.pathname.startsWith("/vote/") ||
+    location.pathname.startsWith("/auth");
 
   // Si page classique, utiliser TopNav
   if (useClassicLayout) {
     return <Layout>{children}</Layout>;
   }
 
-  // Sinon, utiliser TopBar (nouveau layout ChatGPT-style)
+  // Sinon, utiliser layout sans TopBar (style Gemini)
   return (
     <div className="flex flex-col h-screen">
-      <TopBar />
-      <main className="flex-1 overflow-hidden">
-        {children}
-      </main>
+      <main className="flex-1 overflow-hidden">{children}</main>
     </div>
   );
 };
@@ -363,41 +369,49 @@ const App = () => {
           <BrowserRouter>
             <AppLayout>
               <Suspense fallback={<LoadingSpinner />}>
-                <Routes>
-                  {/* Route / conditionnelle selon feature flag */}
-                  <Route path="/" element={FEATURES.AI_FIRST_UX ? <ChatLandingPrototype /> : <Index />} />
-                  <Route path="/chat" element={<Index />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  
-                  {/* Nouvelles routes prototype */}
-                  <Route path="/workspace" element={<WorkspacePage />} />
-                  
-                  <Route path="/auth" element={<Auth />} />
-                <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route path="/poll/:slug" element={<Vote />} />
-                <Route path="/poll/:slug/results" element={<Results />} />
-                <Route path="/vote/:pollId" element={<Vote />} />
-                {/* <Route path="/vote-swipe/:pollId" element={<VotingSwipeWrapper />} /> */}
-                {/* <Route path="/demo/swipe" element={<VotingSwipeDemo />} />
-                <Route path="/demo/ex-swipe" element={<ExVotingSwipeDemo />} /> */}
-                <Route path="/create" element={<CreateChooser />} />
-                <Route path="/create/date" element={<PollCreator />} />
-                <Route path="/create/form" element={<FormCreator />} />
-                <Route
-                  path="/poll/:pollSlug/results/:adminToken"
-                  element={<Vote />}
-                />
+                {/* ConversationProvider global pour partager l'état entre routes */}
+                <ConversationProvider>
+                  <Routes>
+                    {/* Route / conditionnelle selon feature flag */}
+                    <Route
+                      path="/"
+                      element={
+                        FEATURES.AI_FIRST_UX ? (
+                          <WorkspacePage />
+                        ) : (
+                          <Index />
+                        )
+                      }
+                    />
+                    <Route path="/chat" element={<Index />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
 
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </AppLayout>
-        </BrowserRouter>
-      </TooltipProvider>
-      <Toaster />
-      <Sonner />
-    </AuthProvider>
-  </QueryClientProvider>
+                    {/* Route workspace redirige vers / */}
+                    <Route path="/workspace" element={<WorkspacePage />} />
+
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route path="/poll/:slug" element={<Vote />} />
+                  <Route path="/poll/:slug/results" element={<Results />} />
+                  <Route path="/vote/:pollId" element={<Vote />} />
+                  <Route path="/create" element={<CreateChooser />} />
+                  <Route path="/create/date" element={<DateCreator />} />
+                  <Route path="/create/form" element={<FormCreator />} />
+                  <Route
+                    path="/poll/:pollSlug/results/:adminToken"
+                    element={<Vote />}
+                  />
+                  <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </ConversationProvider>
+              </Suspense>
+            </AppLayout>
+          </BrowserRouter>
+        </TooltipProvider>
+        <Toaster />
+        <Sonner />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 };
 

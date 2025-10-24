@@ -1,0 +1,92 @@
+import { Calendar, Clock, Users } from "lucide-react";
+import PollCreator from "../PollCreator";
+import FormPollCreator from "../polls/FormPollCreator";
+
+interface PollPreviewProps {
+  poll: any;
+}
+
+/**
+ * Composant Preview pour afficher l'interface d'édition du sondage
+ * Utilise les composants existants PollCreator/FormPollCreator
+ */
+export function PollPreview({ poll }: PollPreviewProps) {
+  if (!poll) {
+    return (
+      <div className="bg-[#1e1e1e] p-8 rounded-lg border-2 border-dashed border-gray-700 text-center">
+        <p className="text-gray-400">Aucun sondage sélectionné</p>
+      </div>
+    );
+  }
+
+  // Preview pour sondage de dates - UTILISER L'EXPÉRIENCE EXISTANTE
+  if (poll.type === "date" || poll.type === "datetime") {
+    // Convertir le format StoragePoll vers le format attendu par PollCreator
+    const initialData = {
+      title: poll.title,
+      type: poll.type,
+      dates: poll.dates || poll.settings?.selectedDates || [],
+      timeSlots: poll.settings?.timeSlotsByDate 
+        ? Object.entries(poll.settings.timeSlotsByDate).flatMap(([date, slots]: [string, any]) => 
+            slots.map((slot: any) => {
+              // Calculer l'heure de fin en fonction de la durée si disponible
+              // Sinon, par défaut 1 heure
+              const duration = slot.duration || 60; // durée en minutes
+              const endHour = slot.hour + Math.floor(duration / 60);
+              const endMinute = slot.minute + (duration % 60);
+              
+              return {
+                start: `${String(slot.hour).padStart(2, '0')}:${String(slot.minute).padStart(2, '0')}`,
+                end: `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`,
+                dates: [date]
+              };
+            })
+          )
+        : []
+    };
+    
+    return (
+      <div className="bg-[#0a0a0a] rounded-lg shadow-sm">
+        {/* <div className="p-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">Édition du sondage</h3>
+          <p className="text-sm text-gray-600">Utilisez l'interface familière de DooDates</p>
+        </div> */}
+        
+        {/* Utiliser le PollCreator existant */}
+        {/* Key basée sur updated_at pour forcer le remontage quand le poll change */}
+        <PollCreator 
+          key={`${poll.id}-${poll.updated_at}`}
+          initialData={initialData}
+          onBack={() => {}} // Pas de retour dans le preview
+        />
+      </div>
+    );
+  }
+
+  // Preview pour questionnaire/formulaire - UTILISER L'EXPÉRIENCE EXISTANTE
+  if (poll.type === "form") {
+    return (
+      <div className="bg-[#0a0a0a] rounded-lg shadow-sm">
+        {/* <div className="p-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">Édition du questionnaire</h3>
+          <p className="text-sm text-gray-600">Utilisez l'interface familière de DooDates</p>
+        </div> */}
+        
+        {/* Utiliser le FormPollCreator existant */}
+        <FormPollCreator 
+          initialDraft={poll}
+          onCancel={() => {}} // Pas d'annulation dans le preview
+          onSave={() => {}} // Sauvegarde automatique
+          onFinalize={() => {}} // Finalisation dans le preview
+        />
+      </div>
+    );
+  }
+
+  // Fallback pour types inconnus
+  return (
+    <div className="bg-[#1e1e1e] p-8 rounded-lg border-2 border-dashed border-gray-700 text-center">
+      <p className="text-gray-400">Type de sondage non supporté: {poll.type}</p>
+    </div>
+  );
+}

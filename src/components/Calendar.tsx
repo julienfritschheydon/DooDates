@@ -82,11 +82,11 @@ const Calendar: React.FC<CalendarProps> = ({
     return (
       <div className="space-y-2">
         {/* En-têtes des jours */}
-        <div className="grid grid-cols-7 gap-1 px-2 py-2 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-7 gap-1 px-2 py-2 bg-[#0a0a0a] rounded-lg">
           {weekDays.map((day) => (
             <div
               key={day}
-              className={`text-center text-gray-600 py-1 font-medium ${
+              className={`text-center text-gray-400 py-1 font-medium ${
                 isMobile ? "text-sm" : "text-sm"
               }`}
             >
@@ -137,12 +137,12 @@ const Calendar: React.FC<CalendarProps> = ({
                 className={`${isMobile ? "w-9 h-9" : "w-10 h-10"} text-sm rounded-lg transition-all duration-200 font-medium flex items-center justify-center touch-none
                   ${
                     isPastDay
-                      ? "text-gray-300 bg-gray-50 cursor-not-allowed"
+                      ? "text-gray-600 bg-[#1e1e1e] cursor-not-allowed"
                       : isSelected
-                        ? "bg-green-600 text-white shadow-md hover:bg-green-700"
+                        ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
                         : isToday
-                          ? "bg-green-50 text-green-600 border-2 border-green-200 hover:bg-green-100"
-                          : "text-gray-700 hover:bg-gray-100"
+                          ? "bg-blue-900/30 text-blue-400 border-2 border-blue-700 hover:bg-blue-900/50"
+                          : "text-gray-300 hover:bg-[#2a2a2a]"
                   }`}
                 style={{ touchAction: "none" }}
               >
@@ -199,7 +199,7 @@ const Calendar: React.FC<CalendarProps> = ({
       {/* Mobile: Un seul mois avec navigation */}
       <div className="block md:hidden">
         {visibleMonths.length > 0 && (
-          <div className="border rounded-lg p-3 bg-white overflow-hidden">
+          <div className="border border-gray-700 rounded-lg p-3 bg-[#1e1e1e] overflow-hidden">
             {/* Navigation mobile */}
             <div className="flex items-center justify-between mb-3">
               <motion.button
@@ -208,7 +208,7 @@ const Calendar: React.FC<CalendarProps> = ({
                 onClick={() => onMonthChange("prev")}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <ChevronLeft className="w-5 h-5 text-gray-600" />
+                <ChevronLeft className="w-5 h-5 text-gray-300" />
               </motion.button>
 
               <AnimatePresence mode="wait">
@@ -218,7 +218,7 @@ const Calendar: React.FC<CalendarProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.2 }}
-                  className="text-lg font-semibold text-gray-800"
+                  className="text-lg font-semibold text-white"
                 >
                   {visibleMonths[0]?.toLocaleDateString("fr-FR", {
                     month: "long",
@@ -233,7 +233,7 @@ const Calendar: React.FC<CalendarProps> = ({
                 onClick={() => onMonthChange("next")}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <ChevronRight className="w-5 h-5 text-gray-600" />
+                <ChevronRight className="w-5 h-5 text-gray-300" />
               </motion.button>
             </div>
 
@@ -303,9 +303,9 @@ const Calendar: React.FC<CalendarProps> = ({
               calendarRef.current.scrollBy({ left: -340, behavior: "smooth" });
             }
           }}
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all border border-gray-200 hover:shadow-xl"
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-3 transition-all border border-gray-700 hover:shadow-xl"
         >
-          <ChevronLeft className="w-6 h-6 text-gray-700" />
+          <ChevronLeft className="w-6 h-6 text-gray-300" />
         </button>
 
         {/* Flèche droite */}
@@ -315,15 +315,15 @@ const Calendar: React.FC<CalendarProps> = ({
               calendarRef.current.scrollBy({ left: 340, behavior: "smooth" });
             }
           }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full p-3 transition-all border border-gray-200 hover:shadow-xl"
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-3 transition-all border border-gray-700 hover:shadow-xl"
         >
-          <ChevronRight className="w-6 h-6 text-gray-700" />
+          <ChevronRight className="w-6 h-6 text-gray-300" />
         </button>
 
         <div
           ref={calendarRef}
           onScroll={handleScroll}
-          className="overflow-x-auto border rounded-lg bg-white"
+          className="overflow-x-auto border border-gray-700 rounded-lg bg-[#1e1e1e]"
           style={{
             scrollSnapType: "x mandatory",
             scrollbarWidth: "none",
@@ -343,7 +343,7 @@ const Calendar: React.FC<CalendarProps> = ({
               >
                 {/* Titre du mois */}
                 <div className="mb-3 text-center">
-                  <h3 className="text-lg font-semibold text-gray-800">
+                  <h3 className="text-lg font-semibold text-white">
                     {month.toLocaleDateString("fr-FR", {
                       month: "long",
                       year: "numeric",

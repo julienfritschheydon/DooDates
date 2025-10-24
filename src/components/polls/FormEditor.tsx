@@ -150,7 +150,8 @@ export default function FormEditor({
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6 py-4">
+      {/* Section titre */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         {isTitleEditing ? (
           <input
@@ -165,13 +166,13 @@ export default function FormEditor({
                 (e.currentTarget as HTMLInputElement).blur();
               }
             }}
-            className="min-w-[220px] flex-1 rounded-md border px-3 py-2 text-sm sm:text-base"
+            className="min-w-[220px] flex-1 rounded-lg bg-[#3c4043] border border-gray-700 px-4 py-2 text-sm sm:text-base text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
             placeholder="Titre du formulaire"
           />
         ) : (
-          <div className="flex-1 min-w-[220px] flex items-center gap-2">
+          <div className="flex-1 min-w-[220px] flex items-center gap-3">
             <h2
-              className="font-medium text-base sm:text-lg truncate"
+              className="font-medium text-base sm:text-lg text-white truncate"
               title={value.title}
             >
               {value.title}
@@ -182,7 +183,7 @@ export default function FormEditor({
                 setIsTitleEditing(true);
                 requestAnimationFrame(() => titleInputRef.current?.focus());
               }}
-              className="rounded-md border h-9 px-2 text-sm"
+              className="rounded-lg border border-gray-700 h-9 px-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors"
               aria-label="Éditer le titre"
               title="Éditer le titre"
             >
@@ -192,13 +193,15 @@ export default function FormEditor({
         )}
       </div>
 
+      {/* Navigation des questions */}
       <QuestionListNav
         questions={value.questions}
         activeId={activeId}
         onSelect={setActiveId}
       />
 
-      <div className="flex flex-col gap-3">
+      {/* Question active */}
+      <div className="flex flex-col gap-4">
         {activeQuestion && (
           <QuestionCard
             key={activeQuestion.id}
@@ -222,14 +225,15 @@ export default function FormEditor({
         )}
       </div>
 
+      {/* Bouton ajouter question */}
       <div className="pt-2">
         <button
           type="button"
           onClick={onAddQuestion}
-          className="w-full rounded-md border px-3 py-2"
+          className="w-full rounded-lg bg-[#3c4043] border border-gray-700 px-4 py-3 text-white hover:bg-gray-700 transition-colors font-medium"
           data-testid="form-add-question-button"
         >
-          Ajouter une question
+          + Ajouter une question
         </button>
       </div>
     </div>

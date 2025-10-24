@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import type { Poll } from "@/lib/pollStorage";
@@ -50,7 +50,10 @@ const basePoll: Poll = {
   title: "RÃ©union",
   slug: "reunion",
   created_at: new Date(2020, 0, 1).toISOString(),
+  updated_at: new Date(2020, 0, 1).toISOString(),
   status: "active",
+  creator_id: "test-user",
+  dates: [],
 };
 
 describe("PollActions", () => {
@@ -105,7 +108,7 @@ describe("PollActions", () => {
 
     fireEvent.click(screen.getByTestId("poll-action-edit"));
 
-    expect(navigateMock).toHaveBeenCalledWith(`/create?edit=${basePoll.id}`);
+    expect(navigateMock).toHaveBeenCalledWith(`/create/date?edit=${basePoll.id}`);
   });
 
   it("uses custom onEdit when provided", async () => {
