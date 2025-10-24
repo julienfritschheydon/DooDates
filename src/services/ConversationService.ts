@@ -35,17 +35,42 @@ export class ConversationService {
     conversation: Conversation;
     messages: ConversationMessage[];
   } | null> {
+    const urlParams = new URLSearchParams(window.location.search);
+    const resumeId = urlParams.get("resume");
+
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const resumeId = urlParams.get("resume");
+      console.log("🔍 ConversationService.resumeFromUrl:", {
+        url: window.location.href,
+        search: window.location.search,
+        resumeId,
+        hasAutoSave: !!autoSave,
+        hasResumeFunction: !!autoSave?.resumeConversation
+      });
 
       if (!resumeId) {
+        console.log("❌ No resume ID found in URL");
         return null;
       }
 
-      const result = await autoSave.resumeConversation(resumeId);
+      console.log("🔄 Attempting to resume conversation:", resumeId);
+      
+      // First, set the conversation ID in autoSave
+      const conversation = await autoSave.resumeConversation(resumeId);
+      console.log("📝 Conversation loaded:", conversation ? conversation.title : "null");
+      
+      if (!conversation) {
+        console.log("❌ Conversation not found");
+        return null;
+      }
+      
+      // Import storage directly to get messages (avoid state timing issue)
+      const { getConversationWithMessages } = await import("../lib/storage/ConversationStorageSimple");
+      const result = getConversationWithMessages(resumeId);
+      
+      console.log("✅ Resume result:", result ? `Success - ${result.messages.length} messages` : "Failed");
       return result;
     } catch (error) {
+      console.error("❌ Error resuming conversation:", error);
       logError(
         ErrorFactory.storage(
           "Error resuming conversation from URL",
@@ -54,8 +79,7 @@ export class ConversationService {
         {
           component: "ConversationService",
           operation: "resumeConversationFromUrl",
-          conversationId: resumeId,
-          originalError: error,
+          conversationId: resumeId || "unknown",
         },
       );
       return null;
@@ -129,6 +153,7 @@ export class ConversationService {
         }
       }
     } catch (error) {
+      console.error("❌ Error loading resumed conversation:", error);
       logError(
         ErrorFactory.storage(
           "Error loading resumed conversation",
@@ -137,8 +162,6 @@ export class ConversationService {
         {
           component: "ConversationService",
           operation: "loadResumedConversation",
-          conversationId: result?.conversation?.id,
-          originalError: error,
         },
       );
     }

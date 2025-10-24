@@ -9,6 +9,7 @@ import {
 } from "@/lib/supabase-fetch";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "@/lib/logger";
+import { groupConsecutiveDates, type DateGroup } from "@/lib/date-utils";
 
 interface VoterInfo {
   name: string;
@@ -101,14 +102,38 @@ export const useVoting = (pollSlug: string) => {
         throw configError;
       }
 
-      const mockOptions: PollOption[] = pollData.settings.selectedDates.map(
-        (date: string, index: number) => ({
-          id: `option-${index}`,
-          poll_id: pollData.id,
-          option_date: date,
-          time_slots: pollData.settings?.timeSlotsByDate?.[date] || null,
-          display_order: index,
-        }),
+      // Grouper les dates consécutives (week-ends, semaines, quinzaines)
+      const dateGroups = groupConsecutiveDates(pollData.settings.selectedDates);
+      
+      logger.debug("Groupement des dates", "vote", {
+        originalDates: pollData.settings.selectedDates.length,
+        groups: dateGroups.length,
+        groupDetails: dateGroups.map(g => ({ type: g.type, label: g.label, datesCount: g.dates.length }))
+      });
+
+      const mockOptions: PollOption[] = dateGroups.map(
+        (group: DateGroup, index: number) => {
+          // Pour les groupes multi-dates, utiliser la première date comme référence
+          // et stocker toutes les dates du groupe dans un champ custom
+          const primaryDate = group.dates[0];
+          
+          // Récupérer les time slots de toutes les dates du groupe
+          const groupTimeSlots = group.dates.length > 1 
+            ? null // Pour les groupes, pas de time slots (vote sur la période entière)
+            : pollData.settings?.timeSlotsByDate?.[primaryDate] || null;
+          
+          return {
+            id: `option-${index}`,
+            poll_id: pollData.id,
+            option_date: primaryDate, // Date principale pour compatibilité
+            time_slots: groupTimeSlots,
+            display_order: index,
+            // Champs custom pour les groupes
+            date_group: group.dates.length > 1 ? group.dates : undefined,
+            date_group_label: group.dates.length > 1 ? group.label : undefined,
+            date_group_type: group.dates.length > 1 ? group.type : undefined,
+          };
+        },
       );
 
       logger.debug("Options créées", "vote", {

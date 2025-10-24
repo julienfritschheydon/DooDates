@@ -46,62 +46,24 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
   const totalParticipants = uniqueVoters;
 
   return (
-    <div className="p-4 relative bg-white border-b">
-      {/* Titre et description sur une ligne sur mobile */}
+    <div className="p-4 relative bg-[#0a0a0a] border-b border-gray-800">
+      {/* Titre et description */}
       <div className="text-center">
-        <h1 className="text-lg sm:text-xl font-bold text-gray-800 leading-tight">
+        <h1 className="text-lg sm:text-xl font-bold text-white leading-tight">
           {poll?.title}
         </h1>
-        <p className="text-gray-600 text-sm mt-1">{poll?.description}</p>
-      </div>
-
-      {/* Badges info compacts */}
-      <div className="flex justify-center gap-2 sm:gap-4 mt-4 mb-2 flex-wrap">
-        <div className="bg-blue-50 border border-blue-200 rounded-full px-3 py-1.5 flex items-center gap-1.5">
-          <Users className="w-3 h-3 text-blue-600" />
-          <span className="text-blue-800 font-medium text-sm">
-            {totalParticipants}
+        <p className="text-gray-400 text-sm mt-1">{poll?.description}</p>
+        
+        {/* Info simple sous le titre */}
+        <div className="flex justify-center gap-4 mt-3 text-sm text-gray-400">
+          <span>
+            {totalParticipants} {totalParticipants === 0 || totalParticipants === 1 ? "participant" : "participants"}
           </span>
-          <span className="text-blue-600 text-xs hidden sm:inline">
-            {totalParticipants === 0 || totalParticipants === 1
-              ? "participant"
-              : "participants"}
+          <span>•</span>
+          <span>
+            Expire le {poll?.expires_at && formatExpiryDate(poll.expires_at)}
           </span>
         </div>
-
-        <div className="bg-orange-50 border border-orange-200 rounded-full px-3 py-1.5 flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-          <span className="text-orange-600 text-xs hidden sm:inline">
-            Expire le
-          </span>
-          <span className="text-orange-800 font-medium text-sm">
-            {poll?.expires_at && formatExpiryDate(poll.expires_at)}
-          </span>
-        </div>
-
-        {/* AI Created Badge */}
-        {poll?.created_by_ai && (
-          <div className="bg-purple-50 border border-purple-200 rounded-full px-3 py-1.5 flex items-center gap-1.5">
-            <Bot className="w-3 h-3 text-purple-600" />
-            <span className="text-purple-800 font-medium text-sm">
-              Créé par IA
-            </span>
-          </div>
-        )}
-
-        {/* Bidirectional Conversation Link Badge */}
-        {poll?.conversation_id && onViewConversation && (
-          <button
-            onClick={() => onViewConversation(poll.conversation_id!)}
-            className="bg-green-50 border border-green-200 rounded-full px-3 py-1.5 flex items-center gap-1.5 hover:bg-green-100 transition-colors"
-          >
-            <MessageCircle className="w-3 h-3 text-green-600" />
-            <span className="text-green-800 font-medium text-sm">
-              Lié à une conversation
-            </span>
-            <ExternalLink className="w-3 h-3 text-green-600" />
-          </button>
-        )}
       </div>
     </div>
   );

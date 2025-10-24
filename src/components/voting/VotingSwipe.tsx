@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   motion,
   useMotionValue,
@@ -107,8 +107,43 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
   const showVoterForm = () => setShowForm(true);
   const hideVoterForm = () => setShowForm(false);
 
-  const getExistingStats = (optionId: string) => getVoteStats(optionId);
-  const getStatsWithUser = (optionId: string) => getVoteStats(optionId);
+  // Stats SANS le vote utilisateur (pour les barres de fond)
+  const getExistingStats = useCallback((optionId: string) => {
+    const stats = getVoteStats(optionId);
+    return {
+      yes: stats.counts.yes,
+      maybe: stats.counts.maybe,
+      no: stats.counts.no,
+    };
+  }, [getVoteStats]);
+
+  // Stats AVEC le vote utilisateur en cours (pour les chiffres affichés)
+  const getStatsWithUser = useCallback((optionId: string) => {
+    const stats = getVoteStats(optionId);
+    const result = {
+      yes: stats.counts.yes,
+      maybe: stats.counts.maybe,
+      no: stats.counts.no,
+    };
+
+    console.log(`[STATS] getStatsWithUser(${optionId}):`, {
+      existingStats: result,
+      userVote: votes[optionId],
+      userHasVoted: userHasVoted[optionId],
+      allVotes: votes,
+      allUserHasVoted: userHasVoted,
+    });
+
+    // Ajouter le vote utilisateur s'il existe (même si userHasVoted est false)
+    // Car en mode swipe, userHasVoted peut ne pas être à jour
+    if (votes[optionId]) {
+      result[votes[optionId]]++;
+      console.log(`[STATS] Vote utilisateur ajouté: ${votes[optionId]} → Nouveau total:`, result);
+    }
+
+    return result;
+  }, [getVoteStats, votes, userHasVoted]);
+
   const getRanking = () => getBestOption();
 
   const getVoteText = (vote: VoteType) => {
@@ -186,7 +221,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
   const progressPercent = (userTotalVotes / options.length) * 100;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-[#0a0a0a]">
       {/* En-tête avec titre et bouton retour */}
       <PollHeader
         poll={
@@ -212,10 +247,10 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
         {/* Liste swipable des options */}
         <div className="px-6 space-y-3 py-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">
+            <h3 className="text-lg font-semibold text-white">
               Options disponibles
             </h3>
-            <div className="text-sm text-gray-500">Swipez pour voter</div>
+            <div className="text-sm text-gray-400">Swipez pour voter</div>
           </div>
 
           {options.map((option, index) => (
@@ -240,39 +275,45 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                 info: any,
                 optionId: string,
               ) => {
+                // SWIPE LOGIC - DOCUMENTATION
+                // offset.x > 0 = swipe vers la DROITE
+                // offset.x < 0 = swipe vers la GAUCHE
+                // 
+                // DIRECTION CHOISIE (intuitive) :
+                // - Swipe GAUCHE (offset.x < -100) = OUI (accepter, vers la gauche = positif)
+                // - Swipe DROITE (offset.x > 100) = NON (rejeter, vers la droite = négatif)
+                // - Petit mouvement = PEUT-ÊTRE (indécis)
                 const direction =
-                  info.offset.x > 100
-                    ? "yes"
-                    : info.offset.x < -100
-                      ? "no"
+                  info.offset.x < -100
+                    ? "yes"  // Swipe GAUCHE = OUI
+                    : info.offset.x > 100
+                      ? "no"  // Swipe DROITE = NON
                       : null;
                 handleOptionDragEnd(optionId, direction);
               }}
-              getStatsWithUser={(optionId: string) => {
-                const stats = getStatsWithUser(optionId);
-                return {
-                  yes: stats.counts.yes,
-                  maybe: stats.counts.maybe,
-                  no: stats.counts.no,
-                };
-              }}
-              getExistingStats={(optionId: string) => {
-                const stats = getExistingStats(optionId);
-                return {
-                  yes: stats.counts.yes,
-                  maybe: stats.counts.maybe,
-                  no: stats.counts.no,
-                };
-              }}
+              getStatsWithUser={getStatsWithUser}
+              getExistingStats={getExistingStats}
               getRanking={(type: string) => {
                 if (type === "all") {
-                  // Calculer le score réel de chaque option
+                  // RANKING LOGIC - DOCUMENTATION
+                  // Calcul du score : (yes * 2) + maybe - no
+                  // Plus le score est élevé, meilleur est le rang
+                  
+                  // Calculer le score réel de chaque option (AVEC le vote utilisateur)
                   const optionsWithScores = options.map((option) => {
-                    const stats = getVoteStats(option.id);
+                    const stats = getStatsWithUser(option.id);
                     const score =
-                      stats.counts.yes * 2 +
-                      stats.counts.maybe -
-                      stats.counts.no;
+                      stats.yes * 2 +
+                      stats.maybe -
+                      stats.no;
+                    
+                    console.log(`[RANKING] Option ${option.id}:`, {
+                      yes: stats.yes,
+                      maybe: stats.maybe,
+                      no: stats.no,
+                      score
+                    });
+                    
                     return {
                       id: option.id,
                       score,
@@ -294,6 +335,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                       currentRank = index + 1;
                     }
                     rankings[option.id] = currentRank;
+                    console.log(`[RANKING] Option ${option.id} = Rang ${currentRank} (score: ${option.score})`);
                   });
 
                   return rankings;
@@ -310,9 +352,9 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
 
       {/* Bouton flottant pour valider - caché quand le formulaire est affiché */}
       {!showForm && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#1e1e1e] border-t border-gray-700 shadow-lg">
           <button
-            className="w-full py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+            className="w-full py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all bg-blue-500 hover:bg-blue-600 text-white"
             onClick={() => setShowForm(true)}
             data-testid="open-voter-form"
           >

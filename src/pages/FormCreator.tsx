@@ -54,23 +54,23 @@ export default function FormCreator() {
 
   if (published && publishedPoll) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <div className="pt-20">
-          <div className="max-w-4xl mx-auto p-4 sm:p-6">
-            <div className="bg-white rounded-lg shadow-lg p-8 text-center space-y-6">
+          <div className="max-w-2xl mx-auto p-4 sm:p-6">
+            <div className="bg-[#3c4043] rounded-lg border border-gray-700 p-8 text-center space-y-6">
               {/* Icône de succès */}
               <div className="flex justify-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                  <Check className="w-10 h-10 text-green-600" />
+                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
+                  <Check className="w-10 h-10 text-blue-500" />
                 </div>
               </div>
 
               {/* Message de succès */}
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-3xl font-bold text-white mb-2">
                   Formulaire publié !
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-gray-300">
                   Votre formulaire "{publishedPoll.title}" est maintenant actif
                   et prêt à recevoir des réponses.
                 </p>
@@ -80,14 +80,14 @@ export default function FormCreator() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-md"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors"
                 >
                   <Check className="w-5 h-5" />
                   Aller au Dashboard
                 </Link>
                 <Link
                   to={`/poll/${publishedPoll.id}/vote`}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-700 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent text-gray-300 border border-gray-700 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
                 >
                   <ExternalLink className="w-5 h-5" />
                   Voir le formulaire
@@ -95,12 +95,12 @@ export default function FormCreator() {
               </div>
 
               {/* Lien de partage */}
-              <div className="pt-4 border-t">
-                <p className="text-sm text-gray-600 mb-2">
+              <div className="pt-4 border-t border-gray-700">
+                <p className="text-sm text-gray-400 mb-3">
                   Lien du formulaire :
                 </p>
-                <div className="flex gap-2 items-center justify-center">
-                  <code className="px-4 py-2 bg-gray-100 rounded text-sm font-mono text-gray-800">
+                <div className="flex flex-col sm:flex-row gap-2 items-center justify-center">
+                  <code className="px-4 py-2 bg-[#1e1e1e] border border-gray-700 rounded text-sm font-mono text-gray-300 break-all">
                     {window.location.origin}/poll/{publishedPoll.id}/vote
                   </code>
                   <button
@@ -113,7 +113,7 @@ export default function FormCreator() {
                           "Le lien du formulaire a été copié dans le presse-papiers.",
                       });
                     }}
-                    className="px-3 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-sm font-medium"
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
                   >
                     Copier
                   </button>
@@ -127,16 +127,14 @@ export default function FormCreator() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="pt-20">
-        <div className="max-w-4xl mx-auto p-4 sm:p-6">
-          <FormPollCreator
-            initialDraft={initialDraft}
-            onCancel={handleCancel}
-            onSave={handleSave}
-            onFinalize={handleFinalize}
-          />
-        </div>
+    <div className="min-h-screen bg-[#0a0a0a] pt-20">
+      <div className="max-w-5xl mx-auto">
+        <FormPollCreator
+          initialDraft={initialDraft}
+          onCancel={handleCancel}
+          onSave={handleSave}
+          onFinalize={handleFinalize}
+        />
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ export interface TimeSlot {
   hour: number;
   minute: number;
   enabled: boolean;
+  duration?: number; // Durée en minutes
 }
 
 export interface PollCreationState {
@@ -231,12 +232,53 @@ export class PollCreatorService {
     const blocks = [];
     let currentBlock = null;
 
-    for (const slot of timeSlots) {
+    // Trier les slots par heure pour détecter les blocs contigus
+    const sortedSlots = [...timeSlots].sort((a, b) => {
+      const aMinutes = a.hour * 60 + a.minute;
+      const bMinutes = b.hour * 60 + b.minute;
+      return aMinutes - bMinutes;
+    });
+
+    for (const slot of sortedSlots) {
       if (slot.enabled) {
         if (!currentBlock) {
-          currentBlock = { start: slot, end: slot };
+          // Nouveau bloc - calculer la fin en fonction de la durée
+          const duration = slot.duration || granularity;
+          const endMinutes = slot.hour * 60 + slot.minute + duration;
+          const endHour = Math.floor(endMinutes / 60);
+          const endMinute = endMinutes % 60;
+          
+          currentBlock = { 
+            start: slot, 
+            end: { hour: endHour, minute: endMinute, enabled: true }
+          };
         } else {
-          currentBlock.end = slot;
+          // Vérifier si ce slot est contigu au bloc actuel
+          const currentEndMinutes = currentBlock.end.hour * 60 + currentBlock.end.minute;
+          const slotStartMinutes = slot.hour * 60 + slot.minute;
+          
+          if (slotStartMinutes === currentEndMinutes) {
+            // Slot contigu - étendre le bloc
+            const duration = slot.duration || granularity;
+            const endMinutes = slot.hour * 60 + slot.minute + duration;
+            const endHour = Math.floor(endMinutes / 60);
+            const endMinute = endMinutes % 60;
+            
+            currentBlock.end = { hour: endHour, minute: endMinute, enabled: true };
+          } else {
+            // Slot non contigu - fermer le bloc actuel et en créer un nouveau
+            blocks.push(currentBlock);
+            
+            const duration = slot.duration || granularity;
+            const endMinutes = slot.hour * 60 + slot.minute + duration;
+            const endHour = Math.floor(endMinutes / 60);
+            const endMinute = endMinutes % 60;
+            
+            currentBlock = { 
+              start: slot, 
+              end: { hour: endHour, minute: endMinute, enabled: true }
+            };
+          }
         }
       } else if (currentBlock) {
         blocks.push(currentBlock);

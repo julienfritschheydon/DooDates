@@ -10,6 +10,7 @@ export interface TimeSlot {
   hour: number;
   minute: number;
   enabled: boolean;
+  duration?: number; // Durée en minutes
 }
 
 export interface PollCreationState {

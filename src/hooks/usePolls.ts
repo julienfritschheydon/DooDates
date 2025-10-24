@@ -126,6 +126,10 @@ export function usePolls() {
         if (isLocalMode) {
           // Supabase not configured - using local simulation
 
+          // Récupérer conversationId depuis l'URL si présent
+          const urlParams = new URLSearchParams(window.location.search);
+          const conversationId = urlParams.get("conversationId");
+
           // Simuler la création avec localStorage
           const mockPoll: StoragePoll = {
             id: `local-${Date.now()}`,
@@ -141,6 +145,7 @@ export function usePolls() {
             creatorEmail: user?.email || undefined,
             dates: pollData.selectedDates,
             type: "date",
+            relatedConversationId: conversationId || undefined,
           };
 
           // Use centralized pollStorage instead of direct localStorage access

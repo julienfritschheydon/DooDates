@@ -185,11 +185,6 @@ export class GeminiService {
         (part) => part.startsWith("##") && !part.startsWith("###"),
       );
 
-      if (import.meta.env.DEV) {
-        console.log(
-          `📂 ${sections.length} sections détectées dans le markdown`,
-        );
-      }
 
       let questionNumber = 0;
       const conditionalPatterns: Array<{
@@ -207,11 +202,6 @@ export class GeminiService {
           part.trim().startsWith("###"),
         );
 
-        if (import.meta.env.DEV) {
-          console.log(
-            `🔍 Section "${sectionTitle}" - ${questionBlocks.length} questions trouvées`,
-          );
-        }
 
         for (const questionBlock of questionBlocks) {
           questionNumber++;
@@ -236,13 +226,6 @@ export class GeminiService {
             });
           }
 
-          if (import.meta.env.DEV) {
-            console.log(`  📋 Question ${questionNumber}: "${questionTitle}"`);
-            console.log(`  📦 Bloc (${questionBlock.length} chars)`);
-            if (conditionalMatch) {
-              console.log(`  🔀 Condition détectée: Si ${conditionalMatch[1]}`);
-            }
-          }
 
           // Détecter type de question
           const lowerBlock = questionBlock.toLowerCase();
@@ -316,11 +299,6 @@ export class GeminiService {
                 prompt += `- ${opt}\n`;
               });
 
-              if (import.meta.env.DEV) {
-                console.log(`  ✅ ${options.length} options extraites`);
-              }
-            } else if (import.meta.env.DEV) {
-              console.log(`  ⚠️  AVERTISSEMENT: Aucune option détectée`);
             }
           } else {
             prompt += `(réponse libre)\n`;
@@ -346,17 +324,6 @@ export class GeminiService {
         prompt += "\n";
       }
 
-      if (import.meta.env.DEV) {
-        logger.info("📝 Prompt parsé envoyé à Gemini:", "api");
-        console.log("=== PROMPT PARSÉ ===");
-        console.log(prompt);
-        console.log("===================");
-        if (conditionalPatterns.length > 0) {
-          console.log(
-            `🔀 ${conditionalPatterns.length} règle(s) conditionnelle(s) détectée(s)`,
-          );
-        }
-      }
 
       return prompt;
     } catch (error) {
@@ -452,12 +419,6 @@ export class GeminiService {
       let processedInput = userInput;
       let pollType: "date" | "form";
 
-      if (import.meta.env.DEV && isMarkdown) {
-        logger.info("📋 Markdown original copié-collé:", "api");
-        console.log("=== MARKDOWN ORIGINAL ===");
-        console.log(userInput);
-        console.log("=========================");
-      }
 
       if (isMarkdown) {
         // Parser le markdown et convertir en prompt structuré
@@ -506,12 +467,6 @@ export class GeminiService {
         prompt = this.buildPollGenerationPrompt(processedInput);
       }
 
-      if (import.meta.env.DEV) {
-        logger.info("🚀 Prompt COMPLET envoyé à Gemini:", "api");
-        console.log("=== PROMPT COMPLET ===");
-        console.log(prompt);
-        console.log("======================");
-      }
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
@@ -659,7 +614,35 @@ export class GeminiService {
       endMonthKey,
     );
 
-    return weekendDays.map((day) => day.date);
+    // Grouper les week-ends par paires consécutives (samedi + dimanche)
+    const weekendPairs: string[] = [];
+    for (let i = 0; i < weekendDays.length; i++) {
+      const currentDay = weekendDays[i];
+      const currentDate = new Date(currentDay.date);
+      
+      // Si c'est un samedi (dayOfWeek = 6)
+      if (currentDay.dayOfWeek === 6) {
+        // Ajouter le samedi
+        weekendPairs.push(currentDay.date);
+        
+        // Vérifier si le jour suivant est un dimanche consécutif
+        const nextDay = weekendDays[i + 1];
+        if (nextDay && nextDay.dayOfWeek === 0) {
+          const nextDate = new Date(nextDay.date);
+          const dayDiff = (nextDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
+          
+          // Si le dimanche est bien le lendemain du samedi
+          if (dayDiff === 1) {
+            weekendPairs.push(nextDay.date);
+            i++; // Sauter le dimanche car on l'a déjà traité
+          }
+        }
+      }
+      // Si c'est un dimanche isolé (pas précédé d'un samedi), on l'ignore
+      // car un week-end = samedi + dimanche
+    }
+
+    return weekendPairs;
   }
 
   private parseConsecutiveDays(
@@ -899,14 +882,56 @@ FORMATS STRICTS:
 - Type: "date" ou "datetime" selon les créneaux
 
 CRÉNEAUX DÉTAILLÉS (si demandés):
-Si des heures sont mentionnées, générer TOUS les créneaux de 1h dans la plage:
-Exemple "matin" (8h-12h):
-[
-  { "start": "08:00", "end": "09:00", "dates": ["2025-XX-XX"], "description": "8h-9h" },
-  { "start": "09:00", "end": "10:00", "dates": ["2025-XX-XX"], "description": "9h-10h" },
-  { "start": "10:00", "end": "11:00", "dates": ["2025-XX-XX"], "description": "10h-11h" },
-  { "start": "11:00", "end": "12:00", "dates": ["2025-XX-XX"], "description": "11h-12h" }
-]
+Si des heures sont mentionnées, générer TOUS les créneaux dans la plage:
+
+RÈGLE CRITIQUE - CRÉNEAUX HORAIRES UNIQUEMENT SI EXPLICITEMENT DEMANDÉS:
+
+**RÈGLE ABSOLUE** : Ne générer des timeSlots QUE si l'utilisateur mentionne explicitement :
+- Des heures précises ("9h", "14h30", "en fin de matinée")
+- Des plages horaires ("matin", "après-midi", "soir")
+- Des durées ("1h", "30 minutes", "toute la journée")
+
+**Si AUCUNE mention d'heure/durée** → type: "date" avec timeSlots: []
+
+EXEMPLES SANS HORAIRES (type: "date", timeSlots: []):
+- "Je veux organiser une réunion lundi ou mardi" → PAS de timeSlots
+- "Rendez-vous mercredi ou jeudi" → PAS de timeSlots
+- "Disponibilité cette semaine" → PAS de timeSlots
+- "Meeting vendredi" → PAS de timeSlots
+
+EXEMPLES AVEC HORAIRES (type: "datetime", timeSlots: [...]):
+- "Réunion lundi MATIN" → timeSlots 8h-12h
+- "RDV mardi À 14H" → timeSlots autour de 14h
+- "Déjeuner mercredi" → timeSlots 12h30-13h30
+- "Disponibilité jeudi APRÈS-MIDI" → timeSlots 14h-17h
+
+RÈGLE DURÉE SELON CONTEXTE (SEULEMENT SI HORAIRES DEMANDÉS):
+
+- **Déjeuners (déjeuner, repas midi, lunch)** : Créneau unique 12h30-13h30
+  [
+    { "start": "12:30", "end": "13:30", "dates": ["2025-XX-XX"], "description": "12h30-13h30" }
+  ]
+  
+- **Dîners (dîner, repas soir, souper)** : Créneau unique 19h00-20h00
+  [
+    { "start": "19:00", "end": "20:00", "dates": ["2025-XX-XX"], "description": "à partir de 19h" }
+  ]
+  
+- **Petit-déjeuner, brunch** : Créneau unique 10h00-11h00
+  
+- **Réunions avec plage horaire** : Créneaux de 1h toutes les 30min
+  Exemple "matin" (8h-12h):
+  [
+    { "start": "08:00", "end": "09:00", "dates": ["2025-XX-XX"], "description": "8h-9h" },
+    { "start": "08:30", "end": "09:30", "dates": ["2025-XX-XX"], "description": "8h30-9h30" },
+    { "start": "09:00", "end": "10:00", "dates": ["2025-XX-XX"], "description": "9h-10h" },
+    { "start": "09:30", "end": "10:30", "dates": ["2025-XX-XX"], "description": "9h30-10h30" },
+    { "start": "10:00", "end": "11:00", "dates": ["2025-XX-XX"], "description": "10h-11h" },
+    { "start": "10:30", "end": "11:30", "dates": ["2025-XX-XX"], "description": "10h30-11h30" }
+  ]
+  
+- **Ateliers, formations** : Créneaux de 2-3h
+- **Événements sociaux (apéro, soirée)** : Créneaux de 2-3h
 
 2. Analyse du texte renforcée :
    * IMPORTANT : Respecter STRICTEMENT les jours demandés :
@@ -917,8 +942,10 @@ Exemple "matin" (8h-12h):
    * IMPORTANT : Comprendre les expressions temporelles :
      - "cette semaine" = semaine actuelle (du ${getTodayLocal()} à 7 jours)
      - "la semaine prochaine" = semaine suivante (les 7 jours après dimanche de cette semaine)
-     - "ce week-end" = samedi-dimanche de cette semaine
-     - "le week-end prochain" = samedi-dimanche de la semaine prochaine
+     - "ce week-end" = samedi-dimanche de cette semaine (2 dates consécutives)
+     - "le week-end prochain" = samedi-dimanche de la semaine prochaine (2 dates consécutives)
+     - "un des week-ends de décembre" = proposer TOUS les week-ends complets (samedi + dimanche consécutifs) du mois
+     - "les week-ends de janvier" = proposer TOUS les week-ends complets (samedi + dimanche consécutifs) du mois
    * IMPORTANT : Distinguer références spécifiques vs récurrentes :
      - "lundi matin" (sans "tous les" ou "chaque") = LE prochain lundi uniquement
      - "mardi après-midi" (sans "tous les" ou "chaque") = LE prochain mardi uniquement
@@ -926,10 +953,15 @@ Exemple "matin" (8h-12h):
      - "tous les lundis" ou "chaque lundi" = plusieurs lundis consécutifs
      - "les mardis" = plusieurs mardis consécutifs
      - c'est vrai aussi pour les autres jours de la semaine
-   * IMPORTANT : Déterminer le type d'événement selon le CONTEXTE :
-     - Si l'événement nécessite une coordination précise (réunions, formations, entretiens, cours, rendez-vous médicaux, présentations) → Horaires spécifiques OBLIGATOIRES
-     - Si l'événement est flexible sur la durée ou se déroule naturellement sur une journée (sorties, loisirs, sport, repas, fêtes, visites) → PAS d'horaires spécifiques
-     - Si le texte mentionne explicitement des heures précises → Respecter ces horaires
+   * IMPORTANT : Déterminer le type d'événement selon ce qui est EXPLICITEMENT DEMANDÉ :
+     - **RÈGLE ABSOLUE** : Générer des timeSlots UNIQUEMENT si l'utilisateur mentionne :
+       * Des heures précises ("9h", "14h30", "en fin de matinée")
+       * Des plages horaires ("matin", "après-midi", "soir")
+       * Des durées ("1h", "30 minutes", "toute la journée")
+       * Des mots-clés de repas ("déjeuner", "dîner", "brunch")
+     - **Si AUCUNE mention d'heure/durée** → type: "date" avec timeSlots: []
+     - **Exemples SANS horaires** : "réunion lundi ou mardi", "rendez-vous cette semaine", "meeting vendredi"
+     - **Exemples AVEC horaires** : "réunion lundi matin", "RDV mardi à 14h", "déjeuner mercredi"
      - En cas de doute, privilégier les sondages de dates simples (type: "date")
    * IMPORTANT : Proposer le plus d'options possible en respectant les contraintes
    * Identifier les patterns de sessions :
@@ -956,10 +988,12 @@ Exemple "matin" (8h-12h):
      - IMPORTANT : Pour les activités journée complète → NE PAS générer de timeSlots, utiliser type: "date"
      - Pour les événements avec horaires spécifiques → Adapter les horaires selon la période ET générer TOUS les créneaux possibles dans la plage
      - Ajouter brief/débrief si nécessaire
-   * EXEMPLES concrets de génération de créneaux :
+   * EXEMPLES concrets de génération de créneaux AVEC CHEVAUCHEMENT (30min de gap) :
      - "Tests 1h30 lundi matin" → 8h-9h30, 8h30-10h, 9h-10h30, 9h30-11h, 10h-11h30, 10h30-12h (6 créneaux)
      - "Entretiens 45min mardi après-midi" → 14h-14h45, 14h30-15h15, 15h-15h45, 15h30-16h15, 16h-16h45, 16h30-17h15 (6 créneaux)
-     - "RDV 1h mercredi" → 9h-10h, 10h-11h, 11h-12h, 14h-15h, 15h-16h, 16h-17h (6 créneaux)
+     - "RDV 1h mercredi" → 9h-10h, 9h30-10h30, 10h-11h, 10h30-11h30, 11h-12h, 14h-15h, 14h30-15h30, 15h-16h, 15h30-16h30, 16h-17h (10 créneaux)
+     - "Repas midi" ou "déjeuner" → 12h30-13h30 (1 créneau unique)
+     - "Dîner" ou "repas demain soir" → 19h-20h avec description "à partir de 19h" (1 créneau unique)
    * IMPORTANT : Répartition temporelle intelligente :
      - Événements urgents : concentrer sur les 5-7 prochains jours
      - Événements flexibles : répartir uniformément sur la période
@@ -1010,17 +1044,20 @@ FORMAT JSON EXACT:
 }
 
 AVANT DE RÉPONDRE :
-1. Vérifier que TOUTES les dates correspondent aux jours demandés 
-2. CRITIQUE : Vérifier que TOUTES les dates sont >= ${getTodayLocal()}
-3. IMPORTANT : Vérifier que TOUS les créneaux possibles sont générés dans chaque plage horaire (voir exemples ci-dessus)
-4. Si "week-end" est demandé, vérifier qu'il n'y a QUE des samedis et dimanches (PAS de vendredi) 
-5. Vérifier que TOUS les créneaux sont sur les bons jours
-6. Ne pas changer les jours de la semaine, même si cela nécessite d'ajouter ou retirer des dates
-7. IMPORTANT : Éliminer les créneaux horaires dupliqués (même heure sur même date)
-8. Si "cette semaine" ou "la semaine prochaine", utiliser les vraies dates de la semaine concernée
-9. IMPORTANT : Respecter les références temporelles spécifiques vs récurrentes (voir règles ci-dessus)
-10. IMPORTANT : Compter les créneaux générés - il doit y en avoir 5-6 minimum par plage horaire demandée
-11. CRITIQUE : Éliminer immédiatement toute date < ${getTodayLocal()}
+1. **CRITIQUE** : Vérifier si l'utilisateur a mentionné des heures/plages horaires/durées
+   - Si NON → type: "date", timeSlots: []
+   - Si OUI → type: "datetime", timeSlots: [...]
+2. Vérifier que TOUTES les dates correspondent aux jours demandés 
+3. **CRITIQUE** : Vérifier que TOUTES les dates sont >= ${getTodayLocal()}
+4. IMPORTANT : Vérifier que TOUS les créneaux possibles sont générés dans chaque plage horaire (voir exemples ci-dessus)
+5. Si "week-end" est demandé, vérifier qu'il n'y a QUE des samedis et dimanches (PAS de vendredi) 
+6. Vérifier que TOUS les créneaux sont sur les bons jours
+7. Ne pas changer les jours de la semaine, même si cela nécessite d'ajouter ou retirer des dates
+8. IMPORTANT : Éliminer les créneaux horaires dupliqués (même heure sur même date)
+9. Si "cette semaine" ou "la semaine prochaine", utiliser les vraies dates de la semaine concernée
+10. IMPORTANT : Respecter les références temporelles spécifiques vs récurrentes (voir règles ci-dessus)
+11. IMPORTANT : Compter les créneaux générés - il doit y en avoir 5-6 minimum par plage horaire demandée
+12. **CRITIQUE** : Éliminer immédiatement toute date < ${getTodayLocal()}
 
 RESPECTE SCRUPULEUSEMENT ces règles et ce format.
 
@@ -1298,12 +1335,6 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
    */
   private parseFormPollResponse(text: string): FormPollSuggestion | null {
     try {
-      if (import.meta.env.DEV) {
-        logger.info("🤖 Réponse brute de Gemini:", "api");
-        console.log("=== RÉPONSE GEMINI ===");
-        console.log(text);
-        console.log("======================");
-      }
 
       // Nettoyer le texte pour extraire le JSON
       const cleanText = text.trim();
@@ -1313,12 +1344,6 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
         const jsonStr = jsonMatch[0];
         const parsed = JSON.parse(jsonStr);
 
-        if (import.meta.env.DEV) {
-          logger.info("📊 JSON parsé de Gemini:", "api");
-          console.log("=== JSON PARSÉ ===");
-          console.log(JSON.stringify(parsed, null, 2));
-          console.log("==================");
-        }
 
         // Validation structure Form Poll
         if (
@@ -1394,12 +1419,6 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
             }),
           };
 
-          if (import.meta.env.DEV) {
-            logger.info("✅ Questionnaire FINAL validé et retourné:", "api");
-            console.log("=== QUESTIONNAIRE FINAL ===");
-            console.log(JSON.stringify(finalPoll, null, 2));
-            console.log("===========================");
-          }
 
           return finalPoll;
         }

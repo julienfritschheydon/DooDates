@@ -57,21 +57,51 @@ const VoteOption: React.FC<VoteOptionProps> = ({
 
   // Badge pour le 1er : plus visible qu'une bordure
   const getRankingBadge = (rank: number) => {
-    if (rank === 1) {
+    // Ne pas afficher le badge s'il n'y a aucun vote
+    const stats = getStatsWithUser(option.id);
+    const hasAnyVotes = stats.yes > 0 || stats.maybe > 0 || stats.no > 0;
+    
+    if (!hasAnyVotes) return null;
+    
+    // Compter combien d'options ont le même rang
+    const allRankings = getRanking("all");
+    const optionsWithSameRank = Object.values(allRankings).filter(r => r === rank).length;
+    
+    // Cas 1 : Un seul premier → Badge "1er" bleu
+    if (rank === 1 && optionsWithSameRank === 1) {
       return (
-        <div className="absolute -top-3 -left-3 z-30 bg-green-500 text-white px-3 py-2 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg border-2 border-white">
+        <div className="absolute -top-3 -left-3 z-30 bg-blue-500 text-white px-3 py-2 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg border-2 border-white">
           <span className="text-white text-xs font-bold"> 1er </span>
         </div>
       );
     }
+    
+    // Cas 2 : Deux ex aequo en première position → Badge "2ème" orange
+    if (rank === 1 && optionsWithSameRank === 2) {
+      return (
+        <div className="absolute -top-3 -left-3 z-30 bg-orange-500 text-white px-3 py-2 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg border-2 border-white">
+          <span className="text-white text-xs font-bold"> 2ème </span>
+        </div>
+      );
+    }
+    
+    // Cas 3 : Trois ex aequo en première position → Badge "3ème" jaune
+    if (rank === 1 && optionsWithSameRank === 3) {
+      return (
+        <div className="absolute -top-3 -left-3 z-30 bg-yellow-500 text-white px-3 py-2 rounded-full text-sm font-bold flex items-center gap-1 shadow-lg border-2 border-white">
+          <span className="text-white text-xs font-bold"> 3ème </span>
+        </div>
+      );
+    }
+    
     return null;
   };
 
   return (
     <motion.div
       key={option.id}
-      className={`bg-white rounded-xl shadow-md p-4 mb-4 relative ${
-        rank === 1 ? "border-2 border-green-400" : ""
+      className={`bg-[#1e1e1e] rounded-xl shadow-md p-4 mb-4 relative ${
+        rank === 1 ? "border-2 border-blue-400" : ""
       }`}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
@@ -84,12 +114,18 @@ const VoteOption: React.FC<VoteOptionProps> = ({
       {getRankingBadge(rank)}
 
       <div className="text-center mb-4">
-        <div className="flex items-center justify-center gap-2 text-gray-800">
-          <span className="font-semibold">
-            {formatDate(option.option_date)}
+        <div className="flex items-center justify-center gap-2">
+          <span className="font-semibold text-white">
+            {/* Afficher le label du groupe si disponible, sinon la date normale */}
+            {option.date_group_label || formatDate(option.option_date)}
           </span>
-          <span className="text-gray-400">•</span>
-          <span className="text-gray-600">{formatTime(option.time_slots)}</span>
+          {/* Afficher les time slots uniquement pour les dates individuelles */}
+          {!option.date_group_label && option.time_slots && (
+            <>
+              <span className="text-gray-500">•</span>
+              <span className="text-gray-300">{formatTime(option.time_slots)}</span>
+            </>
+          )}
         </div>
       </div>
 
@@ -97,7 +133,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
         {/* Flèches positionnées par rapport à la grille des boutons */}
         {index === 0 && !anyUserHasVoted && (
           <>
-            {/* Flèche verte à GAUCHE du bouton OUI */}
+            {/* Flèche bleue à GAUCHE du bouton OUI */}
             <motion.div
               className="absolute z-20"
               style={{
@@ -117,8 +153,8 @@ const VoteOption: React.FC<VoteOptionProps> = ({
                 delay: 0.2,
               }}
             >
-              <div className="bg-green-500/20 border border-green-300 rounded-full p-2 shadow-lg">
-                <ArrowLeft className="w-4 h-4 text-green-600" />
+              <div className="bg-blue-500/20 border border-blue-300 rounded-full p-2 shadow-lg">
+                <ArrowLeft className="w-4 h-4 text-blue-600" />
               </div>
             </motion.div>
           </>
@@ -129,27 +165,29 @@ const VoteOption: React.FC<VoteOptionProps> = ({
           onClick={() => handleVote(option.id, "yes" as VoteType)}
           className={`relative overflow-hidden rounded-lg p-3 transition-all border-2 ${
             (userVote === "yes" && userHasVoted) || currentSwipe === "yes"
-              ? "bg-green-50 border-green-500 ring-2 ring-green-400"
-              : "bg-white border-gray-200 hover:bg-green-50"
+              ? "bg-blue-50 border-blue-500 ring-2 ring-blue-400"
+              : "bg-[#2a2a2a] border-gray-700 hover:bg-[#3a3a3a]"
           }`}
         >
           <div className="flex flex-col items-center text-center relative z-10">
             <Check
               className={`w-5 h-5 mb-1 ${
                 (userVote === "yes" && userHasVoted) || currentSwipe === "yes"
-                  ? "text-green-700"
-                  : "text-green-600"
+                  ? "text-blue-700"
+                  : "text-blue-600"
               }`}
             />
-            <span
-              className={`text-sm font-bold ${
-                (userVote === "yes" && userHasVoted) || currentSwipe === "yes"
-                  ? "text-green-700"
-                  : "text-green-600"
-              }`}
-            >
-              {getStatsWithUser(option.id).yes}
-            </span>
+            {getStatsWithUser(option.id).yes > 0 && (
+              <span
+                className={`text-sm font-bold ${
+                  (userVote === "yes" && userHasVoted) || currentSwipe === "yes"
+                    ? "text-blue-700"
+                    : "text-blue-600"
+                }`}
+              >
+                {getStatsWithUser(option.id).yes}
+              </span>
+            )}
           </div>
 
           {/* SYSTÈME DOUBLE COUCHE - Barres de progression */}
@@ -165,7 +203,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
               <>
                 {/* COUCHE 1 : Barre de fond */}
                 <motion.div
-                  className="absolute inset-0 bg-green-200/30"
+                  className="absolute inset-0 bg-blue-200/30"
                   initial={{ scaleY: 0 }}
                   animate={{
                     scaleY: votesExistantsYes / totalVotants,
@@ -178,7 +216,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
                 {(userVote === "yes" && userHasVoted) ||
                 currentSwipe === "yes" ? (
                   <motion.div
-                    className="absolute bg-green-500/75"
+                    className="absolute bg-blue-500/75"
                     initial={{ height: 0 }}
                     animate={{
                       height: `${(ajoutVoteUtilisateur / totalVotants) * 100}%`,
@@ -204,7 +242,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
             currentSwipe === "maybe" ||
             (!userHasVoted && userVote === "maybe")
               ? "bg-orange-50 border-orange-500 ring-2 ring-orange-400"
-              : "bg-white border-gray-200 hover:bg-orange-50"
+              : "bg-[#2a2a2a] border-gray-700 hover:bg-[#3a3a3a]"
           }`}
         >
           <div className="flex flex-col items-center text-center relative z-10">
@@ -217,17 +255,19 @@ const VoteOption: React.FC<VoteOptionProps> = ({
                   : "text-orange-600"
               }`}
             />
-            <span
-              className={`text-sm font-bold ${
-                (userVote === "maybe" && userHasVoted) ||
-                currentSwipe === "maybe" ||
-                (!userHasVoted && userVote === "maybe")
-                  ? "text-orange-700"
-                  : "text-orange-600"
-              }`}
-            >
-              {getStatsWithUser(option.id).maybe}
-            </span>
+            {getStatsWithUser(option.id).maybe > 0 && (
+              <span
+                className={`text-sm font-bold ${
+                  (userVote === "maybe" && userHasVoted) ||
+                  currentSwipe === "maybe" ||
+                  (!userHasVoted && userVote === "maybe")
+                    ? "text-orange-700"
+                    : "text-orange-600"
+                }`}
+              >
+                {getStatsWithUser(option.id).maybe}
+              </span>
+            )}
           </div>
 
           {/* SYSTÈME DOUBLE COUCHE - Barres de progression */}
@@ -281,7 +321,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
           className={`relative overflow-hidden rounded-lg p-3 transition-all border-2 ${
             (userVote === "no" && userHasVoted) || currentSwipe === "no"
               ? "bg-red-50 border-red-500 ring-2 ring-red-400"
-              : "bg-white border-gray-200 hover:bg-red-50"
+              : "bg-[#2a2a2a] border-gray-700 hover:bg-[#3a3a3a]"
           }`}
         >
           <div className="flex flex-col items-center text-center relative z-10">
@@ -292,15 +332,17 @@ const VoteOption: React.FC<VoteOptionProps> = ({
                   : "text-red-600"
               }`}
             />
-            <span
-              className={`text-sm font-bold ${
-                (userVote === "no" && userHasVoted) || currentSwipe === "no"
-                  ? "text-red-700"
-                  : "text-red-600"
-              }`}
-            >
-              {getStatsWithUser(option.id).no}
-            </span>
+            {getStatsWithUser(option.id).no > 0 && (
+              <span
+                className={`text-sm font-bold ${
+                  (userVote === "no" && userHasVoted) || currentSwipe === "no"
+                    ? "text-red-700"
+                    : "text-red-600"
+                }`}
+              >
+                {getStatsWithUser(option.id).no}
+              </span>
+            )}
           </div>
 
           {/* SYSTÈME DOUBLE COUCHE - Barres de progression */}

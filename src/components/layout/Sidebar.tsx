@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { SidebarContent } from './SidebarContent';
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { SidebarContent } from "./SidebarContent";
 
 /**
  * Sidebar responsive
- * 
+ *
  * Desktop (≥768px): Sidebar fixe 240px à gauche
  * Mobile (<768px): Burger menu top-left qui ouvre overlay sidebar
  */
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const isMobile = useMediaQuery('(max-width: 767px)');
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   const closeSidebar = () => setIsOpen(false);
 

@@ -61,9 +61,9 @@ const ResultBar: React.FC<{
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2 min-w-[100px]">
         {icon}
-        <span className="text-sm font-medium text-gray-700">{label}</span>
+        <span className="text-sm font-medium text-gray-300">{label}</span>
       </div>
-      <div className="flex-1 bg-gray-100 rounded-full h-3 overflow-hidden">
+      <div className="flex-1 bg-[#0a0a0a] rounded-full h-3 overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
@@ -72,8 +72,8 @@ const ResultBar: React.FC<{
         />
       </div>
       <div className="min-w-[60px] text-right">
-        <span className="text-sm font-semibold text-gray-800">{count}</span>
-        <span className="text-xs text-gray-500 ml-1">
+        <span className="text-sm font-semibold text-white">{count}</span>
+        <span className="text-xs text-gray-400 ml-1">
           ({percentage.toFixed(0)}%)
         </span>
       </div>
@@ -161,7 +161,7 @@ const OptionResult: React.FC<{
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: rank * 0.1 }}
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+      className="bg-[#1e1e1e] rounded-2xl shadow-sm border border-gray-700 overflow-hidden"
     >
       <div className="p-4">
         {/* En-tête avec rang */}
@@ -173,20 +173,24 @@ const OptionResult: React.FC<{
               {getRankIcon(rank) || rank}
             </div>
             <div>
-              <h3 className="font-semibold text-gray-800 capitalize">
-                {formatDate(option.option_date)}
+              <h3 className="font-semibold text-white capitalize">
+                {/* Afficher le label du groupe si disponible, sinon la date normale */}
+                {option.date_group_label || formatDate(option.option_date)}
               </h3>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <Clock className="h-3 w-3" />
-                <span>{formatTimeSlots(option.time_slots)}</span>
-              </div>
+              {/* Afficher les time slots uniquement pour les dates individuelles */}
+              {!option.date_group_label && option.time_slots && (
+                <div className="flex items-center gap-1 text-xs text-gray-400">
+                  <Clock className="h-3 w-3" />
+                  <span>{formatTimeSlots(option.time_slots)}</span>
+                </div>
+              )}
             </div>
           </div>
           <div className="text-right">
-            <div className="text-lg font-bold text-green-600">
+            <div className="text-lg font-bold text-blue-600">
               {voteCounts.yes}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-400">
               {totalResponses} réponse{totalResponses !== 1 ? "s" : ""}
             </div>
           </div>
@@ -198,8 +202,8 @@ const OptionResult: React.FC<{
             label="Oui"
             count={voteCounts.yes}
             total={totalResponses}
-            color="bg-green-500"
-            icon={<div className="w-3 h-3 bg-green-500 rounded-full" />}
+            color="bg-blue-500"
+            icon={<div className="w-3 h-3 bg-blue-500 rounded-full" />}
           />
           <ResultBar
             label="Peut-être"
@@ -219,15 +223,15 @@ const OptionResult: React.FC<{
 
         {/* Liste des participants disponibles */}
         {voterNames.length > 0 && (
-          <div className="bg-green-50 rounded-xl p-3">
-            <div className="text-xs font-medium text-green-800 mb-1">
+          <div className="bg-blue-50 rounded-xl p-3">
+            <div className="text-xs font-medium text-blue-800 mb-1">
               Participants disponibles :
             </div>
             <div className="flex flex-wrap gap-1">
               {voterNames.map((name, index) => (
                 <span
                   key={index}
-                  className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium"
+                  className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium"
                 >
                   {name}
                 </span>
@@ -293,31 +297,31 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 space-y-6"
+      className="min-h-screen bg-[#0a0a0a] p-4 space-y-6"
     >
       {/* En-tête des résultats */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm p-4"
+        className="bg-[#1e1e1e]/95 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-700 p-4"
       >
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={onBack}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
           >
-            <ArrowLeft className="h-6 w-6 text-gray-600" />
+            <ArrowLeft className="h-6 w-6 text-gray-300" />
           </button>
 
-          <h1 className="text-lg font-bold text-gray-800 text-center flex-1">
+          <h1 className="text-lg font-bold text-white text-center flex-1">
             Résultats
           </h1>
 
           <button
             onClick={handleShare}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
           >
-            <Share2 className="h-6 w-6 text-gray-600" />
+            <Share2 className="h-6 w-6 text-gray-300" />
           </button>
         </div>
 
@@ -325,21 +329,21 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
         <div className="grid grid-cols-3 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">{totalVotes}</div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-400">
               Participant{totalVotes !== 1 ? "s" : ""}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-blue-600">
               {bestOption?.voteCounts.yes || 0}
             </div>
-            <div className="text-xs text-gray-500">Meilleur score</div>
+            <div className="text-xs text-gray-400">Meilleur score</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600">
               {options.length}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-400">
               Option{options.length !== 1 ? "s" : ""}
             </div>
           </div>
@@ -351,7 +355,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="mt-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-3 text-center"
+            className="mt-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-3 text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-1">
               <Trophy className="h-5 w-5" />
@@ -378,7 +382,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
 
       {/* Liste des résultats */}
       <div className="space-y-3" data-testid="results-table">
-        <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
           <Users className="h-5 w-5" />
           Classement des options
         </h2>
@@ -401,10 +405,10 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
           className="text-center py-12"
         >
           <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-600 mb-2">
+          <h3 className="text-lg font-semibold text-gray-300 mb-2">
             Aucun vote pour le moment
           </h3>
-          <p className="text-gray-500">
+          <p className="text-gray-400">
             Partagez le lien du sondage pour collecter des réponses !
           </p>
         </motion.div>

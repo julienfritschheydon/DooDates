@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 /**
  * Hook pour détecter les media queries responsive
- * 
+ *
  * Usage:
  * const isMobile = useMediaQuery('(max-width: 768px)');
  * const isTablet = useMediaQuery('(min-width: 769px) and (max-width: 1023px)');
@@ -14,7 +14,7 @@ export function useMediaQuery(query: string): boolean {
 
   useEffect(() => {
     setMounted(true);
-    
+
     const mediaQuery = window.matchMedia(query);
     setMatches(mediaQuery.matches);
 
@@ -23,10 +23,10 @@ export function useMediaQuery(query: string): boolean {
     };
 
     // Utiliser addEventListener pour compatibilité
-    mediaQuery.addEventListener('change', handler);
+    mediaQuery.addEventListener("change", handler);
 
     return () => {
-      mediaQuery.removeEventListener('change', handler);
+      mediaQuery.removeEventListener("change", handler);
     };
   }, [query]);
 

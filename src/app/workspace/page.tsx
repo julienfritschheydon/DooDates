@@ -1,16 +1,12 @@
-import { WorkspaceProvider } from '@/components/prototype/WorkspaceProvider';
-import { WorkspaceLayoutPrototype } from '@/components/prototype/WorkspaceLayoutPrototype';
+import { WorkspaceLayoutPrototype } from "@/components/prototype/WorkspaceLayoutPrototype";
 
 /**
  * Page Workspace
- * 
+ *
  * Nouvelle page pour l'UX IA-First
- * Layout 3 colonnes: Sidebar + Canvas + AI Chat
+ * Chat principal + Éditeur conditionnel avec état partagé
+ * ConversationProvider est maintenant au niveau App.tsx
  */
 export default function WorkspacePage() {
-  return (
-    <WorkspaceProvider>
-      <WorkspaceLayoutPrototype />
-    </WorkspaceProvider>
-  );
+  return <WorkspaceLayoutPrototype />;
 }

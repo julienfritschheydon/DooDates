@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { VotingInterface } from "@/components/voting/VotingInterface";
 import React from "react";
 import { getPollBySlugOrId } from "@/lib/pollStorage";
+import { X } from "lucide-react";
 import FormPollVote from "@/components/polls/FormPollVote";
 
 const Vote = () => {
@@ -48,7 +49,17 @@ const Vote = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0a0a0a]">
+      {/* Bouton retour en haut à gauche */}
+      <button
+        onClick={() => window.history.back()}
+        className="fixed top-24 left-4 z-50 p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
+        title="Retour"
+        aria-label="Retour"
+      >
+        <X className="w-6 h-6" />
+      </button>
+      
       <div className="pt-20">
         {/* VotingInterface gère l'affichage pour admin en interne */}
         <VotingInterface

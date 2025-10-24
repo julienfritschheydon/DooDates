@@ -24,6 +24,7 @@ import {
   type FormPollSuggestion,
   type DatePollSuggestion,
 } from "../lib/gemini";
+import { groupConsecutiveDates } from "../lib/date-utils";
 import PollCreator from "./PollCreator";
 import FormPollCreator, {
   type FormPollDraft,
@@ -38,13 +39,15 @@ import { QuotaService, type AuthIncentiveType } from "../services/QuotaService";
 import { useQuota } from "../hooks/useQuota";
 import AuthIncentiveModal from "./modals/AuthIncentiveModal";
 import QuotaIndicator from "./ui/QuotaIndicator";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { conversationProtection } from "../services/ConversationProtection";
 import { performanceMonitor } from "../services/PerformanceMonitor";
 import { useInfiniteLoopProtection } from "../services/InfiniteLoopProtection";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "../lib/logger";
 import { useToast } from "@/hooks/use-toast";
+import { useConversation } from "./prototype/ConversationProvider";
+import { IntentDetectionService } from "../services/IntentDetectionService";
 
 // Global initialization guard to prevent multiple conversation creation
 let isInitializing = false;
@@ -62,6 +65,9 @@ interface Message {
 interface GeminiChatInterfaceProps {
   onPollCreated?: (pollData: PollSuggestion) => void;
   onNewChat?: () => void;
+  resumeLastConversation?: boolean;
+  hideStatusBar?: boolean;
+  darkTheme?: boolean;
 }
 
 // Fonction de conversion FormPollSuggestion (Gemini) → FormPollDraft (FormPollCreator)
@@ -112,8 +118,18 @@ const convertFormSuggestionToDraft = (
 const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   onPollCreated,
   onNewChat,
+  resumeLastConversation = false,
+  hideStatusBar = false,
+  darkTheme = false,
 }): JSX.Element => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  // Utiliser les messages du Context pour la persistance
+  const { 
+    messages, 
+    setMessages, 
+    currentPoll, 
+    dispatchPollAction 
+  } = useConversation();
+  
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPollCreator, setShowPollCreator] = useState(false);
@@ -125,6 +141,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
   // Auto-save and conversation resume hooks
   const navigate = useNavigate();
+  const location = useLocation();
   const autoSave = useAutoSave({
     debug: true,
   });
@@ -139,17 +156,26 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   const reconnectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
+  const hasResumedConversation = useRef(false);
 
   // Initialize new conversation
   const initializeNewConversation = useCallback(async () => {
+    // Don't initialize if messages already exist (restored from localStorage)
+    if (messages.length > 0) {
+      return;
+    }
+    
+    // Don't initialize if we already resumed a conversation
+    if (hasResumedConversation.current) {
+      return;
+    }
+    
     // Multi-layer protection against infinite loops
     if (!loopProtection.canExecute()) {
-      // Initialization blocked by loop protection
       return;
     }
 
     if (!conversationProtection.canCreateConversation()) {
-      // Conversation creation blocked by protection service
       return;
     }
 
@@ -169,27 +195,12 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     initializationPromise = (async () => {
       try {
         // Initializing new conversation
+        // Ne pas ajouter de message de bienvenue ici pour que le message visuel s'affiche (messages.length === 0)
+        
+        setMessages([]);
+        // Conversation initialized with empty messages - visual welcome will show
 
-        const welcomeMessage: Message = {
-          id: `welcome-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          content:
-            "Bonjour ! 👋 Je suis votre assistant IA pour créer des sondages de dates et des questionnaires. Décrivez-moi ce que vous souhaitez !",
-          isAI: true,
-          timestamp: new Date(),
-        };
-
-        setMessages([welcomeMessage]);
-        // Adding welcome message
-
-        // Auto-save the welcome message
-        await autoSave.addMessage({
-          id: welcomeMessage.id,
-          content: welcomeMessage.content,
-          isAI: welcomeMessage.isAI,
-          timestamp: welcomeMessage.timestamp,
-        });
-
-        conversationProtection.completeCreation(welcomeMessage.id);
+        conversationProtection.completeCreation('new-conversation');
         // Conversation initialized successfully
       } catch (error) {
         const processedError = handleError(
@@ -241,7 +252,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     })();
 
     await initializationPromise;
-  }, [autoSave, loopProtection]);
+  }, [autoSave, loopProtection, messages]);
 
   useEffect(() => {
     // Prevent multiple initialization attempts
@@ -270,12 +281,18 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         return;
       }
 
+      // Resume conversation from URL if available
+      
       try {
         const result = await ConversationService.resumeFromUrl(autoSave);
 
         if (!isMounted) return;
 
         if (result && result.conversation && result.messages) {
+          // Clear messages only if we have a conversation to restore from URL
+          if (isMounted) {
+            setMessages([]);
+          }
           // Resuming conversation from URL
 
           // Get messages from the conversation
@@ -286,8 +303,19 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
             const chatMessages =
               ConversationService.convertMessagesToChat(messages);
 
+            console.log("📨 GeminiChatInterface: Messages convertis:", chatMessages.length, "messages");
+            console.log("📨 Premier message:", chatMessages[0]);
+            console.log("📨 Tous les messages:", chatMessages.map(m => ({
+              id: m.id,
+              isAI: m.isAI,
+              preview: m.content.substring(0, 50) + "..."
+            })));
+
             if (isMounted) {
               setMessages(chatMessages);
+              hasResumedConversation.current = true;
+              console.log("✅ GeminiChatInterface: setMessages appelé avec", chatMessages.length, "messages");
+              console.log("✅ Flag hasResumedConversation activé - initializeNewConversation sera bloqué");
               // Conversation resumed successfully
             }
           } else {
@@ -337,7 +365,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         clearTimeout(reconnectionTimeoutRef.current);
       }
     };
-  }, []); // Empty dependency array - only run once on mount
+  }, [location.search]); // Re-run when URL search params change
 
   useEffect(() => {
     // Désactiver complètement le scroll automatique vers le bas sur mobile
@@ -463,6 +491,57 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     // Check conversation quota before proceeding
     if (!quota.checkConversationLimit()) {
       return; // Modal will be shown by the quota hook
+    }
+
+    // 🎯 PROTOTYPE: Détecter les intentions de modification
+    if (currentPoll) {
+      const intent = IntentDetectionService.detectSimpleIntent(
+        inputValue,
+        currentPoll
+      );
+
+      if (intent && intent.isModification && intent.confidence > 0.7) {
+        // Ajouter le message utilisateur
+        const userMessage: Message = {
+          id: `user-${Date.now()}`,
+          content: inputValue.trim(),
+          isAI: false,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, userMessage]);
+        setInputValue("");
+
+        // Sauvegarder l'état actuel pour comparer après
+        const previousDates = currentPoll.dates || [];
+        
+        // Dispatcher l'action
+        dispatchPollAction({
+          type: intent.action as any,
+          payload: intent.payload,
+        });
+
+        // Feedback intelligent selon l'action
+        let confirmContent = `✅ ${intent.explanation}`;
+        
+        if (intent.action === 'ADD_DATE' && previousDates.includes(intent.payload)) {
+          confirmContent = `ℹ️ La date ${intent.payload.split('-').reverse().join('/')} est déjà dans le sondage`;
+        }
+        
+        if (intent.action === 'REMOVE_DATE' && !previousDates.includes(intent.payload)) {
+          confirmContent = `ℹ️ La date ${intent.payload.split('-').reverse().join('/')} n'est pas dans le sondage`;
+        }
+
+        // Message de confirmation
+        const confirmMessage: Message = {
+          id: `ai-${Date.now()}`,
+          content: confirmContent,
+          isAI: true,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, confirmMessage]);
+
+        return; // Ne pas appeler Gemini
+      }
     }
 
     // Détecter si c'est un markdown questionnaire long
@@ -638,7 +717,18 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   };
 
   const handleUsePollSuggestion = (suggestion: PollSuggestion) => {
-    // Sending data to PollCreator
+    console.log("🎯 handleUsePollSuggestion appelé avec:", suggestion);
+    console.log("🎯 onPollCreated existe?", !!onPollCreated);
+    
+    // Si on a un callback onPollCreated, l'utiliser au lieu d'afficher le créateur
+    if (onPollCreated) {
+      console.log("🎯 Appel de onPollCreated");
+      onPollCreated(suggestion);
+      return;
+    }
+    
+    // Sinon, comportement par défaut : afficher le créateur
+    console.log("🎯 Affichage du créateur");
     setSelectedPollData(suggestion);
     setShowPollCreator(true);
   };
@@ -752,16 +842,19 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full">
       {/* Barre d'état compacte */}
-      <div className="sticky top-[80px] z-40 bg-white border-b p-2 md:p-3">
+      {false && (
+        <div className={`sticky top-[80px] z-40 p-2 md:p-3 ${
+          darkTheme ? 'bg-gray-900' : 'bg-white'
+        }`}>
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <div
                 className={`w-2 h-2 rounded-full ${
                   connectionStatus === "connected"
-                    ? "bg-green-500"
+                    ? "bg-blue-500"
                     : connectionStatus === "error"
                       ? "bg-red-500"
                       : "bg-yellow-500"
@@ -796,34 +889,59 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
             <span className="hidden sm:inline">Nouveau chat</span>
           </button>
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Zone de conversation */}
-      <div className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-50 pb-32">
-        <div className="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-4">
+      <div className={`flex-1 overflow-y-auto ${
+        darkTheme 
+          ? 'bg-[#0a0a0a]' 
+          : 'bg-gradient-to-br from-blue-50 to-indigo-50'
+      } ${
+        messages.length === 0 ? 'flex items-center justify-center' : 'pb-32'
+      }`}>
+        <div className={`max-w-4xl mx-auto p-2 md:p-4 ${
+          messages.length > 0 ? 'space-y-3 md:space-y-4' : ''
+        }`}>
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-              <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm max-w-md">
-                <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4">
-                  <Sparkles className="w-8 h-8 text-blue-600" />
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className={`max-w-md ${
+                darkTheme ? 'text-white' : 'text-gray-900'
+              }`}>
+                <div className={`flex items-center justify-center w-16 h-16 rounded-full mx-auto mb-4 ${
+                  darkTheme 
+                    ? 'bg-blue-900 text-blue-300' 
+                    : 'bg-blue-100 text-blue-600'
+                }`}>
+                  <Sparkles className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className={`text-lg font-medium mb-2 ${
+                  darkTheme ? 'text-blue-400' : 'text-gray-900'
+                }`}>
                   Bonjour ! 👋
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className={`mb-4 ${
+                  darkTheme ? 'text-gray-300' : 'text-gray-600'
+                }`}>
                   Je suis votre assistant IA pour créer des sondages de dates et
                   des questionnaires. Décrivez-moi ce que vous souhaitez !
                 </p>
-                <div className="text-sm text-gray-500 space-y-2">
+                <div className={`text-sm space-y-2 ${
+                  darkTheme ? 'text-gray-400' : 'text-gray-500'
+                }`}>
                   <div>
-                    <p className="font-medium text-gray-700 mb-1">
+                    <p className={`font-medium mb-1 ${
+                      darkTheme ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
                       📅 Sondages de dates :
                     </p>
                     <p>• "Réunion d'équipe la semaine prochaine"</p>
                     <p>• "Déjeuner mardi ou mercredi"</p>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-700 mb-1">
+                    <p className={`font-medium mb-1 ${
+                      darkTheme ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
                       📝 Questionnaires :
                     </p>
                     <p>• "Questionnaire de satisfaction client"</p>
@@ -836,30 +954,38 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
             messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.isAI ? "justify-start" : "justify-end"}`}
+                className={`flex gap-3 ${message.isAI ? "justify-start" : "justify-end"}`}
               >
+                {/* Icône IA à gauche pour les messages IA */}
+                {message.isAI && (
+                  <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
+                  </div>
+                )}
+                
                 <div
                   className={`
-                  max-w-[90%] md:max-w-[80%] rounded-2xl p-3 md:p-4 shadow-sm
+                  max-w-[80%]
                   ${
                     message.isAI
-                      ? "bg-white text-gray-800"
-                      : "bg-blue-500 text-white"
+                      ? darkTheme 
+                        ? "text-gray-100"
+                        : "text-gray-900"
+                      : "bg-[#3c4043] text-white rounded-[20px] px-5 py-3"
                   }
                 `}
                 >
                   {message.content}
                   {message.pollSuggestion && (
                     <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
-                      <div className="border-t border-gray-100 pt-3 md:pt-4">
-                        <div className="flex items-start gap-2 mb-3 md:mb-4">
-                          <span className="text-lg md:text-xl flex-shrink-0">
-                            📋
-                          </span>
-                          <h3 className="text-base md:text-lg font-medium text-gray-900 leading-tight">
-                            {message.pollSuggestion.title}
-                          </h3>
-                        </div>
+                      <div className="space-y-3">
+                        <h3 className={`text-base font-medium mb-3 ${
+                          darkTheme ? 'text-white' : 'text-gray-900'
+                        }`}>
+                          {message.pollSuggestion.title}
+                        </h3>
 
                         {/* Description si présente */}
                         {message.pollSuggestion.description && (
@@ -903,7 +1029,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                                                 question.type === "single"
                                                   ? "bg-blue-100 text-blue-700"
                                                   : question.type === "multiple"
-                                                    ? "bg-green-100 text-green-700"
+                                                    ? "bg-purple-100 text-purple-700"
                                                     : "bg-gray-100 text-gray-700"
                                               }`}
                                             >
@@ -927,110 +1053,89 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                               </div>
                             </div>
                           ) : (
-                            /* Affichage Date Poll (dates/horaires) */
+                            /* Affichage Date Poll (dates/horaires) - avec groupement intelligent */
                             <div className="space-y-2 md:space-y-3">
-                              {(
-                                message.pollSuggestion as import("../lib/gemini").DatePollSuggestion
-                              ).dates?.map((date, index) => {
-                                // Trouver les créneaux horaires pour cette date
-                                const dateTimeSlots =
-                                  (
-                                    message.pollSuggestion as import("../lib/gemini").DatePollSuggestion
-                                  ).timeSlots?.filter(
-                                    (slot) =>
-                                      !slot.dates ||
-                                      slot.dates.includes(date) ||
-                                      slot.dates.length === 0,
+                              {(() => {
+                                const datePollSuggestion = message.pollSuggestion as import("../lib/gemini").DatePollSuggestion;
+                                const dates = datePollSuggestion.dates || [];
+                                
+                                // Grouper les dates consécutives (week-ends, semaines, quinzaines)
+                                const dateGroups = groupConsecutiveDates(dates);
+                                
+                                return dateGroups.map((group, groupIndex) => {
+                                  // Pour les groupes, afficher le label groupé
+                                  // Pour les dates individuelles, afficher normalement
+                                  const isGroup = group.dates.length > 1;
+                                  
+                                  // Trouver les créneaux horaires pour ce groupe
+                                  const groupTimeSlots = datePollSuggestion.timeSlots?.filter(
+                                    (slot) => {
+                                      if (!slot.dates || slot.dates.length === 0) return true;
+                                      return group.dates.some(date => slot.dates?.includes(date));
+                                    }
                                   ) || [];
 
-                                return (
-                                  <div
-                                    key={date}
-                                    className="bg-gray-50 rounded-lg p-3 md:p-4"
-                                  >
-                                    <div className="flex items-start gap-2 md:gap-3">
-                                      <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5"></div>
-                                      <div className="flex-1 min-w-0">
-                                        <div className="font-medium text-gray-800 text-sm md:text-base leading-tight">
-                                          {new Date(date).toLocaleDateString(
-                                            "fr-FR",
-                                            {
-                                              weekday: "long",
-                                              day: "numeric",
-                                              month: "long",
-                                              year: "numeric",
-                                            },
+                                  return (
+                                    <div
+                                      key={`group-${groupIndex}`}
+                                      className="bg-[#3c4043] rounded-lg p-3 md:p-4"
+                                    >
+                                      <div className="flex items-start gap-2 md:gap-3">
+                                        <div className="flex-1 min-w-0">
+                                          <div className="font-medium text-white text-sm md:text-base leading-tight">
+                                            {isGroup ? (
+                                              // Afficher le label groupé
+                                              group.label
+                                            ) : (
+                                              // Afficher la date normale
+                                              new Date(group.dates[0]).toLocaleDateString(
+                                                "fr-FR",
+                                                {
+                                                  weekday: "long",
+                                                  day: "numeric",
+                                                  month: "long",
+                                                  year: "numeric",
+                                                },
+                                              )
+                                            )}
+                                          </div>
+                                          {groupTimeSlots.length > 0 && !isGroup && (
+                                            <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
+                                              <span className="block">
+                                                {groupTimeSlots
+                                                  .map(
+                                                    (slot) =>
+                                                      `${slot.start} - ${slot.end}`,
+                                                  )
+                                                  .join(", ")}
+                                              </span>
+                                            </div>
                                           )}
                                         </div>
-                                        {dateTimeSlots.length > 0 && (
-                                          <div className="mt-1.5 md:mt-2 flex items-start gap-1 text-xs md:text-sm text-gray-600">
-                                            <span className="text-green-600 flex-shrink-0">
-                                              ⏰
-                                            </span>
-                                            <div className="min-w-0 flex-1">
-                                              {dateTimeSlots.length <= 2 ? (
-                                                <span className="block break-words">
-                                                  {dateTimeSlots
-                                                    .map(
-                                                      (slot) =>
-                                                        `${slot.start} - ${slot.end}`,
-                                                    )
-                                                    .join(", ")}
-                                                </span>
-                                              ) : (
-                                                <div>
-                                                  <span className="block break-words">
-                                                    {dateTimeSlots
-                                                      .slice(0, 2)
-                                                      .map(
-                                                        (slot) =>
-                                                          `${slot.start} - ${slot.end}`,
-                                                      )
-                                                      .join(", ")}
-                                                    {dateTimeSlots.length > 2 &&
-                                                      "..."}
-                                                  </span>
-                                                  <span className="text-blue-600 text-xs font-medium">
-                                                    +{dateTimeSlots.length - 2}{" "}
-                                                    créneaux
-                                                  </span>
-                                                </div>
-                                              )}
-                                            </div>
-                                          </div>
-                                        )}
                                       </div>
                                     </div>
-                                  </div>
-                                );
-                              })}
+                                  );
+                                });
+                              })()}
                             </div>
                           )}
                         </div>
-                      </div>
 
-                      <button
-                        onClick={() =>
-                          handleUsePollSuggestion(message.pollSuggestion!)
-                        }
-                        className={`w-full mt-3 md:mt-4 inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 text-white rounded-lg transition-colors font-medium text-sm md:text-base ${
-                          message.pollSuggestion.type === "form"
-                            ? "bg-purple-600 hover:bg-purple-700"
-                            : "bg-green-500 hover:bg-green-600"
-                        }`}
-                      >
-                        {message.pollSuggestion.type === "form" ? (
-                          <>
-                            <MessageCircle className="w-4 h-4 flex-shrink-0" />
-                            <span>Créer ce questionnaire</span>
-                          </>
-                        ) : (
-                          <>
-                            <Calendar className="w-4 h-4 flex-shrink-0" />
-                            <span>Créer ce sondage</span>
-                          </>
-                        )}
-                      </button>
+                        {/* Bouton Créer */}
+                        <button
+                          onClick={() => {
+                            console.log("🔵 Bouton cliqué!", message.pollSuggestion);
+                            handleUsePollSuggestion(message.pollSuggestion!);
+                          }}
+                          className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-blue-500 hover:bg-blue-600"
+                        >
+                          <span>
+                            {message.pollSuggestion.type === "form" 
+                              ? "Créer ce questionnaire" 
+                              : "Créer ce sondage"}
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1041,27 +1146,43 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         </div>
       </div>
 
-      {/* Zone de saisie - Fixe en bas */}
-      <div className="bg-white border-t p-3 md:p-4 md:sticky md:bottom-0">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-end gap-2">
+      {/* Zone de saisie - Centrée ou sticky en bas selon état */}
+      <div className={`p-6 ${
+        messages.length > 0 
+          ? 'sticky bottom-0' 
+          : ''
+      } ${
+        darkTheme ? 'bg-[#0a0a0a]' : 'bg-white'
+      }`}>
+        <div className="max-w-2xl mx-auto">
+          <div className={`flex items-center gap-3 rounded-full p-2 border ${
+            darkTheme 
+              ? 'bg-[#0a0a0a] border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
+              : 'bg-white border-gray-200 shadow-lg'
+          }`}>
             <textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Décrivez votre sondage..."
-              className="flex-1 resize-none rounded-xl border border-gray-200 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px] max-h-32 text-sm md:text-base"
+              className={`flex-1 resize-none border-0 px-4 py-3 focus:outline-none min-h-[44px] max-h-32 text-sm md:text-base bg-transparent ${
+                darkTheme 
+                  ? 'text-white placeholder-gray-400' 
+                  : 'text-gray-900 placeholder-gray-500'
+              }`}
               rows={1}
             />
             <button
               onClick={handleSendMessage}
               disabled={isLoading || !inputValue.trim()}
               className={`
-                rounded-xl p-2.5 md:p-3 transition-all flex-shrink-0
+                rounded-full p-2 transition-all flex-shrink-0
                 ${
                   isLoading || !inputValue.trim()
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
+                    ? "bg-transparent text-gray-500 cursor-not-allowed"
+                    : darkTheme
+                      ? "bg-transparent text-gray-300 hover:bg-gray-700"
+                      : "bg-transparent text-gray-600 hover:bg-gray-100"
                 }
               `}
             >

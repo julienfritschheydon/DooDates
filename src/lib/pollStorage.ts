@@ -118,6 +118,8 @@ export interface Poll {
   // Champs spécifiques aux formulaires - properly typed now
   questions?: FormQuestionShape[];
   conditionalRules?: ConditionalRule[]; // Règles pour questions conditionnelles
+  // Lien avec conversation IA
+  relatedConversationId?: string; // ID de la conversation qui a créé ce sondage
 }
 
 const STORAGE_KEY = "doodates_polls";

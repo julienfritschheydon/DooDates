@@ -135,12 +135,19 @@ export const VoterForm: React.FC<VoterFormProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex items-center justify-center p-4 min-h-[calc(100vh-80px)]">
+    <>
+      {/* Backdrop semi-transparent */}
+      <div 
+        className="fixed inset-0 bg-black/70 z-40"
+        onClick={onBack}
+      />
+      
+      {/* Modal centré */}
+      <div className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl p-8 w-full max-w-md shadow-xl"
+          initial={{ opacity: 0, y: 50, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          className="bg-[#1e1e1e] rounded-3xl p-8 w-full max-w-md shadow-2xl border border-gray-700 pointer-events-auto"
         >
           {/* Zone live pour annoncer les erreurs aux technologies d'assistance */}
           <div
@@ -157,11 +164,11 @@ export const VoterForm: React.FC<VoterFormProps> = ({
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={onBack}
-              className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
+              className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-300 hover:bg-gray-700 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <h2 className="text-xl font-bold text-gray-800">
+            <h2 className="text-xl font-bold text-white">
               Finaliser mon vote
             </h2>
             <div className="w-10 h-10"></div> {/* Spacer pour centrage */}
@@ -180,7 +187,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-300 mb-2"
               >
                 Votre nom *
               </label>
@@ -190,10 +197,10 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                 placeholder="Ex: Marie Dupont"
                 value={localVoterInfo.name}
                 onChange={(e) => handleNameChange(e.target.value)}
-                className={`w-full p-4 border rounded-2xl text-lg transition-all ${
+                className={`w-full p-4 border rounded-2xl text-lg transition-all bg-gray-800 text-white placeholder-gray-500 ${
                   localFormErrors.name
-                    ? "border-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                    : "border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    ? "border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    : "border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 }`}
                 autoComplete="name"
                 disabled={isSubmitting}
@@ -205,7 +212,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                 ref={nameInputRef}
               />
               {localFormErrors.name && (
-                <p className="text-red-500 text-sm mt-1" id="name-error">
+                <p className="text-red-400 text-sm mt-1" id="name-error">
                   {localFormErrors.name}
                 </p>
               )}
@@ -217,12 +224,12 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                 type="checkbox"
                 checked={wantToReceiveEmail}
                 onChange={(e) => setWantToReceiveEmail(e.target.checked)}
-                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 bg-gray-800 border-gray-600"
                 disabled={isSubmitting}
               />
               <label
                 htmlFor="receive-email"
-                className="ml-2 text-sm font-medium text-gray-700"
+                className="ml-2 text-sm font-medium text-gray-300"
               >
                 Je souhaite recevoir mon vote par email
               </label>
@@ -232,7 +239,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-300 mb-2"
                 >
                   Votre email *
                 </label>
@@ -242,10 +249,10 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                   placeholder="marie@exemple.com"
                   value={localVoterInfo.email}
                   onChange={(e) => handleEmailChange(e.target.value)}
-                  className={`w-full p-4 border rounded-2xl text-lg transition-all ${
+                  className={`w-full p-4 border rounded-2xl text-lg transition-all bg-gray-800 text-white placeholder-gray-500 ${
                     localFormErrors.email
-                      ? "border-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      ? "border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   }`}
                   autoComplete="email"
                   disabled={isSubmitting}
@@ -256,7 +263,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                   ref={emailInputRef}
                 />
                 {localFormErrors.email && (
-                  <p className="text-red-500 text-sm mt-1" id="email-error">
+                  <p className="text-red-400 text-sm mt-1" id="email-error">
                     {localFormErrors.email}
                   </p>
                 )}
@@ -267,16 +274,16 @@ export const VoterForm: React.FC<VoterFormProps> = ({
           {/* Validation et soumission */}
           <div className="space-y-3">
             {localFormErrors.general && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-                <p className="text-red-600 text-sm text-center">
+              <div className="bg-red-900/20 border border-red-500 rounded-xl p-3">
+                <p className="text-red-400 text-sm text-center">
                   {localFormErrors.general}
                 </p>
               </div>
             )}
 
             {formErrors?.submit && formErrors.submit.includes("409") && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3">
-                <p className="text-amber-700 text-sm text-center">
+              <div className="bg-amber-900/20 border border-amber-500 rounded-xl p-3 mb-3">
+                <p className="text-amber-400 text-sm text-center">
                   Vous avez déjà voté pour ce sondage avec cet email.
                 </p>
               </div>
@@ -285,10 +292,10 @@ export const VoterForm: React.FC<VoterFormProps> = ({
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className={`w-full py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all ${
+              className={`w-full py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all ${
                 isSubmitting
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
               } text-white`}
               data-testid="submit-votes"
             >
@@ -297,7 +304,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
           </div>
         </motion.div>
       </div>
-    </div>
+    </>
   );
 };
 

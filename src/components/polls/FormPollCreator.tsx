@@ -305,6 +305,13 @@ export default function FormPollCreator({
       alert("Veuillez corriger: \n- " + result.errors.join("\n- "));
       return;
     }
+    
+    // Supprimer tous les brouillons avec le même ID avant de finaliser
+    const all = getAllPolls();
+    const withoutDrafts = all.filter(p => !(p.id === draft.id && p.status === "draft"));
+    savePolls(withoutDrafts);
+    
+    // Créer le poll actif
     const saved = upsertFormPoll(draft, "active");
     // Passer le poll sauvegardé complet (avec slug) au callback
     if (onFinalize) onFinalize(draft, saved);
@@ -312,89 +319,91 @@ export default function FormPollCreator({
   };
 
   return (
-    <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-        <h2 className="text-xl font-semibold">Nouveau formulaire</h2>
-        <div className="flex flex-wrap gap-2 justify-end">
-          {onCancel && (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="rounded-md border h-10 px-3 text-sm"
-              title="Annuler la création"
-              aria-label="Annuler la création"
-              data-testid="form-cancel-button"
-            >
-              <span className="sm:hidden inline-flex">
+    <div className="min-h-screen bg-[#0a0a0a]">
+      {/* Header avec titre et boutons d'action */}
+      <div className="sticky top-0 z-10 bg-[#0a0a0a] border-b border-gray-800 px-4 sm:px-6 py-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h2 className="text-xl sm:text-2xl font-semibold text-white">
+            Nouveau formulaire
+          </h2>
+          <div className="flex flex-wrap gap-2 justify-end">
+            {onCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="rounded-lg border border-gray-700 h-10 px-4 text-sm text-gray-300 hover:bg-gray-800 transition-colors flex items-center gap-2"
+                title="Annuler la création"
+                aria-label="Annuler la création"
+                data-testid="form-cancel-button"
+              >
                 <Undo2 className="w-4 h-4" />
-              </span>
-              <span className="hidden sm:inline">Annuler</span>
-            </button>
-          )}
-          {onSave && (
-            <button
-              type="button"
-              onClick={handleSave}
-              className="rounded-md border h-10 px-3 text-sm"
-              title="Enregistrer le brouillon"
-              aria-label="Enregistrer le brouillon"
-              data-testid="form-save-draft-button"
-            >
-              <span className="sm:hidden inline-flex">
+                <span className="hidden sm:inline">Annuler</span>
+              </button>
+            )}
+            {onSave && (
+              <button
+                type="button"
+                onClick={handleSave}
+                className="rounded-lg border border-gray-700 h-10 px-4 text-sm text-gray-300 hover:bg-gray-800 transition-colors flex items-center gap-2"
+                title="Enregistrer le brouillon"
+                aria-label="Enregistrer le brouillon"
+                data-testid="form-save-draft-button"
+              >
                 <Save className="w-4 h-4" />
-              </span>
-              <span className="hidden sm:inline">Enregistrer</span>
-            </button>
-          )}
-          {onFinalize && (
-            <button
-              type="button"
-              onClick={handleFinalize}
-              className="rounded-md bg-black text-white h-10 px-3 text-sm"
-              title="Finaliser le formulaire"
-              aria-label="Finaliser le formulaire"
-              data-testid="form-finalize-button"
-            >
-              <span className="sm:hidden inline-flex">
+                <span className="hidden sm:inline">Enregistrer</span>
+              </button>
+            )}
+            {onFinalize && (
+              <button
+                type="button"
+                onClick={handleFinalize}
+                className="rounded-lg bg-blue-500 hover:bg-blue-600 text-white h-10 px-4 text-sm transition-colors flex items-center gap-2 font-medium"
+                title="Finaliser le formulaire"
+                aria-label="Finaliser le formulaire"
+                data-testid="form-finalize-button"
+              >
                 <Check className="w-4 h-4" />
-              </span>
-              <span className="hidden sm:inline">Finaliser</span>
-            </button>
-          )}
+                <span className="hidden sm:inline">Finaliser</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      <FormEditor
-        value={{
-          id: draftId,
-          title,
-          questions: toEditorQuestions(questions),
-          conditionalRules,
-        }}
-        onChange={(next) => {
-          setTitle(next.title);
-          setQuestions(fromEditorQuestions(next.questions));
-          if (next.conditionalRules !== undefined) {
-            setConditionalRules(next.conditionalRules);
-          }
-        }}
-        onCancel={onCancel}
-        onAddQuestion={() => {
-          // default to single choice when adding via editor button
-          setQuestions((prev) => [
-            ...prev,
-            {
-              id: uid(),
-              type: "single",
-              title: "Nouvelle question",
-              required: false,
-              options: defaultOptions(),
-            } as SingleOrMultipleQuestion,
-          ]);
-        }}
-        onSaveDraft={handleSave}
-        onFinalize={handleFinalize}
-      />
+      {/* Contenu principal */}
+      <div className="px-4 sm:px-6 pb-6">
+        <FormEditor
+          value={{
+            id: draftId,
+            title,
+            questions: toEditorQuestions(questions),
+            conditionalRules,
+          }}
+          onChange={(next) => {
+            setTitle(next.title);
+            setQuestions(fromEditorQuestions(next.questions));
+            if (next.conditionalRules !== undefined) {
+              setConditionalRules(next.conditionalRules);
+            }
+          }}
+          onCancel={onCancel}
+          onAddQuestion={() => {
+            // default to single choice when adding via editor button
+            setQuestions((prev) => [
+              ...prev,
+              {
+                id: uid(),
+                type: "single",
+                title: "Nouvelle question",
+                required: false,
+                options: defaultOptions(),
+              } as SingleOrMultipleQuestion,
+            ]);
+          }}
+          onSaveDraft={handleSave}
+          onFinalize={handleFinalize}
+        />
+      </div>
     </div>
   );
 }
