@@ -95,17 +95,21 @@ export class ConversationService {
       content: msg.content,
       isAI: msg.role === "assistant",
       timestamp: new Date(msg.timestamp),
+      // PRIORITÉ 1: Utiliser pollSuggestion complet si disponible (nouveau format)
+      // PRIORITÉ 2: Reconstruire depuis les champs individuels (ancien format, rétrocompatibilité)
       pollSuggestion:
-        msg.metadata?.pollGenerated && msg.metadata?.title
-          ? ({
-              title: msg.metadata.title,
-              description: msg.metadata.description,
-              dates: msg.metadata.dates || [],
-              timeSlots: msg.metadata.timeSlots,
-              type: msg.metadata.type || "date",
-              participants: msg.metadata.participants,
-            } as PollSuggestion)
-          : undefined,
+        msg.metadata?.pollSuggestion
+          ? msg.metadata.pollSuggestion
+          : msg.metadata?.pollGenerated && msg.metadata?.title
+            ? ({
+                title: msg.metadata.title,
+                description: msg.metadata.description,
+                dates: msg.metadata.dates || [],
+                timeSlots: msg.metadata.timeSlots,
+                type: msg.metadata.type || "date",
+                participants: msg.metadata.participants,
+              } as PollSuggestion)
+            : undefined,
     }));
   }
 

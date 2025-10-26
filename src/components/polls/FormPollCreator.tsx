@@ -319,90 +319,45 @@ export default function FormPollCreator({
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Header avec titre et boutons d'action */}
-      <div className="sticky top-0 z-10 bg-[#0a0a0a] border-b border-gray-800 px-4 sm:px-6 py-4">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h2 className="text-xl sm:text-2xl font-semibold text-white">
-            Nouveau formulaire
-          </h2>
-          <div className="flex flex-wrap gap-2 justify-end">
-            {onCancel && (
-              <button
-                type="button"
-                onClick={onCancel}
-                className="rounded-lg border border-gray-700 h-10 px-4 text-sm text-gray-300 hover:bg-gray-800 transition-colors flex items-center gap-2"
-                title="Annuler la création"
-                aria-label="Annuler la création"
-                data-testid="form-cancel-button"
-              >
-                <Undo2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Annuler</span>
-              </button>
-            )}
-            {onSave && (
-              <button
-                type="button"
-                onClick={handleSave}
-                className="rounded-lg border border-gray-700 h-10 px-4 text-sm text-gray-300 hover:bg-gray-800 transition-colors flex items-center gap-2"
-                title="Enregistrer le brouillon"
-                aria-label="Enregistrer le brouillon"
-                data-testid="form-save-draft-button"
-              >
-                <Save className="w-4 h-4" />
-                <span className="hidden sm:inline">Enregistrer</span>
-              </button>
-            )}
-            {onFinalize && (
-              <button
-                type="button"
-                onClick={handleFinalize}
-                className="rounded-lg bg-blue-500 hover:bg-blue-600 text-white h-10 px-4 text-sm transition-colors flex items-center gap-2 font-medium"
-                title="Finaliser le formulaire"
-                aria-label="Finaliser le formulaire"
-                data-testid="form-finalize-button"
-              >
-                <Check className="w-4 h-4" />
-                <span className="hidden sm:inline">Finaliser</span>
-              </button>
-            )}
+    <div className="bg-[#0a0a0a]">
+      <div className="px-4 md:px-6 lg:px-8 xl:px-12 pb-4 md:pb-6 lg:pb-8 xl:pb-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-[#0a0a0a] p-4 md:p-6 lg:p-8 xl:p-12">
+            <div className="space-y-6 md:space-y-8 lg:space-y-10">
+              <FormEditor
+                value={{
+                  id: draftId,
+                  title,
+                  questions: toEditorQuestions(questions),
+                  conditionalRules,
+                }}
+                onChange={(next) => {
+                  setTitle(next.title);
+                  setQuestions(fromEditorQuestions(next.questions));
+                  if (next.conditionalRules !== undefined) {
+                    setConditionalRules(next.conditionalRules);
+                  }
+                }}
+                onCancel={onCancel}
+                onAddQuestion={() => {
+                  // default to single choice when adding via editor button
+                  setQuestions((prev) => [
+                    ...prev,
+                    {
+                      id: uid(),
+                      type: "single",
+                      title: "Nouvelle question",
+                      required: false,
+                      options: defaultOptions(),
+                    } as SingleOrMultipleQuestion,
+                  ]);
+                }}
+                onSaveDraft={handleSave}
+                onFinalize={handleFinalize}
+              />
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Contenu principal */}
-      <div className="px-4 sm:px-6 pb-6">
-        <FormEditor
-          value={{
-            id: draftId,
-            title,
-            questions: toEditorQuestions(questions),
-            conditionalRules,
-          }}
-          onChange={(next) => {
-            setTitle(next.title);
-            setQuestions(fromEditorQuestions(next.questions));
-            if (next.conditionalRules !== undefined) {
-              setConditionalRules(next.conditionalRules);
-            }
-          }}
-          onCancel={onCancel}
-          onAddQuestion={() => {
-            // default to single choice when adding via editor button
-            setQuestions((prev) => [
-              ...prev,
-              {
-                id: uid(),
-                type: "single",
-                title: "Nouvelle question",
-                required: false,
-                options: defaultOptions(),
-              } as SingleOrMultipleQuestion,
-            ]);
-          }}
-          onSaveDraft={handleSave}
-          onFinalize={handleFinalize}
-        />
       </div>
     </div>
   );
@@ -427,9 +382,9 @@ function validateDraft(draft: FormPollDraft): {
         errors.push(`Question ${idx + 1}: minimum 1 ligne`);
       if (!mq.matrixColumns || mq.matrixColumns.length < 2)
         errors.push(`Question ${idx + 1}: minimum 2 colonnes`);
-      const emptyRow = mq.matrixRows?.find((r) => !r.label.trim());
+      const emptyRow = mq.matrixRows?.find((r) => !r || !r.label || !r.label.trim());
       if (emptyRow) errors.push(`Question ${idx + 1}: une ligne est vide`);
-      const emptyCol = mq.matrixColumns?.find((c) => !c.label.trim());
+      const emptyCol = mq.matrixColumns?.find((c) => !c || !c.label || !c.label.trim());
       if (emptyCol) errors.push(`Question ${idx + 1}: une colonne est vide`);
     } else if (q.type !== "text") {
       const sq = q as SingleOrMultipleQuestion;
@@ -437,7 +392,7 @@ function validateDraft(draft: FormPollDraft): {
         errors.push(`Question ${idx + 1}: minimum 2 options`);
       if (sq.options.length > 10)
         errors.push(`Question ${idx + 1}: maximum 10 options`);
-      const empty = sq.options.find((o) => !o.label.trim());
+      const empty = sq.options.find((o) => !o || !o.label || !o.label.trim());
       if (empty) errors.push(`Question ${idx + 1}: une option est vide`);
       if (sq.type === "multiple") {
         const maxChoices = sq.maxChoices ?? 1;

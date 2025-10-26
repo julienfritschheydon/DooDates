@@ -1,6 +1,9 @@
 import { Calendar, Clock, Users } from "lucide-react";
 import PollCreator from "../PollCreator";
 import FormPollCreator from "../polls/FormPollCreator";
+import { useConversation } from "./ConversationProvider";
+import { useToast } from "@/hooks/use-toast";
+import { addPoll } from "@/lib/pollStorage";
 
 interface PollPreviewProps {
   poll: any;
@@ -11,6 +14,9 @@ interface PollPreviewProps {
  * Utilise les composants existants PollCreator/FormPollCreator
  */
 export function PollPreview({ poll }: PollPreviewProps) {
+  const { updatePoll: updateContextPoll } = useConversation();
+  const { toast } = useToast();
+
   if (!poll) {
     return (
       <div className="bg-[#1e1e1e] p-8 rounded-lg border-2 border-dashed border-gray-700 text-center">
@@ -18,6 +24,65 @@ export function PollPreview({ poll }: PollPreviewProps) {
       </div>
     );
   }
+
+  const handleSave = (draft: any) => {
+    try {
+      // Mettre à jour le poll avec les nouvelles données
+      const updatedPoll = {
+        ...poll,
+        ...draft,
+        updated_at: new Date().toISOString(),
+      };
+      
+      // Sauvegarder dans localStorage
+      addPoll(updatedPoll);
+      
+      // Mettre à jour le contexte
+      updateContextPoll(updatedPoll);
+      
+      toast({
+        title: "✅ Brouillon enregistré",
+        description: "Votre questionnaire a été sauvegardé avec succès.",
+      });
+    } catch (error) {
+      console.error("Erreur sauvegarde:", error);
+      toast({
+        title: "❌ Erreur",
+        description: "Impossible de sauvegarder le questionnaire.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFinalize = (draft: any) => {
+    try {
+      // Finaliser = sauvegarder + changer le statut
+      const finalizedPoll = {
+        ...poll,
+        ...draft,
+        status: "published" as const,
+        updated_at: new Date().toISOString(),
+      };
+      
+      // Sauvegarder dans localStorage
+      addPoll(finalizedPoll);
+      
+      // Mettre à jour le contexte
+      updateContextPoll(finalizedPoll);
+      
+      toast({
+        title: "🎉 Questionnaire finalisé !",
+        description: "Votre formulaire est maintenant disponible.",
+      });
+    } catch (error) {
+      console.error("Erreur finalisation:", error);
+      toast({
+        title: "❌ Erreur",
+        description: "Impossible de finaliser le questionnaire.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Preview pour sondage de dates - UTILISER L'EXPÉRIENCE EXISTANTE
   if (poll.type === "date" || poll.type === "datetime") {
@@ -76,8 +141,8 @@ export function PollPreview({ poll }: PollPreviewProps) {
         <FormPollCreator 
           initialDraft={poll}
           onCancel={() => {}} // Pas d'annulation dans le preview
-          onSave={() => {}} // Sauvegarde automatique
-          onFinalize={() => {}} // Finalisation dans le preview
+          onSave={handleSave}
+          onFinalize={handleFinalize}
         />
       </div>
     );

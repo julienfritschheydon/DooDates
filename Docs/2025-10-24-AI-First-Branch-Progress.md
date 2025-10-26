@@ -198,15 +198,17 @@ IA: ✅ Titre modifié en "Apéro vendredi"
 
 ---
 
-## 🔜 PROCHAINES ÉTAPES
+### **✅ Tests corrigés (26/10/2025)**
 
-### **⚠️ Tests à corriger (URGENT)**
-
-**PollHeader.test.tsx - 17 tests échouent**
-- Cause : Composant PollHeader simplifié (badge conversation supprimé, bouton retour supprimé)
-- Action : Mettre à jour les tests pour correspondre à la nouvelle version simplifiée
+**PollHeader.test.tsx - ✅ 11/11 tests passent**
+- ✅ Suppression des 17 tests obsolètes (badges IA/conversation, navigation)
+- ✅ Correction des 6 matchers de texte (regex pour texte fragmenté)
+- ✅ Tests conservés : titre, description, participants, dates, erreurs
 - Fichier : `src/components/voting/__tests__/PollHeader.test.tsx`
-- Priorité : HAUTE (bloque les commits sans --no-verify)
+- Durée : 130ms
+- **Commits possibles sans --no-verify**
+
+## 🔜 PROCHAINES ÉTAPES
 
 ### **Tests à effectuer**
 
@@ -219,25 +221,42 @@ IA: ✅ Titre modifié en "Apéro vendredi"
 - [ ] Vote et résultats : Vérifier affichage labels groupés
 
 **2. Test expérience Form Poll**
-- [ ] Design Gemini appliqué (fond noir #0a0a0a)
-- [ ] Ouverture sur la droite (dual-pane)
-- [ ] Intégration IA fonctionnelle
-- [ ] Mises à jour temps réel
-- [ ] Navigation fluide
-- [ ] Responsive mobile/desktop
+- [x] Design Gemini appliqué (fond noir #0a0a0a) - QuestionCard.tsx harmonisé
+- [x] Bug validation corrigé (options undefined)
+- [x] Conversion Gemini → FormPollCreator (ConversationProvider)
+- [x] Ouverture sur la droite (dual-pane) ✅
+- [x] Intégration IA fonctionnelle ✅
+- [x] Options affichées correctement ✅
+- [x] Navigation Q1-Q6 fonctionnelle ✅
+- [x] Édition questions ✅
+- [x] Finalisation et sauvegarde ✅
+- [x] Toasts de feedback ✅
+- [x] Apparition dans sidebar ✅
+- [x] Clic sidebar → Charge conversation associée ✅
+- [x] Bug pollSuggestion résolu (sauvegarde dans metadata) ✅
+- [ ] **À TESTER DEMAIN** : Créer questionnaire → Recharger → Cliquer sidebar → Vérifier options
 
-### **Validation finale**
+**Modification IA du formulaire (2h) - PRIORITÉ HAUTE**
+- [ ] Créer `FormPollIntentService.ts` (parsing modifications Form Poll)
+- [ ] Créer `formPollReducer.ts` (application modifications)
+- [ ] Créer `PollModificationService.ts` (router commun Date/Form)
+- [ ] Implémenter détection : "ajoute question", "supprime Q3", "change options"
+- [ ] Implémenter contrainte : Un chat = Un type de poll (bloquer mélange)
+- [ ] Tests : "Ajoute une question sur l'âge", "Supprime la question 2"
 
-**Métriques à vérifier :**
-- [ ] Navigation entre pages smooth
-- [ ] Back button navigateur OK
-- [ ] Responsive mobile/tablet
-- [ ] Anciennes pages (/poll, /create) intactes
-- [ ] Pas de layout shifts
-- [ ] Pas d'erreurs console
-- [ ] Performance acceptable (<500ms load)
+**Tests Responsive complets (1h)**
+- [ ] Mobile (375px) : Sidebar, chat, éditeur
+- [ ] Tablet (768px) : Layout dual-pane
+- [ ] Desktop (1920px) : Toutes les fonctionnalités
+- [ ] Touch : Interactions tactiles
+- [ ] Landscape/Portrait : Orientations
 
-### **Améliorations futures (optionnel)**
+**Navigation & UX**
+- [ ] Quand on vient du dashboard et que l'on édite, ouvrir chat + preview
+- [ ] Ajouter bouton "Fermer" sur FormPollCreator (comme Date Polls)
+- [ ] Tests Date Polls avec groupement (week-ends, semaines, quinzaines)
+
+### **Améliorations futures**
 
 **UX (2-3h) :**
 - Suggestions intelligentes
@@ -246,17 +265,5 @@ IA: ✅ Titre modifié en "Apéro vendredi"
 
 **Form Polls :**
 - Questions, options, matrices
-- Modifications via chat
 
 ---
-
-## 📊 RÉSUMÉ GLOBAL
-
-**Temps total branche :** ~20h
-- Phase 1-5 (Prototype UX) : 4-5h
-- Phase 6 (Corrections) : 6-8h
-- Phase 7 (Chat ↔ Éditeur) : 8h
-
-**Status global :** ✅ PROTOTYPE COMPLET + CHAT ↔ ÉDITEUR OPÉRATIONNEL
-
-**Prêt pour :** Validation manuelle puis merge dans main

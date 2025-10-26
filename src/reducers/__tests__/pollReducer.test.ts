@@ -183,9 +183,12 @@ describe('pollReducer', () => {
       const result = pollReducer(mockPoll, action);
       
       const slots = (result?.settings as any)?.timeSlotsByDate?.['2025-10-28'];
+      // Le reducer découpe maintenant les slots selon la granularité (défaut 60min)
+      // 14:30-16:45 (135min) → 3 slots: 14:30, 15:30, 16:30
+      expect(slots.length).toBeGreaterThanOrEqual(2); // Au moins 2 slots créés
       expect(slots[0].hour).toBe(14);
       expect(slots[0].minute).toBe(30);
-      expect(slots[0].duration).toBe(135); // 2h15 = 135 minutes
+      expect(slots[0].duration).toBe(60); // Granularité par défaut
     });
 
     it('ajoute automatiquement la date si elle n\'existe pas', () => {

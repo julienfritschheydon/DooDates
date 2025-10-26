@@ -201,8 +201,36 @@ export function getPolls(): Poll[] {
   }
 }
 
+// Dédoublonner les polls par ID (garder le plus récent)
+function deduplicatePolls(polls: Poll[]): Poll[] {
+  const seen = new Map<string, Poll>();
+  for (const poll of polls) {
+    const existing = seen.get(poll.id);
+    if (!existing) {
+      seen.set(poll.id, poll);
+    } else {
+      // Garder le plus récent (updated_at ou created_at)
+      const existingDate = new Date(existing.updated_at || existing.created_at).getTime();
+      const currentDate = new Date(poll.updated_at || poll.created_at).getTime();
+      if (currentDate > existingDate) {
+        console.log(`⚠️ Duplicate poll ID found: ${poll.id}, keeping newer version`);
+        seen.set(poll.id, poll);
+      } else {
+        console.log(`⚠️ Duplicate poll ID found: ${poll.id}, keeping existing version`);
+      }
+    }
+  }
+  return Array.from(seen.values());
+}
+
 export function savePolls(polls: Poll[]): void {
-  writeToStorage(STORAGE_KEY, polls, memoryPollCache);
+  const deduplicated = deduplicatePolls(polls);
+  if (deduplicated.length !== polls.length) {
+    console.log(`🧹 Removed ${polls.length - deduplicated.length} duplicate polls`);
+  }
+  console.log(`💾 savePolls: Saving ${deduplicated.length} polls to storage`);
+  writeToStorage(STORAGE_KEY, deduplicated, memoryPollCache);
+  console.log(`✅ savePolls: Successfully saved ${deduplicated.length} polls`);
 }
 
 export function getPollBySlugOrId(
@@ -230,12 +258,16 @@ export function addPoll(poll: Poll): void {
 }
 
 export function deletePollById(id: string): void {
+  console.log(`🗑️ deletePollById: Deleting poll with id: ${id}`);
   // Supprimer dans l'ensemble unifié
   const polls = getAllPolls();
+  console.log(`📊 deletePollById: Found ${polls.length} polls before deletion`);
   const next = polls.filter((p) => p.id !== id);
+  console.log(`📊 deletePollById: ${next.length} polls remaining after filter`);
   savePolls(next);
   // Synchroniser le cache mémoire
   memoryPollCache.delete(id);
+  console.log(`✅ deletePollById: Poll ${id} deleted successfully`);
 }
 
 export function duplicatePoll(poll: Poll): Poll {
@@ -355,9 +387,32 @@ export function getAllPolls(): Poll[] {
     migrateFormDraftsIntoUnified();
     const raw = hasWindow() ? window.localStorage.getItem(STORAGE_KEY) : null;
     const parsed = raw ? (JSON.parse(raw) as unknown as Poll[]) : [];
+    
+    // Dédoublonner par ID (garder le plus récent)
+    const seen = new Map<string, Poll>();
+    for (const p of parsed) {
+      const existing = seen.get(p.id);
+      if (!existing) {
+        seen.set(p.id, p);
+      } else {
+        const existingDate = new Date(existing.updated_at || existing.created_at).getTime();
+        const currentDate = new Date(p.updated_at || p.created_at).getTime();
+        if (currentDate > existingDate) {
+          console.warn(`⚠️ Duplicate poll ID ${p.id} found, keeping newer version`);
+          seen.set(p.id, p);
+        }
+      }
+    }
+    const deduplicated = Array.from(seen.values());
+    
+    if (deduplicated.length !== parsed.length) {
+      console.warn(`🧹 Removed ${parsed.length - deduplicated.length} duplicate polls, saving cleaned version...`);
+      writeToStorage(STORAGE_KEY, deduplicated, memoryPollCache);
+    }
+    
     // Valider individuellement selon leur type, ignorer les entrées manifestement invalides
     const valid: Poll[] = [];
-    for (const p of parsed) {
+    for (const p of deduplicated) {
       try {
         validatePoll(p);
         valid.push(p);

@@ -13,7 +13,7 @@ export default function QuestionListNav({
   onSelect,
 }: QuestionListNavProps) {
   return (
-    <div className="sticky top-20 z-10 -mx-2 px-2 py-1 bg-white/80 supports-[backdrop-filter]:backdrop-blur flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {questions.map((q, idx) => (
         <button
           key={q.id}
@@ -21,10 +21,10 @@ export default function QuestionListNav({
           aria-current={activeId === q.id}
           onClick={() => onSelect(q.id)}
           className={
-            "rounded-full border px-3 py-1 text-sm transition-colors " +
+            "rounded-full px-3 py-1 text-sm transition-colors " +
             (activeId === q.id
-              ? "bg-black text-white border-black"
-              : "bg-white hover:bg-gray-50")
+              ? "bg-white text-black"
+              : "bg-[#3c4043] text-gray-300 hover:bg-gray-700")
           }
           title={q.title || `Q${idx + 1}`}
           data-testid="question-nav"
