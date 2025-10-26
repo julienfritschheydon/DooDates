@@ -305,12 +305,14 @@ export default function FormPollCreator({
       alert("Veuillez corriger: \n- " + result.errors.join("\n- "));
       return;
     }
-    
+
     // Supprimer tous les brouillons avec le même ID avant de finaliser
     const all = getAllPolls();
-    const withoutDrafts = all.filter(p => !(p.id === draft.id && p.status === "draft"));
+    const withoutDrafts = all.filter(
+      (p) => !(p.id === draft.id && p.status === "draft"),
+    );
     savePolls(withoutDrafts);
-    
+
     // Créer le poll actif
     const saved = upsertFormPoll(draft, "active");
     // Passer le poll sauvegardé complet (avec slug) au callback
@@ -382,9 +384,13 @@ function validateDraft(draft: FormPollDraft): {
         errors.push(`Question ${idx + 1}: minimum 1 ligne`);
       if (!mq.matrixColumns || mq.matrixColumns.length < 2)
         errors.push(`Question ${idx + 1}: minimum 2 colonnes`);
-      const emptyRow = mq.matrixRows?.find((r) => !r || !r.label || !r.label.trim());
+      const emptyRow = mq.matrixRows?.find(
+        (r) => !r || !r.label || !r.label.trim(),
+      );
       if (emptyRow) errors.push(`Question ${idx + 1}: une ligne est vide`);
-      const emptyCol = mq.matrixColumns?.find((c) => !c || !c.label || !c.label.trim());
+      const emptyCol = mq.matrixColumns?.find(
+        (c) => !c || !c.label || !c.label.trim(),
+      );
       if (emptyCol) errors.push(`Question ${idx + 1}: une colonne est vide`);
     } else if (q.type !== "text") {
       const sq = q as SingleOrMultipleQuestion;

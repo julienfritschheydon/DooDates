@@ -36,9 +36,7 @@ export const VoteButton: React.FC<VoteButtonProps> = ({
         />
       ),
       textColor:
-        isActive || currentSwipe === "yes"
-          ? "text-blue-700"
-          : "text-blue-600",
+        isActive || currentSwipe === "yes" ? "text-blue-700" : "text-blue-600",
       bgColor:
         isActive || currentSwipe === "yes"
           ? "bg-blue-50 border-blue-500 ring-2 ring-blue-400"

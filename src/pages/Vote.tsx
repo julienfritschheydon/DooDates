@@ -59,7 +59,7 @@ const Vote = () => {
       >
         <X className="w-6 h-6" />
       </button>
-      
+
       <div className="pt-20">
         {/* VotingInterface gère l'affichage pour admin en interne */}
         <VotingInterface

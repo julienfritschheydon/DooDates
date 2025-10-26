@@ -193,9 +193,7 @@ function createDateGroup(dates: string[]): DateGroup {
   } else if (count === 7) {
     // Semaine complète - GROUPER
     const sameMonth = firstMonth === lastMonth;
-    const monthStr = sameMonth
-      ? firstMonth
-      : `${firstMonth}-${lastMonth}`;
+    const monthStr = sameMonth ? firstMonth : `${firstMonth}-${lastMonth}`;
     return {
       dates,
       label: `Semaine du ${firstDay} au ${lastDay} ${monthStr} ${year}`,
@@ -204,9 +202,7 @@ function createDateGroup(dates: string[]): DateGroup {
   } else if (count >= 14 && count <= 15) {
     // Quinzaine - GROUPER
     const sameMonth = firstMonth === lastMonth;
-    const monthStr = sameMonth
-      ? firstMonth
-      : `${firstMonth}-${lastMonth}`;
+    const monthStr = sameMonth ? firstMonth : `${firstMonth}-${lastMonth}`;
     return {
       dates,
       label: `Quinzaine du ${firstDay} au ${lastDay} ${monthStr} ${year}`,
@@ -216,13 +212,15 @@ function createDateGroup(dates: string[]): DateGroup {
     // IMPORTANT : Pour 2-6 jours ou 8-13 jours, NE PAS GROUPER
     // Retourner chaque date individuellement
     // Cela évite de grouper "vendredi + samedi" ou "3 jours consécutifs"
-    return dates.map(date => {
+    return dates.map((date) => {
       const singleDate = new Date(date);
-      const dayName = singleDate.toLocaleDateString("fr-FR", { weekday: "long" });
+      const dayName = singleDate.toLocaleDateString("fr-FR", {
+        weekday: "long",
+      });
       const day = singleDate.getDate();
       const month = singleDate.toLocaleDateString("fr-FR", { month: "long" });
       const year = singleDate.getFullYear();
-      
+
       return {
         dates: [date],
         label: `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${day} ${month} ${year}`,

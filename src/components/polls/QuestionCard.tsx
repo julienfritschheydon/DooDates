@@ -446,14 +446,18 @@ export default function QuestionCard({
               <div key={opt.id} className="flex items-center gap-2">
                 <input
                   className={`flex-1 rounded-md border px-2 py-1 text-sm sm:text-base ${
-                    opt.isOther ? "bg-blue-900 border-blue-500 text-white" : "border-gray-700 bg-[#3c4043] text-white placeholder-gray-500"
+                    opt.isOther
+                      ? "bg-blue-900 border-blue-500 text-white"
+                      : "border-gray-700 bg-[#3c4043] text-white placeholder-gray-500"
                   }`}
                   value={opt.label || ""}
                   onChange={(e) => updateOption(opt.id, e.target.value)}
                   readOnly={opt.isOther}
                   disabled={opt.isOther}
                   placeholder={
-                    opt.isOther ? "Autre (champ libre pour l'utilisateur)" : "Entrez une option"
+                    opt.isOther
+                      ? "Autre (champ libre pour l'utilisateur)"
+                      : "Entrez une option"
                   }
                   data-testid="question-option-input"
                   data-qid={question.id}

@@ -9,7 +9,7 @@ import { logger } from "@/lib/logger";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
     <App />
-  </ThemeProvider>
+  </ThemeProvider>,
 );
 
 // Fonction pour forcer le plein écran sur Android

@@ -25,13 +25,9 @@ export default function ResultsLayout({
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">
-            {title}
-          </h1>
+          <h1 className="text-3xl font-bold text-white">{title}</h1>
           {subtitle ? (
-            <div className="text-gray-400 mt-1">
-              {subtitle}
-            </div>
+            <div className="text-gray-400 mt-1">{subtitle}</div>
           ) : null}
         </div>
 
@@ -50,12 +46,8 @@ export default function ResultsLayout({
                 key={i}
                 className="bg-[#1e1e1e] p-6 rounded-lg shadow border border-gray-700"
               >
-                <div className="text-2xl font-bold text-white">
-                  {kpi.value}
-                </div>
-                <div className="text-gray-400">
-                  {kpi.label}
-                </div>
+                <div className="text-2xl font-bold text-white">{kpi.value}</div>
+                <div className="text-gray-400">{kpi.label}</div>
               </div>
             ))}
           </div>

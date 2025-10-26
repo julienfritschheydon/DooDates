@@ -137,11 +137,8 @@ export const VoterForm: React.FC<VoterFormProps> = ({
   return (
     <>
       {/* Backdrop semi-transparent */}
-      <div 
-        className="fixed inset-0 bg-black/70 z-40"
-        onClick={onBack}
-      />
-      
+      <div className="fixed inset-0 bg-black/70 z-40" onClick={onBack} />
+
       {/* Modal centré */}
       <div className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none">
         <motion.div
@@ -168,9 +165,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <h2 className="text-xl font-bold text-white">
-              Finaliser mon vote
-            </h2>
+            <h2 className="text-xl font-bold text-white">Finaliser mon vote</h2>
             <div className="w-10 h-10"></div> {/* Spacer pour centrage */}
           </div>
 

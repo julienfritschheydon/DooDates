@@ -134,10 +134,16 @@ describe("useConversations", () => {
         wrapper: createQueryWrapper(),
       });
 
-      await waitFor(() => {
-        // Le hook peut retourner un tableau vide au lieu d'une erreur selon l'implémentation
-        expect(result.current.conversations.isError || result.current.conversations.totalCount === 0).toBe(true);
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          // Le hook peut retourner un tableau vide au lieu d'une erreur selon l'implémentation
+          expect(
+            result.current.conversations.isError ||
+              result.current.conversations.totalCount === 0,
+          ).toBe(true);
+        },
+        { timeout: 3000 },
+      );
     });
 
     it("should apply filters correctly", async () => {

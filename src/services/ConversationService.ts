@@ -44,7 +44,7 @@ export class ConversationService {
         search: window.location.search,
         resumeId,
         hasAutoSave: !!autoSave,
-        hasResumeFunction: !!autoSave?.resumeConversation
+        hasResumeFunction: !!autoSave?.resumeConversation,
       });
 
       if (!resumeId) {
@@ -53,21 +53,29 @@ export class ConversationService {
       }
 
       console.log("🔄 Attempting to resume conversation:", resumeId);
-      
+
       // First, set the conversation ID in autoSave
       const conversation = await autoSave.resumeConversation(resumeId);
-      console.log("📝 Conversation loaded:", conversation ? conversation.title : "null");
-      
+      console.log(
+        "📝 Conversation loaded:",
+        conversation ? conversation.title : "null",
+      );
+
       if (!conversation) {
         console.log("❌ Conversation not found");
         return null;
       }
-      
+
       // Import storage directly to get messages (avoid state timing issue)
-      const { getConversationWithMessages } = await import("../lib/storage/ConversationStorageSimple");
+      const { getConversationWithMessages } = await import(
+        "../lib/storage/ConversationStorageSimple"
+      );
       const result = getConversationWithMessages(resumeId);
-      
-      console.log("✅ Resume result:", result ? `Success - ${result.messages.length} messages` : "Failed");
+
+      console.log(
+        "✅ Resume result:",
+        result ? `Success - ${result.messages.length} messages` : "Failed",
+      );
       return result;
     } catch (error) {
       console.error("❌ Error resuming conversation:", error);
@@ -97,19 +105,18 @@ export class ConversationService {
       timestamp: new Date(msg.timestamp),
       // PRIORITÉ 1: Utiliser pollSuggestion complet si disponible (nouveau format)
       // PRIORITÉ 2: Reconstruire depuis les champs individuels (ancien format, rétrocompatibilité)
-      pollSuggestion:
-        msg.metadata?.pollSuggestion
-          ? msg.metadata.pollSuggestion
-          : msg.metadata?.pollGenerated && msg.metadata?.title
-            ? ({
-                title: msg.metadata.title,
-                description: msg.metadata.description,
-                dates: msg.metadata.dates || [],
-                timeSlots: msg.metadata.timeSlots,
-                type: msg.metadata.type || "date",
-                participants: msg.metadata.participants,
-              } as PollSuggestion)
-            : undefined,
+      pollSuggestion: msg.metadata?.pollSuggestion
+        ? msg.metadata.pollSuggestion
+        : msg.metadata?.pollGenerated && msg.metadata?.title
+          ? ({
+              title: msg.metadata.title,
+              description: msg.metadata.description,
+              dates: msg.metadata.dates || [],
+              timeSlots: msg.metadata.timeSlots,
+              type: msg.metadata.type || "date",
+              participants: msg.metadata.participants,
+            } as PollSuggestion)
+          : undefined,
     }));
   }
 

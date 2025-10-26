@@ -33,13 +33,13 @@ export function PollPreview({ poll }: PollPreviewProps) {
         ...draft,
         updated_at: new Date().toISOString(),
       };
-      
+
       // Sauvegarder dans localStorage
       addPoll(updatedPoll);
-      
+
       // Mettre à jour le contexte
       updateContextPoll(updatedPoll);
-      
+
       toast({
         title: "✅ Brouillon enregistré",
         description: "Votre questionnaire a été sauvegardé avec succès.",
@@ -63,13 +63,13 @@ export function PollPreview({ poll }: PollPreviewProps) {
         status: "published" as const,
         updated_at: new Date().toISOString(),
       };
-      
+
       // Sauvegarder dans localStorage
       addPoll(finalizedPoll);
-      
+
       // Mettre à jour le contexte
       updateContextPoll(finalizedPoll);
-      
+
       toast({
         title: "🎉 Questionnaire finalisé !",
         description: "Votre formulaire est maintenant disponible.",
@@ -91,35 +91,36 @@ export function PollPreview({ poll }: PollPreviewProps) {
       title: poll.title,
       type: poll.type,
       dates: poll.dates || poll.settings?.selectedDates || [],
-      timeSlots: poll.settings?.timeSlotsByDate 
-        ? Object.entries(poll.settings.timeSlotsByDate).flatMap(([date, slots]: [string, any]) => 
-            slots.map((slot: any) => {
-              // Calculer l'heure de fin en fonction de la durée si disponible
-              // Sinon, par défaut 1 heure
-              const duration = slot.duration || 60; // durée en minutes
-              const endHour = slot.hour + Math.floor(duration / 60);
-              const endMinute = slot.minute + (duration % 60);
-              
-              return {
-                start: `${String(slot.hour).padStart(2, '0')}:${String(slot.minute).padStart(2, '0')}`,
-                end: `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`,
-                dates: [date]
-              };
-            })
+      timeSlots: poll.settings?.timeSlotsByDate
+        ? Object.entries(poll.settings.timeSlotsByDate).flatMap(
+            ([date, slots]: [string, any]) =>
+              slots.map((slot: any) => {
+                // Calculer l'heure de fin en fonction de la durée si disponible
+                // Sinon, par défaut 1 heure
+                const duration = slot.duration || 60; // durée en minutes
+                const endHour = slot.hour + Math.floor(duration / 60);
+                const endMinute = slot.minute + (duration % 60);
+
+                return {
+                  start: `${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}`,
+                  end: `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`,
+                  dates: [date],
+                };
+              }),
           )
-        : []
+        : [],
     };
-    
+
     return (
       <div className="bg-[#0a0a0a] rounded-lg shadow-sm">
         {/* <div className="p-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Édition du sondage</h3>
           <p className="text-sm text-gray-600">Utilisez l'interface familière de DooDates</p>
         </div> */}
-        
+
         {/* Utiliser le PollCreator existant */}
         {/* Key basée sur updated_at pour forcer le remontage quand le poll change */}
-        <PollCreator 
+        <PollCreator
           key={`${poll.id}-${poll.updated_at}`}
           initialData={initialData}
           onBack={() => {}} // Pas de retour dans le preview
@@ -136,9 +137,9 @@ export function PollPreview({ poll }: PollPreviewProps) {
           <h3 className="text-lg font-semibold text-gray-900">Édition du questionnaire</h3>
           <p className="text-sm text-gray-600">Utilisez l'interface familière de DooDates</p>
         </div> */}
-        
+
         {/* Utiliser le FormPollCreator existant */}
-        <FormPollCreator 
+        <FormPollCreator
           initialDraft={poll}
           onCancel={() => {}} // Pas d'annulation dans le preview
           onSave={handleSave}

@@ -123,9 +123,11 @@ const PollCreator = () => {
               onFinalize={(draft) => {
                 // Supprimer le brouillon avant de finaliser
                 const all = getAllPolls();
-                const withoutDrafts = all.filter(p => !(p.id === draft.id && p.status === "draft"));
+                const withoutDrafts = all.filter(
+                  (p) => !(p.id === draft.id && p.status === "draft"),
+                );
                 savePolls(withoutDrafts);
-                
+
                 // Créer le poll actif
                 upsertFormPollFromDraft(draft, "active");
                 // Pour l'instant, on retourne au dashboard après finalisation

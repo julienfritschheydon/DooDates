@@ -17,9 +17,7 @@ export const VoteSummary: React.FC<VoteSummaryProps> = ({
 }) => {
   return (
     <div className="bg-gray-800 rounded-2xl p-4 mb-6 border border-gray-700">
-      <h3 className="font-semibold text-white mb-3">
-        Résumé de mes votes :
-      </h3>
+      <h3 className="font-semibold text-white mb-3">Résumé de mes votes :</h3>
       <div className="space-y-2 text-sm">
         {options.map((option) => {
           const vote = votes[option.id];

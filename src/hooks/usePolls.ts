@@ -693,7 +693,9 @@ export function usePolls() {
 
   const deletePoll = useCallback(
     async (pollId: string) => {
-      console.log(`🗑️ usePolls.deletePoll: Starting deletion of poll ${pollId}`);
+      console.log(
+        `🗑️ usePolls.deletePoll: Starting deletion of poll ${pollId}`,
+      );
       setLoading(true);
       setError(null);
 
