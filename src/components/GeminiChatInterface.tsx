@@ -77,6 +77,7 @@ const convertFormSuggestionToDraft = (
   const uid = () => Math.random().toString(36).slice(2, 10);
 
   const questions: AnyFormQuestion[] = suggestion.questions.map((q) => {
+    console.log("🔍 Question Gemini:", q);
     const baseQuestion = {
       id: uid(),
       title: q.title,
@@ -85,10 +86,14 @@ const convertFormSuggestionToDraft = (
     };
 
     if (q.type === "single" || q.type === "multiple") {
-      const options: FormOption[] = (q.options || []).map((opt) => ({
-        id: uid(),
-        label: opt,
-      }));
+      console.log("🔍 Options brutes:", q.options);
+      const options: FormOption[] = (q.options || [])
+        .filter((opt) => opt && typeof opt === 'string' && opt.trim())
+        .map((opt) => ({
+          id: uid(),
+          label: opt.trim(),
+        }));
+      console.log("🔍 Options converties:", options);
 
       return {
         ...baseQuestion,
@@ -619,7 +624,10 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
           content: aiResponse.content,
           isAI: aiResponse.isAI,
           timestamp: aiResponse.timestamp,
-          pollSuggestion: aiResponse.pollSuggestion,
+          metadata: {
+            pollGenerated: true,
+            pollSuggestion: aiResponse.pollSuggestion,
+          },
         });
       } else {
         // Poll generation failed
@@ -774,32 +782,32 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     }
   };
 
+  // Afficher le PollCreator si demandé
+  console.log("🔍 showPollCreator:", showPollCreator, "selectedPollData:", selectedPollData);
   if (showPollCreator) {
-    // Pass conversation ID via URL parameter to PollCreator
-    // Use the real conversation ID (not temp-) if available
     const realConversationId = autoSave.getRealConversationId();
     const conversationId = realConversationId || autoSave.conversationId;
     const pollCreatorUrl = conversationId
       ? `?conversationId=${conversationId}`
       : "";
 
-    // Setting up PollCreator with conversation ID
-
     // Update URL to include conversation ID
     if (conversationId && !window.location.search.includes("conversationId")) {
       const newUrl = `${window.location.pathname}${pollCreatorUrl}`;
-      // Updating URL with conversation ID
       window.history.replaceState({}, "", newUrl);
     }
 
     // Router vers le bon composant selon le type
     const isFormPoll = selectedPollData?.type === "form";
+    console.log("🔍 isFormPoll:", isFormPoll);
 
     if (isFormPoll && selectedPollData) {
       // Convertir FormPollSuggestion en FormPollDraft
+      console.log("🔍 AVANT conversion, selectedPollData:", selectedPollData);
       const formDraft = convertFormSuggestionToDraft(
         selectedPollData as FormPollSuggestion,
       );
+      console.log("🔍 APRÈS conversion, formDraft:", formDraft);
 
       return (
         <FormPollCreator
@@ -997,60 +1005,38 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                         <div className="space-y-3">
                           {/* Affichage conditionnel selon le type */}
                           {message.pollSuggestion.type === "form" ? (
-                            /* Affichage Form Poll (questionnaire) */
-                            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-200">
-                              <div className="flex items-center gap-2 mb-3 text-purple-700">
-                                <MessageCircle className="w-5 h-5" />
-                                <span className="font-medium text-sm">
-                                  {message.pollSuggestion.questions?.length ||
-                                    0}{" "}
-                                  questions
-                                </span>
-                              </div>
-
-                              <div className="space-y-2">
-                                {message.pollSuggestion.questions?.map(
-                                  (question, idx) => (
-                                    <div
-                                      key={idx}
-                                      className="bg-white rounded-lg p-3 text-sm"
-                                    >
-                                      <div className="flex items-start gap-2">
-                                        <span className="text-purple-600 font-medium flex-shrink-0">
-                                          {idx + 1}.
-                                        </span>
-                                        <div className="flex-1">
-                                          <p className="text-gray-800 font-medium">
-                                            {question.title}
-                                          </p>
-                                          <div className="flex items-center gap-2 mt-1">
-                                            <span
-                                              className={`text-xs px-2 py-0.5 rounded ${
-                                                question.type === "single"
-                                                  ? "bg-blue-100 text-blue-700"
-                                                  : question.type === "multiple"
-                                                    ? "bg-purple-100 text-purple-700"
-                                                    : "bg-gray-100 text-gray-700"
-                                              }`}
-                                            >
-                                              {question.type === "single"
-                                                ? "Choix unique"
-                                                : question.type === "multiple"
-                                                  ? "Choix multiples"
-                                                  : "Texte libre"}
+                            /* Affichage Form Poll (questionnaire) - MÊME DESIGN QUE DATE POLL */
+                            <div className="space-y-2 md:space-y-3">
+                              {message.pollSuggestion.questions?.map(
+                                (question, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="bg-[#3c4043] rounded-lg p-3 md:p-4"
+                                  >
+                                    <div className="flex items-start gap-2 md:gap-3">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-white text-sm md:text-base leading-tight">
+                                          {idx + 1}. {question.title}
+                                        </div>
+                                        <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
+                                          <span className="inline-block">
+                                            {question.type === "single"
+                                              ? "Choix unique"
+                                              : question.type === "multiple"
+                                                ? "Choix multiples"
+                                                : "Texte libre"}
+                                          </span>
+                                          {question.required && (
+                                            <span className="text-red-400 ml-2">
+                                              • Obligatoire
                                             </span>
-                                            {question.required && (
-                                              <span className="text-xs text-red-600">
-                                                Obligatoire
-                                              </span>
-                                            )}
-                                          </div>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
-                                  ),
-                                )}
-                              </div>
+                                  </div>
+                                ),
+                              )}
                             </div>
                           ) : (
                             /* Affichage Date Poll (dates/horaires) - avec groupement intelligent */

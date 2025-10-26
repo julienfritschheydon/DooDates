@@ -297,10 +297,10 @@ export default function QuestionCard({
 
   if (!isActive) {
     return (
-      <div className="rounded-md border p-2 sm:p-4 flex flex-col gap-2 sm:gap-3">
+      <div className="rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3">
         <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div>
-            <div className="font-medium break-words">
+            <div className="font-medium break-words text-white">
               {question.title || "(Sans titre)"}
             </div>
           </div>
@@ -308,7 +308,7 @@ export default function QuestionCard({
             <button
               type="button"
               onClick={onEdit}
-              className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md bg-black text-white"
+              className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md bg-blue-500 hover:bg-blue-600 text-white transition-colors"
               title="Éditer"
               aria-label="Éditer"
             >
@@ -322,7 +322,7 @@ export default function QuestionCard({
           <textarea
             disabled
             placeholder="Votre réponse"
-            className="w-full px-3 py-2 border rounded bg-gray-50 text-gray-600"
+            className="w-full px-3 py-2 border border-gray-700 rounded bg-[#3c4043] text-gray-300 placeholder-gray-500"
           />
         )}
         {(question.kind === "single" || question.kind === "multiple") && (
@@ -330,7 +330,7 @@ export default function QuestionCard({
             {(question.options ?? []).map((opt) => (
               <label
                 key={opt.id}
-                className="flex items-center gap-2 text-sm text-gray-700"
+                className="flex items-center gap-2 text-sm text-gray-300"
               >
                 {question.kind === "single" ? (
                   <input type="radio" disabled />
@@ -347,11 +347,11 @@ export default function QuestionCard({
   }
 
   return (
-    <div className="rounded-md border p-2 sm:p-4 flex flex-col gap-2 sm:gap-3">
+    <div className="rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <select
-            className="rounded-md border px-2 py-1 text-sm sm:text-base"
+            className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm sm:text-base"
             value={question.kind}
             onChange={(e) => setKind(e.target.value as QuestionKind)}
             data-testid="question-kind"
@@ -367,7 +367,7 @@ export default function QuestionCard({
           <button
             type="button"
             onClick={onMoveUp}
-            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
+            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors"
             title="Monter"
             aria-label="Monter"
             data-testid="question-move-up"
@@ -378,7 +378,7 @@ export default function QuestionCard({
           <button
             type="button"
             onClick={onMoveDown}
-            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
+            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors"
             title="Descendre"
             aria-label="Descendre"
             data-testid="question-move-down"
@@ -389,7 +389,7 @@ export default function QuestionCard({
           <button
             type="button"
             onClick={onDuplicate}
-            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
+            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors"
             title="Dupliquer"
             aria-label="Dupliquer"
             data-testid="question-duplicate"
@@ -400,7 +400,7 @@ export default function QuestionCard({
           <button
             type="button"
             onClick={onDelete}
-            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
+            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-red-600 hover:border-red-600 transition-colors"
             title="Supprimer"
             aria-label="Supprimer"
             data-testid="question-delete"
@@ -412,10 +412,10 @@ export default function QuestionCard({
             <button
               type="button"
               onClick={() => setShowConditionalEditor(!showConditionalEditor)}
-              className={`inline-flex items-center gap-1 h-8 sm:h-9 px-2 sm:px-3 rounded-md border text-xs sm:text-sm ${
+              className={`inline-flex items-center gap-1 h-8 sm:h-9 px-2 sm:px-3 rounded-md border text-xs sm:text-sm transition-colors ${
                 showConditionalEditor
-                  ? "bg-blue-50 border-blue-300 text-blue-700"
-                  : "hover:bg-gray-50"
+                  ? "bg-blue-500 border-blue-500 text-white"
+                  : "border-gray-700 text-gray-300 hover:bg-gray-800"
               }`}
               title="Règles conditionnelles"
               aria-label="Règles conditionnelles"
@@ -430,7 +430,7 @@ export default function QuestionCard({
       </div>
 
       <input
-        className="w-full rounded-md border px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
+        className="w-full rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
         placeholder="Intitulé de la question"
         value={question.title}
         onChange={(e) => setTitle(e.target.value)}
@@ -440,20 +440,20 @@ export default function QuestionCard({
 
       {(question.kind === "single" || question.kind === "multiple") && (
         <div className="flex flex-col gap-2">
-          <div className="text-sm text-gray-500">Options</div>
+          <div className="text-sm text-gray-400">Options</div>
           <div className="flex flex-col gap-2">
             {(question.options ?? []).map((opt) => (
               <div key={opt.id} className="flex items-center gap-2">
                 <input
                   className={`flex-1 rounded-md border px-2 py-1 text-sm sm:text-base ${
-                    opt.isOther ? "bg-blue-50 border-blue-200" : ""
+                    opt.isOther ? "bg-blue-900 border-blue-500 text-white" : "border-gray-700 bg-[#3c4043] text-white placeholder-gray-500"
                   }`}
-                  value={opt.label}
+                  value={opt.label || ""}
                   onChange={(e) => updateOption(opt.id, e.target.value)}
                   readOnly={opt.isOther}
                   disabled={opt.isOther}
                   placeholder={
-                    opt.isOther ? "Autre (champ libre pour l'utilisateur)" : ""
+                    opt.isOther ? "Autre (champ libre pour l'utilisateur)" : "Entrez une option"
                   }
                   data-testid="question-option-input"
                   data-qid={question.id}
@@ -468,7 +468,7 @@ export default function QuestionCard({
                   <button
                     type="button"
                     onClick={() => removeOption(opt.id)}
-                    className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border"
+                    className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-red-600 hover:border-red-600 transition-colors"
                     title="Supprimer l'option"
                     aria-label="Supprimer l'option"
                     data-testid="question-option-remove"
@@ -483,11 +483,11 @@ export default function QuestionCard({
           </div>
           {question.kind === "multiple" && (
             <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-500">Max choix</label>
+              <label className="text-sm text-gray-400">Max choix</label>
               <input
                 type="number"
                 min={1}
-                className="w-20 rounded-md border px-2 py-1 text-sm sm:text-base"
+                className="w-20 rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm sm:text-base"
                 value={question.maxChoices ?? 1}
                 onChange={(e) => setMaxChoices(parseInt(e.target.value, 10))}
                 data-testid="question-maxchoices"
@@ -503,9 +503,9 @@ export default function QuestionCard({
         <div className="flex flex-col gap-3">
           {/* Matrix type selector */}
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-500">Type de réponse</label>
+            <label className="text-sm text-gray-400">Type de réponse</label>
             <select
-              className="rounded-md border px-2 py-1 text-sm"
+              className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
               value={question.matrixType ?? "single"}
               onChange={(e) =>
                 setMatrixType(e.target.value as "single" | "multiple")
@@ -519,13 +519,13 @@ export default function QuestionCard({
           {/* Rows editor */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-400">
                 Lignes (aspects à évaluer)
               </div>
               <button
                 type="button"
                 onClick={addMatrixRow}
-                className="inline-flex items-center rounded-md border h-7 px-2 text-xs"
+                className="inline-flex items-center rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors h-7 px-2 text-xs"
                 title="Ajouter une ligne"
               >
                 <Plus className="w-3 h-3 mr-1" />
@@ -536,7 +536,7 @@ export default function QuestionCard({
               {(question.matrixRows ?? []).map((row) => (
                 <div key={row.id} className="flex items-center gap-2">
                   <input
-                    className="flex-1 rounded-md border px-2 py-1 text-sm"
+                    className="flex-1 rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1 text-sm"
                     value={row.label}
                     onChange={(e) => updateMatrixRow(row.id, e.target.value)}
                     placeholder="Nom de la ligne"
@@ -544,7 +544,7 @@ export default function QuestionCard({
                   <button
                     type="button"
                     onClick={() => removeMatrixRow(row.id)}
-                    className="inline-flex items-center justify-center h-8 w-8 rounded-md border"
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-gray-700 text-gray-300 hover:bg-red-600 hover:border-red-600 transition-colors"
                     title="Supprimer la ligne"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -557,17 +557,17 @@ export default function QuestionCard({
           {/* Columns editor */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-400">
                 Colonnes (échelle de réponse)
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={toggleMatrixColumnsNumeric}
-                  className={`inline-flex items-center rounded-md border h-7 px-2 text-xs ${
+                  className={`inline-flex items-center rounded-md border h-7 px-2 text-xs transition-colors ${
                     question.matrixColumnsNumeric
-                      ? "bg-blue-50 border-blue-300 text-blue-700"
-                      : ""
+                      ? "bg-blue-500 border-blue-500 text-white"
+                      : "border-gray-700 text-gray-300 hover:bg-gray-800"
                   }`}
                   title={
                     question.matrixColumnsNumeric
@@ -580,7 +580,7 @@ export default function QuestionCard({
                 <button
                   type="button"
                   onClick={addMatrixColumn}
-                  className="inline-flex items-center rounded-md border h-7 px-2 text-xs"
+                  className="inline-flex items-center rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors h-7 px-2 text-xs"
                   title="Ajouter une colonne"
                 >
                   <Plus className="w-3 h-3 mr-1" />
@@ -592,7 +592,7 @@ export default function QuestionCard({
               {(question.matrixColumns ?? []).map((col) => (
                 <div key={col.id} className="flex items-center gap-2">
                   <input
-                    className="flex-1 rounded-md border px-2 py-1 text-sm"
+                    className="flex-1 rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1 text-sm"
                     value={col.label}
                     onChange={(e) => updateMatrixColumn(col.id, e.target.value)}
                     placeholder="Nom de la colonne"
@@ -600,7 +600,7 @@ export default function QuestionCard({
                   <button
                     type="button"
                     onClick={() => removeMatrixColumn(col.id)}
-                    className="inline-flex items-center justify-center h-8 w-8 rounded-md border"
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-gray-700 text-gray-300 hover:bg-red-600 hover:border-red-600 transition-colors"
                     title="Supprimer la colonne"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -619,7 +619,7 @@ export default function QuestionCard({
             <button
               type="button"
               onClick={addOption}
-              className="inline-flex items-center rounded-md border h-8 sm:h-9 px-2 sm:px-3 text-sm"
+              className="inline-flex items-center rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors h-8 sm:h-9 px-2 sm:px-3 text-sm"
               title="Ajouter une option"
               aria-label="Ajouter une option"
               data-testid="question-add-option"
@@ -628,7 +628,7 @@ export default function QuestionCard({
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline ml-2">Ajouter une option</span>
             </button>
-            <label className="flex items-center gap-2 text-sm select-none">
+            <label className="flex items-center gap-2 text-sm text-gray-300 select-none">
               <input
                 type="checkbox"
                 checked={question.options?.some((o) => o.isOther) ?? false}
@@ -640,7 +640,7 @@ export default function QuestionCard({
             </label>
           </>
         )}
-        <label className="flex items-center gap-2 text-sm select-none">
+        <label className="flex items-center gap-2 text-sm text-gray-300 select-none">
           <input
             type="checkbox"
             checked={!!question.required}

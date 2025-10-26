@@ -20,7 +20,12 @@ export interface AutoSaveMessage {
   content: string;
   isAI: boolean;
   timestamp: Date;
-  pollSuggestion?: any;
+  pollSuggestion?: any; // Deprecated - use metadata.pollSuggestion instead
+  metadata?: {
+    pollGenerated?: boolean;
+    pollSuggestion?: any;
+    [key: string]: any;
+  };
 }
 
 export interface UseAutoSaveOptions {
@@ -77,12 +82,16 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
       role: msg.isAI ? "assistant" : "user",
       content: msg.content,
       timestamp: msg.timestamp,
-      metadata: msg.pollSuggestion
-        ? {
-            pollGenerated: true,
-            ...msg.pollSuggestion,
-          }
-        : undefined,
+      // PRIORITÉ 1: Utiliser metadata si fourni (nouveau format)
+      // PRIORITÉ 2: Reconstruire depuis pollSuggestion (ancien format, rétrocompatibilité)
+      metadata: msg.metadata
+        ? msg.metadata
+        : msg.pollSuggestion
+          ? {
+              pollGenerated: true,
+              ...msg.pollSuggestion,
+            }
+          : undefined,
     }),
     [],
   );

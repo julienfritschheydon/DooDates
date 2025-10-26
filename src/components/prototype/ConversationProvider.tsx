@@ -197,10 +197,12 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
   // Action combinée : créer ou modifier sondage depuis le chat
   const createPollFromChat = useCallback((pollData: any) => {
+    console.log("🔍 createPollFromChat appelé avec:", pollData);
     
     // Créer un nouveau sondage complet avec tous les champs requis
     const now = new Date().toISOString();
     const slug = `poll-${Date.now()}`;
+    const uid = () => Math.random().toString(36).slice(2, 10);
     
     // Convertir timeSlots si présents
     let timeSlotsByDate = {};
@@ -232,13 +234,50 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       }, {});
     }
     
+    // Convertir les questions Gemini en format FormPollCreator
+    let convertedQuestions = pollData.questions || [];
+    if (pollData.type === "form" && pollData.questions) {
+      console.log("🔍 Conversion questions Gemini:", pollData.questions);
+      convertedQuestions = pollData.questions.map((q: any) => {
+        const baseQuestion = {
+          id: uid(),
+          title: q.title,
+          required: q.required || false,
+          type: q.type,
+        };
+
+        if (q.type === "single" || q.type === "multiple") {
+          const options = (q.options || [])
+            .filter((opt: any) => opt && typeof opt === 'string' && opt.trim())
+            .map((opt: string) => ({
+              id: uid(),
+              label: opt.trim(),
+            }));
+          console.log("🔍 Options converties:", options);
+
+          return {
+            ...baseQuestion,
+            options,
+            ...(q.maxChoices && { maxChoices: q.maxChoices }),
+          };
+        } else {
+          return {
+            ...baseQuestion,
+            ...(q.placeholder && { placeholder: q.placeholder }),
+            ...(q.maxLength && { maxLength: q.maxLength }),
+          };
+        }
+      });
+      console.log("🔍 Questions converties:", convertedQuestions);
+    }
+    
     const poll: StoragePoll = {
       id: slug,
       slug: slug,
       title: pollData.title || "Nouveau sondage",
       type: pollData.type || "date",
       dates: pollData.dates || [],
-      questions: pollData.questions || [],
+      questions: convertedQuestions,
       created_at: now,
       updated_at: now,
       creator_id: "guest",

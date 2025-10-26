@@ -47,8 +47,14 @@ export default function FormEditor({
   const [activeId, setActiveId] = useState<string | null>(
     value.questions[0]?.id ?? null,
   );
-  const [isTitleEditing, setIsTitleEditing] = useState<boolean>(!value.title);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
+
+  // S'assurer qu'une question est toujours active quand il y en a
+  useEffect(() => {
+    if (!activeId && value.questions.length > 0) {
+      setActiveId(value.questions[0].id);
+    }
+  }, [activeId, value.questions]);
 
   const activeIndex = useMemo(
     () => value.questions.findIndex((q) => q.id === activeId),
@@ -151,46 +157,20 @@ export default function FormEditor({
 
   return (
     <div className="flex flex-col gap-6 py-4">
-      {/* Section titre */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        {isTitleEditing ? (
-          <input
-            ref={titleInputRef}
-            value={value.title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={() => {
-              if (value.title.trim().length > 0) setIsTitleEditing(false);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                (e.currentTarget as HTMLInputElement).blur();
-              }
-            }}
-            className="min-w-[220px] flex-1 rounded-lg bg-[#3c4043] border border-gray-700 px-4 py-2 text-sm sm:text-base text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
-            placeholder="Titre du formulaire"
-          />
-        ) : (
-          <div className="flex-1 min-w-[220px] flex items-center gap-3">
-            <h2
-              className="font-medium text-base sm:text-lg text-white truncate"
-              title={value.title}
-            >
-              {value.title}
-            </h2>
-            <button
-              type="button"
-              onClick={() => {
-                setIsTitleEditing(true);
-                requestAnimationFrame(() => titleInputRef.current?.focus());
-              }}
-              className="rounded-lg border border-gray-700 h-9 px-3 text-sm text-gray-300 hover:bg-gray-800 transition-colors"
-              aria-label="Éditer le titre"
-              title="Éditer le titre"
-            >
-              Éditer
-            </button>
-          </div>
-        )}
+      {/* Section titre - MÊME STYLE QUE POLLCREATOR */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Titre du formulaire{" "}
+          <span className="text-red-400 text-sm">*</span>
+        </label>
+        <input
+          ref={titleInputRef}
+          value={value.title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"
+          placeholder="Ex: Questionnaire de satisfaction client"
+          required
+        />
       </div>
 
       {/* Navigation des questions */}
@@ -235,6 +215,37 @@ export default function FormEditor({
         >
           + Ajouter une question
         </button>
+      </div>
+
+      {/* Boutons d'action - MÊME STYLE QUE POLLCREATOR */}
+      <div className="flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-700">
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-6 py-3 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors"
+          >
+            Annuler
+          </button>
+        )}
+        {onSaveDraft && (
+          <button
+            type="button"
+            onClick={onSaveDraft}
+            className="px-6 py-3 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors"
+          >
+            Enregistrer
+          </button>
+        )}
+        {onFinalize && (
+          <button
+            type="button"
+            onClick={onFinalize}
+            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+          >
+            Finaliser
+          </button>
+        )}
       </div>
     </div>
   );

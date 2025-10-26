@@ -57,7 +57,7 @@ export function WorkspaceLayoutPrototype() {
   } = useConversation();
 
   // Charger les sondages récents et conversations
-  // Se recharge quand on change de conversation (chatKey change)
+  // Se recharge quand on change de conversation (chatKey change) ou quand un poll est mis à jour
   useEffect(() => {
     try {
       // Charger sondages
@@ -88,7 +88,7 @@ export function WorkspaceLayoutPrototype() {
     } catch (error) {
       console.error("Erreur chargement données:", error);
     }
-  }, [chatKey]);
+  }, [chatKey, currentPoll]);
 
   return (
     <>
@@ -196,10 +196,18 @@ export function WorkspaceLayoutPrototype() {
                         <button
                           key={poll.id}
                           onClick={() => {
-                            // Pour les Form Polls : ouvrir l'éditeur dans le panneau de droite
+                            // Trouver la conversation associée
+                            const conversationId = findRelatedConversation(poll);
+                            
+                            // Pour les Form Polls : ouvrir l'éditeur + charger la conversation
                             // Pour les Date Polls : rediriger vers les résultats (ancienne interface)
                             if (poll.type === "form") {
                               openEditor(poll);
+                              
+                              // Si une conversation est associée, naviguer vers elle
+                              if (conversationId) {
+                                navigate(`/workspace?resume=${conversationId}`);
+                              }
                             } else {
                               const slug = poll.slug || poll.id;
                               navigate(`/poll/${slug}/results`);

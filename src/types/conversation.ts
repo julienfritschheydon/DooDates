@@ -61,6 +61,8 @@ export interface MessageMetadata {
   }>;
   type?: "date" | "datetime" | "custom";
   participants?: string[];
+  // NOUVEAU : Sauvegarder la suggestion complète (Date Poll ou Form Poll)
+  pollSuggestion?: any; // PollSuggestion type (DatePollSuggestion | FormPollSuggestion)
 }
 
 // ============================================================================

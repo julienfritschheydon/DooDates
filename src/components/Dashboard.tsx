@@ -66,6 +66,7 @@ const Dashboard: React.FC = () => {
   // États locaux pour gérer les sondages avec statistiques
   const [polls, setPolls] = useState<DashboardPoll[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // Force refresh after delete
   // Les formulaires sont désormais intégrés au stockage unifié via getAllPolls()
 
   const getUserPolls = async () => {
@@ -161,6 +162,7 @@ const Dashboard: React.FC = () => {
 
     // Listen for poll creation events
     const handlePollCreated = () => {
+      console.log("📢 Event pollCreated received, refreshing polls...");
       getUserPolls(); // Refresh the list when a new poll is created
     };
 
@@ -186,11 +188,25 @@ const Dashboard: React.FC = () => {
     };
   }, [navigate]);
 
+  // Force refresh when refreshKey changes (after delete)
+  useEffect(() => {
+    if (refreshKey > 0) {
+      console.log(`🔄 RefreshKey changed to ${refreshKey}, forcing refresh...`);
+      getUserPolls();
+    }
+  }, [refreshKey]);
+
   const filteredPolls = polls.filter((poll) => {
     const matchesFilter = filter === "all" || poll.status === filter;
     const matchesSearch = poll.title
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
+    
+    // Debug logs pour comprendre le filtrage
+    if (filter !== "all") {
+      console.log(`🔍 Filter: ${filter}, Poll: ${poll.title}, Status: ${poll.status}, Matches: ${matchesFilter}`);
+    }
+    
     return matchesFilter && matchesSearch;
   });
 
@@ -474,9 +490,19 @@ const Dashboard: React.FC = () => {
                           poll={poll as any}
                           showVoteButton={false}
                           variant="compact"
-                          onAfterDuplicate={getUserPolls}
-                          onAfterDelete={getUserPolls}
-                          onAfterArchive={getUserPolls}
+                          onAfterDuplicate={() => {
+                            console.log("🔄 After duplicate, refreshing...");
+                            getUserPolls();
+                          }}
+                          onAfterDelete={() => {
+                            console.log("🗑️ After delete, refreshing...");
+                            setRefreshKey(prev => prev + 1);
+                            getUserPolls();
+                          }}
+                          onAfterArchive={() => {
+                            console.log("📦 After archive, refreshing...");
+                            getUserPolls();
+                          }}
                         />
                       </div>
                     </div>

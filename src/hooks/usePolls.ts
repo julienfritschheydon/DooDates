@@ -693,21 +693,29 @@ export function usePolls() {
 
   const deletePoll = useCallback(
     async (pollId: string) => {
+      console.log(`🗑️ usePolls.deletePoll: Starting deletion of poll ${pollId}`);
       setLoading(true);
       setError(null);
 
       try {
         // Use centralized pollStorage instead of direct localStorage access
+        console.log(`💾 usePolls.deletePoll: Calling deletePollById...`);
         deletePollById(pollId);
+        console.log(`✅ usePolls.deletePoll: Poll deleted from storage`);
 
         // Use centralized vote storage instead of direct localStorage access
+        console.log(`💾 usePolls.deletePoll: Deleting votes...`);
         deleteVotesByPollId(pollId);
+        console.log(`✅ usePolls.deletePoll: Votes deleted`);
 
         // Rafraîchir la liste des sondages
+        console.log(`🔄 usePolls.deletePoll: Refreshing polls list...`);
         await getUserPolls();
+        console.log(`✅ usePolls.deletePoll: Polls list refreshed`);
 
         return {};
       } catch (err: any) {
+        console.error(`❌ usePolls.deletePoll: Error during deletion:`, err);
         const errorMessage =
           err.message || "Erreur lors de la suppression du sondage";
         setError(errorMessage);
