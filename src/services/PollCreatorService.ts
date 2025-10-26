@@ -247,36 +247,41 @@ export class PollCreatorService {
           const endMinutes = slot.hour * 60 + slot.minute + duration;
           const endHour = Math.floor(endMinutes / 60);
           const endMinute = endMinutes % 60;
-          
-          currentBlock = { 
-            start: slot, 
-            end: { hour: endHour, minute: endMinute, enabled: true }
+
+          currentBlock = {
+            start: slot,
+            end: { hour: endHour, minute: endMinute, enabled: true },
           };
         } else {
           // Vérifier si ce slot est contigu au bloc actuel
-          const currentEndMinutes = currentBlock.end.hour * 60 + currentBlock.end.minute;
+          const currentEndMinutes =
+            currentBlock.end.hour * 60 + currentBlock.end.minute;
           const slotStartMinutes = slot.hour * 60 + slot.minute;
-          
+
           if (slotStartMinutes === currentEndMinutes) {
             // Slot contigu - étendre le bloc
             const duration = slot.duration || granularity;
             const endMinutes = slot.hour * 60 + slot.minute + duration;
             const endHour = Math.floor(endMinutes / 60);
             const endMinute = endMinutes % 60;
-            
-            currentBlock.end = { hour: endHour, minute: endMinute, enabled: true };
+
+            currentBlock.end = {
+              hour: endHour,
+              minute: endMinute,
+              enabled: true,
+            };
           } else {
             // Slot non contigu - fermer le bloc actuel et en créer un nouveau
             blocks.push(currentBlock);
-            
+
             const duration = slot.duration || granularity;
             const endMinutes = slot.hour * 60 + slot.minute + duration;
             const endHour = Math.floor(endMinutes / 60);
             const endMinute = endMinutes % 60;
-            
-            currentBlock = { 
-              start: slot, 
-              end: { hour: endHour, minute: endMinute, enabled: true }
+
+            currentBlock = {
+              start: slot,
+              end: { hour: endHour, minute: endMinute, enabled: true },
             };
           }
         }

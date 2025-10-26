@@ -160,8 +160,7 @@ export default function FormEditor({
       {/* Section titre - MÊME STYLE QUE POLLCREATOR */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          Titre du formulaire{" "}
-          <span className="text-red-400 text-sm">*</span>
+          Titre du formulaire <span className="text-red-400 text-sm">*</span>
         </label>
         <input
           ref={titleInputRef}

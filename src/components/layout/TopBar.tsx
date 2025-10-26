@@ -31,9 +31,7 @@ export function TopBar({ onConversationSelect }: TopBarProps = {}) {
 
           {/* Logo centre - Style moderne */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
-            <h1 className="text-xl font-bold text-white">
-              DooDates
-            </h1>
+            <h1 className="text-xl font-bold text-white">DooDates</h1>
           </div>
 
           {/* User actions (droite) - Plus stylées */}
@@ -56,8 +54,8 @@ export function TopBar({ onConversationSelect }: TopBarProps = {}) {
 
       {/* Panel historique collapsible */}
       {showHistory && (
-        <HistoryPanel 
-          onClose={() => setShowHistory(false)} 
+        <HistoryPanel
+          onClose={() => setShowHistory(false)}
           onConversationSelect={onConversationSelect}
         />
       )}

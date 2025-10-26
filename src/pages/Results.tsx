@@ -128,32 +128,40 @@ const Results: React.FC = () => {
     if (dateIndex < 0) return { yes: 0, no: 0, maybe: 0, total: 0 };
 
     const optionId = `option-${dateIndex}`;
-    
+
     // Debug: Log pour comprendre la structure
-    console.log('🔍 getVoteStats Debug:', {
+    console.log("🔍 getVoteStats Debug:", {
       date,
       dateIndex,
       optionId,
       votesCount: votes.length,
       firstVote: votes[0],
     });
-    
+
     // Extraire les votes pour cette option
     const dateVotes = votes
       .map((vote) => {
         // Supporter les deux structures: vote_data (localStorage brut) et selections (mappé)
-        const voteValue = vote.vote_data?.[optionId] || (vote as any).selections?.[optionId];
-        console.log('  Vote:', vote.voter_name, 'pour', optionId, '=', voteValue);
+        const voteValue =
+          vote.vote_data?.[optionId] || (vote as any).selections?.[optionId];
+        console.log(
+          "  Vote:",
+          vote.voter_name,
+          "pour",
+          optionId,
+          "=",
+          voteValue,
+        );
         return voteValue;
       })
       .filter(Boolean);
-    
+
     const yes = dateVotes.filter((v) => v === "yes").length;
     const no = dateVotes.filter((v) => v === "no").length;
     const maybe = dateVotes.filter((v) => v === "maybe").length;
 
-    console.log('  Résultat:', { yes, no, maybe, total: dateVotes.length });
-    
+    console.log("  Résultat:", { yes, no, maybe, total: dateVotes.length });
+
     return { yes, no, maybe, total: dateVotes.length };
   };
 
@@ -280,10 +288,7 @@ const Results: React.FC = () => {
                       );
 
                       return (
-                        <tr
-                          key={date}
-                          className="hover:bg-[#2a2a2a]"
-                        >
+                        <tr key={date} className="hover:bg-[#2a2a2a]">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                             {new Date(date).toLocaleDateString("fr-FR", {
                               weekday: "long",
@@ -368,10 +373,7 @@ const Results: React.FC = () => {
                       );
 
                       return uniqueVoters.map((vote, index) => (
-                        <tr
-                          key={index}
-                          className="hover:bg-[#2a2a2a]"
-                        >
+                        <tr key={index} className="hover:bg-[#2a2a2a]">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">

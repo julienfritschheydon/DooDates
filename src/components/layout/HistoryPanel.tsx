@@ -1,4 +1,11 @@
-import { X, Clock, Calendar, FileText, Plus, ClipboardList } from "lucide-react";
+import {
+  X,
+  Clock,
+  Calendar,
+  FileText,
+  Plus,
+  ClipboardList,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useConversations } from "../../hooks/useConversations";
 import { formatDistanceToNow } from "date-fns";
@@ -16,14 +23,17 @@ interface HistoryPanelProps {
  *
  * S'ouvre depuis le burger, affiche l'historique réel des conversations
  */
-export default function HistoryPanel({ onClose, onConversationSelect }: HistoryPanelProps) {
+export default function HistoryPanel({
+  onClose,
+  onConversationSelect,
+}: HistoryPanelProps) {
   const navigate = useNavigate();
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
-  
+
   // Récupérer les vraies conversations depuis le storage
   const { conversations: conversationsState } = useConversations({
     sortBy: "updatedAt",
-    sortOrder: "desc"
+    sortOrder: "desc",
   });
 
   // Charger les sondages récents depuis localStorage
@@ -32,24 +42,34 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
     try {
       // Utiliser getAllPolls() comme le Dashboard
       const polls = getAllPolls();
-      console.log("[HistoryPanel] Polls récupérés via getAllPolls():", polls.length, "sondages");
+      console.log(
+        "[HistoryPanel] Polls récupérés via getAllPolls():",
+        polls.length,
+        "sondages",
+      );
       console.log("[HistoryPanel] Premier poll:", polls[0]);
-      
+
       // Trier par date de création décroissante et prendre les 5 derniers
-      const withDate = polls.filter(p => p.created_at);
+      const withDate = polls.filter((p) => p.created_at);
       console.log("[HistoryPanel] Polls avec created_at:", withDate.length);
-      
+
       const sorted = withDate
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )
         .slice(0, 5);
-      
-      console.log("[HistoryPanel] Polls triés (top 5):", sorted.map(p => ({
-        id: p.id,
-        title: p.title,
-        type: p.type,
-        created_at: p.created_at
-      })));
-      
+
+      console.log(
+        "[HistoryPanel] Polls triés (top 5):",
+        sorted.map((p) => ({
+          id: p.id,
+          title: p.title,
+          type: p.type,
+          created_at: p.created_at,
+        })),
+      );
+
       setRecentPolls(sorted);
     } catch (error) {
       console.error("[HistoryPanel] Erreur chargement sondages:", error);
@@ -64,27 +84,30 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
     const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     return {
-      today: conversations.filter(conv => new Date(conv.updatedAt) >= today),
-      yesterday: conversations.filter(conv => {
+      today: conversations.filter((conv) => new Date(conv.updatedAt) >= today),
+      yesterday: conversations.filter((conv) => {
         const date = new Date(conv.updatedAt);
         return date >= yesterday && date < today;
       }),
-      thisWeek: conversations.filter(conv => {
+      thisWeek: conversations.filter((conv) => {
         const date = new Date(conv.updatedAt);
         return date >= weekAgo && date < yesterday;
       }),
-      older: conversations.filter(conv => new Date(conv.updatedAt) < weekAgo)
+      older: conversations.filter((conv) => new Date(conv.updatedAt) < weekAgo),
     };
   };
 
   const conversations = conversationsState.conversations || [];
   const isLoading = conversationsState.isLoading;
-  const grouped = conversations.length > 0 ? groupConversationsByPeriod(conversations) : {
-    today: [],
-    yesterday: [],
-    thisWeek: [],
-    older: []
-  };
+  const grouped =
+    conversations.length > 0
+      ? groupConversationsByPeriod(conversations)
+      : {
+          today: [],
+          yesterday: [],
+          thisWeek: [],
+          older: [],
+        };
 
   const handleConversationClick = (conversationId: string) => {
     onConversationSelect?.(conversationId);
@@ -132,7 +155,10 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
         <div className="overflow-y-auto h-[calc(100vh-9rem)]">
           {/* Sondages récents */}
           {(() => {
-            console.log("[HistoryPanel] Rendu - recentPolls.length:", recentPolls.length);
+            console.log(
+              "[HistoryPanel] Rendu - recentPolls.length:",
+              recentPolls.length,
+            );
             if (recentPolls.length > 0) {
               return (
                 <div className="p-4 border-b border-gray-700">
@@ -265,13 +291,18 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
   // Générer un titre à partir du premier message ou du relatedPollId
   const getTitle = () => {
     if (conversation.title) return conversation.title;
-    
+
     // Extraire le premier message utilisateur
-    const firstUserMessage = conversation.messages?.find((msg: any) => msg.role === "user");
+    const firstUserMessage = conversation.messages?.find(
+      (msg: any) => msg.role === "user",
+    );
     if (firstUserMessage) {
-      return firstUserMessage.content.slice(0, 50) + (firstUserMessage.content.length > 50 ? "..." : "");
+      return (
+        firstUserMessage.content.slice(0, 50) +
+        (firstUserMessage.content.length > 50 ? "..." : "")
+      );
     }
-    
+
     return "Nouvelle conversation";
   };
 
@@ -293,13 +324,12 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
         <Icon className="w-4 h-4 text-gray-400" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-white truncate">
-          {getTitle()}
-        </p>
+        <p className="text-sm font-medium text-white truncate">{getTitle()}</p>
         <p className="text-xs text-gray-400">
-          {getSubtitle()} • {formatDistanceToNow(new Date(conversation.updatedAt), { 
-            addSuffix: true, 
-            locale: fr 
+          {getSubtitle()} •{" "}
+          {formatDistanceToNow(new Date(conversation.updatedAt), {
+            addSuffix: true,
+            locale: fr,
           })}
         </p>
       </div>
@@ -318,10 +348,10 @@ interface PollItemProps {
 function PollItem({ poll, onClick }: PollItemProps) {
   // Icône selon le type
   const Icon = poll.type === "form" ? ClipboardList : Calendar;
-  
+
   // Titre du sondage
   const title = poll.title || "Sans titre";
-  
+
   // Type lisible
   const getTypeLabel = () => {
     if (poll.type === "form") return "Formulaire";
@@ -337,14 +367,14 @@ function PollItem({ poll, onClick }: PollItemProps) {
         <Icon className="w-4 h-4 text-gray-400" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-white truncate">
-          {title}
-        </p>
+        <p className="text-sm font-medium text-white truncate">{title}</p>
         <p className="text-xs text-gray-400">
-          {getTypeLabel()} • {poll.created_at && formatDistanceToNow(new Date(poll.created_at), { 
-            addSuffix: true, 
-            locale: fr 
-          })}
+          {getTypeLabel()} •{" "}
+          {poll.created_at &&
+            formatDistanceToNow(new Date(poll.created_at), {
+              addSuffix: true,
+              locale: fr,
+            })}
         </p>
       </div>
     </button>

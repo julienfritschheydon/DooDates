@@ -53,11 +53,14 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
           {poll?.title}
         </h1>
         <p className="text-gray-400 text-sm mt-1">{poll?.description}</p>
-        
+
         {/* Info simple sous le titre */}
         <div className="flex justify-center gap-4 mt-3 text-sm text-gray-400">
           <span>
-            {totalParticipants} {totalParticipants === 0 || totalParticipants === 1 ? "participant" : "participants"}
+            {totalParticipants}{" "}
+            {totalParticipants === 0 || totalParticipants === 1
+              ? "participant"
+              : "participants"}
           </span>
           <span>•</span>
           <span>

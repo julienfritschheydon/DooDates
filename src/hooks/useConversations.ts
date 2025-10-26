@@ -132,15 +132,26 @@ export function useConversations(config: UseConversationsConfig = {}) {
     queryKey: queryKeys.infinite,
     queryFn: async ({ pageParam = 0 }) => {
       try {
-        console.log("[useConversations] Chargement conversations depuis localStorage...");
+        console.log(
+          "[useConversations] Chargement conversations depuis localStorage...",
+        );
         const conversations = ConversationStorage.getConversations();
-        console.log("[useConversations] Conversations chargées:", conversations.length);
+        console.log(
+          "[useConversations] Conversations chargées:",
+          conversations.length,
+        );
 
         // Convertir les dates string en Date objects
-        const conversationsWithDates = conversations.map(conv => ({
+        const conversationsWithDates = conversations.map((conv) => ({
           ...conv,
-          createdAt: typeof conv.createdAt === 'string' ? new Date(conv.createdAt) : conv.createdAt,
-          updatedAt: typeof conv.updatedAt === 'string' ? new Date(conv.updatedAt) : conv.updatedAt,
+          createdAt:
+            typeof conv.createdAt === "string"
+              ? new Date(conv.createdAt)
+              : conv.createdAt,
+          updatedAt:
+            typeof conv.updatedAt === "string"
+              ? new Date(conv.updatedAt)
+              : conv.updatedAt,
         }));
 
         // Apply filters

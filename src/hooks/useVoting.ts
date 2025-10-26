@@ -104,11 +104,15 @@ export const useVoting = (pollSlug: string) => {
 
       // Grouper les dates consécutives (week-ends, semaines, quinzaines)
       const dateGroups = groupConsecutiveDates(pollData.settings.selectedDates);
-      
+
       logger.debug("Groupement des dates", "vote", {
         originalDates: pollData.settings.selectedDates.length,
         groups: dateGroups.length,
-        groupDetails: dateGroups.map(g => ({ type: g.type, label: g.label, datesCount: g.dates.length }))
+        groupDetails: dateGroups.map((g) => ({
+          type: g.type,
+          label: g.label,
+          datesCount: g.dates.length,
+        })),
       });
 
       const mockOptions: PollOption[] = dateGroups.map(
@@ -116,12 +120,13 @@ export const useVoting = (pollSlug: string) => {
           // Pour les groupes multi-dates, utiliser la première date comme référence
           // et stocker toutes les dates du groupe dans un champ custom
           const primaryDate = group.dates[0];
-          
+
           // Récupérer les time slots de toutes les dates du groupe
-          const groupTimeSlots = group.dates.length > 1 
-            ? null // Pour les groupes, pas de time slots (vote sur la période entière)
-            : pollData.settings?.timeSlotsByDate?.[primaryDate] || null;
-          
+          const groupTimeSlots =
+            group.dates.length > 1
+              ? null // Pour les groupes, pas de time slots (vote sur la période entière)
+              : pollData.settings?.timeSlotsByDate?.[primaryDate] || null;
+
           return {
             id: `option-${index}`,
             poll_id: pollData.id,

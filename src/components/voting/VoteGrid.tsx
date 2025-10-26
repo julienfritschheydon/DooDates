@@ -301,7 +301,7 @@ const OptionCard: React.FC<{
   };
 
   const totalVotes = voteCounts.yes + voteCounts.no + voteCounts.maybe;
-  
+
   // Extraire la première heure pour le scroll automatique
   const firstHour = option.time_slots?.[0]?.hour ?? 0;
 
@@ -324,7 +324,7 @@ const OptionCard: React.FC<{
           1er
         </div>
       )}
-      
+
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
@@ -474,14 +474,16 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
   }
 
   // Calculer les rangs basés sur le nombre de votes "oui"
-  const optionsWithScores = options.map(option => ({
+  const optionsWithScores = options.map((option) => ({
     ...option,
-    score: getVoteCounts(option.id).yes
+    score: getVoteCounts(option.id).yes,
   }));
-  
+
   // Trier par score décroissant
-  const sortedOptions = [...optionsWithScores].sort((a, b) => b.score - a.score);
-  
+  const sortedOptions = [...optionsWithScores].sort(
+    (a, b) => b.score - a.score,
+  );
+
   // Créer un map des rangs
   const rankMap = new Map<string, number>();
   sortedOptions.forEach((option, index) => {

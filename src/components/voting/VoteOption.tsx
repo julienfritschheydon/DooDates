@@ -60,13 +60,15 @@ const VoteOption: React.FC<VoteOptionProps> = ({
     // Ne pas afficher le badge s'il n'y a aucun vote
     const stats = getStatsWithUser(option.id);
     const hasAnyVotes = stats.yes > 0 || stats.maybe > 0 || stats.no > 0;
-    
+
     if (!hasAnyVotes) return null;
-    
+
     // Compter combien d'options ont le même rang
     const allRankings = getRanking("all");
-    const optionsWithSameRank = Object.values(allRankings).filter(r => r === rank).length;
-    
+    const optionsWithSameRank = Object.values(allRankings).filter(
+      (r) => r === rank,
+    ).length;
+
     // Cas 1 : Un seul premier → Badge "1er" bleu
     if (rank === 1 && optionsWithSameRank === 1) {
       return (
@@ -75,7 +77,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
         </div>
       );
     }
-    
+
     // Cas 2 : Deux ex aequo en première position → Badge "2ème" orange
     if (rank === 1 && optionsWithSameRank === 2) {
       return (
@@ -84,7 +86,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
         </div>
       );
     }
-    
+
     // Cas 3 : Trois ex aequo en première position → Badge "3ème" jaune
     if (rank === 1 && optionsWithSameRank === 3) {
       return (
@@ -93,7 +95,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
         </div>
       );
     }
-    
+
     return null;
   };
 
@@ -123,7 +125,9 @@ const VoteOption: React.FC<VoteOptionProps> = ({
           {!option.date_group_label && option.time_slots && (
             <>
               <span className="text-gray-500">•</span>
-              <span className="text-gray-300">{formatTime(option.time_slots)}</span>
+              <span className="text-gray-300">
+                {formatTime(option.time_slots)}
+              </span>
             </>
           )}
         </div>

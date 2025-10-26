@@ -185,7 +185,6 @@ export class GeminiService {
         (part) => part.startsWith("##") && !part.startsWith("###"),
       );
 
-
       let questionNumber = 0;
       const conditionalPatterns: Array<{
         questionNumber: number;
@@ -201,7 +200,6 @@ export class GeminiService {
         const questionBlocks = questionParts.filter((part) =>
           part.trim().startsWith("###"),
         );
-
 
         for (const questionBlock of questionBlocks) {
           questionNumber++;
@@ -225,7 +223,6 @@ export class GeminiService {
               title: questionTitle,
             });
           }
-
 
           // Détecter type de question
           const lowerBlock = questionBlock.toLowerCase();
@@ -298,7 +295,6 @@ export class GeminiService {
               options.forEach((opt) => {
                 prompt += `- ${opt}\n`;
               });
-
             }
           } else {
             prompt += `(réponse libre)\n`;
@@ -323,7 +319,6 @@ export class GeminiService {
         }
         prompt += "\n";
       }
-
 
       return prompt;
     } catch (error) {
@@ -419,7 +414,6 @@ export class GeminiService {
       let processedInput = userInput;
       let pollType: "date" | "form";
 
-
       if (isMarkdown) {
         // Parser le markdown et convertir en prompt structuré
         const parsedPrompt = this.parseMarkdownQuestionnaire(userInput);
@@ -466,7 +460,6 @@ export class GeminiService {
       } else {
         prompt = this.buildPollGenerationPrompt(processedInput);
       }
-
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
@@ -619,18 +612,20 @@ export class GeminiService {
     for (let i = 0; i < weekendDays.length; i++) {
       const currentDay = weekendDays[i];
       const currentDate = new Date(currentDay.date);
-      
+
       // Si c'est un samedi (dayOfWeek = 6)
       if (currentDay.dayOfWeek === 6) {
         // Ajouter le samedi
         weekendPairs.push(currentDay.date);
-        
+
         // Vérifier si le jour suivant est un dimanche consécutif
         const nextDay = weekendDays[i + 1];
         if (nextDay && nextDay.dayOfWeek === 0) {
           const nextDate = new Date(nextDay.date);
-          const dayDiff = (nextDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
-          
+          const dayDiff =
+            (nextDate.getTime() - currentDate.getTime()) /
+            (1000 * 60 * 60 * 24);
+
           // Si le dimanche est bien le lendemain du samedi
           if (dayDiff === 1) {
             weekendPairs.push(nextDay.date);
@@ -1335,7 +1330,6 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
    */
   private parseFormPollResponse(text: string): FormPollSuggestion | null {
     try {
-
       // Nettoyer le texte pour extraire le JSON
       const cleanText = text.trim();
       const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
@@ -1343,7 +1337,6 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
       if (jsonMatch) {
         const jsonStr = jsonMatch[0];
         const parsed = JSON.parse(jsonStr);
-
 
         // Validation structure Form Poll
         if (
@@ -1418,7 +1411,6 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
               conditionalRules: parsed.conditionalRules,
             }),
           };
-
 
           return finalPoll;
         }

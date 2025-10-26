@@ -15,8 +15,10 @@ export default function CreateChooser() {
         >
           <X className="w-6 h-6 text-gray-400 hover:text-white" />
         </button>
-        
-        <h1 className="text-3xl font-bold mb-2 text-white">Créer un nouveau sondage</h1>
+
+        <h1 className="text-3xl font-bold mb-2 text-white">
+          Créer un nouveau sondage
+        </h1>
         <p className="text-gray-400 mb-6">
           Choisissez le type de sondage qui correspond à votre besoin.
         </p>
@@ -31,7 +33,9 @@ export default function CreateChooser() {
                 <Calendar className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Sondage Dates</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  Sondage Dates
+                </h2>
                 <p className="text-sm text-gray-400 mt-1">
                   Proposez des jours et horaires. Idéal pour organiser des
                   réunions.
@@ -57,7 +61,9 @@ export default function CreateChooser() {
                 <ClipboardList className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Sondage Formulaire</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  Sondage Formulaire
+                </h2>
                 <p className="text-sm text-gray-400 mt-1">
                   Questions à choix unique/multiples ou texte libre.
                 </p>

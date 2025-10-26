@@ -13,21 +13,21 @@ export default function DateCreator() {
   // Charger les données du sondage à éditer
   const initialData = useMemo<DatePollSuggestion | undefined>(() => {
     if (!editId) return undefined;
-    
+
     const existing = getAllPolls().find(
-      (p) => p.id === editId && p.type !== "form"
+      (p) => p.id === editId && p.type !== "form",
     );
-    
+
     if (!existing) return undefined;
 
     // Extraire les dates depuis le sondage
     const dates: string[] = [];
-    
+
     // Méthode 1: Depuis settings.selectedDates
     if ((existing as any).settings?.selectedDates?.length > 0) {
       dates.push(...(existing as any).settings.selectedDates);
     }
-    
+
     // Méthode 2: Depuis les options du sondage
     if (dates.length === 0 && (existing as any).options) {
       (existing as any).options.forEach((option: any) => {
@@ -65,10 +65,10 @@ export default function DateCreator() {
           </button>
         </div>
       </div>
-      
+
       {/* Calendar creator component */}
-      <PollCreatorComponent 
-        onBack={() => navigate(-1)} 
+      <PollCreatorComponent
+        onBack={() => navigate(-1)}
         initialData={initialData}
       />
     </div>

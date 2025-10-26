@@ -22,10 +22,10 @@ export function ChatLandingPrototype({
   const handlePollCreated = (poll: any) => {
     // Créer le sondage dans le Context (ouvre l'éditeur)
     createPollFromChat(poll);
-    
+
     // Appeler le callback parent si fourni
     onPollCreated?.(poll);
-    
+
     // Naviguer vers workspace pour afficher le layout avec éditeur
     navigate("/workspace");
   };
@@ -35,7 +35,10 @@ export function ChatLandingPrototype({
     <div className="h-full flex flex-col bg-[#0a0a0a]">
       {/* Padding top pour compenser la TopBar fixe (h-14 = 56px) */}
       <div className="pt-14 h-full">
-        <GeminiChatInterface onPollCreated={handlePollCreated} darkTheme={true} />
+        <GeminiChatInterface
+          onPollCreated={handlePollCreated}
+          darkTheme={true}
+        />
       </div>
     </div>
   );

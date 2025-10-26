@@ -22,7 +22,9 @@ const TopNav = () => {
             <h1 className="font-geist font-bold text-lg text-gray-900 dark:text-white">
               DooDates
             </h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400">AI Scheduling</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              AI Scheduling
+            </p>
           </div>
         </button>
 
