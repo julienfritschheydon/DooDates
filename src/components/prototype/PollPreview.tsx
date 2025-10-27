@@ -140,6 +140,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
 
         {/* Utiliser le FormPollCreator existant */}
         <FormPollCreator
+          key={`form-${poll.id}-${poll.questions?.length || 0}-${poll.updated_at}`}
           initialDraft={poll}
           onCancel={() => {}} // Pas d'annulation dans le preview
           onSave={handleSave}

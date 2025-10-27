@@ -52,7 +52,9 @@ export function pollReducer(
         ...state,
         dates: updatedDates,
         updated_at: new Date().toISOString(),
-      };
+        _highlightedId: newDate,
+        _highlightType: "add",
+      } as any;
     }
 
     case "REMOVE_DATE": {
@@ -71,7 +73,9 @@ export function pollReducer(
         ...state,
         dates: updatedDates,
         updated_at: new Date().toISOString(),
-      };
+        _highlightedId: dateToRemove,
+        _highlightType: "remove",
+      } as any;
     }
 
     case "UPDATE_TITLE": {

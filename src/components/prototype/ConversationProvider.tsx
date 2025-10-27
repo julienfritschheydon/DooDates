@@ -11,6 +11,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import { addPoll, type Poll as StoragePoll } from "../../lib/pollStorage";
 import { pollReducer, type PollAction } from "../../reducers/pollReducer";
+import {
+  formPollReducer,
+  type FormPollAction,
+} from "../../reducers/formPollReducer";
+import { linkPollToConversation } from "../../lib/conversationPollLink";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 /**
  * Types pour la conversation partagée
@@ -35,6 +41,15 @@ interface ConversationContextType {
   isEditorOpen: boolean;
   currentPoll: Poll | null;
 
+  // État animations
+  highlightedId: string | null;
+  highlightType: "add" | "remove" | "modify" | null;
+
+  // État mobile
+  isMobile: boolean;
+  isSidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+
   // Actions conversation
   setConversationId: (id: string | null) => void;
   addMessage: (message: Message) => void;
@@ -50,7 +65,7 @@ interface ConversationContextType {
   createPollFromChat: (pollData: any) => void;
 
   // Reducer actions (nouveau)
-  dispatchPollAction: (action: PollAction) => void;
+  dispatchPollAction: (action: PollAction | FormPollAction) => void;
 }
 
 const ConversationContext = createContext<ConversationContextType | undefined>(
@@ -68,6 +83,10 @@ const ConversationContext = createContext<ConversationContextType | undefined>(
 export function ConversationProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
+  // Détection mobile
+  const isMobile = useMediaQuery("(max-width: 767px)");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   // État conversation
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>(() => {
@@ -82,37 +101,29 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   });
 
   // État éditeur avec reducer
-  const [isEditorOpen, setIsEditorOpen] = useState(() => {
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [currentPoll, dispatchPoll] = useReducer(pollReducer, null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const [highlightType, setHighlightType] = useState<
+    "add" | "remove" | "modify" | null
+  >(null);
+
+  // Initialisation de l'éditeur
+  useEffect(() => {
     // Ouvrir l'éditeur uniquement si on a des messages (= pas une nouvelle conversation)
     try {
       const savedMessages = localStorage.getItem("prototype_messages");
       const hasMessages = savedMessages && JSON.parse(savedMessages).length > 0;
 
       if (!hasMessages) {
-        return false;
+        return; // ✅ Ne rien retourner au lieu de return null
       }
 
       const pollsStr = localStorage.getItem("doodates_polls");
-      return pollsStr && JSON.parse(pollsStr).length > 0;
-    } catch {
-      return false;
-    }
-  });
-  const [currentPoll, dispatchPoll] = useReducer(pollReducer, null, () => {
-    // Ne restaurer le poll que si on a des messages (= pas une nouvelle conversation)
-    try {
-      const savedMessages = localStorage.getItem("prototype_messages");
-      const hasMessages = savedMessages && JSON.parse(savedMessages).length > 0;
-
-      if (!hasMessages) {
-        return null;
-      }
-
-      const pollsStr = localStorage.getItem("doodates_polls");
-      if (!pollsStr) return null;
+      if (!pollsStr) return; // ✅ Ne rien retourner
 
       const polls = JSON.parse(pollsStr);
-      if (!Array.isArray(polls) || polls.length === 0) return null;
+      if (!Array.isArray(polls) || polls.length === 0) return; // ✅ Ne rien retourner
 
       // Trouver le poll le plus récemment modifié
       const sortedPolls = polls.sort((a: any, b: any) => {
@@ -122,12 +133,17 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       });
 
       const latestPoll = sortedPolls[0];
-      return latestPoll;
+
+      // ✅ Mettre à jour l'état au lieu de retourner la valeur
+      if (latestPoll) {
+        dispatchPoll({ type: "REPLACE_POLL", payload: latestPoll });
+        setIsEditorOpen(true);
+      }
     } catch (error) {
       console.error("❌ Erreur restauration poll:", error);
-      return null;
     }
-  });
+    // ✅ useEffect ne retourne rien (ou une fonction de cleanup si nécessaire)
+  }, []); // ✅ Ajout du tableau de dépendances vide pour n'exécuter qu'au montage
 
   // Ref pour debounce de la persistance
   const persistenceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -173,9 +189,63 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Action pour dispatcher des modifications via le reducer
-  const dispatchPollAction = useCallback((action: PollAction) => {
-    dispatchPoll(action);
-  }, []);
+  // Route vers le bon reducer selon le type de poll
+  const dispatchPollAction = useCallback(
+    (action: PollAction | FormPollAction) => {
+      if (!currentPoll) return;
+
+      // Déterminer quel reducer utiliser selon le type de poll
+      const pollType = (currentPoll as any).type;
+
+      // Si c'est un Form Poll, utiliser formPollReducer
+      if (pollType === "form") {
+        const updatedPoll = formPollReducer(
+          currentPoll as any,
+          action as FormPollAction,
+        );
+        if (updatedPoll) {
+          // Extraire highlightedId pour l'animation
+          const highlightId = (updatedPoll as any)._highlightedId;
+          const highlightTypeValue = (updatedPoll as any)._highlightType;
+
+          if (highlightId) {
+            setHighlightedId(highlightId);
+            setHighlightType(highlightTypeValue);
+
+            // Retirer l'animation après 3 secondes
+            setTimeout(() => {
+              setHighlightedId(null);
+              setHighlightType(null);
+            }, 3000);
+          }
+
+          dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll as any });
+        }
+      } else {
+        // Sinon, utiliser pollReducer pour les Date Polls (type "date" ou undefined)
+        const updatedPoll = pollReducer(currentPoll, action as PollAction);
+        if (updatedPoll) {
+          // Extraire highlightedId pour l'animation (même logique que Form Poll)
+          const highlightId = (updatedPoll as any)._highlightedId;
+          const highlightTypeValue = (updatedPoll as any)._highlightType;
+
+          if (highlightId) {
+            setHighlightedId(highlightId);
+            setHighlightType(highlightTypeValue);
+
+            // Retirer l'animation après 3 secondes
+            setTimeout(() => {
+              setHighlightedId(null);
+              setHighlightType(null);
+            }, 3000);
+          }
+
+          dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll });
+        }
+      }
+    },
+    [currentPoll],
+  );
 
   // Persistance automatique avec debounce (500ms)
   useEffect(() => {
@@ -306,14 +376,22 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       try {
         addPoll(poll);
 
+        // Mettre à jour les métadonnées de la conversation pour lier le poll
+        linkPollToConversation(poll.title, poll.id);
+
         // Ouvrir l'éditeur dans le panneau de droite
         openEditor(poll as any);
       } catch (error) {
         console.error("❌ Erreur lors de la sauvegarde:", error);
       }
     },
-    [openEditor],
+    [openEditor, conversationId],
   );
+
+  // Fonction pour gérer l'ouverture/fermeture de la sidebar
+  const setSidebarOpen = useCallback((open: boolean) => {
+    setIsSidebarOpen(open);
+  }, []);
 
   const value: ConversationContextType = {
     // État
@@ -321,6 +399,15 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     messages,
     isEditorOpen,
     currentPoll,
+
+    // État animations
+    highlightedId,
+    highlightType,
+
+    // État mobile
+    isMobile,
+    isSidebarOpen,
+    setSidebarOpen,
 
     // Actions conversation
     setConversationId,
