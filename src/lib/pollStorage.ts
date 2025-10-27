@@ -395,12 +395,12 @@ function isDatePoll(p: Poll): boolean {
 export function getAllPolls(): Poll[] {
   try {
     migrateFormDraftsIntoUnified();
-    const raw = hasWindow() ? window.localStorage.getItem(STORAGE_KEY) : null;
-    const parsed = raw ? (JSON.parse(raw) as unknown as Poll[]) : [];
+    // Utiliser readFromStorage pour maintenir la cohérence du cache mémoire
+    const polls = readFromStorage(STORAGE_KEY, memoryPollCache, []);
 
     // Dédoublonner par ID (garder le plus récent)
     const seen = new Map<string, Poll>();
-    for (const p of parsed) {
+    for (const p of polls) {
       const existing = seen.get(p.id);
       if (!existing) {
         seen.set(p.id, p);
@@ -419,9 +419,9 @@ export function getAllPolls(): Poll[] {
     }
     const deduplicated = Array.from(seen.values());
 
-    if (deduplicated.length !== parsed.length) {
+    if (deduplicated.length !== polls.length) {
       console.warn(
-        `🧹 Removed ${parsed.length - deduplicated.length} duplicate polls, saving cleaned version...`,
+        `🧹 Removed ${polls.length - deduplicated.length} duplicate polls, saving cleaned version...`,
       );
       writeToStorage(STORAGE_KEY, deduplicated, memoryPollCache);
     }
@@ -457,6 +457,13 @@ export function getAllPolls(): Poll[] {
         });
       }
     }
+
+    // Synchroniser le cache mémoire avec les données valides
+    memoryPollCache.clear();
+    valid.forEach((poll) => {
+      memoryPollCache.set(poll.id, poll);
+    });
+
     return valid;
   } catch (error) {
     const storageError = handleError(

@@ -42,11 +42,9 @@ import {
 } from "../lib/gemini";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import {
-  updateConversation,
-  getConversation,
-} from "@/lib/storage/ConversationStorageSimple";
+import { linkPollToConversation } from "@/lib/conversationPollLink";
 import { VoteGrid } from "@/components/voting/VoteGrid";
+import { groupConsecutiveDates } from "../lib/date-utils";
 
 interface PollCreatorProps {
   onBack?: () => void;
@@ -104,25 +102,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         setCreatedPollSlug(result.poll.slug);
 
         // Mettre à jour la conversation si le sondage a été créé depuis le chat
-        const urlParams = new URLSearchParams(window.location.search);
-        const conversationId = urlParams.get("conversationId");
-        if (conversationId) {
-          try {
-            const conversation = getConversation(conversationId);
-            if (conversation) {
-              updateConversation({
-                ...conversation,
-                metadata: {
-                  ...conversation.metadata,
-                  pollGenerated: true,
-                  pollTitle: result.poll.title,
-                },
-              });
-            }
-          } catch (err) {
-            logger.error("Erreur mise à jour conversation", "poll", err);
-          }
-        }
+        // Utiliser la fonction partagée pour garantir la cohérence
+        linkPollToConversation(result.poll.title, result.poll.id);
       }
     } catch (error) {
       logger.error("Error creating poll", "poll", error);
@@ -717,114 +698,144 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     </div>
                   )}
 
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => {
-                        logger.debug(
-                          "Bouton Horaires cliqué - toggle showTimeSlots",
-                          "poll",
-                        );
-                        setState((prev) => {
-                          const newState = {
-                            ...prev,
-                            showTimeSlots: !prev.showTimeSlots,
-                          };
-                          logger.debug("État après clic", "poll", {
-                            selectedDates: prev.selectedDates.length,
-                            showTimeSlots: newState.showTimeSlots,
-                            conditionMet:
-                              prev.selectedDates.length > 0 &&
-                              newState.showTimeSlots,
-                          });
-                          return newState;
-                        });
-                      }}
-                      className="flex items-center gap-2 px-4 py-2 text-base border border-gray-300 rounded-lg hover:border-blue-300 transition-colors"
-                      data-testid="add-time-slots-button"
-                    >
-                      <Clock className="w-5 h-5" />
-                      Horaires
-                    </button>
-                  </div>
+                  {/* Bouton Horaires - Masqué si les dates forment des groupes */}
+                  {(() => {
+                    const dateGroups = groupConsecutiveDates(
+                      state.selectedDates,
+                    );
+                    const hasGroupedDates = dateGroups.some(
+                      (group) => group.dates.length > 1,
+                    );
+
+                    // Ne pas afficher le bouton si les dates sont groupées
+                    if (hasGroupedDates) {
+                      return null;
+                    }
+
+                    return (
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => {
+                            logger.debug(
+                              "Bouton Horaires cliqué - toggle showTimeSlots",
+                              "poll",
+                            );
+                            setState((prev) => {
+                              const newState = {
+                                ...prev,
+                                showTimeSlots: !prev.showTimeSlots,
+                              };
+                              logger.debug("État après clic", "poll", {
+                                selectedDates: prev.selectedDates.length,
+                                showTimeSlots: newState.showTimeSlots,
+                                conditionMet:
+                                  prev.selectedDates.length > 0 &&
+                                  newState.showTimeSlots,
+                              });
+                              return newState;
+                            });
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 text-base border border-gray-300 rounded-lg hover:border-blue-300 transition-colors"
+                          data-testid="add-time-slots-button"
+                        >
+                          <Clock className="w-5 h-5" />
+                          Horaires
+                        </button>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
 
-            {/* Section horaires */}
-            {state.selectedDates.length > 0 && state.showTimeSlots && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  {/* <Clock className="w-5 h-5 text-gray-600" />
+            {/* Section horaires - Masquée si les dates forment des groupes (week-ends, semaines, quinzaines) */}
+            {(() => {
+              // Détecter si les dates sélectionnées forment des groupes
+              const dateGroups = groupConsecutiveDates(state.selectedDates);
+              const hasGroupedDates = dateGroups.some(
+                (group) => group.dates.length > 1,
+              );
+
+              // Si des dates sont groupées, ne pas afficher la section horaires
+              if (hasGroupedDates) {
+                return null;
+              }
+
+              // Sinon, afficher normalement si conditions remplies
+              return state.selectedDates.length > 0 && state.showTimeSlots ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    {/* <Clock className="w-5 h-5 text-gray-600" />
                   <h3 className="text-lg font-semibold text-gray-800">Horaires</h3> */}
-                </div>
-
-                {/* Paramètres d'expiration - SUPPRIMÉ (doublon) */}
-
-                {/* Paramètres de granularité */}
-                <div ref={timeSlotsRef} className="mb-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-blue-600" />
-                      <h3 className="font-semibold text-white">
-                        Précision des horaires
-                      </h3>
-                    </div>
-                    <button
-                      onClick={() =>
-                        setState((prev) => ({
-                          ...prev,
-                          showGranularitySettings:
-                            !prev.showGranularitySettings,
-                        }))
-                      }
-                      className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                    >
-                      {state.showGranularitySettings ? "Masquer" : "Modifier"}
-                    </button>
                   </div>
 
-                  {state.showGranularitySettings && (
-                    <div className="mb-4 p-4 bg-[#0a0a0a] rounded-lg">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-medium text-gray-700">
-                          Intervalle entre les créneaux
-                        </h4>
-                        <button
-                          onClick={() =>
-                            setState((prev) => ({
-                              ...prev,
-                              showGranularitySettings: false,
-                            }))
-                          }
-                          className="text-gray-400 hover:text-gray-600"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                  {/* Paramètres d'expiration - SUPPRIMÉ (doublon) */}
+
+                  {/* Paramètres de granularité */}
+                  <div ref={timeSlotsRef} className="mb-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-blue-600" />
+                        <h3 className="font-semibold text-white">
+                          Précision des horaires
+                        </h3>
                       </div>
-                      <div className="flex gap-2 flex-wrap">
-                        {[
-                          { value: 15, label: "15 min" },
-                          { value: 30, label: "30 min" },
-                          { value: 60, label: "1 heure" },
-                          { value: 120, label: "2 heures" },
-                          { value: 240, label: "4 heures" },
-                        ].map((option) => {
-                          const compatible =
-                            PollCreatorService.isGranularityCompatible(
-                              option.value,
-                              state.timeSlots,
-                            );
-                          return (
-                            <button
-                              key={option.value}
-                              onClick={() =>
-                                PollCreatorService.handleGranularityChange(
-                                  option.value,
-                                  setState,
-                                )
-                              }
-                              disabled={!compatible}
-                              className={`px-3 py-1 text-sm rounded-full transition-colors
+                      <button
+                        onClick={() =>
+                          setState((prev) => ({
+                            ...prev,
+                            showGranularitySettings:
+                              !prev.showGranularitySettings,
+                          }))
+                        }
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        {state.showGranularitySettings ? "Masquer" : "Modifier"}
+                      </button>
+                    </div>
+
+                    {state.showGranularitySettings && (
+                      <div className="mb-4 p-4 bg-[#0a0a0a] rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-medium text-gray-700">
+                            Intervalle entre les créneaux
+                          </h4>
+                          <button
+                            onClick={() =>
+                              setState((prev) => ({
+                                ...prev,
+                                showGranularitySettings: false,
+                              }))
+                            }
+                            className="text-gray-400 hover:text-gray-600"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
+                          {[
+                            { value: 15, label: "15 min" },
+                            { value: 30, label: "30 min" },
+                            { value: 60, label: "1 heure" },
+                            { value: 120, label: "2 heures" },
+                            { value: 240, label: "4 heures" },
+                          ].map((option) => {
+                            const compatible =
+                              PollCreatorService.isGranularityCompatible(
+                                option.value,
+                                state.timeSlots,
+                              );
+                            return (
+                              <button
+                                key={option.value}
+                                onClick={() =>
+                                  PollCreatorService.handleGranularityChange(
+                                    option.value,
+                                    setState,
+                                  )
+                                }
+                                disabled={!compatible}
+                                className={`px-3 py-1 text-sm rounded-full transition-colors
                                 ${
                                   state.timeGranularity === option.value
                                     ? "bg-blue-500 text-white"
@@ -833,314 +844,323 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                       : "bg-[#0a0a0a] border border-gray-800 text-gray-600 cursor-not-allowed"
                                 }
                               `}
+                              >
+                                {option.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {PollCreatorService.initialGranularityState && (
+                          <button
+                            onClick={() =>
+                              PollCreatorService.undoGranularityChange(setState)
+                            }
+                            className="mt-3 text-sm text-gray-600 hover:text-gray-800"
+                          >
+                            Annuler les changements
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Mobile: Section horaires avec scroll */}
+                  <div className="md:hidden" data-testid="time-slots-section">
+                    <div className="border border-gray-700 rounded-lg bg-[#1e1e1e] overflow-hidden">
+                      {/* En-têtes des dates */}
+                      <div className="flex bg-[#0a0a0a]">
+                        <div className="w-16 p-2 text-xs font-medium text-gray-300 flex items-center justify-center border-r border-gray-700">
+                          Heure
+                        </div>
+                        {state.selectedDates.map((dateStr) => {
+                          const dateInfo =
+                            PollCreatorService.formatSelectedDateHeader(
+                              dateStr,
+                            );
+                          return (
+                            <div
+                              key={dateStr}
+                              className="flex-1 p-2 text-center border-r bg-blue-600 text-white"
                             >
-                              {option.label}
-                            </button>
+                              <div className="text-xs font-medium">
+                                {dateInfo.dayName}
+                              </div>
+                              <div className="text-sm font-bold">
+                                {dateInfo.dayNumber}
+                              </div>
+                              <div className="text-xs opacity-90">
+                                {dateInfo.month}
+                              </div>
+                            </div>
                           );
                         })}
                       </div>
-                      {PollCreatorService.initialGranularityState && (
-                        <button
-                          onClick={() =>
-                            PollCreatorService.undoGranularityChange(setState)
-                          }
-                          className="mt-3 text-sm text-gray-600 hover:text-gray-800"
-                        >
-                          Annuler les changements
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
 
-                {/* Mobile: Section horaires avec scroll */}
-                <div className="md:hidden" data-testid="time-slots-section">
-                  <div className="border border-gray-700 rounded-lg bg-[#1e1e1e] overflow-hidden">
-                    {/* En-têtes des dates */}
-                    <div className="flex bg-[#0a0a0a]">
-                      <div className="w-16 p-2 text-xs font-medium text-gray-300 flex items-center justify-center border-r border-gray-700">
-                        Heure
-                      </div>
-                      {state.selectedDates.map((dateStr) => {
-                        const dateInfo =
-                          PollCreatorService.formatSelectedDateHeader(dateStr);
-                        return (
+                      {/* Créneaux horaires */}
+                      <div
+                        ref={timeGridRef}
+                        className="max-h-48 overflow-y-auto"
+                        data-testid="time-slots-grid"
+                      >
+                        {getVisibleTimeSlots().map((timeSlot) => (
                           <div
-                            key={dateStr}
-                            className="flex-1 p-2 text-center border-r bg-blue-600 text-white"
+                            key={`${timeSlot.hour}-${timeSlot.minute}`}
+                            data-time-hour={timeSlot.hour}
+                            className="flex border-b border-gray-100"
                           >
-                            <div className="text-xs font-medium">
-                              {dateInfo.dayName}
+                            <div className="w-16 p-2 text-xs text-gray-300 flex items-center justify-center border-r border-gray-700 bg-[#0a0a0a]">
+                              {timeSlot.label}
                             </div>
-                            <div className="text-sm font-bold">
-                              {dateInfo.dayNumber}
-                            </div>
-                            <div className="text-xs opacity-90">
-                              {dateInfo.month}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Créneaux horaires */}
-                    <div
-                      ref={timeGridRef}
-                      className="max-h-48 overflow-y-auto"
-                      data-testid="time-slots-grid"
-                    >
-                      {getVisibleTimeSlots().map((timeSlot) => (
-                        <div
-                          key={`${timeSlot.hour}-${timeSlot.minute}`}
-                          data-time-hour={timeSlot.hour}
-                          className="flex border-b border-gray-100"
-                        >
-                          <div className="w-16 p-2 text-xs text-gray-300 flex items-center justify-center border-r border-gray-700 bg-[#0a0a0a]">
-                            {timeSlot.label}
-                          </div>
-                          {state.selectedDates.map((dateStr, colIndex) => {
-                            const slot = timeSlotsByDate[dateStr]?.find(
-                              (s) =>
-                                s.hour === timeSlot.hour &&
-                                s.minute === timeSlot.minute,
-                            );
-                            const blocks = getTimeSlotBlocks(dateStr);
-                            const currentBlock = blocks.find(
-                              (block) =>
-                                timeSlot.hour * 60 + timeSlot.minute >=
-                                  block.start.hour * 60 + block.start.minute &&
-                                timeSlot.hour * 60 + timeSlot.minute <=
-                                  block.end.hour * 60 + block.end.minute,
-                            );
-                            const isBlockStart = blocks.some(
-                              (block) =>
-                                block.start.hour === timeSlot.hour &&
-                                block.start.minute === timeSlot.minute,
-                            );
-                            // isBlockEnd : dernière ligne VISIBLE du bloc (pas forcément block.end exact)
-                            const isBlockEnd =
-                              currentBlock &&
-                              // Soit c'est exactement la fin du bloc
-                              ((currentBlock.end.hour === timeSlot.hour &&
-                                currentBlock.end.minute === timeSlot.minute) ||
-                                // Soit c'est la dernière ligne enabled avant la fin
-                                (timeSlot.hour * 60 + timeSlot.minute <
-                                  currentBlock.end.hour * 60 +
-                                    currentBlock.end.minute &&
-                                  timeSlot.hour * 60 +
-                                    timeSlot.minute +
-                                    state.timeGranularity >=
+                            {state.selectedDates.map((dateStr, colIndex) => {
+                              const slot = timeSlotsByDate[dateStr]?.find(
+                                (s) =>
+                                  s.hour === timeSlot.hour &&
+                                  s.minute === timeSlot.minute,
+                              );
+                              const blocks = getTimeSlotBlocks(dateStr);
+                              const currentBlock = blocks.find(
+                                (block) =>
+                                  timeSlot.hour * 60 + timeSlot.minute >=
+                                    block.start.hour * 60 +
+                                      block.start.minute &&
+                                  timeSlot.hour * 60 + timeSlot.minute <=
+                                    block.end.hour * 60 + block.end.minute,
+                              );
+                              const isBlockStart = blocks.some(
+                                (block) =>
+                                  block.start.hour === timeSlot.hour &&
+                                  block.start.minute === timeSlot.minute,
+                              );
+                              // isBlockEnd : dernière ligne VISIBLE du bloc (pas forcément block.end exact)
+                              const isBlockEnd =
+                                currentBlock &&
+                                // Soit c'est exactement la fin du bloc
+                                ((currentBlock.end.hour === timeSlot.hour &&
+                                  currentBlock.end.minute ===
+                                    timeSlot.minute) ||
+                                  // Soit c'est la dernière ligne enabled avant la fin
+                                  (timeSlot.hour * 60 + timeSlot.minute <
                                     currentBlock.end.hour * 60 +
-                                      currentBlock.end.minute));
-                            const isBlockMiddle =
-                              currentBlock && !isBlockStart && !isBlockEnd;
+                                      currentBlock.end.minute &&
+                                    timeSlot.hour * 60 +
+                                      timeSlot.minute +
+                                      state.timeGranularity >=
+                                      currentBlock.end.hour * 60 +
+                                        currentBlock.end.minute));
+                              const isBlockMiddle =
+                                currentBlock && !isBlockStart && !isBlockEnd;
 
-                            return (
-                              <button
-                                key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
-                                data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
-                                onClick={() =>
-                                  handleTimeSlotToggle(
-                                    dateStr,
-                                    timeSlot.hour,
-                                    timeSlot.minute,
-                                  )
-                                }
-                                className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
+                              return (
+                                <button
+                                  key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
+                                  data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
+                                  onClick={() =>
+                                    handleTimeSlotToggle(
+                                      dateStr,
+                                      timeSlot.hour,
+                                      timeSlot.minute,
+                                    )
+                                  }
+                                  className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
                                   ${slot?.enabled ? "bg-blue-900/30" : "bg-[#1e1e1e]"}
                                   ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
                                 `}
-                              >
-                                {slot?.enabled && (
-                                  <div
-                                    className={`absolute bg-blue-500 transition-all
+                                >
+                                  {slot?.enabled && (
+                                    <div
+                                      className={`absolute bg-blue-500 transition-all
                                     ${isBlockStart && isBlockEnd ? "inset-1 rounded-lg" : ""}
                                     ${isBlockStart && !isBlockEnd ? "inset-x-1 top-1 bottom-0 rounded-t-lg" : ""}
                                     ${isBlockEnd && !isBlockStart ? "inset-x-1 bottom-1 top-0 rounded-b-lg" : ""}
                                     ${isBlockMiddle ? "inset-x-1 top-0 bottom-0" : ""}
                                   `}
-                                  >
-                                    {isBlockStart && currentBlock && (
-                                      <div className="absolute top-0.5 left-0.5 right-0.5">
-                                        <div className="text-white text-[10px] font-semibold text-center bg-blue-600 rounded px-0.5 py-0.5">
-                                          {`${currentBlock.start.hour.toString().padStart(2, "0")}:${currentBlock.start.minute.toString().padStart(2, "0")}`}
+                                    >
+                                      {isBlockStart && currentBlock && (
+                                        <div className="absolute top-0.5 left-0.5 right-0.5">
+                                          <div className="text-white text-[10px] font-semibold text-center bg-blue-600 rounded px-0.5 py-0.5">
+                                            {`${currentBlock.start.hour.toString().padStart(2, "0")}:${currentBlock.start.minute.toString().padStart(2, "0")}`}
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
-                                    {isBlockEnd && currentBlock && (
-                                      <div className="absolute bottom-0.5 left-0.5 right-0.5">
-                                        <div className="text-white text-[10px] font-semibold text-center bg-blue-600 rounded px-0.5 py-0.5">
-                                          {`${currentBlock.end.hour.toString().padStart(2, "0")}:${currentBlock.end.minute.toString().padStart(2, "0")}`}
+                                      )}
+                                      {isBlockEnd && currentBlock && (
+                                        <div className="absolute bottom-0.5 left-0.5 right-0.5">
+                                          <div className="text-white text-[10px] font-semibold text-center bg-blue-600 rounded px-0.5 py-0.5">
+                                            {`${currentBlock.end.hour.toString().padStart(2, "0")}:${currentBlock.end.minute.toString().padStart(2, "0")}`}
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Desktop: Section horaires avec scroll */}
-                <div
-                  className="hidden md:block"
-                  data-testid="time-slots-section"
-                >
-                  <div className="border border-gray-700 rounded-lg bg-[#1e1e1e] overflow-hidden">
-                    {/* En-têtes des dates */}
-                    <div className="flex bg-[#0a0a0a]">
-                      <div className="w-16 p-2 text-xs font-medium text-gray-300 flex items-center justify-center border-r border-gray-700">
-                        Heure
+                                      )}
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ))}
                       </div>
-                      {state.selectedDates.map((dateStr) => {
-                        const dateInfo =
-                          PollCreatorService.formatSelectedDateHeader(dateStr);
-                        return (
-                          <div
-                            key={dateStr}
-                            className="flex-1 p-2 text-center border-r bg-blue-600 text-white"
-                          >
-                            <div className="text-xs font-medium">
-                              {dateInfo.dayName}
-                            </div>
-                            <div className="text-sm font-bold">
-                              {dateInfo.dayNumber}
-                            </div>
-                            <div className="text-xs opacity-90">
-                              {dateInfo.month}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Créneaux horaires */}
-                    <div
-                      ref={timeGridRef}
-                      className="max-h-48 overflow-y-auto"
-                      data-testid="time-slots-grid"
-                    >
-                      {getVisibleTimeSlots().map((timeSlot) => (
-                        <div
-                          key={`${timeSlot.hour}-${timeSlot.minute}`}
-                          data-time-hour={timeSlot.hour}
-                          className="flex border-b border-gray-100"
-                        >
-                          <div className="w-16 p-2 text-xs text-gray-300 flex items-center justify-center border-r border-gray-700 bg-[#0a0a0a]">
-                            {timeSlot.label}
-                          </div>
-                          {state.selectedDates.map((dateStr, colIndex) => {
-                            const slot = timeSlotsByDate[dateStr]?.find(
-                              (s) =>
-                                s.hour === timeSlot.hour &&
-                                s.minute === timeSlot.minute,
-                            );
-                            const blocks = getTimeSlotBlocks(dateStr);
-                            const currentBlock = blocks.find(
-                              (block) =>
-                                timeSlot.hour * 60 + timeSlot.minute >=
-                                  block.start.hour * 60 + block.start.minute &&
-                                timeSlot.hour * 60 + timeSlot.minute <=
-                                  block.end.hour * 60 + block.end.minute,
-                            );
-                            const isBlockStart = blocks.some(
-                              (block) =>
-                                block.start.hour === timeSlot.hour &&
-                                block.start.minute === timeSlot.minute,
-                            );
-                            // isBlockEnd : dernière ligne VISIBLE du bloc (pas forcément block.end exact)
-                            const isBlockEnd =
-                              currentBlock &&
-                              // Soit c'est exactement la fin du bloc
-                              ((currentBlock.end.hour === timeSlot.hour &&
-                                currentBlock.end.minute === timeSlot.minute) ||
-                                // Soit c'est la dernière ligne enabled avant la fin
-                                (timeSlot.hour * 60 + timeSlot.minute <
-                                  currentBlock.end.hour * 60 +
-                                    currentBlock.end.minute &&
-                                  timeSlot.hour * 60 +
-                                    timeSlot.minute +
-                                    state.timeGranularity >=
-                                    currentBlock.end.hour * 60 +
-                                      currentBlock.end.minute));
-                            const isBlockMiddle =
-                              currentBlock && !isBlockStart && !isBlockEnd;
-
-                            return (
-                              <button
-                                key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
-                                data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
-                                onClick={() =>
-                                  handleTimeSlotToggle(
-                                    dateStr,
-                                    timeSlot.hour,
-                                    timeSlot.minute,
-                                  )
-                                }
-                                className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
-                                  ${slot?.enabled ? "bg-blue-900/30" : "bg-[#1e1e1e]"}
-                                  ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
-                                `}
-                              >
-                                {slot?.enabled && (
-                                  <div
-                                    className={`absolute bg-blue-500 transition-all
-                                    ${isBlockStart && isBlockEnd ? "inset-1 rounded-lg" : ""}
-                                    ${isBlockStart && !isBlockEnd ? "inset-x-1 top-1 bottom-0 rounded-t-lg" : ""}
-                                    ${isBlockEnd && !isBlockStart ? "inset-x-1 bottom-1 top-0 rounded-b-lg" : ""}
-                                    ${isBlockMiddle ? "inset-x-1 top-0 bottom-0" : ""}
-                                  `}
-                                  >
-                                    {isBlockStart && currentBlock && (
-                                      <div className="absolute top-0.5 left-0.5 right-0.5">
-                                        <div className="text-white text-[10px] font-semibold text-center bg-blue-600 rounded px-0.5 py-0.5">
-                                          {`${currentBlock.start.hour.toString().padStart(2, "0")}:${currentBlock.start.minute.toString().padStart(2, "0")}`}
-                                        </div>
-                                      </div>
-                                    )}
-                                    {isBlockEnd && currentBlock && (
-                                      <div className="absolute bottom-0.5 left-0.5 right-0.5">
-                                        <div className="text-white text-[10px] font-semibold text-center bg-blue-600 rounded px-0.5 py-0.5">
-                                          {`${currentBlock.end.hour.toString().padStart(2, "0")}:${currentBlock.end.minute.toString().padStart(2, "0")}`}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      ))}
                     </div>
                   </div>
-                </div>
 
-                {/* Bouton Afficher plus d'horaires */}
-                <div className="p-3 bg-[#0a0a0a] border-t border-gray-700">
-                  <button
-                    onClick={() =>
-                      setState((prev) => ({
-                        ...prev,
-                        showExtendedHours: !prev.showExtendedHours,
-                      }))
-                    }
-                    className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
+                  {/* Desktop: Section horaires avec scroll */}
+                  <div
+                    className="hidden md:block"
+                    data-testid="time-slots-section"
                   >
-                    <Plus className="w-3 h-3" />
-                    <span>
-                      {state.showExtendedHours
-                        ? "Masquer les horaires étendus"
-                        : "Afficher plus d'horaires"}
-                    </span>
-                  </button>
+                    <div className="border border-gray-700 rounded-lg bg-[#1e1e1e] overflow-hidden">
+                      {/* En-têtes des dates */}
+                      <div className="flex bg-[#0a0a0a]">
+                        <div className="w-16 p-2 text-xs font-medium text-gray-300 flex items-center justify-center border-r border-gray-700">
+                          Heure
+                        </div>
+                        {state.selectedDates.map((dateStr) => {
+                          const dateInfo =
+                            PollCreatorService.formatSelectedDateHeader(
+                              dateStr,
+                            );
+                          return (
+                            <div
+                              key={dateStr}
+                              className="flex-1 p-2 text-center border-r bg-blue-600 text-white"
+                            >
+                              <div className="text-xs font-medium">
+                                {dateInfo.dayName}
+                              </div>
+                              <div className="text-sm font-bold">
+                                {dateInfo.dayNumber}
+                              </div>
+                              <div className="text-xs opacity-90">
+                                {dateInfo.month}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Créneaux horaires */}
+                      <div
+                        ref={timeGridRef}
+                        className="max-h-48 overflow-y-auto"
+                        data-testid="time-slots-grid"
+                      >
+                        {getVisibleTimeSlots().map((timeSlot) => (
+                          <div
+                            key={`${timeSlot.hour}-${timeSlot.minute}`}
+                            data-time-hour={timeSlot.hour}
+                            className="flex border-b border-gray-100"
+                          >
+                            <div className="w-16 p-2 text-xs text-gray-300 flex items-center justify-center border-r border-gray-700 bg-[#0a0a0a]">
+                              {timeSlot.label}
+                            </div>
+                            {state.selectedDates.map((dateStr, colIndex) => {
+                              const slot = timeSlotsByDate[dateStr]?.find(
+                                (s) =>
+                                  s.hour === timeSlot.hour &&
+                                  s.minute === timeSlot.minute,
+                              );
+                              const blocks = getTimeSlotBlocks(dateStr);
+                              const currentBlock = blocks.find(
+                                (block) =>
+                                  timeSlot.hour * 60 + timeSlot.minute >=
+                                    block.start.hour * 60 +
+                                      block.start.minute &&
+                                  timeSlot.hour * 60 + timeSlot.minute <=
+                                    block.end.hour * 60 + block.end.minute,
+                              );
+                              const isBlockStart = blocks.some(
+                                (block) =>
+                                  block.start.hour === timeSlot.hour &&
+                                  block.start.minute === timeSlot.minute,
+                              );
+                              // isBlockEnd : dernière ligne VISIBLE du bloc (pas forcément block.end exact)
+                              const isBlockEnd =
+                                currentBlock &&
+                                // Soit c'est exactement la fin du bloc
+                                ((currentBlock.end.hour === timeSlot.hour &&
+                                  currentBlock.end.minute ===
+                                    timeSlot.minute) ||
+                                  // Soit c'est la dernière ligne enabled avant la fin
+                                  (timeSlot.hour * 60 + timeSlot.minute <
+                                    currentBlock.end.hour * 60 +
+                                      currentBlock.end.minute &&
+                                    timeSlot.hour * 60 +
+                                      timeSlot.minute +
+                                      state.timeGranularity >=
+                                      currentBlock.end.hour * 60 +
+                                        currentBlock.end.minute));
+                              const isBlockMiddle =
+                                currentBlock && !isBlockStart && !isBlockEnd;
+
+                              return (
+                                <button
+                                  key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
+                                  data-testid={`time-slot-${String(timeSlot.hour).padStart(2, "0")}-${String(timeSlot.minute).padStart(2, "0")}-col-${colIndex}`}
+                                  onClick={() =>
+                                    handleTimeSlotToggle(
+                                      dateStr,
+                                      timeSlot.hour,
+                                      timeSlot.minute,
+                                    )
+                                  }
+                                  className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
+                                  ${slot?.enabled ? "bg-blue-900/30" : "bg-[#1e1e1e]"}
+                                  ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
+                                `}
+                                >
+                                  {slot?.enabled && (
+                                    <div
+                                      className={`absolute bg-blue-500 transition-all
+                                    ${isBlockStart && isBlockEnd ? "inset-1 rounded-lg" : ""}
+                                    ${isBlockStart && !isBlockEnd ? "inset-x-1 top-1 bottom-0 rounded-t-lg" : ""}
+                                    ${isBlockEnd && !isBlockStart ? "inset-x-1 bottom-1 top-0 rounded-b-lg" : ""}
+                                    ${isBlockMiddle ? "inset-x-1 top-0 bottom-0" : ""}
+                                  `}
+                                    >
+                                      {isBlockStart && currentBlock && (
+                                        <div className="absolute top-0.5 left-0.5 right-0.5">
+                                          <div className="text-white text-[10px] font-semibold text-center bg-blue-600 rounded px-0.5 py-0.5">
+                                            {`${currentBlock.start.hour.toString().padStart(2, "0")}:${currentBlock.start.minute.toString().padStart(2, "0")}`}
+                                          </div>
+                                        </div>
+                                      )}
+                                      {isBlockEnd && currentBlock && (
+                                        <div className="absolute bottom-0.5 left-0.5 right-0.5">
+                                          <div className="text-white text-[10px] font-semibold text-center bg-blue-600 rounded px-0.5 py-0.5">
+                                            {`${currentBlock.end.hour.toString().padStart(2, "0")}:${currentBlock.end.minute.toString().padStart(2, "0")}`}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bouton Afficher plus d'horaires */}
+                  <div className="p-3 bg-[#0a0a0a] border-t border-gray-700">
+                    <button
+                      onClick={() =>
+                        setState((prev) => ({
+                          ...prev,
+                          showExtendedHours: !prev.showExtendedHours,
+                        }))
+                      }
+                      className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>
+                        {state.showExtendedHours
+                          ? "Masquer les horaires étendus"
+                          : "Afficher plus d'horaires"}
+                      </span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : null;
+            })()}
 
             {/* Aperçu en direct du sondage (lecture seule) - MASQUÉ */}
             {false && state.selectedDates.length > 0 && (

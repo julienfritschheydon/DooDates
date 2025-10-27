@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { ConditionalRule } from "../../types/conditionalRules";
 import ConditionalRuleEditor from "./ConditionalRuleEditor";
+import { useConversation } from "../prototype/ConversationProvider";
 
 export type QuestionKind = "single" | "multiple" | "text" | "matrix";
 
@@ -61,7 +62,13 @@ export default function QuestionCard({
   conditionalRules,
   onConditionalRulesChange,
 }: QuestionCardProps) {
+  const { highlightedId, highlightType } = useConversation();
   const [showConditionalEditor, setShowConditionalEditor] = useState(false);
+
+  // Déterminer si cette question doit être animée
+  const isHighlighted = highlightedId === question.id;
+  const highlightClass =
+    isHighlighted && highlightType ? `question-highlight-${highlightType}` : "";
   // Sauvegarder les options avant de changer de type (pour pouvoir les restaurer)
   const [savedOptions, setSavedOptions] = useState<
     QuestionOption[] | undefined
@@ -297,7 +304,9 @@ export default function QuestionCard({
 
   if (!isActive) {
     return (
-      <div className="rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3">
+      <div
+        className={`rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 ${highlightClass}`}
+      >
         <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div>
             <div className="font-medium break-words text-white">
@@ -347,7 +356,9 @@ export default function QuestionCard({
   }
 
   return (
-    <div className="rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3">
+    <div
+      className={`rounded-md border border-gray-700 bg-[#1a1a1a] p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 ${highlightClass}`}
+    >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <select

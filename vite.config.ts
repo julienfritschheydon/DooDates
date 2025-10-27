@@ -4,12 +4,17 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Base URL pour GitHub Pages
+  base: process.env.NODE_ENV === 'production' ? '/DooDates/' : '/',
+  
   server: {
     port: 8080,
-    host: true,
+    host: true, // Expose sur le réseau local
     hmr: {
       overlay: false,
     },
+    // Optionnel : Ouvrir automatiquement le navigateur
+    // open: true,
   },
   plugins: [
     react(),

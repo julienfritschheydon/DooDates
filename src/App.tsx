@@ -20,6 +20,7 @@ import { Loader2 } from "lucide-react";
 import { TopBar } from "./components/layout/TopBar";
 import { FEATURES } from "./lib/features";
 import { ConversationProvider } from "./components/prototype/ConversationProvider";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Composant de loading optimisé
 const LoadingSpinner = () => (
@@ -39,7 +40,7 @@ const Results = lazy(() => import("./pages/Results"));
 const CreateChooser = lazy(() => import("./pages/CreateChooser"));
 const DateCreator = lazy(() => import("./pages/DateCreator"));
 const FormCreator = lazy(() => import("./pages/FormCreator"));
-const Dashboard = lazy(() => import("./components/Dashboard"));
+const Dashboard = lazy(() => import("./components/DashboardNew"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Prototype pages (UX IA-First)
@@ -351,9 +352,15 @@ const LayoutPrototype = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Sinon, utiliser layout sans TopBar (style Gemini)
+  const isMobile = useIsMobile();
+
   return (
     <div className="flex flex-col h-screen">
-      <main className="flex-1 overflow-hidden">{children}</main>
+      <main
+        className={`flex-1 ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}
+      >
+        {children}
+      </main>
     </div>
   );
 };

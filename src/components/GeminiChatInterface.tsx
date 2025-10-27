@@ -48,6 +48,7 @@ import { logger } from "../lib/logger";
 import { useToast } from "@/hooks/use-toast";
 import { useConversation } from "./prototype/ConversationProvider";
 import { IntentDetectionService } from "../services/IntentDetectionService";
+import { FormPollIntentService } from "../services/FormPollIntentService";
 
 // Global initialization guard to prevent multiple conversation creation
 let isInitializing = false;
@@ -65,6 +66,7 @@ interface Message {
 interface GeminiChatInterfaceProps {
   onPollCreated?: (pollData: PollSuggestion) => void;
   onNewChat?: () => void;
+  onUserMessage?: () => void;
   resumeLastConversation?: boolean;
   hideStatusBar?: boolean;
   darkTheme?: boolean;
@@ -123,10 +125,11 @@ const convertFormSuggestionToDraft = (
 const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   onPollCreated,
   onNewChat,
+  onUserMessage,
   resumeLastConversation = false,
   hideStatusBar = false,
   darkTheme = false,
-}): JSX.Element => {
+}: GeminiChatInterfaceProps): JSX.Element => {
   // Utiliser les messages du Context pour la persistance
   const { messages, setMessages, currentPoll, dispatchPollAction } =
     useConversation();
@@ -502,6 +505,9 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
+    // Notifier le parent que l'utilisateur envoie un message
+    onUserMessage?.();
+
     // Check conversation quota before proceeding
     if (!quota.checkConversationLimit()) {
       return; // Modal will be shown by the quota hook
@@ -509,12 +515,17 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
     // 🎯 PROTOTYPE: Détecter les intentions de modification
     if (currentPoll) {
-      const intent = IntentDetectionService.detectSimpleIntent(
+      // Essayer d'abord la détection Date Poll
+      const dateIntent = IntentDetectionService.detectSimpleIntent(
         inputValue,
         currentPoll,
       );
 
-      if (intent && intent.isModification && intent.confidence > 0.7) {
+      if (
+        dateIntent &&
+        dateIntent.isModification &&
+        dateIntent.confidence > 0.7
+      ) {
         // Ajouter le message utilisateur
         const userMessage: Message = {
           id: `user-${Date.now()}`,
@@ -525,36 +536,91 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         setMessages((prev) => [...prev, userMessage]);
         setInputValue("");
 
-        // Sauvegarder l'état actuel pour comparer après
+        // Vérifier AVANT de dispatcher pour détecter les doublons
         const previousDates = currentPoll.dates || [];
+        const isAlreadyInPoll = previousDates.includes(dateIntent.payload);
+        const isNotInPoll = !previousDates.includes(dateIntent.payload);
 
         // Dispatcher l'action
         dispatchPollAction({
-          type: intent.action as any,
-          payload: intent.payload,
+          type: dateIntent.action as any,
+          payload: dateIntent.payload,
         });
 
-        // Feedback intelligent selon l'action
-        let confirmContent = `✅ ${intent.explanation}`;
+        // Feedback intelligent selon l'action avec icons
+        const dateActionIcons: Record<string, string> = {
+          ADD_DATE: "📅",
+          REMOVE_DATE: "🗑️",
+          UPDATE_TITLE: "✏️",
+          ADD_TIMESLOT: "🕐",
+          REPLACE_POLL: "🔄",
+        };
+        const dateIcon = dateActionIcons[dateIntent.action] || "✅";
 
-        if (
-          intent.action === "ADD_DATE" &&
-          previousDates.includes(intent.payload)
-        ) {
-          confirmContent = `ℹ️ La date ${intent.payload.split("-").reverse().join("/")} est déjà dans le sondage`;
+        let confirmContent = `${dateIcon} ${dateIntent.explanation}`;
+
+        if (dateIntent.action === "ADD_DATE" && isAlreadyInPoll) {
+          confirmContent = `ℹ️ La date ${dateIntent.payload.split("-").reverse().join("/")} est déjà dans le sondage`;
         }
 
-        if (
-          intent.action === "REMOVE_DATE" &&
-          !previousDates.includes(intent.payload)
-        ) {
-          confirmContent = `ℹ️ La date ${intent.payload.split("-").reverse().join("/")} n'est pas dans le sondage`;
+        if (dateIntent.action === "REMOVE_DATE" && isNotInPoll) {
+          confirmContent = `ℹ️ La date ${dateIntent.payload.split("-").reverse().join("/")} n'est pas dans le sondage`;
         }
 
         // Message de confirmation
         const confirmMessage: Message = {
           id: `ai-${Date.now()}`,
           content: confirmContent,
+          isAI: true,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, confirmMessage]);
+
+        return; // Ne pas appeler Gemini
+      }
+
+      // Si pas de date intent, essayer Form Poll intent
+      const formIntent = FormPollIntentService.detectIntent(
+        inputValue,
+        currentPoll,
+      );
+
+      if (
+        formIntent &&
+        formIntent.isModification &&
+        formIntent.confidence > 0.7
+      ) {
+        // Ajouter le message utilisateur
+        const userMessage: Message = {
+          id: `user-${Date.now()}`,
+          content: inputValue.trim(),
+          isAI: false,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, userMessage]);
+        setInputValue("");
+
+        // Dispatcher l'action
+        dispatchPollAction({
+          type: formIntent.action as any,
+          payload: formIntent.payload,
+        });
+
+        // Message de confirmation avec icon selon l'action
+        const actionIcons: Record<string, string> = {
+          ADD_QUESTION: "➕",
+          REMOVE_QUESTION: "🗑️",
+          CHANGE_QUESTION_TYPE: "🔄",
+          ADD_OPTION: "➕",
+          REMOVE_OPTION: "❌",
+          SET_REQUIRED: "⭐",
+          RENAME_QUESTION: "✏️",
+        };
+        const icon = actionIcons[formIntent.action] || "✅";
+
+        const confirmMessage: Message = {
+          id: `ai-${Date.now()}`,
+          content: `${icon} ${formIntent.explanation}`,
           isAI: true,
           timestamp: new Date(),
         };
@@ -746,6 +812,20 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     // Si on a un callback onPollCreated, l'utiliser au lieu d'afficher le créateur
     if (onPollCreated) {
       console.log("🎯 Appel de onPollCreated");
+
+      // Mettre à jour l'URL avec conversationId AVANT d'appeler onPollCreated
+      const realConversationId = autoSave.getRealConversationId();
+      const conversationId = realConversationId || autoSave.conversationId;
+
+      if (
+        conversationId &&
+        !window.location.search.includes("conversationId")
+      ) {
+        const newUrl = `${window.location.pathname}?conversationId=${conversationId}`;
+        window.history.replaceState({}, "", newUrl);
+        console.log("🔗 URL mise à jour avec conversationId:", conversationId);
+      }
+
       onPollCreated(suggestion);
       return;
     }
