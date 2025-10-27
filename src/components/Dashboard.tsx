@@ -36,17 +36,15 @@ interface DashboardPoll extends StoragePoll {
 function findRelatedConversation(poll: DashboardPoll): string | undefined {
   // Si déjà défini, le retourner
   if (poll.relatedConversationId) return poll.relatedConversationId;
-
+  
   // Sinon, chercher une conversation avec le même titre de sondage
   try {
     const conversations = getConversations();
-    const match = conversations.find((conv) => {
+    const match = conversations.find(conv => {
       // Chercher dans les métadonnées si un sondage a été créé avec ce titre
       const metadata = conv.metadata as any;
-      return (
-        metadata?.pollGenerated &&
-        metadata?.pollTitle?.toLowerCase() === poll.title.toLowerCase()
-      );
+      return metadata?.pollGenerated && 
+             metadata?.pollTitle?.toLowerCase() === poll.title.toLowerCase();
     });
     return match?.id;
   } catch {
@@ -203,14 +201,12 @@ const Dashboard: React.FC = () => {
     const matchesSearch = poll.title
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-
+    
     // Debug logs pour comprendre le filtrage
     if (filter !== "all") {
-      console.log(
-        `🔍 Filter: ${filter}, Poll: ${poll.title}, Status: ${poll.status}, Matches: ${matchesFilter}`,
-      );
+      console.log(`🔍 Filter: ${filter}, Poll: ${poll.title}, Status: ${poll.status}, Matches: ${matchesFilter}`);
     }
-
+    
     return matchesFilter && matchesSearch;
   });
 
@@ -463,9 +459,7 @@ const Dashboard: React.FC = () => {
                               💬 Créé par IA
                             </span>
                             <button
-                              onClick={() =>
-                                navigate(`/?conversation=${conversationId}`)
-                              }
+                              onClick={() => navigate(`/?conversation=${conversationId}`)}
                               className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
                             >
                               Reprendre la conversation →
@@ -502,7 +496,7 @@ const Dashboard: React.FC = () => {
                           }}
                           onAfterDelete={() => {
                             console.log("🗑️ After delete, refreshing...");
-                            setRefreshKey((prev) => prev + 1);
+                            setRefreshKey(prev => prev + 1);
                             getUserPolls();
                           }}
                           onAfterArchive={() => {
@@ -550,14 +544,9 @@ const Dashboard: React.FC = () => {
             <div className="mt-6">
               <ConversationHistory
                 onResumeConversation={(conversationId) => {
-                  console.log(
-                    "🔄 Dashboard: Resuming conversation",
-                    conversationId,
-                  );
+                  console.log("🔄 Dashboard: Resuming conversation", conversationId);
                   navigate(`/chat?resume=${conversationId}`);
-                  console.log(
-                    "✅ Dashboard: Navigated to /chat?resume=" + conversationId,
-                  );
+                  console.log("✅ Dashboard: Navigated to /chat?resume=" + conversationId);
                 }}
                 onCreateConversation={() => {
                   console.log("➕ Dashboard: Creating new conversation");
