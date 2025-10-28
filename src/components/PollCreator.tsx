@@ -71,7 +71,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const { toast } = useToast();
   const shareRef = useRef<HTMLDivElement>(null);
   const timeSlotsRef = useRef<HTMLDivElement>(null);
-  const timeGridRef = useRef<HTMLDivElement>(null);
+  const timeGridRefMobile = useRef<HTMLDivElement>(null); // Grille mobile
+  const timeGridRefDesktop = useRef<HTMLDivElement>(null); // Grille desktop
+  const targetTimeSlotRefMobile = useRef<HTMLDivElement>(null); // 12:00 mobile
+  const targetTimeSlotRefDesktop = useRef<HTMLDivElement>(null); // 12:00 desktop
+  const hasAutoScrolled = useRef<boolean>(false);
 
   // Helper functions
   const canFinalize = () => PollCreatorService.canFinalize(state);
@@ -435,46 +439,77 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       timeGranularity: optimalGranularity,
     }));
 
-    // Trouver la première heure sélectionnée pour scroller la grille
-    const firstSlot = Object.values(convertedTimeSlots)[0]?.[0];
-    const firstHour = firstSlot?.hour || 0;
-
-    // Faire défiler vers la section horaires après un délai suffisant
-    setTimeout(() => {
-      if (timeSlotsRef.current) {
-        const scrollContainer =
-          timeSlotsRef.current.closest(".overflow-y-auto");
-
-        if (scrollContainer) {
-          const elementTop = timeSlotsRef.current.offsetTop;
-          const elementHeight = timeSlotsRef.current.offsetHeight;
-          const containerHeight = scrollContainer.clientHeight;
-          const scrollTo = elementTop - containerHeight / 2 + elementHeight / 2;
-
-          scrollContainer.scrollTo({
-            top: Math.max(0, scrollTo),
-            behavior: "smooth",
-          });
-        }
-
-        // Scroller aussi la grille horaire vers la première heure sélectionnée
-        setTimeout(() => {
-          if (timeGridRef.current && firstHour > 0) {
-            const targetRow = timeGridRef.current.querySelector(
-              `[data-hour="${firstHour}"]`,
-            );
-
-            if (targetRow) {
-              targetRow.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-            }
-          }
-        }, 300);
-      }
-    }, 600);
   }, [initialData]);
+
+  // Fonction helper pour scroller vers une heure spécifique
+  const scrollToTime = (hour: number, minute: number) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const mobileContainer = timeGridRefMobile.current;
+          const desktopContainer = timeGridRefDesktop.current;
+          
+          let container: HTMLElement | null = null;
+          
+          if (mobileContainer && mobileContainer.offsetParent !== null) {
+            container = mobileContainer;
+          } else if (desktopContainer && desktopContainer.offsetParent !== null) {
+            container = desktopContainer;
+          }
+          
+          if (!container) return;
+          
+          const targetTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+          const children = Array.from(container.children);
+          const targetElement = children.find(child => 
+            child.textContent?.includes(targetTime)
+          ) as HTMLElement;
+          
+          if (!targetElement) return;
+          
+          // Calculer l'index et scroller
+          const index = children.indexOf(targetElement);
+          const elementHeight = targetElement.offsetHeight;
+          const elementPosition = index * elementHeight;
+          const scrollTop = elementPosition - (container.clientHeight / 2) + (elementHeight / 2);
+          
+          container.scrollTop = Math.max(0, scrollTop);
+        }, 1000);
+      });
+    });
+  };
+
+  // Scroller automatiquement vers la première heure sélectionnée
+  useEffect(() => {
+    if (hasAutoScrolled.current) return;
+    if (state.selectedDates.length === 0) return;
+    
+    // Trouver la première heure sélectionnée dans timeSlotsByDate
+    const allSlots = Object.values(timeSlotsByDate).flat();
+    if (allSlots.length === 0) {
+      // Fallback: chercher dans state.timeSlots
+      if (!state.timeSlots || state.timeSlots.length === 0) return;
+      
+      // Trouver le premier créneau ACTIVÉ (enabled: true)
+      const enabledSlots = state.timeSlots.filter(slot => slot.enabled);
+      if (enabledSlots.length === 0) return;
+      
+      const firstEnabledSlot = enabledSlots[0];
+      hasAutoScrolled.current = true;
+      scrollToTime(firstEnabledSlot.hour, firstEnabledSlot.minute);
+      return;
+    }
+    
+    // Trier par heure pour trouver le premier
+    const sortedSlots = allSlots.sort((a, b) => {
+      if (a.hour !== b.hour) return a.hour - b.hour;
+      return a.minute - b.minute;
+    });
+    
+    const firstSlot = sortedSlots[0];
+    hasAutoScrolled.current = true;
+    scrollToTime(firstSlot.hour, firstSlot.minute);
+  }, [state.selectedDates, timeSlotsByDate]);
 
   const copyPollLink = async () => {
     try {
@@ -552,10 +587,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   return (
     <div className="bg-[#0a0a0a]">
-      <div className="px-4 md:px-6 lg:px-8 xl:px-12 pb-4 md:pb-6 lg:pb-8 xl:pb-12">
+      <div className="px-4 md:px-6 pb-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-[#0a0a0a] p-4 md:p-6 lg:p-8 xl:p-12">
-            <div className="space-y-6 md:space-y-8 lg:space-y-10">
+          <div className="bg-[#0a0a0a] p-4 md:p-6">
+            <div className="space-y-6">
               {/* Titre du sondage - En haut */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -865,7 +900,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   </div>
 
                   {/* Mobile: Section horaires avec scroll */}
-                  <div className="md:hidden" data-testid="time-slots-section">
+                  <div className="md:hidden" data-testid="time-slots-section-mobile">
                     <div className="border border-gray-700 rounded-lg bg-[#1e1e1e] overflow-hidden">
                       {/* En-têtes des dates */}
                       <div className="flex bg-[#0a0a0a]">
@@ -898,14 +933,15 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
                       {/* Créneaux horaires */}
                       <div
-                        ref={timeGridRef}
+                        ref={timeGridRefMobile}
                         className="max-h-48 overflow-y-auto"
-                        data-testid="time-slots-grid"
+                        data-testid="time-slots-grid-mobile"
                       >
                         {getVisibleTimeSlots().map((timeSlot) => (
                           <div
                             key={`${timeSlot.hour}-${timeSlot.minute}`}
                             data-time-hour={timeSlot.hour}
+                            ref={timeSlot.hour === 12 && timeSlot.minute === 0 ? targetTimeSlotRefMobile : null}
                             className="flex border-b border-gray-100"
                           >
                             <div className="w-16 p-2 text-xs text-gray-300 flex items-center justify-center border-r border-gray-700 bg-[#0a0a0a]">
@@ -1003,7 +1039,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   {/* Desktop: Section horaires avec scroll */}
                   <div
                     className="hidden md:block"
-                    data-testid="time-slots-section"
+                    data-testid="time-slots-section-desktop"
                   >
                     <div className="border border-gray-700 rounded-lg bg-[#1e1e1e] overflow-hidden">
                       {/* En-têtes des dates */}
@@ -1037,14 +1073,15 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
                       {/* Créneaux horaires */}
                       <div
-                        ref={timeGridRef}
+                        ref={timeGridRefDesktop}
                         className="max-h-48 overflow-y-auto"
-                        data-testid="time-slots-grid"
+                        data-testid="time-slots-grid-desktop"
                       >
                         {getVisibleTimeSlots().map((timeSlot) => (
                           <div
                             key={`${timeSlot.hour}-${timeSlot.minute}`}
                             data-time-hour={timeSlot.hour}
+                            ref={timeSlot.hour === 12 && timeSlot.minute === 0 ? targetTimeSlotRefDesktop : null}
                             className="flex border-b border-gray-100"
                           >
                             <div className="w-16 p-2 text-xs text-gray-300 flex items-center justify-center border-r border-gray-700 bg-[#0a0a0a]">

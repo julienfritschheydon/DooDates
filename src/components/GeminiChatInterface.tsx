@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
+  useImperativeHandle,
 } from "react";
 import {
   Send,
@@ -47,8 +48,12 @@ import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "../lib/logger";
 import { useToast } from "@/hooks/use-toast";
 import { useConversation } from "./prototype/ConversationProvider";
+import { AIProposalFeedback } from "./polls/AIProposalFeedback";
 import { IntentDetectionService } from "../services/IntentDetectionService";
 import { FormPollIntentService } from "../services/FormPollIntentService";
+import { GeminiIntentService } from "../services/GeminiIntentService";
+import { getConversation } from "../lib/storage/ConversationStorageSimple";
+import { getPollBySlugOrId } from "../lib/pollStorage";
 
 // Global initialization guard to prevent multiple conversation creation
 let isInitializing = false;
@@ -71,6 +76,10 @@ interface GeminiChatInterfaceProps {
   hideStatusBar?: boolean;
   darkTheme?: boolean;
 }
+
+export type GeminiChatHandle = {
+  submitMessage: (text: string) => Promise<void>;
+};
 
 // Fonction de conversion FormPollSuggestion (Gemini) → FormPollDraft (FormPollCreator)
 const convertFormSuggestionToDraft = (
@@ -122,16 +131,16 @@ const convertFormSuggestionToDraft = (
   };
 };
 
-const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
+const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfaceProps>(({
   onPollCreated,
   onNewChat,
   onUserMessage,
-  resumeLastConversation = false,
+  resumeLastConversation = true,
   hideStatusBar = false,
   darkTheme = false,
-}: GeminiChatInterfaceProps): JSX.Element => {
+}, ref) => {
   // Utiliser les messages du Context pour la persistance
-  const { messages, setMessages, currentPoll, dispatchPollAction } =
+  const { messages, setMessages, currentPoll, dispatchPollAction, openEditor, setModifiedQuestion } =
     useConversation();
 
   const [inputValue, setInputValue] = useState("");
@@ -142,6 +151,57 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   const [connectionStatus, setConnectionStatus] = useState<
     "unknown" | "connected" | "error"
   >("unknown");
+  
+  // État pour le feedback IA
+  const [lastAIProposal, setLastAIProposal] = useState<{
+    userRequest: string;
+    generatedContent: any;
+    pollContext?: {
+      pollId?: string;
+      pollTitle?: string;
+      pollType?: string;
+      action?: string;
+    };
+  } | null>(null);
+
+  // Surveiller _highlightedId pour déclencher le feedback visuel (ADD_QUESTION)
+  useEffect(() => {
+    if (currentPoll && (currentPoll as any)._highlightedId && (currentPoll as any)._highlightType === "add") {
+      const highlightedId = (currentPoll as any)._highlightedId;
+      // Pour ADD_QUESTION, on considère que c'est le titre qui a été ajouté
+      setModifiedQuestion(highlightedId, "title");
+    }
+  }, [currentPoll, setModifiedQuestion]);
+
+  // Déterminer si un sondage est déjà lié à cette conversation (persiste après refresh)
+  const linkedPollId = useMemo(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const convId = urlParams.get("conversationId");
+      console.log("🔍 linkedPollId - conversationId:", convId);
+      if (!convId) return null;
+      const conv = getConversation(convId);
+      console.log("🔍 linkedPollId - conversation:", conv);
+      const meta = (conv && (conv as any).metadata) || {};
+      console.log("🔍 linkedPollId - metadata:", meta);
+      const id: string | undefined = meta.pollId || undefined;
+      const generated: boolean = !!meta.pollGenerated;
+      console.log("🔍 linkedPollId - pollId:", id, "generated:", generated);
+      if (id && typeof id === "string" && id.trim()) return id;
+      // Fallback: indicateur généré sans id
+      return generated ? "generated" : null;
+    } catch (e) {
+      console.error("❌ linkedPollId error:", e);
+      return null;
+    }
+  }, [messages]);
+
+  const hasLinkedPoll = useMemo(() => {
+    // Si un poll est actuellement chargé ou si un pollId est enregistré dans les métadonnées
+    const result = currentPoll ? true : !!linkedPollId;
+    console.log("🔍 hasLinkedPoll:", result, "currentPoll:", !!currentPoll, "linkedPollId:", linkedPollId);
+    return result;
+  }, [currentPoll, linkedPollId]);
 
   // Auto-save and conversation resume hooks
   const navigate = useNavigate();
@@ -502,11 +562,12 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  // Core sending logic, parameterized for normal input vs programmatic calls
+  const sendMessageWithText = useCallback(async (text: string, notifyParent: boolean) => {
+    const trimmedText = (text || "").trim();
+    if (!trimmedText || isLoading) return;
 
-    // Notifier le parent que l'utilisateur envoie un message
-    onUserMessage?.();
+    if (notifyParent) onUserMessage?.();
 
     // Check conversation quota before proceeding
     if (!quota.checkConversationLimit()) {
@@ -517,7 +578,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     if (currentPoll) {
       // Essayer d'abord la détection Date Poll
       const dateIntent = IntentDetectionService.detectSimpleIntent(
-        inputValue,
+        trimmedText,
         currentPoll,
       );
 
@@ -529,12 +590,11 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         // Ajouter le message utilisateur
         const userMessage: Message = {
           id: `user-${Date.now()}`,
-          content: inputValue.trim(),
+          content: trimmedText,
           isAI: false,
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, userMessage]);
-        setInputValue("");
 
         // Vérifier AVANT de dispatcher pour détecter les doublons
         const previousDates = currentPoll.dates || [];
@@ -545,6 +605,22 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         dispatchPollAction({
           type: dateIntent.action as any,
           payload: dateIntent.payload,
+        });
+        
+        // Stocker la proposition IA pour le feedback
+        setLastAIProposal({
+          userRequest: trimmedText,
+          generatedContent: {
+            action: dateIntent.action,
+            payload: dateIntent.payload,
+            explanation: dateIntent.explanation,
+          },
+          pollContext: {
+            pollId: currentPoll.id,
+            pollTitle: currentPoll.title,
+            pollType: "date",
+            action: "modify",
+          },
         });
 
         // Feedback intelligent selon l'action avec icons
@@ -579,11 +655,52 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         return; // Ne pas appeler Gemini
       }
 
-      // Si pas de date intent, essayer Form Poll intent
-      const formIntent = FormPollIntentService.detectIntent(
-        inputValue,
+      // Si pas de date intent, essayer Form Poll intent avec regex
+      let formIntent = FormPollIntentService.detectIntent(
+        trimmedText,
         currentPoll,
       );
+
+      // Fallback sur l'IA si regex n'a pas matché
+      if (!formIntent || !formIntent.isModification || formIntent.confidence < 0.7) {
+        logger.info("⚠️ Regex n'a pas matché, fallback sur IA Gemini", "poll");
+        const aiIntent = await GeminiIntentService.detectFormIntent(
+          trimmedText,
+          currentPoll,
+        );
+        
+        if (aiIntent && aiIntent.isModification && aiIntent.confidence > 0.8) {
+          // Log le gap pour améliorer les regex plus tard
+          GeminiIntentService.logMissingPattern(trimmedText, aiIntent);
+          formIntent = aiIntent as any; // Convertir au format FormModificationIntent
+        } else {
+          // Ni regex ni IA n'ont réussi - proposer à l'utilisateur de signaler
+          logger.warn("❌ Modification non reconnue par regex ET IA", "poll", {
+            message: trimmedText,
+            aiConfidence: aiIntent?.confidence || 0,
+          });
+          
+          // Message d'erreur avec lien pour signaler
+          const errorMessage: Message = {
+            id: `ai-${Date.now()}`,
+            content: `❌ Je n'ai pas compris cette demande de modification. 
+
+Vous pouvez :
+- Reformuler votre demande plus simplement
+- [Signaler ce problème](mailto:support@doodates.app?subject=Modification non reconnue&body=Message: "${trimmedText}"%0A%0APoll: ${currentPoll.title})
+
+Exemples de modifications supportées :
+- "ajoute une question sur [sujet]"
+- "rends la question 3 obligatoire"
+- "supprime la question 2"
+- "change la question 1 en choix multiple"`,
+            isAI: true,
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, errorMessage]);
+          return; // Ne pas continuer
+        }
+      }
 
       if (
         formIntent &&
@@ -593,18 +710,58 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
         // Ajouter le message utilisateur
         const userMessage: Message = {
           id: `user-${Date.now()}`,
-          content: inputValue.trim(),
+          content: trimmedText,
           isAI: false,
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, userMessage]);
-        setInputValue("");
 
         // Dispatcher l'action
+        // Convertir questionIndex de 1-based à 0-based si nécessaire
+        let payload = formIntent.payload;
+        if (payload.questionIndex !== undefined) {
+          payload = {
+            ...payload,
+            questionIndex: payload.questionIndex - 1, // Convertir 1-based → 0-based
+          };
+        }
+        
+        // Convertir title → subject pour ADD_QUESTION (compatibilité reducer)
+        if (formIntent.action === "ADD_QUESTION" && payload.title) {
+          payload = {
+            subject: payload.title, // Le reducer attend "subject"
+          };
+        }
+        
+        logger.info("🔄 Dispatch action", "poll", {
+          action: formIntent.action,
+          payload: payload,
+        });
         dispatchPollAction({
           type: formIntent.action as any,
-          payload: formIntent.payload,
+          payload: payload,
         });
+        
+        // Stocker la proposition IA pour le feedback
+        setLastAIProposal({
+          userRequest: trimmedText,
+          generatedContent: {
+            action: formIntent.action,
+            payload: payload,
+            explanation: formIntent.explanation,
+          },
+          pollContext: {
+            pollId: currentPoll.id,
+            pollTitle: currentPoll.title,
+            pollType: "form",
+            action: "modify",
+          },
+        });
+
+        // Déclencher le feedback visuel si une question a été modifiée
+        if (formIntent.modifiedQuestionId && formIntent.modifiedField) {
+          setModifiedQuestion(formIntent.modifiedQuestionId, formIntent.modifiedField);
+        }
 
         // Message de confirmation avec icon selon l'action
         const actionIcons: Record<string, string> = {
@@ -631,7 +788,7 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     }
 
     // Détecter si c'est un markdown questionnaire long
-    const trimmedInput = inputValue.trim();
+    const trimmedInput = trimmedText;
     const isLongMarkdown =
       trimmedInput.length > 500 && /^#\s+.+$/m.test(trimmedInput);
     const displayContent = isLongMarkdown
@@ -646,7 +803,6 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setInputValue("");
     setIsLoading(true);
 
     // Ajouter un message de progression si markdown détecté
@@ -803,6 +959,17 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
     } finally {
       setIsLoading(false);
     }
+  }, [autoSave, currentPoll, dispatchPollAction, isLoading, onPollCreated, onUserMessage, quota, setMessages]);
+
+  // Expose programmatic submission (used by mobile Preview input)
+  useImperativeHandle(ref, () => ({
+    submitMessage: async (text: string) => sendMessageWithText(text, false),
+  }));
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isLoading) return;
+    await sendMessageWithText(inputValue, true);
+    setInputValue("");
   };
 
   const handleUsePollSuggestion = (suggestion: PollSuggestion) => {
@@ -878,12 +1045,12 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
   };
 
   // Afficher le PollCreator si demandé
-  console.log(
-    "🔍 showPollCreator:",
-    showPollCreator,
-    "selectedPollData:",
-    selectedPollData,
-  );
+  // console.log(
+  //   "🔍 showPollCreator:",
+  //   showPollCreator,
+  //   "selectedPollData:",
+  //   selectedPollData,
+  // );
   if (showPollCreator) {
     const realConversationId = autoSave.getRealConversationId();
     const conversationId = realConversationId || autoSave.conversationId;
@@ -925,12 +1092,16 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
               description: "Votre questionnaire a été sauvegardé avec succès.",
             });
           }}
-          onFinalize={(draft) => {
-            logger.info("Form Poll finalisé", "poll", { draftId: draft.id });
+          onFinalize={(draft, savedPoll) => {
+            logger.info("Form Poll finalisé", "poll", { draftId: draft.id, savedId: savedPoll?.id });
             toast({
               title: "🎉 Questionnaire créé !",
               description: "Votre formulaire est maintenant disponible.",
             });
+            // Auto-ouvrir la preview du formulaire créé si disponible
+            if (savedPoll) {
+              try { openEditor(savedPoll as any); } catch {}
+            }
             setShowPollCreator(false);
             setSelectedPollData(null);
           }}
@@ -954,21 +1125,19 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
       {/* Barre d'état compacte */}
       {false && (
         <div
-          className={`sticky top-[80px] z-40 p-2 md:p-3 ${
-            darkTheme ? "bg-gray-900" : "bg-white"
-          }`}
+          className={`sticky top-[80px] z-40 p-2 md:p-3 ${darkTheme ? "bg-gray-900" : "bg-white"
+            }`}
         >
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <div
-                  className={`w-2 h-2 rounded-full ${
-                    connectionStatus === "connected"
+                  className={`w-2 h-2 rounded-full ${connectionStatus === "connected"
                       ? "bg-blue-500"
                       : connectionStatus === "error"
                         ? "bg-red-500"
                         : "bg-yellow-500"
-                  }`}
+                    }`}
                 ></div>
                 <span className="text-sm text-gray-600">
                   {connectionStatus === "connected"
@@ -1004,60 +1173,51 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
 
       {/* Zone de conversation */}
       <div
-        className={`flex-1 overflow-y-auto ${
-          darkTheme
+        className={`flex-1 overflow-y-auto ${darkTheme
             ? "bg-[#0a0a0a]"
             : "bg-gradient-to-br from-blue-50 to-indigo-50"
-        } ${
-          messages.length === 0 ? "flex items-center justify-center" : "pb-32"
-        }`}
+          } ${messages.length === 0 ? "flex items-center justify-center" : "pb-20 md:pb-32"
+          }`}
       >
         <div
-          className={`max-w-4xl mx-auto p-2 md:p-4 ${
-            messages.length > 0 ? "space-y-3 md:space-y-4" : ""
-          }`}
+          className={`max-w-4xl mx-auto p-2 md:p-4 ${messages.length > 0 ? "space-y-3 md:space-y-4" : ""
+            }`}
         >
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center">
               <div
-                className={`max-w-md ${
-                  darkTheme ? "text-white" : "text-gray-900"
-                }`}
+                className={`max-w-md ${darkTheme ? "text-white" : "text-gray-900"
+                  }`}
               >
                 <div
-                  className={`flex items-center justify-center w-16 h-16 rounded-full mx-auto mb-4 ${
-                    darkTheme
+                  className={`flex items-center justify-center w-16 h-16 rounded-full mx-auto mb-4 ${darkTheme
                       ? "bg-blue-900 text-blue-300"
                       : "bg-blue-100 text-blue-600"
-                  }`}
+                    }`}
                 >
                   <Sparkles className="w-8 h-8" />
                 </div>
                 <h3
-                  className={`text-lg font-medium mb-2 ${
-                    darkTheme ? "text-blue-400" : "text-gray-900"
-                  }`}
+                  className={`text-lg font-medium mb-2 ${darkTheme ? "text-blue-400" : "text-gray-900"
+                    }`}
                 >
                   Bonjour ! 👋
                 </h3>
                 <p
-                  className={`mb-4 ${
-                    darkTheme ? "text-gray-300" : "text-gray-600"
-                  }`}
+                  className={`mb-4 ${darkTheme ? "text-gray-300" : "text-gray-600"
+                    }`}
                 >
                   Je suis votre assistant IA pour créer des sondages de dates et
                   des questionnaires. Décrivez-moi ce que vous souhaitez !
                 </p>
                 <div
-                  className={`text-sm space-y-2 ${
-                    darkTheme ? "text-gray-400" : "text-gray-500"
-                  }`}
+                  className={`text-sm space-y-2 ${darkTheme ? "text-gray-400" : "text-gray-500"
+                    }`}
                 >
                   <div>
                     <p
-                      className={`font-medium mb-1 ${
-                        darkTheme ? "text-gray-300" : "text-gray-700"
-                      }`}
+                      className={`font-medium mb-1 ${darkTheme ? "text-gray-300" : "text-gray-700"
+                        }`}
                     >
                       📅 Sondages de dates :
                     </p>
@@ -1066,9 +1226,8 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                   </div>
                   <div>
                     <p
-                      className={`font-medium mb-1 ${
-                        darkTheme ? "text-gray-300" : "text-gray-700"
-                      }`}
+                      className={`font-medium mb-1 ${darkTheme ? "text-gray-300" : "text-gray-700"
+                        }`}
                     >
                       📝 Questionnaires :
                     </p>
@@ -1096,154 +1255,178 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                     </svg>
                   </div>
                 )}
-
                 <div
-                  className={`
-                  max-w-[80%]
-                  ${
-                    message.isAI
+                  className={`max-w-[80%] ${message.isAI
                       ? darkTheme
                         ? "text-gray-100"
                         : "text-gray-900"
                       : "bg-[#3c4043] text-white rounded-[20px] px-5 py-3"
-                  }
-                `}
+                    } whitespace-pre-wrap break-words`}
                 >
                   {message.content}
                   {message.pollSuggestion && (
                     <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
+                      {/* Description si présente */}
+                      {message.pollSuggestion.description && (
+                        <p className="text-sm text-gray-600 mb-3">
+                          {message.pollSuggestion.description}
+                        </p>
+                      )}
+
                       <div className="space-y-3">
-                        <h3
-                          className={`text-base font-medium mb-3 ${
-                            darkTheme ? "text-white" : "text-gray-900"
-                          }`}
-                        >
-                          {message.pollSuggestion.title}
-                        </h3>
+                        {/* Affichage conditionnel selon le type */}
+                        {message.pollSuggestion.type === "form" ? (
+                          /* Affichage Form Poll (questionnaire) - MÊME DESIGN QUE DATE POLL */
+                          <div className="space-y-2 md:space-y-3">
+                            {message.pollSuggestion.questions?.map(
+                              (question, idx) => (
+                                <div
+                                  key={idx}
+                                  className="bg-[#3c4043] rounded-lg p-3 md:p-4"
+                                >
+                                  <div className="flex items-start gap-2 md:gap-3">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-medium text-white text-sm md:text-base leading-tight">
+                                        {idx + 1}. {question.title}
+                                      </div>
+                                      <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
+                                        <span className="inline-block">
+                                          {question.type === "single"
+                                            ? "Choix unique"
+                                            : question.type === "multiple"
+                                              ? "Choix multiples"
+                                              : "Texte libre"}
+                                        </span>
+                                        {question.required && (
+                                          <span className="text-red-400 ml-2">
+                                            • Obligatoire
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        ) : (
+                          /* Affichage Date Poll (dates/horaires) - avec groupement intelligent */
+                          <div className="space-y-2 md:space-y-3">
+                            {(() => {
+                              const datePollSuggestion =
+                                message.pollSuggestion as import("../lib/gemini").DatePollSuggestion;
+                              const dates = datePollSuggestion.dates || [];
 
-                        {/* Description si présente */}
-                        {message.pollSuggestion.description && (
-                          <p className="text-sm text-gray-600 mb-3">
-                            {message.pollSuggestion.description}
-                          </p>
-                        )}
+                              // Grouper les dates consécutives (week-ends, semaines, quinzaines)
+                              const dateGroups = groupConsecutiveDates(dates);
 
-                        <div className="space-y-3">
-                          {/* Affichage conditionnel selon le type */}
-                          {message.pollSuggestion.type === "form" ? (
-                            /* Affichage Form Poll (questionnaire) - MÊME DESIGN QUE DATE POLL */
-                            <div className="space-y-2 md:space-y-3">
-                              {message.pollSuggestion.questions?.map(
-                                (question, idx) => (
+                              return dateGroups.map((group, groupIndex) => {
+                                // Pour les groupes, afficher le label groupé
+                                // Pour les dates individuelles, afficher normalement
+                                const isGroup = group.dates.length > 1;
+
+                                // Trouver les créneaux horaires pour ce groupe
+                                const groupTimeSlots =
+                                  datePollSuggestion.timeSlots?.filter(
+                                    (slot) => {
+                                      if (
+                                        !slot.dates ||
+                                        slot.dates.length === 0
+                                      )
+                                        return true;
+                                      return group.dates.some((date) =>
+                                        slot.dates?.includes(date),
+                                      );
+                                    },
+                                  ) || [];
+
+                                return (
                                   <div
-                                    key={idx}
+                                    key={`group-${groupIndex}`}
                                     className="bg-[#3c4043] rounded-lg p-3 md:p-4"
                                   >
                                     <div className="flex items-start gap-2 md:gap-3">
                                       <div className="flex-1 min-w-0">
                                         <div className="font-medium text-white text-sm md:text-base leading-tight">
-                                          {idx + 1}. {question.title}
+                                          {isGroup
+                                            ? // Afficher le label groupé
+                                            group.label
+                                            : // Afficher la date normale
+                                            new Date(
+                                              group.dates[0],
+                                            ).toLocaleDateString("fr-FR", {
+                                              weekday: "long",
+                                              day: "numeric",
+                                              month: "long",
+                                              year: "numeric",
+                                            })}
                                         </div>
-                                        <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
-                                          <span className="inline-block">
-                                            {question.type === "single"
-                                              ? "Choix unique"
-                                              : question.type === "multiple"
-                                                ? "Choix multiples"
-                                                : "Texte libre"}
-                                          </span>
-                                          {question.required && (
-                                            <span className="text-red-400 ml-2">
-                                              • Obligatoire
-                                            </span>
+                                        {groupTimeSlots.length > 0 &&
+                                          !isGroup && (
+                                            <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
+                                              <span className="block">
+                                                {groupTimeSlots
+                                                  .map(
+                                                    (slot) =>
+                                                      `${slot.start} - ${slot.end}`,
+                                                  )
+                                                  .join(", ")}
+                                              </span>
+                                            </div>
                                           )}
-                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                ),
-                              )}
-                            </div>
-                          ) : (
-                            /* Affichage Date Poll (dates/horaires) - avec groupement intelligent */
-                            <div className="space-y-2 md:space-y-3">
-                              {(() => {
-                                const datePollSuggestion =
-                                  message.pollSuggestion as import("../lib/gemini").DatePollSuggestion;
-                                const dates = datePollSuggestion.dates || [];
+                                );
+                              });
+                            })()}
+                          </div>
+                        )}
+                      </div>
 
-                                // Grouper les dates consécutives (week-ends, semaines, quinzaines)
-                                const dateGroups = groupConsecutiveDates(dates);
-
-                                return dateGroups.map((group, groupIndex) => {
-                                  // Pour les groupes, afficher le label groupé
-                                  // Pour les dates individuelles, afficher normalement
-                                  const isGroup = group.dates.length > 1;
-
-                                  // Trouver les créneaux horaires pour ce groupe
-                                  const groupTimeSlots =
-                                    datePollSuggestion.timeSlots?.filter(
-                                      (slot) => {
-                                        if (
-                                          !slot.dates ||
-                                          slot.dates.length === 0
-                                        )
-                                          return true;
-                                        return group.dates.some((date) =>
-                                          slot.dates?.includes(date),
-                                        );
-                                      },
-                                    ) || [];
-
-                                  return (
-                                    <div
-                                      key={`group-${groupIndex}`}
-                                      className="bg-[#3c4043] rounded-lg p-3 md:p-4"
-                                    >
-                                      <div className="flex items-start gap-2 md:gap-3">
-                                        <div className="flex-1 min-w-0">
-                                          <div className="font-medium text-white text-sm md:text-base leading-tight">
-                                            {isGroup
-                                              ? // Afficher le label groupé
-                                                group.label
-                                              : // Afficher la date normale
-                                                new Date(
-                                                  group.dates[0],
-                                                ).toLocaleDateString("fr-FR", {
-                                                  weekday: "long",
-                                                  day: "numeric",
-                                                  month: "long",
-                                                  year: "numeric",
-                                                })}
-                                          </div>
-                                          {groupTimeSlots.length > 0 &&
-                                            !isGroup && (
-                                              <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
-                                                <span className="block">
-                                                  {groupTimeSlots
-                                                    .map(
-                                                      (slot) =>
-                                                        `${slot.start} - ${slot.end}`,
-                                                    )
-                                                    .join(", ")}
-                                                </span>
-                                              </div>
-                                            )}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                });
-                              })()}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Bouton Créer */}
+                      {/* Bouton Créer */}
+                      {hasLinkedPoll ? (
+                        <button
+                          onClick={() => {
+                            console.log("🔍 Bouton Voir cliqué - currentPoll:", currentPoll, "linkedPollId:", linkedPollId);
+                            // Ouvrir la dernière version du sondage lié
+                            try {
+                              if (currentPoll) {
+                                console.log("✅ Ouverture via currentPoll");
+                                openEditor(currentPoll as any);
+                                return;
+                              }
+                              if (linkedPollId && linkedPollId !== "generated") {
+                                console.log("🔍 Recherche poll par ID:", linkedPollId);
+                                const p = getPollBySlugOrId(linkedPollId);
+                                console.log("🔍 Poll trouvé:", p);
+                                if (p) {
+                                  console.log("✅ Ouverture via linkedPollId");
+                                  openEditor(p as any);
+                                  return;
+                                }
+                              }
+                              // Aucun poll résolu: tenter d'afficher le créateur si suggestion présente
+                              console.warn("⚠️ Aucun poll trouvé, fallback au créateur");
+                              handleUsePollSuggestion(message.pollSuggestion!);
+                            } catch (e) {
+                              console.warn("❌ Impossible d'ouvrir la preview, fallback au créateur", e);
+                              handleUsePollSuggestion(message.pollSuggestion!);
+                            }
+                          }}
+                          className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-indigo-500 hover:bg-indigo-600"
+                        >
+                          <span>
+                            {message.pollSuggestion.type === "form"
+                              ? "Voir le formulaire"
+                              : "Voir le sondage"}
+                          </span>
+                        </button>
+                      ) : (
                         <button
                           onClick={() => {
                             console.log(
-                              "🔵 Bouton cliqué!",
+                              " Bouton cliqué!",
                               message.pollSuggestion,
                             );
                             handleUsePollSuggestion(message.pollSuggestion!);
@@ -1252,87 +1435,105 @@ const GeminiChatInterface: React.FC<GeminiChatInterfaceProps> = ({
                         >
                           <span>
                             {message.pollSuggestion.type === "form"
-                              ? "Créer ce questionnaire"
+                              ? "Créer ce formulaire"
                               : "Créer ce sondage"}
                           </span>
                         </button>
-                      </div>
+                      )}
                     </div>
                   )}
                 </div>
               </div>
             ))
           )}
+          
+          {/* Composant de feedback IA */}
+          {lastAIProposal && (
+            <div className="mt-2">
+              <AIProposalFeedback
+                proposal={lastAIProposal}
+                onFeedbackSent={() => {
+                  // Optionnel : cacher après feedback
+                  setLastAIProposal(null);
+                }}
+              />
+            </div>
+          )}
+          
           <div ref={messagesEndRef} />
         </div>
       </div>
 
-      {/* Zone de saisie - Centrée ou sticky en bas selon état */}
-      <div
-        className={`p-6 ${messages.length > 0 ? "sticky bottom-0" : ""} ${
-          darkTheme ? "bg-[#0a0a0a]" : "bg-white"
+    {/* Zone de saisie - Fixe en bas de l'écran */ }
+    <div
+      className={`p-4 md:p-6 fixed bottom-0 left-0 right-0 z-40 ${darkTheme ? "bg-[#0a0a0a]" : "bg-white"
         }`}
+    >
+    <div className="max-w-2xl mx-auto">
+      <div
+        className={`flex items-center gap-3 rounded-full p-2 border ${darkTheme
+            ? "bg-[#0a0a0a] border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+            : "bg-white border-gray-200 shadow-lg"
+          }`}
       >
-        <div className="max-w-2xl mx-auto">
-          <div
-            className={`flex items-center gap-3 rounded-full p-2 border ${
-              darkTheme
-                ? "bg-[#0a0a0a] border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
-                : "bg-white border-gray-200 shadow-lg"
+        <textarea
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            // Notify parent on typing to allow mobile auto-toggle to Chat
+            if (typeof onUserMessage === "function") onUserMessage();
+          }}
+          onFocus={() => {
+            // Notify parent on focus as well (helps when Preview is visible on mobile)
+            if (typeof onUserMessage === "function") onUserMessage();
+          }}
+          onKeyDown={handleKeyPress}
+          placeholder="Décrivez votre sondage..."
+          className={`flex-1 resize-none border-0 px-4 py-3 focus:outline-none min-h-[44px] max-h-32 text-sm md:text-base bg-transparent ${darkTheme
+              ? "text-white placeholder-gray-400"
+              : "text-gray-900 placeholder-gray-500"
             }`}
-          >
-            <textarea
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder="Décrivez votre sondage..."
-              className={`flex-1 resize-none border-0 px-4 py-3 focus:outline-none min-h-[44px] max-h-32 text-sm md:text-base bg-transparent ${
-                darkTheme
-                  ? "text-white placeholder-gray-400"
-                  : "text-gray-900 placeholder-gray-500"
-              }`}
-              rows={1}
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={isLoading || !inputValue.trim()}
-              className={`
-                rounded-full p-2 transition-all flex-shrink-0
-                ${
-                  isLoading || !inputValue.trim()
-                    ? "bg-transparent text-gray-500 cursor-not-allowed"
-                    : darkTheme
-                      ? "bg-transparent text-gray-300 hover:bg-gray-700"
-                      : "bg-transparent text-gray-600 hover:bg-gray-100"
-                }
-              `}
-            >
-              <Send className="w-4 h-4 md:w-5 md:h-5" />
-            </button>
-          </div>
-        </div>
+          rows={1}
+        />
+        <button
+          onClick={handleSendMessage}
+          disabled={isLoading || !inputValue.trim()}
+          className={`
+              rounded-full p-2 transition-all flex-shrink-0
+              ${isLoading || !inputValue.trim()
+              ? "bg-transparent text-gray-500 cursor-not-allowed"
+              : darkTheme
+                ? "bg-transparent text-gray-300 hover:bg-gray-700"
+                : "bg-transparent text-gray-600 hover:bg-gray-100"
+            }
+            `}
+        >
+          <Send className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
       </div>
-
-      {/* Authentication Incentive Modal */}
-      <AuthIncentiveModal
-        isOpen={quota.showAuthModal}
-        onClose={quota.closeAuthModal}
-        onSignUp={() => {
-          // Navigate to sign up
-          window.location.href = "/auth/signup";
-        }}
-        onSignIn={() => {
-          // Navigate to sign in
-          window.location.href = "/auth/signin";
-        }}
-        trigger={quota.authModalTrigger}
-        currentUsage={{
-          conversations: quota.status.conversations.used,
-          maxConversations: quota.status.conversations.limit,
-        }}
-      />
     </div>
+  </div>
+
+  {/* Authentication Incentive Modal */ }
+  <AuthIncentiveModal
+    isOpen={quota.showAuthModal}
+    onClose={quota.closeAuthModal}
+    onSignUp={() => {
+      // Navigate to sign up
+      window.location.href = "/auth/signup";
+    }}
+    onSignIn={() => {
+      // Navigate to sign in
+      window.location.href = "/auth/signin";
+    }}
+    trigger={quota.authModalTrigger}
+    currentUsage={{
+      conversations: quota.status.conversations.used,
+      maxConversations: quota.status.conversations.limit,
+    }}
+  />
+    </div >
   );
-};
+});
 
 export default GeminiChatInterface;

@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Undo2, Save, Check } from "lucide-react";
+import { Undo2, Save, Check, X } from "lucide-react";
 import FormEditor from "./FormEditor";
 import type { Question as EditorQuestion } from "./QuestionCard";
 import { getAllPolls, savePolls, type Poll } from "../../lib/pollStorage";
 import { logger } from "@/lib/logger";
 import type { ConditionalRule } from "../../types/conditionalRules";
 import { validateConditionalRules } from "../../lib/conditionalValidator";
+import { linkPollToConversation } from "../../lib/conversationPollLink";
+import { useConversation } from "../prototype/ConversationProvider";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
 export type FormQuestionType = "single" | "multiple" | "text" | "matrix";
@@ -76,6 +78,8 @@ export default function FormPollCreator({
   onSave,
   onFinalize,
 }: FormPollCreatorProps) {
+  const { modifiedQuestionId, modifiedField } = useConversation();
+  
   const [title, setTitle] = useState(initialDraft?.title || "");
   const [questions, setQuestions] = useState<AnyFormQuestion[]>(
     initialDraft?.questions || [],
@@ -315,17 +319,36 @@ export default function FormPollCreator({
 
     // Créer le poll actif
     const saved = upsertFormPoll(draft, "active");
+    
+    // Lier le formulaire à la conversation pour persister l'état "Voir"
+    linkPollToConversation(saved.title, saved.id);
+    
     // Passer le poll sauvegardé complet (avec slug) au callback
     if (onFinalize) onFinalize(draft, saved);
     logger.info("FormPoll finalisé", "poll", { pollId: saved.id });
   };
 
+
   return (
-    <div className="bg-[#0a0a0a]">
-      <div className="px-4 md:px-6 lg:px-8 xl:px-12 pb-4 md:pb-6 lg:pb-8 xl:pb-12">
+    <div className="bg-[#0a0a0a]" data-form-container>
+      <div className="px-4 md:px-6 pb-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-[#0a0a0a] p-4 md:p-6 lg:p-8 xl:p-12">
-            <div className="space-y-6 md:space-y-8 lg:space-y-10">
+          <div className="bg-[#0a0a0a] p-4 md:p-6">
+            {/* Bouton Fermer */}
+            {onCancel && (
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={onCancel}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1e1e1e] rounded-lg transition-colors"
+                  aria-label="Fermer"
+                >
+                  <X className="w-4 h-4" />
+                  <span className="hidden sm:inline">Fermer</span>
+                </button>
+              </div>
+            )}
+            
+            <div className="space-y-6">
               <FormEditor
                 value={{
                   id: draftId,
@@ -341,6 +364,8 @@ export default function FormPollCreator({
                   }
                 }}
                 onCancel={onCancel}
+                modifiedQuestionId={modifiedQuestionId}
+                modifiedField={modifiedField}
                 onAddQuestion={() => {
                   // default to single choice when adding via editor button
                   setQuestions((prev) => [
@@ -374,10 +399,10 @@ function validateDraft(draft: FormPollDraft): {
   errors: string[];
 } {
   const errors: string[] = [];
-  if (!draft.title.trim()) errors.push("Titre requis");
+  if (!draft.title?.trim()) errors.push("Titre requis");
   if (draft.questions.length === 0) errors.push("Au moins une question");
   draft.questions.forEach((q, idx) => {
-    if (!q.title.trim()) errors.push(`Question ${idx + 1}: intitulé requis`);
+    if (!q.title?.trim()) errors.push(`Question ${idx + 1}: intitulé requis`);
     if (q.type === "matrix") {
       const mq = q as MatrixQuestion;
       if (!mq.matrixRows || mq.matrixRows.length < 1)

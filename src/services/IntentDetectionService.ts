@@ -97,6 +97,79 @@ export interface ModificationIntent {
  */
 export class IntentDetectionService {
   /**
+   * Infère la date complète à partir d'un jour seul en utilisant le contexte du sondage
+   * Ex: "3" + poll contient ["2025-11-03", "2025-11-04"] → "2025-11-03"
+   */
+  private static inferDateFromContext(
+    dayStr: string,
+    currentPoll: Poll | null,
+  ): string | null {
+    if (!currentPoll || !currentPoll.dates || currentPoll.dates.length === 0) {
+      return null;
+    }
+
+    const day = dayStr.padStart(2, "0");
+
+    // Chercher une date dans le sondage qui correspond au jour
+    const matchingDate = currentPoll.dates.find((date) => {
+      const dateParts = date.split("-");
+      return dateParts[2] === day; // Compare le jour
+    });
+
+    return matchingDate || null;
+  }
+
+  /**
+   * Normalise une date string en YYYY-MM-DD avec contexte du sondage
+   */
+  private static normalizeDateString(
+    dateStr: string,
+    currentPoll: Poll | null,
+  ): string | null {
+    // Format : DD mois YYYY (ex: 27 octobre 2025)
+    const monthTextMatch = dateStr.match(
+      /(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{4})/i,
+    );
+    if (monthTextMatch) {
+      const day = monthTextMatch[1].padStart(2, "0");
+      const month = MONTHS_MAP[monthTextMatch[2].toLowerCase()];
+      const year = monthTextMatch[3];
+      return `${year}-${month}-${day}`;
+    }
+
+    // Format : DD/MM/YYYY ou DD/MM ou DD
+    if (dateStr.includes("/")) {
+      const parts = dateStr.split("/");
+      const day = parts[0].padStart(2, "0");
+      const month = parts[1]
+        ? parts[1].padStart(2, "0")
+        : String(new Date().getMonth() + 1).padStart(2, "0");
+      const year = parts[2] || String(new Date().getFullYear());
+      return `${year}-${month}-${day}`;
+    }
+
+    // Format : YYYY-MM-DD
+    if (dateStr.includes("-")) {
+      return dateStr;
+    }
+
+    // Format : DD seul - Essayer d'inférer depuis le contexte
+    if (/^\d{1,2}$/.test(dateStr)) {
+      const inferredDate = this.inferDateFromContext(dateStr, currentPoll);
+      if (inferredDate) {
+        return inferredDate;
+      }
+      // Fallback: mois/année courants
+      const day = dateStr.padStart(2, "0");
+      const month = String(new Date().getMonth() + 1).padStart(2, "0");
+      const year = String(new Date().getFullYear());
+      return `${year}-${month}-${day}`;
+    }
+
+    return null; // Format non reconnu
+  }
+
+  /**
    * Construit un intent ADD_TIMESLOT à partir des paramètres
    */
   private static buildTimeslotIntent(
@@ -292,41 +365,9 @@ export class IntentDetectionService {
 
     if (match) {
       const dateStr = match[2];
+      const normalizedDate = this.normalizeDateString(dateStr, currentPoll);
 
-      // Normaliser au format YYYY-MM-DD
-      let normalizedDate: string;
-
-      // Format : DD mois YYYY (ex: 27 octobre 2025)
-      const monthTextMatch = dateStr.match(
-        /(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{4})/i,
-      );
-      if (monthTextMatch) {
-        const day = monthTextMatch[1].padStart(2, "0");
-        const month = MONTHS_MAP[monthTextMatch[2].toLowerCase()];
-        const year = monthTextMatch[3];
-        normalizedDate = `${year}-${month}-${day}`;
-      }
-      // Format : DD/MM/YYYY ou DD/MM ou DD
-      else if (dateStr.includes("/")) {
-        const parts = dateStr.split("/");
-        const day = parts[0].padStart(2, "0");
-        const month = parts[1]
-          ? parts[1].padStart(2, "0")
-          : String(new Date().getMonth() + 1).padStart(2, "0");
-        const year = parts[2] || String(new Date().getFullYear());
-        normalizedDate = `${year}-${month}-${day}`;
-      }
-      // Format : YYYY-MM-DD
-      else if (dateStr.includes("-")) {
-        normalizedDate = dateStr;
-      }
-      // Format : DD seul
-      else if (/^\d{1,2}$/.test(dateStr)) {
-        const day = dateStr.padStart(2, "0");
-        const month = String(new Date().getMonth() + 1).padStart(2, "0");
-        const year = String(new Date().getFullYear());
-        normalizedDate = `${year}-${month}-${day}`;
-      } else {
+      if (!normalizedDate) {
         return null; // Format non reconnu
       }
 
@@ -360,41 +401,9 @@ export class IntentDetectionService {
 
     if (removeMatch) {
       const dateStr = removeMatch[2];
+      const normalizedDate = this.normalizeDateString(dateStr, currentPoll);
 
-      // Réutiliser la même logique de normalisation que pour ADD_DATE
-      let normalizedDate: string;
-
-      // Format : DD mois YYYY (ex: 27 octobre 2025)
-      const monthTextMatch = dateStr.match(
-        /(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{4})/i,
-      );
-      if (monthTextMatch) {
-        const day = monthTextMatch[1].padStart(2, "0");
-        const month = MONTHS_MAP[monthTextMatch[2].toLowerCase()];
-        const year = monthTextMatch[3];
-        normalizedDate = `${year}-${month}-${day}`;
-      }
-      // Format : DD/MM/YYYY ou DD/MM ou DD
-      else if (dateStr.includes("/")) {
-        const parts = dateStr.split("/");
-        const day = parts[0].padStart(2, "0");
-        const month = parts[1]
-          ? parts[1].padStart(2, "0")
-          : String(new Date().getMonth() + 1).padStart(2, "0");
-        const year = parts[2] || String(new Date().getFullYear());
-        normalizedDate = `${year}-${month}-${day}`;
-      }
-      // Format : YYYY-MM-DD
-      else if (dateStr.includes("-")) {
-        normalizedDate = dateStr;
-      }
-      // Format : DD seul
-      else if (/^\d{1,2}$/.test(dateStr)) {
-        const day = dateStr.padStart(2, "0");
-        const month = String(new Date().getMonth() + 1).padStart(2, "0");
-        const year = String(new Date().getFullYear());
-        normalizedDate = `${year}-${month}-${day}`;
-      } else {
+      if (!normalizedDate) {
         return null; // Format non reconnu
       }
 

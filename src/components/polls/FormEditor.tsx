@@ -28,6 +28,9 @@ export type FormEditorProps = {
   onAddQuestion?: () => void;
   onSaveDraft?: () => void;
   onFinalize?: () => void;
+  // Visual feedback for modifications
+  modifiedQuestionId?: string | null;
+  modifiedField?: "title" | "type" | "options" | "required" | null;
 };
 
 /**
@@ -43,6 +46,8 @@ export default function FormEditor({
   onAddQuestion,
   onSaveDraft,
   onFinalize,
+  modifiedQuestionId,
+  modifiedField,
 }: FormEditorProps) {
   const [activeId, setActiveId] = useState<string | null>(
     value.questions[0]?.id ?? null,
@@ -55,6 +60,13 @@ export default function FormEditor({
       setActiveId(value.questions[0].id);
     }
   }, [activeId, value.questions]);
+
+  // Auto-ouvrir la question modifiée
+  useEffect(() => {
+    if (modifiedQuestionId && value.questions.some(q => q.id === modifiedQuestionId)) {
+      setActiveId(modifiedQuestionId);
+    }
+  }, [modifiedQuestionId, value.questions]);
 
   const activeIndex = useMemo(
     () => value.questions.findIndex((q) => q.id === activeId),
@@ -177,6 +189,7 @@ export default function FormEditor({
         questions={value.questions}
         activeId={activeId}
         onSelect={setActiveId}
+        modifiedQuestionId={modifiedQuestionId}
       />
 
       {/* Question active */}

@@ -8,9 +8,9 @@ import {
   MessageSquare,
   Sparkles,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useConversation } from "./ConversationProvider";
-import GeminiChatInterface from "../GeminiChatInterface";
+import GeminiChatInterface, { type GeminiChatHandle } from "../GeminiChatInterface";
 import { PollPreview } from "./PollPreview";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getAllPolls, type Poll } from "../../lib/pollStorage";
@@ -49,9 +49,10 @@ function findRelatedConversation(poll: Poll): string | undefined {
 export function WorkspaceLayoutPrototype() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   // Sur mobile : true = afficher preview, false = afficher chat
   const [showPreviewOnMobile, setShowPreviewOnMobile] = useState(false);
+  const [previewInputValue, setPreviewInputValue] = useState("");
+  const chatRef = useRef<GeminiChatHandle>(null);
 
   // Lire les paramètres de l'URL pour forcer le remontage du chat
   const searchParams = new URLSearchParams(location.search);
@@ -73,6 +74,21 @@ export function WorkspaceLayoutPrototype() {
     isSidebarOpen,
     setSidebarOpen,
   } = useConversation();
+
+  // Basculer automatiquement sur preview mobile quand l'éditeur s'ouvre/ferme
+  useEffect(() => {
+    if (isMobile) {
+      if (isEditorOpen && currentPoll) {
+        setShowPreviewOnMobile(true);
+        // Forcer le scroll en haut quand la preview s'ouvre pour éviter le focus automatique vers le bas
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }, 0);
+      } else {
+        setShowPreviewOnMobile(false);
+      }
+    }
+  }, [isMobile, isEditorOpen, currentPoll]);
 
   // Charger les sondages récents et conversations
   // Se recharge quand on change de conversation (chatKey change) ou quand un poll est mis à jour
@@ -122,63 +138,35 @@ export function WorkspaceLayoutPrototype() {
   return (
     <>
       <div
-        className={`flex h-screen bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : "overflow-hidden"}`}
+        className={`flex h-screen bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : ""}`}
       >
-        {/* Backdrop pour mobile */}
-        {isMobile && isSidebarOpen && (
+        {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur */}
+        {isSidebarOpen && (
           <div
             className="fixed inset-0 bg-black/50 z-40"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
-        {/* Sidebar sombre à gauche - Style Gemini - Collapsible */}
+        {/* Sidebar gauche - Mode overlay pour tous les écrans */}
         <div
-          className={`${
-            isMobile
-              ? isSidebarOpen
-                ? "fixed inset-y-0 left-0 w-80 z-50"
-                : "hidden"
-              : sidebarCollapsed
-                ? "w-16"
-                : "w-64"
-          } bg-[#1e1e1e] flex-shrink-0 flex flex-col border-r border-gray-700 transition-all duration-300`}
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         >
-          {/* Burger icon en haut de la sidebar - Fermer sur mobile, collapse sur desktop */}
+          {/* Bouton fermer en haut de la sidebar */}
           <div className="p-4">
             <button
-              onClick={() => {
-                if (isMobile) {
-                  setSidebarOpen(false);
-                } else {
-                  setSidebarCollapsed(!sidebarCollapsed);
-                }
-              }}
+              onClick={() => setSidebarOpen(false)}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-              aria-label={
-                isMobile
-                  ? "Fermer le menu"
-                  : sidebarCollapsed
-                    ? "Agrandir le menu"
-                    : "Réduire le menu"
-              }
-              title={
-                isMobile
-                  ? "Fermer le menu"
-                  : sidebarCollapsed
-                    ? "Agrandir le menu"
-                    : "Réduire le menu"
-              }
+              aria-label="Fermer le menu"
+              title="Fermer le menu"
             >
-              {isMobile ? (
-                <X className="w-5 h-5 text-gray-300" />
-              ) : (
-                <Menu className="w-5 h-5 text-gray-300" />
-              )}
+              <X className="w-5 h-5 text-gray-300" />
             </button>
           </div>
 
-          {!sidebarCollapsed && (
+          {isSidebarOpen && (
             <>
               <div className="px-4 pb-4 space-y-2">
                 <button
@@ -337,25 +325,23 @@ export function WorkspaceLayoutPrototype() {
 
         {/* Chat principal - Zone centrale avec header DooDates */}
         <div
-          className={`flex flex-col bg-[#0a0a0a] transition-all duration-300 ${
-            isEditorOpen ? "flex-1" : "flex-1"
-          }`}
+          className={`flex flex-col bg-[#0a0a0a] transition-all duration-300 flex-1 flex-shrink-0 ${
+            isMobile ? "w-full" : "min-w-[500px]"
+          } ${isEditorOpen ? "" : ""}`}
         >
           {/* Header DooDates en haut de la zone de chat */}
-          <div className="h-14 flex items-center justify-between px-4">
+          <div className="h-14 fixed top-0 left-0 right-0 z-40 bg-[#0a0a0a] flex items-center justify-between px-4">
             <div className="flex items-center gap-3">
-              {/* Bouton hamburger sur mobile */}
-              {isMobile && (
-                <button
-                  onClick={() => setSidebarOpen(!isSidebarOpen)}
-                  className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                  aria-label={
-                    isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"
-                  }
-                >
-                  <Menu className="w-5 h-5 text-gray-300" />
-                </button>
-              )}
+              {/* Bouton hamburger (mobile + desktop pour replier sidebar) */}
+              <button
+                onClick={() => setSidebarOpen(!isSidebarOpen)}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                aria-label={
+                  isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"
+                }
+              >
+                <Menu className="w-5 h-5 text-gray-300" />
+              </button>
               <h1 className="text-xl font-medium text-white">DooDates</h1>
             </div>
 
@@ -400,22 +386,11 @@ export function WorkspaceLayoutPrototype() {
           </div>
 
           {/* Toggle Chat/Preview sur mobile */}
-          <div className="flex-1 overflow-y-auto min-h-0">
-            {isMobile && showPreviewOnMobile && isEditorOpen && currentPoll ? (
-              // PREVIEW MODE : Afficher le poll
-              <div className="relative pb-4">
-                <button
-                  onClick={closeEditor}
-                  className="absolute top-4 right-4 z-10 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
-                  aria-label="Fermer l'éditeur"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                <PollPreview poll={currentPoll} />
-              </div>
-            ) : (
-              // CHAT MODE : Afficher le chat
+          <div className="flex-1 min-h-0 pt-14">
+            {/* Chat toujours rendu (masqué en Preview) pour que chatRef soit accessible */}
+            <div className={`h-full ${isMobile && showPreviewOnMobile && isEditorOpen && currentPoll ? "hidden" : ""}`}>
               <GeminiChatInterface
+                ref={chatRef}
                 key={chatKey}
                 onPollCreated={(pollData) => {
                   createPollFromChat(pollData);
@@ -425,14 +400,67 @@ export function WorkspaceLayoutPrototype() {
                   }
                 }}
                 onUserMessage={() => {
-                  // Basculer sur chat quand user tape
-                  if (isMobile && showPreviewOnMobile) {
-                    setShowPreviewOnMobile(false);
-                  }
+                  // Ne plus basculer automatiquement sur Chat en mobile
                 }}
                 hideStatusBar={true}
                 darkTheme={true}
               />
+            </div>
+
+            {/* Preview overlay sur mobile */}
+            {isMobile && showPreviewOnMobile && isEditorOpen && currentPoll && (
+              <div className="absolute inset-0 bg-[#0a0a0a] z-10 overflow-y-auto pt-14">
+                <div className="relative">
+                  <button
+                    onClick={closeEditor}
+                    className="absolute top-4 right-4 z-10 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                    aria-label="Fermer l'éditeur"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  <PollPreview poll={currentPoll} />
+
+                  {/* Barre d'input fixe en bas pour envoyer des messages depuis la Preview */}
+                  <div className="p-4 md:p-6 fixed bottom-0 left-0 right-0 z-40 bg-[#0a0a0a]">
+                    <div className="max-w-2xl mx-auto">
+                      <div className="flex items-center gap-3 rounded-full p-2 border bg-[#0a0a0a] border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                        <input
+                          type="text"
+                          value={previewInputValue}
+                          onChange={(e) => setPreviewInputValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              if (previewInputValue.trim() && chatRef.current) {
+                                chatRef.current.submitMessage(previewInputValue);
+                                setPreviewInputValue("");
+                              }
+                            }
+                          }}
+                          placeholder="Décrivez votre sondage..."
+                          className="flex-1 border-0 px-4 py-3 focus:outline-none min-h-[44px] text-sm md:text-base bg-transparent text-white placeholder-gray-400"
+                        />
+                        <button
+                          onClick={() => {
+                            if (previewInputValue.trim() && chatRef.current) {
+                              chatRef.current.submitMessage(previewInputValue);
+                              setPreviewInputValue("");
+                            }
+                          }}
+                          disabled={!previewInputValue.trim()}
+                          className="rounded-full p-2 transition-all flex-shrink-0 bg-transparent text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          aria-label="Envoyer le message"
+                        >
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M22 2L11 13" />
+                            <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
