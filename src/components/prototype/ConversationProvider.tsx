@@ -44,11 +44,14 @@ interface ConversationContextType {
   // État animations
   highlightedId: string | null;
   highlightType: "add" | "remove" | "modify" | null;
-  
+
   // État modification question (pour feedback visuel)
   modifiedQuestionId: string | null;
   modifiedField: "title" | "type" | "options" | "required" | null;
-  setModifiedQuestion: (questionId: string | null, field: "title" | "type" | "options" | "required" | null) => void;
+  setModifiedQuestion: (
+    questionId: string | null,
+    field: "title" | "type" | "options" | "required" | null,
+  ) => void;
 
   // État mobile
   isMobile: boolean;
@@ -114,21 +117,31 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   >(null);
 
   // État modification question (pour feedback visuel)
-  const [modifiedQuestionId, setModifiedQuestionId] = useState<string | null>(null);
-  const [modifiedField, setModifiedField] = useState<"title" | "type" | "options" | "required" | null>(null);
+  const [modifiedQuestionId, setModifiedQuestionId] = useState<string | null>(
+    null,
+  );
+  const [modifiedField, setModifiedField] = useState<
+    "title" | "type" | "options" | "required" | null
+  >(null);
 
-  const setModifiedQuestion = useCallback((questionId: string | null, field: "title" | "type" | "options" | "required" | null) => {
-    setModifiedQuestionId(questionId);
-    setModifiedField(field);
-    
-    // Clear après 3 secondes
-    if (questionId) {
-      setTimeout(() => {
-        setModifiedQuestionId(null);
-        setModifiedField(null);
-      }, 3000);
-    }
-  }, []);
+  const setModifiedQuestion = useCallback(
+    (
+      questionId: string | null,
+      field: "title" | "type" | "options" | "required" | null,
+    ) => {
+      setModifiedQuestionId(questionId);
+      setModifiedField(field);
+
+      // Clear après 3 secondes
+      if (questionId) {
+        setTimeout(() => {
+          setModifiedQuestionId(null);
+          setModifiedField(null);
+        }, 3000);
+      }
+    },
+    [],
+  );
 
   // Initialisation de l'éditeur
   useEffect(() => {

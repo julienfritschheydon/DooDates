@@ -1,9 +1,9 @@
 /**
  * Gemini Intent Service - Détection d'intentions via IA
- * 
+ *
  * Utilisé comme fallback quand les patterns regex ne matchent pas.
  * Permet de gérer toutes les formulations naturelles.
- * 
+ *
  * Réutilise EnhancedGeminiService pour éviter la duplication.
  */
 
@@ -36,12 +36,12 @@ export class GeminiIntentService {
     try {
       // Réutiliser le service Gemini existant
       const geminiService = EnhancedGeminiService.getInstance();
-      
+
       // Forcer l'initialisation en appelant testConnection
       await (geminiService as any).ensureInitialized?.();
-      
+
       const model = (geminiService as any).model;
-      
+
       if (!model) {
         logger.warn("Modèle Gemini non initialisé", "poll");
         return null;
@@ -120,7 +120,9 @@ IMPORTANT :
       // Parser la réponse JSON
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        logger.warn("Gemini n'a pas retourné de JSON valide", "poll", { response });
+        logger.warn("Gemini n'a pas retourné de JSON valide", "poll", {
+          response,
+        });
         return null;
       }
 
@@ -138,7 +140,11 @@ IMPORTANT :
 
       return intent;
     } catch (error) {
-      logger.error("Erreur lors de la détection d'intention par Gemini", "poll", error);
+      logger.error(
+        "Erreur lors de la détection d'intention par Gemini",
+        "poll",
+        error,
+      );
       return null;
     }
   }
