@@ -69,7 +69,7 @@ export class EnhancedGeminiService {
     if (!this.genAI && API_KEY) {
       try {
         this.genAI = new GoogleGenerativeAI(API_KEY);
-        this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+        this.model = this.genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
         return true;
       } catch (error) {
         logError(

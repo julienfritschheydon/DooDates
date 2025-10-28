@@ -10,16 +10,42 @@
 
 import type { Poll } from "../lib/pollStorage";
 import type { FormPollAction } from "@/reducers/formPollReducer";
+import writtenNumber from "written-number";
+
+/**
+ * Convertit un nombre écrit en toutes lettres en nombre
+ * Ex: "seconde" → 2, "troisième" → 3
+ */
+function parseOrdinalNumber(text: string): number | null {
+  const normalized = text.toLowerCase().trim();
+  
+  // Essayer de parser comme nombre cardinal en français
+  const result = writtenNumber(normalized, { lang: "fr" });
+  if (typeof result === "number" && result > 0) {
+    return result;
+  }
+  
+  // Fallback: mapping manuel pour ordinaux courants non gérés
+  const ordinalMap: { [key: string]: number } = {
+    première: 1, premier: 1,
+    deuxième: 2, seconde: 2, second: 2,
+    troisième: 3, quatrième: 4, cinquième: 5,
+    sixième: 6, septième: 7, huitième: 8,
+    neuvième: 9, dixième: 10,
+  };
+  
+  return ordinalMap[normalized] || null;
+}
 
 // Patterns de détection pour Form Polls
 const FORM_PATTERNS = {
-  // "ajoute une question sur [sujet]"
+  // "ajoute une question sur [sujet]" ou "rajoute une question sur [sujet]"
   ADD_QUESTION:
-    /ajout(?:e|er)\s+(?:une\s+)?question\s+(?:sur|concernant|à\s+propos\s+de)\s+(.+)/i,
+    /r?ajout(?:e|er)\s+(?:une\s+)?question\s+(?:sur|concernant|à\s+propos\s+de)\s+(.+)/i,
 
-  // "supprime/retire la question [numéro]" ou "supprime Q[numéro]"
+  // "supprime/retire la/le question [numéro/ordinal]" ou "supprime Q[numéro]"
   REMOVE_QUESTION:
-    /(?:supprime|retire|enl[èe]ve)\s+(?:la\s+)?question\s+(\d+)|(?:supprime|retire|enl[èe]ve)\s+Q(\d+)/i,
+    /(?:supprime|retire|enl[èe]ve)\s+(?:la\s+)?question\s+(\d+)|(?:supprime|retire|enl[èe]ve)\s+Q(\d+)|(?:supprime|retire|enl[èe]ve)\s+(?:la|le)\s+([\wéèêàâûùîïôç]+)\s+question/i,
 
   // "change la question [numéro] en [type]"
   CHANGE_QUESTION_TYPE:
@@ -47,6 +73,8 @@ export interface FormModificationIntent {
   payload: any;
   confidence: number;
   explanation?: string;
+  modifiedField?: "title" | "type" | "options" | "required";
+  modifiedQuestionId?: string;
 }
 
 /**
@@ -82,9 +110,19 @@ export class FormPollIntentService {
     // Pattern 2 : Supprimer une question
     const removeQuestionMatch = message.match(FORM_PATTERNS.REMOVE_QUESTION);
     if (removeQuestionMatch) {
-      const questionNumber = parseInt(
-        removeQuestionMatch[1] || removeQuestionMatch[2],
-      );
+      // Groupe 1: "question 1", Groupe 2: "Q1", Groupe 3: "première question"
+      const questionStr = removeQuestionMatch[1] || removeQuestionMatch[2] || removeQuestionMatch[3];
+      
+      // Convertir ordinal/nombre en nombre si nécessaire
+      let questionNumber: number;
+      if (/^\d+$/.test(questionStr)) {
+        questionNumber = parseInt(questionStr);
+      } else {
+        const parsed = parseOrdinalNumber(questionStr);
+        if (!parsed) return null; // Nombre non reconnu
+        questionNumber = parsed;
+      }
+      
       const questionIndex = questionNumber - 1; // Convertir en index 0-based
 
       // Vérifier que la question existe
@@ -141,6 +179,8 @@ export class FormPollIntentService {
         payload: { questionIndex, newType },
         confidence: 0.9,
         explanation: `Question ${questionNumber} changée en ${typeText}`,
+        modifiedField: "type",
+        modifiedQuestionId: currentPoll.questions[questionIndex].id,
       };
     }
 
@@ -171,6 +211,8 @@ export class FormPollIntentService {
         payload: { questionIndex, optionText },
         confidence: 0.9,
         explanation: `Ajout de l'option "${optionText}" à la question ${questionNumber}`,
+        modifiedField: "options",
+        modifiedQuestionId: currentPoll.questions[questionIndex].id,
       };
     }
 
@@ -196,6 +238,8 @@ export class FormPollIntentService {
         payload: { questionIndex, optionText },
         confidence: 0.9,
         explanation: `Suppression de l'option "${optionText}" de la question ${questionNumber}`,
+        modifiedField: "options",
+        modifiedQuestionId: currentPoll.questions[questionIndex].id,
       };
     }
 
@@ -221,6 +265,8 @@ export class FormPollIntentService {
         payload: { questionIndex, required },
         confidence: 0.95,
         explanation: `Question ${questionNumber} ${required ? "obligatoire" : "optionnelle"}`,
+        modifiedField: "required",
+        modifiedQuestionId: currentPoll.questions[questionIndex].id,
       };
     }
 
@@ -247,6 +293,8 @@ export class FormPollIntentService {
         payload: { questionIndex, newTitle },
         confidence: 0.95,
         explanation: `Question ${questionNumber} renommée en "${newTitle}"`,
+        modifiedField: "title",
+        modifiedQuestionId: currentPoll.questions[questionIndex].id,
       };
     }
 

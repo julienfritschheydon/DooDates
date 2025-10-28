@@ -44,6 +44,11 @@ interface ConversationContextType {
   // État animations
   highlightedId: string | null;
   highlightType: "add" | "remove" | "modify" | null;
+  
+  // État modification question (pour feedback visuel)
+  modifiedQuestionId: string | null;
+  modifiedField: "title" | "type" | "options" | "required" | null;
+  setModifiedQuestion: (questionId: string | null, field: "title" | "type" | "options" | "required" | null) => void;
 
   // État mobile
   isMobile: boolean;
@@ -107,6 +112,23 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   const [highlightType, setHighlightType] = useState<
     "add" | "remove" | "modify" | null
   >(null);
+
+  // État modification question (pour feedback visuel)
+  const [modifiedQuestionId, setModifiedQuestionId] = useState<string | null>(null);
+  const [modifiedField, setModifiedField] = useState<"title" | "type" | "options" | "required" | null>(null);
+
+  const setModifiedQuestion = useCallback((questionId: string | null, field: "title" | "type" | "options" | "required" | null) => {
+    setModifiedQuestionId(questionId);
+    setModifiedField(field);
+    
+    // Clear après 3 secondes
+    if (questionId) {
+      setTimeout(() => {
+        setModifiedQuestionId(null);
+        setModifiedField(null);
+      }, 3000);
+    }
+  }, []);
 
   // Initialisation de l'éditeur
   useEffect(() => {
@@ -211,12 +233,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
           if (highlightId) {
             setHighlightedId(highlightId);
             setHighlightType(highlightTypeValue);
-
-            // Retirer l'animation après 3 secondes
-            setTimeout(() => {
-              setHighlightedId(null);
-              setHighlightType(null);
-            }, 3000);
+            // Garder le highlight en permanence (pas de timeout)
           }
 
           dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll as any });
@@ -232,12 +249,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
           if (highlightId) {
             setHighlightedId(highlightId);
             setHighlightType(highlightTypeValue);
-
-            // Retirer l'animation après 3 secondes
-            setTimeout(() => {
-              setHighlightedId(null);
-              setHighlightType(null);
-            }, 3000);
+            // Garder le highlight en permanence (pas de timeout)
           }
 
           dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll });
@@ -403,6 +415,9 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     // État animations
     highlightedId,
     highlightType,
+    modifiedQuestionId,
+    modifiedField,
+    setModifiedQuestion,
 
     // État mobile
     isMobile,

@@ -198,71 +198,7 @@ IA: ✅ Titre modifié en "Apéro vendredi"
 
 ---
 
-### **Phase 8 : Modification Form Poll via IA** - ✅ TERMINÉ (27 Oct 2025)
-
-**Objectif :** Permettre la modification de questionnaires via conversation IA (parité avec Date Polls).
-
-**Architecture implémentée :**
-- ✅ **Service de détection** (FormPollIntentService) - 7 patterns regex
-- ✅ **Reducer Form Poll** (formPollReducer) - 7 actions + validation
-- ✅ **Router intelligent** (ConversationProvider) - Date/Form selon type
-- ✅ **Re-render automatique** (PollPreview) - Key dynamique
-
-**Actions supportées (7/7) :**
-1. ✅ **ADD_QUESTION** : "ajoute une question sur l'âge"
-2. ✅ **REMOVE_QUESTION** : "supprime la question 2" ou "retire Q3"
-3. ✅ **CHANGE_QUESTION_TYPE** : "change la question 1 en choix multiple"
-4. ✅ **ADD_OPTION** : "ajoute l'option "Autre" à la question 1"
-5. ✅ **REMOVE_OPTION** : "supprime l'option "Non" de la question 1"
-6. ✅ **SET_REQUIRED** : "rends la question 3 obligatoire"
-7. ✅ **RENAME_QUESTION** : "renomme la question 2 en X"
-
-**Exemples d'usage :**
-```
-User: Crée un questionnaire de satisfaction client
-IA: [Crée Form Poll avec 6 questions]
-
-User: ajoute une question sur l'âge
-IA: ✅ Ajout d'une question sur "l'âge"
-
-User: supprime la question 2
-IA: ✅ Suppression de la question 2
-
-User: change la question 1 en choix multiple
-IA: ✅ Question 1 changée en choix multiple
-
-User: ajoute l'option "Autre" à la question 1
-IA: ✅ Ajout de l'option "Autre" à la question 1 (avec isOther: true)
-
-User: rends la question 3 obligatoire
-IA: ✅ Question 3 obligatoire
-```
-
-**Bugs corrigés (3) :**
-1. ✅ Interface ne se rafraîchissait pas → Key `${poll.id}-${questions.length}-${updated_at}`
-2. ✅ Option "Autre" normale au lieu de spéciale → Détection automatique `isOther: true`
-3. ✅ CHANGE_TYPE ne marchait pas → Compatibilité `type` + `kind`
-
-**Fichiers créés (3) :**
-- `src/services/FormPollIntentService.ts` (224 lignes)
-- `src/reducers/formPollReducer.ts` (308 lignes)
-- `src/services/__tests__/FormPollIntentService.test.ts` (200 lignes)
-
-**Fichiers modifiés (3) :**
-- `src/components/prototype/ConversationProvider.tsx` - Router Date/Form
-- `src/components/GeminiChatInterface.tsx` - Détection Form Poll
-- `src/components/prototype/PollPreview.tsx` - Key dynamique
-
-**Métriques :**
-- Temps : 2h30 (vs 2h estimé)
-- Code : ~730 lignes
-- Actions : 7/7 (100%)
-- Tests : 20+ automatisés
-- Bugs : 3 corrigés
-
-**Status :** ✅ TERMINÉ - Parité Date/Form complète pour modifications IA
-
----
+Etr 
 
 ### **✅ Tests corrigés (26/10/2025)**
 
@@ -407,53 +343,29 @@ IA: ✅ Question 3 obligatoire
 - **Fichier modifié:** `GeminiChatInterface.tsx` - Déplacement de la vérification avant dispatchPollAction
 - **Résultat:** ✅ Détection de doublon correcte, pas de faux positifs
 
+### Tests Responsive complets** ✅ TERMINÉ
+Mobile (375px)
+- [x] Ouvrir le menu hamburger → Sidebar apparaît en overlay
+- [x] Cliquer sur le backdrop → Sidebar se ferme
+- [x] Sélectionner une conversation → Sidebar se ferme automatiquement
+- [x] Créer un sondage → Toggle automatique sur Preview
+- [x] Taper un message → Visualisation du changement
+- [x] Tester pour les sondages et formulaires
+Tablet (768px)
+- [x] Vérifier que le layout dual-pane s'affiche correctement
+- [x] Pas de bouton hamburger visible
+- [x] Sidebar toujours visible
+Desktop (1920px)
+- [x] Layout triple-pane si éditeur ouvert
+- [x] Toutes les fonctionnalités accessibles
+
+### Système de feedback IA (Thumb Up/Down) ✅ TERMINÉ
+- [x] **Fonctionne pour créations ET modifications** (même composant, même flux)
+- [x] GeminiChatInterface.tsx (modifications FormPoll)
+- [x] Intégrer dans PollCreator (Date Polls) - 1h
+
 ## 🔜 PROCHAINES ÉTAPES
 
-**Tests Responsive complets**
-Mobile (375px)
-- [ ] Ouvrir le menu hamburger → Sidebar apparaît en overlay
-- [ ] Cliquer sur le backdrop → Sidebar se ferme
-- [ ] Sélectionner une conversation → Sidebar se ferme automatiquement
-- [ ] Créer un sondage → Toggle automatique sur Preview
-- [ ] Taper un message → Toggle automatique sur Chat
-- [ ] Vérifier que le chat reste lisible (pas de texte tronqué)
-Tablet (768px)
-- [ ] Vérifier que le layout dual-pane s'affiche correctement
-- [ ] Pas de bouton hamburger visible
-- [ ] Sidebar toujours visible
-Desktop (1920px)
-- [ ] Layout triple-pane si éditeur ouvert
-- [ ] Toutes les fonctionnalités accessibles
-Autre
-- [ ] Touch : Interactions tactiles
-- [ ] Landscape/Portrait : Orientations
 
-**Dashboard unifié - Expérience complète des options et menus**
-- [ ] Résultats
-- [ ] Voter
-- [ ] Dupliquer
-- [ ] Supprimer
-- [ ] Archiver
-- [ ] Reprendre conversation
-- [ ] Filtres
-- [ ] Recherche
-
-**UX Chat/Preview**
-- [ ] **États dynamiques des boutons de création**
-- [ ] État 1 : `[📊 Créer ce sondage]` → Cliquable, crée + ouvre preview
-- [ ] État 2 : `✅ Sondage créé` + `[👁️ Voir le sondage]` → Ouvre preview
-- [ ] État 3 : `✅ Sondage modifié` + `[👁️ Voir les modifications]` → Ouvre preview
-- [ ] Désactiver bouton "Créer" après création (remplacé par "Voir")
-- [ ] Libellés adaptés au type : "Sondage de dates" / "Formulaire"
-- [ ] Badge coloré pour l'état (vert = créé, bleu = modifié)
-- [ ] Auto-open preview après création (comme Claude)
-- [ ] Bouton manuel pour voir après modification
-
-**UX Animations**
-- [ ] Suggestions intelligentes
-- [ ] Undo/Redo
-- [ ] Ouvrir automatiquement question après modification (trop complexe - animation highlight suffit)
-- [ ] Animations Date Poll dans calendrier (techniquement prêt, mais nécessite refonte calendrier)
-- [ ] Ajouter bouton "Fermer" sur FormPollCreator (comme Date Polls)
 
 ---

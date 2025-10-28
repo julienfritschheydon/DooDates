@@ -1,3 +1,4 @@
+import React from "react";
 import { Calendar, Clock, Users } from "lucide-react";
 import PollCreator from "../PollCreator";
 import FormPollCreator from "../polls/FormPollCreator";
@@ -131,8 +132,9 @@ export function PollPreview({ poll }: PollPreviewProps) {
 
   // Preview pour questionnaire/formulaire - UTILISER L'EXPÉRIENCE EXISTANTE
   if (poll.type === "form") {
+
     return (
-      <div className="bg-[#0a0a0a] rounded-lg shadow-sm">
+      <div className="bg-[#0a0a0a] rounded-lg shadow-sm" data-poll-preview>
         {/* <div className="p-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Édition du questionnaire</h3>
           <p className="text-sm text-gray-600">Utilisez l'interface familière de DooDates</p>
@@ -140,7 +142,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
 
         {/* Utiliser le FormPollCreator existant */}
         <FormPollCreator
-          key={`form-${poll.id}-${poll.questions?.length || 0}-${poll.updated_at}`}
+          key={`form-${poll.id}-${poll.questions?.length || 0}-${poll.updated_at}-${Date.now()}`}
           initialDraft={poll}
           onCancel={() => {}} // Pas d'annulation dans le preview
           onSave={handleSave}

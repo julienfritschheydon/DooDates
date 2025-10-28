@@ -120,7 +120,28 @@ const Calendar: React.FC<CalendarProps> = ({
 
             return (
               <motion.button
-                key={dateStr}
+                key={`${dateStr}-${isSelected ? 'selected' : 'unselected'}`}
+                initial={{ scale: 1, boxShadow: "0 0 0 0 rgba(37, 99, 235, 0)" }}
+                animate={
+                  isSelected
+                    ? {
+                        scale: [1, 1.15, 1, 1.05, 1, 1.05, 1],
+                        boxShadow: [
+                          "0 0 0 0 rgba(37, 99, 235, 0)",
+                          "0 0 0 4px rgba(37, 99, 235, 0.4)",
+                          "0 0 0 8px rgba(37, 99, 235, 0)",
+                          "0 0 0 4px rgba(37, 99, 235, 0.4)",
+                          "0 0 0 8px rgba(37, 99, 235, 0)",
+                          "0 0 0 4px rgba(37, 99, 235, 0.4)",
+                          "0 0 0 0 rgba(37, 99, 235, 0)",
+                        ],
+                      }
+                    : { scale: 1, boxShadow: "0 0 0 0 rgba(37, 99, 235, 0)" }
+                }
+                transition={{
+                  duration: 2,
+                  ease: "easeInOut",
+                }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={(e) => {
