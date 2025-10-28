@@ -18,22 +18,30 @@ import writtenNumber from "written-number";
  */
 function parseOrdinalNumber(text: string): number | null {
   const normalized = text.toLowerCase().trim();
-  
+
   // Essayer de parser comme nombre cardinal en français
   const result = writtenNumber(normalized, { lang: "fr" });
   if (typeof result === "number" && result > 0) {
     return result;
   }
-  
+
   // Fallback: mapping manuel pour ordinaux courants non gérés
   const ordinalMap: { [key: string]: number } = {
-    première: 1, premier: 1,
-    deuxième: 2, seconde: 2, second: 2,
-    troisième: 3, quatrième: 4, cinquième: 5,
-    sixième: 6, septième: 7, huitième: 8,
-    neuvième: 9, dixième: 10,
+    première: 1,
+    premier: 1,
+    deuxième: 2,
+    seconde: 2,
+    second: 2,
+    troisième: 3,
+    quatrième: 4,
+    cinquième: 5,
+    sixième: 6,
+    septième: 7,
+    huitième: 8,
+    neuvième: 9,
+    dixième: 10,
   };
-  
+
   return ordinalMap[normalized] || null;
 }
 
@@ -111,8 +119,11 @@ export class FormPollIntentService {
     const removeQuestionMatch = message.match(FORM_PATTERNS.REMOVE_QUESTION);
     if (removeQuestionMatch) {
       // Groupe 1: "question 1", Groupe 2: "Q1", Groupe 3: "première question"
-      const questionStr = removeQuestionMatch[1] || removeQuestionMatch[2] || removeQuestionMatch[3];
-      
+      const questionStr =
+        removeQuestionMatch[1] ||
+        removeQuestionMatch[2] ||
+        removeQuestionMatch[3];
+
       // Convertir ordinal/nombre en nombre si nécessaire
       let questionNumber: number;
       if (/^\d+$/.test(questionStr)) {
@@ -122,7 +133,7 @@ export class FormPollIntentService {
         if (!parsed) return null; // Nombre non reconnu
         questionNumber = parsed;
       }
-      
+
       const questionIndex = questionNumber - 1; // Convertir en index 0-based
 
       // Vérifier que la question existe

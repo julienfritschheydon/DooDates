@@ -438,7 +438,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       showGranularitySettings: true,
       timeGranularity: optimalGranularity,
     }));
-
   }, [initialData]);
 
   // Fonction helper pour scroller vers une heure spécifique
@@ -448,31 +447,35 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         setTimeout(() => {
           const mobileContainer = timeGridRefMobile.current;
           const desktopContainer = timeGridRefDesktop.current;
-          
+
           let container: HTMLElement | null = null;
-          
+
           if (mobileContainer && mobileContainer.offsetParent !== null) {
             container = mobileContainer;
-          } else if (desktopContainer && desktopContainer.offsetParent !== null) {
+          } else if (
+            desktopContainer &&
+            desktopContainer.offsetParent !== null
+          ) {
             container = desktopContainer;
           }
-          
+
           if (!container) return;
-          
-          const targetTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+
+          const targetTime = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
           const children = Array.from(container.children);
-          const targetElement = children.find(child => 
-            child.textContent?.includes(targetTime)
+          const targetElement = children.find((child) =>
+            child.textContent?.includes(targetTime),
           ) as HTMLElement;
-          
+
           if (!targetElement) return;
-          
+
           // Calculer l'index et scroller
           const index = children.indexOf(targetElement);
           const elementHeight = targetElement.offsetHeight;
           const elementPosition = index * elementHeight;
-          const scrollTop = elementPosition - (container.clientHeight / 2) + (elementHeight / 2);
-          
+          const scrollTop =
+            elementPosition - container.clientHeight / 2 + elementHeight / 2;
+
           container.scrollTop = Math.max(0, scrollTop);
         }, 1000);
       });
@@ -483,29 +486,29 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   useEffect(() => {
     if (hasAutoScrolled.current) return;
     if (state.selectedDates.length === 0) return;
-    
+
     // Trouver la première heure sélectionnée dans timeSlotsByDate
     const allSlots = Object.values(timeSlotsByDate).flat();
     if (allSlots.length === 0) {
       // Fallback: chercher dans state.timeSlots
       if (!state.timeSlots || state.timeSlots.length === 0) return;
-      
+
       // Trouver le premier créneau ACTIVÉ (enabled: true)
-      const enabledSlots = state.timeSlots.filter(slot => slot.enabled);
+      const enabledSlots = state.timeSlots.filter((slot) => slot.enabled);
       if (enabledSlots.length === 0) return;
-      
+
       const firstEnabledSlot = enabledSlots[0];
       hasAutoScrolled.current = true;
       scrollToTime(firstEnabledSlot.hour, firstEnabledSlot.minute);
       return;
     }
-    
+
     // Trier par heure pour trouver le premier
     const sortedSlots = allSlots.sort((a, b) => {
       if (a.hour !== b.hour) return a.hour - b.hour;
       return a.minute - b.minute;
     });
-    
+
     const firstSlot = sortedSlots[0];
     hasAutoScrolled.current = true;
     scrollToTime(firstSlot.hour, firstSlot.minute);
@@ -900,7 +903,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   </div>
 
                   {/* Mobile: Section horaires avec scroll */}
-                  <div className="md:hidden" data-testid="time-slots-section-mobile">
+                  <div
+                    className="md:hidden"
+                    data-testid="time-slots-section-mobile"
+                  >
                     <div className="border border-gray-700 rounded-lg bg-[#1e1e1e] overflow-hidden">
                       {/* En-têtes des dates */}
                       <div className="flex bg-[#0a0a0a]">
@@ -941,7 +947,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           <div
                             key={`${timeSlot.hour}-${timeSlot.minute}`}
                             data-time-hour={timeSlot.hour}
-                            ref={timeSlot.hour === 12 && timeSlot.minute === 0 ? targetTimeSlotRefMobile : null}
+                            ref={
+                              timeSlot.hour === 12 && timeSlot.minute === 0
+                                ? targetTimeSlotRefMobile
+                                : null
+                            }
                             className="flex border-b border-gray-100"
                           >
                             <div className="w-16 p-2 text-xs text-gray-300 flex items-center justify-center border-r border-gray-700 bg-[#0a0a0a]">
@@ -1081,7 +1091,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           <div
                             key={`${timeSlot.hour}-${timeSlot.minute}`}
                             data-time-hour={timeSlot.hour}
-                            ref={timeSlot.hour === 12 && timeSlot.minute === 0 ? targetTimeSlotRefDesktop : null}
+                            ref={
+                              timeSlot.hour === 12 && timeSlot.minute === 0
+                                ? targetTimeSlotRefDesktop
+                                : null
+                            }
                             className="flex border-b border-gray-100"
                           >
                             <div className="w-16 p-2 text-xs text-gray-300 flex items-center justify-center border-r border-gray-700 bg-[#0a0a0a]">

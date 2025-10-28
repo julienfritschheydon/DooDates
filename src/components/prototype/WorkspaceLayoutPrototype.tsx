@@ -10,7 +10,9 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useConversation } from "./ConversationProvider";
-import GeminiChatInterface, { type GeminiChatHandle } from "../GeminiChatInterface";
+import GeminiChatInterface, {
+  type GeminiChatHandle,
+} from "../GeminiChatInterface";
 import { PollPreview } from "./PollPreview";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getAllPolls, type Poll } from "../../lib/pollStorage";
@@ -82,7 +84,7 @@ export function WorkspaceLayoutPrototype() {
         setShowPreviewOnMobile(true);
         // Forcer le scroll en haut quand la preview s'ouvre pour éviter le focus automatique vers le bas
         setTimeout(() => {
-          window.scrollTo({ top: 0, behavior: 'instant' });
+          window.scrollTo({ top: 0, behavior: "instant" });
         }, 0);
       } else {
         setShowPreviewOnMobile(false);
@@ -336,9 +338,7 @@ export function WorkspaceLayoutPrototype() {
               <button
                 onClick={() => setSidebarOpen(!isSidebarOpen)}
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                aria-label={
-                  isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"
-                }
+                aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
               >
                 <Menu className="w-5 h-5 text-gray-300" />
               </button>
@@ -388,7 +388,9 @@ export function WorkspaceLayoutPrototype() {
           {/* Toggle Chat/Preview sur mobile */}
           <div className="flex-1 min-h-0 pt-14">
             {/* Chat toujours rendu (masqué en Preview) pour que chatRef soit accessible */}
-            <div className={`h-full ${isMobile && showPreviewOnMobile && isEditorOpen && currentPoll ? "hidden" : ""}`}>
+            <div
+              className={`h-full ${isMobile && showPreviewOnMobile && isEditorOpen && currentPoll ? "hidden" : ""}`}
+            >
               <GeminiChatInterface
                 ref={chatRef}
                 key={chatKey}
@@ -432,7 +434,9 @@ export function WorkspaceLayoutPrototype() {
                             if (e.key === "Enter" && !e.shiftKey) {
                               e.preventDefault();
                               if (previewInputValue.trim() && chatRef.current) {
-                                chatRef.current.submitMessage(previewInputValue);
+                                chatRef.current.submitMessage(
+                                  previewInputValue,
+                                );
                                 setPreviewInputValue("");
                               }
                             }
@@ -451,7 +455,15 @@ export function WorkspaceLayoutPrototype() {
                           className="rounded-full p-2 transition-all flex-shrink-0 bg-transparent text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                           aria-label="Envoyer le message"
                         >
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg
+                            className="w-5 h-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
                             <path d="M22 2L11 13" />
                             <path d="M22 2l-7 20-4-9-9-4 20-7z" />
                           </svg>

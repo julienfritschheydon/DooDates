@@ -132,7 +132,6 @@ export function PollPreview({ poll }: PollPreviewProps) {
 
   // Preview pour questionnaire/formulaire - UTILISER L'EXPÉRIENCE EXISTANTE
   if (poll.type === "form") {
-
     return (
       <div className="bg-[#0a0a0a] rounded-lg shadow-sm" data-poll-preview>
         {/* <div className="p-4 border-b border-gray-200">

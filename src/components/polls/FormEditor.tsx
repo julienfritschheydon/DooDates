@@ -63,7 +63,10 @@ export default function FormEditor({
 
   // Auto-ouvrir la question modifiée
   useEffect(() => {
-    if (modifiedQuestionId && value.questions.some(q => q.id === modifiedQuestionId)) {
+    if (
+      modifiedQuestionId &&
+      value.questions.some((q) => q.id === modifiedQuestionId)
+    ) {
       setActiveId(modifiedQuestionId);
     }
   }, [modifiedQuestionId, value.questions]);

@@ -79,7 +79,7 @@ export default function FormPollCreator({
   onFinalize,
 }: FormPollCreatorProps) {
   const { modifiedQuestionId, modifiedField } = useConversation();
-  
+
   const [title, setTitle] = useState(initialDraft?.title || "");
   const [questions, setQuestions] = useState<AnyFormQuestion[]>(
     initialDraft?.questions || [],
@@ -319,15 +319,14 @@ export default function FormPollCreator({
 
     // Créer le poll actif
     const saved = upsertFormPoll(draft, "active");
-    
+
     // Lier le formulaire à la conversation pour persister l'état "Voir"
     linkPollToConversation(saved.title, saved.id);
-    
+
     // Passer le poll sauvegardé complet (avec slug) au callback
     if (onFinalize) onFinalize(draft, saved);
     logger.info("FormPoll finalisé", "poll", { pollId: saved.id });
   };
-
 
   return (
     <div className="bg-[#0a0a0a]" data-form-container>
@@ -347,7 +346,7 @@ export default function FormPollCreator({
                 </button>
               </div>
             )}
-            
+
             <div className="space-y-6">
               <FormEditor
                 value={{

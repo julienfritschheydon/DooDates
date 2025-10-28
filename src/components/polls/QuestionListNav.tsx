@@ -27,8 +27,8 @@ export default function QuestionListNav({
             (modifiedQuestionId === q.id
               ? "bg-green-500 text-white animate-pulse"
               : activeId === q.id
-              ? "bg-white text-black"
-              : "bg-[#3c4043] text-gray-300 hover:bg-gray-700")
+                ? "bg-white text-black"
+                : "bg-[#3c4043] text-gray-300 hover:bg-gray-700")
           }
           title={q.title || `Q${idx + 1}`}
           data-testid="question-nav"

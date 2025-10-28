@@ -120,8 +120,11 @@ const Calendar: React.FC<CalendarProps> = ({
 
             return (
               <motion.button
-                key={`${dateStr}-${isSelected ? 'selected' : 'unselected'}`}
-                initial={{ scale: 1, boxShadow: "0 0 0 0 rgba(37, 99, 235, 0)" }}
+                key={`${dateStr}-${isSelected ? "selected" : "unselected"}`}
+                initial={{
+                  scale: 1,
+                  boxShadow: "0 0 0 0 rgba(37, 99, 235, 0)",
+                }}
                 animate={
                   isSelected
                     ? {
