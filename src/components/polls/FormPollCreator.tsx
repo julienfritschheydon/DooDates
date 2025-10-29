@@ -7,7 +7,7 @@ import { logger } from "@/lib/logger";
 import type { ConditionalRule } from "../../types/conditionalRules";
 import { validateConditionalRules } from "../../lib/conditionalValidator";
 import { linkPollToConversation } from "../../lib/conversationPollLink";
-import { useConversation } from "../prototype/ConversationProvider";
+import { useUIState } from "../prototype/UIStateProvider";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
 export type FormQuestionType = "single" | "multiple" | "text" | "matrix";
@@ -45,10 +45,7 @@ export interface MatrixQuestion extends FormQuestionBase {
   matrixColumnsNumeric?: boolean; // Colonnes numériques
 }
 
-export type AnyFormQuestion =
-  | SingleOrMultipleQuestion
-  | TextQuestion
-  | MatrixQuestion;
+export type AnyFormQuestion = SingleOrMultipleQuestion | TextQuestion | MatrixQuestion;
 
 export interface FormPollDraft {
   id: string; // draft id (temporaire pour le spike)
@@ -78,12 +75,10 @@ export default function FormPollCreator({
   onSave,
   onFinalize,
 }: FormPollCreatorProps) {
-  const { modifiedQuestionId, modifiedField } = useConversation();
+  const { modifiedQuestionId, modifiedField } = useUIState();
 
   const [title, setTitle] = useState(initialDraft?.title || "");
-  const [questions, setQuestions] = useState<AnyFormQuestion[]>(
-    initialDraft?.questions || [],
-  );
+  const [questions, setQuestions] = useState<AnyFormQuestion[]>(initialDraft?.questions || []);
   const [conditionalRules, setConditionalRules] = useState<ConditionalRule[]>(
     initialDraft?.conditionalRules || [],
   );
@@ -177,20 +172,14 @@ export default function FormPollCreator({
     );
   }
 
-  function upsertFormPoll(
-    draft: FormPollDraft,
-    status: Poll["status"] = "draft",
-  ) {
+  function upsertFormPoll(draft: FormPollDraft, status: Poll["status"] = "draft") {
     const all = getAllPolls();
     const now = new Date().toISOString();
     const existingIdx = all.findIndex((p) => p.id === draft.id);
     const base: Poll = {
       id: draft.id,
       title: draft.title.trim(),
-      slug:
-        existingIdx >= 0
-          ? all[existingIdx].slug
-          : `${slugify(draft.title)}-${uid()}`,
+      slug: existingIdx >= 0 ? all[existingIdx].slug : `${slugify(draft.title)}-${uid()}`,
       created_at: existingIdx >= 0 ? all[existingIdx].created_at : now,
       status,
       updated_at: now,
@@ -279,10 +268,7 @@ export default function FormPollCreator({
     setQuestions((prev) => [...prev, q]);
   };
 
-  const updateQuestion = (
-    id: string,
-    updater: (q: AnyFormQuestion) => AnyFormQuestion,
-  ) => {
+  const updateQuestion = (id: string, updater: (q: AnyFormQuestion) => AnyFormQuestion) => {
     setQuestions((prev) => prev.map((q) => (q.id === id ? updater(q) : q)));
   };
 
@@ -312,9 +298,7 @@ export default function FormPollCreator({
 
     // Supprimer tous les brouillons avec le même ID avant de finaliser
     const all = getAllPolls();
-    const withoutDrafts = all.filter(
-      (p) => !(p.id === draft.id && p.status === "draft"),
-    );
+    const withoutDrafts = all.filter((p) => !(p.id === draft.id && p.status === "draft"));
     savePolls(withoutDrafts);
 
     // Créer le poll actif
@@ -408,20 +392,14 @@ function validateDraft(draft: FormPollDraft): {
         errors.push(`Question ${idx + 1}: minimum 1 ligne`);
       if (!mq.matrixColumns || mq.matrixColumns.length < 2)
         errors.push(`Question ${idx + 1}: minimum 2 colonnes`);
-      const emptyRow = mq.matrixRows?.find(
-        (r) => !r || !r.label || !r.label.trim(),
-      );
+      const emptyRow = mq.matrixRows?.find((r) => !r || !r.label || !r.label.trim());
       if (emptyRow) errors.push(`Question ${idx + 1}: une ligne est vide`);
-      const emptyCol = mq.matrixColumns?.find(
-        (c) => !c || !c.label || !c.label.trim(),
-      );
+      const emptyCol = mq.matrixColumns?.find((c) => !c || !c.label || !c.label.trim());
       if (emptyCol) errors.push(`Question ${idx + 1}: une colonne est vide`);
     } else if (q.type !== "text") {
       const sq = q as SingleOrMultipleQuestion;
-      if (sq.options.length < 2)
-        errors.push(`Question ${idx + 1}: minimum 2 options`);
-      if (sq.options.length > 10)
-        errors.push(`Question ${idx + 1}: maximum 10 options`);
+      if (sq.options.length < 2) errors.push(`Question ${idx + 1}: minimum 2 options`);
+      if (sq.options.length > 10) errors.push(`Question ${idx + 1}: maximum 10 options`);
       const empty = sq.options.find((o) => !o || !o.label || !o.label.trim());
       if (empty) errors.push(`Question ${idx + 1}: une option est vide`);
       if (sq.type === "multiple") {
@@ -432,19 +410,14 @@ function validateDraft(draft: FormPollDraft): {
       }
     } else {
       const tq = q as TextQuestion;
-      if ((tq.maxLength ?? 300) < 50)
-        errors.push(`Question ${idx + 1}: maxLength >= 50`);
-      if ((tq.maxLength ?? 300) > 1000)
-        errors.push(`Question ${idx + 1}: maxLength <= 1000`);
+      if ((tq.maxLength ?? 300) < 50) errors.push(`Question ${idx + 1}: maxLength >= 50`);
+      if ((tq.maxLength ?? 300) > 1000) errors.push(`Question ${idx + 1}: maxLength <= 1000`);
     }
   });
 
   // Valider les règles conditionnelles si présentes
   if (draft.conditionalRules && draft.conditionalRules.length > 0) {
-    const ruleErrors = validateConditionalRules(
-      draft.conditionalRules,
-      draft.questions,
-    );
+    const ruleErrors = validateConditionalRules(draft.conditionalRules, draft.questions);
     errors.push(...ruleErrors);
   }
 
