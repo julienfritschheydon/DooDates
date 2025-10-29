@@ -18,6 +18,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { getAllPolls, type Poll } from "../../lib/pollStorage";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { logger } from "../../lib/logger";
 import { getConversations } from "../../lib/storage/ConversationStorageSimple";
 
 // Fonction pour trouver la conversation liée à un sondage (rétrocompatibilité)
@@ -133,7 +134,7 @@ export function WorkspaceLayoutPrototype() {
       );
       setConversations(sortedConvs);
     } catch (error) {
-      console.error("Erreur chargement données:", error);
+      logger.error("Erreur chargement données", error);
     }
   }, [chatKey, currentPoll]);
 

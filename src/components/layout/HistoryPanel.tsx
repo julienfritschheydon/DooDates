@@ -12,6 +12,7 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useState, useEffect } from "react";
 import { getAllPolls, type Poll } from "../../lib/pollStorage";
+import { logger } from "../../lib/logger";
 
 interface HistoryPanelProps {
   onClose: () => void;
@@ -72,7 +73,7 @@ export default function HistoryPanel({
 
       setRecentPolls(sorted);
     } catch (error) {
-      console.error("[HistoryPanel] Erreur chargement sondages:", error);
+      logger.error("[HistoryPanel] Erreur chargement sondages", error);
     }
   }, []);
 

@@ -199,7 +199,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
             end < filteredConversations.length ? pageParam + 1 : undefined,
         };
       } catch (error) {
-        console.error("[useConversations] Erreur chargement:", error);
+        logger.error("[useConversations] Erreur chargement", error);
         // En mode dev local, retourner un tableau vide au lieu de throw
         // pour éviter l'erreur "Vérifiez votre connexion internet"
         return {

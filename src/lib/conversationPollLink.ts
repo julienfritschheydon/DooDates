@@ -9,6 +9,7 @@ import {
   getConversation,
   updateConversation,
 } from "./storage/ConversationStorageSimple";
+import { logger } from "./logger";
 
 /**
  * Lie un poll à sa conversation en mettant à jour les métadonnées
@@ -56,6 +57,6 @@ export async function linkPollToConversation(
       console.log("❌ Aucun conversationId dans l'URL");
     }
   } catch (error) {
-    console.error("❌ Erreur liaison poll-conversation:", error);
+    logger.error("❌ Erreur liaison poll-conversation", error);
   }
 }

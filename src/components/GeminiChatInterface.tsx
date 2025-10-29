@@ -208,7 +208,7 @@ const GeminiChatInterface = React.forwardRef<
         // Fallback: indicateur généré sans id
         return generated ? "generated" : null;
       } catch (e) {
-        console.error("❌ linkedPollId error:", e);
+        logger.error("linkedPollId error", e);
         return null;
       }
     }, [messages]);
