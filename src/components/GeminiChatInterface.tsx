@@ -35,6 +35,7 @@ import FormPollCreator, {
 import { debounce } from "lodash";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { useConversationResume } from "../hooks/useConversationResume";
+import { useGeminiAPI } from "../hooks/useGeminiAPI";
 import { ConversationService } from "../services/ConversationService";
 import { QuotaService, type AuthIncentiveType } from "../services/QuotaService";
 import { useQuota } from "../hooks/useQuota";
@@ -237,6 +238,21 @@ const GeminiChatInterface = React.forwardRef<
     const quota = useQuota();
     const loopProtection = useInfiniteLoopProtection("gemini-chat-interface");
     const { toast } = useToast();
+    
+    // Hook API Gemini
+    const geminiAPI = useGeminiAPI({
+      debug: true,
+      onQuotaExceeded: () => {
+        // Le quota hook gère déjà l'affichage du modal
+      },
+      onNetworkError: () => {
+        toast({
+          title: "Erreur réseau",
+          description: "Vérifiez votre connexion internet",
+          variant: "destructive",
+        });
+      },
+    });
 
     // Utiliser useRef pour persister les flags entre les re-rendus
     const hasShownOfflineMessage = useRef(false);
@@ -870,126 +886,48 @@ Exemples de modifications supportées :
           timestamp: userMessage.timestamp,
         });
 
-        try {
-          // Sending request to Gemini
-          // Essayer de générer un sondage
-          // IMPORTANT: Toujours envoyer le contenu ORIGINAL (trimmedInput), pas le displayContent
-          const pollResponse =
-            await geminiService.generatePollFromText(trimmedInput);
+        // Appel API Gemini via le hook
+        const pollResponse = await geminiAPI.generatePoll(trimmedInput);
 
-          if (pollResponse.success && pollResponse.data) {
-            // Gemini response received successfully
-
-            // Supprimer le message de progression si présent
-            if (isLongMarkdown) {
-              setMessages((prev) =>
-                prev.filter((msg) => !msg.id.startsWith("progress-")),
-              );
-            }
-
-            const pollType =
-              pollResponse.data.type === "form"
-                ? "questionnaire"
-                : "sondage de disponibilité";
-            const aiResponse: Message = {
-              id: `ai-${Date.now()}`,
-              content: `Voici votre ${pollType} :`,
-              isAI: true,
-              timestamp: new Date(),
-              pollSuggestion: pollResponse.data,
-            };
-
-            setMessages((prev) => [...prev, aiResponse]);
-
-            // Auto-save AI response with poll suggestion
-            await autoSave.addMessage({
-              id: aiResponse.id,
-              content: aiResponse.content,
-              isAI: aiResponse.isAI,
-              timestamp: aiResponse.timestamp,
-              metadata: {
-                pollGenerated: true,
-                pollSuggestion: aiResponse.pollSuggestion,
-              },
-            });
-          } else {
-            // Poll generation failed
-            // Si l'erreur est liée aux quotas, afficher un message spécifique
-            if (
-              pollResponse.error?.includes("quota") ||
-              pollResponse.error?.includes("rate limit")
-            ) {
-              const quotaMessage: Message = {
-                id: `quota-${Date.now()}`,
-                content:
-                  "Je suis désolé, mais j'ai atteint ma limite de requêtes. Veuillez réessayer dans quelques instants.",
-                isAI: true,
-                timestamp: new Date(),
-              };
-              setMessages((prev) => [...prev, quotaMessage]);
-
-              // Auto-save quota message
-              await autoSave.addMessage({
-                id: quotaMessage.id,
-                content: quotaMessage.content,
-                isAI: quotaMessage.isAI,
-                timestamp: quotaMessage.timestamp,
-              });
-            } else {
-              // Autres erreurs
-              const errorMessage: Message = {
-                id: `error-${Date.now()}`,
-                content:
-                  "Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?",
-                isAI: true,
-                timestamp: new Date(),
-              };
-              setMessages((prev) => [...prev, errorMessage]);
-
-              // Auto-save error message
-              await autoSave.addMessage({
-                id: errorMessage.id,
-                content: errorMessage.content,
-                isAI: errorMessage.isAI,
-                timestamp: errorMessage.timestamp,
-              });
-            }
-          }
-        } catch (error) {
-          const processedError = handleError(
-            error,
-            {
-              component: "GeminiChatInterface",
-              operation: "generateResponse",
-            },
-            "Erreur lors de la génération de réponse",
+        // Supprimer le message de progression si présent
+        if (isLongMarkdown) {
+          setMessages((prev) =>
+            prev.filter((msg) => !msg.id.startsWith("progress-")),
           );
+        }
 
-          logError(processedError, {
-            component: "GeminiChatInterface",
-            operation: "generateResponse",
+        if (pollResponse.success && pollResponse.data) {
+          // Gemini response received successfully
+          const pollType =
+            pollResponse.data.type === "form"
+              ? "questionnaire"
+              : "sondage de disponibilité";
+          const aiResponse: Message = {
+            id: `ai-${Date.now()}`,
+            content: `Voici votre ${pollType} :`,
+            isAI: true,
+            timestamp: new Date(),
+            pollSuggestion: pollResponse.data,
+          };
+
+          setMessages((prev) => [...prev, aiResponse]);
+
+          // Auto-save AI response with poll suggestion
+          await autoSave.addMessage({
+            id: aiResponse.id,
+            content: aiResponse.content,
+            isAI: aiResponse.isAI,
+            timestamp: aiResponse.timestamp,
+            metadata: {
+              pollGenerated: true,
+              pollSuggestion: aiResponse.pollSuggestion,
+            },
           });
-
-          let errorContent =
-            "Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?";
-
-          if (
-            processedError.message?.includes("quota") ||
-            processedError.message?.includes("limit")
-          ) {
-            errorContent =
-              "Limite de quota atteinte. Veuillez réessayer plus tard ou vous connecter pour plus de requêtes.";
-          } else if (
-            processedError.message?.includes("network") ||
-            processedError.message?.includes("fetch")
-          ) {
-            errorContent =
-              "Problème de connexion réseau. Vérifiez votre connexion internet.";
-          }
-
+        } else {
+          // Poll generation failed - le hook gère déjà les types d'erreurs
           const errorMessage: Message = {
             id: `error-${Date.now()}`,
-            content: errorContent,
+            content: pollResponse.error || "Erreur lors de la génération",
             isAI: true,
             timestamp: new Date(),
           };
@@ -1002,14 +940,15 @@ Exemples de modifications supportées :
             isAI: errorMessage.isAI,
             timestamp: errorMessage.timestamp,
           });
-        } finally {
-          setIsLoading(false);
         }
+
+        setIsLoading(false);
       },
       [
         autoSave,
         currentPoll,
         dispatchPollAction,
+        geminiAPI,
         isLoading,
         onPollCreated,
         onUserMessage,
