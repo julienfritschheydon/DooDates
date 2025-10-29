@@ -51,7 +51,16 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 5. Formatage automatique
+# 5. Error Handling Enforcement (CRITIQUE)
+echo "🛡️ Vérification Error Handling..."
+npm run test:error-handling
+if [ $? -ne 0 ]; then
+  echo "❌ Violations Error Handling détectées - Commit bloqué"
+  echo "💡 Utilisez ErrorFactory au lieu de 'throw new Error'"
+  exit 1
+fi
+
+# 6. Formatage automatique
 echo "💅 Formatage du code..."
 npm run format
 
