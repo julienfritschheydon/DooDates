@@ -32,13 +32,11 @@ const LoadingSpinner = () => (
 );
 
 // Pages avec preload hint pour les pages critiques
-const Index = lazy(() => import("./pages/Index"));
 const Vote = lazy(() => import("./pages/Vote"));
 const Results = lazy(() => import("./pages/Results"));
 const CreateChooser = lazy(() => import("./pages/CreateChooser"));
 const DateCreator = lazy(() => import("./pages/DateCreator"));
 const FormCreator = lazy(() => import("./pages/FormCreator"));
-const Dashboard = lazy(() => import("./components/DashboardNew"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Prototype pages (UX IA-First)
@@ -362,27 +360,26 @@ const App = () => {
                   {/* ConversationProvider global pour partager l'état entre routes */}
                   <ConversationProvider>
                     <Routes>
-                    {/* Route / vers WorkspacePage (AI-First UX) */}
-                    <Route path="/" element={<WorkspacePage />} />
-                    <Route path="/chat" element={<Index />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
+                      {/* Route / vers WorkspacePage (AI-First UX) */}
+                      <Route path="/" element={<WorkspacePage />} />
+                      
+                      {/* Redirections vers / */}
+                      <Route path="/workspace" element={<WorkspacePage />} />
+                      <Route path="/dashboard" element={<WorkspacePage />} />
 
-                    {/* Route workspace redirige vers / */}
-                    <Route path="/workspace" element={<WorkspacePage />} />
-
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/auth/callback" element={<AuthCallback />} />
-                    <Route path="/poll/:slug" element={<Vote />} />
-                    <Route path="/poll/:slug/results" element={<Results />} />
-                    <Route path="/vote/:pollId" element={<Vote />} />
-                    <Route path="/create" element={<CreateChooser />} />
-                    <Route path="/create/date" element={<DateCreator />} />
-                    <Route path="/create/form" element={<FormCreator />} />
-                    <Route
-                      path="/poll/:pollSlug/results/:adminToken"
-                      element={<Vote />}
-                    />
-                    <Route path="*" element={<NotFound />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/auth/callback" element={<AuthCallback />} />
+                      <Route path="/poll/:slug" element={<Vote />} />
+                      <Route path="/poll/:slug/results" element={<Results />} />
+                      <Route path="/vote/:pollId" element={<Vote />} />
+                      <Route path="/create" element={<CreateChooser />} />
+                      <Route path="/create/date" element={<DateCreator />} />
+                      <Route path="/create/form" element={<FormCreator />} />
+                      <Route
+                        path="/poll/:pollSlug/results/:adminToken"
+                        element={<Vote />}
+                      />
+                      <Route path="*" element={<NotFound />} />
                     </Routes>
                   </ConversationProvider>
                 </UIStateProvider>
