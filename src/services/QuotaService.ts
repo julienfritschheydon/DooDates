@@ -100,9 +100,7 @@ export class QuotaService {
 
       if (storageData.startsWith("{") || storageData.startsWith("[")) {
         const parsed = JSON.parse(storageData);
-        return Array.isArray(parsed)
-          ? parsed.length
-          : Object.keys(parsed).length;
+        return Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
       }
 
       return storageData.split("\n").filter((line) => line.trim()).length;
@@ -133,17 +131,11 @@ export class QuotaService {
       const parsed = JSON.parse(storageData);
       return Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
     } catch (error) {
-      logError(
-        ErrorFactory.storage(
-          "Error counting polls",
-          "Erreur de comptage des sondages",
-        ),
-        {
-          component: "QuotaService",
-          operation: "countPolls",
-          originalError: error,
-        },
-      );
+      logError(ErrorFactory.storage("Error counting polls", "Erreur de comptage des sondages"), {
+        component: "QuotaService",
+        operation: "countPolls",
+        originalError: error,
+      });
       return 0;
     }
   }
@@ -163,9 +155,7 @@ export class QuotaService {
    * Check if user can create new conversation
    */
   static canCreateConversation(isAuthenticated: boolean): boolean {
-    const limits = isAuthenticated
-      ? this.AUTHENTICATED_LIMITS
-      : this.GUEST_LIMITS;
+    const limits = isAuthenticated ? this.AUTHENTICATED_LIMITS : this.GUEST_LIMITS;
     const usage = this.calculateUsage();
     return usage.conversations < limits.conversations;
   }
@@ -174,9 +164,7 @@ export class QuotaService {
    * Check if user can create new poll
    */
   static canCreatePoll(isAuthenticated: boolean): boolean {
-    const limits = isAuthenticated
-      ? this.AUTHENTICATED_LIMITS
-      : this.GUEST_LIMITS;
+    const limits = isAuthenticated ? this.AUTHENTICATED_LIMITS : this.GUEST_LIMITS;
     const usage = this.calculateUsage();
     return usage.polls < limits.polls;
   }
@@ -190,8 +178,7 @@ export class QuotaService {
     const usage = this.calculateUsage();
     const limits = this.GUEST_LIMITS;
 
-    if (usage.conversations >= limits.conversations)
-      return "conversation_limit";
+    if (usage.conversations >= limits.conversations) return "conversation_limit";
     if (usage.polls >= limits.polls) return "poll_limit";
     if (usage.storageUsed >= limits.storageSize) return "storage_full";
 
@@ -262,10 +249,7 @@ export class QuotaService {
           }
           return true;
         });
-        localStorage.setItem(
-          "doodates_conversations",
-          JSON.stringify(filtered),
-        );
+        localStorage.setItem("doodates_conversations", JSON.stringify(filtered));
       } else {
         conversationIds.forEach((id) => {
           if (conversations[id]) {
@@ -273,10 +257,7 @@ export class QuotaService {
             deletedCount++;
           }
         });
-        localStorage.setItem(
-          "doodates_conversations",
-          JSON.stringify(conversations),
-        );
+        localStorage.setItem("doodates_conversations", JSON.stringify(conversations));
       }
 
       return deletedCount;

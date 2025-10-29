@@ -266,9 +266,7 @@ function generateTitleFromPhrases(
   options: Required<TitleGenerationOptions>,
 ): string {
   if (phrases.length === 0) {
-    return options.language === "fr"
-      ? "Nouvelle conversation"
-      : "New conversation";
+    return options.language === "fr" ? "Nouvelle conversation" : "New conversation";
   }
 
   // Prioritize scheduling-related phrases
@@ -330,18 +328,12 @@ function generateTitleFromPhrases(
 /**
  * Ensure title fits within length constraints
  */
-function ensureTitleLength(
-  title: string,
-  minLength: number,
-  maxLength: number,
-): string {
+function ensureTitleLength(title: string, minLength: number, maxLength: number): string {
   if (title.length > maxLength) {
     // Truncate at word boundary
     const truncated = title.substring(0, maxLength);
     const lastSpace = truncated.lastIndexOf(" ");
-    return lastSpace > minLength
-      ? truncated.substring(0, lastSpace)
-      : truncated;
+    return lastSpace > minLength ? truncated.substring(0, lastSpace) : truncated;
   }
 
   if (title.length < minLength) {
@@ -420,16 +412,11 @@ export function shouldRegenerateTitle(
  */
 export function generateFallbackTitle(language: "fr" | "en" = "fr"): string {
   const now = new Date();
-  const dateStr = now.toLocaleDateString(
-    language === "fr" ? "fr-FR" : "en-US",
-    {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    },
-  );
+  const dateStr = now.toLocaleDateString(language === "fr" ? "fr-FR" : "en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 
-  return language === "fr"
-    ? `Conversation du ${dateStr}`
-    : `Conversation ${dateStr}`;
+  return language === "fr" ? `Conversation du ${dateStr}` : `Conversation ${dateStr}`;
 }

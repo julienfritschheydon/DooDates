@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QuestionCard from "./QuestionCard";
 import type { Question } from "./QuestionCard";
 import QuestionListNav from "./QuestionListNav";
@@ -49,9 +43,7 @@ export default function FormEditor({
   modifiedQuestionId,
   modifiedField,
 }: FormEditorProps) {
-  const [activeId, setActiveId] = useState<string | null>(
-    value.questions[0]?.id ?? null,
-  );
+  const [activeId, setActiveId] = useState<string | null>(value.questions[0]?.id ?? null);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   // S'assurer qu'une question est toujours active quand il y en a
@@ -63,10 +55,7 @@ export default function FormEditor({
 
   // Auto-ouvrir la question modifiée
   useEffect(() => {
-    if (
-      modifiedQuestionId &&
-      value.questions.some((q) => q.id === modifiedQuestionId)
-    ) {
+    if (modifiedQuestionId && value.questions.some((q) => q.id === modifiedQuestionId)) {
       setActiveId(modifiedQuestionId);
     }
   }, [modifiedQuestionId, value.questions]);
@@ -77,10 +66,7 @@ export default function FormEditor({
   );
   const activeQuestion = activeIndex >= 0 ? value.questions[activeIndex] : null;
 
-  const setTitle = useCallback(
-    (title: string) => onChange({ ...value, title }),
-    [value, onChange],
-  );
+  const setTitle = useCallback((title: string) => onChange({ ...value, title }), [value, onChange]);
 
   // When a new question is added externally (parent updates value.questions),
   // automatically activate the newly added question and focus its title input.
@@ -107,9 +93,7 @@ export default function FormEditor({
 
   const updateQuestion = useCallback(
     (qId: string, patch: Partial<Question>) => {
-      const next = value.questions.map((q) =>
-        q.id === qId ? { ...q, ...patch } : q,
-      );
+      const next = value.questions.map((q) => (q.id === qId ? { ...q, ...patch } : q));
       onChange({ ...value, questions: next });
     },
     [value, onChange],
@@ -208,10 +192,7 @@ export default function FormEditor({
             onDelete={() => remove(activeQuestion.id)}
             onMoveUp={() => reorder(activeIndex, Math.max(0, activeIndex - 1))}
             onMoveDown={() =>
-              reorder(
-                activeIndex,
-                Math.min(value.questions.length - 1, activeIndex + 1),
-              )
+              reorder(activeIndex, Math.min(value.questions.length - 1, activeIndex + 1))
             }
             allQuestions={value.questions}
             conditionalRules={value.conditionalRules ?? []}

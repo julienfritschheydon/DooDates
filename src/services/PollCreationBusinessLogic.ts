@@ -83,23 +83,14 @@ export class PollCreationBusinessLogic {
   /**
    * Charge les données d'un sondage existant depuis localStorage
    */
-  static async loadPollData(
-    editPollId: string,
-  ): Promise<PollCreationState | null> {
+  static async loadPollData(editPollId: string): Promise<PollCreationState | null> {
     try {
-      const existingPolls = JSON.parse(
-        localStorage.getItem("dev-polls") || "[]",
-      );
-      const pollToEdit = existingPolls.find(
-        (poll: any) => poll.id === editPollId,
-      );
+      const existingPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+      const pollToEdit = existingPolls.find((poll: any) => poll.id === editPollId);
 
       if (!pollToEdit) {
         logError(
-          ErrorFactory.validation(
-            "Poll not found for editing",
-            "Sondage à éditer non trouvé",
-          ),
+          ErrorFactory.validation("Poll not found for editing", "Sondage à éditer non trouvé"),
           {
             component: "PollCreationBusinessLogic",
             operation: "loadPollData",
@@ -259,9 +250,7 @@ export class PollCreationBusinessLogic {
   static canFinalize(state: PollCreationState): boolean {
     const hasTitle = state.pollTitle.trim().length > 0;
     const hasDates = state.selectedDates.length > 0;
-    const emailValidation = this.validateParticipantEmails(
-      state.participantEmails,
-    );
+    const emailValidation = this.validateParticipantEmails(state.participantEmails);
 
     return hasTitle && hasDates && emailValidation.isValid;
   }
@@ -287,10 +276,7 @@ export class PollCreationBusinessLogic {
       }
     } catch (error) {
       logError(
-        ErrorFactory.storage(
-          "Error saving draft",
-          "Erreur lors de la sauvegarde automatique",
-        ),
+        ErrorFactory.storage("Error saving draft", "Erreur lors de la sauvegarde automatique"),
         {
           component: "PollCreationBusinessLogic",
           operation: "saveDraft",
@@ -330,10 +316,7 @@ export class PollCreationBusinessLogic {
       };
     } catch (error) {
       logError(
-        ErrorFactory.storage(
-          "Error loading draft",
-          "Erreur lors du chargement du brouillon",
-        ),
+        ErrorFactory.storage("Error loading draft", "Erreur lors du chargement du brouillon"),
         {
           component: "PollCreationBusinessLogic",
           operation: "loadDraft",
@@ -351,17 +334,11 @@ export class PollCreationBusinessLogic {
     try {
       localStorage.removeItem("doodates-draft");
     } catch (error) {
-      logError(
-        ErrorFactory.storage(
-          "Error cleaning up draft data",
-          "Erreur lors du nettoyage",
-        ),
-        {
-          component: "PollCreationBusinessLogic",
-          operation: "cleanup",
-          metadata: { error },
-        },
-      );
+      logError(ErrorFactory.storage("Error cleaning up draft data", "Erreur lors du nettoyage"), {
+        component: "PollCreationBusinessLogic",
+        operation: "cleanup",
+        metadata: { error },
+      });
     }
   }
 }

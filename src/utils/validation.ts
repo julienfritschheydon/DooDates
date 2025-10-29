@@ -25,11 +25,7 @@ export function isValidDate(dateString: string): boolean {
   const date = new Date(dateString);
   const [year, month, day] = dateString.split("-").map(Number);
 
-  return (
-    date.getFullYear() === year &&
-    date.getMonth() === month - 1 &&
-    date.getDate() === day
-  );
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
 }
 
 /**

@@ -14,16 +14,11 @@ interface VotingInterfaceProps {
   adminToken?: string;
 }
 
-export const VotingInterface: React.FC<VotingInterfaceProps> = ({
-  pollId,
-  onBack,
-  adminToken,
-}) => {
+export const VotingInterface: React.FC<VotingInterfaceProps> = ({ pollId, onBack, adminToken }) => {
   const [showResults, setShowResults] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const { poll, options, votes, loading, error, totalVotes } =
-    useVoting(pollId);
+  const { poll, options, votes, loading, error, totalVotes } = useVoting(pollId);
 
   logger.debug("VotingInterface - État", "vote", {
     pollId,
@@ -66,9 +61,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({
           className="text-center"
         >
           <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
-            Sondage introuvable
-          </h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Sondage introuvable</h2>
           <p className="text-gray-600 mb-4">
             {error || "Ce sondage n'existe pas ou n'est plus actif."}
           </p>

@@ -82,7 +82,7 @@ describe("ConversationStateProvider", () => {
       }),
       {
         wrapper: createWrapper(ConversationStateProvider),
-      }
+      },
     );
 
     expect(result.current.messages).toEqual([]);

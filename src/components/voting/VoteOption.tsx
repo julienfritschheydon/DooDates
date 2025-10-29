@@ -1,13 +1,6 @@
 import React from "react";
 import { motion, PanInfo, useAnimation } from "framer-motion";
-import {
-  Check,
-  X,
-  HelpCircle,
-  ArrowRight,
-  ArrowLeft,
-  Star,
-} from "lucide-react";
+import { Check, X, HelpCircle, ArrowRight, ArrowLeft, Star } from "lucide-react";
 import { SwipeOption, VoteType } from "./utils/types";
 import { formatDate, formatTime } from "./utils/dateUtils";
 import { triggerHaptic } from "./utils/voteUtils";
@@ -65,9 +58,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
 
     // Compter combien d'options ont le même rang
     const allRankings = getRanking("all");
-    const optionsWithSameRank = Object.values(allRankings).filter(
-      (r) => r === rank,
-    ).length;
+    const optionsWithSameRank = Object.values(allRankings).filter((r) => r === rank).length;
 
     // Cas 1 : Un seul premier → Badge "1er" bleu
     if (rank === 1 && optionsWithSameRank === 1) {
@@ -125,9 +116,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
           {!option.date_group_label && option.time_slots && (
             <>
               <span className="text-gray-500">•</span>
-              <span className="text-gray-300">
-                {formatTime(option.time_slots)}
-              </span>
+              <span className="text-gray-300">{formatTime(option.time_slots)}</span>
             </>
           )}
         </div>
@@ -217,8 +206,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
                 />
 
                 {/* COUCHE 2 : Barre de surbrillance */}
-                {(userVote === "yes" && userHasVoted) ||
-                currentSwipe === "yes" ? (
+                {(userVote === "yes" && userHasVoted) || currentSwipe === "yes" ? (
                   <motion.div
                     className="absolute bg-blue-500/75"
                     initial={{ height: 0 }}
@@ -372,8 +360,7 @@ const VoteOption: React.FC<VoteOptionProps> = ({
                 />
 
                 {/* COUCHE 2 : Barre de surbrillance */}
-                {(userVote === "no" && userHasVoted) ||
-                currentSwipe === "no" ? (
+                {(userVote === "no" && userHasVoted) || currentSwipe === "no" ? (
                   <motion.div
                     className="absolute bg-red-500/75"
                     initial={{ height: 0 }}

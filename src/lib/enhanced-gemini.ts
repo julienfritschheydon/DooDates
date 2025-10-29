@@ -363,9 +363,13 @@ Réponds SEULEMENT avec le JSON validé.`;
             logError(
               ErrorFactory.validation(
                 `Counterfactual validation failed: ${validationErrors.join(", ")}`,
-                "Certaines suggestions pourraient être incomplètes"
+                "Certaines suggestions pourraient être incomplètes",
               ),
-              { component: "enhanced-gemini", operation: "validateCounterfactual", metadata: { validationErrors } }
+              {
+                component: "enhanced-gemini",
+                operation: "validateCounterfactual",
+                metadata: { validationErrors },
+              },
             );
             // On peut quand même retourner le résultat avec des suggestions
           }

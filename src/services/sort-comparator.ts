@@ -137,9 +137,7 @@ export function sortConversations(
     ...options,
   };
 
-  return [...conversations].sort((a, b) =>
-    compareUnifiedItems(a, b, sortOptions),
-  );
+  return [...conversations].sort((a, b) => compareUnifiedItems(a, b, sortOptions));
 }
 
 /**
@@ -165,9 +163,7 @@ export function updateFavoriteRank(
 /**
  * Réordonne automatiquement les rangs des favoris
  */
-export function reorderFavoriteRanks(
-  conversations: Conversation[],
-): Conversation[] {
+export function reorderFavoriteRanks(conversations: Conversation[]): Conversation[] {
   const favorites = conversations.filter((conv) => conv.isFavorite);
   const nonFavorites = conversations.filter((conv) => !conv.isFavorite);
 
@@ -230,9 +226,7 @@ export function validateFavoriteRanks(conversations: Conversation[]): {
     .sort((a, b) => a - b);
 
   // Vérifier les doublons
-  const duplicates = ranks.filter(
-    (rank, index) => ranks.indexOf(rank) !== index,
-  );
+  const duplicates = ranks.filter((rank, index) => ranks.indexOf(rank) !== index);
   if (duplicates.length > 0) {
     errors.push(`Rangs dupliqués détectés: ${duplicates.join(", ")}`);
     suggestions.push("Utiliser reorderFavoriteRanks() pour corriger");
@@ -241,16 +235,12 @@ export function validateFavoriteRanks(conversations: Conversation[]): {
   // Vérifier les trous dans la séquence
   for (let i = 0; i < ranks.length - 1; i++) {
     if (ranks[i + 1] - ranks[i] > 1) {
-      suggestions.push(
-        `Trou détecté entre les rangs ${ranks[i]} et ${ranks[i + 1]}`,
-      );
+      suggestions.push(`Trou détecté entre les rangs ${ranks[i]} et ${ranks[i + 1]}`);
     }
   }
 
   // Vérifier les favoris sans rang
-  const favoritesWithoutRank = favorites.filter(
-    (conv) => conv.favorite_rank === undefined,
-  );
+  const favoritesWithoutRank = favorites.filter((conv) => conv.favorite_rank === undefined);
   if (favoritesWithoutRank.length > 0) {
     errors.push(`${favoritesWithoutRank.length} favoris sans rang détectés`);
     suggestions.push("Assigner des rangs avec getNextFavoriteRank()");

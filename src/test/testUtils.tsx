@@ -128,10 +128,7 @@ export const renderWithProviders = (
 };
 
 // Helper to render with guest context
-export const renderWithGuestContext = (
-  ui: React.ReactElement,
-  options?: RenderOptions,
-) => {
+export const renderWithGuestContext = (ui: React.ReactElement, options?: RenderOptions) => {
   return renderWithProviders(ui, {
     authContext: mockGuestAuthContext,
     renderOptions: options,

@@ -148,8 +148,7 @@ export class GeminiService {
     // Support multiple checkbox formats: ☐, □, - [ ], etc.
     const hasCheckboxes = /-\s*[☐□]|^-\s*\[\s*\]/m.test(text);
 
-    const isMarkdown =
-      hasTitle && hasSections && hasQuestions && text.length > 200;
+    const isMarkdown = hasTitle && hasSections && hasQuestions && text.length > 200;
 
     if (import.meta.env.DEV) {
       logger.info(
@@ -181,9 +180,7 @@ export class GeminiService {
 
       // Extraire sections avec split() (méthode robuste testée)
       const parts = cleaned.split(/(?=^##\s+)/gm);
-      const sections = parts.filter(
-        (part) => part.startsWith("##") && !part.startsWith("###"),
-      );
+      const sections = parts.filter((part) => part.startsWith("##") && !part.startsWith("###"));
 
       let questionNumber = 0;
       const conditionalPatterns: Array<{
@@ -197,9 +194,7 @@ export class GeminiService {
 
         // Extraire questions avec split() (plus robuste que regex)
         const questionParts = sectionContent.split(/(?=^###\s)/gm);
-        const questionBlocks = questionParts.filter((part) =>
-          part.trim().startsWith("###"),
-        );
+        const questionBlocks = questionParts.filter((part) => part.trim().startsWith("###"));
 
         for (const questionBlock of questionBlocks) {
           questionNumber++;
@@ -207,16 +202,11 @@ export class GeminiService {
           // Extraire le titre de la question (première ligne sans les ###)
           const firstLine = questionBlock.split("\n")[0];
           const questionTitle = firstLine
-            .replace(
-              /^###\s*(?:Q\d+[a-z]*\.|Q\d+[a-z]*|Question\s*\d+:?|\d+[\).]\s*)\s*/,
-              "",
-            )
+            .replace(/^###\s*(?:Q\d+[a-z]*\.|Q\d+[a-z]*|Question\s*\d+:?|\d+[\).]\s*)\s*/, "")
             .trim();
 
           // Détecter si la question est conditionnelle (Si NON, Si OUI, etc.)
-          const conditionalMatch = questionTitle.match(
-            /^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i,
-          );
+          const conditionalMatch = questionTitle.match(/^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i);
           if (conditionalMatch) {
             conditionalPatterns.push({
               questionNumber,
@@ -267,8 +257,7 @@ export class GeminiService {
           // Extraire options (support TOUS les formats)
           if (type !== "text") {
             // Support: -, *, •, ○, ☐, □, ✓, [ ]
-            const optionRegex =
-              /^[\s]*[-*\u2022\u25cb\u2610\u25a1\u2713]\s*(?:\[\s*\])?\s*(.+)$/gm;
+            const optionRegex = /^[\s]*[-*\u2022\u25cb\u2610\u25a1\u2713]\s*(?:\[\s*\])?\s*(.+)$/gm;
             const options: string[] = [];
             let optionMatch;
 
@@ -281,11 +270,7 @@ export class GeminiService {
               option = option.trim();
 
               // Ignorer les sous-titres markdown et "Autre :"
-              if (
-                !option.startsWith("#") &&
-                !option.startsWith("Autre :") &&
-                option.length > 0
-              ) {
+              if (!option.startsWith("#") && !option.startsWith("Autre :") && option.length > 0) {
                 options.push(option);
               }
             }
@@ -308,9 +293,7 @@ export class GeminiService {
       if (conditionalPatterns.length > 0) {
         prompt += `\nRÈGLES CONDITIONNELLES:\n`;
         for (const pattern of conditionalPatterns) {
-          const match = pattern.title.match(
-            /^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i,
-          );
+          const match = pattern.title.match(/^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i);
           if (match) {
             const condition = match[1].toUpperCase();
             const dependsOnQuestion = pattern.questionNumber - 1;
@@ -374,18 +357,11 @@ export class GeminiService {
     ];
 
     // Compter les occurrences de chaque type de mot-clé
-    const formScore = formKeywords.filter((kw) =>
-      inputLower.includes(kw),
-    ).length;
-    const dateScore = dateKeywords.filter((kw) =>
-      inputLower.includes(kw),
-    ).length;
+    const formScore = formKeywords.filter((kw) => inputLower.includes(kw)).length;
+    const dateScore = dateKeywords.filter((kw) => inputLower.includes(kw)).length;
 
     if (import.meta.env.DEV) {
-      logger.info(
-        `Poll type detection: formScore=${formScore}, dateScore=${dateScore}`,
-        "api",
-      );
+      logger.info(`Poll type detection: formScore=${formScore}, dateScore=${dateScore}`, "api");
     }
 
     // Si score Form > Date → Form Poll
@@ -421,10 +397,7 @@ export class GeminiService {
           processedInput = parsedPrompt;
           pollType = "form"; // Les questionnaires markdown sont toujours des Form Polls
           if (import.meta.env.DEV) {
-            logger.info(
-              "Markdown questionnaire détecté et parsé avec succès",
-              "api",
-            );
+            logger.info("Markdown questionnaire détecté et parsé avec succès", "api");
           }
         } else {
           // Fallback si parsing échoue
@@ -471,9 +444,7 @@ export class GeminiService {
 
       // Parser selon le type détecté
       const pollData =
-        pollType === "form"
-          ? this.parseFormPollResponse(text)
-          : this.parseGeminiResponse(text);
+        pollType === "form" ? this.parseFormPollResponse(text) : this.parseGeminiResponse(text);
 
       if (pollData) {
         const successMessage =
@@ -589,11 +560,7 @@ export class GeminiService {
     return month < currentMonth ? currentYear + 1 : currentYear;
   }
 
-  private parseWeekendRange(
-    startMonth: number,
-    endMonth: number,
-    year?: number,
-  ): string[] {
+  private parseWeekendRange(startMonth: number, endMonth: number, year?: number): string[] {
     // Utiliser le calendrier pré-généré pour une performance optimale
     const targetYear = year || this.getTargetYear(startMonth);
 
@@ -602,10 +569,7 @@ export class GeminiService {
     const endMonthKey = `${targetYear}-${endMonth.toString().padStart(2, "0")}`;
 
     // Obtenir tous les week-ends de la période en une seule requête
-    const weekendDays = this.calendarQuery.getWeekendsInMonths(
-      startMonthKey,
-      endMonthKey,
-    );
+    const weekendDays = this.calendarQuery.getWeekendsInMonths(startMonthKey, endMonthKey);
 
     // Grouper les week-ends par paires consécutives (samedi + dimanche)
     const weekendPairs: string[] = [];
@@ -622,9 +586,7 @@ export class GeminiService {
         const nextDay = weekendDays[i + 1];
         if (nextDay && nextDay.dayOfWeek === 0) {
           const nextDate = new Date(nextDay.date);
-          const dayDiff =
-            (nextDate.getTime() - currentDate.getTime()) /
-            (1000 * 60 * 60 * 24);
+          const dayDiff = (nextDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
 
           // Si le dimanche est bien le lendemain du samedi
           if (dayDiff === 1) {
@@ -640,11 +602,7 @@ export class GeminiService {
     return weekendPairs;
   }
 
-  private parseConsecutiveDays(
-    firstDay: number,
-    daysCount: number,
-    fromDate?: Date,
-  ): string[] {
+  private parseConsecutiveDays(firstDay: number, daysCount: number, fromDate?: Date): string[] {
     const dates: string[] = [];
     const startDate = fromDate || this.getNextDayOfWeek(new Date(), firstDay);
 
@@ -665,21 +623,13 @@ export class GeminiService {
     };
   }
 
-  private getNextNDaysOfWeek(
-    dayOfWeek: number,
-    count: number,
-    month: number,
-  ): string[] {
+  private getNextNDaysOfWeek(dayOfWeek: number, count: number, month: number): string[] {
     // Utiliser le calendrier pré-généré pour une performance optimale
     const targetYear = this.getTargetYear(month);
     const fromDate = `${targetYear}-${month.toString().padStart(2, "0")}-01`;
 
     // Obtenir directement N occurrences du jour de la semaine
-    const dayOccurrences = this.calendarQuery.getNextNDaysOfWeek(
-      dayOfWeek,
-      count,
-      fromDate,
-    );
+    const dayOccurrences = this.calendarQuery.getNextNDaysOfWeek(dayOfWeek, count, fromDate);
 
     return dayOccurrences.map((day) => day.date);
   }
@@ -687,10 +637,7 @@ export class GeminiService {
   private convertGeminiTimeSlots(
     timeSlots: any[],
   ): Record<string, Array<{ hour: number; minute: number; enabled: boolean }>> {
-    const result: Record<
-      string,
-      Array<{ hour: number; minute: number; enabled: boolean }>
-    > = {};
+    const result: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>> = {};
 
     timeSlots.forEach((slot) => {
       slot.dates.forEach((date: string) => {
@@ -724,7 +671,7 @@ export class GeminiService {
     durations: { brief?: number; main: number; debrief?: number },
   ): any[] {
     const timeSlots = [];
-    let currentTime = new Date(`${date}T${mainStartTime}`);
+    const currentTime = new Date(`${date}T${mainStartTime}`);
 
     // Si brief, on le met avant la réunion principale
     if (durations.brief) {
@@ -833,8 +780,7 @@ export class GeminiService {
   private buildPollGenerationPrompt(userInput: string): string {
     // Analyse temporelle préalable
     const temporalAnalysis = this.analyzeTemporalInput(userInput);
-    const counterfactualQuestions =
-      this.generateCounterfactualQuestions(userInput);
+    const counterfactualQuestions = this.generateCounterfactualQuestions(userInput);
 
     const today = new Date();
     const currentYear = today.getFullYear();
@@ -1268,9 +1214,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
           const validDates = parsed.dates.filter((dateStr: string) => {
             const isValidDate = dateStr >= todayStr;
             if (!isValidDate) {
-              console.warn(
-                `Past date filtered out: ${dateStr} (before ${todayStr})`,
-              );
+              console.warn(`Past date filtered out: ${dateStr} (before ${todayStr})`);
             }
             return isValidDate;
           });
@@ -1388,10 +1332,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
           }
 
           if (import.meta.env.DEV) {
-            logger.info(
-              `Form Poll parsed: ${validQuestions.length} valid questions`,
-              "api",
-            );
+            logger.info(`Form Poll parsed: ${validQuestions.length} valid questions`, "api");
           }
 
           const finalPoll: FormPollSuggestion = {
@@ -1450,16 +1391,12 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
 
     // Vérifications counterfactual de base
     if (text.includes("lundi") && constraints.weekend) {
-      conflicts.push(
-        'Contradiction: "lundi" demandé mais "weekend" aussi mentionné',
-      );
+      conflicts.push('Contradiction: "lundi" demandé mais "weekend" aussi mentionné');
       suggestions.push("Clarifiez si vous voulez un lundi ou un weekend");
     }
 
     if (text.includes("matin") && text.includes("soir")) {
-      suggestions.push(
-        "Précisez si vous voulez le matin OU le soir, ou toute la journée",
-      );
+      suggestions.push("Précisez si vous voulez le matin OU le soir, ou toute la journée");
     }
 
     // Détection du type temporel
@@ -1473,10 +1410,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
       /\d{1,2}h/.test(text)
     ) {
       temporalType = "datetime";
-    } else if (
-      text.includes("cette semaine") ||
-      text.includes("semaine prochaine")
-    ) {
+    } else if (text.includes("cette semaine") || text.includes("semaine prochaine")) {
       temporalType = "date";
     }
 
@@ -1503,11 +1437,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
     const text = userInput.toLowerCase();
 
     // Questions sur la cohérence des jours
-    if (
-      text.includes("lundi") ||
-      text.includes("mardi") ||
-      text.includes("mercredi")
-    ) {
+    if (text.includes("lundi") || text.includes("mardi") || text.includes("mercredi")) {
       questions.push(
         "Si on changeait le jour de la semaine demandé, le contexte resterait-il cohérent ?",
       );
@@ -1515,32 +1445,22 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
 
     // Questions sur les relations temporelles
     if (text.includes("avant") || text.includes("après")) {
-      questions.push(
-        'Si on inversait "avant" et "après", la phrase aurait-elle encore du sens ?',
-      );
+      questions.push('Si on inversait "avant" et "après", la phrase aurait-elle encore du sens ?');
     }
 
     // Questions sur les périodes
     if (text.includes("matin") || text.includes("soir")) {
-      questions.push(
-        'Si on changeait "matin" par "soir", les horaires seraient-ils cohérents ?',
-      );
+      questions.push('Si on changeait "matin" par "soir", les horaires seraient-ils cohérents ?');
     }
 
     // Questions sur la récurrence
     if (text.includes("tous les") || text.includes("chaque")) {
-      questions.push(
-        'Si on supprimait "tous les" ou "chaque", le sens changerait-il ?',
-      );
+      questions.push('Si on supprimait "tous les" ou "chaque", le sens changerait-il ?');
     }
 
     // Questions générales de cohérence
-    questions.push(
-      "Chaque date générée correspond-elle exactement au jour demandé ?",
-    );
-    questions.push(
-      "Les horaires respectent-ils les contraintes temporelles mentionnées ?",
-    );
+    questions.push("Chaque date générée correspond-elle exactement au jour demandé ?");
+    questions.push("Les horaires respectent-ils les contraintes temporelles mentionnées ?");
 
     return questions;
   }

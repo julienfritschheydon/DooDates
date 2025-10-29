@@ -39,17 +39,11 @@ export function readFromStorage<T>(
 
     return items;
   } catch (error) {
-    logError(
-      ErrorFactory.storage(
-        `Failed to read from ${key}`,
-        `Échec de lecture depuis ${key}`,
-      ),
-      {
-        component: "storageUtils",
-        operation: "readFromStorage",
-        metadata: { key, originalError: error },
-      },
-    );
+    logError(ErrorFactory.storage(`Failed to read from ${key}`, `Échec de lecture depuis ${key}`), {
+      component: "storageUtils",
+      operation: "readFromStorage",
+      metadata: { key, originalError: error },
+    });
     return defaultValue;
   }
 }
@@ -57,11 +51,7 @@ export function readFromStorage<T>(
 /**
  * Generic localStorage write with memory cache
  */
-export function writeToStorage<T>(
-  key: string,
-  items: T[],
-  cache: Map<string, T>,
-): void {
+export function writeToStorage<T>(key: string, items: T[], cache: Map<string, T>): void {
   if (!hasWindow()) return;
 
   try {
@@ -76,28 +66,18 @@ export function writeToStorage<T>(
     // Save to localStorage
     window.localStorage.setItem(key, JSON.stringify(items));
   } catch (error) {
-    logError(
-      ErrorFactory.storage(
-        `Failed to write to ${key}`,
-        `Échec d'écriture vers ${key}`,
-      ),
-      {
-        component: "storageUtils",
-        operation: "writeToStorage",
-        metadata: { key, originalError: error },
-      },
-    );
+    logError(ErrorFactory.storage(`Failed to write to ${key}`, `Échec d'écriture vers ${key}`), {
+      component: "storageUtils",
+      operation: "writeToStorage",
+      metadata: { key, originalError: error },
+    });
   }
 }
 
 /**
  * Generic add item to storage
  */
-export function addToStorage<T>(
-  key: string,
-  item: T,
-  cache: Map<string, T>,
-): void {
+export function addToStorage<T>(key: string, item: T, cache: Map<string, T>): void {
   const items = readFromStorage(key, cache);
   items.push(item);
   writeToStorage(key, items, cache);
@@ -106,11 +86,7 @@ export function addToStorage<T>(
 /**
  * Generic find item by ID
  */
-export function findById<T>(
-  id: string,
-  key: string,
-  cache: Map<string, T>,
-): T | null {
+export function findById<T>(id: string, key: string, cache: Map<string, T>): T | null {
   // Try memory cache first
   const cached = cache.get(id);
   if (cached) return cached;
@@ -123,15 +99,9 @@ export function findById<T>(
 /**
  * Generic update item in storage
  */
-export function updateInStorage<T>(
-  key: string,
-  updatedItem: T,
-  cache: Map<string, T>,
-): void {
+export function updateInStorage<T>(key: string, updatedItem: T, cache: Map<string, T>): void {
   const items = readFromStorage(key, cache);
-  const index = items.findIndex(
-    (item: any) => item.id === (updatedItem as any).id,
-  );
+  const index = items.findIndex((item: any) => item.id === (updatedItem as any).id);
 
   if (index >= 0) {
     items[index] = updatedItem;
@@ -142,11 +112,7 @@ export function updateInStorage<T>(
 /**
  * Generic delete item from storage
  */
-export function deleteFromStorage<T>(
-  key: string,
-  id: string,
-  cache: Map<string, T>,
-): void {
+export function deleteFromStorage<T>(key: string, id: string, cache: Map<string, T>): void {
   const items = readFromStorage(key, cache);
   const filtered = items.filter((item: any) => item.id !== id);
   writeToStorage(key, filtered, cache);
@@ -163,28 +129,18 @@ export function clearStorage(keys: string[], caches: Map<string, any>[]): void {
     keys.forEach((key) => window.localStorage.removeItem(key));
     caches.forEach((cache) => cache.clear());
   } catch (error) {
-    logError(
-      ErrorFactory.storage(
-        "Failed to clear storage",
-        "Échec de nettoyage du stockage",
-      ),
-      {
-        component: "storageUtils",
-        operation: "clearStorage",
-        metadata: { keys, originalError: error },
-      },
-    );
+    logError(ErrorFactory.storage("Failed to clear storage", "Échec de nettoyage du stockage"), {
+      component: "storageUtils",
+      operation: "clearStorage",
+      metadata: { keys, originalError: error },
+    });
   }
 }
 
 /**
  * Generic record-based storage (for messages, responses, etc.)
  */
-export function readRecordStorage<T>(
-  key: string,
-  cache: Map<string, T[]>,
-  recordId: string,
-): T[] {
+export function readRecordStorage<T>(key: string, cache: Map<string, T[]>, recordId: string): T[] {
   try {
     // Try memory cache first
     const cached = cache.get(recordId);
@@ -266,11 +222,7 @@ export function addRecords<T>(
 /**
  * Generic delete records
  */
-export function deleteRecords<T>(
-  key: string,
-  cache: Map<string, T[]>,
-  recordId: string,
-): void {
+export function deleteRecords<T>(key: string, cache: Map<string, T[]>, recordId: string): void {
   if (!hasWindow()) return;
 
   try {

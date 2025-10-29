@@ -30,9 +30,7 @@ const createMockItem = (overrides: Partial<UnifiedItem> = {}): UnifiedItem => ({
   ...overrides,
 });
 
-const createMockConversation = (
-  overrides: Partial<Conversation> = {},
-): Conversation => ({
+const createMockConversation = (overrides: Partial<Conversation> = {}): Conversation => ({
   id: "conv-1",
   title: "Test Conversation",
   createdAt: new Date("2024-01-01"),
@@ -100,15 +98,11 @@ describe("sort-comparator", () => {
         favorite_rank: undefined,
       });
 
-      const result = compareUnifiedItems(
-        favoriteWithRank,
-        favoriteWithoutRank,
-        {
-          criteria: "updatedAt",
-          order: "desc",
-          favoriteFirst: true,
-        },
-      );
+      const result = compareUnifiedItems(favoriteWithRank, favoriteWithoutRank, {
+        criteria: "updatedAt",
+        order: "desc",
+        favoriteFirst: true,
+      });
 
       expect(result).toBeLessThan(0); // favoriteWithRank vient en premier
     });
@@ -314,17 +308,13 @@ describe("sort-comparator", () => {
       const nonFavorites = reordered.filter((c) => !c.isFavorite);
 
       expect(nonFavorites).toHaveLength(2);
-      expect(nonFavorites.every((c) => c.favorite_rank === undefined)).toBe(
-        true,
-      );
+      expect(nonFavorites.every((c) => c.favorite_rank === undefined)).toBe(true);
     });
   });
 
   describe("getNextFavoriteRank", () => {
     it("should return 1 for first favorite", () => {
-      const conversations = [
-        createMockConversation({ id: "conv1", isFavorite: false }),
-      ];
+      const conversations = [createMockConversation({ id: "conv1", isFavorite: false })];
 
       const nextRank = getNextFavoriteRank(conversations);
       expect(nextRank).toBe(1);
@@ -409,9 +399,7 @@ describe("sort-comparator", () => {
 
       expect(validation.isValid).toBe(false);
       expect(validation.errors).toContain("Rangs dupliqués détectés: 1");
-      expect(validation.suggestions).toContain(
-        "Utiliser reorderFavoriteRanks() pour corriger",
-      );
+      expect(validation.suggestions).toContain("Utiliser reorderFavoriteRanks() pour corriger");
     });
 
     it("should detect favorites without ranks", () => {
@@ -432,9 +420,7 @@ describe("sort-comparator", () => {
 
       expect(validation.isValid).toBe(false);
       expect(validation.errors).toContain("1 favoris sans rang détectés");
-      expect(validation.suggestions).toContain(
-        "Assigner des rangs avec getNextFavoriteRank()",
-      );
+      expect(validation.suggestions).toContain("Assigner des rangs avec getNextFavoriteRank()");
     });
 
     it("should suggest fixing gaps in rank sequence", () => {
@@ -453,9 +439,7 @@ describe("sort-comparator", () => {
 
       const validation = validateFavoriteRanks(conversations);
 
-      expect(validation.suggestions).toContain(
-        "Trou détecté entre les rangs 1 et 5",
-      );
+      expect(validation.suggestions).toContain("Trou détecté entre les rangs 1 et 5");
     });
   });
 

@@ -75,12 +75,7 @@ describe.skip("Calendar Integration Tests", () => {
       let timeSlotsByDate = {};
 
       // Add a time slot
-      timeSlotsByDate = toggleTimeSlotForDate(
-        "2025-07-01",
-        9,
-        0,
-        timeSlotsByDate,
-      );
+      timeSlotsByDate = toggleTimeSlotForDate("2025-07-01", 9, 0, timeSlotsByDate);
       expect(timeSlotsByDate["2025-07-01"]).toBeDefined();
       expect(timeSlotsByDate["2025-07-01"][0]).toEqual({
         hour: 9,
@@ -89,12 +84,7 @@ describe.skip("Calendar Integration Tests", () => {
       });
 
       // Toggle it off
-      timeSlotsByDate = toggleTimeSlotForDate(
-        "2025-07-01",
-        9,
-        0,
-        timeSlotsByDate,
-      );
+      timeSlotsByDate = toggleTimeSlotForDate("2025-07-01", 9, 0, timeSlotsByDate);
       expect(timeSlotsByDate["2025-07-01"][0]).toEqual({
         hour: 9,
         minute: 0,
@@ -102,12 +92,7 @@ describe.skip("Calendar Integration Tests", () => {
       });
 
       // Toggle it back on
-      timeSlotsByDate = toggleTimeSlotForDate(
-        "2025-07-01",
-        9,
-        0,
-        timeSlotsByDate,
-      );
+      timeSlotsByDate = toggleTimeSlotForDate("2025-07-01", 9, 0, timeSlotsByDate);
       expect(timeSlotsByDate["2025-07-01"][0]).toEqual({
         hour: 9,
         minute: 0,
@@ -119,18 +104,8 @@ describe.skip("Calendar Integration Tests", () => {
       let timeSlotsByDate = {};
 
       // Add multiple slots
-      timeSlotsByDate = toggleTimeSlotForDate(
-        "2025-07-01",
-        9,
-        0,
-        timeSlotsByDate,
-      );
-      timeSlotsByDate = toggleTimeSlotForDate(
-        "2025-07-01",
-        14,
-        30,
-        timeSlotsByDate,
-      );
+      timeSlotsByDate = toggleTimeSlotForDate("2025-07-01", 9, 0, timeSlotsByDate);
+      timeSlotsByDate = toggleTimeSlotForDate("2025-07-01", 14, 30, timeSlotsByDate);
 
       expect(timeSlotsByDate["2025-07-01"]).toHaveLength(2);
       expect(timeSlotsByDate["2025-07-01"]).toContainEqual({
@@ -149,18 +124,8 @@ describe.skip("Calendar Integration Tests", () => {
       let timeSlotsByDate = {};
 
       // Add slots for different dates
-      timeSlotsByDate = toggleTimeSlotForDate(
-        "2025-07-01",
-        9,
-        0,
-        timeSlotsByDate,
-      );
-      timeSlotsByDate = toggleTimeSlotForDate(
-        "2025-07-02",
-        14,
-        0,
-        timeSlotsByDate,
-      );
+      timeSlotsByDate = toggleTimeSlotForDate("2025-07-01", 9, 0, timeSlotsByDate);
+      timeSlotsByDate = toggleTimeSlotForDate("2025-07-02", 14, 0, timeSlotsByDate);
 
       expect(Object.keys(timeSlotsByDate)).toHaveLength(2);
       expect(timeSlotsByDate["2025-07-01"]).toContainEqual({
@@ -259,9 +224,7 @@ describe.skip("Calendar Integration Tests", () => {
       });
 
       // 6. Format dates for display
-      const formattedDates = pollConfig.dates.map((date) =>
-        formatSelectedDateHeader(date),
-      );
+      const formattedDates = pollConfig.dates.map((date) => formatSelectedDateHeader(date));
       expect(formattedDates).toHaveLength(2);
       formattedDates.forEach((formatted) => {
         expect(formatted).toHaveProperty("dayName");

@@ -1,10 +1,6 @@
 import React from "react";
 
-export function ResultsLoading({
-  label = "Chargement des résultats...",
-}: {
-  label?: string;
-}) {
+export function ResultsLoading({ label = "Chargement des résultats..." }: { label?: string }) {
   return (
     <div className="w-full flex items-center justify-center py-16">
       <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">

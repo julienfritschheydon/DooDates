@@ -1,14 +1,14 @@
 /**
  * UIStateProvider
- * 
+ *
  * Contexte dédié pour gérer l'état UI (sidebar, highlights, animations)
  * Extrait de ConversationProvider pour éviter re-renders inutiles
- * 
+ *
  * Responsabilités :
  * - État sidebar (ouvert/fermé, mobile)
  * - Highlights (ID, type, animations)
  * - Modifications visuelles (feedback temporaire)
- * 
+ *
  * @see Docs/Architecture-ConversationProvider.md
  */
 
@@ -34,7 +34,7 @@ export interface UIStateContextType {
   modifiedField: "title" | "type" | "options" | "required" | null;
   setModifiedQuestion: (
     questionId: string | null,
-    field: "title" | "type" | "options" | "required" | null
+    field: "title" | "type" | "options" | "required" | null,
   ) => void;
   clearModifiedQuestion: () => void;
 }
@@ -47,14 +47,14 @@ export interface UIStateProviderProps {
 
 /**
  * Provider pour l'état UI (sidebar, highlights, animations)
- * 
+ *
  * Séparé de ConversationProvider pour éviter re-renders inutiles
  * de la conversation quand on modifie l'UI
  */
 export function UIStateProvider({ children }: UIStateProviderProps) {
   // Détection mobile
   const isMobile = useMediaQuery("(max-width: 767px)");
-  
+
   // État sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -91,7 +91,7 @@ export function UIStateProvider({ children }: UIStateProviderProps) {
         }, 3000);
       }
     },
-    []
+    [],
   );
 
   /**
@@ -106,10 +106,7 @@ export function UIStateProvider({ children }: UIStateProviderProps) {
    * Définir une question modifiée avec auto-clear après 3s
    */
   const setModifiedQuestion = useCallback(
-    (
-      questionId: string | null,
-      field: "title" | "type" | "options" | "required" | null
-    ) => {
+    (questionId: string | null, field: "title" | "type" | "options" | "required" | null) => {
       setModifiedQuestionId(questionId);
       setModifiedField(field);
 
@@ -121,7 +118,7 @@ export function UIStateProvider({ children }: UIStateProviderProps) {
         }, 3000);
       }
     },
-    []
+    [],
   );
 
   /**
@@ -152,28 +149,24 @@ export function UIStateProvider({ children }: UIStateProviderProps) {
     clearModifiedQuestion,
   };
 
-  return (
-    <UIStateContext.Provider value={value}>
-      {children}
-    </UIStateContext.Provider>
-  );
+  return <UIStateContext.Provider value={value}>{children}</UIStateContext.Provider>;
 }
 
 /**
  * Hook pour accéder à l'état UI
- * 
+ *
  * @throws Error si utilisé hors du UIStateProvider
  */
 export function useUIState(): UIStateContextType {
   const context = useContext(UIStateContext);
-  
+
   if (!context) {
     throw ErrorFactory.validation(
       "useUIState must be used within UIStateProvider",
-      "Une erreur s'est produite lors de l'initialisation de l'interface"
+      "Une erreur s'est produite lors de l'initialisation de l'interface",
     );
   }
-  
+
   return context;
 }
 
@@ -201,6 +194,12 @@ export function useHighlightState() {
  * Hook pour accéder uniquement aux modifications visuelles
  */
 export function useModifiedQuestionState() {
-  const { modifiedQuestionId, modifiedField, setModifiedQuestion, clearModifiedQuestion } = useUIState();
-  return { modifiedQuestionId, modifiedField, setModifiedQuestion, clearModifiedQuestion };
+  const { modifiedQuestionId, modifiedField, setModifiedQuestion, clearModifiedQuestion } =
+    useUIState();
+  return {
+    modifiedQuestionId,
+    modifiedField,
+    setModifiedQuestion,
+    clearModifiedQuestion,
+  };
 }

@@ -83,9 +83,7 @@ export type GeminiChatHandle = {
 };
 
 // Fonction de conversion FormPollSuggestion (Gemini) → FormPollDraft (FormPollCreator)
-const convertFormSuggestionToDraft = (
-  suggestion: FormPollSuggestion,
-): FormPollDraft => {
+const convertFormSuggestionToDraft = (suggestion: FormPollSuggestion): FormPollDraft => {
   const uid = () => Math.random().toString(36).slice(2, 10);
 
   const questions: AnyFormQuestion[] = suggestion.questions.map((q) => {
@@ -132,10 +130,7 @@ const convertFormSuggestionToDraft = (
   };
 };
 
-const GeminiChatInterface = React.forwardRef<
-  GeminiChatHandle,
-  GeminiChatInterfaceProps
->(
+const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfaceProps>(
   (
     {
       onPollCreated,
@@ -160,11 +155,10 @@ const GeminiChatInterface = React.forwardRef<
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showPollCreator, setShowPollCreator] = useState(false);
-    const [selectedPollData, setSelectedPollData] =
-      useState<PollSuggestion | null>(null);
-    const [connectionStatus, setConnectionStatus] = useState<
-      "unknown" | "connected" | "error"
-    >("unknown");
+    const [selectedPollData, setSelectedPollData] = useState<PollSuggestion | null>(null);
+    const [connectionStatus, setConnectionStatus] = useState<"unknown" | "connected" | "error">(
+      "unknown",
+    );
 
     // État pour le feedback IA
     const [lastAIProposal, setLastAIProposal] = useState<{
@@ -238,7 +232,7 @@ const GeminiChatInterface = React.forwardRef<
     const quota = useQuota();
     const loopProtection = useInfiniteLoopProtection("gemini-chat-interface");
     const { toast } = useToast();
-    
+
     // Hook API Gemini
     const geminiAPI = useGeminiAPI({
       debug: true,
@@ -325,10 +319,7 @@ const GeminiChatInterface = React.forwardRef<
           performanceMonitor.trackError();
 
           // Show user-friendly error message
-          if (
-            error instanceof Error &&
-            error.message.includes("Quota dépassé")
-          ) {
+          if (error instanceof Error && error.message.includes("Quota dépassé")) {
             setMessages([
               {
                 id: "quota-error",
@@ -407,8 +398,7 @@ const GeminiChatInterface = React.forwardRef<
 
             if (messages && messages.length > 0) {
               // Convert conversation messages to chat interface format
-              const chatMessages =
-                ConversationService.convertMessagesToChat(messages);
+              const chatMessages = ConversationService.convertMessagesToChat(messages);
 
               console.log(
                 "📨 GeminiChatInterface: Messages convertis:",
@@ -621,16 +611,9 @@ const GeminiChatInterface = React.forwardRef<
         // 🎯 PROTOTYPE: Détecter les intentions de modification
         if (currentPoll) {
           // Essayer d'abord la détection Date Poll
-          const dateIntent = IntentDetectionService.detectSimpleIntent(
-            trimmedText,
-            currentPoll,
-          );
+          const dateIntent = IntentDetectionService.detectSimpleIntent(trimmedText, currentPoll);
 
-          if (
-            dateIntent &&
-            dateIntent.isModification &&
-            dateIntent.confidence > 0.7
-          ) {
+          if (dateIntent && dateIntent.isModification && dateIntent.confidence > 0.7) {
             // Ajouter le message utilisateur
             const userMessage: Message = {
               id: `user-${Date.now()}`,
@@ -700,44 +683,23 @@ const GeminiChatInterface = React.forwardRef<
           }
 
           // Si pas de date intent, essayer Form Poll intent avec regex
-          let formIntent = FormPollIntentService.detectIntent(
-            trimmedText,
-            currentPoll,
-          );
+          let formIntent = FormPollIntentService.detectIntent(trimmedText, currentPoll);
 
           // Fallback sur l'IA si regex n'a pas matché
-          if (
-            !formIntent ||
-            !formIntent.isModification ||
-            formIntent.confidence < 0.7
-          ) {
-            logger.info(
-              "⚠️ Regex n'a pas matché, fallback sur IA Gemini",
-              "poll",
-            );
-            const aiIntent = await GeminiIntentService.detectFormIntent(
-              trimmedText,
-              currentPoll,
-            );
+          if (!formIntent || !formIntent.isModification || formIntent.confidence < 0.7) {
+            logger.info("⚠️ Regex n'a pas matché, fallback sur IA Gemini", "poll");
+            const aiIntent = await GeminiIntentService.detectFormIntent(trimmedText, currentPoll);
 
-            if (
-              aiIntent &&
-              aiIntent.isModification &&
-              aiIntent.confidence > 0.8
-            ) {
+            if (aiIntent && aiIntent.isModification && aiIntent.confidence > 0.8) {
               // Log le gap pour améliorer les regex plus tard
               GeminiIntentService.logMissingPattern(trimmedText, aiIntent);
               formIntent = aiIntent as any; // Convertir au format FormModificationIntent
             } else {
               // Ni regex ni IA n'ont réussi - proposer à l'utilisateur de signaler
-              logger.warn(
-                "❌ Modification non reconnue par regex ET IA",
-                "poll",
-                {
-                  message: trimmedText,
-                  aiConfidence: aiIntent?.confidence || 0,
-                },
-              );
+              logger.warn("❌ Modification non reconnue par regex ET IA", "poll", {
+                message: trimmedText,
+                aiConfidence: aiIntent?.confidence || 0,
+              });
 
               // Message d'erreur avec lien pour signaler
               const errorMessage: Message = {
@@ -761,11 +723,7 @@ Exemples de modifications supportées :
             }
           }
 
-          if (
-            formIntent &&
-            formIntent.isModification &&
-            formIntent.confidence > 0.7
-          ) {
+          if (formIntent && formIntent.isModification && formIntent.confidence > 0.7) {
             // Ajouter le message utilisateur
             const userMessage: Message = {
               id: `user-${Date.now()}`,
@@ -819,10 +777,7 @@ Exemples de modifications supportées :
 
             // Déclencher le feedback visuel si une question a été modifiée
             if (formIntent.modifiedQuestionId && formIntent.modifiedField) {
-              setModifiedQuestion(
-                formIntent.modifiedQuestionId,
-                formIntent.modifiedField,
-              );
+              setModifiedQuestion(formIntent.modifiedQuestionId, formIntent.modifiedField);
             }
 
             // Message de confirmation avec icon selon l'action
@@ -851,8 +806,7 @@ Exemples de modifications supportées :
 
         // Détecter si c'est un markdown questionnaire long
         const trimmedInput = trimmedText;
-        const isLongMarkdown =
-          trimmedInput.length > 500 && /^#\s+.+$/m.test(trimmedInput);
+        const isLongMarkdown = trimmedInput.length > 500 && /^#\s+.+$/m.test(trimmedInput);
         const displayContent = isLongMarkdown
           ? `📋 Questionnaire détecté (${trimmedInput.length} caractères)\n\nAnalyse en cours...`
           : trimmedInput;
@@ -891,17 +845,13 @@ Exemples de modifications supportées :
 
         // Supprimer le message de progression si présent
         if (isLongMarkdown) {
-          setMessages((prev) =>
-            prev.filter((msg) => !msg.id.startsWith("progress-")),
-          );
+          setMessages((prev) => prev.filter((msg) => !msg.id.startsWith("progress-")));
         }
 
         if (pollResponse.success && pollResponse.data) {
           // Gemini response received successfully
           const pollType =
-            pollResponse.data.type === "form"
-              ? "questionnaire"
-              : "sondage de disponibilité";
+            pollResponse.data.type === "form" ? "questionnaire" : "sondage de disponibilité";
           const aiResponse: Message = {
             id: `ai-${Date.now()}`,
             content: `Voici votre ${pollType} :`,
@@ -980,16 +930,10 @@ Exemples de modifications supportées :
         const realConversationId = autoSave.getRealConversationId();
         const conversationId = realConversationId || autoSave.conversationId;
 
-        if (
-          conversationId &&
-          !window.location.search.includes("conversationId")
-        ) {
+        if (conversationId && !window.location.search.includes("conversationId")) {
           const newUrl = `${window.location.pathname}?conversationId=${conversationId}`;
           window.history.replaceState({}, "", newUrl);
-          console.log(
-            "🔗 URL mise à jour avec conversationId:",
-            conversationId,
-          );
+          console.log("🔗 URL mise à jour avec conversationId:", conversationId);
         }
 
         onPollCreated(suggestion);
@@ -1053,15 +997,10 @@ Exemples de modifications supportées :
     if (showPollCreator) {
       const realConversationId = autoSave.getRealConversationId();
       const conversationId = realConversationId || autoSave.conversationId;
-      const pollCreatorUrl = conversationId
-        ? `?conversationId=${conversationId}`
-        : "";
+      const pollCreatorUrl = conversationId ? `?conversationId=${conversationId}` : "";
 
       // Update URL to include conversation ID
-      if (
-        conversationId &&
-        !window.location.search.includes("conversationId")
-      ) {
+      if (conversationId && !window.location.search.includes("conversationId")) {
         const newUrl = `${window.location.pathname}${pollCreatorUrl}`;
         window.history.replaceState({}, "", newUrl);
       }
@@ -1073,9 +1012,7 @@ Exemples de modifications supportées :
       if (isFormPoll && selectedPollData) {
         // Convertir FormPollSuggestion en FormPollDraft
         console.log("🔍 AVANT conversion, selectedPollData:", selectedPollData);
-        const formDraft = convertFormSuggestionToDraft(
-          selectedPollData as FormPollSuggestion,
-        );
+        const formDraft = convertFormSuggestionToDraft(selectedPollData as FormPollSuggestion);
         console.log("🔍 APRÈS conversion, formDraft:", formDraft);
 
         return (
@@ -1091,8 +1028,7 @@ Exemples de modifications supportées :
               });
               toast({
                 title: "✅ Brouillon enregistré",
-                description:
-                  "Votre questionnaire a été sauvegardé avec succès.",
+                description: "Votre questionnaire a été sauvegardé avec succès.",
               });
             }}
             onFinalize={(draft, savedPoll) => {
@@ -1165,9 +1101,7 @@ Exemples de modifications supportées :
                     limit={quota.status.conversations.limit}
                     type="conversations"
                     size="sm"
-                    onClick={() =>
-                      quota.showAuthIncentive("conversation_limit")
-                    }
+                    onClick={() => quota.showAuthIncentive("conversation_limit")}
                   />
                 )}
               </div>
@@ -1186,14 +1120,8 @@ Exemples de modifications supportées :
         {/* Zone de conversation */}
         <div
           className={`flex-1 overflow-y-auto ${
-            darkTheme
-              ? "bg-[#0a0a0a]"
-              : "bg-gradient-to-br from-blue-50 to-indigo-50"
-          } ${
-            messages.length === 0
-              ? "flex items-center justify-center"
-              : "pb-20 md:pb-32"
-          }`}
+            darkTheme ? "bg-[#0a0a0a]" : "bg-gradient-to-br from-blue-50 to-indigo-50"
+          } ${messages.length === 0 ? "flex items-center justify-center" : "pb-20 md:pb-32"}`}
         >
           <div
             className={`max-w-4xl mx-auto p-2 md:p-4 ${
@@ -1202,16 +1130,10 @@ Exemples de modifications supportées :
           >
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center">
-                <div
-                  className={`max-w-md ${
-                    darkTheme ? "text-white" : "text-gray-900"
-                  }`}
-                >
+                <div className={`max-w-md ${darkTheme ? "text-white" : "text-gray-900"}`}>
                   <div
                     className={`flex items-center justify-center w-16 h-16 rounded-full mx-auto mb-4 ${
-                      darkTheme
-                        ? "bg-blue-900 text-blue-300"
-                        : "bg-blue-100 text-blue-600"
+                      darkTheme ? "bg-blue-900 text-blue-300" : "bg-blue-100 text-blue-600"
                     }`}
                   >
                     <Sparkles className="w-8 h-8" />
@@ -1223,18 +1145,12 @@ Exemples de modifications supportées :
                   >
                     Bonjour ! 👋
                   </h3>
-                  <p
-                    className={`mb-4 ${
-                      darkTheme ? "text-gray-300" : "text-gray-600"
-                    }`}
-                  >
-                    Je suis votre assistant IA pour créer des sondages de dates
-                    et des questionnaires. Décrivez-moi ce que vous souhaitez !
+                  <p className={`mb-4 ${darkTheme ? "text-gray-300" : "text-gray-600"}`}>
+                    Je suis votre assistant IA pour créer des sondages de dates et des
+                    questionnaires. Décrivez-moi ce que vous souhaitez !
                   </p>
                   <div
-                    className={`text-sm space-y-2 ${
-                      darkTheme ? "text-gray-400" : "text-gray-500"
-                    }`}
+                    className={`text-sm space-y-2 ${darkTheme ? "text-gray-400" : "text-gray-500"}`}
                   >
                     <div>
                       <p
@@ -1303,36 +1219,29 @@ Exemples de modifications supportées :
                           {message.pollSuggestion.type === "form" ? (
                             /* Affichage Form Poll (questionnaire) - MÊME DESIGN QUE DATE POLL */
                             <div className="space-y-2 md:space-y-3">
-                              {message.pollSuggestion.questions?.map(
-                                (question, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="bg-[#3c4043] rounded-lg p-3 md:p-4"
-                                  >
-                                    <div className="flex items-start gap-2 md:gap-3">
-                                      <div className="flex-1 min-w-0">
-                                        <div className="font-medium text-white text-sm md:text-base leading-tight">
-                                          {idx + 1}. {question.title}
-                                        </div>
-                                        <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
-                                          <span className="inline-block">
-                                            {question.type === "single"
-                                              ? "Choix unique"
-                                              : question.type === "multiple"
-                                                ? "Choix multiples"
-                                                : "Texte libre"}
-                                          </span>
-                                          {question.required && (
-                                            <span className="text-red-400 ml-2">
-                                              • Obligatoire
-                                            </span>
-                                          )}
-                                        </div>
+                              {message.pollSuggestion.questions?.map((question, idx) => (
+                                <div key={idx} className="bg-[#3c4043] rounded-lg p-3 md:p-4">
+                                  <div className="flex items-start gap-2 md:gap-3">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-medium text-white text-sm md:text-base leading-tight">
+                                        {idx + 1}. {question.title}
+                                      </div>
+                                      <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
+                                        <span className="inline-block">
+                                          {question.type === "single"
+                                            ? "Choix unique"
+                                            : question.type === "multiple"
+                                              ? "Choix multiples"
+                                              : "Texte libre"}
+                                        </span>
+                                        {question.required && (
+                                          <span className="text-red-400 ml-2">• Obligatoire</span>
+                                        )}
                                       </div>
                                     </div>
                                   </div>
-                                ),
-                              )}
+                                </div>
+                              ))}
                             </div>
                           ) : (
                             /* Affichage Date Poll (dates/horaires) - avec groupement intelligent */
@@ -1352,18 +1261,10 @@ Exemples de modifications supportées :
 
                                   // Trouver les créneaux horaires pour ce groupe
                                   const groupTimeSlots =
-                                    datePollSuggestion.timeSlots?.filter(
-                                      (slot) => {
-                                        if (
-                                          !slot.dates ||
-                                          slot.dates.length === 0
-                                        )
-                                          return true;
-                                        return group.dates.some((date) =>
-                                          slot.dates?.includes(date),
-                                        );
-                                      },
-                                    ) || [];
+                                    datePollSuggestion.timeSlots?.filter((slot) => {
+                                      if (!slot.dates || slot.dates.length === 0) return true;
+                                      return group.dates.some((date) => slot.dates?.includes(date));
+                                    }) || [];
 
                                   return (
                                     <div
@@ -1377,28 +1278,25 @@ Exemples de modifications supportées :
                                               ? // Afficher le label groupé
                                                 group.label
                                               : // Afficher la date normale
-                                                new Date(
-                                                  group.dates[0],
-                                                ).toLocaleDateString("fr-FR", {
-                                                  weekday: "long",
-                                                  day: "numeric",
-                                                  month: "long",
-                                                  year: "numeric",
-                                                })}
+                                                new Date(group.dates[0]).toLocaleDateString(
+                                                  "fr-FR",
+                                                  {
+                                                    weekday: "long",
+                                                    day: "numeric",
+                                                    month: "long",
+                                                    year: "numeric",
+                                                  },
+                                                )}
                                           </div>
-                                          {groupTimeSlots.length > 0 &&
-                                            !isGroup && (
-                                              <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
-                                                <span className="block">
-                                                  {groupTimeSlots
-                                                    .map(
-                                                      (slot) =>
-                                                        `${slot.start} - ${slot.end}`,
-                                                    )
-                                                    .join(", ")}
-                                                </span>
-                                              </div>
-                                            )}
+                                          {groupTimeSlots.length > 0 && !isGroup && (
+                                            <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
+                                              <span className="block">
+                                                {groupTimeSlots
+                                                  .map((slot) => `${slot.start} - ${slot.end}`)
+                                                  .join(", ")}
+                                              </span>
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -1426,39 +1324,25 @@ Exemples de modifications supportées :
                                   openEditor(currentPoll as any);
                                   return;
                                 }
-                                if (
-                                  linkedPollId &&
-                                  linkedPollId !== "generated"
-                                ) {
-                                  console.log(
-                                    "🔍 Recherche poll par ID:",
-                                    linkedPollId,
-                                  );
+                                if (linkedPollId && linkedPollId !== "generated") {
+                                  console.log("🔍 Recherche poll par ID:", linkedPollId);
                                   const p = getPollBySlugOrId(linkedPollId);
                                   console.log("🔍 Poll trouvé:", p);
                                   if (p) {
-                                    console.log(
-                                      "✅ Ouverture via linkedPollId",
-                                    );
+                                    console.log("✅ Ouverture via linkedPollId");
                                     openEditor(p as any);
                                     return;
                                   }
                                 }
                                 // Aucun poll résolu: tenter d'afficher le créateur si suggestion présente
-                                console.warn(
-                                  "⚠️ Aucun poll trouvé, fallback au créateur",
-                                );
-                                handleUsePollSuggestion(
-                                  message.pollSuggestion!,
-                                );
+                                console.warn("⚠️ Aucun poll trouvé, fallback au créateur");
+                                handleUsePollSuggestion(message.pollSuggestion!);
                               } catch (e) {
                                 console.warn(
                                   "❌ Impossible d'ouvrir la preview, fallback au créateur",
                                   e,
                                 );
-                                handleUsePollSuggestion(
-                                  message.pollSuggestion!,
-                                );
+                                handleUsePollSuggestion(message.pollSuggestion!);
                               }
                             }}
                             className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-indigo-500 hover:bg-indigo-600"
@@ -1472,10 +1356,7 @@ Exemples de modifications supportées :
                         ) : (
                           <button
                             onClick={() => {
-                              console.log(
-                                " Bouton cliqué!",
-                                message.pollSuggestion,
-                              );
+                              console.log(" Bouton cliqué!", message.pollSuggestion);
                               handleUsePollSuggestion(message.pollSuggestion!);
                             }}
                             className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-blue-500 hover:bg-blue-600"
@@ -1526,6 +1407,7 @@ Exemples de modifications supportées :
               }`}
             >
               <textarea
+                data-testid="message-input"
                 value={inputValue}
                 onChange={(e) => {
                   setInputValue(e.target.value);
@@ -1546,6 +1428,7 @@ Exemples de modifications supportées :
                 rows={1}
               />
               <button
+                data-testid="send-message-button"
                 onClick={handleSendMessage}
                 disabled={isLoading || !inputValue.trim()}
                 className={`

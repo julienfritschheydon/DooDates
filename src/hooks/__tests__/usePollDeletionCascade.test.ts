@@ -92,9 +92,7 @@ describe("usePollDeletionCascade", () => {
     });
 
     it("should handle cleanup errors gracefully", async () => {
-      mockUpdateConversation.mutateAsync.mockRejectedValue(
-        new Error("Update failed"),
-      );
+      mockUpdateConversation.mutateAsync.mockRejectedValue(new Error("Update failed"));
 
       const { result } = renderHook(() => usePollDeletionCascade());
 
@@ -112,8 +110,7 @@ describe("usePollDeletionCascade", () => {
       const { result } = renderHook(() => usePollDeletionCascade());
 
       await act(async () => {
-        const result_deletion =
-          await result.current.deletePollWithCascade("poll-1");
+        const result_deletion = await result.current.deletePollWithCascade("poll-1");
 
         expect(result_deletion.success).toBe(true);
         expect(result_deletion.conversationUpdated).toBe(true);
@@ -143,8 +140,7 @@ describe("usePollDeletionCascade", () => {
       const { result } = renderHook(() => usePollDeletionCascade());
 
       await act(async () => {
-        const result_deletion =
-          await result.current.deletePollWithCascade("poll-1");
+        const result_deletion = await result.current.deletePollWithCascade("poll-1");
 
         expect(result_deletion.success).toBe(false);
         // Le message d'erreur contient "Storage error" (provenant de l'erreur throw)
@@ -257,9 +253,7 @@ describe("usePollDeletionCascade", () => {
         updateConversation: mockUpdateConversation,
       } as any);
 
-      mockUpdateConversation.mutateAsync.mockRejectedValue(
-        new Error("Update failed"),
-      );
+      mockUpdateConversation.mutateAsync.mockRejectedValue(new Error("Update failed"));
 
       const { result } = renderHook(() => usePollDeletionCascade());
 
@@ -283,8 +277,7 @@ describe("usePollDeletionCascade", () => {
 
       // Step 2: Delete poll with cascade
       await act(async () => {
-        const deletionResult =
-          await result.current.deletePollWithCascade("poll-1");
+        const deletionResult = await result.current.deletePollWithCascade("poll-1");
         expect(deletionResult.success).toBe(true);
         expect(deletionResult.conversationUpdated).toBe(true);
       });

@@ -140,11 +140,7 @@ IMPORTANT :
 
       return intent;
     } catch (error) {
-      logger.error(
-        "Erreur lors de la détection d'intention par Gemini",
-        "poll",
-        error,
-      );
+      logger.error("Erreur lors de la détection d'intention par Gemini", "poll", error);
       return null;
     }
   }
@@ -179,10 +175,7 @@ ${questionsList}`;
   /**
    * Log un gap détecté pour améliorer les regex plus tard
    */
-  static logMissingPattern(
-    userMessage: string,
-    detectedIntent: AIIntentResult,
-  ): void {
+  static logMissingPattern(userMessage: string, detectedIntent: AIIntentResult): void {
     logger.info("📊 GAP DÉTECTÉ - Pattern regex manquant", "poll", {
       message: userMessage,
       action: detectedIntent.action,

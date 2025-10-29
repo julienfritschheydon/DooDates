@@ -153,12 +153,8 @@ describe("Export Module", () => {
       };
 
       vi.spyOn(document, "createElement").mockReturnValue(mockLink as any);
-      vi.spyOn(document.body, "appendChild").mockImplementation(
-        mockAppendChild,
-      );
-      vi.spyOn(document.body, "removeChild").mockImplementation(
-        mockRemoveChild,
-      );
+      vi.spyOn(document.body, "appendChild").mockImplementation(mockAppendChild);
+      vi.spyOn(document.body, "removeChild").mockImplementation(mockRemoveChild);
 
       exportFormPollToCSV(mockPoll);
 
@@ -216,9 +212,7 @@ describe("Export Module", () => {
 
       // Vérifier que les valeurs avec virgules/guillemets sont échappées
       expect(csvContent).toContain('"Nom, avec ""guillemets"""');
-      expect(csvContent).toContain(
-        '"Commentaire avec, virgule et ""guillemets"""',
-      );
+      expect(csvContent).toContain('"Commentaire avec, virgule et ""guillemets"""');
     });
 
     it("génère un nom de fichier correct", () => {
@@ -239,9 +233,7 @@ describe("Export Module", () => {
 
       exportFormPollToCSV(mockPoll);
 
-      expect(mockLink.download).toMatch(
-        /^doodates_form_test-questionnaire_\d{8}-\d{6}\.csv$/,
-      );
+      expect(mockLink.download).toMatch(/^doodates_form_test-questionnaire_\d{8}-\d{6}\.csv$/);
     });
   });
 
@@ -415,18 +407,12 @@ describe("Export Module", () => {
     it("lance une erreur si le poll n'est pas de type form", () => {
       const datePoll = { ...mockPoll, type: "date" as const };
 
-      expect(() => exportFormPollToCSV(datePoll)).toThrow(
-        "This function only supports FormPoll",
-      );
-      expect(() => exportFormPollToJSON(datePoll)).toThrow(
-        "This function only supports FormPoll",
-      );
+      expect(() => exportFormPollToCSV(datePoll)).toThrow("This function only supports FormPoll");
+      expect(() => exportFormPollToJSON(datePoll)).toThrow("This function only supports FormPoll");
       expect(() => exportFormPollToMarkdown(datePoll)).toThrow(
         "This function only supports FormPoll",
       );
-      expect(() => exportFormPollToPDF(datePoll)).toThrow(
-        "This function only supports FormPoll",
-      );
+      expect(() => exportFormPollToPDF(datePoll)).toThrow("This function only supports FormPoll");
     });
   });
 });

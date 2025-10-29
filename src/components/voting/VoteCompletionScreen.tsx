@@ -29,8 +29,7 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
           </motion.div>
           <h2 className="text-2xl font-bold mb-2">Vote enregistré !</h2>
           <p className="opacity-90 mb-6">
-            Merci {voterName} pour votre participation. Votre vote a bien été
-            pris en compte.
+            Merci {voterName} pour votre participation. Votre vote a bien été pris en compte.
           </p>
           <motion.button
             whileTap={{ scale: 0.95 }}

@@ -17,10 +17,7 @@ export interface PollData {
   title: string;
   description?: string | null;
   selectedDates: string[];
-  timeSlotsByDate: Record<
-    string,
-    Array<{ hour: number; minute: number; enabled: boolean }>
-  >;
+  timeSlotsByDate: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>;
   participantEmails: string[];
   settings: {
     timeGranularity: number;

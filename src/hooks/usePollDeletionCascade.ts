@@ -31,8 +31,7 @@ export const usePollDeletionCascade = () => {
 
         // Update each conversation to remove the poll link
         for (const conversation of conversationsWithPoll) {
-          const updatedTags =
-            conversation.tags?.filter((tag) => tag !== `poll:${pollId}`) || [];
+          const updatedTags = conversation.tags?.filter((tag) => tag !== `poll:${pollId}`) || [];
 
           await conversations.updateConversation.mutateAsync({
             id: conversation.id,
@@ -169,8 +168,7 @@ export const usePollDeletionCascade = () => {
       const orphanedConversations: string[] = [];
 
       conversations.conversations.conversations?.forEach((conv) => {
-        const pollTags =
-          conv.tags?.filter((tag) => tag.startsWith("poll:")) || [];
+        const pollTags = conv.tags?.filter((tag) => tag.startsWith("poll:")) || [];
 
         pollTags.forEach((tag) => {
           const pollId = tag.replace("poll:", "");

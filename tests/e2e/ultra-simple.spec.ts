@@ -43,7 +43,7 @@ test.describe('DooDates - Test Ultra Simple', () => {
       console.log('✅ Page /create accessible');
 
       // Choisir "Sondage Dates"
-      await robustClick(page.getByRole('link', { name: /Sondage Dates.*Commencer/i }));
+      await robustClick(page.locator('[data-testid="poll-type-date"]'));
       await expect(page).toHaveURL(/\/create\/date/);
       console.log('✅ Carte "Sondage Dates" cliquée → /create/date');
 
@@ -113,7 +113,7 @@ test.describe('DooDates - Test Ultra Simple', () => {
       console.log('✅ Sondage visible dans dashboard');
 
       // Copier lien (optionnel)
-      const copyBtn = page.locator('[data-testid="copy-link-button"]').first();
+      const copyBtn = page.locator('[data-testid="poll-action-copy-link"]').first();
       if (await copyBtn.isVisible()) {
         await robustClick(copyBtn);
         console.log('✅ Lien copié');

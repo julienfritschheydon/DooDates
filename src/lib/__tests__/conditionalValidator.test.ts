@@ -179,10 +179,7 @@ describe("conditionalValidator", () => {
         {
           id: "q1",
           title: "Crew bien équilibré ?",
-          options: [
-            { label: "Oui, très bien équilibré" },
-            { label: "Non, pas vraiment" },
-          ],
+          options: [{ label: "Oui, très bien équilibré" }, { label: "Non, pas vraiment" }],
         },
         {
           id: "q2",

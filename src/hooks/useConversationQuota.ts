@@ -331,9 +331,13 @@ export function useConversationQuota(
         logError(
           ErrorFactory.storage(
             `Failed to auto-delete conversation ${conversation.id}`,
-            "Impossible de supprimer automatiquement une conversation"
+            "Impossible de supprimer automatiquement une conversation",
           ),
-          { component: "useConversationQuota", operation: "autoDeleteOldConversations", metadata: { conversationId: conversation.id, error } }
+          {
+            component: "useConversationQuota",
+            operation: "autoDeleteOldConversations",
+            metadata: { conversationId: conversation.id, error },
+          },
         );
       }
     }

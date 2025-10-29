@@ -29,7 +29,7 @@ interface TestResult {
 
 describe.skip('Tests Automatisés Gemini', () => {
   let geminiService: GeminiService;
-  let testResults: TestResult[] = [];
+  const testResults: TestResult[] = [];
 
   // 15 cas de tests définis selon les spécifications
   const testCases: TestCase[] = [
@@ -278,7 +278,7 @@ describe.skip('Tests Automatisés Gemini', () => {
 
     const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
     let validDays = 0;
-    let totalDays = response.dates.length;
+    const totalDays = response.dates.length;
 
     for (const dateStr of response.dates) {
       const date = new Date(dateStr);
@@ -298,7 +298,7 @@ describe.skip('Tests Automatisés Gemini', () => {
     if (!testCase.expectedTimeConstraints || !response.timeSlots) return 1;
 
     let validSlots = 0;
-    let totalSlots = response.timeSlots.length;
+    const totalSlots = response.timeSlots.length;
 
     for (const slot of response.timeSlots) {
       const startHour = parseInt(slot.start.split(':')[0]);

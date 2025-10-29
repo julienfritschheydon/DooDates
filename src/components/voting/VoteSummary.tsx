@@ -24,21 +24,14 @@ export const VoteSummary: React.FC<VoteSummaryProps> = ({
           const hasVoted = userHasVoted[option.id];
           const voteLabel = getVoteText(vote);
           const voteColor =
-            vote === "yes"
-              ? "text-green-400"
-              : vote === "no"
-                ? "text-red-400"
-                : "text-orange-400";
+            vote === "yes" ? "text-green-400" : vote === "no" ? "text-red-400" : "text-orange-400";
 
           return (
             <div key={option.id} className="flex justify-between items-center">
               <span className="text-gray-300">
-                {formatDate(option.option_date)} •{" "}
-                {formatTime(option.time_slots)}
+                {formatDate(option.option_date)} • {formatTime(option.time_slots)}
               </span>
-              <span
-                className={`font-medium ${hasVoted ? voteColor : "text-gray-500"}`}
-              >
+              <span className={`font-medium ${hasVoted ? voteColor : "text-gray-500"}`}>
                 {hasVoted ? voteLabel : "🤔 Peut-être"}
               </span>
             </div>

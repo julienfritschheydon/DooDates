@@ -26,10 +26,7 @@ export type PollAction =
 /**
  * Reducer pour gérer les modifications du sondage
  */
-export function pollReducer(
-  state: Poll | null,
-  action: PollAction,
-): Poll | null {
+export function pollReducer(state: Poll | null, action: PollAction): Poll | null {
   switch (action.type) {
     case "REPLACE_POLL": {
       // Remplacer complètement le sondage (utilisé pour l'initialisation)
@@ -100,9 +97,7 @@ export function pollReducer(
 
       // Ajouter automatiquement la date si elle n'existe pas
       const dates = state.dates || [];
-      const updatedDates = dates.includes(date)
-        ? dates
-        : [...dates, date].sort();
+      const updatedDates = dates.includes(date) ? dates : [...dates, date].sort();
 
       // Utiliser la même logique de conversion que Gemini (code réutilisé)
       const newSlot = convertGeminiSlotToInternal({ start, end });
@@ -121,18 +116,12 @@ export function pollReducer(
       const startMinutes = newSlot.hour * 60 + newSlot.minute;
       const endMinutes = startMinutes + newSlot.duration;
 
-      for (
-        let minutes = startMinutes;
-        minutes < endMinutes;
-        minutes += granularity
-      ) {
+      for (let minutes = startMinutes; minutes < endMinutes; minutes += granularity) {
         const hour = Math.floor(minutes / 60);
         const minute = minutes % 60;
 
         // Vérifier si ce slot existe déjà
-        const exists = dateSlots.some(
-          (slot: any) => slot.hour === hour && slot.minute === minute,
-        );
+        const exists = dateSlots.some((slot: any) => slot.hour === hour && slot.minute === minute);
 
         if (!exists) {
           slotsToAdd.push({

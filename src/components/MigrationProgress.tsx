@@ -1,22 +1,9 @@
 import React from "react";
 import { Progress } from "./ui/progress";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import {
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Loader2,
-  Upload,
-  Database,
-} from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, Loader2, Upload, Database } from "lucide-react";
 import {
   MigrationProgress as MigrationProgressType,
   MigrationStatus,
@@ -99,26 +86,19 @@ export function MigrationProgress({
   }
 
   const config = statusConfig[progress.status];
-  const progressPercentage = Math.round(
-    (progress.completedSteps / progress.totalSteps) * 100,
-  );
+  const progressPercentage = Math.round((progress.completedSteps / progress.totalSteps) * 100);
   const conversationProgress =
     progress.totalConversations > 0
-      ? Math.round(
-          (progress.processedConversations / progress.totalConversations) * 100,
-        )
+      ? Math.round((progress.processedConversations / progress.totalConversations) * 100)
       : 0;
   const messageProgress =
     progress.totalMessages > 0
       ? Math.round((progress.processedMessages / progress.totalMessages) * 100)
       : 0;
 
-  const isActive = [
-    "in_progress",
-    "validating",
-    "uploading",
-    "verifying",
-  ].includes(progress.status);
+  const isActive = ["in_progress", "validating", "uploading", "verifying"].includes(
+    progress.status,
+  );
   const isCompleted = progress.status === "completed";
   const isFailed = ["failed", "rolled_back"].includes(progress.status);
 
@@ -140,15 +120,10 @@ export function MigrationProgress({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <div className={`p-2 rounded-full ${config.bgColor}`}>
-              {config.icon}
-            </div>
+            <div className={`p-2 rounded-full ${config.bgColor}`}>{config.icon}</div>
             Migration Status
           </CardTitle>
-          <Badge
-            variant="secondary"
-            className={`${config.color} ${config.bgColor}`}
-          >
+          <Badge variant="secondary" className={`${config.color} ${config.bgColor}`}>
             {config.label}
           </Badge>
         </div>
@@ -176,8 +151,7 @@ export function MigrationProgress({
                 <div className="flex justify-between text-sm">
                   <span>Conversations</span>
                   <span>
-                    {progress.processedConversations}/
-                    {progress.totalConversations}
+                    {progress.processedConversations}/{progress.totalConversations}
                   </span>
                 </div>
                 <Progress value={conversationProgress} className="h-1" />
@@ -200,12 +174,8 @@ export function MigrationProgress({
 
         {/* Duration */}
         <div className="text-xs text-gray-500 flex justify-between">
-          <span>
-            Duration: {formatDuration(progress.startTime, progress.endTime)}
-          </span>
-          {progress.endTime && (
-            <span>Completed at {progress.endTime.toLocaleTimeString()}</span>
-          )}
+          <span>Duration: {formatDuration(progress.startTime, progress.endTime)}</span>
+          {progress.endTime && <span>Completed at {progress.endTime.toLocaleTimeString()}</span>}
         </div>
 
         {/* Errors */}
@@ -216,10 +186,7 @@ export function MigrationProgress({
             </div>
             <div className="max-h-20 overflow-y-auto space-y-1">
               {progress.errors.slice(0, 3).map((error, index) => (
-                <div
-                  key={index}
-                  className="text-xs text-red-500 bg-red-50 p-2 rounded"
-                >
+                <div key={index} className="text-xs text-red-500 bg-red-50 p-2 rounded">
                   {error}
                 </div>
               ))}
@@ -235,23 +202,13 @@ export function MigrationProgress({
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
           {isActive && onCancel && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onCancel}
-              className="flex-1"
-            >
+            <Button variant="outline" size="sm" onClick={onCancel} className="flex-1">
               Cancel
             </Button>
           )}
 
           {isFailed && onRetry && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRetry}
-              className="flex-1"
-            >
+            <Button variant="outline" size="sm" onClick={onRetry} className="flex-1">
               Retry
             </Button>
           )}

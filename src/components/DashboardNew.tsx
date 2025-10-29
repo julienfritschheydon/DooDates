@@ -27,11 +27,7 @@ const DashboardNew: React.FC = () => {
   }, []);
 
   // Appliquer les filtres
-  const filteredItems = filterConversationItems(
-    conversationItems,
-    filter,
-    searchQuery,
-  );
+  const filteredItems = filterConversationItems(conversationItems, filter, searchQuery);
 
   if (loading) {
     return (
@@ -48,11 +44,7 @@ const DashboardNew: React.FC = () => {
         <div className="bg-amber-900/20 border-l-4 border-amber-500 p-3 mb-4">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-amber-500"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
+              <svg className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fillRule="evenodd"
                   d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
@@ -62,8 +54,8 @@ const DashboardNew: React.FC = () => {
             </div>
             <div className="ml-3">
               <p className="text-sm text-amber-200">
-                🚧 <strong>Mode Développement Local</strong> - Les données sont
-                stockées localement (localStorage)
+                🚧 <strong>Mode Développement Local</strong> - Les données sont stockées localement
+                (localStorage)
               </p>
             </div>
           </div>
@@ -101,9 +93,7 @@ const DashboardNew: React.FC = () => {
             <div className="text-center py-12">
               <MessageSquare className="w-16 h-16 text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-medium text-gray-400 mb-2">
-                {searchQuery || filter !== "all"
-                  ? "Aucun résultat"
-                  : "Aucune conversation"}
+                {searchQuery || filter !== "all" ? "Aucun résultat" : "Aucune conversation"}
               </h3>
               <p className="text-gray-500">
                 {searchQuery || filter !== "all"

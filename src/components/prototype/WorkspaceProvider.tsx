@@ -18,9 +18,7 @@ interface WorkspaceContextType {
   setIsLoading: (loading: boolean) => void;
 }
 
-const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
-  undefined,
-);
+const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
 
 /**
  * Provider pour state global du workspace
@@ -35,9 +33,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <WorkspaceContext.Provider
-      value={{ poll, setPoll, isLoading, setIsLoading }}
-    >
+    <WorkspaceContext.Provider value={{ poll, setPoll, isLoading, setIsLoading }}>
       {children}
     </WorkspaceContext.Provider>
   );

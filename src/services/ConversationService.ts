@@ -56,10 +56,7 @@ export class ConversationService {
 
       // First, set the conversation ID in autoSave
       const conversation = await autoSave.resumeConversation(resumeId);
-      console.log(
-        "📝 Conversation loaded:",
-        conversation ? conversation.title : "null",
-      );
+      console.log("📝 Conversation loaded:", conversation ? conversation.title : "null");
 
       if (!conversation) {
         console.log("❌ Conversation not found");
@@ -142,10 +139,7 @@ export class ConversationService {
       const result = await this.resumeFromUrl(autoSave);
 
       if (result && result.conversation && result.messages) {
-        console.log(
-          "🔄 Resuming conversation from URL:",
-          result.conversation.title,
-        );
+        console.log("🔄 Resuming conversation from URL:", result.conversation.title);
 
         const messages = result.messages;
 
@@ -156,9 +150,7 @@ export class ConversationService {
             `✅ Resumed conversation: ${result.conversation.title} with ${chatMessages.length} messages`,
           );
         } else {
-          const resumeMessage = this.createResumeMessage(
-            result.conversation.title,
-          );
+          const resumeMessage = this.createResumeMessage(result.conversation.title);
           setMessages([resumeMessage]);
         }
       }

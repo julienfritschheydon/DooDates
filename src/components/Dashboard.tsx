@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Calendar,
-  Plus,
-  Users,
-  BarChart3,
-  Search,
-  Vote,
-  MessageSquare,
-  X,
-} from "lucide-react";
+import { Calendar, Plus, Users, BarChart3, Search, Vote, MessageSquare, X } from "lucide-react";
 import { logError, ErrorFactory } from "../lib/error-handling";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -44,8 +35,7 @@ function findRelatedConversation(poll: DashboardPoll): string | undefined {
       // Chercher dans les métadonnées si un sondage a été créé avec ce titre
       const metadata = conv.metadata as any;
       return (
-        metadata?.pollGenerated &&
-        metadata?.pollTitle?.toLowerCase() === poll.title.toLowerCase()
+        metadata?.pollGenerated && metadata?.pollTitle?.toLowerCase() === poll.title.toLowerCase()
       );
     });
     return match?.id;
@@ -57,13 +47,9 @@ function findRelatedConversation(poll: DashboardPoll): string | undefined {
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<
-    "all" | "draft" | "active" | "closed" | "archived"
-  >("all");
+  const [filter, setFilter] = useState<"all" | "draft" | "active" | "closed" | "archived">("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"polls" | "conversations">(
-    "polls",
-  );
+  const [activeTab, setActiveTab] = useState<"polls" | "conversations">("polls");
 
   // États locaux pour gérer les sondages avec statistiques
   const [polls, setPolls] = useState<DashboardPoll[]>([]);
@@ -90,12 +76,8 @@ const Dashboard: React.FC = () => {
           };
         }
 
-        const pollVotes = localVotes.filter(
-          (vote: any) => vote.poll_id === poll.id,
-        );
-        const uniqueVoters = new Set(
-          pollVotes.map((vote: any) => getVoterId(vote)),
-        ).size;
+        const pollVotes = localVotes.filter((vote: any) => vote.poll_id === poll.id);
+        const uniqueVoters = new Set(pollVotes.map((vote: any) => getVoterId(vote))).size;
 
         // Calculer les meilleures dates pour les sondages de type date
         let topDates: { date: string; score: number }[] = [];
@@ -109,26 +91,21 @@ const Dashboard: React.FC = () => {
           pollVotes.length > 0 &&
           poll.type !== "form"
         ) {
-          const dateScores = selectedDates.map(
-            (dateStr: any, index: number) => {
-              // Si c'est une string (selectedDates), sinon c'est un option object
-              const dateLabel =
-                typeof dateStr === "string"
-                  ? dateStr
-                  : dateStr.label || dateStr.title;
-              const optionId = `option-${index}`;
+          const dateScores = selectedDates.map((dateStr: any, index: number) => {
+            // Si c'est une string (selectedDates), sinon c'est un option object
+            const dateLabel =
+              typeof dateStr === "string" ? dateStr : dateStr.label || dateStr.title;
+            const optionId = `option-${index}`;
 
-              let score = 0;
-              pollVotes.forEach((vote: any) => {
-                // Chercher la sélection par ID d'option
-                const selection =
-                  vote.vote_data?.[optionId] || vote.selections?.[optionId];
-                if (selection === "yes") score += 3;
-                else if (selection === "maybe") score += 1;
-              });
-              return { date: dateLabel, score };
-            },
-          );
+            let score = 0;
+            pollVotes.forEach((vote: any) => {
+              // Chercher la sélection par ID d'option
+              const selection = vote.vote_data?.[optionId] || vote.selections?.[optionId];
+              if (selection === "yes") score += 3;
+              else if (selection === "maybe") score += 1;
+            });
+            return { date: dateLabel, score };
+          });
 
           // Trier par score et prendre les 2 meilleures
           topDates = dateScores
@@ -148,10 +125,7 @@ const Dashboard: React.FC = () => {
       setPolls(pollsWithStats);
     } catch (error) {
       logError(
-        ErrorFactory.storage(
-          "Failed to load polls",
-          "Erreur lors du chargement des sondages",
-        ),
+        ErrorFactory.storage("Failed to load polls", "Erreur lors du chargement des sondages"),
         { component: "Dashboard", metadata: { originalError: error } },
       );
     } finally {
@@ -200,9 +174,7 @@ const Dashboard: React.FC = () => {
 
   const filteredPolls = polls.filter((poll) => {
     const matchesFilter = filter === "all" || poll.status === filter;
-    const matchesSearch = poll.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+    const matchesSearch = poll.title.toLowerCase().includes(searchQuery.toLowerCase());
 
     // Debug logs pour comprendre le filtrage
     if (filter !== "all") {
@@ -259,11 +231,7 @@ const Dashboard: React.FC = () => {
         <div className="bg-amber-900/20 border-l-4 border-amber-500 p-3 mb-4">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-amber-500"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
+              <svg className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fillRule="evenodd"
                   d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
@@ -273,8 +241,8 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="ml-3">
               <p className="text-sm text-amber-200">
-                🚧 <strong>Mode Développement Local</strong> - Les sondages sont
-                stockés localement (localStorage)
+                🚧 <strong>Mode Développement Local</strong> - Les sondages sont stockés localement
+                (localStorage)
               </p>
             </div>
           </div>
@@ -344,23 +312,21 @@ const Dashboard: React.FC = () => {
                     />
                   </div>
                   <div className="flex gap-2">
-                    {["all", "draft", "active", "closed", "archived"].map(
-                      (status) => (
-                        <button
-                          key={status}
-                          onClick={() => setFilter(status as any)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            filter === status
-                              ? "bg-blue-500 text-white"
-                              : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700"
-                          }`}
-                        >
-                          {status === "all"
-                            ? "Tous"
-                            : getStatusLabel(status as DashboardPoll["status"])}
-                        </button>
-                      ),
-                    )}
+                    {["all", "draft", "active", "closed", "archived"].map((status) => (
+                      <button
+                        key={status}
+                        onClick={() => setFilter(status as any)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          filter === status
+                            ? "bg-blue-500 text-white"
+                            : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700"
+                        }`}
+                      >
+                        {status === "all"
+                          ? "Tous"
+                          : getStatusLabel(status as DashboardPoll["status"])}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -463,9 +429,7 @@ const Dashboard: React.FC = () => {
                               💬 Créé par IA
                             </span>
                             <button
-                              onClick={() =>
-                                navigate(`/?conversation=${conversationId}`)
-                              }
+                              onClick={() => navigate(`/?conversation=${conversationId}`)}
                               className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
                             >
                               Reprendre la conversation →
@@ -550,14 +514,9 @@ const Dashboard: React.FC = () => {
             <div className="mt-6">
               <ConversationHistory
                 onResumeConversation={(conversationId) => {
-                  console.log(
-                    "🔄 Dashboard: Resuming conversation",
-                    conversationId,
-                  );
+                  console.log("🔄 Dashboard: Resuming conversation", conversationId);
                   navigate(`/chat?resume=${conversationId}`);
-                  console.log(
-                    "✅ Dashboard: Navigated to /chat?resume=" + conversationId,
-                  );
+                  console.log("✅ Dashboard: Navigated to /chat?resume=" + conversationId);
                 }}
                 onCreateConversation={() => {
                   console.log("➕ Dashboard: Creating new conversation");

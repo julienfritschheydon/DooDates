@@ -12,11 +12,7 @@
  * - REPLACE_POLL : Remplacer complètement le poll (initialisation)
  */
 
-import type {
-  Poll,
-  FormQuestionShape,
-  FormQuestionOption,
-} from "../lib/pollStorage";
+import type { Poll, FormQuestionShape, FormQuestionOption } from "../lib/pollStorage";
 
 // Types d'actions
 export type FormPollAction =
@@ -91,9 +87,7 @@ function convertQuestionType(
     converted.placeholder = "Votre réponse...";
   } else if (newType === "matrix") {
     // Matrices ont des lignes et colonnes
-    converted.matrixRows = question.options || [
-      { id: generateId(), label: "Ligne 1" },
-    ];
+    converted.matrixRows = question.options || [{ id: generateId(), label: "Ligne 1" }];
     converted.matrixColumns = [
       { id: generateId(), label: "Pas du tout" },
       { id: generateId(), label: "Peu" },
@@ -126,10 +120,7 @@ function convertQuestionType(
  * Reducer pour gérer les modifications du FormPoll
  * Retourne le poll avec une propriété temporaire _highlightedId pour les animations
  */
-export function formPollReducer(
-  state: Poll | null,
-  action: FormPollAction,
-): Poll | null {
+export function formPollReducer(state: Poll | null, action: FormPollAction): Poll | null {
   switch (action.type) {
     case "REPLACE_POLL": {
       return action.payload;
@@ -158,17 +149,11 @@ export function formPollReducer(
       const { questionIndex } = action.payload;
 
       // Vérifier que l'index est valide
-      if (
-        !state.questions ||
-        questionIndex < 0 ||
-        questionIndex >= state.questions.length
-      ) {
+      if (!state.questions || questionIndex < 0 || questionIndex >= state.questions.length) {
         return state;
       }
 
-      const updatedQuestions = state.questions.filter(
-        (_, index) => index !== questionIndex,
-      );
+      const updatedQuestions = state.questions.filter((_, index) => index !== questionIndex);
 
       return {
         ...state,
@@ -183,11 +168,7 @@ export function formPollReducer(
       const { questionIndex, newType } = action.payload;
 
       // Vérifier que l'index est valide
-      if (
-        !state.questions ||
-        questionIndex < 0 ||
-        questionIndex >= state.questions.length
-      ) {
+      if (!state.questions || questionIndex < 0 || questionIndex >= state.questions.length) {
         return state;
       }
 
@@ -213,11 +194,7 @@ export function formPollReducer(
       const { questionIndex, optionText } = action.payload;
 
       // Vérifier que l'index est valide
-      if (
-        !state.questions ||
-        questionIndex < 0 ||
-        questionIndex >= state.questions.length
-      ) {
+      if (!state.questions || questionIndex < 0 || questionIndex >= state.questions.length) {
         return state;
       }
 
@@ -230,8 +207,7 @@ export function formPollReducer(
 
       // Détecter si c'est l'option "Autre" spéciale (avec texte libre)
       const isSpecialOther =
-        optionText.toLowerCase() === "autre" ||
-        optionText.toLowerCase() === "other";
+        optionText.toLowerCase() === "autre" || optionText.toLowerCase() === "other";
 
       const newOption: FormQuestionOption = {
         id: generateId(),
@@ -264,11 +240,7 @@ export function formPollReducer(
       const { questionIndex, optionText } = action.payload;
 
       // Vérifier que l'index est valide
-      if (
-        !state.questions ||
-        questionIndex < 0 ||
-        questionIndex >= state.questions.length
-      ) {
+      if (!state.questions || questionIndex < 0 || questionIndex >= state.questions.length) {
         return state;
       }
 
@@ -304,11 +276,7 @@ export function formPollReducer(
       const { questionIndex, required } = action.payload;
 
       // Vérifier que l'index est valide
-      if (
-        !state.questions ||
-        questionIndex < 0 ||
-        questionIndex >= state.questions.length
-      ) {
+      if (!state.questions || questionIndex < 0 || questionIndex >= state.questions.length) {
         return state;
       }
 

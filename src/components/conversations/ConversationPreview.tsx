@@ -26,10 +26,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Separator } from "../ui/separator";
 import { cn } from "../../lib/utils";
-import type {
-  Conversation,
-  ConversationMessage,
-} from "../../types/conversation";
+import type { Conversation, ConversationMessage } from "../../types/conversation";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -73,9 +70,7 @@ function formatMessageTime(date: Date, language: "fr" | "en" = "fr"): string {
   if (diffMinutes < 1) {
     return language === "fr" ? "À l'instant" : "Just now";
   } else if (diffMinutes < 60) {
-    return language === "fr"
-      ? `Il y a ${diffMinutes} min`
-      : `${diffMinutes}m ago`;
+    return language === "fr" ? `Il y a ${diffMinutes} min` : `${diffMinutes}m ago`;
   } else if (diffHours < 24) {
     return language === "fr" ? `Il y a ${diffHours}h` : `${diffHours}h ago`;
   } else if (diffDays < 7) {
@@ -127,9 +122,7 @@ function MessageItem({ message, isFirst, isLast, language }: MessageItemProps) {
   // Note: MessageRole only includes 'user' and 'assistant', no 'system' role
 
   return (
-    <div
-      className={cn("flex gap-3 p-4", !isLast && "border-b border-gray-100")}
-    >
+    <div className={cn("flex gap-3 p-4", !isLast && "border-b border-gray-100")}>
       {/* Avatar */}
       <div className="flex-shrink-0">
         <Avatar className="h-8 w-8">
@@ -196,8 +189,7 @@ function ConversationHeader({
   onViewPoll?: (pollId: string) => void;
 }) {
   const text = {
-    resume:
-      language === "fr" ? "Reprendre la conversation" : "Resume conversation",
+    resume: language === "fr" ? "Reprendre la conversation" : "Resume conversation",
     viewPoll: language === "fr" ? "Voir le sondage" : "View poll",
     messages: language === "fr" ? "messages" : "messages",
     createdOn: language === "fr" ? "Créée le" : "Created on",
@@ -209,18 +201,13 @@ function ConversationHeader({
       {/* Title and Status */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-semibold text-gray-900 truncate">
-            {conversation.title}
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900 truncate">{conversation.title}</h2>
           <div className="flex items-center gap-2 mt-1">
             <Badge className={getStatusColor(conversation.status)}>
               {getStatusLabel(conversation.status, language)}
             </Badge>
             {conversation.isFavorite && (
-              <Badge
-                variant="outline"
-                className="text-yellow-600 border-yellow-200"
-              >
+              <Badge variant="outline" className="text-yellow-600 border-yellow-200">
                 ⭐ {language === "fr" ? "Favori" : "Favorite"}
               </Badge>
             )}
@@ -265,18 +252,18 @@ function ConversationHeader({
           <Calendar className="h-4 w-4" />
           <span>
             {text.createdOn}{" "}
-            {conversation.createdAt.toLocaleDateString(
-              language === "fr" ? "fr-FR" : "en-US",
-              { day: "2-digit", month: "2-digit", year: "numeric" },
-            )}
+            {conversation.createdAt.toLocaleDateString(language === "fr" ? "fr-FR" : "en-US", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
           </span>
         </div>
         {conversation.messageCount > 0 && (
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <Clock className="h-3 w-3" />
             <span>
-              {text.lastActivity}:{" "}
-              {formatMessageTime(conversation.updatedAt, language)}
+              {text.lastActivity}: {formatMessageTime(conversation.updatedAt, language)}
             </span>
           </div>
         )}
@@ -303,22 +290,18 @@ export function ConversationPreview({
 
   // Text content based on language
   const text = {
-    title:
-      language === "fr" ? "Aperçu de la conversation" : "Conversation preview",
+    title: language === "fr" ? "Aperçu de la conversation" : "Conversation preview",
     close: language === "fr" ? "Fermer" : "Close",
     noMessages:
       language === "fr"
         ? "Aucun message dans cette conversation."
         : "No messages in this conversation.",
-    messageNavigation:
-      language === "fr" ? "Navigation des messages" : "Message navigation",
-    previousMessage:
-      language === "fr" ? "Message précédent" : "Previous message",
+    messageNavigation: language === "fr" ? "Navigation des messages" : "Message navigation",
+    previousMessage: language === "fr" ? "Message précédent" : "Previous message",
     nextMessage: language === "fr" ? "Message suivant" : "Next message",
     scrollToTop: language === "fr" ? "Retour en haut" : "Scroll to top",
     scrollToBottom: language === "fr" ? "Aller en bas" : "Scroll to bottom",
-    messagesPreview:
-      language === "fr" ? "Aperçu des messages" : "Messages preview",
+    messagesPreview: language === "fr" ? "Aperçu des messages" : "Messages preview",
   };
 
   // Reset state when conversation changes
@@ -341,9 +324,7 @@ export function ConversationPreview({
         setCurrentMessageIndex((prev) => Math.max(0, prev - 1));
       } else if (e.key === "ArrowDown" && e.ctrlKey) {
         e.preventDefault();
-        setCurrentMessageIndex((prev) =>
-          Math.min(conversation.messageCount - 1, prev + 1),
-        );
+        setCurrentMessageIndex((prev) => Math.min(conversation.messageCount - 1, prev + 1));
       } else if (e.key === "Home" && e.ctrlKey) {
         e.preventDefault();
         setScrollToTop(true);
@@ -379,9 +360,7 @@ export function ConversationPreview({
 
   const handleNextMessage = useCallback(() => {
     if (conversation) {
-      setCurrentMessageIndex((prev) =>
-        Math.min(conversation.messageCount - 1, prev + 1),
-      );
+      setCurrentMessageIndex((prev) => Math.min(conversation.messageCount - 1, prev + 1));
     }
   }, [conversation]);
 
@@ -405,9 +384,7 @@ export function ConversationPreview({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className={cn("max-w-4xl max-h-[90vh] flex flex-col", className)}
-      >
+      <DialogContent className={cn("max-w-4xl max-h-[90vh] flex flex-col", className)}>
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="sr-only">{text.title}</DialogTitle>
           <ConversationHeader
@@ -456,9 +433,7 @@ export function ConversationPreview({
                       variant="outline"
                       size="sm"
                       onClick={handleNextMessage}
-                      disabled={
-                        !canNavigateNext || conversation.messageCount <= 1
-                      }
+                      disabled={!canNavigateNext || conversation.messageCount <= 1}
                       className="flex items-center gap-1"
                     >
                       {text.nextMessage}
@@ -505,8 +480,7 @@ export function ConversationPreview({
                         {text.messagesPreview}: {conversation.firstMessage}
                       </p>
                       <p className="text-xs text-gray-500 mt-2">
-                        {conversation.messageCount}{" "}
-                        {language === "fr" ? "messages" : "messages"}
+                        {conversation.messageCount} {language === "fr" ? "messages" : "messages"}
                       </p>
                     </div>
                   </div>
@@ -529,10 +503,7 @@ export function ConversationPreview({
               {text.close}
             </Button>
             {conversation.status !== "archived" && (
-              <Button
-                onClick={handleResume}
-                className="flex items-center gap-1"
-              >
+              <Button onClick={handleResume} className="flex items-center gap-1">
                 <Play className="h-3 w-3" />
                 {language === "fr" ? "Reprendre" : "Resume"}
               </Button>

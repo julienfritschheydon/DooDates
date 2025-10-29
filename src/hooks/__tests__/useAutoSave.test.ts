@@ -61,14 +61,10 @@ import {
 // ============================================================================
 
 describe("useAutoSave", () => {
-  const mockCreateConversation = vi.mocked(
-    ConversationStorage.createConversation,
-  );
+  const mockCreateConversation = vi.mocked(ConversationStorage.createConversation);
   const mockGetConversation = vi.mocked(ConversationStorage.getConversation);
   const mockGetConversations = vi.mocked(ConversationStorage.getConversations);
-  const mockSaveConversations = vi.mocked(
-    ConversationStorage.saveConversations,
-  );
+  const mockSaveConversations = vi.mocked(ConversationStorage.saveConversations);
   const mockAddMessages = vi.mocked(ConversationStorage.addMessages);
   const mockGetMessages = vi.mocked(ConversationStorage.getMessages);
   const mockGetConversationWithMessages = vi.mocked(
@@ -303,9 +299,7 @@ describe("useAutoSave", () => {
   describe("Error Handling", () => {
     it("should handle message save errors", async () => {
       const { result } = renderHook(() => useAutoSave());
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
       mockCreateConversation.mockImplementation(() => {
         throw new Error("Storage full");

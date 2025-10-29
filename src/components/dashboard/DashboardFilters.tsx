@@ -16,13 +16,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   filter,
   onFilterChange,
 }) => {
-  const filters: FilterType[] = [
-    "all",
-    "draft",
-    "active",
-    "closed",
-    "archived",
-  ];
+  const filters: FilterType[] = ["all", "draft", "active", "closed", "archived"];
 
   return (
     <div className="mb-6">

@@ -2,9 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Check, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import FormPollCreator, {
-  type FormPollDraft,
-} from "@/components/polls/FormPollCreator";
+import FormPollCreator, { type FormPollDraft } from "@/components/polls/FormPollCreator";
 import { getAllPolls } from "@/lib/pollStorage";
 import { ErrorFactory, logError } from "@/lib/error-handling";
 
@@ -18,9 +16,7 @@ export default function FormCreator() {
 
   const initialDraft = useMemo<FormPollDraft | undefined>(() => {
     if (!editId) return undefined;
-    const existing = getAllPolls().find(
-      (p) => p.id === editId && p.type === "form",
-    );
+    const existing = getAllPolls().find((p) => p.id === editId && p.type === "form");
     if (!existing) return undefined;
     return {
       id: existing.id,
@@ -67,12 +63,10 @@ export default function FormCreator() {
 
               {/* Message de succès */}
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2">
-                  Formulaire publié !
-                </h1>
+                <h1 className="text-3xl font-bold text-white mb-2">Formulaire publié !</h1>
                 <p className="text-gray-300">
-                  Votre formulaire "{publishedPoll.title}" est maintenant actif
-                  et prêt à recevoir des réponses.
+                  Votre formulaire "{publishedPoll.title}" est maintenant actif et prêt à recevoir
+                  des réponses.
                 </p>
               </div>
 
@@ -96,9 +90,7 @@ export default function FormCreator() {
 
               {/* Lien de partage */}
               <div className="pt-4 border-t border-gray-700">
-                <p className="text-sm text-gray-400 mb-3">
-                  Lien du formulaire :
-                </p>
+                <p className="text-sm text-gray-400 mb-3">Lien du formulaire :</p>
                 <div className="flex flex-col sm:flex-row gap-2 items-center justify-center">
                   <code className="px-4 py-2 bg-[#1e1e1e] border border-gray-700 rounded text-sm font-mono text-gray-300 break-all">
                     {window.location.origin}/poll/{publishedPoll.id}/vote
@@ -109,8 +101,7 @@ export default function FormCreator() {
                       navigator.clipboard.writeText(url);
                       toast({
                         title: "Lien copié !",
-                        description:
-                          "Le lien du formulaire a été copié dans le presse-papiers.",
+                        description: "Le lien du formulaire a été copié dans le presse-papiers.",
                       });
                     }}
                     className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium whitespace-nowrap"

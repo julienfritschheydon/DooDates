@@ -34,15 +34,7 @@ export interface PreGeneratedCalendar {
 import { getStaticCalendarSync } from "./calendar-data";
 
 class CalendarGenerator {
-  private dayNames = [
-    "dimanche",
-    "lundi",
-    "mardi",
-    "mercredi",
-    "jeudi",
-    "vendredi",
-    "samedi",
-  ];
+  private dayNames = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
   private monthNames = [
     "janvier",
     "février",
@@ -159,9 +151,7 @@ class CalendarGenerator {
   }
 
   private getWeekNumber(date: Date): number {
-    const d = new Date(
-      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
-    );
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
@@ -169,9 +159,7 @@ class CalendarGenerator {
   }
 
   private isFixedHoliday(month: number, day: number): boolean {
-    return this.fixedHolidays.some(
-      (holiday) => holiday.month === month && holiday.day === day,
-    );
+    return this.fixedHolidays.some((holiday) => holiday.month === month && holiday.day === day);
   }
 }
 
@@ -317,9 +305,7 @@ export class CalendarQuery {
 
     for (let year = startYear; year <= endYear; year++) {
       const yearDays = this.getYearDays(year);
-      const filteredDays = yearDays.filter(
-        (day) => day.date >= startDate && day.date <= endDate,
-      );
+      const filteredDays = yearDays.filter((day) => day.date >= startDate && day.date <= endDate);
       days.push(...filteredDays);
     }
 
@@ -329,10 +315,7 @@ export class CalendarQuery {
   // Obtenir les jours d'une année (avec cache)
   private getYearDays(year: number): CalendarDay[] {
     // Vérifier si l'année est dans le calendrier de base
-    if (
-      year >= this.baseCalendar.startYear &&
-      year <= this.baseCalendar.endYear
-    ) {
+    if (year >= this.baseCalendar.startYear && year <= this.baseCalendar.endYear) {
       return this.baseCalendar.byYear[year] || [];
     }
 
@@ -358,21 +341,13 @@ export class CalendarQuery {
   }
 
   // Obtenir N occurrences d'un jour de la semaine à partir d'une date
-  getNextNDaysOfWeek(
-    dayOfWeek: number,
-    count: number,
-    fromDate: string,
-  ): CalendarDay[] {
+  getNextNDaysOfWeek(dayOfWeek: number, count: number, fromDate: string): CalendarDay[] {
     const days: CalendarDay[] = [];
     const fromDateObj = new Date(fromDate);
     const currentYear = fromDateObj.getFullYear();
 
     // Rechercher dans les années suivantes jusqu'à avoir assez de jours
-    for (
-      let year = currentYear;
-      year <= currentYear + 10 && days.length < count;
-      year++
-    ) {
+    for (let year = currentYear; year <= currentYear + 10 && days.length < count; year++) {
       const yearDays = this.getYearDays(year);
       const matchingDays = yearDays
         .filter((day) => day.dayOfWeek === dayOfWeek && day.date >= fromDate)
@@ -390,11 +365,7 @@ export class CalendarQuery {
   }
 
   // Obtenir les jours d'une semaine spécifique
-  getDaysOfWeekInRange(
-    dayOfWeek: number,
-    startDate: string,
-    endDate: string,
-  ): CalendarDay[] {
+  getDaysOfWeekInRange(dayOfWeek: number, startDate: string, endDate: string): CalendarDay[] {
     const days = this.getDaysInRange(startDate, endDate);
     return days.filter((day) => day.dayOfWeek === dayOfWeek);
   }

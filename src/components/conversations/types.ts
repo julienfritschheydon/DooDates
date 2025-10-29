@@ -3,16 +3,9 @@
  * DooDates - Conversation History System
  */
 
-import type {
-  Conversation,
-  ConversationSearchFilters,
-} from "../../types/conversation";
+import type { Conversation, ConversationSearchFilters } from "../../types/conversation";
 
-export type ConversationSortBy =
-  | "createdAt"
-  | "updatedAt"
-  | "title"
-  | "messageCount";
+export type ConversationSortBy = "createdAt" | "updatedAt" | "title" | "messageCount";
 export type SortOrder = "asc" | "desc";
 
 export interface ConversationListProps {

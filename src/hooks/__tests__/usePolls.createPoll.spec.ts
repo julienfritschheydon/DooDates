@@ -35,9 +35,7 @@ describe("usePolls.createPoll", () => {
       },
     };
 
-    const res = await act(
-      async () => await result.current.createPoll(pollData),
-    );
+    const res = await act(async () => await result.current.createPoll(pollData));
 
     expect(res.error).toBeUndefined();
     expect(res.poll).toBeTruthy();
