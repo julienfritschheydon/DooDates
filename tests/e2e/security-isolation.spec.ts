@@ -50,18 +50,13 @@ test.describe('Security and Data Isolation', () => {
     ];
     
     for (const input of maliciousInputs) {
-      const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-      if (await createButton.isVisible()) {
-        await createButton.click();
+      const messageInput = page.locator('[data-testid="message-input"]');
+      if (await messageInput.isVisible()) {
+        await messageInput.fill(input);
         
-        const messageInput = page.locator('input[type="text"], textarea').first();
-        if (await messageInput.isVisible()) {
-          await messageInput.fill(input);
-          
-          const sendButton = page.locator('button').filter({ hasText: /send|submit/i }).first();
-          if (await sendButton.isVisible()) {
-            await sendButton.click();
-          }
+        const sendButton = page.locator('[data-testid="send-message-button"]');
+        if (await sendButton.isVisible()) {
+          await sendButton.click();
         }
       }
       
@@ -112,9 +107,9 @@ test.describe('Security and Data Isolation', () => {
     });
     
     // Trigger some actions
-    const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-    if (await createButton.isVisible()) {
-      await createButton.click();
+    const messageInput = page.locator('[data-testid="message-input"]');
+    if (await messageInput.isVisible()) {
+      await messageInput.fill('Test message');
     }
     
     await page.waitForTimeout(1000);

@@ -48,7 +48,12 @@ import { useInfiniteLoopProtection } from "../services/InfiniteLoopProtection";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "../lib/logger";
 import { useToast } from "@/hooks/use-toast";
-import { useConversation } from "./prototype/ConversationProvider";
+import {
+  useConversationMessages,
+  useConversationActions,
+} from "./prototype/ConversationStateProvider";
+import { useEditorState, useEditorActions } from "./prototype/EditorStateProvider";
+import { useUIState } from "./prototype/UIStateProvider";
 import { AIProposalFeedback } from "./polls/AIProposalFeedback";
 import { IntentDetectionService } from "../services/IntentDetectionService";
 import { FormPollIntentService } from "../services/FormPollIntentService";
@@ -142,15 +147,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     },
     ref,
   ) => {
-    // Utiliser les messages du Context pour la persistance
-    const {
-      messages,
-      setMessages,
-      currentPoll,
-      dispatchPollAction,
-      openEditor,
-      setModifiedQuestion,
-    } = useConversation();
+    // Utiliser les hooks spécialisés pour la persistance
+    const messages = useConversationMessages();
+    const { setMessages } = useConversationActions();
+    const { currentPoll } = useEditorState();
+    const { dispatchPollAction, openEditor } = useEditorActions();
+    const { setModifiedQuestion } = useUIState();
 
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);

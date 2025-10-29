@@ -1,4 +1,4 @@
-﻿/**
+/**
  * E2E Performance Tests
  * DooDates - Task 5.2: Tests E2E Playwright
  * 
@@ -34,18 +34,13 @@ test.describe('Performance Tests', () => {
     
     // Create multiple conversations rapidly
     for (let i = 1; i <= 20; i++) {
-      const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-      if (await createButton.isVisible()) {
-        await createButton.click();
+      const messageInput = page.locator('[data-testid="message-input"]');
+      if (await messageInput.isVisible()) {
+        await messageInput.fill(`Performance test conversation ${i}`);
         
-        const messageInput = page.locator('input[type="text"], textarea').first();
-        if (await messageInput.isVisible()) {
-          await messageInput.fill(`Performance test conversation ${i}`);
-          
-          const sendButton = page.locator('button').filter({ hasText: /send|submit/i }).first();
-          if (await sendButton.isVisible()) {
-            await sendButton.click();
-          }
+        const sendButton = page.locator('[data-testid="send-message-button"]');
+        if (await sendButton.isVisible()) {
+          await sendButton.click();
         }
       }
       
@@ -76,18 +71,13 @@ test.describe('Performance Tests', () => {
       
       const largeMessage = 'A'.repeat(size) + ` (${size} chars)`;
       
-      const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-      if (await createButton.isVisible()) {
-        await createButton.click();
+      const messageInput = page.locator('[data-testid="message-input"]');
+      if (await messageInput.isVisible()) {
+        await messageInput.fill(largeMessage);
         
-        const messageInput = page.locator('input[type="text"], textarea').first();
-        if (await messageInput.isVisible()) {
-          await messageInput.fill(largeMessage);
-          
-          const sendButton = page.locator('button').filter({ hasText: /send|submit/i }).first();
-          if (await sendButton.isVisible()) {
-            await sendButton.click();
-          }
+        const sendButton = page.locator('[data-testid="send-message-button"]');
+        if (await sendButton.isVisible()) {
+          await sendButton.click();
         }
       }
       
@@ -109,12 +99,7 @@ test.describe('Performance Tests', () => {
     
     // Rapid clicking and typing simulation
     for (let i = 0; i < 50; i++) {
-      const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-      if (await createButton.isVisible()) {
-        await createButton.click({ timeout: 100 });
-      }
-      
-      const messageInput = page.locator('input[type="text"], textarea').first();
+      const messageInput = page.locator('[data-testid="message-input"]');
       if (await messageInput.isVisible()) {
         await messageInput.type('Quick test', { delay: 10 });
         await messageInput.clear();
@@ -131,8 +116,8 @@ test.describe('Performance Tests', () => {
     expect(totalTime).toBeLessThan(10000);
     
     // UI should still be responsive
-    const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-    await expect(createButton).toBeVisible();
+    const messageInput = page.locator('[data-testid="message-input"]');
+    await expect(messageInput).toBeVisible();
   });
 
   test.skip('should efficiently load existing conversations on startup', async ({ page }) => {
@@ -179,18 +164,13 @@ test.describe('Performance Tests', () => {
     // Simulate long user session with many operations
     for (let session = 1; session <= 10; session++) {
       // Create conversation
-      const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-      if (await createButton.isVisible()) {
-        await createButton.click();
+      const messageInput = page.locator('[data-testid="message-input"]');
+      if (await messageInput.isVisible()) {
+        await messageInput.fill(`Long session message ${session}`);
         
-        const messageInput = page.locator('input[type="text"], textarea').first();
-        if (await messageInput.isVisible()) {
-          await messageInput.fill(`Long session message ${session}`);
-          
-          const sendButton = page.locator('button').filter({ hasText: /send|submit/i }).first();
-          if (await sendButton.isVisible()) {
-            await sendButton.click();
-          }
+        const sendButton = page.locator('[data-testid="send-message-button"]');
+        if (await sendButton.isVisible()) {
+          await sendButton.click();
         }
       }
       

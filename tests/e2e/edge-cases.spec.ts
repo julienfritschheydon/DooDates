@@ -62,7 +62,7 @@ test.describe('Edge Cases and Error Handling', () => {
     const longMessage = 'A'.repeat(10000);
     
     // Try to input long text in any available input field
-    const messageInput = page.locator('input[type="text"], textarea').first();
+    const messageInput = page.locator('[data-testid="message-input"]');
     if (await messageInput.isVisible()) {
       await messageInput.fill(longMessage);
       
@@ -248,12 +248,12 @@ test.describe('Edge Cases and Error Handling', () => {
   test('should handle rapid consecutive actions', async ({ page }) => {
     await page.goto('/');
     
-    // Rapidly click create button multiple times
-    const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-    if (await createButton.isVisible()) {
-      // Click rapidly 10 times
+    // Rapidly fill message input multiple times
+    const messageInput = page.locator('[data-testid="message-input"]');
+    if (await messageInput.isVisible()) {
+      // Fill rapidly 10 times
       for (let i = 0; i < 10; i++) {
-        await createButton.click({ timeout: 100 });
+        await messageInput.fill(`Rapid test ${i}`);
         await page.waitForTimeout(50);
       }
     }
@@ -281,18 +281,13 @@ test.describe('Edge Cases and Error Handling', () => {
     ];
     
     for (const invalidInput of invalidInputs) {
-      const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-      if (await createButton.isVisible()) {
-        await createButton.click();
+      const messageInput = page.locator('[data-testid="message-input"]');
+      if (await messageInput.isVisible()) {
+        await messageInput.fill(invalidInput);
         
-        const messageInput = page.locator('input[type="text"], textarea').first();
-        if (await messageInput.isVisible()) {
-          await messageInput.fill(invalidInput);
-          
-          const sendButton = page.locator('button').filter({ hasText: /send|submit/i }).first();
-          if (await sendButton.isVisible()) {
-            await sendButton.click();
-          }
+        const sendButton = page.locator('[data-testid="send-message-button"]');
+        if (await sendButton.isVisible()) {
+          await sendButton.click();
         }
       }
       

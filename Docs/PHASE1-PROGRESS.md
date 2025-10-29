@@ -111,9 +111,9 @@
 
 **Résultat Jour 1** :
 - ✅ 4 data-testid ajoutés
-- ✅ 1 spec refactoré (ultra-simple.spec.ts)
-- ✅ 3 documents créés (Audit, Progress, Planning mis à jour)
-- 📊 Progression : 20%
+- ✅ 4 specs refactorés (ultra-simple, performance, security-isolation, edge-cases)
+- ✅ 4 documents créés (Audit, Progress, Résumé Jour 1, Planning mis à jour)
+- 📊 Progression : **40%** (4/10 specs refactorés)
 
 ---
 
@@ -196,11 +196,12 @@ git commit -m "test(e2e): refactor 4 specs with data-testid selectors"
 - Sélecteurs robustes : ~90%
 - Sélecteurs fragiles : ~10%
 
-### Progression Actuelle (Jour 1)
+### Progression Actuelle (Jour 1 - TERMINÉ)
 - ✅ Audit complet réalisé
 - ✅ 4 data-testid ajoutés (poll-type-date, poll-type-form, message-input, send-message-button)
 - ✅ ~50% data-testid critiques déjà existants
-- 📊 Progression : **20%** (4/20 data-testid manquants ajoutés)
+- ✅ 4 specs refactorés (ultra-simple, performance, security-isolation, edge-cases)
+- 📊 Progression : **40%** (4/10 specs refactorés)
 
 ---
 
