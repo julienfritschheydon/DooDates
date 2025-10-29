@@ -14,11 +14,8 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { Auth, AuthCallback } from "./pages/Auth";
 import { logger } from "@/lib/logger";
 import VotingSwipe from "./components/voting/VotingSwipe";
-import TopNav from "./components/TopNav";
 // import { VotingSwipe as ExVotingSwipe } from "./components/voting/ex-VotingSwipe";
 import { Loader2 } from "lucide-react";
-import { TopBar } from "./components/layout/TopBar";
-import { FEATURES } from "./lib/features";
 import { ConversationProvider } from "./components/prototype/ConversationProvider";
 import { UIStateProvider } from "./components/prototype/UIStateProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -320,24 +317,8 @@ const VotingSwipeWrapper = () => {
 //   return <ExVotingSwipe onBack={() => window.history.back()} />;
 // };
 
-// Composant Layout avec TopNav toujours visible
+// Layout principal (anciennement LayoutPrototype)
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
-
-  // Pages qui ne doivent pas afficher le TopNav
-  const hideTopNavRoutes = ["/auth", "/auth/callback"];
-  const shouldShowTopNav = !hideTopNavRoutes.includes(location.pathname);
-
-  return (
-    <>
-      {/* {shouldShowTopNav && !FEATURES.AI_FIRST_UX && <TopNav />} */}
-      {children}
-    </>
-  );
-};
-
-// Layout Prototype avec Sidebar (pour AI-First UX)
-const LayoutPrototype = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   // Pages qui ne doivent pas afficher la Sidebar (garde TopNav)
@@ -347,9 +328,9 @@ const LayoutPrototype = ({ children }: { children: React.ReactNode }) => {
     location.pathname.startsWith("/vote/") ||
     location.pathname.startsWith("/auth");
 
-  // Si page classique, utiliser TopNav
+  // Si page classique, utiliser layout simple
   if (useClassicLayout) {
-    return <Layout>{children}</Layout>;
+    return <>{children}</>;
   }
 
   // Sinon, utiliser layout sans TopBar (style Gemini)
@@ -367,8 +348,7 @@ const LayoutPrototype = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
-  // Choisir le layout selon le feature flag
-  const AppLayout = FEATURES.AI_FIRST_UX ? LayoutPrototype : Layout;
+  const AppLayout = Layout;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -382,13 +362,8 @@ const App = () => {
                   {/* ConversationProvider global pour partager l'état entre routes */}
                   <ConversationProvider>
                     <Routes>
-                    {/* Route / conditionnelle selon feature flag */}
-                    <Route
-                      path="/"
-                      element={
-                        FEATURES.AI_FIRST_UX ? <WorkspacePage /> : <Index />
-                      }
-                    />
+                    {/* Route / vers WorkspacePage (AI-First UX) */}
+                    <Route path="/" element={<WorkspacePage />} />
                     <Route path="/chat" element={<Index />} />
                     <Route path="/dashboard" element={<Dashboard />} />
 

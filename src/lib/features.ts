@@ -3,27 +3,12 @@
  *
  * Permet d'activer/désactiver des fonctionnalités via variables d'environnement
  *
- * Usage:
- * 1. Dev: Créer .env.local avec NEXT_PUBLIC_AI_FIRST_UX=true
- * 2. Prod: Contrôler via .env.production
- * 3. Rollback: Mettre à false pour désactiver instantanément
+ * Note: Le feature flag AI_FIRST_UX a été supprimé car l'UX IA-First
+ * est maintenant l'UX par défaut (mergé le 29/10/2025)
  */
 
 export const FEATURES = {
-  /**
-   * UX IA-First avec chat landing et sidebar
-   *
-   * Quand activé:
-   * - Route / devient chat landing
-   * - Layout avec sidebar au lieu de TopNav
-   * - Nouveau workspace /workspace
-   *
-   * Quand désactivé:
-   * - Route / reste dashboard classique
-   * - Layout avec TopNav existant
-   * - Pas de changement UX
-   */
-  AI_FIRST_UX: import.meta.env.VITE_AI_FIRST_UX === "true",
+  // Placeholder pour futurs feature flags
 } as const;
 
 /**
