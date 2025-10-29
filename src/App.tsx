@@ -20,6 +20,7 @@ import { Loader2 } from "lucide-react";
 import { TopBar } from "./components/layout/TopBar";
 import { FEATURES } from "./lib/features";
 import { ConversationProvider } from "./components/prototype/ConversationProvider";
+import { UIStateProvider } from "./components/prototype/UIStateProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Composant de loading optimisé
@@ -376,9 +377,11 @@ const App = () => {
           <BrowserRouter>
             <AppLayout>
               <Suspense fallback={<LoadingSpinner />}>
-                {/* ConversationProvider global pour partager l'état entre routes */}
-                <ConversationProvider>
-                  <Routes>
+                {/* UIStateProvider pour l'état UI (sidebar, highlights) */}
+                <UIStateProvider>
+                  {/* ConversationProvider global pour partager l'état entre routes */}
+                  <ConversationProvider>
+                    <Routes>
                     {/* Route / conditionnelle selon feature flag */}
                     <Route
                       path="/"
@@ -405,8 +408,9 @@ const App = () => {
                       element={<Vote />}
                     />
                     <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </ConversationProvider>
+                    </Routes>
+                  </ConversationProvider>
+                </UIStateProvider>
               </Suspense>
             </AppLayout>
           </BrowserRouter>
