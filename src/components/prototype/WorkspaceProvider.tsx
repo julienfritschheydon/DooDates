@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
+import { ErrorFactory } from "@/lib/error-handling";
 
 /**
  * Type simplifié Poll pour le prototype
@@ -48,7 +49,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 export function useWorkspace() {
   const context = useContext(WorkspaceContext);
   if (context === undefined) {
-    throw new Error("useWorkspace must be used within WorkspaceProvider");
+    throw ErrorFactory.validation(
+      "useWorkspace must be used within WorkspaceProvider",
+      "Hook utilisé hors contexte"
+    );
   }
   return context;
 }

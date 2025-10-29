@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { ThumbsUp, ThumbsDown, Send, X } from "lucide-react";
-import { useToast } from "../../hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { ErrorFactory } from "@/lib/error-handling";
+import { logger } from "@/lib/logger";
 
 interface AIProposalFeedbackProps {
   proposal: {
@@ -107,7 +109,10 @@ export function AIProposalFeedback({
       );
 
       if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi du feedback");
+        throw ErrorFactory.network(
+          "Erreur lors de l'envoi du feedback",
+          "Impossible d'envoyer le feedback"
+        );
       }
 
       toast({
@@ -122,7 +127,7 @@ export function AIProposalFeedback({
 
       onFeedbackSent?.();
     } catch (error) {
-      console.error("Erreur envoi feedback:", error);
+      logger.error("Erreur envoi feedback", error);
       toast({
         title: "Erreur d'envoi",
         description: "Impossible d'envoyer le feedback. Réessayez plus tard.",
