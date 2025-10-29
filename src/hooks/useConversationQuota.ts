@@ -145,19 +145,13 @@ export function useConversationQuota(
 
   // Local state
   const [incentiveViews, setIncentiveViews] = useState<number>(0);
-  const [dismissedIncentives, setDismissedIncentives] = useState<Set<string>>(
-    new Set(),
-  );
+  const [dismissedIncentives, setDismissedIncentives] = useState<Set<string>>(new Set());
   const [lastCleanup, setLastCleanup] = useState<Date | null>(null);
 
   // Load persisted state
   useEffect(() => {
-    const views = parseInt(
-      localStorage.getItem(STORAGE_KEYS.INCENTIVE_VIEWS) || "0",
-    );
-    const dismissed = JSON.parse(
-      localStorage.getItem(STORAGE_KEYS.DISMISSED_INCENTIVES) || "[]",
-    );
+    const views = parseInt(localStorage.getItem(STORAGE_KEYS.INCENTIVE_VIEWS) || "0");
+    const dismissed = JSON.parse(localStorage.getItem(STORAGE_KEYS.DISMISSED_INCENTIVES) || "[]");
     const cleanup = localStorage.getItem(STORAGE_KEYS.LAST_CLEANUP);
 
     setIncentiveViews(views);
@@ -168,9 +162,7 @@ export function useConversationQuota(
   // Quota information
   const quotaInfo = useMemo((): QuotaInfo => {
     const { quotaInfo: storageQuota } = storage.storageMode;
-    const usagePercentage = Math.round(
-      (storageQuota.used / storageQuota.limit) * 100,
-    );
+    const usagePercentage = Math.round((storageQuota.used / storageQuota.limit) * 100);
     const isInWarningZone = usagePercentage > 75;
 
     return {
@@ -258,8 +250,7 @@ export function useConversationQuota(
       ctaText = "Get Unlimited";
     } else {
       title = "Unlock Premium Features";
-      description =
-        "Sign up to get unlimited conversations, cloud sync, and advanced features!";
+      description = "Sign up to get unlimited conversations, cloud sync, and advanced features!";
     }
 
     const incentiveKey = `${type}_${quotaInfo.used}`;
@@ -337,9 +328,12 @@ export function useConversationQuota(
         await storage.deleteConversation.mutateAsync(conversation.id);
         deletedCount++;
       } catch (error) {
-        console.warn(
-          `Failed to auto-delete conversation ${conversation.id}:`,
-          error,
+        logError(
+          ErrorFactory.storage(
+            `Failed to auto-delete conversation ${conversation.id}`,
+            "Impossible de supprimer automatiquement une conversation"
+          ),
+          { component: "useConversationQuota", operation: "autoDeleteOldConversations", metadata: { conversationId: conversation.id, error } }
         );
       }
     }
@@ -359,10 +353,7 @@ export function useConversationQuota(
     newDismissed.add(incentiveKey);
 
     setDismissedIncentives(newDismissed);
-    localStorage.setItem(
-      STORAGE_KEYS.DISMISSED_INCENTIVES,
-      JSON.stringify([...newDismissed]),
-    );
+    localStorage.setItem(STORAGE_KEYS.DISMISSED_INCENTIVES, JSON.stringify([...newDismissed]));
 
     // Increment view count
     const newViews = incentiveViews + 1;
@@ -416,10 +407,7 @@ export function useConversationQuota(
     ) {
       executeAutoDeletion().catch((error) => {
         logError(
-          ErrorFactory.storage(
-            "Auto-deletion failed",
-            "Échec de la suppression automatique",
-          ),
+          ErrorFactory.storage("Auto-deletion failed", "Échec de la suppression automatique"),
           {
             component: "useConversationQuota",
             metadata: { originalError: error },
