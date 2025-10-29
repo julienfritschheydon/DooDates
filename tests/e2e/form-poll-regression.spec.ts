@@ -49,7 +49,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
       
       // 1. Créer un questionnaire de base
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      const chatInput = page.locator('textarea, input[type="text"]').first();
+      const chatInput = page.locator('[data-testid="message-input"]');
       await expect(chatInput).toBeVisible({ timeout: 10000 });
 
       await chatInput.fill('Crée un questionnaire simple avec 2 questions');
@@ -103,7 +103,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
       
       // 1. Créer un questionnaire avec plusieurs questions
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      const chatInput = page.locator('textarea, input[type="text"]').first();
+      const chatInput = page.locator('[data-testid="message-input"]');
       await expect(chatInput).toBeVisible({ timeout: 10000 });
 
       await chatInput.fill('Crée un questionnaire avec 3 questions');
@@ -157,7 +157,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
       
       // 1. Créer un questionnaire
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      const chatInput = page.locator('textarea, input[type="text"]').first();
+      const chatInput = page.locator('[data-testid="message-input"]');
       await expect(chatInput).toBeVisible({ timeout: 10000 });
 
       await chatInput.fill('Crée un questionnaire de test');
@@ -217,7 +217,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
       
       // 1. Créer questionnaire
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      const chatInput = page.locator('textarea, input[type="text"]').first();
+      const chatInput = page.locator('[data-testid="message-input"]');
       await expect(chatInput).toBeVisible({ timeout: 10000 });
 
       await chatInput.fill('Crée un questionnaire de satisfaction client');

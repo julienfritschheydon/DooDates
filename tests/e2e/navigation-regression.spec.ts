@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Navigation Regression Tests
  * DooDates - Ensures TopNav is present on all screens
  * 
@@ -59,7 +59,7 @@ test.describe('Navigation Regression Tests', () => {
     await page.goto('/ai-chat');
     
     // Wait for chat interface to load
-    await expect(page.locator('text=Chat IA').or(page.locator('textarea')).or(page.locator('input[type="text"]'))).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Chat IA').or(page.locator('[data-testid="message-input"]'))).toBeVisible({ timeout: 10000 });
     
     // Check for TopNav elements
     await expect(page.locator('[data-testid="home-button"]')).toBeVisible();
@@ -86,7 +86,7 @@ test.describe('Navigation Regression Tests', () => {
     }
     
     // Try to find poll title input if available
-    const titleInput = page.locator('input[placeholder*="titre"], input[placeholder*="title"], input[type="text"]').first();
+    const titleInput = page.locator('input[placeholder*="titre"], input[placeholder*="title"]').first();
     if (await titleInput.isVisible()) {
       await titleInput.fill('Test Poll Navigation');
       

@@ -65,11 +65,12 @@ export function WorkspaceLayoutPrototype() {
   const [conversations, setConversations] = useState<ReturnType<typeof getConversations>>([]);
 
   // Nouveaux hooks spécialisés
-  const { isEditorOpen, currentPoll, openEditor, closeEditor, setCurrentPoll } = useEditorState();
+  const { isEditorOpen, currentPoll } = useEditorState();
+  const { openEditor, closeEditor, setCurrentPoll, createPollFromChat } = useEditorActions();
   const { isMobile, isSidebarOpen, setIsSidebarOpen } = useUIState();
 
-  // Hook legacy pour fonctions non migrées
-  const { createPollFromChat, clearConversation } = useConversation();
+  // Hook legacy pour clearConversation (non migré)
+  const { clearConversation } = useConversation();
 
   // Basculer automatiquement sur preview mobile quand l'éditeur s'ouvre/ferme
   useEffect(() => {

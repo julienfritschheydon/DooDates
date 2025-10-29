@@ -25,6 +25,8 @@ import React, {
 import { ErrorFactory, logError } from "@/lib/error-handling";
 import { pollReducer, type PollAction } from "@/reducers/pollReducer";
 import type { Poll } from "@/types/poll";
+import { addPoll, type Poll as StoragePoll } from "@/lib/pollStorage";
+import { logger } from "@/lib/logger";
 
 export interface EditorStateContextType {
   // État éditeur
@@ -40,6 +42,9 @@ export interface EditorStateContextType {
   dispatchPollAction: (action: PollAction) => void;
   setCurrentPoll: (poll: Poll | null) => void;
   clearCurrentPoll: () => void;
+  
+  // Actions combinées
+  createPollFromChat: (pollData: any) => void;
 }
 
 const EditorStateContext = createContext<EditorStateContextType | undefined>(undefined);
@@ -124,6 +129,106 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
+  // Action combinée : créer un sondage depuis les données Gemini
+  const createPollFromChat = useCallback((pollData: any) => {
+    console.log("🔍 createPollFromChat appelé avec:", pollData);
+
+    const now = new Date().toISOString();
+    const slug = `poll-${Date.now()}`;
+    const uid = () => Math.random().toString(36).slice(2, 10);
+
+    // Convertir timeSlots si présents
+    let timeSlotsByDate = {};
+    if (pollData.timeSlots && pollData.timeSlots.length > 0) {
+      timeSlotsByDate = pollData.timeSlots.reduce((acc: any, slot: any) => {
+        const targetDates =
+          slot.dates && slot.dates.length > 0 ? slot.dates : pollData.dates || [];
+
+        targetDates.forEach((date: string) => {
+          if (!acc[date]) acc[date] = [];
+
+          const startHour = parseInt(slot.start.split(":")[0]);
+          const startMinute = parseInt(slot.start.split(":")[1]);
+          const endHour = parseInt(slot.end.split(":")[0]);
+          const endMinute = parseInt(slot.end.split(":")[1]);
+
+          const durationMinutes = endHour * 60 + endMinute - (startHour * 60 + startMinute);
+
+          acc[date].push({
+            hour: startHour,
+            minute: startMinute,
+            duration: durationMinutes,
+            enabled: true,
+          });
+        });
+        return acc;
+      }, {});
+    }
+
+    // Convertir les questions Gemini en format FormPollCreator
+    let convertedQuestions = pollData.questions || [];
+    if (pollData.type === "form" && pollData.questions) {
+      console.log("🔍 Conversion questions Gemini:", pollData.questions);
+      convertedQuestions = pollData.questions.map((q: any) => {
+        const baseQuestion = {
+          id: uid(),
+          title: q.title,
+          required: q.required || false,
+          type: q.type,
+        };
+
+        if (q.type === "single" || q.type === "multiple") {
+          const options = (q.options || [])
+            .filter((opt: any) => opt && typeof opt === "string" && opt.trim())
+            .map((opt: string) => ({
+              id: uid(),
+              label: opt.trim(),
+            }));
+          console.log("🔍 Options converties:", options);
+
+          return {
+            ...baseQuestion,
+            options,
+            ...(q.maxChoices && { maxChoices: q.maxChoices }),
+          };
+        } else {
+          return {
+            ...baseQuestion,
+            ...(q.placeholder && { placeholder: q.placeholder }),
+            ...(q.maxLength && { maxLength: q.maxLength }),
+          };
+        }
+      });
+      console.log("🔍 Questions converties:", convertedQuestions);
+    }
+
+    const poll: StoragePoll = {
+      id: slug,
+      slug: slug,
+      title: pollData.title || "Nouveau sondage",
+      type: pollData.type || "date",
+      dates: pollData.dates || [],
+      questions: convertedQuestions,
+      created_at: now,
+      updated_at: now,
+      creator_id: "guest",
+      status: "draft" as const,
+      settings: {
+        selectedDates: pollData.dates || [],
+        timeSlotsByDate: timeSlotsByDate,
+      },
+    };
+
+    // Sauvegarder dans pollStorage et ouvrir l'éditeur
+    try {
+      addPoll(poll);
+      setCurrentPoll(poll as any);
+      setIsEditorOpen(true);
+    } catch (error) {
+      logger.error("Erreur lors de la sauvegarde", error);
+    }
+  }, []);
+
   const value: EditorStateContextType = {
     isEditorOpen,
     currentPoll,
@@ -133,6 +238,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
     dispatchPollAction,
     setCurrentPoll,
     clearCurrentPoll,
+    createPollFromChat,
   };
 
   return <EditorStateContext.Provider value={value}>{children}</EditorStateContext.Provider>;
@@ -190,6 +296,7 @@ export function useEditorActions() {
     dispatchPollAction,
     setCurrentPoll,
     clearCurrentPoll,
+    createPollFromChat,
   } = useEditorState();
   return {
     openEditor,
@@ -198,5 +305,6 @@ export function useEditorActions() {
     dispatchPollAction,
     setCurrentPoll,
     clearCurrentPoll,
+    createPollFromChat,
   };
 }

@@ -48,10 +48,7 @@ import { useInfiniteLoopProtection } from "../services/InfiniteLoopProtection";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "../lib/logger";
 import { useToast } from "@/hooks/use-toast";
-import {
-  useConversationMessages,
-  useConversationActions,
-} from "./prototype/ConversationStateProvider";
+import { useConversationMessages, useConversationActions } from "./prototype/ConversationStateProvider";
 import { useEditorState, useEditorActions } from "./prototype/EditorStateProvider";
 import { useUIState } from "./prototype/UIStateProvider";
 import { AIProposalFeedback } from "./polls/AIProposalFeedback";
@@ -147,17 +144,20 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     },
     ref,
   ) => {
-    // Utiliser les hooks spécialisés pour la persistance
+    // Utiliser les hooks spécialisés
     const messages = useConversationMessages();
     const { setMessages: setMessagesRaw } = useConversationActions();
     const { currentPoll } = useEditorState();
-    const { dispatchPollAction, openEditor, setCurrentPoll } = useEditorActions();
+    const { dispatchPollAction, openEditor, setCurrentPoll, createPollFromChat } = useEditorActions();
     const { setModifiedQuestion } = useUIState();
 
     // Wrapper pour éviter les erreurs de type PollSuggestion (conflit gemini.ts vs ConversationService.ts)
-    const setMessages = useCallback((updater: any) => {
-      setMessagesRaw(updater as any);
-    }, [setMessagesRaw]);
+    const setMessages = useCallback(
+      (updater: any) => {
+        setMessagesRaw(updater as any);
+      },
+      [setMessagesRaw],
+    );
 
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -1227,29 +1227,31 @@ Exemples de modifications supportées :
                           {(message.pollSuggestion as any).type === "form" ? (
                             /* Affichage Form Poll (questionnaire) - MÊME DESIGN QUE DATE POLL */
                             <div className="space-y-2 md:space-y-3">
-                              {(message.pollSuggestion as any).questions?.map((question: any, idx: number) => (
-                                <div key={idx} className="bg-[#3c4043] rounded-lg p-3 md:p-4">
-                                  <div className="flex items-start gap-2 md:gap-3">
-                                    <div className="flex-1 min-w-0">
-                                      <div className="font-medium text-white text-sm md:text-base leading-tight">
-                                        {idx + 1}. {question.title}
-                                      </div>
-                                      <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
-                                        <span className="inline-block">
-                                          {question.type === "single"
-                                            ? "Choix unique"
-                                            : question.type === "multiple"
-                                              ? "Choix multiples"
-                                              : "Texte libre"}
-                                        </span>
-                                        {question.required && (
-                                          <span className="text-red-400 ml-2">• Obligatoire</span>
-                                        )}
+                              {(message.pollSuggestion as any).questions?.map(
+                                (question: any, idx: number) => (
+                                  <div key={idx} className="bg-[#3c4043] rounded-lg p-3 md:p-4">
+                                    <div className="flex items-start gap-2 md:gap-3">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-white text-sm md:text-base leading-tight">
+                                          {idx + 1}. {question.title}
+                                        </div>
+                                        <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
+                                          <span className="inline-block">
+                                            {question.type === "single"
+                                              ? "Choix unique"
+                                              : question.type === "multiple"
+                                                ? "Choix multiples"
+                                                : "Texte libre"}
+                                          </span>
+                                          {question.required && (
+                                            <span className="text-red-400 ml-2">• Obligatoire</span>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              ))}
+                                ),
+                              )}
                             </div>
                           ) : (
                             /* Affichage Date Poll (dates/horaires) - avec groupement intelligent */
