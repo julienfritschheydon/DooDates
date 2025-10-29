@@ -3,13 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  useParams,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams, useLocation } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { Auth, AuthCallback } from "./pages/Auth";
 import { logger } from "@/lib/logger";
@@ -18,6 +12,8 @@ import VotingSwipe from "./components/voting/VotingSwipe";
 import { Loader2 } from "lucide-react";
 import { ConversationProvider } from "./components/prototype/ConversationProvider";
 import { UIStateProvider } from "./components/prototype/UIStateProvider";
+import { ConversationStateProvider } from "./components/prototype/ConversationStateProvider";
+import { EditorStateProvider } from "./components/prototype/EditorStateProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Composant de loading optimisé
@@ -134,11 +130,7 @@ const preloadTimeSlotFunctions = async () => {
       sessionStorage.setItem(TIMESLOT_CACHE_KEY + "-session", "true");
     }
   } catch (error) {
-    logger.error(
-      "Erreur préchargement TimeSlot Functions",
-      "performance",
-      error,
-    );
+    logger.error("Erreur préchargement TimeSlot Functions", "performance", error);
   }
 };
 
@@ -148,9 +140,7 @@ const preloadProgressiveCalendar = async () => {
     const startTime = performance.now();
 
     // Précharger le calendrier progressif
-    const { getProgressiveCalendar } = await import(
-      "./lib/progressive-calendar"
-    );
+    const { getProgressiveCalendar } = await import("./lib/progressive-calendar");
     await getProgressiveCalendar();
 
     const endTime = performance.now();
@@ -264,10 +254,7 @@ const PollCreator = lazy(() => {
       });
   }
 
-  const timerId = logger.time(
-    "PollCreator - Chargement initial",
-    "performance",
-  );
+  const timerId = logger.time("PollCreator - Chargement initial", "performance");
   return preloadPollCreator()
     .then((module) => {
       logger.timeEnd(timerId);
@@ -298,11 +285,7 @@ const queryClient = new QueryClient({
 // Composant wrapper pour VotingSwipe qui extrait le pollId de l'URL
 const VotingSwipeWrapper = () => {
   const { pollId } = useParams<{ pollId: string }>();
-  return pollId ? (
-    <VotingSwipe pollId={pollId} />
-  ) : (
-    <div>ID du sondage manquant</div>
-  );
+  return pollId ? <VotingSwipe pollId={pollId} /> : <div>ID du sondage manquant</div>;
 };
 
 // Composant pour la démo avec un ID fixe
@@ -336,9 +319,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="flex flex-col h-screen">
-      <main
-        className={`flex-1 ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}
-      >
+      <main className={`flex-1 ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}>
         {children}
       </main>
     </div>
@@ -357,12 +338,16 @@ const App = () => {
               <Suspense fallback={<LoadingSpinner />}>
                 {/* UIStateProvider pour l'état UI (sidebar, highlights) */}
                 <UIStateProvider>
-                  {/* ConversationProvider global pour partager l'état entre routes */}
-                  <ConversationProvider>
-                    <Routes>
+                  {/* ConversationStateProvider pour l'état conversation (messages, ID) */}
+                  <ConversationStateProvider>
+                    {/* EditorStateProvider pour l'état éditeur (poll, actions) */}
+                    <EditorStateProvider>
+                      {/* ConversationProvider LEGACY - À migrer progressivement */}
+                      <ConversationProvider>
+                        <Routes>
                       {/* Route / vers WorkspacePage (AI-First UX) */}
                       <Route path="/" element={<WorkspacePage />} />
-                      
+
                       {/* Redirections vers / */}
                       <Route path="/workspace" element={<WorkspacePage />} />
                       <Route path="/dashboard" element={<WorkspacePage />} />
@@ -375,13 +360,12 @@ const App = () => {
                       <Route path="/create" element={<CreateChooser />} />
                       <Route path="/create/date" element={<DateCreator />} />
                       <Route path="/create/form" element={<FormCreator />} />
-                      <Route
-                        path="/poll/:pollSlug/results/:adminToken"
-                        element={<Vote />}
-                      />
+                      <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
                       <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </ConversationProvider>
+                        </Routes>
+                      </ConversationProvider>
+                    </EditorStateProvider>
+                  </ConversationStateProvider>
                 </UIStateProvider>
               </Suspense>
             </AppLayout>
