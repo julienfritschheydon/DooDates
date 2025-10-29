@@ -51,7 +51,7 @@ export function useWorkspace() {
   if (context === undefined) {
     throw ErrorFactory.validation(
       "useWorkspace must be used within WorkspaceProvider",
-      "Hook utilisé hors contexte"
+      "Hook utilisé hors contexte",
     );
   }
   return context;
