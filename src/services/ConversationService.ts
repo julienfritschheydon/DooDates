@@ -78,7 +78,6 @@ export class ConversationService {
       );
       return result;
     } catch (error) {
-      console.error("❌ Error resuming conversation:", error);
       logError(
         ErrorFactory.storage(
           "Error resuming conversation from URL",
@@ -164,7 +163,6 @@ export class ConversationService {
         }
       }
     } catch (error) {
-      console.error("❌ Error loading resumed conversation:", error);
       logError(
         ErrorFactory.storage(
           "Error loading resumed conversation",

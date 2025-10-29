@@ -717,7 +717,7 @@ export function usePolls() {
 
         return {};
       } catch (err: any) {
-        console.error(`❌ usePolls.deletePoll: Error during deletion:`, err);
+        logger.error(`usePolls.deletePoll: Error during deletion`, err);
         const errorMessage =
           err.message || "Erreur lors de la suppression du sondage";
         setError(errorMessage);

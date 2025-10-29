@@ -5,6 +5,7 @@ import FormPollCreator from "../polls/FormPollCreator";
 import { useConversation } from "./ConversationProvider";
 import { useToast } from "@/hooks/use-toast";
 import { addPoll } from "@/lib/pollStorage";
+import { logger } from "@/lib/logger";
 
 interface PollPreviewProps {
   poll: any;
@@ -46,7 +47,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
         description: "Votre questionnaire a été sauvegardé avec succès.",
       });
     } catch (error) {
-      console.error("Erreur sauvegarde:", error);
+      logger.error("Erreur sauvegarde", error);
       toast({
         title: "❌ Erreur",
         description: "Impossible de sauvegarder le questionnaire.",
@@ -76,7 +77,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
         description: "Votre formulaire est maintenant disponible.",
       });
     } catch (error) {
-      console.error("Erreur finalisation:", error);
+      logger.error("Erreur finalisation", error);
       toast({
         title: "❌ Erreur",
         description: "Impossible de finaliser le questionnaire.",
