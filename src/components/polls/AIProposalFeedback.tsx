@@ -111,7 +111,7 @@ export function AIProposalFeedback({
       if (!response.ok) {
         throw ErrorFactory.network(
           "Erreur lors de l'envoi du feedback",
-          "Impossible d'envoyer le feedback"
+          "Impossible d'envoyer le feedback",
         );
       }
 

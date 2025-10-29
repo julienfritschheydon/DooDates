@@ -472,7 +472,7 @@ export function useConversation() {
   if (context === undefined) {
     throw ErrorFactory.validation(
       "useConversation must be used within ConversationProvider",
-      "Hook utilisé hors contexte"
+      "Hook utilisé hors contexte",
     );
   }
   return context;
