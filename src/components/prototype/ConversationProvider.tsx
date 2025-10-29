@@ -17,6 +17,8 @@ import {
 } from "../../reducers/formPollReducer";
 import { linkPollToConversation } from "../../lib/conversationPollLink";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { ErrorFactory } from "../../lib/error-handling";
+import { logger } from "../../lib/logger";
 
 /**
  * Types pour la conversation partagée
@@ -103,7 +105,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       const saved = localStorage.getItem("prototype_messages");
       return saved ? JSON.parse(saved) : [];
     } catch (error) {
-      console.error("❌ Erreur restauration messages:", error);
+      logger.error("Erreur restauration messages", error);
       return [];
     }
   });
@@ -175,7 +177,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
         setIsEditorOpen(true);
       }
     } catch (error) {
-      console.error("❌ Erreur restauration poll:", error);
+      logger.error("Erreur restauration poll", error);
     }
     // ✅ useEffect ne retourne rien (ou une fonction de cleanup si nécessaire)
   }, []); // ✅ Ajout du tableau de dépendances vide pour n'exécuter qu'au montage
@@ -188,7 +190,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem("prototype_messages", JSON.stringify(messages));
     } catch (error) {
-      console.error("❌ Erreur sauvegarde messages:", error);
+      logger.error("Erreur sauvegarde messages", error);
     }
   }, [messages]);
 
@@ -287,7 +289,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
         // addPoll remplace si l'ID existe déjà
         addPoll(currentPoll as StoragePoll);
       } catch (error) {
-        console.error("❌ Erreur sauvegarde:", error);
+        logger.error("Erreur sauvegarde", error);
       }
     }, 500);
 
@@ -407,7 +409,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
         // Ouvrir l'éditeur dans le panneau de droite
         openEditor(poll as any);
       } catch (error) {
-        console.error("❌ Erreur lors de la sauvegarde:", error);
+        logger.error("Erreur lors de la sauvegarde", error);
       }
     },
     [openEditor, conversationId],
@@ -468,7 +470,10 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 export function useConversation() {
   const context = useContext(ConversationContext);
   if (context === undefined) {
-    throw new Error("useConversation must be used within ConversationProvider");
+    throw ErrorFactory.validation(
+      "useConversation must be used within ConversationProvider",
+      "Hook utilisé hors contexte"
+    );
   }
   return context;
 }
