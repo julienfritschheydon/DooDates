@@ -13,6 +13,7 @@
  */
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { ErrorFactory } from "@/lib/error-handling";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export interface UIStateContextType {
@@ -167,7 +168,10 @@ export function useUIState(): UIStateContextType {
   const context = useContext(UIStateContext);
   
   if (!context) {
-    throw new Error("useUIState must be used within UIStateProvider");
+    throw ErrorFactory.validation(
+      "useUIState must be used within UIStateProvider",
+      "Une erreur s'est produite lors de l'initialisation de l'interface"
+    );
   }
   
   return context;
