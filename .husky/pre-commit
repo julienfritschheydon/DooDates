@@ -60,8 +60,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 6. Formatage automatique
-echo "💅 Formatage du code..."
-npm run format
+# 6. Formatage automatique (optionnel)
+# Désactivez avec NO_FORMAT=1 pour éviter les changements automatiques
+if [ "$NO_FORMAT" != "1" ]; then
+  echo "💅 Formatage du code..."
+  npm run format
+else
+  echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
+fi
 
 echo "✅ Pre-commit validé - Commit autorisé"
