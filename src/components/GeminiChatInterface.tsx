@@ -149,10 +149,15 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
   ) => {
     // Utiliser les hooks spécialisés pour la persistance
     const messages = useConversationMessages();
-    const { setMessages } = useConversationActions();
+    const { setMessages: setMessagesRaw } = useConversationActions();
     const { currentPoll } = useEditorState();
-    const { dispatchPollAction, openEditor } = useEditorActions();
+    const { dispatchPollAction, openEditor, setCurrentPoll } = useEditorActions();
     const { setModifiedQuestion } = useUIState();
+
+    // Wrapper pour éviter les erreurs de type PollSuggestion (conflit gemini.ts vs ConversationService.ts)
+    const setMessages = useCallback((updater: any) => {
+      setMessagesRaw(updater as any);
+    }, [setMessagesRaw]);
 
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -1045,7 +1050,8 @@ Exemples de modifications supportées :
               // Auto-ouvrir la preview du formulaire créé si disponible
               if (savedPoll) {
                 try {
-                  openEditor(savedPoll as any);
+                  setCurrentPoll(savedPoll as any);
+                  openEditor();
                 } catch {}
               }
               setShowPollCreator(false);
@@ -1218,10 +1224,10 @@ Exemples de modifications supportées :
 
                         <div className="space-y-3">
                           {/* Affichage conditionnel selon le type */}
-                          {message.pollSuggestion.type === "form" ? (
+                          {(message.pollSuggestion as any).type === "form" ? (
                             /* Affichage Form Poll (questionnaire) - MÊME DESIGN QUE DATE POLL */
                             <div className="space-y-2 md:space-y-3">
-                              {message.pollSuggestion.questions?.map((question, idx) => (
+                              {(message.pollSuggestion as any).questions?.map((question: any, idx: number) => (
                                 <div key={idx} className="bg-[#3c4043] rounded-lg p-3 md:p-4">
                                   <div className="flex items-start gap-2 md:gap-3">
                                     <div className="flex-1 min-w-0">
@@ -1323,7 +1329,7 @@ Exemples de modifications supportées :
                               try {
                                 if (currentPoll) {
                                   console.log("✅ Ouverture via currentPoll");
-                                  openEditor(currentPoll as any);
+                                  openEditor();
                                   return;
                                 }
                                 if (linkedPollId && linkedPollId !== "generated") {
@@ -1332,7 +1338,8 @@ Exemples de modifications supportées :
                                   console.log("🔍 Poll trouvé:", p);
                                   if (p) {
                                     console.log("✅ Ouverture via linkedPollId");
-                                    openEditor(p as any);
+                                    setCurrentPoll(p as any);
+                                    openEditor();
                                     return;
                                   }
                                 }
@@ -1350,7 +1357,7 @@ Exemples de modifications supportées :
                             className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-indigo-500 hover:bg-indigo-600"
                           >
                             <span>
-                              {message.pollSuggestion.type === "form"
+                              {(message.pollSuggestion as any).type === "form"
                                 ? "Voir le formulaire"
                                 : "Voir le sondage"}
                             </span>
@@ -1364,7 +1371,7 @@ Exemples de modifications supportées :
                             className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-blue-500 hover:bg-blue-600"
                           >
                             <span>
-                              {message.pollSuggestion.type === "form"
+                              {(message.pollSuggestion as any).type === "form"
                                 ? "Créer ce formulaire"
                                 : "Créer ce sondage"}
                             </span>

@@ -111,7 +111,7 @@ test.describe('Edge Cases and Error Handling', () => {
             localStorage.setItem(`large_data_${i}`, largeData);
           }
         } catch (e) {
-          console.log('Expected error when filling localStorage:', e.message);
+          console.log('Expected error when filling localStorage:', (e as Error).message);
           throw e; // Re-throw to be caught by the outer try-catch
         }
       });

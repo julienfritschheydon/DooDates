@@ -21,13 +21,10 @@ import React, {
   ReactNode,
 } from "react";
 import { ErrorFactory, logError } from "@/lib/error-handling";
+import type { Message } from "@/services/ConversationService";
 
-export interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-}
+// Re-export pour faciliter l'import
+export type { Message };
 
 export interface ConversationStateContextType {
   // État conversation
@@ -37,7 +34,7 @@ export interface ConversationStateContextType {
   // Actions
   setConversationId: (id: string | null) => void;
   addMessage: (message: Omit<Message, "id" | "timestamp">) => void;
-  setMessages: (messages: Message[]) => void;
+  setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
   clearMessages: () => void;
 }
 
