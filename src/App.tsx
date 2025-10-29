@@ -345,23 +345,23 @@ const App = () => {
                       {/* ConversationProvider LEGACY - À migrer progressivement */}
                       <ConversationProvider>
                         <Routes>
-                      {/* Route / vers WorkspacePage (AI-First UX) */}
-                      <Route path="/" element={<WorkspacePage />} />
+                          {/* Route / vers WorkspacePage (AI-First UX) */}
+                          <Route path="/" element={<WorkspacePage />} />
 
-                      {/* Redirections vers / */}
-                      <Route path="/workspace" element={<WorkspacePage />} />
-                      <Route path="/dashboard" element={<WorkspacePage />} />
+                          {/* Redirections vers / */}
+                          <Route path="/workspace" element={<WorkspacePage />} />
+                          <Route path="/dashboard" element={<WorkspacePage />} />
 
-                      <Route path="/auth" element={<Auth />} />
-                      <Route path="/auth/callback" element={<AuthCallback />} />
-                      <Route path="/poll/:slug" element={<Vote />} />
-                      <Route path="/poll/:slug/results" element={<Results />} />
-                      <Route path="/vote/:pollId" element={<Vote />} />
-                      <Route path="/create" element={<CreateChooser />} />
-                      <Route path="/create/date" element={<DateCreator />} />
-                      <Route path="/create/form" element={<FormCreator />} />
-                      <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
-                      <Route path="*" element={<NotFound />} />
+                          <Route path="/auth" element={<Auth />} />
+                          <Route path="/auth/callback" element={<AuthCallback />} />
+                          <Route path="/poll/:slug" element={<Vote />} />
+                          <Route path="/poll/:slug/results" element={<Results />} />
+                          <Route path="/vote/:pollId" element={<Vote />} />
+                          <Route path="/create" element={<CreateChooser />} />
+                          <Route path="/create/date" element={<DateCreator />} />
+                          <Route path="/create/form" element={<FormCreator />} />
+                          <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
+                          <Route path="*" element={<NotFound />} />
                         </Routes>
                       </ConversationProvider>
                     </EditorStateProvider>
