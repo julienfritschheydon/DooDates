@@ -148,7 +148,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     const messages = useConversationMessages();
     const { setMessages: setMessagesRaw } = useConversationActions();
     const { currentPoll } = useEditorState();
-    const { dispatchPollAction, openEditor, setCurrentPoll, createPollFromChat } = useEditorActions();
+    const { dispatchPollAction, openEditor, setCurrentPoll, createPollFromChat } =
+      useEditorActions();
     const { setModifiedQuestion } = useUIState();
 
     // Wrapper pour éviter les erreurs de type PollSuggestion (conflit gemini.ts vs ConversationService.ts)
