@@ -10,13 +10,15 @@
 ### ✅ Résultats Actuels
 
 ```
-🎯 Tests Unitaires (Vitest)    : 575/588 passent (98%)
+🎯 Tests Unitaires (Vitest)    : 571/577 passent (99%)
 🤖 Tests IA (Gemini/Jest)      : 14/15 passent (93%)
 🌐 Tests E2E (Playwright)      : 16/20 passent (80%, 4 skipped mobile)
-📈 SCORE GLOBAL                : 96%
+📈 SCORE GLOBAL                : 97%
 ```
 
 **Status** : ✅ **PRODUCTION-READY** - Protection multi-niveaux active
+
+**Dernière mise à jour** : 30/10/2025 - Suppression tests providers redondants
 
 ---
 
@@ -485,12 +487,14 @@ On utilise une approche alternative gratuite mais efficace :
 
 ### Tests Désactivés
 
-**Tests unitaires** : 5 tests échouent actuellement (non-bloquants)
+**Tests unitaires** : 1 test échoue actuellement (non-bloquant)
 - `useAiMessageQuota.test.ts` - Import manquant
-- `providers-integration.test.tsx` - Router context manquant
+- ~~`providers-integration.test.tsx`~~ - ✅ **SUPPRIMÉ** (30/10/2025) - Redondant avec E2E
 
 **Tests E2E** : 4 tests skippés sur mobile
 - `form-poll-regression.spec.ts` Tests #2, #3 - Textarea caché par z-index
+
+**Note** : Les providers (`ConversationStateProvider`, `EditorStateProvider`) sont validés par les tests E2E Playwright qui couvrent les workflows complets utilisateur.
 
 ### Maintenance
 
