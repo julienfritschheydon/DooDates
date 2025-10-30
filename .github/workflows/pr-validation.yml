@@ -1,6 +1,8 @@
 on:
   pull_request:
     branches: [main, develop]
+  push:
+    branches: [test/workflows-validation]
 
 jobs:
   # Job 1: Tests Rapides (Parallèle)
