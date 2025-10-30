@@ -1086,8 +1086,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
               ) : null;
             })()}
 
-            {/* Aperçu en direct du sondage (lecture seule) - MASQUÉ */}
-            {false && state.selectedDates.length > 0 && (
+            {/* Aperçu en direct du sondage (lecture seule) - MASQUÉ 
+            {state.selectedDates.length > 0 && (
               <div className="mt-8">
                 <div className="bg-[#1e1e1e] border border-gray-700 rounded-2xl shadow-sm">
                   <div className="px-4 py-3 border-b border-gray-700 bg-[#0a0a0a] rounded-t-2xl">
@@ -1128,12 +1128,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           votes={emptyVotes}
                           currentVote={currentVote}
                           userHasVoted={userHasVoted}
-                          onVoteChange={() => {
-                            /* lecture seule */
-                          }}
-                          onHaptic={() => {
-                            /* désactivé */
-                          }}
+                          onVoteChange={() => {}}
+                          onHaptic={() => {}}
                         />
                       );
                     })()}
@@ -1141,6 +1137,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 </div>
               </div>
             )}
+            */}
 
             {/* Bouton Partager - Toujours visible */}
             <div className="mt-8">

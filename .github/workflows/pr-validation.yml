@@ -130,12 +130,10 @@ jobs:
         run: npm ci
       
       - name: Lint check
-        run: npm run lint || echo "Lint errors ignored for test branch"
-        continue-on-error: true
+        run: npm run lint
       
       - name: Format check
-        run: npm run format:check || echo "Format errors ignored for test branch"
-        continue-on-error: true
+        run: npm run format:check
       
       - name: Security audit
         run: npm audit --audit-level moderate

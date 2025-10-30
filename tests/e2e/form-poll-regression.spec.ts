@@ -65,7 +65,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
     }
   });
 
-  test.skip('RÉGRESSION #1 : Créer Form Poll avec 1 question via IA @smoke @critical', async ({ page }) => {
+  test('RÉGRESSION #1 : Créer Form Poll avec 1 question via IA @smoke @critical', async ({ page }) => {
     const log = mkLogger('FormPoll-Create');
     
     try {
@@ -179,7 +179,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
     }
   });
 
-  test.skip('RÉGRESSION #2 : Ajouter une question via IA @functional', async ({ page, isMobile }) => {
+  test('RÉGRESSION #2 : Ajouter une question via IA @functional', async ({ page, isMobile }) => {
     // Skip sur mobile : le textarea est caché par le z-index de l'éditeur
     test.skip(isMobile, 'Textarea caché par z-index sur mobile');
     
@@ -274,7 +274,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
     }
   });
 
-  test.skip('RÉGRESSION #3 : Supprimer une question @functional', async ({ page, isMobile }) => {
+  test('RÉGRESSION #3 : Supprimer une question @functional', async ({ page, isMobile }) => {
     // Skip sur mobile : le textarea est caché par le z-index de l'éditeur
     test.skip(isMobile, 'Textarea caché par z-index sur mobile');
     
@@ -342,7 +342,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
     }
   });
 
-  test.skip('RÉGRESSION #4 : Reprendre conversation après refresh @functional', async ({ page }) => {
+  test('RÉGRESSION #4 : Reprendre conversation après refresh @functional', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,

@@ -15,11 +15,11 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import { useAiMessageQuota } from "../useAiMessageQuota";
 
 // Mock useAuth
-vi.mock("../useAuth", () => ({
+vi.mock("@/contexts/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
 
-const mockUseAuth = vi.mocked(await import("../useAuth")).useAuth;
+const mockUseAuth = vi.mocked(await import("@/contexts/AuthContext")).useAuth;
 
 describe("useAiMessageQuota", () => {
   beforeEach(() => {
@@ -32,11 +32,11 @@ describe("useAiMessageQuota", () => {
     // Default: guest user
     mockUseAuth.mockReturnValue({
       user: null,
-      isLoading: false,
+      loading: false,
       signIn: vi.fn(),
       signOut: vi.fn(),
       signUp: vi.fn(),
-    });
+    } as any);
   });
 
   afterEach(() => {
@@ -64,12 +64,19 @@ describe("useAiMessageQuota", () => {
   describe("Authenticated User Limits", () => {
     beforeEach(() => {
       mockUseAuth.mockReturnValue({
-        user: { id: "user-1", email: "test@example.com" },
+        user: {
+          id: "user-1",
+          email: "test@example.com",
+          app_metadata: {},
+          user_metadata: {},
+          aud: "authenticated",
+          created_at: new Date().toISOString(),
+        },
         isLoading: false,
         signIn: vi.fn(),
         signOut: vi.fn(),
         signUp: vi.fn(),
-      });
+      } as any);
     });
 
     it("should have 200 AI messages limit for authenticated", () => {
@@ -286,12 +293,19 @@ describe("useAiMessageQuota", () => {
   describe("Monthly Reset for Authenticated Users", () => {
     beforeEach(() => {
       mockUseAuth.mockReturnValue({
-        user: { id: "user-1", email: "test@example.com" },
+        user: {
+          id: "user-1",
+          email: "test@example.com",
+          app_metadata: {},
+          user_metadata: {},
+          aud: "authenticated",
+          created_at: new Date().toISOString(),
+        },
         isLoading: false,
         signIn: vi.fn(),
         signOut: vi.fn(),
         signUp: vi.fn(),
-      });
+      } as any);
     });
 
     it("should initialize reset date for authenticated users", () => {
