@@ -221,7 +221,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         });
       },
     });
-    
+
     // Utiliser le hook externe si fourni, sinon utiliser le hook interne
     const voiceRecognition = externalVoiceRecognition || internalVoiceRecognition;
 

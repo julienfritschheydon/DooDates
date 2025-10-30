@@ -77,10 +77,10 @@ interface UseIntentDetectionOptions {
  */
 export function useIntentDetection(options: UseIntentDetectionOptions) {
   const { currentPoll, onDispatchAction } = options;
-  
+
   // Stocker le callback dans une ref pour éviter les re-créations
   const onDispatchActionRef = useRef(onDispatchAction);
-  
+
   useEffect(() => {
     onDispatchActionRef.current = onDispatchAction;
   }, [onDispatchAction]);

@@ -28,7 +28,7 @@ describe("IntentDetectionService", () => {
 
   // Helper pour vérifier qu'une date correspond à un jour de la semaine
   function isWeekday(dateStr: string, dayName: string): boolean {
-    const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    const days = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
     const targetDay = days.indexOf(dayName.toLowerCase());
     const date = new Date(dateStr);
     return date.getDay() === targetDay;
@@ -37,8 +37,8 @@ describe("IntentDetectionService", () => {
   // Helper pour formater une date en YYYY-MM-DD
   function formatDate(date: Date): string {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
 
@@ -87,7 +87,7 @@ describe("IntentDetectionService", () => {
       const intent = IntentDetectionService.detectSimpleIntent("ajoute 14h-15h le 29", mockPoll);
 
       expect(intent?.payload.date).toMatch(/^\d{4}-\d{2}-29$/); // Format YYYY-MM-29
-      expect(intent?.payload.date.endsWith('-29')).toBe(true);
+      expect(intent?.payload.date.endsWith("-29")).toBe(true);
     });
   });
 
@@ -97,7 +97,7 @@ describe("IntentDetectionService", () => {
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(isWeekday(intent!.payload, 'mercredi')).toBe(true);
+      expect(isWeekday(intent!.payload, "mercredi")).toBe(true);
       expect(intent?.confidence).toBe(0.9);
     });
 
@@ -106,7 +106,7 @@ describe("IntentDetectionService", () => {
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(isWeekday(intent!.payload, 'lundi')).toBe(true);
+      expect(isWeekday(intent!.payload, "lundi")).toBe(true);
     });
 
     it('détecte "ajoute le dimanche"', () => {
@@ -114,15 +114,18 @@ describe("IntentDetectionService", () => {
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(isWeekday(intent!.payload, 'dimanche')).toBe(true);
+      expect(isWeekday(intent!.payload, "dimanche")).toBe(true);
     });
   });
 
   describe("ADD_DATE (Formats multiples)", () => {
     it('détecte "ajoute le DD/MM/YYYY" (format complet)', () => {
       const testDate = getTestDate(3);
-      const [year, month, day] = testDate.split('-');
-      const intent = IntentDetectionService.detectSimpleIntent(`ajoute le ${day}/${month}/${year}`, mockPoll);
+      const [year, month, day] = testDate.split("-");
+      const intent = IntentDetectionService.detectSimpleIntent(
+        `ajoute le ${day}/${month}/${year}`,
+        mockPoll,
+      );
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toBe(getTestDate(3)); // 27 oct
@@ -134,7 +137,7 @@ describe("IntentDetectionService", () => {
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-\d{2}-27$/); // Format YYYY-MM-27
-      expect(intent?.payload.endsWith('-27')).toBe(true);
+      expect(intent?.payload.endsWith("-27")).toBe(true);
     });
 
     it('détecte "ajoute le 27/10" (sans année)', () => {
@@ -142,14 +145,16 @@ describe("IntentDetectionService", () => {
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-\d{2}-27$/); // Format YYYY-MM-27
-      expect(parseInt(intent!.payload.split('-')[0])).toBeGreaterThanOrEqual(new Date().getFullYear());
+      expect(parseInt(intent!.payload.split("-")[0])).toBeGreaterThanOrEqual(
+        new Date().getFullYear(),
+      );
     });
 
     it('détecte "ajoute le DD mois YYYY" (mois en texte)', () => {
       const testDate = getTestDate(3);
       const date = new Date(testDate);
       const day = date.getDate();
-      const month = date.toLocaleDateString('fr-FR', { month: 'long' });
+      const month = date.toLocaleDateString("fr-FR", { month: "long" });
       const year = date.getFullYear();
       const intent = IntentDetectionService.detectSimpleIntent(
         `ajoute le ${day} ${month} ${year}`,
@@ -173,7 +178,7 @@ describe("IntentDetectionService", () => {
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-\d{2}-30$/); // Format YYYY-MM-30
-      expect(intent?.payload.endsWith('-30')).toBe(true);
+      expect(intent?.payload.endsWith("-30")).toBe(true);
     });
   });
 
@@ -183,7 +188,7 @@ describe("IntentDetectionService", () => {
 
       expect(intent?.action).toBe("REMOVE_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(isWeekday(intent!.payload, 'mercredi')).toBe(true);
+      expect(isWeekday(intent!.payload, "mercredi")).toBe(true);
     });
 
     it('détecte "supprime le lundi"', () => {
@@ -191,7 +196,7 @@ describe("IntentDetectionService", () => {
 
       expect(intent?.action).toBe("REMOVE_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(isWeekday(intent!.payload, 'lundi')).toBe(true);
+      expect(isWeekday(intent!.payload, "lundi")).toBe(true);
     });
 
     it('détecte "enlève mardi"', () => {
@@ -199,7 +204,7 @@ describe("IntentDetectionService", () => {
 
       expect(intent?.action).toBe("REMOVE_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(isWeekday(intent!.payload, 'mardi')).toBe(true);
+      expect(isWeekday(intent!.payload, "mardi")).toBe(true);
     });
   });
 
@@ -209,13 +214,16 @@ describe("IntentDetectionService", () => {
 
       expect(intent?.action).toBe("REMOVE_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-\d{2}-29$/); // Format YYYY-MM-29
-      expect(intent?.payload.endsWith('-29')).toBe(true);
+      expect(intent?.payload.endsWith("-29")).toBe(true);
     });
 
     it('détecte "supprime le DD/MM/YYYY"', () => {
       const testDate = getTestDate(3);
-      const [year, month, day] = testDate.split('-');
-      const intent = IntentDetectionService.detectSimpleIntent(`supprime le ${day}/${month}/${year}`, mockPoll);
+      const [year, month, day] = testDate.split("-");
+      const intent = IntentDetectionService.detectSimpleIntent(
+        `supprime le ${day}/${month}/${year}`,
+        mockPoll,
+      );
 
       expect(intent?.action).toBe("REMOVE_DATE");
       expect(intent?.payload).toBe(getTestDate(3)); // 27 oct
@@ -225,7 +233,7 @@ describe("IntentDetectionService", () => {
       const testDate = getTestDate(3);
       const date = new Date(testDate);
       const day = date.getDate();
-      const month = date.toLocaleDateString('fr-FR', { month: 'long' });
+      const month = date.toLocaleDateString("fr-FR", { month: "long" });
       const year = date.getFullYear();
       const intent = IntentDetectionService.detectSimpleIntent(
         `enlève le ${day} ${month} ${year}`,

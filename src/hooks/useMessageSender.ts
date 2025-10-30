@@ -105,10 +105,10 @@ export function useMessageSender(options: UseMessageSenderOptions) {
     setLastAIProposal,
     setModifiedQuestion,
   } = options;
-  
+
   // Stocker le callback dans une ref pour éviter les re-créations
   const onUserMessageRef = useRef(onUserMessage);
-  
+
   useEffect(() => {
     onUserMessageRef.current = onUserMessage;
   }, [onUserMessage]);

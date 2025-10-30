@@ -19,10 +19,10 @@ import { logger } from "../lib/logger";
 const ACTION_PATTERNS = {
   // Actions d'ajout
   ADD: /(?:r?ajout(?:e|er)|met(?:s|tre)?|inclus|propose|suggère)(?:\s+aussi|\s+encore)?/i,
-  
+
   // Actions de suppression
   REMOVE: /(?:retire|supprime|enl[èe]ve|vire|oublie|annule|efface)/i,
-  
+
   // Modification de titre
   UPDATE_TITLE: /(?:renomme|change\s+le\s+titre)\s+en\s+(.+)/i,
 } as const;
@@ -58,7 +58,10 @@ export class IntentDetectionService {
 
     // Découper la phrase sur les conjonctions
     const separators = /\s+et\s+|\s*,\s*|\s+puis\s+/i;
-    const parts = message.split(separators).map((p) => p.trim()).filter((p) => p.length > 0);
+    const parts = message
+      .split(separators)
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0);
 
     // Si une seule partie, utiliser detectSimpleIntent
     if (parts.length === 1) {
@@ -88,12 +91,12 @@ export class IntentDetectionService {
     const intents: ModificationIntent[] = [];
     for (let i = 0; i < parts.length; i++) {
       let part = parts[i];
-      
+
       // Si la partie n'a pas de verbe d'action, ajouter celui de la phrase originale
       if (actionVerb && !ACTION_PATTERNS.ADD.test(part) && !ACTION_PATTERNS.REMOVE.test(part)) {
         part = `${actionVerb} ${part}`;
       }
-      
+
       const intent = this.detectSimpleIntent(part, currentPoll);
       if (intent) {
         intents.push(intent);
@@ -140,7 +143,7 @@ export class IntentDetectionService {
 
     // 1. Détecter l'ACTION
     let action: "ADD_DATE" | "REMOVE_DATE" | "UPDATE_TITLE" | null = null;
-    
+
     if (ACTION_PATTERNS.ADD.test(message)) {
       action = "ADD_DATE";
     } else if (ACTION_PATTERNS.REMOVE.test(message)) {
@@ -170,27 +173,51 @@ export class IntentDetectionService {
 
     // 1.5. Détecter les CRÉNEAUX HORAIRES avant Chrono (patterns spécifiques)
     // Pattern: "ajoute 14h-15h le 29" ou "ajoute de 14h à 15h le 29"
-    const timeslotPattern1 = /(\d{1,2})h?(\d{2})?\s*[-–]\s*(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i;
-    const timeslotPattern2 = /de\s+(\d{1,2})h?(\d{2})?\s+[àa]\s+(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i;
-    const timeslotPattern3 = /le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)\s+de\s+(\d{1,2})h?(\d{2})?\s+[àa]\s+(\d{1,2})h?(\d{2})?/i;
+    const timeslotPattern1 =
+      /(\d{1,2})h?(\d{2})?\s*[-–]\s*(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i;
+    const timeslotPattern2 =
+      /de\s+(\d{1,2})h?(\d{2})?\s+[àa]\s+(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i;
+    const timeslotPattern3 =
+      /le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)\s+de\s+(\d{1,2})h?(\d{2})?\s+[àa]\s+(\d{1,2})h?(\d{2})?/i;
     const timeslotPattern4 = /(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i;
 
     let timeslotMatch = message.match(timeslotPattern1);
     if (timeslotMatch && action === "ADD_DATE") {
       const [, startHour, startMinute = "00", endHour, endMinute = "00", dateStr] = timeslotMatch;
-      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute, currentPoll);
+      return this.buildTimeslotIntent(
+        dateStr,
+        startHour,
+        startMinute,
+        endHour,
+        endMinute,
+        currentPoll,
+      );
     }
 
     timeslotMatch = message.match(timeslotPattern2);
     if (timeslotMatch && action === "ADD_DATE") {
       const [, startHour, startMinute = "00", endHour, endMinute = "00", dateStr] = timeslotMatch;
-      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute, currentPoll);
+      return this.buildTimeslotIntent(
+        dateStr,
+        startHour,
+        startMinute,
+        endHour,
+        endMinute,
+        currentPoll,
+      );
     }
 
     timeslotMatch = message.match(timeslotPattern3);
     if (timeslotMatch && action === "ADD_DATE") {
       const [, dateStr, startHour, startMinute = "00", endHour, endMinute = "00"] = timeslotMatch;
-      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute, currentPoll);
+      return this.buildTimeslotIntent(
+        dateStr,
+        startHour,
+        startMinute,
+        endHour,
+        endMinute,
+        currentPoll,
+      );
     }
 
     timeslotMatch = message.match(timeslotPattern4);
@@ -198,7 +225,14 @@ export class IntentDetectionService {
       const [, startHour, startMinute = "00", dateStr] = timeslotMatch;
       const endHour = String(parseInt(startHour) + 1); // +1h par défaut
       const endMinute = startMinute;
-      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute, currentPoll);
+      return this.buildTimeslotIntent(
+        dateStr,
+        startHour,
+        startMinute,
+        endHour,
+        endMinute,
+        currentPoll,
+      );
     }
 
     // 2. Parser les DATES avec Chrono.js (français)
@@ -214,21 +248,18 @@ export class IntentDetectionService {
     let enhancedMessage = message;
     const dayOnlyPattern = /\ble\s+(\d{1,2})\b(?!\s*[/:h-])/i;
     const dayOnlyMatch = message.match(dayOnlyPattern);
-    
+
     if (dayOnlyMatch) {
       const dayNumber = parseInt(dayOnlyMatch[1]);
-      
+
       // Valider que c'est un jour valide (1-31)
       if (dayNumber >= 1 && dayNumber <= 31) {
-        const refMonth = referenceDate.toLocaleDateString('fr-FR', { month: 'long' });
+        const refMonth = referenceDate.toLocaleDateString("fr-FR", { month: "long" });
         const refYear = referenceDate.getFullYear();
-        
+
         // Remplacer "le 27" par "le 27 octobre 2025"
-        enhancedMessage = message.replace(
-          dayOnlyPattern,
-          `le ${dayNumber} ${refMonth} ${refYear}`
-        );
-        
+        enhancedMessage = message.replace(dayOnlyPattern, `le ${dayNumber} ${refMonth} ${refYear}`);
+
         logger.info("🔧 Jour seul détecté et amélioré", "poll", {
           original: message,
           enhanced: enhancedMessage,
@@ -238,24 +269,25 @@ export class IntentDetectionService {
         });
       }
     }
-    
+
     // 🔧 FIX 2: Détecter "jour de la semaine + numéro" et construire une date explicite
     // Ex: "dimanche 16" → "dimanche 16 novembre" (en utilisant le mois de référence)
-    const dayWithNumberPattern = /(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+(\d{1,2})\b/i;
+    const dayWithNumberPattern =
+      /(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+(\d{1,2})\b/i;
     const dayNumberMatch = enhancedMessage.match(dayWithNumberPattern);
-    
+
     if (dayNumberMatch) {
       const dayName = dayNumberMatch[1];
       const dayNumber = dayNumberMatch[2];
-      const refMonth = referenceDate.toLocaleDateString('fr-FR', { month: 'long' });
+      const refMonth = referenceDate.toLocaleDateString("fr-FR", { month: "long" });
       const refYear = referenceDate.getFullYear();
-      
+
       // Remplacer "dimanche 16" par "dimanche 16 novembre 2025"
       enhancedMessage = enhancedMessage.replace(
         dayWithNumberPattern,
-        `${dayName} ${dayNumber} ${refMonth} ${refYear}`
+        `${dayName} ${dayNumber} ${refMonth} ${refYear}`,
       );
-      
+
       logger.info("🔧 Message amélioré pour Chrono", "poll", {
         original: message,
         enhanced: enhancedMessage,
@@ -267,7 +299,11 @@ export class IntentDetectionService {
     const parsedDates = chrono.fr.parse(enhancedMessage, referenceDate, { forwardDate: true });
 
     if (parsedDates.length === 0) {
-      logger.warn("❌ Aucune date détectée par Chrono", "poll", { message, enhancedMessage, referenceDate: referenceDate.toISOString() });
+      logger.warn("❌ Aucune date détectée par Chrono", "poll", {
+        message,
+        enhancedMessage,
+        referenceDate: referenceDate.toISOString(),
+      });
       return null;
     }
 
@@ -282,9 +318,10 @@ export class IntentDetectionService {
       action: action,
       payload: normalizedDate,
       confidence: 0.9,
-      explanation: action === "ADD_DATE" 
-        ? `Ajout de la date ${normalizedDate.split("-").reverse().join("/")}`
-        : `Suppression de la date ${normalizedDate.split("-").reverse().join("/")}`,
+      explanation:
+        action === "ADD_DATE"
+          ? `Ajout de la date ${normalizedDate.split("-").reverse().join("/")}`
+          : `Suppression de la date ${normalizedDate.split("-").reverse().join("/")}`,
     };
 
     logger.info(`✅ Intention détectée via Chrono.js`, "poll", {

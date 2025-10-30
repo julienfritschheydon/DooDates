@@ -98,7 +98,7 @@ export function useVoiceRecognition(
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const finalTranscriptRef = useRef<string>("");  // Ref pour persister entre les sessions
+  const finalTranscriptRef = useRef<string>(""); // Ref pour persister entre les sessions
   const onTranscriptChangeRef = useRef(onTranscriptChange);
   const onErrorRef = useRef(onError);
 
@@ -135,7 +135,6 @@ export function useVoiceRecognition(
     };
 
     recognition.onend = () => {
-      
       // Configuration stable : PAS de redémarrage automatique
       // Voir voiceRecognition.config.ts pour l'explication
       if (VOICE_RECOGNITION_CONFIG.autoRestart && continuous && isListening) {
@@ -147,9 +146,9 @@ export function useVoiceRecognition(
             logError(
               ErrorFactory.api(
                 `Impossible de redémarrer la reconnaissance vocale: ${error}`,
-                "Erreur lors du redémarrage automatique"
+                "Erreur lors du redémarrage automatique",
               ),
-              { component: "voice-recognition", operation: "auto-restart" }
+              { component: "voice-recognition", operation: "auto-restart" },
             );
             setIsListening(false);
           }
@@ -209,17 +208,17 @@ export function useVoiceRecognition(
       // Boucler depuis resultIndex (pas depuis 0)
       let finalText = "";
       let interimText = "";
-      
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
-        
+
         if (event.results[i].isFinal) {
           finalText += transcript;
         } else {
           interimText += transcript;
         }
       }
-      
+
       // Accumuler les résultats finaux avec la ref
       if (finalText) {
         finalTranscriptRef.current += finalText + " ";
@@ -228,7 +227,7 @@ export function useVoiceRecognition(
           onTranscriptChangeRef.current(finalText);
         }
       }
-      
+
       setInterimTranscript(interimText);
     };
 
@@ -252,11 +251,11 @@ export function useVoiceRecognition(
       recognition.start();
     } catch (err: any) {
       // Ignorer l'erreur si déjà démarré
-      if (err.message?.includes('already started')) {
-        console.log('⚠️ Reconnaissance déjà active');
+      if (err.message?.includes("already started")) {
+        console.log("⚠️ Reconnaissance déjà active");
         return;
       }
-      
+
       logError(
         ErrorFactory.api("Erreur démarrage reconnaissance vocale", "Impossible de démarrer"),
         { metadata: { error: err } },
