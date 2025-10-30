@@ -64,27 +64,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: 'Nightly Regression Tests Failed - ' + new Date().toISOString().split('T')[0],
-                body: `## Tests de Régression Échoués
-
-Les tests de régression nocturnes ont échoué.
-
-Date: ${new Date().toISOString()}
-Workflow: [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})
-
-### Actions à prendre:
-- Consulter les rapports Playwright dans les artifacts
-- Identifier les tests qui échouent
-- Corriger les régressions identifiées
-- Re-exécuter les tests manuellement
-
-### Rapports disponibles:
-- Chromium
-- Firefox
-- WebKit
-- Mobile Chrome
-- Mobile Safari
-
-Cette issue sera automatiquement fermée lors du prochain succès.`,
+                body: 'Tests de regression nocturnes echoues. Date: ' + new Date().toISOString() + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
                 labels: ['bug', 'regression', 'automated']
               });
             }

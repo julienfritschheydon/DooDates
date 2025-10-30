@@ -42,26 +42,8 @@ jobs:
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'Post-Merge Smoke Tests Failed on Main Branch',
-              body: `## Tests Critiques Échoués Après Merge
-
-URGENT: Les tests smoke ont échoué sur la branche main après un merge.
-
-Commit: ${context.sha}
-Auteur: ${context.payload.pusher.name}
-Workflow: [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})
-
-### Actions immédiates requises:
-- NE PAS merger d'autres PRs jusqu'à résolution
-- Consulter le rapport Playwright dans les artifacts
-- Identifier la cause de l'échec
-- Corriger en priorité ou revert le commit problématique
-
-### Commit concerné:
-${context.payload.head_commit.message}
-
-Cette situation indique que les tests PR n'ont pas détecté un problème critique.
-Il faut investiguer pourquoi les tests PR ont passé mais les tests post-merge échouent.`,
+              title: 'Post-Merge Smoke Tests Failed',
+              body: 'Tests smoke echoues sur main. Commit: ' + context.sha + ' - Auteur: ' + context.payload.pusher.name + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
               labels: ['critical', 'bug', 'main-branch', 'automated'],
               assignees: ['${context.payload.pusher.name}']
             });
@@ -105,28 +87,8 @@ Il faut investiguer pourquoi les tests PR ont passé mais les tests post-merge �
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'Post-Merge Functional Tests Failed on Main Branch',
-              body: `## Tests Fonctionnels Échoués Après Merge
-              
-Les tests fonctionnels ont échoué sur la branche main après un merge.
-
-**Commit:** ${context.sha}
-**Auteur:** ${context.payload.pusher.name}
-**Workflow:** [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})
-
-### Note:
-Les tests smoke ont passé, mais les tests fonctionnels ont échoué.
-Cela indique un problème dans un parcours utilisateur complet.
-
-### Actions requises:
-1. Consulter le rapport Playwright dans les artifacts
-2. Identifier le parcours utilisateur qui échoue
-3. Corriger ou revert si critique
-
-### Commit concerné:
-\`\`\`
-${context.payload.head_commit.message}
-\`\`\``,
+              title: 'Post-Merge Functional Tests Failed',
+              body: 'Tests fonctionnels echoues sur main. Commit: ' + context.sha + ' - Auteur: ' + context.payload.pusher.name + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
               labels: ['bug', 'main-branch', 'automated'],
               assignees: ['${context.payload.pusher.name}']
             });
