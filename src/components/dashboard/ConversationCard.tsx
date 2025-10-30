@@ -1,13 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Calendar,
-  ClipboardList,
-  MessageSquare,
-  Users,
-  Vote,
-  BarChart3,
-} from "lucide-react";
+import { Calendar, ClipboardList, MessageSquare, Users, Vote, BarChart3 } from "lucide-react";
 import { ConversationItem } from "./types";
 import { getStatusColor, getStatusLabel } from "./utils";
 import PollActions from "@/components/polls/PollActions";
@@ -17,10 +10,7 @@ interface ConversationCardProps {
   onRefresh: () => void;
 }
 
-export const ConversationCard: React.FC<ConversationCardProps> = ({
-  item,
-  onRefresh,
-}) => {
+export const ConversationCard: React.FC<ConversationCardProps> = ({ item, onRefresh }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
@@ -59,9 +49,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
 
                 {/* Description du poll */}
                 {item.poll.description && (
-                  <p className="text-gray-400 text-sm mb-3 line-clamp-2">
-                    {item.poll.description}
-                  </p>
+                  <p className="text-gray-400 text-sm mb-3 line-clamp-2">{item.poll.description}</p>
                 )}
               </>
             )}
@@ -102,9 +90,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
             {/* Meilleures dates (pour sondages de dates) */}
             {item.poll.topDates && item.poll.topDates.length > 0 ? (
               <div className="mb-3">
-                <div className="text-xs text-gray-400 mb-2 font-medium">
-                  🏆 Dates populaires :
-                </div>
+                <div className="text-xs text-gray-400 mb-2 font-medium">🏆 Dates populaires :</div>
                 <div className="flex flex-wrap gap-2">
                   {item.poll.topDates.map((dateInfo, index) => (
                     <span
@@ -117,9 +103,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                     >
                       {index === 0 && "⭐ "}
                       {dateInfo.date}
-                      <span className="ml-1 text-xs opacity-75">
-                        ({dateInfo.score} pts)
-                      </span>
+                      <span className="ml-1 text-xs opacity-75">({dateInfo.score} pts)</span>
                     </span>
                   ))}
                 </div>
@@ -172,10 +156,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
         </div>
 
         {/* Actions */}
-        <div
-          className="flex items-center gap-2 flex-wrap"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
           {item.poll ? (
             <>
               {/* Actions pour poll */}

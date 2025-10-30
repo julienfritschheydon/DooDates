@@ -4,13 +4,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription } from "./ui/alert";
-import {
-  CheckCircle,
-  XCircle,
-  Clock,
-  Calendar,
-  TrendingUp,
-} from "lucide-react";
+import { CheckCircle, XCircle, Clock, Calendar, TrendingUp } from "lucide-react";
 import { formatDateLocal } from "../lib/date-utils";
 
 interface TemporalTestResult {
@@ -124,7 +118,7 @@ const TemporalTestInterface: React.FC = () => {
       title = title.substring(0, 47) + "...";
     }
 
-    let dates = analysis.extractedDates;
+    const dates = analysis.extractedDates;
     if (dates.length === 0) {
       // Génération par défaut
       const today = new Date();
@@ -193,8 +187,7 @@ const TemporalTestInterface: React.FC = () => {
 
       if (text.includes("lundi") && dayOfWeek !== 1) score -= 20;
       if (text.includes("weekend") && ![0, 6].includes(dayOfWeek)) score -= 15;
-      if (analysis.constraints.semaine && [0, 6].includes(dayOfWeek))
-        score -= 15;
+      if (analysis.constraints.semaine && [0, 6].includes(dayOfWeek)) score -= 15;
     }
 
     // Test 2: Cohérence des horaires
@@ -202,8 +195,7 @@ const TemporalTestInterface: React.FC = () => {
       const startHour = parseInt(slot.start.split(":")[0]);
 
       if (analysis.constraints.matin && startHour >= 12) score -= 15;
-      if (analysis.constraints.apresmidi && (startHour < 12 || startHour >= 18))
-        score -= 15;
+      if (analysis.constraints.apresmidi && (startHour < 12 || startHour >= 18)) score -= 15;
       if (analysis.constraints.soir && startHour < 17) score -= 15;
     }
 
@@ -211,11 +203,7 @@ const TemporalTestInterface: React.FC = () => {
     score -= analysis.conflicts.length * 10;
 
     // Test 4: Type temporel approprié
-    if (
-      analysis.temporalType === "datetime" &&
-      geminiResult.type !== "datetime"
-    )
-      score -= 10;
+    if (analysis.temporalType === "datetime" && geminiResult.type !== "datetime") score -= 10;
 
     return {
       score: Math.max(0, score),
@@ -288,17 +276,10 @@ const TemporalTestInterface: React.FC = () => {
               onChange={(e) => setTestInput(e.target.value)}
               className="flex-1"
             />
-            <Button
-              onClick={runCustomTest}
-              disabled={isRunning || !testInput.trim()}
-            >
+            <Button onClick={runCustomTest} disabled={isRunning || !testInput.trim()}>
               Tester
             </Button>
-            <Button
-              onClick={runAllTests}
-              disabled={isRunning}
-              variant="outline"
-            >
+            <Button onClick={runAllTests} disabled={isRunning} variant="outline">
               Tests Complets
             </Button>
           </div>
@@ -312,9 +293,7 @@ const TemporalTestInterface: React.FC = () => {
                 onClick={() => setTestInput(testCase)}
                 className="h-auto p-2 text-left text-xs"
               >
-                {testCase.length > 40
-                  ? testCase.substring(0, 40) + "..."
-                  : testCase}
+                {testCase.length > 40 ? testCase.substring(0, 40) + "..." : testCase}
               </Button>
             ))}
           </div>
@@ -324,12 +303,9 @@ const TemporalTestInterface: React.FC = () => {
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
                 Score moyen:{" "}
-                <span className={getScoreColor(averageScore)}>
-                  {averageScore.toFixed(1)}%
-                </span>
+                <span className={getScoreColor(averageScore)}>{averageScore.toFixed(1)}%</span>
                 {" • "}
-                Tests réussis: {results.filter((r) => r.passed).length}/
-                {results.length}
+                Tests réussis: {results.filter((r) => r.passed).length}/{results.length}
               </AlertDescription>
             </Alert>
           )}
@@ -378,18 +354,12 @@ const TemporalTestInterface: React.FC = () => {
                     <div>
                       Type: <Badge>{result.analysis.temporalType}</Badge>
                     </div>
-                    <div>
-                      Dates extraites: {result.analysis.extractedDates.length}
-                    </div>
+                    <div>Dates extraites: {result.analysis.extractedDates.length}</div>
                     <div className="flex flex-wrap gap-1">
                       {Object.entries(result.analysis.constraints)
                         .filter(([_, value]) => value)
                         .map(([key]) => (
-                          <Badge
-                            key={key}
-                            variant="secondary"
-                            className="text-xs"
-                          >
+                          <Badge key={key} variant="secondary" className="text-xs">
                             {key}
                           </Badge>
                         ))}
@@ -409,9 +379,7 @@ const TemporalTestInterface: React.FC = () => {
                         {result.geminiResult?.title}
                       </span>
                     </div>
-                    <div>
-                      Dates: {result.geminiResult?.dates.length} générées
-                    </div>
+                    <div>Dates: {result.geminiResult?.dates.length} générées</div>
                     <div>Créneaux: {result.geminiResult?.timeSlots.length}</div>
                     <div>
                       Type: <Badge>{result.geminiResult?.type}</Badge>
@@ -421,8 +389,7 @@ const TemporalTestInterface: React.FC = () => {
               </div>
 
               {/* Conflits et suggestions */}
-              {(result.analysis.conflicts.length > 0 ||
-                result.analysis.suggestions.length > 0) && (
+              {(result.analysis.conflicts.length > 0 || result.analysis.suggestions.length > 0) && (
                 <div className="space-y-2">
                   {result.analysis.conflicts.length > 0 && (
                     <div>
@@ -441,9 +408,7 @@ const TemporalTestInterface: React.FC = () => {
 
                   {result.analysis.suggestions.length > 0 && (
                     <div>
-                      <h5 className="text-sm font-semibold text-blue-600 mb-1">
-                        Suggestions:
-                      </h5>
+                      <h5 className="text-sm font-semibold text-blue-600 mb-1">Suggestions:</h5>
                       <ul className="text-xs space-y-1">
                         {result.analysis.suggestions.map((suggestion, i) => (
                           <li key={i} className="text-blue-600">
@@ -457,27 +422,23 @@ const TemporalTestInterface: React.FC = () => {
               )}
 
               {/* Dates générées */}
-              {result.geminiResult?.dates &&
-                result.geminiResult.dates.length > 0 && (
-                  <div>
-                    <h5 className="text-sm font-semibold mb-2">
-                      Dates générées:
-                    </h5>
-                    <div className="flex flex-wrap gap-1">
-                      {result.geminiResult.dates.map((date, i) => {
-                        const dayName = new Date(date).toLocaleDateString(
-                          "fr-FR",
-                          { weekday: "short" },
-                        );
-                        return (
-                          <Badge key={i} variant="outline" className="text-xs">
-                            {date} ({dayName})
-                          </Badge>
-                        );
-                      })}
-                    </div>
+              {result.geminiResult?.dates && result.geminiResult.dates.length > 0 && (
+                <div>
+                  <h5 className="text-sm font-semibold mb-2">Dates générées:</h5>
+                  <div className="flex flex-wrap gap-1">
+                    {result.geminiResult.dates.map((date, i) => {
+                      const dayName = new Date(date).toLocaleDateString("fr-FR", {
+                        weekday: "short",
+                      });
+                      return (
+                        <Badge key={i} variant="outline" className="text-xs">
+                          {date} ({dayName})
+                        </Badge>
+                      );
+                    })}
                   </div>
-                )}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}

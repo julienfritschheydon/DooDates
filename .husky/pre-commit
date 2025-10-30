@@ -51,8 +51,22 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 5. Formatage automatique
-echo "💅 Formatage du code..."
-npm run format
+# 5. Error Handling Enforcement (CRITIQUE)
+echo "🛡️ Vérification Error Handling..."
+npm run test:error-handling
+if [ $? -ne 0 ]; then
+  echo "❌ Violations Error Handling détectées - Commit bloqué"
+  echo "💡 Utilisez ErrorFactory au lieu de 'throw new Error'"
+  exit 1
+fi
+
+# 6. Formatage automatique (optionnel)
+# Désactivez avec NO_FORMAT=1 pour éviter les changements automatiques
+if [ "$NO_FORMAT" != "1" ]; then
+  echo "💅 Formatage du code..."
+  npm run format
+else
+  echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
+fi
 
 echo "✅ Pre-commit validé - Commit autorisé"

@@ -182,3 +182,7 @@ src/types/__tests__/
 
 # Specification drafts
 SPECIFICATIONS-*.md
+
+# Playwright test artifacts
+test-results/
+playwright-report/

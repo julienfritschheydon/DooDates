@@ -1,19 +1,19 @@
 /**
  * useGeminiAPI Hook
- * 
+ *
  * Hook dédié pour gérer les appels à l'API Gemini
  * Extrait de GeminiChatInterface pour réduire la complexité
- * 
+ *
  * Responsabilités :
  * - Appels API Gemini
  * - Gestion des erreurs API
  * - Gestion des quotas
  * - Retry logic
- * 
+ *
  * @see Docs/Architecture-GeminiChatInterface.md
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { geminiService, type PollSuggestion } from "../lib/gemini";
 import { handleError, logError } from "../lib/error-handling";
 import { logger } from "../lib/logger";
@@ -46,6 +46,15 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Stocker les callbacks dans des refs pour éviter les re-créations
+  const onQuotaExceededRef = useRef(onQuotaExceeded);
+  const onNetworkErrorRef = useRef(onNetworkError);
+  
+  useEffect(() => {
+    onQuotaExceededRef.current = onQuotaExceeded;
+    onNetworkErrorRef.current = onNetworkError;
+  }, [onQuotaExceeded, onNetworkError]);
 
   /**
    * Génère un sondage à partir d'un message utilisateur
@@ -53,7 +62,7 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
   const generatePoll = useCallback(
     async (userMessage: string): Promise<GeminiAPIResponse> => {
       const trimmedMessage = userMessage.trim();
-      
+
       if (!trimmedMessage) {
         return {
           success: false,
@@ -89,11 +98,11 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
 
         // Échec de la génération
         const errorType = detectErrorType(pollResponse.error);
-        
+
         if (errorType === "quota") {
-          onQuotaExceeded?.();
+          onQuotaExceededRef.current?.();
         } else if (errorType === "network") {
-          onNetworkError?.();
+          onNetworkErrorRef.current?.();
         }
 
         const errorMessage = getErrorMessage(errorType);
@@ -112,7 +121,6 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
           error: errorMessage,
           errorType,
         };
-
       } catch (error) {
         const processedError = handleError(
           error,
@@ -132,9 +140,9 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
         const errorMessage = getErrorMessage(errorType);
 
         if (errorType === "quota") {
-          onQuotaExceeded?.();
+          onQuotaExceededRef.current?.();
         } else if (errorType === "network") {
-          onNetworkError?.();
+          onNetworkErrorRef.current?.();
         }
 
         setError(errorMessage);
@@ -147,8 +155,8 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
         };
       }
     },
-    [onQuotaExceeded, onNetworkError, debug],
-  );
+    [debug],
+  ); // onQuotaExceeded et onNetworkError sont dans des refs
 
   const clearError = useCallback(() => {
     setError(null);
@@ -192,13 +200,13 @@ function getErrorMessage(errorType: "quota" | "network" | "parsing" | "unknown")
   switch (errorType) {
     case "quota":
       return "Limite de quota atteinte. Veuillez réessayer plus tard ou vous connecter pour plus de requêtes.";
-    
+
     case "network":
       return "Problème de connexion réseau. Vérifiez votre connexion internet.";
-    
+
     case "parsing":
       return "Erreur lors de l'analyse de la réponse. Veuillez reformuler votre demande.";
-    
+
     case "unknown":
     default:
       return "Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?";

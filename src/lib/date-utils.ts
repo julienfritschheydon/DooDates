@@ -66,10 +66,7 @@ export function getTodayLocal(): string {
  * @param daysCount - Nombre de jours à générer
  * @returns Array de strings YYYY-MM-DD
  */
-export function generateDateRange(
-  startDate: Date,
-  daysCount: number,
-): string[] {
+export function generateDateRange(startDate: Date, daysCount: number): string[] {
   const dates: string[] = [];
 
   for (let i = 0; i < daysCount; i++) {
@@ -88,10 +85,7 @@ export function generateDateRange(
  * @param referenceDate - Date de référence (optionnel, par défaut aujourd'hui)
  * @returns Array filtré avec seulement les dates >= référence
  */
-export function filterFutureDates(
-  dates: string[],
-  referenceDate?: string,
-): string[] {
+export function filterFutureDates(dates: string[], referenceDate?: string): string[] {
   const today = referenceDate || getTodayLocal();
   return dates.filter((date) => date >= today);
 }
@@ -132,8 +126,7 @@ export function groupConsecutiveDates(dates: string[]): DateGroup[] {
   for (let i = 1; i < sortedDates.length; i++) {
     const prevDate = new Date(sortedDates[i - 1]);
     const currDate = new Date(sortedDates[i]);
-    const dayDiff =
-      (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24);
+    const dayDiff = (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24);
 
     if (dayDiff === 1) {
       // Date consécutive

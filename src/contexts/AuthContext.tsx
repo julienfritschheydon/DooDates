@@ -68,11 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return null;
     }
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
 
       if (error) {
         logger.error("Error fetching profile", "auth", error);
@@ -187,8 +183,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             access_type: "offline",
             prompt: "consent",
           },
-          scopes:
-            "email profile https://www.googleapis.com/auth/calendar.readonly",
+          scopes: "email profile https://www.googleapis.com/auth/calendar.readonly",
         },
       });
 
@@ -204,8 +199,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return { error: null };
     } catch (err) {
       logger.error("Google OAuth Exception", "auth", err);
-      const errorMessage =
-        err instanceof Error ? err.message : "Erreur de connexion Google";
+      const errorMessage = err instanceof Error ? err.message : "Erreur de connexion Google";
       setError(`Erreur connexion: ${errorMessage}`);
       setLoading(false);
       return { error: { message: errorMessage } as AuthError };

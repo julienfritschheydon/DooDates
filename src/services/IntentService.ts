@@ -50,7 +50,10 @@ export interface IntentDetectionStrategy {
    * Détecte l'intention dans le message
    * @returns IntentResult si une intention est détectée, null sinon
    */
-  detect(message: string, currentPoll: Poll | null): Promise<IntentResult | null> | IntentResult | null;
+  detect(
+    message: string,
+    currentPoll: Poll | null,
+  ): Promise<IntentResult | null> | IntentResult | null;
 
   /**
    * Vérifie si cette stratégie peut traiter ce type de poll
@@ -70,7 +73,7 @@ class DatePollStrategy implements IntentDetectionStrategy {
 
   detect(message: string, currentPoll: Poll | null): IntentResult | null {
     const result = IntentDetectionService.detectSimpleIntent(message, currentPoll);
-    
+
     if (!result) return null;
 
     return {
@@ -92,7 +95,7 @@ class FormPollStrategy implements IntentDetectionStrategy {
 
   detect(message: string, currentPoll: Poll | null): IntentResult | null {
     const result = FormPollIntentService.detectIntent(message, currentPoll);
-    
+
     if (!result) return null;
 
     return {
@@ -117,7 +120,7 @@ class AIFallbackStrategy implements IntentDetectionStrategy {
     if (!currentPoll) return null;
 
     const result = await GeminiIntentService.detectFormIntent(message, currentPoll);
-    
+
     if (!result) return null;
 
     return {
@@ -179,7 +182,7 @@ export class IntentService {
     for (const strategy of regexStrategies) {
       try {
         const result = await strategy.detect(message, currentPoll);
-        
+
         if (result && result.confidence >= 0.7) {
           if (debug) {
             logger.info("✅ Intention détectée (regex)", "poll", {
@@ -198,11 +201,11 @@ export class IntentService {
     // Phase 2 : Fallback IA (si activé)
     if (useAI) {
       const aiStrategy = this.strategies.find((s) => s.name === "GeminiAI");
-      
+
       if (aiStrategy && aiStrategy.canHandle(pollType)) {
         try {
           const result = await aiStrategy.detect(message, currentPoll);
-          
+
           if (result && result.confidence >= 0.7) {
             if (debug) {
               logger.info("✅ Intention détectée (IA)", "poll", {
@@ -213,7 +216,7 @@ export class IntentService {
 
             // Logger le gap pour améliorer les regex
             GeminiIntentService.logMissingPattern(message, result as any);
-            
+
             return result;
           }
         } catch (error) {
@@ -256,10 +259,6 @@ export class IntentService {
    * Utile pour les tests
    */
   static resetStrategies(): void {
-    this.strategies = [
-      new DatePollStrategy(),
-      new FormPollStrategy(),
-      new AIFallbackStrategy(),
-    ];
+    this.strategies = [new DatePollStrategy(), new FormPollStrategy(), new AIFallbackStrategy()];
   }
 }

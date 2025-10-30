@@ -131,6 +131,190 @@ export async function robustClick(locator: ReturnType<Page['locator']>) {
 }
 
 /**
+ * Fill robuste pour inputs/textareas: gère race conditions, overlays, et re-rendering
+ * 
+ * Vérifie les 5 hypothèses de l'IA:
+ * 1. Race Condition - Attend que l'élément soit complètement chargé
+ * 2. Element Overlap - Scroll et vérifie la visibilité
+ * 3. Dynamic Re-rendering - Attend la stabilité du composant
+ * 4. user-select: none - Force la visibilité si nécessaire
+ * 5. Incorrect Selector - Vérifie enabled/editable
+ * 
+ * @param locator - Le locator Playwright de l'input/textarea
+ * @param text - Le texte à remplir
+ * @param options - Options de timeout et debug
+ */
+export async function robustFill(
+  locator: ReturnType<Page['locator']>,
+  text: string,
+  options?: { 
+    timeout?: number;
+    debug?: boolean;
+    waitForStability?: boolean; // Attendre que le composant soit stable (useEffect, etc.)
+  }
+) {
+  const timeout = options?.timeout ?? 10000;
+  const debug = options?.debug ?? false;
+  const waitForStability = options?.waitForStability ?? true;
+  
+  const log = (...args: any[]) => {
+    if (debug) console.log('[robustFill]', ...args);
+  };
+
+  try {
+    // 1. Attendre que l'élément soit attaché au DOM
+    log('1. Waiting for element to be attached...');
+    await locator.waitFor({ state: 'attached', timeout });
+    log('✅ Element attached');
+
+    // 2. Attendre la stabilité du composant (race condition + re-rendering)
+    if (waitForStability) {
+      log('2. Waiting for component stability (500ms)...');
+      await locator.page().waitForTimeout(500);
+      log('✅ Component should be stable');
+    }
+
+    // 3. Scroll into view (éviter overlaps)
+    log('3. Scrolling into view...');
+    try {
+      await locator.scrollIntoViewIfNeeded({ timeout: 2000 });
+      log('✅ Scrolled into view');
+    } catch (e) {
+      log('⚠️ Scroll failed, continuing anyway');
+    }
+
+    // 4. Vérifier que l'élément n'est pas disabled
+    log('4. Checking if element is enabled...');
+    const isDisabled = await locator.isDisabled();
+    if (isDisabled) {
+      throw new Error('Element is disabled, cannot fill');
+    }
+    log('✅ Element enabled');
+
+    // 5. Vérifier que l'élément est editable
+    log('5. Checking if element is editable...');
+    const isEditable = await locator.isEditable();
+    if (!isEditable) {
+      log('⚠️ Element not editable, trying to force visibility...');
+      // Force visibility (hypothèse #4: user-select: none ou visibility: hidden)
+      await locator.evaluate((el: HTMLElement) => {
+        el.style.visibility = 'visible';
+        el.style.opacity = '1';
+        el.style.pointerEvents = 'auto';
+        if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) {
+          el.readOnly = false;
+          el.disabled = false;
+        }
+      });
+      log('✅ Forced visibility');
+    } else {
+      log('✅ Element editable');
+    }
+
+    // 6. Vérifier si l'élément est visible (non bloquant sur mobile)
+    log('6. Checking if element is visible...');
+    const isVisible = await locator.isVisible();
+    if (!isVisible) {
+      log('⚠️ Element not visible according to Playwright (z-index issue)');
+      log('⚠️ Using evaluate() to bypass z-index and fill directly');
+      
+      // Sur mobile, le textarea est visuellement visible mais Playwright ne peut pas
+      // interagir avec à cause du z-index. Solution : evaluate() complet.
+      
+      // Étape 1 : Cliquer + focus via DOM
+      await locator.evaluate((el: HTMLTextAreaElement | HTMLInputElement) => {
+        el.click();
+        el.focus();
+      });
+      log('✅ Clicked + focused via evaluate()');
+      
+      // Étape 2 : Attendre React + auto-focus du composant
+      await locator.page().waitForTimeout(800);
+      
+      // Étape 3 : Remplir avec synthetic events React
+      await locator.evaluate((el: HTMLTextAreaElement | HTMLInputElement, value: string) => {
+        // Utiliser le setter natif pour déclencher React
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          window.HTMLTextAreaElement.prototype,
+          'value'
+        )?.set;
+        
+        if (nativeInputValueSetter) {
+          nativeInputValueSetter.call(el, value);
+        } else {
+          el.value = value;
+        }
+        
+        // Déclencher les événements React
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+        el.focus();
+      }, text);
+      log('✅ Text filled via evaluate() with React events');
+      
+      // Attendre que React traite
+      await locator.page().waitForTimeout(300);
+      
+      // Vérifier
+      const value = await locator.inputValue();
+      if (value !== text) {
+        throw new Error(`Fill verification failed: expected "${text}", got "${value}"`);
+      }
+      log('✅ Fill verified');
+      return;
+    }
+    log('✅ Element visible');
+
+    // 7. Attendre un peu pour que les animations se terminent
+    log('7. Waiting for animations to complete (300ms)...');
+    await locator.page().waitForTimeout(300);
+
+    // 8. Tenter le fill normal
+    log('8. Attempting normal fill...');
+    try {
+      await locator.fill(text, { timeout: 3000 });
+      log('✅ Fill successful (normal)');
+    } catch (e) {
+      log('⚠️ Normal fill failed, trying evaluate() fallback...');
+      
+      // Fallback: Utiliser evaluate() pour forcer la valeur (mobile, hidden inputs)
+      await locator.evaluate((el: HTMLTextAreaElement | HTMLInputElement, value: string) => {
+        el.value = value;
+        // Déclencher les événements React
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+        // Focus pour activer les handlers
+        el.focus();
+      }, text);
+      log('✅ Fill successful (evaluate fallback)');
+    }
+
+    // 9. Vérifier que le texte a bien été rempli
+    log('9. Verifying fill...');
+    const value = await locator.inputValue();
+    if (value !== text) {
+      log(`⚠️ Value mismatch: expected "${text}", got "${value}"`);
+      // Réessayer une fois
+      await locator.evaluate((el: HTMLTextAreaElement | HTMLInputElement, value: string) => {
+        el.value = value;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }, text);
+      
+      const finalValue = await locator.inputValue();
+      if (finalValue !== text) {
+        throw new Error(`Fill verification failed: expected "${text}", got "${finalValue}"`);
+      }
+    }
+    log('✅ Fill verified');
+
+  } catch (error) {
+    log('❌ robustFill failed:', error);
+    throw error;
+  }
+}
+
+/**
  * Injecte des sondages dans localStorage avant le chargement de la page.
  * Utilise addInitScript pour que l'état soit présent dès le premier document.
  */

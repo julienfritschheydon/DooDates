@@ -4,12 +4,7 @@
  */
 
 import type { Conversation } from "../types/conversation";
-import type {
-  SearchFilters,
-  SearchOptions,
-  SearchResult,
-  SearchHighlight,
-} from "../types/search";
+import type { SearchFilters, SearchOptions, SearchResult, SearchHighlight } from "../types/search";
 import { SearchCache } from "./SearchCache";
 
 export class ConversationSearchService {
@@ -145,25 +140,15 @@ export class ConversationSearchService {
   /**
    * Apply filters to conversations
    */
-  private applyFilters(
-    conversations: Conversation[],
-    filters: SearchFilters,
-  ): Conversation[] {
+  private applyFilters(conversations: Conversation[], filters: SearchFilters): Conversation[] {
     return conversations.filter((conversation) => {
       // Status filter
-      if (
-        filters.status &&
-        filters.status !== "all" &&
-        conversation.status !== filters.status
-      ) {
+      if (filters.status && filters.status !== "all" && conversation.status !== filters.status) {
         return false;
       }
 
       // Favorite filter
-      if (
-        filters.isFavorite !== undefined &&
-        conversation.isFavorite !== filters.isFavorite
-      ) {
+      if (filters.isFavorite !== undefined && conversation.isFavorite !== filters.isFavorite) {
         return false;
       }
 
@@ -179,9 +164,7 @@ export class ConversationSearchService {
       // Tags filter
       if (filters.tags && filters.tags.length > 0) {
         const hasAllTags = filters.tags.every((tag) =>
-          conversation.tags.some((convTag) =>
-            convTag.toLowerCase().includes(tag.toLowerCase()),
-          ),
+          conversation.tags.some((convTag) => convTag.toLowerCase().includes(tag.toLowerCase())),
         );
         if (!hasAllTags) return false;
       }
@@ -210,24 +193,14 @@ export class ConversationSearchService {
     let matches = false;
 
     // Search in title
-    const titleHighlights = this.highlightMatches(
-      conversation.title,
-      query,
-      options,
-    );
+    const titleHighlights = this.highlightMatches(conversation.title, query, options);
     if (titleHighlights.length > 0) {
       matches = true;
-      highlights.push(
-        ...titleHighlights.map((h) => ({ ...h, field: "title" as const })),
-      );
+      highlights.push(...titleHighlights.map((h) => ({ ...h, field: "title" as const })));
     }
 
     // Search in first message
-    const messageHighlights = this.highlightMatches(
-      conversation.firstMessage,
-      query,
-      options,
-    );
+    const messageHighlights = this.highlightMatches(conversation.firstMessage, query, options);
     if (messageHighlights.length > 0) {
       matches = true;
       highlights.push(
@@ -243,9 +216,7 @@ export class ConversationSearchService {
     const tagHighlights = this.highlightMatches(tagsText, query, options);
     if (tagHighlights.length > 0) {
       matches = true;
-      highlights.push(
-        ...tagHighlights.map((h) => ({ ...h, field: "tags" as const })),
-      );
+      highlights.push(...tagHighlights.map((h) => ({ ...h, field: "tags" as const })));
     }
 
     return { matches, highlights };
@@ -254,11 +225,7 @@ export class ConversationSearchService {
   /**
    * Highlight matches in text with caching
    */
-  private highlightMatches(
-    text: string,
-    query: string,
-    options: SearchOptions,
-  ): SearchHighlight[] {
+  private highlightMatches(text: string, query: string, options: SearchOptions): SearchHighlight[] {
     if (!query.trim() || !text) return [];
 
     const { caseSensitive = false } = options;
@@ -272,10 +239,7 @@ export class ConversationSearchService {
     while ((match = regex.exec(text)) !== null) {
       highlights.push({
         field: "title", // Will be overridden by caller
-        text: text.substring(
-          Math.max(0, match.index - 20),
-          match.index + match[0].length + 20,
-        ),
+        text: text.substring(Math.max(0, match.index - 20), match.index + match[0].length + 20),
         start: match.index,
         end: match.index + match[0].length,
       });

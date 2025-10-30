@@ -6,13 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Loader2, Mail, Lock } from "lucide-react";
 
@@ -117,9 +111,7 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Ou continuer avec
-            </span>
+            <span className="bg-background px-2 text-muted-foreground">Ou continuer avec</span>
           </div>
         </div>
 
@@ -138,9 +130,7 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
                 {...register("email")}
               />
             </div>
-            {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -157,26 +147,18 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
               />
             </div>
             {errors.password && (
-              <p className="text-sm text-destructive">
-                {errors.password.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.password.message}</p>
             )}
           </div>
 
           {/* Erreurs générales */}
           {(errors.root || error) && (
             <Alert variant="destructive">
-              <AlertDescription>
-                {errors.root?.message || error}
-              </AlertDescription>
+              <AlertDescription>{errors.root?.message || error}</AlertDescription>
             </Alert>
           )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting || loading}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting || loading}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Se connecter
           </Button>

@@ -32,8 +32,7 @@ export const useConversationResume = (): UseConversationResumeReturn => {
   const autoSave = useAutoSave({ debug: true });
 
   const [isResuming, setIsResuming] = useState(false);
-  const [resumedConversation, setResumedConversation] =
-    useState<Conversation | null>(null);
+  const [resumedConversation, setResumedConversation] = useState<Conversation | null>(null);
   const [resumeError, setResumeError] = useState<string | null>(null);
 
   // Resume conversation by ID
@@ -57,17 +56,13 @@ export const useConversationResume = (): UseConversationResumeReturn => {
             title: conversation.title,
           });
         } else {
-          throw ErrorFactory.storage(
-            "Conversation not found",
-            "Conversation non trouvée",
-            { conversationId },
-          );
+          throw ErrorFactory.storage("Conversation not found", "Conversation non trouvée", {
+            conversationId,
+          });
         }
       } catch (error) {
         const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Failed to resume conversation";
+          error instanceof Error ? error.message : "Failed to resume conversation";
         setResumeError(errorMessage);
         logger.error("Failed to resume conversation", "conversation", {
           error,
@@ -108,14 +103,7 @@ export const useConversationResume = (): UseConversationResumeReturn => {
         setSearchParams(newSearchParams, { replace: true });
       });
     }
-  }, [
-    searchParams,
-    resumedConversation,
-    isResuming,
-    resumeError,
-    resumeById,
-    setSearchParams,
-  ]);
+  }, [searchParams, resumedConversation, isResuming, resumeError, resumeById, setSearchParams]);
 
   return {
     isResuming,

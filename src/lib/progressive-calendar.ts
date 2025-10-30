@@ -91,9 +91,7 @@ class ProgressiveCalendarManager {
       const module = await import(`../data/calendar-${year}.json`);
       return module.default;
     } catch (error) {
-      console.warn(
-        `⚠️ Fichier calendar-${year}.json non trouvé, génération dynamique...`,
-      );
+      console.warn(`⚠️ Fichier calendar-${year}.json non trouvé, génération dynamique...`);
       // Fallback: génération dynamique si le fichier n'existe pas
       return this.generateYearFallback(year);
     }
@@ -107,15 +105,7 @@ class ProgressiveCalendarManager {
     const weekends: CalendarDay[] = [];
     const weekdays: CalendarDay[] = [];
 
-    const dayNames = [
-      "dimanche",
-      "lundi",
-      "mardi",
-      "mercredi",
-      "jeudi",
-      "vendredi",
-      "samedi",
-    ];
+    const dayNames = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
     const monthNames = [
       "janvier",
       "février",
@@ -194,13 +184,8 @@ class ProgressiveCalendarManager {
     // Si on est dans les derniers mois de l'année, précharger l'année suivante
     if (month >= 12 - this.preloadThresholdMonths) {
       const nextYear = year + 1;
-      if (
-        !this.loadedYears.has(nextYear) &&
-        !this.loadingPromises.has(nextYear)
-      ) {
-        console.log(
-          `🔮 Préchargement anticipé de l'année ${nextYear} (mois ${month})`,
-        );
+      if (!this.loadedYears.has(nextYear) && !this.loadingPromises.has(nextYear)) {
+        console.log(`🔮 Préchargement anticipé de l'année ${nextYear} (mois ${month})`);
         this.loadYear(nextYear).catch((error) => {
           logError(
             ErrorFactory.api(
@@ -215,10 +200,7 @@ class ProgressiveCalendarManager {
   }
 
   // Obtenir les données d'une plage de dates (peut couvrir plusieurs années)
-  async getDateRange(
-    startDate: string,
-    endDate: string,
-  ): Promise<CalendarDay[]> {
+  async getDateRange(startDate: string, endDate: string): Promise<CalendarDay[]> {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const startYear = start.getFullYear();
@@ -271,12 +253,7 @@ class ProgressiveCalendarManager {
   // Nettoyer le cache (garder seulement les années récentes)
   cleanupCache() {
     const currentYear = new Date().getFullYear();
-    const keepYears = [
-      currentYear - 1,
-      currentYear,
-      currentYear + 1,
-      currentYear + 2,
-    ];
+    const keepYears = [currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
 
     for (const [year] of this.loadedYears) {
       if (!keepYears.includes(year)) {

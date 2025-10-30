@@ -50,9 +50,7 @@ export const getVisibleTimeSlots = (
       // Si des créneaux sont pré-sélectionnés, afficher une plage autour d'eux
       const minHour = Math.max(Math.min(...enabledHours) - 1, 0);
       const maxHour = Math.min(Math.max(...enabledHours) + 2, 23);
-      result = allSlots.filter(
-        (slot) => slot.hour >= minHour && slot.hour <= maxHour,
-      );
+      result = allSlots.filter((slot) => slot.hour >= minHour && slot.hour <= maxHour);
     } else {
       // Plage par défaut réduite si aucun créneau pré-sélectionné
       result = allSlots.filter((slot) => slot.hour >= 8 && slot.hour <= 20);
@@ -88,8 +86,7 @@ export const getTimeSlotBlocks = (
     if (!currentBlock) {
       currentBlock = { start: slot, end: slot };
     } else {
-      const blockEndMinutes =
-        currentBlock.end.hour * 60 + currentBlock.end.minute;
+      const blockEndMinutes = currentBlock.end.hour * 60 + currentBlock.end.minute;
 
       if (slotMinutes === blockEndMinutes + timeGranularity) {
         currentBlock.end = slot;
@@ -114,16 +111,12 @@ export const toggleTimeSlotForDate = (
   timeSlotsByDate: Record<string, TimeSlot[]>,
 ): Record<string, TimeSlot[]> => {
   const currentSlots = timeSlotsByDate[dateStr] || [];
-  const existingSlot = currentSlots.find(
-    (s) => s.hour === hour && s.minute === minute,
-  );
+  const existingSlot = currentSlots.find((s) => s.hour === hour && s.minute === minute);
 
   let newSlots;
   if (existingSlot) {
     newSlots = currentSlots.map((slot) =>
-      slot.hour === hour && slot.minute === minute
-        ? { ...slot, enabled: !slot.enabled }
-        : slot,
+      slot.hour === hour && slot.minute === minute ? { ...slot, enabled: !slot.enabled } : slot,
     );
   } else {
     newSlots = [...currentSlots, { hour, minute, enabled: true }];
@@ -143,9 +136,7 @@ export const formatSelectedDateHeader = (dateStr: string) => {
   const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
 
   const result = {
-    dayName: date
-      .toLocaleDateString("fr-FR", { weekday: "short" })
-      .toLowerCase(),
+    dayName: date.toLocaleDateString("fr-FR", { weekday: "short" }).toLowerCase(),
     dayNumber: date.getDate(),
     month: date.toLocaleDateString("fr-FR", { month: "short" }).toLowerCase(),
   };

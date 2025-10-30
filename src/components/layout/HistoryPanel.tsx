@@ -1,11 +1,4 @@
-import {
-  X,
-  Clock,
-  Calendar,
-  FileText,
-  Plus,
-  ClipboardList,
-} from "lucide-react";
+import { X, Clock, Calendar, FileText, Plus, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useConversations } from "../../hooks/useConversations";
 import { formatDistanceToNow } from "date-fns";
@@ -24,10 +17,7 @@ interface HistoryPanelProps {
  *
  * S'ouvre depuis le burger, affiche l'historique réel des conversations
  */
-export default function HistoryPanel({
-  onClose,
-  onConversationSelect,
-}: HistoryPanelProps) {
+export default function HistoryPanel({ onClose, onConversationSelect }: HistoryPanelProps) {
   const navigate = useNavigate();
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
 
@@ -43,11 +33,7 @@ export default function HistoryPanel({
     try {
       // Utiliser getAllPolls() comme le Dashboard
       const polls = getAllPolls();
-      console.log(
-        "[HistoryPanel] Polls récupérés via getAllPolls():",
-        polls.length,
-        "sondages",
-      );
+      console.log("[HistoryPanel] Polls récupérés via getAllPolls():", polls.length, "sondages");
       console.log("[HistoryPanel] Premier poll:", polls[0]);
 
       // Trier par date de création décroissante et prendre les 5 derniers
@@ -55,10 +41,7 @@ export default function HistoryPanel({
       console.log("[HistoryPanel] Polls avec created_at:", withDate.length);
 
       const sorted = withDate
-        .sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        )
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, 5);
 
       console.log(
@@ -118,11 +101,7 @@ export default function HistoryPanel({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-40"
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} aria-hidden="true" />
 
       {/* Panel historique - Responsive width */}
       <aside className="fixed top-0 left-0 bottom-0 w-full sm:w-80 bg-[#1e1e1e] z-50 shadow-xl">
@@ -156,10 +135,7 @@ export default function HistoryPanel({
         <div className="overflow-y-auto h-[calc(100vh-9rem)]">
           {/* Sondages récents */}
           {(() => {
-            console.log(
-              "[HistoryPanel] Rendu - recentPolls.length:",
-              recentPolls.length,
-            );
+            console.log("[HistoryPanel] Rendu - recentPolls.length:", recentPolls.length);
             if (recentPolls.length > 0) {
               return (
                 <div className="p-4 border-b border-gray-700">
@@ -219,9 +195,7 @@ export default function HistoryPanel({
               {/* Hier */}
               {grouped.yesterday.length > 0 && (
                 <div className="p-4">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase mb-2">
-                    Hier
-                  </h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase mb-2">Hier</h3>
                   {grouped.yesterday.map((conv) => (
                     <ConversationItem
                       key={conv.id}
@@ -294,13 +268,10 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
     if (conversation.title) return conversation.title;
 
     // Extraire le premier message utilisateur
-    const firstUserMessage = conversation.messages?.find(
-      (msg: any) => msg.role === "user",
-    );
+    const firstUserMessage = conversation.messages?.find((msg: any) => msg.role === "user");
     if (firstUserMessage) {
       return (
-        firstUserMessage.content.slice(0, 50) +
-        (firstUserMessage.content.length > 50 ? "..." : "")
+        firstUserMessage.content.slice(0, 50) + (firstUserMessage.content.length > 50 ? "..." : "")
       );
     }
 

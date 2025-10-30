@@ -113,12 +113,7 @@ class Logger {
     this.info(message, category, data);
   }
 
-  private logWithLevel(
-    level: LogLevel,
-    message: string,
-    category: LogCategory,
-    data?: any,
-  ): void {
+  private logWithLevel(level: LogLevel, message: string, category: LogCategory, data?: any): void {
     // En production, ne logger que si explicitement activé
     if (!this.isDev && !this.config.enableProduction) return;
 
@@ -184,19 +179,12 @@ class Logger {
     if (silent && !this.config.silentCategories.includes(category)) {
       this.config.silentCategories.push(category);
     } else if (!silent) {
-      this.config.silentCategories = this.config.silentCategories.filter(
-        (c) => c !== category,
-      );
+      this.config.silentCategories = this.config.silentCategories.filter((c) => c !== category);
     }
   }
 
   // Envoyer les erreurs critiques au service de monitoring (production)
-  private sendToMonitoring(
-    level: LogLevel,
-    message: string,
-    category: string,
-    data?: any,
-  ): void {
+  private sendToMonitoring(level: LogLevel, message: string, category: string, data?: any): void {
     // TODO: Intégrer avec Sentry, LogRocket, ou autre service
     // Exemple: Sentry.captureException(new Error(message));
 
@@ -212,9 +200,7 @@ class Logger {
         url: window.location.href,
       };
 
-      const logs = JSON.parse(
-        localStorage.getItem("doodates-error-logs") || "[]",
-      );
+      const logs = JSON.parse(localStorage.getItem("doodates-error-logs") || "[]");
       logs.push(logEntry);
 
       // Garder seulement les 50 dernières erreurs

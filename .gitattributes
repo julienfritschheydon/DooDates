@@ -1,0 +1,39 @@
+# Git Attributes - Gestion des fins de ligne
+# https://git-scm.com/docs/gitattributes
+
+# Auto-détection pour tous les fichiers texte
+* text=auto
+
+# Fichiers qui doivent toujours utiliser LF (Unix)
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.sh text eol=lf
+
+# Fichiers qui peuvent utiliser CRLF (Windows)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Fichiers binaires (ne pas toucher)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+*.zip binary
+*.gz binary

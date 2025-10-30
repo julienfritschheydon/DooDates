@@ -101,12 +101,7 @@ describe("UX Regression Tests - DooDates", () => {
       // UX Expectation: Multiple toggles should remain fast
       for (let i = 0; i < 50; i++) {
         const date = `2025-07-${String((i % 30) + 1).padStart(2, "0")}`;
-        timeSlotsByDate = toggleTimeSlotForDate(
-          date,
-          9 + (i % 8),
-          (i % 4) * 15,
-          timeSlotsByDate,
-        );
+        timeSlotsByDate = toggleTimeSlotForDate(date, 9 + (i % 8), (i % 4) * 15, timeSlotsByDate);
       }
 
       const endTime = performance.now();
@@ -129,31 +124,16 @@ describe("UX Regression Tests - DooDates", () => {
       expect(timeSlotsByDate[date]).toBeUndefined();
 
       // First toggle: should enable
-      timeSlotsByDate = toggleTimeSlotForDate(
-        date,
-        hour,
-        minute,
-        timeSlotsByDate,
-      );
+      timeSlotsByDate = toggleTimeSlotForDate(date, hour, minute, timeSlotsByDate);
       expect(timeSlotsByDate[date]).toBeDefined();
       expect(timeSlotsByDate[date][0].enabled).toBe(true);
 
       // Second toggle: should disable
-      timeSlotsByDate = toggleTimeSlotForDate(
-        date,
-        hour,
-        minute,
-        timeSlotsByDate,
-      );
+      timeSlotsByDate = toggleTimeSlotForDate(date, hour, minute, timeSlotsByDate);
       expect(timeSlotsByDate[date][0].enabled).toBe(false);
 
       // Third toggle: should enable again
-      timeSlotsByDate = toggleTimeSlotForDate(
-        date,
-        hour,
-        minute,
-        timeSlotsByDate,
-      );
+      timeSlotsByDate = toggleTimeSlotForDate(date, hour, minute, timeSlotsByDate);
       expect(timeSlotsByDate[date][0].enabled).toBe(true);
     });
 
@@ -169,12 +149,7 @@ describe("UX Regression Tests - DooDates", () => {
       ];
 
       operations.forEach(({ date, hour, minute }) => {
-        timeSlotsByDate = toggleTimeSlotForDate(
-          date,
-          hour,
-          minute,
-          timeSlotsByDate,
-        );
+        timeSlotsByDate = toggleTimeSlotForDate(date, hour, minute, timeSlotsByDate);
       });
 
       // UX Expectation: Data structure should remain consistent
@@ -235,7 +210,7 @@ describe("UX Regression Tests - DooDates", () => {
       // UX Expectation: Edge cases shouldn't break user experience
 
       // Edge case 1: Empty time slots
-      let emptyTimeSlots = {};
+      const emptyTimeSlots = {};
       expect(Object.keys(emptyTimeSlots)).toHaveLength(0);
 
       // Edge case 2: Invalid date handling
@@ -252,12 +227,7 @@ describe("UX Regression Tests - DooDates", () => {
       boundaryTests.forEach(({ hour, minute }) => {
         let timeSlotsByDate = {};
         expect(() => {
-          timeSlotsByDate = toggleTimeSlotForDate(
-            "2025-07-01",
-            hour,
-            minute,
-            timeSlotsByDate,
-          );
+          timeSlotsByDate = toggleTimeSlotForDate("2025-07-01", hour, minute, timeSlotsByDate);
         }).not.toThrow();
 
         expect(timeSlotsByDate["2025-07-01"]).toBeDefined();

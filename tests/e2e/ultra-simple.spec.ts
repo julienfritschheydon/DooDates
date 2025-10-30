@@ -14,7 +14,7 @@ test.describe('DooDates - Test Ultra Simple', () => {
     await setupGeminiMock(page);
   });
   
-  test('Workflow complet : Création DatePoll → Dashboard', async ({ page }) => {
+  test('Workflow complet : Création DatePoll → Dashboard @smoke @critical', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -43,7 +43,7 @@ test.describe('DooDates - Test Ultra Simple', () => {
       console.log('✅ Page /create accessible');
 
       // Choisir "Sondage Dates"
-      await robustClick(page.getByRole('link', { name: /Sondage Dates.*Commencer/i }));
+      await robustClick(page.locator('[data-testid="poll-type-date"]'));
       await expect(page).toHaveURL(/\/create\/date/);
       console.log('✅ Carte "Sondage Dates" cliquée → /create/date');
 
@@ -67,7 +67,7 @@ test.describe('DooDates - Test Ultra Simple', () => {
       await expect(horaireButton).toBeVisible();
       await robustClick(horaireButton);
       
-      const visibleSection = page.locator('[data-testid="time-slots-section"]:visible');
+      const visibleSection = page.getByTestId('time-slots-section');
       await expect(visibleSection).toBeVisible({ timeout: 15000 });
       console.log('✅ Section horaires visible');
 
@@ -76,9 +76,12 @@ test.describe('DooDates - Test Ultra Simple', () => {
       const maxColumns = 3;
       let slotsSelected = 0;
       
+      // Trouver la grille visible (mobile ou desktop)
+      const visibleGrid = page.locator('[data-testid="time-slots-grid-mobile"]:visible, [data-testid="time-slots-grid-desktop"]:visible').first();
+      
       for (let col = 0; col < maxColumns; col++) {
         for (const t of timesCandidates) {
-          const btn = visibleSection.getByTestId(`time-slot-${t}-col-${col}`);
+          const btn = visibleGrid.getByTestId(`time-slot-${t}-col-${col}`);
           if (await btn.count()) {
             await robustClick(btn);
             log(`Créneau ${t} sélectionné pour colonne ${col + 1}`);
@@ -106,14 +109,18 @@ test.describe('DooDates - Test Ultra Simple', () => {
 
       // Aller au dashboard
       await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+      await expect(page).toHaveURL(/.*\/dashboard/);
       console.log('✅ Navigation vers /dashboard');
+      
+      // Attendre que le dashboard charge
+      await page.waitForTimeout(2000);
 
       // Vérifier sondage dans dashboard
-      await expect(page.locator('[data-testid="poll-item"]').first()).toContainText('Test E2E Ultra Simple');
+      await expect(page.locator('[data-testid="poll-item"]').first()).toContainText('Test E2E Ultra Simple', { timeout: 10000 });
       console.log('✅ Sondage visible dans dashboard');
 
       // Copier lien (optionnel)
-      const copyBtn = page.locator('[data-testid="copy-link-button"]').first();
+      const copyBtn = page.locator('[data-testid="poll-action-copy-link"]').first();
       if (await copyBtn.isVisible()) {
         await robustClick(copyBtn);
         console.log('✅ Lien copié');

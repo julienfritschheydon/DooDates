@@ -192,31 +192,21 @@ const UPGRADE_BENEFITS = [
   "Premium support",
 ] as const;
 
-const LOCKED_FEATURES = [
-  "export",
-  "advanced_analytics",
-  "custom_branding",
-] as const;
+const LOCKED_FEATURES = ["export", "advanced_analytics", "custom_branding"] as const;
 
 // ============================================================================
 // HOOK IMPLEMENTATION
 // ============================================================================
 
 export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
-  const {
-    enableAutoDeletion = true,
-    showAuthIncentives = true,
-    maxIncentiveViews = 3,
-  } = config;
+  const { enableAutoDeletion = true, showAuthIncentives = true, maxIncentiveViews = 3 } = config;
 
   const { user, loading: authLoading } = useAuth();
   const storage = useConversationStorage();
 
   // Local state
   const [incentiveViews, setIncentiveViews] = useState<number>(0);
-  const [dismissedIncentives, setDismissedIncentives] = useState<Set<string>>(
-    new Set(),
-  );
+  const [dismissedIncentives, setDismissedIncentives] = useState<Set<string>>(new Set());
   const [lastCleanup, setLastCleanup] = useState<Date | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authModalTrigger, setAuthModalTrigger] =
@@ -228,12 +218,8 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
   // Load persisted state
   useEffect(() => {
     try {
-      const views = parseInt(
-        localStorage.getItem(STORAGE_KEYS.INCENTIVE_VIEWS) || "0",
-      );
-      const dismissed = JSON.parse(
-        localStorage.getItem(STORAGE_KEYS.DISMISSED_INCENTIVES) || "[]",
-      );
+      const views = parseInt(localStorage.getItem(STORAGE_KEYS.INCENTIVE_VIEWS) || "0");
+      const dismissed = JSON.parse(localStorage.getItem(STORAGE_KEYS.DISMISSED_INCENTIVES) || "[]");
       const cleanup = localStorage.getItem(STORAGE_KEYS.LAST_CLEANUP);
 
       setIncentiveViews(views);
@@ -299,10 +285,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       pollCount = polls.length;
     } catch (error) {
       logError(
-        ErrorFactory.storage(
-          "Failed to get poll count",
-          "Impossible de compter les sondages",
-        ),
+        ErrorFactory.storage("Failed to get poll count", "Impossible de compter les sondages"),
         { component: "useQuota", metadata: { originalError: error } },
       );
     }
@@ -344,10 +327,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     return {
       used: conversationStatus.used,
       limit: conversationStatus.limit,
-      remaining: Math.max(
-        0,
-        conversationStatus.limit - conversationStatus.used,
-      ),
+      remaining: Math.max(0, conversationStatus.limit - conversationStatus.used),
       usagePercentage: Math.round(conversationStatus.percentage),
       isAtLimit: conversationStatus.isAtLimit,
       isNearLimit: conversationStatus.isNearLimit,
@@ -438,8 +418,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       ctaText = "Get More Storage";
     } else {
       title = "Unlock Premium Features";
-      description =
-        "Sign up to get unlimited conversations, cloud sync, and advanced features!";
+      description = "Sign up to get unlimited conversations, cloud sync, and advanced features!";
     }
 
     const incentiveKey = `${type}_${quotaInfo.used}`;
@@ -525,13 +504,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
   );
 
   // Show authentication incentive modal
-  const showAuthIncentiveModal = useCallback(
-    (trigger: AuthIncentive["type"]) => {
-      setAuthModalTrigger(trigger);
-      setShowAuthModal(true);
-    },
-    [],
-  );
+  const showAuthIncentiveModal = useCallback((trigger: AuthIncentive["type"]) => {
+    setAuthModalTrigger(trigger);
+    setShowAuthModal(true);
+  }, []);
 
   // Enforcement functions
   const checkConversationLimit = useCallback(() => {
@@ -547,12 +523,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     }
 
     return true;
-  }, [
-    canCreateConversation,
-    showAuthIncentiveModal,
-    status.conversations,
-    isAuthenticated,
-  ]);
+  }, [canCreateConversation, showAuthIncentiveModal, status.conversations, isAuthenticated]);
 
   const checkPollLimit = useCallback(() => {
     if (!canCreatePoll()) {
@@ -590,9 +561,16 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
         await storage.deleteConversation.mutateAsync(conversation.id);
         deletedCount++;
       } catch (error) {
-        console.warn(
-          `Failed to auto-delete conversation ${conversation.id}:`,
-          error,
+        logError(
+          ErrorFactory.storage(
+            `Failed to auto-delete conversation ${conversation.id}`,
+            "Impossible de supprimer automatiquement une conversation",
+          ),
+          {
+            component: "useQuota",
+            operation: "autoDeleteOldConversations",
+            metadata: { conversationId: conversation.id, error },
+          },
         );
       }
     }
@@ -611,10 +589,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     newDismissed.add(incentiveKey);
 
     setDismissedIncentives(newDismissed);
-    localStorage.setItem(
-      STORAGE_KEYS.DISMISSED_INCENTIVES,
-      JSON.stringify([...newDismissed]),
-    );
+    localStorage.setItem(STORAGE_KEYS.DISMISSED_INCENTIVES, JSON.stringify([...newDismissed]));
 
     // Increment view count
     const newViews = incentiveViews + 1;
@@ -673,10 +648,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
 
     executeAutoDeletion().catch((error) => {
       logError(
-        ErrorFactory.storage(
-          "Auto-deletion failed",
-          "Échec de la suppression automatique",
-        ),
+        ErrorFactory.storage("Auto-deletion failed", "Échec de la suppression automatique"),
         { component: "useQuota", metadata: { originalError: error } },
       );
     });
@@ -696,12 +668,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     console.warn(
       `Storage usage high: ${status.storage.used.toFixed(1)}MB/${status.storage.limit}MB`,
     );
-  }, [
-    status.storage.isNearLimit,
-    status.storage.used,
-    status.storage.limit,
-    isAuthenticated,
-  ]);
+  }, [status.storage.isNearLimit, status.storage.used, status.storage.limit, isAuthenticated]);
 
   return {
     // Quota information

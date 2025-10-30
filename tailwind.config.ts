@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -18,10 +19,43 @@ export default {
 				'2xl': '1400px'
 			}
 		},
+		// Breakpoints personnalisés pour meilleure gestion mobile
+		screens: {
+			'xs': '475px',
+			'sm': '640px',
+			'md': '768px',
+			'lg': '1024px',
+			'xl': '1280px',
+			'2xl': '1536px',
+		},
+		// Tailles de police optimisées pour mobile (ÉCRASE les valeurs par défaut)
+		fontSize: {
+			'xs': ['0.7rem', { lineHeight: '1rem' }],      // Réduit de 0.75rem
+			'sm': ['0.8rem', { lineHeight: '1.25rem' }],   // Réduit de 0.875rem
+			'base': ['0.9rem', { lineHeight: '1.5rem' }],  // Réduit de 1rem
+			'lg': ['1rem', { lineHeight: '1.75rem' }],     // Réduit de 1.125rem
+			'xl': ['1.15rem', { lineHeight: '1.75rem' }],  // Réduit de 1.25rem
+			'2xl': ['1.4rem', { lineHeight: '2rem' }],     // Réduit de 1.5rem
+			'3xl': ['1.75rem', { lineHeight: '2.25rem' }], // Réduit de 1.875rem
+			'4xl': ['2rem', { lineHeight: '2.5rem' }],     // Réduit de 2.25rem
+			'5xl': ['2.5rem', { lineHeight: '1' }],
+			'6xl': ['3rem', { lineHeight: '1' }],
+			'7xl': ['3.5rem', { lineHeight: '1' }],
+			'8xl': ['4.5rem', { lineHeight: '1' }],
+			'9xl': ['6rem', { lineHeight: '1' }],
+		},
 		extend: {
 			fontFamily: {
 				'inter': ['Inter', 'sans-serif'],
 				'geist': ['Geist', 'sans-serif'],
+			},
+			// Espacements optimisés pour mobile (padding/margin)
+			spacing: {
+				'mobile-xs': '0.25rem',  // 4px
+				'mobile-sm': '0.5rem',   // 8px
+				'mobile-md': '0.75rem',  // 12px
+				'mobile-lg': '1rem',     // 16px
+				'mobile-xl': '1.5rem',   // 24px
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -155,5 +189,5 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

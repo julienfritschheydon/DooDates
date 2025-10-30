@@ -4,27 +4,13 @@
  */
 
 import React, { useMemo, useState, useCallback } from "react";
-import {
-  MessageCircle,
-  Search,
-  Plus,
-  Filter,
-  SortAsc,
-  SortDesc,
-  Loader2,
-} from "lucide-react";
+import { MessageCircle, Search, Plus, Filter, SortAsc, SortDesc, Loader2 } from "lucide-react";
 
 import { ConversationCard } from "./ConversationCard";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,10 +21,7 @@ import {
 import { Skeleton } from "../ui/skeleton";
 import { cn } from "../../lib/utils";
 import { useConversationSearch } from "../../hooks/useConversationSearch";
-import type {
-  Conversation,
-  ConversationStatus,
-} from "../../types/conversation";
+import type { Conversation, ConversationStatus } from "../../types/conversation";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -96,8 +79,7 @@ function sortConversations(
     switch (sortBy) {
       case "updatedAt":
       case "createdAt":
-        comparison =
-          new Date(a[sortBy]).getTime() - new Date(b[sortBy]).getTime();
+        comparison = new Date(a[sortBy]).getTime() - new Date(b[sortBy]).getTime();
         break;
       case "title":
         comparison = a.title.localeCompare(b.title);
@@ -155,12 +137,7 @@ function getStatusFilterOptions(conversations: Conversation[]) {
 
 function ConversationSkeleton({ compact = false }: { compact?: boolean }) {
   return (
-    <div
-      className={cn(
-        "p-4 border rounded-lg space-y-3",
-        compact && "p-3 space-y-2",
-      )}
-    >
+    <div className={cn("p-4 border rounded-lg space-y-3", compact && "p-3 space-y-2")}>
       <div className="flex items-start justify-between">
         <div className="space-y-2 flex-1">
           <Skeleton className="h-4 w-3/4" />
@@ -202,12 +179,9 @@ function EmptyState({
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <Search className="h-12 w-12 text-gray-400 mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
-          Aucune conversation trouvée
-        </h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune conversation trouvée</h3>
         <p className="text-gray-500 mb-4 max-w-sm">
-          Essayez de modifier vos critères de recherche ou de filtrage pour voir
-          plus de résultats.
+          Essayez de modifier vos critères de recherche ou de filtrage pour voir plus de résultats.
         </p>
       </div>
     );
@@ -216,12 +190,9 @@ function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <MessageCircle className="h-12 w-12 text-gray-400 mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
-        Aucune conversation pour le moment
-      </h3>
+      <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune conversation pour le moment</h3>
       <p className="text-gray-500 mb-6 max-w-sm">
-        Commencez votre première conversation avec l'IA pour créer des sondages
-        intelligents.
+        Commencez votre première conversation avec l'IA pour créer des sondages intelligents.
       </p>
       {onCreateNew && (
         <Button onClick={onCreateNew} className="gap-2">
@@ -256,9 +227,7 @@ export function ConversationList({
   // Local state for sorting and filtering
   const [sortBy, setSortBy] = useState<SortOption>("updatedAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
-  const [statusFilter, setStatusFilter] = useState<ConversationStatus | "all">(
-    "all",
-  );
+  const [statusFilter, setStatusFilter] = useState<ConversationStatus | "all">("all");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   // Search functionality
@@ -282,10 +251,7 @@ export function ConversationList({
   }, [searchResults, conversations, query, sortBy, sortOrder]);
 
   // Status filter options with counts
-  const statusOptions = useMemo(
-    () => getStatusFilterOptions(conversations),
-    [conversations],
-  );
+  const statusOptions = useMemo(() => getStatusFilterOptions(conversations), [conversations]);
 
   // Handlers
   const handleSearchChange = useCallback(
@@ -367,12 +333,9 @@ export function ConversationList({
         <div className="text-red-500 mb-4">
           <MessageCircle className="h-12 w-12" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
-          Erreur de chargement
-        </h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Erreur de chargement</h3>
         <p className="text-gray-500 mb-4">
-          {error.message ||
-            "Une erreur est survenue lors du chargement des conversations."}
+          {error.message || "Une erreur est survenue lors du chargement des conversations."}
         </p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Réessayer
@@ -381,8 +344,7 @@ export function ConversationList({
     );
   }
 
-  const hasActiveFilters =
-    statusFilter !== "all" || showFavoritesOnly || Boolean(query);
+  const hasActiveFilters = statusFilter !== "all" || showFavoritesOnly || Boolean(query);
   const isEmpty = displayConversations.length === 0;
 
   return (
@@ -407,10 +369,7 @@ export function ConversationList({
           {/* Filters and Sort */}
           <div className="flex flex-wrap gap-2 items-center">
             {/* Status Filter */}
-            <Select
-              value={statusFilter}
-              onValueChange={handleStatusFilterChange}
-            >
+            <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
               <SelectTrigger className="w-auto min-w-[120px]">
                 <SelectValue />
               </SelectTrigger>
@@ -452,12 +411,8 @@ export function ConversationList({
                 <DropdownMenuItem onClick={() => handleSortChange("createdAt")}>
                   Date de création
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleSortChange("title")}>
-                  Titre
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleSortChange("messageCount")}
-                >
+                <DropdownMenuItem onClick={() => handleSortChange("title")}>Titre</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSortChange("messageCount")}>
                   Nombre de messages
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -20,17 +20,14 @@ export interface InternalTimeSlot {
  * Convertit un créneau au format Gemini vers le format interne
  * Cette fonction réutilise la logique testée et validée de PollCreator
  */
-export function convertGeminiSlotToInternal(
-  geminiSlot: GeminiTimeSlot,
-): InternalTimeSlot {
+export function convertGeminiSlotToInternal(geminiSlot: GeminiTimeSlot): InternalTimeSlot {
   // Calculer la durée en minutes entre start et end
   const startHour = parseInt(geminiSlot.start.split(":")[0]);
   const startMinute = parseInt(geminiSlot.start.split(":")[1]);
   const endHour = parseInt(geminiSlot.end.split(":")[0]);
   const endMinute = parseInt(geminiSlot.end.split(":")[1]);
 
-  const durationMinutes =
-    endHour * 60 + endMinute - (startHour * 60 + startMinute);
+  const durationMinutes = endHour * 60 + endMinute - (startHour * 60 + startMinute);
 
   // Créer UN SEUL slot avec la durée complète
   return {
@@ -54,8 +51,7 @@ export function convertGeminiSlotsToTimeSlotsByDate(
 
   geminiSlots.forEach((slot) => {
     // Si le slot n'a pas de dates spécifiques, l'appliquer à toutes les dates par défaut
-    const targetDates =
-      slot.dates && slot.dates.length > 0 ? slot.dates : defaultDates;
+    const targetDates = slot.dates && slot.dates.length > 0 ? slot.dates : defaultDates;
 
     targetDates.forEach((date: string) => {
       if (!convertedTimeSlots[date]) {

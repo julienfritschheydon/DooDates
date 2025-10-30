@@ -1,11 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import {
-  motion,
-  useMotionValue,
-  useTransform,
-  PanInfo,
-  useAnimation,
-} from "framer-motion";
+import { motion, useMotionValue, useTransform, PanInfo, useAnimation } from "framer-motion";
 import {
   ChevronLeft,
   TrendingUp,
@@ -29,14 +23,7 @@ import VoteOption from "./VoteOption";
 
 // Import types and utilities
 import { logger } from "@/lib/logger";
-import {
-  SwipeOption,
-  SwipeVote,
-  VoterInfo,
-  FormErrors,
-  VoteType,
-  Poll,
-} from "./utils/types";
+import { SwipeOption, SwipeVote, VoterInfo, FormErrors, VoteType, Poll } from "./utils/types";
 import { formatDate, formatTime } from "./utils/dateUtils";
 import { triggerHaptic } from "./utils/voteUtils";
 
@@ -49,11 +36,7 @@ interface VotingSwipeProps {
   onVoteSubmitted?: () => void;
 }
 
-const VotingSwipe: React.FC<VotingSwipeProps> = ({
-  pollId,
-  onBack,
-  onVoteSubmitted,
-}) => {
+const VotingSwipe: React.FC<VotingSwipeProps> = ({ pollId, onBack, onVoteSubmitted }) => {
   // Utiliser le hook useVoting pour gérer toute la logique métier
   const {
     poll,
@@ -76,9 +59,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
   } = useVoting(pollId);
 
   // États locaux pour l'interface swipe
-  const [currentSwipe, setCurrentSwipe] = useState<
-    Record<string, VoteType | null>
-  >({});
+  const [currentSwipe, setCurrentSwipe] = useState<Record<string, VoteType | null>>({});
   const [showForm, setShowForm] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isVoteComplete, setIsVoteComplete] = useState(false);
@@ -90,10 +71,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
     handleVote(optionId, direction);
   };
 
-  const handleOptionDragEnd = (
-    optionId: string,
-    direction: VoteType | null,
-  ) => {
+  const handleOptionDragEnd = (optionId: string, direction: VoteType | null) => {
     if (direction) {
       handleVote(optionId, direction);
     }
@@ -142,10 +120,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
       // Car en mode swipe, userHasVoted peut ne pas être à jour
       if (votes[optionId]) {
         result[votes[optionId]]++;
-        console.log(
-          `[STATS] Vote utilisateur ajouté: ${votes[optionId]} → Nouveau total:`,
-          result,
-        );
+        console.log(`[STATS] Vote utilisateur ajouté: ${votes[optionId]} → Nouveau total:`, result);
       }
 
       return result;
@@ -239,8 +214,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                 ...poll,
                 description: poll.description || "",
                 expires_at:
-                  poll.expires_at ||
-                  new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                  poll.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
               }
             : null
         }
@@ -256,9 +230,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
         {/* Liste swipable des options */}
         <div className="px-6 space-y-3 py-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-white">
-              Options disponibles
-            </h3>
+            <h3 className="text-lg font-semibold text-white">Options disponibles</h3>
             <div className="text-sm text-gray-400">Swipez pour voter</div>
           </div>
 
@@ -275,15 +247,10 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                 handleVote(optionId, voteType);
               }}
               handleSwipe={(optionId: string, direction: number) => {
-                const voteType =
-                  direction > 0 ? "yes" : direction < 0 ? "no" : "maybe";
+                const voteType = direction > 0 ? "yes" : direction < 0 ? "no" : "maybe";
                 handleSwipe(optionId, voteType);
               }}
-              handleOptionDragEnd={(
-                event: any,
-                info: any,
-                optionId: string,
-              ) => {
+              handleOptionDragEnd={(event: any, info: any, optionId: string) => {
                 // SWIPE LOGIC - DOCUMENTATION
                 // offset.x > 0 = swipe vers la DROITE
                 // offset.x < 0 = swipe vers la GAUCHE
@@ -334,10 +301,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                   let currentRank = 1;
 
                   optionsWithScores.forEach((option, index) => {
-                    if (
-                      index > 0 &&
-                      option.score < optionsWithScores[index - 1].score
-                    ) {
+                    if (index > 0 && option.score < optionsWithScores[index - 1].score) {
                       currentRank = index + 1;
                     }
                     rankings[option.id] = currentRank;
@@ -350,9 +314,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                 }
                 return {};
               }}
-              anyUserHasVoted={Object.values(userHasVoted).some(
-                (voted) => voted,
-              )}
+              anyUserHasVoted={Object.values(userHasVoted).some((voted) => voted)}
             />
           ))}
         </div>
