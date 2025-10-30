@@ -48,10 +48,7 @@ import {
 } from "../ui/alert-dialog";
 import { toast } from "../ui/use-toast";
 import { cn } from "../../lib/utils";
-import type {
-  Conversation,
-  ConversationStatus,
-} from "../../types/conversation";
+import type { Conversation, ConversationStatus } from "../../types/conversation";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -106,25 +103,17 @@ interface DeleteDialogProps {
 // SUB-COMPONENTS
 // ============================================================================
 
-function RenameDialog({
-  isOpen,
-  currentTitle,
-  onClose,
-  onConfirm,
-  language,
-}: RenameDialogProps) {
+function RenameDialog({ isOpen, currentTitle, onClose, onConfirm, language }: RenameDialogProps) {
   const [title, setTitle] = useState(currentTitle);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const text = {
-    title:
-      language === "fr" ? "Renommer la conversation" : "Rename conversation",
+    title: language === "fr" ? "Renommer la conversation" : "Rename conversation",
     description:
       language === "fr"
         ? "Donnez un nouveau nom à cette conversation."
         : "Give this conversation a new name.",
-    placeholder:
-      language === "fr" ? "Nom de la conversation" : "Conversation name",
+    placeholder: language === "fr" ? "Nom de la conversation" : "Conversation name",
     cancel: language === "fr" ? "Annuler" : "Cancel",
     save: language === "fr" ? "Enregistrer" : "Save",
     saving: language === "fr" ? "Enregistrement..." : "Saving...",
@@ -141,8 +130,7 @@ function RenameDialog({
       await onConfirm(title.trim());
       onClose();
       toast({
-        title:
-          language === "fr" ? "Conversation renommée" : "Conversation renamed",
+        title: language === "fr" ? "Conversation renommée" : "Conversation renamed",
         description:
           language === "fr"
             ? "Le nom de la conversation a été mis à jour."
@@ -203,9 +191,7 @@ function RenameDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={
-              isSubmitting || !title.trim() || title.trim() === currentTitle
-            }
+            disabled={isSubmitting || !title.trim() || title.trim() === currentTitle}
           >
             {isSubmitting ? text.saving : text.save}
           </Button>
@@ -225,8 +211,7 @@ function DeleteDialog({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const text = {
-    title:
-      language === "fr" ? "Supprimer la conversation" : "Delete conversation",
+    title: language === "fr" ? "Supprimer la conversation" : "Delete conversation",
     description:
       language === "fr"
         ? "Êtes-vous sûr de vouloir supprimer cette conversation ? Cette action est irréversible."
@@ -242,8 +227,7 @@ function DeleteDialog({
     try {
       await onConfirm();
       toast({
-        title:
-          language === "fr" ? "Conversation supprimée" : "Conversation deleted",
+        title: language === "fr" ? "Conversation supprimée" : "Conversation deleted",
         description:
           language === "fr"
             ? "La conversation a été supprimée définitivement."
@@ -276,9 +260,7 @@ function DeleteDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>
-            {text.cancel}
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>{text.cancel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isDeleting}
@@ -320,8 +302,7 @@ export function ConversationActions({
     rename: language === "fr" ? "Renommer" : "Rename",
     delete: language === "fr" ? "Supprimer" : "Delete",
     favorite: language === "fr" ? "Ajouter aux favoris" : "Add to favorites",
-    unfavorite:
-      language === "fr" ? "Retirer des favoris" : "Remove from favorites",
+    unfavorite: language === "fr" ? "Retirer des favoris" : "Remove from favorites",
     archive: language === "fr" ? "Archiver" : "Archive",
     unarchive: language === "fr" ? "Désarchiver" : "Unarchive",
     viewPoll: language === "fr" ? "Voir le sondage" : "View poll",
@@ -420,10 +401,7 @@ export function ConversationActions({
     } catch (error) {
       toast({
         title: language === "fr" ? "Erreur" : "Error",
-        description:
-          language === "fr"
-            ? "Impossible de copier le lien."
-            : "Failed to copy link.",
+        description: language === "fr" ? "Impossible de copier le lien." : "Failed to copy link.",
         variant: "destructive",
       });
     }
@@ -566,19 +544,15 @@ export function ConversationActions({
               .filter((action) => action.show)
               .map((action, index) => {
                 const Icon = action.icon;
-                const isLast =
-                  index === secondaryActions.filter((a) => a.show).length - 1;
-                const needsSeparator =
-                  action.key === "delete" || action.key === "exportJson";
+                const isLast = index === secondaryActions.filter((a) => a.show).length - 1;
+                const needsSeparator = action.key === "delete" || action.key === "exportJson";
 
                 return (
                   <React.Fragment key={action.key}>
                     {needsSeparator && <DropdownMenuSeparator />}
                     <DropdownMenuItem
                       onClick={action.onClick}
-                      className={cn(
-                        action.destructive && "text-red-600 focus:text-red-600",
-                      )}
+                      className={cn(action.destructive && "text-red-600 focus:text-red-600")}
                     >
                       <Icon className="mr-2 h-4 w-4" />
                       {action.label}
@@ -640,17 +614,14 @@ export function ConversationActions({
             .filter((action) => action.show)
             .map((action, index) => {
               const Icon = action.icon;
-              const needsSeparator =
-                action.key === "delete" || action.key === "exportJson";
+              const needsSeparator = action.key === "delete" || action.key === "exportJson";
 
               return (
                 <React.Fragment key={action.key}>
                   {needsSeparator && <DropdownMenuSeparator />}
                   <DropdownMenuItem
                     onClick={action.onClick}
-                    className={cn(
-                      action.destructive && "text-red-600 focus:text-red-600",
-                    )}
+                    className={cn(action.destructive && "text-red-600 focus:text-red-600")}
                   >
                     <Icon className="mr-2 h-4 w-4" />
                     {action.label}

@@ -5,10 +5,7 @@
  * Utilisé par PollCreator.tsx (sondages de dates) et ConversationProvider.tsx (formulaires)
  */
 
-import {
-  getConversation,
-  updateConversation,
-} from "./storage/ConversationStorageSimple";
+import { getConversation, updateConversation } from "./storage/ConversationStorageSimple";
 import { logger } from "./logger";
 
 /**
@@ -16,10 +13,7 @@ import { logger } from "./logger";
  * @param pollTitle - Titre du poll à lier
  * @returns Promise<void>
  */
-export async function linkPollToConversation(
-  pollTitle: string,
-  pollId?: string,
-): Promise<void> {
+export async function linkPollToConversation(pollTitle: string, pollId?: string): Promise<void> {
   try {
     console.log("🔗 linkPollToConversation appelé avec:", {
       pollTitle,

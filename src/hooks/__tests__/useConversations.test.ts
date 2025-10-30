@@ -72,9 +72,7 @@ describe("useConversations", () => {
       updatedAt: new Date(),
       userId: data.userId,
     }));
-    mockConversationStorage.updateConversation.mockImplementation(
-      (conv) => conv,
-    );
+    mockConversationStorage.updateConversation.mockImplementation((conv) => conv);
     mockConversationStorage.deleteConversation.mockImplementation(() => {});
     mockConversationStorage.addMessages.mockImplementation(() => {});
 
@@ -138,8 +136,7 @@ describe("useConversations", () => {
         () => {
           // Le hook peut retourner un tableau vide au lieu d'une erreur selon l'implémentation
           expect(
-            result.current.conversations.isError ||
-              result.current.conversations.totalCount === 0,
+            result.current.conversations.isError || result.current.conversations.totalCount === 0,
           ).toBe(true);
         },
         { timeout: 3000 },
@@ -270,9 +267,7 @@ describe("useConversations", () => {
         await result.current.deleteConversation.mutateAsync("conv-1");
       });
 
-      expect(mockConversationStorage.deleteConversation).toHaveBeenCalledWith(
-        "conv-1",
-      );
+      expect(mockConversationStorage.deleteConversation).toHaveBeenCalledWith("conv-1");
     });
 
     it("should add message to conversation", async () => {
@@ -321,9 +316,7 @@ describe("useConversations", () => {
         expect(result.current.conversations.isSuccess).toBe(true);
       });
 
-      const searchResults = await result.current.searchConversations(
-        "Test Conversation 1",
-      );
+      const searchResults = await result.current.searchConversations("Test Conversation 1");
       expect(searchResults).toHaveLength(1);
       expect(searchResults[0].title).toContain("Test Conversation 1");
     });
@@ -337,17 +330,14 @@ describe("useConversations", () => {
         expect(result.current.conversations.isSuccess).toBe(true);
       });
 
-      const callCount =
-        mockConversationStorage.getConversations.mock.calls.length;
+      const callCount = mockConversationStorage.getConversations.mock.calls.length;
 
       await act(async () => {
         await result.current.refresh();
       });
 
       // Should call getConversations again on refresh
-      expect(
-        mockConversationStorage.getConversations.mock.calls.length,
-      ).toBeGreaterThan(callCount);
+      expect(mockConversationStorage.getConversations.mock.calls.length).toBeGreaterThan(callCount);
     });
   });
 

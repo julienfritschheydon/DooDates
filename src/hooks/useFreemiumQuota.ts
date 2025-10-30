@@ -119,10 +119,7 @@ export const useFreemiumQuota = () => {
       pollCount = polls.length;
     } catch (error) {
       logError(
-        ErrorFactory.storage(
-          "Failed to get poll count",
-          "Impossible de compter les sondages",
-        ),
+        ErrorFactory.storage("Failed to get poll count", "Impossible de compter les sondages"),
         { component: "useFreemiumQuota", metadata: { originalError: error } },
       );
     }
@@ -171,11 +168,7 @@ export const useFreemiumQuota = () => {
     (feature: string) => {
       // Some features are locked for guest users
       if (!isAuthenticated) {
-        const lockedFeatures = [
-          "export",
-          "advanced_analytics",
-          "custom_branding",
-        ];
+        const lockedFeatures = ["export", "advanced_analytics", "custom_branding"];
         return !lockedFeatures.includes(feature);
       }
       return true;
@@ -205,12 +198,7 @@ export const useFreemiumQuota = () => {
     }
 
     return true;
-  }, [
-    canCreateConversation,
-    showAuthIncentive,
-    getQuotaStatus,
-    isAuthenticated,
-  ]);
+  }, [canCreateConversation, showAuthIncentive, getQuotaStatus, isAuthenticated]);
 
   const checkPollLimit = useCallback(() => {
     if (!canCreatePoll()) {

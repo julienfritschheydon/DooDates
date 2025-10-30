@@ -36,16 +36,10 @@ const Calendar: React.FC<CalendarProps> = ({
 
   // Mise en cache des jours du calendrier avec useMemo
   const generateCalendarDays = useMemo(() => {
-    const memoTimerId = logger.time(
-      "Calendar - useMemo generateCalendarDays",
-      "calendar",
-    );
+    const memoTimerId = logger.time("Calendar - useMemo generateCalendarDays", "calendar");
 
     const result = (monthDate: Date): CalendarDay[] => {
-      const dayTimerId = logger.time(
-        "Calendar - Génération des jours d'un mois",
-        "calendar",
-      );
+      const dayTimerId = logger.time("Calendar - Génération des jours d'un mois", "calendar");
       // Générer seulement les jours du mois en cours
       const year = monthDate.getFullYear();
       const month = monthDate.getMonth();
@@ -101,10 +95,7 @@ const Calendar: React.FC<CalendarProps> = ({
             // Si c'est une case vide, on affiche juste un espace
             if (isEmpty || !date) {
               return (
-                <div
-                  key={`empty-${index}`}
-                  className={`${isMobile ? "w-9 h-9" : "w-10 h-10"}`}
-                />
+                <div key={`empty-${index}`} className={`${isMobile ? "w-9 h-9" : "w-10 h-10"}`} />
               );
             }
 
@@ -184,20 +175,13 @@ const Calendar: React.FC<CalendarProps> = ({
     const { scrollLeft, scrollWidth, clientWidth } = e.currentTarget;
 
     // Charger plus de mois si on approche de la fin (jusqu'à 60 mois = 5 ans)
-    if (
-      scrollWidth - scrollLeft <= clientWidth + 200 &&
-      visibleMonths.length < 60
-    ) {
+    if (scrollWidth - scrollLeft <= clientWidth + 200 && visibleMonths.length < 60) {
       const lastMonth = visibleMonths[visibleMonths.length - 1];
 
       // Charger 3 mois à la fois pour navigation plus fluide
       const newMonths: Date[] = [];
       for (let i = 1; i <= 3; i++) {
-        const nextMonth = new Date(
-          lastMonth.getFullYear(),
-          lastMonth.getMonth() + i,
-          1,
-        );
+        const nextMonth = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + i, 1);
 
         // Vérifier qu'on ne dépasse pas 5 ans depuis AUJOURD'HUI (dynamique)
         // Ex: En 2025 → jusqu'en 2030, En 2028 → jusqu'en 2033, etc.
@@ -275,10 +259,7 @@ const Calendar: React.FC<CalendarProps> = ({
                     const velocity = Math.abs(info.velocity.x);
 
                     // Prendre en compte la vélocité ET la distance
-                    if (
-                      (info.offset.x > threshold && velocity > 100) ||
-                      info.offset.x > 120
-                    ) {
+                    if ((info.offset.x > threshold && velocity > 100) || info.offset.x > 120) {
                       // Swipe vers la droite = mois précédent
                       onMonthChange("prev");
                     } else if (

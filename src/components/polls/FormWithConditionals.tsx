@@ -1,9 +1,6 @@
 import React, { useState, useMemo } from "react";
 import type { ConditionalRule } from "../../types/conditionalRules";
-import {
-  shouldShowQuestion,
-  cleanHiddenAnswers,
-} from "../../lib/conditionalEvaluator";
+import { shouldShowQuestion, cleanHiddenAnswers } from "../../lib/conditionalEvaluator";
 
 interface FormQuestion {
   id: string;
@@ -104,9 +101,7 @@ export default function FormWithConditionals({
           <div key={question.id} className="space-y-2">
             <label className="block font-medium">
               {question.title}
-              {question.required && (
-                <span className="text-red-500 ml-1">*</span>
-              )}
+              {question.required && <span className="text-red-500 ml-1">*</span>}
             </label>
 
             {question.type === "single" && question.options && (
@@ -118,9 +113,7 @@ export default function FormWithConditionals({
                       name={question.id}
                       value={option.label}
                       checked={answer === option.label}
-                      onChange={(e) =>
-                        handleAnswerChange(question.id, e.target.value)
-                      }
+                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                       className="w-4 h-4"
                     />
                     <span>{option.label}</span>
@@ -132,9 +125,7 @@ export default function FormWithConditionals({
             {question.type === "multiple" && question.options && (
               <div className="space-y-2">
                 {question.maxChoices && (
-                  <div className="text-sm text-gray-600">
-                    (Maximum {question.maxChoices} choix)
-                  </div>
+                  <div className="text-sm text-gray-600">(Maximum {question.maxChoices} choix)</div>
                 )}
                 {question.options.map((option) => {
                   const selectedOptions = Array.isArray(answer) ? answer : [];
@@ -155,14 +146,10 @@ export default function FormWithConditionals({
                         checked={isChecked}
                         disabled={maxReached}
                         onChange={(e) => {
-                          const currentSelected = Array.isArray(answer)
-                            ? answer
-                            : [];
+                          const currentSelected = Array.isArray(answer) ? answer : [];
                           const newSelected = e.target.checked
                             ? [...currentSelected, e.target.value]
-                            : currentSelected.filter(
-                                (v) => v !== e.target.value,
-                              );
+                            : currentSelected.filter((v) => v !== e.target.value);
                           handleAnswerChange(question.id, newSelected);
                         }}
                         className="w-4 h-4"
@@ -177,9 +164,7 @@ export default function FormWithConditionals({
             {question.type === "text" && (
               <textarea
                 value={typeof answer === "string" ? answer : ""}
-                onChange={(e) =>
-                  handleAnswerChange(question.id, e.target.value)
-                }
+                onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                 placeholder={question.placeholder || "Votre réponse"}
                 className="w-full px-3 py-2 border rounded-md"
                 rows={3}
@@ -202,11 +187,7 @@ export default function FormWithConditionals({
         <details className="text-xs text-gray-500">
           <summary>Debug conditionnelles</summary>
           <pre className="mt-2 p-2 bg-gray-100 rounded">
-            {JSON.stringify(
-              { visibleQuestionIds, answers, conditionalRules },
-              null,
-              2,
-            )}
+            {JSON.stringify({ visibleQuestionIds, answers, conditionalRules }, null, 2)}
           </pre>
         </details>
       )}

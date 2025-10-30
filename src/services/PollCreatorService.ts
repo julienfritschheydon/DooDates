@@ -145,10 +145,7 @@ export class PollCreatorService {
   /**
    * Check if granularity is compatible with selected time slots
    */
-  static isGranularityCompatible(
-    granularity: number,
-    timeSlots: TimeSlot[],
-  ): boolean {
+  static isGranularityCompatible(granularity: number, timeSlots: TimeSlot[]): boolean {
     return timeSlots.every((slot) => slot.minute % granularity === 0);
   }
 
@@ -220,9 +217,7 @@ export class PollCreatorService {
     const startHour = showExtendedHours ? 6 : 8;
     const endHour = showExtendedHours ? 23 : 20;
 
-    return timeSlots.filter(
-      (slot) => slot.hour >= startHour && slot.hour <= endHour,
-    );
+    return timeSlots.filter((slot) => slot.hour >= startHour && slot.hour <= endHour);
   }
 
   /**
@@ -254,8 +249,7 @@ export class PollCreatorService {
           };
         } else {
           // Vérifier si ce slot est contigu au bloc actuel
-          const currentEndMinutes =
-            currentBlock.end.hour * 60 + currentBlock.end.minute;
+          const currentEndMinutes = currentBlock.end.hour * 60 + currentBlock.end.minute;
           const slotStartMinutes = slot.hour * 60 + slot.minute;
 
           if (slotStartMinutes === currentEndMinutes) {
@@ -310,9 +304,7 @@ export class PollCreatorService {
     setState((prev) => ({
       ...prev,
       timeSlots: prev.timeSlots.map((slot) =>
-        slot.hour === hour && slot.minute === minute
-          ? { ...slot, enabled: !slot.enabled }
-          : slot,
+        slot.hour === hour && slot.minute === minute ? { ...slot, enabled: !slot.enabled } : slot,
       ),
     }));
   }

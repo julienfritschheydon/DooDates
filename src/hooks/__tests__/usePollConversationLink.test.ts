@@ -78,9 +78,7 @@ describe("usePollConversationLink", () => {
     });
 
     it("should handle linking errors gracefully", async () => {
-      mockUpdateConversation.mutateAsync.mockRejectedValue(
-        new Error("Update failed"),
-      );
+      mockUpdateConversation.mutateAsync.mockRejectedValue(new Error("Update failed"));
 
       const { result } = renderHook(() => usePollConversationLink());
 
@@ -100,11 +98,7 @@ describe("usePollConversationLink", () => {
     it("should generate correct poll link metadata", () => {
       const { result } = renderHook(() => usePollConversationLink());
 
-      const metadata = result.current.getPollLinkMetadata(
-        "conv-1",
-        "msg-1",
-        "Test Conversation",
-      );
+      const metadata = result.current.getPollLinkMetadata("conv-1", "msg-1", "Test Conversation");
 
       expect(metadata).toEqual({
         conversationId: "conv-1",
@@ -235,11 +229,7 @@ describe("usePollConversationLink", () => {
       const { result } = renderHook(() => usePollConversationLink());
 
       // Step 1: Get metadata for linking
-      const metadata = result.current.getPollLinkMetadata(
-        "conv-1",
-        "msg-1",
-        "Test Conv",
-      );
+      const metadata = result.current.getPollLinkMetadata("conv-1", "msg-1", "Test Conv");
       expect(metadata.conversationId).toBe("conv-1");
 
       // Step 2: Link poll to conversation

@@ -4,26 +4,12 @@
  */
 
 import React, { useState, useCallback } from "react";
-import {
-  Search,
-  Filter,
-  X,
-  Calendar,
-  Tag,
-  Star,
-  MessageCircle,
-} from "lucide-react";
+import { Search, Filter, X, Calendar, Tag, Star, MessageCircle } from "lucide-react";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -163,9 +149,7 @@ export function ConversationSearch({
   // Text content based on language
   const text = {
     searchPlaceholder:
-      language === "fr"
-        ? "Rechercher dans les conversations..."
-        : "Search conversations...",
+      language === "fr" ? "Rechercher dans les conversations..." : "Search conversations...",
     filters: language === "fr" ? "Filtres" : "Filters",
     clearFilters: language === "fr" ? "Effacer les filtres" : "Clear filters",
     dateRange: language === "fr" ? "Période" : "Date range",
@@ -212,8 +196,7 @@ export function ConversationSearch({
   const handleDateRangeApply = useCallback(() => {
     const newFilters = {
       ...filters,
-      dateRange:
-        tempDateRange.from || tempDateRange.to ? tempDateRange : undefined,
+      dateRange: tempDateRange.from || tempDateRange.to ? tempDateRange : undefined,
     };
     onFiltersChange?.(newFilters);
     setIsDatePickerOpen(false);
@@ -276,10 +259,7 @@ export function ConversationSearch({
       {/* Filters Row */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Status Filter */}
-        <Select
-          value={filters.status || "all"}
-          onValueChange={handleStatusChange}
-        >
+        <Select value={filters.status || "all"} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-auto min-w-[120px]">
             <SelectValue />
           </SelectTrigger>
@@ -315,18 +295,11 @@ export function ConversationSearch({
         {showAdvancedFilters && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1"
-              >
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
                 <Filter className="h-3 w-3" />
                 {text.filters}
                 {activeFiltersCount > 0 && (
-                  <Badge
-                    variant="secondary"
-                    className="ml-1 h-4 w-4 p-0 text-xs"
-                  >
+                  <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">
                     {activeFiltersCount}
                   </Badge>
                 )}
@@ -334,10 +307,7 @@ export function ConversationSearch({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               {/* Date Range Filter */}
-              <Popover
-                open={isDatePickerOpen}
-                onOpenChange={setIsDatePickerOpen}
-              >
+              <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                 <PopoverTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Calendar className="mr-2 h-4 w-4" />
@@ -386,9 +356,7 @@ export function ConversationSearch({
               {availableTags.length > 0 && (
                 <>
                   <DropdownMenuSeparator />
-                  <div className="px-2 py-1.5 text-sm font-medium text-gray-500">
-                    {text.tags}
-                  </div>
+                  <div className="px-2 py-1.5 text-sm font-medium text-gray-500">{text.tags}</div>
                   {availableTags.map((tag) => (
                     <DropdownMenuCheckboxItem
                       key={tag}
@@ -487,9 +455,7 @@ export function ConversationSearch({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() =>
-                  onFiltersChange?.({ ...filters, dateRange: undefined })
-                }
+                onClick={() => onFiltersChange?.({ ...filters, dateRange: undefined })}
                 className="h-4 w-4 p-0 ml-1 hover:bg-gray-200"
               >
                 <X className="h-2 w-2" />
@@ -498,11 +464,7 @@ export function ConversationSearch({
           )}
 
           {filters.tags?.map((tag) => (
-            <Badge
-              key={tag}
-              variant="secondary"
-              className="flex items-center gap-1"
-            >
+            <Badge key={tag} variant="secondary" className="flex items-center gap-1">
               <Tag className="h-3 w-3" />
               {tag}
               <Button

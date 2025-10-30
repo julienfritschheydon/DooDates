@@ -21,10 +21,7 @@ export function UserMenu() {
         setTimeout(() => reject(new Error("Timeout déconnexion")), 5000),
       );
 
-      const { error } = (await Promise.race([
-        signOutPromise,
-        timeoutPromise,
-      ])) as any;
+      const { error } = (await Promise.race([signOutPromise, timeoutPromise])) as any;
 
       if (error) {
         logger.error("Erreur de déconnexion", "auth", error);

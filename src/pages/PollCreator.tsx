@@ -20,9 +20,7 @@ const PollCreator = () => {
   const draftIdParam = params.get("draftId") || undefined;
 
   // Helper to convert AnyFormQuestion to FormQuestionShape
-  const convertToFormQuestionShape = (
-    questions: AnyFormQuestion[],
-  ): FormQuestionShape[] => {
+  const convertToFormQuestionShape = (questions: AnyFormQuestion[]): FormQuestionShape[] => {
     return questions.map((q) => ({
       id: q.id,
       kind: q.type, // Map 'type' to 'kind'
@@ -35,10 +33,7 @@ const PollCreator = () => {
     }));
   };
 
-  const upsertFormPollFromDraft = (
-    draft: FormPollDraft,
-    targetStatus: StoragePoll["status"],
-  ) => {
+  const upsertFormPollFromDraft = (draft: FormPollDraft, targetStatus: StoragePoll["status"]) => {
     const all = getAllPolls();
     const existingIndex = all.findIndex((p) => p.id === draft.id);
 

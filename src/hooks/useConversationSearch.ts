@@ -7,11 +7,7 @@ import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { useDebounce } from "./useDebounce.js";
 import { useConversations } from "./useConversations";
 import { ConversationSearchService } from "../services/ConversationSearchService";
-import type {
-  SearchFilters,
-  SearchOptions,
-  SearchResult,
-} from "../types/search";
+import type { SearchFilters, SearchOptions, SearchResult } from "../types/search";
 
 // ============================================================================
 // CUSTOM HOOK
@@ -95,11 +91,7 @@ export function useConversationSearch(
     }
 
     try {
-      return searchServiceRef.current!.search(
-        allConversations,
-        searchFilters,
-        options,
-      );
+      return searchServiceRef.current!.search(allConversations, searchFilters, options);
     } catch (error) {
       return {
         conversations: [],

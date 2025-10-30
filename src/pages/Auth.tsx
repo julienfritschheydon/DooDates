@@ -3,13 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { SignInForm } from "../components/auth/SignInForm";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Alert, AlertDescription } from "../components/ui/alert";
@@ -80,9 +74,7 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl text-center">Inscription</CardTitle>
-        <CardDescription className="text-center">
-          Créez votre compte DooDates
-        </CardDescription>
+        <CardDescription className="text-center">Créez votre compte DooDates</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -141,9 +133,7 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
               />
             </div>
             {errors.fullName && (
-              <p className="text-sm text-destructive">
-                {errors.fullName.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.fullName.message}</p>
             )}
           </div>
 
@@ -159,9 +149,7 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
                 {...register("email")}
               />
             </div>
-            {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -177,9 +165,7 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
               />
             </div>
             {errors.password && (
-              <p className="text-sm text-destructive">
-                {errors.password.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.password.message}</p>
             )}
           </div>
 
@@ -196,26 +182,18 @@ function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
               />
             </div>
             {errors.confirmPassword && (
-              <p className="text-sm text-destructive">
-                {errors.confirmPassword.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
             )}
           </div>
 
           {/* Erreurs générales */}
           {(errors.root || error) && (
             <Alert variant="destructive">
-              <AlertDescription>
-                {errors.root?.message || error}
-              </AlertDescription>
+              <AlertDescription>{errors.root?.message || error}</AlertDescription>
             </Alert>
           )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting || loading}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting || loading}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Créer mon compte
           </Button>
@@ -247,8 +225,7 @@ export function Auth() {
 
   // Détecter l'intention de connexion calendrier
   const connectCalendar = searchParams.get("connect") === "calendar";
-  const needsCalendarConnection =
-    localStorage.getItem("doodates-connect-calendar") === "true";
+  const needsCalendarConnection = localStorage.getItem("doodates-connect-calendar") === "true";
 
   // Auto-connexion Google pour le calendrier (une seule fois)
   useEffect(() => {
@@ -357,9 +334,7 @@ export function Auth() {
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900">DooDates</h1>
-            <p className="mt-2 text-sm text-gray-600">
-              Connexion à votre calendrier Google
-            </p>
+            <p className="mt-2 text-sm text-gray-600">Connexion à votre calendrier Google</p>
           </div>
 
           <div className="bg-white shadow rounded-lg p-6">
@@ -383,15 +358,13 @@ export function Auth() {
                 Connecter votre calendrier Google
               </h2>
               <p className="text-sm text-gray-600">
-                Nous vous redirigeons vers Google pour accéder à votre
-                calendrier et suggérer les meilleurs créneaux disponibles.
+                Nous vous redirigeons vers Google pour accéder à votre calendrier et suggérer les
+                meilleurs créneaux disponibles.
               </p>
               {!autoConnectAttempted ? (
                 <div className="flex items-center justify-center mt-4">
                   <Loader2 className="h-5 w-5 animate-spin text-blue-600 mr-2" />
-                  <span className="text-sm text-gray-600">
-                    Connexion en cours...
-                  </span>
+                  <span className="text-sm text-gray-600">Connexion en cours...</span>
                 </div>
               ) : (
                 <Button
@@ -417,21 +390,13 @@ export function Auth() {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">DooDates</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Planification intelligente de rendez-vous
-          </p>
+          <p className="mt-2 text-sm text-gray-600">Planification intelligente de rendez-vous</p>
         </div>
 
         {mode === "signin" ? (
-          <SignInForm
-            onSuccess={handleAuthSuccess}
-            onSwitchToSignUp={() => setMode("signup")}
-          />
+          <SignInForm onSuccess={handleAuthSuccess} onSwitchToSignUp={() => setMode("signup")} />
         ) : (
-          <SignUpForm
-            onSuccess={handleAuthSuccess}
-            onSwitchToSignIn={() => setMode("signin")}
-          />
+          <SignUpForm onSuccess={handleAuthSuccess} onSwitchToSignIn={() => setMode("signin")} />
         )}
       </div>
     </div>
@@ -471,10 +436,7 @@ export function AuthCallback() {
             navigate("/", { replace: true });
           }
         } else if (!loading) {
-          logger.warn(
-            "No user found after callback, redirecting to auth",
-            "auth",
-          );
+          logger.warn("No user found after callback, redirecting to auth", "auth");
           navigate("/auth", { replace: true });
         }
       }, 2000); // Augmenté à 2 secondes pour laisser plus de temps
@@ -489,16 +451,12 @@ export function AuthCallback() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">
         <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-        <h2 className="text-lg font-semibold text-gray-900">
-          Connexion en cours...
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-900">Connexion en cours...</h2>
         <p className="text-sm text-gray-600 mt-2">
           Veuillez patienter pendant que nous finalisons votre connexion.
         </p>
         {user && (
-          <p className="text-xs text-green-600 mt-2">
-            Utilisateur connecté, redirection...
-          </p>
+          <p className="text-xs text-green-600 mt-2">Utilisateur connecté, redirection...</p>
         )}
       </div>
     </div>

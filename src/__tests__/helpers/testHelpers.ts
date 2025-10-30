@@ -32,9 +32,7 @@ export const createMockUser = (overrides: Partial<User> = {}): User => ({
 /**
  * Crée une Conversation mockée
  */
-export const createMockConversation = (
-  overrides: Partial<Conversation> = {},
-): Conversation => ({
+export const createMockConversation = (overrides: Partial<Conversation> = {}): Conversation => ({
   id: "conv-1",
   title: "Test Conversation",
   status: "active",

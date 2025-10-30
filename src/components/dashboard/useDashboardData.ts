@@ -1,18 +1,11 @@
 import { useState, useEffect } from "react";
 import { DashboardPoll, ConversationItem } from "./types";
-import {
-  getAllPolls,
-  getFormResponses,
-  getRespondentId,
-  getVoterId,
-} from "@/lib/pollStorage";
+import { getAllPolls, getFormResponses, getRespondentId, getVoterId } from "@/lib/pollStorage";
 import { getConversations } from "@/lib/storage/ConversationStorageSimple";
 import { logError, ErrorFactory } from "@/lib/error-handling";
 
 export function useDashboardData(refreshKey: number) {
-  const [conversationItems, setConversationItems] = useState<
-    ConversationItem[]
-  >([]);
+  const [conversationItems, setConversationItems] = useState<ConversationItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -41,12 +34,8 @@ export function useDashboardData(refreshKey: number) {
           };
         }
 
-        const pollVotes = localVotes.filter(
-          (vote: any) => vote.poll_id === poll.id,
-        );
-        const uniqueVoters = new Set(
-          pollVotes.map((vote: any) => getVoterId(vote)),
-        ).size;
+        const pollVotes = localVotes.filter((vote: any) => vote.poll_id === poll.id);
+        const uniqueVoters = new Set(pollVotes.map((vote: any) => getVoterId(vote))).size;
 
         // Calculer les meilleures dates
         let topDates: { date: string; score: number }[] = [];
@@ -58,24 +47,19 @@ export function useDashboardData(refreshKey: number) {
           pollVotes.length > 0 &&
           poll.type !== "form"
         ) {
-          const dateScores = selectedDates.map(
-            (dateStr: any, index: number) => {
-              const dateLabel =
-                typeof dateStr === "string"
-                  ? dateStr
-                  : dateStr.label || dateStr.title;
-              const optionId = `option-${index}`;
+          const dateScores = selectedDates.map((dateStr: any, index: number) => {
+            const dateLabel =
+              typeof dateStr === "string" ? dateStr : dateStr.label || dateStr.title;
+            const optionId = `option-${index}`;
 
-              let score = 0;
-              pollVotes.forEach((vote: any) => {
-                const selection =
-                  vote.vote_data?.[optionId] || vote.selections?.[optionId];
-                if (selection === "yes") score += 3;
-                else if (selection === "maybe") score += 1;
-              });
-              return { date: dateLabel, score };
-            },
-          );
+            let score = 0;
+            pollVotes.forEach((vote: any) => {
+              const selection = vote.vote_data?.[optionId] || vote.selections?.[optionId];
+              if (selection === "yes") score += 3;
+              else if (selection === "maybe") score += 1;
+            });
+            return { date: dateLabel, score };
+          });
 
           topDates = dateScores
             .filter((d) => d.score > 0)
@@ -103,18 +87,14 @@ export function useDashboardData(refreshKey: number) {
         return {
           id: conv.id,
           conversationTitle: conv.title || "Conversation sans titre",
-          conversationDate: new Date(
-            conv.updatedAt || conv.createdAt || Date.now(),
-          ),
+          conversationDate: new Date(conv.updatedAt || conv.createdAt || Date.now()),
           poll: relatedPoll,
           hasAI: !!metadata?.pollGenerated,
         };
       });
 
       // Trier par date (plus récent en premier)
-      items.sort(
-        (a, b) => b.conversationDate.getTime() - a.conversationDate.getTime(),
-      );
+      items.sort((a, b) => b.conversationDate.getTime() - a.conversationDate.getTime());
 
       setConversationItems(items);
     } catch (error) {

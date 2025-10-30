@@ -3,24 +3,17 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  useParams,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams, useLocation } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { Auth, AuthCallback } from "./pages/Auth";
 import { logger } from "@/lib/logger";
 import VotingSwipe from "./components/voting/VotingSwipe";
-import TopNav from "./components/TopNav";
 // import { VotingSwipe as ExVotingSwipe } from "./components/voting/ex-VotingSwipe";
 import { Loader2 } from "lucide-react";
-import { TopBar } from "./components/layout/TopBar";
-import { FEATURES } from "./lib/features";
 import { ConversationProvider } from "./components/prototype/ConversationProvider";
 import { UIStateProvider } from "./components/prototype/UIStateProvider";
+import { ConversationStateProvider } from "./components/prototype/ConversationStateProvider";
+import { EditorStateProvider } from "./components/prototype/EditorStateProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Composant de loading optimisé
@@ -35,13 +28,11 @@ const LoadingSpinner = () => (
 );
 
 // Pages avec preload hint pour les pages critiques
-const Index = lazy(() => import("./pages/Index"));
 const Vote = lazy(() => import("./pages/Vote"));
 const Results = lazy(() => import("./pages/Results"));
 const CreateChooser = lazy(() => import("./pages/CreateChooser"));
 const DateCreator = lazy(() => import("./pages/DateCreator"));
 const FormCreator = lazy(() => import("./pages/FormCreator"));
-const Dashboard = lazy(() => import("./components/DashboardNew"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Prototype pages (UX IA-First)
@@ -53,6 +44,7 @@ const ChatLandingPrototype = lazy(() =>
 const WorkspacePage = lazy(() =>
   import("./app/workspace/page").then((m) => ({ default: m.default })),
 );
+const Dashboard = lazy(() => import("./components/Dashboard"));
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -139,11 +131,7 @@ const preloadTimeSlotFunctions = async () => {
       sessionStorage.setItem(TIMESLOT_CACHE_KEY + "-session", "true");
     }
   } catch (error) {
-    logger.error(
-      "Erreur préchargement TimeSlot Functions",
-      "performance",
-      error,
-    );
+    logger.error("Erreur préchargement TimeSlot Functions", "performance", error);
   }
 };
 
@@ -153,9 +141,7 @@ const preloadProgressiveCalendar = async () => {
     const startTime = performance.now();
 
     // Précharger le calendrier progressif
-    const { getProgressiveCalendar } = await import(
-      "./lib/progressive-calendar"
-    );
+    const { getProgressiveCalendar } = await import("./lib/progressive-calendar");
     await getProgressiveCalendar();
 
     const endTime = performance.now();
@@ -269,10 +255,7 @@ const PollCreator = lazy(() => {
       });
   }
 
-  const timerId = logger.time(
-    "PollCreator - Chargement initial",
-    "performance",
-  );
+  const timerId = logger.time("PollCreator - Chargement initial", "performance");
   return preloadPollCreator()
     .then((module) => {
       logger.timeEnd(timerId);
@@ -303,11 +286,7 @@ const queryClient = new QueryClient({
 // Composant wrapper pour VotingSwipe qui extrait le pollId de l'URL
 const VotingSwipeWrapper = () => {
   const { pollId } = useParams<{ pollId: string }>();
-  return pollId ? (
-    <VotingSwipe pollId={pollId} />
-  ) : (
-    <div>ID du sondage manquant</div>
-  );
+  return pollId ? <VotingSwipe pollId={pollId} /> : <div>ID du sondage manquant</div>;
 };
 
 // Composant pour la démo avec un ID fixe
@@ -320,24 +299,8 @@ const VotingSwipeWrapper = () => {
 //   return <ExVotingSwipe onBack={() => window.history.back()} />;
 // };
 
-// Composant Layout avec TopNav toujours visible
+// Layout principal (anciennement LayoutPrototype)
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
-
-  // Pages qui ne doivent pas afficher le TopNav
-  const hideTopNavRoutes = ["/auth", "/auth/callback"];
-  const shouldShowTopNav = !hideTopNavRoutes.includes(location.pathname);
-
-  return (
-    <>
-      {/* {shouldShowTopNav && !FEATURES.AI_FIRST_UX && <TopNav />} */}
-      {children}
-    </>
-  );
-};
-
-// Layout Prototype avec Sidebar (pour AI-First UX)
-const LayoutPrototype = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   // Pages qui ne doivent pas afficher la Sidebar (garde TopNav)
@@ -347,9 +310,9 @@ const LayoutPrototype = ({ children }: { children: React.ReactNode }) => {
     location.pathname.startsWith("/vote/") ||
     location.pathname.startsWith("/auth");
 
-  // Si page classique, utiliser TopNav
+  // Si page classique, utiliser layout simple
   if (useClassicLayout) {
-    return <Layout>{children}</Layout>;
+    return <>{children}</>;
   }
 
   // Sinon, utiliser layout sans TopBar (style Gemini)
@@ -357,9 +320,7 @@ const LayoutPrototype = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="flex flex-col h-screen">
-      <main
-        className={`flex-1 ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}
-      >
+      <main className={`flex-1 ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}>
         {children}
       </main>
     </div>
@@ -367,8 +328,7 @@ const LayoutPrototype = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
-  // Choisir le layout selon le feature flag
-  const AppLayout = FEATURES.AI_FIRST_UX ? LayoutPrototype : Layout;
+  const AppLayout = Layout;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -379,37 +339,34 @@ const App = () => {
               <Suspense fallback={<LoadingSpinner />}>
                 {/* UIStateProvider pour l'état UI (sidebar, highlights) */}
                 <UIStateProvider>
-                  {/* ConversationProvider global pour partager l'état entre routes */}
-                  <ConversationProvider>
-                    <Routes>
-                    {/* Route / conditionnelle selon feature flag */}
-                    <Route
-                      path="/"
-                      element={
-                        FEATURES.AI_FIRST_UX ? <WorkspacePage /> : <Index />
-                      }
-                    />
-                    <Route path="/chat" element={<Index />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
+                  {/* ConversationStateProvider pour l'état conversation (messages, ID) */}
+                  <ConversationStateProvider>
+                    {/* EditorStateProvider pour l'état éditeur (poll, actions) */}
+                    <EditorStateProvider>
+                      {/* ConversationProvider LEGACY - À migrer progressivement */}
+                      <ConversationProvider>
+                        <Routes>
+                          {/* Route / vers WorkspacePage (AI-First UX) */}
+                          <Route path="/" element={<WorkspacePage />} />
 
-                    {/* Route workspace redirige vers / */}
-                    <Route path="/workspace" element={<WorkspacePage />} />
+                          {/* Redirections vers / */}
+                          <Route path="/workspace" element={<WorkspacePage />} />
+                          <Route path="/dashboard" element={<Dashboard />} />
 
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/auth/callback" element={<AuthCallback />} />
-                    <Route path="/poll/:slug" element={<Vote />} />
-                    <Route path="/poll/:slug/results" element={<Results />} />
-                    <Route path="/vote/:pollId" element={<Vote />} />
-                    <Route path="/create" element={<CreateChooser />} />
-                    <Route path="/create/date" element={<DateCreator />} />
-                    <Route path="/create/form" element={<FormCreator />} />
-                    <Route
-                      path="/poll/:pollSlug/results/:adminToken"
-                      element={<Vote />}
-                    />
-                    <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </ConversationProvider>
+                          <Route path="/auth" element={<Auth />} />
+                          <Route path="/auth/callback" element={<AuthCallback />} />
+                          <Route path="/poll/:slug" element={<Vote />} />
+                          <Route path="/poll/:slug/results" element={<Results />} />
+                          <Route path="/vote/:pollId" element={<Vote />} />
+                          <Route path="/create" element={<CreateChooser />} />
+                          <Route path="/create/date" element={<DateCreator />} />
+                          <Route path="/create/form" element={<FormCreator />} />
+                          <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </ConversationProvider>
+                    </EditorStateProvider>
+                  </ConversationStateProvider>
                 </UIStateProvider>
               </Suspense>
             </AppLayout>

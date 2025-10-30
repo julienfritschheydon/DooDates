@@ -109,19 +109,14 @@ export class ConversationStorageLocal {
       // Validation des données
       const validationResult = validateConversation(conversation);
       if (!validationResult.success) {
-        throw new ConversationError(
-          "Données de conversation invalides",
-          "VALIDATION_ERROR",
-          { errors: validationResult.error?.issues },
-        );
+        throw new ConversationError("Données de conversation invalides", "VALIDATION_ERROR", {
+          errors: validationResult.error?.issues,
+        });
       }
 
       const data = this.getStorageData();
       if (!data) {
-        throw new ConversationError(
-          "Stockage non initialisé",
-          "STORAGE_NOT_INITIALIZED",
-        );
+        throw new ConversationError("Stockage non initialisé", "STORAGE_NOT_INITIALIZED");
       }
 
       // Vérification du quota pour les invités
@@ -145,10 +140,7 @@ export class ConversationStorageLocal {
       // Vérification de l'expiration
       if (this.isExpired(data.metadata)) {
         this.clearExpiredData();
-        throw new ConversationError(
-          "Données expirées, stockage réinitialisé",
-          "DATA_EXPIRED",
-        );
+        throw new ConversationError("Données expirées, stockage réinitialisé", "DATA_EXPIRED");
       }
 
       // Sauvegarde
@@ -160,11 +152,9 @@ export class ConversationStorageLocal {
       if (error instanceof ConversationError) {
         throw error;
       }
-      throw new ConversationError(
-        "Erreur lors de la sauvegarde de la conversation",
-        "SAVE_ERROR",
-        { originalError: error },
-      );
+      throw new ConversationError("Erreur lors de la sauvegarde de la conversation", "SAVE_ERROR", {
+        originalError: error,
+      });
     }
   }
 
@@ -180,29 +170,21 @@ export class ConversationStorageLocal {
       for (const message of messages) {
         const validationResult = validateConversationMessage(message);
         if (!validationResult.success) {
-          throw new ConversationError(
-            "Données de message invalides",
-            "VALIDATION_ERROR",
-            { errors: validationResult.error?.issues },
-          );
+          throw new ConversationError("Données de message invalides", "VALIDATION_ERROR", {
+            errors: validationResult.error?.issues,
+          });
         }
       }
 
       const data = this.getStorageData();
       if (!data) {
-        throw new ConversationError(
-          "Stockage non initialisé",
-          "STORAGE_NOT_INITIALIZED",
-        );
+        throw new ConversationError("Stockage non initialisé", "STORAGE_NOT_INITIALIZED");
       }
 
       // Vérification de l'expiration
       if (this.isExpired(data.metadata)) {
         this.clearExpiredData();
-        throw new ConversationError(
-          "Données expirées, stockage réinitialisé",
-          "DATA_EXPIRED",
-        );
+        throw new ConversationError("Données expirées, stockage réinitialisé", "DATA_EXPIRED");
       }
 
       // Vérification que la conversation parente existe
@@ -233,10 +215,7 @@ export class ConversationStorageLocal {
       if (!data.messages[conversationId]) {
         data.messages[conversationId] = [];
       }
-      data.messages[conversationId] = [
-        ...data.messages[conversationId],
-        ...messages,
-      ];
+      data.messages[conversationId] = [...data.messages[conversationId], ...messages];
       data.metadata.lastAccessed = new Date().toISOString();
 
       this.saveStorageData(data);
@@ -244,11 +223,9 @@ export class ConversationStorageLocal {
       if (error instanceof ConversationError) {
         throw error;
       }
-      throw new ConversationError(
-        "Erreur lors de la sauvegarde des messages",
-        "SAVE_ERROR",
-        { originalError: error },
-      );
+      throw new ConversationError("Erreur lors de la sauvegarde des messages", "SAVE_ERROR", {
+        originalError: error,
+      });
     }
   }
 
@@ -359,9 +336,7 @@ export class ConversationStorageLocal {
   /**
    * Récupère les messages d'une conversation
    */
-  static async getMessages(
-    conversationId: string,
-  ): Promise<ConversationMessage[]> {
+  static async getMessages(conversationId: string): Promise<ConversationMessage[]> {
     try {
       const data = this.getStorageData();
       if (!data) {
@@ -382,11 +357,9 @@ export class ConversationStorageLocal {
 
       return messages;
     } catch (error) {
-      throw new ConversationError(
-        "Erreur lors de la récupération des messages",
-        "FETCH_ERROR",
-        { originalError: error },
-      );
+      throw new ConversationError("Erreur lors de la récupération des messages", "FETCH_ERROR", {
+        originalError: error,
+      });
     }
   }
 
@@ -421,11 +394,9 @@ export class ConversationStorageLocal {
     try {
       localStorage.removeItem(this.STORAGE_KEY);
     } catch (error) {
-      throw new ConversationError(
-        "Erreur lors du vidage du stockage",
-        "CLEAR_ERROR",
-        { originalError: error },
-      );
+      throw new ConversationError("Erreur lors du vidage du stockage", "CLEAR_ERROR", {
+        originalError: error,
+      });
     }
   }
 
@@ -470,11 +441,9 @@ export class ConversationStorageLocal {
         messages: data.messages,
       };
     } catch (error) {
-      throw new ConversationError(
-        "Erreur lors de l'export des données",
-        "EXPORT_ERROR",
-        { originalError: error },
-      );
+      throw new ConversationError("Erreur lors de l'export des données", "EXPORT_ERROR", {
+        originalError: error,
+      });
     }
   }
 
@@ -525,11 +494,9 @@ export class ConversationStorageLocal {
         operation: "getStorageData",
       });
 
-      throw new ConversationError(
-        "Données corrompues détectées et supprimées",
-        "DATA_CORRUPTION",
-        { originalError: error },
-      );
+      throw new ConversationError("Données corrompues détectées et supprimées", "DATA_CORRUPTION", {
+        originalError: error,
+      });
     }
   }
 
@@ -549,11 +516,9 @@ export class ConversationStorageLocal {
           { originalError: error },
         );
       }
-      throw new ConversationError(
-        "Erreur lors de la sauvegarde",
-        "SAVE_ERROR",
-        { originalError: error },
-      );
+      throw new ConversationError("Erreur lors de la sauvegarde", "SAVE_ERROR", {
+        originalError: error,
+      });
     }
   }
 

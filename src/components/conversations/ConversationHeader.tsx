@@ -83,9 +83,7 @@ function formatMessageTime(date: Date, language: "fr" | "en" = "fr"): string {
   if (diffMinutes < 1) {
     return language === "fr" ? "À l'instant" : "Just now";
   } else if (diffMinutes < 60) {
-    return language === "fr"
-      ? `Il y a ${diffMinutes} min`
-      : `${diffMinutes}m ago`;
+    return language === "fr" ? `Il y a ${diffMinutes} min` : `${diffMinutes}m ago`;
   } else if (diffHours < 24) {
     return language === "fr" ? `Il y a ${diffHours}h` : `${diffHours}h ago`;
   } else if (diffDays < 7) {
@@ -169,18 +167,13 @@ export function ConversationHeader({
           {/* Badges Row */}
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             {/* Status Badge */}
-            <Badge
-              className={cn("text-xs", getStatusColor(conversation.status))}
-            >
+            <Badge className={cn("text-xs", getStatusColor(conversation.status))}>
               {getStatusLabel(conversation.status, language)}
             </Badge>
 
             {/* Favorite Badge */}
             {conversation.isFavorite && (
-              <Badge
-                variant="outline"
-                className="text-yellow-600 border-yellow-200 text-xs"
-              >
+              <Badge variant="outline" className="text-yellow-600 border-yellow-200 text-xs">
                 ⭐ {t.favorite}
               </Badge>
             )}
@@ -240,10 +233,11 @@ export function ConversationHeader({
             <Calendar className="h-4 w-4" />
             <span>
               {t.createdOn}{" "}
-              {conversation.createdAt.toLocaleDateString(
-                language === "fr" ? "fr-FR" : "en-US",
-                { day: "2-digit", month: "2-digit", year: "numeric" },
-              )}
+              {conversation.createdAt.toLocaleDateString(language === "fr" ? "fr-FR" : "en-US", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })}
             </span>
           </div>
 
@@ -251,8 +245,7 @@ export function ConversationHeader({
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <Clock className="h-3 w-3" />
               <span>
-                {t.lastActivity}:{" "}
-                {formatMessageTime(conversation.updatedAt, language)}
+                {t.lastActivity}: {formatMessageTime(conversation.updatedAt, language)}
               </span>
             </div>
           )}

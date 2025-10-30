@@ -51,7 +51,7 @@ export interface EnhancedGeminiResponse {
 export class EnhancedGeminiService {
   private static instance: EnhancedGeminiService;
   private genAI: GoogleGenerativeAI | null = null;
-  private model: GenerativeModel | null = null;
+  public model: GenerativeModel | null = null;
   private calendarQuery: CalendarQuery;
 
   constructor() {
@@ -65,7 +65,7 @@ export class EnhancedGeminiService {
     return EnhancedGeminiService.instance;
   }
 
-  private async ensureInitialized(): Promise<boolean> {
+  public async ensureInitialized(): Promise<boolean> {
     if (!this.genAI && API_KEY) {
       try {
         this.genAI = new GoogleGenerativeAI(API_KEY);
@@ -108,16 +108,12 @@ export class EnhancedGeminiService {
 
     // Vérifications counterfactual de base
     if (text.includes("lundi") && constraints.weekend) {
-      conflicts.push(
-        'Contradiction: "lundi" demandé mais "weekend" aussi mentionné',
-      );
+      conflicts.push('Contradiction: "lundi" demandé mais "weekend" aussi mentionné');
       suggestions.push("Clarifiez si vous voulez un lundi ou un weekend");
     }
 
     if (text.includes("matin") && text.includes("soir")) {
-      suggestions.push(
-        "Précisez si vous voulez le matin OU le soir, ou toute la journée",
-      );
+      suggestions.push("Précisez si vous voulez le matin OU le soir, ou toute la journée");
     }
 
     // Extraction de dates relatives
@@ -177,9 +173,7 @@ export class EnhancedGeminiService {
     };
   }
 
-  async generateEnhancedPoll(
-    userInput: string,
-  ): Promise<EnhancedGeminiResponse> {
+  async generateEnhancedPoll(userInput: string): Promise<EnhancedGeminiResponse> {
     const initialized = await this.ensureInitialized();
     if (!initialized || !this.model) {
       return {
@@ -196,10 +190,7 @@ export class EnhancedGeminiService {
       console.log("🔍 Analyse temporelle améliorée:", temporalAnalysis);
 
       // 2. Génération du prompt avec techniques Counterfactual-Consistency
-      const enhancedPrompt = this.buildCounterfactualPrompt(
-        userInput,
-        temporalAnalysis,
-      );
+      const enhancedPrompt = this.buildCounterfactualPrompt(userInput, temporalAnalysis);
 
       // 3. Génération par Gemini
       const result = await this.model.generateContent(enhancedPrompt);
@@ -221,19 +212,14 @@ export class EnhancedGeminiService {
       } else {
         return {
           success: false,
-          message:
-            "Impossible de générer le sondage. " +
-            temporalAnalysis.suggestions.join(" "),
+          message: "Impossible de générer le sondage. " + temporalAnalysis.suggestions.join(" "),
           error: "PARSE_ERROR",
           temporalAnalysis,
         };
       }
     } catch (error) {
       logError(
-        ErrorFactory.api(
-          "Enhanced generation failed",
-          "Erreur lors de la génération améliorée",
-        ),
+        ErrorFactory.api("Enhanced generation failed", "Erreur lors de la génération améliorée"),
         { metadata: { originalError: error } },
       );
       return {
@@ -247,10 +233,7 @@ export class EnhancedGeminiService {
   /**
    * Construit un prompt avec techniques Counterfactual-Consistency Prompting
    */
-  private buildCounterfactualPrompt(
-    userInput: string,
-    analysis: SimpleTemporalAnalysis,
-  ): string {
+  private buildCounterfactualPrompt(userInput: string, analysis: SimpleTemporalAnalysis): string {
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth() + 1;
@@ -270,13 +253,8 @@ export class EnhancedGeminiService {
       );
     }
 
-    if (
-      userInput.includes("cette semaine") ||
-      userInput.includes("semaine prochaine")
-    ) {
-      counterfactualQuestions.push(
-        "Si on décalait d'une semaine, quelle semaine serait visée ?",
-      );
+    if (userInput.includes("cette semaine") || userInput.includes("semaine prochaine")) {
+      counterfactualQuestions.push("Si on décalait d'une semaine, quelle semaine serait visée ?");
     }
 
     return `Tu es un assistant spécialisé dans la création de sondages DooDates avec vérification de cohérence temporelle avancée.
@@ -379,15 +357,19 @@ Réponds SEULEMENT avec le JSON validé.`;
 
         if (parsed.title && parsed.dates && Array.isArray(parsed.dates)) {
           // Validation counterfactual des résultats
-          const validationErrors = this.validateCounterfactual(
-            parsed,
-            analysis,
-          );
+          const validationErrors = this.validateCounterfactual(parsed, analysis);
 
           if (validationErrors.length > 0) {
-            console.warn(
-              "❌ Échec validation counterfactual:",
-              validationErrors,
+            logError(
+              ErrorFactory.validation(
+                `Counterfactual validation failed: ${validationErrors.join(", ")}`,
+                "Certaines suggestions pourraient être incomplètes",
+              ),
+              {
+                component: "enhanced-gemini",
+                operation: "validateCounterfactual",
+                metadata: { validationErrors },
+              },
             );
             // On peut quand même retourner le résultat avec des suggestions
           }
@@ -422,10 +404,7 @@ Réponds SEULEMENT avec le JSON validé.`;
   /**
    * Validation counterfactual des résultats
    */
-  private validateCounterfactual(
-    parsed: any,
-    analysis: SimpleTemporalAnalysis,
-  ): string[] {
+  private validateCounterfactual(parsed: any, analysis: SimpleTemporalAnalysis): string[] {
     const errors: string[] = [];
 
     // Test counterfactual 1: Cohérence des jours
@@ -453,22 +432,13 @@ Réponds SEULEMENT avec le JSON validé.`;
         const startHour = parseInt(slot.start.split(":")[0]);
 
         if (analysis.constraints.matin && startHour >= 12) {
-          errors.push(
-            `Créneau ${slot.start} n'est pas le matin (doit être < 12:00)`,
-          );
+          errors.push(`Créneau ${slot.start} n'est pas le matin (doit être < 12:00)`);
         }
-        if (
-          analysis.constraints.apresmidi &&
-          (startHour < 12 || startHour >= 18)
-        ) {
-          errors.push(
-            `Créneau ${slot.start} n'est pas l'après-midi (doit être 12:00-18:00)`,
-          );
+        if (analysis.constraints.apresmidi && (startHour < 12 || startHour >= 18)) {
+          errors.push(`Créneau ${slot.start} n'est pas l'après-midi (doit être 12:00-18:00)`);
         }
         if (analysis.constraints.soir && startHour < 18) {
-          errors.push(
-            `Créneau ${slot.start} n'est pas le soir (doit être >= 18:00)`,
-          );
+          errors.push(`Créneau ${slot.start} n'est pas le soir (doit être >= 18:00)`);
         }
       }
     }
@@ -481,19 +451,13 @@ Réponds SEULEMENT avec le JSON validé.`;
     if (!initialized || !this.model) return false;
 
     try {
-      const result = await this.model.generateContent(
-        'Test de connexion - réponds juste "OK"',
-      );
+      const result = await this.model.generateContent('Test de connexion - réponds juste "OK"');
       const response = await result.response;
       return response.text().includes("OK");
     } catch (error) {
-      logError(
-        ErrorFactory.network(
-          "Connection test failed",
-          "Test de connexion échoué",
-        ),
-        { metadata: { originalError: error } },
-      );
+      logError(ErrorFactory.network("Connection test failed", "Test de connexion échoué"), {
+        metadata: { originalError: error },
+      });
       return false;
     }
   }

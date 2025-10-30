@@ -7,10 +7,7 @@ import {
   CONVERSATION_ERROR_CODES,
   CONVERSATION_LIMITS,
 } from "../../types/conversation";
-import {
-  validateConversation,
-  validateConversationMessage,
-} from "../validation/conversation";
+import { validateConversation, validateConversationMessage } from "../validation/conversation";
 import {
   handleError,
   ErrorFactory,
@@ -94,11 +91,7 @@ export class ConversationMigrationService {
     retryDelay: 1000,
   };
 
-  constructor(
-    supabaseUrl: string,
-    supabaseKey: string,
-    options: Partial<MigrationOptions> = {},
-  ) {
+  constructor(supabaseUrl: string, supabaseKey: string, options: Partial<MigrationOptions> = {}) {
     this.supabase = createClient(supabaseUrl, supabaseKey);
     this.options = {
       ...ConversationMigrationService.DEFAULT_OPTIONS,
@@ -133,9 +126,7 @@ export class ConversationMigrationService {
       }
 
       // Check if migration has already been completed
-      const migrationFlag = localStorage.getItem(
-        "doodates_migration_completed",
-      );
+      const migrationFlag = localStorage.getItem("doodates_migration_completed");
       return migrationFlag !== "true";
     } catch (error) {
       logError(
@@ -185,11 +176,7 @@ export class ConversationMigrationService {
       await this.setupSupabaseConnection();
 
       // Step 4: Upload conversations and messages
-      this.updateProgress(
-        "uploading",
-        "Uploading conversations to Supabase",
-        4,
-      );
+      this.updateProgress("uploading", "Uploading conversations to Supabase", 4);
       const uploadResult = await this.uploadToSupabase(localData);
 
       // Step 5: Verify migration
@@ -208,9 +195,7 @@ export class ConversationMigrationService {
         false,
       );
     } catch (error) {
-      this.progress.errors.push(
-        error instanceof Error ? error.message : String(error),
-      );
+      this.progress.errors.push(error instanceof Error ? error.message : String(error));
 
       if (this.options.enableRollback) {
         this.updateProgress("failed", "Migration failed, performing rollback");
@@ -271,9 +256,7 @@ export class ConversationMigrationService {
     for (const conversation of data.conversations) {
       const validationResult = validateConversation(conversation);
       if (!validationResult.success) {
-        errors.push(
-          `Invalid conversation ${conversation.id}: ${validationResult.error?.message}`,
-        );
+        errors.push(`Invalid conversation ${conversation.id}: ${validationResult.error?.message}`);
       }
     }
 
@@ -282,9 +265,7 @@ export class ConversationMigrationService {
       for (const message of messages) {
         const validationResult = validateConversationMessage(message);
         if (!validationResult.success) {
-          errors.push(
-            `Invalid message ${message.id}: ${validationResult.error?.message}`,
-          );
+          errors.push(`Invalid message ${message.id}: ${validationResult.error?.message}`);
         }
 
         // Check foreign key integrity
@@ -357,10 +338,7 @@ export class ConversationMigrationService {
     let messagesUploaded = 0;
 
     // Upload conversations in batches
-    const conversationBatches = this.createBatches(
-      data.conversations,
-      this.options.batchSize,
-    );
+    const conversationBatches = this.createBatches(data.conversations, this.options.batchSize);
 
     for (const batch of conversationBatches) {
       if (this.abortController.signal.aborted) {
@@ -379,10 +357,7 @@ export class ConversationMigrationService {
         throw new ConversationError("Migration cancelled", "CANCELLED");
       }
 
-      const messageBatches = this.createBatches(
-        messages,
-        this.options.batchSize,
-      );
+      const messageBatches = this.createBatches(messages, this.options.batchSize);
 
       for (const batch of messageBatches) {
         await this.uploadMessageBatch(batch);
@@ -398,9 +373,7 @@ export class ConversationMigrationService {
   /**
    * Upload a batch of conversations
    */
-  private async uploadConversationBatch(
-    conversations: Conversation[],
-  ): Promise<void> {
+  private async uploadConversationBatch(conversations: Conversation[]): Promise<void> {
     let attempt = 0;
 
     while (attempt < this.options.retryAttempts) {
@@ -436,9 +409,7 @@ export class ConversationMigrationService {
         }
 
         // Wait before retry
-        await new Promise((resolve) =>
-          setTimeout(resolve, this.options.retryDelay * attempt),
-        );
+        await new Promise((resolve) => setTimeout(resolve, this.options.retryDelay * attempt));
       }
     }
   }
@@ -446,22 +417,18 @@ export class ConversationMigrationService {
   /**
    * Upload a batch of messages
    */
-  private async uploadMessageBatch(
-    messages: ConversationMessage[],
-  ): Promise<void> {
+  private async uploadMessageBatch(messages: ConversationMessage[]): Promise<void> {
     let attempt = 0;
 
     while (attempt < this.options.retryAttempts) {
       try {
-        const { error } = await this.supabase
-          .from("conversation_messages")
-          .insert(
-            messages.map((m) => ({
-              ...m,
-              conversation_id: m.conversationId,
-              timestamp: m.timestamp.toISOString(),
-            })),
-          );
+        const { error } = await this.supabase.from("conversation_messages").insert(
+          messages.map((m) => ({
+            ...m,
+            conversation_id: m.conversationId,
+            timestamp: m.timestamp.toISOString(),
+          })),
+        );
 
         if (error) {
           throw error;
@@ -486,9 +453,7 @@ export class ConversationMigrationService {
         }
 
         // Wait before retry
-        await new Promise((resolve) =>
-          setTimeout(resolve, this.options.retryDelay * attempt),
-        );
+        await new Promise((resolve) => setTimeout(resolve, this.options.retryDelay * attempt));
       }
     }
   }
@@ -612,10 +577,7 @@ export class ConversationMigrationService {
    */
   private markMigrationComplete(): void {
     localStorage.setItem("doodates_migration_completed", "true");
-    localStorage.setItem(
-      "doodates_migration_timestamp",
-      new Date().toISOString(),
-    );
+    localStorage.setItem("doodates_migration_timestamp", new Date().toISOString());
     localStorage.setItem("doodates_migration_id", this.migrationId);
   }
 
@@ -666,8 +628,7 @@ export class ConversationMigrationService {
     rollbackPerformed: boolean,
   ): MigrationResult {
     this.progress.endTime = new Date();
-    const duration =
-      this.progress.endTime.getTime() - this.progress.startTime.getTime();
+    const duration = this.progress.endTime.getTime() - this.progress.startTime.getTime();
 
     const result: MigrationResult = {
       success,

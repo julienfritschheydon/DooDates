@@ -6,10 +6,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useAutoSave } from "../../../hooks/useAutoSave";
-import {
-  generateConversationTitle,
-  shouldRegenerateTitle,
-} from "../titleGeneration";
+import { generateConversationTitle, shouldRegenerateTitle } from "../titleGeneration";
 import * as ConversationStorage from "../../storage/ConversationStorageSimple";
 
 // Mock ConversationStorage
@@ -84,8 +81,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
         },
         {
           id: "msg-4",
-          content:
-            "Excellent ! Je vais créer un sondage pour mardi et mercredi.",
+          content: "Excellent ! Je vais créer un sondage pour mardi et mercredi.",
           isAI: true,
           timestamp: new Date(),
         },
@@ -148,11 +144,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
         });
       }
 
-      const shouldRegenerate2 = shouldRegenerateTitle(
-        "Auto-generated title",
-        false,
-        2,
-      );
+      const shouldRegenerate2 = shouldRegenerateTitle("Auto-generated title", false, 2);
       expect(shouldRegenerate2).toBe(true);
 
       // Test with 4 messages (should regenerate)
@@ -178,19 +170,11 @@ describe("titleGeneration + useAutoSave Integration", () => {
         });
       }
 
-      const shouldRegenerate4 = shouldRegenerateTitle(
-        "Auto-generated title",
-        false,
-        4,
-      );
+      const shouldRegenerate4 = shouldRegenerateTitle("Auto-generated title", false, 4);
       expect(shouldRegenerate4).toBe(true);
 
       // Test with 6 messages (should regenerate - early conversation with even count)
-      const shouldRegenerate6 = shouldRegenerateTitle(
-        "Auto-generated title",
-        false,
-        6,
-      );
+      const shouldRegenerate6 = shouldRegenerateTitle("Auto-generated title", false, 6);
       expect(shouldRegenerate6).toBe(true);
     });
 
@@ -214,11 +198,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
       });
 
       // Test that custom titles are preserved
-      const shouldRegenerate = shouldRegenerateTitle(
-        "My Custom Meeting Title",
-        true,
-        4,
-      );
+      const shouldRegenerate = shouldRegenerateTitle("My Custom Meeting Title", true, 4);
       expect(shouldRegenerate).toBe(false);
     });
 

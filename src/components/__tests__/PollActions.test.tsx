@@ -31,12 +31,7 @@ vi.mock("@/lib/pollStorage", async (importOriginal) => {
 });
 
 // After mocks are set up, import the mocked functions to assert calls
-import {
-  duplicatePoll,
-  deletePollById,
-  copyToClipboard,
-  buildPublicLink,
-} from "@/lib/pollStorage";
+import { duplicatePoll, deletePollById, copyToClipboard, buildPublicLink } from "@/lib/pollStorage";
 
 // Mock react-router navigate to avoid actual navigation
 const navigateMock = vi.fn();
@@ -102,27 +97,18 @@ describe("PollActions", () => {
   });
 
   it("navigates to edit when clicking edit if no onEdit provided", async () => {
-    render(
-      <PollActions poll={basePoll} showVoteButton={false} variant="compact" />,
-    );
+    render(<PollActions poll={basePoll} showVoteButton={false} variant="compact" />);
 
     fireEvent.click(screen.getByTestId("poll-action-edit"));
 
-    expect(navigateMock).toHaveBeenCalledWith(
-      `/create/date?edit=${basePoll.id}`,
-    );
+    expect(navigateMock).toHaveBeenCalledWith(`/create/date?edit=${basePoll.id}`);
   });
 
   it("uses custom onEdit when provided", async () => {
     const onEdit = vi.fn();
 
     render(
-      <PollActions
-        poll={basePoll}
-        showVoteButton={false}
-        variant="compact"
-        onEdit={onEdit}
-      />,
+      <PollActions poll={basePoll} showVoteButton={false} variant="compact" onEdit={onEdit} />,
     );
 
     fireEvent.click(screen.getByTestId("poll-action-edit"));
@@ -132,15 +118,11 @@ describe("PollActions", () => {
   });
 
   it("copies the poll link on copy action", async () => {
-    render(
-      <PollActions poll={basePoll} showVoteButton={false} variant="compact" />,
-    );
+    render(<PollActions poll={basePoll} showVoteButton={false} variant="compact" />);
 
     fireEvent.click(screen.getByTestId("poll-action-copy-link"));
 
     expect(buildPublicLink).toHaveBeenCalledWith("reunion");
-    expect(copyToClipboard).toHaveBeenCalledWith(
-      "http://localhost/poll/reunion",
-    );
+    expect(copyToClipboard).toHaveBeenCalledWith("http://localhost/poll/reunion");
   });
 });

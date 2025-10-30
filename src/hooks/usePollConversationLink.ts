@@ -68,11 +68,7 @@ export const usePollConversationLink = () => {
    * Get poll metadata for linking to conversation
    */
   const getPollLinkMetadata = useCallback(
-    (
-      conversationId: string,
-      messageId: string,
-      conversationTitle?: string,
-    ): PollLinkMetadata => {
+    (conversationId: string, messageId: string, conversationTitle?: string): PollLinkMetadata => {
       return {
         conversationId,
         messageId,
@@ -122,11 +118,7 @@ export const usePollConversationLink = () => {
   const hasLinkedPoll = useCallback(
     (conversationId: string) => {
       const conversationState = conversations.useConversation(conversationId);
-      return (
-        conversationState.conversation?.tags?.some((tag) =>
-          tag.startsWith("poll:"),
-        ) || false
-      );
+      return conversationState.conversation?.tags?.some((tag) => tag.startsWith("poll:")) || false;
     },
     [conversations],
   );
@@ -137,9 +129,7 @@ export const usePollConversationLink = () => {
   const getLinkedPoll = useCallback(
     (conversationId: string) => {
       const conversationState = conversations.useConversation(conversationId);
-      const pollTag = conversationState.conversation?.tags?.find((tag) =>
-        tag.startsWith("poll:"),
-      );
+      const pollTag = conversationState.conversation?.tags?.find((tag) => tag.startsWith("poll:"));
       if (pollTag) {
         const pollId = pollTag.replace("poll:", "");
         return {
