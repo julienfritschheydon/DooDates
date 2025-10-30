@@ -42,17 +42,17 @@ jobs:
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `🚨 Post-Merge Smoke Tests Failed on Main Branch`,
+              title: '🚨 Post-Merge Smoke Tests Failed on Main Branch',
               body: `## Tests Critiques Échoués Après Merge
-              
-**URGENT:** Les tests smoke ont échoué sur la branche main après un merge.
 
-**Commit:** ${context.sha}
-**Auteur:** ${context.payload.pusher.name}
-**Workflow:** [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})
+URGENT: Les tests smoke ont échoué sur la branche main après un merge.
+
+Commit: ${context.sha}
+Auteur: ${context.payload.pusher.name}
+Workflow: [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})
 
 ### Actions immédiates requises:
-1. ⚠️ **NE PAS merger d'autres PRs** jusqu'à résolution
+1. NE PAS merger d'autres PRs jusqu'à résolution
 2. Consulter le rapport Playwright dans les artifacts
 3. Identifier la cause de l'échec
 4. Corriger en priorité ou revert le commit problématique
