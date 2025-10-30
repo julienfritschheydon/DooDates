@@ -52,10 +52,10 @@ Auteur: ${context.payload.pusher.name}
 Workflow: [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})
 
 ### Actions immédiates requises:
-1. NE PAS merger d'autres PRs jusqu'à résolution
-2. Consulter le rapport Playwright dans les artifacts
-3. Identifier la cause de l'échec
-4. Corriger en priorité ou revert le commit problématique
+- NE PAS merger d'autres PRs jusqu'à résolution
+- Consulter le rapport Playwright dans les artifacts
+- Identifier la cause de l'échec
+- Corriger en priorité ou revert le commit problématique
 
 ### Commit concerné:
 \`\`\`

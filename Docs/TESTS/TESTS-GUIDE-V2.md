@@ -68,17 +68,23 @@ npm run test:gemini:quick      # Tests rapides (15s)
 ### 3. Tests E2E - Playwright
 
 **Specs actifs** : 10 fichiers
-- `ultra-simple.spec.ts` - Workflow DatePoll complet
-- `form-poll-regression.spec.ts` - 4 tests Form Poll
-- `security-isolation.spec.ts` - Tests sécurité
-- `guest-workflow.spec.ts` - Mode invité
-- `authenticated-workflow.spec.ts` - Mode authentifié
-- `edge-cases.spec.ts` - Cas limites
-- `mobile-voting.spec.ts` - Vote mobile
-- `navigation-regression.spec.ts` - Navigation
-- `poll-actions.spec.ts` - Actions polls
+- `ultra-simple.spec.ts` - Workflow DatePoll complet ✅
+- `form-poll-regression.spec.ts` - 4 tests Form Poll ✅
+- `security-isolation.spec.ts` - Tests sécurité ✅
+- `guest-workflow.spec.ts` - Mode invité ⏸️ (WIP - skipped)
+- `authenticated-workflow.spec.ts` - Mode authentifié ⏸️ (WIP - skipped)
+- `edge-cases.spec.ts` - Cas limites ⏸️ (WIP - skipped)
+- `mobile-voting.spec.ts` - Vote mobile ✅
+- `navigation-regression.spec.ts` - Navigation ✅
+- `poll-actions.spec.ts` - Actions polls ✅
 
 **Navigateurs testés** : Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari
+
+**Tests WIP exclus de la CI** :
+Les tests marqués `.skip()` sont automatiquement exclus via `--grep-invert` dans le workflow CI :
+- `Edge Cases and Error Handling`
+- `Guest User Workflow`
+- `Authenticated User Workflow`
 
 **Commandes** :
 ```bash
@@ -173,6 +179,12 @@ npm run test:e2e:headed        # Mode visible
 - Trigger : Push sur main
 - Déploie rapports Playwright
 
+**8. `validate-yaml.yml`** - Validation Workflows YAML
+- Trigger : PR/Push modifiant `.github/workflows/**`
+- Vérifie syntaxe YAML et patterns problématiques
+- Détecte : emojis ❌, markdown bold `**`, listes numérotées
+- Durée : < 1min
+
 ### Exécuter un Workflow Manuellement
 
 1. Aller sur : `https://github.com/julienfritschheydon/DooDates/actions`
@@ -257,6 +269,7 @@ npm run type-check             # TypeScript
 npm run lint                   # ESLint
 npm run format                 # Prettier
 npm run build                  # Build production
+npm run validate:workflows     # Validation workflows YAML
 ```
 
 ### Suites Complètes
@@ -306,6 +319,31 @@ VITE_SUPABASE_ANON_KEY=...
 ---
 
 ## 🐛 Troubleshooting
+
+### Workflows YAML Invalides
+
+**Problème** : "Invalid workflow file" dans GitHub Actions
+
+**Causes communes** :
+- Emoji ❌ dans les strings `body` ou `title`
+- Markdown bold `**` dans les multi-lignes
+- Listes numérotées `1.` au lieu de puces `-`
+- Backticks non fermés
+
+**Solutions** :
+```bash
+# Valider localement avant de push
+npm run validate:workflows
+
+# Vérifier les patterns problématiques
+bash scripts/validate-workflows.sh
+```
+
+**Règles à suivre** :
+- ✅ Utiliser du texte simple dans les `body`
+- ✅ Utiliser des puces `-` au lieu de `1.`
+- ✅ Éviter les emojis dans les strings multi-lignes
+- ✅ Tester avec `npm run validate:workflows`
 
 ### Tests Unitaires Lents
 

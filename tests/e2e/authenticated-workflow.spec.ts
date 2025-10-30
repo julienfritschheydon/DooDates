@@ -17,7 +17,7 @@ ATTENTION  : 2025 10 28 On n'a pas encore de solution pour l'authentification
 import { test, expect } from '@playwright/test';
 import { setupGeminiMock } from './global-setup';
 
-test.describe.skip('Authenticated User Workflow @wip', () => {
+test.describe.skip('Authenticated User Workflow', () => {
   test.beforeEach(async ({ page }) => {
     // Setup Gemini API mock to prevent costs
     await setupGeminiMock(page);

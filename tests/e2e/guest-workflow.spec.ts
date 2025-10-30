@@ -12,7 +12,7 @@
 import { test, expect } from '@playwright/test';
 import { setupGeminiMock } from './global-setup';
 
-test.describe.skip('Guest User Workflow @wip', () => {
+test.describe.skip('Guest User Workflow', () => {
   test.beforeEach(async ({ page }) => {
     // Setup Gemini API mock to prevent costs
     await setupGeminiMock(page);

@@ -72,10 +72,10 @@ Date: ${new Date().toISOString()}
 Workflow: [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})
 
 ### Actions à prendre:
-1. Consulter les rapports Playwright dans les artifacts
-2. Identifier les tests qui échouent
-3. Corriger les régressions identifiées
-4. Re-exécuter les tests manuellement
+- Consulter les rapports Playwright dans les artifacts
+- Identifier les tests qui échouent
+- Corriger les régressions identifiées
+- Re-exécuter les tests manuellement
 
 ### Rapports disponibles:
 - Chromium
