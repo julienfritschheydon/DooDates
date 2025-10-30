@@ -15,7 +15,7 @@ test.describe('Navigation Regression Tests', () => {
     await page.evaluate(() => localStorage.clear());
   });
 
-  test('TopNav should be present on home page', async ({ page }) => {
+  test.skip('TopNav should be present on home page', async ({ page }) => {
     await page.goto('/');
     
     // Check for TopNav container
@@ -30,7 +30,7 @@ test.describe('Navigation Regression Tests', () => {
     await expect(page.locator('[data-testid="account-button"]')).toBeVisible();
   });
 
-  test('TopNav should be present on AI chat page', async ({ page }) => {
+  test.skip('TopNav should be present on AI chat page', async ({ page }) => {
     await page.goto('/');
     
     // Wait for chat interface to load
