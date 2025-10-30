@@ -2,11 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPollBySlugOrId, addFormResponse } from "../../lib/pollStorage";
 import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
-import type {
-  Poll,
-  FormQuestionShape,
-  FormQuestionOption,
-} from "../../lib/pollStorage";
+import type { Poll, FormQuestionShape, FormQuestionOption } from "../../lib/pollStorage";
 
 type AnswerValue = string | string[] | Record<string, string | string[]>;
 
@@ -29,10 +25,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
     setLoading(false);
   }, [idOrSlug]);
 
-  const allQuestions = useMemo(
-    () => (poll?.questions ?? []) as FormQuestionShape[],
-    [poll],
-  );
+  const allQuestions = useMemo(() => (poll?.questions ?? []) as FormQuestionShape[], [poll]);
 
   // Convertir les réponses pour l'évaluation conditionnelle (convertir IDs en labels)
   const simplifiedAnswers = useMemo(() => {
@@ -42,9 +35,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
 
       if (typeof val === "object" && !Array.isArray(val)) {
         // Pour les matrices, on considère qu'une réponse existe si au moins une ligne est remplie
-        const hasAnswer = Object.values(val).some((v) =>
-          Array.isArray(v) ? v.length > 0 : !!v,
-        );
+        const hasAnswer = Object.values(val).some((v) => (Array.isArray(v) ? v.length > 0 : !!v));
         simplified[qid] = hasAnswer ? "answered" : "";
       } else if (Array.isArray(val)) {
         // Pour choix multiples, convertir les IDs en labels
@@ -66,21 +57,14 @@ export default function FormPollVote({ idOrSlug }: Props) {
   // Filtrer les questions visibles selon les règles conditionnelles
   const questions = useMemo(() => {
     const rules = poll?.conditionalRules ?? [];
-    return allQuestions.filter((q) =>
-      shouldShowQuestion(q.id, rules, simplifiedAnswers),
-    );
+    return allQuestions.filter((q) => shouldShowQuestion(q.id, rules, simplifiedAnswers));
   }, [allQuestions, poll?.conditionalRules, simplifiedAnswers]);
 
   const updateAnswer = (qid: string, value: AnswerValue) => {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
   };
 
-  const toggleMulti = (
-    qid: string,
-    optionId: string,
-    checked: boolean,
-    maxChoices?: number,
-  ) => {
+  const toggleMulti = (qid: string, optionId: string, checked: boolean, maxChoices?: number) => {
     const prev = (answers[qid] as string[]) || [];
     // Empêcher le dépassement en temps réel si une limite est définie
     if (checked && maxChoices && prev.length >= maxChoices) {
@@ -120,9 +104,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
             return `Au moins un choix requis pour: ${q.title || "Question"}`;
           }
         } else if (kind === "matrix") {
-          const matrixVal = val as
-            | Record<string, string | string[]>
-            | undefined;
+          const matrixVal = val as Record<string, string | string[]> | undefined;
           if (!matrixVal || Object.keys(matrixVal).length === 0) {
             return `Réponse requise pour: ${q.title || "Question"}`;
           }
@@ -181,8 +163,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
       });
       setSubmitted(true);
     } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Erreur lors de l'enregistrement";
+      const errorMessage = err instanceof Error ? err.message : "Erreur lors de l'enregistrement";
       setError(errorMessage);
     }
   };
@@ -198,9 +179,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
   if (!poll || poll.type !== "form") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="text-center text-gray-600">
-          Sondage formulaire introuvable.
-        </div>
+        <div className="text-center text-gray-600">Sondage formulaire introuvable.</div>
       </div>
     );
   }
@@ -209,9 +188,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-2xl mx-auto p-6 pt-20">
-          <h1 className="text-2xl font-bold mb-2">
-            Merci pour votre participation !
-          </h1>
+          <h1 className="text-2xl font-bold mb-2">Merci pour votre participation !</h1>
           <p className="text-gray-600">Votre réponse a été enregistrée.</p>
           <div className="mt-6">
             <Link
@@ -239,16 +216,11 @@ export default function FormPollVote({ idOrSlug }: Props) {
         </div>
         <div>
           <h1 className="text-3xl font-bold">{poll.title}</h1>
-          {poll.description && (
-            <p className="text-gray-600 mt-1">{poll.description}</p>
-          )}
+          {poll.description && <p className="text-gray-600 mt-1">{poll.description}</p>}
         </div>
 
         <div>
-          <label
-            className="block text-sm text-gray-700 mb-1"
-            htmlFor="voter-name-input"
-          >
+          <label className="block text-sm text-gray-700 mb-1" htmlFor="voter-name-input">
             Votre nom
           </label>
           <input
@@ -300,8 +272,8 @@ export default function FormPollVote({ idOrSlug }: Props) {
                   </div>
                   {kind === "multiple" && q.maxChoices ? (
                     <div className="text-xs text-gray-500">
-                      {Array.isArray(val) ? (val as string[]).length : 0}/
-                      {q.maxChoices} sélectionné(s)
+                      {Array.isArray(val) ? (val as string[]).length : 0}/{q.maxChoices}{" "}
+                      sélectionné(s)
                     </div>
                   ) : null}
                 </div>
@@ -333,9 +305,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
                           />
                           <span>{opt.label || "Option"}</span>
                           {opt.isOther && (
-                            <span className="text-xs text-blue-600">
-                              + Texte libre
-                            </span>
+                            <span className="text-xs text-blue-600">+ Texte libre</span>
                           )}
                         </label>
                         {opt.isOther && val === opt.id && (
@@ -363,13 +333,9 @@ export default function FormPollVote({ idOrSlug }: Props) {
                       const checked = Array.isArray(val)
                         ? (val as string[]).includes(opt.id)
                         : false;
-                      const selectedCount = Array.isArray(val)
-                        ? (val as string[]).length
-                        : 0;
+                      const selectedCount = Array.isArray(val) ? (val as string[]).length : 0;
                       const disableExtra =
-                        !checked &&
-                        q.maxChoices &&
-                        selectedCount >= q.maxChoices;
+                        !checked && q.maxChoices && selectedCount >= q.maxChoices;
                       return (
                         <div key={opt.id} className="space-y-1">
                           <label className="flex items-center gap-2">
@@ -377,12 +343,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
                               type="checkbox"
                               checked={checked}
                               onChange={(e) =>
-                                toggleMulti(
-                                  qid,
-                                  opt.id,
-                                  e.currentTarget.checked,
-                                  q.maxChoices,
-                                )
+                                toggleMulti(qid, opt.id, e.currentTarget.checked, q.maxChoices)
                               }
                               aria-labelledby={`q-${qid}-label`}
                               aria-required={q.required ? true : undefined}
@@ -391,9 +352,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
                             />
                             <span>{opt.label || "Option"}</span>
                             {opt.isOther && (
-                              <span className="text-xs text-blue-600">
-                                + Texte libre
-                              </span>
+                              <span className="text-xs text-blue-600">+ Texte libre</span>
                             )}
                           </label>
                           {opt.isOther && checked && (
@@ -424,84 +383,59 @@ export default function FormPollVote({ idOrSlug }: Props) {
                           <th className="border p-2 bg-gray-50 text-left text-sm">
                             {/* Empty corner cell */}
                           </th>
-                          {(q.matrixColumns || []).map(
-                            (col: FormQuestionOption) => (
-                              <th
-                                key={col.id}
-                                className="border p-2 bg-gray-50 text-center text-sm font-medium"
-                              >
-                                {col.label}
-                              </th>
-                            ),
-                          )}
+                          {(q.matrixColumns || []).map((col: FormQuestionOption) => (
+                            <th
+                              key={col.id}
+                              className="border p-2 bg-gray-50 text-center text-sm font-medium"
+                            >
+                              {col.label}
+                            </th>
+                          ))}
                         </tr>
                       </thead>
                       <tbody>
                         {(q.matrixRows || []).map((row: FormQuestionOption) => {
-                          const rowValue = (
-                            val as Record<string, string | string[]>
-                          )?.[row.id];
+                          const rowValue = (val as Record<string, string | string[]>)?.[row.id];
                           return (
                             <tr key={row.id}>
-                              <td className="border p-2 text-sm font-medium">
-                                {row.label}
-                              </td>
-                              {(q.matrixColumns || []).map(
-                                (col: FormQuestionOption) => {
-                                  const isChecked =
-                                    q.matrixType === "multiple"
-                                      ? Array.isArray(rowValue) &&
-                                        rowValue.includes(col.id)
-                                      : rowValue === col.id;
-                                  return (
-                                    <td
-                                      key={col.id}
-                                      className="border p-2 text-center"
-                                    >
-                                      <input
-                                        type={
-                                          q.matrixType === "multiple"
-                                            ? "checkbox"
-                                            : "radio"
+                              <td className="border p-2 text-sm font-medium">{row.label}</td>
+                              {(q.matrixColumns || []).map((col: FormQuestionOption) => {
+                                const isChecked =
+                                  q.matrixType === "multiple"
+                                    ? Array.isArray(rowValue) && rowValue.includes(col.id)
+                                    : rowValue === col.id;
+                                return (
+                                  <td key={col.id} className="border p-2 text-center">
+                                    <input
+                                      type={q.matrixType === "multiple" ? "checkbox" : "radio"}
+                                      name={`${qid}-${row.id}`}
+                                      checked={isChecked}
+                                      onChange={(e) => {
+                                        const currentVal =
+                                          (answers[qid] as Record<string, string | string[]>) || {};
+                                        if (q.matrixType === "multiple") {
+                                          const currentRowVal =
+                                            (currentVal[row.id] as string[]) || [];
+                                          const newRowVal = e.target.checked
+                                            ? [...currentRowVal, col.id]
+                                            : currentRowVal.filter((id) => id !== col.id);
+                                          updateAnswer(qid, {
+                                            ...currentVal,
+                                            [row.id]: newRowVal,
+                                          });
+                                        } else {
+                                          updateAnswer(qid, {
+                                            ...currentVal,
+                                            [row.id]: col.id,
+                                          });
                                         }
-                                        name={`${qid}-${row.id}`}
-                                        checked={isChecked}
-                                        onChange={(e) => {
-                                          const currentVal =
-                                            (answers[qid] as Record<
-                                              string,
-                                              string | string[]
-                                            >) || {};
-                                          if (q.matrixType === "multiple") {
-                                            const currentRowVal =
-                                              (currentVal[
-                                                row.id
-                                              ] as string[]) || [];
-                                            const newRowVal = e.target.checked
-                                              ? [...currentRowVal, col.id]
-                                              : currentRowVal.filter(
-                                                  (id) => id !== col.id,
-                                                );
-                                            updateAnswer(qid, {
-                                              ...currentVal,
-                                              [row.id]: newRowVal,
-                                            });
-                                          } else {
-                                            updateAnswer(qid, {
-                                              ...currentVal,
-                                              [row.id]: col.id,
-                                            });
-                                          }
-                                        }}
-                                        aria-labelledby={`q-${qid}-label`}
-                                        aria-required={
-                                          q.required ? true : undefined
-                                        }
-                                      />
-                                    </td>
-                                  );
-                                },
-                              )}
+                                      }}
+                                      aria-labelledby={`q-${qid}-label`}
+                                      aria-required={q.required ? true : undefined}
+                                    />
+                                  </td>
+                                );
+                              })}
                             </tr>
                           );
                         })}

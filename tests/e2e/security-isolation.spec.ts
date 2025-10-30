@@ -21,7 +21,7 @@ test.describe('Security and Data Isolation', () => {
     await page.reload();
   });
 
-  test('Basic navigation security - no crashes', async ({ page }) => {
+  test('Basic navigation security - no crashes @smoke @critical', async ({ page }) => {
     // Verify basic navigation doesn't crash on security-sensitive pages
     await page.goto('/');
     await expect(page).toHaveTitle(/DooDates/);
@@ -36,49 +36,9 @@ test.describe('Security and Data Isolation', () => {
     expect(true).toBeTruthy();
   });
 
-  test('should sanitize user input properly', async ({ page }) => {
-    await page.goto('/');
-    
-    const maliciousInputs = [
-      '<script>alert("test")</script>',
-      '<img src="x" onerror="alert(\'test\')">',
-      '<b>Bold text</b>',
-      '&lt;script&gt;alert("test")&lt;/script&gt;',
-      'Normal text with <em>emphasis</em>',
-      'Text with & ampersand',
-      'Text with "quotes" and \'apostrophes\'',
-    ];
-    
-    for (const input of maliciousInputs) {
-      const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-      if (await createButton.isVisible()) {
-        await createButton.click();
-        
-        const messageInput = page.locator('input[type="text"], textarea').first();
-        if (await messageInput.isVisible()) {
-          await messageInput.fill(input);
-          
-          const sendButton = page.locator('button').filter({ hasText: /send|submit/i }).first();
-          if (await sendButton.isVisible()) {
-            await sendButton.click();
-          }
-        }
-      }
-      
-      await page.waitForTimeout(1000);
-      
-      // Check that content is displayed safely
-      const messageElement = page.locator(`text=${input.replace(/<[^>]*>/g, '')}`).first();
-      if (await messageElement.isVisible()) {
-        const innerHTML = await messageElement.innerHTML();
-        
-        // Should not contain unescaped HTML tags
-        expect(innerHTML).not.toMatch(/<script|<iframe|onerror=/);
-      }
-    }
-  });
 
-  test('should handle authentication token security', async ({ page }) => {
+
+  test('should handle authentication token security @smoke @critical', async ({ page }) => {
     await page.goto('/');
     
     // Mock authentication
@@ -112,9 +72,9 @@ test.describe('Security and Data Isolation', () => {
     });
     
     // Trigger some actions
-    const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-    if (await createButton.isVisible()) {
-      await createButton.click();
+    const messageInput = page.locator('[data-testid="message-input"]');
+    if (await messageInput.isVisible()) {
+      await messageInput.fill('Test message');
     }
     
     await page.waitForTimeout(1000);

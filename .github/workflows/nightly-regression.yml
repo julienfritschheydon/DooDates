@@ -1,0 +1,70 @@
+name: Nightly Regression Tests
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Tous les jours à 2h du matin (UTC)
+  workflow_dispatch:  # Permet exécution manuelle
+
+jobs:
+  full-regression:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ['chromium', 'firefox', 'webkit', 'Mobile Chrome', 'Mobile Safari']
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🧭 Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: 🔍 Run Full Regression Suite (${{ matrix.project }})
+        run: npx playwright test --project="${{ matrix.project }}" --reporter=html
+
+      - name: 📊 Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-nightly-${{ matrix.project }}
+          path: playwright-report
+          retention-days: 30
+
+  regression-summary:
+    needs: [full-regression]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: 📊 Generate Summary
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const status = '${{ needs.full-regression.result }}';
+            const emoji = status === 'success' ? '✅' : '❌';
+            const message = status === 'success' 
+              ? 'Tous les tests de régression sont passés !' 
+              : '⚠️ Des tests de régression ont échoué. Vérifiez les rapports.';
+            
+            console.log(`${emoji} ${message}`);
+            
+            // Créer une issue si échec
+            if (status !== 'success') {
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Nightly Regression Tests Failed - ' + new Date().toISOString().split('T')[0],
+                body: 'Tests de regression nocturnes echoues. Date: ' + new Date().toISOString() + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
+                labels: ['bug', 'regression', 'automated']
+              });
+            }

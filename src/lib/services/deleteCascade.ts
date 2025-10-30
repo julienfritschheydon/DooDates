@@ -4,10 +4,7 @@
  */
 
 import { logError, ErrorFactory } from "../error-handling";
-import type {
-  Conversation,
-  ConversationMessage,
-} from "../../types/conversation";
+import type { Conversation, ConversationMessage } from "../../types/conversation";
 
 export interface DeleteCascadeOptions {
   /** Language for confirmation messages */
@@ -74,27 +71,21 @@ export async function prepareCascadeDelete(
 
   try {
     // Get conversation and related data
-    const conversation =
-      await context.conversationStorage.getConversation(conversationId);
+    const conversation = await context.conversationStorage.getConversation(conversationId);
     if (!conversation) {
       return {
         success: false,
         deleted: { conversations: [], messages: [], polls: [] },
         confirmationMessages: getEmptyConfirmationMessages(opts.language),
-        error:
-          opts.language === "fr"
-            ? "Conversation non trouvée"
-            : "Conversation not found",
+        error: opts.language === "fr" ? "Conversation non trouvée" : "Conversation not found",
       };
     }
 
     // Find related poll (1:1 relation)
-    const relatedPoll =
-      await context.pollStorage.findPollByConversationId(conversationId);
+    const relatedPoll = await context.pollStorage.findPollByConversationId(conversationId);
 
     // Get messages count
-    const messages =
-      await context.conversationStorage.getMessages(conversationId);
+    const messages = await context.conversationStorage.getMessages(conversationId);
 
     // Prepare deletion plan
     const deletionPlan = {
@@ -185,22 +176,19 @@ export async function executeCascadeDelete(
 
   try {
     // Backup conversation
-    const conversation =
-      await context.conversationStorage.getConversation(conversationId);
+    const conversation = await context.conversationStorage.getConversation(conversationId);
     if (conversation) {
       backupData.conversation = conversation;
     }
 
     // Backup messages
-    const messages =
-      await context.conversationStorage.getMessages(conversationId);
+    const messages = await context.conversationStorage.getMessages(conversationId);
     if (messages.length > 0) {
       backupData.messages = messages;
     }
 
     // Backup related poll
-    const relatedPoll =
-      await context.pollStorage.findPollByConversationId(conversationId);
+    const relatedPoll = await context.pollStorage.findPollByConversationId(conversationId);
     if (relatedPoll) {
       backupData.poll = relatedPoll;
     }
@@ -279,10 +267,7 @@ export async function executeCascadeDelete(
           await operation();
         } catch (rollbackError) {
           logError(
-            ErrorFactory.storage(
-              "Rollback operation failed",
-              "Échec de l'opération de rollback",
-            ),
+            ErrorFactory.storage("Rollback operation failed", "Échec de l'opération de rollback"),
             {
               component: "deleteCascade",
               operation: "rollback",
@@ -309,10 +294,7 @@ export async function executeCascadeDelete(
       success: false,
       deleted: { conversations: [], messages: [], polls: [] },
       confirmationMessages: preparation.confirmationMessages,
-      error:
-        opts.language === "fr"
-          ? "Erreur lors de la suppression"
-          : "Error during deletion",
+      error: opts.language === "fr" ? "Erreur lors de la suppression" : "Error during deletion",
       rollback,
     };
   }

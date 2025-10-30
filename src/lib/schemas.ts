@@ -67,10 +67,7 @@ export const VoteCreateSchema = z.object({
     }),
   ),
 
-  comment: z
-    .string()
-    .max(500, "Le commentaire ne peut pas dépasser 500 caractères")
-    .optional(),
+  comment: z.string().max(500, "Le commentaire ne peut pas dépasser 500 caractères").optional(),
 });
 
 // Schema pour la mise à jour du profil
@@ -117,9 +114,7 @@ export const SignUpSchema = z
         "Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre",
       ),
 
-    confirmPassword: z
-      .string()
-      .min(1, "La confirmation du mot de passe est requise"),
+    confirmPassword: z.string().min(1, "La confirmation du mot de passe est requise"),
 
     fullName: z
       .string()

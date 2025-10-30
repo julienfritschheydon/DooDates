@@ -14,8 +14,7 @@ class ConversationProtectionService {
 
   static getInstance(): ConversationProtectionService {
     if (!ConversationProtectionService.instance) {
-      ConversationProtectionService.instance =
-        new ConversationProtectionService();
+      ConversationProtectionService.instance = new ConversationProtectionService();
     }
     return ConversationProtectionService.instance;
   }
@@ -104,5 +103,4 @@ class ConversationProtectionService {
   }
 }
 
-export const conversationProtection =
-  ConversationProtectionService.getInstance();
+export const conversationProtection = ConversationProtectionService.getInstance();

@@ -147,18 +147,13 @@ export function CascadeDeleteModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className={cn("sm:max-w-[500px]", className)}
-        onKeyDown={handleKeyDown}
-      >
+      <DialogContent className={cn("sm:max-w-[500px]", className)} onKeyDown={handleKeyDown}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-red-600">
             <AlertTriangle className="h-5 w-5" />
             {t.title}
           </DialogTitle>
-          <DialogDescription className="text-left">
-            {t.description}
-          </DialogDescription>
+          <DialogDescription className="text-left">{t.description}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -176,9 +171,7 @@ export function CascadeDeleteModal({
                     <div className="text-sm font-medium text-red-900">
                       {getItemTypeLabel(item.type)}
                     </div>
-                    <div className="text-sm text-red-700 truncate">
-                      {item.title}
-                    </div>
+                    <div className="text-sm text-red-700 truncate">{item.title}</div>
                   </div>
                 </div>
               );
@@ -197,9 +190,7 @@ export function CascadeDeleteModal({
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-900">
               {t.confirmInstruction}{" "}
-              <span className="font-mono font-bold text-red-600">
-                {t.confirmWord}
-              </span>
+              <span className="font-mono font-bold text-red-600">{t.confirmWord}</span>
             </label>
             <Input
               value={confirmationText}
@@ -208,9 +199,7 @@ export function CascadeDeleteModal({
               className={cn(
                 "font-mono",
                 isConfirmationValid && "border-green-500 bg-green-50",
-                confirmationText &&
-                  !isConfirmationValid &&
-                  "border-red-500 bg-red-50",
+                confirmationText && !isConfirmationValid && "border-red-500 bg-red-50",
               )}
               disabled={isDeleting}
               autoFocus
@@ -228,10 +217,7 @@ export function CascadeDeleteModal({
             variant="destructive"
             onClick={handleConfirm}
             disabled={!isConfirmationValid || isDeleting}
-            className={cn(
-              "min-w-[140px]",
-              isConfirmationValid && "bg-red-600 hover:bg-red-700",
-            )}
+            className={cn("min-w-[140px]", isConfirmationValid && "bg-red-600 hover:bg-red-700")}
           >
             {isDeleting ? t.deleting : t.delete}
           </Button>

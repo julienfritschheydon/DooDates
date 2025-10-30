@@ -9,10 +9,15 @@
  * - Premium features access
  */
 
+/*
+ATTENTION  : 2025 10 28 On n'a pas encore de solution pour l'authentification
+*/
+
+
 import { test, expect } from '@playwright/test';
 import { setupGeminiMock } from './global-setup';
 
-test.describe('Authenticated User Workflow', () => {
+test.describe.skip('Authenticated User Workflow', () => {
   test.beforeEach(async ({ page }) => {
     // Setup Gemini API mock to prevent costs
     await setupGeminiMock(page);
@@ -73,7 +78,7 @@ test.describe('Authenticated User Workflow', () => {
     await page.waitForTimeout(1000);
     
     // Send multiple messages in the chat
-    const messageInput = page.locator('textarea[placeholder*="Décrivez"]').first();
+    const messageInput = page.locator('[data-testid="message-input"]');
     
     for (let i = 1; i <= 3; i++) {
       await messageInput.fill(`Test message ${i}`);
@@ -98,7 +103,7 @@ test.describe('Authenticated User Workflow', () => {
     await page.waitForTimeout(1000);
     
     // Send a message as guest
-    const messageInput = page.locator('textarea[placeholder*="Décrivez"]').first();
+    const messageInput = page.locator('[data-testid="message-input"]');
     await messageInput.fill('Guest message before auth');
     await messageInput.press('Enter');
     await page.waitForTimeout(1500);
@@ -119,7 +124,7 @@ test.describe('Authenticated User Workflow', () => {
     await page.waitForTimeout(2000);
     
     // Verify chat interface still works after auth
-    const isChatVisible = await page.locator('textarea[placeholder*="Décrivez"]').isVisible();
+    const isChatVisible = await page.locator('[data-testid="message-input"]').isVisible();
     expect(isChatVisible).toBeTruthy();
     
     // Verify localStorage data persisted or migrated
@@ -146,7 +151,7 @@ test.describe('Authenticated User Workflow', () => {
     await page.waitForTimeout(1000);
     
     // Send a message
-    const messageInput = page.locator('textarea[placeholder*="Décrivez"]').first();
+    const messageInput = page.locator('[data-testid="message-input"]');
     await messageInput.fill('Test persistence');
     await messageInput.press('Enter');
     await page.waitForTimeout(1500);
@@ -164,7 +169,7 @@ test.describe('Authenticated User Workflow', () => {
     expect(hasAuthToken).toBeTruthy();
     
     // Verify chat interface loads
-    const isChatVisible = await newPage.locator('textarea[placeholder*="Décrivez"]').isVisible();
+    const isChatVisible = await newPage.locator('[data-testid="message-input"]').isVisible();
     expect(isChatVisible).toBeTruthy();
     
     await newPage.close();
@@ -183,18 +188,13 @@ test.describe('Authenticated User Workflow', () => {
     await page.reload();
     
     // Create authenticated conversation
-    const createButton = page.locator('button').filter({ hasText: /create|new|start/i }).first();
-    if (await createButton.isVisible()) {
-      await createButton.click();
+    const messageInput = page.locator('[data-testid="message-input"]');
+    if (await messageInput.isVisible()) {
+      await messageInput.fill('Authenticated conversation before signout');
       
-      const messageInput = page.locator('input[type="text"], textarea').first();
-      if (await messageInput.isVisible()) {
-        await messageInput.fill('Authenticated conversation before signout');
-        
-        const sendButton = page.locator('button').filter({ hasText: /send|submit/i }).first();
-        if (await sendButton.isVisible()) {
-          await sendButton.click();
-        }
+      const sendButton = page.locator('[data-testid="send-message-button"]');
+      if (await sendButton.isVisible()) {
+        await sendButton.click();
       }
     }
     
@@ -231,7 +231,7 @@ test.describe('Authenticated User Workflow', () => {
     await page.waitForTimeout(1000);
     
     // Send a message to test functionality
-    const messageInput = page.locator('textarea[placeholder*="Décrivez"]').first();
+    const messageInput = page.locator('[data-testid="message-input"]');
     await messageInput.fill('Quota test');
     await messageInput.press('Enter');
     await page.waitForTimeout(1500);

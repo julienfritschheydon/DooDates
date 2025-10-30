@@ -4,14 +4,7 @@
  */
 
 import React from "react";
-import {
-  X,
-  Crown,
-  MessageCircle,
-  Users,
-  Calendar,
-  Sparkles,
-} from "lucide-react";
+import { X, Crown, MessageCircle, Users, Calendar, Sparkles } from "lucide-react";
 import { type AuthIncentiveType } from "../../services/QuotaService";
 
 interface AuthIncentiveModalProps {
@@ -59,8 +52,7 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           title: "Créez plus de sondages",
           subtitle: "Débloquez la création illimitée de sondages",
           icon: <Calendar className="w-12 h-12 text-blue-600" />,
-          description:
-            "Les utilisateurs invités sont limités dans la création de sondages.",
+          description: "Les utilisateurs invités sont limités dans la création de sondages.",
           benefits: [
             "Sondages illimités",
             "Historique de tous vos sondages",
@@ -74,8 +66,7 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           title: "Fonctionnalité Premium",
           subtitle: "Cette fonctionnalité nécessite un compte",
           icon: <Crown className="w-12 h-12 text-yellow-600" />,
-          description:
-            "Accédez à toutes les fonctionnalités avancées de DooDates.",
+          description: "Accédez à toutes les fonctionnalités avancées de DooDates.",
           benefits: [
             "Toutes les fonctionnalités premium",
             "Support prioritaire",
@@ -103,8 +94,7 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           title: "Débloquez DooDates Premium",
           subtitle: "Profitez de toutes les fonctionnalités",
           icon: <Sparkles className="w-12 h-12 text-purple-600" />,
-          description:
-            "Créez un compte gratuit pour accéder à toutes les fonctionnalités.",
+          description: "Créez un compte gratuit pour accéder à toutes les fonctionnalités.",
           benefits: [
             "Fonctionnalités complètes",
             "Sauvegarde cloud",
@@ -131,18 +121,14 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
 
           <div className="flex justify-center mb-4">{content.icon}</div>
 
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            {content.title}
-          </h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{content.title}</h2>
 
           <p className="text-gray-600 text-sm">{content.subtitle}</p>
         </div>
 
         {/* Content */}
         <div className="p-6">
-          <p className="text-gray-700 mb-6 text-center">
-            {content.description}
-          </p>
+          <p className="text-gray-700 mb-6 text-center">{content.description}</p>
 
           {/* Benefits */}
           <div className="mb-6">
@@ -152,10 +138,7 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
             </h3>
             <ul className="space-y-2">
               {content.benefits.map((benefit, index) => (
-                <li
-                  key={index}
-                  className="flex items-center gap-3 text-sm text-gray-700"
-                >
+                <li key={index} className="flex items-center gap-3 text-sm text-gray-700">
                   <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
                   {benefit}
                 </li>
@@ -167,9 +150,7 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           {currentUsage && (
             <div className="mb-6 p-4 bg-[#0a0a0a] rounded-lg">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  Utilisation actuelle
-                </span>
+                <span className="text-sm font-medium text-gray-700">Utilisation actuelle</span>
                 <span className="text-sm text-gray-600">
                   {currentUsage.conversations}/{currentUsage.maxConversations}
                 </span>

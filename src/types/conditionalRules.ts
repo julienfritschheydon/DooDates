@@ -3,12 +3,7 @@
  * Permet d'afficher/masquer des questions basé sur les réponses précédentes
  */
 
-export type ConditionalOperator =
-  | "equals"
-  | "contains"
-  | "notEquals"
-  | "isEmpty"
-  | "isNotEmpty";
+export type ConditionalOperator = "equals" | "contains" | "notEquals" | "isEmpty" | "isNotEmpty";
 
 export interface ConditionalRule {
   /**
@@ -44,10 +39,7 @@ export interface ConditionalValidation {
    * Vérifie qu'il n'y a pas de dépendances circulaires
    * Exemple: Q1 → Q2 → Q1 (invalide)
    */
-  hasCircularDependency: (
-    rules: ConditionalRule[],
-    questionId: string,
-  ) => boolean;
+  hasCircularDependency: (rules: ConditionalRule[], questionId: string) => boolean;
 
   /**
    * Vérifie qu'une question dépend d'une question qui la précède
@@ -88,8 +80,5 @@ export interface ConditionalEvaluator {
   /**
    * Évalue une règle spécifique
    */
-  evaluateRule: (
-    rule: ConditionalRule,
-    answers: Record<string, string | string[]>,
-  ) => boolean;
+  evaluateRule: (rule: ConditionalRule, answers: Record<string, string | string[]>) => boolean;
 }

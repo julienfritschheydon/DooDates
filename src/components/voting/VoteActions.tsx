@@ -53,8 +53,7 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
     }
   };
 
-  const isFormValid =
-    voterInfo.name.trim() && voterInfo.email.trim() && hasVotes;
+  const isFormValid = voterInfo.name.trim() && voterInfo.email.trim() && hasVotes;
 
   return (
     <motion.div
@@ -81,17 +80,13 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
           <div className="space-y-3">
             {/* Nom */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nom complet
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
                   value={voterInfo.name}
-                  onChange={(e) =>
-                    onVoterInfoChange({ ...voterInfo, name: e.target.value })
-                  }
+                  onChange={(e) => onVoterInfoChange({ ...voterInfo, name: e.target.value })}
                   placeholder="Votre nom"
                   className={`
                     w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500
@@ -100,24 +95,18 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
                   `}
                 />
               </div>
-              {errors.name && (
-                <p className="text-red-600 text-xs mt-1">{errors.name}</p>
-              )}
+              {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Adresse email
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Adresse email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="email"
                   value={voterInfo.email}
-                  onChange={(e) =>
-                    onVoterInfoChange({ ...voterInfo, email: e.target.value })
-                  }
+                  onChange={(e) => onVoterInfoChange({ ...voterInfo, email: e.target.value })}
                   placeholder="votre@email.com"
                   className={`
                     w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500
@@ -126,16 +115,14 @@ export const VoteActions: React.FC<VoteActionsProps> = ({
                   `}
                 />
               </div>
-              {errors.email && (
-                <p className="text-red-600 text-xs mt-1">{errors.email}</p>
-              )}
+              {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
             </div>
           </div>
 
           <div className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3">
             <p>
-              🔒 Vos informations sont utilisées uniquement pour identifier
-              votre vote et vous permettre de le modifier ultérieurement.
+              🔒 Vos informations sont utilisées uniquement pour identifier votre vote et vous
+              permettre de le modifier ultérieurement.
             </p>
           </div>
         </div>

@@ -5,14 +5,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from "react";
-import {
-  AlertCircle,
-  RefreshCw,
-  MessageSquare,
-  Search,
-  Eye,
-  Database,
-} from "lucide-react";
+import { AlertCircle, RefreshCw, MessageSquare, Search, Eye, Database } from "lucide-react";
 import { Button } from "../ui/button";
 import { Alert, AlertDescription } from "../ui/alert";
 import { ConversationList } from "./ConversationList";
@@ -21,17 +14,10 @@ import { ConversationPreview } from "./ConversationPreview";
 import { useConversations } from "../../hooks/useConversations";
 import { useConversationSearch } from "../../hooks/useConversationSearch";
 import { logError, ErrorFactory } from "../../lib/error-handling";
-import type {
-  Conversation,
-  ConversationSearchFilters,
-} from "../../types/conversation";
+import type { Conversation, ConversationSearchFilters } from "../../types/conversation";
 
 // Additional types for sorting and UI
-export type ConversationSortBy =
-  | "createdAt"
-  | "updatedAt"
-  | "title"
-  | "messageCount";
+export type ConversationSortBy = "createdAt" | "updatedAt" | "title" | "messageCount";
 export type SortOrder = "asc" | "desc";
 
 interface ConversationHistoryProps {
@@ -94,8 +80,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   const text = UI_TEXT[language];
 
   // State for preview modal
-  const [previewConversation, setPreviewConversation] =
-    useState<Conversation | null>(null);
+  const [previewConversation, setPreviewConversation] = useState<Conversation | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // State for search and debug view
@@ -136,8 +121,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
       (conv) =>
         conv.title.toLowerCase().includes(query) ||
         conv.id.toLowerCase().includes(query) ||
-        (conv.tags &&
-          conv.tags.some((tag) => tag.toLowerCase().includes(query))),
+        (conv.tags && conv.tags.some((tag) => tag.toLowerCase().includes(query))),
     );
   }, [conversations, searchQuery]);
 
@@ -195,13 +179,10 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   }, [error, text]);
 
   // Handlers
-  const handlePreviewConversation = useCallback(
-    (conversation: Conversation) => {
-      setPreviewConversation(conversation);
-      setIsPreviewOpen(true);
-    },
-    [],
-  );
+  const handlePreviewConversation = useCallback((conversation: Conversation) => {
+    setPreviewConversation(conversation);
+    setIsPreviewOpen(true);
+  }, []);
 
   const handleClosePreview = useCallback(() => {
     setIsPreviewOpen(false);
@@ -227,13 +208,10 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
     refetch();
   }, [refetch]);
 
-  const handleSortChange = useCallback(
-    (newSortBy: ConversationSortBy, newSortOrder: SortOrder) => {
-      setSortBy(newSortBy);
-      setSortOrder(newSortOrder);
-    },
-    [],
-  );
+  const handleSortChange = useCallback((newSortBy: ConversationSortBy, newSortOrder: SortOrder) => {
+    setSortBy(newSortBy);
+    setSortOrder(newSortOrder);
+  }, []);
 
   // Render error state
   if (isError) {
@@ -241,12 +219,8 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
       <div className={`conversation-history ${className}`}>
         <div className="space-y-4">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {text.title}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {text.subtitle}
-            </p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{text.title}</h2>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">{text.subtitle}</p>
           </div>
 
           <Alert variant="destructive">
@@ -270,14 +244,8 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
       <div className="space-y-6">
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {text.title}
-          </h2>
-          {!compact && (
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {text.subtitle}
-            </p>
-          )}
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{text.title}</h2>
+          {!compact && <p className="text-gray-600 dark:text-gray-400 mt-1">{text.subtitle}</p>}
         </div>
 
         {/* Search Bar and Controls */}
@@ -317,9 +285,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               disabled={isRefetching}
               className="gap-2"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`} />
               {isRefetching ? text.refreshing : text.retry}
             </Button>
           </div>
@@ -336,10 +302,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               {filteredConversations.map((conv) => {
                 const storedMessages = getStoredMessages(conv.id);
                 return (
-                  <div
-                    key={conv.id}
-                    className="bg-white border border-gray-200 rounded p-3"
-                  >
+                  <div key={conv.id} className="bg-white border border-gray-200 rounded p-3">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex-1">
                         <h4 className="font-medium text-sm">{conv.title}</h4>
@@ -370,10 +333,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
                     {storedMessages.length > 0 && (
                       <div className="space-y-1">
                         {storedMessages.map((msg: any, idx: number) => (
-                          <div
-                            key={idx}
-                            className="text-xs bg-gray-50 p-2 rounded"
-                          >
+                          <div key={idx} className="text-xs bg-gray-50 p-2 rounded">
                             <div className="flex items-center gap-2 mb-1">
                               <span
                                 className={`px-1 py-0.5 rounded text-xs ${
@@ -416,27 +376,20 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
         )}
 
         {/* Empty State for No Results */}
-        {!isLoading &&
-          displayConversations.length === 0 &&
-          !hasActiveFilters &&
-          !query && (
-            <div className="text-center py-12">
-              <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                {text.noConversations}
-              </h3>
-              {onCreateConversation && (
-                <Button
-                  onClick={onCreateConversation}
-                  variant="default"
-                  className="gap-2"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  {text.createFirst}
-                </Button>
-              )}
-            </div>
-          )}
+        {!isLoading && displayConversations.length === 0 && !hasActiveFilters && !query && (
+          <div className="text-center py-12">
+            <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              {text.noConversations}
+            </h3>
+            {onCreateConversation && (
+              <Button onClick={onCreateConversation} variant="default" className="gap-2">
+                <MessageSquare className="h-4 w-4" />
+                {text.createFirst}
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Preview Modal */}
         <ConversationPreview

@@ -67,9 +67,7 @@ export interface UseConversationStorageConfig {
  * Hook for managing conversation storage with automatic provider detection
  * Provides abstraction between localStorage and Supabase with caching and error handling
  */
-export function useConversationStorage(
-  config: UseConversationStorageConfig = {},
-) {
+export function useConversationStorage(config: UseConversationStorageConfig = {}) {
   const {
     supabaseUrl = process.env.REACT_APP_SUPABASE_URL || "",
     supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || "",
@@ -118,8 +116,7 @@ export function useConversationStorage(
     const isAtLimit = remaining <= 0;
 
     // Check if migration is possible
-    const canMigrate =
-      isGuest && conversationCount > 0 && supabaseStorage !== null;
+    const canMigrate = isGuest && conversationCount > 0 && supabaseStorage !== null;
 
     return {
       provider,
@@ -149,9 +146,7 @@ export function useConversationStorage(
               ConversationStorageLocal.initialize(true);
 
               // Use the createConversation method instead of manual creation
-              return await ConversationStorageLocal.createConversation(
-                conversation,
-              );
+              return await ConversationStorageLocal.createConversation(conversation);
             } catch (error) {
               const processedError = handleError(
                 error,
@@ -182,19 +177,14 @@ export function useConversationStorage(
             ConversationStorageLocal.initialize(true);
             return ConversationStorageLocal.getMessages(conversationId);
           },
-          saveMessages: async (
-            conversationId: string,
-            messages: ConversationMessage[],
-          ) => {
+          saveMessages: async (conversationId: string, messages: ConversationMessage[]) => {
             // Ensure storage is initialized before saving messages
             ConversationStorageLocal.initialize(true);
 
             // Verify conversation exists before attempting to save messages
-            const conversation =
-              await ConversationStorageLocal.getConversation(conversationId);
+            const conversation = await ConversationStorageLocal.getConversation(conversationId);
             if (!conversation) {
-              const availableConversations =
-                await ConversationStorageLocal.getConversations();
+              const availableConversations = await ConversationStorageLocal.getConversations();
               const verificationError = ErrorFactory.validation(
                 "Conversation non trouvée avant sauvegarde des messages",
               );
@@ -212,67 +202,41 @@ export function useConversationStorage(
               );
             }
 
-            logger.debug(
-              "Conversation verified before saving messages",
-              "conversation",
-              {
-                conversationId,
-                conversationTitle: conversation.title,
-                messageCount: messages.length,
-              },
-            );
-
-            return ConversationStorageLocal.saveMessages(
+            logger.debug("Conversation verified before saving messages", "conversation", {
               conversationId,
-              messages,
-            );
+              conversationTitle: conversation.title,
+              messageCount: messages.length,
+            });
+
+            return ConversationStorageLocal.saveMessages(conversationId, messages);
           },
-          deleteConversation: (id: string) =>
-            ConversationStorageLocal.deleteConversation(id),
+          deleteConversation: (id: string) => ConversationStorageLocal.deleteConversation(id),
         };
   }, [storageMode.provider, supabaseStorage]);
 
   // Query keys
   const queryKeys = {
-    conversations: [
-      "conversations",
-      storageMode.provider,
-      user?.id || "guest",
-    ] as const,
+    conversations: ["conversations", storageMode.provider, user?.id || "guest"] as const,
     conversation: (id: string) =>
       ["conversation", storageMode.provider, user?.id || "guest", id] as const,
     messages: (conversationId: string) =>
-      [
-        "messages",
-        storageMode.provider,
-        user?.id || "guest",
-        conversationId,
-      ] as const,
+      ["messages", storageMode.provider, user?.id || "guest", conversationId] as const,
     quota: ["quota", storageMode.provider, user?.id || "guest"] as const,
   };
 
   // Auto-migration effect
   useEffect(() => {
-    if (
-      enableAutoMigration &&
-      storageMode.canMigrate &&
-      storageMode.isAuthenticated
-    ) {
+    if (enableAutoMigration && storageMode.canMigrate && storageMode.isAuthenticated) {
       const performAutoMigration = async () => {
         try {
-          const migrationNeeded =
-            await ConversationMigrationService.isMigrationNeeded();
+          const migrationNeeded = await ConversationMigrationService.isMigrationNeeded();
           if (migrationNeeded && supabaseUrl && supabaseKey) {
-            const migrationService = new ConversationMigrationService(
-              supabaseUrl,
-              supabaseKey,
-              {
-                batchSize: 3,
-                validateBeforeUpload: true,
-                enableRollback: true,
-                retryAttempts: 2,
-              },
-            );
+            const migrationService = new ConversationMigrationService(supabaseUrl, supabaseKey, {
+              batchSize: 3,
+              validateBeforeUpload: true,
+              enableRollback: true,
+              retryAttempts: 2,
+            });
 
             const result = await migrationService.migrate();
             if (result.success) {
@@ -283,10 +247,7 @@ export function useConversationStorage(
           }
         } catch (error) {
           logError(
-            ErrorFactory.storage(
-              "Auto-migration failed",
-              "Échec de la migration automatique",
-            ),
+            ErrorFactory.storage("Auto-migration failed", "Échec de la migration automatique"),
             {
               component: "useConversationStorage",
               metadata: { originalError: error },
@@ -328,8 +289,7 @@ export function useConversationStorage(
     staleTime,
     gcTime: cacheTime,
     retry: retryAttempts,
-    retryDelay: (attemptIndex) =>
-      Math.min(retryDelay * Math.pow(2, attemptIndex), 10000),
+    retryDelay: (attemptIndex) => Math.min(retryDelay * Math.pow(2, attemptIndex), 10000),
   });
 
   // Single conversation query
@@ -416,9 +376,7 @@ export function useConversationStorage(
 
   // Create conversation mutation
   const createConversationMutation = useMutation({
-    mutationFn: async (
-      conversation: Omit<Conversation, "id" | "createdAt" | "updatedAt">,
-    ) => {
+    mutationFn: async (conversation: Omit<Conversation, "id" | "createdAt" | "updatedAt">) => {
       // Check quota before creating
       if (storageMode.quotaInfo.isAtLimit) {
         throw new ConversationError(
@@ -447,12 +405,9 @@ export function useConversationStorage(
     },
     onSuccess: (newConversation) => {
       // Update conversations cache
-      queryClient.setQueryData(
-        queryKeys.conversations,
-        (old: Conversation[] | undefined) => {
-          return old ? [newConversation, ...old] : [newConversation];
-        },
-      );
+      queryClient.setQueryData(queryKeys.conversations, (old: Conversation[] | undefined) => {
+        return old ? [newConversation, ...old] : [newConversation];
+      });
 
       // Invalidate conversations query to force refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.conversations });
@@ -465,13 +420,7 @@ export function useConversationStorage(
 
   // Update conversation mutation
   const updateConversationMutation = useMutation({
-    mutationFn: async ({
-      id,
-      updates,
-    }: {
-      id: string;
-      updates: Partial<Conversation>;
-    }) => {
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Conversation> }) => {
       try {
         return await activeStorage.getConversation(id);
       } catch (error) {
@@ -489,22 +438,15 @@ export function useConversationStorage(
     },
     onSuccess: (updatedConversation) => {
       // Update conversations cache
-      queryClient.setQueryData(
-        queryKeys.conversations,
-        (old: Conversation[] | undefined) => {
-          return (
-            old?.map((conv) =>
-              conv.id === updatedConversation.id ? updatedConversation : conv,
-            ) || []
-          );
-        },
-      );
+      queryClient.setQueryData(queryKeys.conversations, (old: Conversation[] | undefined) => {
+        return (
+          old?.map((conv) => (conv.id === updatedConversation.id ? updatedConversation : conv)) ||
+          []
+        );
+      });
 
       // Update single conversation cache
-      queryClient.setQueryData(
-        queryKeys.conversation(updatedConversation.id),
-        updatedConversation,
-      );
+      queryClient.setQueryData(queryKeys.conversation(updatedConversation.id), updatedConversation);
     },
     retry: retryAttempts,
   });
@@ -530,12 +472,9 @@ export function useConversationStorage(
     },
     onSuccess: (deletedId) => {
       // Remove from conversations cache
-      queryClient.setQueryData(
-        queryKeys.conversations,
-        (old: Conversation[] | undefined) => {
-          return old?.filter((conv) => conv.id !== deletedId) || [];
-        },
-      );
+      queryClient.setQueryData(queryKeys.conversations, (old: Conversation[] | undefined) => {
+        return old?.filter((conv) => conv.id !== deletedId) || [];
+      });
 
       // Remove conversation and messages caches
       queryClient.removeQueries({
@@ -560,22 +499,19 @@ export function useConversationStorage(
     }) => {
       try {
         // Update conversation's message count and updatedAt
-        queryClient.setQueryData(
-          queryKeys.conversations,
-          (old: Conversation[] | undefined) => {
-            return (
-              old?.map((conv) =>
-                conv.id === conversationId
-                  ? {
-                      ...conv,
-                      messageCount: conv.messageCount + 1,
-                      updatedAt: new Date(),
-                    }
-                  : conv,
-              ) || []
-            );
-          },
-        );
+        queryClient.setQueryData(queryKeys.conversations, (old: Conversation[] | undefined) => {
+          return (
+            old?.map((conv) =>
+              conv.id === conversationId
+                ? {
+                    ...conv,
+                    messageCount: conv.messageCount + 1,
+                    updatedAt: new Date(),
+                  }
+                : conv,
+            ) || []
+          );
+        });
 
         // Return the message with conversationId for the onSuccess callback
         return message;

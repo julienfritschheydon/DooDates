@@ -8,12 +8,7 @@ import {
   getFormResponses,
   getRespondentId,
 } from "@/lib/pollStorage";
-import type {
-  Poll,
-  FormQuestionShape,
-  FormQuestionOption,
-  FormResponse,
-} from "@/lib/pollStorage";
+import type { Poll, FormQuestionShape, FormQuestionOption, FormResponse } from "@/lib/pollStorage";
 
 interface Props {
   idOrSlug: string;
@@ -23,9 +18,9 @@ export default function FormPollResults({ idOrSlug }: Props) {
   const [poll, setPoll] = useState<Poll | null>(null);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
-  const [countsByQuestion, setCountsByQuestion] = useState<
-    Record<string, Record<string, number>>
-  >({});
+  const [countsByQuestion, setCountsByQuestion] = useState<Record<string, Record<string, number>>>(
+    {},
+  );
   const [textAnswers, setTextAnswers] = useState<Record<string, string[]>>({});
   const [responses, setResponses] = useState<FormResponse[]>([]);
   const [expandedText, setExpandedText] = useState<Record<string, boolean>>({});
@@ -43,10 +38,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
     setLoading(false);
   }, [idOrSlug]);
 
-  const questions = useMemo(
-    () => (poll?.questions ?? []) as FormQuestionShape[],
-    [poll],
-  );
+  const questions = useMemo(() => (poll?.questions ?? []) as FormQuestionShape[], [poll]);
 
   // Deduplicate responses by stable respondent id
   const uniqueResponses = useMemo(() => {
@@ -112,8 +104,8 @@ export default function FormPollResults({ idOrSlug }: Props) {
           title={`Résultats : ${poll.title}`}
           subtitle={
             <>
-              {totalRespondents} participant{totalRespondents > 1 ? "s" : ""} •{" "}
-              {questions.length} question{questions.length > 1 ? "s" : ""}
+              {totalRespondents} participant{totalRespondents > 1 ? "s" : ""} • {questions.length}{" "}
+              question{questions.length > 1 ? "s" : ""}
             </>
           }
           actions={<PollActions poll={poll} showVoteButton />}
@@ -143,9 +135,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                 return (
                   <div key={qid} className="bg-white rounded-md border p-4">
                     <div className="mb-3">
-                      <div className="font-medium">
-                        {q.title || "(Sans titre)"}
-                      </div>
+                      <div className="font-medium">{q.title || "(Sans titre)"}</div>
                       <div className="text-xs text-gray-500">
                         {kind === "text"
                           ? "Réponses libres"
@@ -167,10 +157,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                             ? Math.round((count / totalRespondents) * 100)
                             : 0;
                           return (
-                            <div
-                              key={opt.id}
-                              className="flex items-center gap-3"
-                            >
+                            <div key={opt.id} className="flex items-center gap-3">
                               <div className="w-48 text-sm text-gray-700">
                                 {opt.label || "Option"}
                               </div>
@@ -199,50 +186,36 @@ export default function FormPollResults({ idOrSlug }: Props) {
                           <thead>
                             <tr>
                               <th className="border p-2 bg-gray-50 text-left"></th>
-                              {(q.matrixColumns || []).map(
-                                (col: FormQuestionOption) => (
-                                  <th
-                                    key={col.id}
-                                    className="border p-2 bg-gray-50 text-center font-medium"
-                                  >
-                                    {col.label}
-                                  </th>
-                                ),
-                              )}
+                              {(q.matrixColumns || []).map((col: FormQuestionOption) => (
+                                <th
+                                  key={col.id}
+                                  className="border p-2 bg-gray-50 text-center font-medium"
+                                >
+                                  {col.label}
+                                </th>
+                              ))}
                             </tr>
                           </thead>
                           <tbody>
-                            {(q.matrixRows || []).map(
-                              (row: FormQuestionOption) => (
-                                <tr key={row.id}>
-                                  <td className="border p-2 font-medium bg-gray-50">
-                                    {row.label}
-                                  </td>
-                                  {(q.matrixColumns || []).map(
-                                    (col: FormQuestionOption) => {
-                                      const rowColKey = `${row.id}_${col.id}`;
-                                      const count =
-                                        stats?.counts?.[rowColKey] || 0;
-                                      const pct = totalRespondents
-                                        ? Math.round(
-                                            (count / totalRespondents) * 100,
-                                          )
-                                        : 0;
-                                      return (
-                                        <td
-                                          key={col.id}
-                                          className="border p-2 text-center"
-                                        >
-                                          <div className="text-gray-700">
-                                            {count} ({pct}%)
-                                          </div>
-                                        </td>
-                                      );
-                                    },
-                                  )}
-                                </tr>
-                              ),
-                            )}
+                            {(q.matrixRows || []).map((row: FormQuestionOption) => (
+                              <tr key={row.id}>
+                                <td className="border p-2 font-medium bg-gray-50">{row.label}</td>
+                                {(q.matrixColumns || []).map((col: FormQuestionOption) => {
+                                  const rowColKey = `${row.id}_${col.id}`;
+                                  const count = stats?.counts?.[rowColKey] || 0;
+                                  const pct = totalRespondents
+                                    ? Math.round((count / totalRespondents) * 100)
+                                    : 0;
+                                  return (
+                                    <td key={col.id} className="border p-2 text-center">
+                                      <div className="text-gray-700">
+                                        {count} ({pct}%)
+                                      </div>
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
@@ -278,24 +251,16 @@ export default function FormPollResults({ idOrSlug }: Props) {
                                       }))
                                     }
                                   >
-                                    {isExpanded
-                                      ? "Voir moins"
-                                      : `Voir tout (${all.length})`}
+                                    {isExpanded ? "Voir moins" : `Voir tout (${all.length})`}
                                   </button>
                                 </div>
                               )}
                             </>
                           ) : (
-                            <div className="text-sm text-gray-500">
-                              Aucune réponse textuelle.
-                            </div>
+                            <div className="text-sm text-gray-500">Aucune réponse textuelle.</div>
                           );
                         })()}
-                        <div
-                          id={`text-q-${qid}`}
-                          className="sr-only"
-                          aria-live="polite"
-                        >
+                        <div id={`text-q-${qid}`} className="sr-only" aria-live="polite">
                           {textAnswers[qid]?.length || 0} réponses textuelles.
                         </div>
                       </div>
@@ -307,9 +272,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
               <div className="bg-white rounded-md border p-4">
                 <div className="mb-3">
                   <div className="font-medium">Votes par participant</div>
-                  <div className="text-xs text-gray-500">
-                    Détail des réponses individuelles
-                  </div>
+                  <div className="text-xs text-gray-500">Détail des réponses individuelles</div>
                 </div>
                 <div className="divide-y">
                   {uniqueResponses.map((r) => (
@@ -333,14 +296,10 @@ export default function FormPollResults({ idOrSlug }: Props) {
                           const kind = q.kind || q.type || "single";
                           let answerDisplay: string = "";
                           if (kind === "text") {
-                            answerDisplay =
-                              typeof it.value === "string" ? it.value : "";
+                            answerDisplay = typeof it.value === "string" ? it.value : "";
                           } else if (kind === "matrix") {
                             // Pour matrices, afficher un résumé
-                            const matrixVal = it.value as Record<
-                              string,
-                              string | string[]
-                            >;
+                            const matrixVal = it.value as Record<string, string | string[]>;
                             if (
                               matrixVal &&
                               typeof matrixVal === "object" &&
@@ -350,17 +309,13 @@ export default function FormPollResults({ idOrSlug }: Props) {
                                 .map((row: FormQuestionOption) => {
                                   const rowAnswer = matrixVal[row.id];
                                   if (!rowAnswer) return null;
-                                  const colIds = Array.isArray(rowAnswer)
-                                    ? rowAnswer
-                                    : [rowAnswer];
-                                  const colLabels = colIds.map(
-                                    (cid: string) => {
-                                      const col = (q.matrixColumns || []).find(
-                                        (c: FormQuestionOption) => c.id === cid,
-                                      );
-                                      return col ? col.label : cid;
-                                    },
-                                  );
+                                  const colIds = Array.isArray(rowAnswer) ? rowAnswer : [rowAnswer];
+                                  const colLabels = colIds.map((cid: string) => {
+                                    const col = (q.matrixColumns || []).find(
+                                      (c: FormQuestionOption) => c.id === cid,
+                                    );
+                                    return col ? col.label : cid;
+                                  });
                                   return `${row.label}: ${colLabels.join(", ")}`;
                                 })
                                 .filter(Boolean);
@@ -372,9 +327,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                             const opt = (q?.options || []).find(
                               (o: FormQuestionOption) => o.id === it.value,
                             );
-                            answerDisplay = opt
-                              ? opt.label
-                              : String(it.value || "");
+                            answerDisplay = opt ? opt.label : String(it.value || "");
                           } else {
                             const ids = Array.isArray(it.value) ? it.value : [];
                             const labels = ids.map((id: string) => {
@@ -387,12 +340,8 @@ export default function FormPollResults({ idOrSlug }: Props) {
                           }
                           return (
                             <div key={it.questionId} className="text-sm">
-                              <div className="text-gray-600">
-                                {q.title || "Question"}
-                              </div>
-                              <div className="text-gray-900">
-                                {answerDisplay || "—"}
-                              </div>
+                              <div className="text-gray-600">{q.title || "Question"}</div>
+                              <div className="text-gray-900">{answerDisplay || "—"}</div>
                             </div>
                           );
                         })}

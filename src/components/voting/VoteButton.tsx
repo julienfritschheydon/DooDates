@@ -35,8 +35,7 @@ export const VoteButton: React.FC<VoteButtonProps> = ({
           className={`w-5 h-5 mb-1 ${isActive || currentSwipe === "yes" ? "text-blue-700" : "text-blue-600"}`}
         />
       ),
-      textColor:
-        isActive || currentSwipe === "yes" ? "text-blue-700" : "text-blue-600",
+      textColor: isActive || currentSwipe === "yes" ? "text-blue-700" : "text-blue-600",
       bgColor:
         isActive || currentSwipe === "yes"
           ? "bg-blue-50 border-blue-500 ring-2 ring-blue-400"
@@ -50,8 +49,7 @@ export const VoteButton: React.FC<VoteButtonProps> = ({
           className={`w-5 h-5 mb-1 ${isActive || currentSwipe === "no" ? "text-red-700" : "text-red-600"}`}
         />
       ),
-      textColor:
-        isActive || currentSwipe === "no" ? "text-red-700" : "text-red-600",
+      textColor: isActive || currentSwipe === "no" ? "text-red-700" : "text-red-600",
       bgColor:
         isActive || currentSwipe === "no"
           ? "bg-red-50 border-red-500 ring-2 ring-red-400"
@@ -65,10 +63,7 @@ export const VoteButton: React.FC<VoteButtonProps> = ({
           className={`w-5 h-5 mb-1 ${isActive || currentSwipe === "maybe" ? "text-orange-700" : "text-orange-600"}`}
         />
       ),
-      textColor:
-        isActive || currentSwipe === "maybe"
-          ? "text-orange-700"
-          : "text-orange-600",
+      textColor: isActive || currentSwipe === "maybe" ? "text-orange-700" : "text-orange-600",
       bgColor:
         isActive || currentSwipe === "maybe"
           ? "bg-orange-50 border-orange-500 ring-2 ring-orange-400"
@@ -83,9 +78,7 @@ export const VoteButton: React.FC<VoteButtonProps> = ({
   // Logique pour déterminer si le bouton est actif
   // Pour "maybe", il y a un cas spécial où il est actif par défaut
   const isButtonActive =
-    isActive ||
-    currentSwipe === voteType ||
-    (voteType === "maybe" && !userHasVoted);
+    isActive || currentSwipe === voteType || (voteType === "maybe" && !userHasVoted);
 
   return (
     <button

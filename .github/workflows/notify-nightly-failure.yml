@@ -23,7 +23,7 @@ jobs:
           COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           echo "RUN_URL=$RUN_URL" >> $GITHUB_OUTPUT
-          echo "SUBJECT=🚨 Nightly E2E failed: $NAME" >> $GITHUB_OUTPUT
+          echo "SUBJECT=Nightly E2E failed: $NAME" >> $GITHUB_OUTPUT
           cat > payload.json << 'EOF'
           {
             "from": "DooDates CI <noreply@doodates.app>",

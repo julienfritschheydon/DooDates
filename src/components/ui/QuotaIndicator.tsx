@@ -122,16 +122,12 @@ const QuotaIndicator: React.FC<QuotaIndicatorProps> = ({
         <div className="flex items-center gap-2">
           <div className={colors.icon}>{getIcon()}</div>
           {showLabel && (
-            <span className={`font-medium ${colors.text} ${sizes.text}`}>
-              {getLabel()}
-            </span>
+            <span className={`font-medium ${colors.text} ${sizes.text}`}>{getLabel()}</span>
           )}
         </div>
 
         <div className="flex items-center gap-2">
-          {(isNearLimit || isAtLimit) && (
-            <AlertTriangle className={`w-3 h-3 ${colors.icon}`} />
-          )}
+          {(isNearLimit || isAtLimit) && <AlertTriangle className={`w-3 h-3 ${colors.icon}`} />}
           <span className={`font-bold ${colors.text} ${sizes.text}`}>
             {used}/{limit}
           </span>
@@ -148,14 +144,10 @@ const QuotaIndicator: React.FC<QuotaIndicatorProps> = ({
 
       {/* Warning message for near/at limit */}
       {isAtLimit && (
-        <p className={`${sizes.text} ${colors.text} mt-1 font-medium`}>
-          Limite atteinte
-        </p>
+        <p className={`${sizes.text} ${colors.text} mt-1 font-medium`}>Limite atteinte</p>
       )}
       {isNearLimit && !isAtLimit && (
-        <p className={`${sizes.text} ${colors.text} mt-1`}>
-          Proche de la limite
-        </p>
+        <p className={`${sizes.text} ${colors.text} mt-1`}>Proche de la limite</p>
       )}
     </div>
   );

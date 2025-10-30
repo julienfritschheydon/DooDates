@@ -51,13 +51,7 @@ describe("GeminiService - Form Poll Parsing", () => {
             title: "Quelles fonctionnalités vous intéressent ? (3 max)",
             type: "multiple",
             required: true,
-            options: [
-              "Dashboard",
-              "Notifications",
-              "Export PDF",
-              "Analytics",
-              "API",
-            ],
+            options: ["Dashboard", "Notifications", "Export PDF", "Analytics", "API"],
             maxChoices: 3,
           },
         ],
@@ -405,9 +399,7 @@ describe("GeminiService - Form Poll Parsing", () => {
       const result = service.parseFormPollResponse(mockResponse);
 
       expect(result).not.toBeNull();
-      expect(result?.description).toBe(
-        "Description détaillée du questionnaire",
-      );
+      expect(result?.description).toBe("Description détaillée du questionnaire");
     });
 
     it("gère l'absence de description", () => {

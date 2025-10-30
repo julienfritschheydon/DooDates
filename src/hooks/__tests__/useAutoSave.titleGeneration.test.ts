@@ -105,16 +105,12 @@ describe("useAutoSave - Génération de Titre (Scénario Réel)", () => {
 
     // 2. Envoyer 1er message utilisateur
     await act(async () => {
-      result.current.addMessage(
-        createMockMessage("Crée un sondage pour une réunion"),
-      );
+      result.current.addMessage(createMockMessage("Crée un sondage pour une réunion"));
     });
 
     // 3. Envoyer 2e message (réponse IA avec sondage)
     await act(async () => {
-      result.current.addMessage(
-        createMockMessage("Voici le sondage pour la réunion", true),
-      );
+      result.current.addMessage(createMockMessage("Voici le sondage pour la réunion", true));
     });
 
     // 4. Attendre que la génération de titre soit appelée (debounce 1.5s)

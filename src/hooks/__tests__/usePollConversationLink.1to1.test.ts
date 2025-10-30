@@ -60,9 +60,7 @@ describe("usePollConversationLink - 1:1 Relations (Task 2.1)", () => {
     });
 
     it("should handle linking errors gracefully", async () => {
-      mockUpdateConversation.mutateAsync.mockRejectedValue(
-        new Error("Update failed"),
-      );
+      mockUpdateConversation.mutateAsync.mockRejectedValue(new Error("Update failed"));
 
       const { result } = renderHook(() => usePollConversationLink());
 
@@ -154,11 +152,7 @@ describe("usePollConversationLink - 1:1 Relations (Task 2.1)", () => {
     it("should generate poll link metadata", () => {
       const { result } = renderHook(() => usePollConversationLink());
 
-      const metadata = result.current.getPollLinkMetadata(
-        "conv-1",
-        "msg-1",
-        "Test Conversation",
-      );
+      const metadata = result.current.getPollLinkMetadata("conv-1", "msg-1", "Test Conversation");
 
       expect(metadata).toEqual({
         conversationId: "conv-1",

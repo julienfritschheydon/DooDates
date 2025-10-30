@@ -66,10 +66,7 @@ describe("FormPollIntentService", () => {
 
   describe("REMOVE_QUESTION", () => {
     it('détecte "supprime la question 1"', () => {
-      const intent = FormPollIntentService.detectIntent(
-        "supprime la question 1",
-        mockFormPoll,
-      );
+      const intent = FormPollIntentService.detectIntent("supprime la question 1", mockFormPoll);
 
       expect(intent).not.toBeNull();
       expect(intent?.action).toBe("REMOVE_QUESTION");
@@ -77,10 +74,7 @@ describe("FormPollIntentService", () => {
     });
 
     it('détecte "retire Q2"', () => {
-      const intent = FormPollIntentService.detectIntent(
-        "retire Q2",
-        mockFormPoll,
-      );
+      const intent = FormPollIntentService.detectIntent("retire Q2", mockFormPoll);
 
       expect(intent).not.toBeNull();
       expect(intent?.action).toBe("REMOVE_QUESTION");
@@ -88,10 +82,7 @@ describe("FormPollIntentService", () => {
     });
 
     it("retourne null si question n'existe pas", () => {
-      const intent = FormPollIntentService.detectIntent(
-        "supprime la question 10",
-        mockFormPoll,
-      );
+      const intent = FormPollIntentService.detectIntent("supprime la question 10", mockFormPoll);
 
       expect(intent).toBeNull();
     });
@@ -199,28 +190,19 @@ describe("FormPollIntentService", () => {
   describe("Edge cases", () => {
     it("retourne null si pas de Form Poll", () => {
       const datePoll = { ...mockFormPoll, type: "date" as const };
-      const intent = FormPollIntentService.detectIntent(
-        "ajoute une question sur l'âge",
-        datePoll,
-      );
+      const intent = FormPollIntentService.detectIntent("ajoute une question sur l'âge", datePoll);
 
       expect(intent).toBeNull();
     });
 
     it("retourne null si message non reconnu", () => {
-      const intent = FormPollIntentService.detectIntent(
-        "blabla random",
-        mockFormPoll,
-      );
+      const intent = FormPollIntentService.detectIntent("blabla random", mockFormPoll);
 
       expect(intent).toBeNull();
     });
 
     it("retourne null si poll null", () => {
-      const intent = FormPollIntentService.detectIntent(
-        "ajoute une question",
-        null,
-      );
+      const intent = FormPollIntentService.detectIntent("ajoute une question", null);
 
       expect(intent).toBeNull();
     });

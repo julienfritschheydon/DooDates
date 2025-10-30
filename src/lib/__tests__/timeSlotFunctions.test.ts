@@ -47,12 +47,7 @@ describe("timeSlotFunctions", () => {
   describe("toggleTimeSlotForDate", () => {
     it("should add new time slot when none exists", () => {
       const timeSlotsByDate = {};
-      const result = toggleTimeSlotForDate(
-        "2025-07-01",
-        14,
-        0,
-        timeSlotsByDate,
-      );
+      const result = toggleTimeSlotForDate("2025-07-01", 14, 0, timeSlotsByDate);
 
       expect(result["2025-07-01"]).toHaveLength(1);
       expect(result["2025-07-01"][0]).toEqual({
@@ -66,12 +61,7 @@ describe("timeSlotFunctions", () => {
       const timeSlotsByDate = {
         "2025-07-01": [{ hour: 14, minute: 0, enabled: true }],
       };
-      const result = toggleTimeSlotForDate(
-        "2025-07-01",
-        14,
-        0,
-        timeSlotsByDate,
-      );
+      const result = toggleTimeSlotForDate("2025-07-01", 14, 0, timeSlotsByDate);
 
       expect(result["2025-07-01"][0].enabled).toBe(false);
     });
@@ -80,12 +70,7 @@ describe("timeSlotFunctions", () => {
       const timeSlotsByDate = {
         "2025-07-01": [{ hour: 14, minute: 0, enabled: true }],
       };
-      const result = toggleTimeSlotForDate(
-        "2025-07-01",
-        15,
-        0,
-        timeSlotsByDate,
-      );
+      const result = toggleTimeSlotForDate("2025-07-01", 15, 0, timeSlotsByDate);
 
       expect(result["2025-07-01"]).toHaveLength(2);
       expect(result["2025-07-01"][0]).toEqual({

@@ -3,10 +3,7 @@
  * DooDates - Conversation History System
  */
 
-import type {
-  Conversation,
-  ConversationMessage,
-} from "../../types/conversation";
+import type { Conversation, ConversationMessage } from "../../types/conversation";
 import {
   readFromStorage,
   writeToStorage,
@@ -81,20 +78,14 @@ export function getMessages(conversationId: string): ConversationMessage[] {
 /**
  * Save messages for a conversation
  */
-export function saveMessages(
-  conversationId: string,
-  messages: ConversationMessage[],
-): void {
+export function saveMessages(conversationId: string, messages: ConversationMessage[]): void {
   writeRecordStorage(MESSAGES_KEY, messageCache, conversationId, messages);
 }
 
 /**
  * Add messages to a conversation (append)
  */
-export function addMessages(
-  conversationId: string,
-  newMessages: ConversationMessage[],
-): void {
+export function addMessages(conversationId: string, newMessages: ConversationMessage[]): void {
   // Get existing messages and add new ones
   const existingMessages = getMessages(conversationId);
   const updatedMessages = [...existingMessages, ...newMessages];
@@ -175,10 +166,7 @@ export function createConversation(data: {
  * Clear all conversation data
  */
 export function clearAll(): void {
-  clearStorage(
-    [CONVERSATIONS_KEY, MESSAGES_KEY],
-    [conversationCache, messageCache],
-  );
+  clearStorage([CONVERSATIONS_KEY, MESSAGES_KEY], [conversationCache, messageCache]);
 }
 
 /**
@@ -189,13 +177,8 @@ export function exportData(): {
   messages: Record<string, ConversationMessage[]>;
 } {
   const conversations = getConversations();
-  const raw =
-    typeof window !== "undefined"
-      ? window.localStorage.getItem(MESSAGES_KEY)
-      : null;
-  const messages = raw
-    ? (JSON.parse(raw) as Record<string, ConversationMessage[]>)
-    : {};
+  const raw = typeof window !== "undefined" ? window.localStorage.getItem(MESSAGES_KEY) : null;
+  const messages = raw ? (JSON.parse(raw) as Record<string, ConversationMessage[]>) : {};
 
   return { conversations, messages };
 }

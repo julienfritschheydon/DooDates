@@ -21,20 +21,14 @@ import {
   type DeleteCascadeOptions,
 } from "../deleteCascade";
 
-import type {
-  Conversation,
-  ConversationMessage,
-} from "../../../types/conversation";
+import type { Conversation, ConversationMessage } from "../../../types/conversation";
 import {
   createMockConversation as createBaseConversation,
   createMockMessage as createBaseMessage,
 } from "../../../__tests__/helpers/testHelpers";
 
 // Mock data helpers - using helpers
-function createMockConversation(
-  id: string,
-  title: string = "Test Conversation",
-): Conversation {
+function createMockConversation(id: string, title: string = "Test Conversation"): Conversation {
   return createBaseConversation({
     id,
     title,
@@ -94,15 +88,9 @@ describe("deleteCascade", () => {
         createMockMessage("msg-2", "conv-1", "Hi there"),
       ];
 
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(conversation);
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        messages,
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(null);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(conversation);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(messages);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(null);
 
       const result = await prepareCascadeDelete("conv-1", mockContext);
 
@@ -110,12 +98,8 @@ describe("deleteCascade", () => {
       expect(result.deleted.conversations).toEqual(["conv-1"]);
       expect(result.deleted.messages).toEqual(["msg-1", "msg-2"]);
       expect(result.deleted.polls).toEqual([]);
-      expect(result.confirmationMessages.title).toBe(
-        "Confirmer la suppression",
-      );
-      expect(result.confirmationMessages.description).toContain(
-        "Meeting Planning",
-      );
+      expect(result.confirmationMessages.title).toBe("Confirmer la suppression");
+      expect(result.confirmationMessages.description).toContain("Meeting Planning");
       expect(result.confirmationMessages.warningText).toContain("2 messages");
     });
 
@@ -124,15 +108,9 @@ describe("deleteCascade", () => {
       const messages = [createMockMessage("msg-1", "conv-1", "Test message")];
       const poll = createMockPoll("poll-1", "conv-1");
 
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(conversation);
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        messages,
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(poll);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(conversation);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(messages);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(poll);
 
       const result = await prepareCascadeDelete("conv-1", mockContext);
 
@@ -140,18 +118,14 @@ describe("deleteCascade", () => {
       expect(result.deleted.conversations).toEqual(["conv-1"]);
       expect(result.deleted.messages).toEqual(["msg-1"]);
       expect(result.deleted.polls).toEqual(["poll-1"]);
-      expect(result.confirmationMessages.description).toContain(
-        "sondage associé",
-      );
+      expect(result.confirmationMessages.description).toContain("sondage associé");
       expect(result.confirmationMessages.warningText).toContain(
         "conversation (1 messages) et le sondage",
       );
     });
 
     it("should handle non-existent conversation", async () => {
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(null);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(null);
 
       const result = await prepareCascadeDelete("nonexistent", mockContext);
 
@@ -161,30 +135,19 @@ describe("deleteCascade", () => {
     });
 
     it("should generate English confirmation messages", async () => {
-      const conversation = createMockConversation(
-        "conv-1",
-        "Test Conversation",
-      );
+      const conversation = createMockConversation("conv-1", "Test Conversation");
       const messages = [createMockMessage("msg-1", "conv-1", "Test")];
 
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(conversation);
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        messages,
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(null);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(conversation);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(messages);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(null);
 
       const options: DeleteCascadeOptions = { language: "en" };
       const result = await prepareCascadeDelete("conv-1", mockContext, options);
 
       expect(result.success).toBe(true);
       expect(result.confirmationMessages.title).toBe("Confirm Deletion");
-      expect(result.confirmationMessages.confirmButtonText).toBe(
-        "Delete Permanently",
-      );
+      expect(result.confirmationMessages.confirmButtonText).toBe("Delete Permanently");
       expect(result.confirmationMessages.cancelButtonText).toBe("Cancel");
     });
 
@@ -192,15 +155,9 @@ describe("deleteCascade", () => {
       const conversation = createMockConversation("conv-1");
       const messages = [createMockMessage("msg-1", "conv-1", "Test")];
 
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(conversation);
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        messages,
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(null);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(conversation);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(messages);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(null);
 
       const options: DeleteCascadeOptions = { dryRun: true };
       const result = await prepareCascadeDelete("conv-1", mockContext, options);
@@ -208,12 +165,8 @@ describe("deleteCascade", () => {
       expect(result.success).toBe(true);
       expect(result.deleted.conversations).toEqual(["conv-1"]);
       // Verify no actual deletion calls were made
-      expect(
-        mockContext.conversationStorage.deleteConversation,
-      ).not.toHaveBeenCalled();
-      expect(
-        mockContext.conversationStorage.deleteMessages,
-      ).not.toHaveBeenCalled();
+      expect(mockContext.conversationStorage.deleteConversation).not.toHaveBeenCalled();
+      expect(mockContext.conversationStorage.deleteMessages).not.toHaveBeenCalled();
     });
   });
 
@@ -226,15 +179,9 @@ describe("deleteCascade", () => {
       ];
       const poll = createMockPoll("poll-1", "conv-1");
 
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(conversation);
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        messages,
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(poll);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(conversation);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(messages);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(poll);
 
       const result = await executeCascadeDelete("conv-1", mockContext);
 
@@ -244,37 +191,23 @@ describe("deleteCascade", () => {
       expect(result.deleted.polls).toEqual(["poll-1"]);
 
       // Verify deletion order: messages first, then conversation, then poll
-      expect(
-        mockContext.conversationStorage.deleteMessages,
-      ).toHaveBeenCalledWith("conv-1");
-      expect(
-        mockContext.conversationStorage.deleteConversation,
-      ).toHaveBeenCalledWith("conv-1");
+      expect(mockContext.conversationStorage.deleteMessages).toHaveBeenCalledWith("conv-1");
+      expect(mockContext.conversationStorage.deleteConversation).toHaveBeenCalledWith("conv-1");
       expect(mockContext.pollStorage.deletePoll).toHaveBeenCalledWith("poll-1");
     });
 
     it("should handle conversation without messages or poll", async () => {
       const conversation = createMockConversation("conv-1");
 
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(conversation);
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        [],
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(null);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(conversation);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue([]);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(null);
 
       const result = await executeCascadeDelete("conv-1", mockContext);
 
       expect(result.success).toBe(true);
-      expect(
-        mockContext.conversationStorage.deleteConversation,
-      ).toHaveBeenCalledWith("conv-1");
-      expect(
-        mockContext.conversationStorage.deleteMessages,
-      ).not.toHaveBeenCalled();
+      expect(mockContext.conversationStorage.deleteConversation).toHaveBeenCalledWith("conv-1");
+      expect(mockContext.conversationStorage.deleteMessages).not.toHaveBeenCalled();
       expect(mockContext.pollStorage.deletePoll).not.toHaveBeenCalled();
     });
 
@@ -282,20 +215,14 @@ describe("deleteCascade", () => {
       const conversation = createMockConversation("conv-1");
       const messages = [createMockMessage("msg-1", "conv-1", "Test")];
 
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(conversation);
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        messages,
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(null);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(conversation);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(messages);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(null);
 
       // Simulate failure during conversation deletion
-      (
-        mockContext.conversationStorage.deleteConversation as any
-      ).mockRejectedValue(new Error("Storage error"));
+      (mockContext.conversationStorage.deleteConversation as any).mockRejectedValue(
+        new Error("Storage error"),
+      );
 
       const result = await executeCascadeDelete("conv-1", mockContext);
 
@@ -306,9 +233,9 @@ describe("deleteCascade", () => {
     });
 
     it("should handle storage errors gracefully", async () => {
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockRejectedValue(new Error("Database error"));
+      (mockContext.conversationStorage.getConversation as any).mockRejectedValue(
+        new Error("Database error"),
+      );
 
       const result = await executeCascadeDelete("conv-1", mockContext);
 
@@ -325,12 +252,8 @@ describe("deleteCascade", () => {
       ];
       const poll = createMockPoll("poll-1", "conv-1");
 
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        messages,
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(poll);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(messages);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(poll);
 
       const result = await hasRelatedContent("conv-1", mockContext);
 
@@ -340,12 +263,8 @@ describe("deleteCascade", () => {
     });
 
     it("should handle conversation with no related content", async () => {
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        [],
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(null);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue([]);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(null);
 
       const result = await hasRelatedContent("conv-1", mockContext);
 
@@ -358,9 +277,9 @@ describe("deleteCascade", () => {
       (mockContext.conversationStorage.getMessages as any).mockRejectedValue(
         new Error("Storage error"),
       );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockRejectedValue(new Error("Storage error"));
+      (mockContext.pollStorage.findPollByConversationId as any).mockRejectedValue(
+        new Error("Storage error"),
+      );
 
       const result = await hasRelatedContent("conv-1", mockContext);
 
@@ -372,10 +291,7 @@ describe("deleteCascade", () => {
 
   describe("integration scenarios", () => {
     it("should handle complete cascade deletion workflow", async () => {
-      const conversation = createMockConversation(
-        "conv-1",
-        "Important Meeting",
-      );
+      const conversation = createMockConversation("conv-1", "Important Meeting");
       const messages = [
         createMockMessage("msg-1", "conv-1", "Let's schedule a meeting"),
         createMockMessage("msg-2", "conv-1", "Great idea!"),
@@ -383,15 +299,9 @@ describe("deleteCascade", () => {
       const poll = createMockPoll("poll-1", "conv-1");
 
       // Setup mocks
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(conversation);
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        messages,
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(poll);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(conversation);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(messages);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(poll);
 
       // First prepare the deletion
       const preparation = await prepareCascadeDelete("conv-1", mockContext, {
@@ -410,12 +320,8 @@ describe("deleteCascade", () => {
       expect(execution.deleted).toEqual(preparation.deleted);
 
       // Verify all deletion calls were made
-      expect(
-        mockContext.conversationStorage.deleteMessages,
-      ).toHaveBeenCalledWith("conv-1");
-      expect(
-        mockContext.conversationStorage.deleteConversation,
-      ).toHaveBeenCalledWith("conv-1");
+      expect(mockContext.conversationStorage.deleteMessages).toHaveBeenCalledWith("conv-1");
+      expect(mockContext.conversationStorage.deleteConversation).toHaveBeenCalledWith("conv-1");
       expect(mockContext.pollStorage.deletePoll).toHaveBeenCalledWith("poll-1");
     });
 
@@ -424,24 +330,16 @@ describe("deleteCascade", () => {
       const messages = [createMockMessage("msg-1", "conv-1", "Test")];
       const poll = createMockPoll("poll-1", "conv-1");
 
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(conversation);
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        messages,
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(poll);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(conversation);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(messages);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(poll);
 
       // Messages deletion succeeds
-      (
-        mockContext.conversationStorage.deleteMessages as any
-      ).mockResolvedValue();
+      (mockContext.conversationStorage.deleteMessages as any).mockResolvedValue();
       // Conversation deletion fails
-      (
-        mockContext.conversationStorage.deleteConversation as any
-      ).mockRejectedValue(new Error("Deletion failed"));
+      (mockContext.conversationStorage.deleteConversation as any).mockRejectedValue(
+        new Error("Deletion failed"),
+      );
 
       const result = await executeCascadeDelete("conv-1", mockContext);
 
@@ -458,21 +356,13 @@ describe("deleteCascade", () => {
       const conversation = createMockConversation("conv-1", "Test");
       const messages = [createMockMessage("msg-1", "conv-1", "Test")];
 
-      (
-        mockContext.conversationStorage.getConversation as any
-      ).mockResolvedValue(conversation);
-      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(
-        messages,
-      );
-      (
-        mockContext.pollStorage.findPollByConversationId as any
-      ).mockResolvedValue(null);
+      (mockContext.conversationStorage.getConversation as any).mockResolvedValue(conversation);
+      (mockContext.conversationStorage.getMessages as any).mockResolvedValue(messages);
+      (mockContext.pollStorage.findPollByConversationId as any).mockResolvedValue(null);
 
       // Test French (default)
       const frenchResult = await prepareCascadeDelete("conv-1", mockContext);
-      expect(frenchResult.confirmationMessages.title).toBe(
-        "Confirmer la suppression",
-      );
+      expect(frenchResult.confirmationMessages.title).toBe("Confirmer la suppression");
 
       // Test English
       const englishResult = await prepareCascadeDelete("conv-1", mockContext, {

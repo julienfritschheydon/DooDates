@@ -4,9 +4,8 @@
  * Utilise Chrono.js pour un parsing de dates robuste et multilingue :
  * - Jours de la semaine (lundi, mardi, etc.)
  * - Dates complètes (DD/MM/YYYY, YYYY-MM-DD)
- * - Dates partielles (DD/MM, DD)
- * - Mois en texte (DD mois YYYY)
- * - Dates relatives (demain, la semaine prochaine)
+ * - Dates relatives (demain, la semaine prochaine, jeudi prochain)
+ * - Plages de dates (du 4 au 8)
  * - Support multilingue (FR, EN, etc.)
  */
 
@@ -14,75 +13,19 @@ import * as chrono from "chrono-node";
 import type { Poll } from "../lib/pollStorage";
 import type { PollAction } from "../reducers/pollReducer";
 import { formatDateLocal } from "../lib/date-utils";
+import { logger } from "../lib/logger";
 
-// Patterns de détection
-const PATTERNS = {
-  // "ajoute/ajouter [jour de la semaine]"
-  ADD_DAY:
-    /ajout(?:e|er)\s+(le\s+)?(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/i,
-
-  // "ajoute/ajouter [date]" - Formats multiples
-  ADD_DATE:
-    /ajout(?:e|er)\s+(le\s+)?(\d{4}-\d{2}-\d{2}|\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?|\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})?)/i,
-
-  // "retire/supprime/enlève [jour de la semaine]"
-  REMOVE_DAY:
-    /(?:retire|supprime|enl[èe]ve)\s+(le\s+)?(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/i,
-
-  // "retire/supprime/enlève [date]" - Formats multiples
-  REMOVE_DATE:
-    /(?:retire|supprime|enl[èe]ve)\s+(le\s+)?(\d{4}-\d{2}-\d{2}|\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?|\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})?)/i,
-
-  // "renomme en [titre]" / "change le titre en [titre]"
+// Patterns de détection des ACTIONS (pas des dates)
+const ACTION_PATTERNS = {
+  // Actions d'ajout
+  ADD: /(?:r?ajout(?:e|er)|met(?:s|tre)?|inclus|propose|suggère)(?:\s+aussi|\s+encore)?/i,
+  
+  // Actions de suppression
+  REMOVE: /(?:retire|supprime|enl[èe]ve|vire|oublie|annule|efface)/i,
+  
+  // Modification de titre
   UPDATE_TITLE: /(?:renomme|change\s+le\s+titre)\s+en\s+(.+)/i,
-
-  // "ajoute [heure]-[heure] le [date]" - Pattern principal
-  TIMESLOT_1:
-    /ajout(?:e|er)\s+(\d{1,2})h?(\d{2})?\s*-\s*(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i,
-
-  // "ajoute de [heure] à [heure] le [date]"
-  TIMESLOT_2:
-    /ajout(?:e|er)\s+de\s+(\d{1,2})h?(\d{2})?\s+[àa]\s+(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i,
-
-  // "ajoute le [date] de [heure] à [heure]"
-  TIMESLOT_3:
-    /ajout(?:e|er)\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)\s+de\s+(\d{1,2})h?(\d{2})?\s+[àa]\s+(\d{1,2})h?(\d{2})?/i,
-
-  // "ajoute [heure] le [date]" (sans heure de fin - durée 1h par défaut)
-  TIMESLOT_4:
-    /ajout(?:e|er)\s+(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i,
 } as const;
-
-// Mapping jours de la semaine
-const DAYS_MAP: { [key: string]: number } = {
-  lundi: 1,
-  mardi: 2,
-  mercredi: 3,
-  jeudi: 4,
-  vendredi: 5,
-  samedi: 6,
-  dimanche: 0,
-} as const;
-
-// Mapping mois en texte
-const MONTHS_MAP: { [key: string]: string } = {
-  janvier: "01",
-  février: "02",
-  mars: "03",
-  avril: "04",
-  mai: "05",
-  juin: "06",
-  juillet: "07",
-  août: "08",
-  septembre: "09",
-  octobre: "10",
-  novembre: "11",
-  décembre: "12",
-} as const;
-
-// Parser Chrono configuré pour le français (installé pour migration future)
-const frParser = chrono.fr;
-const enParser = chrono.en;
 
 export interface ModificationIntent {
   isModification: boolean;
@@ -92,85 +35,270 @@ export interface ModificationIntent {
   explanation?: string;
 }
 
+export interface MultiModificationIntent {
+  isModification: boolean;
+  intents: ModificationIntent[];
+  confidence: number;
+  explanation?: string;
+}
+
 /**
  * Détecte si le message utilisateur contient une intention de modification
  */
 export class IntentDetectionService {
   /**
-   * Infère la date complète à partir d'un jour seul en utilisant le contexte du sondage
-   * Ex: "3" + poll contient ["2025-11-03", "2025-11-04"] → "2025-11-03"
+   * Détecte plusieurs intentions dans une même phrase
+   * Ex: "ajoute vendredi 7 et jeudi 13" → 2 intentions
    */
-  private static inferDateFromContext(
-    dayStr: string,
+  static detectMultipleIntents(
+    message: string,
     currentPoll: Poll | null,
-  ): string | null {
-    if (!currentPoll || !currentPoll.dates || currentPoll.dates.length === 0) {
+  ): MultiModificationIntent | null {
+    if (!currentPoll) return null;
+
+    // Découper la phrase sur les conjonctions
+    const separators = /\s+et\s+|\s*,\s*|\s+puis\s+/i;
+    const parts = message.split(separators).map((p) => p.trim()).filter((p) => p.length > 0);
+
+    // Si une seule partie, utiliser detectSimpleIntent
+    if (parts.length === 1) {
+      const singleIntent = this.detectSimpleIntent(message, currentPoll);
+      if (singleIntent) {
+        return {
+          isModification: true,
+          intents: [singleIntent],
+          confidence: singleIntent.confidence,
+          explanation: singleIntent.explanation,
+        };
+      }
       return null;
     }
 
-    const day = dayStr.padStart(2, "0");
+    // Extraire le verbe d'action de la phrase originale
+    let actionVerb = "";
+    if (ACTION_PATTERNS.ADD.test(message)) {
+      const match = message.match(/^(r?ajout(?:e|er)|met(?:s|tre)?|inclus|propose|suggère)/i);
+      actionVerb = match ? match[1] : "ajoute";
+    } else if (ACTION_PATTERNS.REMOVE.test(message)) {
+      const match = message.match(/^(retire|supprime|enl[èe]ve|vire|oublie|annule|efface)/i);
+      actionVerb = match ? match[1] : "supprime";
+    }
 
-    // Chercher une date dans le sondage qui correspond au jour
-    const matchingDate = currentPoll.dates.find((date) => {
-      const dateParts = date.split("-");
-      return dateParts[2] === day; // Compare le jour
+    // Détecter l'intention pour chaque partie
+    const intents: ModificationIntent[] = [];
+    for (let i = 0; i < parts.length; i++) {
+      let part = parts[i];
+      
+      // Si la partie n'a pas de verbe d'action, ajouter celui de la phrase originale
+      if (actionVerb && !ACTION_PATTERNS.ADD.test(part) && !ACTION_PATTERNS.REMOVE.test(part)) {
+        part = `${actionVerb} ${part}`;
+      }
+      
+      const intent = this.detectSimpleIntent(part, currentPoll);
+      if (intent) {
+        intents.push(intent);
+      }
+    }
+
+    if (intents.length === 0) {
+      return null;
+    }
+
+    // Calculer la confiance moyenne
+    const avgConfidence = intents.reduce((sum, i) => sum + i.confidence, 0) / intents.length;
+
+    // Générer l'explication combinée
+    const explanations = intents.map((i) => i.explanation).filter(Boolean);
+    const combinedExplanation = explanations.join(" + ");
+
+    logger.info("✅ Intentions multiples détectées", "poll", {
+      message,
+      parts,
+      intentsCount: intents.length,
+      intents: intents.map((i) => ({ action: i.action, payload: i.payload })),
+      confidence: avgConfidence,
     });
 
-    return matchingDate || null;
+    return {
+      isModification: true,
+      intents,
+      confidence: avgConfidence,
+      explanation: combinedExplanation,
+    };
   }
 
-  /**
-   * Normalise une date string en YYYY-MM-DD avec contexte du sondage
-   */
-  private static normalizeDateString(
-    dateStr: string,
-    currentPoll: Poll | null,
-  ): string | null {
-    // Format : DD mois YYYY (ex: 27 octobre 2025)
-    const monthTextMatch = dateStr.match(
-      /(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{4})/i,
-    );
-    if (monthTextMatch) {
-      const day = monthTextMatch[1].padStart(2, "0");
-      const month = MONTHS_MAP[monthTextMatch[2].toLowerCase()];
-      const year = monthTextMatch[3];
-      return `${year}-${month}-${day}`;
-    }
+  static detectSimpleIntent(message: string, currentPoll: Poll | null): ModificationIntent | null {
+    if (!currentPoll) return null;
 
-    // Format : DD/MM/YYYY ou DD/MM ou DD
-    if (dateStr.includes("/")) {
-      const parts = dateStr.split("/");
-      const day = parts[0].padStart(2, "0");
-      const month = parts[1]
-        ? parts[1].padStart(2, "0")
-        : String(new Date().getMonth() + 1).padStart(2, "0");
-      const year = parts[2] || String(new Date().getFullYear());
-      return `${year}-${month}-${day}`;
-    }
+    // 📊 Log de la demande de modification
+    logger.info("🔍 Détection intention de modification", "poll", {
+      message,
+      pollId: currentPoll.id,
+      pollTitle: currentPoll.title,
+      existingDates: currentPoll.dates,
+    });
 
-    // Format : YYYY-MM-DD
-    if (dateStr.includes("-")) {
-      return dateStr;
-    }
-
-    // Format : DD seul - Essayer d'inférer depuis le contexte
-    if (/^\d{1,2}$/.test(dateStr)) {
-      const inferredDate = this.inferDateFromContext(dateStr, currentPoll);
-      if (inferredDate) {
-        return inferredDate;
+    // 1. Détecter l'ACTION
+    let action: "ADD_DATE" | "REMOVE_DATE" | "UPDATE_TITLE" | null = null;
+    
+    if (ACTION_PATTERNS.ADD.test(message)) {
+      action = "ADD_DATE";
+    } else if (ACTION_PATTERNS.REMOVE.test(message)) {
+      action = "REMOVE_DATE";
+    } else if (ACTION_PATTERNS.UPDATE_TITLE.test(message)) {
+      action = "UPDATE_TITLE";
+      const titleMatch = message.match(ACTION_PATTERNS.UPDATE_TITLE);
+      if (titleMatch) {
+        const newTitle = titleMatch[1].trim();
+        if (newTitle) {
+          return {
+            isModification: true,
+            action: "UPDATE_TITLE",
+            payload: newTitle,
+            confidence: 0.95,
+            explanation: `Titre modifié en "${newTitle}"`,
+          };
+        }
       }
-      // Fallback: mois/année courants
-      const day = dateStr.padStart(2, "0");
-      const month = String(new Date().getMonth() + 1).padStart(2, "0");
-      const year = String(new Date().getFullYear());
-      return `${year}-${month}-${day}`;
+      return null;
     }
 
-    return null; // Format non reconnu
+    if (!action) {
+      logger.warn("❌ Aucune action détectée", "poll", { message });
+      return null;
+    }
+
+    // 1.5. Détecter les CRÉNEAUX HORAIRES avant Chrono (patterns spécifiques)
+    // Pattern: "ajoute 14h-15h le 29" ou "ajoute de 14h à 15h le 29"
+    const timeslotPattern1 = /(\d{1,2})h?(\d{2})?\s*[-–]\s*(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i;
+    const timeslotPattern2 = /de\s+(\d{1,2})h?(\d{2})?\s+[àa]\s+(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i;
+    const timeslotPattern3 = /le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)\s+de\s+(\d{1,2})h?(\d{2})?\s+[àa]\s+(\d{1,2})h?(\d{2})?/i;
+    const timeslotPattern4 = /(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i;
+
+    let timeslotMatch = message.match(timeslotPattern1);
+    if (timeslotMatch && action === "ADD_DATE") {
+      const [, startHour, startMinute = "00", endHour, endMinute = "00", dateStr] = timeslotMatch;
+      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute, currentPoll);
+    }
+
+    timeslotMatch = message.match(timeslotPattern2);
+    if (timeslotMatch && action === "ADD_DATE") {
+      const [, startHour, startMinute = "00", endHour, endMinute = "00", dateStr] = timeslotMatch;
+      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute, currentPoll);
+    }
+
+    timeslotMatch = message.match(timeslotPattern3);
+    if (timeslotMatch && action === "ADD_DATE") {
+      const [, dateStr, startHour, startMinute = "00", endHour, endMinute = "00"] = timeslotMatch;
+      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute, currentPoll);
+    }
+
+    timeslotMatch = message.match(timeslotPattern4);
+    if (timeslotMatch && action === "ADD_DATE") {
+      const [, startHour, startMinute = "00", dateStr] = timeslotMatch;
+      const endHour = String(parseInt(startHour) + 1); // +1h par défaut
+      const endMinute = startMinute;
+      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute, currentPoll);
+    }
+
+    // 2. Parser les DATES avec Chrono.js (français)
+    // Utiliser la dernière date du sondage comme référence pour inférer le mois/année
+    let referenceDate = new Date();
+    if (currentPoll.dates && currentPoll.dates.length > 0) {
+      const lastDate = currentPoll.dates[currentPoll.dates.length - 1];
+      referenceDate = new Date(lastDate);
+    }
+
+    // 🔧 FIX 1: Détecter "le 27" (jour seul) et construire une date explicite
+    // Ex: "ajoute le 27" → "ajoute le 27 octobre 2025"
+    let enhancedMessage = message;
+    const dayOnlyPattern = /\ble\s+(\d{1,2})\b(?!\s*[/:h-])/i;
+    const dayOnlyMatch = message.match(dayOnlyPattern);
+    
+    if (dayOnlyMatch) {
+      const dayNumber = parseInt(dayOnlyMatch[1]);
+      
+      // Valider que c'est un jour valide (1-31)
+      if (dayNumber >= 1 && dayNumber <= 31) {
+        const refMonth = referenceDate.toLocaleDateString('fr-FR', { month: 'long' });
+        const refYear = referenceDate.getFullYear();
+        
+        // Remplacer "le 27" par "le 27 octobre 2025"
+        enhancedMessage = message.replace(
+          dayOnlyPattern,
+          `le ${dayNumber} ${refMonth} ${refYear}`
+        );
+        
+        logger.info("🔧 Jour seul détecté et amélioré", "poll", {
+          original: message,
+          enhanced: enhancedMessage,
+          day: dayNumber,
+          referenceMonth: refMonth,
+          referenceYear: refYear,
+        });
+      }
+    }
+    
+    // 🔧 FIX 2: Détecter "jour de la semaine + numéro" et construire une date explicite
+    // Ex: "dimanche 16" → "dimanche 16 novembre" (en utilisant le mois de référence)
+    const dayWithNumberPattern = /(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+(\d{1,2})\b/i;
+    const dayNumberMatch = enhancedMessage.match(dayWithNumberPattern);
+    
+    if (dayNumberMatch) {
+      const dayName = dayNumberMatch[1];
+      const dayNumber = dayNumberMatch[2];
+      const refMonth = referenceDate.toLocaleDateString('fr-FR', { month: 'long' });
+      const refYear = referenceDate.getFullYear();
+      
+      // Remplacer "dimanche 16" par "dimanche 16 novembre 2025"
+      enhancedMessage = enhancedMessage.replace(
+        dayWithNumberPattern,
+        `${dayName} ${dayNumber} ${refMonth} ${refYear}`
+      );
+      
+      logger.info("🔧 Message amélioré pour Chrono", "poll", {
+        original: message,
+        enhanced: enhancedMessage,
+        referenceMonth: refMonth,
+        referenceYear: refYear,
+      });
+    }
+
+    const parsedDates = chrono.fr.parse(enhancedMessage, referenceDate, { forwardDate: true });
+
+    if (parsedDates.length === 0) {
+      logger.warn("❌ Aucune date détectée par Chrono", "poll", { message, enhancedMessage, referenceDate: referenceDate.toISOString() });
+      return null;
+    }
+
+    // 3. Prendre la première date détectée
+    const firstDate = parsedDates[0];
+    const date = firstDate.start.date();
+    const normalizedDate = formatDateLocal(date);
+
+    // 4. Construire l'intent
+    const result: ModificationIntent = {
+      isModification: true,
+      action: action,
+      payload: normalizedDate,
+      confidence: 0.9,
+      explanation: action === "ADD_DATE" 
+        ? `Ajout de la date ${normalizedDate.split("-").reverse().join("/")}`
+        : `Suppression de la date ${normalizedDate.split("-").reverse().join("/")}`,
+    };
+
+    logger.info(`✅ Intention détectée via Chrono.js`, "poll", {
+      action,
+      input: { message, chronoText: firstDate.text },
+      output: { date: normalizedDate, formatted: normalizedDate.split("-").reverse().join("/") },
+      confidence: result.confidence,
+    });
+
+    return result;
   }
 
   /**
-   * Construit un intent ADD_TIMESLOT à partir des paramètres
+   * Construit une intention pour un créneau horaire
    */
   private static buildTimeslotIntent(
     dateStr: string,
@@ -178,26 +306,45 @@ export class IntentDetectionService {
     startMinute: string,
     endHour: string,
     endMinute: string,
-  ): ModificationIntent {
+    currentPoll: Poll,
+  ): ModificationIntent | null {
     // Normaliser la date
-    let normalizedDate: string;
+    let normalizedDate: string | null = null;
+
+    // Format DD/MM/YYYY ou DD/MM
     if (dateStr.includes("/")) {
       const parts = dateStr.split("/");
-      const day = parts[0].padStart(2, "0");
-      const month = parts[1]
-        ? parts[1].padStart(2, "0")
-        : String(new Date().getMonth() + 1).padStart(2, "0");
-      const year = parts[2] || String(new Date().getFullYear());
-      normalizedDate = `${year}-${month}-${day}`;
-    } else {
-      const day = dateStr.padStart(2, "0");
-      const month = String(new Date().getMonth() + 1).padStart(2, "0");
-      const year = String(new Date().getFullYear());
-      normalizedDate = `${year}-${month}-${day}`;
+      if (parts.length === 3) {
+        const [day, month, year] = parts;
+        normalizedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      } else if (parts.length === 2 && currentPoll.dates && currentPoll.dates.length > 0) {
+        // Inférer l'année depuis le contexte
+        const [day, month] = parts;
+        const lastDate = currentPoll.dates[currentPoll.dates.length - 1];
+        const year = lastDate.split("-")[0];
+        normalizedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      }
+    } else if (/^\d{1,2}$/.test(dateStr) && currentPoll.dates && currentPoll.dates.length > 0) {
+      // Juste un numéro de jour, inférer mois/année depuis le contexte
+      const lastDate = currentPoll.dates[currentPoll.dates.length - 1];
+      const [year, month] = lastDate.split("-");
+      normalizedDate = `${year}-${month}-${dateStr.padStart(2, "0")}`;
+    }
+
+    if (!normalizedDate) {
+      logger.warn("❌ Format de date non reconnu pour créneau", "poll", { dateStr });
+      return null;
     }
 
     const start = `${startHour.padStart(2, "0")}:${startMinute.padStart(2, "0")}`;
     const end = `${endHour.padStart(2, "0")}:${endMinute.padStart(2, "0")}`;
+
+    logger.info("✅ Créneau horaire détecté", "poll", {
+      date: normalizedDate,
+      start,
+      end,
+      formatted: `${normalizedDate.split("-").reverse().join("/")} de ${start} à ${end}`,
+    });
 
     return {
       isModification: true,
@@ -206,236 +353,5 @@ export class IntentDetectionService {
       confidence: 0.9,
       explanation: `Ajout du créneau ${start}-${end} le ${normalizedDate.split("-").reverse().join("/")}`,
     };
-  }
-
-  /**
-   * Convertit un jour de la semaine en date YYYY-MM-DD
-   * Trouve le prochain jour correspondant à partir d'aujourd'hui
-   */
-  private static getDayOfWeekDate(dayName: string): string {
-    const targetDay = DAYS_MAP[dayName.toLowerCase()];
-    if (targetDay === undefined) return "";
-
-    const today = new Date();
-    const currentDay = today.getDay();
-
-    // Calculer combien de jours ajouter
-    let daysToAdd = targetDay - currentDay;
-    if (daysToAdd <= 0) {
-      daysToAdd += 7; // Prendre le prochain (semaine suivante)
-    }
-
-    const nextDate = new Date(today);
-    nextDate.setDate(today.getDate() + daysToAdd);
-
-    return formatDateLocal(nextDate);
-  }
-
-  /**
-   * Parse une date avec Chrono.js (supporte FR et EN) - Pour migration future
-   */
-  private static parseDate(text: string): Date | null {
-    // Essayer d'abord en français
-    let result = frParser.parseDate(text);
-    if (result) return result;
-
-    // Fallback anglais
-    result = enParser.parseDate(text);
-    return result || null;
-  }
-
-  /**
-   * Parse un créneau horaire avec Chrono.js - Pour migration future
-   */
-  private static parseTimeRange(
-    text: string,
-  ): { start: Date; end: Date } | null {
-    const results = frParser.parse(text);
-    if (results.length > 0 && results[0].start && results[0].end) {
-      return {
-        start: results[0].start.date(),
-        end: results[0].end.date(),
-      };
-    }
-    return null;
-  }
-
-  static detectSimpleIntent(
-    message: string,
-    currentPoll: Poll | null,
-  ): ModificationIntent | null {
-    if (!currentPoll) return null;
-
-    // Pattern ADD_TIMESLOT : Tester tous les formats - DOIT ÊTRE TESTÉ EN PREMIER
-    // Sinon "14h-15h le 29" match ADD_DATE au lieu de ADD_TIMESLOT
-
-    // Pattern 1 : "ajoute 14h-15h le 29"
-    let timeslotMatch = message.match(PATTERNS.TIMESLOT_1);
-    if (timeslotMatch) {
-      const [
-        ,
-        startHour,
-        startMinute = "00",
-        endHour,
-        endMinute = "00",
-        dateStr,
-      ] = timeslotMatch;
-      return this.buildTimeslotIntent(
-        dateStr,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute,
-      );
-    }
-
-    // Pattern 2 : "ajoute de 14h à 15h le 29"
-    timeslotMatch = message.match(PATTERNS.TIMESLOT_2);
-    if (timeslotMatch) {
-      const [
-        ,
-        startHour,
-        startMinute = "00",
-        endHour,
-        endMinute = "00",
-        dateStr,
-      ] = timeslotMatch;
-      return this.buildTimeslotIntent(
-        dateStr,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute,
-      );
-    }
-
-    // Pattern 3 : "ajoute le 29 de 14h à 15h"
-    timeslotMatch = message.match(PATTERNS.TIMESLOT_3);
-    if (timeslotMatch) {
-      const [
-        ,
-        dateStr,
-        startHour,
-        startMinute = "00",
-        endHour,
-        endMinute = "00",
-      ] = timeslotMatch;
-      return this.buildTimeslotIntent(
-        dateStr,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute,
-      );
-    }
-
-    // Pattern 4 : "ajoute 14h le 29" (durée 1h par défaut)
-    timeslotMatch = message.match(PATTERNS.TIMESLOT_4);
-    if (timeslotMatch) {
-      const [, startHour, startMinute = "00", dateStr] = timeslotMatch;
-      const endHour = String(parseInt(startHour) + 1); // +1h par défaut
-      const endMinute = startMinute;
-      return this.buildTimeslotIntent(
-        dateStr,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute,
-      );
-    }
-
-    // Pattern 2 : "ajoute/ajouter [jour de la semaine]"
-    const dayMatch = message.match(PATTERNS.ADD_DAY);
-
-    if (dayMatch) {
-      const dayName = dayMatch[2];
-      const normalizedDate = this.getDayOfWeekDate(dayName);
-
-      return {
-        isModification: true,
-        action: "ADD_DATE",
-        payload: normalizedDate,
-        confidence: 0.9,
-        explanation: `Ajout du ${dayName} (${normalizedDate.split("-").reverse().join("/")})`,
-      };
-    }
-
-    // Pattern 3 : "ajoute/ajouter [date]" (formats multiples)
-    const match = message.match(PATTERNS.ADD_DATE);
-
-    if (match) {
-      const dateStr = match[2];
-      const normalizedDate = this.normalizeDateString(dateStr, currentPoll);
-
-      if (!normalizedDate) {
-        return null; // Format non reconnu
-      }
-
-      return {
-        isModification: true,
-        action: "ADD_DATE",
-        payload: normalizedDate,
-        confidence: 0.95,
-        explanation: `Ajout de la date ${dateStr}`,
-      };
-    }
-
-    // Pattern 3 : "retire/supprime/enlève [jour de la semaine]"
-    const removeDayMatch = message.match(PATTERNS.REMOVE_DAY);
-
-    if (removeDayMatch) {
-      const dayName = removeDayMatch[2];
-      const normalizedDate = this.getDayOfWeekDate(dayName);
-
-      return {
-        isModification: true,
-        action: "REMOVE_DATE",
-        payload: normalizedDate,
-        confidence: 0.9,
-        explanation: `Suppression du ${dayName} (${normalizedDate.split("-").reverse().join("/")})`,
-      };
-    }
-
-    // Pattern 4 : "retire/supprime/enlève [date]" (formats multiples)
-    const removeMatch = message.match(PATTERNS.REMOVE_DATE);
-
-    if (removeMatch) {
-      const dateStr = removeMatch[2];
-      const normalizedDate = this.normalizeDateString(dateStr, currentPoll);
-
-      if (!normalizedDate) {
-        return null; // Format non reconnu
-      }
-
-      return {
-        isModification: true,
-        action: "REMOVE_DATE",
-        payload: normalizedDate,
-        confidence: 0.95,
-        explanation: `Suppression de la date ${dateStr}`,
-      };
-    }
-
-    // Pattern 5 : "renomme en [titre]" / "change le titre en [titre]"
-    const titleMatch = message.match(PATTERNS.UPDATE_TITLE);
-
-    if (titleMatch) {
-      const newTitle = titleMatch[1].trim();
-
-      // Vérifier que le titre n'est pas vide
-      if (!newTitle) {
-        return null;
-      }
-
-      return {
-        isModification: true,
-        action: "UPDATE_TITLE",
-        payload: newTitle,
-        confidence: 0.95,
-        explanation: `Titre modifié en "${newTitle}"`,
-      };
-    }
-
-    return null;
   }
 }

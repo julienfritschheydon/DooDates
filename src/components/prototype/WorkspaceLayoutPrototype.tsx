@@ -10,14 +10,18 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useConversation } from "./ConversationProvider";
-import GeminiChatInterface, {
-  type GeminiChatHandle,
-} from "../GeminiChatInterface";
+import { useEditorState, useEditorActions } from "./EditorStateProvider";
+import { useUIState } from "./UIStateProvider";
+import GeminiChatInterface, { type GeminiChatHandle } from "../GeminiChatInterface";
 import { PollPreview } from "./PollPreview";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getAllPolls, type Poll } from "../../lib/pollStorage";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useVoiceRecognition } from "../../hooks/useVoiceRecognition";
+import { useToast } from "../../hooks/use-toast";
+import { ChatInput } from "../chat/ChatInput";
+import { VOICE_RECOGNITION_CONFIG } from "../../config/voiceRecognition.config";
 import { logger } from "../../lib/logger";
 import { getConversations } from "../../lib/storage/ConversationStorageSimple";
 
@@ -32,8 +36,7 @@ function findRelatedConversation(poll: Poll): string | undefined {
     const match = conversations.find((conv) => {
       const metadata = conv.metadata as any;
       return (
-        metadata?.pollGenerated &&
-        metadata?.pollTitle?.toLowerCase() === poll.title.toLowerCase()
+        metadata?.pollGenerated && metadata?.pollTitle?.toLowerCase() === poll.title.toLowerCase()
       );
     });
     return match?.id;
@@ -56,6 +59,7 @@ export function WorkspaceLayoutPrototype() {
   const [showPreviewOnMobile, setShowPreviewOnMobile] = useState(false);
   const [previewInputValue, setPreviewInputValue] = useState("");
   const chatRef = useRef<GeminiChatHandle>(null);
+  const previewTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Lire les paramètres de l'URL pour forcer le remontage du chat
   const searchParams = new URLSearchParams(location.search);
@@ -63,20 +67,53 @@ export function WorkspaceLayoutPrototype() {
   const newChatTimestamp = searchParams.get("new");
   const chatKey = resumeId || newChatTimestamp || "new-chat";
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
-  const [conversations, setConversations] = useState<
-    ReturnType<typeof getConversations>
-  >([]);
-  const {
-    isEditorOpen,
-    currentPoll,
-    closeEditor,
-    openEditor,
-    createPollFromChat,
-    clearConversation,
+  const [conversations, setConversations] = useState<ReturnType<typeof getConversations>>([]);
+
+  // Nouveaux hooks spécialisés
+  const { isEditorOpen, currentPoll } = useEditorState();
+  const { openEditor, closeEditor, setCurrentPoll, createPollFromChat } = useEditorActions();
+  const { isMobile, isSidebarOpen, setIsSidebarOpen } = useUIState();
+
+  // Hook legacy pour clearConversation (non migré)
+  const { clearConversation } = useConversation();
+
+  // Hook reconnaissance vocale UNIQUE pour toute l'application
+  // Partagé entre le chat et la preview pour éviter les conflits
+  const { toast } = useToast();
+  const sharedVoiceRecognition = useVoiceRecognition({
+    lang: VOICE_RECOGNITION_CONFIG.lang,
+    interimResults: VOICE_RECOGNITION_CONFIG.interimResults,
+    continuous: VOICE_RECOGNITION_CONFIG.continuous,
+    onTranscriptChange: (transcript) => {
+      // Ne rien faire ici, on utilisera finalTranscript directement
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur microphone",
+        description: error,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Synchroniser la transcription vocale avec l'input de preview
+  // Seulement quand la preview est visible sur mobile
+  useEffect(() => {
+    if (sharedVoiceRecognition.isListening && isMobile && showPreviewOnMobile) {
+      const fullText =
+        sharedVoiceRecognition.finalTranscript +
+        (sharedVoiceRecognition.interimTranscript
+          ? " " + sharedVoiceRecognition.interimTranscript
+          : "");
+      setPreviewInputValue(fullText.trim());
+    }
+  }, [
+    sharedVoiceRecognition.isListening,
+    sharedVoiceRecognition.finalTranscript,
+    sharedVoiceRecognition.interimTranscript,
     isMobile,
-    isSidebarOpen,
-    setSidebarOpen,
-  } = useConversation();
+    showPreviewOnMobile,
+  ]);
 
   // Basculer automatiquement sur preview mobile quand l'éditeur s'ouvre/ferme
   useEffect(() => {
@@ -92,6 +129,16 @@ export function WorkspaceLayoutPrototype() {
       }
     }
   }, [isMobile, isEditorOpen, currentPoll]);
+
+  // Détecter le paramètre 'new' pour réinitialiser la conversation
+  useEffect(() => {
+    if (newChatTimestamp) {
+      // Réinitialiser la conversation
+      clearConversation();
+      // Nettoyer le paramètre de l'URL
+      navigate("/", { replace: true });
+    }
+  }, [newChatTimestamp, clearConversation, navigate]);
 
   // Charger les sondages récents et conversations
   // Se recharge quand on change de conversation (chatKey change) ou quand un poll est mis à jour
@@ -119,18 +166,14 @@ export function WorkspaceLayoutPrototype() {
 
       const sorted = uniquePolls
         .filter((p) => p.created_at)
-        .sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        )
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, 5);
       setRecentPolls(sorted);
 
       // Charger conversations
       const convs = getConversations();
       const sortedConvs = convs.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
       setConversations(sortedConvs);
     } catch (error) {
@@ -140,15 +183,10 @@ export function WorkspaceLayoutPrototype() {
 
   return (
     <>
-      <div
-        className={`flex h-screen bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : ""}`}
-      >
+      <div className={`flex h-screen bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : ""}`}>
         {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur */}
         {isSidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsSidebarOpen(false)} />
         )}
 
         {/* Sidebar gauche - Mode overlay pour tous les écrans */}
@@ -160,7 +198,7 @@ export function WorkspaceLayoutPrototype() {
           {/* Bouton fermer en haut de la sidebar */}
           <div className="p-4">
             <button
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => setIsSidebarOpen(false)}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               aria-label="Fermer le menu"
               title="Fermer le menu"
@@ -174,13 +212,10 @@ export function WorkspaceLayoutPrototype() {
               <div className="px-4 pb-4 space-y-2">
                 <button
                   onClick={() => {
-                    // Tout réinitialiser (messages + poll)
-                    clearConversation();
-                    // Créer une nouvelle conversation en naviguant vers /workspace sans paramètre resume
                     // Ajouter un timestamp pour forcer le remontage du composant GeminiChatInterface
-                    navigate(`/workspace?new=${Date.now()}`);
+                    navigate(`/?new=${Date.now()}`);
                     // Fermer la sidebar sur mobile
-                    if (isMobile) setSidebarOpen(false);
+                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg transition-colors font-medium"
                 >
@@ -191,7 +226,7 @@ export function WorkspaceLayoutPrototype() {
                 <button
                   onClick={() => {
                     navigate("/create");
-                    if (isMobile) setSidebarOpen(false);
+                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
@@ -202,16 +237,11 @@ export function WorkspaceLayoutPrototype() {
                 <button
                   onClick={() => {
                     navigate("/dashboard");
-                    if (isMobile) setSidebarOpen(false);
+                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -247,12 +277,13 @@ export function WorkspaceLayoutPrototype() {
                           onClick={() => {
                             // Si la conversation a un poll associé, l'ouvrir aussi
                             if (relatedPoll) {
-                              openEditor(relatedPoll);
+                              setCurrentPoll(relatedPoll as any);
+                              openEditor();
                             }
 
-                            navigate(`/workspace?resume=${conv.id}`);
+                            navigate(`/?resume=${conv.id}`);
                             // Fermer la sidebar sur mobile
-                            if (isMobile) setSidebarOpen(false);
+                            if (isMobile) setIsSidebarOpen(false);
                           }}
                           className="w-full flex items-start gap-3 p-3 hover:bg-[#2a2a2a] rounded-lg transition-colors text-left mb-1"
                         >
@@ -274,10 +305,8 @@ export function WorkspaceLayoutPrototype() {
                                   <Calendar className="w-3 h-3 text-gray-500 flex-shrink-0" />
                                 )}
                                 <p className="text-xs text-gray-500 truncate">
-                                  {relatedPoll.type === "form"
-                                    ? "Formulaire"
-                                    : "Sondage"}{" "}
-                                  : {relatedPoll.title}
+                                  {relatedPoll.type === "form" ? "Formulaire" : "Sondage"} :{" "}
+                                  {relatedPoll.title}
                                 </p>
                               </div>
                             )}
@@ -337,7 +366,7 @@ export function WorkspaceLayoutPrototype() {
             <div className="flex items-center gap-3">
               {/* Bouton hamburger (mobile + desktop pour replier sidebar) */}
               <button
-                onClick={() => setSidebarOpen(!isSidebarOpen)}
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                 aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
               >
@@ -407,71 +436,48 @@ export function WorkspaceLayoutPrototype() {
                 }}
                 hideStatusBar={true}
                 darkTheme={true}
+                voiceRecognition={sharedVoiceRecognition}
               />
             </div>
 
             {/* Preview overlay sur mobile */}
             {isMobile && showPreviewOnMobile && isEditorOpen && currentPoll && (
-              <div className="absolute inset-0 bg-[#0a0a0a] z-10 overflow-y-auto pt-14">
+              <div className="absolute inset-0 bg-[#0a0a0a] z-10 overflow-y-auto pt-20">
                 <div className="relative">
                   <button
                     onClick={closeEditor}
-                    className="absolute top-4 right-4 z-10 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                    className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
                     aria-label="Fermer l'éditeur"
+                    title="Fermer"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-5 h-5" />
                   </button>
                   <PollPreview poll={currentPoll} />
 
                   {/* Barre d'input fixe en bas pour envoyer des messages depuis la Preview */}
-                  <div className="p-4 md:p-6 fixed bottom-0 left-0 right-0 z-40 bg-[#0a0a0a]">
-                    <div className="max-w-2xl mx-auto">
-                      <div className="flex items-center gap-3 rounded-full p-2 border bg-[#0a0a0a] border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                        <input
-                          type="text"
-                          value={previewInputValue}
-                          onChange={(e) => setPreviewInputValue(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                              e.preventDefault();
-                              if (previewInputValue.trim() && chatRef.current) {
-                                chatRef.current.submitMessage(
-                                  previewInputValue,
-                                );
-                                setPreviewInputValue("");
-                              }
-                            }
-                          }}
-                          placeholder="Décrivez votre sondage..."
-                          className="flex-1 border-0 px-4 py-3 focus:outline-none min-h-[44px] text-sm md:text-base bg-transparent text-white placeholder-gray-400"
-                        />
-                        <button
-                          onClick={() => {
-                            if (previewInputValue.trim() && chatRef.current) {
-                              chatRef.current.submitMessage(previewInputValue);
-                              setPreviewInputValue("");
-                            }
-                          }}
-                          disabled={!previewInputValue.trim()}
-                          className="rounded-full p-2 transition-all flex-shrink-0 bg-transparent text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                          aria-label="Envoyer le message"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M22 2L11 13" />
-                            <path d="M22 2l-7 20-4-9-9-4 20-7z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <ChatInput
+                    value={previewInputValue}
+                    onChange={setPreviewInputValue}
+                    onSend={() => {
+                      if (previewInputValue.trim() && chatRef.current) {
+                        chatRef.current.submitMessage(previewInputValue);
+                        setPreviewInputValue("");
+                      }
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (previewInputValue.trim() && chatRef.current) {
+                          chatRef.current.submitMessage(previewInputValue);
+                          setPreviewInputValue("");
+                        }
+                      }
+                    }}
+                    isLoading={false}
+                    darkTheme={true}
+                    voiceRecognition={sharedVoiceRecognition}
+                    textareaRef={previewTextareaRef}
+                  />
                 </div>
               </div>
             )}
@@ -482,13 +488,14 @@ export function WorkspaceLayoutPrototype() {
         {!isMobile && isEditorOpen && currentPoll && (
           <div className="w-1/2 bg-[#0a0a0a] flex flex-col">
             {/* Contenu éditeur avec bouton fermer intégré */}
-            <div className="flex-1 overflow-y-auto relative">
+            <div className="flex-1 overflow-y-auto relative pt-4">
               <button
                 onClick={closeEditor}
-                className="absolute top-4 right-4 z-10 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
                 aria-label="Fermer l'éditeur"
+                title="Fermer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
               <PollPreview poll={currentPoll} />
             </div>

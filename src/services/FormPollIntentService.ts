@@ -60,16 +60,14 @@ const FORM_PATTERNS = {
     /change\s+(?:la\s+)?question\s+(\d+)\s+en\s+(choix\s+(?:unique|multiple)|texte|matrice)/i,
 
   // "ajoute l'option [texte] à la question [numéro]"
-  ADD_OPTION:
-    /ajout(?:e|er)\s+(?:l'|l')?option\s+"([^"]+)"\s+[àa]\s+(?:la\s+)?question\s+(\d+)/i,
+  ADD_OPTION: /ajout(?:e|er)\s+(?:l'|l')?option\s+"([^"]+)"\s+[àa]\s+(?:la\s+)?question\s+(\d+)/i,
 
   // "supprime l'option [texte] de la question [numéro]"
   REMOVE_OPTION:
     /(?:supprime|retire|enl[èe]ve)\s+(?:l'|l')?option\s+"([^"]+)"\s+de\s+(?:la\s+)?question\s+(\d+)/i,
 
   // "rends la question [numéro] obligatoire/optionnelle"
-  SET_REQUIRED:
-    /rends\s+(?:la\s+)?question\s+(\d+)\s+(obligatoire|optionnelle)/i,
+  SET_REQUIRED: /rends\s+(?:la\s+)?question\s+(\d+)\s+(obligatoire|optionnelle)/i,
 
   // "renomme la question [numéro] en [nouveau titre]"
   RENAME_QUESTION: /renomme\s+(?:la\s+)?question\s+(\d+)\s+en\s+(.+)/i,
@@ -92,10 +90,7 @@ export class FormPollIntentService {
   /**
    * Détecte si le message contient une intention de modification de Form Poll
    */
-  static detectIntent(
-    message: string,
-    currentPoll: Poll | null,
-  ): FormModificationIntent | null {
+  static detectIntent(message: string, currentPoll: Poll | null): FormModificationIntent | null {
     // Vérifier que c'est bien un Form Poll
     if (!currentPoll || currentPoll.type !== "form") {
       return null;
@@ -120,9 +115,7 @@ export class FormPollIntentService {
     if (removeQuestionMatch) {
       // Groupe 1: "question 1", Groupe 2: "Q1", Groupe 3: "première question"
       const questionStr =
-        removeQuestionMatch[1] ||
-        removeQuestionMatch[2] ||
-        removeQuestionMatch[3];
+        removeQuestionMatch[1] || removeQuestionMatch[2] || removeQuestionMatch[3];
 
       // Convertir ordinal/nombre en nombre si nécessaire
       let questionNumber: number;

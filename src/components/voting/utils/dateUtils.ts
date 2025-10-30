@@ -13,21 +13,9 @@ export const formatDate = (dateString: string) => {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   // Comparer uniquement les dates sans les heures
-  const dateOnly = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-  );
-  const todayOnly = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-  );
-  const tomorrowOnly = new Date(
-    tomorrow.getFullYear(),
-    tomorrow.getMonth(),
-    tomorrow.getDate(),
-  );
+  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const tomorrowOnly = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
 
   if (dateOnly.getTime() === todayOnly.getTime()) return "Aujourd'hui";
   if (dateOnly.getTime() === tomorrowOnly.getTime()) return "Demain";
@@ -76,14 +64,9 @@ export const formatTime = (
 
   const start = `${slot.hour}h${slot.minute ? slot.minute.toString().padStart(2, "0") : ""}`;
   if (slot.duration) {
-    const endHour = Math.floor(
-      (slot.hour * 60 + (slot.minute || 0) + slot.duration) / 60,
-    );
-    const endMinute =
-      (slot.hour * 60 + (slot.minute || 0) + slot.duration) % 60;
-    const end = `${endHour}h${
-      endMinute ? endMinute.toString().padStart(2, "0") : ""
-    }`;
+    const endHour = Math.floor((slot.hour * 60 + (slot.minute || 0) + slot.duration) / 60);
+    const endMinute = (slot.hour * 60 + (slot.minute || 0) + slot.duration) % 60;
+    const end = `${endHour}h${endMinute ? endMinute.toString().padStart(2, "0") : ""}`;
     return `${start} - ${end}`;
   }
   return start;

@@ -45,8 +45,7 @@ describe("GeminiService - Poll Type Detection", () => {
     });
 
     it("détecte multiple mots-clés Form", () => {
-      const input =
-        "Questionnaire avec choix multiple pour évaluer la satisfaction";
+      const input = "Questionnaire avec choix multiple pour évaluer la satisfaction";
       // @ts-expect-error - Testing private method
       const result = service.detectPollType(input);
       expect(result).toBe("form");
@@ -90,8 +89,7 @@ describe("GeminiService - Poll Type Detection", () => {
     });
 
     it("détecte multiple mots-clés Date", () => {
-      const input =
-        "Organiser une réunion avec disponibilités et créneaux horaires";
+      const input = "Organiser une réunion avec disponibilités et créneaux horaires";
       // @ts-expect-error - Testing private method
       const result = service.detectPollType(input);
       expect(result).toBe("date");
@@ -146,16 +144,14 @@ describe("GeminiService - Poll Type Detection", () => {
     });
 
     it("détecte Form pour inscription événement", () => {
-      const input =
-        "Formulaire d'inscription avec nom, email et choix de l'atelier";
+      const input = "Formulaire d'inscription avec nom, email et choix de l'atelier";
       // @ts-expect-error - Testing private method
       const result = service.detectPollType(input);
       expect(result).toBe("form");
     });
 
     it("détecte Date pour planning équipe", () => {
-      const input =
-        "Planning de disponibilité pour les entretiens du mois prochain";
+      const input = "Planning de disponibilité pour les entretiens du mois prochain";
       // @ts-expect-error - Testing private method
       const result = service.detectPollType(input);
       expect(result).toBe("date");
@@ -290,9 +286,7 @@ _Votre réponse :_`;
       const result = service.parseMarkdownQuestionnaire(markdown);
 
       expect(result).not.toBeNull();
-      expect(result).toContain(
-        "TITRE: Questionnaire Participants Crews - 2025",
-      );
+      expect(result).toContain("TITRE: Questionnaire Participants Crews - 2025");
       expect(result).toContain("QUESTION 1 [single, required]");
       expect(result).toContain("QUESTION 2 [single, required]");
       expect(result).toContain("QUESTION 3 [multiple, max=3, required]");

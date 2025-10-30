@@ -24,10 +24,7 @@ export const ConversationStatusSchema = z.enum([
   CONVERSATION_STATUS.ARCHIVED,
 ]);
 
-export const MessageRoleSchema = z.enum([
-  MESSAGE_ROLE.USER,
-  MESSAGE_ROLE.ASSISTANT,
-]);
+export const MessageRoleSchema = z.enum([MESSAGE_ROLE.USER, MESSAGE_ROLE.ASSISTANT]);
 
 export const ConversationMetadataSchema = z
   .object({
@@ -67,10 +64,7 @@ export const ConversationSchema = z.object({
   firstMessage: z
     .string()
     .min(1, "Le premier message ne peut pas être vide")
-    .max(
-      CONVERSATION_LIMITS.FIRST_MESSAGE_PREVIEW_LENGTH,
-      "Aperçu du premier message trop long",
-    ),
+    .max(CONVERSATION_LIMITS.FIRST_MESSAGE_PREVIEW_LENGTH, "Aperçu du premier message trop long"),
   messageCount: z
     .number()
     .int("Le nombre de messages doit être un entier")
@@ -109,10 +103,7 @@ export const CreateConversationRequestSchema = z.object({
   firstMessage: z
     .string()
     .min(1, "Le premier message est requis")
-    .max(
-      CONVERSATION_LIMITS.MAX_CONVERSATION_SIZE,
-      "Premier message trop long",
-    ),
+    .max(CONVERSATION_LIMITS.MAX_CONVERSATION_SIZE, "Premier message trop long"),
   metadata: ConversationMetadataSchema,
 });
 
@@ -208,19 +199,13 @@ export function validateConversationMessage(
 
 export function validateCreateConversationRequest(
   data: unknown,
-): z.SafeParseReturnType<
-  unknown,
-  z.infer<typeof CreateConversationRequestSchema>
-> {
+): z.SafeParseReturnType<unknown, z.infer<typeof CreateConversationRequestSchema>> {
   return CreateConversationRequestSchema.safeParse(data);
 }
 
 export function validateUpdateConversationRequest(
   data: unknown,
-): z.SafeParseReturnType<
-  unknown,
-  z.infer<typeof UpdateConversationRequestSchema>
-> {
+): z.SafeParseReturnType<unknown, z.infer<typeof UpdateConversationRequestSchema>> {
   return UpdateConversationRequestSchema.safeParse(data);
 }
 
@@ -232,10 +217,7 @@ export function validateAddMessageRequest(
 
 export function validateLocalStorageData(
   data: unknown,
-): z.SafeParseReturnType<
-  unknown,
-  z.infer<typeof LocalStorageConversationDataSchema>
-> {
+): z.SafeParseReturnType<unknown, z.infer<typeof LocalStorageConversationDataSchema>> {
   return LocalStorageConversationDataSchema.safeParse(data);
 }
 
@@ -285,9 +267,7 @@ export function createValidationError(
 }
 
 export function formatZodError(error: z.ZodError): string {
-  return error.errors
-    .map((err) => `${err.path.join(".")}: ${err.message}`)
-    .join(", ");
+  return error.errors.map((err) => `${err.path.join(".")}: ${err.message}`).join(", ");
 }
 
 // ============================================================================
@@ -295,21 +275,9 @@ export function formatZodError(error: z.ZodError): string {
 // ============================================================================
 
 export type ValidatedConversation = z.infer<typeof ConversationSchema>;
-export type ValidatedConversationMessage = z.infer<
-  typeof ConversationMessageSchema
->;
-export type ValidatedCreateConversationRequest = z.infer<
-  typeof CreateConversationRequestSchema
->;
-export type ValidatedUpdateConversationRequest = z.infer<
-  typeof UpdateConversationRequestSchema
->;
-export type ValidatedAddMessageRequest = z.infer<
-  typeof AddMessageRequestSchema
->;
-export type ValidatedLocalStorageData = z.infer<
-  typeof LocalStorageConversationDataSchema
->;
-export type ValidatedConversationQuota = z.infer<
-  typeof ConversationQuotaSchema
->;
+export type ValidatedConversationMessage = z.infer<typeof ConversationMessageSchema>;
+export type ValidatedCreateConversationRequest = z.infer<typeof CreateConversationRequestSchema>;
+export type ValidatedUpdateConversationRequest = z.infer<typeof UpdateConversationRequestSchema>;
+export type ValidatedAddMessageRequest = z.infer<typeof AddMessageRequestSchema>;
+export type ValidatedLocalStorageData = z.infer<typeof LocalStorageConversationDataSchema>;
+export type ValidatedConversationQuota = z.infer<typeof ConversationQuotaSchema>;

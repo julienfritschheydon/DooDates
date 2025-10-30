@@ -145,10 +145,7 @@ export class AdvancedTemporalParser {
       }
     } catch (error) {
       logError(
-        ErrorFactory.api(
-          "Serina temporal parsing failed",
-          "Erreur d'analyse temporelle Serina",
-        ),
+        ErrorFactory.api("Serina temporal parsing failed", "Erreur d'analyse temporelle Serina"),
         { component: "temporal-parser", metadata: { originalError: error } },
       );
     }
@@ -190,9 +187,7 @@ export class AdvancedTemporalParser {
   /**
    * Extraction des contraintes implicites
    */
-  private extractConstraints(
-    text: string,
-  ): ParsedTemporal["extracted"]["constraints"] {
+  private extractConstraints(text: string): ParsedTemporal["extracted"]["constraints"] {
     const constraints: ParsedTemporal["extracted"]["constraints"] = {};
 
     // Contraintes horaires
@@ -206,10 +201,7 @@ export class AdvancedTemporalParser {
     if (text.includes("soir")) {
       constraints.afterTime = "18:00";
     }
-    if (
-      text.includes("heures de bureau") ||
-      text.includes("heures ouvrables")
-    ) {
+    if (text.includes("heures de bureau") || text.includes("heures ouvrables")) {
       constraints.workingHours = true;
     }
 
@@ -298,9 +290,7 @@ export class AdvancedTemporalParser {
 
       // Test counterfactual: Si on dit "lundi" mais que la date est un mardi
       if (text.includes("lundi") && dayOfWeek !== 1) {
-        conflicts.push(
-          `Date ${dateStr} tombe un ${this.getDayName(dayOfWeek)}, pas un lundi`,
-        );
+        conflicts.push(`Date ${dateStr} tombe un ${this.getDayName(dayOfWeek)}, pas un lundi`);
         suggestions.push("Vérifier la correspondance jour/date demandée");
       }
 
@@ -309,14 +299,8 @@ export class AdvancedTemporalParser {
         conflicts.push(`Date ${dateStr} n'est pas un weekend`);
       }
 
-      if (
-        text.includes("semaine") &&
-        !text.includes("weekend") &&
-        [0, 6].includes(dayOfWeek)
-      ) {
-        conflicts.push(
-          `Date ${dateStr} est un weekend mais le texte demande la semaine`,
-        );
+      if (text.includes("semaine") && !text.includes("weekend") && [0, 6].includes(dayOfWeek)) {
+        conflicts.push(`Date ${dateStr} est un weekend mais le texte demande la semaine`);
       }
     }
 
@@ -330,9 +314,7 @@ export class AdvancedTemporalParser {
         const afterHour = parseInt(afterMatch[1]);
 
         if (beforeHour <= afterHour) {
-          conflicts.push(
-            'Incohérence temporelle: "avant" doit être antérieur à "après"',
-          );
+          conflicts.push('Incohérence temporelle: "avant" doit être antérieur à "après"');
         }
       }
     }
@@ -458,15 +440,7 @@ export class AdvancedTemporalParser {
    * Utilitaire pour obtenir le nom du jour
    */
   private getDayName(dayIndex: number): string {
-    const days = [
-      "dimanche",
-      "lundi",
-      "mardi",
-      "mercredi",
-      "jeudi",
-      "vendredi",
-      "samedi",
-    ];
+    const days = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
     return days[dayIndex];
   }
 
@@ -481,9 +455,7 @@ export class AdvancedTemporalParser {
     }
 
     if (parsed.counterfactualChecks.conflicts.length > 0) {
-      suggestions.push(
-        "Vérifiez la cohérence entre les jours demandés et les dates",
-      );
+      suggestions.push("Vérifiez la cohérence entre les jours demandés et les dates");
     }
 
     if (parsed.extracted.dates.length === 0) {

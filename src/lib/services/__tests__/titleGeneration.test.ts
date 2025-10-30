@@ -49,10 +49,7 @@ describe("titleGeneration", () => {
           "assistant",
           "Parfait ! Je vais vous aider à organiser cette réunion avec Paul et Marie pour mardi à 14h. Avez-vous une préférence pour la durée ?",
         ),
-        createMessage(
-          "user",
-          "Une heure devrait suffire, c'est pour discuter du projet DooDates",
-        ),
+        createMessage("user", "Une heure devrait suffire, c'est pour discuter du projet DooDates"),
         createMessage(
           "assistant",
           "Excellente idée ! Une réunion d'une heure sur le projet DooDates.",
@@ -79,14 +76,8 @@ describe("titleGeneration", () => {
           "assistant",
           "I'll help you schedule that meeting with John and Sarah for Wednesday at 3pm. What's the meeting about?",
         ),
-        createMessage(
-          "user",
-          "It's about the quarterly review and budget planning",
-        ),
-        createMessage(
-          "assistant",
-          "Great! A meeting about quarterly review and budget planning.",
-        ),
+        createMessage("user", "It's about the quarterly review and budget planning"),
+        createMessage("assistant", "Great! A meeting about quarterly review and budget planning."),
       ];
 
       const options: TitleGenerationOptions = { language: "en" };
@@ -111,10 +102,7 @@ describe("titleGeneration", () => {
     it("should limit analysis to maxTurns", () => {
       const messages = [
         createMessage("user", "Organiser réunion avec Paul mardi 14h"),
-        createMessage(
-          "assistant",
-          "Parfait pour la réunion avec Paul mardi 14h",
-        ),
+        createMessage("assistant", "Parfait pour la réunion avec Paul mardi 14h"),
         createMessage("user", "Et aussi avec Marie mercredi 15h"),
         createMessage("assistant", "D'accord pour Marie mercredi 15h"),
         createMessage("user", "Et finalement avec Pierre jeudi 16h"),
@@ -158,10 +146,7 @@ describe("titleGeneration", () => {
     it("should extract time expressions correctly", () => {
       const messages = [
         createMessage("user", "Réunion demain à 14h30 ou après-midi vers 15h"),
-        createMessage(
-          "assistant",
-          "Parfait, nous pouvons programmer cela pour 14h30 ou 15h",
-        ),
+        createMessage("assistant", "Parfait, nous pouvons programmer cela pour 14h30 ou 15h"),
       ];
 
       const result = generateConversationTitle(messages);
@@ -185,10 +170,7 @@ describe("titleGeneration", () => {
     it("should handle day names in French", () => {
       const messages = [
         createMessage("user", "Organiser réunion lundi, mardi ou mercredi"),
-        createMessage(
-          "assistant",
-          "Nous pouvons programmer pour lundi, mardi ou mercredi",
-        ),
+        createMessage("assistant", "Nous pouvons programmer pour lundi, mardi ou mercredi"),
       ];
 
       const result = generateConversationTitle(messages);
@@ -199,14 +181,8 @@ describe("titleGeneration", () => {
 
     it("should handle day names in English", () => {
       const messages = [
-        createMessage(
-          "user",
-          "Schedule meeting for Monday, Tuesday or Wednesday",
-        ),
-        createMessage(
-          "assistant",
-          "We can schedule for Monday, Tuesday or Wednesday",
-        ),
+        createMessage("user", "Schedule meeting for Monday, Tuesday or Wednesday"),
+        createMessage("assistant", "We can schedule for Monday, Tuesday or Wednesday"),
       ];
 
       const options: TitleGenerationOptions = { language: "en" };
@@ -251,36 +227,26 @@ describe("titleGeneration", () => {
 
   describe("shouldRegenerateTitle", () => {
     it("should not regenerate custom titles", () => {
-      expect(shouldRegenerateTitle("Mon titre personnalisé", true, 10)).toBe(
-        false,
-      );
+      expect(shouldRegenerateTitle("Mon titre personnalisé", true, 10)).toBe(false);
       expect(shouldRegenerateTitle("Custom title", true, 2)).toBe(false);
     });
 
     it("should regenerate empty or default titles", () => {
       expect(shouldRegenerateTitle("", false, 2)).toBe(true);
-      expect(shouldRegenerateTitle("Nouvelle conversation", false, 2)).toBe(
-        true,
-      );
+      expect(shouldRegenerateTitle("Nouvelle conversation", false, 2)).toBe(true);
       expect(shouldRegenerateTitle("New conversation", false, 2)).toBe(true);
-      expect(
-        shouldRegenerateTitle("Conversation du 11/09/2025", false, 2),
-      ).toBe(true);
+      expect(shouldRegenerateTitle("Conversation du 11/09/2025", false, 2)).toBe(true);
     });
 
     it("should not regenerate if not enough messages", () => {
       expect(shouldRegenerateTitle("", false, 1)).toBe(false);
-      expect(shouldRegenerateTitle("Nouvelle conversation", false, 0)).toBe(
-        false,
-      );
+      expect(shouldRegenerateTitle("Nouvelle conversation", false, 0)).toBe(false);
     });
 
     it("should regenerate for early conversations with even message count", () => {
       expect(shouldRegenerateTitle("Réunion avec Paul", false, 2)).toBe(true);
       expect(shouldRegenerateTitle("Meeting with John", false, 4)).toBe(true);
-      expect(shouldRegenerateTitle("Discussion importante", false, 6)).toBe(
-        true,
-      );
+      expect(shouldRegenerateTitle("Discussion importante", false, 6)).toBe(true);
     });
 
     it("should not regenerate for longer conversations", () => {
@@ -327,14 +293,8 @@ describe("titleGeneration", () => {
 
     it("should handle special characters in names", () => {
       const messages = [
-        createMessage(
-          "user",
-          "Réunion avec François-José O'Connor et María García-López",
-        ),
-        createMessage(
-          "assistant",
-          "Parfait pour la réunion avec François-José et María",
-        ),
+        createMessage("user", "Réunion avec François-José O'Connor et María García-López"),
+        createMessage("assistant", "Parfait pour la réunion avec François-José et María"),
       ];
 
       const result = generateConversationTitle(messages);
@@ -384,10 +344,7 @@ describe("titleGeneration", () => {
           "user",
           "Réunion avec Paul, Marie, Jean, Pierre, Sophie, Claire, Michel et Anne",
         ),
-        createMessage(
-          "assistant",
-          "Beaucoup de participants pour cette réunion",
-        ),
+        createMessage("assistant", "Beaucoup de participants pour cette réunion"),
       ];
 
       const result = generateConversationTitle(messages);
@@ -396,9 +353,7 @@ describe("titleGeneration", () => {
       expect(result.title.length).toBeLessThanOrEqual(60);
       // Should not include all names
       const nameCount = (
-        result.title.match(
-          /Paul|Marie|Jean|Pierre|Sophie|Claire|Michel|Anne/gi,
-        ) || []
+        result.title.match(/Paul|Marie|Jean|Pierre|Sophie|Claire|Michel|Anne/gi) || []
       ).length;
       expect(nameCount).toBeLessThan(8);
     });

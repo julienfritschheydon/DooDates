@@ -1,6 +1,14 @@
 #!/bin/sh
 echo "🚀 DooDates - Validation pre-push..."
 
+# Récupérer la branche cible du push
+while read local_ref local_sha remote_ref remote_sha
+do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    PUSHING_TO_MAIN=true
+  fi
+done
+
 # Ressources accrues pour éviter OOM et fiabiliser Vitest
 export NODE_OPTIONS="--max-old-space-size=4096"
 export VITEST_MAX_THREADS=1
@@ -28,6 +36,18 @@ npm run build
 if [ $? -ne 0 ]; then
   echo "❌ Build production échoué - Push bloqué"
   exit 1
+fi
+
+# 4. Tests E2E Smoke (uniquement si push vers main)
+if [ "$PUSHING_TO_MAIN" = "true" ]; then
+  echo "🔥 Tests E2E Smoke (protection branche main)..."
+  npm run test:e2e:smoke
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests E2E Smoke échoués - Push vers main bloqué"
+    echo "💡 Les tests critiques doivent passer avant de pusher vers main"
+    exit 1
+  fi
+  echo "✅ Tests E2E Smoke passés"
 fi
 
 echo "✅ Pre-push validé - Push autorisé" 

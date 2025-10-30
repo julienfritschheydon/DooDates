@@ -147,15 +147,8 @@ export const VoterForm: React.FC<VoterFormProps> = ({
           className="bg-[#1e1e1e] rounded-3xl p-8 w-full max-w-md shadow-2xl border border-gray-700 pointer-events-auto"
         >
           {/* Zone live pour annoncer les erreurs aux technologies d'assistance */}
-          <div
-            className="sr-only"
-            aria-live="polite"
-            id="voter-form-live-region"
-          >
-            {localFormErrors.general ||
-              localFormErrors.name ||
-              localFormErrors.email ||
-              ""}
+          <div className="sr-only" aria-live="polite" id="voter-form-live-region">
+            {localFormErrors.general || localFormErrors.name || localFormErrors.email || ""}
           </div>
           {/* Header avec bouton retour */}
           <div className="flex items-center justify-between mb-6">
@@ -180,10 +173,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
           {/* Formulaire */}
           <div className="space-y-4 mb-6">
             <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-300 mb-2"
-              >
+              <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
                 Votre nom *
               </label>
               <input
@@ -201,9 +191,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                 disabled={isSubmitting}
                 data-testid="voter-name"
                 aria-invalid={localFormErrors.name ? true : undefined}
-                aria-describedby={
-                  localFormErrors.name ? "name-error" : undefined
-                }
+                aria-describedby={localFormErrors.name ? "name-error" : undefined}
                 ref={nameInputRef}
               />
               {localFormErrors.name && (
@@ -222,20 +210,14 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                 className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 bg-gray-800 border-gray-600"
                 disabled={isSubmitting}
               />
-              <label
-                htmlFor="receive-email"
-                className="ml-2 text-sm font-medium text-gray-300"
-              >
+              <label htmlFor="receive-email" className="ml-2 text-sm font-medium text-gray-300">
                 Je souhaite recevoir mon vote par email
               </label>
             </div>
 
             {wantToReceiveEmail && (
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-300 mb-2"
-                >
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                   Votre email *
                 </label>
                 <input
@@ -252,9 +234,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
                   autoComplete="email"
                   disabled={isSubmitting}
                   aria-invalid={localFormErrors.email ? true : undefined}
-                  aria-describedby={
-                    localFormErrors.email ? "email-error" : undefined
-                  }
+                  aria-describedby={localFormErrors.email ? "email-error" : undefined}
                   ref={emailInputRef}
                 />
                 {localFormErrors.email && (
@@ -270,9 +250,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
           <div className="space-y-3">
             {localFormErrors.general && (
               <div className="bg-red-900/20 border border-red-500 rounded-xl p-3">
-                <p className="text-red-400 text-sm text-center">
-                  {localFormErrors.general}
-                </p>
+                <p className="text-red-400 text-sm text-center">{localFormErrors.general}</p>
               </div>
             )}
 
@@ -288,9 +266,7 @@ export const VoterForm: React.FC<VoterFormProps> = ({
               onClick={handleSubmit}
               disabled={isSubmitting}
               className={`w-full py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all ${
-                isSubmitting
-                  ? "bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
+                isSubmitting ? "bg-gray-600 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
               } text-white`}
               data-testid="submit-votes"
             >

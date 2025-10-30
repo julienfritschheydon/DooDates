@@ -210,21 +210,13 @@ function deduplicatePolls(polls: Poll[]): Poll[] {
       seen.set(poll.id, poll);
     } else {
       // Garder le plus récent (updated_at ou created_at)
-      const existingDate = new Date(
-        existing.updated_at || existing.created_at,
-      ).getTime();
-      const currentDate = new Date(
-        poll.updated_at || poll.created_at,
-      ).getTime();
+      const existingDate = new Date(existing.updated_at || existing.created_at).getTime();
+      const currentDate = new Date(poll.updated_at || poll.created_at).getTime();
       if (currentDate > existingDate) {
-        console.log(
-          `⚠️ Duplicate poll ID found: ${poll.id}, keeping newer version`,
-        );
+        console.log(`⚠️ Duplicate poll ID found: ${poll.id}, keeping newer version`);
         seen.set(poll.id, poll);
       } else {
-        console.log(
-          `⚠️ Duplicate poll ID found: ${poll.id}, keeping existing version`,
-        );
+        console.log(`⚠️ Duplicate poll ID found: ${poll.id}, keeping existing version`);
       }
     }
   }
@@ -234,34 +226,33 @@ function deduplicatePolls(polls: Poll[]): Poll[] {
 export function savePolls(polls: Poll[]): void {
   const deduplicated = deduplicatePolls(polls);
   if (deduplicated.length !== polls.length) {
-    console.log(
-      `🧹 Removed ${polls.length - deduplicated.length} duplicate polls`,
-    );
+    console.log(`🧹 Removed ${polls.length - deduplicated.length} duplicate polls`);
   }
-  console.log(`💾 savePolls: Saving ${deduplicated.length} polls to storage`);
   writeToStorage(STORAGE_KEY, deduplicated, memoryPollCache);
-  console.log(`✅ savePolls: Successfully saved ${deduplicated.length} polls`);
 }
 
-export function getPollBySlugOrId(
-  idOrSlug: string | undefined | null,
-): Poll | null {
+export function getPollBySlugOrId(idOrSlug: string | undefined | null): Poll | null {
   if (!idOrSlug) return null;
   // Rechercher dans l'ensemble unifié (date + form)
   const polls = getAllPolls();
-  return (
-    polls.find((p) => p.slug === idOrSlug) ||
-    polls.find((p) => p.id === idOrSlug) ||
-    null
-  );
+  return polls.find((p) => p.slug === idOrSlug) || polls.find((p) => p.id === idOrSlug) || null;
 }
 
 export function addPoll(poll: Poll): void {
   // Validation écriture: empêcher l'enregistrement d'un sondage invalide
   validatePoll(poll);
-  // Ajouter dans l'ensemble unifié (ne pas perdre les polls de type "form")
+  // Ajouter ou remplacer dans l'ensemble unifié
   const polls = getAllPolls();
-  polls.push(poll);
+  const existingIndex = polls.findIndex((p) => p.id === poll.id);
+
+  if (existingIndex >= 0) {
+    // Remplacer le poll existant
+    polls[existingIndex] = poll;
+  } else {
+    // Ajouter un nouveau poll
+    polls.push(poll);
+  }
+
   savePolls(polls);
   // Mettre à jour le cache mémoire pour robustesse (tests/concurrence)
   memoryPollCache.set(poll.id, poll);
@@ -297,9 +288,7 @@ export function duplicatePoll(poll: Poll): Poll {
 
 export function buildPublicLink(slug: string): string {
   const origin =
-    hasWindow() && window.location?.origin
-      ? window.location.origin
-      : "http://localhost";
+    hasWindow() && window.location?.origin ? window.location.origin : "http://localhost";
   return `${origin}/poll/${slug}`;
 }
 
@@ -405,14 +394,10 @@ export function getAllPolls(): Poll[] {
       if (!existing) {
         seen.set(p.id, p);
       } else {
-        const existingDate = new Date(
-          existing.updated_at || existing.created_at,
-        ).getTime();
+        const existingDate = new Date(existing.updated_at || existing.created_at).getTime();
         const currentDate = new Date(p.updated_at || p.created_at).getTime();
         if (currentDate > existingDate) {
-          console.warn(
-            `⚠️ Duplicate poll ID ${p.id} found, keeping newer version`,
-          );
+          console.warn(`⚠️ Duplicate poll ID ${p.id} found, keeping newer version`);
           seen.set(p.id, p);
         }
       }
@@ -500,17 +485,15 @@ function migrateFormDraftsIntoUnified(): void {
     const existingIds = new Set(unified.map((p) => p.id));
     let migrated = 0;
     for (const f of forms) {
-      const id = (
-        f && typeof f === "object" ? (f as LegacyFormPoll).id : undefined
-      ) as string | undefined;
+      const id = (f && typeof f === "object" ? (f as LegacyFormPoll).id : undefined) as
+        | string
+        | undefined;
       if (id && existingIds.has(id)) continue;
       const formPoll: Poll = {
         id: id || `form-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         creator_id: "anonymous",
         title: (f?.title as string) || "Sans titre",
-        slug:
-          (f?.slug as string) ||
-          `form-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        slug: (f?.slug as string) || `form-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         created_at: (f?.created_at as string) || new Date().toISOString(),
         description: (f?.description as string) || undefined,
         status: (f?.status as any) || "draft",
@@ -554,11 +537,7 @@ const memoryResponsesCache = new Map<string, FormResponse>();
 
 function readAllResponses(): FormResponse[] {
   try {
-    const fromStorage = readFromStorage(
-      FORM_RESPONSES_KEY,
-      memoryResponsesCache,
-      [],
-    );
+    const fromStorage = readFromStorage(FORM_RESPONSES_KEY, memoryResponsesCache, []);
     // Merge with in-memory cache (avoid duplicates by id)
     const byId = new Map<string, FormResponse>();
     for (const r of memoryResponses) byId.set(r.id, r);
@@ -626,10 +605,7 @@ function assertValidFormAnswer(poll: Poll, items: FormResponseItem[]): void {
 
         throw validationError;
       }
-      if (
-        q.kind === "text" &&
-        (typeof it.value !== "string" || !it.value.trim())
-      ) {
+      if (q.kind === "text" && (typeof it.value !== "string" || !it.value.trim())) {
         const validationError = ErrorFactory.validation(
           "Text answer required",
           "Réponse textuelle obligatoire",
@@ -725,8 +701,7 @@ export function addFormResponse(params: {
   const targetKey = (normalizedName || "").toLowerCase();
   const existingIdx = all.findIndex(
     (r) =>
-      r.pollId === params.pollId &&
-      (r.respondentName || "").trim().toLowerCase() === targetKey,
+      r.pollId === params.pollId && (r.respondentName || "").trim().toLowerCase() === targetKey,
   );
   const now = new Date().toISOString();
   const resp: FormResponse = {
@@ -791,33 +766,26 @@ export function getFormResults(pollId: string): FormResults {
       if (kind === "single") {
         const optId = typeof it.value === "string" ? it.value : undefined;
         if (!optId) continue;
-        countsByQuestion[q.id][optId] =
-          (countsByQuestion[q.id][optId] || 0) + 1;
+        countsByQuestion[q.id][optId] = (countsByQuestion[q.id][optId] || 0) + 1;
         continue;
       }
       if (kind === "multiple") {
         const arr = Array.isArray(it.value) ? it.value : [];
         for (const optId of arr) {
-          countsByQuestion[q.id][optId] =
-            (countsByQuestion[q.id][optId] || 0) + 1;
+          countsByQuestion[q.id][optId] = (countsByQuestion[q.id][optId] || 0) + 1;
         }
         continue;
       }
       if (kind === "matrix") {
         // Pour matrices, compter chaque cellule (rowId_colId)
         const matrixVal = it.value as Record<string, string | string[]>;
-        if (
-          matrixVal &&
-          typeof matrixVal === "object" &&
-          !Array.isArray(matrixVal)
-        ) {
+        if (matrixVal && typeof matrixVal === "object" && !Array.isArray(matrixVal)) {
           for (const [rowId, colValue] of Object.entries(matrixVal)) {
             const colIds = Array.isArray(colValue) ? colValue : [colValue];
             for (const colId of colIds) {
               if (colId) {
                 const key = `${rowId}_${colId}`;
-                countsByQuestion[q.id][key] =
-                  (countsByQuestion[q.id][key] || 0) + 1;
+                countsByQuestion[q.id][key] = (countsByQuestion[q.id][key] || 0) + 1;
               }
             }
           }
@@ -849,9 +817,7 @@ export function getDeviceId(): string {
     DEVICE_ID_CACHE = existing;
     return existing;
   }
-  const generated = `dev-${Date.now().toString(36)}-${Math.random()
-    .toString(36)
-    .slice(2, 8)}`;
+  const generated = `dev-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   if (hasWindow()) {
     window.localStorage.setItem(key, generated);
   }

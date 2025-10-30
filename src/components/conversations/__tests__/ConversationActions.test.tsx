@@ -50,24 +50,14 @@ describe("ConversationActions", () => {
 
   describe("Dropdown Layout (Default)", () => {
     it("renders dropdown trigger button", () => {
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       expect(screen.getByRole("button")).toBeInTheDocument();
     });
 
     it("opens dropdown menu when clicked", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -80,12 +70,7 @@ describe("ConversationActions", () => {
 
     it("calls onResume when resume action is clicked", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -100,12 +85,7 @@ describe("ConversationActions", () => {
       const user = userEvent.setup();
       const favoriteConversation = { ...mockConversation, isFavorite: true };
 
-      render(
-        <ConversationActions
-          conversation={favoriteConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={favoriteConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -117,11 +97,7 @@ describe("ConversationActions", () => {
   describe("Inline Layout", () => {
     it("renders primary actions as buttons when inline=true", () => {
       render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-          inline={true}
-        />,
+        <ConversationActions conversation={mockConversation} {...mockCallbacks} inline={true} />,
       );
 
       expect(screen.getByText("Reprendre")).toBeInTheDocument();
@@ -148,12 +124,7 @@ describe("ConversationActions", () => {
   describe("Favorite Toggle", () => {
     it("calls onToggleFavorite with correct parameters", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -161,20 +132,12 @@ describe("ConversationActions", () => {
       const favoriteAction = screen.getByText("Ajouter aux favoris");
       await user.click(favoriteAction);
 
-      expect(mockCallbacks.onToggleFavorite).toHaveBeenCalledWith(
-        "conv-1",
-        true,
-      );
+      expect(mockCallbacks.onToggleFavorite).toHaveBeenCalledWith("conv-1", true);
     });
 
     it("shows success toast when favorite is toggled", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -189,12 +152,7 @@ describe("ConversationActions", () => {
   describe("Archive Toggle", () => {
     it("shows archive action for active conversations", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -209,12 +167,7 @@ describe("ConversationActions", () => {
         status: "archived" as const,
       };
 
-      render(
-        <ConversationActions
-          conversation={archivedConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={archivedConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -224,12 +177,7 @@ describe("ConversationActions", () => {
 
     it("calls onToggleArchive with correct parameters", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -237,22 +185,14 @@ describe("ConversationActions", () => {
       const archiveAction = screen.getByText("Archiver");
       await user.click(archiveAction);
 
-      expect(mockCallbacks.onToggleArchive).toHaveBeenCalledWith(
-        "conv-1",
-        true,
-      );
+      expect(mockCallbacks.onToggleArchive).toHaveBeenCalledWith("conv-1", true);
     });
   });
 
   describe("Rename Dialog", () => {
     it("opens rename dialog when rename action is clicked", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -266,12 +206,7 @@ describe("ConversationActions", () => {
 
     it("calls onRename when save button is clicked", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -286,20 +221,12 @@ describe("ConversationActions", () => {
       const saveButton = screen.getByText("Enregistrer");
       await user.click(saveButton);
 
-      expect(mockCallbacks.onRename).toHaveBeenCalledWith(
-        "conv-1",
-        "New Conversation Name",
-      );
+      expect(mockCallbacks.onRename).toHaveBeenCalledWith("conv-1", "New Conversation Name");
     });
 
     it("closes dialog when cancel button is clicked", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -310,19 +237,12 @@ describe("ConversationActions", () => {
       const cancelButton = screen.getByText("Annuler");
       await user.click(cancelButton);
 
-      expect(
-        screen.queryByText("Renommer la conversation"),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText("Renommer la conversation")).not.toBeInTheDocument();
     });
 
     it("submits on Enter key press", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -341,12 +261,7 @@ describe("ConversationActions", () => {
   describe("Delete Dialog", () => {
     it.skip("opens delete dialog when delete action is clicked", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -360,12 +275,7 @@ describe("ConversationActions", () => {
 
     it("calls onDelete when confirm button is clicked", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -381,12 +291,7 @@ describe("ConversationActions", () => {
 
     it("closes dialog when cancel button is clicked", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -397,21 +302,14 @@ describe("ConversationActions", () => {
       const cancelButton = screen.getByText("Annuler");
       await user.click(cancelButton);
 
-      expect(
-        screen.queryByText("Supprimer la conversation"),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText("Supprimer la conversation")).not.toBeInTheDocument();
     });
   });
 
   describe("Poll Actions", () => {
     it("shows view poll action when relatedPollId exists", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -426,12 +324,7 @@ describe("ConversationActions", () => {
         relatedPollId: undefined,
       };
 
-      render(
-        <ConversationActions
-          conversation={conversationWithoutPoll}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={conversationWithoutPoll} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -441,12 +334,7 @@ describe("ConversationActions", () => {
 
     it("calls onViewPoll when view poll action is clicked", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -461,12 +349,7 @@ describe("ConversationActions", () => {
   describe("Copy Link", () => {
     it.skip("copies conversation link to clipboard", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -484,12 +367,7 @@ describe("ConversationActions", () => {
   describe("Export Actions", () => {
     it("shows export actions when onExport is provided", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -501,12 +379,7 @@ describe("ConversationActions", () => {
 
     it("calls onExport with correct format", async () => {
       const user = userEvent.setup();
-      render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-        />,
-      );
+      render(<ConversationActions conversation={mockConversation} {...mockCallbacks} />);
 
       const triggerButton = screen.getByRole("button");
       await user.click(triggerButton);
@@ -522,11 +395,7 @@ describe("ConversationActions", () => {
     it("renders English text when language is set to en", async () => {
       const user = userEvent.setup();
       render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-          language="en"
-        />,
+        <ConversationActions conversation={mockConversation} {...mockCallbacks} language="en" />,
       );
 
       const triggerButton = screen.getByRole("button");
@@ -541,11 +410,7 @@ describe("ConversationActions", () => {
     it("shows English dialog text", async () => {
       const user = userEvent.setup();
       render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-          language="en"
-        />,
+        <ConversationActions conversation={mockConversation} {...mockCallbacks} language="en" />,
       );
 
       const triggerButton = screen.getByRole("button");
@@ -555,9 +420,7 @@ describe("ConversationActions", () => {
       await user.click(renameAction);
 
       expect(screen.getByText("Rename conversation")).toBeInTheDocument();
-      expect(
-        screen.getByText("Give this conversation a new name."),
-      ).toBeInTheDocument();
+      expect(screen.getByText("Give this conversation a new name.")).toBeInTheDocument();
     });
   });
 
@@ -565,11 +428,7 @@ describe("ConversationActions", () => {
     it("hides certain actions in compact mode", async () => {
       const user = userEvent.setup();
       render(
-        <ConversationActions
-          conversation={mockConversation}
-          {...mockCallbacks}
-          compact={true}
-        />,
+        <ConversationActions conversation={mockConversation} {...mockCallbacks} compact={true} />,
       );
 
       const triggerButton = screen.getByRole("button");

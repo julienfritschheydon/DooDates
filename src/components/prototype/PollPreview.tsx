@@ -2,7 +2,7 @@ import React from "react";
 import { Calendar, Clock, Users } from "lucide-react";
 import PollCreator from "../PollCreator";
 import FormPollCreator from "../polls/FormPollCreator";
-import { useConversation } from "./ConversationProvider";
+import { useEditorActions } from "./EditorStateProvider";
 import { useToast } from "@/hooks/use-toast";
 import { addPoll } from "@/lib/pollStorage";
 import { logger } from "@/lib/logger";
@@ -16,7 +16,7 @@ interface PollPreviewProps {
  * Utilise les composants existants PollCreator/FormPollCreator
  */
 export function PollPreview({ poll }: PollPreviewProps) {
-  const { updatePoll: updateContextPoll } = useConversation();
+  const { setCurrentPoll } = useEditorActions();
   const { toast } = useToast();
 
   if (!poll) {
@@ -40,7 +40,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
       addPoll(updatedPoll);
 
       // Mettre à jour le contexte
-      updateContextPoll(updatedPoll);
+      setCurrentPoll(updatedPoll);
 
       toast({
         title: "✅ Brouillon enregistré",
@@ -62,7 +62,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
       const finalizedPoll = {
         ...poll,
         ...draft,
-        status: "published" as const,
+        status: "active" as const,
         updated_at: new Date().toISOString(),
       };
 
@@ -70,7 +70,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
       addPoll(finalizedPoll);
 
       // Mettre à jour le contexte
-      updateContextPoll(finalizedPoll);
+      setCurrentPoll(finalizedPoll);
 
       toast({
         title: "🎉 Questionnaire finalisé !",
@@ -94,21 +94,20 @@ export function PollPreview({ poll }: PollPreviewProps) {
       type: poll.type,
       dates: poll.dates || poll.settings?.selectedDates || [],
       timeSlots: poll.settings?.timeSlotsByDate
-        ? Object.entries(poll.settings.timeSlotsByDate).flatMap(
-            ([date, slots]: [string, any]) =>
-              slots.map((slot: any) => {
-                // Calculer l'heure de fin en fonction de la durée si disponible
-                // Sinon, par défaut 1 heure
-                const duration = slot.duration || 60; // durée en minutes
-                const endHour = slot.hour + Math.floor(duration / 60);
-                const endMinute = slot.minute + (duration % 60);
+        ? Object.entries(poll.settings.timeSlotsByDate).flatMap(([date, slots]: [string, any]) =>
+            slots.map((slot: any) => {
+              // Calculer l'heure de fin en fonction de la durée si disponible
+              // Sinon, par défaut 1 heure
+              const duration = slot.duration || 60; // durée en minutes
+              const endHour = slot.hour + Math.floor(duration / 60);
+              const endMinute = slot.minute + (duration % 60);
 
-                return {
-                  start: `${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}`,
-                  end: `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`,
-                  dates: [date],
-                };
-              }),
+              return {
+                start: `${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}`,
+                end: `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`,
+                dates: [date],
+              };
+            }),
           )
         : [],
     };
@@ -144,7 +143,6 @@ export function PollPreview({ poll }: PollPreviewProps) {
         <FormPollCreator
           key={`form-${poll.id}-${poll.questions?.length || 0}-${poll.updated_at}-${Date.now()}`}
           initialDraft={poll}
-          onCancel={() => {}} // Pas d'annulation dans le preview
           onSave={handleSave}
           onFinalize={handleFinalize}
         />

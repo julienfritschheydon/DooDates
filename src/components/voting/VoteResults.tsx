@@ -2,14 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { triggerHaptic } from "./utils/voteUtils";
 import { logger } from "@/lib/logger";
-import {
-  ArrowLeft,
-  Users,
-  Calendar,
-  Clock,
-  Trophy,
-  Share2,
-} from "lucide-react";
+import { ArrowLeft, Users, Calendar, Clock, Trophy, Share2 } from "lucide-react";
 
 interface Poll {
   id: string;
@@ -73,9 +66,7 @@ const ResultBar: React.FC<{
       </div>
       <div className="min-w-[60px] text-right">
         <span className="text-sm font-semibold text-white">{count}</span>
-        <span className="text-xs text-gray-400 ml-1">
-          ({percentage.toFixed(0)}%)
-        </span>
+        <span className="text-xs text-gray-400 ml-1">({percentage.toFixed(0)}%)</span>
       </div>
     </div>
   );
@@ -126,9 +117,7 @@ const OptionResult: React.FC<{
       .map((slot) => {
         const start = `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")}`;
         if (slot.duration) {
-          const endHour = Math.floor(
-            (slot.hour * 60 + slot.minute + slot.duration) / 60,
-          );
+          const endHour = Math.floor((slot.hour * 60 + slot.minute + slot.duration) / 60);
           const endMinute = (slot.hour * 60 + slot.minute + slot.duration) % 60;
           const end = `${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}`;
           return `${start}-${end}`;
@@ -187,9 +176,7 @@ const OptionResult: React.FC<{
             </div>
           </div>
           <div className="text-right">
-            <div className="text-lg font-bold text-blue-600">
-              {voteCounts.yes}
-            </div>
+            <div className="text-lg font-bold text-blue-600">{voteCounts.yes}</div>
             <div className="text-xs text-gray-400">
               {totalResponses} réponse{totalResponses !== 1 ? "s" : ""}
             </div>
@@ -224,9 +211,7 @@ const OptionResult: React.FC<{
         {/* Liste des participants disponibles */}
         {voterNames.length > 0 && (
           <div className="bg-blue-50 rounded-xl p-3">
-            <div className="text-xs font-medium text-blue-800 mb-1">
-              Participants disponibles :
-            </div>
+            <div className="text-xs font-medium text-blue-800 mb-1">Participants disponibles :</div>
             <div className="flex flex-wrap gap-1">
               {voterNames.map((name, index) => (
                 <span
@@ -244,12 +229,7 @@ const OptionResult: React.FC<{
   );
 };
 
-export const VoteResults: React.FC<VoteResultsProps> = ({
-  poll,
-  options,
-  votes,
-  onBack,
-}) => {
+export const VoteResults: React.FC<VoteResultsProps> = ({ poll, options, votes, onBack }) => {
   // Calculer le classement des options
   const optionsWithStats = options.map((option) => {
     const voteCounts = { yes: 0, no: 0, maybe: 0 };
@@ -313,9 +293,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
             <ArrowLeft className="h-6 w-6 text-gray-300" />
           </button>
 
-          <h1 className="text-lg font-bold text-white text-center flex-1">
-            Résultats
-          </h1>
+          <h1 className="text-lg font-bold text-white text-center flex-1">Résultats</h1>
 
           <button
             onClick={handleShare}
@@ -329,9 +307,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
         <div className="grid grid-cols-3 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">{totalVotes}</div>
-            <div className="text-xs text-gray-400">
-              Participant{totalVotes !== 1 ? "s" : ""}
-            </div>
+            <div className="text-xs text-gray-400">Participant{totalVotes !== 1 ? "s" : ""}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">
@@ -340,12 +316,8 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
             <div className="text-xs text-gray-400">Meilleur score</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">
-              {options.length}
-            </div>
-            <div className="text-xs text-gray-400">
-              Option{options.length !== 1 ? "s" : ""}
-            </div>
+            <div className="text-2xl font-bold text-purple-600">{options.length}</div>
+            <div className="text-xs text-gray-400">Option{options.length !== 1 ? "s" : ""}</div>
           </div>
         </div>
 
@@ -364,9 +336,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
             <div className="text-sm opacity-90">
               {(() => {
                 // Parser la date en mode local pour éviter les décalages timezone
-                const [year, month, day] = bestOption.option_date
-                  .split("-")
-                  .map(Number);
+                const [year, month, day] = bestOption.option_date.split("-").map(Number);
                 const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
 
                 return date.toLocaleDateString("fr-FR", {
@@ -388,12 +358,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
         </h2>
 
         {sortedOptions.map((option, index) => (
-          <OptionResult
-            key={option.id}
-            option={option}
-            votes={votes}
-            rank={index + 1}
-          />
+          <OptionResult key={option.id} option={option} votes={votes} rank={index + 1} />
         ))}
       </div>
 
@@ -405,12 +370,8 @@ export const VoteResults: React.FC<VoteResultsProps> = ({
           className="text-center py-12"
         >
           <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-300 mb-2">
-            Aucun vote pour le moment
-          </h3>
-          <p className="text-gray-400">
-            Partagez le lien du sondage pour collecter des réponses !
-          </p>
+          <h3 className="text-lg font-semibold text-gray-300 mb-2">Aucun vote pour le moment</h3>
+          <p className="text-gray-400">Partagez le lien du sondage pour collecter des réponses !</p>
         </motion.div>
       )}
     </motion.div>

@@ -11,6 +11,7 @@
 
 import { Poll } from "../types/poll";
 import { convertGeminiSlotToInternal } from "../services/TimeSlotConverter";
+import { formPollReducer, type FormPollAction } from "./formPollReducer";
 
 // Types d'actions
 export type PollAction =
@@ -21,19 +22,17 @@ export type PollAction =
       type: "ADD_TIMESLOT";
       payload: { date: string; start: string; end: string };
     }
-  | { type: "REPLACE_POLL"; payload: Poll };
+  | { type: "REPLACE_POLL"; payload: Poll }
+  | FormPollAction; // Ajouter les actions Form Poll
 
 /**
  * Reducer pour gérer les modifications du sondage
  */
-export function pollReducer(
-  state: Poll | null,
-  action: PollAction,
-): Poll | null {
+export function pollReducer(state: Poll | null, action: PollAction): Poll | null {
   switch (action.type) {
     case "REPLACE_POLL": {
       // Remplacer complètement le sondage (utilisé pour l'initialisation)
-      return action.payload;
+      return action.payload as any;
     }
 
     case "ADD_DATE": {
@@ -100,9 +99,7 @@ export function pollReducer(
 
       // Ajouter automatiquement la date si elle n'existe pas
       const dates = state.dates || [];
-      const updatedDates = dates.includes(date)
-        ? dates
-        : [...dates, date].sort();
+      const updatedDates = dates.includes(date) ? dates : [...dates, date].sort();
 
       // Utiliser la même logique de conversion que Gemini (code réutilisé)
       const newSlot = convertGeminiSlotToInternal({ start, end });
@@ -121,18 +118,12 @@ export function pollReducer(
       const startMinutes = newSlot.hour * 60 + newSlot.minute;
       const endMinutes = startMinutes + newSlot.duration;
 
-      for (
-        let minutes = startMinutes;
-        minutes < endMinutes;
-        minutes += granularity
-      ) {
+      for (let minutes = startMinutes; minutes < endMinutes; minutes += granularity) {
         const hour = Math.floor(minutes / 60);
         const minute = minutes % 60;
 
         // Vérifier si ce slot existe déjà
-        const exists = dateSlots.some(
-          (slot: any) => slot.hour === hour && slot.minute === minute,
-        );
+        const exists = dateSlots.some((slot: any) => slot.hour === hour && slot.minute === minute);
 
         if (!exists) {
           slotsToAdd.push({
@@ -166,6 +157,10 @@ export function pollReducer(
     }
 
     default:
+      // Déléguer au formPollReducer pour les actions Form Poll
+      if (state && (state as any).type === "form") {
+        return formPollReducer(state as any, action as FormPollAction) as any;
+      }
       return state;
   }
 }

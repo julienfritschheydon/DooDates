@@ -29,9 +29,7 @@ vi.mock("../../lib/storage/ConversationStorageLocal", () => ({
 
     // Static methods
     static initialize = vi.fn().mockResolvedValue(undefined);
-    static exportForMigration = vi
-      .fn()
-      .mockReturnValue({ conversations: [], messages: {} });
+    static exportForMigration = vi.fn().mockReturnValue({ conversations: [], messages: {} });
     static getConversations = vi.fn().mockResolvedValue([]);
     static getConversation = vi.fn().mockResolvedValue(null);
     static createConversation = vi.fn().mockResolvedValue({});
@@ -52,12 +50,8 @@ vi.mock("../../lib/storage/ConversationStorageLocal", () => ({
       this.getMessages = vi.fn().mockResolvedValue([]);
       this.deleteConversation = vi.fn().mockResolvedValue(undefined);
       this.clearAll = vi.fn().mockResolvedValue(undefined);
-      this.getQuotaInfo = vi
-        .fn()
-        .mockReturnValue({ used: 0, limit: 10, isGuest: true });
-      this.exportForMigration = vi
-        .fn()
-        .mockReturnValue({ conversations: [], messages: {} });
+      this.getQuotaInfo = vi.fn().mockReturnValue({ used: 0, limit: 10, isGuest: true });
+      this.exportForMigration = vi.fn().mockReturnValue({ conversations: [], messages: {} });
     }
 
     // Mock methods will be added by the constructor
@@ -67,9 +61,7 @@ vi.mock("../../lib/storage/ConversationStorageLocal", () => ({
     saveMessages: (conversationId: string, messages: any[]) => Promise<void>;
     getConversations: () => Promise<any[]>;
     getConversation: (id: string) => Promise<any>;
-    getConversationWithMessages: (
-      id: string,
-    ) => Promise<{ conversation: any; messages: any[] }>;
+    getConversationWithMessages: (id: string) => Promise<{ conversation: any; messages: any[] }>;
     getMessages: (conversationId: string) => Promise<any[]>;
     deleteConversation: (id: string) => Promise<void>;
     clearAll: () => Promise<void>;
@@ -88,9 +80,7 @@ vi.mock("../../lib/storage/ConversationStorageSupabase", () => ({
 
     // Static methods
     static initialize = vi.fn().mockResolvedValue(undefined);
-    static exportForMigration = vi
-      .fn()
-      .mockReturnValue({ conversations: [], messages: {} });
+    static exportForMigration = vi.fn().mockReturnValue({ conversations: [], messages: {} });
 
     constructor() {
       this.initialize = vi.fn().mockResolvedValue(undefined);
@@ -105,12 +95,8 @@ vi.mock("../../lib/storage/ConversationStorageSupabase", () => ({
       this.getMessages = vi.fn().mockResolvedValue([]);
       this.deleteConversation = vi.fn().mockResolvedValue(undefined);
       this.clearAll = vi.fn().mockResolvedValue(undefined);
-      this.getQuotaInfo = vi
-        .fn()
-        .mockReturnValue({ used: 0, limit: 1000, isGuest: false });
-      this.exportForMigration = vi
-        .fn()
-        .mockReturnValue({ conversations: [], messages: {} });
+      this.getQuotaInfo = vi.fn().mockReturnValue({ used: 0, limit: 1000, isGuest: false });
+      this.exportForMigration = vi.fn().mockReturnValue({ conversations: [], messages: {} });
     }
 
     // Mock methods will be added by the constructor
@@ -120,9 +106,7 @@ vi.mock("../../lib/storage/ConversationStorageSupabase", () => ({
     saveMessages: (conversationId: string, messages: any[]) => Promise<void>;
     getConversations: () => Promise<any[]>;
     getConversation: (id: string) => Promise<any>;
-    getConversationWithMessages: (
-      id: string,
-    ) => Promise<{ conversation: any; messages: any[] }>;
+    getConversationWithMessages: (id: string) => Promise<{ conversation: any; messages: any[] }>;
     getMessages: (conversationId: string) => Promise<any[]>;
     deleteConversation: (id: string) => Promise<void>;
     clearAll: () => Promise<void>;
@@ -203,9 +187,7 @@ describe("useConversationStorage", () => {
     // Mock ConversationStorageLocal methods
     vi.mocked(ConversationStorageLocal.getConversations).mockResolvedValue([]);
     vi.mocked(ConversationStorageLocal.getConversation).mockResolvedValue(null);
-    vi.mocked(ConversationStorageLocal.createConversation).mockResolvedValue(
-      mockConversation,
-    );
+    vi.mocked(ConversationStorageLocal.createConversation).mockResolvedValue(mockConversation);
     vi.mocked(ConversationStorageLocal.deleteConversation).mockResolvedValue();
     vi.mocked(ConversationStorageLocal.exportForMigration).mockReturnValue({
       conversations: [],
@@ -278,9 +260,7 @@ describe("useConversationStorage", () => {
   describe("Data Operations", () => {
     it("should fetch conversations successfully", async () => {
       const mockConversations = [mockConversation];
-      vi.mocked(ConversationStorageLocal.getConversations).mockResolvedValue(
-        mockConversations,
-      );
+      vi.mocked(ConversationStorageLocal.getConversations).mockResolvedValue(mockConversations);
 
       const { result } = renderHook(() => useConversationStorage(), {
         wrapper: createQueryWrapper(),
@@ -295,9 +275,7 @@ describe("useConversationStorage", () => {
 
     it("should create conversation successfully", async () => {
       const newConv = { ...mockConversation, title: "New Conversation" };
-      vi.mocked(ConversationStorageLocal.createConversation).mockResolvedValue(
-        newConv,
-      );
+      vi.mocked(ConversationStorageLocal.createConversation).mockResolvedValue(newConv);
 
       const { result } = renderHook(() => useConversationStorage(), {
         wrapper: createQueryWrapper(),
@@ -326,9 +304,7 @@ describe("useConversationStorage", () => {
 
     it("should update conversation successfully", async () => {
       const updatedConv = { ...mockConversation, title: "Updated" };
-      vi.mocked(ConversationStorageLocal.getConversation).mockResolvedValue(
-        updatedConv,
-      );
+      vi.mocked(ConversationStorageLocal.getConversation).mockResolvedValue(updatedConv);
 
       const { result } = renderHook(() => useConversationStorage(), {
         wrapper: createQueryWrapper(),
@@ -347,9 +323,7 @@ describe("useConversationStorage", () => {
     });
 
     it("should delete conversation successfully", async () => {
-      vi.mocked(
-        ConversationStorageLocal.deleteConversation,
-      ).mockResolvedValue();
+      vi.mocked(ConversationStorageLocal.deleteConversation).mockResolvedValue();
 
       const { result } = renderHook(() => useConversationStorage(), {
         wrapper: createQueryWrapper(),
@@ -407,10 +381,7 @@ describe("useConversationStorage", () => {
         refreshProfile: vi.fn(),
       });
 
-      const mockConversations = [
-        mockConversation,
-        { ...mockConversation, id: "conv-2" },
-      ];
+      const mockConversations = [mockConversation, { ...mockConversation, id: "conv-2" }];
       vi.mocked(ConversationStorageLocal.exportForMigration).mockReturnValue({
         conversations: mockConversations,
         messages: {},

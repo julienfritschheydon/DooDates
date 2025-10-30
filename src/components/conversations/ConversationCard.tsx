@@ -74,10 +74,7 @@ export interface ConversationCardProps {
 /**
  * Gets the appropriate status indicator for a conversation
  */
-function getStatusIndicator(
-  status: Conversation["status"],
-  hasRelatedPoll: boolean,
-) {
+function getStatusIndicator(status: Conversation["status"], hasRelatedPoll: boolean) {
   switch (status) {
     case "active":
       return {
@@ -151,10 +148,7 @@ export function ConversationCard({
   const hasRelatedPoll = Boolean(conversation.relatedPollId);
   const statusInfo = getStatusIndicator(conversation.status, hasRelatedPoll);
   const relativeTime = formatRelativeTime(conversation.updatedAt, language);
-  const previewText = truncateText(
-    conversation.firstMessage,
-    compact ? 60 : 100,
-  );
+  const previewText = truncateText(conversation.firstMessage, compact ? 60 : 100);
 
   // Event handlers
   const handleResume = () => {
@@ -209,12 +203,8 @@ export function ConversationCard({
           "group hover:shadow-md transition-all duration-200 cursor-pointer",
           "border-l-4",
           conversation.status === "active" && "border-l-yellow-400",
-          conversation.status === "completed" &&
-            hasRelatedPoll &&
-            "border-l-blue-400",
-          conversation.status === "completed" &&
-            !hasRelatedPoll &&
-            "border-l-green-400",
+          conversation.status === "completed" && hasRelatedPoll && "border-l-blue-400",
+          conversation.status === "completed" && !hasRelatedPoll && "border-l-green-400",
           conversation.status === "archived" && "border-l-gray-300",
           compact && "py-2",
           className,
@@ -251,10 +241,7 @@ export function ConversationCard({
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge
-                  variant="outline"
-                  className={cn("text-xs px-2 py-0.5", statusInfo.color)}
-                >
+                <Badge variant="outline" className={cn("text-xs px-2 py-0.5", statusInfo.color)}>
                   <span className="mr-1">{statusInfo.emoji}</span>
                   {statusInfo.label}
                 </Badge>
@@ -303,9 +290,7 @@ export function ConversationCard({
                       conversation.isFavorite && "fill-current text-yellow-500",
                     )}
                   />
-                  {conversation.isFavorite
-                    ? "Retirer des favoris"
-                    : "Ajouter aux favoris"}
+                  {conversation.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
                 </DropdownMenuItem>
 
                 {hasRelatedPoll && (
@@ -360,11 +345,7 @@ export function ConversationCard({
             {conversation.tags.length > 0 && (
               <div className="flex gap-1">
                 {conversation.tags.slice(0, 2).map((tag, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="text-xs px-1.5 py-0.5"
-                  >
+                  <Badge key={index} variant="secondary" className="text-xs px-1.5 py-0.5">
                     {tag}
                   </Badge>
                 ))}
@@ -412,16 +393,13 @@ export function ConversationCard({
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer la conversation</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer la conversation "
-              {conversation.title}" ? Cette action est irréversible et
-              supprimera également tous les messages associés.
+              Êtes-vous sûr de vouloir supprimer la conversation "{conversation.title}" ? Cette
+              action est irréversible et supprimera également tous les messages associés.
               {hasRelatedPoll && " Le sondage associé ne sera pas affecté."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="delete-cancel-button">
-              Annuler
-            </AlertDialogCancel>
+            <AlertDialogCancel data-testid="delete-cancel-button">Annuler</AlertDialogCancel>
             <AlertDialogAction
               data-testid="delete-confirm-button"
               onClick={handleDelete}

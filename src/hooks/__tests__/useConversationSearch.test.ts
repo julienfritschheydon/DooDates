@@ -4,10 +4,7 @@
  */
 
 import { vi } from "vitest";
-import type {
-  Conversation,
-  ConversationStatus,
-} from "../../types/conversation";
+import type { Conversation, ConversationStatus } from "../../types/conversation";
 import type { SearchFilters, SearchOptions } from "../../types/search";
 import { createMockConversation as createBaseConversation } from "../../__tests__/helpers/testHelpers";
 
@@ -132,9 +129,7 @@ describe("useConversationSearch Logic", () => {
     it("should search in tags", () => {
       const query = "urgent";
       const results = mockConversations.filter((conv) =>
-        conv.tags.some((tag) =>
-          tag.toLowerCase().includes(query.toLowerCase()),
-        ),
+        conv.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase())),
       );
 
       expect(results).toHaveLength(1);
@@ -149,9 +144,7 @@ describe("useConversationSearch Logic", () => {
         return (
           conv.title.toLowerCase().includes(query.toLowerCase()) ||
           conv.firstMessage.toLowerCase().includes(query.toLowerCase()) ||
-          conv.tags.some((tag: string) =>
-            tag.toLowerCase().includes(query.toLowerCase()),
-          )
+          conv.tags.some((tag: string) => tag.toLowerCase().includes(query.toLowerCase()))
         );
       });
 
@@ -161,15 +154,11 @@ describe("useConversationSearch Logic", () => {
 
   describe("Filtering functionality", () => {
     it("should filter by conversation status", () => {
-      const activeConversations = mockConversations.filter(
-        (conv) => conv.status === "active",
-      );
+      const activeConversations = mockConversations.filter((conv) => conv.status === "active");
       const completedConversations = mockConversations.filter(
         (conv) => conv.status === "completed",
       );
-      const archivedConversations = mockConversations.filter(
-        (conv) => conv.status === "archived",
-      );
+      const archivedConversations = mockConversations.filter((conv) => conv.status === "archived");
 
       expect(activeConversations).toHaveLength(3);
       expect(completedConversations).toHaveLength(1);
@@ -181,9 +170,7 @@ describe("useConversationSearch Logic", () => {
     });
 
     it("should filter by favorite status", () => {
-      const favoriteConversations = mockConversations.filter(
-        (conv) => conv.isFavorite === true,
-      );
+      const favoriteConversations = mockConversations.filter((conv) => conv.isFavorite === true);
       const nonFavoriteConversations = mockConversations.filter(
         (conv) => conv.isFavorite === false,
       );
@@ -210,9 +197,7 @@ describe("useConversationSearch Logic", () => {
       const targetTags = ["work"];
       const filteredConversations = mockConversations.filter((conv) =>
         targetTags.every((tag) =>
-          conv.tags.some((convTag) =>
-            convTag.toLowerCase().includes(tag.toLowerCase()),
-          ),
+          conv.tags.some((convTag) => convTag.toLowerCase().includes(tag.toLowerCase())),
         ),
       );
 
@@ -221,12 +206,8 @@ describe("useConversationSearch Logic", () => {
     });
 
     it("should filter by related poll existence", () => {
-      const withPoll = mockConversations.filter((conv) =>
-        Boolean(conv.relatedPollId),
-      );
-      const withoutPoll = mockConversations.filter(
-        (conv) => !conv.relatedPollId,
-      );
+      const withPoll = mockConversations.filter((conv) => Boolean(conv.relatedPollId));
+      const withoutPoll = mockConversations.filter((conv) => !conv.relatedPollId);
 
       expect(withPoll).toHaveLength(1);
       expect(withoutPoll).toHaveLength(4);
@@ -280,9 +261,7 @@ describe("useConversationSearch Logic", () => {
           conv.status === status &&
           conv.isFavorite === isFavorite &&
           tags.every((tag) =>
-            conv.tags.some((convTag) =>
-              convTag.toLowerCase().includes(tag.toLowerCase()),
-            ),
+            conv.tags.some((convTag) => convTag.toLowerCase().includes(tag.toLowerCase())),
           ),
       );
 
@@ -296,9 +275,7 @@ describe("useConversationSearch Logic", () => {
       const conversation = mockConversations[0]; // 'Meeting with team'
       const query = "meeting";
 
-      const titleMatch = conversation.title
-        .toLowerCase()
-        .includes(query.toLowerCase());
+      const titleMatch = conversation.title.toLowerCase().includes(query.toLowerCase());
       expect(titleMatch).toBe(true);
 
       // Simulate highlight extraction
@@ -314,9 +291,7 @@ describe("useConversationSearch Logic", () => {
       const conversation = mockConversations[2]; // 'Critical bug in authentication system'
       const query = "authentication";
 
-      const messageMatch = conversation.firstMessage
-        .toLowerCase()
-        .includes(query.toLowerCase());
+      const messageMatch = conversation.firstMessage.toLowerCase().includes(query.toLowerCase());
       expect(messageMatch).toBe(true);
 
       // Simulate highlight extraction
@@ -377,18 +352,10 @@ describe("useConversationSearch Logic", () => {
 
   describe("Edge cases", () => {
     it("should handle conversations with empty fields", () => {
-      const emptyConversation = createMockConversation(
-        "empty",
-        "",
-        "",
-        "active",
-        [],
-      );
+      const emptyConversation = createMockConversation("empty", "", "", "active", []);
       const query = "test";
 
-      const titleMatch = emptyConversation.title
-        .toLowerCase()
-        .includes(query.toLowerCase());
+      const titleMatch = emptyConversation.title.toLowerCase().includes(query.toLowerCase());
       const messageMatch = emptyConversation.firstMessage
         .toLowerCase()
         .includes(query.toLowerCase());
@@ -415,9 +382,7 @@ describe("useConversationSearch Logic", () => {
       queries.forEach((query) => {
         const titleMatch = specialConversation.title.includes(query);
         const messageMatch = specialConversation.firstMessage.includes(query);
-        const tagMatch = specialConversation.tags.some((tag) =>
-          tag.includes(query),
-        );
+        const tagMatch = specialConversation.tags.some((tag) => tag.includes(query));
 
         const hasMatch = titleMatch || messageMatch || tagMatch;
         expect(typeof hasMatch).toBe("boolean");
@@ -428,9 +393,7 @@ describe("useConversationSearch Logic", () => {
       const longQuery = "a".repeat(1000);
       const conversation = mockConversations[0];
 
-      const titleMatch = conversation.title
-        .toLowerCase()
-        .includes(longQuery.toLowerCase());
+      const titleMatch = conversation.title.toLowerCase().includes(longQuery.toLowerCase());
       expect(titleMatch).toBe(false);
     });
 
@@ -443,22 +406,12 @@ describe("useConversationSearch Logic", () => {
         ["franÃ§ais", "ðŸŽ¯"],
       );
 
-      const queries = [
-        "RÃ©union",
-        "Ã©quipe",
-        "ðŸš€",
-        "CafÃ©",
-        "â˜•",
-        "franÃ§ais",
-        "ðŸŽ¯",
-      ];
+      const queries = ["RÃ©union", "Ã©quipe", "ðŸš€", "CafÃ©", "â˜•", "franÃ§ais", "ðŸŽ¯"];
 
       queries.forEach((query) => {
         const titleMatch = unicodeConversation.title.includes(query);
         const messageMatch = unicodeConversation.firstMessage.includes(query);
-        const tagMatch = unicodeConversation.tags.some((tag) =>
-          tag.includes(query),
-        );
+        const tagMatch = unicodeConversation.tags.some((tag) => tag.includes(query));
 
         const hasMatch = titleMatch || messageMatch || tagMatch;
         expect(typeof hasMatch).toBe("boolean");
@@ -480,10 +433,7 @@ describe("useConversationSearch Logic", () => {
       };
 
       const results = mockConversations.filter((conv) => {
-        if (
-          restrictiveFilters.status !== "all" &&
-          conv.status !== restrictiveFilters.status
-        )
+        if (restrictiveFilters.status !== "all" && conv.status !== restrictiveFilters.status)
           return false;
         if (
           restrictiveFilters.isFavorite !== undefined &&
@@ -497,16 +447,13 @@ describe("useConversationSearch Logic", () => {
         }
         if (restrictiveFilters.tags && restrictiveFilters.tags.length > 0) {
           const hasAllTags = restrictiveFilters.tags.every((tag) =>
-            conv.tags.some((convTag) =>
-              convTag.toLowerCase().includes(tag.toLowerCase()),
-            ),
+            conv.tags.some((convTag) => convTag.toLowerCase().includes(tag.toLowerCase())),
           );
           if (!hasAllTags) return false;
         }
         if (restrictiveFilters.hasRelatedPoll !== undefined) {
           const hasRelatedPoll = Boolean(conv.relatedPollId);
-          if (hasRelatedPoll !== restrictiveFilters.hasRelatedPoll)
-            return false;
+          if (hasRelatedPoll !== restrictiveFilters.hasRelatedPoll) return false;
         }
         return true;
       });
@@ -527,9 +474,7 @@ describe("useConversationSearch Logic", () => {
         if (conv.isFavorite !== impossibleFilters.isFavorite) return false;
         if (impossibleFilters.tags && impossibleFilters.tags.length > 0) {
           const hasAllTags = impossibleFilters.tags.every((tag) =>
-            conv.tags.some((convTag) =>
-              convTag.toLowerCase().includes(tag.toLowerCase()),
-            ),
+            conv.tags.some((convTag) => convTag.toLowerCase().includes(tag.toLowerCase())),
           );
           if (!hasAllTags) return false;
         }

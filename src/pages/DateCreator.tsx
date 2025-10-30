@@ -14,9 +14,7 @@ export default function DateCreator() {
   const initialData = useMemo<DatePollSuggestion | undefined>(() => {
     if (!editId) return undefined;
 
-    const existing = getAllPolls().find(
-      (p) => p.id === editId && p.type !== "form",
-    );
+    const existing = getAllPolls().find((p) => p.id === editId && p.type !== "form");
 
     if (!existing) return undefined;
 
@@ -67,10 +65,7 @@ export default function DateCreator() {
       </div>
 
       {/* Calendar creator component */}
-      <PollCreatorComponent
-        onBack={() => navigate(-1)}
-        initialData={initialData}
-      />
+      <PollCreatorComponent onBack={() => navigate(-1)} initialData={initialData} />
     </div>
   );
 }

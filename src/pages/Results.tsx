@@ -2,12 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { BarChart3, Users, Calendar, ArrowLeft } from "lucide-react";
 import PollActions from "@/components/polls/PollActions";
-import {
-  Poll,
-  getPollBySlugOrId,
-  getVoterId,
-  getAllPolls,
-} from "@/lib/pollStorage";
+import { Poll, getPollBySlugOrId, getVoterId, getAllPolls } from "@/lib/pollStorage";
 import FormPollResults from "@/components/polls/FormPollResults";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
@@ -49,25 +44,17 @@ const Results: React.FC = () => {
       setPoll(foundPoll);
 
       // Charger les votes et filtrer seulement les dates du sondage
-      const existingVotes = JSON.parse(
-        localStorage.getItem("dev-votes") || "[]",
-      );
+      const existingVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
       const pollVotes = existingVotes.filter((vote: VoteData) => {
         if (vote.poll_id !== foundPoll.id) return false;
 
         // Filtrer les votes pour ne garder que les dates du sondage
-        if (
-          foundPoll.settings?.selectedDates &&
-          foundPoll.settings.selectedDates.length > 0
-        ) {
+        if (foundPoll.settings?.selectedDates && foundPoll.settings.selectedDates.length > 0) {
           const filteredVoteData: Record<string, "yes" | "no" | "maybe"> = {};
           Object.keys(vote.vote_data).forEach((optionId) => {
             // Extraire la date de l'option ID ou utiliser une logique de mapping
             const optionIndex = parseInt(optionId.replace("option-", ""));
-            if (
-              !isNaN(optionIndex) &&
-              foundPoll.settings?.selectedDates?.[optionIndex]
-            ) {
+            if (!isNaN(optionIndex) && foundPoll.settings?.selectedDates?.[optionIndex]) {
               filteredVoteData[optionId] = vote.vote_data[optionId];
             }
           });
@@ -116,9 +103,7 @@ const Results: React.FC = () => {
 
   // Calculer les statistiques
   const getAllDates = () => {
-    return poll?.settings?.selectedDates
-      ? [...poll.settings.selectedDates].sort()
-      : [];
+    return poll?.settings?.selectedDates ? [...poll.settings.selectedDates].sort() : [];
   };
 
   const getVoteStats = (date: string) => {
@@ -142,16 +127,8 @@ const Results: React.FC = () => {
     const dateVotes = votes
       .map((vote) => {
         // Supporter les deux structures: vote_data (localStorage brut) et selections (mappé)
-        const voteValue =
-          vote.vote_data?.[optionId] || (vote as any).selections?.[optionId];
-        console.log(
-          "  Vote:",
-          vote.voter_name,
-          "pour",
-          optionId,
-          "=",
-          voteValue,
-        );
+        const voteValue = vote.vote_data?.[optionId] || (vote as any).selections?.[optionId];
+        console.log("  Vote:", vote.voter_name, "pour", optionId, "=", voteValue);
         return voteValue;
       })
       .filter(Boolean);
@@ -175,14 +152,12 @@ const Results: React.FC = () => {
           subtitle={
             <>
               {(() => {
-                const uniqueVoters = new Set(votes.map((v) => getVoterId(v)))
-                  .size;
+                const uniqueVoters = new Set(votes.map((v) => getVoterId(v))).size;
                 return uniqueVoters;
               })()}{" "}
               participant
               {(() => {
-                const uniqueVoters = new Set(votes.map((v) => getVoterId(v)))
-                  .size;
+                const uniqueVoters = new Set(votes.map((v) => getVoterId(v))).size;
                 return uniqueVoters > 1 ? "s" : "";
               })()}{" "}
               • {allDates.length} date{allDates.length > 1 ? "s" : ""}
@@ -237,9 +212,7 @@ const Results: React.FC = () => {
           {/* Résultats par date */}
           <div className="bg-[#1e1e1e] rounded-lg shadow overflow-hidden border border-gray-700">
             <div className="p-6 border-b border-gray-700">
-              <h2 className="text-xl font-semibold text-white">
-                Résultats détaillés
-              </h2>
+              <h2 className="text-xl font-semibold text-white">Résultats détaillés</h2>
             </div>
             {allDates.length === 0 ? (
               <div className="p-6">
@@ -281,11 +254,7 @@ const Results: React.FC = () => {
                   <tbody className="bg-[#1e1e1e] divide-y divide-gray-700">
                     {allDates.map((date) => {
                       const stats = getVoteStats(date);
-                      const maxVotes = Math.max(
-                        stats.yes,
-                        stats.maybe,
-                        stats.no,
-                      );
+                      const maxVotes = Math.max(stats.yes, stats.maybe, stats.no);
 
                       return (
                         <tr key={date} className="hover:bg-[#2a2a2a]">
@@ -368,8 +337,8 @@ const Results: React.FC = () => {
                         const id = getVoterId(v);
                         if (!byId.has(id)) byId.set(id, v);
                       }
-                      const uniqueVoters = Array.from(byId.values()).sort(
-                        (a, b) => a.voter_name.localeCompare(b.voter_name),
+                      const uniqueVoters = Array.from(byId.values()).sort((a, b) =>
+                        a.voter_name.localeCompare(b.voter_name),
                       );
 
                       return uniqueVoters.map((vote, index) => (
@@ -380,13 +349,9 @@ const Results: React.FC = () => {
                                 {vote.voter_name.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <p className="font-medium text-white">
-                                  {vote.voter_name}
-                                </p>
+                                <p className="font-medium text-white">{vote.voter_name}</p>
                                 <p className="text-sm text-gray-400">
-                                  {new Date(vote.created_at).toLocaleDateString(
-                                    "fr-FR",
-                                  )}
+                                  {new Date(vote.created_at).toLocaleDateString("fr-FR")}
                                 </p>
                               </div>
                             </div>
@@ -395,18 +360,10 @@ const Results: React.FC = () => {
                             // Mapper la date vers l'optionId correspondant (option-<index>) via selectedDates
                             const dates = poll?.settings?.selectedDates || [];
                             const dateIndex = dates.indexOf(date);
-                            const optionId =
-                              dateIndex >= 0
-                                ? `option-${dateIndex}`
-                                : undefined;
-                            const voteValue = optionId
-                              ? vote.vote_data[optionId]
-                              : undefined;
+                            const optionId = dateIndex >= 0 ? `option-${dateIndex}` : undefined;
+                            const voteValue = optionId ? vote.vote_data[optionId] : undefined;
                             return (
-                              <td
-                                key={date}
-                                className="px-6 py-4 whitespace-nowrap text-center"
-                              >
+                              <td key={date} className="px-6 py-4 whitespace-nowrap text-center">
                                 {voteValue ? (
                                   <span
                                     className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
@@ -424,9 +381,7 @@ const Results: React.FC = () => {
                                         : "Non"}
                                   </span>
                                 ) : (
-                                  <span className="text-gray-400 dark:text-gray-500">
-                                    -
-                                  </span>
+                                  <span className="text-gray-400 dark:text-gray-500">-</span>
                                 )}
                               </td>
                             );
