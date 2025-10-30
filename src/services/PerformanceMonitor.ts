@@ -54,10 +54,7 @@ class PerformanceMonitorService {
     this.resetIfNeeded();
     this.metrics.conversationsCreated++;
 
-    if (
-      this.metrics.conversationsCreated >
-      this.THRESHOLDS.MAX_CONVERSATIONS_PER_SESSION
-    ) {
+    if (this.metrics.conversationsCreated > this.THRESHOLDS.MAX_CONVERSATIONS_PER_SESSION) {
       this.addAlert(
         ErrorFactory.critical(
           "EXCESSIVE CONVERSATION CREATION - Infinite loop detected",
@@ -72,8 +69,7 @@ class PerformanceMonitorService {
    */
   trackError(): void {
     this.resetIfNeeded();
-    const totalOperations =
-      this.metrics.apiCalls + this.metrics.conversationsCreated;
+    const totalOperations = this.metrics.apiCalls + this.metrics.conversationsCreated;
     if (totalOperations > 0) {
       this.metrics.errorRate = this.alerts.length / totalOperations;
 
@@ -95,8 +91,7 @@ class PerformanceMonitorService {
     this.resetIfNeeded();
     return (
       this.metrics.apiCalls <= this.THRESHOLDS.MAX_API_CALLS_PER_MINUTE &&
-      this.metrics.conversationsCreated <=
-        this.THRESHOLDS.MAX_CONVERSATIONS_PER_SESSION &&
+      this.metrics.conversationsCreated <= this.THRESHOLDS.MAX_CONVERSATIONS_PER_SESSION &&
       this.metrics.errorRate <= this.THRESHOLDS.MAX_ERROR_RATE
     );
   }
@@ -132,10 +127,9 @@ class PerformanceMonitorService {
         logError(message, { component: "PerformanceMonitor" });
       } else {
         // Use centralized error logging for non-Error messages
-        logError(
-          ErrorFactory.critical(message, "Performance alert triggered"),
-          { component: "PerformanceMonitor" },
-        );
+        logError(ErrorFactory.critical(message, "Performance alert triggered"), {
+          component: "PerformanceMonitor",
+        });
       }
 
       // Send to external monitoring if available

@@ -1,12 +1,5 @@
 import { Link } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Clock,
-  BarChart3,
-  Settings,
-  User,
-  Palette,
-} from "lucide-react";
+import { LayoutDashboard, Clock, BarChart3, Settings, User, Palette } from "lucide-react";
 import { useActiveRoute } from "@/hooks/useActiveRoute";
 
 interface SidebarContentProps {

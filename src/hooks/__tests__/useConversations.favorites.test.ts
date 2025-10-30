@@ -69,13 +69,7 @@ describe("useConversations - Favorites Sorting", () => {
           undefined,
           new Date("2024-01-03"),
         ),
-        createMockConversation(
-          "conv2",
-          "Conversation favorite",
-          true,
-          1,
-          new Date("2024-01-01"),
-        ),
+        createMockConversation("conv2", "Conversation favorite", true, 1, new Date("2024-01-01")),
         createMockConversation(
           "conv3",
           "Conversation normale 2",
@@ -230,9 +224,7 @@ describe("useConversations - Favorites Sorting", () => {
 
       mockConversationStorage.getConversations.mockReturnValue(conversations);
       mockConversationStorage.getConversation.mockReturnValue(conversations[1]);
-      mockConversationStorage.updateConversation.mockImplementation(
-        (conv) => conv,
-      );
+      mockConversationStorage.updateConversation.mockImplementation((conv) => conv);
 
       const { result } = renderHook(() => useConversations(), {
         wrapper: createQueryWrapper(),
@@ -261,15 +253,11 @@ describe("useConversations - Favorites Sorting", () => {
     });
 
     it("should remove favorite_rank when unmarking as favorite", async () => {
-      const conversations = [
-        createMockConversation("conv1", "Favori à retirer", true, 1),
-      ];
+      const conversations = [createMockConversation("conv1", "Favori à retirer", true, 1)];
 
       mockConversationStorage.getConversations.mockReturnValue(conversations);
       mockConversationStorage.getConversation.mockReturnValue(conversations[0]);
-      mockConversationStorage.updateConversation.mockImplementation(
-        (conv) => conv,
-      );
+      mockConversationStorage.updateConversation.mockImplementation((conv) => conv);
 
       const { result } = renderHook(() => useConversations(), {
         wrapper: createQueryWrapper(),
@@ -304,9 +292,7 @@ describe("useConversations - Favorites Sorting", () => {
       ];
 
       mockConversationStorage.getConversations.mockReturnValue(conversations);
-      mockConversationStorage.updateConversation.mockImplementation(
-        (conv) => conv,
-      );
+      mockConversationStorage.updateConversation.mockImplementation((conv) => conv);
 
       const { result } = renderHook(() => useConversations(), {
         wrapper: createQueryWrapper(),
@@ -334,27 +320,9 @@ describe("useConversations - Favorites Sorting", () => {
   describe("Configuration du tri", () => {
     it("should respect sortBy configuration for non-favorites", async () => {
       const conversations = [
-        createMockConversation(
-          "conv1",
-          "B - Titre",
-          false,
-          undefined,
-          new Date("2024-01-02"),
-        ),
-        createMockConversation(
-          "conv2",
-          "A - Titre",
-          false,
-          undefined,
-          new Date("2024-01-01"),
-        ),
-        createMockConversation(
-          "conv3",
-          "Favori",
-          true,
-          1,
-          new Date("2024-01-01"),
-        ),
+        createMockConversation("conv1", "B - Titre", false, undefined, new Date("2024-01-02")),
+        createMockConversation("conv2", "A - Titre", false, undefined, new Date("2024-01-01")),
+        createMockConversation("conv3", "Favori", true, 1, new Date("2024-01-01")),
       ];
 
       mockConversationStorage.getConversations.mockReturnValue(conversations);
@@ -386,20 +354,8 @@ describe("useConversations - Favorites Sorting", () => {
 
     it("should use activity sorting when sortBy is updatedAt", async () => {
       const conversations = [
-        createMockConversation(
-          "conv1",
-          "Ancienne",
-          false,
-          undefined,
-          new Date("2024-01-01"),
-        ),
-        createMockConversation(
-          "conv2",
-          "Récente",
-          false,
-          undefined,
-          new Date("2024-01-02"),
-        ),
+        createMockConversation("conv1", "Ancienne", false, undefined, new Date("2024-01-01")),
+        createMockConversation("conv2", "Récente", false, undefined, new Date("2024-01-02")),
       ];
 
       mockConversationStorage.getConversations.mockReturnValue(conversations);
@@ -437,13 +393,7 @@ describe("useConversations - Favorites Sorting", () => {
           undefined,
           new Date("2024-01-03"),
         ),
-        createMockConversation(
-          "conv2",
-          "A - Favori ancien",
-          true,
-          1,
-          new Date("2024-01-01"),
-        ),
+        createMockConversation("conv2", "A - Favori ancien", true, 1, new Date("2024-01-01")),
       ];
 
       mockConversationStorage.getConversations.mockReturnValue(conversations);
@@ -487,13 +437,7 @@ describe("useConversations - Favorites Sorting", () => {
           undefined,
           new Date("2024-01-01"),
         ),
-        createMockConversation(
-          "conv3",
-          "Favori avec rang",
-          true,
-          1,
-          new Date("2024-01-01"),
-        ),
+        createMockConversation("conv3", "Favori avec rang", true, 1, new Date("2024-01-01")),
       ];
 
       mockConversationStorage.getConversations.mockReturnValue(conversations);

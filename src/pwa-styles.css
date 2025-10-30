@@ -49,9 +49,7 @@
   /* Contenu principal avec offset pour header */
   .main-content {
     margin-top: calc(60px + var(--safe-area-inset-top));
-    min-height: calc(
-      100vh - 60px - var(--safe-area-inset-top) - var(--safe-area-inset-bottom)
-    );
+    min-height: calc(100vh - 60px - var(--safe-area-inset-top) - var(--safe-area-inset-bottom));
   }
 }
 

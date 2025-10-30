@@ -42,10 +42,7 @@ export async function getStaticCalendar(): Promise<PreGeneratedCalendar> {
     return cachedCalendar;
   } catch (error) {
     logError(
-      ErrorFactory.api(
-        "Failed to load calendar",
-        "Erreur lors du chargement du calendrier",
-      ),
+      ErrorFactory.api("Failed to load calendar", "Erreur lors du chargement du calendrier"),
       { metadata: { originalError: error } },
     );
     throw error;

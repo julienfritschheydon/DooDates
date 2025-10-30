@@ -58,9 +58,7 @@ describe("statsStorage", () => {
     it("should return 0 for new content type", () => {
       const count = getLifetimeCount("conversations");
       expect(count).toBe(0);
-      expect(localStorageMock.getItem).toHaveBeenCalledWith(
-        "doodates.lifetime.stats",
-      );
+      expect(localStorageMock.getItem).toHaveBeenCalledWith("doodates.lifetime.stats");
     });
 
     it("should return existing count from localStorage", () => {

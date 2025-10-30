@@ -47,9 +47,7 @@ describe("CascadeDeleteModal", () => {
     it("should show warning message", () => {
       render(<CascadeDeleteModal {...defaultProps} />);
 
-      expect(
-        screen.getByText(/Cette action supprimera les DEUX éléments/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Cette action supprimera les DEUX éléments/)).toBeInTheDocument();
     });
 
     it("should show confirmation instruction", () => {
@@ -74,9 +72,7 @@ describe("CascadeDeleteModal", () => {
       const user = userEvent.setup();
       render(<CascadeDeleteModal {...defaultProps} />);
 
-      const input = screen.getByPlaceholderText(
-        "Tapez SUPPRIMER pour confirmer",
-      );
+      const input = screen.getByPlaceholderText("Tapez SUPPRIMER pour confirmer");
       const deleteButton = screen.getByRole("button", {
         name: /Supprimer définitivement/,
       });
@@ -97,9 +93,7 @@ describe("CascadeDeleteModal", () => {
       const user = userEvent.setup();
       render(<CascadeDeleteModal {...defaultProps} />);
 
-      const input = screen.getByPlaceholderText(
-        "Tapez SUPPRIMER pour confirmer",
-      );
+      const input = screen.getByPlaceholderText("Tapez SUPPRIMER pour confirmer");
       const deleteButton = screen.getByRole("button", {
         name: /Supprimer définitivement/,
       });
@@ -113,9 +107,7 @@ describe("CascadeDeleteModal", () => {
       const onConfirm = vi.fn();
       render(<CascadeDeleteModal {...defaultProps} onConfirm={onConfirm} />);
 
-      const input = screen.getByPlaceholderText(
-        "Tapez SUPPRIMER pour confirmer",
-      );
+      const input = screen.getByPlaceholderText("Tapez SUPPRIMER pour confirmer");
       const deleteButton = screen.getByRole("button", {
         name: /Supprimer définitivement/,
       });
@@ -131,9 +123,7 @@ describe("CascadeDeleteModal", () => {
       const onConfirm = vi.fn();
       render(<CascadeDeleteModal {...defaultProps} onConfirm={onConfirm} />);
 
-      const input = screen.getByPlaceholderText(
-        "Tapez SUPPRIMER pour confirmer",
-      );
+      const input = screen.getByPlaceholderText("Tapez SUPPRIMER pour confirmer");
 
       await user.type(input, "SUPPRIMER");
       await user.keyboard("{Enter}");
@@ -147,17 +137,13 @@ describe("CascadeDeleteModal", () => {
       render(<CascadeDeleteModal {...defaultProps} isDeleting={true} />);
 
       expect(screen.getByText("Suppression en cours...")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /Suppression en cours/ }),
-      ).toBeDisabled();
+      expect(screen.getByRole("button", { name: /Suppression en cours/ })).toBeDisabled();
     });
 
     it("should disable input when deleting", () => {
       render(<CascadeDeleteModal {...defaultProps} isDeleting={true} />);
 
-      const input = screen.getByPlaceholderText(
-        "Tapez SUPPRIMER pour confirmer",
-      );
+      const input = screen.getByPlaceholderText("Tapez SUPPRIMER pour confirmer");
       expect(input).toBeDisabled();
     });
 
@@ -196,15 +182,11 @@ describe("CascadeDeleteModal", () => {
 
     it("should reset confirmation text when modal reopens", async () => {
       const user = userEvent.setup();
-      const { rerender } = render(
-        <CascadeDeleteModal {...defaultProps} isOpen={false} />,
-      );
+      const { rerender } = render(<CascadeDeleteModal {...defaultProps} isOpen={false} />);
 
       // Open modal and type confirmation
       rerender(<CascadeDeleteModal {...defaultProps} isOpen={true} />);
-      const input = screen.getByPlaceholderText(
-        "Tapez SUPPRIMER pour confirmer",
-      );
+      const input = screen.getByPlaceholderText("Tapez SUPPRIMER pour confirmer");
       await user.type(input, "SUPPRIMER");
 
       // Close and reopen modal
@@ -212,9 +194,7 @@ describe("CascadeDeleteModal", () => {
       rerender(<CascadeDeleteModal {...defaultProps} isOpen={true} />);
 
       // Input should be reset
-      const newInput = screen.getByPlaceholderText(
-        "Tapez SUPPRIMER pour confirmer",
-      );
+      const newInput = screen.getByPlaceholderText("Tapez SUPPRIMER pour confirmer");
       expect(newInput).toHaveValue("");
     }, 10000); // Augmenter timeout à 10s
   });
@@ -225,33 +205,19 @@ describe("CascadeDeleteModal", () => {
 
       expect(screen.getByText("Cascade deletion")).toBeInTheDocument();
       expect(
-        screen.getByText(
-          "You are about to permanently delete the following items:",
-        ),
+        screen.getByText("You are about to permanently delete the following items:"),
       ).toBeInTheDocument();
       expect(screen.getByText("To confirm, type:")).toBeInTheDocument();
       expect(screen.getByText("DELETE")).toBeInTheDocument();
-      expect(
-        screen.getByPlaceholderText("Type DELETE to confirm"),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: "Cancel" }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /Delete permanently/ }),
-      ).toBeInTheDocument();
+      expect(screen.getByPlaceholderText("Type DELETE to confirm")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Delete permanently/ })).toBeInTheDocument();
     });
 
     it("should use correct confirmation word for English", async () => {
       const user = userEvent.setup();
       const onConfirm = vi.fn();
-      render(
-        <CascadeDeleteModal
-          {...defaultProps}
-          language="en"
-          onConfirm={onConfirm}
-        />,
-      );
+      render(<CascadeDeleteModal {...defaultProps} language="en" onConfirm={onConfirm} />);
 
       const input = screen.getByPlaceholderText("Type DELETE to confirm");
       const deleteButton = screen.getByRole("button", {
@@ -284,9 +250,7 @@ describe("CascadeDeleteModal", () => {
       const user = userEvent.setup();
       render(<CascadeDeleteModal {...defaultProps} />);
 
-      const input = screen.getByPlaceholderText(
-        "Tapez SUPPRIMER pour confirmer",
-      );
+      const input = screen.getByPlaceholderText("Tapez SUPPRIMER pour confirmer");
 
       // Invalid input should have red styling
       await user.type(input, "invalid");
@@ -317,9 +281,7 @@ describe("CascadeDeleteModal", () => {
     it("should focus input when modal opens", () => {
       render(<CascadeDeleteModal {...defaultProps} />);
 
-      const input = screen.getByPlaceholderText(
-        "Tapez SUPPRIMER pour confirmer",
-      );
+      const input = screen.getByPlaceholderText("Tapez SUPPRIMER pour confirmer");
       expect(input).toHaveFocus();
     });
 
@@ -327,12 +289,8 @@ describe("CascadeDeleteModal", () => {
       render(<CascadeDeleteModal {...defaultProps} />);
 
       expect(screen.getByRole("dialog")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /Supprimer définitivement/ }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: "Annuler" }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Supprimer définitivement/ })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Annuler" })).toBeInTheDocument();
     });
   });
 });

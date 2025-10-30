@@ -1,9 +1,5 @@
 import { useState, useCallback } from "react";
-import {
-  Poll as TypesPoll,
-  PollOption,
-  PollData as TypesPollData,
-} from "../types/poll";
+import { Poll as TypesPoll, PollOption, PollData as TypesPollData } from "../types/poll";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import { EmailService } from "../lib/email-service";
@@ -23,10 +19,7 @@ export interface PollData {
   title: string;
   description?: string | null;
   selectedDates: string[];
-  timeSlotsByDate: Record<
-    string,
-    Array<{ hour: number; minute: number; enabled: boolean }>
-  >;
+  timeSlotsByDate: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>;
   participantEmails: string[];
   settings: {
     timeGranularity: number;
@@ -69,9 +62,7 @@ export function usePolls() {
   }, []);
 
   const createPoll = useCallback(
-    async (
-      pollData: PollData,
-    ): Promise<{ poll?: StoragePoll; error?: string }> => {
+    async (pollData: PollData): Promise<{ poll?: StoragePoll; error?: string }> => {
       // Permettre la création avec ou sans utilisateur connecté
 
       setLoading(true);
@@ -79,10 +70,7 @@ export function usePolls() {
 
       try {
         // Validation stricte: au moins une date doit être sélectionnée
-        if (
-          !Array.isArray(pollData.selectedDates) ||
-          pollData.selectedDates.length === 0
-        ) {
+        if (!Array.isArray(pollData.selectedDates) || pollData.selectedDates.length === 0) {
           throw ErrorFactory.validation(
             "No dates selected for poll creation",
             "Sélectionnez au moins une date pour créer le sondage.",
@@ -181,18 +169,15 @@ export function usePolls() {
             // Creating anonymous poll - no token required
 
             // Utiliser la clé API publique pour les sondages anonymes
-            const response = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls`,
-              {
-                method: "POST",
-                headers: {
-                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                  "Content-Type": "application/json",
-                  Prefer: "return=representation",
-                },
-                body: JSON.stringify(insertData),
+            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls`, {
+              method: "POST",
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                "Content-Type": "application/json",
+                Prefer: "return=representation",
               },
-            );
+              body: JSON.stringify(insertData),
+            });
 
             if (!response.ok) {
               const errorData = await response.text();
@@ -219,9 +204,7 @@ export function usePolls() {
             const supabaseSession = localStorage.getItem("supabase.auth.token");
             if (supabaseSession) {
               const sessionData = JSON.parse(supabaseSession);
-              token =
-                sessionData?.access_token ||
-                sessionData?.currentSession?.access_token;
+              token = sessionData?.access_token || sessionData?.currentSession?.access_token;
             }
 
             if (!token) {
@@ -248,19 +231,16 @@ export function usePolls() {
             }
 
             // Faire l'insertion avec token d'authentification
-            const response = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls`,
-              {
-                method: "POST",
-                headers: {
-                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                  Prefer: "return=representation",
-                },
-                body: JSON.stringify(insertData),
+            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls`, {
+              method: "POST",
+              headers: {
+                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+                Prefer: "return=representation",
               },
-            );
+              body: JSON.stringify(insertData),
+            });
 
             if (!response.ok) {
               const errorData = await response.text();
@@ -288,10 +268,7 @@ export function usePolls() {
             operation: "createPoll",
           });
           // Améliorer le message d'erreur pour l'utilisateur
-          if (
-            fetchError instanceof TypeError &&
-            fetchError.message.includes("fetch")
-          ) {
+          if (fetchError instanceof TypeError && fetchError.message.includes("fetch")) {
             throw ErrorFactory.network(
               fetchError.message,
               "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.",
@@ -320,9 +297,7 @@ export function usePolls() {
           const formattedTimeSlots = sortedSlots.map((slot, slotIndex) => {
             // Calculer l'heure de fin correctement
             const totalMinutes =
-              slot.hour * 60 +
-              slot.minute +
-              (pollData.settings?.timeGranularity || 30);
+              slot.hour * 60 + slot.minute + (pollData.settings?.timeGranularity || 30);
             const endHour = Math.floor(totalMinutes / 60);
             const endMinute = totalMinutes % 60;
 
@@ -397,9 +372,7 @@ export function usePolls() {
             const supabaseSession = localStorage.getItem("supabase.auth.token");
             if (supabaseSession) {
               const sessionData = JSON.parse(supabaseSession);
-              token =
-                sessionData?.access_token ||
-                sessionData?.currentSession?.access_token;
+              token = sessionData?.access_token || sessionData?.currentSession?.access_token;
             }
 
             if (!token) {
@@ -506,17 +479,12 @@ export function usePolls() {
 
         // 3. Envoyer les emails aux participants si demandé
 
-        if (
-          pollData.settings.sendNotifications &&
-          pollData.participantEmails.length > 0
-        ) {
+        if (pollData.settings.sendNotifications && pollData.participantEmails.length > 0) {
           try {
             const emailResult = await EmailService.sendPollCreatedNotification(
               pollData.title,
               poll.slug,
-              user?.email ||
-                user?.user_metadata?.full_name ||
-                "Un organisateur",
+              user?.email || user?.user_metadata?.full_name || "Un organisateur",
               pollData.participantEmails,
             );
 
@@ -560,11 +528,9 @@ export function usePolls() {
           userFriendlyMessage =
             "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
         } else if (error.message.includes("NetworkError")) {
-          userFriendlyMessage =
-            "Erreur réseau. Vérifiez votre connexion internet.";
+          userFriendlyMessage = "Erreur réseau. Vérifiez votre connexion internet.";
         } else if (error.message.includes("CORS")) {
-          userFriendlyMessage =
-            "Erreur de configuration serveur. Contactez le support.";
+          userFriendlyMessage = "Erreur de configuration serveur. Contactez le support.";
         } else if (error.message) {
           userFriendlyMessage = error.message;
         }
@@ -592,8 +558,7 @@ export function usePolls() {
       setPolls(userPolls);
       return { polls: userPolls };
     } catch (err: any) {
-      const errorMessage =
-        err.message || "Erreur lors de la récupération des sondages";
+      const errorMessage = err.message || "Erreur lors de la récupération des sondages";
       setError(errorMessage);
       return { error: errorMessage };
     } finally {
@@ -656,10 +621,7 @@ export function usePolls() {
   );
 
   const updatePollStatus = useCallback(
-    async (
-      pollId: string,
-      status: StoragePoll["status"],
-    ): Promise<{ error?: string }> => {
+    async (pollId: string, status: StoragePoll["status"]): Promise<{ error?: string }> => {
       if (!user) {
         return { error: "Utilisateur non connecté" };
       }
@@ -680,8 +642,7 @@ export function usePolls() {
 
         return {};
       } catch (err: any) {
-        const errorMessage =
-          err.message || "Erreur lors de la mise à jour du sondage";
+        const errorMessage = err.message || "Erreur lors de la mise à jour du sondage";
         setError(errorMessage);
         return { error: errorMessage };
       } finally {
@@ -693,9 +654,7 @@ export function usePolls() {
 
   const deletePoll = useCallback(
     async (pollId: string) => {
-      console.log(
-        `🗑️ usePolls.deletePoll: Starting deletion of poll ${pollId}`,
-      );
+      console.log(`🗑️ usePolls.deletePoll: Starting deletion of poll ${pollId}`);
       setLoading(true);
       setError(null);
 
@@ -718,8 +677,7 @@ export function usePolls() {
         return {};
       } catch (err: any) {
         logger.error(`usePolls.deletePoll: Error during deletion`, err);
-        const errorMessage =
-          err.message || "Erreur lors de la suppression du sondage";
+        const errorMessage = err.message || "Erreur lors de la suppression du sondage";
         setError(errorMessage);
         return { error: errorMessage };
       } finally {

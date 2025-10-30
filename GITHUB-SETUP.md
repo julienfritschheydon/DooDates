@@ -19,8 +19,19 @@ Branch name pattern: main
 ✅ Require status checks to pass before merging
   ✅ Require branches to be up to date before merging
   Status checks required:
-    - quality-gates
-    - deploy
+    - quick-tests (unit)
+    - quick-tests (integration)
+    - quick-tests (ux-regression)
+    - ai-validation
+    - build-validation
+    - code-quality
+    - e2e-smoke
+    - e2e-matrix (chromium)
+    - e2e-matrix (firefox)
+    - e2e-matrix (webkit)
+    - e2e-matrix (Mobile Chrome)
+    - e2e-matrix (Mobile Safari)
+    - validation-summary
 
 ✅ Require conversation resolution before merging
 ✅ Require signed commits

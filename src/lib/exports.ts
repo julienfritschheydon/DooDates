@@ -41,11 +41,7 @@ function formatTimestamp(date: Date | string): string {
  */
 function generateFilename(poll: Poll, extension: string = "csv"): string {
   const now = new Date();
-  const timestamp = now
-    .toISOString()
-    .replace(/[-:]/g, "")
-    .replace("T", "-")
-    .slice(0, 15); // YYYYMMDD-HHmmss
+  const timestamp = now.toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15); // YYYYMMDD-HHmmss
   const slug = poll.slug || "poll";
   const type = poll.type;
   return `doodates_${type}_${slug}_${timestamp}.${extension}`;
@@ -278,8 +274,7 @@ function formPollToHTML(poll: Poll): string {
             optionCounts[v] = (optionCounts[v] || 0) + 1;
           });
         } else {
-          optionCounts[String(item.value)] =
-            (optionCounts[String(item.value)] || 0) + 1;
+          optionCounts[String(item.value)] = (optionCounts[String(item.value)] || 0) + 1;
         }
       });
 
@@ -295,9 +290,7 @@ function formPollToHTML(poll: Poll): string {
 
       Object.entries(optionCounts).forEach(([option, count]) => {
         const percentage =
-          responses.length > 0
-            ? ((count / responses.length) * 100).toFixed(1)
-            : "0.0";
+          responses.length > 0 ? ((count / responses.length) * 100).toFixed(1) : "0.0";
         questionsHTML += `
           <tr>
             <td>${escapeHTML(option)}</td>
@@ -601,11 +594,7 @@ export function exportFormPollToMarkdown(poll: Poll): void {
       // Count responses per cell (rowId_colId)
       const cellCounts: Record<string, number> = {};
       questionResponses.forEach((item) => {
-        if (
-          typeof item.value === "object" &&
-          item.value !== null &&
-          !Array.isArray(item.value)
-        ) {
+        if (typeof item.value === "object" && item.value !== null && !Array.isArray(item.value)) {
           const matrixVal = item.value as Record<string, string | string[]>;
           Object.entries(matrixVal).forEach(([rowId, colValue]) => {
             const colIds = Array.isArray(colValue) ? colValue : [colValue];
@@ -626,10 +615,7 @@ export function exportFormPollToMarkdown(poll: Poll): void {
         const counts = matrixCols.map((col: any) => {
           const key = `${row.id}_${col.id}`;
           const count = cellCounts[key] || 0;
-          const pct =
-            responses.length > 0
-              ? ((count / responses.length) * 100).toFixed(1)
-              : "0.0";
+          const pct = responses.length > 0 ? ((count / responses.length) * 100).toFixed(1) : "0.0";
           return `${count} (${pct}%)`;
         });
         markdown += `| ${rowLabel} | ${counts.join(" | ")} |\n`;
@@ -644,8 +630,7 @@ export function exportFormPollToMarkdown(poll: Poll): void {
             optionCounts[v] = (optionCounts[v] || 0) + 1;
           });
         } else {
-          optionCounts[String(item.value)] =
-            (optionCounts[String(item.value)] || 0) + 1;
+          optionCounts[String(item.value)] = (optionCounts[String(item.value)] || 0) + 1;
         }
       });
 
@@ -655,9 +640,7 @@ export function exportFormPollToMarkdown(poll: Poll): void {
 
       Object.entries(optionCounts).forEach(([option, count]) => {
         const percentage =
-          responses.length > 0
-            ? ((count / responses.length) * 100).toFixed(1)
-            : "0.0";
+          responses.length > 0 ? ((count / responses.length) * 100).toFixed(1) : "0.0";
         markdown += `| ${option} | ${count} | ${percentage}% |\n`;
       });
 

@@ -12,9 +12,7 @@ interface ChatLandingPrototypeProps {
   onPollCreated?: (poll: any) => void;
 }
 
-export function ChatLandingPrototype({
-  onPollCreated,
-}: ChatLandingPrototypeProps) {
+export function ChatLandingPrototype({ onPollCreated }: ChatLandingPrototypeProps) {
   const navigate = useNavigate();
   const { createPollFromChat } = useConversation();
 
@@ -35,10 +33,7 @@ export function ChatLandingPrototype({
     <div className="h-full flex flex-col bg-[#0a0a0a]">
       {/* Padding top pour compenser la TopBar fixe (h-14 = 56px) */}
       <div className="pt-14 h-full">
-        <GeminiChatInterface
-          onPollCreated={handlePollCreated}
-          darkTheme={true}
-        />
+        <GeminiChatInterface onPollCreated={handlePollCreated} darkTheme={true} />
       </div>
     </div>
   );

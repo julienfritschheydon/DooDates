@@ -70,10 +70,7 @@ export class GoogleCalendarService {
   /**
    * Récupérer les événements du calendrier principal
    */
-  async getEvents(
-    startDate: string,
-    endDate: string,
-  ): Promise<GoogleCalendarEvent[]> {
+  async getEvents(startDate: string, endDate: string): Promise<GoogleCalendarEvent[]> {
     await this.refreshTokenIfNeeded();
 
     if (!this.accessToken) {
@@ -166,21 +163,18 @@ export class GoogleCalendarService {
     }
 
     try {
-      const response = await fetch(
-        `https://www.googleapis.com/calendar/v3/freeBusy`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            timeMin: startDate,
-            timeMax: endDate,
-            items: [{ id: "primary" }],
-          }),
+      const response = await fetch(`https://www.googleapis.com/calendar/v3/freeBusy`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          timeMin: startDate,
+          timeMax: endDate,
+          items: [{ id: "primary" }],
+        }),
+      });
 
       if (!response.ok) {
         const apiError = ErrorFactory.api(
@@ -286,9 +280,7 @@ export class GoogleCalendarService {
     ];
 
     for (const slot of defaultSlots) {
-      const isSlotFree = !busySlots.some((busy) =>
-        this.slotsOverlap(slot, busy),
-      );
+      const isSlotFree = !busySlots.some((busy) => this.slotsOverlap(slot, busy));
 
       if (isSlotFree) {
         suggestions.push(slot);

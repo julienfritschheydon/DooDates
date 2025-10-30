@@ -31,8 +31,7 @@ vi.mock("../../lib/services/titleGeneration", () => ({
 }));
 
 const mockGetConversation = ConversationStorage.getConversation as any;
-const mockGetConversationWithMessages =
-  ConversationStorage.getConversationWithMessages as any;
+const mockGetConversationWithMessages = ConversationStorage.getConversationWithMessages as any;
 const mockAddMessages = ConversationStorage.addMessages as any;
 
 import {
@@ -74,8 +73,7 @@ describe("useAutoSave - Tests Isolés (2, 9, 11, 12)", () => {
 
     let resumedConversation: any;
     await act(async () => {
-      resumedConversation =
-        await result.current.resumeConversation("non-existent");
+      resumedConversation = await result.current.resumeConversation("non-existent");
     });
 
     expect(resumedConversation).toBeNull();

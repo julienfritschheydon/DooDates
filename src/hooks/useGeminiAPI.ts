@@ -1,15 +1,15 @@
 /**
  * useGeminiAPI Hook
- * 
+ *
  * Hook dédié pour gérer les appels à l'API Gemini
  * Extrait de GeminiChatInterface pour réduire la complexité
- * 
+ *
  * Responsabilités :
  * - Appels API Gemini
  * - Gestion des erreurs API
  * - Gestion des quotas
  * - Retry logic
- * 
+ *
  * @see Docs/Architecture-GeminiChatInterface.md
  */
 
@@ -53,7 +53,7 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
   const generatePoll = useCallback(
     async (userMessage: string): Promise<GeminiAPIResponse> => {
       const trimmedMessage = userMessage.trim();
-      
+
       if (!trimmedMessage) {
         return {
           success: false,
@@ -89,7 +89,7 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
 
         // Échec de la génération
         const errorType = detectErrorType(pollResponse.error);
-        
+
         if (errorType === "quota") {
           onQuotaExceeded?.();
         } else if (errorType === "network") {
@@ -112,7 +112,6 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
           error: errorMessage,
           errorType,
         };
-
       } catch (error) {
         const processedError = handleError(
           error,
@@ -192,13 +191,13 @@ function getErrorMessage(errorType: "quota" | "network" | "parsing" | "unknown")
   switch (errorType) {
     case "quota":
       return "Limite de quota atteinte. Veuillez réessayer plus tard ou vous connecter pour plus de requêtes.";
-    
+
     case "network":
       return "Problème de connexion réseau. Vérifiez votre connexion internet.";
-    
+
     case "parsing":
       return "Erreur lors de l'analyse de la réponse. Veuillez reformuler votre demande.";
-    
+
     case "unknown":
     default:
       return "Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?";

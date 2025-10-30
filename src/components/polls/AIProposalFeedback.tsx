@@ -17,10 +17,7 @@ interface AIProposalFeedbackProps {
   onFeedbackSent?: () => void;
 }
 
-export function AIProposalFeedback({
-  proposal,
-  onFeedbackSent,
-}: AIProposalFeedbackProps) {
+export function AIProposalFeedback({ proposal, onFeedbackSent }: AIProposalFeedbackProps) {
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
   const [comment, setComment] = useState("");
@@ -49,9 +46,7 @@ export function AIProposalFeedback({
 
   const toggleReason = (reasonId: string) => {
     setSelectedReasons((prev) =>
-      prev.includes(reasonId)
-        ? prev.filter((id) => id !== reasonId)
-        : [...prev, reasonId],
+      prev.includes(reasonId) ? prev.filter((id) => id !== reasonId) : [...prev, reasonId],
     );
   };
 
@@ -71,9 +66,7 @@ export function AIProposalFeedback({
       const feedbackData = {
         userRequest: proposal.userRequest,
         generatedContent: JSON.stringify(proposal.generatedContent, null, 2),
-        reasons: selectedReasons.map(
-          (id) => feedbackReasons.find((r) => r.id === id)?.label || id,
-        ),
+        reasons: selectedReasons.map((id) => feedbackReasons.find((r) => r.id === id)?.label || id),
         comment: comment.trim(),
         pollContext: proposal.pollContext,
         timestamp: new Date().toISOString(),
@@ -81,32 +74,29 @@ export function AIProposalFeedback({
       };
 
       // Envoyer via EmailJS
-      const response = await fetch(
-        "https://api.emailjs.com/api/v1.0/email/send",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            service_id: "service_3l31ox3",
-            template_id: "template_ai_feedback", // À créer dans EmailJS
-            user_id: "HoNWMyqrINGzjeK6E",
-            template_params: {
-              subject: "❌ IA Feedback - Proposition rejetée",
-              user_request: feedbackData.userRequest,
-              generated_content: feedbackData.generatedContent,
-              reasons: feedbackData.reasons.join(", "),
-              comment: feedbackData.comment || "(Aucun commentaire)",
-              poll_id: feedbackData.pollContext?.pollId || "N/A",
-              poll_title: feedbackData.pollContext?.pollTitle || "N/A",
-              poll_type: feedbackData.pollContext?.pollType || "N/A",
-              timestamp: feedbackData.timestamp,
-              user_agent: feedbackData.userAgent,
-            },
-          }),
+      const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          service_id: "service_3l31ox3",
+          template_id: "template_ai_feedback", // À créer dans EmailJS
+          user_id: "HoNWMyqrINGzjeK6E",
+          template_params: {
+            subject: "❌ IA Feedback - Proposition rejetée",
+            user_request: feedbackData.userRequest,
+            generated_content: feedbackData.generatedContent,
+            reasons: feedbackData.reasons.join(", "),
+            comment: feedbackData.comment || "(Aucun commentaire)",
+            poll_id: feedbackData.pollContext?.pollId || "N/A",
+            poll_title: feedbackData.pollContext?.pollTitle || "N/A",
+            poll_type: feedbackData.pollContext?.pollType || "N/A",
+            timestamp: feedbackData.timestamp,
+            user_agent: feedbackData.userAgent,
+          },
+        }),
+      });
 
       if (!response.ok) {
         throw ErrorFactory.network(
@@ -142,9 +132,7 @@ export function AIProposalFeedback({
     return (
       <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="font-medium text-gray-900">
-            Qu'est-ce qui ne va pas ?
-          </h4>
+          <h4 className="font-medium text-gray-900">Qu'est-ce qui ne va pas ?</h4>
           <button
             onClick={() => setShowFeedbackForm(false)}
             className="text-gray-400 hover:text-gray-600"

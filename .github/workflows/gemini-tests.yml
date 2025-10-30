@@ -86,7 +86,7 @@ jobs:
           github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            title: '🚨 Tests Automatisés Gemini - Échec Critique',
+            title: 'Tests Automatisés Gemini - Échec Critique',
             body: `## Tests Gemini en Échec
             
             **Date:** ${new Date().toISOString()}

@@ -1,12 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import {
-  pollsApi,
-  pollOptionsApi,
-  votesApi,
-  Poll,
-  PollOption,
-  Vote,
-} from "@/lib/supabase-fetch";
+import { pollsApi, pollOptionsApi, votesApi, Poll, PollOption, Vote } from "@/lib/supabase-fetch";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "@/lib/logger";
 import { groupConsecutiveDates, type DateGroup } from "@/lib/date-utils";
@@ -22,9 +15,7 @@ export const useVoting = (pollSlug: string) => {
   const [poll, setPoll] = useState<Poll | null>(null);
   const [options, setOptions] = useState<PollOption[]>([]);
   const [votes, setVotes] = useState<Vote[]>([]);
-  const [currentVote, setCurrentVote] = useState<
-    Record<string, "yes" | "no" | "maybe">
-  >({});
+  const [currentVote, setCurrentVote] = useState<Record<string, "yes" | "no" | "maybe">>({});
   const [userHasVoted, setUserHasVoted] = useState<Record<string, boolean>>({});
   const [voterInfo, setVoterInfo] = useState<VoterInfo>({
     name: "",
@@ -58,16 +49,12 @@ export const useVoting = (pollSlug: string) => {
     try {
       // Mode développement local - récupération depuis localStorage
       logger.debug("Recherche du sondage", "vote", { pollSlug });
-      const localPolls = JSON.parse(
-        localStorage.getItem("doodates_polls") || "[]",
-      );
+      const localPolls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
 
       const pollData = localPolls.find((p: Poll) => p.slug === pollSlug);
 
       if (!pollData) {
-        const notFoundError = ErrorFactory.validation(
-          `Sondage avec slug "${pollSlug}" non trouvé`,
-        );
+        const notFoundError = ErrorFactory.validation(`Sondage avec slug "${pollSlug}" non trouvé`);
 
         logError(notFoundError, {
           component: "useVoting",
@@ -86,13 +73,8 @@ export const useVoting = (pollSlug: string) => {
       setRealPollId(pollData.id);
 
       // Créer les options à partir des settings (invariant: au moins 1 date requise)
-      if (
-        !pollData.settings?.selectedDates ||
-        pollData.settings.selectedDates.length === 0
-      ) {
-        const configError = ErrorFactory.validation(
-          "Ce sondage n'a pas de dates configurées",
-        );
+      if (!pollData.settings?.selectedDates || pollData.settings.selectedDates.length === 0) {
+        const configError = ErrorFactory.validation("Ce sondage n'a pas de dates configurées");
 
         logError(configError, {
           component: "useVoting",
@@ -115,31 +97,29 @@ export const useVoting = (pollSlug: string) => {
         })),
       });
 
-      const mockOptions: PollOption[] = dateGroups.map(
-        (group: DateGroup, index: number) => {
-          // Pour les groupes multi-dates, utiliser la première date comme référence
-          // et stocker toutes les dates du groupe dans un champ custom
-          const primaryDate = group.dates[0];
+      const mockOptions: PollOption[] = dateGroups.map((group: DateGroup, index: number) => {
+        // Pour les groupes multi-dates, utiliser la première date comme référence
+        // et stocker toutes les dates du groupe dans un champ custom
+        const primaryDate = group.dates[0];
 
-          // Récupérer les time slots de toutes les dates du groupe
-          const groupTimeSlots =
-            group.dates.length > 1
-              ? null // Pour les groupes, pas de time slots (vote sur la période entière)
-              : pollData.settings?.timeSlotsByDate?.[primaryDate] || null;
+        // Récupérer les time slots de toutes les dates du groupe
+        const groupTimeSlots =
+          group.dates.length > 1
+            ? null // Pour les groupes, pas de time slots (vote sur la période entière)
+            : pollData.settings?.timeSlotsByDate?.[primaryDate] || null;
 
-          return {
-            id: `option-${index}`,
-            poll_id: pollData.id,
-            option_date: primaryDate, // Date principale pour compatibilité
-            time_slots: groupTimeSlots,
-            display_order: index,
-            // Champs custom pour les groupes
-            date_group: group.dates.length > 1 ? group.dates : undefined,
-            date_group_label: group.dates.length > 1 ? group.label : undefined,
-            date_group_type: group.dates.length > 1 ? group.type : undefined,
-          };
-        },
-      );
+        return {
+          id: `option-${index}`,
+          poll_id: pollData.id,
+          option_date: primaryDate, // Date principale pour compatibilité
+          time_slots: groupTimeSlots,
+          display_order: index,
+          // Champs custom pour les groupes
+          date_group: group.dates.length > 1 ? group.dates : undefined,
+          date_group_label: group.dates.length > 1 ? group.label : undefined,
+          date_group_type: group.dates.length > 1 ? group.type : undefined,
+        };
+      });
 
       logger.debug("Options créées", "vote", {
         optionsCount: mockOptions.length,
@@ -151,9 +131,7 @@ export const useVoting = (pollSlug: string) => {
 
       // Charger les votes existants depuis localStorage (mode dev)
       const localVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
-      const pollVotes = localVotes.filter(
-        (v: any) => v.poll_id === pollData.id,
-      );
+      const pollVotes = localVotes.filter((v: any) => v.poll_id === pollData.id);
       const mappedVotes = pollVotes.map((v: any) => ({
         id: v.id,
         poll_id: v.poll_id,
@@ -178,9 +156,7 @@ export const useVoting = (pollSlug: string) => {
         operation: "loadPoll",
       });
 
-      setError(
-        processedError.message || "Erreur lors du chargement du sondage",
-      );
+      setError(processedError.message || "Erreur lors du chargement du sondage");
     } finally {
       setLoading(false);
     }
@@ -245,21 +221,18 @@ export const useVoting = (pollSlug: string) => {
   }, [realPollId]);
 
   // Mettre à jour un vote (marquer comme explicite)
-  const updateVote = useCallback(
-    (optionId: string, value: "yes" | "no" | "maybe") => {
-      setCurrentVote((prev) => ({
-        ...prev,
-        [optionId]: value,
-      }));
+  const updateVote = useCallback((optionId: string, value: "yes" | "no" | "maybe") => {
+    setCurrentVote((prev) => ({
+      ...prev,
+      [optionId]: value,
+    }));
 
-      // Marquer comme vote explicite
-      setUserHasVoted((prev) => ({
-        ...prev,
-        [optionId]: true,
-      }));
-    },
-    [],
-  );
+    // Marquer comme vote explicite
+    setUserHasVoted((prev) => ({
+      ...prev,
+      [optionId]: true,
+    }));
+  }, []);
 
   // Supprimer un vote (remettre à "maybe" par défaut)
   const removeVote = useCallback((optionId: string) => {
@@ -278,9 +251,7 @@ export const useVoting = (pollSlug: string) => {
   // Soumettre le vote
   const submitVote = useCallback(async (): Promise<boolean> => {
     if (!voterInfo.name.trim() || Object.keys(currentVote).length === 0) {
-      setError(
-        "Veuillez remplir vos informations et sélectionner au moins une option",
-      );
+      setError("Veuillez remplir vos informations et sélectionner au moins une option");
       return false;
     }
 
@@ -316,23 +287,18 @@ export const useVoting = (pollSlug: string) => {
       };
 
       // Récupérer les votes existants
-      const existingVotes = JSON.parse(
-        localStorage.getItem("dev-votes") || "[]",
-      );
+      const existingVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
 
       // Vérifier si un vote existe déjà pour cet utilisateur sur ce sondage
       // Pour les revotes, on utilise l'email existant s'il y en a un
-      const currentVoterEmail = voterInfo.email
-        ? voterInfo.email.toLowerCase()
-        : null;
+      const currentVoterEmail = voterInfo.email ? voterInfo.email.toLowerCase() : null;
 
       // Chercher d'abord par email s'il est fourni
       let existingVoteIndex = -1;
       if (currentVoterEmail) {
         existingVoteIndex = existingVotes.findIndex(
           (vote: any) =>
-            vote.poll_id === realPollId &&
-            vote.voter_email.toLowerCase() === currentVoterEmail,
+            vote.poll_id === realPollId && vote.voter_email.toLowerCase() === currentVoterEmail,
         );
       }
 
@@ -367,9 +333,7 @@ export const useVoting = (pollSlug: string) => {
       localStorage.setItem("dev-votes", JSON.stringify(existingVotes));
 
       // Recharger l'état votes depuis localStorage pour mettre à jour l'UI
-      const updatedPollVotes = existingVotes.filter(
-        (v: any) => v.poll_id === realPollId,
-      );
+      const updatedPollVotes = existingVotes.filter((v: any) => v.poll_id === realPollId);
       const updatedMapped = updatedPollVotes.map((v: any) => ({
         id: v.id,
         poll_id: v.poll_id,
@@ -398,9 +362,7 @@ export const useVoting = (pollSlug: string) => {
         operation: "submitVote",
       });
 
-      setError(
-        processedError.message || "Erreur lors de l'enregistrement du vote",
-      );
+      setError(processedError.message || "Erreur lors de l'enregistrement du vote");
       return false;
     } finally {
       setSubmitting(false);
@@ -415,9 +377,7 @@ export const useVoting = (pollSlug: string) => {
 
       // Charger les votes depuis localStorage pour avoir les données à jour
       const localVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
-      const pollVotes = localVotes.filter(
-        (vote: any) => vote.poll_id === realPollId,
-      );
+      const pollVotes = localVotes.filter((vote: any) => vote.poll_id === realPollId);
 
       pollVotes.forEach((vote: any) => {
         const selection = vote.vote_data?.[optionId];
@@ -444,8 +404,7 @@ export const useVoting = (pollSlug: string) => {
 
     const optionsWithScores = options.map((option) => {
       const stats = getVoteStats(option.id);
-      const score =
-        stats.counts.yes * 2 + stats.counts.maybe * 1 - stats.counts.no * 1;
+      const score = stats.counts.yes * 2 + stats.counts.maybe * 1 - stats.counts.no * 1;
       return {
         option,
         score,

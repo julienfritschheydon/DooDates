@@ -136,9 +136,7 @@ export function getVisibleQuestionIds(
   rules: ConditionalRule[],
   answers: Record<string, string | string[]>,
 ): string[] {
-  return questions
-    .filter((q) => shouldShowQuestion(q.id, rules, answers))
-    .map((q) => q.id);
+  return questions.filter((q) => shouldShowQuestion(q.id, rules, answers)).map((q) => q.id);
 }
 
 /**

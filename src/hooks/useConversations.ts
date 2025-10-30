@@ -1,10 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  useInfiniteQuery,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { logger } from "@/lib/logger";
 import * as ConversationStorage from "../lib/storage/ConversationStorageSimple";
 import { useAuth } from "../contexts/AuthContext";
@@ -107,24 +102,11 @@ export function useConversations(config: UseConversationsConfig = {}) {
 
   // Query keys
   const queryKeys = {
-    conversations: [
-      "conversations",
-      user?.id || "guest",
-      filters,
-      sortBy,
-      sortOrder,
-    ] as const,
-    conversation: (id: string) =>
-      ["conversation", user?.id || "guest", id] as const,
+    conversations: ["conversations", user?.id || "guest", filters, sortBy, sortOrder] as const,
+    conversation: (id: string) => ["conversation", user?.id || "guest", id] as const,
     messages: (conversationId: string) =>
       ["messages", user?.id || "guest", conversationId] as const,
-    infinite: [
-      "conversations-infinite",
-      user?.id || "guest",
-      filters,
-      sortBy,
-      sortOrder,
-    ] as const,
+    infinite: ["conversations-infinite", user?.id || "guest", filters, sortBy, sortOrder] as const,
   };
 
   // Conversations list query with pagination
@@ -132,48 +114,30 @@ export function useConversations(config: UseConversationsConfig = {}) {
     queryKey: queryKeys.infinite,
     queryFn: async ({ pageParam = 0 }) => {
       try {
-        console.log(
-          "[useConversations] Chargement conversations depuis localStorage...",
-        );
+        console.log("[useConversations] Chargement conversations depuis localStorage...");
         const conversations = ConversationStorage.getConversations();
-        console.log(
-          "[useConversations] Conversations chargées:",
-          conversations.length,
-        );
+        console.log("[useConversations] Conversations chargées:", conversations.length);
 
         // Convertir les dates string en Date objects
         const conversationsWithDates = conversations.map((conv) => ({
           ...conv,
-          createdAt:
-            typeof conv.createdAt === "string"
-              ? new Date(conv.createdAt)
-              : conv.createdAt,
-          updatedAt:
-            typeof conv.updatedAt === "string"
-              ? new Date(conv.updatedAt)
-              : conv.updatedAt,
+          createdAt: typeof conv.createdAt === "string" ? new Date(conv.createdAt) : conv.createdAt,
+          updatedAt: typeof conv.updatedAt === "string" ? new Date(conv.updatedAt) : conv.updatedAt,
         }));
 
         // Apply filters
         let filteredConversations = conversationsWithDates.filter((conv) => {
-          if (filters.status && !filters.status.includes(conv.status))
-            return false;
-          if (
-            filters.isFavorite !== undefined &&
-            conv.isFavorite !== filters.isFavorite
-          )
+          if (filters.status && !filters.status.includes(conv.status)) return false;
+          if (filters.isFavorite !== undefined && conv.isFavorite !== filters.isFavorite)
             return false;
           if (filters.hasRelatedPoll !== undefined) {
             const hasRelatedPoll = !!conv.relatedPollId;
             if (hasRelatedPoll !== filters.hasRelatedPoll) return false;
           }
-          if (filters.dateFrom && conv.createdAt < filters.dateFrom)
-            return false;
+          if (filters.dateFrom && conv.createdAt < filters.dateFrom) return false;
           if (filters.dateTo && conv.createdAt > filters.dateTo) return false;
           if (filters.tags && filters.tags.length > 0) {
-            const hasMatchingTag = filters.tags.some((tag) =>
-              conv.tags.includes(tag),
-            );
+            const hasMatchingTag = filters.tags.some((tag) => conv.tags.includes(tag));
             if (!hasMatchingTag) return false;
           }
           return true;
@@ -195,8 +159,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
           conversations: paginatedConversations,
           totalCount: filteredConversations.length,
           hasMore: end < filteredConversations.length,
-          nextCursor:
-            end < filteredConversations.length ? pageParam + 1 : undefined,
+          nextCursor: end < filteredConversations.length ? pageParam + 1 : undefined,
         };
       } catch (error) {
         logger.error("[useConversations] Erreur chargement", error);
@@ -220,8 +183,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
   // Flatten paginated data
   const conversationListState = useMemo((): ConversationListState => {
     const conversations =
-      conversationsQuery.data?.pages.flatMap((page) => page.conversations) ||
-      [];
+      conversationsQuery.data?.pages.flatMap((page) => page.conversations) || [];
     const totalCount = conversationsQuery.data?.pages[0]?.totalCount || 0;
     const hasMore = conversationsQuery.hasNextPage || false;
 
@@ -260,9 +222,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
           isLoading: conversationQuery.isLoading || messagesQuery.isLoading,
           isError: conversationQuery.isError || messagesQuery.isError,
           isSuccess: conversationQuery.isSuccess && messagesQuery.isSuccess,
-          error: (conversationQuery.error || messagesQuery.error) as
-            | ConversationError
-            | undefined,
+          error: (conversationQuery.error || messagesQuery.error) as ConversationError | undefined,
         }),
         [conversationQuery, messagesQuery],
       );
@@ -274,14 +234,9 @@ export function useConversations(config: UseConversationsConfig = {}) {
   const createConversationMutation = useMutation({
     mutationFn: async (data: CreateConversationData) => {
       const conversationData = {
-        title:
-          data.title ||
-          data.firstMessage.slice(0, CONVERSATION_LIMITS.MAX_TITLE_LENGTH),
+        title: data.title || data.firstMessage.slice(0, CONVERSATION_LIMITS.MAX_TITLE_LENGTH),
         status: "active" as const,
-        firstMessage: data.firstMessage.slice(
-          0,
-          CONVERSATION_LIMITS.FIRST_MESSAGE_PREVIEW_LENGTH,
-        ),
+        firstMessage: data.firstMessage.slice(0, CONVERSATION_LIMITS.FIRST_MESSAGE_PREVIEW_LENGTH),
         messageCount: 1,
         isFavorite: false,
         tags: [],
@@ -308,23 +263,16 @@ export function useConversations(config: UseConversationsConfig = {}) {
       await queryClient.cancelQueries({ queryKey: queryKeys.infinite });
 
       // Snapshot previous value
-      const previousConversations = queryClient.getQueryData(
-        queryKeys.infinite,
-      );
+      const previousConversations = queryClient.getQueryData(queryKeys.infinite);
 
       // Optimistically update
       const optimisticConversation: Conversation = {
         id: `temp-${Date.now()}`,
-        title:
-          data.title ||
-          data.firstMessage.slice(0, CONVERSATION_LIMITS.MAX_TITLE_LENGTH),
+        title: data.title || data.firstMessage.slice(0, CONVERSATION_LIMITS.MAX_TITLE_LENGTH),
         status: "active",
         createdAt: new Date(),
         updatedAt: new Date(),
-        firstMessage: data.firstMessage.slice(
-          0,
-          CONVERSATION_LIMITS.FIRST_MESSAGE_PREVIEW_LENGTH,
-        ),
+        firstMessage: data.firstMessage.slice(0, CONVERSATION_LIMITS.FIRST_MESSAGE_PREVIEW_LENGTH),
         messageCount: 1,
         isFavorite: false,
         tags: [],
@@ -346,10 +294,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
             index === 0
               ? {
                   ...page,
-                  conversations: [
-                    optimisticConversation,
-                    ...page.conversations,
-                  ],
+                  conversations: [optimisticConversation, ...page.conversations],
                   totalCount: page.totalCount + 1,
                 }
               : page,
@@ -361,10 +306,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
     },
     onError: (error, data, context) => {
       if (enableOptimisticUpdates && context?.previousConversations) {
-        queryClient.setQueryData(
-          queryKeys.infinite,
-          context.previousConversations,
-        );
+        queryClient.setQueryData(queryKeys.infinite, context.previousConversations);
       }
     },
     onSuccess: (newConversation) => {
@@ -380,13 +322,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
 
   // Update conversation mutation
   const updateConversationMutation = useMutation({
-    mutationFn: async ({
-      id,
-      updates,
-    }: {
-      id: string;
-      updates: UpdateConversationData;
-    }) => {
+    mutationFn: async ({ id, updates }: { id: string; updates: UpdateConversationData }) => {
       const conversation = ConversationStorage.getConversation(id);
       if (!conversation) {
         throw new ConversationError(
@@ -398,7 +334,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
         );
       }
 
-      let finalUpdates = { ...updates };
+      const finalUpdates = { ...updates };
 
       // Gérer favorite_rank automatiquement
       if (updates.isFavorite === true && !conversation.isFavorite) {
@@ -424,12 +360,8 @@ export function useConversations(config: UseConversationsConfig = {}) {
       await queryClient.cancelQueries({ queryKey: queryKeys.infinite });
       await queryClient.cancelQueries({ queryKey: queryKeys.conversation(id) });
 
-      const previousConversations = queryClient.getQueryData(
-        queryKeys.infinite,
-      );
-      const previousConversation = queryClient.getQueryData(
-        queryKeys.conversation(id),
-      );
+      const previousConversations = queryClient.getQueryData(queryKeys.infinite);
+      const previousConversation = queryClient.getQueryData(queryKeys.conversation(id));
 
       // Optimistically update conversations list
       queryClient.setQueryData(queryKeys.infinite, (old: any) => {
@@ -440,47 +372,33 @@ export function useConversations(config: UseConversationsConfig = {}) {
           pages: old.pages.map((page: any) => ({
             ...page,
             conversations: page.conversations.map((conv: Conversation) =>
-              conv.id === id
-                ? { ...conv, ...updates, updatedAt: new Date() }
-                : conv,
+              conv.id === id ? { ...conv, ...updates, updatedAt: new Date() } : conv,
             ),
           })),
         };
       });
 
       // Optimistically update single conversation
-      queryClient.setQueryData(
-        queryKeys.conversation(id),
-        (old: Conversation | undefined) => {
-          if (!old) return old;
-          return { ...old, ...updates, updatedAt: new Date() };
-        },
-      );
+      queryClient.setQueryData(queryKeys.conversation(id), (old: Conversation | undefined) => {
+        if (!old) return old;
+        return { ...old, ...updates, updatedAt: new Date() };
+      });
 
       return { previousConversations, previousConversation };
     },
     onError: (error, { id }, context) => {
       if (enableOptimisticUpdates && context) {
         if (context.previousConversations) {
-          queryClient.setQueryData(
-            queryKeys.infinite,
-            context.previousConversations,
-          );
+          queryClient.setQueryData(queryKeys.infinite, context.previousConversations);
         }
         if (context.previousConversation) {
-          queryClient.setQueryData(
-            queryKeys.conversation(id),
-            context.previousConversation,
-          );
+          queryClient.setQueryData(queryKeys.conversation(id), context.previousConversation);
         }
       }
     },
     onSuccess: (updatedConversation) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.infinite });
-      queryClient.setQueryData(
-        queryKeys.conversation(updatedConversation.id),
-        updatedConversation,
-      );
+      queryClient.setQueryData(queryKeys.conversation(updatedConversation.id), updatedConversation);
     },
   });
 
@@ -495,9 +413,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
 
       await queryClient.cancelQueries({ queryKey: queryKeys.infinite });
 
-      const previousConversations = queryClient.getQueryData(
-        queryKeys.infinite,
-      );
+      const previousConversations = queryClient.getQueryData(queryKeys.infinite);
 
       // Optimistically remove conversation
       queryClient.setQueryData(queryKeys.infinite, (old: any) => {
@@ -519,10 +435,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
     },
     onError: (error, conversationId, context) => {
       if (enableOptimisticUpdates && context?.previousConversations) {
-        queryClient.setQueryData(
-          queryKeys.infinite,
-          context.previousConversations,
-        );
+        queryClient.setQueryData(queryKeys.infinite, context.previousConversations);
       }
     },
     onSuccess: (deletedId) => {
@@ -574,12 +487,8 @@ export function useConversations(config: UseConversationsConfig = {}) {
         queryKey: queryKeys.conversation(conversationId),
       });
 
-      const previousMessages = queryClient.getQueryData(
-        queryKeys.messages(conversationId),
-      );
-      const previousConversation = queryClient.getQueryData(
-        queryKeys.conversation(conversationId),
-      );
+      const previousMessages = queryClient.getQueryData(queryKeys.messages(conversationId));
+      const previousConversation = queryClient.getQueryData(queryKeys.conversation(conversationId));
 
       // Optimistic message
       const optimisticMessage: ConversationMessage = {
@@ -614,10 +523,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
     onError: (error, { conversationId }, context) => {
       if (enableOptimisticUpdates && context) {
         if (context.previousMessages) {
-          queryClient.setQueryData(
-            queryKeys.messages(conversationId),
-            context.previousMessages,
-          );
+          queryClient.setQueryData(queryKeys.messages(conversationId), context.previousMessages);
         }
         if (context.previousConversation) {
           queryClient.setQueryData(
@@ -656,10 +562,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
           queryClient.invalidateQueries({ queryKey: queryKeys.infinite });
           break;
         case "UPDATE":
-          queryClient.setQueryData(
-            queryKeys.conversation(newRecord.id),
-            newRecord,
-          );
+          queryClient.setQueryData(queryKeys.conversation(newRecord.id), newRecord);
           queryClient.invalidateQueries({ queryKey: queryKeys.infinite });
           break;
         case "DELETE":
@@ -686,16 +589,10 @@ export function useConversations(config: UseConversationsConfig = {}) {
   const reorderFavorite = useCallback(
     async (conversationId: string, newRank: number) => {
       const allConversations = ConversationStorage.getConversations();
-      const updatedConversations = updateFavoriteRank(
-        allConversations,
-        conversationId,
-        newRank,
-      );
+      const updatedConversations = updateFavoriteRank(allConversations, conversationId, newRank);
 
       // Update storage with new ranks
-      const targetConversation = updatedConversations.find(
-        (conv) => conv.id === conversationId,
-      );
+      const targetConversation = updatedConversations.find((conv) => conv.id === conversationId);
       if (targetConversation) {
         ConversationStorage.updateConversation(targetConversation);
 
@@ -708,10 +605,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
 
   // Load more conversations
   const loadMore = useCallback(() => {
-    if (
-      conversationsQuery.hasNextPage &&
-      !conversationsQuery.isFetchingNextPage
-    ) {
+    if (conversationsQuery.hasNextPage && !conversationsQuery.isFetchingNextPage) {
       conversationsQuery.fetchNextPage();
     }
   }, [conversationsQuery]);

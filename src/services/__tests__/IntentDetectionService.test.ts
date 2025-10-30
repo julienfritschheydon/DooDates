@@ -24,10 +24,7 @@ describe("IntentDetectionService", () => {
 
   describe("ADD_TIMESLOT (Pattern prioritaire)", () => {
     it('détecte "ajoute 14h-15h le 29"', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute 14h-15h le 29",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute 14h-15h le 29", mockPoll);
 
       expect(intent).not.toBeNull();
       expect(intent?.action).toBe("ADD_TIMESLOT");
@@ -60,10 +57,7 @@ describe("IntentDetectionService", () => {
     });
 
     it('normalise la date partielle "le 29" vers mois courant', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute 14h-15h le 29",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute 14h-15h le 29", mockPoll);
 
       expect(intent?.payload.date).toMatch(/^\d{4}-10-29$/); // Octobre 2025
     });
@@ -71,10 +65,7 @@ describe("IntentDetectionService", () => {
 
   describe("ADD_DATE (Jours de la semaine)", () => {
     it('détecte "ajouter mercredi" (prochain mercredi)', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajouter mercredi",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajouter mercredi", mockPoll);
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toBe("2025-10-29"); // Mercredi 29 oct
@@ -82,20 +73,14 @@ describe("IntentDetectionService", () => {
     });
 
     it('détecte "ajoute lundi"', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute lundi",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute lundi", mockPoll);
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toBe("2025-10-27"); // Lundi 27 oct
     });
 
     it('détecte "ajoute le dimanche"', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute le dimanche",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute le dimanche", mockPoll);
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toBe("2025-10-26"); // Dimanche 26 oct
@@ -104,10 +89,7 @@ describe("IntentDetectionService", () => {
 
   describe("ADD_DATE (Formats multiples)", () => {
     it('détecte "ajoute le 27/10/2025" (format complet)', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute le 27/10/2025",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute le 27/10/2025", mockPoll);
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toBe("2025-10-27");
@@ -115,20 +97,14 @@ describe("IntentDetectionService", () => {
     });
 
     it('détecte "ajoute le 27" (jour seul)', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute le 27",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute le 27", mockPoll);
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-10-27$/); // Mois courant
     });
 
     it('détecte "ajoute le 27/10" (sans année)', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute le 27/10",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute le 27/10", mockPoll);
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toMatch(/^2025-10-27$/); // Année courante
@@ -145,20 +121,14 @@ describe("IntentDetectionService", () => {
     });
 
     it('détecte "ajoute le 2025-10-27" (format ISO)', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute le 2025-10-27",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute le 2025-10-27", mockPoll);
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toBe("2025-10-27");
     });
 
     it('supporte "ajouter" au lieu de "ajoute"', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajouter le 30",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajouter le 30", mockPoll);
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-10-30$/);
@@ -167,30 +137,21 @@ describe("IntentDetectionService", () => {
 
   describe("REMOVE_DATE (Jours de la semaine)", () => {
     it('détecte "retire mercredi"', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "retire mercredi",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("retire mercredi", mockPoll);
 
       expect(intent?.action).toBe("REMOVE_DATE");
       expect(intent?.payload).toBe("2025-10-29");
     });
 
     it('détecte "supprime le lundi"', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "supprime le lundi",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("supprime le lundi", mockPoll);
 
       expect(intent?.action).toBe("REMOVE_DATE");
       expect(intent?.payload).toBe("2025-10-27");
     });
 
     it('détecte "enlève mardi"', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "enlève mardi",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("enlève mardi", mockPoll);
 
       expect(intent?.action).toBe("REMOVE_DATE");
       expect(intent?.payload).toBe("2025-10-28");
@@ -199,20 +160,14 @@ describe("IntentDetectionService", () => {
 
   describe("REMOVE_DATE (Formats multiples)", () => {
     it('détecte "retire le 29"', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "retire le 29",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("retire le 29", mockPoll);
 
       expect(intent?.action).toBe("REMOVE_DATE");
       expect(intent?.payload).toMatch(/^\d{4}-10-29$/);
     });
 
     it('détecte "supprime le 27/10/2025"', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "supprime le 27/10/2025",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("supprime le 27/10/2025", mockPoll);
 
       expect(intent?.action).toBe("REMOVE_DATE");
       expect(intent?.payload).toBe("2025-10-27");
@@ -262,10 +217,7 @@ describe("IntentDetectionService", () => {
     });
 
     it("retourne null si titre vide", () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "renomme en    ",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("renomme en    ", mockPoll);
 
       expect(intent).toBeNull();
     });
@@ -273,19 +225,13 @@ describe("IntentDetectionService", () => {
 
   describe("Edge cases", () => {
     it("retourne null si pas de poll", () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute le 27",
-        null,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute le 27", null);
 
       expect(intent).toBeNull();
     });
 
     it("retourne null si message non reconnu", () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "blabla random",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("blabla random", mockPoll);
 
       expect(intent).toBeNull();
     });
@@ -297,10 +243,7 @@ describe("IntentDetectionService", () => {
     });
 
     it("gère les messages avec espaces multiples", () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute    le    27",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute    le    27", mockPoll);
 
       expect(intent?.action).toBe("ADD_DATE");
     });
@@ -308,10 +251,7 @@ describe("IntentDetectionService", () => {
 
   describe("Priorité des patterns", () => {
     it('ADD_TIMESLOT a priorité sur ADD_DATE pour "14h-15h le 29"', () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute 14h-15h le 29",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute 14h-15h le 29", mockPoll);
 
       // Doit détecter ADD_TIMESLOT, pas ADD_DATE
       expect(intent?.action).toBe("ADD_TIMESLOT");
@@ -319,10 +259,7 @@ describe("IntentDetectionService", () => {
     });
 
     it("ADD_DAY a priorité sur ADD_DATE pour jours de la semaine", () => {
-      const intent = IntentDetectionService.detectSimpleIntent(
-        "ajoute mercredi",
-        mockPoll,
-      );
+      const intent = IntentDetectionService.detectSimpleIntent("ajoute mercredi", mockPoll);
 
       // Doit utiliser le pattern jour de la semaine
       expect(intent?.action).toBe("ADD_DATE");

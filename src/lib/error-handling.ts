@@ -61,10 +61,7 @@ export class DooDatesError extends Error {
 /**
  * Centralized error logging function
  */
-export function logError(
-  error: Error | DooDatesError,
-  context: ErrorContext = {},
-): void {
+export function logError(error: Error | DooDatesError, context: ErrorContext = {}): void {
   const errorInfo = {
     message: error.message,
     name: error.name,
@@ -128,77 +125,35 @@ export function handleError(
  * Create specific error types for common scenarios
  */
 export const ErrorFactory = {
-  network: (
-    message: string,
-    userMessage: string = "Problème de connexion réseau",
-  ) =>
-    new DooDatesError(
-      message,
-      userMessage,
-      ErrorSeverity.HIGH,
-      ErrorCategory.NETWORK,
-    ),
+  network: (message: string, userMessage: string = "Problème de connexion réseau") =>
+    new DooDatesError(message, userMessage, ErrorSeverity.HIGH, ErrorCategory.NETWORK),
 
   validation: (
     message: string,
     userMessage: string = "Données invalides",
     metadata?: Record<string, any>,
   ) =>
-    new DooDatesError(
-      message,
-      userMessage,
-      ErrorSeverity.MEDIUM,
-      ErrorCategory.VALIDATION,
-      { metadata },
-    ),
+    new DooDatesError(message, userMessage, ErrorSeverity.MEDIUM, ErrorCategory.VALIDATION, {
+      metadata,
+    }),
 
   storage: (message: string, userMessage: string = "Erreur de sauvegarde") =>
-    new DooDatesError(
-      message,
-      userMessage,
-      ErrorSeverity.HIGH,
-      ErrorCategory.STORAGE,
-    ),
+    new DooDatesError(message, userMessage, ErrorSeverity.HIGH, ErrorCategory.STORAGE),
 
   auth: (message: string, userMessage: string = "Erreur d'authentification") =>
-    new DooDatesError(
-      message,
-      userMessage,
-      ErrorSeverity.HIGH,
-      ErrorCategory.AUTH,
-    ),
+    new DooDatesError(message, userMessage, ErrorSeverity.HIGH, ErrorCategory.AUTH),
 
   api: (
     message: string,
     userMessage: string = "Erreur du service",
     metadata?: Record<string, any>,
-  ) =>
-    new DooDatesError(
-      message,
-      userMessage,
-      ErrorSeverity.HIGH,
-      ErrorCategory.API,
-      { metadata },
-    ),
+  ) => new DooDatesError(message, userMessage, ErrorSeverity.HIGH, ErrorCategory.API, { metadata }),
 
   rateLimit: (message: string, userMessage: string = "Trop de tentatives") =>
-    new DooDatesError(
-      message,
-      userMessage,
-      ErrorSeverity.MEDIUM,
-      ErrorCategory.VALIDATION,
-    ),
+    new DooDatesError(message, userMessage, ErrorSeverity.MEDIUM, ErrorCategory.VALIDATION),
 
-  critical: (
-    message: string,
-    userMessage: string = "Erreur critique du système",
-  ) =>
-    new DooDatesError(
-      message,
-      userMessage,
-      ErrorSeverity.CRITICAL,
-      ErrorCategory.SYSTEM,
-    ),
+  critical: (message: string, userMessage: string = "Erreur critique du système") =>
+    new DooDatesError(message, userMessage, ErrorSeverity.CRITICAL, ErrorCategory.SYSTEM),
 };
 
 /**

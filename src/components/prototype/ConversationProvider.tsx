@@ -11,10 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { addPoll, type Poll as StoragePoll } from "../../lib/pollStorage";
 import { pollReducer, type PollAction } from "../../reducers/pollReducer";
-import {
-  formPollReducer,
-  type FormPollAction,
-} from "../../reducers/formPollReducer";
+import { formPollReducer, type FormPollAction } from "../../reducers/formPollReducer";
 import { linkPollToConversation } from "../../lib/conversationPollLink";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { ErrorFactory } from "../../lib/error-handling";
@@ -78,9 +75,7 @@ interface ConversationContextType {
   dispatchPollAction: (action: PollAction | FormPollAction) => void;
 }
 
-const ConversationContext = createContext<ConversationContextType | undefined>(
-  undefined,
-);
+const ConversationContext = createContext<ConversationContextType | undefined>(undefined);
 
 /**
  * Provider pour la conversation et l'éditeur partagés
@@ -114,23 +109,16 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [currentPoll, dispatchPoll] = useReducer(pollReducer, null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
-  const [highlightType, setHighlightType] = useState<
-    "add" | "remove" | "modify" | null
-  >(null);
+  const [highlightType, setHighlightType] = useState<"add" | "remove" | "modify" | null>(null);
 
   // État modification question (pour feedback visuel)
-  const [modifiedQuestionId, setModifiedQuestionId] = useState<string | null>(
-    null,
-  );
+  const [modifiedQuestionId, setModifiedQuestionId] = useState<string | null>(null);
   const [modifiedField, setModifiedField] = useState<
     "title" | "type" | "options" | "required" | null
   >(null);
 
   const setModifiedQuestion = useCallback(
-    (
-      questionId: string | null,
-      field: "title" | "type" | "options" | "required" | null,
-    ) => {
+    (questionId: string | null, field: "title" | "type" | "options" | "required" | null) => {
       setModifiedQuestionId(questionId);
       setModifiedField(field);
 
@@ -236,10 +224,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
       // Si c'est un Form Poll, utiliser formPollReducer
       if (pollType === "form") {
-        const updatedPoll = formPollReducer(
-          currentPoll as any,
-          action as FormPollAction,
-        );
+        const updatedPoll = formPollReducer(currentPoll as any, action as FormPollAction);
         if (updatedPoll) {
           // Extraire highlightedId pour l'animation
           const highlightId = (updatedPoll as any)._highlightedId;
@@ -316,9 +301,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       if (pollData.timeSlots && pollData.timeSlots.length > 0) {
         timeSlotsByDate = pollData.timeSlots.reduce((acc: any, slot: any) => {
           const targetDates =
-            slot.dates && slot.dates.length > 0
-              ? slot.dates
-              : pollData.dates || [];
+            slot.dates && slot.dates.length > 0 ? slot.dates : pollData.dates || [];
 
           targetDates.forEach((date: string) => {
             if (!acc[date]) acc[date] = [];
@@ -329,8 +312,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
             const endHour = parseInt(slot.end.split(":")[0]);
             const endMinute = parseInt(slot.end.split(":")[1]);
 
-            const durationMinutes =
-              endHour * 60 + endMinute - (startHour * 60 + startMinute);
+            const durationMinutes = endHour * 60 + endMinute - (startHour * 60 + startMinute);
 
             acc[date].push({
               hour: startHour,
@@ -357,9 +339,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
           if (q.type === "single" || q.type === "multiple") {
             const options = (q.options || [])
-              .filter(
-                (opt: any) => opt && typeof opt === "string" && opt.trim(),
-              )
+              .filter((opt: any) => opt && typeof opt === "string" && opt.trim())
               .map((opt: string) => ({
                 id: uid(),
                 label: opt.trim(),
@@ -457,11 +437,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     dispatchPollAction,
   };
 
-  return (
-    <ConversationContext.Provider value={value}>
-      {children}
-    </ConversationContext.Provider>
-  );
+  return <ConversationContext.Provider value={value}>{children}</ConversationContext.Provider>;
 }
 
 /**

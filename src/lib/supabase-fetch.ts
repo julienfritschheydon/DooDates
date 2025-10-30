@@ -13,8 +13,7 @@ const IS_LOCAL_MODE =
       (() => {
         try {
           return (
-            localStorage.getItem("e2e") === "1" ||
-            localStorage.getItem("dev-local-mode") === "1"
+            localStorage.getItem("e2e") === "1" || localStorage.getItem("dev-local-mode") === "1"
           );
         } catch {
           return false;
@@ -96,9 +95,7 @@ export const pollsApi = IS_LOCAL_MODE
         const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
         return polls.find((p: Poll) => p.slug === slug) || null;
       },
-      async create(
-        poll: Omit<Poll, "id" | "created_at" | "updated_at">,
-      ): Promise<Poll> {
+      async create(poll: Omit<Poll, "id" | "created_at" | "updated_at">): Promise<Poll> {
         const now = new Date().toISOString();
         const newPoll: Poll = {
           ...poll,
@@ -112,9 +109,7 @@ export const pollsApi = IS_LOCAL_MODE
         return newPoll;
       },
       async update(id: string, updates: Partial<Poll>): Promise<Poll> {
-        const polls: Poll[] = JSON.parse(
-          localStorage.getItem("dev-polls") || "[]",
-        );
+        const polls: Poll[] = JSON.parse(localStorage.getItem("dev-polls") || "[]");
         const idx = polls.findIndex((p) => p.id === id);
         if (idx >= 0) {
           polls[idx] = {
@@ -141,9 +136,7 @@ export const pollsApi = IS_LOCAL_MODE
       },
 
       // Créer un nouveau sondage
-      async create(
-        poll: Omit<Poll, "id" | "created_at" | "updated_at">,
-      ): Promise<Poll> {
+      async create(poll: Omit<Poll, "id" | "created_at" | "updated_at">): Promise<Poll> {
         const response = await fetch(`${SUPABASE_URL}/rest/v1/polls`, {
           method: "POST",
           headers,
@@ -156,14 +149,11 @@ export const pollsApi = IS_LOCAL_MODE
 
       // Mettre à jour un sondage
       async update(id: string, updates: Partial<Poll>): Promise<Poll> {
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/polls?id=eq.${id}`,
-          {
-            method: "PATCH",
-            headers,
-            body: JSON.stringify(updates),
-          },
-        );
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/polls?id=eq.${id}`, {
+          method: "PATCH",
+          headers,
+          body: JSON.stringify(updates),
+        });
 
         const data = await handleResponse(response);
         return data[0];
@@ -174,9 +164,7 @@ export const pollsApi = IS_LOCAL_MODE
 export const pollOptionsApi = IS_LOCAL_MODE
   ? {
       async getByPollId(pollId: string): Promise<PollOption[]> {
-        const polls: any[] = JSON.parse(
-          localStorage.getItem("dev-polls") || "[]",
-        );
+        const polls: any[] = JSON.parse(localStorage.getItem("dev-polls") || "[]");
         const poll = polls.find((p) => p.id === pollId);
         if (!poll) return [];
         const dates: string[] = poll.settings?.selectedDates || [];
@@ -190,9 +178,7 @@ export const pollOptionsApi = IS_LOCAL_MODE
           created_at: poll.created_at,
         }));
       },
-      async createMany(
-        options: Omit<PollOption, "id">[],
-      ): Promise<PollOption[]> {
+      async createMany(options: Omit<PollOption, "id">[]): Promise<PollOption[]> {
         // No-op in local mode: options are derived from settings
         return options.map(
           (o, i) =>
@@ -216,9 +202,7 @@ export const pollOptionsApi = IS_LOCAL_MODE
       },
 
       // Créer des options pour un sondage
-      async createMany(
-        options: Omit<PollOption, "id">[],
-      ): Promise<PollOption[]> {
+      async createMany(options: Omit<PollOption, "id">[]): Promise<PollOption[]> {
         const response = await fetch(`${SUPABASE_URL}/rest/v1/poll_options`, {
           method: "POST",
           headers,
@@ -233,9 +217,7 @@ export const pollOptionsApi = IS_LOCAL_MODE
 export const votesApi = IS_LOCAL_MODE
   ? {
       async getByPollId(pollId: string): Promise<Vote[]> {
-        const votes: Vote[] = JSON.parse(
-          localStorage.getItem("dev-votes") || "[]",
-        );
+        const votes: Vote[] = JSON.parse(localStorage.getItem("dev-votes") || "[]");
         return votes.filter((v) => v.poll_id === pollId);
       },
       async create(vote: Omit<Vote, "id" | "created_at">): Promise<Vote> {
@@ -244,17 +226,13 @@ export const votesApi = IS_LOCAL_MODE
           id: `vote-${Date.now()}`,
           created_at: new Date().toISOString(),
         } as Vote;
-        const votes: Vote[] = JSON.parse(
-          localStorage.getItem("dev-votes") || "[]",
-        );
+        const votes: Vote[] = JSON.parse(localStorage.getItem("dev-votes") || "[]");
         votes.push(newVote);
         localStorage.setItem("dev-votes", JSON.stringify(votes));
         return newVote;
       },
       async update(id: string, updates: Partial<Vote>): Promise<Vote> {
-        const votes: Vote[] = JSON.parse(
-          localStorage.getItem("dev-votes") || "[]",
-        );
+        const votes: Vote[] = JSON.parse(localStorage.getItem("dev-votes") || "[]");
         const idx = votes.findIndex((v) => v.id === id);
         if (idx >= 0) {
           votes[idx] = { ...votes[idx], ...updates } as Vote;
@@ -267,10 +245,9 @@ export const votesApi = IS_LOCAL_MODE
   : {
       // Récupérer les votes d'un sondage
       async getByPollId(pollId: string): Promise<Vote[]> {
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/votes?poll_id=eq.${pollId}`,
-          { headers },
-        );
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?poll_id=eq.${pollId}`, {
+          headers,
+        });
 
         return handleResponse(response);
       },
@@ -289,14 +266,11 @@ export const votesApi = IS_LOCAL_MODE
 
       // Mettre à jour un vote existant
       async update(id: string, updates: Partial<Vote>): Promise<Vote> {
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/votes?id=eq.${id}`,
-          {
-            method: "PATCH",
-            headers,
-            body: JSON.stringify(updates),
-          },
-        );
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${id}`, {
+          method: "PATCH",
+          headers,
+          body: JSON.stringify(updates),
+        });
 
         const data = await handleResponse(response);
         return data[0];

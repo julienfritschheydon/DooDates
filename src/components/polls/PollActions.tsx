@@ -1,15 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Archive,
-  Check,
-  Copy,
-  Download,
-  Edit,
-  Share2,
-  Trash2,
-  Vote,
-} from "lucide-react";
+import { Archive, Check, Copy, Download, Edit, Share2, Trash2, Vote } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Poll,
@@ -124,8 +115,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
   };
 
   const handleDelete = () => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce sondage ?"))
-      return;
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce sondage ?")) return;
     try {
       deletePollById(poll.id);
       toast({
@@ -147,8 +137,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
       if (poll.type !== "form") {
         toast({
           title: "Non supporté",
-          description:
-            "L'export n'est supporté que pour les formulaires actuellement.",
+          description: "L'export n'est supporté que pour les formulaires actuellement.",
           variant: "destructive",
         });
         return;
@@ -189,10 +178,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
       logError(
         err instanceof Error
           ? err
-          : ErrorFactory.api(
-              "Export error",
-              "Erreur lors de l'export du sondage",
-            ),
+          : ErrorFactory.api("Export error", "Erreur lors de l'export du sondage"),
         {
           component: "PollActions",
           operation: "handleExport",
@@ -201,10 +187,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
       );
       toast({
         title: "Erreur d'export",
-        description:
-          err instanceof Error
-            ? err.message
-            : "Impossible d'exporter le sondage.",
+        description: err instanceof Error ? err.message : "Impossible d'exporter le sondage.",
         variant: "destructive",
       });
     }
@@ -237,16 +220,12 @@ export const PollActions: React.FC<PollActionsProps> = ({
         {isCopied ? (
           <>
             <Check className="w-4 h-4 animate-in zoom-in duration-200" />
-            {variant === "full" && (
-              <span className="hidden sm:inline font-medium">Copié !</span>
-            )}
+            {variant === "full" && <span className="hidden sm:inline font-medium">Copié !</span>}
           </>
         ) : (
           <>
             <Share2 className="w-4 h-4" />
-            {variant === "full" && (
-              <span className="hidden sm:inline">Lien</span>
-            )}
+            {variant === "full" && <span className="hidden sm:inline">Lien</span>}
           </>
         )}
       </button>
@@ -265,10 +244,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
 
           {showExportMenu && (
             <>
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setShowExportMenu(false)}
-              />
+              <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
               <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-20">
                 <button
                   onClick={() => {
@@ -338,9 +314,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
           data-testid="poll-action-archive"
         >
           <Archive className="w-4 h-4" />
-          {variant === "full" && (
-            <span className="hidden sm:inline">Archiver</span>
-          )}
+          {variant === "full" && <span className="hidden sm:inline">Archiver</span>}
         </button>
       )}
 
@@ -351,9 +325,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
         data-testid="poll-action-delete"
       >
         <Trash2 className="w-4 h-4" />
-        {variant === "full" && (
-          <span className="hidden sm:inline">Supprimer</span>
-        )}
+        {variant === "full" && <span className="hidden sm:inline">Supprimer</span>}
       </button>
     </div>
   );

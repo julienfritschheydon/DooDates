@@ -10,9 +10,7 @@ import type { Conversation } from "../../../types/conversation";
 import { createMockConversation as createBaseConversation } from "../../../__tests__/helpers/testHelpers";
 
 // Mock data - using helper
-const createMockConversation = (
-  overrides: Partial<Conversation> = {},
-): Conversation =>
+const createMockConversation = (overrides: Partial<Conversation> = {}): Conversation =>
   createBaseConversation({
     id: "conv-1",
     title: "Test Conversation",
@@ -53,21 +51,14 @@ describe("ConversationHeader", () => {
     it("should show resume button for active conversations", () => {
       render(<ConversationHeader {...defaultProps} />);
 
-      expect(
-        screen.getByRole("button", { name: /Reprendre la conversation/ }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Reprendre la conversation/ })).toBeInTheDocument();
     });
 
     it("should not show resume button for archived conversations", () => {
       const archivedConversation = createMockConversation({
         status: "archived",
       });
-      render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={archivedConversation}
-        />,
-      );
+      render(<ConversationHeader {...defaultProps} conversation={archivedConversation} />);
 
       expect(
         screen.queryByRole("button", { name: /Reprendre la conversation/ }),
@@ -78,12 +69,7 @@ describe("ConversationHeader", () => {
   describe("Badge favori", () => {
     it("should show favorite badge when conversation is favorite", () => {
       const favoriteConversation = createMockConversation({ isFavorite: true });
-      render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={favoriteConversation}
-        />,
-      );
+      render(<ConversationHeader {...defaultProps} conversation={favoriteConversation} />);
 
       expect(screen.getByText(/⭐ Favori/)).toBeInTheDocument();
     });
@@ -100,12 +86,7 @@ describe("ConversationHeader", () => {
       const conversationWithPoll = createMockConversation({
         relatedPollId: "poll-123",
       });
-      render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={conversationWithPoll}
-        />,
-      );
+      render(<ConversationHeader {...defaultProps} conversation={conversationWithPoll} />);
 
       expect(screen.getByText("Lié à un sondage")).toBeInTheDocument();
     });
@@ -141,16 +122,9 @@ describe("ConversationHeader", () => {
       const conversationWithPoll = createMockConversation({
         relatedPollId: "poll-123",
       });
-      render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={conversationWithPoll}
-        />,
-      );
+      render(<ConversationHeader {...defaultProps} conversation={conversationWithPoll} />);
 
-      expect(
-        screen.getByRole("button", { name: /Voir le sondage lié/ }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Voir le sondage lié/ })).toBeInTheDocument();
     });
 
     it("should call onViewPoll when poll action button is clicked", async () => {
@@ -196,17 +170,10 @@ describe("ConversationHeader", () => {
       const conversationWithPoll = createMockConversation({
         relatedPollId: "poll-123",
       });
-      render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={conversationWithPoll}
-        />,
-      );
+      render(<ConversationHeader {...defaultProps} conversation={conversationWithPoll} />);
 
       expect(screen.getByText("Lié à un sondage")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /Voir le sondage lié/ }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Voir le sondage lié/ })).toBeInTheDocument();
     });
   });
 
@@ -215,18 +182,11 @@ describe("ConversationHeader", () => {
       const conversationWithPoll = createMockConversation({
         relatedPollId: "poll-123",
       });
-      render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={conversationWithPoll}
-        />,
-      );
+      render(<ConversationHeader {...defaultProps} conversation={conversationWithPoll} />);
 
       // Vérifier que le badge de sondage est présent avec ses icônes
       expect(screen.getByText("Lié à un sondage")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /Voir le sondage lié/ }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Voir le sondage lié/ })).toBeInTheDocument();
     });
 
     it("should show message count with proper text", () => {
@@ -250,11 +210,7 @@ describe("ConversationHeader", () => {
         relatedPollId: "poll-123",
       });
       render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={conversationWithPoll}
-          compact={true}
-        />,
+        <ConversationHeader {...defaultProps} conversation={conversationWithPoll} compact={true} />,
       );
 
       expect(screen.getByRole("button", { name: /📊/ })).toBeInTheDocument();
@@ -269,9 +225,7 @@ describe("ConversationHeader", () => {
       expect(screen.getByText("Active")).toBeInTheDocument();
       expect(screen.getByText("5 messages")).toBeInTheDocument();
       expect(screen.getByText(/Created on/)).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /Resume conversation/ }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Resume conversation/ })).toBeInTheDocument();
     });
 
     it("should show English poll badge when language=en", () => {
@@ -279,27 +233,17 @@ describe("ConversationHeader", () => {
         relatedPollId: "poll-123",
       });
       render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={conversationWithPoll}
-          language="en"
-        />,
+        <ConversationHeader {...defaultProps} conversation={conversationWithPoll} language="en" />,
       );
 
       expect(screen.getByText("Linked to poll")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /View linked poll/ }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /View linked poll/ })).toBeInTheDocument();
     });
 
     it("should show English favorite badge when language=en", () => {
       const favoriteConversation = createMockConversation({ isFavorite: true });
       render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={favoriteConversation}
-          language="en"
-        />,
+        <ConversationHeader {...defaultProps} conversation={favoriteConversation} language="en" />,
       );
 
       expect(screen.getByText(/⭐ Favorite/)).toBeInTheDocument();
@@ -311,12 +255,7 @@ describe("ConversationHeader", () => {
       const completedConversation = createMockConversation({
         status: "completed",
       });
-      render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={completedConversation}
-        />,
-      );
+      render(<ConversationHeader {...defaultProps} conversation={completedConversation} />);
 
       const statusBadge = screen.getByText("Terminée");
       expect(statusBadge).toHaveClass("bg-blue-100", "text-blue-800");
@@ -326,12 +265,7 @@ describe("ConversationHeader", () => {
       const archivedConversation = createMockConversation({
         status: "archived",
       });
-      render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={archivedConversation}
-        />,
-      );
+      render(<ConversationHeader {...defaultProps} conversation={archivedConversation} />);
 
       const statusBadge = screen.getByText("Archivée");
       expect(statusBadge).toHaveClass("bg-gray-100", "text-gray-800");
@@ -350,19 +284,10 @@ describe("ConversationHeader", () => {
       const conversationWithPoll = createMockConversation({
         relatedPollId: "poll-123",
       });
-      render(
-        <ConversationHeader
-          {...defaultProps}
-          conversation={conversationWithPoll}
-        />,
-      );
+      render(<ConversationHeader {...defaultProps} conversation={conversationWithPoll} />);
 
-      expect(
-        screen.getByRole("button", { name: /Reprendre la conversation/ }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /Voir le sondage lié/ }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Reprendre la conversation/ })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Voir le sondage lié/ })).toBeInTheDocument();
     });
 
     it("should support keyboard navigation", async () => {

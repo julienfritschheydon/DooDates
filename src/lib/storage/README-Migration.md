@@ -70,9 +70,7 @@ if (migrationNeeded) {
   const result = await migrationService.migrate();
 
   if (result.success) {
-    console.log(
-      `Successfully migrated ${result.migratedConversations} conversations`,
-    );
+    console.log(`Successfully migrated ${result.migratedConversations} conversations`);
   } else {
     console.error("Migration failed:", result.errors);
   }
@@ -318,10 +316,7 @@ const testData = {
 };
 
 // Run migration
-const migrationService = new ConversationMigrationService(
-  testSupabaseUrl,
-  testSupabaseKey,
-);
+const migrationService = new ConversationMigrationService(testSupabaseUrl, testSupabaseKey);
 const result = await migrationService.migrate();
 
 // Verify results
@@ -345,9 +340,7 @@ const startTime = Date.now();
 const result = await migrationService.migrate();
 const duration = Date.now() - startTime;
 
-console.log(
-  `Migrated ${result.migratedConversations} conversations in ${duration}ms`,
-);
+console.log(`Migrated ${result.migratedConversations} conversations in ${duration}ms`);
 ```
 
 ## Troubleshooting
@@ -385,18 +378,14 @@ console.log(
 Enable detailed logging:
 
 ```typescript
-const migrationService = new ConversationMigrationService(
-  supabaseUrl,
-  supabaseKey,
-  {
-    onProgress: (progress) => {
-      console.log("Migration Progress:", progress);
-    },
-    onError: (error) => {
-      console.error("Migration Error:", error);
-    },
+const migrationService = new ConversationMigrationService(supabaseUrl, supabaseKey, {
+  onProgress: (progress) => {
+    console.log("Migration Progress:", progress);
   },
-);
+  onError: (error) => {
+    console.error("Migration Error:", error);
+  },
+});
 ```
 
 ### Recovery Procedures

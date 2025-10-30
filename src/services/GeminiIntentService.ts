@@ -37,15 +37,22 @@ export class GeminiIntentService {
       // Réutiliser le service Gemini existant
       const geminiService = EnhancedGeminiService.getInstance();
 
-      // Forcer l'initialisation en appelant testConnection
-      await (geminiService as any).ensureInitialized?.();
+      // Forcer l'initialisation
+      logger.info("🔧 Tentative d'initialisation de Gemini...", "poll");
+      const initialized = await geminiService.ensureInitialized();
+      logger.info(`🔧 Initialisation result: ${initialized}`, "poll");
 
-      const model = (geminiService as any).model;
-
-      if (!model) {
-        logger.warn("Modèle Gemini non initialisé", "poll");
+      if (!initialized || !geminiService.model) {
+        logger.warn("Modèle Gemini non initialisé", "poll", {
+          initialized,
+          hasModel: !!geminiService.model,
+          apiKey: import.meta.env.VITE_GEMINI_API_KEY ? "présente" : "absente",
+        });
         return null;
       }
+
+      const model = geminiService.model;
+      logger.info("✅ Modèle Gemini prêt, appel en cours...", "poll");
 
       // Construire le contexte du poll actuel
       const pollContext = this.buildPollContext(currentPoll);
@@ -114,8 +121,10 @@ IMPORTANT :
 - Sois conservateur : si tu n'es pas sûr (confidence < 0.7), retourne isModification: false
 - Retourne UNIQUEMENT le JSON, sans texte avant ou après`;
 
+      logger.info("📤 Envoi du prompt à Gemini...", "poll");
       const result = await model.generateContent(prompt);
       const response = result.response.text();
+      logger.info("📥 Réponse reçue de Gemini", "poll", { response: response.substring(0, 200) });
 
       // Parser la réponse JSON
       const jsonMatch = response.match(/\{[\s\S]*\}/);
@@ -127,9 +136,15 @@ IMPORTANT :
       }
 
       const intent: AIIntentResult = JSON.parse(jsonMatch[0]);
+      logger.info("🔍 Intent parsé", "poll", { intent });
 
       // Valider la réponse
       if (!intent.isModification || !intent.action || intent.confidence < 0.7) {
+        logger.info("❌ Intent rejeté (pas modification ou confidence trop basse)", "poll", {
+          isModification: intent.isModification,
+          action: intent.action,
+          confidence: intent.confidence,
+        });
         return null;
       }
 
@@ -140,11 +155,7 @@ IMPORTANT :
 
       return intent;
     } catch (error) {
-      logger.error(
-        "Erreur lors de la détection d'intention par Gemini",
-        "poll",
-        error,
-      );
+      logger.error("Erreur lors de la détection d'intention par Gemini", "poll", error);
       return null;
     }
   }
@@ -179,10 +190,7 @@ ${questionsList}`;
   /**
    * Log un gap détecté pour améliorer les regex plus tard
    */
-  static logMissingPattern(
-    userMessage: string,
-    detectedIntent: AIIntentResult,
-  ): void {
+  static logMissingPattern(userMessage: string, detectedIntent: AIIntentResult): void {
     logger.info("📊 GAP DÉTECTÉ - Pattern regex manquant", "poll", {
       message: userMessage,
       action: detectedIntent.action,

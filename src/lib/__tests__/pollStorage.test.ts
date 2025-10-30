@@ -140,9 +140,7 @@ describe("pollStorage", () => {
 
     const all = getAllPolls();
     expect(all.find((p) => p.id === "d1")).toBeTruthy();
-    expect(
-      all.find((p) => p.id === "f1" && (p as any).type === "form"),
-    ).toBeTruthy();
+    expect(all.find((p) => p.id === "f1" && (p as any).type === "form")).toBeTruthy();
   });
 
   it("migrateFormDraftsIntoUnified should merge doodates_form_polls into doodates_polls on read", () => {
@@ -155,10 +153,7 @@ describe("pollStorage", () => {
         status: "draft",
       },
     ];
-    window.localStorage.setItem(
-      "doodates_form_polls",
-      JSON.stringify(legacyForms),
-    );
+    window.localStorage.setItem("doodates_form_polls", JSON.stringify(legacyForms));
 
     // Initially unified is empty
     expect(window.localStorage.getItem("doodates_polls")).toBeNull();

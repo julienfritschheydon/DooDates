@@ -229,9 +229,7 @@ describe("pollReducer", () => {
         ...mockPoll,
         settings: {
           timeSlotsByDate: {
-            "2025-10-28": [
-              { hour: 14, minute: 0, duration: 60, enabled: true },
-            ],
+            "2025-10-28": [{ hour: 14, minute: 0, duration: 60, enabled: true }],
           },
         } as any,
       };

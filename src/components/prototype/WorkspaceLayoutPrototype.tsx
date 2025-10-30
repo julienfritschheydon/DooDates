@@ -10,9 +10,9 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useConversation } from "./ConversationProvider";
-import GeminiChatInterface, {
-  type GeminiChatHandle,
-} from "../GeminiChatInterface";
+import { useEditorState, useEditorActions } from "./EditorStateProvider";
+import { useUIState } from "./UIStateProvider";
+import GeminiChatInterface, { type GeminiChatHandle } from "../GeminiChatInterface";
 import { PollPreview } from "./PollPreview";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getAllPolls, type Poll } from "../../lib/pollStorage";
@@ -32,8 +32,7 @@ function findRelatedConversation(poll: Poll): string | undefined {
     const match = conversations.find((conv) => {
       const metadata = conv.metadata as any;
       return (
-        metadata?.pollGenerated &&
-        metadata?.pollTitle?.toLowerCase() === poll.title.toLowerCase()
+        metadata?.pollGenerated && metadata?.pollTitle?.toLowerCase() === poll.title.toLowerCase()
       );
     });
     return match?.id;
@@ -63,20 +62,15 @@ export function WorkspaceLayoutPrototype() {
   const newChatTimestamp = searchParams.get("new");
   const chatKey = resumeId || newChatTimestamp || "new-chat";
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
-  const [conversations, setConversations] = useState<
-    ReturnType<typeof getConversations>
-  >([]);
-  const {
-    isEditorOpen,
-    currentPoll,
-    closeEditor,
-    openEditor,
-    createPollFromChat,
-    clearConversation,
-    isMobile,
-    isSidebarOpen,
-    setSidebarOpen,
-  } = useConversation();
+  const [conversations, setConversations] = useState<ReturnType<typeof getConversations>>([]);
+
+  // Nouveaux hooks spécialisés
+  const { isEditorOpen, currentPoll } = useEditorState();
+  const { openEditor, closeEditor, setCurrentPoll, createPollFromChat } = useEditorActions();
+  const { isMobile, isSidebarOpen, setIsSidebarOpen } = useUIState();
+
+  // Hook legacy pour clearConversation (non migré)
+  const { clearConversation } = useConversation();
 
   // Basculer automatiquement sur preview mobile quand l'éditeur s'ouvre/ferme
   useEffect(() => {
@@ -119,18 +113,14 @@ export function WorkspaceLayoutPrototype() {
 
       const sorted = uniquePolls
         .filter((p) => p.created_at)
-        .sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        )
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, 5);
       setRecentPolls(sorted);
 
       // Charger conversations
       const convs = getConversations();
       const sortedConvs = convs.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
       setConversations(sortedConvs);
     } catch (error) {
@@ -140,15 +130,10 @@ export function WorkspaceLayoutPrototype() {
 
   return (
     <>
-      <div
-        className={`flex h-screen bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : ""}`}
-      >
+      <div className={`flex h-screen bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : ""}`}>
         {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur */}
         {isSidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsSidebarOpen(false)} />
         )}
 
         {/* Sidebar gauche - Mode overlay pour tous les écrans */}
@@ -160,7 +145,7 @@ export function WorkspaceLayoutPrototype() {
           {/* Bouton fermer en haut de la sidebar */}
           <div className="p-4">
             <button
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => setIsSidebarOpen(false)}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               aria-label="Fermer le menu"
               title="Fermer le menu"
@@ -174,13 +159,10 @@ export function WorkspaceLayoutPrototype() {
               <div className="px-4 pb-4 space-y-2">
                 <button
                   onClick={() => {
-                    // Tout réinitialiser (messages + poll)
-                    clearConversation();
-                    // Créer une nouvelle conversation en naviguant vers /workspace sans paramètre resume
                     // Ajouter un timestamp pour forcer le remontage du composant GeminiChatInterface
-                    navigate(`/workspace?new=${Date.now()}`);
+                    navigate(`/?new=${Date.now()}`);
                     // Fermer la sidebar sur mobile
-                    if (isMobile) setSidebarOpen(false);
+                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg transition-colors font-medium"
                 >
@@ -191,7 +173,7 @@ export function WorkspaceLayoutPrototype() {
                 <button
                   onClick={() => {
                     navigate("/create");
-                    if (isMobile) setSidebarOpen(false);
+                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
@@ -202,16 +184,11 @@ export function WorkspaceLayoutPrototype() {
                 <button
                   onClick={() => {
                     navigate("/dashboard");
-                    if (isMobile) setSidebarOpen(false);
+                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -247,12 +224,13 @@ export function WorkspaceLayoutPrototype() {
                           onClick={() => {
                             // Si la conversation a un poll associé, l'ouvrir aussi
                             if (relatedPoll) {
-                              openEditor(relatedPoll);
+                              setCurrentPoll(relatedPoll as any);
+                              openEditor();
                             }
 
-                            navigate(`/workspace?resume=${conv.id}`);
+                            navigate(`/?resume=${conv.id}`);
                             // Fermer la sidebar sur mobile
-                            if (isMobile) setSidebarOpen(false);
+                            if (isMobile) setIsSidebarOpen(false);
                           }}
                           className="w-full flex items-start gap-3 p-3 hover:bg-[#2a2a2a] rounded-lg transition-colors text-left mb-1"
                         >
@@ -274,10 +252,8 @@ export function WorkspaceLayoutPrototype() {
                                   <Calendar className="w-3 h-3 text-gray-500 flex-shrink-0" />
                                 )}
                                 <p className="text-xs text-gray-500 truncate">
-                                  {relatedPoll.type === "form"
-                                    ? "Formulaire"
-                                    : "Sondage"}{" "}
-                                  : {relatedPoll.title}
+                                  {relatedPoll.type === "form" ? "Formulaire" : "Sondage"} :{" "}
+                                  {relatedPoll.title}
                                 </p>
                               </div>
                             )}
@@ -337,7 +313,7 @@ export function WorkspaceLayoutPrototype() {
             <div className="flex items-center gap-3">
               {/* Bouton hamburger (mobile + desktop pour replier sidebar) */}
               <button
-                onClick={() => setSidebarOpen(!isSidebarOpen)}
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                 aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
               >
@@ -435,9 +411,7 @@ export function WorkspaceLayoutPrototype() {
                             if (e.key === "Enter" && !e.shiftKey) {
                               e.preventDefault();
                               if (previewInputValue.trim() && chatRef.current) {
-                                chatRef.current.submitMessage(
-                                  previewInputValue,
-                                );
+                                chatRef.current.submitMessage(previewInputValue);
                                 setPreviewInputValue("");
                               }
                             }

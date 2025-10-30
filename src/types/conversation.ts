@@ -31,8 +31,7 @@ export const CONVERSATION_LIMITS = {
 // BASE TYPES
 // ============================================================================
 
-export type ConversationStatus =
-  (typeof CONVERSATION_STATUS)[keyof typeof CONVERSATION_STATUS];
+export type ConversationStatus = (typeof CONVERSATION_STATUS)[keyof typeof CONVERSATION_STATUS];
 export type MessageRole = (typeof MESSAGE_ROLE)[keyof typeof MESSAGE_ROLE];
 export type StorageProvider = "localStorage" | "supabase";
 
@@ -242,28 +241,16 @@ export const ConversationErrorFactory = {
     ),
 
   notFound: (conversationId: string) =>
-    ErrorFactory.storage(
-      `Conversation not found: ${conversationId}`,
-      `Conversation non trouvée`,
-    ),
+    ErrorFactory.storage(`Conversation not found: ${conversationId}`, `Conversation non trouvée`),
 
   invalidRole: (role: string) =>
-    ErrorFactory.validation(
-      `Invalid message role: ${role}`,
-      `Rôle de message invalide`,
-    ),
+    ErrorFactory.validation(`Invalid message role: ${role}`, `Rôle de message invalide`),
 
   storageFull: () =>
-    ErrorFactory.storage(
-      "Storage capacity exceeded",
-      "Capacité de stockage dépassée",
-    ),
+    ErrorFactory.storage("Storage capacity exceeded", "Capacité de stockage dépassée"),
 
   migrationFailed: (reason: string) =>
-    ErrorFactory.storage(
-      `Migration failed: ${reason}`,
-      "Échec de la migration",
-    ),
+    ErrorFactory.storage(`Migration failed: ${reason}`, "Échec de la migration"),
 
   syncConflict: (conversationId: string) =>
     ErrorFactory.storage(
@@ -272,10 +259,7 @@ export const ConversationErrorFactory = {
     ),
 
   corruptedData: (details: string) =>
-    ErrorFactory.storage(
-      `Corrupted data detected: ${details}`,
-      "Données corrompues détectées",
-    ),
+    ErrorFactory.storage(`Corrupted data detected: ${details}`, "Données corrompues détectées"),
 };
 
 // ============================================================================
@@ -307,12 +291,8 @@ export interface ConversationListItem extends Omit<Conversation, "metadata"> {
 // TYPE GUARDS
 // ============================================================================
 
-export function isValidConversationStatus(
-  status: string,
-): status is ConversationStatus {
-  return Object.values(CONVERSATION_STATUS).includes(
-    status as ConversationStatus,
-  );
+export function isValidConversationStatus(status: string): status is ConversationStatus {
+  return Object.values(CONVERSATION_STATUS).includes(status as ConversationStatus);
 }
 
 export function isValidMessageRole(role: string): role is MessageRole {

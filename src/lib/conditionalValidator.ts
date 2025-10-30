@@ -104,9 +104,7 @@ export function valueContainedInOptions(
   if (!question || !question.options) return true; // Pour texte libre, pas de validation
 
   // Vérifier si au moins une option contient la valeur recherchée
-  return question.options.some((opt) =>
-    opt.label.toLowerCase().includes(value.toLowerCase()),
-  );
+  return question.options.some((opt) => opt.label.toLowerCase().includes(value.toLowerCase()));
 }
 
 /**
@@ -136,9 +134,7 @@ export function validateConditionalRules(
     }
 
     if (!dependsOnQuestion) {
-      errors.push(
-        `Règle "${question.title}" : question dépendante ${rule.dependsOn} introuvable`,
-      );
+      errors.push(`Règle "${question.title}" : question dépendante ${rule.dependsOn} introuvable`);
       continue;
     }
 
@@ -149,16 +145,12 @@ export function validateConditionalRules(
 
     // Vérifier que la dépendance est avant
     if (!dependsOnPreviousQuestion(rules, questions, rule.questionId)) {
-      errors.push(
-        `Règle "${question.title}" : doit dépendre d'une question précédente`,
-      );
+      errors.push(`Règle "${question.title}" : doit dépendre d'une question précédente`);
     }
 
     // Vérifier que les valeurs existent
     if (rule.showIf.operator === "equals" && rule.showIf.value) {
-      const value = Array.isArray(rule.showIf.value)
-        ? rule.showIf.value[0]
-        : rule.showIf.value;
+      const value = Array.isArray(rule.showIf.value) ? rule.showIf.value[0] : rule.showIf.value;
       if (!valueExistsInOptions(rule.dependsOn, value, questions)) {
         errors.push(
           `Règle "${question.title}" : valeur "${value}" introuvable dans "${dependsOnQuestion.title}"`,
@@ -167,9 +159,7 @@ export function validateConditionalRules(
     }
 
     if (rule.showIf.operator === "notEquals" && rule.showIf.value) {
-      const value = Array.isArray(rule.showIf.value)
-        ? rule.showIf.value[0]
-        : rule.showIf.value;
+      const value = Array.isArray(rule.showIf.value) ? rule.showIf.value[0] : rule.showIf.value;
       if (!valueExistsInOptions(rule.dependsOn, value, questions)) {
         errors.push(
           `Règle "${question.title}" : valeur "${value}" introuvable dans "${dependsOnQuestion.title}"`,
@@ -178,9 +168,7 @@ export function validateConditionalRules(
     }
 
     if (rule.showIf.operator === "contains" && rule.showIf.value) {
-      const values = Array.isArray(rule.showIf.value)
-        ? rule.showIf.value
-        : [rule.showIf.value];
+      const values = Array.isArray(rule.showIf.value) ? rule.showIf.value : [rule.showIf.value];
       for (const value of values) {
         // Pour "contains", vérifier correspondance partielle
         if (!valueContainedInOptions(rule.dependsOn, value, questions)) {

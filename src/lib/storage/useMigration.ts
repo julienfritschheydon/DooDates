@@ -11,8 +11,9 @@ import { handleError, ErrorFactory, logError } from "../error-handling";
  * Provides migration status, progress tracking, and control functions
  */
 export function useMigration(supabaseUrl: string, supabaseKey: string) {
-  const [migrationService, setMigrationService] =
-    useState<ConversationMigrationService | null>(null);
+  const [migrationService, setMigrationService] = useState<ConversationMigrationService | null>(
+    null,
+  );
   const [progress, setProgress] = useState<MigrationProgress | null>(null);
   const [result, setResult] = useState<MigrationResult | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -28,36 +29,32 @@ export function useMigration(supabaseUrl: string, supabaseKey: string) {
 
         if (needed) {
           // Create migration service with progress callbacks
-          const service = new ConversationMigrationService(
-            supabaseUrl,
-            supabaseKey,
-            {
-              batchSize: 5,
-              validateBeforeUpload: true,
-              enableRollback: true,
-              retryAttempts: 3,
-              retryDelay: 1000,
-              onProgress: (progressUpdate) => {
-                setProgress(progressUpdate);
-              },
-              onError: (error) => {
-                logError(
-                  handleError(
-                    error,
-                    {
-                      component: "useMigration",
-                      operation: "migration",
-                    },
-                    "Erreur durant la migration",
-                  ),
-                  { component: "useMigration", operation: "migration" },
-                );
-              },
-              onComplete: (migrationResult) => {
-                setResult(migrationResult);
-              },
+          const service = new ConversationMigrationService(supabaseUrl, supabaseKey, {
+            batchSize: 5,
+            validateBeforeUpload: true,
+            enableRollback: true,
+            retryAttempts: 3,
+            retryDelay: 1000,
+            onProgress: (progressUpdate) => {
+              setProgress(progressUpdate);
             },
-          );
+            onError: (error) => {
+              logError(
+                handleError(
+                  error,
+                  {
+                    component: "useMigration",
+                    operation: "migration",
+                  },
+                  "Erreur durant la migration",
+                ),
+                { component: "useMigration", operation: "migration" },
+              );
+            },
+            onComplete: (migrationResult) => {
+              setResult(migrationResult);
+            },
+          });
 
           setMigrationService(service);
         }
@@ -83,31 +80,30 @@ export function useMigration(supabaseUrl: string, supabaseKey: string) {
   }, [supabaseUrl, supabaseKey]);
 
   // Start migration
-  const startMigration =
-    useCallback(async (): Promise<MigrationResult | null> => {
-      if (!migrationService) {
-        console.warn("Migration service not initialized");
-        return null;
-      }
+  const startMigration = useCallback(async (): Promise<MigrationResult | null> => {
+    if (!migrationService) {
+      console.warn("Migration service not initialized");
+      return null;
+    }
 
-      try {
-        const migrationResult = await migrationService.migrate();
-        return migrationResult;
-      } catch (error) {
-        logError(
-          handleError(
-            error,
-            {
-              component: "useMigration",
-              operation: "startMigration",
-            },
-            "Échec du démarrage de la migration",
-          ),
-          { component: "useMigration", operation: "startMigration" },
-        );
-        return null;
-      }
-    }, [migrationService]);
+    try {
+      const migrationResult = await migrationService.migrate();
+      return migrationResult;
+    } catch (error) {
+      logError(
+        handleError(
+          error,
+          {
+            component: "useMigration",
+            operation: "startMigration",
+          },
+          "Échec du démarrage de la migration",
+        ),
+        { component: "useMigration", operation: "startMigration" },
+      );
+      return null;
+    }
+  }, [migrationService]);
 
   // Cancel migration
   const cancelMigration = useCallback(() => {
@@ -162,9 +158,7 @@ export function useMigration(supabaseUrl: string, supabaseKey: string) {
 
     // Detailed progress info
     conversationProgress: progress
-      ? Math.round(
-          (progress.processedConversations / progress.totalConversations) * 100,
-        )
+      ? Math.round((progress.processedConversations / progress.totalConversations) * 100)
       : 0,
     messageProgress: progress
       ? Math.round((progress.processedMessages / progress.totalMessages) * 100)

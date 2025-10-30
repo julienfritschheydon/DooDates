@@ -121,8 +121,7 @@ const ProgressBar: React.FC<{
   const { color, colorLight } = config[type];
 
   // Calcul des pourcentages
-  const existingPercentage =
-    totalExisting > 0 ? (existingCount / totalExisting) * 100 : 0;
+  const existingPercentage = totalExisting > 0 ? (existingCount / totalExisting) * 100 : 0;
   const withUserPercentage =
     totalExisting > 0
       ? ((existingCount + (userVote === type && userHasVoted ? 1 : 0)) /
@@ -165,15 +164,7 @@ const OptionCard: React.FC<{
   onVoteChange: (value: "yes" | "no" | "maybe") => void;
   onHaptic: (type: "light" | "medium" | "heavy") => void;
   rank?: number;
-}> = ({
-  option,
-  currentVote,
-  userHasVoted,
-  voteCounts,
-  onVoteChange,
-  onHaptic,
-  rank,
-}) => {
+}> = ({ option, currentVote, userHasVoted, voteCounts, onVoteChange, onHaptic, rank }) => {
   const [isDragging, setIsDragging] = useState(false);
 
   // Format de la date (éviter les décalages timezone)
@@ -217,9 +208,7 @@ const OptionCard: React.FC<{
       }
 
       const slotDuration = slot.duration || 30; // Durée par défaut de 30 minutes
-      const endHour = Math.floor(
-        (slot.hour * 60 + slot.minute + slotDuration) / 60,
-      );
+      const endHour = Math.floor((slot.hour * 60 + slot.minute + slotDuration) / 60);
       const endMinute = (slot.hour * 60 + slot.minute + slotDuration) % 60;
 
       if (!currentGroup) {
@@ -232,8 +221,7 @@ const OptionCard: React.FC<{
         };
       } else {
         // Vérifier si ce créneau est consécutif au précédent
-        const currentEndTime =
-          currentGroup.endHour * 60 + currentGroup.endMinute;
+        const currentEndTime = currentGroup.endHour * 60 + currentGroup.endMinute;
         const slotStartTime = slot.hour * 60 + slot.minute;
 
         if (slotStartTime <= currentEndTime + 15) {
@@ -269,9 +257,7 @@ const OptionCard: React.FC<{
       });
     }
 
-    return groupedSlots
-      .map((group) => `${group.start} - ${group.end}`)
-      .join(", ");
+    return groupedSlots.map((group) => `${group.start} - ${group.end}`).join(", ");
   };
 
   // Gestion des gestes de swipe
@@ -466,9 +452,7 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
     return (
       <div className="text-center py-12">
         <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500">
-          Aucune option disponible pour ce sondage.
-        </p>
+        <p className="text-gray-500">Aucune option disponible pour ce sondage.</p>
       </div>
     );
   }
@@ -480,9 +464,7 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
   }));
 
   // Trier par score décroissant
-  const sortedOptions = [...optionsWithScores].sort(
-    (a, b) => b.score - a.score,
-  );
+  const sortedOptions = [...optionsWithScores].sort((a, b) => b.score - a.score);
 
   // Créer un map des rangs
   const rankMap = new Map<string, number>();
@@ -496,15 +478,9 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
   });
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-4"
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-white">
-          Options disponibles
-        </h2>
+        <h2 className="text-lg font-semibold text-white">Options disponibles</h2>
         <div className="text-sm text-gray-400">Swipez pour voter</div>
       </div>
 
@@ -537,8 +513,8 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
         className="bg-blue-50 rounded-xl p-3 text-center"
       >
         <p className="text-xs text-blue-600">
-          💡 <span className="font-medium">Astuce :</span> Glissez vers la
-          droite pour "Oui", vers la gauche pour "Non"
+          💡 <span className="font-medium">Astuce :</span> Glissez vers la droite pour "Oui", vers
+          la gauche pour "Non"
         </p>
       </motion.div>
     </motion.div>

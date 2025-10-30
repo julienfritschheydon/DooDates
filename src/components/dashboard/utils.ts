@@ -2,9 +2,7 @@ import { DashboardPoll, ConversationItem, FilterType } from "./types";
 import { getConversations } from "@/lib/storage/ConversationStorageSimple";
 
 // Trouver la conversation liée à un sondage
-export function findRelatedConversation(
-  poll: DashboardPoll,
-): string | undefined {
+export function findRelatedConversation(poll: DashboardPoll): string | undefined {
   if (poll.relatedConversationId) return poll.relatedConversationId;
 
   try {
@@ -59,8 +57,7 @@ export function filterConversationItems(
 ): ConversationItem[] {
   return items.filter((item) => {
     // Filtre par statut (appliqué au poll si existe)
-    const matchesFilter =
-      filter === "all" || !item.poll || item.poll.status === filter;
+    const matchesFilter = filter === "all" || !item.poll || item.poll.status === filter;
 
     // Recherche dans le titre de la conversation et du poll
     const searchLower = searchQuery.toLowerCase();

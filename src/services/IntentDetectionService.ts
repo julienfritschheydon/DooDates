@@ -18,8 +18,7 @@ import { formatDateLocal } from "../lib/date-utils";
 // Patterns de détection
 const PATTERNS = {
   // "ajoute/ajouter [jour de la semaine]"
-  ADD_DAY:
-    /ajout(?:e|er)\s+(le\s+)?(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/i,
+  ADD_DAY: /ajout(?:e|er)\s+(le\s+)?(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/i,
 
   // "ajoute/ajouter [date]" - Formats multiples
   ADD_DATE:
@@ -49,8 +48,7 @@ const PATTERNS = {
     /ajout(?:e|er)\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)\s+de\s+(\d{1,2})h?(\d{2})?\s+[àa]\s+(\d{1,2})h?(\d{2})?/i,
 
   // "ajoute [heure] le [date]" (sans heure de fin - durée 1h par défaut)
-  TIMESLOT_4:
-    /ajout(?:e|er)\s+(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i,
+  TIMESLOT_4: /ajout(?:e|er)\s+(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i,
 } as const;
 
 // Mapping jours de la semaine
@@ -100,10 +98,7 @@ export class IntentDetectionService {
    * Infère la date complète à partir d'un jour seul en utilisant le contexte du sondage
    * Ex: "3" + poll contient ["2025-11-03", "2025-11-04"] → "2025-11-03"
    */
-  private static inferDateFromContext(
-    dayStr: string,
-    currentPoll: Poll | null,
-  ): string | null {
+  private static inferDateFromContext(dayStr: string, currentPoll: Poll | null): string | null {
     if (!currentPoll || !currentPoll.dates || currentPoll.dates.length === 0) {
       return null;
     }
@@ -122,10 +117,7 @@ export class IntentDetectionService {
   /**
    * Normalise une date string en YYYY-MM-DD avec contexte du sondage
    */
-  private static normalizeDateString(
-    dateStr: string,
-    currentPoll: Poll | null,
-  ): string | null {
+  private static normalizeDateString(dateStr: string, currentPoll: Poll | null): string | null {
     // Format : DD mois YYYY (ex: 27 octobre 2025)
     const monthTextMatch = dateStr.match(
       /(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{4})/i,
@@ -247,9 +239,7 @@ export class IntentDetectionService {
   /**
    * Parse un créneau horaire avec Chrono.js - Pour migration future
    */
-  private static parseTimeRange(
-    text: string,
-  ): { start: Date; end: Date } | null {
+  private static parseTimeRange(text: string): { start: Date; end: Date } | null {
     const results = frParser.parse(text);
     if (results.length > 0 && results[0].start && results[0].end) {
       return {
@@ -260,10 +250,7 @@ export class IntentDetectionService {
     return null;
   }
 
-  static detectSimpleIntent(
-    message: string,
-    currentPoll: Poll | null,
-  ): ModificationIntent | null {
+  static detectSimpleIntent(message: string, currentPoll: Poll | null): ModificationIntent | null {
     if (!currentPoll) return null;
 
     // Pattern ADD_TIMESLOT : Tester tous les formats - DOIT ÊTRE TESTÉ EN PREMIER
@@ -272,61 +259,22 @@ export class IntentDetectionService {
     // Pattern 1 : "ajoute 14h-15h le 29"
     let timeslotMatch = message.match(PATTERNS.TIMESLOT_1);
     if (timeslotMatch) {
-      const [
-        ,
-        startHour,
-        startMinute = "00",
-        endHour,
-        endMinute = "00",
-        dateStr,
-      ] = timeslotMatch;
-      return this.buildTimeslotIntent(
-        dateStr,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute,
-      );
+      const [, startHour, startMinute = "00", endHour, endMinute = "00", dateStr] = timeslotMatch;
+      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute);
     }
 
     // Pattern 2 : "ajoute de 14h à 15h le 29"
     timeslotMatch = message.match(PATTERNS.TIMESLOT_2);
     if (timeslotMatch) {
-      const [
-        ,
-        startHour,
-        startMinute = "00",
-        endHour,
-        endMinute = "00",
-        dateStr,
-      ] = timeslotMatch;
-      return this.buildTimeslotIntent(
-        dateStr,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute,
-      );
+      const [, startHour, startMinute = "00", endHour, endMinute = "00", dateStr] = timeslotMatch;
+      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute);
     }
 
     // Pattern 3 : "ajoute le 29 de 14h à 15h"
     timeslotMatch = message.match(PATTERNS.TIMESLOT_3);
     if (timeslotMatch) {
-      const [
-        ,
-        dateStr,
-        startHour,
-        startMinute = "00",
-        endHour,
-        endMinute = "00",
-      ] = timeslotMatch;
-      return this.buildTimeslotIntent(
-        dateStr,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute,
-      );
+      const [, dateStr, startHour, startMinute = "00", endHour, endMinute = "00"] = timeslotMatch;
+      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute);
     }
 
     // Pattern 4 : "ajoute 14h le 29" (durée 1h par défaut)
@@ -335,13 +283,7 @@ export class IntentDetectionService {
       const [, startHour, startMinute = "00", dateStr] = timeslotMatch;
       const endHour = String(parseInt(startHour) + 1); // +1h par défaut
       const endMinute = startMinute;
-      return this.buildTimeslotIntent(
-        dateStr,
-        startHour,
-        startMinute,
-        endHour,
-        endMinute,
-      );
+      return this.buildTimeslotIntent(dateStr, startHour, startMinute, endHour, endMinute);
     }
 
     // Pattern 2 : "ajoute/ajouter [jour de la semaine]"

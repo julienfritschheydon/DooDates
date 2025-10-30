@@ -52,10 +52,7 @@ export class EmailService {
   /**
    * Envoie un email de confirmation de création de sondage
    */
-  static async sendPollCreatedEmail(
-    poll: Poll,
-    creatorEmail: string,
-  ): Promise<void> {
+  static async sendPollCreatedEmail(poll: Poll, creatorEmail: string): Promise<void> {
     if (!creatorEmail) {
       console.warn("⚠️ [EmailService] Pas d'email créateur fourni");
       return;
@@ -75,10 +72,7 @@ export class EmailService {
   /**
    * Envoie un email de confirmation de vote
    */
-  static async sendVoteConfirmationEmail(
-    poll: Poll,
-    vote: Vote,
-  ): Promise<void> {
+  static async sendVoteConfirmationEmail(poll: Poll, vote: Vote): Promise<void> {
     if (!vote.email) {
       console.warn("⚠️ [EmailService] Pas d'email votant fourni");
       return;
@@ -125,11 +119,7 @@ export class EmailService {
   /**
    * Envoie les emails de confirmation et notification en batch
    */
-  static async sendVoteEmails(
-    poll: Poll,
-    vote: Vote,
-    totalVotes: number,
-  ): Promise<void> {
+  static async sendVoteEmails(poll: Poll, vote: Vote, totalVotes: number): Promise<void> {
     const promises: Promise<void>[] = [];
 
     // Email de confirmation au votant
