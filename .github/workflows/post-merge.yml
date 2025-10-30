@@ -43,7 +43,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `🚨 Post-Merge Smoke Tests Failed on Main Branch`,
-              body: `## ❌ Tests Critiques Échoués Après Merge
+              body: `## Tests Critiques Échoués Après Merge
               
 **URGENT:** Les tests smoke ont échoué sur la branche main après un merge.
 
