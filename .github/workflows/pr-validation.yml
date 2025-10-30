@@ -246,7 +246,7 @@ jobs:
   validation-summary:
     needs: [quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix]
     runs-on: ubuntu-latest
-    if: always()
+    if: always() && github.event_name == 'pull_request'
 
     steps:
       - name: 📊 Validation Summary
