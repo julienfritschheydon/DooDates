@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:e2e": "vite --mode test",
     "dev:mobile": "vite --host",
     "build": "tsc && vite build",
     "build:dev": "npm update caniuse-lite && vite build --mode development",

@@ -264,7 +264,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
             console.log("✅ PollId sauvegardé dans conversation:", poll.id);
           }
         } catch (error) {
-          console.warn("⚠️ Impossible de mettre à jour la conversation avec pollId:", error);
+          logError(ErrorFactory.storage("Impossible de mettre à jour la conversation avec pollId", "Erreur de sauvegarde"), { metadata: { error } });
         }
       }
     } catch (error) {

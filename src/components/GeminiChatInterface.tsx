@@ -538,7 +538,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                       openEditor();
                     }
                   } catch (error) {
-                    console.error("❌ Erreur lors du chargement du poll:", error);
+                    logError(ErrorFactory.storage("Erreur lors du chargement du poll", "Impossible de charger le sondage"), { metadata: { error } });
                   }
                 }
               }

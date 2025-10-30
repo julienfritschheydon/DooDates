@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { logError, ErrorFactory } from "@/lib/error-handling";
 
 // Types pour Web Speech API (non inclus dans TypeScript par défaut)
 interface SpeechRecognitionEvent extends Event {
@@ -136,7 +137,7 @@ export function useVoiceRecognition(
           try {
             recognition.start();
           } catch (error) {
-            console.warn("⚠️ Impossible de redémarrer:", error);
+            logError(ErrorFactory.api("Impossible de redémarrer la reconnaissance vocale", "Erreur de redémarrage"), { metadata: { error } });
           }
         }, 300); // Délai pour laisser le temps à la transcription finale
       } else {
@@ -145,7 +146,7 @@ export function useVoiceRecognition(
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error("❌ Erreur reconnaissance vocale:", event.error);
+      logError(ErrorFactory.api(`Erreur reconnaissance vocale: ${event.error}`, "Erreur de reconnaissance"), { metadata: { errorType: event.error } });
 
       // Ignorer l'erreur "no-speech" (silence normal, pas une vraie erreur)
       if (event.error === "no-speech") {
@@ -229,7 +230,7 @@ export function useVoiceRecognition(
     try {
       recognition.start();
     } catch (err) {
-      console.error("Erreur démarrage reconnaissance:", err);
+      logError(ErrorFactory.api("Erreur démarrage reconnaissance vocale", "Impossible de démarrer"), { metadata: { error: err } });
       setError("Impossible de démarrer la reconnaissance vocale");
     }
   }, [isListening]);
@@ -244,7 +245,7 @@ export function useVoiceRecognition(
     try {
       recognition.stop();
     } catch (err) {
-      console.error("Erreur arrêt reconnaissance:", err);
+      logError(ErrorFactory.api("Erreur arrêt reconnaissance vocale", "Impossible d'arrêter"), { metadata: { error: err } });
     }
   }, []);
 
