@@ -51,7 +51,7 @@ export interface EnhancedGeminiResponse {
 export class EnhancedGeminiService {
   private static instance: EnhancedGeminiService;
   private genAI: GoogleGenerativeAI | null = null;
-  private model: GenerativeModel | null = null;
+  public model: GenerativeModel | null = null;
   private calendarQuery: CalendarQuery;
 
   constructor() {
@@ -65,7 +65,7 @@ export class EnhancedGeminiService {
     return EnhancedGeminiService.instance;
   }
 
-  private async ensureInitialized(): Promise<boolean> {
+  public async ensureInitialized(): Promise<boolean> {
     if (!this.genAI && API_KEY) {
       try {
         this.genAI = new GoogleGenerativeAI(API_KEY);

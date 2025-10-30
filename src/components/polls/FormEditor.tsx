@@ -155,7 +155,7 @@ export default function FormEditor({
   );
 
   return (
-    <div className="flex flex-col gap-6 py-4">
+    <div className="flex flex-col gap-3">
       {/* Section titre - MÊME STYLE QUE POLLCREATOR */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">

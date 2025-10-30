@@ -243,9 +243,18 @@ export function getPollBySlugOrId(idOrSlug: string | undefined | null): Poll | n
 export function addPoll(poll: Poll): void {
   // Validation écriture: empêcher l'enregistrement d'un sondage invalide
   validatePoll(poll);
-  // Ajouter dans l'ensemble unifié (ne pas perdre les polls de type "form")
+  // Ajouter ou remplacer dans l'ensemble unifié
   const polls = getAllPolls();
-  polls.push(poll);
+  const existingIndex = polls.findIndex(p => p.id === poll.id);
+  
+  if (existingIndex >= 0) {
+    // Remplacer le poll existant
+    polls[existingIndex] = poll;
+  } else {
+    // Ajouter un nouveau poll
+    polls.push(poll);
+  }
+  
   savePolls(polls);
   // Mettre à jour le cache mémoire pour robustesse (tests/concurrence)
   memoryPollCache.set(poll.id, poll);

@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useConversation } from "./ConversationProvider";
-import { useEditorState } from "./EditorStateProvider";
+import { useEditorState, useEditorActions } from "./EditorStateProvider";
 import { useUIState } from "./UIStateProvider";
 import GeminiChatInterface, { type GeminiChatHandle } from "../GeminiChatInterface";
 import { PollPreview } from "./PollPreview";
@@ -159,11 +159,8 @@ export function WorkspaceLayoutPrototype() {
               <div className="px-4 pb-4 space-y-2">
                 <button
                   onClick={() => {
-                    // Tout réinitialiser (messages + poll)
-                    clearConversation();
-                    // Créer une nouvelle conversation en naviguant vers /workspace sans paramètre resume
                     // Ajouter un timestamp pour forcer le remontage du composant GeminiChatInterface
-                    navigate(`/workspace?new=${Date.now()}`);
+                    navigate(`/?new=${Date.now()}`);
                     // Fermer la sidebar sur mobile
                     if (isMobile) setIsSidebarOpen(false);
                   }}
@@ -231,7 +228,7 @@ export function WorkspaceLayoutPrototype() {
                               openEditor();
                             }
 
-                            navigate(`/workspace?resume=${conv.id}`);
+                            navigate(`/?resume=${conv.id}`);
                             // Fermer la sidebar sur mobile
                             if (isMobile) setIsSidebarOpen(false);
                           }}

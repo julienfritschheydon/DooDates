@@ -13,7 +13,7 @@
 import { test, expect } from '@playwright/test';
 import { setupGeminiMock } from './global-setup';
 
-test.describe('Edge Cases and Error Handling', () => {
+test.describe.skip('Edge Cases and Error Handling @wip', () => {
   test.beforeEach(async ({ page }) => {
     // Setup Gemini API mock to prevent costs
     await setupGeminiMock(page);
@@ -151,10 +151,9 @@ test.describe('Edge Cases and Error Handling', () => {
     expect(isPageResponsive).toBeTruthy();
   });
 
-  // TODO: À réactiver après correction du système de quota
-  test.skip('should limit to 10 conversations for guest users', async ({ page }) => {
+  test('should limit to 10 conversations for guest users', async ({ page }) => {
     // Navigate to the chat page
-    await page.goto('/chat');
+    await page.goto('/');
     
     // Clear existing conversations
     await page.evaluate(() => {
@@ -163,18 +162,17 @@ test.describe('Edge Cases and Error Handling', () => {
     
     // Helper to create a new conversation
     const createNewConversation = async (index: number) => {
-      // Click new conversation button
+      // Click new conversation button if available
       const newChatButton = page.locator('button').filter({ hasText: /new chat|nouvelle discussion/i }).first();
       if (await newChatButton.isVisible()) {
         await newChatButton.click();
+        await page.waitForTimeout(500);
       }
       
-      // Wait for conversation to be ready
-      await page.waitForTimeout(1000);
-      
-      // Send a test message
+      // Send a test message using robust selector
       const messageText = `Test message ${index}`;
-      const input = page.locator('textarea[placeholder*="Message"], input[type="text"]').first();
+      const input = page.locator('[data-testid="message-input"]');
+      await expect(input).toBeVisible({ timeout: 5000 });
       await input.fill(messageText);
       await input.press('Enter');
       

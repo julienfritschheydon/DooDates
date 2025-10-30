@@ -314,24 +314,10 @@ export default function FormPollCreator({
 
   return (
     <div className="bg-[#0a0a0a]" data-form-container>
-      <div className="px-4 md:px-6 pb-4">
+      <div className="px-4 md:px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-[#0a0a0a] p-4 md:p-6">
-            {/* Bouton Fermer */}
-            {onCancel && (
-              <div className="flex justify-end mb-4">
-                <button
-                  onClick={onCancel}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1e1e1e] rounded-lg transition-colors"
-                  aria-label="Fermer"
-                >
-                  <X className="w-4 h-4" />
-                  <span className="hidden sm:inline">Fermer</span>
-                </button>
-              </div>
-            )}
-
-            <div className="space-y-6">
+          <div className="bg-[#0a0a0a]">
+            <div className="space-y-4">
               <FormEditor
                 value={{
                   id: draftId,

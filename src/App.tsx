@@ -44,6 +44,7 @@ const ChatLandingPrototype = lazy(() =>
 const WorkspacePage = lazy(() =>
   import("./app/workspace/page").then((m) => ({ default: m.default })),
 );
+const Dashboard = lazy(() => import("./components/Dashboard"));
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -350,7 +351,7 @@ const App = () => {
 
                           {/* Redirections vers / */}
                           <Route path="/workspace" element={<WorkspacePage />} />
-                          <Route path="/dashboard" element={<WorkspacePage />} />
+                          <Route path="/dashboard" element={<Dashboard />} />
 
                           <Route path="/auth" element={<Auth />} />
                           <Route path="/auth/callback" element={<AuthCallback />} />

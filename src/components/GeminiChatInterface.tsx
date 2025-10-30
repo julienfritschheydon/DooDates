@@ -18,6 +18,8 @@ import {
   Check,
   MessageCircle,
   ArrowLeft,
+  Mic,
+  MicOff,
 } from "lucide-react";
 import {
   geminiService,
@@ -39,6 +41,9 @@ import { useGeminiAPI } from "../hooks/useGeminiAPI";
 import { ConversationService } from "../services/ConversationService";
 import { QuotaService, type AuthIncentiveType } from "../services/QuotaService";
 import { useQuota } from "../hooks/useQuota";
+import { useAiMessageQuota } from "../hooks/useAiMessageQuota";
+import { checkAiMessageQuota, checkPollCreationQuota, handleQuotaError } from "../services/AiQuotaService";
+import { useVoiceRecognition } from "../hooks/useVoiceRecognition";
 import AuthIncentiveModal from "./modals/AuthIncentiveModal";
 import QuotaIndicator from "./ui/QuotaIndicator";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -48,7 +53,10 @@ import { useInfiniteLoopProtection } from "../services/InfiniteLoopProtection";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "../lib/logger";
 import { useToast } from "@/hooks/use-toast";
-import { useConversationMessages, useConversationActions } from "./prototype/ConversationStateProvider";
+import {
+  useConversationMessages,
+  useConversationActions,
+} from "./prototype/ConversationStateProvider";
 import { useEditorState, useEditorActions } from "./prototype/EditorStateProvider";
 import { useUIState } from "./prototype/UIStateProvider";
 import { AIProposalFeedback } from "./polls/AIProposalFeedback";
@@ -148,9 +156,44 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     const messages = useConversationMessages();
     const { setMessages: setMessagesRaw } = useConversationActions();
     const { currentPoll } = useEditorState();
-    const { dispatchPollAction, openEditor, setCurrentPoll, createPollFromChat } =
+    const { dispatchPollAction, openEditor, setCurrentPoll, createPollFromChat, clearCurrentPoll } =
       useEditorActions();
     const { setModifiedQuestion } = useUIState();
+
+    // 🔧 FIX: Nettoyer le poll quand on démarre une NOUVELLE conversation
+    const location = useLocation();
+    const lastConversationIdRef = useRef<string | null>(null);
+    
+    // 🎯 FIX E2E: Auto-focus sur le textarea après ouverture de l'éditeur (mobile)
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    useEffect(() => {
+      if (currentPoll && textareaRef.current) {
+        // Sur mobile, quand l'éditeur s'ouvre, le focus est perdu
+        // On le remet automatiquement après un court délai
+        const timer = setTimeout(() => {
+          textareaRef.current?.focus();
+          logger.info("🎯 Auto-focus sur textarea après ouverture éditeur", "poll");
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    }, [currentPoll]); // Se déclenche quand currentPoll change (éditeur ouvert)
+    
+    useEffect(() => {
+      const urlParams = new URLSearchParams(location.search);
+      const conversationId = urlParams.get("conversationId");
+      
+      // Détecter un changement de conversation (ou passage à "nouveau chat")
+      if (conversationId !== lastConversationIdRef.current) {
+        lastConversationIdRef.current = conversationId;
+        
+        // Si pas de conversationId dans l'URL et qu'il y a un poll en mémoire, le nettoyer
+        // Cela arrive quand l'utilisateur clique sur "Nouveau chat"
+        if (!conversationId && currentPoll) {
+          logger.info("🧹 Nettoyage du poll persistant (nouveau chat détecté)", "poll");
+          clearCurrentPoll();
+        }
+      }
+    }, [location.search, currentPoll, clearCurrentPoll]); // Se déclenche quand l'URL change
 
     // Wrapper pour éviter les erreurs de type PollSuggestion (conflit gemini.ts vs ConversationService.ts)
     const setMessages = useCallback(
@@ -232,14 +275,42 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
     // Auto-save and conversation resume hooks
     const navigate = useNavigate();
-    const location = useLocation();
+    // location déjà déclaré plus haut (ligne 164)
     const autoSave = useAutoSave({
       debug: true,
     });
     const conversationResume = useConversationResume();
     const quota = useQuota();
+    const aiQuota = useAiMessageQuota(autoSave.getRealConversationId() || undefined);
     const loopProtection = useInfiniteLoopProtection("gemini-chat-interface");
     const { toast } = useToast();
+
+    // 🎤 Voice recognition
+    const voiceRecognition = useVoiceRecognition({
+      lang: 'fr-FR',
+      interimResults: true,
+      continuous: true, // Mode continu pour ne pas couper trop vite
+      onTranscriptChange: (transcript) => {
+        // Ne rien faire ici, on utilisera finalTranscript directement
+      },
+      onError: (error) => {
+        toast({
+          title: "Erreur microphone",
+          description: error,
+          variant: "destructive",
+        });
+      },
+    });
+
+    // Afficher la transcription en temps réel dans l'input
+    React.useEffect(() => {
+      if (voiceRecognition.isListening) {
+        // Pendant l'écoute : afficher interim + final
+        const fullText = voiceRecognition.finalTranscript + 
+          (voiceRecognition.interimTranscript ? ' ' + voiceRecognition.interimTranscript : '');
+        setInputValue(fullText.trim());
+      }
+    }, [voiceRecognition.isListening, voiceRecognition.finalTranscript, voiceRecognition.interimTranscript]);
 
     // Hook API Gemini
     const geminiAPI = useGeminiAPI({
@@ -435,6 +506,32 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                   "✅ Flag hasResumedConversation activé - initializeNewConversation sera bloqué",
                 );
                 // Conversation resumed successfully
+                
+                // 🔧 FIX E2E: Auto-ouvrir le poll si la conversation en contient un
+                let pollId = result.conversation.relatedPollId;
+                
+                // Si pas de relatedPollId, chercher dans les messages
+                if (!pollId) {
+                  for (const msg of chatMessages) {
+                    const suggestion = msg.pollSuggestion as any;
+                    if (suggestion?.linkedPollId) {
+                      pollId = suggestion.linkedPollId;
+                      break;
+                    }
+                  }
+                }
+                
+                if (pollId) {
+                  try {
+                    const poll = getPollBySlugOrId(pollId);
+                    if (poll) {
+                      setCurrentPoll(poll as any);
+                      openEditor();
+                    }
+                  } catch (error) {
+                    console.error("❌ Erreur lors du chargement du poll:", error);
+                  }
+                }
               }
             } else {
               // No messages found in resumed conversation
@@ -616,6 +713,13 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           return; // Modal will be shown by the quota hook
         }
 
+        // 🎯 NEW: Check AI message quota (Freemium)
+        const quotaCheck = checkAiMessageQuota(aiQuota);
+        if (!quotaCheck.canProceed) {
+          handleQuotaError(quotaCheck, quota, toast);
+          return;
+        }
+
         // 🎯 PROTOTYPE: Détecter les intentions de modification
         if (currentPoll) {
           // Essayer d'abord la détection Date Poll
@@ -742,14 +846,8 @@ Exemples de modifications supportées :
             setMessages((prev) => [...prev, userMessage]);
 
             // Dispatcher l'action
-            // Convertir questionIndex de 1-based à 0-based si nécessaire
+            // FormPollIntentService retourne déjà des index 0-based, pas besoin de conversion
             let payload = formIntent.payload;
-            if (payload.questionIndex !== undefined) {
-              payload = {
-                ...payload,
-                questionIndex: payload.questionIndex - 1, // Convertir 1-based → 0-based
-              };
-            }
 
             // Convertir title → subject pour ADD_QUESTION (compatibilité reducer)
             if (formIntent.action === "ADD_QUESTION" && payload.title) {
@@ -851,6 +949,9 @@ Exemples de modifications supportées :
         // Appel API Gemini via le hook
         const pollResponse = await geminiAPI.generatePoll(trimmedInput);
 
+        // 🎯 NEW: Incrémenter le compteur de messages IA
+        aiQuota.incrementAiMessages();
+
         // Supprimer le message de progression si présent
         if (isLongMarkdown) {
           setMessages((prev) => prev.filter((msg) => !msg.id.startsWith("progress-")));
@@ -930,14 +1031,24 @@ Exemples de modifications supportées :
       console.log("🎯 handleUsePollSuggestion appelé avec:", suggestion);
       console.log("🎯 onPollCreated existe?", !!onPollCreated);
 
+      // 🎯 NEW: Vérifier quota polls avant création
+      const pollQuotaCheck = checkPollCreationQuota(aiQuota);
+      if (!pollQuotaCheck.canProceed) {
+        handleQuotaError(pollQuotaCheck, quota, toast);
+        return;
+      }
+
+      // 🎯 NEW: Incrémenter compteur polls (poll va être créé)
+      const conversationId = autoSave.getRealConversationId() || autoSave.conversationId;
+      if (conversationId) {
+        aiQuota.incrementPollCount(conversationId);
+      }
+
       // Si on a un callback onPollCreated, l'utiliser au lieu d'afficher le créateur
       if (onPollCreated) {
         console.log("🎯 Appel de onPollCreated");
 
         // Mettre à jour l'URL avec conversationId AVANT d'appeler onPollCreated
-        const realConversationId = autoSave.getRealConversationId();
-        const conversationId = realConversationId || autoSave.conversationId;
-
         if (conversationId && !window.location.search.includes("conversationId")) {
           const newUrl = `${window.location.pathname}?conversationId=${conversationId}`;
           window.history.replaceState({}, "", newUrl);
@@ -1411,6 +1522,23 @@ Exemples de modifications supportées :
           }`}
         >
           <div className="max-w-2xl mx-auto">
+            {/* Indicateur reconnaissance vocale */}
+            {voiceRecognition.isListening && (
+              <div className="mb-2 px-4 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    <span className="text-red-600 dark:text-red-400 font-medium">Écoute en cours...</span>
+                  </div>
+                  {voiceRecognition.interimTranscript && (
+                    <span className="text-gray-600 dark:text-gray-400 italic">
+                      "{voiceRecognition.interimTranscript}"
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div
               className={`flex items-center gap-3 rounded-full p-2 border ${
                 darkTheme
@@ -1419,6 +1547,7 @@ Exemples de modifications supportées :
               }`}
             >
               <textarea
+                ref={textareaRef}
                 data-testid="message-input"
                 value={inputValue}
                 onChange={(e) => {
@@ -1439,6 +1568,42 @@ Exemples de modifications supportées :
                 }`}
                 rows={1}
               />
+              
+              {/* Bouton micro pour reconnaissance vocale */}
+              {voiceRecognition.isSupported && (
+                <button
+                  onClick={() => {
+                    if (voiceRecognition.isListening) {
+                      voiceRecognition.stopListening();
+                      // Garder le texte dans l'input après l'arrêt
+                    } else {
+                      voiceRecognition.resetTranscript(); // Reset avant de commencer
+                      voiceRecognition.startListening();
+                    }
+                  }}
+                  disabled={isLoading}
+                  className={`
+                    rounded-full p-2 transition-all flex-shrink-0
+                    ${
+                      isLoading
+                        ? "bg-transparent text-gray-500 cursor-not-allowed"
+                        : voiceRecognition.isListening
+                          ? "bg-red-500 text-white hover:bg-red-600 animate-pulse"
+                          : darkTheme
+                            ? "bg-transparent text-gray-300 hover:bg-gray-700"
+                            : "bg-transparent text-gray-600 hover:bg-gray-100"
+                    }
+                  `}
+                  title={voiceRecognition.isListening ? "Arrêter l'écoute" : "Activer le micro"}
+                >
+                  {voiceRecognition.isListening ? (
+                    <MicOff className="w-4 h-4 md:w-5 md:h-5" />
+                  ) : (
+                    <Mic className="w-4 h-4 md:w-5 md:h-5" />
+                  )}
+                </button>
+              )}
+
               <button
                 data-testid="send-message-button"
                 onClick={handleSendMessage}

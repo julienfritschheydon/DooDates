@@ -211,34 +211,10 @@ describe("useAutoSave", () => {
    * 1. should trigger title generation after debounce delay
    * 2. should debounce multiple rapid messages (Test #5)
    * 3. should not regenerate title for custom titles (Test #6 - CRITIQUE)
-   * 4. should update conversation with generated title (Test #7)
-   * 5. should handle title generation failure gracefully (Test #8)
-   * 6. should handle title generation without response
-   *
-   * SOLUTION FUTURE : Refactor avec délais configurables (4-6h)
    */
-  describe.skip("Title Generation with Debounce", () => {
-    // Tests supprimés - Voir commentaire ci-dessus et TEST-STATUS.md
-  });
+  // Tests "Title Generation with Debounce" supprimés (flaky, dépendent du timing)
 
-  /**
-   * TESTS SKIPPÉS : resumeConversation (2 tests supprimés)
-   *
-   * RAISON TECHNIQUE :
-   * - Délai de 100ms intégré dans resumeConversation (ligne 249 de useAutoSave.ts)
-   * - Pollution d'état entre tests dans le fichier principal
-   *
-   * TESTS DÉPLACÉS VERS :
-   * - useAutoSave.isolated.test.ts (4 tests passent à 100%)
-   * - Includes: Test 2 (return null), Test 9, 11, 12
-   *
-   * TESTS SUPPRIMÉS :
-   * 1. should resume existing conversation (Test #1 - déjà testé via Test 9)
-   * 2. should handle resume errors (Test #3 - gestion erreur edge case)
-   */
-  describe.skip("resumeConversation", () => {
-    // Tests supprimés - Voir useAutoSave.isolated.test.ts
-  });
+  // Tests "resumeConversation" déplacés vers useAutoSave.isolated.test.ts
 
   describe("getCurrentConversation", () => {
     it("should return null when no conversation is active", async () => {
@@ -253,22 +229,7 @@ describe("useAutoSave", () => {
     });
   });
 
-  /**
-   * TESTS SKIPPÉS : clearConversation (1 test supprimé)
-   *
-   * RAISON TECHNIQUE :
-   * - Dépend de resumeConversation (délai 100ms)
-   *
-   * COUVERT PAR :
-   * - Fonction simple (3 lignes de code)
-   * - Testé manuellement lors navigation entre conversations
-   *
-   * TEST SUPPRIMÉ :
-   * 1. should clear conversation state (Test #10)
-   */
-  describe.skip("clearConversation", () => {
-    // Test supprimé - Fonction simple, testé manuellement
-  });
+  // Tests "clearConversation" supprimés (fonction simple, testé manuellement)
 
   describe("getRealConversationId", () => {
     it("should return null for temporary conversation", async () => {

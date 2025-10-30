@@ -733,7 +733,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
               // Sinon, afficher normalement si conditions remplies
               return state.selectedDates.length > 0 && state.showTimeSlots ? (
-                <div className="space-y-3">
+                <div className="space-y-3" data-testid="time-slots-section">
                   <div className="flex items-center gap-2">
                     {/* <Clock className="w-5 h-5 text-gray-600" />
                   <h3 className="text-lg font-semibold text-gray-800">Horaires</h3> */}

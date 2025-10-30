@@ -11,14 +11,14 @@ import React from "react";
  */
 const TopNavGemini = () => {
   return (
-    <nav className="h-14 flex items-center justify-center px-4 relative">
+    <nav className="h-14 flex items-center justify-center px-4 relative" data-testid="top-nav">
       {/* Logo centré comme Gemini */}
-      <h1 className="text-xl font-medium text-white">DooDates</h1>
+      <h1 className="text-xl font-medium text-white" data-testid="app-logo">DooDates</h1>
 
       {/* Icônes à droite comme Gemini - Position absolue */}
       <div className="absolute right-4 flex items-center gap-3">
         {/* Settings icon */}
-        <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+        <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors" data-testid="settings-button" aria-label="Settings">
           <svg
             className="w-5 h-5 text-gray-300"
             fill="none"
@@ -41,7 +41,7 @@ const TopNavGemini = () => {
         </button>
 
         {/* Account icon */}
-        <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+        <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors" data-testid="account-button" aria-label="Account">
           <svg
             className="w-5 h-5 text-gray-300"
             fill="none"

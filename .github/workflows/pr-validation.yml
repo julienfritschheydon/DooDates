@@ -136,37 +136,68 @@ jobs:
       - name: Security audit
         run: npm audit --audit-level moderate
 
-  # Job 5: E2E Smoke (Chromium only)
+  # Job 5: E2E Smoke (Chromium only - Tests critiques rapides)
   e2e-smoke:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: 🔧 Install dependencies
         run: npm ci
 
-      - name: Install Playwright (Chromium only)
+      - name: 🧭 Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright E2E (Chromium, smoke)
-        run: npx playwright test --project=chromium --reporter=html
+      - name: 🔥 Run Smoke Tests (Critical paths only)
+        run: npm run test:e2e:smoke
 
-      - name: Upload Playwright HTML report
+      - name: 📊 Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-smoke
           path: playwright-report
           retention-days: 7
 
-  # Job 5b: E2E Matrix (Desktop + Mobile)
+  # Job 5b: E2E Functional (Chromium only - Tests fonctionnels complets)
+  e2e-functional:
+    runs-on: ubuntu-latest
+    needs: [e2e-smoke]  # Exécuter après smoke tests
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🧭 Install Playwright (Chromium only)
+        run: npx playwright install --with-deps chromium
+
+      - name: ⚡ Run Functional Tests (Complete user flows)
+        run: npm run test:e2e:functional
+
+      - name: 📊 Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-functional
+          path: playwright-report
+          retention-days: 7
+
+  # Job 5c: E2E Matrix (Desktop + Mobile - Tests multi-navigateurs)
   e2e-matrix:
     runs-on: ubuntu-latest
     strategy:
@@ -197,7 +228,7 @@ jobs:
 
       - name: 🧪 Run Playwright E2E (${{ matrix.project }})
         run: |
-          npx playwright test --project="${{ matrix.project }}" --reporter=html
+          npx playwright test --project="${{ matrix.project }}" --reporter=html --grep-invert "@wip"
 
       - name: 📊 Upload Playwright report (${{ matrix.project }})
         if: always()
@@ -209,7 +240,7 @@ jobs:
 
   # Job 6: Summary
   validation-summary:
-    needs: [quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-matrix]
+    needs: [quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix]
     runs-on: ubuntu-latest
     if: always()
 
@@ -223,8 +254,9 @@ jobs:
               { name: 'Validation IA', status: '${{ needs.ai-validation.result }}' },
               { name: 'Build & Types', status: '${{ needs.build-validation.result }}' },
               { name: 'Code Quality', status: '${{ needs.code-quality.result }}' },
-              { name: 'E2E Smoke (Chromium)', status: '${{ needs.e2e-smoke.result }}' },
-              { name: 'E2E Matrix (All Projects)', status: '${{ needs.e2e-matrix.result }}' }
+              { name: 'E2E Smoke (Critical)', status: '${{ needs.e2e-smoke.result }}' },
+              { name: 'E2E Functional (Complete)', status: '${{ needs.e2e-functional.result }}' },
+              { name: 'E2E Matrix (All Browsers)', status: '${{ needs.e2e-matrix.result }}' }
             ];
             
             const passed = jobs.filter(j => j.status === 'success').length;

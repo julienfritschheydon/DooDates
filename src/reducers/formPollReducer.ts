@@ -300,7 +300,9 @@ export function formPollReducer(state: Poll | null, action: FormPollAction): Pol
     }
 
     case "RENAME_QUESTION": {
-      if (!state || state.type !== "form") return state;
+      if (!state || state.type !== "form") {
+        return state;
+      }
 
       const { questionIndex, newTitle } = action.payload;
 

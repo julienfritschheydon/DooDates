@@ -11,6 +11,7 @@
 
 import { Poll } from "../types/poll";
 import { convertGeminiSlotToInternal } from "../services/TimeSlotConverter";
+import { formPollReducer, type FormPollAction } from "./formPollReducer";
 
 // Types d'actions
 export type PollAction =
@@ -21,7 +22,8 @@ export type PollAction =
       type: "ADD_TIMESLOT";
       payload: { date: string; start: string; end: string };
     }
-  | { type: "REPLACE_POLL"; payload: Poll };
+  | { type: "REPLACE_POLL"; payload: Poll }
+  | FormPollAction; // Ajouter les actions Form Poll
 
 /**
  * Reducer pour gérer les modifications du sondage
@@ -30,7 +32,7 @@ export function pollReducer(state: Poll | null, action: PollAction): Poll | null
   switch (action.type) {
     case "REPLACE_POLL": {
       // Remplacer complètement le sondage (utilisé pour l'initialisation)
-      return action.payload;
+      return action.payload as any;
     }
 
     case "ADD_DATE": {
@@ -155,6 +157,10 @@ export function pollReducer(state: Poll | null, action: PollAction): Poll | null
     }
 
     default:
+      // Déléguer au formPollReducer pour les actions Form Poll
+      if (state && (state as any).type === "form") {
+        return formPollReducer(state as any, action as FormPollAction) as any;
+      }
       return state;
   }
 }
