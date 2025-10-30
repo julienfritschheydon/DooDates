@@ -22,7 +22,7 @@
     "test:unit:fast": "vitest run --reporter=basic --run",
     "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",
-    "test:integration": "vitest run src/lib/__tests__/calendar-integration.test.ts",
+    "test:integration": "vitest run --reporter=basic",
     "test:ux-regression": "vitest run src/lib/__tests__/ux-regression.test.ts",
     "test:gemini:quick": "jest --testPathPattern=gemini --testNamePattern='Quick' --testTimeout=15000",
     "test:gemini:production": "jest --testPathPattern=gemini --testTimeout=60000",
