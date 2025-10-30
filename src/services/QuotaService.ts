@@ -68,7 +68,7 @@ export class QuotaService {
     try {
       let totalSize = 0;
       for (const key in localStorage) {
-        if (localStorage.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
           const value = localStorage.getItem(key) || "";
           totalSize += key.length + value.length;
         }
@@ -83,7 +83,7 @@ export class QuotaService {
         {
           component: "QuotaService",
           operation: "calculateTotalStorageSize",
-          originalError: error,
+          metadata: { originalError: error },
         },
       );
       return 0;
@@ -113,7 +113,7 @@ export class QuotaService {
         {
           component: "QuotaService",
           operation: "countConversations",
-          originalError: error,
+          metadata: { originalError: error },
         },
       );
       return 0;
@@ -134,7 +134,7 @@ export class QuotaService {
       logError(ErrorFactory.storage("Error counting polls", "Erreur de comptage des sondages"), {
         component: "QuotaService",
         operation: "countPolls",
-        originalError: error,
+        metadata: { originalError: error },
       });
       return 0;
     }
@@ -223,7 +223,7 @@ export class QuotaService {
         {
           component: "QuotaService",
           operation: "findOldConversations",
-          originalError: error,
+          metadata: { originalError: error },
         },
       );
       return [];
@@ -270,7 +270,7 @@ export class QuotaService {
         {
           component: "QuotaService",
           operation: "deleteConversations",
-          originalError: error,
+          metadata: { originalError: error },
         },
       );
       return 0;

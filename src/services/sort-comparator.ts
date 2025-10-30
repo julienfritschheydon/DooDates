@@ -84,12 +84,13 @@ export function compareUnifiedItems<T extends UnifiedItem>(
       });
       break;
 
-    case "activity":
+    case "activity": {
       // Tri par activité : updatedAt + messageCount
       const activityScoreA = getActivityScore(a);
       const activityScoreB = getActivityScore(b);
       comparison = activityScoreA - activityScoreB;
       break;
+    }
 
     default:
       comparison = compareDate(a.updatedAt, b.updatedAt);
