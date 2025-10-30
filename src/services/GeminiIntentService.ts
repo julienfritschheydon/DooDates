@@ -46,7 +46,7 @@ export class GeminiIntentService {
         logger.warn("Modèle Gemini non initialisé", "poll", {
           initialized,
           hasModel: !!geminiService.model,
-          apiKey: import.meta.env.VITE_GEMINI_API_KEY ? "présente" : "absente"
+          apiKey: import.meta.env.VITE_GEMINI_API_KEY ? "présente" : "absente",
         });
         return null;
       }
@@ -143,7 +143,7 @@ IMPORTANT :
         logger.info("❌ Intent rejeté (pas modification ou confidence trop basse)", "poll", {
           isModification: intent.isModification,
           action: intent.action,
-          confidence: intent.confidence
+          confidence: intent.confidence,
         });
         return null;
       }

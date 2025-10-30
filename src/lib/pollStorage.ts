@@ -245,8 +245,8 @@ export function addPoll(poll: Poll): void {
   validatePoll(poll);
   // Ajouter ou remplacer dans l'ensemble unifié
   const polls = getAllPolls();
-  const existingIndex = polls.findIndex(p => p.id === poll.id);
-  
+  const existingIndex = polls.findIndex((p) => p.id === poll.id);
+
   if (existingIndex >= 0) {
     // Remplacer le poll existant
     polls[existingIndex] = poll;
@@ -254,7 +254,7 @@ export function addPoll(poll: Poll): void {
     // Ajouter un nouveau poll
     polls.push(poll);
   }
-  
+
   savePolls(polls);
   // Mettre à jour le cache mémoire pour robustesse (tests/concurrence)
   memoryPollCache.set(poll.id, poll);

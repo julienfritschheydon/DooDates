@@ -42,7 +42,11 @@ import { ConversationService } from "../services/ConversationService";
 import { QuotaService, type AuthIncentiveType } from "../services/QuotaService";
 import { useQuota } from "../hooks/useQuota";
 import { useAiMessageQuota } from "../hooks/useAiMessageQuota";
-import { checkAiMessageQuota, checkPollCreationQuota, handleQuotaError } from "../services/AiQuotaService";
+import {
+  checkAiMessageQuota,
+  checkPollCreationQuota,
+  handleQuotaError,
+} from "../services/AiQuotaService";
 import { useVoiceRecognition } from "../hooks/useVoiceRecognition";
 import AuthIncentiveModal from "./modals/AuthIncentiveModal";
 import QuotaIndicator from "./ui/QuotaIndicator";
@@ -163,7 +167,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     // 🔧 FIX: Nettoyer le poll quand on démarre une NOUVELLE conversation
     const location = useLocation();
     const lastConversationIdRef = useRef<string | null>(null);
-    
+
     // 🎯 FIX E2E: Auto-focus sur le textarea après ouverture de l'éditeur (mobile)
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     useEffect(() => {
@@ -177,15 +181,15 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         return () => clearTimeout(timer);
       }
     }, [currentPoll]); // Se déclenche quand currentPoll change (éditeur ouvert)
-    
+
     useEffect(() => {
       const urlParams = new URLSearchParams(location.search);
       const conversationId = urlParams.get("conversationId");
-      
+
       // Détecter un changement de conversation (ou passage à "nouveau chat")
       if (conversationId !== lastConversationIdRef.current) {
         lastConversationIdRef.current = conversationId;
-        
+
         // Si pas de conversationId dans l'URL et qu'il y a un poll en mémoire, le nettoyer
         // Cela arrive quand l'utilisateur clique sur "Nouveau chat"
         if (!conversationId && currentPoll) {
@@ -287,7 +291,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
     // 🎤 Voice recognition
     const voiceRecognition = useVoiceRecognition({
-      lang: 'fr-FR',
+      lang: "fr-FR",
       interimResults: true,
       continuous: true, // Mode continu pour ne pas couper trop vite
       onTranscriptChange: (transcript) => {
@@ -306,11 +310,16 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     React.useEffect(() => {
       if (voiceRecognition.isListening) {
         // Pendant l'écoute : afficher interim + final
-        const fullText = voiceRecognition.finalTranscript + 
-          (voiceRecognition.interimTranscript ? ' ' + voiceRecognition.interimTranscript : '');
+        const fullText =
+          voiceRecognition.finalTranscript +
+          (voiceRecognition.interimTranscript ? " " + voiceRecognition.interimTranscript : "");
         setInputValue(fullText.trim());
       }
-    }, [voiceRecognition.isListening, voiceRecognition.finalTranscript, voiceRecognition.interimTranscript]);
+    }, [
+      voiceRecognition.isListening,
+      voiceRecognition.finalTranscript,
+      voiceRecognition.interimTranscript,
+    ]);
 
     // Hook API Gemini
     const geminiAPI = useGeminiAPI({
@@ -506,10 +515,10 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                   "✅ Flag hasResumedConversation activé - initializeNewConversation sera bloqué",
                 );
                 // Conversation resumed successfully
-                
+
                 // 🔧 FIX E2E: Auto-ouvrir le poll si la conversation en contient un
                 let pollId = result.conversation.relatedPollId;
-                
+
                 // Si pas de relatedPollId, chercher dans les messages
                 if (!pollId) {
                   for (const msg of chatMessages) {
@@ -520,7 +529,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                     }
                   }
                 }
-                
+
                 if (pollId) {
                   try {
                     const poll = getPollBySlugOrId(pollId);
@@ -1528,7 +1537,9 @@ Exemples de modifications supportées :
                 <div className="flex items-center gap-2 text-sm">
                   <div className="flex items-center gap-1">
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-red-600 dark:text-red-400 font-medium">Écoute en cours...</span>
+                    <span className="text-red-600 dark:text-red-400 font-medium">
+                      Écoute en cours...
+                    </span>
                   </div>
                   {voiceRecognition.interimTranscript && (
                     <span className="text-gray-600 dark:text-gray-400 italic">
@@ -1568,7 +1579,7 @@ Exemples de modifications supportées :
                 }`}
                 rows={1}
               />
-              
+
               {/* Bouton micro pour reconnaissance vocale */}
               {voiceRecognition.isSupported && (
                 <button

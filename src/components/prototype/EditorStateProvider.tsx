@@ -69,12 +69,12 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
       const conversationId = urlParams.get("conversationId");
       const resumeId = urlParams.get("resume");
       const isNewChat = urlParams.get("new");
-      
+
       console.log("🔍 EditorStateProvider - URL params:", { conversationId, resumeId, isNewChat });
-      
+
       // ✅ Ne restaurer QUE si on reprend une conversation existante
       const shouldRestore = conversationId || resumeId;
-      
+
       if (shouldRestore) {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
@@ -107,7 +107,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
     try {
       if (currentPoll) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(currentPoll));
-        
+
         // 🔧 FIX: Sauvegarder aussi dans pollStorage pour que les modifications soient visibles
         addPoll(currentPoll as any);
       } else {
@@ -245,13 +245,15 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
       addPoll(poll);
       setCurrentPoll(poll as any);
       setIsEditorOpen(true);
-      
+
       // 🔧 FIX: Sauvegarder le pollId dans les métadonnées de la conversation
       // pour pouvoir le retrouver après refresh ou dans les tests E2E
-      const conversationId = new URLSearchParams(window.location.search).get('conversationId');
+      const conversationId = new URLSearchParams(window.location.search).get("conversationId");
       if (conversationId) {
         try {
-          const { getConversation, updateConversation } = await import('../../lib/storage/ConversationStorageSimple');
+          const { getConversation, updateConversation } = await import(
+            "../../lib/storage/ConversationStorageSimple"
+          );
           const conversation = getConversation(conversationId);
           if (conversation) {
             updateConversation({
@@ -259,10 +261,10 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
               relatedPollId: poll.id,
               updatedAt: new Date(),
             });
-            console.log('✅ PollId sauvegardé dans conversation:', poll.id);
+            console.log("✅ PollId sauvegardé dans conversation:", poll.id);
           }
         } catch (error) {
-          console.warn('⚠️ Impossible de mettre à jour la conversation avec pollId:', error);
+          console.warn("⚠️ Impossible de mettre à jour la conversation avec pollId:", error);
         }
       }
     } catch (error) {
