@@ -159,6 +159,8 @@ jobs:
 
       - name: 🔥 Run Smoke Tests (Critical paths only)
         run: npm run test:e2e:smoke
+        env:
+          VITE_GEMINI_API_KEY: fake-key-for-e2e-tests  # Mock will intercept API calls
 
       - name: 📊 Upload Playwright HTML report
         if: always()
@@ -190,6 +192,8 @@ jobs:
 
       - name: ⚡ Run Functional Tests (Complete user flows)
         run: npm run test:e2e:functional
+        env:
+          VITE_GEMINI_API_KEY: fake-key-for-e2e-tests  # Mock will intercept API calls
 
       - name: 📊 Upload Playwright HTML report
         if: always()

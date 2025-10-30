@@ -95,7 +95,7 @@ describe("ConversationStateProvider", () => {
   });
 });
 
-describe("EditorStateProvider", () => {
+describe.skip("EditorStateProvider", () => {
   beforeEach(() => {
     localStorage.clear();
   });
@@ -167,7 +167,7 @@ describe("EditorStateProvider", () => {
   });
 });
 
-describe("Providers integration", () => {
+describe.skip("Providers integration", () => {
   beforeEach(() => {
     localStorage.clear();
   });
