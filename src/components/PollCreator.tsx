@@ -727,7 +727,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
               // Ne masquer que si c'est un vrai groupe (weekend, week, fortnight)
               // Pas si ce sont juste des dates consécutives individuelles
               const hasGroupedDates = dateGroups.some(
-                (group) => group.type && ["weekend", "week", "fortnight"].includes(group.type)
+                (group) => group.type && ["weekend", "week", "fortnight"].includes(group.type),
               );
 
               // Si des dates sont groupées, ne pas afficher la section horaires

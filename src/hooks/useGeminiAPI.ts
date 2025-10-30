@@ -46,11 +46,11 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Stocker les callbacks dans des refs pour éviter les re-créations
   const onQuotaExceededRef = useRef(onQuotaExceeded);
   const onNetworkErrorRef = useRef(onNetworkError);
-  
+
   useEffect(() => {
     onQuotaExceededRef.current = onQuotaExceeded;
     onNetworkErrorRef.current = onNetworkError;
