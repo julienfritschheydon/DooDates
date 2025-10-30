@@ -65,7 +65,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
     }
   });
 
-  test('RÉGRESSION #1 : Créer Form Poll avec 1 question via IA @smoke @critical', async ({ page }) => {
+  test('RÉGRESSION #1 : Créer Form Poll avec 1 question via IA @smoke @critical @functional', async ({ page }) => {
     const log = mkLogger('FormPoll-Create');
     
     try {
