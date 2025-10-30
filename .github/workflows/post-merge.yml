@@ -34,7 +34,7 @@ jobs:
           path: playwright-report
           retention-days: 7
 
-      - name: 🚨 Create Issue if Failure
+      - name: Create Issue if Failure
         if: failure()
         uses: actions/github-script@v6
         with:
@@ -42,7 +42,7 @@ jobs:
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: '🚨 Post-Merge Smoke Tests Failed on Main Branch',
+              title: 'Post-Merge Smoke Tests Failed on Main Branch',
               body: `## Tests Critiques Échoués Après Merge
 
 URGENT: Les tests smoke ont échoué sur la branche main après un merge.
@@ -58,9 +58,7 @@ Workflow: [Voir les détails](${context.payload.repository.html_url}/actions/run
 - Corriger en priorité ou revert le commit problématique
 
 ### Commit concerné:
-\`\`\`
 ${context.payload.head_commit.message}
-\`\`\`
 
 Cette situation indique que les tests PR n'ont pas détecté un problème critique.
 Il faut investiguer pourquoi les tests PR ont passé mais les tests post-merge échouent.`,
@@ -99,7 +97,7 @@ Il faut investiguer pourquoi les tests PR ont passé mais les tests post-merge �
           path: playwright-report
           retention-days: 7
 
-      - name: 🚨 Create Issue if Failure
+      - name: Create Issue if Failure
         if: failure()
         uses: actions/github-script@v6
         with:
@@ -107,8 +105,8 @@ Il faut investiguer pourquoi les tests PR ont passé mais les tests post-merge �
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `⚠️ Post-Merge Functional Tests Failed on Main Branch`,
-              body: `## ⚠️ Tests Fonctionnels Échoués Après Merge
+              title: 'Post-Merge Functional Tests Failed on Main Branch',
+              body: `## Tests Fonctionnels Échoués Après Merge
               
 Les tests fonctionnels ont échoué sur la branche main après un merge.
 

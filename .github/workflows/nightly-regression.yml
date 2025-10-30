@@ -63,7 +63,7 @@ jobs:
               github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: '🚨 Nightly Regression Tests Failed - ' + new Date().toISOString().split('T')[0],
+                title: 'Nightly Regression Tests Failed - ' + new Date().toISOString().split('T')[0],
                 body: `## Tests de Régression Échoués
 
 Les tests de régression nocturnes ont échoué.
