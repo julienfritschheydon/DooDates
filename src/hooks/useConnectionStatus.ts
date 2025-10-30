@@ -18,7 +18,7 @@ interface UseConnectionStatusOptions {
 
 export function useConnectionStatus(options: UseConnectionStatusOptions = {}) {
   const { onConnectionChange, onAddMessage } = options;
-  
+
   const [status, setStatus] = useState<ConnectionStatus>("unknown");
   const hasShownOfflineMessage = useRef(false);
   const wasOffline = useRef(false);
@@ -33,8 +33,7 @@ export function useConnectionStatus(options: UseConnectionStatusOptions = {}) {
       if (wasOffline.current && isConnected && status === "error") {
         onAddMessage?.({
           id: `reconnected-${Date.now()}`,
-          content:
-            "✅ Je suis de nouveau disponible ! Vous pouvez maintenant créer vos sondages.",
+          content: "✅ Je suis de nouveau disponible ! Vous pouvez maintenant créer vos sondages.",
           isAI: true,
           timestamp: new Date(),
         });

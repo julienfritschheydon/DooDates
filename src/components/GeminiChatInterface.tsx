@@ -531,7 +531,6 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       });
     };
 
-
     // Core sending logic - delegated to hook
     const sendMessageWithText = messageSender.sendMessage;
 
@@ -547,7 +546,6 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     };
 
     const handleUsePollSuggestion = (suggestion: PollSuggestion) => {
-
       // 🎯 NEW: Vérifier quota polls avant création
       const pollQuotaCheck = checkPollCreationQuota(aiQuota);
       if (!pollQuotaCheck.canProceed) {
@@ -563,7 +561,6 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
       // Si on a un callback onPollCreated, l'utiliser au lieu d'afficher le créateur
       if (onPollCreated) {
-
         // Mettre à jour l'URL avec conversationId AVANT d'appeler onPollCreated
         if (conversationId && !window.location.search.includes("conversationId")) {
           const newUrl = `${window.location.pathname}?conversationId=${conversationId}`;

@@ -1,22 +1,22 @@
 /**
  * Hook de détection et traitement des intentions de modification de polls via langage naturel.
- * 
+ *
  * Détecte automatiquement les intentions de l'utilisateur pour modifier un poll existant
  * (Date Poll ou Form Poll) sans passer par l'interface graphique.
- * 
+ *
  * @example
  * ```tsx
  * const intentDetection = useIntentDetection({
  *   currentPoll: poll,
  *   onDispatchAction: dispatchPollAction,
  * });
- * 
+ *
  * const result = await intentDetection.detectIntent("Ajoute une question sur l'âge");
  * if (result.handled) {
  *   // L'intention a été traitée, pas besoin d'appeler Gemini
  * }
  * ```
- * 
+ *
  * @module hooks/useIntentDetection
  */
 
@@ -67,11 +67,11 @@ interface UseIntentDetectionOptions {
 
 /**
  * Hook de détection d'intentions pour modifications de polls.
- * 
+ *
  * Supporte :
  * - Date Polls : Ajout/suppression de dates
  * - Form Polls : Ajout/suppression/modification de questions
- * 
+ *
  * @param options - Configuration du hook
  * @returns Objet avec la fonction detectIntent
  */
