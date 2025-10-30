@@ -35,6 +35,7 @@ const RATE_LIMIT = {
 
 // Types pour Form Polls (questionnaires)
 export interface FormQuestion {
+  text: any;
   title: string;
   type: "single" | "multiple" | "text";
   required: boolean;

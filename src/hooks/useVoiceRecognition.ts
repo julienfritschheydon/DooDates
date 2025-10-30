@@ -137,7 +137,13 @@ export function useVoiceRecognition(
           try {
             recognition.start();
           } catch (error) {
-            logError(ErrorFactory.api("Impossible de redémarrer la reconnaissance vocale", "Erreur de redémarrage"), { metadata: { error } });
+            logError(
+              ErrorFactory.api(
+                "Impossible de redémarrer la reconnaissance vocale",
+                "Erreur de redémarrage",
+              ),
+              { metadata: { error } },
+            );
           }
         }, 300); // Délai pour laisser le temps à la transcription finale
       } else {
@@ -146,7 +152,13 @@ export function useVoiceRecognition(
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      logError(ErrorFactory.api(`Erreur reconnaissance vocale: ${event.error}`, "Erreur de reconnaissance"), { metadata: { errorType: event.error } });
+      logError(
+        ErrorFactory.api(
+          `Erreur reconnaissance vocale: ${event.error}`,
+          "Erreur de reconnaissance",
+        ),
+        { metadata: { errorType: event.error } },
+      );
 
       // Ignorer l'erreur "no-speech" (silence normal, pas une vraie erreur)
       if (event.error === "no-speech") {
@@ -230,7 +242,10 @@ export function useVoiceRecognition(
     try {
       recognition.start();
     } catch (err) {
-      logError(ErrorFactory.api("Erreur démarrage reconnaissance vocale", "Impossible de démarrer"), { metadata: { error: err } });
+      logError(
+        ErrorFactory.api("Erreur démarrage reconnaissance vocale", "Impossible de démarrer"),
+        { metadata: { error: err } },
+      );
       setError("Impossible de démarrer la reconnaissance vocale");
     }
   }, [isListening]);
@@ -245,7 +260,9 @@ export function useVoiceRecognition(
     try {
       recognition.stop();
     } catch (err) {
-      logError(ErrorFactory.api("Erreur arrêt reconnaissance vocale", "Impossible d'arrêter"), { metadata: { error: err } });
+      logError(ErrorFactory.api("Erreur arrêt reconnaissance vocale", "Impossible d'arrêter"), {
+        metadata: { error: err },
+      });
     }
   }, []);
 
