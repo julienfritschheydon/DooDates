@@ -3,8 +3,15 @@ import { Link } from "react-router-dom";
 import { getPollBySlugOrId, addFormResponse } from "../../lib/pollStorage";
 import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
 import type { Poll, FormQuestionShape, FormQuestionOption } from "../../lib/pollStorage";
+import { StructuredInput } from "./StructuredInput";
+import type { ValidationType } from "../../lib/validation";
+import { RatingInput } from "./RatingInput";
+import { NPSInput } from "./NPSInput";
+import { getThemeById, applyTheme, resetTheme } from "../../lib/themes";
+import { useThemeColor } from "../../hooks/useThemeColor";
+import "./themed-inputs.css";
 
-type AnswerValue = string | string[] | Record<string, string | string[]>;
+type AnswerValue = string | string[] | Record<string, string | string[]> | number;
 
 interface Props {
   idOrSlug: string;
@@ -25,6 +32,27 @@ export default function FormPollVote({ idOrSlug }: Props) {
     setLoading(false);
   }, [idOrSlug]);
 
+  // Appliquer le thème visuel
+  useEffect(() => {
+    if (poll?.themeId) {
+      const theme = getThemeById(poll.themeId);
+      applyTheme(theme);
+    }
+
+    // Cleanup : réinitialiser le thème au démontage
+    return () => {
+      resetTheme();
+    };
+  }, [poll?.themeId]);
+
+  // Lire la couleur primaire du thème pour les checkboxes/radios
+  const primaryColor = useThemeColor("--theme-primary", "#3B82F6");
+  
+  // Appliquer la couleur via CSS variable pour les inputs custom
+  useEffect(() => {
+    document.documentElement.style.setProperty('--input-accent-color', primaryColor);
+  }, [primaryColor]);
+
   const allQuestions = useMemo(() => (poll?.questions ?? []) as FormQuestionShape[], [poll]);
 
   // Convertir les réponses pour l'évaluation conditionnelle (convertir IDs en labels)
@@ -33,7 +61,10 @@ export default function FormPollVote({ idOrSlug }: Props) {
     for (const [qid, val] of Object.entries(answers)) {
       const question = allQuestions.find((q) => q.id === qid);
 
-      if (typeof val === "object" && !Array.isArray(val)) {
+      if (typeof val === "number") {
+        // Pour rating/nps, convertir en string pour l'évaluation conditionnelle
+        simplified[qid] = val.toString();
+      } else if (typeof val === "object" && !Array.isArray(val)) {
         // Pour les matrices, on considère qu'une réponse existe si au moins une ligne est remplie
         const hasAnswer = Object.values(val).some((v) => (Array.isArray(v) ? v.length > 0 : !!v));
         simplified[qid] = hasAnswer ? "answered" : "";
@@ -48,7 +79,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
         const option = question?.options?.find((o) => o.id === val);
         simplified[qid] = option?.label || val;
       } else {
-        simplified[qid] = val;
+        simplified[qid] = "";
       }
     }
     return simplified;
@@ -193,7 +224,16 @@ export default function FormPollVote({ idOrSlug }: Props) {
           <div className="mt-6">
             <Link
               to={`/poll/${poll.slug || poll.id}/results`}
-              className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="inline-block text-white px-4 py-2 rounded transition-colors"
+              style={{
+                backgroundColor: "var(--theme-primary, #3B82F6)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--theme-primary-hover, #2563EB)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--theme-primary, #3B82F6)";
+              }}
             >
               Voir les résultats
             </Link>
@@ -204,7 +244,12 @@ export default function FormPollVote({ idOrSlug }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div
+      className="min-h-screen"
+      style={{
+        backgroundColor: "var(--theme-bg-main, #F8FAFC)",
+      }}
+    >
       <form
         onSubmit={onSubmit}
         className="max-w-2xl mx-auto p-6 pt-20 space-y-6"
@@ -215,18 +260,46 @@ export default function FormPollVote({ idOrSlug }: Props) {
           {error ? String(error) : ""}
         </div>
         <div>
-          <h1 className="text-3xl font-bold">{poll.title}</h1>
-          {poll.description && <p className="text-gray-600 mt-1">{poll.description}</p>}
+          <h1
+            className="text-3xl font-bold"
+            style={{
+              color: "var(--theme-text-primary, #1E293B)",
+            }}
+          >
+            {poll.title}
+          </h1>
+          {poll.description && (
+            <p
+              className="mt-1"
+              style={{
+                color: "var(--theme-text-secondary, #475569)",
+              }}
+            >
+              {poll.description}
+            </p>
+          )}
         </div>
 
         <div>
-          <label className="block text-sm text-gray-700 mb-1" htmlFor="voter-name-input">
+          <label
+            className="block text-sm mb-1"
+            htmlFor="voter-name-input"
+            style={{
+              color: "var(--theme-text-secondary, #475569)",
+            }}
+          >
             Votre nom
           </label>
           <input
             id="voter-name-input"
             type="text"
-            className="w-full border rounded px-3 py-2"
+            className="w-full rounded px-3 py-2"
+            style={{
+              backgroundColor: "var(--theme-bg-input, #F1F5F9)",
+              borderColor: "var(--theme-border, #E2E8F0)",
+              borderWidth: "1px",
+              color: "var(--theme-text-primary, #1E293B)",
+            }}
             value={voterName}
             onChange={(e) => setVoterName(e.target.value)}
             placeholder="Entrez votre nom"
@@ -247,17 +320,33 @@ export default function FormPollVote({ idOrSlug }: Props) {
             return (
               <div
                 key={qid}
-                className="bg-white rounded-md border p-4"
+                className="rounded-md p-4"
+                style={{
+                  backgroundColor: "var(--theme-bg-card, #FFFFFF)",
+                  borderColor: "var(--theme-border, #E2E8F0)",
+                  borderWidth: "1px",
+                }}
                 role="group"
                 aria-labelledby={`q-${qid}-label`}
                 aria-required={q.required ? true : undefined}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <div id={`q-${qid}-label`} className="font-medium">
+                    <div
+                      id={`q-${qid}-label`}
+                      className="font-medium"
+                      style={{
+                        color: "var(--theme-text-primary, #1E293B)",
+                      }}
+                    >
                       {q.title || "(Sans titre)"}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div
+                      className="text-xs"
+                      style={{
+                        color: "var(--theme-text-secondary, #475569)",
+                      }}
+                    >
                       {kind === "text"
                         ? "Réponse libre"
                         : kind === "single"
@@ -266,12 +355,21 @@ export default function FormPollVote({ idOrSlug }: Props) {
                             ? "Choix multiples"
                             : kind === "matrix"
                               ? "Matrice"
-                              : "Question"}
+                              : kind === "rating"
+                                ? "Échelle de notation"
+                                : kind === "nps"
+                                  ? "Net Promoter Score"
+                                  : "Question"}
                       {q.required ? " • obligatoire" : ""}
                     </div>
                   </div>
                   {kind === "multiple" && q.maxChoices ? (
-                    <div className="text-xs text-gray-500">
+                    <div
+                      className="text-xs"
+                      style={{
+                        color: "var(--theme-text-secondary, #475569)",
+                      }}
+                    >
                       {Array.isArray(val) ? (val as string[]).length : 0}/{q.maxChoices}{" "}
                       sélectionné(s)
                     </div>
@@ -279,15 +377,33 @@ export default function FormPollVote({ idOrSlug }: Props) {
                 </div>
 
                 {kind === "text" && (
-                  <textarea
-                    className="w-full border rounded px-3 py-2"
-                    placeholder={q.placeholder || "Votre réponse"}
-                    maxLength={q.maxLength || undefined}
-                    value={typeof val === "string" ? val : ""}
-                    onChange={(e) => updateAnswer(qid, e.target.value)}
-                    aria-labelledby={`q-${qid}-label`}
-                    aria-required={q.required ? true : undefined}
-                  />
+                  <>
+                    {q.validationType ? (
+                      <StructuredInput
+                        value={typeof val === "string" ? val : ""}
+                        onChange={(newVal) => updateAnswer(qid, newVal)}
+                        validationType={q.validationType as ValidationType}
+                        required={q.required}
+                        placeholder={q.placeholder}
+                      />
+                    ) : (
+                      <textarea
+                        className="w-full rounded px-3 py-2"
+                        style={{
+                          backgroundColor: "var(--theme-bg-input, #F1F5F9)",
+                          borderColor: "var(--theme-border, #E2E8F0)",
+                          borderWidth: "1px",
+                          color: "var(--theme-text-primary, #1E293B)",
+                        }}
+                        placeholder={q.placeholder || "Votre réponse"}
+                        maxLength={q.maxLength || undefined}
+                        value={typeof val === "string" ? val : ""}
+                        onChange={(e) => updateAnswer(qid, e.target.value)}
+                        aria-labelledby={`q-${qid}-label`}
+                        aria-required={q.required ? true : undefined}
+                      />
+                    )}
+                  </>
                 )}
 
                 {kind === "single" && (
@@ -302,16 +418,36 @@ export default function FormPollVote({ idOrSlug }: Props) {
                             onChange={() => updateAnswer(qid, opt.id)}
                             aria-labelledby={`q-${qid}-label`}
                             aria-required={q.required ? true : undefined}
+                            data-themed="true"
                           />
-                          <span>{opt.label || "Option"}</span>
+                          <span
+                            style={{
+                              color: "var(--theme-text-primary, #1E293B)",
+                            }}
+                          >
+                            {opt.label || "Option"}
+                          </span>
                           {opt.isOther && (
-                            <span className="text-xs text-blue-600">+ Texte libre</span>
+                            <span
+                              className="text-xs"
+                              style={{
+                                color: "var(--theme-primary, #3B82F6)",
+                              }}
+                            >
+                              + Texte libre
+                            </span>
                           )}
                         </label>
                         {opt.isOther && val === opt.id && (
                           <input
                             type="text"
-                            className="w-full ml-6 border rounded px-3 py-2 text-sm"
+                            className="w-full ml-6 rounded px-3 py-2 text-sm"
+                            style={{
+                              backgroundColor: "var(--theme-bg-input, #F1F5F9)",
+                              borderColor: "var(--theme-border, #E2E8F0)",
+                              borderWidth: "1px",
+                              color: "var(--theme-text-primary, #1E293B)",
+                            }}
                             placeholder="Précisez votre réponse..."
                             value={otherTexts[qid] || ""}
                             onChange={(e) =>
@@ -349,16 +485,36 @@ export default function FormPollVote({ idOrSlug }: Props) {
                               aria-required={q.required ? true : undefined}
                               disabled={!!disableExtra}
                               data-testid="multi-option"
+                              data-themed="true"
                             />
-                            <span>{opt.label || "Option"}</span>
+                            <span
+                              style={{
+                                color: "var(--theme-text-primary, #1E293B)",
+                              }}
+                            >
+                              {opt.label || "Option"}
+                            </span>
                             {opt.isOther && (
-                              <span className="text-xs text-blue-600">+ Texte libre</span>
+                              <span
+                                className="text-xs"
+                                style={{
+                                  color: "var(--theme-primary, #3B82F6)",
+                                }}
+                              >
+                                + Texte libre
+                              </span>
                             )}
                           </label>
                           {opt.isOther && checked && (
                             <input
                               type="text"
-                              className="w-full ml-6 border rounded px-3 py-2 text-sm"
+                              className="w-full ml-6 rounded px-3 py-2 text-sm"
+                              style={{
+                                backgroundColor: "var(--theme-bg-input, #F1F5F9)",
+                                borderColor: "var(--theme-border, #E2E8F0)",
+                                borderWidth: "1px",
+                                color: "var(--theme-text-primary, #1E293B)",
+                              }}
                               placeholder="Précisez votre réponse..."
                               value={otherTexts[`${qid}_${opt.id}`] || ""}
                               onChange={(e) =>
@@ -380,13 +536,26 @@ export default function FormPollVote({ idOrSlug }: Props) {
                     <table className="w-full border-collapse">
                       <thead>
                         <tr>
-                          <th className="border p-2 bg-gray-50 text-left text-sm">
+                          <th
+                            className="p-2 text-left text-sm"
+                            style={{
+                              backgroundColor: "var(--theme-bg-input, #F1F5F9)",
+                              borderColor: "var(--theme-border, #E2E8F0)",
+                              borderWidth: "1px",
+                            }}
+                          >
                             {/* Empty corner cell */}
                           </th>
                           {(q.matrixColumns || []).map((col: FormQuestionOption) => (
                             <th
                               key={col.id}
-                              className="border p-2 bg-gray-50 text-center text-sm font-medium"
+                              className="p-2 text-center text-sm font-medium"
+                              style={{
+                                backgroundColor: "var(--theme-bg-input, #F1F5F9)",
+                                borderColor: "var(--theme-border, #E2E8F0)",
+                                borderWidth: "1px",
+                                color: "var(--theme-text-primary, #1E293B)",
+                              }}
                             >
                               {col.label}
                             </th>
@@ -398,18 +567,35 @@ export default function FormPollVote({ idOrSlug }: Props) {
                           const rowValue = (val as Record<string, string | string[]>)?.[row.id];
                           return (
                             <tr key={row.id}>
-                              <td className="border p-2 text-sm font-medium">{row.label}</td>
+                              <td
+                                className="p-2 text-sm font-medium"
+                                style={{
+                                  borderColor: "var(--theme-border, #E2E8F0)",
+                                  borderWidth: "1px",
+                                  color: "var(--theme-text-primary, #1E293B)",
+                                }}
+                              >
+                                {row.label}
+                              </td>
                               {(q.matrixColumns || []).map((col: FormQuestionOption) => {
                                 const isChecked =
                                   q.matrixType === "multiple"
                                     ? Array.isArray(rowValue) && rowValue.includes(col.id)
                                     : rowValue === col.id;
                                 return (
-                                  <td key={col.id} className="border p-2 text-center">
+                                  <td
+                                    key={col.id}
+                                    className="p-2 text-center"
+                                    style={{
+                                      borderColor: "var(--theme-border, #E2E8F0)",
+                                      borderWidth: "1px",
+                                    }}
+                                  >
                                     <input
                                       type={q.matrixType === "multiple" ? "checkbox" : "radio"}
                                       name={`${qid}-${row.id}`}
                                       checked={isChecked}
+                                      data-themed="true"
                                       onChange={(e) => {
                                         const currentVal =
                                           (answers[qid] as Record<string, string | string[]>) || {};
@@ -443,6 +629,26 @@ export default function FormPollVote({ idOrSlug }: Props) {
                     </table>
                   </div>
                 )}
+
+                {kind === "rating" && (
+                  <RatingInput
+                    value={typeof val === "number" ? val : null}
+                    onChange={(newVal) => updateAnswer(qid, newVal)}
+                    scale={q.ratingScale ?? 5}
+                    style={q.ratingStyle ?? "numbers"}
+                    minLabel={q.ratingMinLabel}
+                    maxLabel={q.ratingMaxLabel}
+                    required={q.required}
+                  />
+                )}
+
+                {kind === "nps" && (
+                  <NPSInput
+                    value={typeof val === "number" ? val : null}
+                    onChange={(newVal) => updateAnswer(qid, newVal)}
+                    required={q.required}
+                  />
+                )}
               </div>
             );
           })}
@@ -457,7 +663,16 @@ export default function FormPollVote({ idOrSlug }: Props) {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="text-white px-4 py-2 rounded transition-colors"
+            style={{
+              backgroundColor: "var(--theme-primary, #3B82F6)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--theme-primary-hover, #2563EB)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--theme-primary, #3B82F6)";
+            }}
             data-testid="form-submit"
           >
             Envoyer mes réponses

@@ -1,0 +1,92 @@
+/* Custom styled inputs - Retirer l'apparence native du navigateur */
+input[type="radio"][data-themed="true"],
+input[type="checkbox"][data-themed="true"] {
+  /* Retirer le style natif pour avoir un contrôle total */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  
+  /* Style de base : fond blanc + bordure noire */
+  background-color: white;
+  border: 2px solid #1E293B;
+  
+  /* Taille */
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  
+  /* Curseur */
+  cursor: pointer;
+  
+  /* Position pour le checkmark */
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  
+  /* Transition douce */
+  transition: all 0.2s ease;
+}
+
+/* Radio = rond */
+input[type="radio"][data-themed="true"] {
+  border-radius: 50%;
+}
+
+/* Checkbox = carré avec coins arrondis */
+input[type="checkbox"][data-themed="true"] {
+  border-radius: 4px;
+}
+
+/* Hover : bordure de la couleur du thème */
+input[type="radio"][data-themed="true"]:hover,
+input[type="checkbox"][data-themed="true"]:hover {
+  border-color: var(--input-accent-color);
+}
+
+/* État coché : bordure + fond de la couleur du thème */
+input[type="radio"][data-themed="true"]:checked,
+input[type="checkbox"][data-themed="true"]:checked {
+  background-color: var(--input-accent-color);
+  border-color: var(--input-accent-color);
+}
+
+/* Checkmark pour checkbox (✓) */
+input[type="checkbox"][data-themed="true"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 4px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Point pour radio (●) */
+input[type="radio"][data-themed="true"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: white;
+}
+
+/* État disabled */
+input[type="radio"][data-themed="true"]:disabled,
+input[type="checkbox"][data-themed="true"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Focus visible pour accessibilité */
+input[type="radio"][data-themed="true"]:focus-visible,
+input[type="checkbox"][data-themed="true"]:focus-visible {
+  outline: 2px solid var(--input-accent-color);
+  outline-offset: 2px;
+}

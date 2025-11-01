@@ -4,7 +4,7 @@ import type { ConditionalRule } from "../../types/conditionalRules";
 import ConditionalRuleEditor from "./ConditionalRuleEditor";
 import { useUIState } from "../prototype/UIStateProvider";
 
-export type QuestionKind = "single" | "multiple" | "text" | "matrix";
+export type QuestionKind = "single" | "multiple" | "text" | "matrix" | "rating" | "nps";
 
 export type QuestionOption = {
   id: string;
@@ -24,6 +24,14 @@ export type Question = {
   matrixColumns?: QuestionOption[]; // Colonnes (échelle de réponse)
   matrixType?: "single" | "multiple"; // Une seule réponse par ligne ou plusieurs
   matrixColumnsNumeric?: boolean; // Colonnes numériques (1-5) au lieu de texte
+  // Rating-specific fields
+  ratingScale?: number; // 5 ou 10 (par défaut 5)
+  ratingStyle?: "numbers" | "stars" | "emojis"; // Style d'affichage (par défaut numbers)
+  ratingMinLabel?: string; // Label pour la valeur minimale
+  ratingMaxLabel?: string; // Label pour la valeur maximale
+  // Text validation fields
+  validationType?: "email" | "phone" | "url" | "number" | "date"; // Type de validation pour champs text
+  placeholder?: string; // Placeholder personnalisé
 };
 
 export type QuestionCardProps = {
@@ -128,6 +136,32 @@ export default function QuestionCard({
           ],
           matrixType: question.matrixType ?? "single",
         });
+      } else if (kind === "rating") {
+        onChange({
+          kind,
+          options: undefined,
+          maxChoices: undefined,
+          matrixRows: undefined,
+          matrixColumns: undefined,
+          matrixType: undefined,
+          ratingScale: question.ratingScale ?? 5,
+          ratingStyle: question.ratingStyle ?? "numbers",
+          ratingMinLabel: question.ratingMinLabel ?? "",
+          ratingMaxLabel: question.ratingMaxLabel ?? "",
+        });
+      } else if (kind === "nps") {
+        onChange({
+          kind,
+          options: undefined,
+          maxChoices: undefined,
+          matrixRows: undefined,
+          matrixColumns: undefined,
+          matrixType: undefined,
+          ratingScale: undefined,
+          ratingStyle: undefined,
+          ratingMinLabel: undefined,
+          ratingMaxLabel: undefined,
+        });
       }
     },
     [
@@ -138,6 +172,10 @@ export default function QuestionCard({
       question.matrixRows,
       question.matrixColumns,
       question.matrixType,
+      question.ratingScale,
+      question.ratingStyle,
+      question.ratingMinLabel,
+      question.ratingMaxLabel,
       savedOptions,
     ],
   );
@@ -336,23 +374,25 @@ export default function QuestionCard({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <select
-            className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm sm:text-base"
+            className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base"
             value={question.kind}
             onChange={(e) => setKind(e.target.value as QuestionKind)}
-            data-testid="question-kind"
+            data-testid="question-kind-select"
             data-qid={question.id}
           >
             <option value="single">Choix unique</option>
             <option value="multiple">Choix multiples</option>
             <option value="text">Texte court</option>
             <option value="matrix">Matrice</option>
+            <option value="rating">Échelle de notation</option>
+            <option value="nps">Net Promoter Score (NPS)</option>
           </select>
         </div>
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2">
           <button
             type="button"
             onClick={onMoveUp}
-            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors"
+            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex-shrink-0"
             title="Monter"
             aria-label="Monter"
             data-testid="question-move-up"
@@ -363,7 +403,7 @@ export default function QuestionCard({
           <button
             type="button"
             onClick={onMoveDown}
-            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors"
+            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex-shrink-0"
             title="Descendre"
             aria-label="Descendre"
             data-testid="question-move-down"
@@ -374,7 +414,7 @@ export default function QuestionCard({
           <button
             type="button"
             onClick={onDuplicate}
-            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors"
+            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex-shrink-0"
             title="Dupliquer"
             aria-label="Dupliquer"
             data-testid="question-duplicate"
@@ -385,7 +425,7 @@ export default function QuestionCard({
           <button
             type="button"
             onClick={onDelete}
-            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-red-600 hover:border-red-600 transition-colors"
+            className="inline-flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-md border border-gray-700 text-gray-300 hover:bg-red-600 hover:border-red-600 transition-colors flex-shrink-0"
             title="Supprimer"
             aria-label="Supprimer"
             data-testid="question-delete"
@@ -589,7 +629,117 @@ export default function QuestionCard({
         </div>
       )}
 
+      {/* Rating editor */}
+      {question.kind === "rating" && (
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            {/* Scale selector */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-gray-400">Échelle</label>
+              <select
+                className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
+                value={question.ratingScale ?? 5}
+                onChange={(e) => onChange({ ratingScale: parseInt(e.target.value, 10) })}
+              >
+                <option value={5}>1 à 5</option>
+                <option value={10}>1 à 10</option>
+              </select>
+            </div>
+
+            {/* Style selector */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-gray-400">Style</label>
+              <select
+                className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
+                value={question.ratingStyle ?? "numbers"}
+                onChange={(e) =>
+                  onChange({ ratingStyle: e.target.value as "numbers" | "stars" | "emojis" })
+                }
+              >
+                <option value="numbers">Chiffres</option>
+                <option value="stars">Étoiles</option>
+                <option value="emojis">Emojis</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Labels min/max */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-gray-400">Label min (optionnel)</label>
+              <input
+                type="text"
+                className="rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1 text-sm"
+                placeholder="Ex: Pas du tout"
+                value={question.ratingMinLabel ?? ""}
+                onChange={(e) => onChange({ ratingMinLabel: e.target.value })}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-gray-400">Label max (optionnel)</label>
+              <input
+                type="text"
+                className="rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1 text-sm"
+                placeholder="Ex: Tout à fait"
+                value={question.ratingMaxLabel ?? ""}
+                onChange={(e) => onChange({ ratingMaxLabel: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* NPS editor (pas de configuration, juste un message informatif) */}
+      {question.kind === "nps" && (
+        <div className="p-3 bg-blue-900/20 border border-blue-700 rounded-lg">
+          <p className="text-sm text-blue-300">
+            <strong>Net Promoter Score (NPS)</strong> : Échelle fixe de 0 à 10 pour mesurer la
+            probabilité de recommandation.
+          </p>
+          <p className="text-xs text-blue-400 mt-1">
+            0-6 = Détracteurs • 7-8 = Passifs • 9-10 = Promoteurs
+          </p>
+        </div>
+      )}
+
+      {/* Text editor - Validation type */}
+      {question.kind === "text" && (
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-gray-400">Type de validation (optionnel)</label>
+            <select
+              className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
+              value={question.validationType ?? ""}
+              onChange={(e) => onChange({ validationType: (e.target.value as any) || undefined })}
+            >
+              <option value="">Aucune validation</option>
+              <option value="email">Email</option>
+              <option value="phone">Téléphone (format français)</option>
+              <option value="url">URL</option>
+              <option value="number">Nombre</option>
+              <option value="date">Date</option>
+            </select>
+          </div>
+          {question.validationType && (
+            <div className="p-2 bg-green-900/20 border border-green-700 rounded text-xs text-green-300">
+              ✓ La saisie sera validée automatiquement selon le format {question.validationType}
+            </div>
+          )}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-gray-400">Placeholder (optionnel)</label>
+            <input
+              type="text"
+              className="rounded-md border border-gray-700 bg-[#3c4043] text-white placeholder-gray-500 px-2 py-1 text-sm"
+              placeholder="Ex: Entrez votre email"
+              value={question.placeholder ?? ""}
+              onChange={(e) => onChange({ placeholder: e.target.value })}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Footer row: Add option (if applicable) + Required toggle side-by-side */}
+      {/* Actions bar - Only show for relevant question types */}
       <div className="pt-1 flex items-center gap-3 flex-wrap">
         {(question.kind === "single" || question.kind === "multiple") && (
           <>
@@ -617,6 +767,7 @@ export default function QuestionCard({
             </label>
           </>
         )}
+        {/* Checkbox "Obligatoire" visible pour tous les types */}
         <label className="flex items-center gap-2 text-sm text-gray-300 select-none">
           <input
             type="checkbox"

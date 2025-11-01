@@ -50,6 +50,7 @@ import { useEditorState, useEditorActions } from "./prototype/EditorStateProvide
 import { useUIState } from "./prototype/UIStateProvider";
 import { getConversation } from "../lib/storage/ConversationStorageSimple";
 import { getPollBySlugOrId } from "../lib/pollStorage";
+import { OnboardingTour } from "./OnboardingTour";
 
 // Global initialization guard to prevent multiple conversation creation
 let isInitializing = false;
@@ -784,6 +785,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             maxConversations: quota.status.conversations.limit,
           }}
         />
+
+        {/* Onboarding Tour */}
+        <OnboardingTour />
       </div>
     );
   },

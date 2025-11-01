@@ -37,12 +37,24 @@ const RATE_LIMIT = {
 export interface FormQuestion {
   text: any;
   title: string;
-  type: "single" | "multiple" | "text";
+  type: "single" | "multiple" | "text" | "rating" | "nps" | "matrix";
   required: boolean;
   options?: string[]; // Pour single/multiple
   maxChoices?: number; // Pour multiple
   placeholder?: string; // Pour text
   maxLength?: number; // Pour text
+  // Rating-specific fields
+  ratingScale?: number; // 5 ou 10 (par défaut 5)
+  ratingStyle?: "numbers" | "stars" | "emojis"; // Style d'affichage (par défaut numbers)
+  ratingMinLabel?: string; // Label pour la valeur minimale
+  ratingMaxLabel?: string; // Label pour la valeur maximale
+  // Text validation fields
+  validationType?: "email" | "phone" | "url" | "number" | "date"; // Type de validation pour champs text
+  // Matrix-specific fields
+  matrixRows?: Array<{ id: string; label: string }>; // Lignes (aspects à évaluer)
+  matrixColumns?: Array<{ id: string; label: string }>; // Colonnes (échelle de réponse)
+  matrixType?: "single" | "multiple"; // Une seule réponse par ligne ou plusieurs
+  matrixColumnsNumeric?: boolean; // Colonnes numériques (1-5) au lieu de texte
 }
 
 export interface FormPollSuggestion {
@@ -1078,10 +1090,15 @@ FORMAT JSON ATTENDU:
   "questions": [
     {
       "title": "Question exacte copiée telle quelle",
-      "type": "single" | "multiple" | "text",
+      "type": "single" | "multiple" | "text" | "rating" | "nps" | "matrix",
       "required": true,
-      "options": ["Option 1 exacte", "Option 2 exacte"],
-      "maxChoices": X  // si [max=X] dans le type
+      "options": ["Option 1 exacte", "Option 2 exacte"],  // Pour single/multiple
+      "maxChoices": X,  // si [max=X] dans le type (pour multiple)
+      "ratingScale": 5 | 10,  // Pour rating (par défaut 5)
+      "ratingStyle": "numbers" | "stars" | "emojis",  // Pour rating (par défaut numbers)
+      "ratingMinLabel": "Label min",  // Pour rating (optionnel)
+      "ratingMaxLabel": "Label max",  // Pour rating (optionnel)
+      "validationType": "email" | "phone" | "url" | "number" | "date"  // Pour text (optionnel)
     }
   ],
   "conditionalRules": [  // OPTIONNEL - seulement si règles détectées
@@ -1122,6 +1139,9 @@ RÈGLES DE GÉNÉRATION (MODE CRÉATIF):
    - "single" : Choix unique (radio buttons) - pour sélectionner UNE option
    - "multiple" : Choix multiples (checkboxes) - pour sélectionner PLUSIEURS options
    - "text" : Réponse libre - pour commentaires ou informations textuelles
+   - "rating" : Échelle de notation (1-5 ou 1-10) - pour évaluer satisfaction/qualité
+   - "nps" : Net Promoter Score (0-10) - pour mesurer probabilité de recommandation
+   - "matrix" : Matrice (lignes × colonnes) - pour évaluer plusieurs aspects sur une même échelle
 4. **OPTIONS** - Pour single/multiple : 2 à 8 options claires par question
 5. **COHÉRENCE** - Questions logiques, ordonnées et sans redondance
 6. **PERTINENCE** - Adapter précisément au contexte de la demande
@@ -1154,6 +1174,34 @@ EXEMPLES DE QUESTIONS PAR TYPE:
   "maxLength": 500
 }
 
+**Rating (échelle de notation):**
+{
+  "title": "Comment évaluez-vous la qualité du service ?",
+  "type": "rating",
+  "required": true,
+  "ratingScale": 5,  // 5 ou 10 (par défaut 5)
+  "ratingStyle": "stars",  // "numbers", "stars" ou "emojis" (par défaut "numbers")
+  "ratingMinLabel": "Très mauvais",  // Optionnel
+  "ratingMaxLabel": "Excellent"  // Optionnel
+}
+
+**NPS (Net Promoter Score):**
+{
+  "title": "Recommanderiez-vous notre service à un ami ?",
+  "type": "nps",
+  "required": true
+  // Pas de configuration : échelle fixe 0-10
+}
+
+**Text avec validation:**
+{
+  "title": "Quelle est votre adresse email ?",
+  "type": "text",
+  "required": true,
+  "validationType": "email",  // "email", "phone", "url", "number" ou "date"
+  "placeholder": "exemple@email.com"
+}
+
 FORMAT JSON REQUIS:
 {
   "title": "Titre du questionnaire",
@@ -1161,12 +1209,17 @@ FORMAT JSON REQUIS:
   "questions": [
     {
       "title": "Texte de la question",
-      "type": "single" | "multiple" | "text",
+      "type": "single" | "multiple" | "text" | "rating" | "nps" | "matrix",
       "required": true | false,
       "options": ["Option 1", "Option 2", "..."], // SEULEMENT pour single/multiple
       "maxChoices": 3, // SEULEMENT pour multiple (optionnel)
       "placeholder": "Texte d'aide", // SEULEMENT pour text (optionnel)
-      "maxLength": 500 // SEULEMENT pour text (optionnel)
+      "maxLength": 500, // SEULEMENT pour text (optionnel)
+      "validationType": "email" | "phone" | "url" | "number" | "date", // SEULEMENT pour text (optionnel)
+      "ratingScale": 5 | 10, // SEULEMENT pour rating (par défaut 5)
+      "ratingStyle": "numbers" | "stars" | "emojis", // SEULEMENT pour rating (par défaut "numbers")
+      "ratingMinLabel": "Label min", // SEULEMENT pour rating (optionnel)
+      "ratingMaxLabel": "Label max" // SEULEMENT pour rating (optionnel)
     }
   ],
   "type": "form"

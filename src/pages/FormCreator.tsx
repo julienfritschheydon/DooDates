@@ -77,10 +77,10 @@ export default function FormCreator() {
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors"
                 >
                   <Check className="w-5 h-5" />
-                  Aller au Dashboard
+                  Aller au Tableau de bord
                 </Link>
                 <Link
-                  to={`/poll/${publishedPoll.id}/vote`}
+                  to={`/poll/${publishedPoll.slug || publishedPoll.id}`}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent text-gray-300 border border-gray-700 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
                 >
                   <ExternalLink className="w-5 h-5" />
@@ -93,11 +93,11 @@ export default function FormCreator() {
                 <p className="text-sm text-gray-400 mb-3">Lien du formulaire :</p>
                 <div className="flex flex-col sm:flex-row gap-2 items-center justify-center">
                   <code className="px-4 py-2 bg-[#1e1e1e] border border-gray-700 rounded text-sm font-mono text-gray-300 break-all">
-                    {window.location.origin}/poll/{publishedPoll.id}/vote
+                    {window.location.origin}/poll/{publishedPoll.slug || publishedPoll.id}
                   </code>
                   <button
                     onClick={() => {
-                      const url = `${window.location.origin}/poll/${publishedPoll.id}/vote`;
+                      const url = `${window.location.origin}/poll/${publishedPoll.slug || publishedPoll.id}`;
                       navigator.clipboard.writeText(url);
                       toast({
                         title: "Lien copié !",
@@ -118,15 +118,11 @@ export default function FormCreator() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pt-20">
-      <div className="max-w-5xl mx-auto">
-        <FormPollCreator
-          initialDraft={initialDraft}
-          onCancel={handleCancel}
-          onSave={handleSave}
-          onFinalize={handleFinalize}
-        />
-      </div>
-    </div>
+    <FormPollCreator
+      initialDraft={initialDraft}
+      onCancel={handleCancel}
+      onSave={handleSave}
+      onFinalize={handleFinalize}
+    />
   );
 }

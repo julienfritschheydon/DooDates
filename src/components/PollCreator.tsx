@@ -43,7 +43,7 @@ import { VoteGrid } from "@/components/voting/VoteGrid";
 import { groupConsecutiveDates } from "../lib/date-utils";
 
 interface PollCreatorProps {
-  onBack?: () => void;
+  onBack?: (createdPoll?: any) => void;
   onOpenMenu?: () => void;
   initialData?: DatePollSuggestion;
   withBackground?: boolean;
@@ -98,6 +98,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       });
       if (result.poll) {
         setCreatedPollSlug(result.poll.slug);
+        setCreatedPoll(result.poll);
 
         // Mettre à jour la conversation si le sondage a été créé depuis le chat
         // Utiliser la fonction partagée pour garantir la cohérence
@@ -486,7 +487,21 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         ? `${baseUrl}/vote/${createdPollSlug}`
         : `${baseUrl}/vote/${state.pollTitle.replace(/\s+/g, "-").toLowerCase() || "nouveau-sondage"}`;
 
-      await navigator.clipboard.writeText(pollUrl);
+      // Fallback pour environnements non-sécurisés (HTTP local)
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(pollUrl);
+      } else {
+        // Fallback: créer un input temporaire
+        const textArea = document.createElement("textarea");
+        textArea.value = pollUrl;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+
       setState((prev) => ({ ...prev, pollLinkCopied: true }));
 
       // Reset après 3 secondes
@@ -515,7 +530,13 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   // Fonction pour rediriger vers le dashboard
   const handleBackToHome = () => {
-    // Get conversation ID from URL parameters (passed from GeminiChatInterface)
+    // Si onBack est fourni, l'appeler avec le poll créé
+    if (onBack) {
+      onBack(createdPoll);
+      return;
+    }
+
+    // Sinon, navigation par défaut
     const urlParams = new URLSearchParams(window.location.search);
     const conversationId = urlParams.get("conversationId");
 

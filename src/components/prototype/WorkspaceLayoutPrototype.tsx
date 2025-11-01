@@ -24,6 +24,7 @@ import { ChatInput } from "../chat/ChatInput";
 import { VOICE_RECOGNITION_CONFIG } from "../../config/voiceRecognition.config";
 import { logger } from "../../lib/logger";
 import { getConversations } from "../../lib/storage/ConversationStorageSimple";
+import { useOnboarding } from "../../hooks/useOnboarding";
 
 // Fonction pour trouver la conversation liée à un sondage (rétrocompatibilité)
 function findRelatedConversation(poll: Poll): string | undefined {
@@ -76,6 +77,9 @@ export function WorkspaceLayoutPrototype() {
 
   // Hook legacy pour clearConversation (non migré)
   const { clearConversation } = useConversation();
+
+  // Hook onboarding
+  const { startOnboarding } = useOnboarding();
 
   // Hook reconnaissance vocale UNIQUE pour toute l'application
   // Partagé entre le chat et la preview pour éviter les conflits
@@ -195,16 +199,44 @@ export function WorkspaceLayoutPrototype() {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          {/* Bouton fermer en haut de la sidebar */}
-          <div className="p-4">
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-              aria-label="Fermer le menu"
-              title="Fermer le menu"
-            >
-              <X className="w-5 h-5 text-gray-300" />
-            </button>
+          {/* Header avec bouton fermer */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-800">
+            <h2 className="text-lg font-semibold text-white">DooDates</h2>
+            <div className="flex items-center gap-2">
+              {/* Bouton Aide */}
+              <button
+                onClick={() => {
+                  startOnboarding();
+                  if (isMobile) setIsSidebarOpen(false);
+                }}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                aria-label="Aide"
+                title="Voir le tour guidé"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </button>
+              {/* Bouton Fermer */}
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                aria-label="Fermer le menu"
+                title="Fermer le menu"
+              >
+                <X className="w-5 h-5 text-gray-300" />
+              </button>
+            </div>
           </div>
 
           {isSidebarOpen && (
@@ -249,7 +281,7 @@ export function WorkspaceLayoutPrototype() {
                       d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                     />
                   </svg>
-                  <span>Dashboard</span>
+                  <span>Tableau de bord</span>
                 </button>
               </div>
 
