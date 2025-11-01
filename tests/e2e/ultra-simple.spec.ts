@@ -101,11 +101,11 @@ test.describe('DooDates - Test Ultra Simple', () => {
       await page.locator('[data-testid="poll-title"]').fill('Test E2E Ultra Simple');
       console.log('✅ Titre saisi');
 
-      // Enregistrer le sondage
-      const saveBtn = page.getByRole('button', { name: 'Enregistrer' });
-      await expect(saveBtn).toBeVisible({ timeout: 10000 });
-      await robustClick(saveBtn);
-      console.log('✅ Bouton "Enregistrer" cliqué');
+      // Finaliser le sondage (crée le poll + conversation)
+      const finalizeBtn = page.getByRole('button', { name: 'Finaliser' });
+      await expect(finalizeBtn).toBeVisible({ timeout: 10000 });
+      await robustClick(finalizeBtn);
+      console.log('✅ Bouton "Finaliser" cliqué');
 
       // Aller au dashboard
       await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
