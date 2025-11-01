@@ -14,6 +14,7 @@ import { ConversationProvider } from "./components/prototype/ConversationProvide
 import { UIStateProvider } from "./components/prototype/UIStateProvider";
 import { ConversationStateProvider } from "./components/prototype/ConversationStateProvider";
 import { EditorStateProvider } from "./components/prototype/EditorStateProvider";
+import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Composant de loading optimisé
@@ -300,6 +301,8 @@ const VotingSwipeWrapper = () => {
 // Layout principal (anciennement LayoutPrototype)
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  // ✅ Hook appelé AVANT tout retour conditionnel
+  const isMobile = useIsMobile();
 
   // Pages qui ne doivent pas afficher la Sidebar (garde TopNav)
   const useClassicLayout =
@@ -314,8 +317,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Sinon, utiliser layout sans TopBar (style Gemini)
-  const isMobile = useIsMobile();
-
   return (
     <div className="flex flex-col h-screen">
       <main className={`flex-1 ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}>
@@ -335,37 +336,40 @@ const App = () => {
           <BrowserRouter>
             <AppLayout>
               <Suspense fallback={<LoadingSpinner />}>
-                {/* UIStateProvider pour l'état UI (sidebar, highlights) */}
-                <UIStateProvider>
-                  {/* ConversationStateProvider pour l'état conversation (messages, ID) */}
-                  <ConversationStateProvider>
-                    {/* EditorStateProvider pour l'état éditeur (poll, actions) */}
-                    <EditorStateProvider>
-                      {/* ConversationProvider LEGACY - À migrer progressivement */}
-                      <ConversationProvider>
-                        <Routes>
-                          {/* Route / vers WorkspacePage (AI-First UX) */}
-                          <Route path="/" element={<WorkspacePage />} />
+                {/* OnboardingProvider pour l'état onboarding partagé */}
+                <OnboardingProvider>
+                  {/* UIStateProvider pour l'état UI (sidebar, highlights) */}
+                  <UIStateProvider>
+                    {/* ConversationStateProvider pour l'état conversation (messages, ID) */}
+                    <ConversationStateProvider>
+                      {/* EditorStateProvider pour l'état éditeur (poll, actions) */}
+                      <EditorStateProvider>
+                        {/* ConversationProvider LEGACY - À migrer progressivement */}
+                        <ConversationProvider>
+                          <Routes>
+                            {/* Route / vers WorkspacePage (AI-First UX) */}
+                            <Route path="/" element={<WorkspacePage />} />
 
-                          {/* Redirections vers / */}
-                          <Route path="/workspace" element={<WorkspacePage />} />
-                          <Route path="/dashboard" element={<Dashboard />} />
+                            {/* Redirections vers / */}
+                            <Route path="/workspace" element={<WorkspacePage />} />
+                            <Route path="/dashboard" element={<Dashboard />} />
 
-                          <Route path="/auth" element={<Auth />} />
-                          <Route path="/auth/callback" element={<AuthCallback />} />
-                          <Route path="/poll/:slug" element={<Vote />} />
-                          <Route path="/poll/:slug/results" element={<Results />} />
-                          <Route path="/vote/:pollId" element={<Vote />} />
-                          <Route path="/create" element={<CreateChooser />} />
-                          <Route path="/create/date" element={<DateCreator />} />
-                          <Route path="/create/form" element={<FormCreator />} />
-                          <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </ConversationProvider>
-                    </EditorStateProvider>
-                  </ConversationStateProvider>
-                </UIStateProvider>
+                            <Route path="/auth" element={<Auth />} />
+                            <Route path="/auth/callback" element={<AuthCallback />} />
+                            <Route path="/poll/:slug" element={<Vote />} />
+                            <Route path="/poll/:slug/results" element={<Results />} />
+                            <Route path="/vote/:pollId" element={<Vote />} />
+                            <Route path="/create" element={<CreateChooser />} />
+                            <Route path="/create/date" element={<DateCreator />} />
+                            <Route path="/create/form" element={<FormCreator />} />
+                            <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </ConversationProvider>
+                      </EditorStateProvider>
+                    </ConversationStateProvider>
+                  </UIStateProvider>
+                </OnboardingProvider>
               </Suspense>
             </AppLayout>
           </BrowserRouter>

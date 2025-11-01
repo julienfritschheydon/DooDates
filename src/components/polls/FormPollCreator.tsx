@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Undo2, Save, Check, X } from "lucide-react";
 import FormEditor from "./FormEditor";
 import type { Question as EditorQuestion } from "./QuestionCard";
@@ -8,9 +8,11 @@ import type { ConditionalRule } from "../../types/conditionalRules";
 import { validateConditionalRules } from "../../lib/conditionalValidator";
 import { linkPollToConversation } from "../../lib/conversationPollLink";
 import { useUIState } from "../prototype/UIStateProvider";
+import { ThemeSelector } from "./ThemeSelector";
+import { DEFAULT_THEME } from "../../lib/themes";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
-export type FormQuestionType = "single" | "multiple" | "text" | "matrix";
+export type FormQuestionType = "single" | "multiple" | "text" | "matrix" | "rating" | "nps";
 
 export interface FormOption {
   id: string;
@@ -35,6 +37,7 @@ export interface TextQuestion extends FormQuestionBase {
   type: "text";
   placeholder?: string;
   maxLength?: number;
+  validationType?: "email" | "phone" | "url" | "number" | "date";
 }
 
 export interface MatrixQuestion extends FormQuestionBase {
@@ -45,7 +48,24 @@ export interface MatrixQuestion extends FormQuestionBase {
   matrixColumnsNumeric?: boolean; // Colonnes numériques
 }
 
-export type AnyFormQuestion = SingleOrMultipleQuestion | TextQuestion | MatrixQuestion;
+export interface RatingQuestion extends FormQuestionBase {
+  type: "rating";
+  ratingScale?: number; // 5 ou 10
+  ratingStyle?: "numbers" | "stars" | "emojis";
+  ratingMinLabel?: string;
+  ratingMaxLabel?: string;
+}
+
+export interface NPSQuestion extends FormQuestionBase {
+  type: "nps";
+}
+
+export type AnyFormQuestion =
+  | SingleOrMultipleQuestion
+  | TextQuestion
+  | MatrixQuestion
+  | RatingQuestion
+  | NPSQuestion;
 
 export interface FormPollDraft {
   id: string; // draft id (temporaire pour le spike)
@@ -53,6 +73,7 @@ export interface FormPollDraft {
   title: string;
   questions: AnyFormQuestion[];
   conditionalRules?: ConditionalRule[]; // Règles pour questions conditionnelles
+  themeId?: string; // Thème visuel (Quick Win #3)
 }
 
 interface FormPollCreatorProps {
@@ -82,6 +103,7 @@ export default function FormPollCreator({
   const [conditionalRules, setConditionalRules] = useState<ConditionalRule[]>(
     initialDraft?.conditionalRules || [],
   );
+  const [themeId, setThemeId] = useState<string>(initialDraft?.themeId || DEFAULT_THEME.id);
   const [draftId] = useState<string>(initialDraft?.id || "draft-" + uid());
   const autosaveTimer = useRef<number | null>(null);
 
@@ -101,8 +123,9 @@ export default function FormPollCreator({
       title,
       questions,
       conditionalRules,
+      themeId,
     }),
-    [draftId, title, questions, conditionalRules],
+    [draftId, title, questions, conditionalRules, themeId],
   );
 
   const canSave = useMemo(() => validateDraft(currentDraft).ok, [currentDraft]);
@@ -120,6 +143,12 @@ export default function FormPollCreator({
       matrixColumns: (q as MatrixQuestion).matrixColumns,
       matrixType: (q as MatrixQuestion).matrixType,
       matrixColumnsNumeric: (q as MatrixQuestion).matrixColumnsNumeric,
+      ratingScale: (q as any).ratingScale,
+      ratingStyle: (q as any).ratingStyle,
+      ratingMinLabel: (q as any).ratingMinLabel,
+      ratingMaxLabel: (q as any).ratingMaxLabel,
+      validationType: (q as any).validationType,
+      placeholder: (q as any).placeholder,
     }));
 
   const fromEditorQuestions = (qs: EditorQuestion[]): AnyFormQuestion[] =>
@@ -130,8 +159,9 @@ export default function FormPollCreator({
           type: "text",
           title: q.title,
           required: !!q.required,
-          placeholder: "",
+          placeholder: q.placeholder || "",
           maxLength: 300,
+          validationType: q.validationType,
         };
         return base;
       }
@@ -145,6 +175,28 @@ export default function FormPollCreator({
           matrixColumns: q.matrixColumns ?? [],
           matrixType: q.matrixType ?? "single",
           matrixColumnsNumeric: q.matrixColumnsNumeric,
+        };
+        return base;
+      }
+      if (q.kind === "rating") {
+        const base: RatingQuestion = {
+          id: q.id,
+          type: "rating",
+          title: q.title,
+          required: !!q.required,
+          ratingScale: q.ratingScale ?? 5,
+          ratingStyle: q.ratingStyle ?? "numbers",
+          ratingMinLabel: q.ratingMinLabel,
+          ratingMaxLabel: q.ratingMaxLabel,
+        };
+        return base;
+      }
+      if (q.kind === "nps") {
+        const base: NPSQuestion = {
+          id: q.id,
+          type: "nps",
+          title: q.title,
+          required: !!q.required,
         };
         return base;
       }
@@ -176,6 +228,15 @@ export default function FormPollCreator({
     const all = getAllPolls();
     const now = new Date().toISOString();
     const existingIdx = all.findIndex((p) => p.id === draft.id);
+
+    // Debug: Vérifier si on trouve le poll existant
+    logger.debug("upsertFormPoll", "poll", {
+      draftId: draft.id,
+      existingIdx,
+      existingSlug: existingIdx >= 0 ? all[existingIdx].slug : "none",
+      allPollIds: all.map((p) => p.id),
+    });
+
     const base: Poll = {
       id: draft.id,
       title: draft.title.trim(),
@@ -199,6 +260,7 @@ export default function FormPollCreator({
         return base;
       }),
       conditionalRules: draft.conditionalRules, // Persister les règles conditionnelles
+      themeId: draft.themeId, // Persister le thème visuel
     };
     if (existingIdx >= 0) {
       all[existingIdx] = base;
@@ -296,13 +358,13 @@ export default function FormPollCreator({
       return;
     }
 
-    // Supprimer tous les brouillons avec le même ID avant de finaliser
-    const all = getAllPolls();
-    const withoutDrafts = all.filter((p) => !(p.id === draft.id && p.status === "draft"));
-    savePolls(withoutDrafts);
-
-    // Créer le poll actif
+    // Créer/mettre à jour le poll actif (upsertFormPoll gère déjà la logique de mise à jour)
     const saved = upsertFormPoll(draft, "active");
+
+    // Supprimer les anciens brouillons avec le même ID (mais garder le poll actif qu'on vient de créer)
+    const all = getAllPolls();
+    const withoutOldDrafts = all.filter((p) => !(p.id === draft.id && p.status === "draft"));
+    savePolls(withoutOldDrafts);
 
     // Lier le formulaire à la conversation pour persister l'état "Voir"
     linkPollToConversation(saved.title, saved.id);
@@ -313,8 +375,23 @@ export default function FormPollCreator({
   };
 
   return (
-    <div className="bg-[#0a0a0a]" data-form-container>
-      <div className="px-4 md:px-6">
+    <div className="min-h-screen bg-[#0a0a0a]" data-form-container>
+      {/* Header sticky avec bouton fermer - Style identique aux sondages */}
+      {onCancel && (
+        <div className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-gray-800">
+          <div className="max-w-6xl mx-auto px-4 py-3">
+            <button
+              onClick={onCancel}
+              className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
+              title="Fermer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="px-4 md:px-6 pt-6">
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#0a0a0a]">
             <div className="space-y-4">
@@ -324,6 +401,7 @@ export default function FormPollCreator({
                   title,
                   questions: toEditorQuestions(questions),
                   conditionalRules,
+                  themeId,
                 }}
                 onChange={(next) => {
                   setTitle(next.title);
@@ -335,6 +413,8 @@ export default function FormPollCreator({
                 onCancel={onCancel}
                 modifiedQuestionId={modifiedQuestionId}
                 modifiedField={modifiedField}
+                themeId={themeId}
+                onThemeChange={setThemeId}
                 onAddQuestion={() => {
                   // default to single choice when adding via editor button
                   setQuestions((prev) => [
@@ -372,6 +452,7 @@ function validateDraft(draft: FormPollDraft): {
   if (draft.questions.length === 0) errors.push("Au moins une question");
   draft.questions.forEach((q, idx) => {
     if (!q.title?.trim()) errors.push(`Question ${idx + 1}: intitulé requis`);
+
     if (q.type === "matrix") {
       const mq = q as MatrixQuestion;
       if (!mq.matrixRows || mq.matrixRows.length < 1)
@@ -382,7 +463,7 @@ function validateDraft(draft: FormPollDraft): {
       if (emptyRow) errors.push(`Question ${idx + 1}: une ligne est vide`);
       const emptyCol = mq.matrixColumns?.find((c) => !c || !c.label || !c.label.trim());
       if (emptyCol) errors.push(`Question ${idx + 1}: une colonne est vide`);
-    } else if (q.type !== "text") {
+    } else if (q.type === "single" || q.type === "multiple") {
       const sq = q as SingleOrMultipleQuestion;
       if (sq.options.length < 2) errors.push(`Question ${idx + 1}: minimum 2 options`);
       if (sq.options.length > 10) errors.push(`Question ${idx + 1}: maximum 10 options`);
@@ -394,11 +475,20 @@ function validateDraft(draft: FormPollDraft): {
         if (maxChoices > sq.options.length)
           errors.push(`Question ${idx + 1}: maxChoices <= nombre d'options`);
       }
-    } else {
+    } else if (q.type === "text") {
       const tq = q as TextQuestion;
       if ((tq.maxLength ?? 300) < 50) errors.push(`Question ${idx + 1}: maxLength >= 50`);
       if ((tq.maxLength ?? 300) > 1000) errors.push(`Question ${idx + 1}: maxLength <= 1000`);
+    } else if (q.type === "rating") {
+      const rq = q as RatingQuestion;
+      if (rq.ratingScale && rq.ratingScale !== 5 && rq.ratingScale !== 10) {
+        errors.push(`Question ${idx + 1}: échelle doit être 5 ou 10`);
+      }
+      if (rq.ratingStyle && !["numbers", "stars", "emojis"].includes(rq.ratingStyle)) {
+        errors.push(`Question ${idx + 1}: style invalide`);
+      }
     }
+    // NPS n'a pas de validation spécifique
   });
 
   // Valider les règles conditionnelles si présentes

@@ -29,7 +29,7 @@ export interface PollSettings {
 }
 
 // --- Types FormPoll (réponses & résultats) ---
-export type FormQuestionKind = "single" | "multiple" | "text" | "matrix";
+export type FormQuestionKind = "single" | "multiple" | "text" | "matrix" | "rating" | "nps";
 
 export interface FormQuestionOption {
   id: string;
@@ -54,6 +54,14 @@ export interface FormQuestionShape {
   matrixColumns?: FormQuestionOption[]; // Colonnes (échelle de réponse)
   matrixType?: "single" | "multiple"; // Une seule réponse par ligne ou plusieurs
   matrixColumnsNumeric?: boolean; // Colonnes numériques (1-5) au lieu de texte
+  // Rating-specific fields
+  ratingScale?: number; // 5 ou 10 (par défaut 5)
+  ratingStyle?: "numbers" | "stars" | "emojis"; // Style d'affichage (par défaut numbers)
+  ratingMinLabel?: string; // Label pour la valeur minimale
+  ratingMaxLabel?: string; // Label pour la valeur maximale
+  // NPS-specific fields (toujours 0-10, pas de configuration)
+  // Text validation fields
+  validationType?: "email" | "phone" | "url" | "number" | "date"; // Type de validation pour champs text
 }
 
 // Import ConditionalRule type
@@ -63,7 +71,8 @@ export interface FormResponseItem {
   questionId: string;
   // single => string (optionId), multiple => string[] (optionIds), text => string
   // matrix => Record<rowId, columnId | columnId[]>
-  value: string | string[] | Record<string, string | string[]>;
+  // rating/nps => number
+  value: string | string[] | Record<string, string | string[]> | number;
 }
 
 export interface FormResponse {
@@ -118,6 +127,7 @@ export interface Poll {
   // Champs spécifiques aux formulaires - properly typed now
   questions?: FormQuestionShape[];
   conditionalRules?: ConditionalRule[]; // Règles pour questions conditionnelles
+  themeId?: string; // Thème visuel (Quick Win #3)
   // Lien avec conversation IA
   relatedConversationId?: string; // ID de la conversation qui a créé ce sondage
 }

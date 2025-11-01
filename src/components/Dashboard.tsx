@@ -122,7 +122,14 @@ const Dashboard: React.FC = () => {
         };
       });
 
-      setPolls(pollsWithStats);
+      // Trier par date de création décroissante (plus récents en premier)
+      const sortedPolls = pollsWithStats.sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        return dateB - dateA;
+      });
+
+      setPolls(sortedPolls);
     } catch (error) {
       logError(
         ErrorFactory.storage("Failed to load polls", "Erreur lors du chargement des sondages"),
@@ -229,31 +236,10 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       <div className="pt-20">
-        {/* Indicateur Mode Développement Local */}
-        <div className="bg-amber-900/20 border-l-4 border-amber-500 p-3 mb-4">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-amber-200">
-                🚧 <strong>Mode Développement Local</strong> - Les sondages sont stockés localement
-                (localStorage)
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Onglets de navigation */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-4">
               <div className="flex space-x-1 bg-[#1e1e1e] p-1 rounded-lg">
                 <button
                   onClick={() => setActiveTab("polls")}
@@ -296,12 +282,12 @@ const Dashboard: React.FC = () => {
             </button>
           </div>
 
-          {/* Contenu conditionnel selon l'onglet actif */}
+              {/* Contenu conditionnel selon l'onglet actif */}
           {activeTab === "polls" && (
             <>
               {/* Filtres et recherche */}
-              <div className="mb-6">
-                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+              <div className="mb-4">
+                <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
                   <div className="relative flex-1 max-w-md">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                     <input
@@ -309,16 +295,16 @@ const Dashboard: React.FC = () => {
                       placeholder="Rechercher un sondage..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 bg-[#1e1e1e] border border-gray-700 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-4 py-1.5 bg-[#1e1e1e] border border-gray-700 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       data-testid="search-polls"
                     />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     {["all", "draft", "active", "closed", "archived"].map((status) => (
                       <button
                         key={status}
                         onClick={() => setFilter(status as any)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                           filter === status
                             ? "bg-blue-500 text-white"
                             : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700"
@@ -334,7 +320,7 @@ const Dashboard: React.FC = () => {
               </div>
 
               {/* Grille des sondages */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredPolls.map((poll) => (
                   <div
                     key={poll.id}

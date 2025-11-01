@@ -1,0 +1,89 @@
+/* Custom Checkboxes et Radio Buttons avec thème */
+
+/* Container pour les inputs custom */
+.custom-input-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Masquer l'input natif mais garder l'accessibilité */
+.custom-input-wrapper input[type="checkbox"],
+.custom-input-wrapper input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Créer le faux checkbox/radio */
+.custom-input-wrapper .custom-input {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--theme-border, #E2E8F0);
+  background-color: var(--theme-bg-input, #F1F5F9);
+  transition: all 0.2s ease;
+}
+
+/* Radio = rond */
+.custom-input-wrapper input[type="radio"] + .custom-input {
+  border-radius: 50%;
+}
+
+/* Checkbox = carré avec coins arrondis */
+.custom-input-wrapper input[type="checkbox"] + .custom-input {
+  border-radius: 4px;
+}
+
+/* Hover effect */
+.custom-input-wrapper:hover .custom-input {
+  border-color: var(--theme-primary, #3B82F6);
+}
+
+/* État checked - bordure colorée */
+.custom-input-wrapper input:checked + .custom-input {
+  border-color: var(--theme-primary, #3B82F6);
+  background-color: var(--theme-primary, #3B82F6);
+}
+
+/* Checkmark pour checkbox (✓) */
+.custom-input-wrapper input[type="checkbox"]:checked + .custom-input::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Point pour radio (●) */
+.custom-input-wrapper input[type="radio"]:checked + .custom-input::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: white;
+}
+
+/* État disabled */
+.custom-input-wrapper input:disabled + .custom-input {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Focus visible pour accessibilité */
+.custom-input-wrapper input:focus-visible + .custom-input {
+  outline: 2px solid var(--theme-primary, #3B82F6);
+  outline-offset: 2px;
+}

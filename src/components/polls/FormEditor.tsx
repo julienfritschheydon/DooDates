@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { X } from "lucide-react";
 import QuestionCard from "./QuestionCard";
 import type { Question } from "./QuestionCard";
 import QuestionListNav from "./QuestionListNav";
 import type { ConditionalRule } from "../../types/conditionalRules";
+import { ThemeSelector } from "./ThemeSelector";
+import { DEFAULT_THEME } from "../../lib/themes";
 
 // Types for a minimal Form Poll draft used by the editor
 export type FormPollDraft = {
@@ -10,6 +13,7 @@ export type FormPollDraft = {
   title: string;
   questions: Question[];
   conditionalRules?: ConditionalRule[];
+  themeId?: string;
 };
 
 export type FormEditorProps = {
@@ -25,6 +29,9 @@ export type FormEditorProps = {
   // Visual feedback for modifications
   modifiedQuestionId?: string | null;
   modifiedField?: "title" | "type" | "options" | "required" | null;
+  // Theme selector
+  themeId?: string;
+  onThemeChange?: (themeId: string) => void;
 };
 
 /**
@@ -42,6 +49,8 @@ export default function FormEditor({
   onFinalize,
   modifiedQuestionId,
   modifiedField,
+  themeId,
+  onThemeChange,
 }: FormEditorProps) {
   const [activeId, setActiveId] = useState<string | null>(value.questions[0]?.id ?? null);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -171,6 +180,16 @@ export default function FormEditor({
         />
       </div>
 
+      {/* Sélecteur de thème */}
+      {onThemeChange && (
+        <div className="mt-4">
+          <ThemeSelector
+            selectedThemeId={themeId || DEFAULT_THEME.id}
+            onThemeChange={onThemeChange}
+          />
+        </div>
+      )}
+
       {/* Navigation des questions */}
       <QuestionListNav
         questions={value.questions}
@@ -215,15 +234,6 @@ export default function FormEditor({
 
       {/* Boutons d'action - MÊME STYLE QUE POLLCREATOR */}
       <div className="flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-700">
-        {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-6 py-3 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors"
-          >
-            Annuler
-          </button>
-        )}
         {onSaveDraft && (
           <button
             type="button"
