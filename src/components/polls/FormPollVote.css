@@ -24,8 +24,8 @@
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 2px solid var(--theme-border, #E2E8F0);
-  background-color: var(--theme-bg-input, #F1F5F9);
+  border: 2px solid var(--theme-border, #e2e8f0);
+  background-color: var(--theme-bg-input, #f1f5f9);
   transition: all 0.2s ease;
 }
 
@@ -41,13 +41,13 @@
 
 /* Hover effect */
 .custom-input-wrapper:hover .custom-input {
-  border-color: var(--theme-primary, #3B82F6);
+  border-color: var(--theme-primary, #3b82f6);
 }
 
 /* État checked - bordure colorée */
 .custom-input-wrapper input:checked + .custom-input {
-  border-color: var(--theme-primary, #3B82F6);
-  background-color: var(--theme-primary, #3B82F6);
+  border-color: var(--theme-primary, #3b82f6);
+  background-color: var(--theme-primary, #3b82f6);
 }
 
 /* Checkmark pour checkbox (✓) */
@@ -84,6 +84,6 @@
 
 /* Focus visible pour accessibilité */
 .custom-input-wrapper input:focus-visible + .custom-input {
-  outline: 2px solid var(--theme-primary, #3B82F6);
+  outline: 2px solid var(--theme-primary, #3b82f6);
   outline-offset: 2px;
 }

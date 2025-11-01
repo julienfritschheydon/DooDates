@@ -4,7 +4,7 @@
  * DooDates - Conversation History System
  */
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { AlertCircle, RefreshCw, MessageSquare, Search, Eye, Database } from "lucide-react";
 import { Button } from "../ui/button";
 import { Alert, AlertDescription } from "../ui/alert";
@@ -15,6 +15,8 @@ import { useConversations } from "../../hooks/useConversations";
 import { useConversationSearch } from "../../hooks/useConversationSearch";
 import { logError, ErrorFactory } from "../../lib/error-handling";
 import type { Conversation, ConversationSearchFilters } from "../../types/conversation";
+import { enrichConversationsWithStats } from "../../lib/conversationFilters";
+import { logger } from "../../lib/logger";
 
 // Additional types for sorting and UI
 export type ConversationSortBy = "createdAt" | "updatedAt" | "title" | "messageCount";
@@ -105,12 +107,32 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 
   // Conversations data
   const conversationsHook = useConversations();
-  const conversations = conversationsHook.conversations.conversations || [];
+  const rawConversations = conversationsHook.conversations.conversations || [];
   const isLoading = conversationsHook.conversations.isLoading;
   const isError = conversationsHook.conversations.isError;
   const error = conversationsHook.conversations.error;
   const refetch = conversationsHook.refresh || (() => {});
   const isRefetching = conversationsHook.isRefreshing || false;
+
+  // Écouter les événements de création de conversation (Session 2)
+  useEffect(() => {
+    const handleConversationCreated = () => {
+      logger.info("🔄 Conversation créée, rafraîchissement du Dashboard", "conversation");
+      refetch();
+    };
+
+    window.addEventListener("conversation-created", handleConversationCreated);
+    return () => window.removeEventListener("conversation-created", handleConversationCreated);
+  }, [refetch]);
+
+  // Mutations
+  const deleteConversation = conversationsHook.deleteConversation;
+  const updateConversation = conversationsHook.updateConversation;
+
+  // Enrichir les conversations avec les stats des polls (Session 1 - Architecture centrée conversations)
+  const conversations = useMemo(() => {
+    return enrichConversationsWithStats(rawConversations);
+  }, [rawConversations]);
 
   // Filter conversations based on search query
   const filteredConversations = useMemo(() => {
@@ -197,6 +219,40 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
     [handleClosePreview, onResumeConversation],
   );
 
+  const handleDelete = useCallback(
+    (conversationId: string) => {
+      if (deleteConversation) {
+        deleteConversation.mutate(conversationId);
+      }
+    },
+    [deleteConversation],
+  );
+
+  const handleRename = useCallback(
+    (conversationId: string, newTitle: string) => {
+      if (updateConversation) {
+        updateConversation.mutate({
+          id: conversationId,
+          updates: { title: newTitle },
+        });
+      }
+    },
+    [updateConversation],
+  );
+
+  const handleToggleFavorite = useCallback(
+    (conversationId: string) => {
+      const conversation = conversations.find((c) => c.id === conversationId);
+      if (conversation && updateConversation) {
+        updateConversation.mutate({
+          id: conversationId,
+          updates: { isFavorite: !conversation.isFavorite },
+        });
+      }
+    },
+    [conversations, updateConversation],
+  );
+
   const handleViewPollFromPreview = useCallback(
     (pollId: string) => {
       onViewPoll?.(pollId);
@@ -242,138 +298,21 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   return (
     <div className={`conversation-history ${className}`}>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{text.title}</h2>
-          {!compact && <p className="text-gray-600 dark:text-gray-400 mt-1">{text.subtitle}</p>}
-        </div>
-
-        {/* Search Bar and Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Rechercher par titre ou ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowDebugView(!showDebugView)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                showDebugView
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-              }`}
-            >
-              <Database className="w-4 h-4" />
-              Debug Storage
-            </button>
-          </div>
-        </div>
-
-        {/* Refresh Button */}
-        {!isLoading && (
-          <div className="flex justify-end">
-            <Button
-              onClick={handleRetry}
-              variant="ghost"
-              size="sm"
-              disabled={isRefetching}
-              className="gap-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`} />
-              {isRefetching ? text.refreshing : text.retry}
-            </Button>
-          </div>
-        )}
-
-        {/* Debug Storage View */}
-        {showDebugView && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Database className="w-5 h-5" />
-              Debug Storage - Messages par conversation
-            </h3>
-            <div className="space-y-4 max-h-96 overflow-y-auto">
-              {filteredConversations.map((conv) => {
-                const storedMessages = getStoredMessages(conv.id);
-                return (
-                  <div key={conv.id} className="bg-white border border-gray-200 rounded p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm">{conv.title}</h4>
-                        <p className="text-xs text-gray-500">ID: {conv.id}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`px-2 py-1 text-xs rounded ${
-                            storedMessages.length > 1
-                              ? "bg-green-100 text-green-800"
-                              : storedMessages.length === 1
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {storedMessages.length} messages
-                        </span>
-                        {onResumeConversation && (
-                          <button
-                            onClick={() => onResumeConversation(conv.id)}
-                            className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
-                          >
-                            Reprendre
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    {storedMessages.length > 0 && (
-                      <div className="space-y-1">
-                        {storedMessages.map((msg: any, idx: number) => (
-                          <div key={idx} className="text-xs bg-gray-50 p-2 rounded">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span
-                                className={`px-1 py-0.5 rounded text-xs ${
-                                  msg.role === "user"
-                                    ? "bg-blue-100 text-blue-800"
-                                    : "bg-green-100 text-green-800"
-                                }`}
-                              >
-                                {msg.role === "user" ? "Utilisateur" : "IA"}
-                              </span>
-                              <span className="text-gray-500">{msg.id}</span>
-                            </div>
-                            <p className="text-gray-700 truncate">
-                              {msg.content?.substring(0, 100)}...
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Conversation List */}
-        {!showDebugView && (
-          <ConversationList
-            conversations={filteredConversations}
-            isLoading={isLoading}
-            error={error}
-            onResume={onResumeConversation}
-            onViewPoll={onViewPoll}
-            onCreateNew={onCreateConversation}
-            language={language}
-            showSearch={false}
-            compact={compact}
-          />
-        )}
+        {/* Conversation List - Simplifié (Session 2) */}
+        <ConversationList
+          conversations={filteredConversations}
+          isLoading={isLoading}
+          error={error}
+          onResume={onResumeConversation}
+          onRename={handleRename}
+          onDelete={handleDelete}
+          onToggleFavorite={handleToggleFavorite}
+          onViewPoll={onViewPoll}
+          onCreateNew={onCreateConversation}
+          language={language}
+          showSearch={false}
+          compact={compact}
+        />
 
         {/* Empty State for No Results */}
         {!isLoading && displayConversations.length === 0 && !hasActiveFilters && !query && (

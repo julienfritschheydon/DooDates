@@ -1,6 +1,6 @@
 /**
  * Design Tokens - Système d'espacement et de design cohérent
- * 
+ *
  * Ce fichier centralise tous les tokens de design pour garantir
  * une cohérence visuelle à travers toute l'application.
  */

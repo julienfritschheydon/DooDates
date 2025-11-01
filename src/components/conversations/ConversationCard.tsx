@@ -16,6 +16,8 @@ import {
   Trash2,
   ExternalLink,
   Clock,
+  Users,
+  BarChart3,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "../ui/card";
@@ -41,14 +43,15 @@ import {
 import { Input } from "../ui/input";
 import { cn } from "../../lib/utils";
 import type { Conversation } from "../../types/conversation";
+import type { EnrichedConversation } from "../../lib/conversationFilters";
 
 // ============================================================================
 // TYPES & INTERFACES
 // ============================================================================
 
 export interface ConversationCardProps {
-  /** Conversation data */
-  conversation: Conversation;
+  /** Conversation data (peut être enrichie avec stats) */
+  conversation: Conversation | EnrichedConversation;
   /** Callback when user wants to resume conversation */
   onResume?: (conversationId: string) => void;
   /** Callback when user renames conversation */
@@ -59,6 +62,8 @@ export interface ConversationCardProps {
   onToggleFavorite?: (conversationId: string) => void;
   /** Callback when user wants to view related poll */
   onViewPoll?: (pollId: string) => void;
+  /** Callback when user wants to view results */
+  onViewResults?: (pollId: string) => void;
   /** Current user's language preference */
   language?: "fr" | "en";
   /** Whether the card is in compact mode */
@@ -73,22 +78,56 @@ export interface ConversationCardProps {
 
 /**
  * Gets the appropriate status indicator for a conversation
+ * Architecture centrée conversations - Session 2
  */
-function getStatusIndicator(status: Conversation["status"], hasRelatedPoll: boolean) {
-  switch (status) {
+function getStatusIndicator(conversation: Conversation | EnrichedConversation) {
+  const hasPoll = Boolean(conversation.pollId);
+  const pollType = conversation.pollType;
+  const pollStatus = conversation.pollStatus;
+
+  // Si la conversation a un poll, afficher son status
+  if (hasPoll && pollStatus) {
+    switch (pollStatus) {
+      case "draft":
+        return {
+          emoji: "📝",
+          label: pollType === "form" ? "Formulaire brouillon" : "Sondage brouillon",
+          color: "bg-gray-100 text-gray-700 border-gray-300",
+        };
+      case "active":
+        return {
+          emoji: pollType === "form" ? "📋" : "📅",
+          label: pollType === "form" ? "Formulaire actif" : "Sondage actif",
+          color: "bg-blue-100 text-blue-800 border-blue-200",
+        };
+      case "closed":
+        return {
+          emoji: "✅",
+          label: "Terminé",
+          color: "bg-green-100 text-green-800 border-green-200",
+        };
+      case "archived":
+        return {
+          emoji: "📁",
+          label: "Archivé",
+          color: "bg-gray-100 text-gray-600 border-gray-200",
+        };
+    }
+  }
+
+  // Sinon, afficher le status de la conversation
+  switch (conversation.status) {
     case "active":
       return {
-        emoji: "🟡",
-        label: "En cours",
-        color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+        emoji: "💬",
+        label: "Discussion",
+        color: "bg-purple-100 text-purple-800 border-purple-200",
       };
     case "completed":
       return {
-        emoji: hasRelatedPoll ? "🔗" : "🟢",
-        label: hasRelatedPoll ? "Sondage créé" : "Terminée",
-        color: hasRelatedPoll
-          ? "bg-blue-100 text-blue-800 border-blue-200"
-          : "bg-green-100 text-green-800 border-green-200",
+        emoji: "🟢",
+        label: "Terminée",
+        color: "bg-green-100 text-green-800 border-green-200",
       };
     case "archived":
       return {
@@ -135,6 +174,7 @@ export function ConversationCard({
   onDelete,
   onToggleFavorite,
   onViewPoll,
+  onViewResults,
   language = "fr",
   compact = false,
   className,
@@ -145,10 +185,13 @@ export function ConversationCard({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Derived values
-  const hasRelatedPoll = Boolean(conversation.relatedPollId);
-  const statusInfo = getStatusIndicator(conversation.status, hasRelatedPoll);
+  const hasPoll = Boolean(conversation.pollId || conversation.relatedPollId); // Support ancien + nouveau
+  const statusInfo = getStatusIndicator(conversation);
   const relativeTime = formatRelativeTime(conversation.updatedAt, language);
   const previewText = truncateText(conversation.firstMessage, compact ? 60 : 100);
+
+  // Cast pour accéder aux stats enrichies si disponibles
+  const enriched = conversation as EnrichedConversation;
 
   // Event handlers
   const handleResume = () => {
@@ -190,8 +233,16 @@ export function ConversationCard({
   };
 
   const handleViewPoll = () => {
-    if (conversation.relatedPollId) {
-      onViewPoll?.(conversation.relatedPollId);
+    const pollId = conversation.pollId || conversation.relatedPollId;
+    if (pollId) {
+      onViewPoll?.(pollId);
+    }
+  };
+
+  const handleViewResults = () => {
+    const pollId = conversation.pollId || conversation.relatedPollId;
+    if (pollId && onViewResults) {
+      onViewResults(pollId);
     }
   };
 
@@ -203,8 +254,8 @@ export function ConversationCard({
           "group hover:shadow-md transition-all duration-200 cursor-pointer",
           "border-l-4",
           conversation.status === "active" && "border-l-yellow-400",
-          conversation.status === "completed" && hasRelatedPoll && "border-l-blue-400",
-          conversation.status === "completed" && !hasRelatedPoll && "border-l-green-400",
+          conversation.status === "completed" && hasPoll && "border-l-blue-400",
+          conversation.status === "completed" && !hasPoll && "border-l-green-400",
           conversation.status === "archived" && "border-l-gray-300",
           compact && "py-2",
           className,
@@ -246,7 +297,7 @@ export function ConversationCard({
                   {statusInfo.label}
                 </Badge>
 
-                {hasRelatedPoll && (
+                {hasPoll && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -293,7 +344,7 @@ export function ConversationCard({
                   {conversation.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
                 </DropdownMenuItem>
 
-                {hasRelatedPoll && (
+                {hasPoll && (
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleViewPoll}>
@@ -339,6 +390,15 @@ export function ConversationCard({
                 <Clock className="h-3 w-3" />
                 {relativeTime}
               </span>
+
+              {/* Stats du poll si disponibles (EnrichedConversation) */}
+              {enriched.participants_count !== undefined && (
+                <span className="flex items-center gap-1">
+                  <Users className="h-3 w-3" />
+                  {enriched.participants_count} participant
+                  {enriched.participants_count > 1 ? "s" : ""}
+                </span>
+              )}
             </div>
 
             {/* Tags */}
@@ -358,6 +418,20 @@ export function ConversationCard({
             )}
           </div>
 
+          {/* Top Dates si sondage de dates avec votes (EnrichedConversation) */}
+          {enriched.topDates && enriched.topDates.length > 0 && (
+            <div className="mt-2 pt-2 border-t border-gray-200">
+              <p className="text-xs text-gray-500 mb-1">Dates populaires :</p>
+              <div className="flex gap-2">
+                {enriched.topDates.map((dateInfo, idx) => (
+                  <Badge key={idx} variant="secondary" className="text-xs">
+                    📅 {dateInfo.date} ({dateInfo.score} pts)
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Quick Actions (always visible) */}
           <div className="flex gap-2 mt-3">
             <Button
@@ -371,7 +445,7 @@ export function ConversationCard({
               Reprendre
             </Button>
 
-            {hasRelatedPoll && (
+            {hasPoll && (
               <Button
                 data-testid="view-poll-button"
                 variant="outline"
@@ -395,7 +469,7 @@ export function ConversationCard({
             <AlertDialogDescription>
               Êtes-vous sûr de vouloir supprimer la conversation "{conversation.title}" ? Cette
               action est irréversible et supprimera également tous les messages associés.
-              {hasRelatedPoll && " Le sondage associé ne sera pas affecté."}
+              {hasPoll && " Le sondage associé ne sera pas affecté."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

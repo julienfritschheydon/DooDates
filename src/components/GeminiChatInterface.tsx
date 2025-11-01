@@ -177,22 +177,47 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         const convId = urlParams.get("conversationId");
         if (!convId) return null;
         const conv = getConversation(convId);
-        const meta = (conv && (conv as any).metadata) || {};
-        const id: string | undefined = meta.pollId || undefined;
+        if (!conv) return null;
+
+        // Lire pollId depuis conversation.pollId (Session 2 - Bug 3)
+        const pollId = (conv as any).pollId;
+        if (pollId) return pollId;
+
+        // Fallback: metadata (ancien format)
+        const meta = (conv as any).metadata || {};
+        const metaPollId: string | undefined = meta.pollId || undefined;
         const generated: boolean = !!meta.pollGenerated;
-        if (id && typeof id === "string" && id.trim()) return id;
-        // Fallback: indicateur généré sans id
-        return generated ? "generated" : null;
+
+        return metaPollId || (generated ? "generated" : null);
       } catch (e) {
         logger.error("linkedPollId error", e);
         return null;
       }
-    }, [messages]);
+    }, [location.search]);
 
     const hasLinkedPoll = useMemo(() => {
       // Si un poll est actuellement chargé ou si un pollId est enregistré dans les métadonnées
       return currentPoll ? true : !!linkedPollId;
     }, [currentPoll, linkedPollId]);
+
+    // Charger automatiquement le poll lié au démarrage (Session 2 - Bug 3)
+    useEffect(() => {
+      if (linkedPollId && linkedPollId !== "generated" && !currentPoll) {
+        try {
+          const poll = getPollBySlugOrId(linkedPollId);
+          if (poll) {
+            logger.info("🔗 Chargement automatique du poll lié", "poll", {
+              pollId: linkedPollId,
+              pollTitle: poll.title,
+            });
+            setCurrentPoll(poll as any);
+            openEditor();
+          }
+        } catch (error) {
+          logger.error("❌ Erreur chargement poll lié", "poll", { linkedPollId, error });
+        }
+      }
+    }, [linkedPollId, currentPoll, setCurrentPoll, openEditor]);
 
     // Auto-save and conversation resume hooks
     const navigate = useNavigate();

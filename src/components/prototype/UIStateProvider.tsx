@@ -12,7 +12,15 @@
  * @see Docs/Architecture-ConversationProvider.md
  */
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+  useEffect,
+} from "react";
+import { useLocation } from "react-router-dom";
 import { ErrorFactory } from "@/lib/error-handling";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -55,8 +63,16 @@ export function UIStateProvider({ children }: UIStateProviderProps) {
   // Détection mobile
   const isMobile = useMediaQuery("(max-width: 767px)");
 
+  // Détecter les changements de route
+  const location = useLocation();
+
   // État sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Fermer la sidebar lors des changements de route (Session 2 - Bug sidebar)
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
 
   // État highlights (animations)
   const [highlightedId, setHighlightedId] = useState<string | null>(null);

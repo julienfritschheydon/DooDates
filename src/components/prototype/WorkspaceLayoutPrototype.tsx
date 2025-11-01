@@ -7,6 +7,10 @@ import {
   FileText,
   MessageSquare,
   Sparkles,
+  Settings,
+  User,
+  LogOut,
+  UserCircle,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useConversation } from "./ConversationProvider";
@@ -25,6 +29,7 @@ import { VOICE_RECOGNITION_CONFIG } from "../../config/voiceRecognition.config";
 import { logger } from "../../lib/logger";
 import { getConversations } from "../../lib/storage/ConversationStorageSimple";
 import { useOnboarding } from "../../hooks/useOnboarding";
+import { useAuth } from "../../contexts/AuthContext";
 
 // Fonction pour trouver la conversation liée à un sondage (rétrocompatibilité)
 function findRelatedConversation(poll: Poll): string | undefined {
@@ -65,21 +70,43 @@ export function WorkspaceLayoutPrototype() {
   // Lire les paramètres de l'URL pour forcer le remontage du chat
   const searchParams = new URLSearchParams(location.search);
   const resumeId = searchParams.get("resume");
+  const conversationId = searchParams.get("conversationId");
   const newChatTimestamp = searchParams.get("new");
-  const chatKey = resumeId || newChatTimestamp || "new-chat";
+
+  // Convertir "resume" en "conversationId" si nécessaire (Session 2 - Bug 3)
+  useEffect(() => {
+    if (resumeId && !conversationId) {
+      const newUrl = `${location.pathname}?conversationId=${resumeId}`;
+      navigate(newUrl, { replace: true });
+    }
+  }, [resumeId, conversationId, location.pathname, navigate]);
+
+  const chatKey = resumeId || conversationId || newChatTimestamp || "new-chat";
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
   const [conversations, setConversations] = useState<ReturnType<typeof getConversations>>([]);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
 
   // Nouveaux hooks spécialisés
   const { isEditorOpen, currentPoll } = useEditorState();
   const { openEditor, closeEditor, setCurrentPoll, createPollFromChat } = useEditorActions();
   const { isMobile, isSidebarOpen, setIsSidebarOpen } = useUIState();
 
+  // Fermer le preview et nettoyer le poll quand on démarre un nouveau chat (Session 2 - Bug 4)
+  useEffect(() => {
+    if (newChatTimestamp && !conversationId && !resumeId) {
+      closeEditor();
+      setCurrentPoll(null);
+    }
+  }, [newChatTimestamp, conversationId, resumeId, closeEditor, setCurrentPoll]);
+
   // Hook legacy pour clearConversation (non migré)
   const { clearConversation } = useConversation();
 
   // Hook onboarding
   const { startOnboarding } = useOnboarding();
+
+  // Hook auth
+  const { user, profile, signOut } = useAuth();
 
   // Hook reconnaissance vocale UNIQUE pour toute l'application
   // Partagé entre le chat et la preview pour éviter les conflits
@@ -369,8 +396,107 @@ export function WorkspaceLayoutPrototype() {
             </>
           )}
 
-          {/* Statut en bas de la sidebar */}
-          <div className="p-4">
+          {/* Boutons settings & compte en bas de la sidebar */}
+          <div className="p-4 border-t border-gray-800">
+            {/* Nom d'utilisateur si connecté */}
+            {user && (
+              <div className="mb-3 px-2">
+                <p className="text-sm font-medium text-white truncate">
+                  {profile?.full_name || user.email?.split("@")[0] || "Utilisateur"}
+                </p>
+                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 mb-4">
+              {/* Bouton Settings */}
+              <button
+                className="flex-1 p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                title="Paramètres"
+                aria-label="Paramètres"
+                onClick={() => {
+                  // TODO: Ouvrir page settings
+                  toast({
+                    title: "Paramètres",
+                    description: "Page en cours de développement",
+                  });
+                }}
+              >
+                <Settings className="w-5 h-5 text-gray-300 mx-auto" />
+              </button>
+
+              {/* Bouton Account avec menu dropdown */}
+              <div className="flex-1 relative">
+                <button
+                  className="w-full p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                  title="Compte"
+                  aria-label="Menu compte"
+                  onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+                >
+                  <User className="w-5 h-5 text-gray-300 mx-auto" />
+                </button>
+
+                {/* Dropdown menu */}
+                {isAccountMenuOpen && (
+                  <>
+                    {/* Backdrop pour fermer le menu */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setIsAccountMenuOpen(false)}
+                    />
+
+                    {/* Menu */}
+                    <div className="absolute bottom-full right-0 mb-2 w-48 bg-[#2a2a2a] border border-gray-700 rounded-lg shadow-lg z-50">
+                      {user ? (
+                        <>
+                          <button
+                            onClick={() => {
+                              navigate("/profile");
+                              setIsAccountMenuOpen(false);
+                              if (isMobile) setIsSidebarOpen(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-300 hover:bg-gray-800 transition-colors rounded-t-lg"
+                          >
+                            <UserCircle className="w-4 h-4" />
+                            <span className="text-sm">Mon profil</span>
+                          </button>
+                          <div className="border-t border-gray-700" />
+                          <button
+                            onClick={async () => {
+                              await signOut();
+                              setIsAccountMenuOpen(false);
+                              if (isMobile) setIsSidebarOpen(false);
+                              toast({
+                                title: "Déconnexion réussie",
+                                description: "À bientôt !",
+                              });
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-400 hover:bg-gray-800 transition-colors rounded-b-lg"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span className="text-sm">Déconnexion</span>
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            navigate("/auth");
+                            setIsAccountMenuOpen(false);
+                            if (isMobile) setIsSidebarOpen(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-300 hover:bg-gray-800 transition-colors rounded-lg"
+                        >
+                          <User className="w-4 h-4" />
+                          <span className="text-sm">Se connecter</span>
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Statut */}
             <div className="space-y-2 text-xs">
               <div className="flex items-center gap-2 text-blue-400">
                 <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
@@ -405,45 +531,6 @@ export function WorkspaceLayoutPrototype() {
                 <Menu className="w-5 h-5 text-gray-300" />
               </button>
               <h1 className="text-xl font-medium text-white">DooDates</h1>
-            </div>
-
-            {/* Icônes settings & account à droite */}
-            <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                <svg
-                  className="w-5 h-5 text-gray-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              </button>
-              <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                <svg
-                  className="w-5 h-5 text-gray-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-              </button>
             </div>
           </div>
 

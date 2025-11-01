@@ -47,10 +47,10 @@ export default function FormPollVote({ idOrSlug }: Props) {
 
   // Lire la couleur primaire du thème pour les checkboxes/radios
   const primaryColor = useThemeColor("--theme-primary", "#3B82F6");
-  
+
   // Appliquer la couleur via CSS variable pour les inputs custom
   useEffect(() => {
-    document.documentElement.style.setProperty('--input-accent-color', primaryColor);
+    document.documentElement.style.setProperty("--input-accent-color", primaryColor);
   }, [primaryColor]);
 
   const allQuestions = useMemo(() => (poll?.questions ?? []) as FormQuestionShape[], [poll]);

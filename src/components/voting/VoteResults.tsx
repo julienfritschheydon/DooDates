@@ -277,7 +277,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({ poll, options, votes, 
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="min-h-screen bg-[#0a0a0a] p-4 space-y-6"
+      className="min-h-screen bg-[#0a0a0a] p-4 pb-8 space-y-6"
     >
       {/* En-tête des résultats */}
       <motion.div
