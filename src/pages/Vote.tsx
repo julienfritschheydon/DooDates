@@ -46,10 +46,10 @@ const Vote = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Bouton retour en haut à gauche */}
+      {/* Bouton retour en haut à droite */}
       <button
         onClick={() => window.history.back()}
-        className="fixed top-24 left-4 z-50 p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
+        className="fixed top-24 right-4 z-50 p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
         title="Retour"
         aria-label="Retour"
       >

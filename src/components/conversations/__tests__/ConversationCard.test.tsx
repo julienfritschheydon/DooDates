@@ -84,14 +84,14 @@ describe("ConversationCard", () => {
   });
 
   describe("Status Indicators", () => {
-    it("should show active status with yellow indicator", () => {
+    it("should show active status with purple indicator", () => {
       const conversation = createMockConversation({ status: "active" });
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText(/En cours/)).toBeInTheDocument();
+      expect(screen.getByText(/Discussion/)).toBeInTheDocument();
       // Status badge with emoji exists
       const card = screen.getByTestId("conversation-card");
-      expect(card.textContent).toContain("En cours");
+      expect(card.textContent).toContain("Discussion");
     });
 
     it("should show completed status with green indicator when no poll", () => {
@@ -104,12 +104,14 @@ describe("ConversationCard", () => {
     it("should show poll link indicator when conversation has related poll", () => {
       const conversation = createMockConversation({
         status: "completed",
-        relatedPollId: "poll-123",
+        pollId: "poll-123",
+        pollType: "date",
+        pollStatus: "closed",
       });
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText(/Sondage cr/)).toBeInTheDocument();
       expect(screen.getByText("Voir sondage")).toBeInTheDocument();
+      expect(screen.getByTestId("view-poll-button")).toBeInTheDocument();
     });
 
     it("should show archived status with folder indicator", () => {

@@ -226,7 +226,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({ pollId, onBack, onVoteSubmitt
       />
 
       {/* Contenu principal */}
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div className="flex-1 overflow-y-auto pb-32">
         {/* Liste swipable des options */}
         <div className="px-6 space-y-3 py-6">
           <div className="flex items-center justify-between mb-4">

@@ -130,6 +130,8 @@ export interface Poll {
   themeId?: string; // Thème visuel (Quick Win #3)
   // Lien avec conversation IA
   relatedConversationId?: string; // ID de la conversation qui a créé ce sondage
+  // NOUVEAU : Lien bidirectionnel avec conversation (architecture centrée conversations)
+  conversationId?: string; // ID de la conversation parente
 }
 
 const STORAGE_KEY = "doodates_polls";
@@ -918,4 +920,34 @@ export function getRespondentId(resp: FormResponse): string {
   if (name) return `name:${name}`;
   // Stable fallback combines deviceId and response id
   return `anon:${getDeviceId()}:${resp.id}`;
+}
+
+// ============================================================================
+// CONVERSATION ↔ POLL LINK FUNCTIONS (Session 1 - Architecture centrée conversations)
+// ============================================================================
+
+/**
+ * Récupère un poll par son conversationId
+ */
+export function getPollByConversationId(conversationId: string): Poll | null {
+  const allPolls = getAllPolls();
+  return allPolls.find((poll) => poll.conversationId === conversationId) || null;
+}
+
+/**
+ * Met à jour le lien entre un poll et une conversation
+ */
+export function updatePollConversationLink(pollId: string, conversationId: string): void {
+  const poll = getPollBySlugOrId(pollId);
+  if (!poll) {
+    throw ErrorFactory.storage(`Poll not found: ${pollId}`, `Sondage non trouvé: ${pollId}`);
+  }
+
+  const updatedPoll = {
+    ...poll,
+    conversationId,
+    updated_at: new Date().toISOString(),
+  };
+
+  addPoll(updatedPoll); // addPoll fait aussi la mise à jour si le poll existe déjà
 }

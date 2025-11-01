@@ -21,7 +21,7 @@ const PollCreator = () => {
   const params = new URLSearchParams(location.search);
   const isForm = (params.get("type") || "").toLowerCase() === "form";
   const draftIdParam = params.get("draftId") || undefined;
-  
+
   const [published, setPublished] = useState(false);
   const [publishedPoll, setPublishedPoll] = useState<StoragePoll | null>(null);
 
@@ -129,10 +129,9 @@ const PollCreator = () => {
                   {publishedPoll.type === "form" ? "Formulaire publié !" : "Sondage publié !"}
                 </h1>
                 <p className="text-gray-300">
-                  {publishedPoll.type === "form" 
+                  {publishedPoll.type === "form"
                     ? `Votre formulaire "${publishedPoll.title}" est maintenant actif et prêt à recevoir des réponses.`
-                    : `Votre sondage "${publishedPoll.title}" est maintenant actif et prêt à recevoir des votes.`
-                  }
+                    : `Votre sondage "${publishedPoll.title}" est maintenant actif et prêt à recevoir des votes.`}
                 </p>
               </div>
 
@@ -187,39 +186,39 @@ const PollCreator = () => {
     <div className="min-h-screen bg-gray-50">
       {isForm ? (
         <FormPollCreator
-              initialDraft={latestFormDraft}
-              onCancel={() => navigate("/")}
-              onSave={(draft) => {
-                upsertFormPollFromDraft(draft, "draft");
-                // Rester sur la page pour continuer l'édition
-              }}
-              onFinalize={(draft) => {
-                // Créer le poll actif AVANT de supprimer les brouillons
-                const savedPoll = upsertFormPollFromDraft(draft, "active");
-                
-                // Supprimer les anciens brouillons (mais garder le poll actif qu'on vient de créer)
-                const all = getAllPolls();
-                const withoutOldDrafts = all.filter(
-                  (p) => !(p.id === draft.id && p.status === "draft")
-                );
-                savePolls(withoutOldDrafts);
+          initialDraft={latestFormDraft}
+          onCancel={() => navigate("/")}
+          onSave={(draft) => {
+            upsertFormPollFromDraft(draft, "draft");
+            // Rester sur la page pour continuer l'édition
+          }}
+          onFinalize={(draft) => {
+            // Créer le poll actif AVANT de supprimer les brouillons
+            const savedPoll = upsertFormPollFromDraft(draft, "active");
 
-                setPublishedPoll(savedPoll);
-                setPublished(true);
-              }}
-            />
-          ) : (
-            <PollCreatorComponent 
-              onBack={(createdPoll?: any) => {
-                if (createdPoll) {
-                  setPublishedPoll(createdPoll);
-                  setPublished(true);
-                } else {
-                  navigate("/");
-                }
-              }} 
-            />
-          )}
+            // Supprimer les anciens brouillons (mais garder le poll actif qu'on vient de créer)
+            const all = getAllPolls();
+            const withoutOldDrafts = all.filter(
+              (p) => !(p.id === draft.id && p.status === "draft"),
+            );
+            savePolls(withoutOldDrafts);
+
+            setPublishedPoll(savedPoll);
+            setPublished(true);
+          }}
+        />
+      ) : (
+        <PollCreatorComponent
+          onBack={(createdPoll?: any) => {
+            if (createdPoll) {
+              setPublishedPoll(createdPoll);
+              setPublished(true);
+            } else {
+              navigate("/");
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

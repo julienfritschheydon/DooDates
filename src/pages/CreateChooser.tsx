@@ -10,10 +10,10 @@ export default function CreateChooser() {
       <main className="max-w-4xl mx-auto p-6 pt-20 relative">
         <button
           onClick={() => navigate("/")}
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-800 transition-colors"
+          className="absolute top-6 right-6 p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
           aria-label="Fermer"
         >
-          <X className="w-6 h-6 text-gray-400 hover:text-white" />
+          <X className="w-6 h-6" />
         </button>
 
         <h1 className="text-3xl font-bold mb-2 text-white">Créer un nouveau sondage</h1>

@@ -53,23 +53,13 @@ export function ErrorMessage({
 
   return (
     <div
-      className={cn(
-        "border",
-        borderRadius.lg,
-        padding.md,
-        styles.container,
-        className
-      )}
+      className={cn("border", borderRadius.lg, padding.md, styles.container, className)}
       role="alert"
     >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 mt-0.5">{styles.icon}</div>
         <div className="flex-1">
-          {title && (
-            <h3 className={cn("font-semibold mb-1", styles.titleColor)}>
-              {title}
-            </h3>
-          )}
+          {title && <h3 className={cn("font-semibold mb-1", styles.titleColor)}>{title}</h3>}
           <p className="text-sm">{message}</p>
           {action && <div className="mt-3">{action}</div>}
         </div>

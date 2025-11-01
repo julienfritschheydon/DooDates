@@ -1,6 +1,6 @@
 /**
  * Variants Framer Motion réutilisables
- * 
+ *
  * Ce fichier centralise toutes les animations pour garantir
  * une cohérence visuelle à travers toute l'application.
  */

@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { addPoll, type Poll as StoragePoll } from "../../lib/pollStorage";
 import { pollReducer, type PollAction } from "../../reducers/pollReducer";
 import { formPollReducer, type FormPollAction } from "../../reducers/formPollReducer";
-import { linkPollToConversation } from "../../lib/conversationPollLink";
+import { linkPollToConversationBidirectional } from "../../lib/ConversationPollLink";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { ErrorFactory } from "../../lib/error-handling";
 import { logger } from "../../lib/logger";
@@ -383,8 +383,10 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       try {
         addPoll(poll);
 
-        // Mettre à jour les métadonnées de la conversation pour lier le poll
-        linkPollToConversation(poll.title, poll.id);
+        // Lier bidirectionnellement le poll à la conversation (Session 1 - Architecture centrée conversations)
+        if (conversationId) {
+          linkPollToConversationBidirectional(conversationId, poll.id, poll.type || "form");
+        }
 
         // Ouvrir l'éditeur dans le panneau de droite
         openEditor(poll as any);

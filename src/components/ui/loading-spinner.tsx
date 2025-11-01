@@ -37,9 +37,7 @@ export function LoadingSpinner({
   );
 
   if (centered) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px] w-full">{content}</div>
-    );
+    return <div className="flex items-center justify-center min-h-[200px] w-full">{content}</div>;
   }
 
   return content;

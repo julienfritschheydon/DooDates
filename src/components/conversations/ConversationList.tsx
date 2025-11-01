@@ -440,27 +440,24 @@ export function ConversationList({
         </div>
       )}
 
-      {/* Conversations List */}
+      {/* Conversations List - Grille responsive (Session 2) */}
       {isEmpty ? (
         <EmptyState onCreateNew={onCreateNew} isFiltered={hasActiveFilters} />
       ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <div className="overflow-y-auto" style={{ height: `${height}px` }}>
-            {displayConversations.map((conversation, index) => (
-              <div key={conversation.id} className="px-1 py-1">
-                <ConversationCard
-                  conversation={conversation}
-                  onResume={onResume}
-                  onRename={onRename}
-                  onDelete={onDelete}
-                  onToggleFavorite={onToggleFavorite}
-                  onViewPoll={onViewPoll}
-                  language={language}
-                  compact={compact}
-                />
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {displayConversations.map((conversation, index) => (
+            <ConversationCard
+              key={conversation.id}
+              conversation={conversation}
+              onResume={onResume}
+              onRename={onRename}
+              onDelete={onDelete}
+              onToggleFavorite={onToggleFavorite}
+              onViewPoll={onViewPoll}
+              language={language}
+              compact={compact}
+            />
+          ))}
         </div>
       )}
     </div>

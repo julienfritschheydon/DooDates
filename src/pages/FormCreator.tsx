@@ -56,8 +56,8 @@ export default function FormCreator() {
             <div className="bg-[#3c4043] rounded-lg border border-gray-700 p-8 text-center space-y-6">
               {/* Icône de succès */}
               <div className="flex justify-center">
-                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <Check className="w-10 h-10 text-blue-500" />
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
+                  <Check className="w-10 h-10 text-green-500" />
                 </div>
               </div>
 
@@ -74,14 +74,14 @@ export default function FormCreator() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold transition-all shadow-lg"
                 >
                   <Check className="w-5 h-5" />
                   Aller au Tableau de bord
                 </Link>
                 <Link
                   to={`/poll/${publishedPoll.slug || publishedPoll.id}`}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent text-gray-300 border border-gray-700 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent text-gray-300 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
                 >
                   <ExternalLink className="w-5 h-5" />
                   Voir le formulaire
@@ -104,7 +104,7 @@ export default function FormCreator() {
                         description: "Le lien du formulaire a été copié dans le presse-papiers.",
                       });
                     }}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
+                    className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
                   >
                     Copier
                   </button>

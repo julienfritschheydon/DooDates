@@ -6,7 +6,10 @@ import { getAllPolls, savePolls, type Poll } from "../../lib/pollStorage";
 import { logger } from "@/lib/logger";
 import type { ConditionalRule } from "../../types/conditionalRules";
 import { validateConditionalRules } from "../../lib/conditionalValidator";
-import { linkPollToConversation } from "../../lib/conversationPollLink";
+import {
+  linkPollToConversationBidirectional,
+  createConversationForPoll,
+} from "../../lib/ConversationPollLink";
 import { useUIState } from "../prototype/UIStateProvider";
 import { ThemeSelector } from "./ThemeSelector";
 import { DEFAULT_THEME } from "../../lib/themes";
@@ -366,8 +369,19 @@ export default function FormPollCreator({
     const withoutOldDrafts = all.filter((p) => !(p.id === draft.id && p.status === "draft"));
     savePolls(withoutOldDrafts);
 
-    // Lier le formulaire à la conversation pour persister l'état "Voir"
-    linkPollToConversation(saved.title, saved.id);
+    // Lier bidirectionnellement le formulaire à la conversation (Session 1 - Architecture centrée conversations)
+    const urlParams = new URLSearchParams(window.location.search);
+    const conversationId = urlParams.get("conversationId");
+    if (conversationId) {
+      // Formulaire créé via IA → Lier à la conversation existante
+      linkPollToConversationBidirectional(conversationId, saved.id, "form");
+    } else {
+      // Formulaire créé manuellement → Créer une conversation vide (Session 2)
+      createConversationForPoll(saved.id, saved.title, "form");
+      logger.info("✅ Conversation vide créée pour formulaire manuel", "poll", {
+        pollId: saved.id,
+      });
+    }
 
     // Passer le poll sauvegardé complet (avec slug) au callback
     if (onFinalize) onFinalize(draft, saved);
@@ -391,7 +405,7 @@ export default function FormPollCreator({
         </div>
       )}
 
-      <div className="px-4 md:px-6 pt-6">
+      <div className="px-4 md:px-6 pt-6 pb-40">
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#0a0a0a]">
             <div className="space-y-4">

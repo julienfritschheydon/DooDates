@@ -19,6 +19,7 @@ import Calendar from "./Calendar";
 import { usePolls, type PollData } from "../hooks/usePolls";
 import { PollCreatorService } from "../services/PollCreatorService";
 import { logger } from "../lib/logger";
+import { createConversationForPoll } from "../lib/ConversationPollLink";
 import {
   convertGeminiSlotsToTimeSlotsByDate,
   calculateOptimalGranularity,
@@ -38,7 +39,7 @@ import { UserMenu } from "./UserMenu";
 import { geminiService, type PollSuggestion, type DatePollSuggestion } from "../lib/gemini";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { linkPollToConversation } from "@/lib/conversationPollLink";
+import { linkPollToConversationBidirectional } from "@/lib/ConversationPollLink";
 import { VoteGrid } from "@/components/voting/VoteGrid";
 import { groupConsecutiveDates } from "../lib/date-utils";
 
@@ -75,6 +76,38 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
   // Helper functions
   const canFinalize = () => PollCreatorService.canFinalize(state);
+
+  const handleSaveDraft = async () => {
+    // Pour l'instant, on sauvegarde en localStorage directement
+    // TODO: Implémenter un vrai système de brouillon avec status="draft"
+    try {
+      const draftData = {
+        title: state.pollTitle,
+        selectedDates: state.selectedDates,
+        timeSlotsByDate: timeSlotsByDate,
+        participantEmails: state.participantEmails,
+        settings: {
+          timeGranularity: state.timeGranularity,
+          allowAnonymousVotes: true,
+          allowMaybeVotes: true,
+          sendNotifications: state.notificationsEnabled,
+          expiresAt: state.expirationDays
+            ? new Date(Date.now() + state.expirationDays * 24 * 60 * 60 * 1000).toISOString()
+            : undefined,
+        },
+      };
+
+      localStorage.setItem("doodates-draft", JSON.stringify(draftData));
+
+      toast({
+        title: "Brouillon enregistré",
+        description: "Votre sondage a été sauvegardé en brouillon.",
+      });
+    } catch (error) {
+      logger.error("Error saving draft", "poll", error);
+    }
+  };
+
   const handleFinalize = async () => {
     try {
       const result = await createPoll({
@@ -100,9 +133,31 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         setCreatedPollSlug(result.poll.slug);
         setCreatedPoll(result.poll);
 
-        // Mettre à jour la conversation si le sondage a été créé depuis le chat
-        // Utiliser la fonction partagée pour garantir la cohérence
-        linkPollToConversation(result.poll.title, result.poll.id);
+        // Lier bidirectionnellement le sondage à la conversation (Session 1 - Architecture centrée conversations)
+        const urlParams = new URLSearchParams(window.location.search);
+        const conversationId = urlParams.get("conversationId");
+        if (conversationId) {
+          // Poll créé via IA → Lier à la conversation existante
+          linkPollToConversationBidirectional(conversationId, result.poll.id, "date");
+        } else {
+          // Poll créé manuellement → Créer une conversation vide (Session 2)
+          createConversationForPoll(result.poll.id, result.poll.title, "date");
+          logger.info("✅ Conversation vide créée pour poll manuel", "poll", {
+            pollId: result.poll.id,
+          });
+        }
+
+        // Déclencher l'écran de succès via onBack
+        logger.debug("Poll created, calling onBack", "poll", {
+          hasOnBack: !!onBack,
+          pollId: result.poll.id,
+          pollSlug: result.poll.slug,
+        });
+        if (onBack) {
+          onBack(result.poll);
+        } else {
+          logger.warn("onBack not provided, cannot show success screen", "poll");
+        }
       }
     } catch (error) {
       logger.error("Error creating poll", "poll", error);
@@ -547,34 +602,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     }
   };
 
-  // Fonction pour gérer le clic sur le bouton principal
-  const handleMainButtonClick = () => {
-    logger.debug("Clic bouton principal", "poll", {
-      createdPollSlug,
-      canFinalize: PollCreatorService.canFinalize(state),
-      pollLoading,
-      label: pollLoading
-        ? "Création en cours..."
-        : createdPollSlug
-          ? "Sondage créé !"
-          : state.participantEmails.trim()
-            ? "Partager"
-            : "Enregistrer",
-    });
-    if (createdPollSlug) {
-      // Si le sondage est créé, rediriger vers le dashboard
-      logger.debug("Bouton après création: redirection dashboard", "poll");
-      handleBackToHome();
-    } else {
-      // Sinon, créer le sondage
-      logger.debug("Lancement de handleFinalize (création)", "poll");
-      handleFinalize();
-    }
-  };
-
   return (
     <div className="bg-[#0a0a0a]">
-      <div className="px-4 md:px-6 pb-4 pt-6">
+      <div className="px-4 md:px-6 pb-32 pt-6">
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#0a0a0a] p-4 md:p-6">
             <div className="space-y-6">
@@ -1294,59 +1324,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     </div>
                   )}
 
-                  {/* Succès de création */}
-                  {createdPollSlug && (
-                    <div className="p-4">
-                      <div className="flex items-center gap-2 text-white mb-4">
-                        <Check className="w-5 h-5 flex-shrink-0" />
-                        <span className="text-base font-semibold">Sondage créé avec succès !</span>
-                      </div>
-
-                      {/* Boutons sur une même ligne */}
-                      <div className="flex gap-3">
-                        <button
-                          onClick={copyPollLink}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                          title="Copier le lien du sondage"
-                        >
-                          <span>{state.pollLinkCopied ? "✓ Copié" : "Copier le lien de vote"}</span>
-                        </button>
-
-                        {!user && (
-                          <button
-                            onClick={() => {
-                              const adminUrl = `${import.meta.env.DEV ? "http://localhost:8080" : "https://doodates.app"}/poll/${createdPollSlug}/results`;
-                              navigator.clipboard.writeText(adminUrl);
-                              toast({
-                                title: "Lien copié !",
-                                description:
-                                  "Le lien d'administration a été copié dans le presse-papiers.",
-                              });
-                            }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                          >
-                            Copier le lien d'administration
-                          </button>
-                        )}
-                      </div>
-
-                      {state.notificationsEnabled && state.participantEmails && (
-                        <div className="mt-3 text-sm text-blue-400">
-                          📧 Emails envoyés aux participants (
-                          {
-                            state.participantEmails
-                              .split(",")
-                              .filter(
-                                (email) =>
-                                  email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()),
-                              ).length
-                          }{" "}
-                          destinataires)
-                        </div>
-                      )}
-                    </div>
-                  )}
-
                   {/* Aide pour les exigences */}
                   {!canFinalize() && !pollLoading && !createdPollSlug && (
                     <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
@@ -1368,25 +1345,25 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                     </div>
                   )}
 
-                  <div className="pt-4">
+                  {/* Boutons d'action - Style cohérent avec FormEditor */}
+                  <div className="flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-700">
                     <button
-                      onClick={handleMainButtonClick}
-                      disabled={createdPollSlug ? false : !canFinalize() || pollLoading}
-                      className={`w-full py-4 rounded-2xl font-semibold text-lg shadow-lg transition-all flex items-center justify-center ${
-                        createdPollSlug
-                          ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-                          : "bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                      }`}
+                      type="button"
+                      onClick={handleSaveDraft}
+                      disabled={
+                        !state.pollTitle.trim() || state.selectedDates.length === 0 || pollLoading
+                      }
+                      className="px-6 py-3 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <span>
-                        {pollLoading
-                          ? "Création en cours..."
-                          : createdPollSlug
-                            ? "Sondage créé !"
-                            : state.participantEmails.trim()
-                              ? "Partager"
-                              : "Enregistrer"}
-                      </span>
+                      Enregistrer
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleFinalize}
+                      disabled={!canFinalize() || pollLoading}
+                      className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {pollLoading ? "Création en cours..." : "Finaliser"}
                     </button>
                   </div>
                 </div>

@@ -113,7 +113,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
             className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors text-gray-300"
             aria-label="Fermer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
         </div>
 
