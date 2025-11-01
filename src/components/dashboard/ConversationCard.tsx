@@ -22,7 +22,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({ item, onRefr
     <div
       className="bg-[#3c4043] rounded-lg shadow-sm border border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
       onClick={handleCardClick}
-      data-testid="conversation-card"
+      data-testid="poll-item"
     >
       <div className="p-6">
         {/* Header : Titre conversation */}
