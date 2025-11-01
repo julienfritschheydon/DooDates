@@ -40,10 +40,11 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   // Ouvrir automatiquement l'onboarding au premier lancement
   useEffect(() => {
     // Ne pas ouvrir l'onboarding pendant les tests E2E
-    const isE2ETesting = window.location.search.includes('e2e-test') || 
-                         window.navigator.userAgent.includes('Playwright') ||
-                         window.navigator.webdriver === true;
-    
+    const isE2ETesting =
+      window.location.search.includes("e2e-test") ||
+      window.navigator.userAgent.includes("Playwright") ||
+      window.navigator.webdriver === true;
+
     if (!isCompleted && !isE2ETesting) {
       // Petit délai pour laisser l'interface se charger
       const timer = setTimeout(() => {
