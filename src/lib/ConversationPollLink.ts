@@ -48,7 +48,7 @@ export function linkPollToConversationBidirectional(
     // 1. Récupérer la conversation
     const conversation = getConversation(conversationId);
     if (!conversation) {
-      throw ErrorFactory.notFound(
+      throw ErrorFactory.storage(
         `Conversation not found: ${conversationId}`,
         "Conversation introuvable",
       );
@@ -57,7 +57,7 @@ export function linkPollToConversationBidirectional(
     // 2. Récupérer le poll
     const poll = getPollBySlugOrId(pollId);
     if (!poll) {
-      throw ErrorFactory.notFound(`Poll not found: ${pollId}`, "Sondage introuvable");
+      throw ErrorFactory.storage(`Poll not found: ${pollId}`, "Sondage introuvable");
     }
 
     // 3. Mettre à jour la conversation avec les infos du poll
@@ -99,7 +99,7 @@ export function unlinkPollFromConversation(conversationId: string): void {
   try {
     const conversation = getConversation(conversationId);
     if (!conversation) {
-      throw ErrorFactory.notFound(
+      throw ErrorFactory.storage(
         `Conversation not found: ${conversationId}`,
         "Conversation introuvable",
       );
