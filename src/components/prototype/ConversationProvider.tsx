@@ -289,7 +289,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   // Action combinée : créer ou modifier sondage depuis le chat
   const createPollFromChat = useCallback(
     (pollData: any) => {
-      console.log("🔍 createPollFromChat appelé avec:", pollData);
+      logger.debug("createPollFromChat appelé", "poll", { pollData });
 
       // Créer un nouveau sondage complet avec tous les champs requis
       const now = new Date().toISOString();
@@ -328,7 +328,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       // Convertir les questions Gemini en format FormPollCreator
       let convertedQuestions = pollData.questions || [];
       if (pollData.type === "form" && pollData.questions) {
-        console.log("🔍 Conversion questions Gemini:", pollData.questions);
+        logger.debug("Conversion questions Gemini", "poll", { questions: pollData.questions });
         convertedQuestions = pollData.questions.map((q: any) => {
           const baseQuestion = {
             id: uid(),
@@ -344,7 +344,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
                 id: uid(),
                 label: opt.trim(),
               }));
-            console.log("🔍 Options converties:", options);
+            logger.debug("Options converties", "poll", { options });
 
             return {
               ...baseQuestion,
@@ -359,7 +359,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
             };
           }
         });
-        console.log("🔍 Questions converties:", convertedQuestions);
+        logger.debug("Questions converties", "poll", { convertedQuestions });
       }
 
       const poll: StoragePoll = {

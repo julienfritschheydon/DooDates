@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Plus, GitBranch } from "lucide-react";
-import type { ConditionalRule } from "../../types/conditionalRules";
+import { ConditionalRule } from "../../types/conditionalRules";
+import { logger } from "../../lib/logger";
 
 interface Question {
   id: string;
@@ -41,7 +42,7 @@ export default function ConditionalRuleEditor({
 
   const addRule = () => {
     if (previousQuestions.length === 0) {
-      console.warn("Aucune question précédente disponible");
+      logger.warn("Aucune question précédente disponible", "poll");
       return;
     }
 
@@ -58,7 +59,7 @@ export default function ConditionalRuleEditor({
       },
     };
 
-    console.log("Adding rule:", newRule);
+    logger.debug("Adding conditional rule", "poll", { newRule });
     onChange([...existingRules, newRule]);
     setIsEditing(true); // Passer en mode édition pour afficher la règle
   };
@@ -105,6 +106,7 @@ export default function ConditionalRuleEditor({
         type="button"
         onClick={addRule}
         className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
+        data-testid="add-conditional-rule-button"
       >
         <Plus className="w-4 h-4" />
         Ajouter une condition d'affichage
@@ -113,7 +115,7 @@ export default function ConditionalRuleEditor({
   }
 
   return (
-    <div className="space-y-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+    <div className="space-y-2 p-3 bg-blue-50 border border-blue-200 rounded-md" data-testid="conditional-rules-editor">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-medium text-blue-900">
           <GitBranch className="w-4 h-4" />
@@ -129,6 +131,7 @@ export default function ConditionalRuleEditor({
             type="button"
             onClick={() => setIsEditing(true)}
             className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+            data-testid="edit-conditional-rules-button"
           >
             Modifier
           </button>
@@ -145,6 +148,7 @@ export default function ConditionalRuleEditor({
             <div
               key={localIdx}
               className="text-xs text-gray-700 bg-white p-2 rounded border border-gray-200"
+              data-testid={`conditional-rule-summary-${localIdx}`}
             >
               <span className="text-blue-700 font-medium">
                 "{dependsOnQuestion?.title || "Question"}"
@@ -168,7 +172,7 @@ export default function ConditionalRuleEditor({
 
         // Mode édition : afficher tous les champs
         return (
-          <div key={localIdx} className="p-2 bg-white border rounded space-y-2">
+          <div key={localIdx} className="p-2 bg-white border rounded space-y-2" data-testid={`conditional-rule-${localIdx}`}>
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 space-y-2">
                 {/* Sélection question dépendante */}
@@ -177,6 +181,7 @@ export default function ConditionalRuleEditor({
                   <select
                     className="w-full text-sm border rounded px-2 py-1"
                     value={rule.dependsOn}
+                    data-testid="conditional-rule-depends-on"
                     onChange={(e) => {
                       const newDependsOn = e.target.value;
                       const newQuestion = questions.find((q) => q.id === newDependsOn);
@@ -201,6 +206,7 @@ export default function ConditionalRuleEditor({
                   <select
                     className="w-full text-sm border rounded px-2 py-1"
                     value={rule.showIf.operator}
+                    data-testid="conditional-rule-operator"
                     onChange={(e) =>
                       updateRule(globalIdx, {
                         showIf: {
@@ -238,6 +244,7 @@ export default function ConditionalRuleEditor({
                           })
                         }
                         placeholder="Texte à rechercher"
+                        data-testid="conditional-rule-value-text"
                       />
                     ) : dependsOnQuestion?.options && dependsOnQuestion.options.length > 0 ? (
                       <select
@@ -252,6 +259,7 @@ export default function ConditionalRuleEditor({
                             showIf: { ...rule.showIf, value: e.target.value },
                           })
                         }
+                        data-testid="conditional-rule-value-select"
                       >
                         {dependsOnQuestion.options.map((opt) => (
                           <option key={opt.id} value={opt.label}>
@@ -285,6 +293,7 @@ export default function ConditionalRuleEditor({
                 onClick={() => removeRule(globalIdx)}
                 className="p-1 hover:bg-red-100 rounded"
                 title="Supprimer cette règle"
+                data-testid="remove-conditional-rule-button"
               >
                 <X className="w-4 h-4 text-red-600" />
               </button>
@@ -299,6 +308,7 @@ export default function ConditionalRuleEditor({
             type="button"
             onClick={addRule}
             className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+            data-testid="add-another-conditional-rule-button"
           >
             <Plus className="w-4 h-4" />
             Ajouter une règle
@@ -307,6 +317,7 @@ export default function ConditionalRuleEditor({
             type="button"
             onClick={() => setIsEditing(false)}
             className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+            data-testid="done-conditional-rules-button"
           >
             Terminé
           </button>

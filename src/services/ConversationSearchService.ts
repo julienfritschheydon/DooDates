@@ -296,7 +296,7 @@ export class ConversationSearchService {
   /**
    * Get cache statistics for debugging
    */
-  getCacheStats(): { results: any; regex: number } {
+  getCacheStats(): { results: { size: number; hitRate: number }; regex: number } {
     return {
       results: this.resultCache.getStats(),
       regex: this.regexCache.size,

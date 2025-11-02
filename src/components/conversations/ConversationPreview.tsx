@@ -310,7 +310,8 @@ export function ConversationPreview({
       setCurrentMessageIndex(0);
       setScrollToTop(false);
     }
-  }, [conversation?.id, isOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversation?.id, isOpen]); // Intentionnel : on veut seulement réagir aux changements d'ID et d'ouverture, pas conversation entier
 
   // Keyboard navigation
   useEffect(() => {

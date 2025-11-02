@@ -6,6 +6,7 @@ import { Poll, getPollBySlugOrId, getVoterId, getAllPolls } from "@/lib/pollStor
 import FormPollResults from "@/components/polls/FormPollResults";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
+import { logger } from "@/lib/logger";
 
 interface VoteData {
   poll_id: string;
@@ -20,16 +21,15 @@ interface VoteData {
 const Results: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  // Router vers résultats FormPoll si nécessaire
-  if (slug) {
-    const p = getPollBySlugOrId(slug);
-    if (p?.type === "form") {
-      return <FormPollResults idOrSlug={slug} />;
-    }
-  }
+  
+  // Hooks doivent être appelés AVANT tout return conditionnel
   const [poll, setPoll] = useState<Poll | null>(null);
   const [votes, setVotes] = useState<VoteData[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Vérifier le type de poll pour le routing
+  const pollForTypeCheck = slug ? getPollBySlugOrId(slug) : null;
+  const isFormPoll = pollForTypeCheck?.type === "form";
 
   // Enforcer: un sondage doit avoir des dates. Pas de fallback synthétique ici.
 
@@ -67,6 +67,11 @@ const Results: React.FC = () => {
 
     setLoading(false);
   }, [slug]);
+
+  // Router vers résultats FormPoll si nécessaire (après tous les hooks)
+  if (isFormPoll && slug) {
+    return <FormPollResults idOrSlug={slug} />;
+  }
 
   if (loading) {
     return (
@@ -115,12 +120,11 @@ const Results: React.FC = () => {
     const optionId = `option-${dateIndex}`;
 
     // Debug: Log pour comprendre la structure
-    console.log("🔍 getVoteStats Debug:", {
+    logger.debug("getVoteStats Debug", "vote", {
       date,
       dateIndex,
       optionId,
-      votesCount: votes.length,
-      firstVote: votes[0],
+      allVotes: votes.length,
     });
 
     // Extraire les votes pour cette option
@@ -128,7 +132,7 @@ const Results: React.FC = () => {
       .map((vote) => {
         // Supporter les deux structures: vote_data (localStorage brut) et selections (mappé)
         const voteValue = vote.vote_data?.[optionId] || (vote as any).selections?.[optionId];
-        console.log("  Vote:", vote.voter_name, "pour", optionId, "=", voteValue);
+        logger.debug("Vote detail", "vote", { voter: vote.voter_name, optionId, voteValue });
         return voteValue;
       })
       .filter(Boolean);
@@ -137,7 +141,7 @@ const Results: React.FC = () => {
     const no = dateVotes.filter((v) => v === "no").length;
     const maybe = dateVotes.filter((v) => v === "maybe").length;
 
-    console.log("  Résultat:", { yes, no, maybe, total: dateVotes.length });
+    logger.debug("Vote result", "vote", { yes, no, maybe, total: dateVotes.length });
 
     return { yes, no, maybe, total: dateVotes.length };
   };

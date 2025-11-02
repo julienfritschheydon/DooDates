@@ -15,7 +15,7 @@ import { EnhancedGeminiService } from "@/lib/enhanced-gemini";
 export interface AIIntentResult {
   isModification: boolean;
   action: FormPollAction["type"] | null;
-  payload: any;
+  payload: unknown; // Payload générique, sera typé selon l'action
   confidence: number; // 0-1
   explanation?: string;
   modifiedField?: "title" | "type" | "options" | "required";

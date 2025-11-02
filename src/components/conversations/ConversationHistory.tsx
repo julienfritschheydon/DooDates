@@ -98,6 +98,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   const { query, setQuery, filters, setFilters, clearSearch } = searchHook;
 
   // Mock search results and states for now
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchResults: Conversation[] = [];
   const isSearching = false;
   const clearFilters = () => setFilters({});
@@ -107,10 +108,12 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 
   // Conversations data
   const conversationsHook = useConversations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const rawConversations = conversationsHook.conversations.conversations || [];
   const isLoading = conversationsHook.conversations.isLoading;
   const isError = conversationsHook.conversations.isError;
   const error = conversationsHook.conversations.error;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const refetch = conversationsHook.refresh || (() => {});
   const isRefetching = conversationsHook.isRefreshing || false;
 
@@ -171,7 +174,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   }, []);
 
   // Debug logging
-  console.log("🔍 ConversationHistory DEBUG:", {
+  logger.debug("ConversationHistory DEBUG", "conversation", {
     conversationsHookStructure: Object.keys(conversationsHook),
     conversationsProperty: conversationsHook.conversations,
     conversationsCount: conversations.length,

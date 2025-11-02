@@ -3,6 +3,7 @@ import { parseISO, isValid, parse } from "date-fns";
 import { logError, ErrorFactory } from "./error-handling";
 import { parse as soonerOrLaterParse } from "soonerorlater";
 import { formatDateLocal, getTodayLocal } from "./date-utils";
+import { logger } from "./logger";
 
 // Types pour le parsing temporel avancé
 export interface TemporalContext {
@@ -365,7 +366,7 @@ export class AdvancedTemporalParser {
     allDates = allDates.filter((dateStr) => {
       const isNotPast = dateStr >= todayStr;
       if (!isNotPast) {
-        console.warn(`🚫 Date passée éliminée: ${dateStr} (avant ${todayStr})`);
+        logger.debug("Date passée éliminée", "general", { date: dateStr, today: todayStr });
       }
       return isNotPast;
     });

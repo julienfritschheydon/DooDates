@@ -32,6 +32,8 @@ export type FormEditorProps = {
   // Theme selector
   themeId?: string;
   onThemeChange?: (themeId: string) => void;
+  // Simulation button
+  simulationButton?: React.ReactNode;
 };
 
 /**
@@ -51,6 +53,7 @@ export default function FormEditor({
   modifiedField,
   themeId,
   onThemeChange,
+  simulationButton,
 }: FormEditorProps) {
   const [activeId, setActiveId] = useState<string | null>(value.questions[0]?.id ?? null);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -234,6 +237,7 @@ export default function FormEditor({
 
       {/* Boutons d'action - MÊME STYLE QUE POLLCREATOR */}
       <div className="flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-700">
+        {simulationButton}
         {onSaveDraft && (
           <button
             type="button"

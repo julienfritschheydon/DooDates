@@ -2,6 +2,8 @@
  * Utility functions for date and time formatting
  */
 
+import { logger } from "@/lib/logger";
+
 // Formater la date de façon ultra-simple (éviter les décalages timezone)
 export const formatDate = (dateString: string) => {
   // Parser la date en mode local pour éviter les décalages timezone
@@ -58,7 +60,7 @@ export const formatTime = (
 
   // Sinon, utiliser l'ancien format (hour, minute, duration)
   if (slot.hour === undefined) {
-    console.warn("formatTime: hour undefined in timeSlot", slot);
+    logger.warn("formatTime: hour undefined in timeSlot", "vote", { slot });
     return "Horaire non défini";
   }
 

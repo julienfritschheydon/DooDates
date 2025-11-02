@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { handleError, ErrorFactory, logError } from "./error-handling";
+import { logger } from "./logger";
 
 interface GoogleCalendarEvent {
   id: string;
@@ -42,7 +43,7 @@ export class GoogleCalendarService {
       } = await supabase.auth.getSession();
       if (session?.provider_token) {
         this.accessToken = session.provider_token;
-        console.log("🗓️ Token Google Calendar récupéré");
+        logger.info("Token Google Calendar récupéré", "auth");
       }
     } catch (error) {
       const tokenError = handleError(

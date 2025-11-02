@@ -76,7 +76,7 @@ const FORM_PATTERNS = {
 export interface FormModificationIntent {
   isModification: boolean;
   action: FormPollAction["type"];
-  payload: any;
+  payload: unknown; // Payload générique, sera typé selon l'action
   confidence: number;
   explanation?: string;
   modifiedField?: "title" | "type" | "options" | "required";

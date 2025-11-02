@@ -4,7 +4,9 @@
  */
 
 import type { Conversation, ConversationMessage } from "../types/conversation";
+import type { UseAutoSaveReturn } from "../hooks/useAutoSave";
 import { logError, ErrorFactory } from "../lib/error-handling";
+import { logger } from "../lib/logger";
 
 export interface PollSuggestion {
   title: string;
@@ -31,7 +33,7 @@ export class ConversationService {
   /**
    * Resume conversation from URL parameter
    */
-  static async resumeFromUrl(autoSave: any): Promise<{
+  static async resumeFromUrl(autoSave: UseAutoSaveReturn): Promise<{
     conversation: Conversation;
     messages: ConversationMessage[];
   } | null> {
@@ -39,7 +41,7 @@ export class ConversationService {
     const resumeId = urlParams.get("resume");
 
     try {
-      console.log("🔍 ConversationService.resumeFromUrl:", {
+      logger.debug("ConversationService.resumeFromUrl", "conversation", {
         url: window.location.href,
         search: window.location.search,
         resumeId,
@@ -48,18 +50,18 @@ export class ConversationService {
       });
 
       if (!resumeId) {
-        console.log("❌ No resume ID found in URL");
+        logger.debug("No resume ID found in URL", "conversation");
         return null;
       }
 
-      console.log("🔄 Attempting to resume conversation:", resumeId);
+      logger.info("Attempting to resume conversation", "conversation", { resumeId });
 
       // First, set the conversation ID in autoSave
       const conversation = await autoSave.resumeConversation(resumeId);
-      console.log("📝 Conversation loaded:", conversation ? conversation.title : "null");
+      logger.debug("Conversation loaded", "conversation", { title: conversation?.title || "null" });
 
       if (!conversation) {
-        console.log("❌ Conversation not found");
+        logger.warn("Conversation not found", "conversation", { resumeId });
         return null;
       }
 
@@ -69,9 +71,10 @@ export class ConversationService {
       );
       const result = getConversationWithMessages(resumeId);
 
-      console.log(
-        "✅ Resume result:",
-        result ? `Success - ${result.messages.length} messages` : "Failed",
+      logger.info(
+        "Resume result",
+        "conversation",
+        { success: !!result, messageCount: result?.messages.length || 0 }
       );
       return result;
     } catch (error) {
@@ -132,22 +135,24 @@ export class ConversationService {
    * Load resumed conversation and convert to messages
    */
   static async loadResumedConversation(
-    autoSave: any,
+    autoSave: UseAutoSaveReturn,
     setMessages: (messages: Message[]) => void,
   ): Promise<void> {
     try {
       const result = await this.resumeFromUrl(autoSave);
 
       if (result && result.conversation && result.messages) {
-        console.log("🔄 Resuming conversation from URL:", result.conversation.title);
+        logger.info("Resuming conversation from URL", "conversation", { title: result.conversation.title });
 
         const messages = result.messages;
 
         if (messages && messages.length > 0) {
           const chatMessages = this.convertMessagesToChat(messages);
           setMessages(chatMessages);
-          console.log(
-            `✅ Resumed conversation: ${result.conversation.title} with ${chatMessages.length} messages`,
+          logger.info(
+            "Resumed conversation",
+            "conversation",
+            { title: result.conversation.title, messageCount: chatMessages.length }
           );
         } else {
           const resumeMessage = this.createResumeMessage(result.conversation.title);

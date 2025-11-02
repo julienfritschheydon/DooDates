@@ -420,7 +420,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       }
       setVisibleMonths(months);
     }
-  }, [initialData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData]); // Intentionnel : visibleMonths.length changerait à chaque render, on veut seulement initialData
 
   // Effet pour s'assurer que les dates sont bien initialisées
   useEffect(() => {
@@ -436,7 +437,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         showTimeSlots: true,
       }));
     }
-  }, [initialData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData]); // Intentionnel : state.selectedDates changerait à chaque render, on compare via JSON.stringify
 
   // Effet séparé pour initialiser les timeSlots
   useEffect(() => {

@@ -193,7 +193,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         logger.error("linkedPollId error", e);
         return null;
       }
-    }, [location.search]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.search]); // Intentionnel : on ne veut recalculer que si l'URL change
 
     const hasLinkedPoll = useMemo(() => {
       // Si un poll est actuellement chargé ou si un pollId est enregistré dans les métadonnées
@@ -411,7 +412,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       })();
 
       await initializationPromise;
-    }, [autoSave, loopProtection, messages]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoSave, loopProtection, messages]); // Intentionnel : setMessages est stable, pas besoin de le tracker
 
     useEffect(() => {
       // Prevent multiple initialization attempts
@@ -542,7 +544,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         clearTimeout(timeoutId);
         connectionStatusHook.cleanup();
       };
-    }, [location.search]); // Re-run when URL search params change
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.search]); // Intentionnel : on ne veut réinitialiser que si l'URL change, pas à chaque render
 
     useEffect(() => {
       // Désactiver complètement le scroll automatique vers le bas sur mobile

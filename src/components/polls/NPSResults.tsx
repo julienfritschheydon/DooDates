@@ -51,10 +51,11 @@ export function NPSResults({ responses }: NPSResultsProps) {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="nps-results">
       {/* Score NPS principal */}
       <div
         className={`p-6 rounded-xl ${interpretation.bg} border-2 border-${interpretation.color.replace("text-", "")}`}
+        data-testid="nps-score-display"
       >
         <div className="text-center">
           <p className="text-sm font-medium text-gray-600 mb-2">Net Promoter Score</p>
@@ -74,7 +75,7 @@ export function NPSResults({ responses }: NPSResultsProps) {
       {/* Segments */}
       <div className="grid grid-cols-3 gap-4">
         {/* Détracteurs */}
-        <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+        <div className="p-4 bg-red-50 rounded-lg border border-red-200" data-testid="nps-detractors">
           <div className="text-center">
             <div className="w-4 h-4 bg-red-500 rounded-full mx-auto mb-2"></div>
             <p className="text-2xl font-bold text-red-600">{detractorsPercent}%</p>
@@ -87,7 +88,7 @@ export function NPSResults({ responses }: NPSResultsProps) {
         </div>
 
         {/* Passifs */}
-        <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+        <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200" data-testid="nps-passives">
           <div className="text-center">
             <div className="w-4 h-4 bg-yellow-500 rounded-full mx-auto mb-2"></div>
             <p className="text-2xl font-bold text-yellow-600">{passivesPercent}%</p>
@@ -100,7 +101,7 @@ export function NPSResults({ responses }: NPSResultsProps) {
         </div>
 
         {/* Promoteurs */}
-        <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+        <div className="p-4 bg-green-50 rounded-lg border border-green-200" data-testid="nps-promoters">
           <div className="text-center">
             <div className="w-4 h-4 bg-green-500 rounded-full mx-auto mb-2"></div>
             <p className="text-2xl font-bold text-green-600">{promotersPercent}%</p>
@@ -114,7 +115,7 @@ export function NPSResults({ responses }: NPSResultsProps) {
       </div>
 
       {/* Distribution détaillée */}
-      <div className="p-4 bg-gray-50 rounded-lg">
+      <div className="p-4 bg-gray-50 rounded-lg" data-testid="nps-distribution">
         <h4 className="text-sm font-semibold text-gray-700 mb-3">Distribution des scores</h4>
         <div className="space-y-2">
           {distribution.map(({ score, count, percent }) => (

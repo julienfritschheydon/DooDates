@@ -4,6 +4,7 @@ import { groupConsecutiveDates } from "../../lib/date-utils";
 import { AIProposalFeedback } from "../polls/AIProposalFeedback";
 import { getPollBySlugOrId } from "../../lib/pollStorage";
 import type { PollSuggestion } from "../../lib/gemini";
+import { logger } from "@/lib/logger";
 
 interface Message {
   id: string;
@@ -233,37 +234,37 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                     {hasLinkedPoll ? (
                       <button
                         onClick={() => {
-                          console.log(
-                            "🔍 Bouton Voir cliqué - currentPoll:",
-                            currentPoll,
-                            "linkedPollId:",
-                            linkedPollId,
+                          logger.debug(
+                            "Bouton Voir cliqué",
+                            "poll",
+                            { currentPoll, linkedPollId }
                           );
                           // Ouvrir la dernière version du sondage lié
                           try {
                             if (currentPoll) {
-                              console.log("✅ Ouverture via currentPoll");
+                              logger.debug("Ouverture via currentPoll", "poll");
                               onOpenEditor();
                               return;
                             }
                             if (linkedPollId && linkedPollId !== "generated") {
-                              console.log("🔍 Recherche poll par ID:", linkedPollId);
+                              logger.debug("Recherche poll par ID", "poll", { linkedPollId });
                               const p = getPollBySlugOrId(linkedPollId);
-                              console.log("🔍 Poll trouvé:", p);
+                              logger.debug("Poll trouvé", "poll", { poll: p });
                               if (p) {
-                                console.log("✅ Ouverture via linkedPollId");
+                                logger.debug("Ouverture via linkedPollId", "poll");
                                 onSetCurrentPoll(p as any);
                                 onOpenEditor();
                                 return;
                               }
                             }
                             // Aucun poll résolu: tenter d'afficher le créateur si suggestion présente
-                            console.warn("⚠️ Aucun poll trouvé, fallback au créateur");
+                            logger.warn("Aucun poll trouvé, fallback au créateur", "poll");
                             onUsePollSuggestion(message.pollSuggestion!);
                           } catch (e) {
-                            console.warn(
-                              "❌ Impossible d'ouvrir la preview, fallback au créateur",
-                              e,
+                            logger.warn(
+                              "Impossible d'ouvrir la preview, fallback au créateur",
+                              "poll",
+                              { error: e }
                             );
                             onUsePollSuggestion(message.pollSuggestion!);
                           }
@@ -279,7 +280,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                     ) : (
                       <button
                         onClick={() => {
-                          console.log("🎯 Bouton cliqué!", message.pollSuggestion);
+                          logger.debug("Bouton Utiliser cliqué", "poll", { pollSuggestion: message.pollSuggestion });
                           onUsePollSuggestion(message.pollSuggestion!);
                         }}
                         className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-blue-500 hover:bg-blue-600"
@@ -291,6 +292,23 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                         </span>
                       </button>
                     )}
+
+                    {/* Feedback thumbs up/down pour les propositions de création */}
+                    <div className="mt-2">
+                      <AIProposalFeedback
+                        proposal={{
+                          userRequest: messages.find(m => !m.isAI && m.timestamp < message.timestamp)?.content || "Demande de création",
+                          generatedContent: message.pollSuggestion,
+                          pollContext: {
+                            pollType: (message.pollSuggestion as any).type || "date",
+                            action: "create",
+                          } as { pollType?: string; action?: string },
+                        }}
+                        onFeedbackSent={() => {
+                          // Feedback envoyé
+                        }}
+                      />
+                    </div>
                   </div>
                 )}
               </div>

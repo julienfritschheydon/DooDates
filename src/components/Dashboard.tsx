@@ -6,6 +6,7 @@ import { DashboardFilters } from "./dashboard/DashboardFilters";
 import { ConversationCard } from "./dashboard/ConversationCard";
 import { filterConversationItems } from "./dashboard/utils";
 import { FilterType } from "./dashboard/types";
+import { logger } from "@/lib/logger";
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const Dashboard: React.FC = () => {
   // Écouter l'événement de création de poll
   useEffect(() => {
     const handlePollCreated = () => {
-      console.log("📢 Poll created, refreshing...");
+      logger.info("Poll created, refreshing dashboard", "poll");
       setRefreshKey((prev) => prev + 1);
     };
 

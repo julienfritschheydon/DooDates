@@ -15,6 +15,7 @@ import {
   ErrorSeverity,
   ErrorCategory,
 } from "../error-handling";
+import { logger } from "../logger";
 
 /**
  * Migration status types
@@ -543,7 +544,7 @@ export class ConversationMigrationService {
       // 2. Delete only the data that was inserted during this migration
       // 3. For now, we'll just log the rollback attempt
 
-      console.warn(`Rollback requested for migration ${this.migrationId}`);
+      logger.warn("Rollback requested for migration", "general", { migrationId: this.migrationId });
 
       // The localStorage data is still intact, so users can continue using the app
       // In a production environment, you might implement more sophisticated rollback logic

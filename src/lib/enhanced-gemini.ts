@@ -2,6 +2,7 @@ import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import CalendarQuery from "./calendar-generator";
 import { logError, ErrorFactory } from "./error-handling";
 import { formatDateLocal, getTodayLocal } from "./date-utils";
+import { logger } from "./logger";
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -187,7 +188,7 @@ export class EnhancedGeminiService {
       // 1. Analyse temporelle préalable
       const temporalAnalysis = this.analyzeTemporalInput(userInput);
 
-      console.log("🔍 Analyse temporelle améliorée:", temporalAnalysis);
+      logger.debug("Analyse temporelle améliorée", "api", { temporalAnalysis });
 
       // 2. Génération du prompt avec techniques Counterfactual-Consistency
       const enhancedPrompt = this.buildCounterfactualPrompt(userInput, temporalAnalysis);
@@ -197,7 +198,7 @@ export class EnhancedGeminiService {
       const response = await result.response;
       const text = response.text();
 
-      console.log("📝 Réponse Gemini améliorée:", text);
+      logger.debug("Réponse Gemini améliorée", "api", { textLength: text.length });
 
       // 4. Parsing et validation
       const pollData = this.parseAndValidateResponse(text, temporalAnalysis);

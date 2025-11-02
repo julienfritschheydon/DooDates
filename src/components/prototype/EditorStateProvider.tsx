@@ -25,8 +25,7 @@ import React, {
 import { useLocation } from "react-router-dom";
 import { logError, ErrorFactory } from "@/lib/error-handling";
 import { pollReducer, type PollAction } from "@/reducers/pollReducer";
-import type { Poll } from "@/types/poll";
-import { addPoll, type Poll as StoragePoll } from "@/lib/pollStorage";
+import { addPoll, type Poll } from "@/lib/pollStorage";
 import { logger } from "@/lib/logger";
 
 export interface EditorStateContextType {
@@ -70,7 +69,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
       const resumeId = urlParams.get("resume");
       const isNewChat = urlParams.get("new");
 
-      console.log("🔍 EditorStateProvider - URL params:", { conversationId, resumeId, isNewChat });
+      logger.debug("EditorStateProvider - URL params", "poll", { conversationId, resumeId, isNewChat });
 
       // ✅ Ne restaurer QUE si on reprend une conversation existante
       const shouldRestore = conversationId || resumeId;
@@ -85,7 +84,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
         }
       } else {
         // ✅ Si pas de conversation à restaurer (nouveau chat ou navigation vers /), nettoyer
-        console.log("🧹 Nettoyage du poll (pas de conversation à restaurer)");
+        logger.debug("Nettoyage du poll (pas de conversation à restaurer)", "poll");
         localStorage.removeItem(STORAGE_KEY);
         dispatchPoll({ type: "REPLACE_POLL", payload: null });
         setIsEditorOpen(false);
@@ -153,7 +152,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
 
   // Action combinée : créer un sondage depuis les données Gemini
   const createPollFromChat = useCallback(async (pollData: any) => {
-    console.log("🔍 createPollFromChat appelé avec:", pollData);
+    logger.debug("createPollFromChat appelé", "poll", { pollData });
 
     const now = new Date().toISOString();
     const slug = `poll-${Date.now()}`;
@@ -189,7 +188,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
     // Convertir les questions Gemini en format FormPollCreator
     let convertedQuestions = pollData.questions || [];
     if (pollData.type === "form" && pollData.questions) {
-      console.log("🔍 Conversion questions Gemini:", pollData.questions);
+      logger.debug("Conversion questions Gemini", "poll", { questions: pollData.questions });
       convertedQuestions = pollData.questions.map((q: any) => {
         const baseQuestion = {
           id: uid(),
@@ -205,7 +204,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
               id: uid(),
               label: opt.trim(),
             }));
-          console.log("🔍 Options converties:", options);
+          logger.debug("Options converties", "poll", { options });
 
           return {
             ...baseQuestion,
@@ -220,10 +219,10 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
           };
         }
       });
-      console.log("🔍 Questions converties:", convertedQuestions);
+      logger.debug("Questions converties", "poll", { convertedQuestions });
     }
 
-    const poll: StoragePoll = {
+    const poll: Poll = {
       id: slug,
       slug: slug,
       title: pollData.title || "Nouveau sondage",
@@ -261,7 +260,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
               relatedPollId: poll.id,
               updatedAt: new Date(),
             });
-            console.log("✅ PollId sauvegardé dans conversation:", poll.id);
+            logger.info("PollId sauvegardé dans conversation", "poll", { pollId: poll.id });
           }
         } catch (error) {
           logError(
@@ -276,7 +275,8 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
     } catch (error) {
       logger.error("Erreur lors de la sauvegarde", error);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionnel : setCurrentPoll est stable (useState setter), pas besoin de le tracker
 
   const value: EditorStateContextType = {
     isEditorOpen,

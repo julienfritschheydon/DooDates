@@ -340,10 +340,10 @@ export function usePolls() {
               },
             );
 
-            console.log(
-              " Réponse insertion options:",
-              optionsResponse.status,
-              optionsResponse.statusText,
+            logger.debug(
+              "Options insertion response",
+              "poll",
+              { status: optionsResponse.status, statusText: optionsResponse.statusText }
             );
 
             if (!optionsResponse.ok) {
@@ -413,10 +413,10 @@ export function usePolls() {
               },
             );
 
-            console.log(
-              " Réponse insertion options:",
-              optionsResponse.status,
-              optionsResponse.statusText,
+            logger.debug(
+              "Options insertion response",
+              "poll",
+              { status: optionsResponse.status, statusText: optionsResponse.statusText }
             );
 
             if (!optionsResponse.ok) {
@@ -654,25 +654,25 @@ export function usePolls() {
 
   const deletePoll = useCallback(
     async (pollId: string) => {
-      console.log(`🗑️ usePolls.deletePoll: Starting deletion of poll ${pollId}`);
+      logger.info(`Starting deletion of poll ${pollId}`, "poll");
       setLoading(true);
       setError(null);
 
       try {
         // Use centralized pollStorage instead of direct localStorage access
-        console.log(`💾 usePolls.deletePoll: Calling deletePollById...`);
+        logger.debug("Calling deletePollById", "poll", { pollId });
         deletePollById(pollId);
-        console.log(`✅ usePolls.deletePoll: Poll deleted from storage`);
+        logger.debug("Poll deleted from storage", "poll");
 
         // Use centralized vote storage instead of direct localStorage access
-        console.log(`💾 usePolls.deletePoll: Deleting votes...`);
+        logger.debug("Deleting votes", "poll", { pollId });
         deleteVotesByPollId(pollId);
-        console.log(`✅ usePolls.deletePoll: Votes deleted`);
+        logger.debug("Votes deleted", "poll");
 
         // Rafraîchir la liste des sondages
-        console.log(`🔄 usePolls.deletePoll: Refreshing polls list...`);
+        logger.debug("Refreshing polls list", "poll");
         await getUserPolls();
-        console.log(`✅ usePolls.deletePoll: Polls list refreshed`);
+        logger.info("Poll deleted and list refreshed", "poll", { pollId });
 
         return {};
       } catch (err: any) {

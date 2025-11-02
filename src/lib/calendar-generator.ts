@@ -3,6 +3,7 @@
 // pour éviter les calculs répétitifs et améliorer les performances
 
 import { formatDateLocal } from "./date-utils";
+import { logger } from "./logger";
 
 export interface CalendarDay {
   date: string; // Format YYYY-MM-DD
@@ -216,7 +217,7 @@ export function getPreGeneratedCalendarSync(): PreGeneratedCalendar {
       return result;
     }
   } catch (e) {
-    console.warn("Static calendar not available");
+    logger.debug("Static calendar not available, using fallback", "calendar");
   }
 
   // Fallback: génération dynamique minimale (1 an seulement)
@@ -251,7 +252,7 @@ export function getYearCalendar(year: number): CalendarDay[] {
         }
       }
     } catch (e) {
-      console.warn(`localStorage cache not available for year ${year}`);
+      logger.debug("localStorage cache not available for year", "calendar", { year });
     }
   }
 
@@ -277,7 +278,7 @@ export function getYearCalendar(year: number): CalendarDay[] {
         }),
       );
     } catch (e) {
-      console.warn(`Cannot save year ${year} to localStorage (quota exceeded)`);
+      logger.warn("Cannot save year to localStorage (quota exceeded)", "calendar", { year });
     }
   }
 
@@ -414,7 +415,7 @@ export function clearCalendarCache(): void {
     try {
       localStorage.removeItem("doodates-calendar-cache");
     } catch (e) {
-      console.warn("Cannot clean global cache");
+      logger.debug("Cannot clean global cache", "calendar");
     }
 
     // Nettoyer les caches par année
@@ -424,7 +425,7 @@ export function clearCalendarCache(): void {
         try {
           localStorage.removeItem(key);
         } catch (e) {
-          console.warn(`Cannot clean cache ${key}`);
+          logger.debug("Cannot clean cache", "calendar", { key });
         }
       }
     }

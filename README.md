@@ -13,45 +13,74 @@ DooDates revolutionizes event scheduling through:
 - **One-Time Payment**: No subscriptions, transparent pricing
 - **Blue Ocean Strategy**: Unique positioning vs traditional form-based tools
 
-## 📊 Strategic Position
+## 🎯 Différenciation
 
-- **Market**: €2.8B scheduling software (7-8% annual growth)
-- **Competition**: Doodle (dated), Framadate (basic), Timeful (no AI)
-- **Differentiation**: Only tool with AI conversational scheduling
-- **Business Model**: Free → Pro (€15) → Premium (€25) + Add-ons
+DooDates se distingue par son **interface conversationnelle IA** pour créer des sondages en langage naturel, contrairement aux outils traditionnels basés sur des formulaires.
 
 ## 🛠️ Technical Stack
 
 - **Frontend**: React 18 + Vite + TypeScript + TailwindCSS
 - **UI Components**: Shadcn/ui + Radix UI primitives (49 components)
-- **AI Interface**: Custom chat components with React Query
-- **State Management**: React hooks + TanStack Query
-- **Styling**: TailwindCSS + CSS modules + Framer Motion
+- **AI Interface**: Google Gemini 2.0 Flash + Custom chat components
+- **State Management**: React hooks + TanStack Query v5
+- **Styling**: TailwindCSS + Lucide icons
 - **Build Tool**: Vite with SWC for fast compilation
-- **Testing**: Jest + Testing Library (planned)
-- **Backend**: Next.js API routes + Supabase (PostgreSQL) - planned
-- **AI**: OpenAI GPT-4, LangChain, Vercel AI SDK - planned
-- **Payments**: Stripe integration - planned
+- **Testing**: Vitest + Playwright E2E (507+ tests)
+- **Storage**: localStorage + Supabase (PostgreSQL) ready
+- **AI**: Google Gemini API with conversational context
+- **Deployment**: Netlify (configured)
 
 ## 🚀 Current Status
 
-### ✅ Phase 1: AI Interface Foundation (COMPLETED)
-- **Chat Interface**: Full conversational UI with message handling
-- **Component Library**: 49 Shadcn/ui components ready for use
-- **Modern Setup**: React 18 + Vite + TypeScript configuration
-- **Responsive Design**: Mobile-first with TailwindCSS
-- **Development Environment**: Hot reload, ESLint, PostCSS configured
+### ✅ Phase 1-3: Core Features (COMPLETED)
 
-### 🔄 Phase 2: MVP Core (IN PROGRESS)
-- Authentication & user management
-- AI-to-poll conversion logic
-- Database integration (Supabase)
-- Real-time voting system
-- Calendar integration
+**🗳️ Date Polls**
+- AI-powered poll creation via conversation
+- Visual calendar interface with date selection
+- Real-time voting with swipe gestures
+- Results visualization with participant tracking
+- Anonymous & named voting support
+
+**📋 Form Polls (Questionnaires)**
+- AI-generated questionnaires from natural language
+- 6 question types: Single choice, Multiple choice, Text, Matrix, Rating (1-5), NPS (0-10)
+- Conditional logic (show/hide questions based on answers)
+- Matrix questions with customizable rows/columns
+- "Other" option with free text
+- 4 export formats: CSV, PDF, JSON, Markdown
+- Real-time results with charts and statistics
+
+**🤖 AI Conversational Interface**
+- Google Gemini 2.0 Flash integration
+- Natural language understanding
+- Context-aware responses
+- Automatic poll type detection (date vs form)
+- Conversation history & resume
+- Voice input support
+
+**💾 Data Management**
+- localStorage for guest users
+- Supabase integration ready
+- Auto-save functionality
+- Data export capabilities
+- Conversation persistence
+
+**🎨 UI/UX**
+- Mobile-first responsive design
+- Dark mode support
+- Onboarding tour
+- Toast notifications
+- Loading states & error handling
+
+### 🔄 Phase 4: Advanced Features (IN PROGRESS)
+- Poll modification via AI
+- Advanced analytics
+- Email notifications (Resend integration)
+- Authentication & user accounts
 
 ### 📋 Upcoming Phases
-- **Phase 3**: Monetization (Stripe, Pro features)
-- **Phase 4**: Scale & Optimize (Performance, Enterprise)
+- **Phase 5**: Monetization (Stripe, Pro features)
+- **Phase 6**: Scale & Optimize (Performance, Enterprise)
 
 ## 🏃‍♂️ Quick Start
 
@@ -76,6 +105,15 @@ npm run preview
 
 # Run linting
 npm run lint
+
+# Run unit tests
+npm run test:unit
+
+# Run E2E tests
+npm run test:e2e
+
+# Run all tests
+npm test
 ```
 
 ### Project Structure
@@ -83,23 +121,65 @@ npm run lint
 DooDates/
 ├── src/
 │   ├── components/
-│   │   ├── ChatInterface.tsx    # Main chat interface
-│   │   ├── Sidebar.tsx          # Navigation sidebar
-│   │   └── ui/                  # 49 Shadcn/ui components
+│   │   ├── GeminiChatInterface.tsx  # AI chat interface
+│   │   ├── PollCreator.tsx          # Date poll creator
+│   │   ├── polls/                   # Poll components
+│   │   │   ├── FormPollCreator.tsx  # Form poll creator
+│   │   │   ├── FormPollVote.tsx     # Form voting interface
+│   │   │   ├── FormPollResults.tsx  # Results display
+│   │   │   ├── ConditionalRuleEditor.tsx
+│   │   │   ├── NPSInput.tsx         # NPS question component
+│   │   │   └── QuestionCard.tsx     # Question editor
+│   │   ├── voting/                  # Voting components
+│   │   ├── chat/                    # Chat components
+│   │   └── ui/                      # 49 Shadcn/ui components
 │   ├── pages/
-│   │   ├── Index.tsx            # Main application page
-│   │   └── NotFound.tsx         # 404 error page
-│   ├── hooks/                   # Custom React hooks
-│   ├── lib/                     # Utilities and helpers
-│   └── main.tsx                 # Application entry point
-├── Docs/                        # Strategic documentation
-├── public/                      # Static assets
-└── package.json                 # Dependencies and scripts
+│   │   ├── Index.tsx                # Chat/Home page
+│   │   ├── Vote.tsx                 # Voting page
+│   │   ├── Results.tsx              # Results page
+│   │   └── Dashboard.tsx            # User dashboard
+│   ├── hooks/                       # Custom React hooks
+│   │   ├── useAutoSave.ts
+│   │   ├── useConversations.ts
+│   │   ├── usePolls.ts
+│   │   └── useVoting.ts
+│   ├── lib/
+│   │   ├── gemini.ts                # Gemini AI integration
+│   │   ├── pollStorage.ts           # Poll data management
+│   │   ├── exports.ts               # Export functionality
+│   │   ├── conditionalEvaluator.ts  # Conditional logic
+│   │   └── date-utils.ts            # Date utilities
+│   ├── types/                       # TypeScript types
+│   └── main.tsx                     # Application entry point
+├── tests/
+│   └── e2e/                         # Playwright E2E tests
+├── Docs/                            # Strategic documentation
+├── public/                          # Static assets
+└── package.json                     # Dependencies and scripts
 ```
 
-## 🎨 UI Components Available
+## 🎨 Features & Components
 
-The project includes 49 pre-built Shadcn/ui components:
+### Poll Types
+- **Date Polls**: Schedule meetings with visual calendar
+- **Form Polls**: Surveys, questionnaires, feedback forms
+
+### Question Types
+- **Single Choice**: Radio buttons
+- **Multiple Choice**: Checkboxes
+- **Text**: Free text input
+- **Matrix**: Grid of options (Likert scales)
+- **Rating**: 1-5 stars
+- **NPS**: Net Promoter Score (0-10)
+
+### Advanced Features
+- **Conditional Logic**: Show/hide questions based on answers
+- **Export Formats**: CSV, PDF, JSON, Markdown
+- **Real-time Results**: Live statistics and charts
+- **Voice Input**: Speech-to-text for chat
+- **Mobile Optimized**: Swipe gestures, responsive design
+
+### UI Components (49 Shadcn/ui)
 - **Forms**: Input, Button, Checkbox, Radio, Select, Textarea
 - **Feedback**: Alert, Toast, Progress, Skeleton
 - **Navigation**: Menu, Breadcrumb, Pagination, Tabs
@@ -109,9 +189,22 @@ The project includes 49 pre-built Shadcn/ui components:
 
 ## 📁 Documentation
 
-- [`Docs/DooDates-Complete-Strategy.md`](./Docs/DooDates-Complete-Strategy.md) - Comprehensive business & technical strategy
-- [`Docs/MVP-Specs.md`](./Docs/MVP-Specs.md) - Detailed MVP specifications
-- [`Docs/Competitors/`](./Docs/Competitors/) - Competitive analysis with screenshots
+### Strategic Docs
+- [`Docs/DooDates-Complete-Strategy.md`](./Docs/DooDates-Complete-Strategy.md) - Business & technical strategy
+- [`Docs/2. Planning.md`](./Docs/2.%20Planning.md) - Development roadmap
+- [`Docs/Competitors/`](./Docs/Competitors/) - Competitive analysis
+
+### Technical Docs
+- [`Docs/Form-Poll-AI-Creation.md`](./Docs/Form-Poll-AI-Creation.md) - AI questionnaire generation
+- [`Docs/Export.md`](./Docs/Export.md) - Export specifications
+- [`Docs/TESTS-GUIDE-V2.md`](./Docs/TESTS/TESTS-GUIDE-V2.md) - Testing guide
+- [`Docs/USEEFFECT_GUIDELINES.md`](./Docs/USEEFFECT_GUIDELINES.md) - React best practices
+
+### API Documentation
+- Google Gemini 2.0 Flash integration
+- Conditional logic evaluation
+- Export system (CSV, PDF, JSON, Markdown)
+- Poll storage & retrieval
 
 ## 🔧 Development Guidelines
 
@@ -132,20 +225,35 @@ The project includes 49 pre-built Shadcn/ui components:
 - TanStack Query for server state
 - Context API for global state (planned)
 
-## 🚧 Known Issues & Next Steps
+## 🧪 Testing
+
+### Test Coverage
+- **507+ unit tests** with Vitest
+- **E2E tests** with Playwright (5 browsers)
+- **CI/CD** with GitHub Actions
+- **Automated regression testing**
+
+### Test Categories
+- Conditional logic evaluation (30 tests)
+- Export functionality (15 tests)
+- Poll storage (27 tests)
+- Conversation management (25+ tests)
+- UI components (400+ tests)
+
+## 🚧 Known Limitations & Next Steps
 
 ### Current Limitations
-- Chat interface is placeholder (no AI backend yet)
-- No user authentication system
-- No poll creation logic implemented
-- Database integration pending
+- Guest mode only (localStorage)
+- No email notifications yet
+- No user authentication (Supabase ready)
+- No payment integration
 
 ### Immediate Next Steps
-1. **Setup Supabase database** with authentication
-2. **Implement AI chat backend** with OpenAI integration
-3. **Create poll conversion logic** from chat messages
-4. **Add user registration/login** flow
-5. **Implement real-time voting** system
+1. **Poll modification via AI** - Edit existing polls conversationally
+2. **User authentication** - Supabase Auth integration
+3. **Email notifications** - Resend integration
+4. **Advanced analytics** - Detailed insights and trends
+5. **Monetization** - Stripe payment integration
 
 ## 🔐 Security & Compliance
 
