@@ -14,8 +14,18 @@ import type {
   IssueSeverity,
   ConfidenceLevel,
   SimulationContext,
+  ObjectiveValidation,
 } from "../../types/simulation";
 import { v4 as uuidv4 } from "uuid";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { logger } from "../logger";
+
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
+
+const GEMINI_MODEL = "gemini-2.0-flash-exp";
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 // ============================================================================
 // SEUILS DE DÉTECTION (adaptatifs selon contexte)
@@ -299,22 +309,125 @@ function detectLongSurvey(metrics: SimulationMetrics): DetectedIssue | null {
 }
 
 // ============================================================================
+// VALIDATION D'OBJECTIF
+// ============================================================================
+
+/**
+ * Valide l'alignement du questionnaire avec l'objectif défini
+ */
+async function validateObjective(
+  objective: string,
+  questions: Array<{
+    id: string;
+    type: string;
+    title: string;
+    options?: Array<{ id: string; label: string }>;
+  }>,
+  metrics: SimulationMetrics,
+): Promise<ObjectiveValidation> {
+  if (!API_KEY) {
+    // Fallback si pas de clé API
+    return {
+      objective,
+      alignmentScore: 50,
+      strengths: ["Questionnaire créé"],
+      weaknesses: ["Validation IA indisponible (clé API manquante)"],
+      suggestions: ["Configurer VITE_GEMINI_API_KEY pour activer la validation IA"],
+    };
+  }
+
+  try {
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+
+    const questionsText = questions
+      .map((q, i) => {
+        const optionsText = q.options ? `\nOptions: ${q.options.map((o) => o.label).join(", ")}` : "";
+        return `${i + 1}. [${q.type}] ${q.title}${optionsText}`;
+      })
+      .join("\n\n");
+
+    const metricsText = `
+Métriques de simulation :
+- Taux de complétion moyen : ${(metrics.avgCompletionRate * 100).toFixed(1)}%
+- Temps moyen total : ${Math.round(metrics.avgTotalTime)}s
+- Taux d'abandon : ${(metrics.dropoffRate * 100).toFixed(1)}%
+`;
+
+    const prompt = `Tu es un expert en conception de questionnaires. Analyse l'alignement entre l'objectif utilisateur et le questionnaire.
+
+**OBJECTIF UTILISATEUR :**
+"${objective}"
+
+**QUESTIONNAIRE :**
+${questionsText}
+
+**MÉTRIQUES SIMULATION :**
+${metricsText}
+
+**ANALYSE DEMANDÉE :**
+Évalue si le questionnaire permet d'atteindre l'objectif défini.
+
+Réponds UNIQUEMENT au format JSON suivant (sans markdown, sans backticks) :
+{
+  "alignmentScore": <nombre entre 0 et 100>,
+  "strengths": [<2-3 points forts - questions bien alignées avec l'objectif>],
+  "weaknesses": [<2-3 points faibles - manques ou questions non pertinentes>],
+  "suggestions": [<2-3 suggestions concrètes d'amélioration>]
+}
+
+Sois concret et actionnable dans tes recommandations.`;
+
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text().trim();
+
+    // Parser la réponse JSON
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("Réponse Gemini invalide (pas de JSON trouvé)");
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]);
+
+    return {
+      objective,
+      alignmentScore: parsed.alignmentScore || 50,
+      strengths: parsed.strengths || [],
+      weaknesses: parsed.weaknesses || [],
+      suggestions: parsed.suggestions || [],
+    };
+  } catch (error) {
+    logger.error("Erreur lors de la validation d'objectif", "api", { error, objective });
+
+    // Fallback en cas d'erreur
+    return {
+      objective,
+      alignmentScore: 50,
+      strengths: ["Questionnaire créé"],
+      weaknesses: ["Erreur lors de la validation IA"],
+      suggestions: ["Réessayer la validation ou vérifier manuellement l'alignement"],
+    };
+  }
+}
+
+// ============================================================================
 // ANALYSE COMPLÈTE
 // ============================================================================
 
 /**
  * Analyse les résultats de simulation et détecte les problèmes
  */
-export function analyzeSimulation(
+export async function analyzeSimulation(
   result: SimulationResult,
   questions?: Array<{
     id: string;
     type: string;
     title: string;
     required?: boolean;
+    options?: Array<{ id: string; label: string }>;
     matrixRows?: Array<{ id: string; label: string }>;
   }>,
-): SimulationResult {
+): Promise<SimulationResult> {
   const { respondents, config } = result;
 
   // Calculer métriques par question
@@ -378,9 +491,16 @@ export function analyzeSimulation(
   const severityOrder = { critical: 0, warning: 1, info: 2 };
   issues.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
 
+  // Validation d'objectif (si fourni)
+  let objectiveValidation: ObjectiveValidation | undefined;
+  if (config.objective && questions) {
+    objectiveValidation = await validateObjective(config.objective, questions, metrics);
+  }
+
   return {
     ...result,
     metrics,
     issues,
+    objectiveValidation,
   };
 }

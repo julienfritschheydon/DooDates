@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { ConversationStorageLocal } from "./ConversationStorageLocal";
+import * as ConversationStorageSimple from "./ConversationStorageSimple";
 import {
   Conversation,
   ConversationMessage,
@@ -121,8 +121,8 @@ export class ConversationMigrationService {
   static async isMigrationNeeded(): Promise<boolean> {
     try {
       // Check if there's data in localStorage
-      const localData = ConversationStorageLocal.exportForMigration();
-      if (!localData || localData.conversations.length === 0) {
+      const conversations = ConversationStorageSimple.getConversations();
+      if (!conversations || conversations.length === 0) {
         return false;
       }
 
@@ -232,7 +232,15 @@ export class ConversationMigrationService {
     messages: Record<string, ConversationMessage[]>;
   } | null> {
     try {
-      return ConversationStorageLocal.exportForMigration();
+      const conversations = ConversationStorageSimple.getConversations();
+      const messages: Record<string, ConversationMessage[]> = {};
+      
+      // Get messages for each conversation
+      for (const conv of conversations) {
+        messages[conv.id] = ConversationStorageSimple.getMessages(conv.id);
+      }
+      
+      return { conversations, messages };
     } catch (error) {
       throw new ConversationError(
         "Failed to export localStorage data",

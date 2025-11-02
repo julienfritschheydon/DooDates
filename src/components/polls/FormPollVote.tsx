@@ -9,6 +9,7 @@ import { RatingInput } from "./RatingInput";
 import { NPSInput } from "./NPSInput";
 import { getThemeById, applyTheme, resetTheme } from "../../lib/themes";
 import { useThemeColor } from "../../hooks/useThemeColor";
+import MultiStepFormVote from "./MultiStepFormVote";
 import "./themed-inputs.css";
 
 type AnswerValue = string | string[] | Record<string, string | string[]> | number;
@@ -207,12 +208,17 @@ export default function FormPollVote({ idOrSlug }: Props) {
     );
   }
 
-  if (!poll || poll.type !== "form") {
+  if (!poll) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="text-center text-gray-600">Sondage formulaire introuvable.</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-600">Sondage introuvable</p>
       </div>
     );
+  }
+
+  // Router vers le bon composant selon displayMode
+  if (poll.displayMode === "multi-step") {
+    return <MultiStepFormVote poll={poll} />;
   }
 
   if (submitted) {
@@ -313,7 +319,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
         </div>
 
         <div className="space-y-6">
-          {questions.map((q: FormQuestionShape) => {
+          {questions.map((q: FormQuestionShape, index: number) => {
             const kind: string = q.kind || q.type || "single";
             const qid: string = q.id;
             const val = answers[qid];
@@ -334,12 +340,13 @@ export default function FormPollVote({ idOrSlug }: Props) {
                   <div>
                     <div
                       id={`q-${qid}-label`}
-                      className="font-medium"
+                      className="font-medium flex items-center gap-2"
                       style={{
                         color: "var(--theme-text-primary, #1E293B)",
                       }}
                     >
-                      {q.title || "(Sans titre)"}
+                      <span className="text-sm font-bold opacity-60">Q{index + 1}.</span>
+                      <span>{q.title || "(Sans titre)"}</span>
                     </div>
                     <div
                       className="text-xs"

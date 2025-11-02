@@ -119,6 +119,9 @@ export interface SimulationConfig {
 
   /** Personas à utiliser (si vide, sélection auto selon contexte) */
   personaIds?: string[];
+
+  /** Objectif du questionnaire (optionnel - pour validation) */
+  objective?: string;
 }
 
 // ============================================================================
@@ -202,6 +205,26 @@ export interface SimulationMetrics {
 }
 
 /**
+ * Validation de l'objectif du questionnaire
+ */
+export interface ObjectiveValidation {
+  /** Objectif défini par l'utilisateur */
+  objective: string;
+
+  /** Score d'alignement (0-100) */
+  alignmentScore: number;
+
+  /** Points forts (questions bien alignées) */
+  strengths: string[];
+
+  /** Points faibles (manques détectés) */
+  weaknesses: string[];
+
+  /** Suggestions d'amélioration */
+  suggestions: string[];
+}
+
+/**
  * Résultat complet d'une simulation
  */
 export interface SimulationResult {
@@ -235,6 +258,9 @@ export interface SimulationResult {
     /** Coût par réponse */
     costPerResponse: number;
   };
+
+  /** Validation de l'objectif (si fourni) */
+  objectiveValidation?: ObjectiveValidation;
 }
 
 // ============================================================================

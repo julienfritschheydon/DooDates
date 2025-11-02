@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Archive, Check, Copy, Download, Edit, Share2, Trash2, Vote } from "lucide-react";
+import { Archive, Check, Copy, Download, Edit, Lock, Share2, Trash2, Vote } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Poll,
@@ -8,8 +8,8 @@ import {
   copyToClipboard,
   deletePollById,
   duplicatePoll,
-  getPolls,
-  savePolls,
+  getAllPolls,
+  addPoll,
 } from "@/lib/pollStorage";
 import {
   exportFormPollToCSV,
@@ -19,6 +19,10 @@ import {
   hasExportableData,
 } from "@/lib/exports";
 import { ErrorFactory, logError } from "@/lib/error-handling";
+import {
+  compareSimulationWithReality,
+  getLastSimulation,
+} from "@/lib/simulation/SimulationComparison";
 
 export type PollActionsVariant = "compact" | "full";
 
@@ -31,6 +35,7 @@ interface PollActionsProps {
   onAfterDuplicate?: (newPoll: Poll) => void;
   onAfterDelete?: () => void;
   onAfterArchive?: () => void;
+  onAfterClose?: () => void;
 }
 
 export const PollActions: React.FC<PollActionsProps> = ({
@@ -42,6 +47,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
   onAfterDuplicate,
   onAfterDelete,
   onAfterArchive,
+  onAfterClose,
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -95,11 +101,8 @@ export const PollActions: React.FC<PollActionsProps> = ({
 
   const handleArchive = () => {
     try {
-      const polls = getPolls();
-      const updatedPolls = polls.map((p) =>
-        p.id === poll.id ? { ...p, status: "archived" as const } : p,
-      );
-      savePolls(updatedPolls);
+      const updatedPoll = { ...poll, status: "archived" as const, updated_at: new Date().toISOString() };
+      addPoll(updatedPoll);
       toast({
         title: "Sondage archivé",
         description: "Le sondage a été archivé avec succès.",
@@ -109,6 +112,50 @@ export const PollActions: React.FC<PollActionsProps> = ({
       toast({
         title: "Erreur",
         description: "Impossible d'archiver le sondage.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClose = () => {
+    if (!window.confirm("Êtes-vous sûr de vouloir clôturer ce questionnaire ? Il ne sera plus possible de recevoir de nouvelles réponses.")) return;
+    try {
+      const updatedPoll = { ...poll, status: "closed" as const, updated_at: new Date().toISOString() };
+      addPoll(updatedPoll);
+
+      // Déclencher comparaison simulation si applicable
+      if (poll.type === "form") {
+        const lastSimulation = getLastSimulation(poll.id);
+        if (lastSimulation) {
+          try {
+            const comparison = compareSimulationWithReality(poll.id, lastSimulation);
+            toast({
+              title: "Questionnaire clôturé",
+              description: `Précision de la simulation : ${comparison.accuracy.overall}%`,
+            });
+          } catch (error) {
+            toast({
+              title: "Questionnaire clôturé",
+              description: "Le questionnaire est maintenant fermé aux nouvelles réponses.",
+            });
+          }
+        } else {
+          toast({
+            title: "Questionnaire clôturé",
+            description: "Le questionnaire est maintenant fermé aux nouvelles réponses.",
+          });
+        }
+      } else {
+        toast({
+          title: "Sondage clôturé",
+          description: "Le sondage est maintenant fermé aux nouveaux votes.",
+        });
+      }
+      onAfterClose?.();
+    } catch {
+      toast({
+        title: "Erreur",
+        description: "Impossible de clôturer le questionnaire.",
         variant: "destructive",
       });
     }
@@ -305,6 +352,18 @@ export const PollActions: React.FC<PollActionsProps> = ({
         <Copy className="w-4 h-4" />
         {variant === "full" && <span>Copier</span>}
       </button>
+
+      {poll.status === "active" && (
+        <button
+          onClick={handleClose}
+          className="bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 px-3 py-2 rounded-md text-sm font-medium hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors flex items-center gap-1"
+          title="Clôturer"
+          data-testid="poll-action-close"
+        >
+          <Lock className="w-4 h-4" />
+          {variant === "full" && <span className="hidden sm:inline">Clôturer</span>}
+        </button>
+      )}
 
       {poll.status !== "archived" && (
         <button

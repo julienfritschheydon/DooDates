@@ -79,9 +79,10 @@ export function useDashboardData(refreshKey: number) {
       const items: ConversationItem[] = conversations.map((conv) => {
         const metadata = conv.metadata as any;
 
-        // Chercher le poll associé via pollId
-        const relatedPoll = metadata?.pollId
-          ? pollsWithStats.find((p) => p.id === metadata.pollId)
+        // Chercher le poll associé via pollId (directement sur conv ou dans metadata)
+        const pollId = (conv as any).pollId || metadata?.pollId;
+        const relatedPoll = pollId
+          ? pollsWithStats.find((p) => p.id === pollId)
           : undefined;
 
         return {

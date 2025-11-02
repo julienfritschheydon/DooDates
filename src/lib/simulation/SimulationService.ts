@@ -405,5 +405,5 @@ export async function simulate(
 
   // Analyser et détecter problèmes
   const { analyzeSimulation } = await import("./SimulationAnalyzer");
-  return analyzeSimulation(initialResult, questions);
+  return await analyzeSimulation(initialResult, questions);
 }

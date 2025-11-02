@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Undo2, Save, Check, X } from "lucide-react";
+import { Undo2, Save, Check, X, List, ArrowRight, Lightbulb } from "lucide-react";
 import FormEditor from "./FormEditor";
 import type { Question as EditorQuestion } from "./QuestionCard";
 import { getAllPolls, savePolls, type Poll } from "../../lib/pollStorage";
@@ -78,6 +78,7 @@ export interface FormPollDraft {
   questions: AnyFormQuestion[];
   conditionalRules?: ConditionalRule[]; // Règles pour questions conditionnelles
   themeId?: string; // Thème visuel (Quick Win #3)
+  displayMode?: "all-at-once" | "multi-step"; // Mode d'affichage du formulaire
 }
 
 interface FormPollCreatorProps {
@@ -111,12 +112,30 @@ export default function FormPollCreator({
   const [draftId] = useState<string>(initialDraft?.id || "draft-" + uid());
   const autosaveTimer = useRef<number | null>(null);
 
+  // Suggestion IA intelligente pour displayMode
+  const suggestedDisplayMode = useMemo(() => {
+    // Si >5 questions → multi-step recommandé
+    if (questions.length > 5) return "multi-step";
+    // Si beaucoup de questions texte longues → multi-step
+    const longTextQuestions = questions.filter(
+      (q) => q.type === "text" && (q as TextQuestion).maxLength > 100,
+    );
+    if (longTextQuestions.length > 2) return "multi-step";
+    // Sinon → classique
+    return "all-at-once";
+  }, [questions]);
+
+  const [displayMode, setDisplayMode] = useState<"all-at-once" | "multi-step">(
+    initialDraft?.displayMode || suggestedDisplayMode,
+  );
+
   // Si le brouillon change (montée en props), synchroniser l'état
   useEffect(() => {
     if (initialDraft) {
       setTitle(initialDraft.title || "");
       setQuestions(initialDraft.questions || []);
       setConditionalRules(initialDraft.conditionalRules || []);
+      setDisplayMode(initialDraft.displayMode || suggestedDisplayMode);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialDraft?.id]); // Intentionnel : on veut seulement initialiser au montage, pas tracker initialDraft entier
@@ -129,8 +148,9 @@ export default function FormPollCreator({
       questions,
       conditionalRules,
       themeId,
+      displayMode,
     }),
-    [draftId, title, questions, conditionalRules, themeId],
+    [draftId, title, questions, conditionalRules, themeId, displayMode],
   );
 
   const canSave = useMemo(() => validateDraft(currentDraft).ok, [currentDraft]);
@@ -266,6 +286,7 @@ export default function FormPollCreator({
       }),
       conditionalRules: draft.conditionalRules, // Persister les règles conditionnelles
       themeId: draft.themeId, // Persister le thème visuel
+      displayMode: draft.displayMode, // Persister le mode d'affichage
     };
     if (existingIdx >= 0) {
       all[existingIdx] = base;
@@ -291,7 +312,7 @@ export default function FormPollCreator({
       if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentDraft.title, currentDraft.questions]); // Intentionnel : on veut sauvegarder seulement si title/questions changent, pas currentDraft/upsertFormPoll
+  }, [currentDraft.title, currentDraft.questions, displayMode]); // Intentionnel : on veut sauvegarder seulement si title/questions/displayMode changent
 
   const addQuestion = (type: FormQuestionType) => {
     if (type === "text") {
@@ -411,6 +432,91 @@ export default function FormPollCreator({
       <div className="px-4 md:px-6 pt-6 pb-40">
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#0a0a0a]">
+            {/* Toggle Mode d'affichage */}
+            <div className="mb-6 p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Mode d'affichage du formulaire
+              </label>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Option 1 : Classique */}
+                <button
+                  onClick={() => setDisplayMode("all-at-once")}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    displayMode === "all-at-once"
+                      ? "border-purple-500 bg-purple-900/20"
+                      : "border-gray-700 hover:border-gray-600"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <List className="w-5 h-5 text-purple-400" />
+                    <span className="font-medium text-white">Classique</span>
+                    {displayMode === "all-at-once" && (
+                      <Check className="w-4 h-4 text-purple-400 ml-auto" />
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400 mb-2">
+                    Toutes les questions visibles en même temps
+                  </p>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>✓ Rapide à remplir</p>
+                    <p>✓ Vue d'ensemble</p>
+                    <p>⚠ Peut intimider si &gt;5 questions</p>
+                  </div>
+                </button>
+
+                {/* Option 2 : Multi-step */}
+                <button
+                  onClick={() => setDisplayMode("multi-step")}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    displayMode === "multi-step"
+                      ? "border-purple-500 bg-purple-900/20"
+                      : "border-gray-700 hover:border-gray-600"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <ArrowRight className="w-5 h-5 text-purple-400" />
+                    <span className="font-medium text-white">Une par une</span>
+                    <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded">
+                      Style Typeform
+                    </span>
+                    {displayMode === "multi-step" && (
+                      <Check className="w-4 h-4 text-purple-400 ml-auto" />
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400 mb-2">
+                    Une question à la fois, plein écran
+                  </p>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>✓ +25% taux complétion</p>
+                    <p>✓ Moins intimidant</p>
+                    <p>✓ Parfait mobile</p>
+                  </div>
+                </button>
+              </div>
+
+              {/* Suggestion IA */}
+              {suggestedDisplayMode !== displayMode && (
+                <div className="mt-3 p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-lg flex items-start gap-2">
+                  <Lightbulb className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-yellow-200">
+                    <p className="font-medium mb-1">💡 Suggestion IA</p>
+                    <p>
+                      {suggestedDisplayMode === "multi-step"
+                        ? `Votre formulaire a ${questions.length} questions. Nous recommandons le mode "Une par une" pour maximiser le taux de complétion (+25%).`
+                        : "Le mode Classique est recommandé pour les formulaires courts."}
+                    </p>
+                    <button
+                      onClick={() => setDisplayMode(suggestedDisplayMode)}
+                      className="mt-2 text-yellow-400 hover:text-yellow-300 underline"
+                    >
+                      Utiliser la suggestion
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="space-y-4">
               <FormEditor
                 value={{
@@ -450,6 +556,7 @@ export default function FormPollCreator({
                 simulationButton={
                   questions.length > 0 ? (
                     <FormSimulationIntegration
+                      pollId={draftId}
                       pollTitle={title}
                       questions={questions.map((q) => ({
                         id: q.id,

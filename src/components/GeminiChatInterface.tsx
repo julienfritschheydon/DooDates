@@ -103,6 +103,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     // 🔧 FIX: Nettoyer le poll quand on démarre une NOUVELLE conversation
     const location = useLocation();
     const lastConversationIdRef = useRef<string | null>(null);
+    const initialMessageSentRef = useRef(false);
 
     // 🎯 FIX E2E: Auto-focus sur le textarea après ouverture de l'éditeur (mobile)
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -133,6 +134,32 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         }
       }
     }, [location.search, currentPoll, clearCurrentPoll]); // Se déclenche quand l'URL change
+
+    // 🎯 NOUVEAU: Envoyer automatiquement un message initial depuis location.state
+    useEffect(() => {
+      const state = location.state as any;
+      if (state?.initialMessage && !initialMessageSentRef.current) {
+        initialMessageSentRef.current = true;
+        
+        // Attendre que le composant soit monté et prêt
+        const timer = setTimeout(() => {
+          logger.info("📤 Envoi automatique du message initial", "poll", {
+            message: state.initialMessage,
+            pollId: state.pollId,
+            context: state.context,
+          });
+          
+          // Le message sera envoyé via setInputValue et handleSendMessage
+          // On ne peut pas utiliser chatRef ici car c'est un forwardRef interne
+          setInputValue(state.initialMessage);
+          
+          // Nettoyer le state pour éviter de renvoyer au refresh
+          window.history.replaceState({}, document.title);
+        }, 500);
+        
+        return () => clearTimeout(timer);
+      }
+    }, [location.state]); // Se déclenche quand location.state change
 
     // Wrapper pour éviter les erreurs de type PollSuggestion (conflit gemini.ts vs ConversationService.ts)
     const setMessages = useCallback(

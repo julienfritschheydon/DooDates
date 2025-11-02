@@ -18,17 +18,44 @@ import {
   deleteRecords,
 } from "./storageUtils";
 
-const CONVERSATIONS_KEY = "doodates-conversations";
-const MESSAGES_KEY = "doodates-messages";
+const CONVERSATIONS_KEY = "doodates_conversations";
+const MESSAGES_KEY = "doodates_messages";
+
+// Legacy keys (with dash) - for migration
+const LEGACY_CONVERSATIONS_KEY = "doodates-conversations";
+const LEGACY_MESSAGES_KEY = "doodates-messages";
 
 // Memory cache for robustness
 const conversationCache = new Map<string, Conversation>();
 const messageCache = new Map<string, ConversationMessage[]>();
 
 /**
+ * Migrate data from legacy keys (with dash) to new keys (with underscore)
+ * This ensures consistency with pollStorage.ts which uses underscore
+ */
+function migrateLegacyStorage(): void {
+  if (typeof localStorage === "undefined") return;
+
+  // Migrate conversations
+  const legacyConvs = localStorage.getItem(LEGACY_CONVERSATIONS_KEY);
+  if (legacyConvs && !localStorage.getItem(CONVERSATIONS_KEY)) {
+    localStorage.setItem(CONVERSATIONS_KEY, legacyConvs);
+    localStorage.removeItem(LEGACY_CONVERSATIONS_KEY);
+  }
+
+  // Migrate messages
+  const legacyMsgs = localStorage.getItem(LEGACY_MESSAGES_KEY);
+  if (legacyMsgs && !localStorage.getItem(MESSAGES_KEY)) {
+    localStorage.setItem(MESSAGES_KEY, legacyMsgs);
+    localStorage.removeItem(LEGACY_MESSAGES_KEY);
+  }
+}
+
+/**
  * Get all conversations
  */
 export function getConversations(): Conversation[] {
+  migrateLegacyStorage();
   return readFromStorage(CONVERSATIONS_KEY, conversationCache, []);
 }
 

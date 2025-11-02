@@ -9,7 +9,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { useConversationStorage } from "../useConversationStorage";
 import { useAuth } from "../../contexts/AuthContext";
 import { Conversation, ConversationMessage } from "../../types/conversation";
-import { ConversationStorageLocal } from "../../lib/storage/ConversationStorageLocal";
+import * as ConversationStorageSimple from "../../lib/storage/ConversationStorageSimple";
 
 // Mock dependencies
 vi.mock("../../contexts/AuthContext", () => ({
@@ -20,57 +20,16 @@ vi.mock("../../contexts/AuthContext", () => ({
 const mockUseAuth = vi.mocked(useAuth);
 
 // Mock the modules
-vi.mock("../../lib/storage/ConversationStorageLocal", () => ({
-  ConversationStorageLocal: class {
-    static STORAGE_KEY = "doodates_conversations";
-    static STORAGE_VERSION = "1.0.0";
-    static EXPIRATION_DAYS = 30;
-    static GUEST_QUOTA_LIMIT = 10;
-
-    // Static methods
-    static initialize = vi.fn().mockResolvedValue(undefined);
-    static exportForMigration = vi.fn().mockReturnValue({ conversations: [], messages: {} });
-    static getConversations = vi.fn().mockResolvedValue([]);
-    static getConversation = vi.fn().mockResolvedValue(null);
-    static createConversation = vi.fn().mockResolvedValue({});
-    static deleteConversation = vi.fn().mockResolvedValue(undefined);
-    static saveMessages = vi.fn().mockResolvedValue(undefined);
-    static getMessages = vi.fn().mockResolvedValue([]);
-
-    constructor() {
-      this.initialize = vi.fn().mockResolvedValue(undefined);
-      this.createConversation = vi.fn().mockResolvedValue({});
-      this.saveConversation = vi.fn().mockResolvedValue(undefined);
-      this.saveMessages = vi.fn().mockResolvedValue(undefined);
-      this.getConversations = vi.fn().mockResolvedValue([]);
-      this.getConversation = vi.fn().mockResolvedValue(null);
-      this.getConversationWithMessages = vi
-        .fn()
-        .mockResolvedValue({ conversation: null, messages: [] });
-      this.getMessages = vi.fn().mockResolvedValue([]);
-      this.deleteConversation = vi.fn().mockResolvedValue(undefined);
-      this.clearAll = vi.fn().mockResolvedValue(undefined);
-      this.getQuotaInfo = vi.fn().mockReturnValue({ used: 0, limit: 10, isGuest: true });
-      this.exportForMigration = vi.fn().mockReturnValue({ conversations: [], messages: {} });
-    }
-
-    // Mock methods will be added by the constructor
-    initialize: (isGuest: boolean) => Promise<void>;
-    createConversation: (conversation: any) => Promise<any>;
-    saveConversation: (conversation: any) => Promise<void>;
-    saveMessages: (conversationId: string, messages: any[]) => Promise<void>;
-    getConversations: () => Promise<any[]>;
-    getConversation: (id: string) => Promise<any>;
-    getConversationWithMessages: (id: string) => Promise<{ conversation: any; messages: any[] }>;
-    getMessages: (conversationId: string) => Promise<any[]>;
-    deleteConversation: (id: string) => Promise<void>;
-    clearAll: () => Promise<void>;
-    getQuotaInfo: () => { used: number; limit: number; isGuest: boolean };
-    exportForMigration: () => {
-      conversations: any[];
-      messages: Record<string, any[]>;
-    };
-  },
+vi.mock("../../lib/storage/ConversationStorageSimple", () => ({
+  getConversations: vi.fn().mockReturnValue([]),
+  getConversation: vi.fn().mockReturnValue(null),
+  createConversation: vi.fn().mockResolvedValue({}),
+  deleteConversation: vi.fn().mockResolvedValue(undefined),
+  saveMessages: vi.fn().mockResolvedValue(undefined),
+  getMessages: vi.fn().mockReturnValue([]),
+  addMessages: vi.fn().mockResolvedValue(undefined),
+  updateConversation: vi.fn().mockResolvedValue(undefined),
+  clearAll: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("../../lib/storage/ConversationStorageSupabase", () => ({
@@ -184,15 +143,12 @@ describe("useConversationStorage", () => {
       refreshProfile: vi.fn(),
     });
 
-    // Mock ConversationStorageLocal methods
-    vi.mocked(ConversationStorageLocal.getConversations).mockResolvedValue([]);
-    vi.mocked(ConversationStorageLocal.getConversation).mockResolvedValue(null);
-    vi.mocked(ConversationStorageLocal.createConversation).mockResolvedValue(mockConversation);
-    vi.mocked(ConversationStorageLocal.deleteConversation).mockResolvedValue();
-    vi.mocked(ConversationStorageLocal.exportForMigration).mockReturnValue({
-      conversations: [],
-      messages: {},
-    });
+    // Mock ConversationStorageSimple methods
+    vi.mocked(ConversationStorageSimple.getConversations).mockResolvedValue([]);
+    vi.mocked(ConversationStorageSimple.getConversation).mockResolvedValue(null);
+    vi.mocked(ConversationStorageSimple.createConversation).mockResolvedValue(mockConversation);
+    vi.mocked(ConversationStorageSimple.deleteConversation).mockResolvedValue();
+    vi.mocked(ConversationStorageSimple.getConversations).mockReturnValue([]);
   });
 
   describe("Basic Hook Functionality", () => {
@@ -260,7 +216,7 @@ describe("useConversationStorage", () => {
   describe("Data Operations", () => {
     it("should fetch conversations successfully", async () => {
       const mockConversations = [mockConversation];
-      vi.mocked(ConversationStorageLocal.getConversations).mockResolvedValue(mockConversations);
+      vi.mocked(ConversationStorageSimple.getConversations).mockResolvedValue(mockConversations);
 
       const { result } = renderHook(() => useConversationStorage(), {
         wrapper: createQueryWrapper(),
@@ -275,7 +231,7 @@ describe("useConversationStorage", () => {
 
     it("should create conversation successfully", async () => {
       const newConv = { ...mockConversation, title: "New Conversation" };
-      vi.mocked(ConversationStorageLocal.createConversation).mockResolvedValue(newConv);
+      vi.mocked(ConversationStorageSimple.createConversation).mockResolvedValue(newConv);
 
       const { result } = renderHook(() => useConversationStorage(), {
         wrapper: createQueryWrapper(),
@@ -304,7 +260,7 @@ describe("useConversationStorage", () => {
 
     it("should update conversation successfully", async () => {
       const updatedConv = { ...mockConversation, title: "Updated" };
-      vi.mocked(ConversationStorageLocal.getConversation).mockResolvedValue(updatedConv);
+      vi.mocked(ConversationStorageSimple.getConversation).mockResolvedValue(updatedConv);
 
       const { result } = renderHook(() => useConversationStorage(), {
         wrapper: createQueryWrapper(),
@@ -323,7 +279,7 @@ describe("useConversationStorage", () => {
     });
 
     it("should delete conversation successfully", async () => {
-      vi.mocked(ConversationStorageLocal.deleteConversation).mockResolvedValue();
+      vi.mocked(ConversationStorageSimple.deleteConversation).mockResolvedValue();
 
       const { result } = renderHook(() => useConversationStorage(), {
         wrapper: createQueryWrapper(),
@@ -382,10 +338,7 @@ describe("useConversationStorage", () => {
       });
 
       const mockConversations = [mockConversation, { ...mockConversation, id: "conv-2" }];
-      vi.mocked(ConversationStorageLocal.exportForMigration).mockReturnValue({
-        conversations: mockConversations,
-        messages: {},
-      });
+      vi.mocked(ConversationStorageSimple.getConversations).mockReturnValue(mockConversations);
 
       const { result } = renderHook(() => useConversationStorage(), {
         wrapper: createQueryWrapper(),
@@ -406,10 +359,7 @@ describe("useConversationStorage", () => {
         id: `conv-${i}`,
       }));
 
-      vi.mocked(ConversationStorageLocal.exportForMigration).mockReturnValue({
-        conversations: mockConversations,
-        messages: {},
-      });
+      vi.mocked(ConversationStorageSimple.getConversations).mockReturnValue(mockConversations);
 
       const { result } = renderHook(() => useConversationStorage(), {
         wrapper: createQueryWrapper(),
@@ -446,7 +396,7 @@ describe("useConversationStorage", () => {
   describe("Hook Queries", () => {
     it("should provide useConversation hook", async () => {
       // Mock the storage to return conversation data
-      // ConversationStorageLocal is already mocked via vi.mock()
+      // ConversationStorageSimple is already mocked via vi.mock()
 
       const { result } = renderHook(
         () => {
@@ -468,7 +418,7 @@ describe("useConversationStorage", () => {
 
     it("should provide useMessages hook", async () => {
       // Mock the storage to return message data
-      // ConversationStorageLocal is already mocked via vi.mock()
+      // ConversationStorageSimple is already mocked via vi.mock()
 
       const { result } = renderHook(
         () => {

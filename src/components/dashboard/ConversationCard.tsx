@@ -25,33 +25,27 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({ item, onRefr
       data-testid="poll-item"
     >
       <div className="p-6">
-        {/* Header : Titre conversation */}
+        {/* Header : Titre du poll (priorité) ou conversation */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <MessageSquare className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              {item.poll ? (
+                item.poll.type === "form" ? (
+                  <ClipboardList className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                ) : (
+                  <Calendar className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                )
+              ) : (
+                <MessageSquare className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              )}
               <h3 className="text-lg font-semibold text-white line-clamp-2">
-                {item.conversationTitle}
+                {item.poll ? item.poll.title : item.conversationTitle}
               </h3>
             </div>
 
-            {/* Poll associé */}
-            {item.poll && (
-              <>
-                <div className="flex items-center gap-2 text-gray-300 mb-2">
-                  {item.poll.type === "form" ? (
-                    <ClipboardList className="w-4 h-4 flex-shrink-0" />
-                  ) : (
-                    <Calendar className="w-4 h-4 flex-shrink-0" />
-                  )}
-                  <span className="text-sm font-medium">{item.poll.title}</span>
-                </div>
-
-                {/* Description du poll */}
-                {item.poll.description && (
-                  <p className="text-gray-400 text-sm mb-3 line-clamp-2">{item.poll.description}</p>
-                )}
-              </>
+            {/* Description du poll */}
+            {item.poll?.description && (
+              <p className="text-gray-400 text-sm mb-3 line-clamp-2">{item.poll.description}</p>
             )}
           </div>
 
@@ -81,8 +75,17 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({ item, onRefr
               <div className="flex items-center gap-1">
                 <Vote className="w-4 h-4" />
                 <span>
-                  {item.poll.votes_count || 0} vote
-                  {(item.poll.votes_count || 0) > 1 ? "s" : ""}
+                  {item.poll.type === "form" ? (
+                    <>
+                      {item.poll.votes_count || 0} réponse
+                      {(item.poll.votes_count || 0) > 1 ? "s" : ""}
+                    </>
+                  ) : (
+                    <>
+                      {item.poll.votes_count || 0} vote
+                      {(item.poll.votes_count || 0) > 1 ? "s" : ""}
+                    </>
+                  )}
                 </span>
               </div>
             </div>

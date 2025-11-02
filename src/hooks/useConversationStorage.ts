@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { logger } from "@/lib/logger";
-import { ConversationStorageLocal } from "../lib/storage/ConversationStorageLocal";
+import * as ConversationStorageSimple from "../lib/storage/ConversationStorageSimple";
 // ConversationStorageSupabase will be implemented in Task 1.3
 // import { ConversationStorageSupabase } from '../lib/storage/ConversationStorageSupabase';
 import { ConversationMigrationService } from "../lib/storage/ConversationMigrationService";
@@ -85,8 +85,7 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
   // Storage instances
   const [localStorage] = useState(() => {
     logger.debug("Using localStorage for guest user", "conversation");
-    ConversationStorageLocal.initialize(true);
-    return ConversationStorageLocal;
+    return ConversationStorageSimple;
   });
   const [supabaseStorage] = useState(
     () =>
@@ -105,8 +104,8 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
       isAuthenticated && supabaseStorage ? "supabase" : "localStorage";
 
     // Get quota information
-    const localData = ConversationStorageLocal.exportForMigration();
-    const conversationCount = localData?.conversations.length || 0;
+    const conversations = ConversationStorageSimple.getConversations();
+    const conversationCount = conversations.length || 0;
     const limit = isGuest
       ? CONVERSATION_LIMITS.GUEST_MAX_CONVERSATIONS
       : CONVERSATION_LIMITS.AUTHENTICATED_MAX_CONVERSATIONS;
@@ -142,11 +141,8 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
             conversation: Omit<Conversation, "id" | "createdAt" | "updatedAt">,
           ) => {
             try {
-              // Initialize storage first
-              ConversationStorageLocal.initialize(true);
-
               // Use the createConversation method instead of manual creation
-              return await ConversationStorageLocal.createConversation(conversation);
+              return await ConversationStorageSimple.createConversation(conversation);
             } catch (error) {
               const processedError = handleError(
                 error,
@@ -166,25 +162,20 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
             }
           },
           getConversations: () => {
-            ConversationStorageLocal.initialize(true);
-            return ConversationStorageLocal.getConversations();
+            return ConversationStorageSimple.getConversations();
           },
           getConversation: (id: string) => {
-            ConversationStorageLocal.initialize(true);
-            return ConversationStorageLocal.getConversation(id);
+            return ConversationStorageSimple.getConversation(id);
           },
           getMessages: (conversationId: string) => {
-            ConversationStorageLocal.initialize(true);
-            return ConversationStorageLocal.getMessages(conversationId);
+            return ConversationStorageSimple.getMessages(conversationId);
           },
           saveMessages: async (conversationId: string, messages: ConversationMessage[]) => {
-            // Ensure storage is initialized before saving messages
-            ConversationStorageLocal.initialize(true);
 
             // Verify conversation exists before attempting to save messages
-            const conversation = await ConversationStorageLocal.getConversation(conversationId);
+            const conversation = await ConversationStorageSimple.getConversation(conversationId);
             if (!conversation) {
-              const availableConversations = await ConversationStorageLocal.getConversations();
+              const availableConversations = await ConversationStorageSimple.getConversations();
               const verificationError = ErrorFactory.validation(
                 "Conversation non trouvée avant sauvegarde des messages",
               );
@@ -208,9 +199,9 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
               messageCount: messages.length,
             });
 
-            return ConversationStorageLocal.saveMessages(conversationId, messages);
+            return ConversationStorageSimple.saveMessages(conversationId, messages);
           },
-          deleteConversation: (id: string) => ConversationStorageLocal.deleteConversation(id),
+          deleteConversation: (id: string) => ConversationStorageSimple.deleteConversation(id),
         };
   }, [storageMode.provider, supabaseStorage]);
 
