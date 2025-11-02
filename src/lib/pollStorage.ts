@@ -26,7 +26,10 @@ export interface TimeSlot {
 
 export interface PollSettings {
   selectedDates?: string[];
-  timeSlotsByDate?: Record<string, Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>>;
+  timeSlotsByDate?: Record<
+    string,
+    Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>
+  >;
   timeGranularity?: number; // Granularité des créneaux horaires en minutes (30, 60, etc.)
 }
 
@@ -421,7 +424,7 @@ export function getAllPolls(): Poll[] {
     if (deduplicated.length !== polls.length) {
       logger.warn(
         `Removed ${polls.length - deduplicated.length} duplicate polls, saving cleaned version...`,
-        "poll"
+        "poll",
       );
       writeToStorage(STORAGE_KEY, deduplicated, memoryPollCache);
     }

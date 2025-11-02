@@ -115,7 +115,10 @@ export default function ConditionalRuleEditor({
   }
 
   return (
-    <div className="space-y-2 p-3 bg-blue-50 border border-blue-200 rounded-md" data-testid="conditional-rules-editor">
+    <div
+      className="space-y-2 p-3 bg-blue-50 border border-blue-200 rounded-md"
+      data-testid="conditional-rules-editor"
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-medium text-blue-900">
           <GitBranch className="w-4 h-4" />
@@ -172,7 +175,11 @@ export default function ConditionalRuleEditor({
 
         // Mode édition : afficher tous les champs
         return (
-          <div key={localIdx} className="p-2 bg-white border rounded space-y-2" data-testid={`conditional-rule-${localIdx}`}>
+          <div
+            key={localIdx}
+            className="p-2 bg-white border rounded space-y-2"
+            data-testid={`conditional-rule-${localIdx}`}
+          >
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 space-y-2">
                 {/* Sélection question dépendante */}

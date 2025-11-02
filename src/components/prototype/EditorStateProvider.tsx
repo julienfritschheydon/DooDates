@@ -69,7 +69,11 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
       const resumeId = urlParams.get("resume");
       const isNewChat = urlParams.get("new");
 
-      logger.debug("EditorStateProvider - URL params", "poll", { conversationId, resumeId, isNewChat });
+      logger.debug("EditorStateProvider - URL params", "poll", {
+        conversationId,
+        resumeId,
+        isNewChat,
+      });
 
       // ✅ Ne restaurer QUE si on reprend une conversation existante
       const shouldRestore = conversationId || resumeId;

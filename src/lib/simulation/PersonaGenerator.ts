@@ -1,6 +1,6 @@
 /**
  * PersonaGenerator - Génération de personas pour la simulation
- * 
+ *
  * Définit 10 personas représentant différents types de répondants
  * selon le contexte d'usage du questionnaire.
  */
@@ -17,24 +17,24 @@ const PERSONAS_PRINCIPAL: Persona[] = [
     name: "Organisateur Événement",
     context: "event",
     traits: {
-      responseRate: 0.90,
+      responseRate: 0.9,
       attentionSpan: 15,
       detailLevel: "high",
       biasTowardPositive: 0.15,
-      skipProbability: 0.05
-    }
+      skipProbability: 0.05,
+    },
   },
   {
     id: "casual-participant",
     name: "Participant Casual",
     context: "leisure",
     traits: {
-      responseRate: 0.70,
+      responseRate: 0.7,
       attentionSpan: 8,
       detailLevel: "low",
       biasTowardPositive: 0.25,
-      skipProbability: 0.15
-    }
+      skipProbability: 0.15,
+    },
   },
   {
     id: "association-member",
@@ -44,9 +44,9 @@ const PERSONAS_PRINCIPAL: Persona[] = [
       responseRate: 0.85,
       attentionSpan: 12,
       detailLevel: "medium",
-      biasTowardPositive: 0.20,
-      skipProbability: 0.08
-    }
+      biasTowardPositive: 0.2,
+      skipProbability: 0.08,
+    },
   },
   {
     id: "engaged-user",
@@ -57,8 +57,8 @@ const PERSONAS_PRINCIPAL: Persona[] = [
       attentionSpan: 20,
       detailLevel: "high",
       biasTowardPositive: 0.05,
-      skipProbability: 0.03
-    }
+      skipProbability: 0.03,
+    },
   },
   {
     id: "research-participant",
@@ -69,9 +69,9 @@ const PERSONAS_PRINCIPAL: Persona[] = [
       attentionSpan: 18,
       detailLevel: "high",
       biasTowardPositive: 0.0,
-      skipProbability: 0.04
-    }
-  }
+      skipProbability: 0.04,
+    },
+  },
 ];
 
 // ============================================================================
@@ -87,21 +87,21 @@ const PERSONAS_SECONDARY: Persona[] = [
       responseRate: 0.75,
       attentionSpan: 10,
       detailLevel: "medium",
-      biasTowardPositive: 0.20,
-      skipProbability: 0.12
-    }
+      biasTowardPositive: 0.2,
+      skipProbability: 0.12,
+    },
   },
   {
     id: "skeptical",
     name: "Sceptique",
     context: "feedback",
     traits: {
-      responseRate: 0.80,
+      responseRate: 0.8,
       attentionSpan: 12,
       detailLevel: "medium",
       biasTowardPositive: -0.15, // Biais négatif
-      skipProbability: 0.10
-    }
+      skipProbability: 0.1,
+    },
   },
   {
     id: "rushed",
@@ -111,9 +111,9 @@ const PERSONAS_SECONDARY: Persona[] = [
       responseRate: 0.65,
       attentionSpan: 6,
       detailLevel: "low",
-      biasTowardPositive: 0.10,
-      skipProbability: 0.20
-    }
+      biasTowardPositive: 0.1,
+      skipProbability: 0.2,
+    },
   },
   {
     id: "senior",
@@ -124,8 +124,8 @@ const PERSONAS_SECONDARY: Persona[] = [
       attentionSpan: 14,
       detailLevel: "high",
       biasTowardPositive: 0.25,
-      skipProbability: 0.06
-    }
+      skipProbability: 0.06,
+    },
   },
   {
     id: "international",
@@ -135,10 +135,10 @@ const PERSONAS_SECONDARY: Persona[] = [
       responseRate: 0.82,
       attentionSpan: 11,
       detailLevel: "medium",
-      biasTowardPositive: 0.10,
-      skipProbability: 0.09
-    }
-  }
+      biasTowardPositive: 0.1,
+      skipProbability: 0.09,
+    },
+  },
 ];
 
 // ============================================================================
@@ -148,10 +148,7 @@ const PERSONAS_SECONDARY: Persona[] = [
 /**
  * Liste complète des 10 personas
  */
-export const ALL_PERSONAS: Persona[] = [
-  ...PERSONAS_PRINCIPAL,
-  ...PERSONAS_SECONDARY
-];
+export const ALL_PERSONAS: Persona[] = [...PERSONAS_PRINCIPAL, ...PERSONAS_SECONDARY];
 
 // ============================================================================
 // SÉLECTION PAR CONTEXTE
@@ -161,36 +158,11 @@ export const ALL_PERSONAS: Persona[] = [
  * Mapping contexte → personas recommandés
  */
 const PERSONAS_BY_CONTEXT: Record<SimulationContext, string[]> = {
-  event: [
-    "event-organizer",
-    "casual-participant",
-    "rushed",
-    "senior"
-  ],
-  feedback: [
-    "engaged-user",
-    "casual-participant",
-    "skeptical",
-    "association-member"
-  ],
-  leisure: [
-    "casual-participant",
-    "student",
-    "rushed",
-    "event-organizer"
-  ],
-  association: [
-    "association-member",
-    "senior",
-    "engaged-user",
-    "event-organizer"
-  ],
-  research: [
-    "research-participant",
-    "international",
-    "engaged-user",
-    "student"
-  ]
+  event: ["event-organizer", "casual-participant", "rushed", "senior"],
+  feedback: ["engaged-user", "casual-participant", "skeptical", "association-member"],
+  leisure: ["casual-participant", "student", "rushed", "event-organizer"],
+  association: ["association-member", "senior", "engaged-user", "event-organizer"],
+  research: ["research-participant", "international", "engaged-user", "student"],
 };
 
 // ============================================================================
@@ -201,7 +173,7 @@ const PERSONAS_BY_CONTEXT: Record<SimulationContext, string[]> = {
  * Récupère un persona par son ID
  */
 export function getPersonaById(id: string): Persona | undefined {
-  return ALL_PERSONAS.find(p => p.id === id);
+  return ALL_PERSONAS.find((p) => p.id === id);
 }
 
 /**
@@ -209,9 +181,7 @@ export function getPersonaById(id: string): Persona | undefined {
  */
 export function getPersonasByContext(context: SimulationContext): Persona[] {
   const personaIds = PERSONAS_BY_CONTEXT[context] || [];
-  return personaIds
-    .map(id => getPersonaById(id))
-    .filter((p): p is Persona => p !== undefined);
+  return personaIds.map((id) => getPersonaById(id)).filter((p): p is Persona => p !== undefined);
 }
 
 /**
@@ -219,12 +189,12 @@ export function getPersonasByContext(context: SimulationContext): Persona[] {
  */
 export function selectRandomPersona(context: SimulationContext): Persona {
   const personas = getPersonasByContext(context);
-  
+
   if (personas.length === 0) {
     // Fallback sur casual-participant si aucun persona trouvé
     return getPersonaById("casual-participant")!;
   }
-  
+
   const randomIndex = Math.floor(Math.random() * personas.length);
   return personas[randomIndex];
 }
@@ -233,25 +203,22 @@ export function selectRandomPersona(context: SimulationContext): Persona {
  * Sélectionne N personas aléatoires pour un contexte
  * avec distribution équilibrée
  */
-export function selectPersonas(
-  context: SimulationContext,
-  count: number
-): Persona[] {
+export function selectPersonas(context: SimulationContext, count: number): Persona[] {
   const availablePersonas = getPersonasByContext(context);
-  
+
   if (availablePersonas.length === 0) {
     // Fallback
     return Array(count).fill(getPersonaById("casual-participant")!);
   }
-  
+
   const selected: Persona[] = [];
-  
+
   // Distribution équilibrée : on cycle à travers les personas disponibles
   for (let i = 0; i < count; i++) {
     const index = i % availablePersonas.length;
     selected.push(availablePersonas[index]);
   }
-  
+
   // Mélanger pour éviter un pattern prévisible
   return shuffleArray(selected);
 }
@@ -283,12 +250,12 @@ export function getPersonaStats() {
     byContext: Object.entries(PERSONAS_BY_CONTEXT).map(([context, ids]) => ({
       context,
       count: ids.length,
-      personas: ids
+      personas: ids,
     })),
-    avgResponseRate: 
+    avgResponseRate:
       ALL_PERSONAS.reduce((sum, p) => sum + p.traits.responseRate, 0) / ALL_PERSONAS.length,
     avgAttentionSpan:
-      ALL_PERSONAS.reduce((sum, p) => sum + p.traits.attentionSpan, 0) / ALL_PERSONAS.length
+      ALL_PERSONAS.reduce((sum, p) => sum + p.traits.attentionSpan, 0) / ALL_PERSONAS.length,
   };
 }
 
@@ -296,7 +263,4 @@ export function getPersonaStats() {
 // EXPORT
 // ============================================================================
 
-export {
-  PERSONAS_PRINCIPAL,
-  PERSONAS_SECONDARY
-};
+export { PERSONAS_PRINCIPAL, PERSONAS_SECONDARY };

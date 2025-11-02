@@ -340,11 +340,10 @@ export function usePolls() {
               },
             );
 
-            logger.debug(
-              "Options insertion response",
-              "poll",
-              { status: optionsResponse.status, statusText: optionsResponse.statusText }
-            );
+            logger.debug("Options insertion response", "poll", {
+              status: optionsResponse.status,
+              statusText: optionsResponse.statusText,
+            });
 
             if (!optionsResponse.ok) {
               const errorText = await optionsResponse.text();
@@ -413,11 +412,10 @@ export function usePolls() {
               },
             );
 
-            logger.debug(
-              "Options insertion response",
-              "poll",
-              { status: optionsResponse.status, statusText: optionsResponse.statusText }
-            );
+            logger.debug("Options insertion response", "poll", {
+              status: optionsResponse.status,
+              statusText: optionsResponse.statusText,
+            });
 
             if (!optionsResponse.ok) {
               const errorText = await optionsResponse.text();

@@ -234,11 +234,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                     {hasLinkedPoll ? (
                       <button
                         onClick={() => {
-                          logger.debug(
-                            "Bouton Voir cliqué",
-                            "poll",
-                            { currentPoll, linkedPollId }
-                          );
+                          logger.debug("Bouton Voir cliqué", "poll", { currentPoll, linkedPollId });
                           // Ouvrir la dernière version du sondage lié
                           try {
                             if (currentPoll) {
@@ -264,7 +260,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                             logger.warn(
                               "Impossible d'ouvrir la preview, fallback au créateur",
                               "poll",
-                              { error: e }
+                              { error: e },
                             );
                             onUsePollSuggestion(message.pollSuggestion!);
                           }
@@ -280,7 +276,9 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                     ) : (
                       <button
                         onClick={() => {
-                          logger.debug("Bouton Utiliser cliqué", "poll", { pollSuggestion: message.pollSuggestion });
+                          logger.debug("Bouton Utiliser cliqué", "poll", {
+                            pollSuggestion: message.pollSuggestion,
+                          });
                           onUsePollSuggestion(message.pollSuggestion!);
                         }}
                         className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-blue-500 hover:bg-blue-600"
@@ -297,7 +295,9 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                     <div className="mt-2">
                       <AIProposalFeedback
                         proposal={{
-                          userRequest: messages.find(m => !m.isAI && m.timestamp < message.timestamp)?.content || "Demande de création",
+                          userRequest:
+                            messages.find((m) => !m.isAI && m.timestamp < message.timestamp)
+                              ?.content || "Demande de création",
                           generatedContent: message.pollSuggestion,
                           pollContext: {
                             pollType: (message.pollSuggestion as any).type || "date",

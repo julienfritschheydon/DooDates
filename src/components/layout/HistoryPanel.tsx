@@ -33,7 +33,10 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
     try {
       // Utiliser getAllPolls() comme le Dashboard
       const polls = getAllPolls();
-      logger.debug("Polls récupérés via getAllPolls", "poll", { count: polls.length, firstPoll: polls[0] });
+      logger.debug("Polls récupérés via getAllPolls", "poll", {
+        count: polls.length,
+        firstPoll: polls[0],
+      });
 
       // Trier par date de création décroissante et prendre les 5 derniers
       const withDate = polls.filter((p) => p.created_at);
@@ -43,16 +46,14 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, 5);
 
-      logger.debug(
-        "Polls triés (top 5)",
-        "poll",
-        { polls: sorted.map((p) => ({
+      logger.debug("Polls triés (top 5)", "poll", {
+        polls: sorted.map((p) => ({
           id: p.id,
           title: p.title,
           type: p.type,
           created_at: p.created_at,
-        })) }
-      );
+        })),
+      });
 
       setRecentPolls(sorted);
     } catch (error) {

@@ -83,7 +83,6 @@ export function NPSInput({ value, onChange, required = false }: NPSInputProps) {
         </div>
       )}
 
-
       {/* Légende NPS */}
       <div className="mt-4 p-3 bg-gray-50 rounded-lg">
         <p className="text-xs text-gray-600 text-center mb-2 font-medium">

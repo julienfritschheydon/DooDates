@@ -193,11 +193,10 @@ export const useFreemiumQuota = () => {
     const status = getQuotaStatus();
     if (status.conversations.isNearLimit && !isAuthenticated) {
       // Show warning but allow action
-      logger.warn(
-        "Approaching conversation limit",
-        "conversation",
-        { used: status.conversations.used, limit: status.conversations.limit }
-      );
+      logger.warn("Approaching conversation limit", "conversation", {
+        used: status.conversations.used,
+        limit: status.conversations.limit,
+      });
     }
 
     return true;
@@ -226,11 +225,11 @@ export const useFreemiumQuota = () => {
   useEffect(() => {
     const status = getQuotaStatus();
     if (status.storage.isNearLimit && !isAuthenticated) {
-      logger.warn(
-        "Storage usage high",
-        "general",
-        { used: status.storage.used.toFixed(1), limit: status.storage.limit, unit: "MB" }
-      );
+      logger.warn("Storage usage high", "general", {
+        used: status.storage.used.toFixed(1),
+        limit: status.storage.limit,
+        unit: "MB",
+      });
     }
   }, [getQuotaStatus, isAuthenticated]);
 

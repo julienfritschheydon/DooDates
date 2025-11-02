@@ -119,7 +119,10 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({ pollId, onBack, onVoteSubmitt
       // Car en mode swipe, userHasVoted peut ne pas être à jour
       if (votes[optionId]) {
         result[votes[optionId]]++;
-        logger.debug("Vote utilisateur ajouté", "vote", { voteType: votes[optionId], newTotal: result });
+        logger.debug("Vote utilisateur ajouté", "vote", {
+          voteType: votes[optionId],
+          newTotal: result,
+        });
       }
 
       return result;
@@ -305,11 +308,11 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({ pollId, onBack, onVoteSubmitt
                       currentRank = index + 1;
                     }
                     rankings[option.id] = currentRank;
-                    logger.debug(
-                      "Option ranked",
-                      "vote",
-                      { optionId: option.id, rank: currentRank, score: option.score }
-                    );
+                    logger.debug("Option ranked", "vote", {
+                      optionId: option.id,
+                      rank: currentRank,
+                      score: option.score,
+                    });
                   });
 
                   return rankings;

@@ -1,6 +1,6 @@
 /**
  * TEST : Gemini 2.0 Flash pour Simulation IA
- * 
+ *
  * Objectif : Valider coût et qualité des réponses texte
  * Date : 02/11/2025
  */
@@ -44,18 +44,18 @@ const PERSONAS: Persona[] = [
   {
     name: "Participant Casual",
     context: "événement",
-    detailLevel: "low"
+    detailLevel: "low",
   },
   {
     name: "Membre Association",
     context: "associatif",
-    detailLevel: "medium"
+    detailLevel: "medium",
   },
   {
     name: "Organisateur Événement",
     context: "événement",
-    detailLevel: "high"
-  }
+    detailLevel: "high",
+  },
 ];
 
 // ============================================================================
@@ -66,28 +66,28 @@ const TEST_QUESTIONS = [
   {
     id: "q1",
     title: "Qu'avez-vous pensé de la soirée ?",
-    context: "événement"
+    context: "événement",
   },
   {
     id: "q2",
     title: "Comment évaluez-vous l'organisation de l'événement ?",
-    context: "événement"
+    context: "événement",
   },
   {
     id: "q3",
     title: "Que pensez-vous des activités proposées par l'association ?",
-    context: "associatif"
+    context: "associatif",
   },
   {
     id: "q4",
     title: "Avez-vous des suggestions pour améliorer nos prochains événements ?",
-    context: "événement"
+    context: "événement",
   },
   {
     id: "q5",
     title: "Recommanderiez-vous cette activité à vos amis ? Pourquoi ?",
-    context: "loisirs"
-  }
+    context: "loisirs",
+  },
 ];
 
 // ============================================================================
@@ -96,7 +96,7 @@ const TEST_QUESTIONS = [
 
 async function generateResponseWithGemini(
   question: string,
-  persona: Persona
+  persona: Persona,
 ): Promise<{ text: string; tokensUsed: number }> {
   const model = genAI.getGenerativeModel({ model: MODEL });
 
@@ -104,7 +104,7 @@ async function generateResponseWithGemini(
   const detailInstructions = {
     low: "Réponds en 1 phrase courte (5-10 mots), de manière naturelle et spontanée.",
     medium: "Réponds en 2-3 phrases (15-30 mots), de manière claire et constructive.",
-    high: "Réponds en 3-5 phrases (30-60 mots), de manière détaillée et réfléchie."
+    high: "Réponds en 3-5 phrases (30-60 mots), de manière détaillée et réfléchie.",
   };
 
   const prompt = `Tu es un participant à un questionnaire sur un ${persona.context}.
@@ -119,10 +119,10 @@ Réponds de manière naturelle, comme une vraie personne. Ne mentionne pas que t
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
-    
+
     // Estimation tokens (approximation : 1 token ≈ 4 caractères)
     const tokensUsed = Math.ceil((prompt.length + text.length) / 4);
-    
+
     return { text, tokensUsed };
   } catch (error) {
     console.error("Erreur Gemini:", error);
@@ -137,35 +137,32 @@ Réponds de manière naturelle, comme une vraie personne. Ne mentionne pas que t
 async function runTests() {
   console.log("\n🧪 TEST GEMINI 2.0 FLASH - Simulation IA\n");
   console.log("=".repeat(60));
-  
+
   let totalTokens = 0;
   let totalCost = 0;
   const responses: any[] = [];
 
   // Test 1 : Qualité des réponses
   console.log("\n📝 TEST 1 : Qualité des Réponses\n");
-  
+
   for (const question of TEST_QUESTIONS.slice(0, 3)) {
     console.log(`\nQuestion : "${question.title}"\n`);
-    
+
     for (const persona of PERSONAS) {
       try {
         const startTime = Date.now();
-        const { text, tokensUsed } = await generateResponseWithGemini(
-          question.title,
-          persona
-        );
+        const { text, tokensUsed } = await generateResponseWithGemini(question.title, persona);
         const duration = Date.now() - startTime;
-        
+
         totalTokens += tokensUsed;
         responses.push({ question: question.id, persona: persona.name, text, tokensUsed });
-        
+
         console.log(`  [${persona.detailLevel}] ${persona.name}`);
         console.log(`    → "${text}"`);
         console.log(`    ⏱️  ${duration}ms | 🎫 ${tokensUsed} tokens\n`);
-        
+
         // Pause pour éviter rate limiting
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (error: any) {
         console.error(`    ❌ Erreur: ${error.message}\n`);
       }
@@ -175,44 +172,45 @@ async function runTests() {
   // Test 2 : Coût estimé
   console.log("\n" + "=".repeat(60));
   console.log("\n💰 TEST 2 : Coût Estimé\n");
-  
+
   // Coût Gemini 2.0 Flash
   const COST_PER_1K_INPUT = 0.000075;
   const COST_PER_1K_OUTPUT = 0.0003;
-  
+
   // Approximation : 50% input, 50% output
   const inputTokens = totalTokens * 0.5;
   const outputTokens = totalTokens * 0.5;
-  
-  totalCost = (inputTokens / 1000 * COST_PER_1K_INPUT) + 
-              (outputTokens / 1000 * COST_PER_1K_OUTPUT);
-  
+
+  totalCost = (inputTokens / 1000) * COST_PER_1K_INPUT + (outputTokens / 1000) * COST_PER_1K_OUTPUT;
+
   console.log(`Tokens totaux : ${totalTokens}`);
   console.log(`Coût total : $${totalCost.toFixed(6)}`);
   console.log(`Coût par réponse : $${(totalCost / responses.length).toFixed(6)}`);
-  
+
   // Test 3 : Extrapolation usage réel
   console.log("\n" + "=".repeat(60));
   console.log("\n📊 TEST 3 : Extrapolation Usage Réel\n");
-  
+
   const avgCostPerResponse = totalCost / responses.length;
-  
+
   const scenarios = [
     { tier: "Free", sims: 3, responses: 10, textQuestions: 2 },
     { tier: "Pro", sims: 20, responses: 25, textQuestions: 2 },
-    { tier: "Enterprise", sims: 100, responses: 50, textQuestions: 3 }
+    { tier: "Enterprise", sims: 100, responses: 50, textQuestions: 3 },
   ];
-  
+
   console.log("Scénarios DooDates (grand public) :\n");
-  
-  scenarios.forEach(scenario => {
+
+  scenarios.forEach((scenario) => {
     const totalResponses = scenario.sims * scenario.responses * scenario.textQuestions;
     const monthlyCost = totalResponses * avgCostPerResponse;
-    
+
     console.log(`${scenario.tier} :`);
-    console.log(`  ${scenario.sims} sim × ${scenario.responses} rép × ${scenario.textQuestions} texte = ${totalResponses} appels`);
+    console.log(
+      `  ${scenario.sims} sim × ${scenario.responses} rép × ${scenario.textQuestions} texte = ${totalResponses} appels`,
+    );
     console.log(`  Coût/mois : $${monthlyCost.toFixed(3)}`);
-    
+
     if (scenario.tier === "Pro") {
       const margin = 10 - monthlyCost;
       const marginPercent = (margin / 10) * 100;
@@ -224,24 +222,26 @@ async function runTests() {
   // Test 4 : Validation hypothèses
   console.log("=".repeat(60));
   console.log("\n✅ TEST 4 : Validation Hypothèses\n");
-  
-  const avgWordsPerResponse = responses.reduce((sum, r) => 
-    sum + r.text.split(/\s+/).length, 0
-  ) / responses.length;
-  
+
+  const avgWordsPerResponse =
+    responses.reduce((sum, r) => sum + r.text.split(/\s+/).length, 0) / responses.length;
+
   console.log("Hypothèses initiales vs Résultats :");
   console.log(`  Coût par réponse : $0.0004 (estimé) vs $${avgCostPerResponse.toFixed(6)} (réel)`);
-  console.log(`  Coût Pro/mois : $0.40 (estimé) vs $${(scenarios[1].sims * scenarios[1].responses * scenarios[1].textQuestions * avgCostPerResponse).toFixed(3)} (réel)`);
+  console.log(
+    `  Coût Pro/mois : $0.40 (estimé) vs $${(scenarios[1].sims * scenarios[1].responses * scenarios[1].textQuestions * avgCostPerResponse).toFixed(3)} (réel)`,
+  );
   console.log(`  Qualité : Ultra-réaliste ? ${avgWordsPerResponse > 5 ? "✅ OUI" : "❌ NON"}`);
   console.log(`  Longueur moyenne : ${avgWordsPerResponse.toFixed(1)} mots/réponse`);
-  
+
   // Verdict final
   console.log("\n" + "=".repeat(60));
   console.log("\n🎯 VERDICT FINAL\n");
-  
-  const proMonthlyCost = scenarios[1].sims * scenarios[1].responses * scenarios[1].textQuestions * avgCostPerResponse;
+
+  const proMonthlyCost =
+    scenarios[1].sims * scenarios[1].responses * scenarios[1].textQuestions * avgCostPerResponse;
   const proMargin = ((10 - proMonthlyCost) / 10) * 100;
-  
+
   if (proMonthlyCost < 1 && proMargin > 90) {
     console.log("✅ HYPOTHÈSES VALIDÉES");
     console.log(`   - Coût négligeable : $${proMonthlyCost.toFixed(3)}/mois (Pro)`);
@@ -253,7 +253,7 @@ async function runTests() {
     console.log(`   - Coût : $${proMonthlyCost.toFixed(3)}/mois (> $1)`);
     console.log(`   - Marge : ${proMargin.toFixed(1)}% (< 90%)`);
   }
-  
+
   console.log("\n" + "=".repeat(60) + "\n");
 }
 

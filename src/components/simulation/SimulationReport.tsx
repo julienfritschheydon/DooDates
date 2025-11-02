@@ -1,60 +1,73 @@
 /**
  * SimulationReport - Rapport de simulation avec métriques et problèmes
- * 
+ *
  * Affiche les résultats de la simulation : métriques globales,
  * problèmes détectés, et recommandations.
  */
 
-import { AlertTriangle, CheckCircle, Info, X, Download, TrendingUp, Clock, Users, TrendingDown } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  X,
+  Download,
+  TrendingUp,
+  Clock,
+  Users,
+  TrendingDown,
+} from "lucide-react";
 import type { SimulationResult, DetectedIssue, IssueSeverity } from "../../types/simulation";
 
 interface SimulationReportProps {
   /** Résultat de la simulation */
   result: SimulationResult;
-  
+
   /** Questions du poll (pour afficher les titres) */
   questions?: Array<{ id: string; title: string }>;
-  
+
   /** Callback fermeture */
   onClose: () => void;
-  
+
   /** Callback export PDF (Pro) */
   onExportPdf?: () => void;
-  
+
   /** Utilisateur Pro */
   isPro?: boolean;
 }
 
-const SEVERITY_CONFIG: Record<IssueSeverity, {
-  icon: any;
-  color: string;
-  bgColor: string;
-  borderColor: string;
-}> = {
+const SEVERITY_CONFIG: Record<
+  IssueSeverity,
+  {
+    icon: any;
+    color: string;
+    bgColor: string;
+    borderColor: string;
+  }
+> = {
   critical: {
     icon: AlertTriangle,
     color: "text-red-300",
     bgColor: "bg-red-900/20",
-    borderColor: "border-red-700/50"
+    borderColor: "border-red-700/50",
   },
   warning: {
     icon: AlertTriangle,
     color: "text-yellow-300",
     bgColor: "bg-yellow-900/20",
-    borderColor: "border-yellow-700/50"
+    borderColor: "border-yellow-700/50",
   },
   info: {
     icon: Info,
     color: "text-blue-300",
     bgColor: "bg-blue-900/20",
-    borderColor: "border-blue-700/50"
-  }
+    borderColor: "border-blue-700/50",
+  },
 };
 
-function IssueCard({ 
-  issue, 
-  questions 
-}: { 
+function IssueCard({
+  issue,
+  questions,
+}: {
   issue: DetectedIssue;
   questions?: Array<{ id: string; title: string }>;
 }) {
@@ -62,34 +75,25 @@ function IssueCard({
   const Icon = config.icon;
 
   // Trouver le titre et le numéro de la question concernée
-  const questionIndex = issue.questionId && questions
-    ? questions.findIndex(q => q.id === issue.questionId)
-    : -1;
-  const questionTitle = questionIndex >= 0 && questions
-    ? questions[questionIndex].title
-    : null;
+  const questionIndex =
+    issue.questionId && questions ? questions.findIndex((q) => q.id === issue.questionId) : -1;
+  const questionTitle = questionIndex >= 0 && questions ? questions[questionIndex].title : null;
 
   return (
     <div className={`${config.bgColor} border ${config.borderColor} rounded-lg p-4`}>
       <div className="flex items-start gap-3">
         <Icon className={`w-5 h-5 ${config.color} flex-shrink-0 mt-0.5`} />
         <div className="flex-1">
-          <h4 className={`font-semibold ${config.color} mb-1`}>
-            {issue.title}
-          </h4>
+          <h4 className={`font-semibold ${config.color} mb-1`}>{issue.title}</h4>
           {questionTitle && (
             <p className="text-xs font-medium text-gray-400 mb-2">
               Question {questionIndex + 1} : "{questionTitle}"
             </p>
           )}
-          <p className="text-sm text-gray-300 mb-3">
-            {issue.description}
-          </p>
+          <p className="text-sm text-gray-300 mb-3">{issue.description}</p>
           {issue.recommendations.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-gray-400 mb-2">
-                Recommandations :
-              </p>
+              <p className="text-xs font-medium text-gray-400 mb-2">Recommandations :</p>
               <ul className="space-y-1">
                 {issue.recommendations.map((rec, index) => (
                   <li key={index} className="text-xs text-gray-300 flex items-start gap-2">
@@ -111,13 +115,13 @@ export function SimulationReport({
   questions,
   onClose,
   onExportPdf,
-  isPro = false
+  isPro = false,
 }: SimulationReportProps) {
   const { metrics, issues } = result;
 
-  const criticalIssues = issues.filter(i => i.severity === "critical");
-  const warningIssues = issues.filter(i => i.severity === "warning");
-  const infoIssues = issues.filter(i => i.severity === "info");
+  const criticalIssues = issues.filter((i) => i.severity === "critical");
+  const warningIssues = issues.filter((i) => i.severity === "warning");
+  const infoIssues = issues.filter((i) => i.severity === "info");
 
   const hasIssues = issues.length > 0;
   const hasCriticalIssues = criticalIssues.length > 0;
@@ -126,7 +130,7 @@ export function SimulationReport({
   const formatTimeWithSeconds = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.round(seconds % 60);
-    
+
     if (minutes === 0) {
       return `${remainingSeconds}s`;
     }
@@ -139,17 +143,13 @@ export function SimulationReport({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-700">
           <div>
-            <h2 className="text-2xl font-bold text-white">
-              Rapport de Simulation
-            </h2>
+            <h2 className="text-2xl font-bold text-white">Rapport de Simulation</h2>
             <p className="text-sm text-gray-400 mt-1">
-              {metrics.totalResponses} réponses simulées • {formatTimeWithSeconds(metrics.avgTotalTime)}
+              {metrics.totalResponses} réponses simulées •{" "}
+              {formatTimeWithSeconds(metrics.avgTotalTime)}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-200 transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -158,9 +158,7 @@ export function SimulationReport({
         <div className="p-6 space-y-6">
           {/* Vue d'ensemble */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Vue d'ensemble
-            </h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Vue d'ensemble</h3>
             <div className="grid grid-cols-3 gap-4">
               {/* Completion */}
               <div className="bg-green-900/20 border border-green-700/50 rounded-lg p-4">
@@ -206,16 +204,16 @@ export function SimulationReport({
           {/* Problèmes détectés */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">
-                Problèmes détectés
-              </h3>
+              <h3 className="text-lg font-semibold text-white">Problèmes détectés</h3>
               {hasIssues && (
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  hasCriticalIssues
-                    ? "bg-red-900/30 text-red-300 border border-red-700/50"
-                    : "bg-yellow-900/30 text-yellow-300 border border-yellow-700/50"
-                }`}>
-                  {issues.length} problème{issues.length > 1 ? 's' : ''}
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    hasCriticalIssues
+                      ? "bg-red-900/30 text-red-300 border border-red-700/50"
+                      : "bg-yellow-900/30 text-yellow-300 border border-yellow-700/50"
+                  }`}
+                >
+                  {issues.length} problème{issues.length > 1 ? "s" : ""}
                 </span>
               )}
             </div>
@@ -235,17 +233,17 @@ export function SimulationReport({
             ) : (
               <div className="space-y-3">
                 {/* Critical */}
-                {criticalIssues.map(issue => (
+                {criticalIssues.map((issue) => (
                   <IssueCard key={issue.id} issue={issue} questions={questions} />
                 ))}
-                
+
                 {/* Warning */}
-                {warningIssues.map(issue => (
+                {warningIssues.map((issue) => (
                   <IssueCard key={issue.id} issue={issue} questions={questions} />
                 ))}
-                
+
                 {/* Info */}
-                {infoIssues.map(issue => (
+                {infoIssues.map((issue) => (
                   <IssueCard key={issue.id} issue={issue} questions={questions} />
                 ))}
               </div>

@@ -86,7 +86,9 @@ export class PollCreationBusinessLogic {
   static async loadPollData(editPollId: string): Promise<PollCreationState | null> {
     try {
       const existingPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]") as unknown[];
-      const pollToEdit = existingPolls.find((poll: unknown) => (poll as { id?: string }).id === editPollId) as PollEditData | undefined;
+      const pollToEdit = existingPolls.find(
+        (poll: unknown) => (poll as { id?: string }).id === editPollId,
+      ) as PollEditData | undefined;
 
       if (!pollToEdit) {
         logError(

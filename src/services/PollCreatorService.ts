@@ -223,7 +223,10 @@ export class PollCreatorService {
   /**
    * Get time slot blocks for display
    */
-  static getTimeSlotBlocks(timeSlots: TimeSlot[], granularity: number): Array<{
+  static getTimeSlotBlocks(
+    timeSlots: TimeSlot[],
+    granularity: number,
+  ): Array<{
     start: TimeSlot;
     end: { hour: number; minute: number; enabled: boolean };
   }> {

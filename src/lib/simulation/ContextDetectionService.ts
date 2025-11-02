@@ -9,30 +9,97 @@ import type { SimulationContext } from "../../types/simulation";
  */
 const CONTEXT_KEYWORDS: Record<SimulationContext, string[]> = {
   event: [
-    "événement", "soirée", "fête", "mariage", "anniversaire", "célébration",
-    "réception", "gala", "concert", "spectacle", "festival", "conférence",
-    "séminaire", "atelier", "workshop", "rencontre", "réunion"
+    "événement",
+    "soirée",
+    "fête",
+    "mariage",
+    "anniversaire",
+    "célébration",
+    "réception",
+    "gala",
+    "concert",
+    "spectacle",
+    "festival",
+    "conférence",
+    "séminaire",
+    "atelier",
+    "workshop",
+    "rencontre",
+    "réunion",
   ],
   feedback: [
-    "satisfaction", "avis", "opinion", "retour", "feedback", "évaluation",
-    "note", "appréciation", "expérience", "service", "qualité", "amélioration",
-    "recommandation", "produit", "prestation", "performance"
+    "satisfaction",
+    "avis",
+    "opinion",
+    "retour",
+    "feedback",
+    "évaluation",
+    "note",
+    "appréciation",
+    "expérience",
+    "service",
+    "qualité",
+    "amélioration",
+    "recommandation",
+    "produit",
+    "prestation",
+    "performance",
   ],
   leisure: [
-    "loisir", "activité", "sortie", "vacances", "weekend", "détente",
-    "divertissement", "hobby", "passion", "sport", "jeu", "voyage",
-    "restaurant", "cinéma", "théâtre", "musée", "parc"
+    "loisir",
+    "activité",
+    "sortie",
+    "vacances",
+    "weekend",
+    "détente",
+    "divertissement",
+    "hobby",
+    "passion",
+    "sport",
+    "jeu",
+    "voyage",
+    "restaurant",
+    "cinéma",
+    "théâtre",
+    "musée",
+    "parc",
   ],
   association: [
-    "association", "club", "groupe", "communauté", "membre", "adhérent",
-    "bénévole", "projet", "action", "initiative", "réunion", "assemblée",
-    "comité", "bureau", "équipe", "collectif"
+    "association",
+    "club",
+    "groupe",
+    "communauté",
+    "membre",
+    "adhérent",
+    "bénévole",
+    "projet",
+    "action",
+    "initiative",
+    "réunion",
+    "assemblée",
+    "comité",
+    "bureau",
+    "équipe",
+    "collectif",
   ],
   research: [
-    "étude", "recherche", "enquête", "sondage", "analyse", "données",
-    "statistique", "questionnaire", "participant", "échantillon", "résultat",
-    "scientifique", "académique", "universitaire", "thèse", "mémoire"
-  ]
+    "étude",
+    "recherche",
+    "enquête",
+    "sondage",
+    "analyse",
+    "données",
+    "statistique",
+    "questionnaire",
+    "participant",
+    "échantillon",
+    "résultat",
+    "scientifique",
+    "académique",
+    "universitaire",
+    "thèse",
+    "mémoire",
+  ],
 };
 
 /**
@@ -40,12 +107,9 @@ const CONTEXT_KEYWORDS: Record<SimulationContext, string[]> = {
  */
 export function detectContext(
   title: string,
-  questions: Array<{ title: string; type: string }>
+  questions: Array<{ title: string; type: string }>,
 ): SimulationContext {
-  const text = [
-    title,
-    ...questions.map(q => q.title)
-  ].join(" ").toLowerCase();
+  const text = [title, ...questions.map((q) => q.title)].join(" ").toLowerCase();
 
   // Compter les occurrences de mots-clés par contexte
   const scores: Record<SimulationContext, number> = {
@@ -53,11 +117,11 @@ export function detectContext(
     feedback: 0,
     leisure: 0,
     association: 0,
-    research: 0
+    research: 0,
   };
 
   Object.entries(CONTEXT_KEYWORDS).forEach(([context, keywords]) => {
-    keywords.forEach(keyword => {
+    keywords.forEach((keyword) => {
       if (text.includes(keyword)) {
         scores[context as SimulationContext]++;
       }

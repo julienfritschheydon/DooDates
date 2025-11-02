@@ -518,11 +518,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     }
 
     if (status.conversations.isNearLimit && !isAuthenticated) {
-      logger.warn(
-        "Approaching conversation limit",
-        "conversation",
-        { used: status.conversations.used, limit: status.conversations.limit }
-      );
+      logger.warn("Approaching conversation limit", "conversation", {
+        used: status.conversations.used,
+        limit: status.conversations.limit,
+      });
     }
 
     return true;
@@ -668,11 +667,11 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       return;
     }
 
-    logger.warn(
-      "Storage usage high",
-      "general",
-      { used: status.storage.used.toFixed(1), limit: status.storage.limit, unit: "MB" }
-    );
+    logger.warn("Storage usage high", "general", {
+      used: status.storage.used.toFixed(1),
+      limit: status.storage.limit,
+      unit: "MB",
+    });
   }, [status.storage.isNearLimit, status.storage.used, status.storage.limit, isAuthenticated]);
 
   return {
