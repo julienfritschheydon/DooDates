@@ -40,6 +40,7 @@ export function SimulationModal({
   const [volume, setVolume] = useState<number>(10);
   const [context, setContext] = useState<SimulationContext>(detectedContext);
   const [useGemini, setUseGemini] = useState<boolean>(true);
+  const [objective, setObjective] = useState<string>("");
 
   // Limites selon tier
   const maxVolume = {
@@ -57,6 +58,7 @@ export function SimulationModal({
       volume,
       context,
       useGemini,
+      objective: objective.trim() || undefined,
     };
     onStart(config);
   };
@@ -129,6 +131,23 @@ export function SimulationModal({
                 Contexte auto-détecté. Upgrade Pro pour modifier.
               </p>
             )}
+          </div>
+
+          {/* Objectif (optionnel) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Objectif du questionnaire (optionnel)
+            </label>
+            <textarea
+              value={objective}
+              onChange={(e) => setObjective(e.target.value)}
+              placeholder="Ex: Mesurer la satisfaction client et identifier les points d'amélioration"
+              rows={3}
+              className="w-full px-3 py-2 bg-[#2a2a2a] border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              L'IA analysera si votre questionnaire permet d'atteindre cet objectif
+            </p>
           </div>
 
           {/* Gemini */}

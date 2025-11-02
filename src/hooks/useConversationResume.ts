@@ -8,7 +8,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAutoSave } from "./useAutoSave";
 import { ErrorFactory } from "../lib/error-handling";
-import { ConversationStorageLocal } from "@/lib/storage/ConversationStorageLocal";
+import * as ConversationStorageSimple from "@/lib/storage/ConversationStorageSimple";
 import { logger } from "@/lib/logger";
 
 import type { Conversation } from "../types/conversation";
@@ -56,9 +56,11 @@ export const useConversationResume = (): UseConversationResumeReturn => {
             title: conversation.title,
           });
         } else {
-          throw ErrorFactory.storage("Conversation not found", "Conversation non trouvée", {
-            conversationId,
-          });
+          throw ErrorFactory.validation(
+            "Conversation not found",
+            "Conversation non trouvée",
+            { conversationId }
+          );
         }
       } catch (error) {
         const errorMessage =

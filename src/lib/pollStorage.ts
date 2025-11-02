@@ -133,6 +133,7 @@ export interface Poll {
   questions?: FormQuestionShape[];
   conditionalRules?: ConditionalRule[]; // Règles pour questions conditionnelles
   themeId?: string; // Thème visuel (Quick Win #3)
+  displayMode?: "all-at-once" | "multi-step"; // Mode d'affichage du formulaire
   // Lien avec conversation IA
   relatedConversationId?: string; // ID de la conversation qui a créé ce sondage
   // NOUVEAU : Lien bidirectionnel avec conversation (architecture centrée conversations)

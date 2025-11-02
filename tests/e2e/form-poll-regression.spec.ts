@@ -35,6 +35,11 @@ function mkLogger(scope: string) {
 test.describe('Form Poll - Tests de non-régression', () => {
   test.describe.configure({ mode: 'serial' });
   
+  // Skip sur Firefox et Safari car bug Playwright avec shared context
+  // https://github.com/microsoft/playwright/issues/13038
+  // https://github.com/microsoft/playwright/issues/22832
+  test.skip(({ browserName }) => browserName !== 'chromium', 'Shared context non supporté sur Firefox/Safari');
+  
   // Variables partagées entre les tests
   let pollCreated = false;
   let pollUrl = '';
@@ -290,8 +295,23 @@ test.describe('Form Poll - Tests de non-régression', () => {
     try {
       test.slow();
       
+      // 📸 CAPTURE INITIALE - Voir ce qui s'affiche
+      await page.screenshot({ path: 'test-results/TEST3-INITIAL-STATE.png', fullPage: true });
+      log('📸 TEST #3 - Capture état initial');
+      
       // Le poll est déjà créé, on vérifie qu'il est là
       const editor = page.locator('[data-poll-preview]');
+      const isEditorVisible = await editor.isVisible().catch(() => false);
+      log(`🔍 Éditeur visible ? ${isEditorVisible}`);
+      
+      if (!isEditorVisible) {
+        // Capturer l'état actuel pour debug
+        const bodyText = await page.locator('body').textContent();
+        log(`📄 Contenu de la page : ${bodyText?.substring(0, 200)}...`);
+        await page.screenshot({ path: 'test-results/TEST3-NO-EDITOR.png', fullPage: true });
+        log('📸 TEST #3 - Éditeur non trouvé');
+      }
+      
       await expect(editor).toBeVisible({ timeout: 5000 });
       log('✅ Éditeur déjà présent');
       

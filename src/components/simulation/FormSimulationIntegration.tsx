@@ -17,6 +17,9 @@ import { SimulationReport } from "./SimulationReport";
 import type { UserTier } from "../../types/simulation";
 
 interface FormSimulationIntegrationProps {
+  /** ID du poll */
+  pollId: string;
+
   /** Titre du poll */
   pollTitle: string;
 
@@ -40,6 +43,7 @@ interface FormSimulationIntegrationProps {
 }
 
 export function FormSimulationIntegration({
+  pollId,
   pollTitle,
   questions,
   userTier,
@@ -69,7 +73,7 @@ export function FormSimulationIntegration({
       {/* Modal configuration */}
       {simulation.showModal && (
         <SimulationModal
-          pollId="draft"
+          pollId={pollId}
           detectedContext={simulation.detectedContext}
           userTier={userTier}
           onStart={simulation.startSimulation}
@@ -94,6 +98,7 @@ export function FormSimulationIntegration({
           questions={questions}
           onClose={simulation.reset}
           isPro={userTier === "pro" || userTier === "enterprise"}
+          pollId={pollId}
         />
       )}
     </>

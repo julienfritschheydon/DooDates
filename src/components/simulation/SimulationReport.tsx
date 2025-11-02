@@ -15,7 +15,12 @@ import {
   Clock,
   Users,
   TrendingDown,
+  Target,
+  ThumbsUp,
+  ThumbsDown,
+  Lightbulb,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { SimulationResult, DetectedIssue, IssueSeverity } from "../../types/simulation";
 
 interface SimulationReportProps {
@@ -33,6 +38,9 @@ interface SimulationReportProps {
 
   /** Utilisateur Pro */
   isPro?: boolean;
+
+  /** ID du poll (pour navigation vers chat IA) */
+  pollId?: string;
 }
 
 const SEVERITY_CONFIG: Record<
@@ -116,8 +124,10 @@ export function SimulationReport({
   onClose,
   onExportPdf,
   isPro = false,
+  pollId,
 }: SimulationReportProps) {
-  const { metrics, issues } = result;
+  const { metrics, issues, objectiveValidation } = result;
+  const navigate = useNavigate();
 
   const criticalIssues = issues.filter((i) => i.severity === "critical");
   const warningIssues = issues.filter((i) => i.severity === "warning");
@@ -135,6 +145,27 @@ export function SimulationReport({
       return `${remainingSeconds}s`;
     }
     return `${minutes}min`;
+  };
+
+  // Handler pour appliquer une suggestion via le chat IA
+  const handleApplySuggestion = (suggestion: string) => {
+    if (!pollId) {
+      console.warn("pollId manquant, impossible d'appliquer la suggestion");
+      return;
+    }
+
+    // Fermer le rapport
+    onClose();
+
+    // Naviguer vers le workspace (/) avec un nouveau chat
+    // Le message sera envoyé automatiquement via location.state
+    navigate(`/?new=${Date.now()}`, {
+      state: {
+        initialMessage: `Améliore mon questionnaire : ${suggestion}`,
+        pollId: pollId,
+        context: "simulation-suggestion",
+      },
+    });
   };
 
   return (
@@ -200,6 +231,115 @@ export function SimulationReport({
               </div>
             </div>
           </div>
+
+          {/* Validation d'objectif */}
+          {objectiveValidation && (
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <Target className="w-5 h-5 text-purple-400" />
+                Validation d'objectif
+              </h3>
+              <div className="bg-purple-900/20 border border-purple-700/50 rounded-lg p-5">
+                {/* Objectif */}
+                <div className="mb-4">
+                  <p className="text-sm text-gray-400 mb-1">Objectif défini :</p>
+                  <p className="text-white font-medium">"{objectiveValidation.objective}"</p>
+                </div>
+
+                {/* Score */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-400">Score d'alignement</span>
+                    <span
+                      className={`text-2xl font-bold ${
+                        objectiveValidation.alignmentScore >= 70
+                          ? "text-green-400"
+                          : objectiveValidation.alignmentScore >= 50
+                            ? "text-yellow-400"
+                            : "text-red-400"
+                      }`}
+                    >
+                      {objectiveValidation.alignmentScore}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all ${
+                        objectiveValidation.alignmentScore >= 70
+                          ? "bg-green-500"
+                          : objectiveValidation.alignmentScore >= 50
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
+                      }`}
+                      style={{ width: `${objectiveValidation.alignmentScore}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Points forts */}
+                {objectiveValidation.strengths.length > 0 && (
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <ThumbsUp className="w-4 h-4 text-green-400" />
+                      <p className="text-sm font-medium text-green-400">Points forts</p>
+                    </div>
+                    <ul className="space-y-1">
+                      {objectiveValidation.strengths.map((strength, index) => (
+                        <li key={index} className="text-sm text-gray-300 flex items-start gap-2">
+                          <span className="text-green-500">✓</span>
+                          <span>{strength}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Points faibles */}
+                {objectiveValidation.weaknesses.length > 0 && (
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <ThumbsDown className="w-4 h-4 text-red-400" />
+                      <p className="text-sm font-medium text-red-400">Points faibles</p>
+                    </div>
+                    <ul className="space-y-1">
+                      {objectiveValidation.weaknesses.map((weakness, index) => (
+                        <li key={index} className="text-sm text-gray-300 flex items-start gap-2">
+                          <span className="text-red-500">✗</span>
+                          <span>{weakness}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Suggestions */}
+                {objectiveValidation.suggestions.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Lightbulb className="w-4 h-4 text-yellow-400" />
+                      <p className="text-sm font-medium text-yellow-400">Suggestions d'amélioration</p>
+                    </div>
+                    <ul className="space-y-2">
+                      {objectiveValidation.suggestions.map((suggestion, index) => (
+                        <li key={index} className="text-sm text-gray-300 flex items-start gap-2 group">
+                          <span className="text-yellow-500 mt-0.5">💡</span>
+                          <span className="flex-1">{suggestion}</span>
+                          {pollId && (
+                            <button
+                              onClick={() => handleApplySuggestion(suggestion)}
+                              className="ml-2 px-3 py-1 text-xs bg-purple-600/20 text-purple-400 rounded hover:bg-purple-600/30 transition-colors opacity-0 group-hover:opacity-100 whitespace-nowrap"
+                            >
+                              Appliquer
+                            </button>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Problèmes détectés */}
           <div>

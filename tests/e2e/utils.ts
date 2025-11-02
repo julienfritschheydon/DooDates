@@ -48,6 +48,7 @@ export function attachConsoleGuard(
     /error loading dynamically imported module/i,
     /The above error occurred in the <Route\.Provider> component/i,
     /The above error occurred in one of your React components/i,
+    /JSHandle@object/i, // Firefox log des objets comme "JSHandle@object" au lieu du message réel
   ];
   const defaultAllow = process.env.E2E_DEV_NOISE === '1' ? [...baseAllow, ...devNoiseAllow] : baseAllow;
   const allow = options?.allowlist ? [...defaultAllow, ...options.allowlist] : defaultAllow;

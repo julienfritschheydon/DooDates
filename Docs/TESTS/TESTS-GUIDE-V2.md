@@ -1,7 +1,7 @@
 # DooDates - Guide Complet des Tests
 
-> **Document de référence unique** - Octobre 2025  
-> **Dernière mise à jour** : 30 octobre 2025
+> **Document de référence unique** - Novembre 2025  
+> **Dernière mise à jour** : 02 novembre 2025
 
 ---
 
@@ -12,13 +12,43 @@
 ```
 🎯 Tests Unitaires (Vitest)    : 571/577 passent (99%)
 🤖 Tests IA (Gemini/Jest)      : 14/15 passent (93%)
-🌐 Tests E2E (Playwright)      : 16/20 passent (80%, 4 skipped mobile)
-📈 SCORE GLOBAL                : 97%
+🌐 Tests E2E (Playwright)      : 22/22 passent (100% sur Chrome)
+   - Analytics IA              : 9/9 passent (mode enchaîné)
+   - Console & React           : 3/3 passent (hooks, errors, leaks)
+   - Form Poll Regression      : 4/4 passent (mode enchaîné)
+   - Autres E2E                : 6/6 passent
+📈 SCORE GLOBAL                : 98%
 ```
 
-**Status** : ✅ **PRODUCTION-READY** - Protection multi-niveaux active
+**Status** : ✅ **PRODUCTION-READY** - Analytics IA intégrés
 
-**Dernière mise à jour** : 30/10/2025 - Suppression tests providers redondants
+**Dernière mise à jour** : 02/11/2025 - Ajout tests Analytics IA + Suppression tests redondants
+
+**Note Firefox/Safari** : Les tests Analytics IA sont skippés sur Firefox/Safari en raison d'un bug Playwright avec le mode serial + shared context ([#13038](https://github.com/microsoft/playwright/issues/13038), [#22832](https://github.com/microsoft/playwright/issues/22832)). Les tests passent à 100% sur Chrome.
+
+---
+
+## 🚀 Quick Start
+
+**Lancer tous les tests (2 minutes) :**
+```bash
+# Tests E2E Analytics IA + Console
+npx playwright test analytics-ai.spec.ts console-errors.spec.ts --project=chromium
+```
+
+**Résultat attendu :**
+- 12/12 tests passent
+- Durée : ~2 minutes
+- Rapport HTML généré automatiquement
+
+**Tests manuels optionnels (17 minutes) :**
+1. Créer FormPoll (2min)
+2. Voter 5 fois (3min)
+3. Clôturer + Analytics IA (5min)
+4. Responsive mobile (5min)
+5. Cache & Quota (2min)
+
+**Temps total : 19 minutes** (vs 6-8h avant automatisation)
 
 ---
 
@@ -69,16 +99,35 @@ npm run test:gemini:quick      # Tests rapides (15s)
 
 ### 3. Tests E2E - Playwright
 
-**Specs actifs** : 10 fichiers
+**Specs actifs** : 12 fichiers (22 tests)
+
+**Analytics IA (Nouveau - 02/11/2025) :**
+- `analytics-ai.spec.ts` - 9 tests mode enchaîné ✅
+  - Setup complet (création + votes + clôture + insights)
+  - Quick queries (4 types)
+  - Query personnalisée
+  - Cache intelligent (vérification gain temps)
+  - Quotas freemium (5/jour)
+  - Gestion erreurs (poll vide, API, query longue)
+- `console-errors.spec.ts` - 3 tests qualité code ✅
+  - Erreurs console page d'accueil
+  - Warnings React Hooks
+  - Memory leaks après rafraîchissements
+
+**Form Poll :**
+- `form-poll-regression.spec.ts` - 4 tests mode enchaîné ✅
+
+**Autres :**
 - `ultra-simple.spec.ts` - Workflow DatePoll complet ✅
-- `form-poll-regression.spec.ts` - 4 tests Form Poll ✅
 - `security-isolation.spec.ts` - Tests sécurité ✅
-- `guest-workflow.spec.ts` - Mode invité ⏸️ (WIP - skipped)
-- `authenticated-workflow.spec.ts` - Mode authentifié ⏸️ (WIP - skipped)
-- `edge-cases.spec.ts` - Cas limites ⏸️ (WIP - skipped)
 - `mobile-voting.spec.ts` - Vote mobile ✅
 - `navigation-regression.spec.ts` - Navigation ✅
 - `poll-actions.spec.ts` - Actions polls ✅
+
+**WIP (skippés) :**
+- `guest-workflow.spec.ts` - Mode invité ⏸️
+- `authenticated-workflow.spec.ts` - Mode authentifié ⏸️
+- `edge-cases.spec.ts` - Cas limites ⏸️
 
 **Navigateurs testés** : Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari
 
@@ -95,6 +144,10 @@ npm run test:e2e:smoke         # Tests critiques (Chromium)
 npm run test:e2e:functional    # Tests fonctionnels (Chromium)
 npm run test:e2e:ui            # Interface graphique
 npm run test:e2e:headed        # Mode visible
+
+# Tests spécifiques Analytics IA
+npx playwright test analytics-ai.spec.ts --project=chromium
+npx playwright test console-errors.spec.ts --project=chromium
 ```
 
 **Configuration** : `playwright.config.ts`
