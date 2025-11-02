@@ -114,7 +114,12 @@ export function pollReducer(state: Poll | null, action: PollAction): Poll | null
 
       // Découper le slot en plusieurs petits slots selon la granularité
       // Exemple: slot 10h-11h (60min) avec granularité 30min → 2 slots de 30min
-      const slotsToAdd: Array<{ hour: number; minute: number; duration: number; enabled: boolean }> = [];
+      const slotsToAdd: Array<{
+        hour: number;
+        minute: number;
+        duration: number;
+        enabled: boolean;
+      }> = [];
       const startMinutes = newSlot.hour * 60 + newSlot.minute;
       const endMinutes = startMinutes + newSlot.duration;
 

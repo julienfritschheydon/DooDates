@@ -21,12 +21,12 @@ interface VoteData {
 const Results: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  
+
   // Hooks doivent être appelés AVANT tout return conditionnel
   const [poll, setPoll] = useState<Poll | null>(null);
   const [votes, setVotes] = useState<VoteData[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Vérifier le type de poll pour le routing
   const pollForTypeCheck = slug ? getPollBySlugOrId(slug) : null;
   const isFormPoll = pollForTypeCheck?.type === "form";

@@ -75,7 +75,10 @@ export function NPSResults({ responses }: NPSResultsProps) {
       {/* Segments */}
       <div className="grid grid-cols-3 gap-4">
         {/* Détracteurs */}
-        <div className="p-4 bg-red-50 rounded-lg border border-red-200" data-testid="nps-detractors">
+        <div
+          className="p-4 bg-red-50 rounded-lg border border-red-200"
+          data-testid="nps-detractors"
+        >
           <div className="text-center">
             <div className="w-4 h-4 bg-red-500 rounded-full mx-auto mb-2"></div>
             <p className="text-2xl font-bold text-red-600">{detractorsPercent}%</p>
@@ -88,7 +91,10 @@ export function NPSResults({ responses }: NPSResultsProps) {
         </div>
 
         {/* Passifs */}
-        <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200" data-testid="nps-passives">
+        <div
+          className="p-4 bg-yellow-50 rounded-lg border border-yellow-200"
+          data-testid="nps-passives"
+        >
           <div className="text-center">
             <div className="w-4 h-4 bg-yellow-500 rounded-full mx-auto mb-2"></div>
             <p className="text-2xl font-bold text-yellow-600">{passivesPercent}%</p>
@@ -101,7 +107,10 @@ export function NPSResults({ responses }: NPSResultsProps) {
         </div>
 
         {/* Promoteurs */}
-        <div className="p-4 bg-green-50 rounded-lg border border-green-200" data-testid="nps-promoters">
+        <div
+          className="p-4 bg-green-50 rounded-lg border border-green-200"
+          data-testid="nps-promoters"
+        >
           <div className="text-center">
             <div className="w-4 h-4 bg-green-500 rounded-full mx-auto mb-2"></div>
             <p className="text-2xl font-bold text-green-600">{promotersPercent}%</p>

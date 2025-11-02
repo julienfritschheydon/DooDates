@@ -11,7 +11,7 @@ const QUOTAS: Record<UserTier, SimulationQuota> = {
     maxVolume: 10,
     hasGeminiAccess: true,
     hasPdfExport: false,
-    canOverrideContext: false
+    canOverrideContext: false,
   },
   pro: {
     tier: "pro",
@@ -19,7 +19,7 @@ const QUOTAS: Record<UserTier, SimulationQuota> = {
     maxVolume: 50,
     hasGeminiAccess: true,
     hasPdfExport: true,
-    canOverrideContext: true
+    canOverrideContext: true,
   },
   enterprise: {
     tier: "enterprise",
@@ -27,8 +27,8 @@ const QUOTAS: Record<UserTier, SimulationQuota> = {
     maxVolume: 100,
     hasGeminiAccess: true,
     hasPdfExport: true,
-    canOverrideContext: true
-  }
+    canOverrideContext: true,
+  },
 };
 
 /**
@@ -44,22 +44,22 @@ export function getQuotaForTier(tier: UserTier): SimulationQuota {
 export function getCurrentUsage(tier: UserTier): SimulationUsage {
   const key = `simulation_usage_${tier}`;
   const stored = localStorage.getItem(key);
-  
+
   if (stored) {
     const usage = JSON.parse(stored);
     const resetDate = new Date(usage.quotaResetDate);
-    
+
     // Vérifier si le quota doit être réinitialisé (nouveau mois)
     if (resetDate < new Date()) {
       return resetUsage(tier);
     }
-    
+
     return {
       ...usage,
-      quotaResetDate: resetDate
+      quotaResetDate: resetDate,
     };
   }
-  
+
   return resetUsage(tier);
 }
 
@@ -72,14 +72,14 @@ function resetUsage(tier: UserTier): SimulationUsage {
   nextMonth.setMonth(nextMonth.getMonth() + 1);
   nextMonth.setDate(1);
   nextMonth.setHours(0, 0, 0, 0);
-  
+
   const usage: SimulationUsage = {
     tier,
     simulationsThisMonth: 0,
     remainingSimulations: quota.simulationsPerMonth,
-    quotaResetDate: nextMonth
+    quotaResetDate: nextMonth,
   };
-  
+
   saveUsage(usage);
   return usage;
 }
@@ -97,13 +97,13 @@ function saveUsage(usage: SimulationUsage): void {
  */
 export function incrementUsage(tier: UserTier): SimulationUsage {
   const usage = getCurrentUsage(tier);
-  
+
   if (usage.remainingSimulations > 0) {
     usage.simulationsThisMonth++;
     usage.remainingSimulations--;
     saveUsage(usage);
   }
-  
+
   return usage;
 }
 

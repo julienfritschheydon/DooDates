@@ -1,6 +1,6 @@
 /**
  * FormSimulationIntegration - Composant d'intégration complet pour FormPollCreator
- * 
+ *
  * Utilisation :
  * <FormSimulationIntegration
  *   pollTitle={draft.title}
@@ -19,7 +19,7 @@ import type { UserTier } from "../../types/simulation";
 interface FormSimulationIntegrationProps {
   /** Titre du poll */
   pollTitle: string;
-  
+
   /** Questions du poll */
   questions: Array<{
     id: string;
@@ -31,10 +31,10 @@ interface FormSimulationIntegrationProps {
     matrixColumns?: Array<{ id: string; label: string }>;
     matrixType?: "single" | "multiple";
   }>;
-  
+
   /** Tier utilisateur */
   userTier: UserTier;
-  
+
   /** Variant du bouton */
   buttonVariant?: "primary" | "secondary";
 }
@@ -43,12 +43,12 @@ export function FormSimulationIntegration({
   pollTitle,
   questions,
   userTier,
-  buttonVariant = "secondary"
+  buttonVariant = "secondary",
 }: FormSimulationIntegrationProps) {
   const simulation = useFormSimulation({
     pollTitle,
     questions,
-    userTier
+    userTier,
   });
 
   // Ne rien afficher si pas de questions

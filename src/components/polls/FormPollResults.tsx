@@ -133,7 +133,11 @@ export default function FormPollResults({ idOrSlug }: Props) {
                 const kind: string = q.kind || q.type || "single";
                 const stats = computed[qid];
                 return (
-                  <div key={qid} className="bg-white rounded-md border p-4" data-testid={`form-question-result-${qid}`}>
+                  <div
+                    key={qid}
+                    className="bg-white rounded-md border p-4"
+                    data-testid={`form-question-result-${qid}`}
+                  >
                     <div className="mb-3">
                       <div className="font-medium">{q.title || "(Sans titre)"}</div>
                       <div className="text-xs text-gray-500">
@@ -277,7 +281,11 @@ export default function FormPollResults({ idOrSlug }: Props) {
                 </div>
                 <div className="divide-y">
                   {uniqueResponses.map((r) => (
-                    <div key={getRespondentId(r)} className="py-3" data-testid="respondent-response">
+                    <div
+                      key={getRespondentId(r)}
+                      className="py-3"
+                      data-testid="respondent-response"
+                    >
                       <div className="flex items-center justify-between">
                         <div className="font-medium">
                           {r.respondentName && r.respondentName.trim()

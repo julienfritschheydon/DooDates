@@ -1,6 +1,6 @@
 /**
  * Types pour la Simulation IA des Réponses
- * 
+ *
  * Permet de générer des réponses fictives pour tester les questionnaires
  * avant de les envoyer aux vrais répondants.
  */
@@ -12,12 +12,12 @@
 /**
  * Contexte d'usage du questionnaire
  */
-export type SimulationContext = 
-  | "event"      // Événements (mariages, soirées, anniversaires)
-  | "feedback"   // Feedback (satisfaction, retour activité)
-  | "leisure"    // Loisirs (sondages amis, famille)
+export type SimulationContext =
+  | "event" // Événements (mariages, soirées, anniversaires)
+  | "feedback" // Feedback (satisfaction, retour activité)
+  | "leisure" // Loisirs (sondages amis, famille)
   | "association" // Associatif (clubs, groupes)
-  | "research";  // Recherche (études, enquêtes)
+  | "research"; // Recherche (études, enquêtes)
 
 /**
  * Niveau de détail des réponses
@@ -30,27 +30,27 @@ export type DetailLevel = "low" | "medium" | "high";
 export interface Persona {
   /** Identifiant unique */
   id: string;
-  
+
   /** Nom descriptif */
   name: string;
-  
+
   /** Contexte d'usage */
   context: SimulationContext;
-  
+
   /** Traits comportementaux */
   traits: {
     /** Probabilité de répondre (0.7-0.95) */
     responseRate: number;
-    
+
     /** Nombre de questions avant fatigue (8-20) */
     attentionSpan: number;
-    
+
     /** Niveau de détail des réponses */
     detailLevel: DetailLevel;
-    
+
     /** Biais vers réponses positives (0.0-0.3) */
     biasTowardPositive: number;
-    
+
     /** Probabilité de sauter une question (0.05-0.2) */
     skipProbability: number;
   };
@@ -66,13 +66,13 @@ export interface Persona {
 export interface SimulatedResponse {
   /** ID de la question */
   questionId: string;
-  
+
   /** Valeur de la réponse */
   value: string | string[] | Record<string, string | string[]> | null;
-  
+
   /** Temps passé sur la question (secondes) */
   timeSpent: number;
-  
+
   /** Persona ayant généré cette réponse */
   personaId: string;
 }
@@ -83,16 +83,16 @@ export interface SimulatedResponse {
 export interface SimulatedRespondent {
   /** ID unique du répondant simulé */
   id: string;
-  
+
   /** Persona utilisé */
   personaId: string;
-  
+
   /** Réponses aux questions */
   responses: SimulatedResponse[];
-  
+
   /** Temps total (secondes) */
   totalTime: number;
-  
+
   /** Taux de complétion (0-1) */
   completionRate: number;
 }
@@ -107,16 +107,16 @@ export interface SimulatedRespondent {
 export interface SimulationConfig {
   /** ID du poll à simuler */
   pollId: string;
-  
+
   /** Nombre de réponses à générer */
   volume: number;
-  
+
   /** Contexte détecté ou manuel */
   context: SimulationContext;
-  
+
   /** Utiliser Gemini pour questions texte (Pro) */
   useGemini?: boolean;
-  
+
   /** Personas à utiliser (si vide, sélection auto selon contexte) */
   personaIds?: string[];
 }
@@ -141,22 +141,22 @@ export type ConfidenceLevel = "high" | "medium" | "low";
 export interface DetectedIssue {
   /** ID unique du problème */
   id: string;
-  
+
   /** Sévérité */
   severity: IssueSeverity;
-  
+
   /** Niveau de confiance */
   confidence: ConfidenceLevel;
-  
+
   /** Titre court */
   title: string;
-  
+
   /** Description détaillée */
   description: string;
-  
+
   /** Question concernée (si applicable) */
   questionId?: string;
-  
+
   /** Recommandations */
   recommendations: string[];
 }
@@ -167,16 +167,16 @@ export interface DetectedIssue {
 export interface QuestionMetrics {
   /** ID de la question */
   questionId: string;
-  
+
   /** Taux de réponse (0-1) */
   responseRate: number;
-  
+
   /** Temps moyen de réponse (secondes) */
   avgTimeSpent: number;
-  
+
   /** Taux d'abandon après cette question (0-1) */
   dropoffRate: number;
-  
+
   /** Distribution des réponses (pour questions à choix) */
   distribution?: Record<string, number>;
 }
@@ -187,16 +187,16 @@ export interface QuestionMetrics {
 export interface SimulationMetrics {
   /** Nombre total de réponses générées */
   totalResponses: number;
-  
+
   /** Taux de complétion moyen (0-1) */
   avgCompletionRate: number;
-  
+
   /** Temps moyen total (secondes) */
   avgTotalTime: number;
-  
+
   /** Taux d'abandon global (0-1) */
   dropoffRate: number;
-  
+
   /** Métriques par question */
   questionMetrics: QuestionMetrics[];
 }
@@ -207,25 +207,25 @@ export interface SimulationMetrics {
 export interface SimulationResult {
   /** ID unique de la simulation */
   id: string;
-  
+
   /** Configuration utilisée */
   config: SimulationConfig;
-  
+
   /** Date de création */
   createdAt: Date;
-  
+
   /** Répondants simulés */
   respondents: SimulatedRespondent[];
-  
+
   /** Métriques globales */
   metrics: SimulationMetrics;
-  
+
   /** Problèmes détectés */
   issues: DetectedIssue[];
-  
+
   /** Temps de génération (ms) */
   generationTime: number;
-  
+
   /** Coût estimé de la simulation (USD) */
   estimatedCost?: {
     /** Coût total */
@@ -252,19 +252,19 @@ export type UserTier = "free" | "pro" | "enterprise";
 export interface SimulationQuota {
   /** Tier utilisateur */
   tier: UserTier;
-  
+
   /** Nombre de simulations par mois */
   simulationsPerMonth: number;
-  
+
   /** Volume maximum par simulation */
   maxVolume: number;
-  
+
   /** Accès à Gemini pour questions texte */
   hasGeminiAccess: boolean;
-  
+
   /** Accès à l'export PDF */
   hasPdfExport: boolean;
-  
+
   /** Peut override le contexte auto-détecté */
   canOverrideContext: boolean;
 }
@@ -275,13 +275,13 @@ export interface SimulationQuota {
 export interface SimulationUsage {
   /** Tier utilisateur */
   tier: UserTier;
-  
+
   /** Nombre de simulations ce mois */
   simulationsThisMonth: number;
-  
+
   /** Simulations restantes */
   remainingSimulations: number;
-  
+
   /** Date de reset du quota */
   quotaResetDate: Date;
 }
@@ -301,13 +301,13 @@ export type ExportFormat = "pdf" | "markdown" | "json";
 export interface ExportOptions {
   /** Format souhaité */
   format: ExportFormat;
-  
+
   /** Inclure les réponses détaillées */
   includeResponses?: boolean;
-  
+
   /** Inclure les graphiques */
   includeCharts?: boolean;
-  
+
   /** Nom du fichier (sans extension) */
   filename?: string;
 }

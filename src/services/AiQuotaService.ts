@@ -72,7 +72,11 @@ export function checkPollCreationQuota(aiQuota: AiMessageQuota): QuotaCheckResul
 export function handleQuotaError(
   result: QuotaCheckResult,
   quota: UseQuotaReturn,
-  toast: (options: { title: string; description: string; variant?: "default" | "destructive" }) => void,
+  toast: (options: {
+    title: string;
+    description: string;
+    variant?: "default" | "destructive";
+  }) => void,
 ): void {
   if (!result.message) return;
 

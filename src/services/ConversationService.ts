@@ -71,11 +71,10 @@ export class ConversationService {
       );
       const result = getConversationWithMessages(resumeId);
 
-      logger.info(
-        "Resume result",
-        "conversation",
-        { success: !!result, messageCount: result?.messages.length || 0 }
-      );
+      logger.info("Resume result", "conversation", {
+        success: !!result,
+        messageCount: result?.messages.length || 0,
+      });
       return result;
     } catch (error) {
       logError(
@@ -142,18 +141,19 @@ export class ConversationService {
       const result = await this.resumeFromUrl(autoSave);
 
       if (result && result.conversation && result.messages) {
-        logger.info("Resuming conversation from URL", "conversation", { title: result.conversation.title });
+        logger.info("Resuming conversation from URL", "conversation", {
+          title: result.conversation.title,
+        });
 
         const messages = result.messages;
 
         if (messages && messages.length > 0) {
           const chatMessages = this.convertMessagesToChat(messages);
           setMessages(chatMessages);
-          logger.info(
-            "Resumed conversation",
-            "conversation",
-            { title: result.conversation.title, messageCount: chatMessages.length }
-          );
+          logger.info("Resumed conversation", "conversation", {
+            title: result.conversation.title,
+            messageCount: chatMessages.length,
+          });
         } else {
           const resumeMessage = this.createResumeMessage(result.conversation.title);
           setMessages([resumeMessage]);

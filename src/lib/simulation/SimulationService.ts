@@ -1,6 +1,6 @@
 /**
  * SimulationService - Génération de réponses simulées
- * 
+ *
  * Service principal pour simuler des réponses à un questionnaire
  * en utilisant des personas et optionnellement Gemini pour les questions texte.
  */
@@ -13,7 +13,7 @@ import type {
   SimulatedRespondent,
   SimulatedResponse,
   Persona,
-  DetailLevel
+  DetailLevel,
 } from "../../types/simulation";
 import { selectPersonas } from "./PersonaGenerator";
 import { v4 as uuidv4 } from "uuid";
@@ -47,10 +47,7 @@ interface Question {
 /**
  * Génère une réponse pour une question à choix unique
  */
-function generateSingleChoiceResponse(
-  question: Question,
-  persona: Persona
-): string {
+function generateSingleChoiceResponse(question: Question, persona: Persona): string {
   if (!question.options || question.options.length === 0) {
     return "";
   }
@@ -85,10 +82,7 @@ function generateSingleChoiceResponse(
 /**
  * Génère une réponse pour une question à choix multiples
  */
-function generateMultipleChoiceResponse(
-  question: Question,
-  persona: Persona
-): string[] {
+function generateMultipleChoiceResponse(question: Question, persona: Persona): string[] {
   if (!question.options || question.options.length === 0) {
     return [];
   }
@@ -97,13 +91,10 @@ function generateMultipleChoiceResponse(
   const maxSelections = {
     low: 1,
     medium: 2,
-    high: 3
+    high: 3,
   }[persona.traits.detailLevel];
 
-  const count = Math.min(
-    Math.floor(Math.random() * maxSelections) + 1,
-    question.options.length
-  );
+  const count = Math.min(Math.floor(Math.random() * maxSelections) + 1, question.options.length);
 
   // Sélection aléatoire sans répétition
   const selected: string[] = [];
@@ -123,7 +114,7 @@ function generateMultipleChoiceResponse(
  */
 function generateMatrixResponse(
   question: Question,
-  persona: Persona
+  persona: Persona,
 ): Record<string, string | string[]> {
   if (!question.matrixRows || !question.matrixColumns) {
     return {};
@@ -136,22 +127,20 @@ function generateMatrixResponse(
       // Choix multiples par ligne
       const count = Math.floor(Math.random() * 2) + 1;
       const selected: string[] = [];
-      
+
       for (let i = 0; i < Math.min(count, question.matrixColumns.length); i++) {
-        const randomCol = question.matrixColumns[
-          Math.floor(Math.random() * question.matrixColumns.length)
-        ];
+        const randomCol =
+          question.matrixColumns[Math.floor(Math.random() * question.matrixColumns.length)];
         if (!selected.includes(randomCol.id)) {
           selected.push(randomCol.id);
         }
       }
-      
+
       response[row.id] = selected;
     } else {
       // Choix unique par ligne
-      const randomCol = question.matrixColumns[
-        Math.floor(Math.random() * question.matrixColumns.length)
-      ];
+      const randomCol =
+        question.matrixColumns[Math.floor(Math.random() * question.matrixColumns.length)];
       response[row.id] = randomCol.id;
     }
   }
@@ -168,7 +157,7 @@ function generateMatrixResponse(
  */
 async function generateTextResponseWithGemini(
   question: Question,
-  persona: Persona
+  persona: Persona,
 ): Promise<string> {
   if (!API_KEY) {
     // Fallback sur template simple si pas de clé API
@@ -182,7 +171,7 @@ async function generateTextResponseWithGemini(
     const detailInstructions = {
       low: "Réponds en 1 phrase courte (5-10 mots), de manière naturelle et spontanée.",
       medium: "Réponds en 2-3 phrases (15-30 mots), de manière claire et constructive.",
-      high: "Réponds en 3-5 phrases (30-60 mots), de manière détaillée et réfléchie."
+      high: "Réponds en 3-5 phrases (30-60 mots), de manière détaillée et réfléchie.",
     };
 
     const contextDescription = {
@@ -190,7 +179,7 @@ async function generateTextResponseWithGemini(
       feedback: "un retour d'expérience ou une satisfaction",
       leisure: "une activité de loisirs entre amis ou en famille",
       association: "une activité associative ou de groupe",
-      research: "une étude ou une recherche"
+      research: "une étude ou une recherche",
     };
 
     const prompt = `Tu es un participant à un questionnaire sur ${contextDescription[persona.context]}.
@@ -205,7 +194,10 @@ Réponds de manière naturelle, comme une vraie personne. Ne mentionne pas que t
     const response = result.response;
     return response.text().trim();
   } catch (error) {
-    logger.error("Erreur Gemini lors de la génération de réponse", "api", { error, question: question.title });
+    logger.error("Erreur Gemini lors de la génération de réponse", "api", {
+      error,
+      question: question.title,
+    });
     return generateTextResponseFallback(question, persona);
   }
 }
@@ -213,32 +205,23 @@ Réponds de manière naturelle, comme une vraie personne. Ne mentionne pas que t
 /**
  * Génère une réponse texte simple (fallback)
  */
-function generateTextResponseFallback(
-  question: Question,
-  persona: Persona
-): string {
+function generateTextResponseFallback(question: Question, persona: Persona): string {
   const templates = {
-    low: [
-      "Bien",
-      "Correct",
-      "OK",
-      "Satisfaisant",
-      "Pas mal"
-    ],
+    low: ["Bien", "Correct", "OK", "Satisfaisant", "Pas mal"],
     medium: [
       "C'est plutôt bien dans l'ensemble",
       "Globalement satisfaisant",
       "Quelques points à améliorer",
       "Répond à mes attentes",
-      "Bonne expérience"
+      "Bonne expérience",
     ],
     high: [
       "Mon avis est globalement positif avec quelques suggestions d'amélioration",
       "Très satisfait de l'expérience, notamment sur plusieurs aspects importants",
       "Quelques points forts à souligner et des axes d'amélioration à considérer",
       "Expérience enrichissante avec des éléments particulièrement appréciés",
-      "Bilan positif avec des recommandations pour optimiser davantage"
-    ]
+      "Bilan positif avec des recommandations pour optimiser davantage",
+    ],
   };
 
   const templateList = templates[persona.traits.detailLevel];
@@ -256,7 +239,7 @@ async function generateResponse(
   question: Question,
   persona: Persona,
   questionIndex: number,
-  useGemini: boolean
+  useGemini: boolean,
 ): Promise<SimulatedResponse> {
   // Vérifier si le persona abandonne (fatigue)
   if (questionIndex >= persona.traits.attentionSpan) {
@@ -266,7 +249,7 @@ async function generateResponse(
         questionId: question.id,
         value: null,
         timeSpent: 0,
-        personaId: persona.id
+        personaId: persona.id,
       };
     }
   }
@@ -277,7 +260,7 @@ async function generateResponse(
       questionId: question.id,
       value: null,
       timeSpent: Math.random() * 5,
-      personaId: persona.id
+      personaId: persona.id,
     };
   }
 
@@ -292,8 +275,12 @@ async function generateResponse(
       } else {
         value = generateTextResponseFallback(question, persona);
       }
-      baseTime = persona.traits.detailLevel === "high" ? 30 :
-                 persona.traits.detailLevel === "medium" ? 15 : 8;
+      baseTime =
+        persona.traits.detailLevel === "high"
+          ? 30
+          : persona.traits.detailLevel === "medium"
+            ? 15
+            : 8;
       break;
 
     case "multiple":
@@ -323,7 +310,7 @@ async function generateResponse(
     questionId: question.id,
     value,
     timeSpent: Math.round(timeSpent),
-    personaId: persona.id
+    personaId: persona.id,
   };
 }
 
@@ -336,14 +323,15 @@ async function generateResponse(
  */
 export async function simulate(
   config: SimulationConfig,
-  questions: Question[]
+  questions: Question[],
 ): Promise<SimulationResult> {
   const startTime = Date.now();
 
   // Sélectionner les personas
-  const personas = config.personaIds && config.personaIds.length > 0
-    ? config.personaIds.map(id => ({ id } as Persona)) // TODO: récupérer vrais personas
-    : selectPersonas(config.context, config.volume);
+  const personas =
+    config.personaIds && config.personaIds.length > 0
+      ? config.personaIds.map((id) => ({ id }) as Persona) // TODO: récupérer vrais personas
+      : selectPersonas(config.context, config.volume);
 
   const respondents: SimulatedRespondent[] = [];
 
@@ -354,13 +342,8 @@ export async function simulate(
     let totalTime = 0;
 
     for (let j = 0; j < questions.length; j++) {
-      const response = await generateResponse(
-        questions[j],
-        persona,
-        j,
-        config.useGemini || false
-      );
-      
+      const response = await generateResponse(questions[j], persona, j, config.useGemini || false);
+
       responses.push(response);
       totalTime += response.timeSpent;
 
@@ -370,14 +353,14 @@ export async function simulate(
       }
     }
 
-    const completionRate = responses.filter(r => r.value !== null).length / questions.length;
+    const completionRate = responses.filter((r) => r.value !== null).length / questions.length;
 
     respondents.push({
       id: uuidv4(),
       personaId: persona.id,
       responses,
       totalTime,
-      completionRate
+      completionRate,
     });
   }
 
@@ -386,17 +369,17 @@ export async function simulate(
   // Calculer le coût estimé (si Gemini utilisé)
   let estimatedCost;
   if (config.useGemini) {
-    const textQuestions = questions.filter(q => q.type === "text");
+    const textQuestions = questions.filter((q) => q.type === "text");
     const geminiCalls = respondents.length * textQuestions.length;
-    
+
     // Coût Gemini 2.0 Flash : $0.000019 par réponse (input + output)
     const COST_PER_CALL = 0.000019;
     const totalCost = geminiCalls * COST_PER_CALL;
-    
+
     estimatedCost = {
       total: totalCost,
       geminiCalls,
-      costPerResponse: totalCost / respondents.length
+      costPerResponse: totalCost / respondents.length,
     };
   }
 
@@ -408,14 +391,16 @@ export async function simulate(
     respondents,
     metrics: {
       totalResponses: respondents.length,
-      avgCompletionRate: respondents.reduce((sum, r) => sum + r.completionRate, 0) / respondents.length,
+      avgCompletionRate:
+        respondents.reduce((sum, r) => sum + r.completionRate, 0) / respondents.length,
       avgTotalTime: respondents.reduce((sum, r) => sum + r.totalTime, 0) / respondents.length,
-      dropoffRate: 1 - (respondents.reduce((sum, r) => sum + r.completionRate, 0) / respondents.length),
-      questionMetrics: []
+      dropoffRate:
+        1 - respondents.reduce((sum, r) => sum + r.completionRate, 0) / respondents.length,
+      questionMetrics: [],
     },
     issues: [],
     generationTime,
-    estimatedCost
+    estimatedCost,
   };
 
   // Analyser et détecter problèmes

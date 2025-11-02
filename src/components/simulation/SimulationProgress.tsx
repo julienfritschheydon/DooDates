@@ -1,6 +1,6 @@
 /**
  * SimulationProgress - Barre de progression pendant la simulation
- * 
+ *
  * Affiche la progression en temps réel pendant la génération
  * des réponses simulées.
  */
@@ -10,30 +10,26 @@ import { Loader2, Users, MessageSquare } from "lucide-react";
 interface SimulationProgressProps {
   /** Nombre total de réponses à générer */
   total: number;
-  
+
   /** Nombre de réponses générées */
   current: number;
-  
+
   /** Temps écoulé (ms) */
   elapsedTime?: number;
 }
 
-export function SimulationProgress({
-  total,
-  current,
-  elapsedTime
-}: SimulationProgressProps) {
+export function SimulationProgress({ total, current, elapsedTime }: SimulationProgressProps) {
   const progress = (current / total) * 100;
   const remaining = total - current;
 
   // Estimation temps restant (basé sur temps écoulé)
-  const estimatedTimeRemaining = elapsedTime && current > 0
-    ? ((elapsedTime / current) * remaining) / 1000
-    : null;
+  const estimatedTimeRemaining =
+    elapsedTime && current > 0 ? ((elapsedTime / current) * remaining) / 1000 : null;
 
-  const remainingTime = estimatedTimeRemaining !== null && estimatedTimeRemaining > 0
-    ? Math.ceil(estimatedTimeRemaining)
-    : null;
+  const remainingTime =
+    estimatedTimeRemaining !== null && estimatedTimeRemaining > 0
+      ? Math.ceil(estimatedTimeRemaining)
+      : null;
 
   const percentage = Math.round(progress);
 

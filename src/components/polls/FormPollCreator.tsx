@@ -451,15 +451,21 @@ export default function FormPollCreator({
                   questions.length > 0 ? (
                     <FormSimulationIntegration
                       pollTitle={title}
-                      questions={questions.map(q => ({
+                      questions={questions.map((q) => ({
                         id: q.id,
                         title: q.title,
                         type: q.type === "rating" || q.type === "nps" ? "single" : q.type,
                         required: q.required,
-                        options: (q.type === "single" || q.type === "multiple") ? (q as SingleOrMultipleQuestion).options : undefined,
-                        matrixRows: q.type === "matrix" ? (q as MatrixQuestion).matrixRows : undefined,
-                        matrixColumns: q.type === "matrix" ? (q as MatrixQuestion).matrixColumns : undefined,
-                        matrixType: q.type === "matrix" ? (q as MatrixQuestion).matrixType : undefined
+                        options:
+                          q.type === "single" || q.type === "multiple"
+                            ? (q as SingleOrMultipleQuestion).options
+                            : undefined,
+                        matrixRows:
+                          q.type === "matrix" ? (q as MatrixQuestion).matrixRows : undefined,
+                        matrixColumns:
+                          q.type === "matrix" ? (q as MatrixQuestion).matrixColumns : undefined,
+                        matrixType:
+                          q.type === "matrix" ? (q as MatrixQuestion).matrixType : undefined,
                       }))}
                       userTier="pro"
                       buttonVariant="secondary"

@@ -1,6 +1,6 @@
 /**
  * SimulationAnalyzer - Analyse des résultats et détection de problèmes
- * 
+ *
  * Analyse les réponses simulées pour détecter les problèmes potentiels
  * dans le questionnaire (biais, abandon, questions complexes, etc.)
  */
@@ -13,7 +13,7 @@ import type {
   SimulationMetrics,
   IssueSeverity,
   ConfidenceLevel,
-  SimulationContext
+  SimulationContext,
 } from "../../types/simulation";
 import { v4 as uuidv4 } from "uuid";
 
@@ -22,18 +22,18 @@ import { v4 as uuidv4 } from "uuid";
 // ============================================================================
 
 const BIAS_THRESHOLDS: Record<SimulationContext, number> = {
-  event: 0.80,        // Événement : Variance moyenne
-  feedback: 0.70,     // Feedback : Haute variance (positif/négatif)
-  leisure: 0.75,      // Loisirs : Variance moyenne-haute
-  association: 0.85,  // Association : Moins de variance
-  research: 0.90      // Recherche : Très peu de biais acceptable
+  event: 0.8, // Événement : Variance moyenne
+  feedback: 0.7, // Feedback : Haute variance (positif/négatif)
+  leisure: 0.75, // Loisirs : Variance moyenne-haute
+  association: 0.85, // Association : Moins de variance
+  research: 0.9, // Recherche : Très peu de biais acceptable
 };
 
 // Seuils réalistes basés sur benchmarks industrie
-const DROPOFF_THRESHOLD = 0.40;  // 40% d'abandon = warning (normal < 40%)
-const CRITICAL_DROPOFF_THRESHOLD = 0.60;  // 60% d'abandon = critical
-const LOW_RESPONSE_THRESHOLD = 0.40;  // < 40% réponses = warning (normal > 40%)
-const HIGH_TIME_THRESHOLD = 90;  // > 90s par question = warning (normal < 90s)
+const DROPOFF_THRESHOLD = 0.4; // 40% d'abandon = warning (normal < 40%)
+const CRITICAL_DROPOFF_THRESHOLD = 0.6; // 60% d'abandon = critical
+const LOW_RESPONSE_THRESHOLD = 0.4; // < 40% réponses = warning (normal > 40%)
+const HIGH_TIME_THRESHOLD = 90; // > 90s par question = warning (normal < 90s)
 
 // ============================================================================
 // CALCUL MÉTRIQUES PAR QUESTION
@@ -45,37 +45,39 @@ const HIGH_TIME_THRESHOLD = 90;  // > 90s par question = warning (normal < 90s)
 function calculateQuestionMetrics(
   questionId: string,
   respondents: SimulatedRespondent[],
-  questionIndex: number
+  questionIndex: number,
 ): QuestionMetrics {
-  const responses = respondents.map(r => r.responses[questionIndex]).filter(Boolean);
-  const validResponses = responses.filter(r => r?.value !== null);
+  const responses = respondents.map((r) => r.responses[questionIndex]).filter(Boolean);
+  const validResponses = responses.filter((r) => r?.value !== null);
 
   // Taux de réponse
   const responseRate = validResponses.length / respondents.length;
 
   // Temps moyen
-  const avgTimeSpent = validResponses.length > 0
-    ? validResponses.reduce((sum, r) => sum + r.timeSpent, 0) / validResponses.length
-    : 0;
+  const avgTimeSpent =
+    validResponses.length > 0
+      ? validResponses.reduce((sum, r) => sum + r.timeSpent, 0) / validResponses.length
+      : 0;
 
   // Taux d'abandon après cette question
-  const respondentsReachingQuestion = respondents.filter(r => 
-    r.responses.length > questionIndex
+  const respondentsReachingQuestion = respondents.filter(
+    (r) => r.responses.length > questionIndex,
   ).length;
-  const respondentsCompletingQuestion = respondents.filter(r =>
-    r.responses.length > questionIndex && r.responses[questionIndex]?.value !== null
+  const respondentsCompletingQuestion = respondents.filter(
+    (r) => r.responses.length > questionIndex && r.responses[questionIndex]?.value !== null,
   ).length;
-  const dropoffRate = respondentsReachingQuestion > 0
-    ? 1 - (respondentsCompletingQuestion / respondentsReachingQuestion)
-    : 0;
+  const dropoffRate =
+    respondentsReachingQuestion > 0
+      ? 1 - respondentsCompletingQuestion / respondentsReachingQuestion
+      : 0;
 
   // Distribution (pour questions à choix)
   const distribution: Record<string, number> = {};
-  validResponses.forEach(response => {
+  validResponses.forEach((response) => {
     if (typeof response.value === "string") {
       distribution[response.value] = (distribution[response.value] || 0) + 1;
     } else if (Array.isArray(response.value)) {
-      response.value.forEach(val => {
+      response.value.forEach((val) => {
         distribution[val] = (distribution[val] || 0) + 1;
       });
     }
@@ -86,7 +88,7 @@ function calculateQuestionMetrics(
     responseRate,
     avgTimeSpent,
     dropoffRate,
-    distribution: Object.keys(distribution).length > 0 ? distribution : undefined
+    distribution: Object.keys(distribution).length > 0 ? distribution : undefined,
   };
 }
 
@@ -97,10 +99,7 @@ function calculateQuestionMetrics(
 /**
  * Détecte un biais dans la distribution des réponses
  */
-function detectBias(
-  metrics: QuestionMetrics,
-  context: SimulationContext
-): DetectedIssue | null {
+function detectBias(metrics: QuestionMetrics, context: SimulationContext): DetectedIssue | null {
   if (!metrics.distribution) return null;
 
   const total = Object.values(metrics.distribution).reduce((sum, count) => sum + count, 0);
@@ -108,14 +107,14 @@ function detectBias(
 
   const percentages = Object.entries(metrics.distribution).map(([option, count]) => ({
     option,
-    percentage: count / total
+    percentage: count / total,
   }));
 
-  const maxPercentage = Math.max(...percentages.map(p => p.percentage));
+  const maxPercentage = Math.max(...percentages.map((p) => p.percentage));
   const threshold = BIAS_THRESHOLDS[context];
 
   if (maxPercentage > threshold) {
-    const dominantOption = percentages.find(p => p.percentage === maxPercentage);
+    const dominantOption = percentages.find((p) => p.percentage === maxPercentage);
     const confidence: ConfidenceLevel = maxPercentage > 0.9 ? "high" : "medium";
 
     return {
@@ -128,8 +127,8 @@ function detectBias(
       recommendations: [
         "Vérifier si la question est orientée vers une réponse",
         "S'assurer que toutes les options sont équilibrées",
-        "Considérer reformuler la question de manière plus neutre"
-      ]
+        "Considérer reformuler la question de manière plus neutre",
+      ],
     };
   }
 
@@ -154,8 +153,8 @@ function detectLowResponse(metrics: QuestionMetrics): DetectedIssue | null {
       recommendations: [
         "Vérifier si la question est claire et compréhensible",
         "Considérer rendre la question optionnelle si elle est trop personnelle",
-        "Simplifier la question si elle semble trop complexe"
-      ]
+        "Simplifier la question si elle semble trop complexe",
+      ],
     };
   }
 
@@ -167,8 +166,10 @@ function detectLowResponse(metrics: QuestionMetrics): DetectedIssue | null {
  */
 function detectHighDropoff(metrics: QuestionMetrics): DetectedIssue | null {
   if (metrics.dropoffRate > DROPOFF_THRESHOLD) {
-    const severity: IssueSeverity = metrics.dropoffRate > CRITICAL_DROPOFF_THRESHOLD ? "critical" : "warning";
-    const confidence: ConfidenceLevel = metrics.dropoffRate > CRITICAL_DROPOFF_THRESHOLD ? "high" : "medium";
+    const severity: IssueSeverity =
+      metrics.dropoffRate > CRITICAL_DROPOFF_THRESHOLD ? "critical" : "warning";
+    const confidence: ConfidenceLevel =
+      metrics.dropoffRate > CRITICAL_DROPOFF_THRESHOLD ? "high" : "medium";
 
     return {
       id: uuidv4(),
@@ -180,8 +181,8 @@ function detectHighDropoff(metrics: QuestionMetrics): DetectedIssue | null {
       recommendations: [
         "Cette question pourrait être trop longue ou complexe",
         "Considérer la déplacer plus tard dans le questionnaire",
-        "Vérifier si elle est vraiment nécessaire"
-      ]
+        "Vérifier si elle est vraiment nécessaire",
+      ],
     };
   }
 
@@ -203,8 +204,8 @@ function detectHighTime(metrics: QuestionMetrics): DetectedIssue | null {
       recommendations: [
         "Considérer simplifier la question",
         "Diviser en plusieurs questions plus courtes",
-        "Ajouter des exemples pour clarifier"
-      ]
+        "Ajouter des exemples pour clarifier",
+      ],
     };
   }
 
@@ -215,16 +216,16 @@ function detectHighTime(metrics: QuestionMetrics): DetectedIssue | null {
  * Détecte matrices trop complexes
  */
 function detectComplexMatrix(
-  questions: Array<{ 
-    id: string; 
-    type: string; 
+  questions: Array<{
+    id: string;
+    type: string;
     title: string;
     matrixRows?: Array<{ id: string; label: string }>;
-  }>
+  }>,
 ): DetectedIssue[] {
   const issues: DetectedIssue[] = [];
 
-  questions.forEach(question => {
+  questions.forEach((question) => {
     if (question.type === "matrix" && question.matrixRows && question.matrixRows.length > 5) {
       issues.push({
         id: uuidv4(),
@@ -236,8 +237,8 @@ function detectComplexMatrix(
         recommendations: [
           "Réduire le nombre de lignes",
           "Diviser en plusieurs matrices plus simples",
-          "Considérer utiliser des questions séparées"
-        ]
+          "Considérer utiliser des questions séparées",
+        ],
       });
     }
   });
@@ -250,11 +251,9 @@ function detectComplexMatrix(
  */
 function detectTooManyRequiredText(
   questionMetrics: QuestionMetrics[],
-  questions: Array<{ id: string; type: string; required?: boolean }>
+  questions: Array<{ id: string; type: string; required?: boolean }>,
 ): DetectedIssue | null {
-  const requiredTextQuestions = questions.filter(
-    q => q.type === "text" && q.required === true
-  );
+  const requiredTextQuestions = questions.filter((q) => q.type === "text" && q.required === true);
 
   if (requiredTextQuestions.length > 3) {
     return {
@@ -266,8 +265,8 @@ function detectTooManyRequiredText(
       recommendations: [
         "Rendre certaines questions texte optionnelles",
         "Remplacer par des questions à choix multiples",
-        "Réduire le nombre de questions texte pour éviter la fatigue"
-      ]
+        "Réduire le nombre de questions texte pour éviter la fatigue",
+      ],
     };
   }
 
@@ -278,9 +277,10 @@ function detectTooManyRequiredText(
  * Détecte un questionnaire trop long
  */
 function detectLongSurvey(metrics: SimulationMetrics): DetectedIssue | null {
-  if (metrics.avgTotalTime > 300) { // > 5 minutes
+  if (metrics.avgTotalTime > 300) {
+    // > 5 minutes
     const severity: IssueSeverity = metrics.avgTotalTime > 600 ? "critical" : "warning";
-    
+
     return {
       id: uuidv4(),
       severity,
@@ -290,8 +290,8 @@ function detectLongSurvey(metrics: SimulationMetrics): DetectedIssue | null {
       recommendations: [
         "Réduire le nombre de questions",
         "Supprimer les questions non essentielles",
-        "Diviser en plusieurs questionnaires plus courts"
-      ]
+        "Diviser en plusieurs questionnaires plus courts",
+      ],
     };
   }
 
@@ -307,19 +307,19 @@ function detectLongSurvey(metrics: SimulationMetrics): DetectedIssue | null {
  */
 export function analyzeSimulation(
   result: SimulationResult,
-  questions?: Array<{ 
-    id: string; 
-    type: string; 
+  questions?: Array<{
+    id: string;
+    type: string;
     title: string;
     required?: boolean;
     matrixRows?: Array<{ id: string; label: string }>;
-  }>
+  }>,
 ): SimulationResult {
   const { respondents, config } = result;
-  
+
   // Calculer métriques par question
   const questionMetrics: QuestionMetrics[] = [];
-  const maxQuestions = Math.max(...respondents.map(r => r.responses.length));
+  const maxQuestions = Math.max(...respondents.map((r) => r.responses.length));
 
   for (let i = 0; i < maxQuestions; i++) {
     const questionId = respondents[0]?.responses[i]?.questionId;
@@ -330,7 +330,8 @@ export function analyzeSimulation(
   }
 
   // Calculer métriques globales
-  const avgCompletionRate = respondents.reduce((sum, r) => sum + r.completionRate, 0) / respondents.length;
+  const avgCompletionRate =
+    respondents.reduce((sum, r) => sum + r.completionRate, 0) / respondents.length;
   const avgTotalTime = respondents.reduce((sum, r) => sum + r.totalTime, 0) / respondents.length;
   const dropoffRate = 1 - avgCompletionRate;
 
@@ -339,14 +340,14 @@ export function analyzeSimulation(
     avgCompletionRate,
     avgTotalTime,
     dropoffRate,
-    questionMetrics
+    questionMetrics,
   };
 
   // Détecter problèmes
   const issues: DetectedIssue[] = [];
 
   // Problèmes par question
-  questionMetrics.forEach(qMetrics => {
+  questionMetrics.forEach((qMetrics) => {
     const bias = detectBias(qMetrics, config.context);
     if (bias) issues.push(bias);
 
@@ -380,6 +381,6 @@ export function analyzeSimulation(
   return {
     ...result,
     metrics,
-    issues
+    issues,
   };
 }

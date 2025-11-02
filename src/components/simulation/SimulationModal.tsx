@@ -1,6 +1,6 @@
 /**
  * SimulationModal - Modal pour lancer une simulation
- * 
+ *
  * Permet de configurer et lancer une simulation de réponses
  * pour tester un questionnaire avant de l'envoyer.
  */
@@ -12,19 +12,19 @@ import type { SimulationConfig, SimulationContext, UserTier } from "../../types/
 interface SimulationModalProps {
   /** ID du poll à simuler */
   pollId: string;
-  
+
   /** Contexte auto-détecté */
   detectedContext: SimulationContext;
-  
+
   /** Tier utilisateur */
   userTier: UserTier;
-  
+
   /** Callback au lancement */
   onStart: (config: SimulationConfig) => void;
-  
+
   /** Callback fermeture */
   onClose: () => void;
-  
+
   /** Simulations restantes ce mois */
   remainingSimulations: number;
 }
@@ -35,7 +35,7 @@ export function SimulationModal({
   userTier,
   onStart,
   onClose,
-  remainingSimulations
+  remainingSimulations,
 }: SimulationModalProps) {
   const [volume, setVolume] = useState<number>(10);
   const [context, setContext] = useState<SimulationContext>(detectedContext);
@@ -45,7 +45,7 @@ export function SimulationModal({
   const maxVolume = {
     free: 10,
     pro: 50,
-    enterprise: 100
+    enterprise: 100,
   }[userTier];
 
   const canOverrideContext = userTier !== "free";
@@ -56,7 +56,7 @@ export function SimulationModal({
       pollId,
       volume,
       context,
-      useGemini
+      useGemini,
     };
     onStart(config);
   };
@@ -71,18 +71,14 @@ export function SimulationModal({
               <Sparkles className="w-5 h-5 text-purple-400" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-white">
-                Tester avec l'IA
-              </h2>
+              <h2 className="text-xl font-semibold text-white">Tester avec l'IA</h2>
               <p className="text-sm text-gray-400">
-                {remainingSimulations} simulation{remainingSimulations > 1 ? 's' : ''} restante{remainingSimulations > 1 ? 's' : ''}
+                {remainingSimulations} simulation{remainingSimulations > 1 ? "s" : ""} restante
+                {remainingSimulations > 1 ? "s" : ""}
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-200 transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -104,9 +100,7 @@ export function SimulationModal({
                 onChange={(e) => setVolume(Number(e.target.value))}
                 className="flex-1 accent-purple-600"
               />
-              <span className="text-lg font-semibold text-white w-12 text-right">
-                {volume}
-              </span>
+              <span className="text-lg font-semibold text-white w-12 text-right">{volume}</span>
             </div>
             <p className="text-xs text-gray-400 mt-1">
               Maximum : {maxVolume} réponses ({userTier})
