@@ -223,7 +223,10 @@ export class PollCreatorService {
   /**
    * Get time slot blocks for display
    */
-  static getTimeSlotBlocks(timeSlots: TimeSlot[], granularity: number): any[] {
+  static getTimeSlotBlocks(timeSlots: TimeSlot[], granularity: number): Array<{
+    start: TimeSlot;
+    end: { hour: number; minute: number; enabled: boolean };
+  }> {
     const blocks = [];
     let currentBlock = null;
 
@@ -351,7 +354,12 @@ export class PollCreatorService {
   /**
    * Initialize state with Gemini data
    */
-  static initializeWithGeminiData(initialData?: any): PollCreationState {
+  static initializeWithGeminiData(initialData?: {
+    title?: string;
+    dates?: string[];
+    participants?: string[];
+    timeSlots?: unknown;
+  }): PollCreationState {
     const baseState: PollCreationState = {
       selectedDates: [],
       currentMonth: new Date(),

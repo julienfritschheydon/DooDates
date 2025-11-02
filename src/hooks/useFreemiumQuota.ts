@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { logError, ErrorFactory } from "../lib/error-handling";
 import { useConversations } from "./useConversations";
+import { logger } from "../lib/logger";
 
 export interface QuotaLimits {
   conversations: number;
@@ -192,8 +193,10 @@ export const useFreemiumQuota = () => {
     const status = getQuotaStatus();
     if (status.conversations.isNearLimit && !isAuthenticated) {
       // Show warning but allow action
-      console.warn(
-        `Approaching conversation limit: ${status.conversations.used}/${status.conversations.limit}`,
+      logger.warn(
+        "Approaching conversation limit",
+        "conversation",
+        { used: status.conversations.used, limit: status.conversations.limit }
       );
     }
 
@@ -223,8 +226,10 @@ export const useFreemiumQuota = () => {
   useEffect(() => {
     const status = getQuotaStatus();
     if (status.storage.isNearLimit && !isAuthenticated) {
-      console.warn(
-        `Storage usage high: ${status.storage.used.toFixed(1)}MB/${status.storage.limit}MB`,
+      logger.warn(
+        "Storage usage high",
+        "general",
+        { used: status.storage.used.toFixed(1), limit: status.storage.limit, unit: "MB" }
       );
     }
   }, [getQuotaStatus, isAuthenticated]);

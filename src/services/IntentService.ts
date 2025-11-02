@@ -29,7 +29,7 @@ import { logger } from "@/lib/logger";
 export interface IntentResult {
   isModification: boolean;
   action: PollAction["type"] | FormPollAction["type"] | null;
-  payload: any;
+  payload: unknown; // Payload générique, sera typé selon l'action
   confidence: number; // 0-1
   explanation?: string;
   modifiedField?: "title" | "type" | "options" | "required";

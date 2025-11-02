@@ -114,9 +114,9 @@ export function useConversations(config: UseConversationsConfig = {}) {
     queryKey: queryKeys.infinite,
     queryFn: async ({ pageParam = 0 }) => {
       try {
-        console.log("[useConversations] Chargement conversations depuis localStorage...");
+        logger.debug("Chargement conversations depuis localStorage", "conversation");
         const conversations = ConversationStorage.getConversations();
-        console.log("[useConversations] Conversations chargées:", conversations.length);
+        logger.debug("Conversations chargées", "conversation", { count: conversations.length });
 
         // Convertir les dates string en Date objects
         const conversationsWithDates = conversations.map((conv) => ({

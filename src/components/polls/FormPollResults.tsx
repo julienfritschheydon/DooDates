@@ -133,7 +133,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                 const kind: string = q.kind || q.type || "single";
                 const stats = computed[qid];
                 return (
-                  <div key={qid} className="bg-white rounded-md border p-4">
+                  <div key={qid} className="bg-white rounded-md border p-4" data-testid={`form-question-result-${qid}`}>
                     <div className="mb-3">
                       <div className="font-medium">{q.title || "(Sans titre)"}</div>
                       <div className="text-xs text-gray-500">
@@ -150,7 +150,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                     </div>
 
                     {kind !== "text" && kind !== "matrix" && (
-                      <div className="space-y-2">
+                      <div className="space-y-2" data-testid="question-options-results">
                         {(q.options || []).map((opt: FormQuestionOption) => {
                           const count = stats?.counts?.[opt.id] || 0;
                           const pct = totalRespondents
@@ -177,7 +177,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                     )}
 
                     {kind === "matrix" && (
-                      <div className="overflow-x-auto">
+                      <div className="overflow-x-auto" data-testid="matrix-results">
                         <div className="text-xs text-gray-500 mb-2">
                           {totalRespondents} réponse
                           {totalRespondents > 1 ? "s" : ""}
@@ -222,7 +222,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                     )}
 
                     {kind === "text" && (
-                      <div className="space-y-2">
+                      <div className="space-y-2" data-testid="text-answers">
                         {(() => {
                           const all = textAnswers[qid] || [];
                           const isExpanded = !!expandedText[qid];
@@ -250,6 +250,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                                         [qid]: !isExpanded,
                                       }))
                                     }
+                                    data-testid="expand-text-answers-button"
                                   >
                                     {isExpanded ? "Voir moins" : `Voir tout (${all.length})`}
                                   </button>
@@ -269,14 +270,14 @@ export default function FormPollResults({ idOrSlug }: Props) {
                 );
               })}
               {/* Votes par participant */}
-              <div className="bg-white rounded-md border p-4">
+              <div className="bg-white rounded-md border p-4" data-testid="individual-responses">
                 <div className="mb-3">
                   <div className="font-medium">Votes par participant</div>
                   <div className="text-xs text-gray-500">Détail des réponses individuelles</div>
                 </div>
                 <div className="divide-y">
                   {uniqueResponses.map((r) => (
-                    <div key={getRespondentId(r)} className="py-3">
+                    <div key={getRespondentId(r)} className="py-3" data-testid="respondent-response">
                       <div className="flex items-center justify-between">
                         <div className="font-medium">
                           {r.respondentName && r.respondentName.trim()

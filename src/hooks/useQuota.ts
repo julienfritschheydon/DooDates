@@ -14,6 +14,7 @@ import {
   CONVERSATION_ERROR_CODES,
   type Conversation,
 } from "../types/conversation";
+import { logger } from "../lib/logger";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -517,8 +518,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     }
 
     if (status.conversations.isNearLimit && !isAuthenticated) {
-      console.warn(
-        `Approaching conversation limit: ${status.conversations.used}/${status.conversations.limit}`,
+      logger.warn(
+        "Approaching conversation limit",
+        "conversation",
+        { used: status.conversations.used, limit: status.conversations.limit }
       );
     }
 
@@ -665,8 +668,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       return;
     }
 
-    console.warn(
-      `Storage usage high: ${status.storage.used.toFixed(1)}MB/${status.storage.limit}MB`,
+    logger.warn(
+      "Storage usage high",
+      "general",
+      { used: status.storage.used.toFixed(1), limit: status.storage.limit, unit: "MB" }
     );
   }, [status.storage.isNearLimit, status.storage.used, status.storage.limit, isAuthenticated]);
 

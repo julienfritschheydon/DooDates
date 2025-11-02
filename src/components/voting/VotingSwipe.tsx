@@ -108,19 +108,18 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({ pollId, onBack, onVoteSubmitt
         no: stats.counts.no,
       };
 
-      console.log(`[STATS] getStatsWithUser(${optionId}):`, {
+      logger.debug("getStatsWithUser", "vote", {
+        optionId,
         existingStats: result,
         userVote: votes[optionId],
         userHasVoted: userHasVoted[optionId],
-        allVotes: votes,
-        allUserHasVoted: userHasVoted,
       });
 
       // Ajouter le vote utilisateur s'il existe (même si userHasVoted est false)
       // Car en mode swipe, userHasVoted peut ne pas être à jour
       if (votes[optionId]) {
         result[votes[optionId]]++;
-        console.log(`[STATS] Vote utilisateur ajouté: ${votes[optionId]} → Nouveau total:`, result);
+        logger.debug("Vote utilisateur ajouté", "vote", { voteType: votes[optionId], newTotal: result });
       }
 
       return result;
@@ -280,7 +279,8 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({ pollId, onBack, onVoteSubmitt
                     const stats = getStatsWithUser(option.id);
                     const score = stats.yes * 2 + stats.maybe - stats.no;
 
-                    console.log(`[RANKING] Option ${option.id}:`, {
+                    logger.debug("Ranking option", "vote", {
+                      optionId: option.id,
                       yes: stats.yes,
                       maybe: stats.maybe,
                       no: stats.no,
@@ -305,8 +305,10 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({ pollId, onBack, onVoteSubmitt
                       currentRank = index + 1;
                     }
                     rankings[option.id] = currentRank;
-                    console.log(
-                      `[RANKING] Option ${option.id} = Rang ${currentRank} (score: ${option.score})`,
+                    logger.debug(
+                      "Option ranked",
+                      "vote",
+                      { optionId: option.id, rank: currentRank, score: option.score }
                     );
                   });
 

@@ -84,7 +84,7 @@ export class SearchCache<T> {
   /**
    * Generate cache key from filters and query
    */
-  static generateKey(query: string, filters: Record<string, any>): string {
+  static generateKey(query: string, filters: Record<string, unknown>): string {
     const filterStr = JSON.stringify(filters, Object.keys(filters).sort());
     return `${query}:${filterStr}`;
   }

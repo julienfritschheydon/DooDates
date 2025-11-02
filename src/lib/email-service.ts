@@ -1,5 +1,6 @@
 import { Poll, Vote } from "./pollStorage";
 import { handleError, ErrorFactory, logError } from "./error-handling";
+import { logger } from "./logger";
 
 /**
  * Service d'envoi d'emails via fonction serverless
@@ -54,7 +55,7 @@ export class EmailService {
    */
   static async sendPollCreatedEmail(poll: Poll, creatorEmail: string): Promise<void> {
     if (!creatorEmail) {
-      console.warn("⚠️ [EmailService] Pas d'email créateur fourni");
+      logger.warn("Pas d'email créateur fourni", "api");
       return;
     }
 
@@ -74,7 +75,7 @@ export class EmailService {
    */
   static async sendVoteConfirmationEmail(poll: Poll, vote: Vote): Promise<void> {
     if (!vote.email) {
-      console.warn("⚠️ [EmailService] Pas d'email votant fourni");
+      logger.warn("Pas d'email votant fourni", "api");
       return;
     }
 
@@ -99,7 +100,7 @@ export class EmailService {
     totalVotes: number,
   ): Promise<void> {
     if (!poll.creatorEmail) {
-      console.warn("EmailService: No creator email in poll");
+      logger.warn("No creator email in poll", "api");
       return;
     }
 
@@ -227,7 +228,7 @@ export class EmailService {
   ): Promise<{ success: boolean; error?: string }> {
     try {
       if (!creatorEmail) {
-        console.warn("⚠️ [EmailService] Pas d'email créateur fourni");
+        logger.warn("Pas d'email créateur fourni", "api");
         return { success: true };
       }
 
@@ -267,7 +268,7 @@ export class EmailService {
       const testEmail = "julien.fritsch@gmail.com";
 
       if (!voterEmail && !testEmail) {
-        console.warn("EmailService: No voter email provided");
+        logger.warn("No voter email provided", "api");
         return { success: true };
       }
 
@@ -315,7 +316,7 @@ export class EmailService {
       const testEmail = "julien.fritsch@gmail.com";
 
       if (!creatorEmail && !testEmail) {
-        console.warn("EmailService: No creator email provided");
+        logger.warn("No creator email provided", "api");
         return { success: true };
       }
 

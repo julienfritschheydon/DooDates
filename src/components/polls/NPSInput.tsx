@@ -49,7 +49,7 @@ export function NPSInput({ value, onChange, required = false }: NPSInputProps) {
   const categoryInfo = getCategoryLabel();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="nps-input">
       {/* Échelle NPS 0-10 */}
       <div className="py-4">
         <div className="grid grid-cols-11 gap-1 sm:gap-2 max-w-2xl mx-auto">
@@ -59,6 +59,7 @@ export function NPSInput({ value, onChange, required = false }: NPSInputProps) {
               type="button"
               onClick={() => onChange(num)}
               className={`w-full aspect-square rounded-lg font-semibold text-xs sm:text-base transition-all ${getButtonClass(num)}`}
+              data-testid={`nps-button-${num}`}
             >
               {num}
             </button>
@@ -74,7 +75,7 @@ export function NPSInput({ value, onChange, required = false }: NPSInputProps) {
 
       {/* Catégorie sélectionnée */}
       {categoryInfo && (
-        <div className="text-center">
+        <div className="text-center" data-testid="nps-category-display">
           <p className="text-sm text-gray-500">
             Votre score : <span className="font-semibold text-purple-600">{value}/10</span>
           </p>
@@ -82,10 +83,6 @@ export function NPSInput({ value, onChange, required = false }: NPSInputProps) {
         </div>
       )}
 
-      {/* Message requis */}
-      {required && value === null && (
-        <p className="text-sm text-red-500 text-center">Cette question est obligatoire</p>
-      )}
 
       {/* Légende NPS */}
       <div className="mt-4 p-3 bg-gray-50 rounded-lg">

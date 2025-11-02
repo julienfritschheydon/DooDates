@@ -25,7 +25,8 @@ describe('Centralized Error Handling Enforcement', () => {
         '**/*.test.tsx',
         '**/components/ui/**', // Allow UI components to use context errors
         '**/lib/error-handling.ts', // Allow the error handling file itself
-        '**/lib/logger.ts' // Allow the logger file (it IS the logging system)
+        '**/lib/logger.ts', // Allow the logger file (it IS the logging system)
+        '**/__prototypes__/**' // Exclude prototype/experimental files
       ]
     });
   });

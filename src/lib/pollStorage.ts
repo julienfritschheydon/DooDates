@@ -15,6 +15,7 @@ import {
 } from "./storage/storageUtils";
 // import { compress, decompress } from "./compression"; // TODO: Implement compression module
 import { handleError, ErrorFactory, logError } from "./error-handling";
+import { logger } from "./logger";
 
 // Define proper types for time slots
 export interface TimeSlot {
@@ -25,7 +26,8 @@ export interface TimeSlot {
 
 export interface PollSettings {
   selectedDates?: string[];
-  timeSlotsByDate?: Record<string, TimeSlot[]>;
+  timeSlotsByDate?: Record<string, Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>>;
+  timeGranularity?: number; // Granularité des créneaux horaires en minutes (30, 60, etc.)
 }
 
 // --- Types FormPoll (réponses & résultats) ---
@@ -225,10 +227,10 @@ function deduplicatePolls(polls: Poll[]): Poll[] {
       const existingDate = new Date(existing.updated_at || existing.created_at).getTime();
       const currentDate = new Date(poll.updated_at || poll.created_at).getTime();
       if (currentDate > existingDate) {
-        console.log(`⚠️ Duplicate poll ID found: ${poll.id}, keeping newer version`);
+        logger.warn(`Duplicate poll ID found: ${poll.id}, keeping newer version`, "poll");
         seen.set(poll.id, poll);
       } else {
-        console.log(`⚠️ Duplicate poll ID found: ${poll.id}, keeping existing version`);
+        logger.warn(`Duplicate poll ID found: ${poll.id}, keeping existing version`, "poll");
       }
     }
   }
@@ -238,7 +240,7 @@ function deduplicatePolls(polls: Poll[]): Poll[] {
 export function savePolls(polls: Poll[]): void {
   const deduplicated = deduplicatePolls(polls);
   if (deduplicated.length !== polls.length) {
-    console.log(`🧹 Removed ${polls.length - deduplicated.length} duplicate polls`);
+    logger.info(`Removed ${polls.length - deduplicated.length} duplicate polls`, "poll");
   }
   writeToStorage(STORAGE_KEY, deduplicated, memoryPollCache);
 }
@@ -271,16 +273,16 @@ export function addPoll(poll: Poll): void {
 }
 
 export function deletePollById(id: string): void {
-  console.log(`🗑️ deletePollById: Deleting poll with id: ${id}`);
+  logger.debug(`Deleting poll with id: ${id}`, "poll");
   // Supprimer dans l'ensemble unifié
   const polls = getAllPolls();
-  console.log(`📊 deletePollById: Found ${polls.length} polls before deletion`);
+  logger.debug(`Found ${polls.length} polls before deletion`, "poll");
   const next = polls.filter((p) => p.id !== id);
-  console.log(`📊 deletePollById: ${next.length} polls remaining after filter`);
+  logger.debug(`${next.length} polls remaining after filter`, "poll");
   savePolls(next);
   // Synchroniser le cache mémoire
   memoryPollCache.delete(id);
-  console.log(`✅ deletePollById: Poll ${id} deleted successfully`);
+  logger.info(`Poll ${id} deleted successfully`, "poll");
 }
 
 export function duplicatePoll(poll: Poll): Poll {
@@ -409,7 +411,7 @@ export function getAllPolls(): Poll[] {
         const existingDate = new Date(existing.updated_at || existing.created_at).getTime();
         const currentDate = new Date(p.updated_at || p.created_at).getTime();
         if (currentDate > existingDate) {
-          console.warn(`⚠️ Duplicate poll ID ${p.id} found, keeping newer version`);
+          logger.warn(`Duplicate poll ID ${p.id} found, keeping newer version`, "poll");
           seen.set(p.id, p);
         }
       }
@@ -417,8 +419,9 @@ export function getAllPolls(): Poll[] {
     const deduplicated = Array.from(seen.values());
 
     if (deduplicated.length !== polls.length) {
-      console.warn(
-        `🧹 Removed ${polls.length - deduplicated.length} duplicate polls, saving cleaned version...`,
+      logger.warn(
+        `Removed ${polls.length - deduplicated.length} duplicate polls, saving cleaned version...`,
+        "poll"
       );
       writeToStorage(STORAGE_KEY, deduplicated, memoryPollCache);
     }

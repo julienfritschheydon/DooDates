@@ -116,7 +116,7 @@ export function useVoiceRecognition(
       recognitionRef.current = new SpeechRecognitionAPI();
     } else {
       setIsSupported(false);
-      console.warn("Web Speech API non supportée par ce navigateur");
+      logger.warn("Web Speech API non supportée par ce navigateur", "general");
     }
   }, []);
 
@@ -138,7 +138,7 @@ export function useVoiceRecognition(
       // Configuration stable : PAS de redémarrage automatique
       // Voir voiceRecognition.config.ts pour l'explication
       if (VOICE_RECOGNITION_CONFIG.autoRestart && continuous && isListening) {
-        console.log("🔄 Redémarrage automatique...");
+        logger.debug("Redémarrage automatique reconnaissance vocale", "general");
         setTimeout(() => {
           try {
             recognition.start();
@@ -169,7 +169,7 @@ export function useVoiceRecognition(
 
       // Ignorer l'erreur "no-speech" (silence normal, pas une vraie erreur)
       if (event.error === "no-speech") {
-        console.log("⏸️ Silence détecté, arrêt normal");
+        logger.debug("Silence détecté, arrêt normal", "general");
         return;
       }
 
@@ -252,7 +252,7 @@ export function useVoiceRecognition(
     } catch (err: any) {
       // Ignorer l'erreur si déjà démarré
       if (err.message?.includes("already started")) {
-        console.log("⚠️ Reconnaissance déjà active");
+        logger.debug("Reconnaissance déjà active", "general");
         return;
       }
 

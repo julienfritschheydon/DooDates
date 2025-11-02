@@ -4,6 +4,7 @@
 import type { PreGeneratedCalendar, CalendarDay } from "./calendar-generator";
 import { logError, ErrorFactory } from "./error-handling";
 import { formatDateLocal } from "./date-utils";
+import { logger } from "./logger";
 
 interface YearCalendarData {
   year: number;
@@ -91,7 +92,7 @@ class ProgressiveCalendarManager {
       const module = await import(`../data/calendar-${year}.json`);
       return module.default;
     } catch (error) {
-      console.warn(`⚠️ Fichier calendar-${year}.json non trouvé, génération dynamique...`);
+      logger.debug("Fichier calendar non trouvé, génération dynamique", "calendar", { year });
       // Fallback: génération dynamique si le fichier n'existe pas
       return this.generateYearFallback(year);
     }
@@ -185,7 +186,7 @@ class ProgressiveCalendarManager {
     if (month >= 12 - this.preloadThresholdMonths) {
       const nextYear = year + 1;
       if (!this.loadedYears.has(nextYear) && !this.loadingPromises.has(nextYear)) {
-        console.log(`🔮 Préchargement anticipé de l'année ${nextYear} (mois ${month})`);
+        logger.debug("Préchargement anticipé de l'année", "calendar", { nextYear, month });
         this.loadYear(nextYear).catch((error) => {
           logError(
             ErrorFactory.api(
@@ -258,7 +259,7 @@ class ProgressiveCalendarManager {
     for (const [year] of this.loadedYears) {
       if (!keepYears.includes(year)) {
         this.loadedYears.delete(year);
-        console.log(`🧹 Année ${year} supprimée du cache`);
+        logger.debug("Année supprimée du cache", "calendar", { year });
       }
     }
   }

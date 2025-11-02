@@ -12,6 +12,7 @@ interface AIProposalFeedbackProps {
       pollId?: string;
       pollTitle?: string;
       pollType?: string;
+      action?: string;
     };
   };
   onFeedbackSent?: () => void;

@@ -30,7 +30,7 @@ const ACTION_PATTERNS = {
 export interface ModificationIntent {
   isModification: boolean;
   action: PollAction["type"];
-  payload: any;
+  payload: unknown; // Payload générique, sera typé selon l'action
   confidence: number; // 0-1
   explanation?: string;
 }

@@ -35,7 +35,7 @@ const RATE_LIMIT = {
 
 // Types pour Form Polls (questionnaires)
 export interface FormQuestion {
-  text: any;
+  text: string;
   title: string;
   type: "single" | "multiple" | "text" | "rating" | "nps" | "matrix";
   required: boolean;
@@ -1268,7 +1268,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
           const validDates = parsed.dates.filter((dateStr: string) => {
             const isValidDate = dateStr >= todayStr;
             if (!isValidDate) {
-              console.warn(`Past date filtered out: ${dateStr} (before ${todayStr})`);
+              logger.debug("Past date filtered out", "general", { date: dateStr, today: todayStr });
             }
             return isValidDate;
           });

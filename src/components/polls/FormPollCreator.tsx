@@ -13,6 +13,7 @@ import {
 import { useUIState } from "../prototype/UIStateProvider";
 import { ThemeSelector } from "./ThemeSelector";
 import { DEFAULT_THEME } from "../../lib/themes";
+import { FormSimulationIntegration } from "../simulation/FormSimulationIntegration";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
 export type FormQuestionType = "single" | "multiple" | "text" | "matrix" | "rating" | "nps";
@@ -117,7 +118,8 @@ export default function FormPollCreator({
       setQuestions(initialDraft.questions || []);
       setConditionalRules(initialDraft.conditionalRules || []);
     }
-  }, [initialDraft?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialDraft?.id]); // Intentionnel : on veut seulement initialiser au montage, pas tracker initialDraft entier
 
   const currentDraft: FormPollDraft = useMemo(
     () => ({
@@ -288,7 +290,8 @@ export default function FormPollCreator({
     return () => {
       if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
     };
-  }, [currentDraft.title, currentDraft.questions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentDraft.title, currentDraft.questions]); // Intentionnel : on veut sauvegarder seulement si title/questions changent, pas currentDraft/upsertFormPoll
 
   const addQuestion = (type: FormQuestionType) => {
     if (type === "text") {
@@ -444,6 +447,25 @@ export default function FormPollCreator({
                 }}
                 onSaveDraft={handleSave}
                 onFinalize={handleFinalize}
+                simulationButton={
+                  questions.length > 0 ? (
+                    <FormSimulationIntegration
+                      pollTitle={title}
+                      questions={questions.map(q => ({
+                        id: q.id,
+                        title: q.title,
+                        type: q.type === "rating" || q.type === "nps" ? "single" : q.type,
+                        required: q.required,
+                        options: (q.type === "single" || q.type === "multiple") ? (q as SingleOrMultipleQuestion).options : undefined,
+                        matrixRows: q.type === "matrix" ? (q as MatrixQuestion).matrixRows : undefined,
+                        matrixColumns: q.type === "matrix" ? (q as MatrixQuestion).matrixColumns : undefined,
+                        matrixType: q.type === "matrix" ? (q as MatrixQuestion).matrixType : undefined
+                      }))}
+                      userTier="pro"
+                      buttonVariant="secondary"
+                    />
+                  ) : undefined
+                }
               />
             </div>
           </div>

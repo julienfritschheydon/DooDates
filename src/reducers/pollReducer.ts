@@ -9,7 +9,7 @@
  * - REPLACE_POLL : Remplacer complètement le sondage
  */
 
-import { Poll } from "../types/poll";
+import { Poll } from "../lib/pollStorage"; // Utiliser le type Poll unifié de pollStorage
 import { convertGeminiSlotToInternal } from "../services/TimeSlotConverter";
 import { formPollReducer, type FormPollAction } from "./formPollReducer";
 
@@ -32,7 +32,7 @@ export function pollReducer(state: Poll | null, action: PollAction): Poll | null
   switch (action.type) {
     case "REPLACE_POLL": {
       // Remplacer complètement le sondage (utilisé pour l'initialisation)
-      return action.payload as any;
+      return action.payload;
     }
 
     case "ADD_DATE": {
@@ -110,11 +110,11 @@ export function pollReducer(state: Poll | null, action: PollAction): Poll | null
       const dateSlots = currentTimeSlots[date] || [];
 
       // Récupérer la granularité actuelle (défaut: 60 min)
-      const granularity = (currentSettings as any).timeGranularity || 60;
+      const granularity = currentSettings?.timeGranularity || 60;
 
       // Découper le slot en plusieurs petits slots selon la granularité
       // Exemple: slot 10h-11h (60min) avec granularité 30min → 2 slots de 30min
-      const slotsToAdd: any[] = [];
+      const slotsToAdd: Array<{ hour: number; minute: number; duration: number; enabled: boolean }> = [];
       const startMinutes = newSlot.hour * 60 + newSlot.minute;
       const endMinutes = startMinutes + newSlot.duration;
 
@@ -123,7 +123,7 @@ export function pollReducer(state: Poll | null, action: PollAction): Poll | null
         const minute = minutes % 60;
 
         // Vérifier si ce slot existe déjà
-        const exists = dateSlots.some((slot: any) => slot.hour === hour && slot.minute === minute);
+        const exists = dateSlots.some((slot) => slot.hour === hour && slot.minute === minute);
 
         if (!exists) {
           slotsToAdd.push({
@@ -151,15 +151,15 @@ export function pollReducer(state: Poll | null, action: PollAction): Poll | null
             ...currentTimeSlots,
             [date]: updatedDateSlots,
           },
-        } as any,
+        },
         updated_at: new Date().toISOString(),
       };
     }
 
     default:
       // Déléguer au formPollReducer pour les actions Form Poll
-      if (state && (state as any).type === "form") {
-        return formPollReducer(state as any, action as FormPollAction) as any;
+      if (state && state.type === "form") {
+        return formPollReducer(state, action as FormPollAction);
       }
       return state;
   }

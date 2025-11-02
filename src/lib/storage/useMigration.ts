@@ -5,6 +5,7 @@ import {
   MigrationResult,
 } from "./ConversationMigrationService";
 import { handleError, ErrorFactory, logError } from "../error-handling";
+import { logger } from "../logger";
 
 /**
  * Hook for managing conversation migration from localStorage to Supabase
@@ -82,7 +83,7 @@ export function useMigration(supabaseUrl: string, supabaseKey: string) {
   // Start migration
   const startMigration = useCallback(async (): Promise<MigrationResult | null> => {
     if (!migrationService) {
-      console.warn("Migration service not initialized");
+      logger.warn("Migration service not initialized", "general");
       return null;
     }
 

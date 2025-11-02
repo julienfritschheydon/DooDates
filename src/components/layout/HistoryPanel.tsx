@@ -29,29 +29,29 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
 
   // Charger les sondages récents depuis localStorage
   useEffect(() => {
-    console.log("[HistoryPanel] Chargement des sondages...");
+    logger.debug("Chargement des sondages", "poll");
     try {
       // Utiliser getAllPolls() comme le Dashboard
       const polls = getAllPolls();
-      console.log("[HistoryPanel] Polls récupérés via getAllPolls():", polls.length, "sondages");
-      console.log("[HistoryPanel] Premier poll:", polls[0]);
+      logger.debug("Polls récupérés via getAllPolls", "poll", { count: polls.length, firstPoll: polls[0] });
 
       // Trier par date de création décroissante et prendre les 5 derniers
       const withDate = polls.filter((p) => p.created_at);
-      console.log("[HistoryPanel] Polls avec created_at:", withDate.length);
+      logger.debug("Polls avec created_at", "poll", { count: withDate.length });
 
       const sorted = withDate
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, 5);
 
-      console.log(
-        "[HistoryPanel] Polls triés (top 5):",
-        sorted.map((p) => ({
+      logger.debug(
+        "Polls triés (top 5)",
+        "poll",
+        { polls: sorted.map((p) => ({
           id: p.id,
           title: p.title,
           type: p.type,
           created_at: p.created_at,
-        })),
+        })) }
       );
 
       setRecentPolls(sorted);
@@ -135,7 +135,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
         <div className="overflow-y-auto h-[calc(100vh-9rem)]">
           {/* Sondages récents */}
           {(() => {
-            console.log("[HistoryPanel] Rendu - recentPolls.length:", recentPolls.length);
+            logger.debug("Rendu - recentPolls", "poll", { count: recentPolls.length });
             if (recentPolls.length > 0) {
               return (
                 <div className="p-4 border-b border-gray-700">
