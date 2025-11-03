@@ -210,7 +210,7 @@ export const usePollDeletionCascade = () => {
    */
   const getOrphanedLinks = useCallback((): string[] => {
     try {
-      const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+      const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
       const existingPollIds = new Set(polls.map((poll: any) => poll.id));
 
       const orphanedConversations: string[] = [];
@@ -254,7 +254,7 @@ export const usePollDeletionCascade = () => {
     let cleanedCount = 0;
 
     try {
-      const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+      const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
       const existingPollIds = new Set(polls.map((poll: any) => poll.id));
 
       for (const conversationId of orphanedConversationIds) {
