@@ -117,6 +117,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      - name: 🔧 Cache ESLint
+        uses: actions/cache@v4
+        with:
+          path: .eslintcache
+          key: ${{ runner.os }}-eslint-${{ hashFiles('.eslintrc*', 'src/**/*.ts*', 'src/**/*.jsx') }}
+          restore-keys: |
+            ${{ runner.os }}-eslint-
+
       - name: 🔧 Install dependencies
         run: npm ci
 
@@ -124,7 +132,7 @@ jobs:
         run: npm run type-check
 
       - name: 🧹 Lint (warnings allowed on develop)
-        run: npx eslint . --report-unused-disable-directives --max-warnings 1000
+        run: npm run lint -- --max-warnings 1000
 
       - name: 🏗️ Build production
         run: npm run build

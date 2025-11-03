@@ -9,7 +9,7 @@
     "dev:mobile": "vite --host",
     "build": "tsc && vite build",
     "build:dev": "npm update caniuse-lite && vite build --mode development",
-    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0 --cache --cache-location .eslintcache",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",

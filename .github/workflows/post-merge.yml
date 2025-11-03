@@ -20,6 +20,10 @@ jobs:
   e2e-smoke:
     name: 🔥 E2E Smoke Tests
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -46,20 +50,24 @@ jobs:
       - name: 🧭 Install Playwright (Chromium)
         run: npx playwright install --with-deps chromium
 
-      - name: 🔥 Run Smoke Tests
-        run: npm run test:e2e:smoke
+      - name: 🔥 Run Smoke Tests (Shard ${{ matrix.shard }}/3)
+        run: npx playwright test --project=chromium --grep @smoke --grep-invert "@analytics|@functional" --shard=${{ matrix.shard }}/3
 
       - name: 📊 Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-smoke-report
+          name: playwright-smoke-report-${{ matrix.shard }}
           path: playwright-report
           retention-days: 7
 
   e2e-functional:
     name: ⚡ E2E Functional Tests
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -86,14 +94,14 @@ jobs:
       - name: 🧭 Install Playwright (Chromium)
         run: npx playwright install --with-deps chromium
 
-      - name: ⚡ Run Functional Tests
-        run: npx playwright test --project=chromium --grep @functional --grep-invert "@wip|@flaky"
+      - name: ⚡ Run Functional Tests (Shard ${{ matrix.shard }}/3)
+        run: npx playwright test --project=chromium --grep @functional --grep-invert "@wip|@flaky" --shard=${{ matrix.shard }}/3
 
       - name: 📊 Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-functional-report
+          name: playwright-functional-report-${{ matrix.shard }}
           path: playwright-report
           retention-days: 7
 
