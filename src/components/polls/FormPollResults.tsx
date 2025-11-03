@@ -132,7 +132,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
       }
       actions={
         <div className="w-full flex items-center gap-2 justify-end">
-          <PollActions poll={poll} showVoteButton />
+          <PollActions poll={poll} showVoteButton onAfterDelete={() => navigate("/dashboard")} />
         </div>
       }
       onClose={() => navigate("/dashboard")}

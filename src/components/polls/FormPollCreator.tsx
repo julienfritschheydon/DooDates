@@ -112,6 +112,7 @@ export default function FormPollCreator({
   const [themeId, setThemeId] = useState<string>(initialDraft?.themeId || DEFAULT_THEME.id);
   const [draftId] = useState<string>(initialDraft?.id || "draft-" + uid());
   const autosaveTimer = useRef<number | null>(null);
+  const isFinalizingRef = useRef(false);
 
   // Suggestion IA intelligente pour displayMode
   const suggestedDisplayMode = useMemo(() => {
@@ -379,6 +380,12 @@ export default function FormPollCreator({
   };
 
   const handleFinalize = () => {
+    // Protection contre les appels multiples
+    if (isFinalizingRef.current) {
+      logger.warn("⚠️ handleFinalize déjà en cours, ignoré", "poll");
+      return;
+    }
+
     const draft: FormPollDraft = { ...currentDraft, title: title.trim() };
     const result = validateDraft(draft);
     if (!result.ok) {
@@ -386,31 +393,41 @@ export default function FormPollCreator({
       return;
     }
 
-    // Créer/mettre à jour le poll actif (upsertFormPoll gère déjà la logique de mise à jour)
-    const saved = upsertFormPoll(draft, "active");
+    isFinalizingRef.current = true;
 
-    // Supprimer les anciens brouillons avec le même ID (mais garder le poll actif qu'on vient de créer)
-    const all = getAllPolls();
-    const withoutOldDrafts = all.filter((p) => !(p.id === draft.id && p.status === "draft"));
-    savePolls(withoutOldDrafts);
+    try {
+      // Créer/mettre à jour le poll actif (upsertFormPoll gère déjà la logique de mise à jour)
+      const saved = upsertFormPoll(draft, "active");
 
-    // Lier bidirectionnellement le formulaire à la conversation (Session 1 - Architecture centrée conversations)
-    const urlParams = new URLSearchParams(window.location.search);
-    const conversationId = urlParams.get("conversationId");
-    if (conversationId) {
-      // Formulaire créé via IA → Lier à la conversation existante
-      linkPollToConversationBidirectional(conversationId, saved.id, "form");
-    } else {
-      // Formulaire créé manuellement → Créer une conversation vide (Session 2)
-      createConversationForPoll(saved.id, saved.title, "form");
-      logger.info("✅ Conversation vide créée pour formulaire manuel", "poll", {
-        pollId: saved.id,
-      });
+      // Supprimer les anciens brouillons avec le même ID (mais garder le poll actif qu'on vient de créer)
+      const all = getAllPolls();
+      const withoutOldDrafts = all.filter((p) => !(p.id === draft.id && p.status === "draft"));
+      savePolls(withoutOldDrafts);
+
+      // Lier bidirectionnellement le formulaire à la conversation (Session 1 - Architecture centrée conversations)
+      const urlParams = new URLSearchParams(window.location.search);
+      const conversationId = urlParams.get("conversationId");
+      if (conversationId) {
+        // Formulaire créé via IA → Lier à la conversation existante
+        linkPollToConversationBidirectional(conversationId, saved.id, "form");
+      } else {
+        // Formulaire créé manuellement → Créer une conversation vide (Session 2)
+        // La fonction createConversationForPoll a maintenant une protection intégrée
+        createConversationForPoll(saved.id, saved.title, "form");
+        logger.info("✅ Conversation vide créée pour formulaire manuel", "poll", {
+          pollId: saved.id,
+        });
+      }
+
+      // Passer le poll sauvegardé complet (avec slug) au callback
+      if (onFinalize) onFinalize(draft, saved);
+      logger.info("FormPoll finalisé", "poll", { pollId: saved.id });
+    } finally {
+      // Reset après un délai pour éviter les double-clics rapides
+      setTimeout(() => {
+        isFinalizingRef.current = false;
+      }, 1000);
     }
-
-    // Passer le poll sauvegardé complet (avec slug) au callback
-    if (onFinalize) onFinalize(draft, saved);
-    logger.info("FormPoll finalisé", "poll", { pollId: saved.id });
   };
 
   return (

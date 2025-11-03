@@ -29,11 +29,9 @@ DooDates est une plateforme de création de sondages et formulaires propulsée p
 
 ### DooDates est-il gratuit ?
 
-**Oui !** DooDates propose :
-- ✅ **Version gratuite complète** (sondages illimités)
-- 🤖 **5 conversations IA** (mode invité) ou **50/mois** (compte gratuit)
-- 💼 **Version Pro** (10€/mois) : Conversations IA illimitées
-- 🚀 **Version Premium** (100€/mois) : Tout + intégrations + white-label
+**Oui !** DooDates propose une version gratuite complète avec sondages illimités.
+
+Pour plus de fonctionnalités avancées (conversations IA illimitées, intégrations, white-label, etc.), consultez notre **[page Tarifs](/pricing)** pour découvrir nos offres Pro et Premium.
 
 ---
 
@@ -486,12 +484,6 @@ Exporter en CSV → Supprimer colonne "Nom" dans Excel
 **Oui !** Le changement est **immédiat** :
 - ✅ Quota IA passe à illimité instantanément
 - 💰 Paiement proratisé (vous payez uniquement les jours restants)
-
-**Exemple :**
-```
-15 novembre → Upgrade Pro (10€/mois)
-Coût : 10€ × 15 jours / 30 = 5€
-Mois suivant : 10€ complet
 ```
 
 ---

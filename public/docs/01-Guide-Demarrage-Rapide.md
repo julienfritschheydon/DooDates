@@ -291,10 +291,9 @@ Oui ! DooDates utilise :
 - **Avec votes/réponses** : Modification limitée (ajout possible, suppression risquée)
 
 ### Le service est-il gratuit ?
-Oui ! DooDates propose :
-- ✅ Version gratuite complète (avec quelques limites IA)
-- 💼 Version Pro (10€/mois) : Conversations IA illimitées, features avancées
-- 🚀 Version Premium (100€/mois) : Tout + intégrations + white-label
+Oui ! DooDates propose une version gratuite complète avec sondages illimités.
+
+Pour plus de fonctionnalités (conversations IA illimitées, features avancées, intégrations, white-label), consultez notre **[page Tarifs](/pricing)**.
 
 ---
 

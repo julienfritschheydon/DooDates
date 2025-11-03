@@ -86,7 +86,7 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
                 </a>
               );
             }
-            
+
             // Lien vers un autre document (commence par ./)
             if (href?.startsWith("./")) {
               const docName = href.replace("./", "").replace(".md", "");
@@ -100,7 +100,7 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
                 </Link>
               );
             }
-            
+
             // Lien externe
             return (
               <a
@@ -128,34 +128,58 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
 
           // Headings avec ID pour les ancres
           h1: ({ node, children, ...props }) => {
-            const id = children?.toString().toLowerCase()
-              .replace(/[^\w\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/^-+|-+$/g, '');
-            return <h1 id={id} {...props}>{children}</h1>;
+            const id = children
+              ?.toString()
+              .toLowerCase()
+              .replace(/[^\w\s-]/g, "")
+              .replace(/\s+/g, "-")
+              .replace(/^-+|-+$/g, "");
+            return (
+              <h1 id={id} {...props}>
+                {children}
+              </h1>
+            );
           },
           h2: ({ node, children, ...props }) => {
-            const id = children?.toString().toLowerCase()
-              .replace(/[^\w\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/^-+|-+$/g, '');
-            return <h2 id={id} {...props}>{children}</h2>;
+            const id = children
+              ?.toString()
+              .toLowerCase()
+              .replace(/[^\w\s-]/g, "")
+              .replace(/\s+/g, "-")
+              .replace(/^-+|-+$/g, "");
+            return (
+              <h2 id={id} {...props}>
+                {children}
+              </h2>
+            );
           },
           h3: ({ node, children, ...props }) => {
-            const id = children?.toString().toLowerCase()
-              .replace(/[^\w\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/^-+|-+$/g, '');
-            return <h3 id={id} {...props}>{children}</h3>;
+            const id = children
+              ?.toString()
+              .toLowerCase()
+              .replace(/[^\w\s-]/g, "")
+              .replace(/\s+/g, "-")
+              .replace(/^-+|-+$/g, "");
+            return (
+              <h3 id={id} {...props}>
+                {children}
+              </h3>
+            );
           },
           h4: ({ node, children, ...props }) => {
-            const id = children?.toString().toLowerCase()
-              .replace(/[^\w\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/^-+|-+$/g, '');
-            return <h4 id={id} {...props}>{children}</h4>;
+            const id = children
+              ?.toString()
+              .toLowerCase()
+              .replace(/[^\w\s-]/g, "")
+              .replace(/\s+/g, "-")
+              .replace(/^-+|-+$/g, "");
+            return (
+              <h4 id={id} {...props}>
+                {children}
+              </h4>
+            );
           },
-          
+
           // Code blocks
           code: ({ node, inline, className, children, ...props }) => {
             if (inline) {
