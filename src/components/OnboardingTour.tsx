@@ -1,5 +1,14 @@
 import React from "react";
-import { X, ChevronRight, ChevronLeft, MessageSquare, Sparkles, Edit3, Share2, BookOpen } from "lucide-react";
+import {
+  X,
+  ChevronRight,
+  ChevronLeft,
+  MessageSquare,
+  Sparkles,
+  Edit3,
+  Share2,
+  BookOpen,
+} from "lucide-react";
 import { useOnboarding } from "../hooks/useOnboarding";
 import { useNavigate } from "react-router-dom";
 
@@ -68,7 +77,7 @@ export function OnboardingTour() {
 
   const handleGoToDocs = () => {
     completeOnboarding();
-    navigate('/docs');
+    navigate("/docs");
   };
 
   return (
@@ -137,7 +146,7 @@ export function OnboardingTour() {
                 Passer
               </button>
             )}
-            
+
             {isDocStep && (
               <button
                 onClick={handleGoToDocs}

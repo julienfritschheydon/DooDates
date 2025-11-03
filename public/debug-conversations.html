@@ -341,7 +341,7 @@
         }
 
         function cleanupDuplicates() {
-            if (!confirm('Êtes-vous sûr de vouloir nettoyer les conversations en doublon pour chaque poll ?\n\nSeule la première conversation sera conservée, les autres seront détachées.')) {
+            if (!confirm('Êtes-vous sûr de vouloir nettoyer les conversations en doublon pour chaque poll ?\n\nPour chaque poll, on garde la conversation avec des messages (si elle existe) ou la plus ancienne. Les autres seront détachées.')) {
                 return;
             }
 
@@ -366,11 +366,20 @@
                 
                 const pollConvs = conversationsByPoll[pollId];
                 if (pollConvs && pollConvs.length > 1) {
-                    // Keep the first one (oldest), detach others
-                    const sorted = pollConvs.sort((a, b) => 
-                        new Date(a.createdAt || a.created_at).getTime() - new Date(b.createdAt || b.created_at).getTime()
-                    );
+                    // Priority: keep conversation with messages > oldest conversation
+                    const sorted = pollConvs.sort((a, b) => {
+                        const aHasMessages = (a.messageCount || 0) > 0;
+                        const bHasMessages = (b.messageCount || 0) > 0;
+                        
+                        // If one has messages and the other doesn't, prioritize the one with messages
+                        if (aHasMessages && !bHasMessages) return -1;
+                        if (!aHasMessages && bHasMessages) return 1;
+                        
+                        // Otherwise, keep the oldest
+                        return new Date(a.createdAt || a.created_at).getTime() - new Date(b.createdAt || b.created_at).getTime();
+                    });
                     
+                    // Keep the first one (highest priority), detach others
                     if (conv.id !== sorted[0].id) {
                         // This is a duplicate, detach it
                         cleanedCount++;
@@ -380,7 +389,7 @@
                             relatedPollId: undefined,
                             pollType: undefined,
                             pollStatus: undefined,
-                            tags: conv.tags ? conv.tags.filter(t => t !== `poll:${pollId}`) : [],
+                            tags: conv.tags ? conv.tags.filter(t => t !== `poll:${pollId}` && !t.startsWith('poll:')) : [],
                             metadata: conv.metadata ? {
                                 ...conv.metadata,
                                 pollGenerated: undefined,
@@ -394,7 +403,7 @@
             });
 
             localStorage.setItem('doodates_conversations', JSON.stringify(cleaned));
-            alert(`Nettoyage effectué ! ${cleanedCount} conversation(s) détachée(s). Rechargez la page pour voir les changements.`);
+            alert(`Nettoyage effectué ! ${cleanedCount} conversation(s) détachée(s).\n\nRechargez la page pour voir les changements.`);
             analyzeData();
         }
 
