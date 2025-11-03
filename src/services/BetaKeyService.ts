@@ -1,15 +1,15 @@
 /**
  * BetaKeyService - Gestion des clés beta testeurs
- * 
+ *
  * Permet:
  * - Génération de clés par admin
  * - Redemption (activation) de clés par utilisateurs
  * - Suivi des clés (statut, usage)
  */
 
-import { supabase } from '@/lib/supabase';
-import { logger } from '@/lib/logger';
-import { ErrorFactory, logError } from '@/lib/error-handling';
+import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
+import { ErrorFactory, logError } from "@/lib/error-handling";
 
 // ================================================
 // TYPES
@@ -18,7 +18,7 @@ import { ErrorFactory, logError } from '@/lib/error-handling';
 export interface BetaKey {
   id: string;
   code: string;
-  status: 'active' | 'used' | 'expired' | 'revoked';
+  status: "active" | "used" | "expired" | "revoked";
   credits_monthly: number;
   max_polls: number;
   duration_months: number;
@@ -57,10 +57,10 @@ export class BetaKeyService {
   static async generateKeys(
     count: number = 1,
     notes?: string,
-    durationMonths: number = 3
+    durationMonths: number = 3,
   ): Promise<BetaKeyGeneration[]> {
     try {
-      const { data, error } = await supabase.rpc('generate_beta_key', {
+      const { data, error } = await supabase.rpc("generate_beta_key", {
         p_count: count,
         p_notes: notes,
         p_duration_months: durationMonths,
@@ -69,16 +69,20 @@ export class BetaKeyService {
       if (error) {
         const err = ErrorFactory.storage(
           `Failed to generate beta keys: ${error.message}`,
-          'Erreur lors de la génération des clés beta'
+          "Erreur lors de la génération des clés beta",
         );
-        logError(err, { component: 'BetaKeyService', operation: 'generateKeys', metadata: { error } });
+        logError(err, {
+          component: "BetaKeyService",
+          operation: "generateKeys",
+          metadata: { error },
+        });
         throw err;
       }
 
-      logger.info(`Generated ${count} beta keys`, 'beta-keys', { count, notes });
+      logger.info(`Generated ${count} beta keys`, "beta-keys", { count, notes });
       return data as BetaKeyGeneration[];
     } catch (error) {
-      logger.error('Exception generating beta keys', 'beta-keys', { error });
+      logger.error("Exception generating beta keys", "beta-keys", { error });
       throw error;
     }
   }
@@ -91,29 +95,29 @@ export class BetaKeyService {
       // Normaliser le code (uppercase, trim)
       const normalizedCode = code.trim().toUpperCase();
 
-      const { data, error } = await supabase.rpc('redeem_beta_key', {
+      const { data, error } = await supabase.rpc("redeem_beta_key", {
         p_user_id: userId,
         p_code: normalizedCode,
       });
 
       if (error) {
-        logger.error('Failed to redeem beta key', 'beta-keys', { error, userId });
+        logger.error("Failed to redeem beta key", "beta-keys", { error, userId });
         return {
           success: false,
-          error: 'Erreur lors de l\'activation de la clé',
+          error: "Erreur lors de l'activation de la clé",
         };
       }
 
       const result = data as RedemptionResult;
 
       if (result.success) {
-        logger.info('Beta key redeemed successfully', 'beta-keys', {
+        logger.info("Beta key redeemed successfully", "beta-keys", {
           userId,
           code: normalizedCode,
           tier: result.tier,
         });
       } else {
-        logger.warn('Beta key redemption failed', 'beta-keys', {
+        logger.warn("Beta key redemption failed", "beta-keys", {
           userId,
           code: normalizedCode,
           error: result.error,
@@ -122,10 +126,10 @@ export class BetaKeyService {
 
       return result;
     } catch (error) {
-      logger.error('Exception redeeming beta key', 'beta-keys', { error, userId });
+      logger.error("Exception redeeming beta key", "beta-keys", { error, userId });
       return {
         success: false,
-        error: 'Une erreur inattendue s\'est produite',
+        error: "Une erreur inattendue s'est produite",
       };
     }
   }
@@ -136,22 +140,26 @@ export class BetaKeyService {
   static async getAllKeys(): Promise<BetaKey[]> {
     try {
       const { data, error } = await supabase
-        .from('beta_keys')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("beta_keys")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) {
         const err = ErrorFactory.storage(
           `Failed to fetch beta keys: ${error.message}`,
-          'Erreur lors de la récupération des clés beta'
+          "Erreur lors de la récupération des clés beta",
         );
-        logError(err, { component: 'BetaKeyService', operation: 'getAllKeys', metadata: { error } });
+        logError(err, {
+          component: "BetaKeyService",
+          operation: "getAllKeys",
+          metadata: { error },
+        });
         throw err;
       }
 
       return data as BetaKey[];
     } catch (error) {
-      logger.error('Exception fetching beta keys', 'beta-keys', { error });
+      logger.error("Exception fetching beta keys", "beta-keys", { error });
       throw error;
     }
   }
@@ -162,23 +170,27 @@ export class BetaKeyService {
   static async getActiveKeys(): Promise<BetaKey[]> {
     try {
       const { data, error } = await supabase
-        .from('beta_keys')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
+        .from("beta_keys")
+        .select("*")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
 
       if (error) {
         const err = ErrorFactory.storage(
           `Failed to fetch active beta keys: ${error.message}`,
-          'Erreur lors de la récupération des clés actives'
+          "Erreur lors de la récupération des clés actives",
         );
-        logError(err, { component: 'BetaKeyService', operation: 'getActiveKeys', metadata: { error } });
+        logError(err, {
+          component: "BetaKeyService",
+          operation: "getActiveKeys",
+          metadata: { error },
+        });
         throw err;
       }
 
       return data as BetaKey[];
     } catch (error) {
-      logger.error('Exception fetching active beta keys', 'beta-keys', { error });
+      logger.error("Exception fetching active beta keys", "beta-keys", { error });
       throw error;
     }
   }
@@ -189,28 +201,32 @@ export class BetaKeyService {
   static async getUserKey(userId: string): Promise<BetaKey | null> {
     try {
       const { data, error } = await supabase
-        .from('beta_keys')
-        .select('*')
-        .eq('assigned_to', userId)
-        .eq('status', 'used')
+        .from("beta_keys")
+        .select("*")
+        .eq("assigned_to", userId)
+        .eq("status", "used")
         .single();
 
       if (error) {
-        if (error.code === 'PGRST116') {
+        if (error.code === "PGRST116") {
           // Pas de clé trouvée (normal)
           return null;
         }
         const err = ErrorFactory.storage(
           `Failed to fetch user beta key: ${error.message}`,
-          'Erreur lors de la récupération de la clé utilisateur'
+          "Erreur lors de la récupération de la clé utilisateur",
         );
-        logError(err, { component: 'BetaKeyService', operation: 'getUserKey', metadata: { error, userId } });
+        logError(err, {
+          component: "BetaKeyService",
+          operation: "getUserKey",
+          metadata: { error, userId },
+        });
         throw err;
       }
 
       return data as BetaKey;
     } catch (error) {
-      logger.error('Exception fetching user beta key', 'beta-keys', { error, userId });
+      logger.error("Exception fetching user beta key", "beta-keys", { error, userId });
       throw error;
     }
   }
@@ -221,7 +237,7 @@ export class BetaKeyService {
   static async hasActiveBetaKey(userId: string): Promise<boolean> {
     try {
       const key = await this.getUserKey(userId);
-      
+
       if (!key) return false;
 
       // Vérifier que la clé n'est pas expirée
@@ -230,7 +246,7 @@ export class BetaKeyService {
 
       return expiresAt > now;
     } catch (error) {
-      logger.error('Exception checking beta key status', 'beta-keys', { error, userId });
+      logger.error("Exception checking beta key status", "beta-keys", { error, userId });
       return false;
     }
   }
@@ -241,25 +257,29 @@ export class BetaKeyService {
   static async revokeKey(keyId: string, reason?: string): Promise<void> {
     try {
       const { error } = await supabase
-        .from('beta_keys')
+        .from("beta_keys")
         .update({
-          status: 'revoked',
-          notes: reason ? `Révoquée: ${reason}` : 'Révoquée',
+          status: "revoked",
+          notes: reason ? `Révoquée: ${reason}` : "Révoquée",
         })
-        .eq('id', keyId);
+        .eq("id", keyId);
 
       if (error) {
         const err = ErrorFactory.storage(
           `Failed to revoke beta key: ${error.message}`,
-          'Erreur lors de la révocation de la clé'
+          "Erreur lors de la révocation de la clé",
         );
-        logError(err, { component: 'BetaKeyService', operation: 'revokeKey', metadata: { error, keyId } });
+        logError(err, {
+          component: "BetaKeyService",
+          operation: "revokeKey",
+          metadata: { error, keyId },
+        });
         throw err;
       }
 
-      logger.info('Beta key revoked', 'beta-keys', { keyId, reason });
+      logger.info("Beta key revoked", "beta-keys", { keyId, reason });
     } catch (error) {
-      logger.error('Exception revoking beta key', 'beta-keys', { error, keyId });
+      logger.error("Exception revoking beta key", "beta-keys", { error, keyId });
       throw error;
     }
   }
@@ -269,17 +289,17 @@ export class BetaKeyService {
    */
   static async recordBugReport(userId: string): Promise<void> {
     try {
-      const { error } = await supabase.rpc('increment_bug_count', {
+      const { error } = await supabase.rpc("increment_bug_count", {
         p_user_id: userId,
       });
 
       if (error) {
-        logger.error('Failed to record bug report', 'beta-keys', { error, userId });
+        logger.error("Failed to record bug report", "beta-keys", { error, userId });
       }
 
-      logger.info('Bug report recorded', 'beta-keys', { userId });
+      logger.info("Bug report recorded", "beta-keys", { userId });
     } catch (error) {
-      logger.error('Exception recording bug report', 'beta-keys', { error, userId });
+      logger.error("Exception recording bug report", "beta-keys", { error, userId });
     }
   }
 
@@ -290,31 +310,35 @@ export class BetaKeyService {
     try {
       if (score < 1 || score > 5) {
         throw ErrorFactory.validation(
-          'Score must be between 1 and 5',
-          'Le score doit être compris entre 1 et 5'
+          "Score must be between 1 and 5",
+          "Le score doit être compris entre 1 et 5",
         );
       }
 
       const { error } = await supabase
-        .from('beta_keys')
+        .from("beta_keys")
         .update({
           feedback_score: score,
           last_feedback_at: new Date().toISOString(),
         })
-        .eq('assigned_to', userId);
+        .eq("assigned_to", userId);
 
       if (error) {
         const err = ErrorFactory.storage(
           `Failed to record feedback: ${error.message}`,
-          'Erreur lors de l\'enregistrement du feedback'
+          "Erreur lors de l'enregistrement du feedback",
         );
-        logError(err, { component: 'BetaKeyService', operation: 'recordFeedback', metadata: { error, userId } });
+        logError(err, {
+          component: "BetaKeyService",
+          operation: "recordFeedback",
+          metadata: { error, userId },
+        });
         throw err;
       }
 
-      logger.info('Feedback recorded', 'beta-keys', { userId, score });
+      logger.info("Feedback recorded", "beta-keys", { userId, score });
     } catch (error) {
-      logger.error('Exception recording feedback', 'beta-keys', { error, userId });
+      logger.error("Exception recording feedback", "beta-keys", { error, userId });
       throw error;
     }
   }
@@ -324,31 +348,31 @@ export class BetaKeyService {
    */
   static exportToCSV(keys: BetaKey[]): string {
     const headers = [
-      'Code',
-      'Status',
-      'Utilisateur',
-      'Activée le',
-      'Expire le',
-      'Bugs reportés',
-      'Score feedback',
-      'Notes',
+      "Code",
+      "Status",
+      "Utilisateur",
+      "Activée le",
+      "Expire le",
+      "Bugs reportés",
+      "Score feedback",
+      "Notes",
     ];
 
     const rows = keys.map((key) => [
       key.code,
       key.status,
-      key.assigned_to || 'Non assignée',
-      key.redeemed_at || 'Non utilisée',
+      key.assigned_to || "Non assignée",
+      key.redeemed_at || "Non utilisée",
       key.expires_at,
       key.bugs_reported.toString(),
-      key.feedback_score?.toString() || 'N/A',
-      key.notes || '',
+      key.feedback_score?.toString() || "N/A",
+      key.notes || "",
     ]);
 
     const csv = [
-      headers.join(','),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
-    ].join('\n');
+      headers.join(","),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ].join("\n");
 
     return csv;
   }
@@ -356,20 +380,20 @@ export class BetaKeyService {
   /**
    * Télécharger CSV
    */
-  static downloadCSV(keys: BetaKey[], filename: string = 'beta-keys.csv'): void {
+  static downloadCSV(keys: BetaKey[], filename: string = "beta-keys.csv"): void {
     const csv = this.exportToCSV(keys);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
 
-    link.setAttribute('href', url);
-    link.setAttribute('download', filename);
-    link.style.visibility = 'hidden';
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    logger.info('Beta keys exported to CSV', 'beta-keys', { filename, count: keys.length });
+    logger.info("Beta keys exported to CSV", "beta-keys", { filename, count: keys.length });
   }
 
   /**
@@ -389,12 +413,11 @@ export class BetaKeyService {
 
       const stats = {
         total: keys.length,
-        active: keys.filter((k) => k.status === 'active').length,
-        used: keys.filter((k) => k.status === 'used').length,
-        expired: keys.filter((k) => k.status === 'expired').length,
-        revoked: keys.filter((k) => k.status === 'revoked').length,
-        avgBugsReported:
-          keys.reduce((sum, k) => sum + k.bugs_reported, 0) / keys.length || 0,
+        active: keys.filter((k) => k.status === "active").length,
+        used: keys.filter((k) => k.status === "used").length,
+        expired: keys.filter((k) => k.status === "expired").length,
+        revoked: keys.filter((k) => k.status === "revoked").length,
+        avgBugsReported: keys.reduce((sum, k) => sum + k.bugs_reported, 0) / keys.length || 0,
         avgFeedbackScore:
           keys
             .filter((k) => k.feedback_score !== null)
@@ -404,7 +427,7 @@ export class BetaKeyService {
 
       return stats;
     } catch (error) {
-      logger.error('Exception calculating beta key statistics', 'beta-keys', { error });
+      logger.error("Exception calculating beta key statistics", "beta-keys", { error });
       throw error;
     }
   }
@@ -427,10 +450,10 @@ export function isValidBetaKeyFormat(code: string): boolean {
  */
 export function formatBetaKey(input: string): string {
   // Enlever tout ce qui n'est pas alphanumérique
-  const cleaned = input.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+  const cleaned = input.replace(/[^A-Z0-9]/gi, "").toUpperCase();
 
   // Si commence par BETA, l'enlever
-  const withoutPrefix = cleaned.startsWith('BETA') ? cleaned.slice(4) : cleaned;
+  const withoutPrefix = cleaned.startsWith("BETA") ? cleaned.slice(4) : cleaned;
 
   // Limiter à 12 caractères max
   const limited = withoutPrefix.slice(0, 12);
@@ -441,6 +464,5 @@ export function formatBetaKey(input: string): string {
     segments.push(limited.slice(i, i + 4));
   }
 
-  return 'BETA-' + segments.join('-');
+  return "BETA-" + segments.join("-");
 }
-

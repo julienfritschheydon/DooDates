@@ -32,6 +32,12 @@ export default function FormCreator() {
     // Saved as draft via FormPollCreator; stay on page
   };
   const handleFinalize = (draft: FormPollDraft, savedPoll?: any) => {
+    // Protection contre les finalisations multiples
+    if (published) {
+      console.warn("⚠️ Formulaire déjà publié, finalisation ignorée");
+      return;
+    }
+
     // Utiliser le poll sauvegardé directement passé par le callback
     if (!savedPoll) {
       logError(
@@ -41,6 +47,14 @@ export default function FormCreator() {
         ),
         { component: "FormCreator", operation: "handleFinalize" },
       );
+      return;
+    }
+
+    // Vérifier si le poll est déjà actif (déjà publié)
+    if (savedPoll.status === "active" && publishedPoll?.id === savedPoll.id) {
+      console.warn("⚠️ Formulaire déjà publié avec le même ID, finalisation ignorée", {
+        pollId: savedPoll.id,
+      });
       return;
     }
 

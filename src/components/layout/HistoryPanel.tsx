@@ -21,6 +21,7 @@ interface HistoryPanelProps {
 export default function HistoryPanel({ onClose, onConversationSelect }: HistoryPanelProps) {
   const navigate = useNavigate();
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
+  const [pollsRefreshKey, setPollsRefreshKey] = useState(0);
 
   // Récupérer les vraies conversations depuis le storage
   const { conversations: conversationsState } = useConversations({
@@ -60,6 +61,18 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
     } catch (error) {
       logger.error("[HistoryPanel] Erreur chargement sondages", error);
     }
+  }, [pollsRefreshKey]);
+
+  // Écouter les changements de polls pour rafraîchir automatiquement
+  useEffect(() => {
+    const handlePollsChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      logger.debug("Polls changés, rafraîchissement...", "poll", { detail: customEvent.detail });
+      setPollsRefreshKey(prev => prev + 1);
+    };
+
+    window.addEventListener("pollsChanged", handlePollsChange);
+    return () => window.removeEventListener("pollsChanged", handlePollsChange);
   }, []);
 
   // Grouper par période
