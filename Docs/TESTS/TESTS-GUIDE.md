@@ -404,6 +404,19 @@ git commit -m "docs: fix typo [skip ci]"
 - Main : Smoke + Functional shardés (~2min vs ~8min séquentiel)
 - Nightly : Tous tests + 5 navigateurs (~30min)
 
+**Conditional E2E (gain ~2min si tests-only):** ⭐ Phase 4 - NOUVEAU
+- Détection intelligente avec `dorny/paths-filter@v2`
+- E2E **requis** si changements :
+  - Code source (`src/**/*.tsx`, `src/**/*.ts` hors tests)
+  - Config (`package.json`, `vite.config.ts`, `playwright.config.ts`)
+  - Tests E2E (`tests/e2e/**`)
+- E2E **skip** si uniquement :
+  - Tests unitaires (`src/**/__tests__/**`, `src/**/*.test.ts`)
+  - Config Vitest (`vitest.config.ts`)
+- Safeguards : Patterns négatifs pour éviter faux négatifs
+- Cas d'usage : Fix test unitaire → gain ~2min (pas besoin d'E2E)
+- Workflow affiche notification "E2E Skipped - Tests unitaires uniquement"
+
 **Parallélisation E2E + Sharding (détails) :**
 
 Tests E2E shardés dans `post-merge.yml` :
@@ -444,13 +457,15 @@ steps:
 
 **Coût GitHub Actions :** 6 runners simultanés (gratuit pour projets publics)
 
-**Impact total CI (Phases 1+2+3) :**
+**Impact total CI (Phases 1+2+3+4) :**
 - Avant optimisations : ~8-10min
 - Après Phase 1 (sharding) : ~2min
 - Après Phase 2 (skip docs, vite cache) : ~1-2min (si code change)
 - Après Phase 3 (TS incremental) : ~1min (builds répétés)
+- Après Phase 4 (conditional E2E) : ~30s-1min (si tests-only)
 - **Gain total : ~7-9min par run (80-90% plus rapide)**
 - **Docs-only commits : < 10s (skip complet)**
+- **Tests-only commits : ~30s-1min (skip E2E, ~2min gagnés)**
 
 **Skip CI:**
 ```bash
