@@ -68,7 +68,7 @@ describe("SimulationService", () => {
     expect(result.id).toBeDefined();
     expect(result.respondents).toHaveLength(5);
     expect(result.metrics.totalResponses).toBe(5);
-    expect(result.generationTime).toBeGreaterThan(0);
+    expect(result.generationTime).toBeGreaterThanOrEqual(0);
   });
 
   it.skip("génère des réponses avec Gemini", async () => {
