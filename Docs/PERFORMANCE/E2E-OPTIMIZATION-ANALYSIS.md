@@ -18,7 +18,7 @@
 | 3. networkidle → domcontentloaded | 🟡 **PARTIEL** | `tests/e2e/edge-cases.spec.ts` | 5-10s/test |
 | 4. Suppression waitForTimeout | 🟡 **PARTIEL** | `tests/e2e/edge-cases.spec.ts` (3 supprimés) | 10-20s/test |
 
-**Total restant**: ~147 `waitForTimeout` et ~39 `networkidle` dans les autres fichiers
+**Total restant**: ~96 `waitForTimeout` et ~27 `networkidle` dans les fichiers actifs restants
 
 ---
 
@@ -26,9 +26,10 @@
 
 ### 1. **Attentes Excessives et Inefficaces** ⏱️ (Impact: **ÉLEVÉ**)
 
-#### Status: 🟡 **PARTIELLEMENT RÉSOLU**
-- ✅ 3 `waitForTimeout` supprimés dans `edge-cases.spec.ts`
-- ❌ ~147 autres occurrences restent dans les autres fichiers
+#### Status: 🔄 **EN COURS** (Phase 2)
+- ✅ 3 `waitForTimeout` supprimés dans `edge-cases.spec.ts` (Phase 1)
+- ✅ ~30 `waitForTimeout` supprimés dans 6 fichiers (Phase 2)
+- ⏳ ~96 autres occurrences restent dans les fichiers actifs
 
 #### Problème
 Utilisation massive de `waitForTimeout()` avec des durées fixes:
@@ -110,9 +111,10 @@ test('test 1', async ({ pollWithVotes }) => {
 
 ### 4. **NetworkIdle Lent** 🌐 (Impact: **MOYEN**)
 
-#### Status: 🟡 **PARTIEL**
-- ✅ `edge-cases.spec.ts`: 2 `networkidle` → `domcontentloaded`
-- ❌ ~39 autres occurrences restent dans les autres fichiers
+#### Status: 🔄 **EN COURS** (Phase 2)
+- ✅ `edge-cases.spec.ts`: 2 `networkidle` → `domcontentloaded` (Phase 1)
+- ✅ ~9 `networkidle` → `domcontentloaded` dans 6 fichiers (Phase 2)
+- ⏳ ~27 autres occurrences restent dans les fichiers actifs
 
 #### Changements appliqués
 ```typescript
@@ -253,7 +255,8 @@ await expect(element).toBeVisible({ timeout: 5000 });
 - **networkidle**: 2 remplacés (sur 40)
 
 **Gain estimé Phase 1**: 40-50%  
-**Gain réel**: ✅ **VALIDÉ** - Tests smoke: **39.9s pour 6 tests** avec parallélisation active
+**Gain réel Phase 1**: ✅ **VALIDÉ** - Tests smoke: **39.9s pour 6 tests** avec parallélisation active  
+**Progress Phase 2**: 6 fichiers optimisés (~30 occurrences supprimées) - ~35% du travail effectué
 
 #### Phase 2 + 3: Optimisations complètes
 - **Avant**: 2-3 minutes par shard
@@ -276,13 +279,20 @@ await expect(element).toBeVisible({ timeout: 5000 });
 - Aucun test flaky détecté
 - Temps d'exécution conforme aux attentes
 
-### 🚀 Phase 2: Optimisations moyennes (PRÊT À DÉMARRER)
-5. ✅ Remplacer waitForTimeout restants (~147 occurrences)
-6. ✅ Supprimer attentes redondantes
-7. ✅ Remplacer networkidle restant (~39 occurrences)
-8. ✅ Analyser et optimiser mode serial
+### 🚀 Phase 2: Optimisations moyennes (EN COURS)
+5. 🔄 Remplacer waitForTimeout restants (~147 occurrences)
+   - ✅ console-errors.spec.ts: 11 waitForTimeout, 7 networkidle → 0
+   - ✅ form-poll-regression.spec.ts: 10 waitForTimeout, 2 networkidle → 0
+   - ✅ ultra-simple.spec.ts: 2 waitForTimeout → 0
+   - ✅ security-isolation.spec.ts: 3 waitForTimeout → 0
+   - ✅ poll-actions.spec.ts: 4 waitForTimeout → 0
+   - ⏳ Fichiers restants: ~126 occurrences dans fichiers actifs
+6. ✅ Supprimer attentes redondantes (intégré dans les remplacements)
+7. ✅ Remplacer networkidle restant (intégré dans les remplacements)
+8. ⏳ Analyser et optimiser mode serial
 
-**Temps estimé**: 2-3h  
+**Progress**: 6/15 fichiers actifs optimisés (~30 occurrences supprimées)  
+**Temps estimé restant**: 1-2h pour fichiers restants  
 **Gain estimé**: 30% supplémentaire
 
 ### ⏳ Phase 3: Refactoring avancé (EN ATTENTE - Déclenchement après validation Phase 2)
@@ -447,7 +457,8 @@ npm run test:e2e:smoke
      - Optimiser mode serial
      - Supprimer attentes redondantes
 
-**Recommandation**: Attendre résultats CI avant de lancer Phase 2
+**Status Phase 2**: ✅ **EN COURS** - 6/15 fichiers actifs optimisés (~30 occurrences supprimées)  
+**Recommandation**: Continuer Phase 2 jusqu'à complétion ou selon résultats CI
 
-**Dernière mise à jour**: 3 novembre 2025 - Phase 1 validée localement (39.9s pour 6 tests smoke)
+**Dernière mise à jour**: 3 novembre 2025 - Phase 2 en cours: 6 fichiers optimisés (~30 occurrences supprimées)
 
