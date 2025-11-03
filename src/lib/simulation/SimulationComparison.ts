@@ -133,16 +133,16 @@ function calculateActualMetrics(pollId: string): SimulationMetrics {
     return answeredQuestions / totalQuestions;
   });
 
-  const avgCompletionRate =
-    completionRates.reduce((sum, rate) => sum + rate, 0) / responses.length;
+  const avgCompletionRate = completionRates.reduce((sum, rate) => sum + rate, 0) / responses.length;
 
   // Calculer temps moyen (estimation basée sur timestamps)
-  const avgTotalTime = responses.reduce((sum, resp) => {
-    const created = new Date(resp.created_at).getTime();
-    // Estimation : 10s par question répondue
-    const answeredCount = resp.items.filter((item) => item.value !== null).length;
-    return sum + answeredCount * 10;
-  }, 0) / responses.length;
+  const avgTotalTime =
+    responses.reduce((sum, resp) => {
+      const created = new Date(resp.created_at).getTime();
+      // Estimation : 10s par question répondue
+      const answeredCount = resp.items.filter((item) => item.value !== null).length;
+      return sum + answeredCount * 10;
+    }, 0) / responses.length;
 
   // Calculer taux d'abandon
   const dropoffRate = 1 - avgCompletionRate;
@@ -157,10 +157,11 @@ function calculateActualMetrics(pollId: string): SimulationMetrics {
     const avgTimeSpent = 10; // Estimation fixe pour simplifier
 
     // Taux d'abandon après cette question
-    const dropoffAfter = responses.filter((resp) => {
-      const questionIndex = resp.items.findIndex((item) => item.questionId === question.id);
-      return questionIndex >= 0 && questionIndex === resp.items.length - 1;
-    }).length / responses.length;
+    const dropoffAfter =
+      responses.filter((resp) => {
+        const questionIndex = resp.items.findIndex((item) => item.questionId === question.id);
+        return questionIndex >= 0 && questionIndex === resp.items.length - 1;
+      }).length / responses.length;
 
     return {
       questionId: question.id,
@@ -253,11 +254,7 @@ export function compareSimulationWithReality(
   // Sauvegarder
   saveComparison(comparison);
 
-  logger.info(
-    `Comparison completed: ${overallAccuracy}% accuracy`,
-    "general",
-    { comparison },
-  );
+  logger.info(`Comparison completed: ${overallAccuracy}% accuracy`, "general", { comparison });
 
   return comparison;
 }

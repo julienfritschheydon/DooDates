@@ -81,9 +81,7 @@ export function useDashboardData(refreshKey: number) {
 
         // Chercher le poll associé via pollId (directement sur conv ou dans metadata)
         const pollId = (conv as any).pollId || metadata?.pollId;
-        const relatedPoll = pollId
-          ? pollsWithStats.find((p) => p.id === pollId)
-          : undefined;
+        const relatedPoll = pollId ? pollsWithStats.find((p) => p.id === pollId) : undefined;
 
         return {
           id: conv.id,

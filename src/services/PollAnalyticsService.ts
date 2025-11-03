@@ -1,9 +1,9 @@
 /**
  * Poll Analytics Service - Analytics conversationnels via IA
- * 
+ *
  * Permet d'interroger les résultats de sondages en langage naturel.
  * Réutilise l'infrastructure Gemini existante pour générer des insights.
- * 
+ *
  * Fonctionnalités :
  * - Query en langage naturel ("Combien ont voté ?", "Option la plus populaire ?")
  * - Génération d'insights automatiques
@@ -284,7 +284,10 @@ Réponds maintenant à la question de l'utilisateur.`;
       if (answer.toLowerCase().includes("majorité") || answer.toLowerCase().includes("plupart")) {
         insights.push("Consensus identifié");
       }
-      if (answer.toLowerCase().includes("anomalie") || answer.toLowerCase().includes("inhabituel")) {
+      if (
+        answer.toLowerCase().includes("anomalie") ||
+        answer.toLowerCase().includes("inhabituel")
+      ) {
         insights.push("Anomalie potentielle détectée");
       }
 

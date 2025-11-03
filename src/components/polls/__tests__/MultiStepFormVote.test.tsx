@@ -71,7 +71,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(screen.getByText("Question 1")).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const progressBar = document.querySelector(".bg-gradient-to-r");
@@ -94,7 +94,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const continueButton = screen.getByText("Continuer");
@@ -105,7 +105,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const option1 = screen.getByText("Option 1");
@@ -119,7 +119,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Répondre à Q1
@@ -139,7 +139,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Aller à Q2
@@ -157,7 +157,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const backButton = screen.getByText("Retour");
@@ -168,7 +168,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Aller à Q2
@@ -185,7 +185,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Aller à la dernière question
@@ -202,7 +202,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Répondre Q1
@@ -271,7 +271,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={pollWithConditional} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Répondre "Oui" → Q2 ne devrait pas apparaître
@@ -285,7 +285,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Répondre Q1
@@ -302,7 +302,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Répondre Q1
@@ -325,7 +325,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={emptyPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(screen.getByText("Aucune question disponible")).toBeInTheDocument();
@@ -335,7 +335,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const nameInput = screen.getByPlaceholderText("Anonyme");
@@ -365,7 +365,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={pollWithMultiple} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Sélectionner plusieurs options
@@ -393,7 +393,7 @@ describe("MultiStepFormVote", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={pollWithNPS} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Vérifier que les 11 boutons (0-10) sont affichés

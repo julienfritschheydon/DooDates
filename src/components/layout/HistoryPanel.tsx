@@ -1,4 +1,5 @@
 import { X, Clock, Calendar, FileText, Plus, ClipboardList } from "lucide-react";
+import CloseButton from "@/components/ui/CloseButton";
 import { useNavigate } from "react-router-dom";
 import { useConversations } from "../../hooks/useConversations";
 import { formatDistanceToNow } from "date-fns";
@@ -109,13 +110,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <h2 className="font-semibold text-white">Historique</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors text-gray-300"
-            aria-label="Fermer"
-          >
-            <X className="w-6 h-6" />
-          </button>
+          <CloseButton onClick={onClose} ariaLabel="Fermer" iconSize={5} />
         </div>
 
         {/* Bouton création manuelle */}

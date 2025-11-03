@@ -34,11 +34,11 @@ describe.skip("SimulationComparison", () => {
     // Clear localStorage before each test
     localStorage.clear();
     vi.clearAllMocks();
-    
+
     // Reset mocks
     vi.mocked(pollStorage.getPollBySlugOrId).mockReset();
     vi.mocked(pollStorage.getFormResponses).mockReset();
-    
+
     // Default mocks to avoid undefined returns
     vi.mocked(pollStorage.getPollBySlugOrId).mockReturnValue(null);
     vi.mocked(pollStorage.getFormResponses).mockReturnValue([]);
@@ -47,7 +47,7 @@ describe.skip("SimulationComparison", () => {
   describe("compareSimulationWithReality", () => {
     it("devrait calculer la comparaison avec des métriques réelles", () => {
       const pollId = "poll-123";
-      
+
       // Mock poll
       vi.mocked(pollStorage.getPollBySlugOrId).mockReturnValue({
         id: pollId,
@@ -112,7 +112,7 @@ describe.skip("SimulationComparison", () => {
 
     it("devrait retourner un score de précision de 100% si prédiction et réalité sont identiques", () => {
       const pollId = "poll-perfect";
-      
+
       vi.mocked(pollStorage.getPollBySlugOrId).mockReturnValue({
         id: pollId,
         type: "form",
@@ -154,7 +154,7 @@ describe.skip("SimulationComparison", () => {
 
     it("devrait gérer un poll sans réponses", () => {
       const pollId = "poll-empty";
-      
+
       vi.mocked(pollStorage.getPollBySlugOrId).mockReturnValue({
         id: pollId,
         type: "form",
@@ -189,7 +189,7 @@ describe.skip("SimulationComparison", () => {
 
     it("devrait sauvegarder la comparaison dans localStorage", () => {
       const pollId = "poll-save";
-      
+
       vi.mocked(pollStorage.getPollBySlugOrId).mockReturnValue({
         id: pollId,
         type: "form",
@@ -227,7 +227,7 @@ describe.skip("SimulationComparison", () => {
 
       const stored = localStorage.getItem("doodates_simulation_comparisons");
       expect(stored).toBeTruthy();
-      
+
       const comparisons = JSON.parse(stored!);
       expect(comparisons).toHaveLength(1);
       expect(comparisons[0].pollId).toBe(pollId);
@@ -237,7 +237,7 @@ describe.skip("SimulationComparison", () => {
   describe("getComparisonByPollId", () => {
     it("devrait retourner la comparaison pour un pollId donné", () => {
       const pollId = "poll-find";
-      
+
       // Créer une comparaison
       vi.mocked(pollStorage.getPollBySlugOrId).mockReturnValue({
         id: pollId,
@@ -290,7 +290,7 @@ describe.skip("SimulationComparison", () => {
     it("devrait retourner toutes les comparaisons", () => {
       // Créer plusieurs comparaisons
       const polls = ["poll-1", "poll-2", "poll-3"];
-      
+
       polls.forEach((pollId) => {
         vi.mocked(pollStorage.getPollBySlugOrId).mockReturnValue({
           id: pollId,
@@ -342,7 +342,7 @@ describe.skip("SimulationComparison", () => {
   describe("getLastSimulation", () => {
     it("devrait retourner la dernière simulation pour un poll", () => {
       const pollId = "poll-last";
-      
+
       // Créer plusieurs simulations
       const simulations: SimulationResult[] = [
         {
@@ -398,7 +398,7 @@ describe.skip("SimulationComparison", () => {
   describe("Calcul de précision", () => {
     it("devrait calculer un score élevé pour des prédictions proches", () => {
       const pollId = "poll-accurate";
-      
+
       vi.mocked(pollStorage.getPollBySlugOrId).mockReturnValue({
         id: pollId,
         type: "form",
@@ -451,7 +451,7 @@ describe.skip("SimulationComparison", () => {
 
     it("devrait calculer un score faible pour des prédictions éloignées", () => {
       const pollId = "poll-inaccurate";
-      
+
       vi.mocked(pollStorage.getPollBySlugOrId).mockReturnValue({
         id: pollId,
         type: "form",

@@ -140,7 +140,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       const state = location.state as any;
       if (state?.initialMessage && !initialMessageSentRef.current) {
         initialMessageSentRef.current = true;
-        
+
         // Attendre que le composant soit monté et prêt
         const timer = setTimeout(() => {
           logger.info("📤 Envoi automatique du message initial", "poll", {
@@ -148,15 +148,15 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             pollId: state.pollId,
             context: state.context,
           });
-          
+
           // Le message sera envoyé via setInputValue et handleSendMessage
           // On ne peut pas utiliser chatRef ici car c'est un forwardRef interne
           setInputValue(state.initialMessage);
-          
+
           // Nettoyer le state pour éviter de renvoyer au refresh
           window.history.replaceState({}, document.title);
         }, 500);
-        
+
         return () => clearTimeout(timer);
       }
     }, [location.state]); // Se déclenche quand location.state change

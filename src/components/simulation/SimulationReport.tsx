@@ -317,11 +317,16 @@ export function SimulationReport({
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Lightbulb className="w-4 h-4 text-yellow-400" />
-                      <p className="text-sm font-medium text-yellow-400">Suggestions d'amélioration</p>
+                      <p className="text-sm font-medium text-yellow-400">
+                        Suggestions d'amélioration
+                      </p>
                     </div>
                     <ul className="space-y-2">
                       {objectiveValidation.suggestions.map((suggestion, index) => (
-                        <li key={index} className="text-sm text-gray-300 flex items-start gap-2 group">
+                        <li
+                          key={index}
+                          className="text-sm text-gray-300 flex items-start gap-2 group"
+                        >
                           <span className="text-yellow-500 mt-0.5">💡</span>
                           <span className="flex-1">{suggestion}</span>
                           {pollId && (

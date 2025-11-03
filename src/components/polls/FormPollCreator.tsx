@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Undo2, Save, Check, X, List, ArrowRight, Lightbulb } from "lucide-react";
+import CloseButton from "@/components/ui/CloseButton";
 import FormEditor from "./FormEditor";
 import type { Question as EditorQuestion } from "./QuestionCard";
 import { getAllPolls, savePolls, type Poll } from "../../lib/pollStorage";
@@ -417,14 +418,8 @@ export default function FormPollCreator({
       {/* Header sticky avec bouton fermer - Style identique aux sondages */}
       {onCancel && (
         <div className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-gray-800">
-          <div className="max-w-6xl mx-auto px-4 py-3">
-            <button
-              onClick={onCancel}
-              className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
-              title="Fermer"
-            >
-              <X className="w-6 h-6" />
-            </button>
+          <div className="max-w-6xl mx-auto px-4 py-3 flex justify-end">
+            <CloseButton onClick={onCancel} ariaLabel="Fermer" iconSize={6} />
           </div>
         </div>
       )}
@@ -437,7 +432,7 @@ export default function FormPollCreator({
               <label className="block text-sm font-medium text-gray-300 mb-3">
                 Mode d'affichage du formulaire
               </label>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Option 1 : Classique */}
                 <button
@@ -484,9 +479,7 @@ export default function FormPollCreator({
                       <Check className="w-4 h-4 text-purple-400 ml-auto" />
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 mb-2">
-                    Une question à la fois, plein écran
-                  </p>
+                  <p className="text-xs text-gray-400 mb-2">Une question à la fois, plein écran</p>
                   <div className="text-xs text-gray-500 space-y-1">
                     <p>✓ +25% taux complétion</p>
                     <p>✓ Moins intimidant</p>

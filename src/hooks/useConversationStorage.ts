@@ -171,7 +171,6 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
             return ConversationStorageSimple.getMessages(conversationId);
           },
           saveMessages: async (conversationId: string, messages: ConversationMessage[]) => {
-
             // Verify conversation exists before attempting to save messages
             const conversation = await ConversationStorageSimple.getConversation(conversationId);
             if (!conversation) {

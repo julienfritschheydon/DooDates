@@ -1,4 +1,5 @@
 import React from "react";
+import CloseButton from "@/components/ui/CloseButton";
 
 interface KPI {
   label: string;
@@ -11,6 +12,7 @@ interface ResultsLayoutProps {
   actions?: React.ReactNode;
   kpis?: KPI[];
   children: React.ReactNode;
+  onClose?: () => void;
 }
 
 export default function ResultsLayout({
@@ -19,14 +21,16 @@ export default function ResultsLayout({
   actions,
   kpis,
   children,
+  onClose,
 }: ResultsLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
+    <div className="min-h-screen bg-[#0a0a0a] pt-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{title}</h1>
-          {subtitle ? <div className="text-gray-600 dark:text-gray-400 mt-1">{subtitle}</div> : null}
+        <div className="mb-8 relative">
+          <h1 className="text-3xl font-bold text-white">{title}</h1>
+          {subtitle ? <div className="text-gray-400 mt-1">{subtitle}</div> : null}
+          {onClose ? <CloseButton absoluteTopRight ariaLabel="Fermer" iconSize={6} onClick={onClose} /> : null}
         </div>
 
         {/* Actions */}
@@ -36,9 +40,12 @@ export default function ResultsLayout({
         {Array.isArray(kpis) && kpis.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {kpis.map((kpi, i) => (
-              <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{kpi.value}</div>
-                <div className="text-gray-600 dark:text-gray-400">{kpi.label}</div>
+              <div
+                key={i}
+                className="bg-[#1e1e1e] p-6 rounded-lg shadow border border-gray-700"
+              >
+                <div className="text-2xl font-bold text-white">{kpi.value}</div>
+                <div className="text-gray-400">{kpi.label}</div>
               </div>
             ))}
           </div>

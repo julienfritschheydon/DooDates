@@ -67,16 +67,16 @@ describe.skip("PollActions - Bouton Clôturer", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockToast.mockClear();
-    
+
     // Mock window.confirm
     global.confirm = vi.fn(() => true);
-    
+
     // Mock savePolls to resolve successfully by default
     vi.mocked(pollStorage.savePolls).mockResolvedValue(undefined);
-    
+
     // Mock getPolls to return empty array by default
     vi.mocked(pollStorage.getPolls).mockReturnValue([]);
-    
+
     // Mock getLastSimulation to return null by default
     vi.mocked(simulationComparison.getLastSimulation).mockReturnValue(null);
   });
@@ -95,7 +95,7 @@ describe.skip("PollActions - Bouton Clôturer", () => {
 
   it("ne devrait PAS afficher le bouton Clôturer pour un poll clôturé", () => {
     const closedPoll = { ...mockPoll, status: "closed" as const };
-    
+
     render(
       <BrowserRouter>
         <PollActions poll={closedPoll} />
@@ -108,7 +108,7 @@ describe.skip("PollActions - Bouton Clôturer", () => {
 
   it("ne devrait PAS afficher le bouton Clôturer pour un poll archivé", () => {
     const archivedPoll = { ...mockPoll, status: "archived" as const };
-    
+
     render(
       <BrowserRouter>
         <PollActions poll={archivedPoll} />
@@ -136,7 +136,7 @@ describe.skip("PollActions - Bouton Clôturer", () => {
 
   it("ne devrait PAS clôturer si l'utilisateur annule", () => {
     global.confirm = vi.fn(() => false);
-    
+
     vi.mocked(pollStorage.getPolls).mockReturnValue([mockPoll]);
 
     render(
@@ -213,9 +213,7 @@ describe.skip("PollActions - Bouton Clôturer", () => {
     it("devrait détecter et comparer avec la dernière simulation", async () => {
       vi.mocked(pollStorage.getPolls).mockReturnValue([mockPoll]);
       vi.mocked(simulationComparison.getLastSimulation).mockReturnValue(mockSimulation);
-      vi.mocked(simulationComparison.compareSimulationWithReality).mockReturnValue(
-        mockComparison,
-      );
+      vi.mocked(simulationComparison.compareSimulationWithReality).mockReturnValue(mockComparison);
 
       render(
         <BrowserRouter>
@@ -238,9 +236,7 @@ describe.skip("PollActions - Bouton Clôturer", () => {
     it("devrait afficher le score de précision dans le toast", async () => {
       vi.mocked(pollStorage.getPolls).mockReturnValue([mockPoll]);
       vi.mocked(simulationComparison.getLastSimulation).mockReturnValue(mockSimulation);
-      vi.mocked(simulationComparison.compareSimulationWithReality).mockReturnValue(
-        mockComparison,
-      );
+      vi.mocked(simulationComparison.compareSimulationWithReality).mockReturnValue(mockComparison);
 
       render(
         <BrowserRouter>
@@ -334,7 +330,7 @@ describe.skip("PollActions - Bouton Clôturer", () => {
   describe("Sondages de dates", () => {
     it("devrait afficher un message adapté pour les sondages de dates", async () => {
       const datePoll = { ...mockPoll, type: "date" as any };
-      
+
       vi.mocked(pollStorage.getPolls).mockReturnValue([datePoll]);
 
       render(
@@ -360,7 +356,7 @@ describe.skip("PollActions - Bouton Clôturer", () => {
   describe("Callback onAfterClose", () => {
     it("devrait appeler onAfterClose après clôture réussie", async () => {
       const onAfterClose = vi.fn();
-      
+
       vi.mocked(pollStorage.getPolls).mockReturnValue([mockPoll]);
       vi.mocked(pollStorage.savePolls).mockResolvedValue(undefined);
       vi.mocked(simulationComparison.getLastSimulation).mockReturnValue(null);
@@ -374,9 +370,12 @@ describe.skip("PollActions - Bouton Clôturer", () => {
       const closeButton = screen.getByTestId("poll-action-close");
       fireEvent.click(closeButton);
 
-      await waitFor(() => {
-        expect(onAfterClose).toHaveBeenCalled();
-      }, { timeout: 5000 });
+      await waitFor(
+        () => {
+          expect(onAfterClose).toHaveBeenCalled();
+        },
+        { timeout: 5000 },
+      );
     });
   });
 

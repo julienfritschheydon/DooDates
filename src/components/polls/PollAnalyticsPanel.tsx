@@ -1,12 +1,23 @@
 /**
  * Poll Analytics Panel - Interface pour les analytics conversationnels
- * 
+ *
  * Permet d'interroger les résultats d'un sondage en langage naturel
  * et affiche les insights automatiques générés par l'IA.
  */
 
 import React, { useState, useEffect } from "react";
-import { Send, Sparkles, TrendingUp, AlertCircle, Info, Loader2, RefreshCw, Lock, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Send,
+  Sparkles,
+  TrendingUp,
+  AlertCircle,
+  Info,
+  Loader2,
+  RefreshCw,
+  Lock,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { pollAnalyticsService } from "@/services/PollAnalyticsService";
 import type { AnalyticsResponse, AutoInsight } from "@/services/PollAnalyticsService";
 import { useAnalyticsQuota } from "@/hooks/useAnalyticsQuota";
@@ -21,10 +32,10 @@ interface Props {
 // Traduction des types d'insights
 const translateInsightType = (type: string): string => {
   const translations: Record<string, string> = {
-    'TREND': 'Tendance',
-    'ANOMALY': 'Anomalie',
-    'SUMMARY': 'Résumé',
-    'RECOMMENDATION': 'Recommandation'
+    TREND: "Tendance",
+    ANOMALY: "Anomalie",
+    SUMMARY: "Résumé",
+    RECOMMENDATION: "Recommandation",
   };
   return translations[type.toUpperCase()] || type;
 };
@@ -96,7 +107,8 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
       if (result.cached) {
         toast({
           title: "✨ Réponse du cache",
-          description: "Cette réponse a été récupérée du cache (gratuit, ne compte pas dans le quota).",
+          description:
+            "Cette réponse a été récupérée du cache (gratuit, ne compte pas dans le quota).",
           duration: 2000,
         });
       }
@@ -196,11 +208,12 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
       {/* Insights automatiques (repliables) */}
       {showInsights && (
         <div className="space-y-4">
-
           {loadingInsights ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-purple-600 dark:text-purple-400" />
-              <span className="ml-2 text-gray-600 dark:text-gray-300">Génération des insights...</span>
+              <span className="ml-2 text-gray-600 dark:text-gray-300">
+                Génération des insights...
+              </span>
             </div>
           ) : insights.length > 0 ? (
             <div className="grid gap-3">
@@ -213,14 +226,20 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
                   <div className="flex items-start gap-3">
                     {getInsightIcon(insight.type)}
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{insight.title}</h4>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">{insight.description}</p>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                        {insight.title}
+                      </h4>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {insight.description}
+                      </p>
                       <div className="mt-2 flex items-center gap-2">
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           Confiance: {Math.round(insight.confidence * 100)}%
                         </span>
                         <span className="text-xs text-gray-400 dark:text-gray-500">•</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{translateInsightType(insight.type)}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {translateInsightType(insight.type)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -231,7 +250,9 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <Info className="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
               <p>Aucun insight automatique disponible pour le moment.</p>
-              <p className="text-sm mt-1">Les insights seront générés une fois que vous aurez des réponses.</p>
+              <p className="text-sm mt-1">
+                Les insights seront générés une fois que vous aurez des réponses.
+              </p>
             </div>
           )}
         </div>
@@ -248,7 +269,9 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
 
       {/* Query interface */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Posez une question</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Posez une question
+        </h3>
 
         {/* Quick queries */}
         <div className="flex flex-wrap gap-2">
@@ -293,11 +316,16 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
 
         {/* Response */}
         {response && (
-          <div data-testid="analytics-response" className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-2 border-purple-200 dark:border-purple-800 rounded-lg p-6">
+          <div
+            data-testid="analytics-response"
+            className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-2 border-purple-200 dark:border-purple-800 rounded-lg p-6"
+          >
             <div className="flex items-start gap-3">
               <Sparkles className="w-6 h-6 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-1" />
               <div className="flex-1">
-                <p className="text-gray-900 dark:text-gray-100 leading-relaxed">{response.answer}</p>
+                <p className="text-gray-900 dark:text-gray-100 leading-relaxed">
+                  {response.answer}
+                </p>
 
                 {response.insights && response.insights.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-purple-200 dark:border-purple-700">
@@ -306,7 +334,10 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
                     </p>
                     <ul className="space-y-1">
                       {response.insights.map((insight, idx) => (
-                        <li key={idx} className="text-sm text-purple-800 dark:text-purple-300 flex items-start gap-2">
+                        <li
+                          key={idx}
+                          className="text-sm text-purple-800 dark:text-purple-300 flex items-start gap-2"
+                        >
                           <span className="text-purple-400 dark:text-purple-500 mt-0.5">•</span>
                           <span>{insight}</span>
                         </li>
@@ -320,7 +351,9 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
                   {response.cached && (
                     <>
                       <span>•</span>
-                      <span className="text-green-600 dark:text-green-400">Réponse mise en cache</span>
+                      <span className="text-green-600 dark:text-green-400">
+                        Réponse mise en cache
+                      </span>
                     </>
                   )}
                 </div>
@@ -346,7 +379,10 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
       </div>
 
       {/* Quota indicator */}
-      <div data-testid="quota-indicator" className={`border-2 rounded-lg p-3 ${quota.canQuery ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800" : "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800"}`}>
+      <div
+        data-testid="quota-indicator"
+        className={`border-2 rounded-lg p-3 ${quota.canQuery ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800" : "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800"}`}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {quota.canQuery ? (
@@ -354,7 +390,9 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
             ) : (
               <Lock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
             )}
-            <span className={`text-sm font-medium ${quota.canQuery ? "text-green-900 dark:text-green-200" : "text-orange-900 dark:text-orange-200"}`}>
+            <span
+              className={`text-sm font-medium ${quota.canQuery ? "text-green-900 dark:text-green-200" : "text-orange-900 dark:text-orange-200"}`}
+            >
               {getQuotaMessage()}
             </span>
           </div>

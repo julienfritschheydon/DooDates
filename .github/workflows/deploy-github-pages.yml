@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - feature/ai-first-ux-prototype  # Déployer depuis cette branche
+      - main  # Déployer depuis la branche principale
   workflow_dispatch:  # Permet déclenchement manuel
 
 # Permissions nécessaires pour GitHub Pages
@@ -38,9 +38,11 @@ jobs:
         run: npm run build
         env:
           # Variables d'environnement pour le build
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          NODE_ENV: production
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+
+      - name: SPA routing fallback (404 -> index.html)
+        run: cp dist/index.html dist/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
