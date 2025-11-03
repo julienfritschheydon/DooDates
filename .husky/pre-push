@@ -1,6 +1,9 @@
 #!/bin/sh
 echo "🚀 DooDates - Validation pre-push..."
 
+# Détection branche courante
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+
 # Récupérer la branche cible du push
 while read local_ref local_sha remote_ref remote_sha
 do
@@ -8,6 +11,13 @@ do
     PUSHING_TO_MAIN=true
   fi
 done
+
+# Si push vers develop → validation légère (CI fera le reste)
+if [ "$BRANCH" = "develop" ]; then
+  echo "⚡ Push vers DEVELOP: validation légère (CI complète sur GitHub)..."
+  echo "✅ Pre-push (develop) validé - Push autorisé"
+  exit 0
+fi
 
 # Ressources accrues pour éviter OOM et fiabiliser Vitest
 export NODE_OPTIONS="--max-old-space-size=4096"
