@@ -11,6 +11,7 @@ import {
   User,
   LogOut,
   UserCircle,
+  Book,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useConversation } from "./ConversationProvider";
@@ -84,7 +85,6 @@ export function WorkspaceLayoutPrototype() {
   const chatKey = resumeId || conversationId || newChatTimestamp || "new-chat";
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
   const [conversations, setConversations] = useState<ReturnType<typeof getConversations>>([]);
-  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
 
   // Nouveaux hooks spécialisés
   const { isEditorOpen, currentPoll } = useEditorState();
@@ -409,6 +409,18 @@ export function WorkspaceLayoutPrototype() {
             )}
 
             <div className="flex items-center gap-2 mb-4">
+              {/* Bouton Documentation */}
+              <button
+                className="flex-1 p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                title="Documentation"
+                aria-label="Documentation"
+                onClick={() => {
+                  navigate("/docs");
+                }}
+              >
+                <Book className="w-5 h-5 text-gray-300 mx-auto" />
+              </button>
+
               {/* Bouton Settings */}
               <button
                 className="flex-1 p-2 hover:bg-gray-800 rounded-lg transition-colors"
@@ -425,80 +437,20 @@ export function WorkspaceLayoutPrototype() {
                 <Settings className="w-5 h-5 text-gray-300 mx-auto" />
               </button>
 
-              {/* Bouton Account avec menu dropdown */}
-              <div className="flex-1 relative">
-                <div className="relative">
-                  <button
-                    className="w-full p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                    title="Compte (en développement)"
-                    aria-label="Menu compte"
-                    onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
-                  >
-                    <User className="w-5 h-5 text-gray-300 mx-auto" />
-                  </button>
-                  <span className="absolute top-0 right-2 bg-orange-500 text-white text-[9px] font-bold px-1 py-0.5 rounded-full">
-                    DEV
-                  </span>
-                </div>
-
-                {/* Dropdown menu */}
-                {isAccountMenuOpen && (
-                  <>
-                    {/* Backdrop pour fermer le menu */}
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setIsAccountMenuOpen(false)}
-                    />
-
-                    {/* Menu */}
-                    <div className="absolute bottom-full right-0 mb-2 w-48 bg-[#2a2a2a] border border-gray-700 rounded-lg shadow-lg z-50">
-                      {user ? (
-                        <>
-                          <button
-                            onClick={() => {
-                              navigate("/profile");
-                              setIsAccountMenuOpen(false);
-                              if (isMobile) setIsSidebarOpen(false);
-                            }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-300 hover:bg-gray-800 transition-colors rounded-t-lg"
-                          >
-                            <UserCircle className="w-4 h-4" />
-                            <span className="text-sm">Mon profil</span>
-                          </button>
-                          <div className="border-t border-gray-700" />
-                          <button
-                            onClick={async () => {
-                              await signOut();
-                              setIsAccountMenuOpen(false);
-                              if (isMobile) setIsSidebarOpen(false);
-                              toast({
-                                title: "Déconnexion réussie",
-                                description: "À bientôt !",
-                              });
-                            }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-400 hover:bg-gray-800 transition-colors rounded-b-lg"
-                          >
-                            <LogOut className="w-4 h-4" />
-                            <span className="text-sm">Déconnexion</span>
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            navigate("/auth");
-                            setIsAccountMenuOpen(false);
-                            if (isMobile) setIsSidebarOpen(false);
-                          }}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-300 hover:bg-gray-800 transition-colors rounded-lg"
-                        >
-                          <User className="w-4 h-4" />
-                          <span className="text-sm">Se connecter</span>
-                        </button>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
+              {/* Bouton Account */}
+              <button
+                onClick={() =>
+                  toast({
+                    title: "Compte",
+                    description: "Page en cours de développement",
+                  })
+                }
+                className="w-full p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                title="Compte"
+                aria-label="Compte"
+              >
+                <User className="w-5 h-5 text-gray-300 mx-auto" />
+              </button>
             </div>
 
             {/* Statut */}
