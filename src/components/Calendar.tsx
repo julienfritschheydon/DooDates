@@ -303,24 +303,18 @@ const Calendar: React.FC<CalendarProps> = ({
       <div className="hidden md:block relative">
         {/* Flèche gauche */}
         <button
-          onClick={() => {
-            if (calendarRef.current) {
-              calendarRef.current.scrollBy({ left: -340, behavior: "smooth" });
-            }
-          }}
+          onClick={() => onMonthChange("prev")}
           className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-3 transition-all border border-gray-700 hover:shadow-xl"
+          aria-label="Mois précédent"
         >
           <ChevronLeft className="w-6 h-6 text-gray-300" />
         </button>
 
         {/* Flèche droite */}
         <button
-          onClick={() => {
-            if (calendarRef.current) {
-              calendarRef.current.scrollBy({ left: 340, behavior: "smooth" });
-            }
-          }}
+          onClick={() => onMonthChange("next")}
           className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-3 transition-all border border-gray-700 hover:shadow-xl"
+          aria-label="Mois suivant"
         >
           <ChevronRight className="w-6 h-6 text-gray-300" />
         </button>
