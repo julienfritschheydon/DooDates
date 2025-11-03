@@ -436,7 +436,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                       const ratingValues = responses
                         .map((r) => r.answers[qid])
                         .filter((v): v is number => typeof v === "number");
-                      
+
                       if (ratingValues.length === 0) {
                         return (
                           <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -462,7 +462,8 @@ export default function FormPollResults({ idOrSlug }: Props) {
                                 {avg.toFixed(1)} / {scale}
                               </div>
                               <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                Moyenne ({ratingValues.length} réponse{ratingValues.length > 1 ? "s" : ""})
+                                Moyenne ({ratingValues.length} réponse
+                                {ratingValues.length > 1 ? "s" : ""})
                               </div>
                             </div>
                           </div>
@@ -502,7 +503,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                       const npsValues = responses
                         .map((r) => r.answers[qid])
                         .filter((v): v is number => typeof v === "number");
-                      
+
                       if (npsValues.length === 0) {
                         return (
                           <div className="text-sm text-gray-500 dark:text-gray-400">
