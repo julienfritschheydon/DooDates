@@ -1,11 +1,17 @@
 name: 🚀 Production Deploy - Fixed
 on:
-  push:
-    branches: [main]
+  workflow_run:
+    workflows: ["Post-Merge Validation"]
+    types: [completed]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  # Job 1: Quality Gates
+  # Job 1: Quality Gates (only if previous workflow succeeded)
   quality-gates:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
