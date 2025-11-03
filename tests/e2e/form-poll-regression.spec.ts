@@ -58,15 +58,14 @@ test.describe('Form Poll - Tests de non-régression', () => {
     
     // Clear localStorage SEULEMENT pour le premier test
     if (!pollCreated) {
-      await page.goto('/');
-      // Attendre que la page soit complètement chargée
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000);
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      // Attendre que le chat input soit visible (indicateur que la page est prête)
+      await expect(page.locator('[data-testid="message-input"]')).toBeVisible({ timeout: 10000 });
     } else {
       // Pour les tests suivants, naviguer vers le poll créé
-      await page.goto(pollUrl);
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000);
+      await page.goto(pollUrl, { waitUntil: 'domcontentloaded' });
+      // Attendre que l'éditeur soit visible
+      await expect(page.locator('[data-poll-preview]')).toBeVisible({ timeout: 10000 });
     }
   });
 
@@ -108,7 +107,8 @@ test.describe('Form Poll - Tests de non-régression', () => {
       log('📸 TEST #1 - Capture AVANT Enter');
       
       await chatInput.press('Enter');
-      await page.waitForTimeout(3000);
+      // Attendre que le bouton de création soit visible
+      await expect(page.getByRole('button', { name: /créer ce formulaire/i })).toBeVisible({ timeout: 10000 });
       log('✅ Enter pressé');
       
       // 📸 CAPTURE APRÈS ENTER (Test #1)
@@ -126,9 +126,6 @@ test.describe('Form Poll - Tests de non-régression', () => {
       await expect(previewCard).toBeVisible({ timeout: 15000 });
       log('✅ Carte de prévisualisation visible');
 
-      // Attendre que la carte soit complètement chargée
-      await page.waitForTimeout(2000);
-
       // 4. Sur desktop, cliquer sur "Voir" pour ouvrir l'éditeur
       // Sur mobile, l'éditeur s'ouvre automatiquement en overlay
       const viewFormButton = page.getByRole('button', { name: /voir/i }).first();
@@ -137,10 +134,12 @@ test.describe('Form Poll - Tests de non-régression', () => {
       if (isButtonVisible) {
         await viewFormButton.click();
         log('✅ Bouton "Voir" cliqué (desktop)');
-        await page.waitForTimeout(1000);
+        // Attendre que l'éditeur soit ouvert
+        await expect(page.locator('[data-poll-preview]').getByRole('button', { name: /^Q\d+$/ })).toBeVisible({ timeout: 5000 });
       } else {
         log('✅ Preview s\'ouvre automatiquement (mobile)');
-        await page.waitForTimeout(2000);
+        // Attendre que l'éditeur soit visible même sur mobile
+        await expect(page.locator('[data-poll-preview]').getByRole('button', { name: /^Q\d+$/ })).toBeVisible({ timeout: 5000 });
       }
 
       // 5. Vérifier que les onglets de questions sont présents dans l'éditeur
@@ -259,11 +258,15 @@ test.describe('Form Poll - Tests de non-régression', () => {
       // 3. Attendre que l'IA traite la demande et ajoute la question
       // Sur mobile, on ne peut pas voir les messages IA (cachés par le Preview)
       // On attend directement que le nouvel onglet apparaisse
-      log('⏱️ Attente que l\'IA ajoute la question (5s)...');
-      await page.waitForTimeout(5000);
+      log('⏱️ Attente que l\'IA ajoute la question...');
       
-      // 4. Vérifier qu'un nouvel onglet a été ajouté (compter TOUS les onglets, même invisibles)
+      // 4. Vérifier qu'un nouvel onglet a été ajouté (attendre que le count augmente)
       const questionTabsAfter = page.locator('button').filter({ hasText: /^Q\d+$/ });
+      // Attendre que le nombre d'onglets augmente (indique qu'une question a été ajoutée)
+      await expect(async () => {
+        const countAfter = await questionTabsAfter.count();
+        expect(countAfter).toBeGreaterThan(countBefore);
+      }).toPass({ timeout: 10000 });
       const countAfter = await questionTabsAfter.count();
       
       log(`📊 Onglets avant: ${countBefore}, après: ${countAfter}`);
@@ -345,13 +348,12 @@ test.describe('Form Poll - Tests de non-régression', () => {
       await page.screenshot({ path: 'test-results/TEST3-AFTER-ENTER.png', fullPage: true });
       log('📸 TEST #3 - Capture APRÈS Enter');
       
-      await page.waitForTimeout(3000);
-      log('⏱️ Attente 3s...');
-
-      // 3. Vérifier que le nombre d'onglets a diminué
-      await page.waitForTimeout(1000);
+      // 3. Vérifier que le nombre d'onglets a diminué (attendre que le count diminue)
+      await expect(async () => {
+        const finalCount = await questionTabs.count();
+        expect(finalCount).toBe(initialCount - 1);
+      }).toPass({ timeout: 10000 });
       const finalCount = await questionTabs.count();
-      expect(finalCount).toBe(initialCount - 1);
       log(`✅ Question supprimée (${initialCount} onglets → ${finalCount} onglets)`);
 
       log('🎉 TEST RÉUSSI : Suppression de question');
@@ -392,11 +394,11 @@ test.describe('Form Poll - Tests de non-régression', () => {
 
       // 3. Refresh la page
       await page.reload({ waitUntil: 'domcontentloaded' });
-      await page.waitForTimeout(2000);
       log('✅ Page rechargée');
 
-      // 4. Vérifier que l'éditeur est toujours là
-      await expect(editor).toBeVisible({ timeout: 15000 });
+      // 4. Vérifier que l'éditeur est toujours là (après reload, besoin de le relocaliser)
+      const editorAfterReload = page.locator('[data-poll-preview]');
+      await expect(editorAfterReload).toBeVisible({ timeout: 15000 });
       log('✅ Éditeur restauré');
 
       // 5. Vérifier que les onglets sont toujours là

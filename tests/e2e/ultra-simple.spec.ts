@@ -55,9 +55,6 @@ test.describe('DooDates - Test Ultra Simple', () => {
       const calendar = page.getByTestId('calendar');
       await expect(calendar).toBeVisible();
       
-      // Attendre que le calendrier soit chargé
-      await page.waitForTimeout(1000);
-      
       // Calculer 3 dates ESPACÉES à partir d'aujourd'hui (+1, +4, +7 jours)
       // Cela évite les groupes consécutifs qui masquent le bouton Horaires
       const today = new Date();
@@ -136,11 +133,8 @@ test.describe('DooDates - Test Ultra Simple', () => {
       await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
       await expect(page).toHaveURL(/.*\/dashboard/);
       console.log('✅ Navigation vers /dashboard');
-      
-      // Attendre que le dashboard charge
-      await page.waitForTimeout(2000);
 
-      // Vérifier sondage dans dashboard
+      // Vérifier sondage dans dashboard (l'attente est incluse dans toContainText)
       await expect(page.locator('[data-testid="poll-item"]').first()).toContainText('Test E2E Ultra Simple', { timeout: 10000 });
       console.log('✅ Sondage visible dans dashboard');
 
