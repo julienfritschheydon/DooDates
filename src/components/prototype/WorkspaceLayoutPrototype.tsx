@@ -233,7 +233,7 @@ export function WorkspaceLayoutPrototype() {
               {/* Bouton Documentation */}
               <button
                 onClick={() => {
-                  navigate('/docs');
+                  navigate("/docs");
                   if (isMobile) setIsSidebarOpen(false);
                 }}
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"

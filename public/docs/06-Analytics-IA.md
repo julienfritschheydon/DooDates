@@ -358,15 +358,15 @@ Total : 6 crédits consommés
 
 ### Que se passe-t-il quand j'atteins la limite ?
 
-#### Mode Invité (5 crédits épuisés)
+#### Mode Invité (crédits épuisés)
 ```
 ⚠️ Quota IA épuisé (5/5)
 
-Vous avez utilisé vos 5 conversations IA gratuites.
+Vous avez utilisé vos crédits IA gratuits.
 
 Options :
   1. Créez un compte gratuit → +50 conversations/mois
-  2. Passez en mode Pro → Conversations illimitées (10€/mois)
+  2. Passez en mode Pro → Conversations illimitées (voir [Tarifs](/pricing))
   3. Continuez sans IA → Résultats bruts disponibles
 ```
 
@@ -378,7 +378,7 @@ Vous avez utilisé vos 50 conversations IA de novembre.
 
 Options :
   1. Attendez le 1er décembre → Reset automatique
-  2. Passez en Pro → Conversations illimitées (10€/mois)
+  2. Passez en Pro → Conversations illimitées (voir [Tarifs](/pricing))
   3. Utilisez les résultats manuels → Graphiques toujours disponibles
 ```
 

@@ -645,14 +645,14 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   }}
                   onMonthChange={(direction) => {
                     if (direction === "prev") {
+                      // Supprimer le dernier mois et ajouter un mois au début
                       const prevMonth = new Date(visibleMonths[0]);
                       prevMonth.setMonth(prevMonth.getMonth() - 1);
-                      // Ajouter un mois précédent et garder jusqu'à 23 mois
-                      setVisibleMonths([prevMonth, ...visibleMonths.slice(0, 23)]);
+                      setVisibleMonths([prevMonth, ...visibleMonths.slice(0, -1)]);
                     } else {
+                      // Supprimer le premier mois et ajouter un mois à la fin
                       const nextMonth = new Date(visibleMonths[visibleMonths.length - 1]);
                       nextMonth.setMonth(nextMonth.getMonth() + 1);
-                      // Ajouter un mois suivant et garder jusqu'à 23 mois
                       const twoYearsFromNow = new Date();
                       twoYearsFromNow.setFullYear(twoYearsFromNow.getFullYear() + 2);
                       if (nextMonth <= twoYearsFromNow) {

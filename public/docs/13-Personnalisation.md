@@ -616,11 +616,12 @@ Paramètres → Branding → [Test Contraste]
 
 ### Le branding personnalisé est-il disponible en version gratuite ?
 
-**Non**, le branding avancé nécessite :
-- **Pro** (10€/mois) : Couleurs + Logo
-- **Premium** (100€/mois) : Tout + White-label + Custom domain
+**Non**, le branding avancé nécessite un abonnement payant.
 
-**Version gratuite** : Thèmes prédéfinis (Défaut, Nature)
+- **Version gratuite** : Thèmes prédéfinis (Défaut, Nature)
+- **Versions payantes** : Couleurs personnalisées, logo, white-label, domaine personnalisé
+
+Consultez notre **[page Tarifs](/pricing)** pour plus de détails.
 
 ---
 
