@@ -1,7 +1,7 @@
 # DooDates - Guide Complet des Tests
 
 > **Document de référence unique** - Novembre 2025  
-> **Dernière mise à jour** : 02 novembre 2025
+> **Dernière mise à jour** : 03 novembre 2025
 
 ---
 
@@ -214,11 +214,12 @@ npx playwright test console-errors.spec.ts --project=chromium
 - Jobs : quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix
 - Durée : ~15-20 minutes
 
-**3. `post-merge.yml`** - Validation Post-Merge
+**3. `post-merge.yml`** - Validation Post-Merge ⭐ PARALLÉLISÉ
 - Trigger : Push sur main
-- Jobs : Tests smoke + functional
+- Jobs parallèles : e2e-smoke (tests critiques ~3min), e2e-functional (tests complets ~5min), notify-failure (si échec)
+- Optimisations : Cache partagé (node_modules + Playwright browsers), exécution simultanée
 - Déclenche : error-handling-enforcement, deploy-github-pages, production-deployment
-- Durée : ~5 minutes
+- Durée : ~5 minutes (temps du job le plus long - gain ~2-3min vs séquentiel)
 
 **4. `production-deploy-fixed.yml`** - Déploiement Production
 - Trigger : workflow_run après post-merge (success)
@@ -353,18 +354,51 @@ git commit -m "docs: fix typo [skip ci]"
 
 ### Optimisations CI
 
-**Parallélisation (gain ~10min):**
-- 3 jobs en parallèle : tests-unit, tests-e2e, build-validation
-- Durée = temps du job le plus long (~5min)
+**Parallélisation (gain ~12min):**
+- Workflow `develop-to-main.yml` : 3 jobs en parallèle (tests-unit, tests-e2e, build-validation) → Durée ~5-8min
+- Workflow `post-merge.yml` : 2 jobs E2E en parallèle (smoke + functional) → Durée ~5min (gain ~2-3min)
+- Durée totale = temps du job le plus long (au lieu de la somme séquentielle)
 
 **Cache agressif (gain ~3-5min):**
-- `node_modules` mis en cache entre runs
-- Navigateurs Playwright mis en cache
-- Réinstallation uniquement si `package-lock.json` change
+- `node_modules` mis en cache entre runs (clé: `package-lock.json`)
+- Navigateurs Playwright mis en cache (clé: `package-lock.json`)
+- Réinstallation uniquement si dépendances changent
+- Cache partagé entre jobs du même workflow
 
 **E2E sélectifs (gain ~5min):**
 - Develop : Smoke tests uniquement (~2min)
-- Main : Smoke + Functional + Matrix (~8min)
+- Main : Smoke + Functional en parallèle (~5min vs ~8min séquentiel)
+- Nightly : Tous tests + 5 navigateurs (~30min)
+
+**Parallélisation E2E (détails) :**
+
+Tests E2E exécutés en parallèle dans `post-merge.yml` :
+
+```yaml
+# Job 1 : e2e-smoke (~3min)
+- npm run test:e2e:smoke
+- Tests critiques (@smoke)
+- Exclut @analytics et @functional
+- Rapport : playwright-smoke-report
+
+# Job 2 : e2e-functional (~5min)
+- npx playwright test --grep @functional
+- Tests complets du workflow
+- Exclut @wip et @flaky
+- Rapport : playwright-functional-report
+
+# Job 3 : notify-failure (si échec)
+- Crée issue avec détails des 2 jobs
+- Labels : critical, bug, main-branch, e2e-failure
+```
+
+**Avantages :**
+- ✅ Gain de temps : ~2-3min (5min vs 8min séquentiel)
+- ✅ Isolation : Pas de collision de ports (Playwright gère automatiquement)
+- ✅ Rapports séparés : Debugging plus facile
+- ✅ Fail-fast : Échec d'un job n'empêche pas l'autre de tourner
+
+**Coût GitHub Actions :** 2 runners en parallèle (gratuit pour projets publics)
 
 **Skip CI:**
 ```bash
