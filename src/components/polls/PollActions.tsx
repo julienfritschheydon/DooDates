@@ -369,7 +369,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
       {poll.status === "active" && (
         <button
           onClick={handleClose}
-          className="bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 px-3 py-2 rounded-md text-sm font-medium hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors flex items-center gap-1"
+          className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
           title="Clôturer"
           data-testid="poll-action-close"
         >
