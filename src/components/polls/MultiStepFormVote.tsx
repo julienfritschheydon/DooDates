@@ -5,6 +5,7 @@ import { addFormResponse } from "../../lib/pollStorage";
 import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
 import { useToast } from "../../hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { logError, ErrorFactory } from "../../lib/error-handling";
 import "./multi-step-animations.css";
 
 interface MultiStepFormVoteProps {
@@ -150,7 +151,13 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
         navigate(`/poll/${poll.slug}/results`);
       }, 1000);
     } catch (error) {
-      console.error("Erreur lors de la soumission :", error);
+      logError(
+        ErrorFactory.storage(
+          "Failed to submit multi-step form response",
+          "Impossible d'enregistrer votre réponse. Veuillez réessayer."
+        ),
+        { component: "MultiStepFormVote", pollId: poll.id, metadata: { originalError: error } }
+      );
       toast({
         title: "Erreur",
         description: "Impossible d'enregistrer votre réponse. Veuillez réessayer.",

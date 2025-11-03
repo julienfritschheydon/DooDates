@@ -51,20 +51,45 @@ test.describe('DooDates - Test Ultra Simple', () => {
       await expect(page.locator('[data-testid="calendar"]')).toBeVisible();
       console.log('✅ Calendrier visible');
 
-      // Sélectionner 3 dates
+      // Sélectionner 3 dates NON-CONSÉCUTIVES pour que le bouton Horaires apparaisse
       const calendar = page.getByTestId('calendar');
       await expect(calendar).toBeVisible();
-      await calendar.scrollIntoViewIfNeeded();
-      const visibleEnabledDays = calendar.locator('button:not([disabled]):visible');
-      await expect.poll(async () => await visibleEnabledDays.count(), { timeout: 10000 }).toBeGreaterThanOrEqual(3);
-      for (let i = 0; i < 3; i++) {
-        await robustClick(visibleEnabledDays.nth(i));
+      
+      // Attendre que le calendrier soit chargé
+      await page.waitForTimeout(1000);
+      
+      // Calculer 3 dates ESPACÉES à partir d'aujourd'hui (+1, +4, +7 jours)
+      // Cela évite les groupes consécutifs qui masquent le bouton Horaires
+      const today = new Date();
+      const formatDate = (d: Date) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      
+      const offsets = [1, 4, 7]; // Jours espacés
+      const dates = offsets.map(offset => {
+        const d = new Date(today);
+        d.setDate(today.getDate() + offset);
+        return formatDate(d);
+      });
+      
+      console.log(`✅ Dates à sélectionner (espacées): ${dates.join(', ')}`);
+      
+      // Cliquer sur chaque date
+      // Note: Il y a 2 boutons par date (mobile + desktop), on filtre par visibilité
+      for (const dateStr of dates) {
+        const dayButton = page.locator(`button[data-date="${dateStr}"]:visible`).first();
+        await expect(dayButton).toBeVisible({ timeout: 5000 });
+        await robustClick(dayButton);
       }
+      
       console.log('✅ 3 dates sélectionnées');
 
-      // Ouvrir section horaires
+      // Ouvrir section horaires (le bouton n'apparaît que si dates non-groupées)
       const horaireButton = page.getByTestId('add-time-slots-button');
-      await expect(horaireButton).toBeVisible();
+      await expect(horaireButton).toBeVisible({ timeout: 10000 });
       await robustClick(horaireButton);
       
       const visibleSection = page.getByTestId('time-slots-section');

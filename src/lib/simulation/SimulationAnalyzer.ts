@@ -5,6 +5,7 @@
  * dans le questionnaire (biais, abandon, questions complexes, etc.)
  */
 
+import { ErrorFactory } from "../error-handling";
 import type {
   SimulationResult,
   SimulatedRespondent,
@@ -384,7 +385,10 @@ Sois concret et actionnable dans tes recommandations.`;
     // Parser la réponse JSON
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      throw new Error("Réponse Gemini invalide (pas de JSON trouvé)");
+      throw ErrorFactory.api(
+        "Invalid Gemini response: no JSON found",
+        "Réponse Gemini invalide (pas de JSON trouvé)"
+      );
     }
 
     const parsed = JSON.parse(jsonMatch[0]);

@@ -51,7 +51,7 @@ test.describe("Analytics IA - Suite Complète", () => {
     }
   });
 
-  test("1. Setup: Créer et clôturer un FormPoll avec 5 réponses", async ({
+  test("1. Setup: Créer et clôturer un FormPoll avec 5 réponses @smoke @critical", async ({
     page,
   }) => {
     // 1. Créer un FormPoll via IA
@@ -191,13 +191,29 @@ test.describe("Analytics IA - Suite Complète", () => {
     // 4. Vérifier insights automatiques
     const insightsSection = page.locator('text=Analytics IA');
     await expect(insightsSection).toBeVisible({ timeout: 10000 });
+    console.log('✅ Section Analytics IA visible');
 
     // Attendre génération insights (max 5 secondes)
     await page.waitForTimeout(5000);
 
+    // Capture pour debug (accessible à Cascade)
+    await page.screenshot({ path: 'Docs/screenshots/analytics-insights.png', fullPage: true });
+    console.log('📸 Capture sauvegardée dans Docs/screenshots/');
+
+    // Déplier la section "Insights automatiques" si elle est repliée
+    // Le texte contient un emoji et un compteur: "✨ Insights automatiques (1)"
+    const insightsAccordion = page.locator('text=/.*Insights automatiques.*/');
+    await expect(insightsAccordion).toBeVisible({ timeout: 5000 });
+    await insightsAccordion.click();
+    console.log('✅ Section Insights dépliée');
+
+    // Attendre que les insights soient visibles
+    await page.waitForTimeout(500);
+
     // Vérifier présence d'au moins 1 insight
     const insightCards = page.locator('[data-testid="insight-card"]');
     const count = await insightCards.count();
+    console.log(`📊 Nombre d'insights trouvés: ${count}`);
     expect(count).toBeGreaterThanOrEqual(1);
     console.log(`✅ ${count} insight(s) généré(s)`);
 
@@ -219,7 +235,7 @@ test.describe("Analytics IA - Suite Complète", () => {
     console.log(`✅ Test 1 terminé - Poll ${pollSlug} prêt pour les tests suivants`);
   });
 
-  test("2. Quick Queries: Tester les requêtes rapides", async ({ page }) => {
+  test("2. Quick Queries: Tester les requêtes rapides @smoke @functional", async ({ page }) => {
     // Le poll est déjà créé et clôturé, on est sur la page résultats
     console.log(`🔍 Test 2 - Utilisation du poll ${pollSlug}`);
     
@@ -254,7 +270,7 @@ test.describe("Analytics IA - Suite Complète", () => {
     console.log(`✅ Réponse reçue (${responseContent!.length} caractères)`);
   });
 
-  test("3. Query Personnalisée: Taper une question personnalisée", async ({ page }) => {
+  test("3. Query Personnalisée: Taper une question personnalisée @functional", async ({ page }) => {
     // Le poll est déjà créé et clôturé, on est sur la page résultats
     console.log(`🔍 Test 3 - Utilisation du poll ${pollSlug}`);
     
@@ -300,7 +316,7 @@ test.describe("Analytics IA - Suite Complète", () => {
     console.log(`✅ Réponse reçue (${responseContent!.length} caractères)`);
   });
 
-  test("4. Cache: Vérifier que les queries identiques utilisent le cache", async ({ page }) => {
+  test("4. Cache: Vérifier que les queries identiques utilisent le cache @functional", async ({ page }) => {
     console.log(`🔍 Test 4 - Utilisation du poll ${pollSlug}`);
     
     await expect(page.locator('text=Analytics IA')).toBeVisible();
@@ -343,7 +359,7 @@ test.describe("Analytics IA - Suite Complète", () => {
     console.log(`⚡ Gain de temps: ${duration1 - duration2}ms`);
   });
 
-  test("5. Quotas: Vérifier le quota freemium (5 queries/jour)", async ({ page }) => {
+  test("5. Quotas: Vérifier le quota freemium (5 queries/jour) @functional", async ({ page }) => {
     console.log(`🔍 Test 5 - Utilisation du poll ${pollSlug}`);
     
     await expect(page.locator('text=Analytics IA')).toBeVisible();
@@ -364,7 +380,7 @@ test.describe("Analytics IA - Suite Complète", () => {
     }
   });
 
-  test("6. Quotas: Vérifier le message quand quota atteint", async ({ page }) => {
+  test("6. Quotas: Vérifier le message quand quota atteint @functional", async ({ page }) => {
     console.log(`🔍 Test 6 - Utilisation du poll ${pollSlug}`);
     
     // Ce test est difficile à implémenter car il faudrait faire 5+ queries
@@ -374,20 +390,20 @@ test.describe("Analytics IA - Suite Complète", () => {
     console.log('✅ Test 6 - Système de quota vérifié');
   });
 
-  test("7. Erreurs: Poll sans réponses", async ({ page }) => {
+  test("7. Erreurs: Poll sans réponses @functional", async ({ page }) => {
     console.log(`🔍 Test 7 - Test gestion erreur poll vide`);
     // Ce test nécessiterait de créer un nouveau poll sans réponses
     console.log('✅ Test 7 - À implémenter avec un poll vide');
   });
 
-  test("8. Erreurs: Clé API manquante", async ({ page }) => {
+  test("8. Erreurs: Clé API manquante @functional", async ({ page }) => {
     console.log(`🔍 Test 8 - Test clé API manquante`);
     // Ce test nécessiterait de désactiver temporairement la clé API
     await expect(page.locator('text=Analytics IA')).toBeVisible();
     console.log('✅ Test 8 - Gestion erreur API vérifiée');
   });
 
-  test("9. Erreurs: Queries trop longues", async ({ page }) => {
+  test("9. Erreurs: Queries trop longues @functional", async ({ page }) => {
     console.log(`🔍 Test 9 - Utilisation du poll ${pollSlug}`);
     
     await expect(page.locator('text=Analytics IA')).toBeVisible();
