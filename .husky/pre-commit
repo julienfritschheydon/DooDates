@@ -39,7 +39,7 @@ if [ "$BRANCH" = "main" ]; then
   echo "🔒 Branche MAIN: validation complète..."
   # Suite complète (tests, type-check, intégration, etc.)
 else
-  echo "⚡ Branche DEVELOP: validation rapide (lint + format)..."
+  echo "⚡ Branche DEVELOP: validation rapide (lint + format + error handling)..."
 
   # 1. Lint rapide (warnings autorisés, erreurs bloquantes seulement)
   echo "🔍 ESLint..."
@@ -49,7 +49,16 @@ else
     exit 1
   fi
   
-  # 2. Formatage automatique
+  # 2. Error Handling Enforcement (rapide ~5s)
+  echo "🛡️ Vérification Error Handling..."
+  npm run test:error-handling
+  if [ $? -ne 0 ]; then
+    echo "❌ Violations Error Handling détectées - Commit bloqué"
+    echo "💡 Utilisez ErrorFactory au lieu de 'throw new Error'"
+    exit 1
+  fi
+  
+  # 3. Formatage automatique
   if [ "$NO_FORMAT" != "1" ]; then
     echo "💅 Formatage du code..."
     npm run format

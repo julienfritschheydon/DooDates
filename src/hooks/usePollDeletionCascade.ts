@@ -11,7 +11,12 @@ import { logger } from "@/lib/logger";
 export interface PollDeletionResult {
   success: boolean;
   conversationUpdated?: boolean;
+  conversationDeleted?: boolean;
   error?: string;
+}
+
+export interface PollDeletionOptions {
+  deleteConversation?: boolean;
 }
 
 export const usePollDeletionCascade = () => {
@@ -23,25 +28,41 @@ export const usePollDeletionCascade = () => {
   const cleanupConversationLink = useCallback(
     async (pollId: string): Promise<boolean> => {
       try {
-        // Find conversations that have this poll linked
+        // Find conversations that have this poll linked via tags or pollId field
         const conversationsWithPoll =
-          conversations.conversations.conversations?.filter((conv) =>
-            conv.tags?.some((tag) => tag === `poll:${pollId}`),
+          conversations.conversations.conversations?.filter(
+            (conv) =>
+              conv.tags?.some((tag) => tag === `poll:${pollId}`) ||
+              (conv as any).pollId === pollId ||
+              conv.relatedPollId === pollId,
           ) || [];
 
-        // Update each conversation to remove the poll link
+        // Update each conversation to remove all poll references
         for (const conversation of conversationsWithPoll) {
+          // Remove poll tag
           const updatedTags = conversation.tags?.filter((tag) => tag !== `poll:${pollId}`) || [];
+
+          // Clean metadata to remove poll-related information
+          const cleanMetadata = conversation.metadata
+            ? {
+                ...conversation.metadata,
+                pollGenerated: undefined,
+                pollTitle: undefined,
+                pollId: undefined,
+              }
+            : undefined;
 
           await conversations.updateConversation.mutateAsync({
             id: conversation.id,
             updates: {
               tags: updatedTags,
+              relatedPollId: undefined,
             },
           });
 
           logger.info("Removed poll link from conversation", "conversation", {
             conversationId: conversation.id,
+            pollId,
           });
         }
 
@@ -69,12 +90,37 @@ export const usePollDeletionCascade = () => {
 
   /**
    * Delete a poll and clean up all associated conversation links
+   * @param pollId - The ID of the poll to delete
+   * @param options - Options for deletion (e.g., whether to delete the conversation)
    */
   const deletePollWithCascade = useCallback(
-    async (pollId: string): Promise<PollDeletionResult> => {
+    async (pollId: string, options: PollDeletionOptions = {}): Promise<PollDeletionResult> => {
       try {
-        // First, clean up conversation links
-        const conversationCleanup = await cleanupConversationLink(pollId);
+        let conversationDeleted = false;
+
+        // Find conversations linked to this poll
+        const conversationsWithPoll =
+          conversations.conversations.conversations?.filter(
+            (conv) =>
+              conv.tags?.some((tag) => tag === `poll:${pollId}`) ||
+              (conv as any).pollId === pollId ||
+              conv.relatedPollId === pollId,
+          ) || [];
+
+        // If deleteConversation option is true, delete the conversations
+        if (options.deleteConversation && conversationsWithPoll.length > 0) {
+          for (const conversation of conversationsWithPoll) {
+            await conversations.deleteConversation.mutateAsync(conversation.id);
+            logger.info("Deleted conversation linked to poll", "conversation", {
+              conversationId: conversation.id,
+              pollId,
+            });
+          }
+          conversationDeleted = true;
+        } else {
+          // Otherwise, just clean up the links
+          await cleanupConversationLink(pollId);
+        }
 
         // Then delete the poll from localStorage (dev implementation)
         try {
@@ -86,7 +132,8 @@ export const usePollDeletionCascade = () => {
 
           return {
             success: true,
-            conversationUpdated: conversationCleanup,
+            conversationUpdated: !conversationDeleted,
+            conversationDeleted,
           };
         } catch (pollError) {
           const processedError = handleError(
@@ -105,7 +152,8 @@ export const usePollDeletionCascade = () => {
 
           return {
             success: false,
-            conversationUpdated: conversationCleanup,
+            conversationUpdated: !conversationDeleted,
+            conversationDeleted,
             error: processedError.message || "Failed to delete poll",
           };
         }
@@ -127,11 +175,12 @@ export const usePollDeletionCascade = () => {
         return {
           success: false,
           conversationUpdated: false,
+          conversationDeleted: false,
           error: processedError.message || "Poll deletion cascade failed",
         };
       }
     },
-    [cleanupConversationLink],
+    [cleanupConversationLink, conversations],
   );
 
   /**

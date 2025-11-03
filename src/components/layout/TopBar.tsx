@@ -42,12 +42,18 @@ export function TopBar({ onConversationSelect }: TopBarProps = {}) {
             >
               <Settings className="w-5 h-5 text-gray-300" />
             </button>
-            <button
-              className="p-2.5 hover:bg-[#2a2a2a] rounded-xl transition-all duration-200 hover:scale-105 border border-transparent hover:border-gray-700"
-              aria-label="Profile"
-            >
-              <User className="w-5 h-5 text-gray-300" />
-            </button>
+            <div className="relative">
+              <button
+                className="p-2.5 hover:bg-[#2a2a2a] rounded-xl transition-all duration-200 hover:scale-105 border border-transparent hover:border-gray-700"
+                aria-label="Profile"
+                title="Compte (en développement)"
+              >
+                <User className="w-5 h-5 text-gray-300" />
+              </button>
+              <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                DEV
+              </span>
+            </div>
           </div>
         </div>
       </header>

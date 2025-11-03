@@ -259,11 +259,25 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
     return FileText; // Conversation générale
   };
 
-  // Générer un titre à partir du premier message ou du relatedPollId
+  // Générer un titre intelligent : 1) Titre du poll, 2) Titre conversation, 3) Premier message
   const getTitle = () => {
-    if (conversation.title) return conversation.title;
+    // 1. Si conversation liée à un poll, récupérer le titre du poll
+    if (conversation.relatedPollId || conversation.pollId) {
+      const pollId = conversation.relatedPollId || conversation.pollId;
+      try {
+        const poll = getAllPolls().find((p) => p.id === pollId);
+        if (poll?.title) return poll.title;
+      } catch {
+        // Ignore errors
+      }
+    }
 
-    // Extraire le premier message utilisateur
+    // 2. Titre de la conversation si existant et pertinent
+    if (conversation.title && !conversation.title.startsWith("Discussion avec")) {
+      return conversation.title;
+    }
+
+    // 3. Extraire le premier message utilisateur
     const firstUserMessage = conversation.messages?.find((msg: any) => msg.role === "user");
     if (firstUserMessage) {
       return (

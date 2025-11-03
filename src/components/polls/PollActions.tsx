@@ -6,7 +6,6 @@ import {
   Poll,
   buildPublicLink,
   copyToClipboard,
-  deletePollById,
   duplicatePoll,
   getAllPolls,
   addPoll,
@@ -23,6 +22,9 @@ import {
   compareSimulationWithReality,
   getLastSimulation,
 } from "@/lib/simulation/SimulationComparison";
+import { usePollDeletionCascade } from "@/hooks/usePollDeletionCascade";
+import { deleteVotesByPollId } from "@/lib/pollStorage";
+import { createConversationForPoll } from "@/lib/ConversationPollLink";
 
 export type PollActionsVariant = "compact" | "full";
 
@@ -53,6 +55,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
   const { toast } = useToast();
   const [isCopied, setIsCopied] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const { deletePollWithCascade } = usePollDeletionCascade();
 
   const handleCopyLink = async () => {
     try {
@@ -85,12 +88,20 @@ export const PollActions: React.FC<PollActionsProps> = ({
   const handleDuplicate = () => {
     try {
       const dup = duplicatePoll(poll);
+      
+      // Save the duplicated poll to storage before creating conversation
+      addPoll(dup);
+
+      // Create a conversation for the duplicated poll
+      createConversationForPoll(dup.id, dup.title, dup.type || "date");
+
       toast({
         title: "Sondage copié",
-        description: "Le sondage a été copié avec succès.",
+        description: "Le sondage et sa conversation ont été copiés avec succès.",
       });
       onAfterDuplicate?.(dup);
-    } catch {
+    } catch (error) {
+      logError(error, { component: "PollActions", operation: "duplicatePoll" });
       toast({
         title: "Erreur",
         description: "Impossible de copier le sondage.",
@@ -174,19 +185,42 @@ export const PollActions: React.FC<PollActionsProps> = ({
     }
   };
 
-  const handleDelete = () => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce sondage ?")) return;
+  const handleDelete = async () => {
+    const confirmMessage =
+      "Êtes-vous sûr de vouloir supprimer ce sondage ?\n\n" +
+      "Note: Les conversations liées seront également supprimées.";
+
+    if (!window.confirm(confirmMessage)) return;
+
     try {
-      deletePollById(poll.id);
-      toast({
-        title: "Sondage supprimé",
-        description: "Le sondage a été supprimé avec succès.",
-      });
-      onAfterDelete?.();
-    } catch {
+      // Delete votes first
+      deleteVotesByPollId(poll.id);
+
+      // Delete poll and conversations
+      const result = await deletePollWithCascade(poll.id, { deleteConversation: true });
+
+      if (result.success) {
+        let description = "Le sondage a été supprimé avec succès.";
+        if (result.conversationDeleted) {
+          description += " Les conversations liées ont été supprimées.";
+        }
+
+        toast({
+          title: "Sondage supprimé",
+          description,
+        });
+        onAfterDelete?.();
+      } else {
+        throw ErrorFactory.storage(
+          result.error || "Failed to delete poll",
+          "Impossible de supprimer le sondage",
+        );
+      }
+    } catch (error) {
+      logError(error, { component: "PollActions", operation: "deletePoll" });
       toast({
         title: "Erreur",
-        description: "Impossible de supprimer le sondage.",
+        description: error instanceof Error ? error.message : "Impossible de supprimer le sondage.",
         variant: "destructive",
       });
     }
@@ -369,7 +403,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
       {poll.status === "active" && (
         <button
           onClick={handleClose}
-          className="bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 px-3 py-2 rounded-md text-sm font-medium hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors flex items-center gap-1"
+          className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
           title="Clôturer"
           data-testid="poll-action-close"
         >

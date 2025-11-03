@@ -415,7 +415,7 @@ function QuestionRenderer({
               className={`flex-1 py-4 rounded-lg border-2 font-bold text-lg transition-all ${
                 currentValue === num
                   ? "border-purple-600 bg-purple-600 text-white shadow-lg scale-110"
-                  : "border-gray-200 hover:border-purple-300 hover:bg-gray-50"
+                  : "border-gray-200 hover:border-purple-300 hover:bg-gray-50 text-gray-900"
               }`}
             >
               {num}
@@ -423,7 +423,7 @@ function QuestionRenderer({
           ))}
         </div>
         {(question.ratingMinLabel || question.ratingMaxLabel) && (
-          <div className="flex justify-between text-xs text-gray-600">
+          <div className="flex justify-between text-xs text-gray-900">
             <span>{question.ratingMinLabel || ""}</span>
             <span>{question.ratingMaxLabel || ""}</span>
           </div>
@@ -446,14 +446,14 @@ function QuestionRenderer({
               className={`py-3 rounded-lg border-2 font-bold text-sm transition-all ${
                 currentValue === num
                   ? "border-purple-600 bg-purple-600 text-white shadow-lg scale-110"
-                  : "border-gray-200 hover:border-purple-300 hover:bg-gray-50"
+                  : "border-gray-200 hover:border-purple-300 hover:bg-gray-50 text-gray-900"
               }`}
             >
               {num}
             </button>
           ))}
         </div>
-        <div className="flex justify-between text-xs text-gray-600">
+        <div className="flex justify-between text-xs text-gray-900">
           <span>Pas du tout probable</span>
           <span>Extrêmement probable</span>
         </div>
