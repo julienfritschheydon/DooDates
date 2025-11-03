@@ -1,8 +1,8 @@
-name: Deploy to GitHub Pages
+name: 4️⃣ Main Deploy to GitHub Pages
 
 on:
   workflow_run:
-    workflows: ["Post-Merge Validation"]
+    workflows: ["3️⃣ Main Post-Merge E2E"]
     types: [completed]
   workflow_dispatch:  # Permet déclenchement manuel
 
