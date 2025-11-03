@@ -266,14 +266,45 @@ jobs:
       - name: 🏗️ Build production
         run: npm run build
 
+  error-handling:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🛡️ Error Handling Enforcement
+        run: npm run test:error-handling
+
   auto-merge-to-main:
-    needs: [changes, tests-unit, tests-e2e, build-validation]
+    needs: [changes, tests-unit, tests-e2e, build-validation, error-handling]
     if: |
       always() &&
       needs.changes.outputs.code == 'true' &&
       needs.tests-unit.result == 'success' &&
       (needs.tests-e2e.result == 'success' || needs.tests-e2e.result == 'skipped') &&
-      needs.build-validation.result == 'success'
+      needs.build-validation.result == 'success' &&
+      needs.error-handling.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -299,13 +330,14 @@ jobs:
           echo "All tests passed, deployment workflows will now run"
 
   notify-failure:
-    needs: [changes, tests-unit, tests-e2e, build-validation]
+    needs: [changes, tests-unit, tests-e2e, build-validation, error-handling]
     if: |
       always() &&
       needs.changes.outputs.code == 'true' &&
       (needs.tests-unit.result == 'failure' ||
        (needs.tests-e2e.result == 'failure' && needs.tests-e2e.result != 'skipped') ||
-       needs.build-validation.result == 'failure')
+       needs.build-validation.result == 'failure' ||
+       needs.error-handling.result == 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: Create Issue if Validation Failed
