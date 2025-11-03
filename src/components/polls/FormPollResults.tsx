@@ -338,6 +338,11 @@ export default function FormPollResults({ idOrSlug }: Props) {
                       {totalRespondents} réponse
                       {totalRespondents > 1 ? "s" : ""}
                     </div>
+                    {!q.matrixRows || !q.matrixColumns ? (
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        Configuration de matrice invalide
+                      </div>
+                    ) : (
                     <table className="w-full border-collapse text-sm">
                       <thead>
                         <tr>
@@ -379,6 +384,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                         ))}
                       </tbody>
                     </table>
+                    )}
                   </div>
                 )}
 
@@ -434,7 +440,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                   <div className="space-y-4" data-testid="rating-results">
                     {(() => {
                       const ratingValues = responses
-                        .map((r) => r.answers[qid])
+                        .map((r) => r?.answers?.[qid])
                         .filter((v): v is number => typeof v === "number");
 
                       if (ratingValues.length === 0) {
@@ -501,7 +507,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                   <div data-testid="nps-results">
                     {(() => {
                       const npsValues = responses
-                        .map((r) => r.answers[qid])
+                        .map((r) => r?.answers?.[qid])
                         .filter((v): v is number => typeof v === "number");
 
                       if (npsValues.length === 0) {
@@ -557,16 +563,18 @@ export default function FormPollResults({ idOrSlug }: Props) {
                         if (
                           matrixVal &&
                           typeof matrixVal === "object" &&
-                          !Array.isArray(matrixVal)
+                          !Array.isArray(matrixVal) &&
+                          q.matrixRows &&
+                          q.matrixColumns
                         ) {
                           const rowLabels = (q.matrixRows || [])
                             .map((row: FormQuestionOption) => {
-                              const rowAnswer = matrixVal[row.id];
-                              if (!rowAnswer) return null;
+                              const rowAnswer = matrixVal[row?.id];
+                              if (!rowAnswer || !row) return null;
                               const colIds = Array.isArray(rowAnswer) ? rowAnswer : [rowAnswer];
                               const colLabels = colIds.map((cid: string) => {
                                 const col = (q.matrixColumns || []).find(
-                                  (c: FormQuestionOption) => c.id === cid,
+                                  (c: FormQuestionOption) => c?.id === cid,
                                 );
                                 return col ? col.label : cid;
                               });

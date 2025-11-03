@@ -20,6 +20,8 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
   const [respondentName, setRespondentName] = useState("");
+  const [respondentEmail, setRespondentEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   // Filtrer les questions visibles selon les règles conditionnelles
   const visibleQuestions = useMemo(() => {
@@ -45,8 +47,11 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
     return allQuestions.filter((q) => shouldShowQuestion(q.id, rules, simplifiedAnswers));
   }, [poll.questions, poll.conditionalRules, answers]);
 
-  const currentQuestion = visibleQuestions[currentStep];
-  const progress = ((currentStep + 1) / visibleQuestions.length) * 100;
+  // Ajouter une étape finale pour les coordonnées (step = visibleQuestions.length)
+  const totalSteps = visibleQuestions.length + 1; // +1 pour l'étape coordonnées
+  const isOnCoordinatesStep = currentStep === visibleQuestions.length;
+  const currentQuestion = isOnCoordinatesStep ? null : visibleQuestions[currentStep];
+  const progress = ((currentStep + 1) / totalSteps) * 100;
   const isLastQuestion = currentStep === visibleQuestions.length - 1;
 
   // Vérifier si la question actuelle est répondue
@@ -129,15 +134,6 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
   };
 
   const handleSubmit = async () => {
-    if (!isCurrentQuestionAnswered) {
-      toast({
-        title: "Question requise",
-        description: "Veuillez répondre à cette question avant de soumettre.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       addFormResponse({
         pollId: poll.id,
@@ -148,15 +144,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
         })),
       });
 
-      toast({
-        title: "✅ Réponse enregistrée !",
-        description: "Merci pour votre participation.",
-      });
-
-      // Rediriger vers les résultats après 1 seconde
-      setTimeout(() => {
-        navigate(`/poll/${poll.slug}/results`);
-      }, 1000);
+      setSubmitted(true);
     } catch (error) {
       logError(
         ErrorFactory.storage(
@@ -181,6 +169,35 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
     );
   }
 
+  // Page de confirmation après soumission
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center animate-fadeIn">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Check className="w-8 h-8 text-green-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Merci pour votre participation !</h2>
+          <p className="text-gray-600 mb-6">Votre réponse a été enregistrée avec succès.</p>
+          <div className="space-y-3">
+            <button
+              onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
+              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+            >
+              Voir les résultats
+            </button>
+            <button
+              onClick={() => navigate("/")}
+              className="w-full bg-white text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-all border border-gray-300"
+            >
+              Retour à l'accueil
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 to-indigo-50">
       {/* Barre de progression */}
@@ -191,50 +208,82 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
         />
       </div>
 
-      {/* Nom du répondant (au début, avant les questions) */}
-      {currentStep === 0 && (
-        <div className="pt-8 px-4">
-          <div className="max-w-md mx-auto">
-            <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
-              Votre nom (optionnel)
-            </label>
-            <input
-              type="text"
-              value={respondentName}
-              onChange={(e) => setRespondentName(e.target.value)}
-              placeholder="Anonyme"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-gray-900"
-            />
-          </div>
-        </div>
-      )}
-
       {/* Contenu principal */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
         <div className="w-full max-w-2xl">
           {/* Indicateur de progression */}
           <div className="text-center mb-8">
-            <p className="text-sm text-gray-600 font-medium">
-              Question {currentStep + 1} sur {visibleQuestions.length}
-            </p>
-            {isLastQuestion && (
-              <p className="text-xs text-purple-600 mt-1">Dernière question ! 🎉</p>
+            {isOnCoordinatesStep ? (
+              <>
+                <p className="text-sm text-gray-600 font-medium">
+                  Dernière étape : Vos coordonnées (optionnel)
+                </p>
+                <p className="text-xs text-purple-600 mt-1">Vous y êtes presque ! 🎉</p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-gray-600 font-medium">
+                  Question {currentStep + 1} sur {visibleQuestions.length}
+                </p>
+                {isLastQuestion && (
+                  <p className="text-xs text-purple-600 mt-1">Dernière question ! 🎉</p>
+                )}
+              </>
             )}
           </div>
 
-          {/* Question */}
+          {/* Étape coordonnées OU Question */}
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 animate-fadeIn">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-              {currentQuestion.title}
-              {currentQuestion.required && <span className="text-red-500 ml-1">*</span>}
-            </h2>
+            {isOnCoordinatesStep ? (
+              <>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">
+                  Vos coordonnées
+                </h2>
+                <p className="text-sm text-gray-600 mb-6 text-center">
+                  Pour recevoir les résultats (facultatif)
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nom
+                    </label>
+                    <input
+                      type="text"
+                      value={respondentName}
+                      onChange={(e) => setRespondentName(e.target.value)}
+                      placeholder="Anonyme"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={respondentEmail}
+                      onChange={(e) => setRespondentEmail(e.target.value)}
+                      placeholder="votre@email.com"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+                  {currentQuestion.title}
+                  {currentQuestion.required && <span className="text-red-500 ml-1">*</span>}
+                </h2>
 
-            {/* Rendu selon le type de question */}
-            <QuestionRenderer
-              question={currentQuestion}
-              value={answers[currentQuestion.id]}
-              onChange={handleAnswer}
-            />
+                {/* Rendu selon le type de question */}
+                <QuestionRenderer
+                  question={currentQuestion}
+                  value={answers[currentQuestion.id]}
+                  onChange={handleAnswer}
+                />
+              </>
+            )}
           </div>
 
           {/* Navigation */}
@@ -252,7 +301,15 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
               Retour
             </button>
 
-            {!isLastQuestion ? (
+            {isOnCoordinatesStep ? (
+              <button
+                onClick={handleSubmit}
+                className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-md hover:shadow-lg"
+              >
+                <Check className="w-5 h-5" />
+                Soumettre
+              </button>
+            ) : !isLastQuestion ? (
               <button
                 onClick={goNext}
                 disabled={!isCurrentQuestionAnswered}
@@ -267,16 +324,16 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
               </button>
             ) : (
               <button
-                onClick={handleSubmit}
+                onClick={goNext}
                 disabled={!isCurrentQuestionAnswered}
                 className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
                   isCurrentQuestionAnswered
-                    ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-md hover:shadow-lg"
+                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
               >
-                <Check className="w-5 h-5" />
-                Soumettre
+                Suivant : Vos coordonnées
+                <ArrowRight className="w-5 h-5" />
               </button>
             )}
           </div>
