@@ -1,6 +1,18 @@
 #!/bin/sh
 echo "🔍 DooDates - Validation pre-commit..."
 
+# ggshield secret scan (fail-fast)
+if command -v ggshield >/dev/null 2>&1; then
+  echo "🛡️ ggshield: scan des secrets (pre-commit)..."
+  ggshield secret scan pre-commit
+  if [ $? -ne 0 ]; then
+    echo "❌ Secrets détectés - Commit bloqué"
+    exit 1
+  fi
+else
+  echo "ℹ️ ggshield non installé (skip)"
+fi
+
 # Mode rapide optionnel pour accélérer les commits locaux
 # Activez-le avec FAST_HOOKS=1 pour ignorer les vérifications lourdes
 if [ "$FAST_HOOKS" = "1" ]; then
