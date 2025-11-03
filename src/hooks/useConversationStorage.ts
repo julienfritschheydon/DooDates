@@ -69,8 +69,8 @@ export interface UseConversationStorageConfig {
  */
 export function useConversationStorage(config: UseConversationStorageConfig = {}) {
   const {
-    supabaseUrl = process.env.REACT_APP_SUPABASE_URL || "",
-    supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || "",
+    supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "",
+    supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "",
     enableAutoMigration = true,
     enableCache = true,
     cacheTime = 1000 * 60 * 5, // 5 minutes

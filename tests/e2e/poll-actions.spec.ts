@@ -26,30 +26,20 @@ test.describe('Dashboard - Poll Actions', () => {
   test('Dashboard loads without crashing', async ({ page }) => {
     try {
       // Test that dashboard page loads
-      await page.goto('/');
-      await page.waitForTimeout(500);
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('body')).toBeVisible();
       
       // Navigate to dashboard
-      await page.goto('/dashboard');
-      await page.waitForTimeout(1000);
-      
-      // Verify dashboard loaded
-      const dashboardLoaded = await page.locator('body').isVisible();
-      expect(dashboardLoaded).toBeTruthy();
+      await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('body')).toBeVisible();
       
       // Test navigation to create
-      await page.goto('/create');
-      await page.waitForTimeout(1000);
-      
-      const createLoaded = await page.locator('body').isVisible();
-      expect(createLoaded).toBeTruthy();
+      await page.goto('/create', { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('body')).toBeVisible();
       
       // Navigate back home
-      await page.goto('/');
-      await page.waitForTimeout(500);
-      
-      const homeLoaded = await page.locator('body').isVisible();
-      expect(homeLoaded).toBeTruthy();
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('body')).toBeVisible();
     } catch (error) {
       console.log('Test error:', error);
       throw error;
