@@ -202,10 +202,12 @@ npx playwright test console-errors.spec.ts --project=chromium
 
 **1. `develop-to-main.yml`** - Auto-merge Develop → Main ⭐ NOUVEAU
 - Trigger : Push sur develop
-- Jobs : Validation complète (tests unitaires, intégration, UX, type-check, lint, build, E2E smoke, E2E functional)
+- Jobs parallèles : tests-unit (unitaires, intégration, UX), tests-e2e (smoke only), build-validation (type-check, lint, build)
+- Optimisations : Cache agressif (node_modules + Playwright browsers)
+- E2E sélectifs : Smoke uniquement sur develop (tests complets sur main)
 - Auto-merge : Si tous les tests passent → merge automatique vers main
 - Notification : Issue créée si échec
-- Durée : ~15-20 minutes
+- Durée : ~5-8 minutes (vs 15-20min avant)
 
 **2. `pr-validation.yml`** - Validation Pull Requests
 - Trigger : Chaque PR vers main/develop
@@ -332,17 +334,46 @@ git push --no-verify
 # 1. Développement sur develop
 git checkout develop
 
-# 2. Commits rapides (lint + format only)
+# 2. Commits rapides depuis Cursor (lint + format only)
+# Utiliser l'outil Git de Cursor (Ctrl+Shift+G)
+# Écrire message → Commit → ~10s
 git add .
 git commit -m "feat: nouvelle feature"  # ~10s
 
-# 3. Push vers develop (instantané)
-git push  # CI complète s'exécute sur GitHub
+# 3. Push vers develop (instantané depuis Cursor)
+git push  # CI complète s'exécute sur GitHub (~5-8min)
 
-# 4. Si CI ✅ → Auto-merge vers main automatique
-# 5. Si CI ❌ → Issue créée automatiquement, corriger et re-push
+# 4. Continue à coder pendant que CI tourne
+# Si CI ✅ → Auto-merge vers main → déploiement
+# Si CI ❌ → Issue créée, corriger et re-push
 
-# 6. Main toujours stable, déploiement automatique
+# 5. Skip CI pour changements mineurs (docs, typos)
+git commit -m "docs: fix typo [skip ci]"
+```
+
+### Optimisations CI
+
+**Parallélisation (gain ~10min):**
+- 3 jobs en parallèle : tests-unit, tests-e2e, build-validation
+- Durée = temps du job le plus long (~5min)
+
+**Cache agressif (gain ~3-5min):**
+- `node_modules` mis en cache entre runs
+- Navigateurs Playwright mis en cache
+- Réinstallation uniquement si `package-lock.json` change
+
+**E2E sélectifs (gain ~5min):**
+- Develop : Smoke tests uniquement (~2min)
+- Main : Smoke + Functional + Matrix (~8min)
+
+**Skip CI:**
+```bash
+# Pour docs, README, commentaires
+git commit -m "docs: update README [skip ci]"
+git commit -m "style: format code [skip ci]"
+
+# NE PAS skip pour code fonctionnel
+git commit -m "feat: nouvelle feature"  # ← CI obligatoire
 ```
 
 ---
