@@ -267,10 +267,18 @@ export default function FormPollResults({ idOrSlug }: Props) {
             </div>
           )}
 
-          {/* Analytics IA Panel (visible même sans réponses pour les tests fonctionnels) */}
-          <div className="bg-white dark:bg-gray-800 rounded-md border dark:border-gray-700 p-6">
-            <PollAnalyticsPanel pollId={poll.id} pollTitle={poll.title} />
-          </div>
+          {/* Analytics IA Panel */}
+          {totalRespondents > 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-md border dark:border-gray-700 p-6">
+              <PollAnalyticsPanel pollId={poll.id} pollTitle={poll.title} />
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-gray-800 rounded-md border dark:border-gray-700 p-6">
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Analytics IA</h2>
+              </div>
+            </div>
+          )}
 
           {questions.map((q: FormQuestionShape) => {
             const qid: string = q.id;
