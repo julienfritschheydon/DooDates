@@ -27,6 +27,17 @@
   - Export CSV
   - Statistiques
 
+### 4. Page Pricing (UI)
+- ✅ `src/pages/Pricing.tsx` - Page pricing complète avec:
+  - 3 tiers (Gratuit, Premium, Pro)
+  - Toggle Monthly/Annual
+  - Section Beta Testeur
+  - Packs crédits additionnels
+  - FAQ complète
+  - Route `/pricing` configurée
+  - TopNav intégré dans la page (Home, Documentation, Connexion/Créer)
+  - Bouton "Tarifs" dans sidebar principale de l'app (après "Tableau de bord")
+
 ---
 
 ## 🚀 PROCHAINES ÉTAPES (ORDRE D'IMPLÉMENTATION)
@@ -345,6 +356,9 @@ import { AdminBetaKeysPage } from '@/pages/admin/BetaKeys';
 ```
 
 ---
+
+#### Ajouter l'indicateur de quota dans la sidebar (2 min)
+
 
 ### Phase 3: Hook useCredits (1h)
 

@@ -5,7 +5,7 @@ import { shouldShowQuestion, cleanHiddenAnswers } from "../../lib/conditionalEva
 interface FormQuestion {
   id: string;
   title: string;
-  type: "single" | "multiple" | "text";
+  type: "single" | "multiple" | "text" | "long-text";
   required?: boolean;
   options?: Array<{ id: string; label: string }>;
   maxChoices?: number;
@@ -162,12 +162,22 @@ export default function FormWithConditionals({
             )}
 
             {question.type === "text" && (
-              <textarea
+              <input
+                type="text"
                 value={typeof answer === "string" ? answer : ""}
                 onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                 placeholder={question.placeholder || "Votre réponse"}
                 className="w-full px-3 py-2 border rounded-md"
-                rows={3}
+              />
+            )}
+
+            {question.type === "long-text" && (
+              <textarea
+                value={typeof answer === "string" ? answer : ""}
+                onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                placeholder={question.placeholder || "Votre réponse détaillée..."}
+                className="w-full px-3 py-2 border rounded-md"
+                rows={6}
               />
             )}
           </div>

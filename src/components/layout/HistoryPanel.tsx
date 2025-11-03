@@ -21,22 +21,23 @@ interface HistoryPanelProps {
 export default function HistoryPanel({ onClose, onConversationSelect }: HistoryPanelProps) {
   const navigate = useNavigate();
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
+  const [pollsRefreshKey, setPollsRefreshKey] = useState(0);
 
   // Récupérer les vraies conversations depuis le storage
-  const { conversations: conversationsState } = useConversations({
+  const { conversations: conversationsState, refresh: refetchConversations } = useConversations({
     sortBy: "updatedAt",
     sortOrder: "desc",
   });
 
   // Charger les sondages récents depuis localStorage
   useEffect(() => {
-    logger.debug("Chargement des sondages", "poll");
+    logger.info(`🔄 HistoryPanel: Loading polls (refreshKey=${pollsRefreshKey})`, "poll");
     try {
       // Utiliser getAllPolls() comme le Dashboard
       const polls = getAllPolls();
-      logger.debug("Polls récupérés via getAllPolls", "poll", {
+      logger.info("📊 HistoryPanel: Polls récupérés via getAllPolls", "poll", {
         count: polls.length,
-        firstPoll: polls[0],
+        pollIds: polls.map((p) => p.id),
       });
 
       // Trier par date de création décroissante et prendre les 5 derniers
@@ -47,12 +48,11 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, 5);
 
-      logger.debug("Polls triés (top 5)", "poll", {
+      logger.info("✅ HistoryPanel: Polls triés (top 5)", "poll", {
         polls: sorted.map((p) => ({
           id: p.id,
           title: p.title,
           type: p.type,
-          created_at: p.created_at,
         })),
       });
 
@@ -60,7 +60,54 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
     } catch (error) {
       logger.error("[HistoryPanel] Erreur chargement sondages", error);
     }
+  }, [pollsRefreshKey]);
+
+  // Écouter les changements de polls pour rafraîchir automatiquement
+  useEffect(() => {
+    logger.info("🎧 HistoryPanel: Setting up pollsChanged listener", "poll");
+
+    const handlePollsChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      logger.info("🔔 HistoryPanel: Received pollsChanged event!", "poll", {
+        detail: customEvent.detail,
+      });
+      setPollsRefreshKey((prev) => {
+        const newKey = prev + 1;
+        logger.info(`🔄 HistoryPanel: Incrementing refresh key ${prev} → ${newKey}`, "poll");
+        return newKey;
+      });
+    };
+
+    window.addEventListener("pollsChanged", handlePollsChange);
+    logger.info("✅ HistoryPanel: pollsChanged listener registered", "poll");
+
+    return () => {
+      logger.info("🧹 HistoryPanel: Removing pollsChanged listener", "poll");
+      window.removeEventListener("pollsChanged", handlePollsChange);
+    };
   }, []);
+
+  // Écouter les changements de conversations pour rafraîchir automatiquement
+  useEffect(() => {
+    logger.info("🎧 HistoryPanel: Setting up conversationsChanged listener", "conversation");
+
+    const handleConversationsChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      logger.info("🔔 HistoryPanel: Received conversationsChanged event!", "conversation", {
+        detail: customEvent.detail,
+      });
+      refetchConversations();
+      logger.info("🔄 HistoryPanel: Refetched conversations", "conversation");
+    };
+
+    window.addEventListener("conversationsChanged", handleConversationsChange);
+    logger.info("✅ HistoryPanel: conversationsChanged listener registered", "conversation");
+
+    return () => {
+      logger.info("🧹 HistoryPanel: Removing conversationsChanged listener", "conversation");
+      window.removeEventListener("conversationsChanged", handleConversationsChange);
+    };
+  }, [refetchConversations]);
 
   // Grouper par période
   const groupConversationsByPeriod = (conversations: any[]) => {
@@ -106,15 +153,15 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
       <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} aria-hidden="true" />
 
       {/* Panel historique - Responsive width */}
-      <aside className="fixed top-0 left-0 bottom-0 w-full sm:w-80 bg-[#1e1e1e] z-50 shadow-xl">
+      <aside className="fixed top-0 left-0 bottom-0 w-full sm:w-80 bg-[#1e1e1e] z-50 shadow-xl flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
           <h2 className="font-semibold text-white">Historique</h2>
           <CloseButton onClick={onClose} ariaLabel="Fermer" iconSize={5} />
         </div>
 
         {/* Bouton création manuelle */}
-        <div className="p-4 border-b border-gray-700">
+        <div className="p-4 border-b border-gray-700 flex-shrink-0">
           <button
             onClick={() => {
               navigate("/create");
@@ -127,8 +174,8 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
           </button>
         </div>
 
-        {/* Liste conversations et sondages */}
-        <div className="overflow-y-auto h-[calc(100vh-9rem)]">
+        {/* Liste conversations et sondages - Scrollable */}
+        <div className="overflow-y-auto" style={{ height: "calc(100vh - 162px)" }}>
           {/* Sondages récents */}
           {(() => {
             logger.debug("Rendu - recentPolls", "poll", { count: recentPolls.length });

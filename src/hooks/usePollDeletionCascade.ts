@@ -122,11 +122,10 @@ export const usePollDeletionCascade = () => {
           await cleanupConversationLink(pollId);
         }
 
-        // Then delete the poll from localStorage (dev implementation)
+        // Then delete the poll using centralized pollStorage (to trigger pollsChanged event)
         try {
-          const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
-          const updatedPolls = polls.filter((poll: any) => poll.id !== pollId);
-          localStorage.setItem("dev-polls", JSON.stringify(updatedPolls));
+          const { deletePollById } = await import("../lib/pollStorage");
+          deletePollById(pollId);
 
           logger.info("Poll deleted successfully", "poll", { pollId });
 
@@ -211,7 +210,7 @@ export const usePollDeletionCascade = () => {
    */
   const getOrphanedLinks = useCallback((): string[] => {
     try {
-      const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+      const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
       const existingPollIds = new Set(polls.map((poll: any) => poll.id));
 
       const orphanedConversations: string[] = [];
@@ -255,7 +254,7 @@ export const usePollDeletionCascade = () => {
     let cleanedCount = 0;
 
     try {
-      const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+      const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
       const existingPollIds = new Set(polls.map((poll: any) => poll.id));
 
       for (const conversationId of orphanedConversationIds) {

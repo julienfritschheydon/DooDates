@@ -71,7 +71,7 @@ function createDefaultQuestion(subject: string): FormQuestionShape {
  */
 function convertQuestionType(
   question: FormQuestionShape,
-  newType: "single" | "multiple" | "text" | "matrix",
+  newType: "single" | "multiple" | "text" | "long-text" | "matrix",
 ): FormQuestionShape {
   const converted: FormQuestionShape = {
     ...question,
@@ -80,11 +80,12 @@ function convertQuestionType(
   };
 
   // Gérer les options selon le type
-  if (newType === "text") {
+  if (newType === "text" || newType === "long-text") {
     // Questions texte n'ont pas d'options
     delete converted.options;
     delete converted.maxChoices;
-    converted.placeholder = "Votre réponse...";
+    converted.placeholder =
+      newType === "long-text" ? "Votre réponse détaillée..." : "Votre réponse...";
   } else if (newType === "matrix") {
     // Matrices ont des lignes et colonnes
     converted.matrixRows = question.options || [{ id: generateId(), label: "Ligne 1" }];
@@ -201,7 +202,7 @@ export function formPollReducer(state: Poll | null, action: FormPollAction): Pol
       const question = state.questions[questionIndex];
 
       // Vérifier que la question supporte les options
-      if (question.kind === "text") {
+      if (question.kind === "text" || question.kind === "long-text") {
         return state;
       }
 

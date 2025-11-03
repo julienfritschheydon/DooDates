@@ -45,6 +45,7 @@ const ChatLandingPrototype = lazy(() =>
 const WorkspacePage = lazy(() => import("./app/workspace/page"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const Docs = lazy(() => import("./pages/Docs").then((m) => ({ default: m.Docs })));
+const Pricing = lazy(() => import("./pages/Pricing").then((m) => ({ default: m.PricingPage })));
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -311,7 +312,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     location.pathname.startsWith("/create/") ||
     location.pathname.startsWith("/vote/") ||
     location.pathname.startsWith("/auth") ||
-    location.pathname.startsWith("/docs");
+    location.pathname.startsWith("/docs") ||
+    location.pathname.startsWith("/pricing");
 
   // Si page classique, utiliser layout simple
   if (useClassicLayout) {
@@ -365,6 +367,7 @@ const App = () => {
                             <Route path="/create/date" element={<DateCreator />} />
                             <Route path="/create/form" element={<FormCreator />} />
                             <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
+                            <Route path="/pricing" element={<Pricing />} />
                             <Route path="/docs/*" element={<Docs />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>

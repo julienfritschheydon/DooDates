@@ -12,6 +12,16 @@ import { useConversations } from "../useConversations";
 vi.mock("../useConversations");
 const mockUseConversations = vi.mocked(useConversations);
 
+// Mock the pollStorage module
+vi.mock("../../lib/pollStorage", () => ({
+  deletePollById: vi.fn((pollId: string) => {
+    // Mock implementation that actually updates localStorage
+    const polls = JSON.parse(window.localStorage.getItem("doodates_polls") || "[]");
+    const filteredPolls = polls.filter((p: any) => p.id !== pollId);
+    window.localStorage.setItem("doodates_polls", JSON.stringify(filteredPolls));
+  }),
+}));
+
 // Mock localStorage with Vitest mocks
 const mockLocalStorage = {
   getItem: vi.fn(),
@@ -62,7 +72,7 @@ describe("usePollDeletionCascade", () => {
 
     // Setup default localStorage polls
     mockLocalStorage.getItem.mockImplementation((key) => {
-      if (key === "dev-polls") {
+      if (key === "doodates_polls") {
         return JSON.stringify([
           { id: "poll-1", title: "Poll 1" },
           { id: "poll-2", title: "Poll 2" },
@@ -126,14 +136,17 @@ describe("usePollDeletionCascade", () => {
 
       // Verify poll was removed from localStorage
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        "dev-polls",
+        "doodates_polls",
         JSON.stringify([{ id: "poll-2", title: "Poll 2" }]),
       );
     });
 
     it("should handle poll deletion failure", async () => {
       mockUpdateConversation.mutateAsync.mockResolvedValue({});
-      mockLocalStorage.getItem.mockImplementation(() => {
+
+      // Mock the deletePollById function to throw an error
+      const { deletePollById } = await import("../../lib/pollStorage");
+      vi.mocked(deletePollById).mockImplementationOnce(() => {
         throw new Error("Storage error");
       });
 
