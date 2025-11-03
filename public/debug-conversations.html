@@ -75,24 +75,80 @@
             overflow-x: auto;
             font-size: 12px;
         }
+        .info {
+            background: #1e3a5f;
+            border-left: 4px solid #60a5fa;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <h1>🔍 Debug Conversations & Polls - DooDates</h1>
+    
+    <div class="info">
+        <strong>ℹ️ Instructions :</strong>
+        <ul>
+            <li>Ouvrez cet outil depuis le même domaine que votre application DooDates (ex: <code>http://localhost:5173/debug-conversations.html</code>)</li>
+            <li>Les données seront lues depuis le localStorage de votre navigateur</li>
+            <li>Cet outil fonctionne uniquement en local, pas via GitHub Pages</li>
+        </ul>
+    </div>
     
     <div class="section">
         <button onclick="analyzeData()">Analyser les données</button>
         <button onclick="findDuplicates()">Trouver les doublons</button>
         <button onclick="findOrphans()">Trouver les orphelins</button>
         <button class="danger" onclick="cleanupOrphans()">Nettoyer les orphelins</button>
+        <button class="danger" onclick="cleanupDuplicates()">Nettoyer les doublons de conversations</button>
     </div>
 
     <div id="results"></div>
 
     <script>
+        // Try multiple storage keys (legacy and new)
+        function getStorageData() {
+            // Try different possible storage keys
+            const storageKeys = {
+                conversations: ['doodates_conversations', 'conversations'],
+                polls: ['doodates_polls', 'dev-polls']
+            };
+            
+            let conversations = [];
+            let polls = [];
+            
+            for (const key of storageKeys.conversations) {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    try {
+                        conversations = JSON.parse(data);
+                        console.log(`Found conversations in key: ${key}`);
+                        break;
+                    } catch (e) {
+                        console.warn(`Failed to parse ${key}:`, e);
+                    }
+                }
+            }
+            
+            for (const key of storageKeys.polls) {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    try {
+                        polls = JSON.parse(data);
+                        console.log(`Found polls in key: ${key}`);
+                        break;
+                    } catch (e) {
+                        console.warn(`Failed to parse ${key}:`, e);
+                    }
+                }
+            }
+            
+            return { conversations, polls };
+        }
+
         function analyzeData() {
-            const conversations = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
-            const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
+            const { conversations, polls } = getStorageData();
             
             let html = '<h2>📊 Statistiques</h2><div class="section">';
             html += `<p><span class="key">Conversations:</span> <span class="value">${conversations.length}</span></p>`;
@@ -113,11 +169,14 @@
 
             // Find polls with multiple conversations
             html += '<h2>⚠️ Polls avec plusieurs conversations</h2>';
+            let hasDuplicates = false;
             Object.entries(conversationsByPoll).forEach(([pollId, convs]) => {
                 if (convs.length > 1) {
+                    hasDuplicates = true;
                     const poll = polls.find(p => p.id === pollId);
                     html += `<div class="section duplicate">`;
                     html += `<p><span class="key">Poll:</span> <span class="value">${poll ? poll.title : pollId}</span></p>`;
+                    html += `<p><span class="key">Poll ID:</span> <span class="value">${pollId}</span></p>`;
                     html += `<p><span class="key">Nombre de conversations:</span> <span class="value">${convs.length}</span></p>`;
                     html += '<details><summary>Détails des conversations</summary><pre>';
                     html += JSON.stringify(convs, null, 2);
@@ -125,52 +184,63 @@
                     html += '</div>';
                 }
             });
+            
+            if (!hasDuplicates) {
+                html += '<p>Aucun poll avec plusieurs conversations ✅</p>';
+            }
 
             // List all conversations
             html += '<h2>💬 Toutes les conversations</h2>';
-            conversations.forEach((conv, i) => {
-                const pollId = conv.pollId || conv.relatedPollId;
-                const poll = pollId ? polls.find(p => p.id === pollId) : null;
-                
-                html += `<div class="item">`;
-                html += `<p><span class="key">ID:</span> <span class="value">${conv.id}</span></p>`;
-                html += `<p><span class="key">Titre:</span> <span class="value">${conv.title}</span></p>`;
-                html += `<p><span class="key">Poll ID:</span> <span class="value">${pollId || 'Aucun'}</span></p>`;
-                if (poll) {
-                    html += `<p><span class="key">Poll Titre:</span> <span class="value">${poll.title}</span></p>`;
-                }
-                html += `<p><span class="key">Créé:</span> <span class="value">${new Date(conv.createdAt).toLocaleString('fr-FR')}</span></p>`;
-                html += '<details><summary>Voir JSON complet</summary><pre>';
-                html += JSON.stringify(conv, null, 2);
-                html += '</pre></details>';
-                html += '</div>';
-            });
+            if (conversations.length === 0) {
+                html += '<p>Aucune conversation trouvée</p>';
+            } else {
+                conversations.forEach((conv, i) => {
+                    const pollId = conv.pollId || conv.relatedPollId;
+                    const poll = pollId ? polls.find(p => p.id === pollId) : null;
+                    
+                    html += `<div class="item">`;
+                    html += `<p><span class="key">ID:</span> <span class="value">${conv.id}</span></p>`;
+                    html += `<p><span class="key">Titre:</span> <span class="value">${conv.title}</span></p>`;
+                    html += `<p><span class="key">Poll ID:</span> <span class="value">${pollId || 'Aucun'}</span></p>`;
+                    if (poll) {
+                        html += `<p><span class="key">Poll Titre:</span> <span class="value">${poll.title}</span></p>`;
+                    }
+                    html += `<p><span class="key">Créé:</span> <span class="value">${new Date(conv.createdAt || conv.created_at).toLocaleString('fr-FR')}</span></p>`;
+                    html += '<details><summary>Voir JSON complet</summary><pre>';
+                    html += JSON.stringify(conv, null, 2);
+                    html += '</pre></details>';
+                    html += '</div>';
+                });
+            }
 
             // List all polls
             html += '<h2>📋 Tous les polls</h2>';
-            polls.forEach(poll => {
-                const linkedConvs = conversations.filter(c => 
-                    c.pollId === poll.id || c.relatedPollId === poll.id
-                );
-                
-                html += `<div class="item poll-item">`;
-                html += `<p><span class="key">ID:</span> <span class="value">${poll.id}</span></p>`;
-                html += `<p><span class="key">Titre:</span> <span class="value">${poll.title}</span></p>`;
-                html += `<p><span class="key">Type:</span> <span class="value">${poll.type || 'date'}</span></p>`;
-                html += `<p><span class="key">Conversations liées:</span> <span class="value">${linkedConvs.length}</span></p>`;
-                html += `<p><span class="key">Créé:</span> <span class="value">${new Date(poll.created_at).toLocaleString('fr-FR')}</span></p>`;
-                html += '<details><summary>Voir JSON complet</summary><pre>';
-                html += JSON.stringify(poll, null, 2);
-                html += '</pre></details>';
-                html += '</div>';
-            });
+            if (polls.length === 0) {
+                html += '<p>Aucun poll trouvé</p>';
+            } else {
+                polls.forEach(poll => {
+                    const linkedConvs = conversations.filter(c => 
+                        c.pollId === poll.id || c.relatedPollId === poll.id
+                    );
+                    
+                    html += `<div class="item poll-item">`;
+                    html += `<p><span class="key">ID:</span> <span class="value">${poll.id}</span></p>`;
+                    html += `<p><span class="key">Titre:</span> <span class="value">${poll.title}</span></p>`;
+                    html += `<p><span class="key">Type:</span> <span class="value">${poll.type || 'date'}</span></p>`;
+                    html += `<p><span class="key">Conversations liées:</span> <span class="value">${linkedConvs.length}</span></p>`;
+                    html += `<p><span class="key">Créé:</span> <span class="value">${new Date(poll.created_at).toLocaleString('fr-FR')}</span></p>`;
+                    html += '<details><summary>Voir JSON complet</summary><pre>';
+                    html += JSON.stringify(poll, null, 2);
+                    html += '</pre></details>';
+                    html += '</div>';
+                });
+            }
 
             document.getElementById('results').innerHTML = html;
         }
 
         function findDuplicates() {
-            const conversations = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
-            const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
+            const { conversations, polls } = getStorageData();
             
             let html = '<h2>🔍 Recherche de doublons</h2>';
             
@@ -184,8 +254,10 @@
             });
 
             html += '<h3>Polls avec le même titre:</h3>';
+            let foundTitleDuplicates = false;
             Object.entries(pollsByTitle).forEach(([title, pollList]) => {
                 if (pollList.length > 1) {
+                    foundTitleDuplicates = true;
                     html += `<div class="section duplicate">`;
                     html += `<p><span class="key">Titre:</span> <span class="value">${title}</span></p>`;
                     html += `<p><span class="key">Nombre de polls:</span> <span class="value">${pollList.length}</span></p>`;
@@ -193,18 +265,21 @@
                         const linkedConvs = conversations.filter(c => 
                             c.pollId === poll.id || c.relatedPollId === poll.id
                         );
-                        html += `<p style="margin-left: 20px;">• Poll ID: ${poll.id} (${linkedConvs.length} conversations)</p>`;
+                        html += `<p style="margin-left: 20px;">• Poll ID: ${poll.id} (${linkedConvs.length} conversation(s))</p>`;
                     });
                     html += '</div>';
                 }
             });
+            
+            if (!foundTitleDuplicates) {
+                html += '<p>Aucun doublon de titre trouvé ✅</p>';
+            }
 
             document.getElementById('results').innerHTML = html;
         }
 
         function findOrphans() {
-            const conversations = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
-            const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
+            const { conversations, polls } = getStorageData();
             const pollIds = new Set(polls.map(p => p.id));
             
             let html = '<h2>👻 Conversations orphelines</h2>';
@@ -235,8 +310,7 @@
                 return;
             }
 
-            const conversations = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
-            const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
+            const { conversations, polls } = getStorageData();
             const pollIds = new Set(polls.map(p => p.id));
             
             const cleaned = conversations.map(conv => {
@@ -263,6 +337,65 @@
 
             localStorage.setItem('doodates_conversations', JSON.stringify(cleaned));
             alert('Nettoyage effectué ! Rechargez la page pour voir les changements.');
+            analyzeData();
+        }
+
+        function cleanupDuplicates() {
+            if (!confirm('Êtes-vous sûr de vouloir nettoyer les conversations en doublon pour chaque poll ?\n\nSeule la première conversation sera conservée, les autres seront détachées.')) {
+                return;
+            }
+
+            const { conversations, polls } = getStorageData();
+            
+            // Group conversations by poll
+            const conversationsByPoll = {};
+            conversations.forEach(conv => {
+                const pollId = conv.pollId || conv.relatedPollId;
+                if (pollId) {
+                    if (!conversationsByPoll[pollId]) {
+                        conversationsByPoll[pollId] = [];
+                    }
+                    conversationsByPoll[pollId].push(conv);
+                }
+            });
+
+            let cleanedCount = 0;
+            const cleaned = conversations.map(conv => {
+                const pollId = conv.pollId || conv.relatedPollId;
+                if (!pollId) return conv;
+                
+                const pollConvs = conversationsByPoll[pollId];
+                if (pollConvs && pollConvs.length > 1) {
+                    // Keep the first one (oldest), detach others
+                    const sorted = pollConvs.sort((a, b) => 
+                        new Date(a.createdAt || a.created_at).getTime() - new Date(b.createdAt || b.created_at).getTime()
+                    );
+                    
+                    if (conv.id !== sorted[0].id) {
+                        // This is a duplicate, detach it
+                        cleanedCount++;
+                        return {
+                            ...conv,
+                            pollId: undefined,
+                            relatedPollId: undefined,
+                            pollType: undefined,
+                            pollStatus: undefined,
+                            tags: conv.tags ? conv.tags.filter(t => t !== `poll:${pollId}`) : [],
+                            metadata: conv.metadata ? {
+                                ...conv.metadata,
+                                pollGenerated: undefined,
+                                pollTitle: undefined,
+                                pollId: undefined,
+                            } : undefined
+                        };
+                    }
+                }
+                return conv;
+            });
+
+            localStorage.setItem('doodates_conversations', JSON.stringify(cleaned));
+            alert(`Nettoyage effectué ! ${cleanedCount} conversation(s) détachée(s). Rechargez la page pour voir les changements.`);
+            analyzeData();
         }
 
         // Auto-analyze on load

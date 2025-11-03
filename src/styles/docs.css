@@ -1,0 +1,142 @@
+/* Documentation Styles */
+
+.docs-content {
+  @apply text-gray-900 dark:text-gray-100;
+  line-height: 1.8;
+}
+
+/* Headings */
+.docs-content h1 {
+  @apply text-4xl font-bold mb-6 mt-8 border-b-2 border-primary pb-3;
+}
+
+.docs-content h2 {
+  @apply text-3xl font-semibold mb-4 mt-8 text-primary;
+}
+
+.docs-content h3 {
+  @apply text-2xl font-semibold mb-3 mt-6;
+}
+
+.docs-content h4 {
+  @apply text-xl font-medium mb-2 mt-4 text-gray-700 dark:text-gray-300;
+}
+
+/* Paragraphs */
+.docs-content p {
+  @apply mb-4 leading-relaxed;
+}
+
+/* Lists */
+.docs-content ul,
+.docs-content ol {
+  @apply mb-4 ml-6 space-y-2;
+}
+
+.docs-content li {
+  @apply leading-relaxed;
+}
+
+.docs-content ul li {
+  @apply list-disc;
+}
+
+.docs-content ol li {
+  @apply list-decimal;
+}
+
+/* Links */
+.docs-content a {
+  @apply text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline transition-colors;
+}
+
+/* Blockquotes */
+.docs-content blockquote {
+  @apply border-l-4 border-primary bg-primary/5 pl-4 py-2 my-4 italic;
+}
+
+/* Tables */
+.docs-content table {
+  @apply w-full border-collapse my-6;
+}
+
+.docs-content th {
+  @apply bg-primary text-white px-4 py-2 text-left font-semibold;
+}
+
+.docs-content td {
+  @apply border border-gray-300 dark:border-gray-700 px-4 py-2;
+}
+
+.docs-content tr:nth-child(even) {
+  @apply bg-gray-50 dark:bg-gray-800/50;
+}
+
+/* Code blocks */
+.docs-content pre {
+  @apply bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto my-4;
+}
+
+.docs-content code:not(pre code) {
+  @apply bg-gray-100 dark:bg-gray-800 text-sm px-1.5 py-0.5 rounded font-mono;
+}
+
+/* Horizontal rules */
+.docs-content hr {
+  @apply border-gray-300 dark:border-gray-700 my-8;
+}
+
+/* Strong and emphasis */
+.docs-content strong {
+  @apply font-bold;
+}
+
+.docs-content em {
+  @apply italic;
+}
+
+/* Images */
+.docs-content img {
+  @apply rounded-lg shadow-lg my-6 max-w-full h-auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .docs-content h1 {
+    @apply text-3xl;
+  }
+  
+  .docs-content h2 {
+    @apply text-2xl;
+  }
+  
+  .docs-content h3 {
+    @apply text-xl;
+  }
+  
+  .docs-content table {
+    @apply text-sm;
+  }
+  
+  .docs-content pre {
+    @apply text-xs;
+  }
+}
+
+/* Scrollbar customization for code blocks */
+.docs-content pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.docs-content pre::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+.docs-content pre::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded;
+}
+
+.docs-content pre::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+

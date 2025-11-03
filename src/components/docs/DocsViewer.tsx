@@ -1,0 +1,132 @@
+import React, { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
+import { Link } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
+import { ErrorFactory, logError } from '@/lib/error-handling';
+
+interface DocsViewerProps {
+  docPath: string; // Ex: "01-Guide-Demarrage-Rapide.md"
+}
+
+export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
+  const [content, setContent] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadDoc = async () => {
+      try {
+        setLoading(true);
+        // Import du fichier Markdown depuis public/docs/
+        const response = await fetch(`/docs/${docPath}`);
+        if (!response.ok) {
+          throw ErrorFactory.notFound('Document non trouvé', 'Le document demandé n\'existe pas');
+        }
+        
+        const text = await response.text();
+        setContent(text);
+        setError(null);
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Erreur de chargement';
+        setError(errorMsg);
+        logError(err, { component: 'DocsViewer', docPath });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDoc();
+  }, [docPath]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-4 text-red-800 dark:text-red-200">
+        <p className="font-semibold">Erreur de chargement</p>
+        <p className="text-sm">{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="docs-content prose prose-lg max-w-none dark:prose-invert">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw, rehypeSanitize]}
+        components={{
+          // Liens internes → React Router Links
+          a: ({ node, href, children, ...props }) => {
+            // Lien interne (commence par ./)
+            if (href?.startsWith('./')) {
+              const docName = href.replace('./', '').replace('.md', '');
+              return (
+                <Link
+                  to={`/settings/docs/${docName}`}
+                  className="text-primary hover:underline"
+                  {...props}
+                >
+                  {children}
+                </Link>
+              );
+            }
+            // Lien externe
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline inline-flex items-center gap-1"
+                {...props}
+              >
+                {children}
+                <span className="text-xs">🔗</span>
+              </a>
+            );
+          },
+          
+          // Tableaux stylés
+          table: ({ node, ...props }) => (
+            <div className="overflow-x-auto my-6">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700" {...props} />
+            </div>
+          ),
+          
+          // Code blocks
+          code: ({ node, inline, className, children, ...props }) => {
+            if (inline) {
+              return (
+                <code
+                  className="bg-gray-100 dark:bg-gray-800 rounded px-1.5 py-0.5 text-sm font-mono text-primary"
+                  {...props}
+                >
+                  {children}
+                </code>
+              );
+            }
+            return (
+              <code
+                className="block bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto text-sm font-mono my-4"
+                {...props}
+              >
+                {children}
+              </code>
+            );
+          },
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+};
+
