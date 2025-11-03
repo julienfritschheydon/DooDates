@@ -37,7 +37,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
       const polls = getAllPolls();
       logger.info("📊 HistoryPanel: Polls récupérés via getAllPolls", "poll", {
         count: polls.length,
-        pollIds: polls.map(p => p.id),
+        pollIds: polls.map((p) => p.id),
       });
 
       // Trier par date de création décroissante et prendre les 5 derniers
@@ -65,10 +65,12 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
   // Écouter les changements de polls pour rafraîchir automatiquement
   useEffect(() => {
     logger.info("🎧 HistoryPanel: Setting up pollsChanged listener", "poll");
-    
+
     const handlePollsChange = (e: Event) => {
       const customEvent = e as CustomEvent;
-      logger.info("🔔 HistoryPanel: Received pollsChanged event!", "poll", { detail: customEvent.detail });
+      logger.info("🔔 HistoryPanel: Received pollsChanged event!", "poll", {
+        detail: customEvent.detail,
+      });
       setPollsRefreshKey((prev) => {
         const newKey = prev + 1;
         logger.info(`🔄 HistoryPanel: Incrementing refresh key ${prev} → ${newKey}`, "poll");
@@ -78,7 +80,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
 
     window.addEventListener("pollsChanged", handlePollsChange);
     logger.info("✅ HistoryPanel: pollsChanged listener registered", "poll");
-    
+
     return () => {
       logger.info("🧹 HistoryPanel: Removing pollsChanged listener", "poll");
       window.removeEventListener("pollsChanged", handlePollsChange);

@@ -122,11 +122,10 @@ export const usePollDeletionCascade = () => {
           await cleanupConversationLink(pollId);
         }
 
-        // Then delete the poll from localStorage (dev implementation)
+        // Then delete the poll using centralized pollStorage (to trigger pollsChanged event)
         try {
-          const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
-          const updatedPolls = polls.filter((poll: any) => poll.id !== pollId);
-          localStorage.setItem("dev-polls", JSON.stringify(updatedPolls));
+          const { deletePollById } = await import("../lib/pollStorage");
+          deletePollById(pollId);
 
           logger.info("Poll deleted successfully", "poll", { pollId });
 
