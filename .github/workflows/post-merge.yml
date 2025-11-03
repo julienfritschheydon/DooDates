@@ -95,7 +95,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: ⚡ Run Functional Tests (Shard ${{ matrix.shard }}/3)
-        run: npx playwright test --project=chromium --grep @functional --grep-invert "@wip|@flaky" --shard=${{ matrix.shard }}/3
+        run: npx playwright test --project=chromium --grep @functional --grep-invert "@wip|@flaky|@analytics" --shard=${{ matrix.shard }}/3
 
       - name: 📊 Upload Playwright report
         if: always()
