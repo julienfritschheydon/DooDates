@@ -77,7 +77,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: ⚡ Run Functional Tests (Extended validation)
-        run: npm run test:e2e:functional
+        run: npx playwright test --project=chromium --grep @functional --grep-invert "@wip|@flaky|@analytics"
 
       - name: 📊 Upload Playwright report
         if: always()
@@ -96,7 +96,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'Post-Merge Functional Tests Failed',
-              body: 'Tests fonctionnels echoues sur main. Commit: ' + context.sha + ' - Auteur: ' + context.payload.pusher.name + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
-              labels: ['bug', 'main-branch', 'automated'],
-              assignees: ['${context.payload.pusher.name}']
+              body: 'Tests fonctionnels echoues sur main. Commit: ' + context.sha + ' - Auteur: ' + context.actor + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
+              labels: ['bug', 'main-branch', 'automated']
             });
