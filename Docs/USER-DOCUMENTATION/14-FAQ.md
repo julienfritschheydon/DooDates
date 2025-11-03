@@ -615,5 +615,5 @@ Contactez-nous : support@doodates.com
 
 ---
 
-**© 2025 DooDates - FAQ v1.0 - Dernière mise à jour : Novembre 2025**
+**© DooDates - Documentation officielle**
 
