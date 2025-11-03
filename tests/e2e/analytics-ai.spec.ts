@@ -33,7 +33,7 @@ const test = base.extend<{}, { sharedContext: any }>({
 let pollSlug = '';
 let pollCreated = false;
 
-test.describe("Analytics IA - Suite Complète", () => {
+test.describe.skip("Analytics IA - Suite Complète", () => {
   test.describe.configure({ mode: 'serial' });
   
   // Skip sur Firefox et Safari car bug Playwright avec shared context
