@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageSquare, X, Info, Trash2, CheckSquare } from "lucide-react";
+import { MessageSquare, X, Info, Trash2, CheckSquare, ExternalLink } from "lucide-react";
 import { useDashboardData } from "./dashboard/useDashboardData";
 import { DashboardFilters } from "./dashboard/DashboardFilters";
 import { ConversationCard } from "./dashboard/ConversationCard";
@@ -12,7 +12,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useConversations } from "@/hooks/useConversations";
 import { usePollDeletionCascade } from "@/hooks/usePollDeletionCascade";
 import { useToast } from "@/hooks/use-toast";
-import { QuotaExplanation } from "@/components/ui/QuotaExplanation";
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -208,9 +207,17 @@ const Dashboard: React.FC = () => {
                   />
                 </div>
               </div>
-              
-              {/* Bouton d'explication des quotas */}
-              <QuotaExplanation />
+
+              {/* Bouton vers la page pricing */}
+              <button
+                onClick={() => navigate("/pricing")}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                title="Voir les quotas et tarifs"
+              >
+                <Info className="w-4 h-4" />
+                <span className="hidden sm:inline">En savoir plus</span>
+                <ExternalLink className="w-3 h-3" />
+              </button>
             </div>
           </div>
 

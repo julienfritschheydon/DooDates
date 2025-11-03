@@ -63,7 +63,10 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
       if (!answer) return false;
 
       // Vérifications spécifiques par type
-      if ((currentQuestion.kind === "text" || currentQuestion.kind === "long-text") && typeof answer === "string") {
+      if (
+        (currentQuestion.kind === "text" || currentQuestion.kind === "long-text") &&
+        typeof answer === "string"
+      ) {
         return answer.trim().length > 0;
       }
       if (currentQuestion.kind === "multiple" && Array.isArray(answer)) {
@@ -603,4 +606,3 @@ function QuestionRenderer({
 
   return <p className="text-gray-500">Type de question non supporté</p>;
 }
-

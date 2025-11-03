@@ -60,16 +60,22 @@
 
 **Rationale:** Simplicité maximale pour l'utilisateur. Il n'a pas à comprendre la différence entre types d'actions.
 
-### Coûts API réels
+### Coûts API réels (Version future avec crédits)
 
-| Action | Coût Gemini | Marge |
-|--------|-------------|-------|
-| 1 crédit moyen | ~$0.0005 | 99%+ |
-| Premium (100) | ~$0.05 | 99.4% (8.95€) |
-| Pro (1000) | ~$0.50 | 98.3% (28.50€) |
-| Beta (1000) | ~$0.50 | Investment |
+| Tier | Prix | Crédits | Coût API estimé | Marge |
+|------|------|---------|-----------------|-------|
+| **Invité** | 0€ | 5 | ~$0.0025 | N/A (gratuit) |
+| **Gratuit** | 0€ | 20/mois | ~$0.01 | N/A (gratuit) |
+| **Premium** | 9€/mois | 100/mois | ~$0.05 | **99.4%** (8.95€) |
+| **Pro** | 29€/mois | 1000/mois | ~$0.50 | **98.3%** (28.50€) |
+| **Beta Tester** | 0€ | 1000/mois | ~$0.50 | Investment |
 
-**Conclusion:** Marges excellentes, coût API négligeable. Beta testeurs = investissement acquisition validé.
+**Calcul :**
+- 1 crédit moyen ≈ $0.0005 (500 tokens input + 150 tokens output)
+- Premium : 100 crédits × $0.0005 = $0.05 → Marge : (9€ - $0.05) / 9€ = **99.4%**
+- Pro : 1000 crédits × $0.0005 = $0.50 → Marge : (29€ - $0.50) / 29€ = **98.3%**
+
+**Conclusion :** Marges excellentes (>98%), coût API négligeable. Beta testeurs = investissement acquisition validé.
 
 ---
 

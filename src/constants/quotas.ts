@@ -1,12 +1,12 @@
 /**
  * Quotas centralisés DooDates
- * 
+ *
  * ⚠️ SOURCE DE VÉRITÉ UNIQUE - Ne pas dupliquer ces valeurs ailleurs
- * 
+ *
  * Système de quotas freemium :
  * - Anonyme : Limité pour encourager l'inscription
  * - Authentifié : Généreux pour encourager l'adoption
- * 
+ *
  * Dernière mise à jour : 03 Nov 2025
  */
 
@@ -16,14 +16,14 @@
 
 /**
  * Nombre maximum de conversations IA
- * 
+ *
  * Une conversation = une session de création de sondage avec l'IA
  * Les modifications d'un sondage existant ne comptent pas comme nouvelle conversation
  */
 export const CONVERSATION_QUOTAS = {
   /** Utilisateurs anonymes : 5 conversations */
   ANONYMOUS: 5,
-  
+
   /** Utilisateurs authentifiés : 1000 conversations */
   AUTHENTICATED: 1000,
 } as const;
@@ -34,14 +34,14 @@ export const CONVERSATION_QUOTAS = {
 
 /**
  * Nombre maximum de messages IA par conversation
- * 
+ *
  * Limite anti-spam pour éviter les conversations infinies
  * Réduit pour compenser l'usage facilité par reconnaissance vocale
  */
 export const AI_MESSAGE_QUOTAS = {
   /** Utilisateurs anonymes : 10 messages par conversation */
   ANONYMOUS: 10,
-  
+
   /** Utilisateurs authentifiés : 100 messages par mois */
   AUTHENTICATED: 100,
 } as const;
@@ -52,13 +52,13 @@ export const AI_MESSAGE_QUOTAS = {
 
 /**
  * Nombre maximum de sondages créés par conversation
- * 
+ *
  * Empêche la création excessive de sondages dans une même conversation
  */
 export const POLL_CREATION_QUOTAS = {
   /** Utilisateurs anonymes : 2 polls par conversation */
   ANONYMOUS: 2,
-  
+
   /** Utilisateurs authentifiés : 5 polls par conversation */
   AUTHENTICATED: 5,
 } as const;
@@ -69,13 +69,13 @@ export const POLL_CREATION_QUOTAS = {
 
 /**
  * Nombre maximum de requêtes analytics conversationnels par jour
- * 
+ *
  * Les insights automatiques ne comptent pas (1 seul appel par poll, mis en cache)
  */
 export const ANALYTICS_QUOTAS = {
   /** Utilisateurs anonymes : 5 queries par jour */
   ANONYMOUS: 5,
-  
+
   /** Utilisateurs authentifiés : 50 queries par jour */
   AUTHENTICATED: 50,
 } as const;
@@ -90,7 +90,7 @@ export const ANALYTICS_QUOTAS = {
 export const STORAGE_QUOTAS = {
   /** Utilisateurs anonymes : 50 MB */
   ANONYMOUS: 50,
-  
+
   /** Utilisateurs authentifiés : 1000 MB (1 GB) */
   AUTHENTICATED: 1000,
 } as const;
@@ -105,7 +105,7 @@ export const STORAGE_QUOTAS = {
 export const RETENTION_DAYS = {
   /** Utilisateurs anonymes : 30 jours */
   ANONYMOUS: 30,
-  
+
   /** Utilisateurs authentifiés : 365 jours (1 an) */
   AUTHENTICATED: 365,
 } as const;
@@ -120,7 +120,7 @@ export const RETENTION_DAYS = {
 export const COOLDOWNS = {
   /** Délai minimum entre messages IA : 3 secondes */
   AI_MESSAGE: 3000,
-  
+
   /** Délai minimum entre créations de poll : 5 secondes */
   POLL_CREATION: 5000,
 } as const;
@@ -170,4 +170,3 @@ export function getAllQuotas(isAuthenticated: boolean) {
     retentionDays: isAuthenticated ? RETENTION_DAYS.AUTHENTICATED : RETENTION_DAYS.ANONYMOUS,
   };
 }
-

@@ -84,7 +84,8 @@ function convertQuestionType(
     // Questions texte n'ont pas d'options
     delete converted.options;
     delete converted.maxChoices;
-    converted.placeholder = newType === "long-text" ? "Votre réponse détaillée..." : "Votre réponse...";
+    converted.placeholder =
+      newType === "long-text" ? "Votre réponse détaillée..." : "Votre réponse...";
   } else if (newType === "matrix") {
     // Matrices ont des lignes et colonnes
     converted.matrixRows = question.options || [{ id: generateId(), label: "Ligne 1" }];

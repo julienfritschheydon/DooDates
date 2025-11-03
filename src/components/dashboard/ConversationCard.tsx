@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, ClipboardList, MessageSquare, Users, Vote, BarChart3, Trash2, Check } from "lucide-react";
+import {
+  Calendar,
+  ClipboardList,
+  MessageSquare,
+  Users,
+  Vote,
+  BarChart3,
+  Trash2,
+  Check,
+} from "lucide-react";
 import { ConversationItem } from "./types";
 import { getStatusColor, getStatusLabel } from "./utils";
 import PollActions from "@/components/polls/PollActions";
@@ -14,11 +23,11 @@ interface ConversationCardProps {
   onRefresh: () => void;
 }
 
-export const ConversationCard: React.FC<ConversationCardProps> = ({ 
-  item, 
+export const ConversationCard: React.FC<ConversationCardProps> = ({
+  item,
   isSelected = false,
   onToggleSelection,
-  onRefresh 
+  onRefresh,
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -99,7 +108,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
               <h3 className="text-lg font-semibold text-white line-clamp-2">
                 {item.poll ? item.poll.title : item.conversationTitle}
               </h3>
-              
+
               {/* Badge statut du poll - À côté du titre */}
               {item.poll && (
                 <span
