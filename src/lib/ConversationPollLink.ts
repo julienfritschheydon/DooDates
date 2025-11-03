@@ -14,6 +14,7 @@ import {
   getConversation,
   updateConversation,
   createConversation,
+  getConversations,
 } from "./storage/ConversationStorageSimple";
 import {
   getPollBySlugOrId,
@@ -60,7 +61,49 @@ export function linkPollToConversationBidirectional(
       throw ErrorFactory.storage(`Poll not found: ${pollId}`, "Sondage introuvable");
     }
 
-    // 3. Mettre à jour la conversation avec les infos du poll
+    // 3. Vérifier si d'autres conversations sont liées à ce poll et les détacher
+    const allConversations = getConversations();
+    const otherLinkedConversations = allConversations.filter(
+      (conv) =>
+        conv.id !== conversationId && (conv.pollId === pollId || conv.relatedPollId === pollId),
+    );
+
+    if (otherLinkedConversations.length > 0) {
+      logger.warn(
+        `⚠️ ${otherLinkedConversations.length} autre(s) conversation(s) déjà liée(s) à ce poll, détachement...`,
+        "conversation",
+        {
+          pollId,
+          existingConversations: otherLinkedConversations.map((c) => c.id),
+        },
+      );
+
+      // Détacher les autres conversations
+      otherLinkedConversations.forEach((conv) => {
+        updateConversation({
+          ...conv,
+          pollId: undefined,
+          pollType: undefined,
+          pollStatus: undefined,
+          relatedPollId: undefined,
+          tags: conv.tags?.filter((tag) => tag !== `poll:${pollId}`) || [],
+          metadata: conv.metadata
+            ? {
+                ...conv.metadata,
+                pollGenerated: undefined,
+                pollTitle: undefined,
+                pollId: undefined,
+              }
+            : undefined,
+        });
+        logger.info("Conversation détachée du poll", "conversation", {
+          conversationId: conv.id,
+          pollId,
+        });
+      });
+    }
+
+    // 4. Mettre à jour la conversation avec les infos du poll
     updateConversation({
       ...conversation,
       pollId: poll.id,
@@ -73,7 +116,7 @@ export function linkPollToConversationBidirectional(
       },
     });
 
-    // 4. Mettre à jour le poll avec l'ID de la conversation
+    // 5. Mettre à jour le poll avec l'ID de la conversation
     updatePollConversationLink(poll.id, conversationId);
 
     logger.info("✅ Liaison bidirectionnelle réussie", "conversation", {
@@ -137,7 +180,7 @@ export function unlinkPollFromConversation(conversationId: string): void {
  * @param pollId - ID du poll
  * @param pollTitle - Titre du poll
  * @param pollType - Type du poll ("date" ou "form")
- * @returns ID de la conversation créée
+ * @returns ID de la conversation créée ou existante
  */
 export function createConversationForPoll(
   pollId: string,
@@ -150,6 +193,24 @@ export function createConversationForPoll(
       pollTitle,
       pollType,
     });
+
+    // Vérifier si une conversation existe déjà pour ce poll
+    const existingConversations = getConversations();
+    const existingConversation = existingConversations.find(
+      (conv) => conv.pollId === pollId || conv.relatedPollId === pollId,
+    );
+
+    if (existingConversation) {
+      logger.warn(
+        "⚠️ Conversation existe déjà pour ce poll, retour de l'existante",
+        "conversation",
+        {
+          conversationId: existingConversation.id,
+          pollId,
+        },
+      );
+      return existingConversation.id;
+    }
 
     // Créer une conversation vide
     const conversation = createConversation({

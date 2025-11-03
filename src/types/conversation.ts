@@ -38,6 +38,7 @@ export type StorageProvider = "localStorage" | "supabase";
 export interface ConversationMetadata {
   pollGenerated?: boolean;
   pollTitle?: string; // Titre du sondage créé (pour rétrocompatibilité)
+  pollId?: string; // ID du sondage lié à cette conversation
   errorOccurred?: boolean;
   aiModel?: string;
   language?: "fr" | "en";

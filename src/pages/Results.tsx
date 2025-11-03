@@ -169,24 +169,9 @@ const Results: React.FC = () => {
             </>
           }
           actions={
-            <div className="w-full flex items-center gap-2 justify-between">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="px-3 py-2 rounded border hover:bg-gray-50 dark:hover:bg-gray-800"
-                  data-testid="dashboard-button"
-                >
-                  ← Tableau de bord
-                </button>
-                <PollActions
-                  poll={poll}
-                  showVoteButton
-                  onAfterDelete={() => navigate("/dashboard")}
-                />
-              </div>
-              <CloseButton onClick={() => navigate("/dashboard")} ariaLabel="Fermer" iconSize={6} />
-            </div>
+            <PollActions poll={poll} showVoteButton onAfterDelete={() => navigate("/dashboard")} />
           }
+          onClose={() => navigate("/dashboard")}
           kpis={[
             {
               label: "Participants",

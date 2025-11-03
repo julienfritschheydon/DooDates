@@ -5,6 +5,7 @@ import PollActions from "@/components/polls/PollActions";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
 import PollAnalyticsPanel from "@/components/polls/PollAnalyticsPanel";
+import { NPSResults } from "@/components/polls/NPSResults";
 import {
   getPollBySlugOrId,
   getFormResults,
@@ -130,11 +131,11 @@ export default function FormPollResults({ idOrSlug }: Props) {
         </>
       }
       actions={
-        <div className="w-full flex items-center gap-2 justify-between">
+        <div className="w-full flex items-center gap-2 justify-end">
           <PollActions poll={poll} showVoteButton />
-          <CloseButton onClick={() => navigate("/dashboard")} ariaLabel="Fermer" iconSize={6} />
         </div>
       }
+      onClose={() => navigate("/dashboard")}
       kpis={[
         { label: "Participants", value: totalRespondents },
         { label: "Questions", value: questions.length },
@@ -426,6 +427,93 @@ export default function FormPollResults({ idOrSlug }: Props) {
                     <div id={`text-q-${qid}`} className="sr-only" aria-live="polite">
                       {textAnswers[qid]?.length || 0} réponses textuelles.
                     </div>
+                  </div>
+                )}
+
+                {kind === "rating" && (
+                  <div className="space-y-4" data-testid="rating-results">
+                    {(() => {
+                      const ratingValues = responses
+                        .map((r) => r.answers[qid])
+                        .filter((v): v is number => typeof v === "number");
+
+                      if (ratingValues.length === 0) {
+                        return (
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            Aucune réponse pour le moment
+                          </div>
+                        );
+                      }
+
+                      const scale = q.ratingScale || 5;
+                      const avg = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
+                      const distribution = Array.from({ length: scale }, (_, i) => {
+                        const value = i + 1;
+                        const count = ratingValues.filter((v) => v === value).length;
+                        const percent = Math.round((count / ratingValues.length) * 100);
+                        return { value, count, percent };
+                      });
+
+                      return (
+                        <>
+                          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                            <div className="text-center">
+                              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                                {avg.toFixed(1)} / {scale}
+                              </div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                Moyenne ({ratingValues.length} réponse
+                                {ratingValues.length > 1 ? "s" : ""})
+                              </div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            {distribution.map((d) => (
+                              <div key={d.value} className="flex items-center gap-3">
+                                <span className="w-8 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  {d.value}
+                                </span>
+                                <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-6">
+                                  <div
+                                    className="bg-blue-500 h-6 rounded-full flex items-center justify-end px-2 transition-all"
+                                    style={{ width: `${d.percent}%` }}
+                                  >
+                                    {d.percent > 10 && (
+                                      <span className="text-xs font-semibold text-white">
+                                        {d.percent}%
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <span className="w-16 text-sm text-gray-600 dark:text-gray-400">
+                                  {d.count} vote{d.count > 1 ? "s" : ""}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {kind === "nps" && (
+                  <div data-testid="nps-results">
+                    {(() => {
+                      const npsValues = responses
+                        .map((r) => r.answers[qid])
+                        .filter((v): v is number => typeof v === "number");
+
+                      if (npsValues.length === 0) {
+                        return (
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            Aucune réponse pour le moment
+                          </div>
+                        );
+                      }
+
+                      return <NPSResults responses={npsValues} />;
+                    })()}
                   </div>
                 )}
               </div>

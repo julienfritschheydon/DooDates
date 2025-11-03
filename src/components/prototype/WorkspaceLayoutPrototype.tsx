@@ -427,14 +427,19 @@ export function WorkspaceLayoutPrototype() {
 
               {/* Bouton Account avec menu dropdown */}
               <div className="flex-1 relative">
-                <button
-                  className="w-full p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                  title="Compte"
-                  aria-label="Menu compte"
-                  onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
-                >
-                  <User className="w-5 h-5 text-gray-300 mx-auto" />
-                </button>
+                <div className="relative">
+                  <button
+                    className="w-full p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                    title="Compte (en développement)"
+                    aria-label="Menu compte"
+                    onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+                  >
+                    <User className="w-5 h-5 text-gray-300 mx-auto" />
+                  </button>
+                  <span className="absolute top-0 right-2 bg-orange-500 text-white text-[9px] font-bold px-1 py-0.5 rounded-full">
+                    DEV
+                  </span>
+                </div>
 
                 {/* Dropdown menu */}
                 {isAccountMenuOpen && (
