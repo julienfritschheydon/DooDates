@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ggshield
+        name: ggshield secret scan (pre-commit)
+        entry: ggshield secret scan pre-commit
+        language: system
+        types: [text]
+        stages: [pre-commit]
+
