@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, User, Settings } from "lucide-react";
 import HistoryPanel from "./HistoryPanel";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * TopBar minimal style ChatGPT
@@ -15,6 +16,7 @@ interface TopBarProps {
 
 export function TopBar({ onConversationSelect }: TopBarProps = {}) {
   const [showHistory, setShowHistory] = useState(false);
+  const { toast } = useToast();
 
   return (
     <>
@@ -42,18 +44,18 @@ export function TopBar({ onConversationSelect }: TopBarProps = {}) {
             >
               <Settings className="w-5 h-5 text-gray-300" />
             </button>
-            <div className="relative">
-              <button
-                className="p-2.5 hover:bg-[#2a2a2a] rounded-xl transition-all duration-200 hover:scale-105 border border-transparent hover:border-gray-700"
-                aria-label="Profile"
-                title="Compte (en développement)"
-              >
-                <User className="w-5 h-5 text-gray-300" />
-              </button>
-              <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                DEV
-              </span>
-            </div>
+            <button
+              onClick={() =>
+                toast({
+                  title: "Compte",
+                  description: "Page en cours de développement",
+                })
+              }
+              className="p-2.5 hover:bg-[#2a2a2a] rounded-xl transition-all duration-200 hover:scale-105 border border-transparent hover:border-gray-700"
+              aria-label="Compte"
+            >
+              <User className="w-5 h-5 text-gray-300" />
+            </button>
           </div>
         </div>
       </header>

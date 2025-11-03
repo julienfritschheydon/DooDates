@@ -177,7 +177,9 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-8 h-8 text-green-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Merci pour votre participation !</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Merci pour votre participation !
+          </h2>
           <p className="text-gray-600 mb-6">Votre réponse a été enregistrée avec succès.</p>
           <div className="space-y-3">
             <button
@@ -244,9 +246,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
                 </p>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Nom</label>
                     <input
                       type="text"
                       value={respondentName}
@@ -256,9 +256,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                     <input
                       type="email"
                       value={respondentEmail}
@@ -452,7 +450,7 @@ function QuestionRenderer({
         placeholder={question.placeholder || "Votre réponse..."}
         maxLength={question.maxLength}
         rows={4}
-        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-gray-900 placeholder:text-gray-400"
       />
     );
   }
@@ -548,7 +546,7 @@ function QuestionRenderer({
               {columns.map((col) => (
                 <th
                   key={col.id}
-                  className="p-2 text-center border-b-2 border-gray-200 text-sm font-medium"
+                  className="p-2 text-center border-b-2 border-gray-200 text-sm font-medium text-gray-900"
                 >
                   {col.label}
                 </th>
@@ -558,7 +556,7 @@ function QuestionRenderer({
           <tbody>
             {rows.map((row) => (
               <tr key={row.id} className="border-b border-gray-100">
-                <td className="p-3 font-medium text-sm">{row.label}</td>
+                <td className="p-3 font-medium text-sm text-gray-900">{row.label}</td>
                 {columns.map((col) => {
                   const isSelected =
                     question.matrixType === "multiple"
