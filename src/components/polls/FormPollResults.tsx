@@ -343,47 +343,47 @@ export default function FormPollResults({ idOrSlug }: Props) {
                         Configuration de matrice invalide
                       </div>
                     ) : (
-                    <table className="w-full border-collapse text-sm">
-                      <thead>
-                        <tr>
-                          <th className="border dark:border-gray-600 p-2 bg-gray-50 dark:bg-gray-700 text-left"></th>
-                          {(q.matrixColumns || []).map((col: FormQuestionOption) => (
-                            <th
-                              key={col.id}
-                              className="border dark:border-gray-600 p-2 bg-gray-50 dark:bg-gray-700 text-center font-medium dark:text-gray-200"
-                            >
-                              {col.label}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(q.matrixRows || []).map((row: FormQuestionOption) => (
-                          <tr key={row.id}>
-                            <td className="border dark:border-gray-600 p-2 font-medium bg-gray-50 dark:bg-gray-700 dark:text-gray-200">
-                              {row.label}
-                            </td>
-                            {(q.matrixColumns || []).map((col: FormQuestionOption) => {
-                              const rowColKey = `${row.id}_${col.id}`;
-                              const count = stats?.counts?.[rowColKey] || 0;
-                              const pct = totalRespondents
-                                ? Math.round((count / totalRespondents) * 100)
-                                : 0;
-                              return (
-                                <td
-                                  key={col.id}
-                                  className="border dark:border-gray-600 p-2 text-center"
-                                >
-                                  <div className="text-gray-700 dark:text-gray-300">
-                                    {count} ({pct}%)
-                                  </div>
-                                </td>
-                              );
-                            })}
+                      <table className="w-full border-collapse text-sm">
+                        <thead>
+                          <tr>
+                            <th className="border dark:border-gray-600 p-2 bg-gray-50 dark:bg-gray-700 text-left"></th>
+                            {(q.matrixColumns || []).map((col: FormQuestionOption) => (
+                              <th
+                                key={col.id}
+                                className="border dark:border-gray-600 p-2 bg-gray-50 dark:bg-gray-700 text-center font-medium dark:text-gray-200"
+                              >
+                                {col.label}
+                              </th>
+                            ))}
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {(q.matrixRows || []).map((row: FormQuestionOption) => (
+                            <tr key={row.id}>
+                              <td className="border dark:border-gray-600 p-2 font-medium bg-gray-50 dark:bg-gray-700 dark:text-gray-200">
+                                {row.label}
+                              </td>
+                              {(q.matrixColumns || []).map((col: FormQuestionOption) => {
+                                const rowColKey = `${row.id}_${col.id}`;
+                                const count = stats?.counts?.[rowColKey] || 0;
+                                const pct = totalRespondents
+                                  ? Math.round((count / totalRespondents) * 100)
+                                  : 0;
+                                return (
+                                  <td
+                                    key={col.id}
+                                    className="border dark:border-gray-600 p-2 text-center"
+                                  >
+                                    <div className="text-gray-700 dark:text-gray-300">
+                                      {count} ({pct}%)
+                                    </div>
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     )}
                   </div>
                 )}
