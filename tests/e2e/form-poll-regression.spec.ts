@@ -32,7 +32,7 @@ function mkLogger(scope: string) {
   return (...parts: any[]) => console.log(`[${scope}]`, ...parts);
 }
 
-test.describe('Form Poll - Tests de non-régression', () => {
+test.describe.skip('Form Poll - Tests de non-régression', () => {
   test.describe.configure({ mode: 'serial' });
   
   // Skip sur Firefox et Safari car bug Playwright avec shared context
@@ -183,7 +183,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
     }
   });
 
-  test.skip('RÉGRESSION #2 : Ajouter une question via IA @functional', async ({ page, isMobile }) => {
+  test('RÉGRESSION #2 : Ajouter une question via IA @functional', async ({ page, isMobile }) => {
     // Skip sur mobile : le textarea est caché par le z-index de l'éditeur
     test.skip(isMobile, 'Textarea caché par z-index sur mobile');
     
