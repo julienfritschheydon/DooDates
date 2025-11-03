@@ -14,7 +14,60 @@ permissions:
   issues: write
 
 jobs:
+  # ========================================
+  # DÉTECTION CHANGEMENTS (skip docs only)
+  # ========================================
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Detect file changes
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'tests/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vite.config.ts'
+              - 'vitest.config.ts'
+              - 'tsconfig.json'
+              - 'playwright.config.ts'
+              - '.github/workflows/**'
+            docs:
+              - 'Docs/**/*.md'
+              - 'README.md'
+              - '*.md'
+
+  # ========================================
+  # SKIP NOTIFICATION (docs only)
+  # ========================================
+  skip-notification:
+    needs: changes
+    if: needs.changes.outputs.code == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📝 Docs only - Skip tests
+        run: |
+          echo "✅ Only documentation files changed"
+          echo "Skipping tests and auto-merge"
+          echo "Changes detected:"
+          echo "  - Docs: ${{ needs.changes.outputs.docs }}"
+          echo "  - Code: ${{ needs.changes.outputs.code }}"
+
+  # ========================================
+  # TESTS (skip si docs only)
+  # ========================================
   tests-unit:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -49,6 +102,8 @@ jobs:
         run: npm run test:ux-regression
 
   tests-e2e:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -96,6 +151,8 @@ jobs:
           retention-days: 7
 
   build-validation:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -125,6 +182,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-eslint-
 
+      - name: 🔧 Cache TypeScript Build Info
+        uses: actions/cache@v4
+        with:
+          path: .tsbuildinfo
+          key: ${{ runner.os }}-tsbuildinfo-${{ hashFiles('src/**/*.ts*', 'tsconfig*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-tsbuildinfo-
+
+      - name: 🔧 Cache Vite Build
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist
+            node_modules/.vite
+          key: ${{ runner.os }}-vite-build-${{ hashFiles('src/**', 'vite.config.ts', 'tsconfig.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vite-build-
+
       - name: 🔧 Install dependencies
         run: npm ci
 
@@ -138,8 +213,13 @@ jobs:
         run: npm run build
 
   auto-merge-to-main:
-    needs: [tests-unit, tests-e2e, build-validation]
-    if: success()
+    needs: [changes, tests-unit, tests-e2e, build-validation]
+    if: |
+      always() &&
+      needs.changes.outputs.code == 'true' &&
+      needs.tests-unit.result == 'success' &&
+      needs.tests-e2e.result == 'success' &&
+      needs.build-validation.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -165,8 +245,13 @@ jobs:
           echo "All tests passed, deployment workflows will now run"
 
   notify-failure:
-    needs: [tests-unit, tests-e2e, build-validation]
-    if: failure()
+    needs: [changes, tests-unit, tests-e2e, build-validation]
+    if: |
+      always() &&
+      needs.changes.outputs.code == 'true' &&
+      (needs.tests-unit.result == 'failure' ||
+       needs.tests-e2e.result == 'failure' ||
+       needs.build-validation.result == 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: Create Issue if Validation Failed
