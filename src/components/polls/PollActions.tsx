@@ -88,6 +88,9 @@ export const PollActions: React.FC<PollActionsProps> = ({
   const handleDuplicate = () => {
     try {
       const dup = duplicatePoll(poll);
+      
+      // Save the duplicated poll to storage before creating conversation
+      addPoll(dup);
 
       // Create a conversation for the duplicated poll
       createConversationForPoll(dup.id, dup.title, dup.type || "date");
@@ -97,7 +100,8 @@ export const PollActions: React.FC<PollActionsProps> = ({
         description: "Le sondage et sa conversation ont été copiés avec succès.",
       });
       onAfterDuplicate?.(dup);
-    } catch {
+    } catch (error) {
+      logError(error, { component: "PollActions", operation: "duplicatePoll" });
       toast({
         title: "Erreur",
         description: "Impossible de copier le sondage.",
