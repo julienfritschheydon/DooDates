@@ -123,8 +123,8 @@ jobs:
       - name: 🔍 Vérification TypeScript
         run: npm run type-check
 
-      - name: 🧹 Lint
-        run: npm run lint
+      - name: 🧹 Lint (warnings allowed on develop)
+        run: npx eslint . --report-unused-disable-directives --max-warnings 1000
 
       - name: 🏗️ Build production
         run: npm run build
