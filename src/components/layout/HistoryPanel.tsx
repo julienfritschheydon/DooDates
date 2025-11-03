@@ -31,13 +31,13 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
 
   // Charger les sondages récents depuis localStorage
   useEffect(() => {
-    logger.debug("Chargement des sondages", "poll");
+    logger.info(`🔄 HistoryPanel: Loading polls (refreshKey=${pollsRefreshKey})`, "poll");
     try {
       // Utiliser getAllPolls() comme le Dashboard
       const polls = getAllPolls();
-      logger.debug("Polls récupérés via getAllPolls", "poll", {
+      logger.info("📊 HistoryPanel: Polls récupérés via getAllPolls", "poll", {
         count: polls.length,
-        firstPoll: polls[0],
+        pollIds: polls.map(p => p.id),
       });
 
       // Trier par date de création décroissante et prendre les 5 derniers
@@ -48,12 +48,11 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, 5);
 
-      logger.debug("Polls triés (top 5)", "poll", {
+      logger.info("✅ HistoryPanel: Polls triés (top 5)", "poll", {
         polls: sorted.map((p) => ({
           id: p.id,
           title: p.title,
           type: p.type,
-          created_at: p.created_at,
         })),
       });
 
@@ -65,14 +64,25 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
 
   // Écouter les changements de polls pour rafraîchir automatiquement
   useEffect(() => {
+    logger.info("🎧 HistoryPanel: Setting up pollsChanged listener", "poll");
+    
     const handlePollsChange = (e: Event) => {
       const customEvent = e as CustomEvent;
-      logger.debug("Polls changés, rafraîchissement...", "poll", { detail: customEvent.detail });
-      setPollsRefreshKey(prev => prev + 1);
+      logger.info("🔔 HistoryPanel: Received pollsChanged event!", "poll", { detail: customEvent.detail });
+      setPollsRefreshKey((prev) => {
+        const newKey = prev + 1;
+        logger.info(`🔄 HistoryPanel: Incrementing refresh key ${prev} → ${newKey}`, "poll");
+        return newKey;
+      });
     };
 
     window.addEventListener("pollsChanged", handlePollsChange);
-    return () => window.removeEventListener("pollsChanged", handlePollsChange);
+    logger.info("✅ HistoryPanel: pollsChanged listener registered", "poll");
+    
+    return () => {
+      logger.info("🧹 HistoryPanel: Removing pollsChanged listener", "poll");
+      window.removeEventListener("pollsChanged", handlePollsChange);
+    };
   }, []);
 
   // Grouper par période

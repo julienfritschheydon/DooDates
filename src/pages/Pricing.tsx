@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { Check, X, Sparkles, Zap, Rocket, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { Check, X, Sparkles, Zap, Rocket, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export function PricingPage() {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
     if (user) {
-      navigate('/create');
+      navigate("/create");
     } else {
-      navigate('/signup');
+      navigate("/signup");
     }
   };
 
@@ -31,21 +31,21 @@ export function PricingPage() {
         {/* Toggle Monthly/Annual */}
         <div className="inline-flex items-center gap-4 bg-white dark:bg-gray-800 rounded-full p-2 shadow-md">
           <button
-            onClick={() => setBillingCycle('monthly')}
+            onClick={() => setBillingCycle("monthly")}
             className={`px-6 py-2 rounded-full transition-all ${
-              billingCycle === 'monthly'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+              billingCycle === "monthly"
+                ? "bg-blue-600 text-white"
+                : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
             }`}
           >
             Mensuel
           </button>
           <button
-            onClick={() => setBillingCycle('annual')}
+            onClick={() => setBillingCycle("annual")}
             className={`px-6 py-2 rounded-full transition-all ${
-              billingCycle === 'annual'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+              billingCycle === "annual"
+                ? "bg-blue-600 text-white"
+                : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
             }`}
           >
             Annuel
@@ -66,14 +66,14 @@ export function PricingPage() {
           period="Toujours gratuit"
           description="Découvrez DooDates et créez vos premiers sondages IA"
           features={[
-            { text: '20 crédits IA/mois', included: true, highlight: true },
-            { text: '20 sondages max', included: true },
-            { text: 'Export CSV, PDF, JSON, Markdown', included: true },
-            { text: 'Dashboard complet', included: true },
-            { text: 'Partage illimité', included: true },
-            { text: 'Customisation', included: false },
-            { text: 'Intégrations', included: false },
-            { text: 'Support garanti', included: false },
+            { text: "20 crédits IA/mois", included: true, highlight: true },
+            { text: "20 sondages max", included: true },
+            { text: "Export CSV, PDF, JSON, Markdown", included: true },
+            { text: "Dashboard complet", included: true },
+            { text: "Partage illimité", included: true },
+            { text: "Customisation", included: false },
+            { text: "Intégrations", included: false },
+            { text: "Support garanti", included: false },
           ]}
           cta="Commencer gratuitement"
           onCTA={handleGetStarted}
@@ -84,25 +84,25 @@ export function PricingPage() {
         <PricingCard
           icon={<Zap className="w-6 h-6" />}
           name="Premium"
-          price={billingCycle === 'monthly' ? '9' : '8.25'}
-          period={billingCycle === 'monthly' ? '/mois' : '/mois (99€/an)'}
+          price={billingCycle === "monthly" ? "9" : "8.25"}
+          period={billingCycle === "monthly" ? "/mois" : "/mois (99€/an)"}
           description="Pour les utilisateurs réguliers et professionnels"
           features={[
-            { text: '100 crédits IA/mois', included: true, highlight: true },
-            { text: '100 sondages max', included: true },
-            { text: 'Export Excel + Google Sheets', included: true },
-            { text: 'Customisation (couleurs, logo)', included: true },
-            { text: 'Support email sous 7 jours', included: true },
+            { text: "100 crédits IA/mois", included: true, highlight: true },
+            { text: "100 sondages max", included: true },
+            { text: "Export Excel + Google Sheets", included: true },
+            { text: "Customisation (couleurs, logo)", included: true },
+            { text: "Support email sous 7 jours", included: true },
             {
-              text: billingCycle === 'annual' ? 'Rollover 1200 crédits/an' : 'Reset mensuel',
+              text: billingCycle === "annual" ? "Rollover 1200 crédits/an" : "Reset mensuel",
               included: true,
-              highlight: billingCycle === 'annual',
+              highlight: billingCycle === "annual",
             },
-            { text: 'Intégrations avancées', included: false },
-            { text: 'White-label', included: false },
+            { text: "Intégrations avancées", included: false },
+            { text: "White-label", included: false },
           ]}
-          cta={user ? 'Passer en Premium' : 'Essayer Premium'}
-          onCTA={() => handleUpgrade('premium', billingCycle)}
+          cta={user ? "Passer en Premium" : "Essayer Premium"}
+          onCTA={() => handleUpgrade("premium", billingCycle)}
           highlighted={true}
         />
 
@@ -110,25 +110,25 @@ export function PricingPage() {
         <PricingCard
           icon={<Rocket className="w-6 h-6" />}
           name="Pro"
-          price={billingCycle === 'monthly' ? '29' : '24.90'}
-          period={billingCycle === 'monthly' ? '/mois' : '/mois (299€/an)'}
+          price={billingCycle === "monthly" ? "29" : "24.90"}
+          period={billingCycle === "monthly" ? "/mois" : "/mois (299€/an)"}
           description="Usage intensif pour agences et entreprises"
           features={[
-            { text: '1000 crédits IA/mois', included: true, highlight: true },
-            { text: 'Sondages illimités', included: true, highlight: true },
-            { text: 'Tous les exports', included: true },
-            { text: 'Customisation complète + domaine', included: true },
-            { text: 'Intégrations (Slack, API, Zapier)', included: true },
-            { text: 'White-label disponible', included: true },
-            { text: 'Support prioritaire sous 2 jours', included: true },
+            { text: "1000 crédits IA/mois", included: true, highlight: true },
+            { text: "Sondages illimités", included: true, highlight: true },
+            { text: "Tous les exports", included: true },
+            { text: "Customisation complète + domaine", included: true },
+            { text: "Intégrations (Slack, API, Zapier)", included: true },
+            { text: "White-label disponible", included: true },
+            { text: "Support prioritaire sous 2 jours", included: true },
             {
-              text: billingCycle === 'annual' ? 'Rollover 12000 crédits/an' : 'Reset mensuel',
+              text: billingCycle === "annual" ? "Rollover 12000 crédits/an" : "Reset mensuel",
               included: true,
-              highlight: billingCycle === 'annual',
+              highlight: billingCycle === "annual",
             },
           ]}
-          cta={user ? 'Passer en Pro' : 'Essayer Pro'}
-          onCTA={() => handleUpgrade('pro', billingCycle)}
+          cta={user ? "Passer en Pro" : "Essayer Pro"}
+          onCTA={() => handleUpgrade("pro", billingCycle)}
           highlighted={false}
         />
       </div>
@@ -141,13 +141,13 @@ export function PricingPage() {
             Programme Beta Testeur
           </h2>
           <p className="text-gray-700 dark:text-gray-200 mb-6">
-            Vous avez reçu une clé beta ? Activez-la pour obtenir{' '}
+            Vous avez reçu une clé beta ? Activez-la pour obtenir{" "}
             <strong>1000 crédits/mois pendant 3 mois</strong> + toutes les fonctionnalités Pro
             gratuitement !
           </p>
           <Button
             variant="outline"
-            onClick={() => navigate('/settings')}
+            onClick={() => navigate("/settings")}
             className="bg-white dark:bg-gray-800"
           >
             Activer ma clé beta
@@ -218,7 +218,7 @@ function PricingCard({
   return (
     <div
       className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transition-transform hover:scale-105 ${
-        highlighted ? 'ring-4 ring-blue-600 dark:ring-blue-500' : ''
+        highlighted ? "ring-4 ring-blue-600 dark:ring-blue-500" : ""
       }`}
     >
       {highlighted && (
@@ -241,7 +241,7 @@ function PricingCard({
 
       <p className="text-gray-600 dark:text-gray-300 mb-6">{description}</p>
 
-      <Button className="w-full mb-6" variant={highlighted ? 'default' : 'outline'} onClick={onCTA}>
+      <Button className="w-full mb-6" variant={highlighted ? "default" : "outline"} onClick={onCTA}>
         {cta}
       </Button>
 
@@ -256,9 +256,9 @@ function PricingCard({
             <span
               className={`${
                 feature.included
-                  ? 'text-gray-900 dark:text-gray-100'
-                  : 'text-gray-400 dark:text-gray-500'
-              } ${feature.highlight ? 'font-semibold' : ''}`}
+                  ? "text-gray-900 dark:text-gray-100"
+                  : "text-gray-400 dark:text-gray-500"
+              } ${feature.highlight ? "font-semibold" : ""}`}
             >
               {feature.text}
             </span>
@@ -285,7 +285,9 @@ function CreditPackCard({
   return (
     <div
       className={`bg-white dark:bg-gray-800 rounded-xl p-6 text-center transition-transform hover:scale-105 ${
-        highlighted ? 'ring-2 ring-blue-600 dark:ring-blue-500' : 'border border-gray-200 dark:border-gray-700'
+        highlighted
+          ? "ring-2 ring-blue-600 dark:ring-blue-500"
+          : "border border-gray-200 dark:border-gray-700"
       }`}
     >
       {highlighted && (
@@ -316,23 +318,23 @@ function PricingFAQ() {
       a: "1 crédit = 1 action IA (message chat, query analytics, ou 1/5 de simulation). Utilisez-les comme vous voulez ! Vous gardez le contrôle total de votre budget.",
     },
     {
-      q: 'Les crédits expirent ?',
+      q: "Les crédits expirent ?",
       a: "Oui, chaque mois pour les plans mensuels. Mais avec un abonnement annuel, vos crédits s'accumulent sur 12 mois ! Parfait pour les pics d'activité.",
     },
     {
-      q: 'Puis-je changer de plan ?',
+      q: "Puis-je changer de plan ?",
       a: "Oui, à tout moment ! Upgrade immédiat, downgrade effectif à la fin de la période en cours. Aucun engagement.",
     },
     {
-      q: 'Que se passe-t-il si je dépasse ?',
+      q: "Que se passe-t-il si je dépasse ?",
       a: "Pas de surcharge surprise ! Vous pouvez acheter des packs de crédits additionnels ou upgrader votre plan. Vous gardez le contrôle.",
     },
     {
-      q: 'Y a-t-il des frais cachés ?',
-      a: 'Aucun ! Ce que vous voyez est ce que vous payez. Pas de frais de setup, pas de frais par réponse, pas de frais par export. Transparence totale.',
+      q: "Y a-t-il des frais cachés ?",
+      a: "Aucun ! Ce que vous voyez est ce que vous payez. Pas de frais de setup, pas de frais par réponse, pas de frais par export. Transparence totale.",
     },
     {
-      q: 'Comment fonctionne le programme beta ?',
+      q: "Comment fonctionne le programme beta ?",
       a: "Les beta testeurs reçoivent une clé d'accès pour 1000 crédits/mois pendant 3 mois + toutes les fonctionnalités Pro. Après 3 mois, conversion automatique vers le plan Gratuit avec offre exclusive Premium à -50%.",
     },
   ];
@@ -363,9 +365,8 @@ function PricingFAQ() {
 // Helper Function
 // ================================================
 
-function handleUpgrade(tier: 'premium' | 'pro', cycle: 'monthly' | 'annual') {
+function handleUpgrade(tier: "premium" | "pro", cycle: "monthly" | "annual") {
   // TODO: Implémenter Stripe checkout
   console.log(`Upgrade to ${tier} ${cycle}`);
   alert(`Fonctionnalité de paiement bientôt disponible !\n\nTier: ${tier}\nCycle: ${cycle}`);
 }
-

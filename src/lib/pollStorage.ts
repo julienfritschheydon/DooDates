@@ -287,9 +287,12 @@ export function deletePollById(id: string): void {
   // Synchroniser le cache mémoire
   memoryPollCache.delete(id);
   logger.info(`Poll ${id} deleted successfully`, "poll");
-  
+
   // Notifier les composants du changement
-  window.dispatchEvent(new CustomEvent('pollsChanged', { detail: { action: 'delete', pollId: id } }));
+  logger.info(`🔔 Dispatching pollsChanged event for poll ${id}`, "poll");
+  const event = new CustomEvent("pollsChanged", { detail: { action: "delete", pollId: id } });
+  window.dispatchEvent(event);
+  logger.info(`✅ pollsChanged event dispatched`, "poll");
 }
 
 export function duplicatePoll(poll: Poll): Poll {
