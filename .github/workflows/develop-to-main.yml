@@ -21,7 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.changes.outputs.code }}
-      docs: ${{ steps.changes.outputs.docs }}
+      src: ${{ steps.changes.outputs.src }}
+      tests-only: ${{ steps.changes.outputs.tests-only }}
+      e2e-required: ${{ steps.changes.outputs.e2e-required }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -41,6 +43,30 @@ jobs:
               - 'tsconfig.json'
               - 'playwright.config.ts'
               - '.github/workflows/**'
+            
+            # Changements nécessitant E2E (toujours tester)
+            e2e-required:
+              - 'src/**/!(*.test.ts|*.test.tsx|__tests__)'
+              - 'src/**/*.tsx'
+              - 'src/**/*.jsx'
+              - 'src/**/!(*.test).ts'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vite.config.ts'
+              - 'playwright.config.ts'
+              - 'tests/e2e/**'
+            
+            # Changements tests unitaires uniquement (skip E2E safe)
+            tests-only:
+              - 'src/**/__tests__/**'
+              - 'src/**/*.test.ts'
+              - 'src/**/*.test.tsx'
+              - 'vitest.config.ts'
+            
+            # Code source (hors tests)
+            src:
+              - 'src/**/!(*.test.ts|*.test.tsx)'
+            
             docs:
               - 'Docs/**/*.md'
               - 'README.md'
@@ -59,8 +85,7 @@ jobs:
           echo "✅ Only documentation files changed"
           echo "Skipping tests and auto-merge"
           echo "Changes detected:"
-          echo "  - Docs: ${{ needs.changes.outputs.docs }}"
-          echo "  - Code: ${{ needs.changes.outputs.code }}"
+          echo "  - Code changes: ${{ needs.changes.outputs.code }}"
 
   # ========================================
   # TESTS (skip si docs only)
@@ -103,7 +128,16 @@ jobs:
 
   tests-e2e:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    # E2E requis SI:
+    # - Code source modifié (src hors tests)
+    # - Config modifiée (package.json, vite, playwright)
+    # - Tests E2E modifiés
+    # E2E SKIP SI:
+    # - Uniquement tests unitaires (*.test.ts dans __tests__/)
+    # - Uniquement vitest.config.ts
+    if: |
+      needs.changes.outputs.code == 'true' &&
+      needs.changes.outputs.e2e-required == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -149,6 +183,26 @@ jobs:
           name: playwright-report-develop-smoke
           path: playwright-report
           retention-days: 7
+
+  # ========================================
+  # E2E SKIP NOTIFICATION
+  # ========================================
+  e2e-skip-notification:
+    needs: changes
+    if: |
+      needs.changes.outputs.code == 'true' &&
+      needs.changes.outputs.tests-only == 'true' &&
+      needs.changes.outputs.e2e-required == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⚡ E2E Skipped - Tests unitaires uniquement
+        run: |
+          echo "✅ Only unit test files changed"
+          echo "Skipping E2E tests (safe)"
+          echo "Files changed:"
+          echo "  - Unit tests: ${{ needs.changes.outputs.tests-only }}"
+          echo "  - Source code: ${{ needs.changes.outputs.src }}"
+          echo "  - E2E required: ${{ needs.changes.outputs.e2e-required }}"
 
   build-validation:
     needs: changes
@@ -218,7 +272,7 @@ jobs:
       always() &&
       needs.changes.outputs.code == 'true' &&
       needs.tests-unit.result == 'success' &&
-      needs.tests-e2e.result == 'success' &&
+      (needs.tests-e2e.result == 'success' || needs.tests-e2e.result == 'skipped') &&
       needs.build-validation.result == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -250,7 +304,7 @@ jobs:
       always() &&
       needs.changes.outputs.code == 'true' &&
       (needs.tests-unit.result == 'failure' ||
-       needs.tests-e2e.result == 'failure' ||
+       (needs.tests-e2e.result == 'failure' && needs.tests-e2e.result != 'skipped') ||
        needs.build-validation.result == 'failure')
     runs-on: ubuntu-latest
     steps:
