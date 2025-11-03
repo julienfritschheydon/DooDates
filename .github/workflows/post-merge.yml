@@ -126,17 +126,23 @@ jobs:
             if (smokeStatus === 'failure') failedTests.push('Smoke Tests');
             if (functionalStatus === 'failure') failedTests.push('Functional Tests');
             
+            const issueBody = [
+              '❌ Tests E2E échoués sur main',
+              '',
+              'Tests en échec: ' + failedTests.join(', '),
+              'Commit: ' + context.sha,
+              'Auteur: ' + context.actor,
+              'Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
+              '',
+              'Détails:',
+              '- Smoke: ' + smokeStatus,
+              '- Functional: ' + functionalStatus
+            ].join('\n');
+            
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `Post-Merge E2E Tests Failed: ${failedTests.join(', ')}`,
-              body: `❌ **Tests E2E échoués sur main**\n\n` +
-                    `**Tests en échec:** ${failedTests.join(', ')}\n` +
-                    `**Commit:** ${context.sha}\n` +
-                    `**Auteur:** ${context.actor}\n` +
-                    `**Workflow:** ${context.payload.repository.html_url}/actions/runs/${context.runId}\n\n` +
-                    `**Détails:**\n` +
-                    `- Smoke: ${smokeStatus}\n` +
-                    `- Functional: ${functionalStatus}`,
+              title: 'Post-Merge E2E Tests Failed: ' + failedTests.join(', '),
+              body: issueBody,
               labels: ['critical', 'bug', 'main-branch', 'e2e-failure', 'automated']
             });
