@@ -186,3 +186,8 @@ SPECIFICATIONS-*.md
 # Playwright test artifacts
 test-results/
 playwright-report/
+
+# Screenshots de debug E2E (accessibles à Cascade mais pas commitées)
+Docs/screenshots/*.png
+Docs/screenshots/*.jpg
+!Docs/screenshots/README.md
