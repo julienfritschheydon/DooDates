@@ -27,6 +27,15 @@
   - Export CSV
   - Statistiques
 
+### 4. Page Pricing (UI)
+- ✅ `src/pages/Pricing.tsx` - Page pricing complète avec:
+  - 3 tiers (Gratuit, Premium, Pro)
+  - Toggle Monthly/Annual
+  - Section Beta Testeur
+  - Packs crédits additionnels
+  - FAQ complète
+  - Route `/pricing` configurée
+
 ---
 
 ## 🚀 PROCHAINES ÉTAPES (ORDRE D'IMPLÉMENTATION)
