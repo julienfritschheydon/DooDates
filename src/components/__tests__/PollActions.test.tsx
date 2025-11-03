@@ -9,6 +9,34 @@ vi.mock("@/hooks/use-toast", () => ({
   useToast: () => ({ toast: vi.fn() }),
 }));
 
+// Mock useAuth
+vi.mock("@/contexts/AuthContext", () => ({
+  useAuth: () => ({
+    user: null,
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+    loading: false,
+  }),
+}));
+
+// Mock useConversations
+vi.mock("@/hooks/useConversations", () => ({
+  useConversations: () => ({
+    conversations: [],
+    loading: false,
+    error: null,
+    refreshConversations: vi.fn(),
+  }),
+}));
+
+// Mock usePollDeletionCascade
+vi.mock("@/hooks/usePollDeletionCascade", () => ({
+  usePollDeletionCascade: () => ({
+    deletePollWithCascade: vi.fn(),
+    cleanupOrphanedLinks: vi.fn(),
+  }),
+}));
+
 // Mock pollStorage functions used internally by PollActions (defined inside factory to avoid hoisting issues)
 vi.mock("@/lib/pollStorage", async (importOriginal) => {
   const mod = await importOriginal<any>();
