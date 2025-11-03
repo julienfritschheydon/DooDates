@@ -17,7 +17,14 @@ import { DEFAULT_THEME } from "../../lib/themes";
 import { FormSimulationIntegration } from "../simulation/FormSimulationIntegration";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
-export type FormQuestionType = "single" | "multiple" | "text" | "long-text" | "matrix" | "rating" | "nps";
+export type FormQuestionType =
+  | "single"
+  | "multiple"
+  | "text"
+  | "long-text"
+  | "matrix"
+  | "rating"
+  | "nps";
 
 export interface FormOption {
   id: string;

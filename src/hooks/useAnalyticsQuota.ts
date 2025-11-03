@@ -32,7 +32,7 @@ interface QuotaData {
 export function useAnalyticsQuota() {
   const { user } = useAuth();
   const limit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
-  
+
   const [quota, setQuota] = useState<AnalyticsQuota>({
     used: 0,
     limit,
@@ -130,7 +130,11 @@ export function useAnalyticsQuota() {
         canQuery: remaining > 0,
       }));
 
-      logger.info("Analytics quota incremented", "analytics", { used, limit: currentLimit, remaining });
+      logger.info("Analytics quota incremented", "analytics", {
+        used,
+        limit: currentLimit,
+        remaining,
+      });
 
       return remaining > 0;
     } catch (error) {

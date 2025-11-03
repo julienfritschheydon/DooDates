@@ -4,7 +4,14 @@ import type { ConditionalRule } from "../../types/conditionalRules";
 import ConditionalRuleEditor from "./ConditionalRuleEditor";
 import { useUIState } from "../prototype/UIStateProvider";
 
-export type QuestionKind = "single" | "multiple" | "text" | "long-text" | "matrix" | "rating" | "nps";
+export type QuestionKind =
+  | "single"
+  | "multiple"
+  | "text"
+  | "long-text"
+  | "matrix"
+  | "rating"
+  | "nps";
 
 export type QuestionOption = {
   id: string;

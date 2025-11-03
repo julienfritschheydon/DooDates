@@ -48,7 +48,8 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           title: "Crédits IA épuisés",
           subtitle: "Créez un compte pour continuer avec la version gratuite",
           icon: <Calendar className="w-12 h-12 text-blue-600" />,
-          description: "Vous avez utilisé tous vos crédits IA en mode invité. Avec un compte gratuit, vous bénéficiez de crédits supplémentaires chaque mois.",
+          description:
+            "Vous avez utilisé tous vos crédits IA en mode invité. Avec un compte gratuit, vous bénéficiez de crédits supplémentaires chaque mois.",
           benefits: [],
         };
 
@@ -57,7 +58,8 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           title: "Crédits IA épuisés",
           subtitle: "Créez un compte pour continuer avec la version gratuite",
           icon: <Crown className="w-12 h-12 text-yellow-600" />,
-          description: "Vous avez utilisé tous vos crédits IA en mode invité. Avec un compte gratuit, vous bénéficiez de crédits supplémentaires chaque mois.",
+          description:
+            "Vous avez utilisé tous vos crédits IA en mode invité. Avec un compte gratuit, vous bénéficiez de crédits supplémentaires chaque mois.",
           benefits: [],
         };
 
@@ -66,7 +68,8 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           title: "Crédits IA épuisés",
           subtitle: "Créez un compte pour continuer avec la version gratuite",
           icon: <Users className="w-12 h-12 text-green-600" />,
-          description: "Vous avez utilisé tous vos crédits IA en mode invité. Avec un compte gratuit, vous bénéficiez de crédits supplémentaires chaque mois.",
+          description:
+            "Vous avez utilisé tous vos crédits IA en mode invité. Avec un compte gratuit, vous bénéficiez de crédits supplémentaires chaque mois.",
           benefits: [],
         };
 
@@ -75,7 +78,8 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
           title: "Crédits IA épuisés",
           subtitle: "Créez un compte pour continuer avec la version gratuite",
           icon: <Sparkles className="w-12 h-12 text-purple-600" />,
-          description: "Vous avez utilisé tous vos crédits IA en mode invité. Avec un compte gratuit, vous bénéficiez de crédits supplémentaires chaque mois.",
+          description:
+            "Vous avez utilisé tous vos crédits IA en mode invité. Avec un compte gratuit, vous bénéficiez de crédits supplémentaires chaque mois.",
           benefits: [],
         };
     }

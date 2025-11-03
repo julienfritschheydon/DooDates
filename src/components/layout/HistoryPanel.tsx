@@ -175,7 +175,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
         </div>
 
         {/* Liste conversations et sondages - Scrollable */}
-        <div className="overflow-y-auto" style={{ height: 'calc(100vh - 162px)' }}>
+        <div className="overflow-y-auto" style={{ height: "calc(100vh - 162px)" }}>
           {/* Sondages récents */}
           {(() => {
             logger.debug("Rendu - recentPolls", "poll", { count: recentPolls.length });

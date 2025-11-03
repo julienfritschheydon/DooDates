@@ -1,10 +1,10 @@
 /**
  * Service de détection des tentatives de changement de type de sondage.
- * 
+ *
  * Détecte quand un utilisateur essaie de passer d'un type de sondage à un autre
  * (date poll → form poll ou inversement) afin de démarrer automatiquement
  * une nouvelle conversation au lieu d'afficher une erreur.
- * 
+ *
  * @module services/PollTypeSwitchDetector
  */
 
@@ -148,15 +148,12 @@ export class PollTypeSwitchDetector {
 
   /**
    * Détecte si l'utilisateur tente de changer le type de sondage
-   * 
+   *
    * @param message Message de l'utilisateur
    * @param currentPoll Poll actuellement en cours d'édition
    * @returns Résultat de la détection
    */
-  static detectTypeSwitch(
-    message: string,
-    currentPoll: Poll | null,
-  ): TypeSwitchDetectionResult {
+  static detectTypeSwitch(message: string, currentPoll: Poll | null): TypeSwitchDetectionResult {
     // Si pas de poll actuel, pas de changement de type possible
     if (!currentPoll) {
       return {
@@ -167,14 +164,14 @@ export class PollTypeSwitchDetector {
     }
 
     const currentType = (currentPoll as any).type || "date";
-    
+
     // 1. Vérifier les phrases explicites de changement
     const explicitSwitch = this.hasExplicitSwitchPhrase(message);
-    
+
     if (explicitSwitch.found && explicitSwitch.targetType) {
       // Changement détecté si le type cible diffère du type actuel
       const isTypeSwitch = explicitSwitch.targetType !== currentType;
-      
+
       if (isTypeSwitch) {
         logger.info("🔄 Changement de type détecté (explicite)", "poll", {
           currentType,
@@ -201,7 +198,7 @@ export class PollTypeSwitchDetector {
       const formScore = this.FORM_KEYWORDS.filter((kw) => messageLower.includes(kw)).length;
       const dateScore = this.DATE_KEYWORDS.filter((kw) => messageLower.includes(kw)).length;
       const scoreDifference = Math.abs(formScore - dateScore);
-      
+
       // Confiance proportionnelle à la différence de score (min 0.5, max 0.85)
       const confidence = Math.min(0.85, 0.5 + scoreDifference * 0.15);
 
@@ -232,4 +229,3 @@ export class PollTypeSwitchDetector {
     };
   }
 }
-
