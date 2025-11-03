@@ -71,20 +71,24 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Quota indicator */}
-            <div className={`flex items-center gap-2 px-4 py-3 rounded-lg border ${
-              quotaStatus.conversations.isNearLimit 
-                ? 'bg-orange-900/20 border-orange-500/50' 
-                : 'bg-blue-900/20 border-blue-500/50'
-            }`}>
-              <Info className={`w-5 h-5 ${
-                quotaStatus.conversations.isNearLimit ? 'text-orange-400' : 'text-blue-400'
-              }`} />
+            <div
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg border ${
+                quotaStatus.conversations.isNearLimit
+                  ? "bg-orange-900/20 border-orange-500/50"
+                  : "bg-blue-900/20 border-blue-500/50"
+              }`}
+            >
+              <Info
+                className={`w-5 h-5 ${
+                  quotaStatus.conversations.isNearLimit ? "text-orange-400" : "text-blue-400"
+                }`}
+              />
               <div className="flex-1">
                 <p className="text-sm text-gray-300">
                   <span className="font-semibold">
                     {quotaStatus.conversations.used}/{quotaStatus.conversations.limit}
-                  </span>
-                  {' '}conversations utilisées
+                  </span>{" "}
+                  conversations utilisées
                   {!user && (
                     <span className="ml-2 text-blue-400">
                       • Connectez-vous pour augmenter la limite à 1000
@@ -92,11 +96,9 @@ const Dashboard: React.FC = () => {
                   )}
                 </p>
                 <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
-                  <div 
+                  <div
                     className={`h-2 rounded-full transition-all ${
-                      quotaStatus.conversations.isNearLimit 
-                        ? 'bg-orange-500' 
-                        : 'bg-blue-500'
+                      quotaStatus.conversations.isNearLimit ? "bg-orange-500" : "bg-blue-500"
                     }`}
                     style={{ width: `${Math.min(quotaStatus.conversations.percentage, 100)}%` }}
                   />
