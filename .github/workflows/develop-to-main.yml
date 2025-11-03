@@ -1,0 +1,110 @@
+name: Develop → Main (Auto-merge)
+
+on:
+  push:
+    branches: [develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  validate-all:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Tests unitaires
+        run: npm run test:unit
+
+      - name: 🔗 Tests d'intégration
+        run: npm run test:integration
+
+      - name: 🎨 Tests UX Régression
+        run: npm run test:ux-regression
+
+      - name: 🔍 Vérification TypeScript
+        run: npm run type-check
+
+      - name: 🧹 Lint
+        run: npm run lint
+
+      - name: 🏗️ Build production
+        run: npm run build
+
+      - name: 🧭 Install Playwright (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: 🔥 Tests E2E Smoke
+        run: npm run test:e2e:smoke
+
+      - name: ⚡ Tests E2E Functional
+        run: npx playwright test --project=chromium --grep @functional --grep-invert "@wip|@flaky|@analytics"
+
+      - name: 📊 Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-develop
+          path: playwright-report
+          retention-days: 7
+
+  auto-merge-to-main:
+    needs: validate-all
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🚀 Merge develop → main
+        run: |
+          git checkout main
+          git merge --no-ff develop -m "chore: auto-merge develop to main (CI validated)"
+          git push origin main
+
+      - name: 📢 Notify success
+        run: |
+          echo "✅ Develop merged to main successfully"
+          echo "All tests passed, deployment workflows will now run"
+
+  notify-failure:
+    needs: validate-all
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Issue if Validation Failed
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Develop Validation Failed - Auto-merge blocked',
+              body: 'Validation echouee sur develop. Commit: ' + context.sha + ' - Auteur: ' + context.actor + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId + '\n\nLe merge automatique vers main a ete bloque. Corrigez les erreurs et re-pushez sur develop.',
+              labels: ['bug', 'develop-branch', 'automated', 'ci-failure']
+            });
+

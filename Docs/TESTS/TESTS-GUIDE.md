@@ -200,44 +200,53 @@ npx playwright test console-errors.spec.ts --project=chromium
 
 ### Workflows Actifs
 
-**1. `pr-validation.yml`** - Validation Pull Requests
+**1. `develop-to-main.yml`** - Auto-merge Develop → Main ⭐ NOUVEAU
+- Trigger : Push sur develop
+- Jobs : Validation complète (tests unitaires, intégration, UX, type-check, lint, build, E2E smoke, E2E functional)
+- Auto-merge : Si tous les tests passent → merge automatique vers main
+- Notification : Issue créée si échec
+- Durée : ~15-20 minutes
+
+**2. `pr-validation.yml`** - Validation Pull Requests
 - Trigger : Chaque PR vers main/develop
 - Jobs : quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix
 - Durée : ~15-20 minutes
 
-**2. `post-merge.yml`** - Validation Post-Merge
+**3. `post-merge.yml`** - Validation Post-Merge
 - Trigger : Push sur main
-- Jobs : Tests smoke rapides
+- Jobs : Tests smoke + functional
+- Déclenche : error-handling-enforcement, deploy-github-pages, production-deployment
+- Durée : ~5 minutes
+
+**4. `production-deploy-fixed.yml`** - Déploiement Production
+- Trigger : workflow_run après post-merge (success)
+- Quality gates stricts : tous tests passent
+- Déploiement seulement si 100% validé
+- Durée : ~8 minutes
+
+**5. `deploy-github-pages.yml`** - Déploiement Pages
+- Trigger : workflow_run après post-merge (success)
+- Déploie rapports Playwright
+- Durée : ~3 minutes
+
+**6. `error-handling-enforcement.yml`** - Validation Erreurs
+- Trigger : workflow_run après post-merge (success)
+- Jobs : Force utilisation ErrorFactory
 - Durée : ~2 minutes
 
-**3. `nightly-e2e.yml`** - Tests Nocturnes
+**7. `nightly-e2e.yml`** - Tests Nocturnes
 - Trigger : Quotidien 2h UTC + manuel
 - Jobs : Tests complets 5 navigateurs
 - Durée : ~30 minutes
 
-**4. `gemini-tests.yml`** - Tests IA Mensuels
+**8. `gemini-tests.yml`** - Tests IA Mensuels
 - Trigger : 1er du mois + manuel
 - Jobs : Tests IA complets
 - Quality gate : Score > 70%
 
-**5. `error-handling-enforcement.yml`** - Validation Erreurs
-- Trigger : PR + Push
-- Jobs : Force utilisation ErrorFactory
-- Bloque si violations
-
-**6. `production-deploy-fixed.yml`** - Déploiement Production
-- Trigger : Push sur main
-- Quality gates stricts : tous tests passent
-- Déploiement seulement si 100% validé
-
-**7. `deploy-github-pages.yml`** - Déploiement Pages
-- Trigger : Push sur main
-- Déploie rapports Playwright
-
-**8. `validate-yaml.yml`** - Validation Workflows YAML
+**9. `validate-yaml.yml`** - Validation Workflows YAML
 - Trigger : PR/Push modifiant `.github/workflows/**`
 - Vérifie syntaxe YAML et patterns problématiques
-- Détecte : emojis ❌, markdown bold `**`, listes numérotées
 - Durée : < 1min
 
 ### Exécuter un Workflow Manuellement
@@ -259,22 +268,39 @@ npx playwright test console-errors.spec.ts --project=chromium
 
 ## 🪝 Hooks Git Locaux
 
+### Stratégie: Workflow Develop → CI → Main
+
+**Objectif** : Commits rapides en développement, validation complète en CI, merge automatique vers main si succès.
+
+**Architecture** :
+- **Branche `develop`** : Hooks allégés (lint + format), push rapide, CI complète
+- **Branche `main`** : Hooks complets (tests + build + E2E), protection maximale
+- **Auto-merge** : Si CI develop ✅ → merge automatique vers main
+
 ### Pre-Commit Hook
 
-**Exécution** : Avant chaque commit
-**Durée** : < 2min
+**Comportement conditionnel selon la branche** :
 
-**Validations** :
-1. Tests unitaires rapides
-2. Vérification TypeScript
-3. Tests UX Régression
-4. Tests d'intégration
-5. Error Handling Enforcement
-6. Formatage automatique (Prettier)
+#### Sur branche `develop` (rapide ~10-20s)
+1. Scan secrets (ggshield)
+2. Lint (ESLint)
+3. Formatage automatique (Prettier)
+
+#### Sur branche `main` (complet ~2min)
+1. Scan secrets (ggshield)
+2. Tests unitaires rapides
+3. Vérification TypeScript
+4. Tests UX Régression
+5. Tests d'intégration
+6. Error Handling Enforcement
+7. Formatage automatique (Prettier)
 
 **Bypass** :
 ```bash
-# Mode rapide (skip formatage)
+# Mode rapide (toutes branches)
+FAST_HOOKS=1 git commit -m "message"
+
+# Skip formatage
 NO_FORMAT=1 git commit -m "message"
 
 # Bypass complet (déconseillé)
@@ -283,18 +309,40 @@ git commit --no-verify -m "message"
 
 ### Pre-Push Hook
 
-**Exécution** : Avant chaque push
-**Durée** : < 3min (< 5min si push vers main)
+**Comportement conditionnel selon la branche** :
 
-**Validations** :
-1. Tests unitaires complets (575 tests)
+#### Sur branche `develop` (instantané)
+- Aucune validation (CI fera tout sur GitHub)
+- Push immédiat
+
+#### Sur branche `main` (complet ~3-5min)
+1. Tests unitaires complets (604 tests)
 2. Tests d'intégration
 3. Build production
-4. **Si push vers main** : Tests E2E smoke (~2min)
+4. Tests E2E smoke (~2min)
 
 **Bypass** :
 ```bash
 git push --no-verify
+```
+
+### Workflow Quotidien Recommandé
+
+```bash
+# 1. Développement sur develop
+git checkout develop
+
+# 2. Commits rapides (lint + format only)
+git add .
+git commit -m "feat: nouvelle feature"  # ~10s
+
+# 3. Push vers develop (instantané)
+git push  # CI complète s'exécute sur GitHub
+
+# 4. Si CI ✅ → Auto-merge vers main automatique
+# 5. Si CI ❌ → Issue créée automatiquement, corriger et re-push
+
+# 6. Main toujours stable, déploiement automatique
 ```
 
 ---

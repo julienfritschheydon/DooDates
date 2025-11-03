@@ -1,7 +1,10 @@
 #!/bin/sh
 echo "🔍 DooDates - Validation pre-commit..."
 
-# ggshield secret scan (fail-fast)
+# Détection branche courante
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+
+# ggshield secret scan (fail-fast sur toutes les branches)
 if command -v ggshield >/dev/null 2>&1; then
   echo "🛡️ ggshield: scan des secrets (pre-commit)..."
   ggshield secret scan pre-commit
@@ -28,6 +31,33 @@ if [ "$FAST_HOOKS" = "1" ]; then
   npm run format
 
   echo "✅ Pre-commit (rapide) validé - Commit autorisé"
+  exit 0
+fi
+
+# Validation conditionnelle selon la branche
+if [ "$BRANCH" = "main" ]; then
+  echo "🔒 Branche MAIN: validation complète..."
+  # Suite complète (tests, type-check, intégration, etc.)
+else
+  echo "⚡ Branche DEVELOP: validation rapide (lint + format)..."
+  
+  # 1. Lint rapide
+  echo "🔍 ESLint..."
+  npm run lint
+  if [ $? -ne 0 ]; then
+    echo "❌ Erreurs lint - Commit bloqué"
+    exit 1
+  fi
+  
+  # 2. Formatage automatique
+  if [ "$NO_FORMAT" != "1" ]; then
+    echo "💅 Formatage du code..."
+    npm run format
+  else
+    echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
+  fi
+  
+  echo "✅ Pre-commit (develop) validé - Commit autorisé"
   exit 0
 fi
 
