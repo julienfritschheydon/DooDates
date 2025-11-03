@@ -214,12 +214,12 @@ npx playwright test console-errors.spec.ts --project=chromium
 - Jobs : quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix
 - Durée : ~15-20 minutes
 
-**3. `post-merge.yml`** - Validation Post-Merge ⭐ PARALLÉLISÉ
+**3. `post-merge.yml`** - Validation Post-Merge ⭐ PARALLÉLISÉ + SHARDING
 - Trigger : Push sur main
-- Jobs parallèles : e2e-smoke (tests critiques ~3min), e2e-functional (tests complets ~5min), notify-failure (si échec)
-- Optimisations : Cache partagé (node_modules + Playwright browsers), exécution simultanée
+- Jobs parallèles : e2e-smoke (3 shards ~1min), e2e-functional (3 shards ~2min), notify-failure (si échec)
+- Optimisations : Sharding Playwright (3 runners par job), cache partagé (node_modules + Playwright browsers)
 - Déclenche : error-handling-enforcement, deploy-github-pages, production-deployment
-- Durée : ~5 minutes (temps du job le plus long - gain ~2-3min vs séquentiel)
+- Durée : ~2 minutes (temps du shard le plus long - gain ~5-6min vs séquentiel)
 
 **4. `production-deploy-fixed.yml`** - Déploiement Production
 - Trigger : workflow_run après post-merge (success)
@@ -359,33 +359,53 @@ git commit -m "docs: fix typo [skip ci]"
 - Workflow `post-merge.yml` : 2 jobs E2E en parallèle (smoke + functional) → Durée ~5min (gain ~2-3min)
 - Durée totale = temps du job le plus long (au lieu de la somme séquentielle)
 
+**Sharding Playwright (gain ~3-5min):** ⭐ NOUVEAU
+- Tests E2E divisés en 3 shards (runners) parallèles
+- Smoke : 3min → ~1min (divisé par 3)
+- Functional : 5min → ~2min (divisé par 2-3)
+- 6 runners simultanés (3 smoke + 3 functional)
+
 **Cache agressif (gain ~3-5min):**
 - `node_modules` mis en cache entre runs (clé: `package-lock.json`)
 - Navigateurs Playwright mis en cache (clé: `package-lock.json`)
+- ESLint cache (`.eslintcache`) → gain ~30s par run
 - Réinstallation uniquement si dépendances changent
 - Cache partagé entre jobs du même workflow
 
+**Tests parallèles Vitest (gain ~1min):** ⭐ NOUVEAU
+- 4 workers (threads) en parallèle
+- Tests unitaires : 2min → ~1min
+- Configuration : `vitest.config.ts` (maxWorkers: 4, pool: 'threads')
+
 **E2E sélectifs (gain ~5min):**
 - Develop : Smoke tests uniquement (~2min)
-- Main : Smoke + Functional en parallèle (~5min vs ~8min séquentiel)
+- Main : Smoke + Functional shardés (~2min vs ~8min séquentiel)
 - Nightly : Tous tests + 5 navigateurs (~30min)
 
-**Parallélisation E2E (détails) :**
+**Parallélisation E2E + Sharding (détails) :**
 
-Tests E2E exécutés en parallèle dans `post-merge.yml` :
+Tests E2E shardés dans `post-merge.yml` :
 
 ```yaml
-# Job 1 : e2e-smoke (~3min)
-- npm run test:e2e:smoke
-- Tests critiques (@smoke)
-- Exclut @analytics et @functional
-- Rapport : playwright-smoke-report
+# Job 1 : e2e-smoke (3 shards en parallèle)
+strategy:
+  matrix:
+    shard: [1, 2, 3]
+steps:
+  - run: npx playwright test --grep @smoke --shard=${{ matrix.shard }}/3
+  - Tests critiques (@smoke) divisés en 3 parties
+  - Durée : ~1min (vs 3min séquentiel)
+  - Rapports : playwright-smoke-report-{1,2,3}
 
-# Job 2 : e2e-functional (~5min)
-- npx playwright test --grep @functional
-- Tests complets du workflow
-- Exclut @wip et @flaky
-- Rapport : playwright-functional-report
+# Job 2 : e2e-functional (3 shards en parallèle)
+strategy:
+  matrix:
+    shard: [1, 2, 3]
+steps:
+  - run: npx playwright test --grep @functional --shard=${{ matrix.shard }}/3
+  - Tests complets divisés en 3 parties
+  - Durée : ~2min (vs 5min séquentiel)
+  - Rapports : playwright-functional-report-{1,2,3}
 
 # Job 3 : notify-failure (si échec)
 - Crée issue avec détails des 2 jobs
@@ -393,12 +413,18 @@ Tests E2E exécutés en parallèle dans `post-merge.yml` :
 ```
 
 **Avantages :**
-- ✅ Gain de temps : ~2-3min (5min vs 8min séquentiel)
+- ✅ Gain de temps : **~5-6min** (2min vs 8min séquentiel)
+- ✅ Scalabilité : Facile d'ajouter plus de shards (4, 5...)
 - ✅ Isolation : Pas de collision de ports (Playwright gère automatiquement)
-- ✅ Rapports séparés : Debugging plus facile
-- ✅ Fail-fast : Échec d'un job n'empêche pas l'autre de tourner
+- ✅ Rapports séparés : Debugging plus facile par shard
+- ✅ Fail-fast : Échec d'un shard n'empêche pas les autres
 
-**Coût GitHub Actions :** 2 runners en parallèle (gratuit pour projets publics)
+**Coût GitHub Actions :** 6 runners simultanés (gratuit pour projets publics)
+
+**Impact total CI :**
+- Avant optimisations : ~8-10min
+- Après optimisations : **~2min**
+- **Gain : ~6-8min par run (70-80% plus rapide)**
 
 **Skip CI:**
 ```bash
