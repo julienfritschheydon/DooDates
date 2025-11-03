@@ -335,10 +335,12 @@ Collez votre JSON dans : https://jsonlint.com/
 
 2. **Passez en Pro**
    ```
-   Compte → Abonnement → Pro (10€/mois)
+   Compte → Abonnement → Voir les offres
    → Conversations IA illimitées
    → Effet immédiat
    ```
+   
+   Consultez la **[page Tarifs](/pricing)** pour choisir l'offre adaptée.
 
 3. **Optimisez votre usage**
    ```

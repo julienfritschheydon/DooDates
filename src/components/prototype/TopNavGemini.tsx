@@ -27,7 +27,7 @@ const TopNavGemini = () => {
       <div className="absolute right-4 flex items-center gap-3">
         {/* Bouton Documentation */}
         <button
-          onClick={() => navigate('/docs')}
+          onClick={() => navigate("/docs")}
           className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
           data-testid="docs-button"
           aria-label="Documentation"
