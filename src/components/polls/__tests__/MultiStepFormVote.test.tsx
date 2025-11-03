@@ -192,10 +192,10 @@ describe("MultiStepFormVote", () => {
     fireEvent.click(screen.getByText("Option 1"));
     fireEvent.click(screen.getByText("Continuer"));
     fireEvent.click(screen.getByText("Continuer"));
-    
+
     // Cliquer sur le rating pour passer à l'étape coordonnées
     fireEvent.click(screen.getByText("5"));
-    
+
     // Attendre et cliquer sur le bouton pour aller aux coordonnées
     await waitFor(() => {
       const nextButton = screen.getByText(/Vos coordonnées/i);
@@ -228,7 +228,7 @@ describe("MultiStepFormVote", () => {
     // Répondre Q3
     const rating5 = screen.getByText("5");
     fireEvent.click(rating5);
-    
+
     // Aller à l'étape coordonnées
     await waitFor(() => {
       const nextButton = screen.getByText(/Vos coordonnées/i);
@@ -295,7 +295,7 @@ describe("MultiStepFormVote", () => {
 
     // Répondre "Oui" → Q2 ne devrait pas apparaître, passer à l'étape coordonnées
     fireEvent.click(screen.getByText("Oui"));
-    
+
     await waitFor(() => {
       const nextButton = screen.getByText(/Vos coordonnées/i);
       fireEvent.click(nextButton);
@@ -366,7 +366,7 @@ describe("MultiStepFormVote", () => {
     fireEvent.click(screen.getByText("Continuer"));
     fireEvent.click(screen.getByText("Continuer"));
     fireEvent.click(screen.getByText("5"));
-    
+
     await waitFor(() => {
       const nextButton = screen.getByText(/Vos coordonnées/i);
       fireEvent.click(nextButton);
@@ -446,7 +446,7 @@ describe("MultiStepFormVote", () => {
 
     // Cliquer sur 9
     fireEvent.click(screen.getByText("9"));
-    
+
     // Aller à l'étape coordonnées
     await waitFor(() => {
       const nextButton = screen.getByText(/Vos coordonnées/i);
