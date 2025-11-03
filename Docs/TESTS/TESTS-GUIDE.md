@@ -1,7 +1,7 @@
 # DooDates - Guide Complet des Tests
 
 > **Document de référence unique** - Novembre 2025  
-> **Dernière mise à jour** : 03 novembre 2025
+> **Dernière mise à jour** : 03 novembre 2025 (Phases 2 & 3 optimisations)
 
 ---
 
@@ -372,10 +372,32 @@ git commit -m "docs: fix typo [skip ci]"
 - Réinstallation uniquement si dépendances changent
 - Cache partagé entre jobs du même workflow
 
-**Tests parallèles Vitest (gain ~1min):** ⭐ NOUVEAU
+**Tests parallèles Vitest (gain ~1min):** ⭐ Phase 1
 - 4 workers (threads) en parallèle
 - Tests unitaires : 2min → ~1min
 - Configuration : `vitest.config.ts` (maxWorkers: 4, pool: 'threads')
+
+**Skip Docs Only (gain ~8min si docs uniquement):** ⭐ Phase 2
+- Détection changements avec `dorny/paths-filter@v2`
+- Skip complet des tests/build si seuls docs/md modifiés
+- Docs-only commits : < 10s (vs ~8-10min avant)
+- Workflow affiche notification "Docs only - Skip tests"
+
+**Vite Build Cache (gain ~30s-1min):** ⭐ Phase 2
+- Cache `dist/` et `node_modules/.vite/`
+- Clé : Hash de `src/**`, `vite.config.ts`, `tsconfig.json`
+- Réutilisation entre runs si code inchangé
+
+**TypeScript Incremental (gain ~30s-1min):** ⭐ Phase 3
+- Project References déjà configurées (`composite: true`)
+- Cache `.tsbuildinfo` pour builds incrémentaux
+- Clé : Hash de `src/**/*.ts*`, `tsconfig*.json`
+- Réutilisation entre runs pour `tsc` et `type-check`
+
+**Cache Multi-Niveaux (gain cumulatif):** ⭐ Phase 3
+- 5 caches en parallèle : deps, eslint, tsbuildinfo, vite, playwright
+- Restore-keys multi-niveaux pour fallback intelligent
+- Invalidation automatique sur changement de dépendances/code
 
 **E2E sélectifs (gain ~5min):**
 - Develop : Smoke tests uniquement (~2min)
@@ -422,10 +444,13 @@ steps:
 
 **Coût GitHub Actions :** 6 runners simultanés (gratuit pour projets publics)
 
-**Impact total CI :**
+**Impact total CI (Phases 1+2+3) :**
 - Avant optimisations : ~8-10min
-- Après optimisations : **~2min**
-- **Gain : ~6-8min par run (70-80% plus rapide)**
+- Après Phase 1 (sharding) : ~2min
+- Après Phase 2 (skip docs, vite cache) : ~1-2min (si code change)
+- Après Phase 3 (TS incremental) : ~1min (builds répétés)
+- **Gain total : ~7-9min par run (80-90% plus rapide)**
+- **Docs-only commits : < 10s (skip complet)**
 
 **Skip CI:**
 ```bash
