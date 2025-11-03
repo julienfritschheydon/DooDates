@@ -20,15 +20,15 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      code: ${{ steps.filter.outputs.code }}
-      docs: ${{ steps.filter.outputs.docs }}
+      code: ${{ steps.changes.outputs.code }}
+      docs: ${{ steps.changes.outputs.docs }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
       - name: 🔍 Detect file changes
         uses: dorny/paths-filter@v2
-        id: filter
+        id: changes
         with:
           filters: |
             code:
