@@ -169,11 +169,7 @@ const Results: React.FC = () => {
             </>
           }
           actions={
-            <PollActions
-              poll={poll}
-              showVoteButton
-              onAfterDelete={() => navigate("/dashboard")}
-            />
+            <PollActions poll={poll} showVoteButton onAfterDelete={() => navigate("/dashboard")} />
           }
           onClose={() => navigate("/dashboard")}
           kpis={[

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Conversations - DooDates</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #fff;
+        }
+        h1 { color: #60a5fa; }
+        h2 { color: #a78bfa; margin-top: 30px; }
+        .section {
+            background: #1e1e1e;
+            border: 1px solid #3c4043;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .item {
+            background: #2a2a2a;
+            border-left: 4px solid #60a5fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .poll-item {
+            border-left-color: #a78bfa;
+        }
+        .duplicate {
+            border-left-color: #ef4444;
+            background: #2a1a1a;
+        }
+        .orphan {
+            border-left-color: #f59e0b;
+            background: #2a2410;
+        }
+        .key { 
+            color: #60a5fa;
+            font-weight: bold;
+        }
+        .value {
+            color: #d4d4d8;
+            margin-left: 10px;
+        }
+        button {
+            background: #60a5fa;
+            color: #0a0a0a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+        button:hover {
+            background: #3b82f6;
+        }
+        .danger {
+            background: #ef4444;
+            color: white;
+        }
+        .danger:hover {
+            background: #dc2626;
+        }
+        pre {
+            background: #0a0a0a;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Conversations & Polls - DooDates</h1>
+    
+    <div class="section">
+        <button onclick="analyzeData()">Analyser les données</button>
+        <button onclick="findDuplicates()">Trouver les doublons</button>
+        <button onclick="findOrphans()">Trouver les orphelins</button>
+        <button class="danger" onclick="cleanupOrphans()">Nettoyer les orphelins</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        function analyzeData() {
+            const conversations = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
+            const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
+            
+            let html = '<h2>📊 Statistiques</h2><div class="section">';
+            html += `<p><span class="key">Conversations:</span> <span class="value">${conversations.length}</span></p>`;
+            html += `<p><span class="key">Polls:</span> <span class="value">${polls.length}</span></p>`;
+            html += '</div>';
+
+            // Group conversations by poll
+            const conversationsByPoll = {};
+            conversations.forEach(conv => {
+                const pollId = conv.pollId || conv.relatedPollId;
+                if (pollId) {
+                    if (!conversationsByPoll[pollId]) {
+                        conversationsByPoll[pollId] = [];
+                    }
+                    conversationsByPoll[pollId].push(conv);
+                }
+            });
+
+            // Find polls with multiple conversations
+            html += '<h2>⚠️ Polls avec plusieurs conversations</h2>';
+            Object.entries(conversationsByPoll).forEach(([pollId, convs]) => {
+                if (convs.length > 1) {
+                    const poll = polls.find(p => p.id === pollId);
+                    html += `<div class="section duplicate">`;
+                    html += `<p><span class="key">Poll:</span> <span class="value">${poll ? poll.title : pollId}</span></p>`;
+                    html += `<p><span class="key">Nombre de conversations:</span> <span class="value">${convs.length}</span></p>`;
+                    html += '<details><summary>Détails des conversations</summary><pre>';
+                    html += JSON.stringify(convs, null, 2);
+                    html += '</pre></details>';
+                    html += '</div>';
+                }
+            });
+
+            // List all conversations
+            html += '<h2>💬 Toutes les conversations</h2>';
+            conversations.forEach((conv, i) => {
+                const pollId = conv.pollId || conv.relatedPollId;
+                const poll = pollId ? polls.find(p => p.id === pollId) : null;
+                
+                html += `<div class="item">`;
+                html += `<p><span class="key">ID:</span> <span class="value">${conv.id}</span></p>`;
+                html += `<p><span class="key">Titre:</span> <span class="value">${conv.title}</span></p>`;
+                html += `<p><span class="key">Poll ID:</span> <span class="value">${pollId || 'Aucun'}</span></p>`;
+                if (poll) {
+                    html += `<p><span class="key">Poll Titre:</span> <span class="value">${poll.title}</span></p>`;
+                }
+                html += `<p><span class="key">Créé:</span> <span class="value">${new Date(conv.createdAt).toLocaleString('fr-FR')}</span></p>`;
+                html += '<details><summary>Voir JSON complet</summary><pre>';
+                html += JSON.stringify(conv, null, 2);
+                html += '</pre></details>';
+                html += '</div>';
+            });
+
+            // List all polls
+            html += '<h2>📋 Tous les polls</h2>';
+            polls.forEach(poll => {
+                const linkedConvs = conversations.filter(c => 
+                    c.pollId === poll.id || c.relatedPollId === poll.id
+                );
+                
+                html += `<div class="item poll-item">`;
+                html += `<p><span class="key">ID:</span> <span class="value">${poll.id}</span></p>`;
+                html += `<p><span class="key">Titre:</span> <span class="value">${poll.title}</span></p>`;
+                html += `<p><span class="key">Type:</span> <span class="value">${poll.type || 'date'}</span></p>`;
+                html += `<p><span class="key">Conversations liées:</span> <span class="value">${linkedConvs.length}</span></p>`;
+                html += `<p><span class="key">Créé:</span> <span class="value">${new Date(poll.created_at).toLocaleString('fr-FR')}</span></p>`;
+                html += '<details><summary>Voir JSON complet</summary><pre>';
+                html += JSON.stringify(poll, null, 2);
+                html += '</pre></details>';
+                html += '</div>';
+            });
+
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function findDuplicates() {
+            const conversations = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
+            const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
+            
+            let html = '<h2>🔍 Recherche de doublons</h2>';
+            
+            // Find duplicate polls by title
+            const pollsByTitle = {};
+            polls.forEach(poll => {
+                if (!pollsByTitle[poll.title]) {
+                    pollsByTitle[poll.title] = [];
+                }
+                pollsByTitle[poll.title].push(poll);
+            });
+
+            html += '<h3>Polls avec le même titre:</h3>';
+            Object.entries(pollsByTitle).forEach(([title, pollList]) => {
+                if (pollList.length > 1) {
+                    html += `<div class="section duplicate">`;
+                    html += `<p><span class="key">Titre:</span> <span class="value">${title}</span></p>`;
+                    html += `<p><span class="key">Nombre de polls:</span> <span class="value">${pollList.length}</span></p>`;
+                    pollList.forEach(poll => {
+                        const linkedConvs = conversations.filter(c => 
+                            c.pollId === poll.id || c.relatedPollId === poll.id
+                        );
+                        html += `<p style="margin-left: 20px;">• Poll ID: ${poll.id} (${linkedConvs.length} conversations)</p>`;
+                    });
+                    html += '</div>';
+                }
+            });
+
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function findOrphans() {
+            const conversations = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
+            const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
+            const pollIds = new Set(polls.map(p => p.id));
+            
+            let html = '<h2>👻 Conversations orphelines</h2>';
+            
+            const orphans = conversations.filter(conv => {
+                const pollId = conv.pollId || conv.relatedPollId;
+                return pollId && !pollIds.has(pollId);
+            });
+
+            if (orphans.length === 0) {
+                html += '<p>Aucune conversation orpheline trouvée ✅</p>';
+            } else {
+                html += `<p>Trouvé ${orphans.length} conversation(s) orpheline(s):</p>`;
+                orphans.forEach(conv => {
+                    html += `<div class="item orphan">`;
+                    html += `<p><span class="key">ID:</span> <span class="value">${conv.id}</span></p>`;
+                    html += `<p><span class="key">Titre:</span> <span class="value">${conv.title}</span></p>`;
+                    html += `<p><span class="key">Poll ID (manquant):</span> <span class="value">${conv.pollId || conv.relatedPollId}</span></p>`;
+                    html += '</div>';
+                });
+            }
+
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function cleanupOrphans() {
+            if (!confirm('Êtes-vous sûr de vouloir nettoyer les conversations orphelines ?')) {
+                return;
+            }
+
+            const conversations = JSON.parse(localStorage.getItem('doodates_conversations') || '[]');
+            const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
+            const pollIds = new Set(polls.map(p => p.id));
+            
+            const cleaned = conversations.map(conv => {
+                const pollId = conv.pollId || conv.relatedPollId;
+                if (pollId && !pollIds.has(pollId)) {
+                    // Remove poll references
+                    return {
+                        ...conv,
+                        pollId: undefined,
+                        relatedPollId: undefined,
+                        pollType: undefined,
+                        pollStatus: undefined,
+                        tags: conv.tags ? conv.tags.filter(t => !t.startsWith('poll:')) : [],
+                        metadata: conv.metadata ? {
+                            ...conv.metadata,
+                            pollGenerated: undefined,
+                            pollTitle: undefined,
+                            pollId: undefined,
+                        } : undefined
+                    };
+                }
+                return conv;
+            });
+
+            localStorage.setItem('doodates_conversations', JSON.stringify(cleaned));
+            alert('Nettoyage effectué ! Rechargez la page pour voir les changements.');
+        }
+
+        // Auto-analyze on load
+        window.onload = analyzeData;
+    </script>
+</body>
+</html>
+
