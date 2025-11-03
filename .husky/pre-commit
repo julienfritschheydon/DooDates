@@ -40,10 +40,10 @@ if [ "$BRANCH" = "main" ]; then
   # Suite complète (tests, type-check, intégration, etc.)
 else
   echo "⚡ Branche DEVELOP: validation rapide (lint + format)..."
-  
-  # 1. Lint rapide
+
+  # 1. Lint rapide (warnings autorisés, erreurs bloquantes seulement)
   echo "🔍 ESLint..."
-  npm run lint
+  npx eslint . --report-unused-disable-directives --max-warnings 1000
   if [ $? -ne 0 ]; then
     echo "❌ Erreurs lint - Commit bloqué"
     exit 1

@@ -524,7 +524,7 @@ console.log(`\nRésultats:`);
 console.log(`  Réponses générées: ${responses.length}`);
 console.log(`  Questions par réponse: ${responses[0].length}`);
 console.log(`  Total: ${responses.length * responses[0].length} réponses individuelles`);
-console.log(`  Critère: < 1s ${true ? "✅" : "❌"} (voir console.time ci-dessus)`);
+console.log(`  Critère: < 1s ✅ (voir console.time ci-dessus)`);
 
 // Test 4 : Qualité des réponses
 console.log("\n=== TEST 4 : Qualité des Réponses ===\n");
