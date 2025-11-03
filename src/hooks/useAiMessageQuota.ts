@@ -18,16 +18,18 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
+import { AI_MESSAGE_QUOTAS, POLL_CREATION_QUOTAS } from "@/constants/quotas";
+
 // Limites par type d'utilisateur
 // Réduit de 50% pour compenser l'usage facilité par reconnaissance vocale
 const QUOTA_LIMITS = {
   guest: {
-    aiMessages: 10, // Réduit de 20 → 10
-    pollsPerConversation: 2, // Réduit de 3 → 2
+    aiMessages: AI_MESSAGE_QUOTAS.ANONYMOUS, // 10 messages
+    pollsPerConversation: POLL_CREATION_QUOTAS.ANONYMOUS, // 2 polls
   },
   authenticated: {
-    aiMessages: 100, // Réduit de 200 → 100
-    pollsPerConversation: 5, // Réduit de 10 → 5
+    aiMessages: AI_MESSAGE_QUOTAS.AUTHENTICATED, // 100 messages/mois
+    pollsPerConversation: POLL_CREATION_QUOTAS.AUTHENTICATED, // 5 polls
   },
 } as const;
 

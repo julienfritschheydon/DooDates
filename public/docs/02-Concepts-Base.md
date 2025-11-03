@@ -48,7 +48,7 @@ DooDates propose deux types principaux de sondages :
 **Objectif :** Collecter des informations structurées ou des opinions
 
 **Caractéristiques :**
-- 6 types de questions différents
+- 7 types de questions différents
 - Logique conditionnelle (questions dynamiques)
 - Mode multi-étapes ou vue classique
 - Analytics automatiques
@@ -71,7 +71,7 @@ DooDates propose deux types principaux de sondages :
 
 ## ❓ Types de Questions
 
-DooDates supporte **6 types de questions** pour vos formulaires :
+DooDates supporte **7 types de questions** pour vos formulaires :
 
 ### 1. Choix Unique (Radio) 🔘
 
@@ -124,13 +124,30 @@ Question : Quels langages de programmation maîtrisez-vous ?
 
 ---
 
-### 3. Texte Libre 📝
+### 3. Texte Court 📝
 
-**Description :** Le répondant tape une réponse libre
+**Description :** Le répondant tape une réponse courte sur une seule ligne
 
-**Variantes :**
-- **Texte court** : 1 ligne (nom, email, ville)
-- **Texte long** : Plusieurs lignes (commentaires, suggestions)
+**Exemple d'usage :**
+- Nom, email, ville
+- Informations courtes et précises
+- Validation possible (email, téléphone, URL, nombre, date)
+
+**Rendu des résultats :**
+- Liste de toutes les réponses courtes
+- Possibilité de trier et filtrer
+- Export facile
+
+---
+
+### 4. Texte Long 📄
+
+**Description :** Le répondant tape une réponse détaillée sur plusieurs lignes
+
+**Exemple d'usage :**
+- Commentaires libres
+- Suggestions détaillées
+- Témoignages
 
 **Exemple :**
 ```
@@ -139,14 +156,11 @@ Question : Que pourrions-nous améliorer dans notre service ?
 │ [Zone de saisie libre pour répondant]  │
 │                                        │
 │                                        │
+│                                        │
+│                                        │
+│                                        │
 └────────────────────────────────────────┘
 ```
-
-**Quand l'utiliser :**
-- Informations personnalisées
-- Commentaires ouverts
-- Suggestions
-- Feedback détaillé
 
 **Rendu des résultats :**
 - Liste de toutes les réponses
@@ -155,7 +169,7 @@ Question : Que pourrions-nous améliorer dans notre service ?
 
 ---
 
-### 4. Matrice (Likert Scale) 📊
+### 5. Matrice (Likert Scale) 📊
 
 **Description :** Grille de questions avec options communes
 
@@ -183,7 +197,7 @@ Livraison                ○           ⚫        ○      ○       ○
 
 ---
 
-### 5. Notation (Rating) ⭐
+### 6. Notation (Rating) ⭐
 
 **Description :** Évaluation sur une échelle de 1 à 5 étoiles
 
@@ -205,7 +219,7 @@ Question : Notez votre expérience globale
 
 ---
 
-### 6. NPS (Net Promoter Score) 📈
+### 7. NPS (Net Promoter Score) 📈
 
 **Description :** Échelle de 0 à 10 mesurant la probabilité de recommandation
 
@@ -547,7 +561,7 @@ Plus de détails : [Guide Analytics IA](./06-Analytics-IA.md)
 
 **Vous avez appris :**
 - ✅ Les 2 types de sondages (Dates vs Formulaires)
-- ✅ Les 6 types de questions disponibles
+- ✅ Les 7 types de questions disponibles
 - ✅ Les modes de vote (Classique vs Multi-étapes)
 - ✅ La visibilité et le partage des résultats
 - ✅ Le cycle de vie complet d'un sondage

@@ -12,6 +12,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { logger } from "@/lib/logger";
+import { ANALYTICS_QUOTAS } from "@/constants/quotas";
 
 interface AnalyticsQuota {
   used: number;
@@ -30,10 +31,12 @@ interface QuotaData {
 
 export function useAnalyticsQuota() {
   const { user } = useAuth();
+  const limit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
+
   const [quota, setQuota] = useState<AnalyticsQuota>({
     used: 0,
-    limit: user ? 50 : 5,
-    remaining: user ? 50 : 5,
+    limit,
+    remaining: limit,
     resetAt: getNextMidnight(),
     canQuery: true,
   });
@@ -60,13 +63,13 @@ export function useAnalyticsQuota() {
         return;
       }
 
-      const limit = user ? 50 : 5;
+      const currentLimit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
       const used = data.count;
-      const remaining = Math.max(0, limit - used);
+      const remaining = Math.max(0, currentLimit - used);
 
       setQuota({
         used,
-        limit,
+        limit: currentLimit,
         remaining,
         resetAt: getNextMidnight(),
         canQuery: remaining > 0,
@@ -80,7 +83,7 @@ export function useAnalyticsQuota() {
   }, [user]);
 
   const resetQuota = useCallback(() => {
-    const limit = user ? 50 : 5;
+    const currentLimit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
     const data: QuotaData = {
       count: 0,
       date: getTodayString(),
@@ -90,13 +93,13 @@ export function useAnalyticsQuota() {
 
     setQuota({
       used: 0,
-      limit,
-      remaining: limit,
+      limit: currentLimit,
+      remaining: currentLimit,
       resetAt: getNextMidnight(),
       canQuery: true,
     });
 
-    logger.info("Analytics quota reset", "analytics", { limit });
+    logger.info("Analytics quota reset", "analytics", { limit: currentLimit });
   }, [user]);
 
   const incrementQuota = useCallback(() => {
@@ -114,20 +117,24 @@ export function useAnalyticsQuota() {
       data.count += 1;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-      const limit = user ? 50 : 5;
+      const currentLimit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
       const used = data.count;
-      const remaining = Math.max(0, limit - used);
+      const remaining = Math.max(0, currentLimit - used);
 
       setQuota((prev) => ({
         ...prev,
         used,
-        limit,
+        limit: currentLimit,
         remaining,
         resetAt: getNextMidnight(),
         canQuery: remaining > 0,
       }));
 
-      logger.info("Analytics quota incremented", "analytics", { used, limit, remaining });
+      logger.info("Analytics quota incremented", "analytics", {
+        used,
+        limit: currentLimit,
+        remaining,
+      });
 
       return remaining > 0;
     } catch (error) {

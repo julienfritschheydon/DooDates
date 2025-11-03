@@ -1,11 +1,37 @@
 # DooDates - Quotas & Pricing - Spécification Finale
 **Date:** 3 novembre 2025  
-**Version:** 1.0  
-**Statut:** VALIDÉ
+**Version:** 1.1  
+**Statut:** ALIGNÉ AVEC IMPLÉMENTATION
+
+> ⚠️ **Note importante** : Cette spécification décrit le système de **crédits IA** prévu pour la version future.  
+> **Implémentation actuelle (v0.1 Beta)** : Système simplifié basé sur **conversations IA** (voir section "État actuel" ci-dessous)
 
 ---
 
-## 📊 STRUCTURE DES TIERS
+## 🎯 ÉTAT ACTUEL (Implémentation v0.1 Beta)
+
+### Quotas Simplifiés
+
+| Tier | Prix | Conversations IA | Messages IA | Analytics IA | Support |
+|------|------|------------------|-------------|--------------|---------|
+| **Invité** | 0€ | 5 (lifetime) | 10/conv | 5/jour | ❌ |
+| **Gratuit** | 0€ | 1000 | 100/mois | 50/jour | Non garanti |
+| **Beta Tester** | 0€ (clé) | 1000 | 100/mois | 50/jour | Prioritaire ✅ |
+
+**Source de vérité** : `src/constants/quotas.ts`
+
+### Définitions (v0.1)
+
+**Conversation IA** : Une session de création de sondage avec l'IA  
+- ✅ Compte : Créer un nouveau sondage via chat IA
+- ❌ Ne compte PAS : Modifications, création manuelle
+
+**Message IA** : Chaque message envoyé à l'IA (création ou modification)  
+**Analytics IA** : Questions posées à l'IA sur vos résultats  
+
+---
+
+## 🚀 SYSTÈME CIBLE (Version future avec paiements)
 
 ### Vue d'ensemble
 
@@ -34,16 +60,22 @@
 
 **Rationale:** Simplicité maximale pour l'utilisateur. Il n'a pas à comprendre la différence entre types d'actions.
 
-### Coûts API réels
+### Coûts API réels (Version future avec crédits)
 
-| Action | Coût Gemini | Marge |
-|--------|-------------|-------|
-| 1 crédit moyen | ~$0.0005 | 99%+ |
-| Premium (100) | ~$0.05 | 99.4% (8.95€) |
-| Pro (1000) | ~$0.50 | 98.3% (28.50€) |
-| Beta (1000) | ~$0.50 | Investment |
+| Tier | Prix | Crédits | Coût API estimé | Marge |
+|------|------|---------|-----------------|-------|
+| **Invité** | 0€ | 5 | ~$0.0025 | N/A (gratuit) |
+| **Gratuit** | 0€ | 20/mois | ~$0.01 | N/A (gratuit) |
+| **Premium** | 9€/mois | 100/mois | ~$0.05 | **99.4%** (8.95€) |
+| **Pro** | 29€/mois | 1000/mois | ~$0.50 | **98.3%** (28.50€) |
+| **Beta Tester** | 0€ | 1000/mois | ~$0.50 | Investment |
 
-**Conclusion:** Marges excellentes, coût API négligeable. Beta testeurs = investissement acquisition validé.
+**Calcul :**
+- 1 crédit moyen ≈ $0.0005 (500 tokens input + 150 tokens output)
+- Premium : 100 crédits × $0.0005 = $0.05 → Marge : (9€ - $0.05) / 9€ = **99.4%**
+- Pro : 1000 crédits × $0.0005 = $0.50 → Marge : (29€ - $0.50) / 29€ = **98.3%**
+
+**Conclusion :** Marges excellentes (>98%), coût API négligeable. Beta testeurs = investissement acquisition validé.
 
 ---
 

@@ -68,7 +68,7 @@ DooDates fonctionne sur :
 **Mode invité :**
 - ✅ Créer des sondages immédiatement
 - ⚠️ Données stockées localement (appareil uniquement)
-- ⚠️ 5 conversations IA maximum
+- ⚠️ 5 conversations IA maximum (création de sondages)
 
 **Avec compte (recommandé) :**
 - ✅ Synchronisation multi-appareils
@@ -265,7 +265,7 @@ C'est normal et permet des formulaires plus courts et pertinents.
 
 | Plan | Quota |
 |------|-------|
-| **🆓 Invité** | 5 conversations (à vie) |
+| **🆓 Invité** | 5 conversations IA (création de sondages) |
 | **👤 Gratuit** | 50/mois (reset le 1er) |
 | **💼 Pro** | Illimité |
 | **🚀 Premium** | Illimité |

@@ -122,7 +122,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
       const val = answers[qid];
 
       if (required) {
-        if (kind === "text") {
+        if (kind === "text" || kind === "long-text") {
           if (typeof val !== "string" || !val.trim()) {
             return `Réponse requise pour: ${q.title || "Question"}`;
           }
@@ -161,7 +161,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
         }
       }
 
-      if (kind === "text" && typeof val === "string") {
+      if ((kind === "text" || kind === "long-text") && typeof val === "string") {
         const maxLength: number | undefined = q.maxLength;
         if (maxLength && val.length > maxLength) {
           return `Texte trop long (${val.length}/${maxLength}) pour: ${q.title || "Question"}`;
@@ -227,6 +227,20 @@ export default function FormPollVote({ idOrSlug }: Props) {
         <div className="max-w-2xl mx-auto p-6 pt-20">
           <h1 className="text-2xl font-bold mb-2">Merci pour votre participation !</h1>
           <p className="text-gray-600">Votre réponse a été enregistrée.</p>
+
+          {/* Message d'information pour la bêta */}
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2 text-blue-700">
+              <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm font-medium">Information bêta</span>
+            </div>
+            <p className="text-sm text-blue-600 mt-1">
+              Pour finaliser et partager votre formulaire, après la bêta, vous devrez vous connecter ou créer un compte.
+            </p>
+          </div>
+
           <div className="mt-6">
             <Link
               to={`/poll/${poll.slug || poll.id}/results`}
@@ -354,7 +368,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
                         color: "var(--theme-text-secondary, #475569)",
                       }}
                     >
-                      {kind === "text"
+                      {kind === "text" || kind === "long-text"
                         ? "Réponse libre"
                         : kind === "single"
                           ? "Choix unique"
@@ -394,7 +408,8 @@ export default function FormPollVote({ idOrSlug }: Props) {
                         placeholder={q.placeholder}
                       />
                     ) : (
-                      <textarea
+                      <input
+                        type="text"
                         className="w-full rounded px-3 py-2"
                         style={{
                           backgroundColor: "var(--theme-bg-input, #F1F5F9)",
@@ -403,6 +418,37 @@ export default function FormPollVote({ idOrSlug }: Props) {
                           color: "var(--theme-text-primary, #1E293B)",
                         }}
                         placeholder={q.placeholder || "Votre réponse"}
+                        maxLength={q.maxLength || undefined}
+                        value={typeof val === "string" ? val : ""}
+                        onChange={(e) => updateAnswer(qid, e.target.value)}
+                        aria-labelledby={`q-${qid}-label`}
+                        aria-required={q.required ? true : undefined}
+                      />
+                    )}
+                  </>
+                )}
+
+                {kind === "long-text" && (
+                  <>
+                    {q.validationType ? (
+                      <StructuredInput
+                        value={typeof val === "string" ? val : ""}
+                        onChange={(newVal) => updateAnswer(qid, newVal)}
+                        validationType={q.validationType as ValidationType}
+                        required={q.required}
+                        placeholder={q.placeholder}
+                      />
+                    ) : (
+                      <textarea
+                        rows={6}
+                        className="w-full rounded px-3 py-2 resize-y"
+                        style={{
+                          backgroundColor: "var(--theme-bg-input, #F1F5F9)",
+                          borderColor: "var(--theme-border, #E2E8F0)",
+                          borderWidth: "1px",
+                          color: "var(--theme-text-primary, #1E293B)",
+                        }}
+                        placeholder={q.placeholder || "Votre réponse détaillée..."}
                         maxLength={q.maxLength || undefined}
                         value={typeof val === "string" ? val : ""}
                         onChange={(e) => updateAnswer(qid, e.target.value)}

@@ -4,7 +4,14 @@ import type { ConditionalRule } from "../../types/conditionalRules";
 import ConditionalRuleEditor from "./ConditionalRuleEditor";
 import { useUIState } from "../prototype/UIStateProvider";
 
-export type QuestionKind = "single" | "multiple" | "text" | "matrix" | "rating" | "nps";
+export type QuestionKind =
+  | "single"
+  | "multiple"
+  | "text"
+  | "long-text"
+  | "matrix"
+  | "rating"
+  | "nps";
 
 export type QuestionOption = {
   id: string;
@@ -80,7 +87,7 @@ export default function QuestionCard({
       }
 
       // reset incompatible fields when switching kind
-      if (kind === "text") {
+      if (kind === "text" || kind === "long-text") {
         onChange({
           kind,
           options: undefined,
@@ -343,9 +350,18 @@ export default function QuestionCard({
 
         {/* Voter-style preview for non-active cards */}
         {question.kind === "text" && (
-          <textarea
+          <input
+            type="text"
             disabled
             placeholder="Votre réponse"
+            className="w-full px-3 py-2 border border-gray-700 rounded bg-[#3c4043] text-gray-300 placeholder-gray-500"
+          />
+        )}
+        {question.kind === "long-text" && (
+          <textarea
+            disabled
+            placeholder="Votre réponse détaillée..."
+            rows={3}
             className="w-full px-3 py-2 border border-gray-700 rounded bg-[#3c4043] text-gray-300 placeholder-gray-500"
           />
         )}
@@ -383,6 +399,7 @@ export default function QuestionCard({
             <option value="single">Choix unique</option>
             <option value="multiple">Choix multiples</option>
             <option value="text">Texte court</option>
+            <option value="long-text">Texte long</option>
             <option value="matrix">Matrice</option>
             <option value="rating">Échelle de notation</option>
             <option value="nps">Net Promoter Score (NPS)</option>
@@ -703,7 +720,7 @@ export default function QuestionCard({
       )}
 
       {/* Text editor - Validation type */}
-      {question.kind === "text" && (
+      {(question.kind === "text" || question.kind === "long-text") && (
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-sm text-gray-400">Type de validation (optionnel)</label>
@@ -819,6 +836,8 @@ function labelForKind(kind: QuestionKind) {
       return "Choix multiples";
     case "text":
       return "Texte court";
+    case "long-text":
+      return "Texte long";
     default:
       return kind;
   }
