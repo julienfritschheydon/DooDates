@@ -23,17 +23,17 @@ test.describe('Security and Data Isolation', () => {
 
   test('Basic navigation security - no crashes @smoke @critical', async ({ page }) => {
     // Verify basic navigation doesn't crash on security-sensitive pages
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveTitle(/DooDates/);
     
-    await page.goto('/create');
-    await page.waitForTimeout(1000);
+    await page.goto('/create', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('body')).toBeVisible();
     
-    await page.goto('/dashboard');
-    await page.waitForTimeout(1000);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('body')).toBeVisible();
     
-    await page.goto('/');
-    expect(true).toBeTruthy();
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('body')).toBeVisible();
   });
 
 
@@ -75,9 +75,8 @@ test.describe('Security and Data Isolation', () => {
     const messageInput = page.locator('[data-testid="message-input"]');
     if (await messageInput.isVisible()) {
       await messageInput.fill('Test message');
+      // Attendre que l'input soit rempli (auto-wait suffit généralement)
     }
-    
-    await page.waitForTimeout(1000);
     
     // Check that sensitive data is not in URLs
     for (const url of requests) {
