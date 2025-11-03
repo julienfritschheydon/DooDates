@@ -325,6 +325,39 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     // Poll management hook
     const pollManagement = usePollManagement();
 
+    // Define handleNewChat early for use in useMessageSender
+    const handleNewChat = useCallback(async () => {
+      try {
+        // Reset all state
+        setMessages([]);
+        setInputValue("");
+        setIsLoading(false);
+        pollManagement.closePollCreator();
+
+        // Initialize new conversation with auto-save
+        await initializeNewConversation();
+
+        // Call onNewChat callback if provided
+        if (onNewChat) {
+          onNewChat();
+        }
+      } catch (error) {
+        const processedError = handleError(
+          error,
+          {
+            component: "GeminiChatInterface",
+            operation: "handleNewChat",
+          },
+          "Erreur lors de la création d'un nouveau chat",
+        );
+
+        logError(processedError, {
+          component: "GeminiChatInterface",
+          operation: "handleNewChat",
+        });
+      }
+    }, [pollManagement, onNewChat]);
+
     // Message sender hook
     const messageSender = useMessageSender({
       isLoading,
@@ -339,6 +372,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       setIsLoading,
       setLastAIProposal,
       setModifiedQuestion,
+      onStartNewChat: handleNewChat,
     });
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -640,38 +674,6 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         handleSendMessage();
-      }
-    };
-
-    const handleNewChat = async () => {
-      try {
-        // Reset all state
-        setMessages([]);
-        setInputValue("");
-        setIsLoading(false);
-        pollManagement.closePollCreator();
-
-        // Initialize new conversation with auto-save
-        await initializeNewConversation();
-
-        // Call onNewChat callback if provided
-        if (onNewChat) {
-          onNewChat();
-        }
-      } catch (error) {
-        const processedError = handleError(
-          error,
-          {
-            component: "GeminiChatInterface",
-            operation: "handleNewChat",
-          },
-          "Erreur lors de la création d'un nouveau chat",
-        );
-
-        logError(processedError, {
-          component: "GeminiChatInterface",
-          operation: "handleNewChat",
-        });
       }
     };
 

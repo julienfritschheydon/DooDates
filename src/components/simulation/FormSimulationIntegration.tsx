@@ -27,7 +27,7 @@ interface FormSimulationIntegrationProps {
   questions: Array<{
     id: string;
     title: string;
-    type: "single" | "multiple" | "text" | "matrix";
+    type: "single" | "multiple" | "text" | "long-text" | "matrix";
     required?: boolean;
     options?: Array<{ id: string; label: string }>;
     matrixRows?: Array<{ id: string; label: string }>;

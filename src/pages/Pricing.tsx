@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Check, X, Sparkles, Zap, Rocket, ArrowRight } from "lucide-react";
+import { Check, X, Sparkles, Zap, Rocket, ArrowRight, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
@@ -18,7 +18,34 @@ export function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
+      {/* Simple TopNav */}
+      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link to="/" className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <Home className="w-5 h-5" />
+              DooDates
+            </Link>
+            <div className="flex items-center gap-4">
+              <Link to="/docs" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Documentation
+              </Link>
+              {user ? (
+                <Button onClick={() => navigate("/create")} size="sm">
+                  Créer un sondage
+                </Button>
+              ) : (
+                <Button onClick={() => navigate("/auth")} size="sm">
+                  Connexion
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="py-12 px-4">
       {/* Hero Section */}
       <div className="max-w-4xl mx-auto text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
@@ -63,16 +90,16 @@ export function PricingPage() {
           icon={<Sparkles className="w-6 h-6" />}
           name="Gratuit"
           price="0"
-          period="Toujours gratuit"
-          description="Découvrez DooDates et créez vos premiers sondages IA"
+          period=" Toujours gratuit"
+          description="Utilisateurs occasionnels"
           features={[
             { text: "20 crédits IA/mois", included: true, highlight: true },
             { text: "20 sondages max", included: true },
-            { text: "Export CSV, PDF, JSON, Markdown", included: true },
+            // { text: "Export CSV, PDF, JSON, Markdown", included: true },
             { text: "Dashboard complet", included: true },
             { text: "Partage illimité", included: true },
-            { text: "Customisation", included: false },
-            { text: "Intégrations", included: false },
+            // { text: "Customisation", included: false },
+            // { text: "Intégrations", included: false },
             { text: "Support garanti", included: false },
           ]}
           cta="Commencer gratuitement"
@@ -86,20 +113,20 @@ export function PricingPage() {
           name="Premium"
           price={billingCycle === "monthly" ? "9" : "8.25"}
           period={billingCycle === "monthly" ? "/mois" : "/mois (99€/an)"}
-          description="Pour les utilisateurs réguliers et professionnels"
+          description="Utilisateurs réguliers"
           features={[
             { text: "100 crédits IA/mois", included: true, highlight: true },
             { text: "100 sondages max", included: true },
-            { text: "Export Excel + Google Sheets", included: true },
-            { text: "Customisation (couleurs, logo)", included: true },
+            // { text: "Export Excel + Google Sheets", included: true },
+            // { text: "Customisation (couleurs, logo)", included: true },
             { text: "Support email sous 7 jours", included: true },
             {
               text: billingCycle === "annual" ? "Rollover 1200 crédits/an" : "Reset mensuel",
               included: true,
               highlight: billingCycle === "annual",
             },
-            { text: "Intégrations avancées", included: false },
-            { text: "White-label", included: false },
+            // { text: "Intégrations avancées", included: false },
+            // { text: "White-label", included: false },
           ]}
           cta={user ? "Passer en Premium" : "Essayer Premium"}
           onCTA={() => handleUpgrade("premium", billingCycle)}
@@ -112,14 +139,14 @@ export function PricingPage() {
           name="Pro"
           price={billingCycle === "monthly" ? "29" : "24.90"}
           period={billingCycle === "monthly" ? "/mois" : "/mois (299€/an)"}
-          description="Usage intensif pour agences et entreprises"
+          description="Utilisateurs professionnels"
           features={[
             { text: "1000 crédits IA/mois", included: true, highlight: true },
             { text: "Sondages illimités", included: true, highlight: true },
-            { text: "Tous les exports", included: true },
-            { text: "Customisation complète + domaine", included: true },
-            { text: "Intégrations (Slack, API, Zapier)", included: true },
-            { text: "White-label disponible", included: true },
+            // { text: "Tous les exports", included: true },
+            // { text: "Customisation complète + domaine", included: true },
+            // { text: "Intégrations (Slack, API, Zapier)", included: true },
+            // { text: "White-label disponible", included: true },
             { text: "Support prioritaire sous 2 jours", included: true },
             {
               text: billingCycle === "annual" ? "Rollover 12000 crédits/an" : "Reset mensuel",
@@ -183,6 +210,7 @@ export function PricingPage() {
         <Button size="lg" variant="secondary" onClick={handleGetStarted}>
           Essayer gratuitement
         </Button>
+      </div>
       </div>
     </div>
   );

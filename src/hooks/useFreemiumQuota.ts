@@ -45,16 +45,18 @@ export interface QuotaStatus {
   };
 }
 
+import { CONVERSATION_QUOTAS, STORAGE_QUOTAS } from "@/constants/quotas";
+
 const GUEST_LIMITS: QuotaLimits = {
-  conversations: 10,
+  conversations: CONVERSATION_QUOTAS.ANONYMOUS, // 5 conversations
   polls: 5,
-  storageSize: 50, // 50MB
+  storageSize: STORAGE_QUOTAS.ANONYMOUS, // 50MB
 };
 
 const AUTHENTICATED_LIMITS: QuotaLimits = {
-  conversations: 1000,
+  conversations: CONVERSATION_QUOTAS.AUTHENTICATED, // 1000 conversations
   polls: 100,
-  storageSize: 1000, // 1GB
+  storageSize: STORAGE_QUOTAS.AUTHENTICATED, // 1000MB (1GB)
 };
 
 export const useFreemiumQuota = () => {

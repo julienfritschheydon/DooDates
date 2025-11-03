@@ -37,12 +37,12 @@ const RATE_LIMIT = {
 export interface FormQuestion {
   text: string;
   title: string;
-  type: "single" | "multiple" | "text" | "rating" | "nps" | "matrix";
+  type: "single" | "multiple" | "text" | "long-text" | "rating" | "nps" | "matrix";
   required: boolean;
   options?: string[]; // Pour single/multiple
   maxChoices?: number; // Pour multiple
-  placeholder?: string; // Pour text
-  maxLength?: number; // Pour text
+  placeholder?: string; // Pour text/long-text
+  maxLength?: number; // Pour text/long-text
   // Rating-specific fields
   ratingScale?: number; // 5 ou 10 (par défaut 5)
   ratingStyle?: "numbers" | "stars" | "emojis"; // Style d'affichage (par défaut numbers)

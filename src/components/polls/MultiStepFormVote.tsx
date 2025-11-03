@@ -63,7 +63,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
       if (!answer) return false;
 
       // Vérifications spécifiques par type
-      if (currentQuestion.kind === "text" && typeof answer === "string") {
+      if ((currentQuestion.kind === "text" || currentQuestion.kind === "long-text") && typeof answer === "string") {
         return answer.trim().length > 0;
       }
       if (currentQuestion.kind === "multiple" && Array.isArray(answer)) {
@@ -115,7 +115,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
   }, [currentStep, isCurrentQuestionAnswered, isLastQuestion]);
 
   const goNext = () => {
-    if (currentStep < visibleQuestions.length - 1) {
+    if (currentStep < visibleQuestions.length) {
       setCurrentStep((prev) => prev + 1);
     }
   };
@@ -161,7 +161,8 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
     }
   };
 
-  if (!currentQuestion) {
+  // Si pas de questions ET qu'on n'est pas sur l'étape coordonnées
+  if (!currentQuestion && !isOnCoordinatesStep) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <p className="text-gray-500">Aucune question disponible</p>
@@ -252,7 +253,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
                       value={respondentName}
                       onChange={(e) => setRespondentName(e.target.value)}
                       placeholder="Anonyme"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                   <div>
@@ -262,7 +263,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
                       value={respondentEmail}
                       onChange={(e) => setRespondentEmail(e.target.value)}
                       placeholder="votre@email.com"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
@@ -444,13 +445,27 @@ function QuestionRenderer({
   // Text
   if (kind === "text") {
     return (
-      <textarea
+      <input
+        type="text"
         value={(value as string) || ""}
         onChange={(e) => onChange(e.target.value)}
         placeholder={question.placeholder || "Votre réponse..."}
         maxLength={question.maxLength}
-        rows={4}
-        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-gray-900 placeholder:text-gray-400"
+        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 placeholder:text-gray-400"
+      />
+    );
+  }
+
+  // Long Text
+  if (kind === "long-text") {
+    return (
+      <textarea
+        value={(value as string) || ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={question.placeholder || "Votre réponse détaillée..."}
+        maxLength={question.maxLength}
+        rows={6}
+        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-y bg-white text-gray-900 placeholder:text-gray-400"
       />
     );
   }
@@ -478,7 +493,7 @@ function QuestionRenderer({
           ))}
         </div>
         {(question.ratingMinLabel || question.ratingMaxLabel) && (
-          <div className="flex justify-between text-xs text-gray-900">
+          <div className="flex justify-between text-xs text-gray-700">
             <span>{question.ratingMinLabel || ""}</span>
             <span>{question.ratingMaxLabel || ""}</span>
           </div>
@@ -508,7 +523,7 @@ function QuestionRenderer({
             </button>
           ))}
         </div>
-        <div className="flex justify-between text-xs text-gray-900">
+        <div className="flex justify-between text-xs text-gray-700">
           <span>Pas du tout probable</span>
           <span>Extrêmement probable</span>
         </div>
@@ -542,11 +557,11 @@ function QuestionRenderer({
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="p-2 text-left border-b-2 border-gray-200"></th>
+              <th className="p-2 text-left border-b-2 border-gray-300 bg-gray-50"></th>
               {columns.map((col) => (
                 <th
                   key={col.id}
-                  className="p-2 text-center border-b-2 border-gray-200 text-sm font-medium text-gray-900"
+                  className="p-2 text-center border-b-2 border-gray-300 bg-gray-50 text-sm font-medium text-gray-800"
                 >
                   {col.label}
                 </th>
@@ -555,8 +570,8 @@ function QuestionRenderer({
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.id} className="border-b border-gray-100">
-                <td className="p-3 font-medium text-sm text-gray-900">{row.label}</td>
+              <tr key={row.id} className="border-b border-gray-200 hover:bg-gray-50">
+                <td className="p-3 font-medium text-sm text-gray-800 bg-white">{row.label}</td>
                 {columns.map((col) => {
                   const isSelected =
                     question.matrixType === "multiple"
@@ -564,13 +579,13 @@ function QuestionRenderer({
                       : matrixValue[row.id] === col.id;
 
                   return (
-                    <td key={col.id} className="p-3 text-center">
+                    <td key={col.id} className="p-3 text-center bg-white border-r border-gray-200">
                       <button
                         onClick={() => handleMatrixChange(row.id, col.id)}
                         className={`w-8 h-8 rounded-full border-2 transition-all ${
                           isSelected
                             ? "border-purple-600 bg-purple-600"
-                            : "border-gray-300 hover:border-purple-300"
+                            : "border-gray-400 hover:border-purple-400 hover:bg-gray-50"
                         }`}
                       >
                         {isSelected && <Check className="w-4 h-4 text-white mx-auto" />}
@@ -588,3 +603,4 @@ function QuestionRenderer({
 
   return <p className="text-gray-500">Type de question non supporté</p>;
 }
+

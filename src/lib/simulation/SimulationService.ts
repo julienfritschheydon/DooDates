@@ -32,7 +32,7 @@ const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 interface Question {
   id: string;
   title: string;
-  type: "single" | "multiple" | "text" | "matrix";
+  type: "single" | "multiple" | "text" | "long-text" | "matrix";
   required?: boolean;
   options?: Array<{ id: string; label: string }>;
   matrixRows?: Array<{ id: string; label: string }>;
@@ -369,7 +369,7 @@ export async function simulate(
   // Calculer le coût estimé (si Gemini utilisé)
   let estimatedCost;
   if (config.useGemini) {
-    const textQuestions = questions.filter((q) => q.type === "text");
+    const textQuestions = questions.filter((q) => q.type === "text" || q.type === "long-text");
     const geminiCalls = respondents.length * textQuestions.length;
 
     // Coût Gemini 2.0 Flash : $0.000019 par réponse (input + output)

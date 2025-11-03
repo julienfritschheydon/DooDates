@@ -77,7 +77,7 @@ Analytics IA est un système d'analyse automatique qui :
 ```
 
 **Quotas selon votre plan :**
-- 🆓 **Mode Invité** : 5 conversations
+- 🆓 **Mode Invité** : 5 conversations IA (création de sondages)
 - 👤 **Compte Gratuit** : 50 conversations/mois
 - 💼 **Pro** : Illimité
 - 🚀 **Premium** : Illimité + fonctionnalités avancées
@@ -362,7 +362,7 @@ Total : 6 crédits consommés
 ```
 ⚠️ Quota IA épuisé (5/5)
 
-Vous avez utilisé vos 5 conversations IA gratuites.
+Vous avez utilisé vos 5 conversations IA gratuites (création de sondages avec l'IA).
 
 Options :
   1. Créez un compte gratuit → +50 conversations/mois

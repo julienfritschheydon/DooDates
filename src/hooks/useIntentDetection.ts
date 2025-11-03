@@ -24,6 +24,7 @@ import { useCallback, useRef, useEffect } from "react";
 import { IntentDetectionService } from "../services/IntentDetectionService";
 import { FormPollIntentService } from "../services/FormPollIntentService";
 import { GeminiIntentService } from "../services/GeminiIntentService";
+import { PollTypeSwitchDetector } from "../services/PollTypeSwitchDetector";
 import { logger } from "../lib/logger";
 
 interface Message {
@@ -53,6 +54,12 @@ interface IntentResult {
   };
   modifiedQuestionId?: string;
   modifiedField?: "title" | "type" | "options" | "required";
+  /** Indique qu'un changement de type de sondage a été détecté */
+  isTypeSwitch?: boolean;
+  /** Le message original pour créer un nouveau sondage */
+  originalMessage?: string;
+  /** Type de sondage demandé */
+  requestedType?: "date" | "form";
 }
 
 /**
@@ -129,11 +136,11 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
           let feedback = `${icon} ${intent.explanation}`;
 
           if (intent.action === "ADD_DATE" && isAlreadyInPoll) {
-            feedback = `ℹ️ La date ${intent.payload.split("-").reverse().join("/")} est déjà dans le sondage`;
+            feedback = `ℹ️ La date ${String(intent.payload).split("-").reverse().join("/")} est déjà dans le sondage`;
           }
 
           if (intent.action === "REMOVE_DATE" && isNotInPoll) {
-            feedback = `ℹ️ La date ${intent.payload.split("-").reverse().join("/")} n'est pas dans le sondage`;
+            feedback = `ℹ️ La date ${String(intent.payload).split("-").reverse().join("/")} n'est pas dans le sondage`;
           }
 
           confirmations.push(feedback);
@@ -183,6 +190,29 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
           GeminiIntentService.logMissingPattern(trimmedText, aiIntent);
           formIntent = aiIntent as any; // Convertir au format FormModificationIntent
         } else {
+          // Ni regex ni IA n'ont réussi - vérifier si c'est un changement de type
+          const typeSwitchResult = PollTypeSwitchDetector.detectTypeSwitch(
+            trimmedText,
+            currentPoll,
+          );
+
+          if (typeSwitchResult.isTypeSwitch && typeSwitchResult.confidence > 0.6) {
+            // L'utilisateur essaie de changer de type de sondage
+            logger.info("🔄 Changement de type de sondage détecté", "poll", {
+              currentType: typeSwitchResult.currentType,
+              requestedType: typeSwitchResult.requestedType,
+              confidence: typeSwitchResult.confidence,
+            });
+
+            // Retourner un résultat spécial pour déclencher un nouveau chat
+            return {
+              handled: true,
+              isTypeSwitch: true,
+              originalMessage: trimmedText,
+              requestedType: typeSwitchResult.requestedType,
+            };
+          }
+
           // Ni regex ni IA n'ont réussi - proposer à l'utilisateur de signaler
           logger.warn("❌ Modification non reconnue par regex ET IA", "poll", {
             message: trimmedText,
@@ -228,9 +258,9 @@ Exemples de modifications supportées :
         let payload = formIntent.payload;
 
         // Convertir title → subject pour ADD_QUESTION (compatibilité reducer)
-        if (formIntent.action === "ADD_QUESTION" && payload.title) {
+        if (formIntent.action === "ADD_QUESTION" && (payload as any).title) {
           payload = {
-            subject: payload.title, // Le reducer attend "subject"
+            subject: (payload as any).title, // Le reducer attend "subject"
           };
         }
 

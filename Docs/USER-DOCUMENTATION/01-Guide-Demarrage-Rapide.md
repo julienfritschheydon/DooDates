@@ -24,7 +24,7 @@ Bienvenue dans DooDates ! Ce guide vous permettra de créer votre premier sondag
 **Limites du mode invité :**
 - Sondages stockés uniquement sur votre appareil
 - Pas de synchronisation entre appareils
-- Limité à 5 conversations IA par session
+- Limité à 5 conversations IA (création de sondages avec l'IA)
 - Données perdues si vous videz le cache du navigateur
 
 ### Option 2 : Avec Compte (Recommandé)

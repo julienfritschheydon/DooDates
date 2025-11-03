@@ -1,11 +1,37 @@
 # DooDates - Quotas & Pricing - Spécification Finale
 **Date:** 3 novembre 2025  
-**Version:** 1.0  
-**Statut:** VALIDÉ
+**Version:** 1.1  
+**Statut:** ALIGNÉ AVEC IMPLÉMENTATION
+
+> ⚠️ **Note importante** : Cette spécification décrit le système de **crédits IA** prévu pour la version future.  
+> **Implémentation actuelle (v0.1 Beta)** : Système simplifié basé sur **conversations IA** (voir section "État actuel" ci-dessous)
 
 ---
 
-## 📊 STRUCTURE DES TIERS
+## 🎯 ÉTAT ACTUEL (Implémentation v0.1 Beta)
+
+### Quotas Simplifiés
+
+| Tier | Prix | Conversations IA | Messages IA | Analytics IA | Support |
+|------|------|------------------|-------------|--------------|---------|
+| **Invité** | 0€ | 5 (lifetime) | 10/conv | 5/jour | ❌ |
+| **Gratuit** | 0€ | 1000 | 100/mois | 50/jour | Non garanti |
+| **Beta Tester** | 0€ (clé) | 1000 | 100/mois | 50/jour | Prioritaire ✅ |
+
+**Source de vérité** : `src/constants/quotas.ts`
+
+### Définitions (v0.1)
+
+**Conversation IA** : Une session de création de sondage avec l'IA  
+- ✅ Compte : Créer un nouveau sondage via chat IA
+- ❌ Ne compte PAS : Modifications, création manuelle
+
+**Message IA** : Chaque message envoyé à l'IA (création ou modification)  
+**Analytics IA** : Questions posées à l'IA sur vos résultats  
+
+---
+
+## 🚀 SYSTÈME CIBLE (Version future avec paiements)
 
 ### Vue d'ensemble
 

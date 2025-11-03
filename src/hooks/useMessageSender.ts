@@ -75,6 +75,8 @@ interface UseMessageSenderOptions {
     questionId: string,
     field: "title" | "type" | "options" | "required",
   ) => void;
+  /** Callback pour démarrer un nouveau chat (changement de type de sondage) */
+  onStartNewChat?: () => Promise<void>;
 }
 
 /**
@@ -104,14 +106,17 @@ export function useMessageSender(options: UseMessageSenderOptions) {
     setIsLoading,
     setLastAIProposal,
     setModifiedQuestion,
+    onStartNewChat,
   } = options;
 
-  // Stocker le callback dans une ref pour éviter les re-créations
+  // Stocker les callbacks dans des refs pour éviter les re-créations
   const onUserMessageRef = useRef(onUserMessage);
+  const onStartNewChatRef = useRef(onStartNewChat);
 
   useEffect(() => {
     onUserMessageRef.current = onUserMessage;
-  }, [onUserMessage]);
+    onStartNewChatRef.current = onStartNewChat;
+  }, [onUserMessage, onStartNewChat]);
 
   const sendMessage = useCallback(
     async (text: string, notifyParent: boolean) => {
@@ -137,6 +142,37 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       const intentResult = await intentDetection.detectIntent(trimmedText);
 
       if (intentResult.handled) {
+        // Cas spécial : changement de type de sondage détecté
+        if (intentResult.isTypeSwitch && onStartNewChatRef.current) {
+          logger.info("🔄 Démarrage d'un nouveau chat pour changement de type", "poll");
+
+          // Ajouter un message informatif
+          const switchMessage: Message = {
+            id: `ai-${Date.now()}`,
+            content: `✨ Vous souhaitez créer un ${
+              intentResult.requestedType === "form" ? "questionnaire" : "sondage de disponibilité"
+            }. Je démarre une nouvelle conversation pour vous...`,
+            isAI: true,
+            timestamp: new Date(),
+          };
+
+          setMessages((prev) => [...prev, switchMessage]);
+
+          // Petit délai pour que l'utilisateur voie le message
+          await new Promise((resolve) => setTimeout(resolve, 800));
+
+          // Démarrer un nouveau chat
+          await onStartNewChatRef.current();
+
+          // Re-traiter le message original dans le nouveau contexte
+          // On attend un peu que le nouveau chat soit initialisé
+          await new Promise((resolve) => setTimeout(resolve, 300));
+
+          // Rappeler sendMessage avec le message original
+          // Mais cette fois sans le poll actuel, donc il sera traité comme une nouvelle création
+          return sendMessage(intentResult.originalMessage || trimmedText, false);
+        }
+
         // Ajouter le message utilisateur si présent
         if (intentResult.userMessage) {
           setMessages((prev) => [...prev, intentResult.userMessage!]);
