@@ -88,7 +88,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
   const handleDuplicate = () => {
     try {
       const dup = duplicatePoll(poll);
-      
+
       // Save the duplicated poll to storage before creating conversation
       addPoll(dup);
 
