@@ -275,7 +275,9 @@ export default function FormPollResults({ idOrSlug }: Props) {
           ) : (
             <div className="bg-white dark:bg-gray-800 rounded-md border dark:border-gray-700 p-6">
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Analytics IA</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  Analytics IA
+                </h2>
               </div>
             </div>
           )}
