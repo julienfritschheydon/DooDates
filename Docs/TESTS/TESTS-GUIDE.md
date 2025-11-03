@@ -402,8 +402,9 @@ strategy:
   matrix:
     shard: [1, 2, 3]
 steps:
-  - run: npx playwright test --grep @functional --shard=${{ matrix.shard }}/3
+  - run: npx playwright test --grep @functional --grep-invert "@analytics" --shard=${{ matrix.shard }}/3
   - Tests complets divisés en 3 parties
+  - Exclut @analytics (tests serial non-shardables)
   - Durée : ~2min (vs 5min séquentiel)
   - Rapports : playwright-functional-report-{1,2,3}
 
