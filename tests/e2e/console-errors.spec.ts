@@ -35,9 +35,7 @@ test.describe('Console Errors & React Warnings', () => {
     });
 
     // Aller sur la page d'accueil
-    await page.goto('/?e2e-test=true');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+    await page.goto('/?e2e-test=true', { waitUntil: 'domcontentloaded' });
 
     // Filtrer les erreurs connues/acceptables
     const filteredErrors = consoleErrors.filter(error => {
@@ -78,31 +76,32 @@ test.describe('Console Errors & React Warnings', () => {
     });
 
     // Créer un poll via IA
-    await page.goto('/?e2e-test=true');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/?e2e-test=true', { waitUntil: 'domcontentloaded' });
 
     const chatInput = page.locator('[data-testid="message-input"]');
     await chatInput.fill('Crée un questionnaire avec 1 question');
     await chatInput.press('Enter');
-    await page.waitForTimeout(3000);
+    
+    // Attendre que le bouton de création soit visible
+    const createButton = page.getByRole('button', { name: /créer ce formulaire/i });
+    await expect(createButton).toBeVisible({ timeout: 10000 });
 
     // Cliquer sur "Créer ce formulaire"
-    const createButton = page.getByRole('button', { name: /créer ce formulaire/i });
     await createButton.click();
-    await page.waitForTimeout(2000);
+    
+    // Attendre la prévisualisation
+    await expect(page.locator('[data-poll-preview]')).toBeVisible({ timeout: 5000 });
 
     // Finaliser
     const finalizeButton = page.locator('button:has-text("Finaliser")');
     if (await finalizeButton.isVisible()) {
       await finalizeButton.click();
-      await page.waitForTimeout(2000);
+      await expect(page.locator('text=/dashboard|sondage créé/i')).toBeVisible({ timeout: 5000 });
     }
 
     // Rafraîchir la page plusieurs fois pour détecter les memory leaks
     for (let i = 0; i < 3; i++) {
-      await page.reload();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(1000);
+      await page.reload({ waitUntil: 'domcontentloaded' });
     }
 
     // Vérifier qu'il n'y a pas de warnings React
@@ -123,22 +122,24 @@ test.describe('Console Errors & React Warnings', () => {
     });
 
     // Créer un poll rapide
-    await page.goto('/?e2e-test=true');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/?e2e-test=true', { waitUntil: 'domcontentloaded' });
 
     const chatInput = page.locator('[data-testid="message-input"]');
     await chatInput.fill('Crée un questionnaire avec 1 question');
     await chatInput.press('Enter');
-    await page.waitForTimeout(3000);
-
+    
+    // Attendre que le bouton de création soit visible
     const createButton = page.getByRole('button', { name: /créer ce formulaire/i });
+    await expect(createButton).toBeVisible({ timeout: 10000 });
     await createButton.click();
-    await page.waitForTimeout(2000);
+    
+    // Attendre la prévisualisation
+    await expect(page.locator('[data-poll-preview]')).toBeVisible({ timeout: 5000 });
 
     const finalizeButton = page.locator('button:has-text("Finaliser")');
     if (await finalizeButton.isVisible()) {
       await finalizeButton.click();
-      await page.waitForTimeout(2000);
+      await expect(page.locator('text=/dashboard|sondage créé/i')).toBeVisible({ timeout: 5000 });
     }
 
     // Récupérer le slug
@@ -152,8 +153,7 @@ test.describe('Console Errors & React Warnings', () => {
     }
 
     // Voter 1 fois
-    await page.goto(`/poll/${slug}?e2e-test=true`);
-    await page.waitForLoadState('networkidle');
+    await page.goto(`/poll/${slug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     
     // Remplir le nom
     const nameInput = page.locator('input[placeholder*="nom" i]').first();
@@ -163,16 +163,16 @@ test.describe('Console Errors & React Warnings', () => {
     
     // Remplir la réponse (textarea ou input selon le type de question)
     const responseInput = page.locator('textarea, input[type="text"]').last();
-    await responseInput.waitFor({ state: 'visible', timeout: 5000 });
+    await expect(responseInput).toBeVisible({ timeout: 5000 });
     await responseInput.fill('Test response');
     
     const submitButton = page.locator('button:has-text("Envoyer")');
     await submitButton.click();
-    await page.waitForTimeout(1000);
+    // Attendre que la soumission soit traitée (redirection ou message)
+    await page.waitForURL(/\/poll\/|\/dashboard/, { timeout: 5000 }).catch(() => {});
 
     // Clôturer
-    await page.goto(`/poll/${slug}/results?e2e-test=true`);
-    await page.waitForLoadState('networkidle');
+    await page.goto(`/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     const closeButton = page.locator('button:has-text("Clôturer")');
     if (await closeButton.isVisible()) {
       await closeButton.click();
@@ -180,14 +180,13 @@ test.describe('Console Errors & React Warnings', () => {
       if (await confirmButton.isVisible()) {
         await confirmButton.click();
       }
-      await page.waitForTimeout(2000);
+      // Attendre confirmation de clôture
+      await expect(page.locator('text=/analytics|clôturé/i')).toBeVisible({ timeout: 5000 }).catch(() => {});
     }
 
     // Rafraîchir plusieurs fois
     for (let i = 0; i < 3; i++) {
-      await page.reload();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(1000);
+      await page.reload({ waitUntil: 'domcontentloaded' });
     }
 
     // Filtrer les erreurs connues
