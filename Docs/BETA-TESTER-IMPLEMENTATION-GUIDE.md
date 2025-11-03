@@ -35,6 +35,8 @@
   - Packs crédits additionnels
   - FAQ complète
   - Route `/pricing` configurée
+  - TopNav intégré dans la page (Home, Documentation, Connexion/Créer)
+  - Bouton "Tarifs" dans sidebar principale de l'app (après "Tableau de bord")
 
 ---
 
@@ -354,6 +356,9 @@ import { AdminBetaKeysPage } from '@/pages/admin/BetaKeys';
 ```
 
 ---
+
+#### Ajouter l'indicateur de quota dans la sidebar (2 min)
+
 
 ### Phase 3: Hook useCredits (1h)
 

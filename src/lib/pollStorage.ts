@@ -34,7 +34,7 @@ export interface PollSettings {
 }
 
 // --- Types FormPoll (réponses & résultats) ---
-export type FormQuestionKind = "single" | "multiple" | "text" | "matrix" | "rating" | "nps";
+export type FormQuestionKind = "single" | "multiple" | "text" | "long-text" | "matrix" | "rating" | "nps";
 
 export interface FormQuestionOption {
   id: string;

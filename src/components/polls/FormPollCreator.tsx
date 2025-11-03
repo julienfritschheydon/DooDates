@@ -17,7 +17,7 @@ import { DEFAULT_THEME } from "../../lib/themes";
 import { FormSimulationIntegration } from "../simulation/FormSimulationIntegration";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
-export type FormQuestionType = "single" | "multiple" | "text" | "matrix" | "rating" | "nps";
+export type FormQuestionType = "single" | "multiple" | "text" | "long-text" | "matrix" | "rating" | "nps";
 
 export interface FormOption {
   id: string;
@@ -40,6 +40,13 @@ export interface SingleOrMultipleQuestion extends FormQuestionBase {
 
 export interface TextQuestion extends FormQuestionBase {
   type: "text";
+  placeholder?: string;
+  maxLength?: number;
+  validationType?: "email" | "phone" | "url" | "number" | "date";
+}
+
+export interface LongTextQuestion extends FormQuestionBase {
+  type: "long-text";
   placeholder?: string;
   maxLength?: number;
   validationType?: "email" | "phone" | "url" | "number" | "date";
@@ -68,6 +75,7 @@ export interface NPSQuestion extends FormQuestionBase {
 export type AnyFormQuestion =
   | SingleOrMultipleQuestion
   | TextQuestion
+  | LongTextQuestion
   | MatrixQuestion
   | RatingQuestion
   | NPSQuestion;
@@ -120,7 +128,7 @@ export default function FormPollCreator({
     if (questions.length > 5) return "multi-step";
     // Si beaucoup de questions texte longues → multi-step
     const longTextQuestions = questions.filter(
-      (q) => q.type === "text" && (q as TextQuestion).maxLength > 100,
+      (q) => (q.type === "text" && (q as TextQuestion).maxLength > 100) || q.type === "long-text",
     );
     if (longTextQuestions.length > 2) return "multi-step";
     // Sinon → classique
@@ -188,6 +196,18 @@ export default function FormPollCreator({
           required: !!q.required,
           placeholder: q.placeholder || "",
           maxLength: 300,
+          validationType: q.validationType,
+        };
+        return base;
+      }
+      if (q.kind === "long-text") {
+        const base: LongTextQuestion = {
+          id: q.id,
+          type: "long-text",
+          title: q.title,
+          required: !!q.required,
+          placeholder: q.placeholder || "",
+          maxLength: 2000,
           validationType: q.validationType,
         };
         return base;
@@ -325,6 +345,18 @@ export default function FormPollCreator({
         required: false,
         placeholder: "",
         maxLength: 300,
+      };
+      setQuestions((prev) => [...prev, q]);
+      return;
+    }
+    if (type === "long-text") {
+      const q: LongTextQuestion = {
+        id: uid(),
+        type: "long-text",
+        title: "Nouvelle question",
+        required: false,
+        placeholder: "",
+        maxLength: 2000,
       };
       setQuestions((prev) => [...prev, q]);
       return;
@@ -638,6 +670,10 @@ function validateDraft(draft: FormPollDraft): {
       const tq = q as TextQuestion;
       if ((tq.maxLength ?? 300) < 50) errors.push(`Question ${idx + 1}: maxLength >= 50`);
       if ((tq.maxLength ?? 300) > 1000) errors.push(`Question ${idx + 1}: maxLength <= 1000`);
+    } else if (q.type === "long-text") {
+      const ltq = q as LongTextQuestion;
+      if ((ltq.maxLength ?? 2000) < 100) errors.push(`Question ${idx + 1}: maxLength >= 100`);
+      if ((ltq.maxLength ?? 2000) > 5000) errors.push(`Question ${idx + 1}: maxLength <= 5000`);
     } else if (q.type === "rating") {
       const rq = q as RatingQuestion;
       if (rq.ratingScale && rq.ratingScale !== 5 && rq.ratingScale !== 10) {

@@ -12,6 +12,7 @@ import {
   LogOut,
   UserCircle,
   Book,
+  DollarSign,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useConversation } from "./ConversationProvider";
@@ -321,6 +322,17 @@ export function WorkspaceLayoutPrototype() {
                     />
                   </svg>
                   <span>Tableau de bord</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate("/pricing");
+                    if (isMobile) setIsSidebarOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
+                >
+                  <DollarSign className="w-5 h-5" />
+                  <span>Tarifs</span>
                 </button>
               </div>
 

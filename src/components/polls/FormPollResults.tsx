@@ -71,7 +71,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
     for (const q of questions) {
       const qid: string = q.id;
       const kind: string = q.kind || q.type || "single";
-      if (kind === "text") {
+      if (kind === "text" || kind === "long-text") {
         const samples = (textAnswers[qid] || []).slice(0, 10);
         map[qid] = { kind, count: (textAnswers[qid] || []).length, samples };
       } else {
@@ -296,7 +296,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                 <div className="mb-3">
                   <div className="font-medium dark:text-gray-100">{q.title || "(Sans titre)"}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {kind === "text"
+                    {kind === "text" || kind === "long-text"
                       ? "Réponses libres"
                       : kind === "single"
                         ? "Choix unique"
@@ -308,7 +308,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                   </div>
                 </div>
 
-                {kind !== "text" && kind !== "matrix" && (
+                {kind !== "text" && kind !== "long-text" && kind !== "matrix" && (
                   <div className="space-y-2" data-testid="question-options-results">
                     {(q.options || []).map((opt: FormQuestionOption) => {
                       const count = stats?.counts?.[opt.id] || 0;
@@ -388,7 +388,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                   </div>
                 )}
 
-                {kind === "text" && (
+                {(kind === "text" || kind === "long-text") && (
                   <div className="space-y-2" data-testid="text-answers">
                     {(() => {
                       const all = textAnswers[qid] || [];
@@ -555,7 +555,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                       if (!q) return null;
                       const kind = q.kind || q.type || "single";
                       let answerDisplay: string = "";
-                      if (kind === "text") {
+                      if (kind === "text" || kind === "long-text") {
                         answerDisplay = typeof it.value === "string" ? it.value : "";
                       } else if (kind === "matrix") {
                         // Pour matrices, afficher un résumé

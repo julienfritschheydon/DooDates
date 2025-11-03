@@ -162,18 +162,20 @@ export interface UseQuotaReturn {
 // CONSTANTS
 // ============================================================================
 
+import { CONVERSATION_QUOTAS, STORAGE_QUOTAS, RETENTION_DAYS } from "@/constants/quotas";
+
 const GUEST_LIMITS: QuotaLimits = {
-  conversations: CONVERSATION_LIMITS.GUEST_MAX_CONVERSATIONS,
+  conversations: CONVERSATION_QUOTAS.ANONYMOUS, // 5 conversations
   polls: 5,
-  storageSize: 50, // 50MB
-  retentionDays: CONVERSATION_LIMITS.GUEST_RETENTION_DAYS,
+  storageSize: STORAGE_QUOTAS.ANONYMOUS, // 50MB
+  retentionDays: RETENTION_DAYS.ANONYMOUS, // 30 days
 };
 
 const AUTHENTICATED_LIMITS: QuotaLimits = {
-  conversations: 1000,
+  conversations: CONVERSATION_QUOTAS.AUTHENTICATED, // 1000 conversations
   polls: 100,
-  storageSize: 1000, // 1GB
-  retentionDays: 365, // 1 year
+  storageSize: STORAGE_QUOTAS.AUTHENTICATED, // 1000MB (1GB)
+  retentionDays: RETENTION_DAYS.AUTHENTICATED, // 365 days (1 year)
 };
 
 const STORAGE_KEYS = {

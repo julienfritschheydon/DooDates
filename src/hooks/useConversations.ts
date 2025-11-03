@@ -444,6 +444,12 @@ export function useConversations(config: UseConversationsConfig = {}) {
       });
       queryClient.removeQueries({ queryKey: queryKeys.messages(deletedId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.infinite });
+
+      // Dispatch conversationsChanged event to notify other components
+      logger.info(`🔔 Dispatching conversationsChanged event for conversation ${deletedId}`, "conversation");
+      const event = new CustomEvent("conversationsChanged", { detail: { action: "delete", conversationId: deletedId } });
+      window.dispatchEvent(event);
+      logger.info(`✅ conversationsChanged event dispatched`, "conversation");
     },
   });
 

@@ -122,7 +122,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
       const val = answers[qid];
 
       if (required) {
-        if (kind === "text") {
+        if (kind === "text" || kind === "long-text") {
           if (typeof val !== "string" || !val.trim()) {
             return `Réponse requise pour: ${q.title || "Question"}`;
           }
@@ -161,7 +161,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
         }
       }
 
-      if (kind === "text" && typeof val === "string") {
+      if ((kind === "text" || kind === "long-text") && typeof val === "string") {
         const maxLength: number | undefined = q.maxLength;
         if (maxLength && val.length > maxLength) {
           return `Texte trop long (${val.length}/${maxLength}) pour: ${q.title || "Question"}`;
@@ -354,7 +354,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
                         color: "var(--theme-text-secondary, #475569)",
                       }}
                     >
-                      {kind === "text"
+                      {kind === "text" || kind === "long-text"
                         ? "Réponse libre"
                         : kind === "single"
                           ? "Choix unique"
@@ -394,7 +394,8 @@ export default function FormPollVote({ idOrSlug }: Props) {
                         placeholder={q.placeholder}
                       />
                     ) : (
-                      <textarea
+                      <input
+                        type="text"
                         className="w-full rounded px-3 py-2"
                         style={{
                           backgroundColor: "var(--theme-bg-input, #F1F5F9)",
@@ -403,6 +404,37 @@ export default function FormPollVote({ idOrSlug }: Props) {
                           color: "var(--theme-text-primary, #1E293B)",
                         }}
                         placeholder={q.placeholder || "Votre réponse"}
+                        maxLength={q.maxLength || undefined}
+                        value={typeof val === "string" ? val : ""}
+                        onChange={(e) => updateAnswer(qid, e.target.value)}
+                        aria-labelledby={`q-${qid}-label`}
+                        aria-required={q.required ? true : undefined}
+                      />
+                    )}
+                  </>
+                )}
+
+                {kind === "long-text" && (
+                  <>
+                    {q.validationType ? (
+                      <StructuredInput
+                        value={typeof val === "string" ? val : ""}
+                        onChange={(newVal) => updateAnswer(qid, newVal)}
+                        validationType={q.validationType as ValidationType}
+                        required={q.required}
+                        placeholder={q.placeholder}
+                      />
+                    ) : (
+                      <textarea
+                        rows={6}
+                        className="w-full rounded px-3 py-2 resize-y"
+                        style={{
+                          backgroundColor: "var(--theme-bg-input, #F1F5F9)",
+                          borderColor: "var(--theme-border, #E2E8F0)",
+                          borderWidth: "1px",
+                          color: "var(--theme-text-primary, #1E293B)",
+                        }}
+                        placeholder={q.placeholder || "Votre réponse détaillée..."}
                         maxLength={q.maxLength || undefined}
                         value={typeof val === "string" ? val : ""}
                         onChange={(e) => updateAnswer(qid, e.target.value)}

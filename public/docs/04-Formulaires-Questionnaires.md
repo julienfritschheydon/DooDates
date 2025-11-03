@@ -22,7 +22,7 @@ Les **formulaires DooDates** vous permettent de créer des enquêtes, questionna
 
 ### Avantages
 
-- ✅ **6 types de questions** (choix, texte, rating, NPS, matrix)
+- ✅ **7 types de questions** (choix unique, choix multiples, texte court, texte long, rating, NPS, matrix)
 - ✅ **Logique conditionnelle** (questions dynamiques)
 - ✅ **Mode multi-étapes** (UX optimale mobile)
 - ✅ **Analytics IA automatiques**
@@ -93,13 +93,11 @@ Maximum sélections : Illimité (ou 3 max)
 
 ---
 
-### 3. Texte Libre
+### 3. Texte Court (1 ligne)
 
-**Usage :** Réponse ouverte, commentaires
+**Usage :** Réponse courte sur une seule ligne
 
-**Variantes :**
-
-#### A. Texte Court (1 ligne)
+**Exemple :**
 ```
 Question : Quelle est votre ville ?
 [_____________________]
@@ -108,14 +106,30 @@ Question : Quelle est votre ville ?
 **Configuration :**
 ```
 Type : Texte court
-Longueur max : 100 caractères
-Validation : Aucune / Email / URL / Numéro
+Longueur max : 300 caractères (par défaut)
+Validation : Aucune / Email / Téléphone / URL / Nombre / Date
 ```
 
-#### B. Texte Long (Multilignes)
+**Quand l'utiliser :**
+- Nom, prénom
+- Email, téléphone
+- Ville, code postal
+- URL de site web
+- Informations courtes et précises
+
+---
+
+### 4. Texte Long (Multilignes)
+
+**Usage :** Réponse ouverte détaillée sur plusieurs lignes
+
+**Exemple :**
 ```
 Question : Que pourrions-nous améliorer ?
 ┌─────────────────────────────┐
+│                             │
+│                             │
+│                             │
 │                             │
 │                             │
 │                             │
@@ -125,19 +139,23 @@ Question : Que pourrions-nous améliorer ?
 **Configuration :**
 ```
 Type : Texte long
-Lignes : 5
-Longueur max : 500 caractères
+Lignes affichées : 6
+Longueur max : 2000 caractères (par défaut)
+Redimensionnable : Oui (verticalement)
+Validation : Optionnelle (Email / URL / etc.)
 ```
 
 **Quand l'utiliser :**
 - Commentaires libres
-- Suggestions
-- Descriptions détaillées
+- Suggestions détaillées
+- Descriptions
 - Feedback qualitatif
+- Témoignages
+- Réponses élaborées
 
 ---
 
-### 4. Matrix (Likert Scale)
+### 5. Matrix (Likert Scale)
 
 **Usage :** Évaluer plusieurs items selon les mêmes critères
 
@@ -177,7 +195,7 @@ Colonnes (échelle) :
 
 ---
 
-### 5. Rating (Étoiles)
+### 6. Rating (Étoiles)
 
 **Usage :** Évaluation sur une échelle de 1 à 5
 
@@ -209,7 +227,7 @@ Texte aide :
 
 ---
 
-### 6. NPS (Net Promoter Score)
+### 7. NPS (Net Promoter Score)
 
 **Usage :** Mesurer la fidélité client (échelle 0-10)
 
