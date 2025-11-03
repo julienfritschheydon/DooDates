@@ -1,11 +1,12 @@
 // DooDates PWA Service Worker
 const CACHE_NAME = 'doodates-v1';
+// Base path pour GitHub Pages
+const BASE_PATH = self.location.pathname.includes('/DooDates') ? '/DooDates' : '';
 const urlsToCache = [
-  '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/logo-doodates.svg',
-  '/favicon.ico'
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/logo-doodates.svg`,
+  `${BASE_PATH}/favicon.ico`
 ];
 
 // Installation du service worker
@@ -99,7 +100,7 @@ self.addEventListener('notificationclick', (event) => {
 
   if (event.action === 'explore') {
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow(`${BASE_PATH}/`)
     );
   }
 });
