@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import App from "./App.tsx";
 import "./index.css";
 import "./pwa-styles.css";
+import "./styles/docs.css";
 import { logger } from "@/lib/logger";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
