@@ -13,7 +13,12 @@ permissions:
   issues: write
 
 jobs:
-  quick-validation:
+  # ========================================
+  # TESTS E2E EN PARALLÈLE (gain ~2-3min)
+  # ========================================
+  
+  e2e-smoke:
+    name: 🔥 E2E Smoke Tests
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -25,41 +30,36 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: 🔧 Install dependencies
+      - name: 🔧 Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-e2e-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-e2e-
+
+      - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🧭 Install Playwright (Chromium only)
+      - name: 🧭 Install Playwright (Chromium)
         run: npx playwright install --with-deps chromium
 
-      - name: 🔥 Run Smoke Tests (Post-merge safety check)
+      - name: 🔥 Run Smoke Tests
         run: npm run test:e2e:smoke
 
       - name: 📊 Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-post-merge
+          name: playwright-smoke-report
           path: playwright-report
           retention-days: 7
 
-      - name: Create Issue if Failure
-        if: failure()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Post-Merge Smoke Tests Failed',
-              body: 'Tests smoke echoues sur main. Commit: ' + context.sha + ' - Auteur: ' + context.payload.pusher.name + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
-              labels: ['critical', 'bug', 'main-branch', 'automated'],
-              assignees: ['${context.payload.pusher.name}']
-            });
-
-  functional-validation:
+  e2e-functional:
+    name: ⚡ E2E Functional Tests
     runs-on: ubuntu-latest
-    needs: [quick-validation]
-    if: success()
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -70,32 +70,65 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: 🔧 Install dependencies
+      - name: 🔧 Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-e2e-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-e2e-
+
+      - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🧭 Install Playwright (Chromium only)
+      - name: 🧭 Install Playwright (Chromium)
         run: npx playwright install --with-deps chromium
 
-      - name: ⚡ Run Functional Tests (Extended validation)
+      - name: ⚡ Run Functional Tests
         run: npx playwright test --project=chromium --grep @functional --grep-invert "@wip|@flaky"
 
       - name: 📊 Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-post-merge-functional
+          name: playwright-functional-report
           path: playwright-report
           retention-days: 7
 
-      - name: Create Issue if Failure
-        if: failure()
+  # ========================================
+  # NOTIFICATION SI ÉCHEC
+  # ========================================
+  
+  notify-failure:
+    name: 📢 Notify Failures
+    runs-on: ubuntu-latest
+    needs: [e2e-smoke, e2e-functional]
+    if: failure()
+    steps:
+      - name: Create Issue for Failed Tests
         uses: actions/github-script@v6
         with:
           script: |
+            const smokeStatus = '${{ needs.e2e-smoke.result }}';
+            const functionalStatus = '${{ needs.e2e-functional.result }}';
+            
+            let failedTests = [];
+            if (smokeStatus === 'failure') failedTests.push('Smoke Tests');
+            if (functionalStatus === 'failure') failedTests.push('Functional Tests');
+            
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'Post-Merge Functional Tests Failed',
-              body: 'Tests fonctionnels echoues sur main. Commit: ' + context.sha + ' - Auteur: ' + context.actor + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
-              labels: ['bug', 'main-branch', 'automated']
+              title: `Post-Merge E2E Tests Failed: ${failedTests.join(', ')}`,
+              body: `❌ **Tests E2E échoués sur main**\n\n` +
+                    `**Tests en échec:** ${failedTests.join(', ')}\n` +
+                    `**Commit:** ${context.sha}\n` +
+                    `**Auteur:** ${context.actor}\n` +
+                    `**Workflow:** ${context.payload.repository.html_url}/actions/runs/${context.runId}\n\n` +
+                    `**Détails:**\n` +
+                    `- Smoke: ${smokeStatus}\n` +
+                    `- Functional: ${functionalStatus}`,
+              labels: ['critical', 'bug', 'main-branch', 'e2e-failure', 'automated']
             });
