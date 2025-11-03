@@ -149,11 +149,9 @@ DooDates est une plateforme moderne de création de sondages et de formulaires, 
 
 ## 🔄 Mises à Jour
 
-**Dernière mise à jour** : Novembre 2025
-
 Cette documentation est régulièrement mise à jour pour refléter les nouvelles fonctionnalités et améliorations de DooDates.
 
 ---
 
-**© 2025 DooDates - Documentation Utilisateur v1.0**
+**© DooDates - Documentation officielle**
 

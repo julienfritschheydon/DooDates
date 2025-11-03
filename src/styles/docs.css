@@ -105,19 +105,19 @@
   .docs-content h1 {
     @apply text-3xl;
   }
-  
+
   .docs-content h2 {
     @apply text-2xl;
   }
-  
+
   .docs-content h3 {
     @apply text-xl;
   }
-  
+
   .docs-content table {
     @apply text-sm;
   }
-  
+
   .docs-content pre {
     @apply text-xs;
   }
@@ -139,4 +139,3 @@
 .docs-content pre::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-500;
 }
-

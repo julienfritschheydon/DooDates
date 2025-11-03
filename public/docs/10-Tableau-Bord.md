@@ -468,14 +468,14 @@ Sondage → Menu ••• → "Historique des versions"
 
 ┌─────────────────────────────────────────┐
 │  Version 12 (actuelle)                  │
-│  03/11/2025 15:42 - Modifié par vous   │
+│  Aujourd'hui 15:42 - Modifié par vous  │
 │                                         │
 │  Version 11                             │
-│  03/11/2025 10:23 - Modifié par vous   │
+│  Aujourd'hui 10:23 - Modifié par vous  │
 │  [Restaurer]  [Comparer]               │
 │                                         │
 │  Version 10                             │
-│  02/11/2025 16:15 - Modifié par vous   │
+│  Hier 16:15 - Modifié par vous         │
 │  [Restaurer]  [Comparer]               │
 └─────────────────────────────────────────┘
 ```
