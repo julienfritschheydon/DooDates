@@ -1,6 +1,7 @@
 import React from "react";
-import { X, ChevronRight, ChevronLeft, MessageSquare, Sparkles, Edit3, Share2 } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, MessageSquare, Sparkles, Edit3, Share2, BookOpen } from "lucide-react";
 import { useOnboarding } from "../hooks/useOnboarding";
+import { useNavigate } from "react-router-dom";
 
 interface OnboardingStep {
   title: string;
@@ -33,6 +34,12 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
       "Votre questionnaire est prêt ! Partagez le lien et collectez les réponses. Export gratuit sans limite.",
     icon: <Share2 className="w-12 h-12 text-purple-600" />,
   },
+  {
+    title: "Besoin d'aide ?",
+    description:
+      "Consultez notre documentation complète pour découvrir toutes les fonctionnalités et bonnes pratiques.",
+    icon: <BookOpen className="w-12 h-12 text-purple-600" />,
+  },
 ];
 
 /**
@@ -42,12 +49,14 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
 export function OnboardingTour() {
   const { isOpen, currentStep, nextStep, previousStep, skipOnboarding, completeOnboarding } =
     useOnboarding();
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
   const step = ONBOARDING_STEPS[currentStep];
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === ONBOARDING_STEPS.length - 1;
+  const isDocStep = currentStep === ONBOARDING_STEPS.length - 1;
 
   const handleNext = () => {
     if (isLastStep) {
@@ -55,6 +64,11 @@ export function OnboardingTour() {
     } else {
       nextStep();
     }
+  };
+
+  const handleGoToDocs = () => {
+    completeOnboarding();
+    navigate('/docs');
   };
 
   return (
@@ -114,13 +128,23 @@ export function OnboardingTour() {
               <span className="hidden sm:inline">Précédent</span>
             </button>
 
-            {/* Bouton Passer */}
+            {/* Bouton Passer / Voir la doc */}
             {!isLastStep && (
               <button
                 onClick={skipOnboarding}
                 className="text-gray-500 hover:text-gray-700 font-medium text-sm sm:text-base transition-colors"
               >
                 Passer
+              </button>
+            )}
+            
+            {isDocStep && (
+              <button
+                onClick={handleGoToDocs}
+                className="text-gray-700 hover:text-gray-900 font-medium text-sm sm:text-base transition-colors flex items-center gap-1"
+              >
+                <BookOpen className="w-4 h-4" />
+                Voir la doc
               </button>
             )}
 

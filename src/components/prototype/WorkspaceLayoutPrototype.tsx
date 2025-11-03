@@ -230,6 +230,18 @@ export function WorkspaceLayoutPrototype() {
           <div className="flex items-center justify-between p-4 border-b border-gray-800">
             <h2 className="text-lg font-semibold text-white">DooDates</h2>
             <div className="flex items-center gap-2">
+              {/* Bouton Documentation */}
+              <button
+                onClick={() => {
+                  navigate('/docs');
+                  if (isMobile) setIsSidebarOpen(false);
+                }}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                aria-label="Documentation"
+                title="Voir la documentation"
+              >
+                <Book className="w-5 h-5 text-gray-300" />
+              </button>
               {/* Bouton Aide */}
               <button
                 onClick={() => {
@@ -409,18 +421,6 @@ export function WorkspaceLayoutPrototype() {
             )}
 
             <div className="flex items-center gap-2 mb-4">
-              {/* Bouton Documentation */}
-              <button
-                className="flex-1 p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                title="Documentation"
-                aria-label="Documentation"
-                onClick={() => {
-                  navigate("/docs");
-                }}
-              >
-                <Book className="w-5 h-5 text-gray-300 mx-auto" />
-              </button>
-
               {/* Bouton Settings */}
               <button
                 className="flex-1 p-2 hover:bg-gray-800 rounded-lg transition-colors"
