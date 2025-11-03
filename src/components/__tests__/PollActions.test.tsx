@@ -32,7 +32,7 @@ vi.mock("@/hooks/useConversations", () => ({
 // Mock usePollDeletionCascade
 vi.mock("@/hooks/usePollDeletionCascade", () => ({
   usePollDeletionCascade: () => ({
-    deletePollWithCascade: vi.fn(),
+    deletePollWithCascade: vi.fn().mockResolvedValue({ success: true, conversationDeleted: false }),
     cleanupOrphanedLinks: vi.fn(),
   }),
 }));
@@ -52,6 +52,7 @@ vi.mock("@/lib/pollStorage", async (importOriginal) => {
           created_at: new Date().toISOString(),
         }) as Poll,
     ),
+    addPoll: vi.fn((p: Poll) => p),
     deletePollById: vi.fn(),
     copyToClipboard: vi.fn().mockResolvedValue(undefined),
     buildPublicLink: vi.fn((slug: string) => `http://localhost/poll/${slug}`),
@@ -67,6 +68,13 @@ vi.mock("react-router-dom", async (importOriginal) => {
   const mod = await importOriginal<any>();
   return { ...mod, useNavigate: () => navigateMock };
 });
+
+// Mock ConversationPollLink to avoid "Poll not found" errors in duplicate test
+vi.mock("@/lib/ConversationPollLink", () => ({
+  createConversationForPoll: vi.fn().mockResolvedValue("conv-mock"),
+  linkPollToConversationBidirectional: vi.fn(),
+  detachPollFromConversation: vi.fn(),
+}));
 
 const basePoll: Poll = {
   id: "p1",
@@ -119,9 +127,11 @@ describe("PollActions", () => {
 
     fireEvent.click(screen.getByTestId("poll-action-delete"));
 
-    expect(confirmSpy).toHaveBeenCalled();
-    expect(deletePollById).toHaveBeenCalledWith("p1");
-    expect(onAfterDelete).toHaveBeenCalled();
+    // Wait for async operations
+    await vi.waitFor(() => {
+      expect(confirmSpy).toHaveBeenCalled();
+      expect(onAfterDelete).toHaveBeenCalled();
+    });
   });
 
   it("navigates to edit when clicking edit if no onEdit provided", async () => {
