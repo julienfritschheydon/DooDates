@@ -440,7 +440,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                   <div className="space-y-4" data-testid="rating-results">
                     {(() => {
                       const ratingValues = responses
-                        .map((r) => r?.answers?.[qid])
+                        .map((r) => r.items.find((item) => item.questionId === qid)?.value)
                         .filter((v): v is number => typeof v === "number");
 
                       if (ratingValues.length === 0) {
@@ -507,7 +507,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                   <div data-testid="nps-results">
                     {(() => {
                       const npsValues = responses
-                        .map((r) => r?.answers?.[qid])
+                        .map((r) => r.items.find((item) => item.questionId === qid)?.value)
                         .filter((v): v is number => typeof v === "number");
 
                       if (npsValues.length === 0) {

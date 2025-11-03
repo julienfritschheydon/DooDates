@@ -11,6 +11,7 @@ import {
   User,
   LogOut,
   UserCircle,
+  Book,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useConversation } from "./ConversationProvider";
@@ -408,6 +409,18 @@ export function WorkspaceLayoutPrototype() {
             )}
 
             <div className="flex items-center gap-2 mb-4">
+              {/* Bouton Documentation */}
+              <button
+                className="flex-1 p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                title="Documentation"
+                aria-label="Documentation"
+                onClick={() => {
+                  navigate("/docs");
+                }}
+              >
+                <Book className="w-5 h-5 text-gray-300 mx-auto" />
+              </button>
+
               {/* Bouton Settings */}
               <button
                 className="flex-1 p-2 hover:bg-gray-800 rounded-lg transition-colors"
