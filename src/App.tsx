@@ -333,7 +333,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
-          <BrowserRouter>
+          <BrowserRouter basename={import.meta.env.BASE_URL}>
             <AppLayout>
               <Suspense fallback={<LoadingSpinner />}>
                 {/* OnboardingProvider pour l'état onboarding partagé */}

@@ -18,9 +18,9 @@ test.describe.skip('Edge Cases and Error Handling', () => {
     // Setup Gemini API mock to prevent costs
     await setupGeminiMock(page);
     
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => localStorage.clear());
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
   });
 
   test('should handle network failures gracefully', async ({ page }) => {
@@ -29,9 +29,6 @@ test.describe.skip('Edge Cases and Error Handling', () => {
     // Block only API calls (not static assets) to simulate partial network failure
     await page.route('**/api/**', route => route.abort('failed'));
     await page.route('**/supabase.co/**', route => route.abort('failed'));
-    
-    // Wait a bit for page to be stable
-    await page.waitForTimeout(1000);
     
     // App should remain functional despite API failures
     // Verify page is still responsive
@@ -43,8 +40,6 @@ test.describe.skip('Edge Cases and Error Handling', () => {
     if (await homeButton.isVisible()) {
       await homeButton.click();
     }
-    
-    await page.waitForTimeout(1000);
     
     // Verify app didn't crash and is still usable
     const isStillResponsive = await page.locator('body').isVisible();
@@ -70,7 +65,6 @@ test.describe.skip('Edge Cases and Error Handling', () => {
       const submitButton = page.locator('button[type="submit"]').first();
       if (await submitButton.isVisible()) {
         await submitButton.click();
-        await page.waitForTimeout(2000);
       }
     }
     
