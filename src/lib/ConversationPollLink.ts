@@ -65,8 +65,7 @@ export function linkPollToConversationBidirectional(
     const allConversations = getConversations();
     const otherLinkedConversations = allConversations.filter(
       (conv) =>
-        conv.id !== conversationId &&
-        (conv.pollId === pollId || conv.relatedPollId === pollId),
+        conv.id !== conversationId && (conv.pollId === pollId || conv.relatedPollId === pollId),
     );
 
     if (otherLinkedConversations.length > 0) {
@@ -202,10 +201,14 @@ export function createConversationForPoll(
     );
 
     if (existingConversation) {
-      logger.warn("⚠️ Conversation existe déjà pour ce poll, retour de l'existante", "conversation", {
-        conversationId: existingConversation.id,
-        pollId,
-      });
+      logger.warn(
+        "⚠️ Conversation existe déjà pour ce poll, retour de l'existante",
+        "conversation",
+        {
+          conversationId: existingConversation.id,
+          pollId,
+        },
+      );
       return existingConversation.id;
     }
 
