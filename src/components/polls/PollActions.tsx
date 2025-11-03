@@ -88,10 +88,10 @@ export const PollActions: React.FC<PollActionsProps> = ({
   const handleDuplicate = () => {
     try {
       const dup = duplicatePoll(poll);
-      
+
       // Create a conversation for the duplicated poll
       createConversationForPoll(dup.id, dup.title, dup.type || "date");
-      
+
       toast({
         title: "Sondage copié",
         description: "Le sondage et sa conversation ont été copiés avec succès.",
@@ -182,25 +182,25 @@ export const PollActions: React.FC<PollActionsProps> = ({
   };
 
   const handleDelete = async () => {
-    const confirmMessage = 
+    const confirmMessage =
       "Êtes-vous sûr de vouloir supprimer ce sondage ?\n\n" +
       "Note: Les conversations liées seront également supprimées.";
-    
+
     if (!window.confirm(confirmMessage)) return;
-    
+
     try {
       // Delete votes first
       deleteVotesByPollId(poll.id);
-      
+
       // Delete poll and conversations
       const result = await deletePollWithCascade(poll.id, { deleteConversation: true });
-      
+
       if (result.success) {
         let description = "Le sondage a été supprimé avec succès.";
         if (result.conversationDeleted) {
           description += " Les conversations liées ont été supprimées.";
         }
-        
+
         toast({
           title: "Sondage supprimé",
           description,

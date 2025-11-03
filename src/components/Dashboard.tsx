@@ -16,8 +16,7 @@ const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const { user } = useAuth();
-  const { getQuotaStatus } = useFreemiumQuota();
-  const quotaStatus = getQuotaStatus();
+  const { status: quotaStatus } = useFreemiumQuota();
 
   const { conversationItems, loading, reload } = useDashboardData(refreshKey);
 
