@@ -234,12 +234,12 @@ export class ConversationMigrationService {
     try {
       const conversations = ConversationStorageSimple.getConversations();
       const messages: Record<string, ConversationMessage[]> = {};
-      
+
       // Get messages for each conversation
       for (const conv of conversations) {
         messages[conv.id] = ConversationStorageSimple.getMessages(conv.id);
       }
-      
+
       return { conversations, messages };
     } catch (error) {
       throw new ConversationError(

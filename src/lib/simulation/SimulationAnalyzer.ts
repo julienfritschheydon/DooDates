@@ -343,7 +343,9 @@ async function validateObjective(
 
     const questionsText = questions
       .map((q, i) => {
-        const optionsText = q.options ? `\nOptions: ${q.options.map((o) => o.label).join(", ")}` : "";
+        const optionsText = q.options
+          ? `\nOptions: ${q.options.map((o) => o.label).join(", ")}`
+          : "";
         return `${i + 1}. [${q.type}] ${q.title}${optionsText}`;
       })
       .join("\n\n");
@@ -387,7 +389,7 @@ Sois concret et actionnable dans tes recommandations.`;
     if (!jsonMatch) {
       throw ErrorFactory.api(
         "Invalid Gemini response: no JSON found",
-        "Réponse Gemini invalide (pas de JSON trouvé)"
+        "Réponse Gemini invalide (pas de JSON trouvé)",
       );
     }
 

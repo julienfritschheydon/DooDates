@@ -25,7 +25,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
   const visibleQuestions = useMemo(() => {
     const allQuestions = poll.questions || [];
     const rules = poll.conditionalRules || [];
-    
+
     // Simplifier les réponses pour l'évaluation conditionnelle
     const simplifiedAnswers: Record<string, string | string[]> = {};
     Object.entries(answers).forEach(([qId, value]) => {
@@ -33,8 +33,8 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
         simplifiedAnswers[qId] = value.toString();
       } else if (typeof value === "object" && !Array.isArray(value)) {
         // Matrix: vérifier si au moins une ligne est remplie
-        const hasAnswer = Object.values(value).some((v) => 
-          Array.isArray(v) ? v.length > 0 : Boolean(v)
+        const hasAnswer = Object.values(value).some((v) =>
+          Array.isArray(v) ? v.length > 0 : Boolean(v),
         );
         simplifiedAnswers[qId] = hasAnswer ? "answered" : "";
       } else {
@@ -53,10 +53,10 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
   const isCurrentQuestionAnswered = useMemo(() => {
     if (!currentQuestion) return false;
     const answer = answers[currentQuestion.id];
-    
+
     if (currentQuestion.required) {
       if (!answer) return false;
-      
+
       // Vérifications spécifiques par type
       if (currentQuestion.kind === "text" && typeof answer === "string") {
         return answer.trim().length > 0;
@@ -64,7 +64,11 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
       if (currentQuestion.kind === "multiple" && Array.isArray(answer)) {
         return answer.length > 0;
       }
-      if (currentQuestion.kind === "matrix" && typeof answer === "object" && !Array.isArray(answer)) {
+      if (
+        currentQuestion.kind === "matrix" &&
+        typeof answer === "object" &&
+        !Array.isArray(answer)
+      ) {
         const matrixAnswer = answer as Record<string, string | string[]>;
         const rows = currentQuestion.matrixRows || [];
         return rows.every((row) => {
@@ -75,12 +79,15 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
           return Boolean(rowValue);
         });
       }
-      if ((currentQuestion.kind === "rating" || currentQuestion.kind === "nps") && typeof answer === "number") {
+      if (
+        (currentQuestion.kind === "rating" || currentQuestion.kind === "nps") &&
+        typeof answer === "number"
+      ) {
         return true;
       }
       return Boolean(answer);
     }
-    
+
     return true; // Non requis = toujours OK
   }, [currentQuestion, answers]);
 
@@ -97,7 +104,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
         goBack();
       }
     };
-    
+
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [currentStep, isCurrentQuestionAnswered, isLastQuestion]);
@@ -154,9 +161,9 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
       logError(
         ErrorFactory.storage(
           "Failed to submit multi-step form response",
-          "Impossible d'enregistrer votre réponse. Veuillez réessayer."
+          "Impossible d'enregistrer votre réponse. Veuillez réessayer.",
         ),
-        { component: "MultiStepFormVote", pollId: poll.id, metadata: { originalError: error } }
+        { component: "MultiStepFormVote", pollId: poll.id, metadata: { originalError: error } },
       );
       toast({
         title: "Erreur",
@@ -277,10 +284,15 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
           {/* Hint clavier */}
           <div className="text-center mt-4 text-xs text-gray-500">
             {isCurrentQuestionAnswered && !isLastQuestion && (
-              <p>Appuyez sur <kbd className="px-2 py-1 bg-gray-200 rounded">Entrée</kbd> ou <kbd className="px-2 py-1 bg-gray-200 rounded">→</kbd> pour continuer</p>
+              <p>
+                Appuyez sur <kbd className="px-2 py-1 bg-gray-200 rounded">Entrée</kbd> ou{" "}
+                <kbd className="px-2 py-1 bg-gray-200 rounded">→</kbd> pour continuer
+              </p>
             )}
             {currentStep > 0 && (
-              <p className="mt-1">Appuyez sur <kbd className="px-2 py-1 bg-gray-200 rounded">←</kbd> pour revenir</p>
+              <p className="mt-1">
+                Appuyez sur <kbd className="px-2 py-1 bg-gray-200 rounded">←</kbd> pour revenir
+              </p>
             )}
           </div>
         </div>
@@ -322,9 +334,7 @@ function QuestionRenderer({
                   value === option.id ? "border-purple-600" : "border-gray-300"
                 }`}
               >
-                {value === option.id && (
-                  <div className="w-3 h-3 rounded-full bg-purple-600" />
-                )}
+                {value === option.id && <div className="w-3 h-3 rounded-full bg-purple-600" />}
               </div>
               <span className="font-medium text-gray-900">{option.label}</span>
             </div>
@@ -338,7 +348,7 @@ function QuestionRenderer({
   if (kind === "multiple") {
     const options = question.options || [];
     const selectedValues = (value as string[]) || [];
-    
+
     const toggleOption = (optionId: string) => {
       const newValues = selectedValues.includes(optionId)
         ? selectedValues.filter((id) => id !== optionId)
@@ -361,12 +371,12 @@ function QuestionRenderer({
             <div className="flex items-center gap-3">
               <div
                 className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                  selectedValues.includes(option.id) ? "border-purple-600 bg-purple-600" : "border-gray-300"
+                  selectedValues.includes(option.id)
+                    ? "border-purple-600 bg-purple-600"
+                    : "border-gray-300"
                 }`}
               >
-                {selectedValues.includes(option.id) && (
-                  <Check className="w-4 h-4 text-white" />
-                )}
+                {selectedValues.includes(option.id) && <Check className="w-4 h-4 text-white" />}
               </div>
               <span className="font-medium text-gray-900">{option.label}</span>
             </div>
@@ -394,7 +404,7 @@ function QuestionRenderer({
   if (kind === "rating") {
     const scale = question.ratingScale || 5;
     const currentValue = (value as number) || 0;
-    
+
     return (
       <div className="space-y-4">
         <div className="flex justify-between gap-2">
@@ -425,7 +435,7 @@ function QuestionRenderer({
   // NPS
   if (kind === "nps") {
     const currentValue = (value as number) || -1;
-    
+
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-11 gap-1">
@@ -456,10 +466,10 @@ function QuestionRenderer({
     const rows = question.matrixRows || [];
     const columns = question.matrixColumns || [];
     const matrixValue = (value as Record<string, string | string[]>) || {};
-    
+
     const handleMatrixChange = (rowId: string, colId: string) => {
       const newValue = { ...matrixValue };
-      
+
       if (question.matrixType === "multiple") {
         const current = (newValue[rowId] as string[]) || [];
         newValue[rowId] = current.includes(colId)
@@ -468,7 +478,7 @@ function QuestionRenderer({
       } else {
         newValue[rowId] = colId;
       }
-      
+
       onChange(newValue);
     };
 
@@ -479,7 +489,10 @@ function QuestionRenderer({
             <tr>
               <th className="p-2 text-left border-b-2 border-gray-200"></th>
               {columns.map((col) => (
-                <th key={col.id} className="p-2 text-center border-b-2 border-gray-200 text-sm font-medium">
+                <th
+                  key={col.id}
+                  className="p-2 text-center border-b-2 border-gray-200 text-sm font-medium"
+                >
                   {col.label}
                 </th>
               ))}
@@ -490,10 +503,11 @@ function QuestionRenderer({
               <tr key={row.id} className="border-b border-gray-100">
                 <td className="p-3 font-medium text-sm">{row.label}</td>
                 {columns.map((col) => {
-                  const isSelected = question.matrixType === "multiple"
-                    ? ((matrixValue[row.id] as string[]) || []).includes(col.id)
-                    : matrixValue[row.id] === col.id;
-                  
+                  const isSelected =
+                    question.matrixType === "multiple"
+                      ? ((matrixValue[row.id] as string[]) || []).includes(col.id)
+                      : matrixValue[row.id] === col.id;
+
                   return (
                     <td key={col.id} className="p-3 text-center">
                       <button

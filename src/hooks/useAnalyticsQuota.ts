@@ -1,10 +1,10 @@
 /**
  * Hook pour gérer les quotas d'analytics conversationnels
- * 
+ *
  * Limites freemium :
  * - Utilisateurs anonymes : 5 queries par jour
  * - Utilisateurs authentifiés : 50 queries par jour
- * 
+ *
  * Les insights automatiques ne comptent pas dans le quota
  * (1 seul appel par poll, mis en cache)
  */
@@ -102,9 +102,7 @@ export function useAnalyticsQuota() {
   const incrementQuota = useCallback(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      const data: QuotaData = stored
-        ? JSON.parse(stored)
-        : { count: 0, date: getTodayString() };
+      const data: QuotaData = stored ? JSON.parse(stored) : { count: 0, date: getTodayString() };
 
       // Vérifier si on doit reset (changement de jour)
       const today = getTodayString();
@@ -146,9 +144,7 @@ export function useAnalyticsQuota() {
     if (quota.canQuery) {
       return `${quota.remaining} requête${quota.remaining > 1 ? "s" : ""} restante${quota.remaining > 1 ? "s" : ""} aujourd'hui`;
     } else {
-      const hours = Math.ceil(
-        (quota.resetAt.getTime() - Date.now()) / (1000 * 60 * 60),
-      );
+      const hours = Math.ceil((quota.resetAt.getTime() - Date.now()) / (1000 * 60 * 60));
       return `Quota épuisé. Réinitialisation dans ${hours}h`;
     }
   }, [quota]);

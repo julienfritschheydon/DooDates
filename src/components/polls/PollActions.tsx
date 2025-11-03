@@ -101,7 +101,11 @@ export const PollActions: React.FC<PollActionsProps> = ({
 
   const handleArchive = () => {
     try {
-      const updatedPoll = { ...poll, status: "archived" as const, updated_at: new Date().toISOString() };
+      const updatedPoll = {
+        ...poll,
+        status: "archived" as const,
+        updated_at: new Date().toISOString(),
+      };
       addPoll(updatedPoll);
       toast({
         title: "Sondage archivé",
@@ -118,9 +122,18 @@ export const PollActions: React.FC<PollActionsProps> = ({
   };
 
   const handleClose = () => {
-    if (!window.confirm("Êtes-vous sûr de vouloir clôturer ce questionnaire ? Il ne sera plus possible de recevoir de nouvelles réponses.")) return;
+    if (
+      !window.confirm(
+        "Êtes-vous sûr de vouloir clôturer ce questionnaire ? Il ne sera plus possible de recevoir de nouvelles réponses.",
+      )
+    )
+      return;
     try {
-      const updatedPoll = { ...poll, status: "closed" as const, updated_at: new Date().toISOString() };
+      const updatedPoll = {
+        ...poll,
+        status: "closed" as const,
+        updated_at: new Date().toISOString(),
+      };
       addPoll(updatedPoll);
 
       // Déclencher comparaison simulation si applicable

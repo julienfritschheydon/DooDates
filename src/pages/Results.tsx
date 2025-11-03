@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { BarChart3, Users, Calendar, ArrowLeft } from "lucide-react";
+import CloseButton from "@/components/ui/CloseButton";
 import PollActions from "@/components/polls/PollActions";
 import { Poll, getPollBySlugOrId, getVoterId, getAllPolls } from "@/lib/pollStorage";
 import FormPollResults from "@/components/polls/FormPollResults";
@@ -168,19 +169,22 @@ const Results: React.FC = () => {
             </>
           }
           actions={
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate("/dashboard")}
-                className="px-3 py-2 rounded border hover:bg-gray-50 dark:hover:bg-gray-800"
-                data-testid="dashboard-button"
-              >
-                ← Tableau de bord
-              </button>
-              <PollActions
-                poll={poll}
-                showVoteButton
-                onAfterDelete={() => navigate("/dashboard")}
-              />
+            <div className="w-full flex items-center gap-2 justify-between">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="px-3 py-2 rounded border hover:bg-gray-50 dark:hover:bg-gray-800"
+                  data-testid="dashboard-button"
+                >
+                  ← Tableau de bord
+                </button>
+                <PollActions
+                  poll={poll}
+                  showVoteButton
+                  onAfterDelete={() => navigate("/dashboard")}
+                />
+              </div>
+              <CloseButton onClick={() => navigate("/dashboard")} ariaLabel="Fermer" iconSize={6} />
             </div>
           }
           kpis={[

@@ -56,11 +56,9 @@ export const useConversationResume = (): UseConversationResumeReturn => {
             title: conversation.title,
           });
         } else {
-          throw ErrorFactory.validation(
-            "Conversation not found",
-            "Conversation non trouvée",
-            { conversationId }
-          );
+          throw ErrorFactory.validation("Conversation not found", "Conversation non trouvée", {
+            conversationId,
+          });
         }
       } catch (error) {
         const errorMessage =

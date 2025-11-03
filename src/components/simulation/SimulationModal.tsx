@@ -7,6 +7,7 @@
 
 import { useState } from "react";
 import { X, Play, Sparkles } from "lucide-react";
+import CloseButton from "@/components/ui/CloseButton";
 import type { SimulationConfig, SimulationContext, UserTier } from "../../types/simulation";
 
 interface SimulationModalProps {
@@ -80,9 +81,7 @@ export function SimulationModal({
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors">
-            <X className="w-5 h-5" />
-          </button>
+          <CloseButton onClick={onClose} ariaLabel="Fermer" iconSize={5} />
         </div>
 
         {/* Body */}
