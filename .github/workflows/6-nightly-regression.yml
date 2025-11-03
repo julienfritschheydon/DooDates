@@ -1,4 +1,4 @@
-name: Nightly Regression Tests
+name: 6️⃣ Nightly Full Regression
 
 on:
   schedule:
