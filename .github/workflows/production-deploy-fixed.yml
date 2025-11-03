@@ -1,4 +1,4 @@
-name: 🚀 Production Deploy - Fixed
+name: 🚀 Production Deployment (post-merge validated)
 on:
   workflow_run:
     workflows: ["Post-Merge Validation"]
