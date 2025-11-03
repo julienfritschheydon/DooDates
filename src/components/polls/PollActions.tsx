@@ -207,9 +207,13 @@ export const PollActions: React.FC<PollActionsProps> = ({
         });
         onAfterDelete?.();
       } else {
-        throw new Error(result.error || "Failed to delete poll");
+        throw ErrorFactory.storage(
+          result.error || "Failed to delete poll",
+          "Impossible de supprimer le sondage"
+        );
       }
     } catch (error) {
+      logError(error, { component: "PollActions", operation: "deletePoll" });
       toast({
         title: "Erreur",
         description: error instanceof Error ? error.message : "Impossible de supprimer le sondage.",
