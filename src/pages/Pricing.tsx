@@ -136,8 +136,16 @@ export function PricingPage() {
               // { text: "Intégrations avancées", included: false },
               // { text: "White-label", included: false },
             ]}
-            cta={currentTier === "premium" ? "Plan actuel" : user ? "Passer en Premium" : "Essayer Premium"}
-            onCTA={currentTier === "premium" ? () => {} : () => handleUpgrade("premium", billingCycle)}
+            cta={
+              currentTier === "premium"
+                ? "Plan actuel"
+                : user
+                  ? "Passer en Premium"
+                  : "Essayer Premium"
+            }
+            onCTA={
+              currentTier === "premium" ? () => {} : () => handleUpgrade("premium", billingCycle)
+            }
             highlighted={true}
             betaBadge={true}
             trialDays={7}

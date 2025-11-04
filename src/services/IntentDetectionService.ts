@@ -264,98 +264,100 @@ export class IntentDetectionService {
         : null;
 
       const match = patternWithDay || patternWithoutDay;
-      if (!match) return null;
+      // Si un créneau horaire est détecté, le traiter ; sinon continuer avec le parsing Chrono
+      if (match) {
+        // Extraire les composants
+        const weekdayName = match[1];
+        const dayNumber = patternWithDay ? match[2] : null; // Numéro du jour si présent
 
-      // Extraire les composants
-      const weekdayName = match[1];
-      const dayNumber = patternWithDay ? match[2] : null; // Numéro du jour si présent
-      
-      // Détecter l'heure : "midi" = 12h00, sinon prendre le nombre
-      let hour: string;
-      let minute: string;
-      
-      if (patternWithDay) {
-        // Avec numéro de jour : groupe 3 = heure numérique, sinon "midi" détecté
-        if (match[3]) {
-          hour = match[3];
-          minute = match[4] || "00";
+        // Détecter l'heure : "midi" = 12h00, sinon prendre le nombre
+        let hour: string;
+        let minute: string;
+
+        if (patternWithDay) {
+          // Avec numéro de jour : groupe 3 = heure numérique, sinon "midi" détecté
+          if (match[3]) {
+            hour = match[3];
+            minute = match[4] || "00";
+          } else {
+            // "midi" détecté
+            hour = "12";
+            minute = "00";
+          }
         } else {
-          // "midi" détecté
-          hour = "12";
-          minute = "00";
+          // Sans numéro de jour : groupe 2 = heure numérique, sinon "midi" détecté
+          if (match[2]) {
+            hour = match[2];
+            minute = match[3] || "00";
+          } else {
+            // "midi" détecté
+            hour = "12";
+            minute = "00";
+          }
         }
-      } else {
-        // Sans numéro de jour : groupe 2 = heure numérique, sinon "midi" détecté
-        if (match[2]) {
-          hour = match[2];
-          minute = match[3] || "00";
-        } else {
-          // "midi" détecté
-          hour = "12";
-          minute = "00";
+
+        console.log("🔍 Créneau horaire détecté", {
+          message,
+          weekdayName,
+          dayNumber,
+          hour,
+          minute,
+        });
+
+        // Construire la date cible
+        let targetDate: string | null = null;
+
+        // Si on a un numéro de jour explicite, construire la date directement
+        if (dayNumber) {
+          let referenceDate = new Date();
+          if (currentPoll.dates && currentPoll.dates.length > 0) {
+            const lastDate = currentPoll.dates[currentPoll.dates.length - 1];
+            referenceDate = new Date(lastDate);
+          }
+          const refMonth = referenceDate.getMonth();
+          const refYear = referenceDate.getFullYear();
+
+          const date = new Date(refYear, refMonth, parseInt(dayNumber));
+          // Vérifier que le jour de la semaine correspond
+          if (date.getDay() === this.getWeekdayNumber(weekdayName)) {
+            targetDate = formatDateLocal(date);
+          }
         }
-      }
 
-      console.log("🔍 Créneau horaire détecté", {
-        message,
-        weekdayName,
-        dayNumber,
-        hour,
-        minute,
-      });
-
-      // Construire la date cible
-      let targetDate: string | null = null;
-
-      // Si on a un numéro de jour explicite, construire la date directement
-      if (dayNumber) {
-        let referenceDate = new Date();
-        if (currentPoll.dates && currentPoll.dates.length > 0) {
-          const lastDate = currentPoll.dates[currentPoll.dates.length - 1];
-          referenceDate = new Date(lastDate);
+        // Si pas de date spécifique trouvée, chercher dans les dates existantes
+        if (!targetDate) {
+          targetDate = this.findDateByWeekday(weekdayName, currentPoll, true);
         }
-        const refMonth = referenceDate.getMonth();
-        const refYear = referenceDate.getFullYear();
 
-        const date = new Date(refYear, refMonth, parseInt(dayNumber));
-        // Vérifier que le jour de la semaine correspond
-        if (date.getDay() === this.getWeekdayNumber(weekdayName)) {
-          targetDate = formatDateLocal(date);
+        // Si pas trouvé, calculer le prochain jour correspondant
+        if (!targetDate) {
+          targetDate = this.findDateByWeekday(weekdayName, currentPoll, false);
         }
-      }
 
-      // Si pas de date spécifique trouvée, chercher dans les dates existantes
-      if (!targetDate) {
-        targetDate = this.findDateByWeekday(weekdayName, currentPoll, true);
-      }
-
-      // Si pas trouvé, calculer le prochain jour correspondant
-      if (!targetDate) {
-        targetDate = this.findDateByWeekday(weekdayName, currentPoll, false);
-      }
-
-      console.log("📅 Date cible trouvée", {
-        weekdayName,
-        dayNumber,
-        targetDate,
-        dateExists: targetDate ? currentPoll.dates?.includes(targetDate) : false,
-      });
-
-      if (targetDate) {
-        const startHour = hour;
-        const startMinute = minute;
-        const endHour = String(parseInt(startHour) + 1); // +1h par défaut
-        const endMinute = startMinute;
-
-        // Le reducer ADD_TIMESLOT ajoutera automatiquement la date si elle n'existe pas
-        return this.buildTimeslotIntent(
+        console.log("📅 Date cible trouvée", {
+          weekdayName,
+          dayNumber,
           targetDate,
-          startHour,
-          startMinute,
-          endHour,
-          endMinute,
-          currentPoll,
-        );
+          dateExists: targetDate ? currentPoll.dates?.includes(targetDate) : false,
+        });
+
+        if (targetDate) {
+          const startHour = hour;
+          const startMinute = minute;
+          const endHour = String(parseInt(startHour) + 1); // +1h par défaut
+          const endMinute = startMinute;
+
+          // Le reducer ADD_TIMESLOT ajoutera automatiquement la date si elle n'existe pas
+          return this.buildTimeslotIntent(
+            targetDate,
+            startHour,
+            startMinute,
+            endHour,
+            endMinute,
+            currentPoll,
+          );
+        }
+        // Si aucun créneau horaire valide n'a été construit, continuer avec le parsing Chrono
       }
     }
 
@@ -456,6 +458,30 @@ export class IntentDetectionService {
       });
     }
 
+    // 🔧 FIX 3: Détecter les jours de la semaine simples (sans numéro ni heure) et améliorer pour Chrono
+    // Ex: "ajouter mercredi" → "mercredi prochain" pour aider Chrono à détecter
+    if (!dayNumberMatch && action === "ADD_DATE") {
+      const weekdayOnlyPattern =
+        /\b(?:le\s+)?(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\b(?:\s|$)/i;
+      const weekdayOnlyMatch = enhancedMessage.match(weekdayOnlyPattern);
+
+      // Vérifier qu'il n'y a pas déjà d'heure détectée et qu'aucun créneau horaire n'a été détecté
+      if (weekdayOnlyMatch && !enhancedMessage.match(/\d{1,2}h/i)) {
+        const weekdayName = weekdayOnlyMatch[1];
+        // Remplacer le jour de la semaine par "mercredi prochain" pour aider Chrono
+        enhancedMessage = enhancedMessage.replace(
+          weekdayOnlyPattern,
+          `${weekdayName} prochain`,
+        );
+
+        logger.info("🔧 Jour de la semaine simple détecté et amélioré", "poll", {
+          original: message,
+          enhanced: enhancedMessage,
+          weekday: weekdayName,
+        });
+      }
+    }
+
     const parsedDates = chrono.fr.parse(enhancedMessage, referenceDate, { forwardDate: true });
 
     // Si aucune date trouvée par Chrono, essayer de détecter un jour de la semaine
@@ -532,7 +558,7 @@ export class IntentDetectionService {
           isInPoll: currentPoll.dates?.includes(chronoDate),
           weekday: weekdayMatch[1],
         });
-        
+
         if (currentPoll.dates?.includes(chronoDate)) {
           // La date trouvée par Chrono est dans le sondage, on l'utilise
           console.log("✅ Date Chrono trouvée dans le sondage, utilisation", { chronoDate });

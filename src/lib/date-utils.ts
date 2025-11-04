@@ -116,7 +116,10 @@ export interface DateGroup {
  * //   { dates: [...], label: "Semaine du 6 au 12 décembre", type: "week" }
  * // ]
  */
-export function groupConsecutiveDates(dates: string[], allowWeekendGrouping: boolean = false): DateGroup[] {
+export function groupConsecutiveDates(
+  dates: string[],
+  allowWeekendGrouping: boolean = false,
+): DateGroup[] {
   if (dates.length === 0) return [];
 
   // Trier les dates

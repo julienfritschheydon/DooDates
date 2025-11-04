@@ -63,7 +63,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
               </div>
             </div>
           </div>
-          
+
           <div className="p-4 space-y-2 bg-[#1a1a1a]">
             {/* Bouton 1 */}
             <div className="relative">
@@ -133,11 +133,26 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
         <div className="space-y-2 text-left bg-purple-50 p-4 rounded-lg border border-purple-200">
           <div className="font-semibold text-gray-900 mb-2">Légende :</div>
           <div className="space-y-1 text-sm text-gray-700">
-            <div><span className="font-semibold text-purple-600">1.</span> Créer avec IA - Créez des sondages en parlant naturellement</div>
-            <div><span className="font-semibold text-purple-600">2.</span> Créer sans IA - Créez manuellement un sondage ou formulaire</div>
-            <div><span className="font-semibold text-purple-600">3.</span> Tableau de bord - Vue d'ensemble de tous vos sondages</div>
-            <div><span className="font-semibold text-purple-600">4.</span> Tarifs - Consultez nos offres et tarifs</div>
-            <div><span className="font-semibold text-purple-600">5.</span> Documentation - Accédez aux guides et tutoriels</div>
+            <div>
+              <span className="font-semibold text-purple-600">1.</span> Créer avec IA - Créez des
+              sondages en parlant naturellement
+            </div>
+            <div>
+              <span className="font-semibold text-purple-600">2.</span> Créer sans IA - Créez
+              manuellement un sondage ou formulaire
+            </div>
+            <div>
+              <span className="font-semibold text-purple-600">3.</span> Tableau de bord - Vue
+              d'ensemble de tous vos sondages
+            </div>
+            <div>
+              <span className="font-semibold text-purple-600">4.</span> Tarifs - Consultez nos
+              offres et tarifs
+            </div>
+            <div>
+              <span className="font-semibold text-purple-600">5.</span> Documentation - Accédez aux
+              guides et tutoriels
+            </div>
           </div>
         </div>
       </div>
@@ -155,7 +170,8 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
         <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
           <div className="font-semibold text-gray-900 mb-2">💬 Interface de chat</div>
           <div className="text-sm text-gray-700">
-            Tapez ou dictez votre demande : "Je veux organiser une réunion d'équipe la semaine prochaine"
+            Tapez ou dictez votre demande : "Je veux organiser une réunion d'équipe la semaine
+            prochaine"
           </div>
         </div>
         <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
@@ -183,10 +199,10 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
             className="w-full h-auto"
             onError={(e) => {
               // Fallback si l'image n'existe pas encore
-              (e.target as HTMLImageElement).style.display = 'none';
-              const fallback = document.createElement('div');
-              fallback.className = 'p-8 bg-gray-100 text-center text-gray-500';
-              fallback.textContent = 'Image de l\'interface de création de sondage';
+              (e.target as HTMLImageElement).style.display = "none";
+              const fallback = document.createElement("div");
+              fallback.className = "p-8 bg-gray-100 text-center text-gray-500";
+              fallback.textContent = "Image de l'interface de création de sondage";
               (e.target as HTMLImageElement).parentElement?.appendChild(fallback);
             }}
           />
@@ -235,10 +251,10 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
             className="w-full h-auto"
             onError={(e) => {
               // Fallback si l'image n'existe pas encore
-              (e.target as HTMLImageElement).style.display = 'none';
-              const fallback = document.createElement('div');
-              fallback.className = 'p-8 bg-gray-100 text-center text-gray-500';
-              fallback.textContent = 'Image de l\'interface de création de formulaire';
+              (e.target as HTMLImageElement).style.display = "none";
+              const fallback = document.createElement("div");
+              fallback.className = "p-8 bg-gray-100 text-center text-gray-500";
+              fallback.textContent = "Image de l'interface de création de formulaire";
               (e.target as HTMLImageElement).parentElement?.appendChild(fallback);
             }}
           />
@@ -377,9 +393,27 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
         <div className="p-4 bg-gray-50 rounded-lg">
           <div className="font-semibold text-gray-900 mb-2">Guides recommandés :</div>
           <div className="space-y-1 text-sm text-gray-600">
-            <div>• <Link to="/docs/01-Guide-Demarrage-Rapide" className="text-purple-600 hover:underline">Guide de démarrage rapide</Link></div>
-            <div>• <Link to="/docs/02-Concepts-Base" className="text-purple-600 hover:underline">Concepts de base</Link></div>
-            <div>• <Link to="/docs/11-Cas-Usage" className="text-purple-600 hover:underline">Cas d'usage pratiques</Link></div>
+            <div>
+              •{" "}
+              <Link
+                to="/docs/01-Guide-Demarrage-Rapide"
+                className="text-purple-600 hover:underline"
+              >
+                Guide de démarrage rapide
+              </Link>
+            </div>
+            <div>
+              •{" "}
+              <Link to="/docs/02-Concepts-Base" className="text-purple-600 hover:underline">
+                Concepts de base
+              </Link>
+            </div>
+            <div>
+              •{" "}
+              <Link to="/docs/11-Cas-Usage" className="text-purple-600 hover:underline">
+                Cas d'usage pratiques
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -410,7 +444,6 @@ export function OnboardingTour() {
     }
   };
 
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
@@ -431,7 +464,9 @@ export function OnboardingTour() {
           <div className="flex justify-center mb-6">{step.icon}</div>
 
           {/* Titre */}
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center">{step.title}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center">
+            {step.title}
+          </h2>
 
           {/* Description */}
           <div className="text-gray-600 text-base sm:text-lg leading-relaxed mb-6 sm:mb-8 text-center">
