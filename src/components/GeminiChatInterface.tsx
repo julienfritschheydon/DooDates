@@ -487,7 +487,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
       // Initialize component setup first
       // Ne pas tester la connexion en mode E2E (évite les problèmes de timing avec les mocks)
-      const isE2ETest = window.location.search.includes('e2e-test=true');
+      const isE2ETest = window.location.search.includes("e2e-test=true");
       if (!isE2ETest) {
         connectionStatusHook.testConnection();
       }
