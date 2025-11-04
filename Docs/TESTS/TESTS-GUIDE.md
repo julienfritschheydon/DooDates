@@ -10,7 +10,7 @@
 ### ✅ Résultats Actuels
 
 ```
-🎯 Tests Unitaires (Vitest)    : 571/577 passent (99%)
+🎯 Tests Unitaires (Vitest)    : 598/604 passent (99%)
 🤖 Tests IA (Gemini/Jest)      : 14/15 passent (93%)
 🌐 Tests E2E (Playwright)      : 22/22 passent (100% sur Chrome)
    - Analytics IA              : 9/9 passent (mode enchaîné)
@@ -22,7 +22,7 @@
 
 **Status** : ✅ **PRODUCTION-READY** - Analytics IA intégrés
 
-**Dernière mise à jour** : 15/01/2025 - Tests Analytics IA et Form Poll Regression réactivés et intégrés en CI
+**Dernière mise à jour** : 04/01/2025 - Tests Analytics IA, Form Poll Regression, PollActions.close et SimulationComparison réactivés et intégrés
 
 **Note Firefox/Safari** : Les tests Analytics IA sont skippés sur Firefox/Safari en raison d'un bug Playwright avec le mode serial + shared context ([#13038](https://github.com/microsoft/playwright/issues/13038), [#22832](https://github.com/microsoft/playwright/issues/22832)). Les tests passent à 100% sur Chrome.
 
@@ -58,12 +58,22 @@ npx playwright test analytics-ai.spec.ts console-errors.spec.ts --project=chromi
 
 ### 1. Tests Unitaires - Vitest
 
-**Couverture** : 36 fichiers actifs
+**Couverture** : 38 fichiers actifs
 - Hooks : useAutoSave, useConversations, usePollDeletionCascade
 - Services : IntentDetection, FormPollIntent, titleGeneration
-- Lib : conditionalEvaluator (41 tests), exports (23 tests)
-- Components : ConversationCard, PollActions
+- Lib : conditionalEvaluator (41 tests), exports (23 tests), SimulationComparison (13 tests) ✅
+- Components : ConversationCard, PollActions (14 tests close) ✅
 - Storage : statsStorage (36 tests), messageCounter
+
+**Tests réactivés récemment (04/01/2025) :**
+- `PollActions.close.test.tsx` - 14 tests ✅
+  - Tests pour fonctionnalité de clôture de poll (critique en production)
+  - **Corrections** : Mock `addPoll` corrigé (le code utilise `addPoll`, pas `savePolls`), ajout mocks manquants (`useAuth`, `useConversations`, `usePollDeletionCascade`), timeouts augmentés à 10s
+  - **Status** : Tous les tests passent (338ms)
+- `SimulationComparison.test.ts` - 13 tests ✅
+  - Tests pour comparaison simulations vs réalité (affichée dans UI)
+  - **Corrections** : Mock localStorage en mémoire (comme `pollStorage.test.ts`), fonction `installLocalStorage()` créée
+  - **Status** : Tous les tests passent (14ms)
 
 **Commandes** :
 ```bash
@@ -756,4 +766,4 @@ On utilise une approche alternative gratuite mais efficace :
 ---
 
 **Document maintenu par** : Équipe DooDates  
-**Dernière révision** : 30 octobre 2025
+**Dernière révision** : 04 janvier 2025
