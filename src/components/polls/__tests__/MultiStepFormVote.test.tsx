@@ -89,11 +89,11 @@ describe("MultiStepFormVote", () => {
     // Step 0, donc progress = (0+1)/4 * 100 = 25%
     const progressBar = document.querySelector(".bg-gradient-to-r");
     expect(progressBar).toBeTruthy();
-    
+
     const widthStyle = progressBar?.getAttribute("style") || "";
     const widthMatch = widthStyle.match(/width:\s*([\d.]+)%/);
     expect(widthMatch).toBeTruthy();
-    
+
     const widthValue = parseFloat(widthMatch![1]);
     // Step 0 sur 4 steps = 25%
     expect(widthValue).toBeCloseTo(25, 1);
