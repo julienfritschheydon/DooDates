@@ -98,6 +98,83 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
         return { handled: false };
       }
 
+      // 🎯 PRIORITÉ 1 : Vérifier d'abord le changement de type de sondage
+      // Cela permet de détecter quand l'utilisateur change d'avis en cours de chat
+      const typeSwitchResult = PollTypeSwitchDetector.detectTypeSwitch(trimmedText, currentPoll);
+
+      // Si confiance élevée (> 0.6), on fait confiance au résultat
+      if (typeSwitchResult.isTypeSwitch && typeSwitchResult.confidence > 0.6) {
+        logger.info("🔄 Changement de type de sondage détecté (priorité)", "poll", {
+          currentType: typeSwitchResult.currentType,
+          requestedType: typeSwitchResult.requestedType,
+          confidence: typeSwitchResult.confidence,
+          message: trimmedText.slice(0, 50),
+        });
+
+        return {
+          handled: true,
+          isTypeSwitch: true,
+          originalMessage: trimmedText,
+          requestedType: typeSwitchResult.requestedType,
+        };
+      }
+
+      // Si confiance faible mais > 0 (zone de doute), demander à l'IA
+      if (
+        typeSwitchResult.isTypeSwitch &&
+        typeSwitchResult.confidence > 0.3 &&
+        typeSwitchResult.confidence <= 0.6
+      ) {
+        logger.info("🤔 Confiance faible, demande à l'IA pour confirmation", "poll", {
+          confidence: typeSwitchResult.confidence,
+          message: trimmedText.slice(0, 50),
+        });
+
+        const aiResult = await PollTypeSwitchDetector.detectTypeSwitchWithAI(
+          trimmedText,
+          currentPoll,
+        );
+
+        if (aiResult && aiResult.isTypeSwitch && aiResult.confidence > 0.7) {
+          logger.info("✅ IA confirme le changement de type", "poll", {
+            currentType: aiResult.currentType,
+            requestedType: aiResult.requestedType,
+            confidence: aiResult.confidence,
+          });
+
+          return {
+            handled: true,
+            isTypeSwitch: true,
+            originalMessage: trimmedText,
+            requestedType: aiResult.requestedType,
+          };
+        }
+      }
+
+      // Si aucune détection initiale mais on a un poll, vérifier avec l'IA en dernier recours
+      // (cas où aucun pattern n'a matché mais l'utilisateur change peut-être d'avis)
+      if (!typeSwitchResult.isTypeSwitch) {
+        const aiResult = await PollTypeSwitchDetector.detectTypeSwitchWithAI(
+          trimmedText,
+          currentPoll,
+        );
+
+        if (aiResult && aiResult.isTypeSwitch && aiResult.confidence > 0.7) {
+          logger.info("✅ IA détecte un changement de type non détecté par les patterns", "poll", {
+            currentType: aiResult.currentType,
+            requestedType: aiResult.requestedType,
+            confidence: aiResult.confidence,
+          });
+
+          return {
+            handled: true,
+            isTypeSwitch: true,
+            originalMessage: trimmedText,
+            requestedType: aiResult.requestedType,
+          };
+        }
+      }
+
       // Essayer d'abord la détection Date Poll (avec support multi-intentions)
       const multiIntent = IntentDetectionService.detectMultipleIntents(trimmedText, currentPoll);
 
@@ -190,29 +267,6 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
           GeminiIntentService.logMissingPattern(trimmedText, aiIntent);
           formIntent = aiIntent as any; // Convertir au format FormModificationIntent
         } else {
-          // Ni regex ni IA n'ont réussi - vérifier si c'est un changement de type
-          const typeSwitchResult = PollTypeSwitchDetector.detectTypeSwitch(
-            trimmedText,
-            currentPoll,
-          );
-
-          if (typeSwitchResult.isTypeSwitch && typeSwitchResult.confidence > 0.6) {
-            // L'utilisateur essaie de changer de type de sondage
-            logger.info("🔄 Changement de type de sondage détecté", "poll", {
-              currentType: typeSwitchResult.currentType,
-              requestedType: typeSwitchResult.requestedType,
-              confidence: typeSwitchResult.confidence,
-            });
-
-            // Retourner un résultat spécial pour déclencher un nouveau chat
-            return {
-              handled: true,
-              isTypeSwitch: true,
-              originalMessage: trimmedText,
-              requestedType: typeSwitchResult.requestedType,
-            };
-          }
-
           // Ni regex ni IA n'ont réussi - proposer à l'utilisateur de signaler
           logger.warn("❌ Modification non reconnue par regex ET IA", "poll", {
             message: trimmedText,

@@ -101,20 +101,22 @@ export interface DateGroup {
 
 /**
  * Détecte et groupe les dates consécutives en périodes significatives
- * (week-ends, semaines, quinzaines, périodes personnalisées)
+ * (semaines complètes, quinzaines)
+ * Les week-ends et autres périodes de moins de 7 jours restent individuels
+ * sauf si allowWeekendGrouping est true (pour les suggestions du chat)
  *
  * @param dates - Array de dates YYYY-MM-DD triées
+ * @param allowWeekendGrouping - Si true, permet de regrouper les samedi-dimanche consécutifs (pour suggestions chat)
  * @returns Array de DateGroup
  *
  * @example
- * const dates = ["2025-12-06", "2025-12-07", "2025-12-13", "2025-12-14"];
+ * const dates = ["2025-12-06", "2025-12-07", "2025-12-08", "2025-12-09", "2025-12-10", "2025-12-11", "2025-12-12"];
  * groupConsecutiveDates(dates);
  * // [
- * //   { dates: ["2025-12-06", "2025-12-07"], label: "Week-end du 6-7 décembre", type: "weekend" },
- * //   { dates: ["2025-12-13", "2025-12-14"], label: "Week-end du 13-14 décembre", type: "weekend" }
+ * //   { dates: [...], label: "Semaine du 6 au 12 décembre", type: "week" }
  * // ]
  */
-export function groupConsecutiveDates(dates: string[]): DateGroup[] {
+export function groupConsecutiveDates(dates: string[], allowWeekendGrouping: boolean = false): DateGroup[] {
   if (dates.length === 0) return [];
 
   // Trier les dates
@@ -133,7 +135,7 @@ export function groupConsecutiveDates(dates: string[]): DateGroup[] {
       currentGroup.push(sortedDates[i]);
     } else {
       // Rupture de séquence, créer un groupe
-      const result = createDateGroup(currentGroup);
+      const result = createDateGroup(currentGroup, allowWeekendGrouping);
       // Si createDateGroup retourne un tableau (dates non groupées), l'aplatir
       if (Array.isArray(result)) {
         groups.push(...result);
@@ -146,7 +148,7 @@ export function groupConsecutiveDates(dates: string[]): DateGroup[] {
 
   // Ajouter le dernier groupe
   if (currentGroup.length > 0) {
-    const result = createDateGroup(currentGroup);
+    const result = createDateGroup(currentGroup, allowWeekendGrouping);
     // Si createDateGroup retourne un tableau (dates non groupées), l'aplatir
     if (Array.isArray(result)) {
       groups.push(...result);
@@ -160,10 +162,11 @@ export function groupConsecutiveDates(dates: string[]): DateGroup[] {
 
 /**
  * Crée un DateGroup à partir d'une liste de dates consécutives
- * IMPORTANT : Ne groupe que les périodes significatives (week-ends, semaines, quinzaines)
+ * IMPORTANT : Ne groupe que les périodes significatives (semaines complètes, quinzaines)
  * Les autres dates consécutives sont laissées individuelles
+ * Sauf si allowWeekendGrouping est true : dans ce cas, les week-ends (samedi-dimanche) sont aussi groupés
  */
-function createDateGroup(dates: string[]): DateGroup {
+function createDateGroup(dates: string[], allowWeekendGrouping: boolean = false): DateGroup {
   const count = dates.length;
   const firstDate = new Date(dates[0]);
   const lastDate = new Date(dates[count - 1]);
@@ -176,8 +179,8 @@ function createDateGroup(dates: string[]): DateGroup {
   const year = firstDate.getFullYear();
 
   // Déterminer le type et le label
-  if (count === 2 && firstDate.getDay() === 6 && lastDate.getDay() === 0) {
-    // Week-end (samedi-dimanche) - GROUPER
+  if (count === 2 && allowWeekendGrouping && firstDate.getDay() === 6 && lastDate.getDay() === 0) {
+    // Week-end (samedi-dimanche) - GROUPER uniquement si explicitement autorisé (suggestions chat)
     return {
       dates,
       label: `Week-end du ${firstDay}-${lastDay} ${firstMonth} ${year}`,
