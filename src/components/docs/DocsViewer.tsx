@@ -25,7 +25,7 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
         const baseUrl = import.meta.env.BASE_URL || "/";
         const response = await fetch(`${baseUrl}docs/${docPath}`);
         if (!response.ok) {
-          throw ErrorFactory.notFound("Document non trouvé", "Le document demandé n'existe pas");
+          throw ErrorFactory.validation("Document non trouvé", "Le document demandé n'existe pas");
         }
 
         const text = await response.text();
