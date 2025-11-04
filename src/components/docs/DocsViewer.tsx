@@ -34,7 +34,7 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "Erreur de chargement";
         setError(errorMsg);
-        logError(err, { component: "DocsViewer", docPath });
+        logError(err, { component: "DocsViewer", metadata: { docPath } });
       } finally {
         setLoading(false);
       }
@@ -183,7 +183,8 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
           },
 
           // Code blocks
-          code: ({ node, inline, className, children, ...props }) => {
+          code: ({ node, className, children, ...props }: any) => {
+            const inline = !className || !className.includes("language-");
             if (inline) {
               return (
                 <code
