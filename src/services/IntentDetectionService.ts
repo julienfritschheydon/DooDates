@@ -469,10 +469,7 @@ export class IntentDetectionService {
       if (weekdayOnlyMatch && !enhancedMessage.match(/\d{1,2}h/i)) {
         const weekdayName = weekdayOnlyMatch[1];
         // Remplacer le jour de la semaine par "mercredi prochain" pour aider Chrono
-        enhancedMessage = enhancedMessage.replace(
-          weekdayOnlyPattern,
-          `${weekdayName} prochain`,
-        );
+        enhancedMessage = enhancedMessage.replace(weekdayOnlyPattern, `${weekdayName} prochain`);
 
         logger.info("🔧 Jour de la semaine simple détecté et amélioré", "poll", {
           original: message,
