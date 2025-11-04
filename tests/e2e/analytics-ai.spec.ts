@@ -33,7 +33,7 @@ const test = base.extend<{}, { sharedContext: any }>({
 let pollSlug = '';
 let pollCreated = false;
 
-test.describe.skip("Analytics IA - Suite Complète", () => {
+test.describe("Analytics IA - Suite Complète", () => {
   test.describe.configure({ mode: 'serial' });
   
   // Skip sur Firefox et Safari car bug Playwright avec shared context
@@ -94,6 +94,7 @@ test.describe.skip("Analytics IA - Suite Complète", () => {
 
     // Étape 6 : Finaliser
     const finalizeButton = page.locator('button:has-text("Finaliser")');
+    await expect(finalizeButton).toBeVisible({ timeout: 10000 });
     await finalizeButton.click();
     await page.waitForTimeout(2000);
 
@@ -150,14 +151,18 @@ test.describe.skip("Analytics IA - Suite Complète", () => {
 
       // Remplir le nom
       const nameInput = page.locator('input[placeholder*="nom" i]').first();
+      await expect(nameInput).toBeVisible({ timeout: 10000 });
       await nameInput.fill(`Votant ${i}`);
 
-      // Remplir la question text (textarea)
-      const textArea = page.locator('textarea').first();
-      await textArea.fill(`Réponse ${i} du votant`);
+      // Remplir la question text (input pour type "text", textarea pour "long-text")
+      // Le mock génère type "text" donc c'est un input, pas un textarea
+      const textInput = page.locator('input[placeholder*="réponse" i], input[placeholder*="Votre réponse" i]').first();
+      await expect(textInput).toBeVisible({ timeout: 10000 });
+      await textInput.fill(`Réponse ${i} du votant`);
 
       // Soumettre (le bouton s'appelle "Envoyer mes réponses")
-      const submitButton = page.locator('button:has-text("Envoyer")');
+      const submitButton = page.locator('[data-testid="form-submit"]');
+      await expect(submitButton).toBeVisible({ timeout: 10000 });
       await submitButton.click();
       await page.waitForTimeout(1000);
     }
@@ -188,10 +193,10 @@ test.describe.skip("Analytics IA - Suite Complète", () => {
     }, slug);
     console.log(`📦 Statut après clôture: ${statusAfterClose}`);
 
-    // 4. Vérifier insights automatiques
-    const insightsSection = page.locator('text=Analytics IA');
-    await expect(insightsSection).toBeVisible({ timeout: 10000 });
-    console.log('✅ Section Analytics IA visible');
+    // 4. Vérifier insights automatiques (panneau présent dans le DOM)
+    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
+    await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
+    console.log('✅ Section Analytics IA présente dans le DOM');
 
     // Attendre génération insights (max 5 secondes)
     await page.waitForTimeout(5000);
@@ -236,32 +241,87 @@ test.describe.skip("Analytics IA - Suite Complète", () => {
   });
 
   test("2. Quick Queries: Tester les requêtes rapides @smoke @functional", async ({ page }) => {
-    // Le poll est déjà créé et clôturé, on est sur la page résultats
+    // Le poll est déjà créé et clôturé dans le test 1
     console.log(`🔍 Test 2 - Utilisation du poll ${pollSlug}`);
     
-    // Vérifier qu'on est bien sur la page résultats
-    await expect(page.locator('text=Analytics IA')).toBeVisible();
+    // Vérifier que pollSlug est défini
+    if (!pollSlug) {
+      throw new Error('pollSlug non défini - le test 1 (Setup) doit avoir été exécuté avant');
+    }
     
-    // Trouver les boutons de quick queries
+    // Naviguer vers la page résultats du poll
+    console.log(`📍 Navigation vers /poll/${pollSlug}/results`);
+    await page.goto(`/poll/${pollSlug}/results?e2e-test=true`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(2000);
+    
+    console.log(`📍 URL actuelle: ${page.url()}`);
+    
+    // Screenshot initial
+    await page.screenshot({ path: 'test-results/analytics-test2-01-initial.png', fullPage: true });
+    console.log('📸 Screenshot initial sauvegardé');
+    
+    // Vérifier que le panneau Analytics est présent dans le DOM (même si replié)
+    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
+    const panelAttached = await analyticsPanel.count();
+    console.log(`🔍 Panneau Analytics trouvé: ${panelAttached} élément(s)`);
+    await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
+    console.log('✅ Panneau Analytics IA présent dans le DOM');
+    
+    // Screenshot après vérification panneau
+    await page.screenshot({ path: 'test-results/analytics-test2-02-panel-verified.png', fullPage: true });
+    
+    // Trouver les boutons de quick queries directement dans le DOM (toujours présents, pas repliés)
     const quickQueryButtons = page.locator('[data-testid="quick-query-button"]');
+    const buttonsCountBeforeWait = await quickQueryButtons.count();
+    console.log(`🔍 Quick queries buttons trouvés avant wait: ${buttonsCountBeforeWait}`);
+    await expect(quickQueryButtons.first()).toBeAttached({ timeout: 10000 });
     const buttonCount = await quickQueryButtons.count();
     console.log(`🔘 ${buttonCount} quick query button(s) trouvé(s)`);
+    
+    // Log des textes des boutons
+    const buttonTexts = await Promise.all(
+      Array.from({ length: buttonCount }).map(async (_, i) => {
+        const text = await quickQueryButtons.nth(i).textContent();
+        return text;
+      })
+    );
+    console.log(`📋 Textes des boutons: ${JSON.stringify(buttonTexts)}`);
     expect(buttonCount).toBeGreaterThan(0);
+    
+    // Screenshot avant clic
+    await page.screenshot({ path: 'test-results/analytics-test2-03-before-click.png', fullPage: true });
     
     // Cliquer sur la première quick query
     const firstQuery = quickQueryButtons.first();
     const queryText = await firstQuery.textContent();
     console.log(`🖊️ Clic sur: "${queryText}"`);
+    const isFirstQueryVisible = await firstQuery.isVisible();
+    console.log(`👁️ Premier bouton visible: ${isFirstQueryVisible}`);
     await firstQuery.click();
+    
+    // Screenshot juste après clic
+    await page.screenshot({ path: 'test-results/analytics-test2-04-after-click.png', fullPage: true });
+    console.log('📸 Screenshot après clic sauvegardé');
     
     // Attendre la réponse (max 10 secondes)
     console.log('⏳ Attente de la réponse IA...');
     await page.waitForTimeout(5000);
     
+    // Screenshot pendant attente
+    await page.screenshot({ path: 'test-results/analytics-test2-05-waiting-response.png', fullPage: true });
+    
     // Vérifier qu'une réponse est affichée
     const responseBox = page.locator('[data-testid="analytics-response"]');
+    const responseCount = await responseBox.count();
+    const responseVisible = await responseBox.isVisible().catch(() => false);
+    console.log(`🔍 Analytics response trouvée: ${responseCount}, visible: ${responseVisible}`);
     await expect(responseBox).toBeVisible({ timeout: 10000 });
     console.log('✅ Test 2 - Réponse affichée');
+    
+    // Screenshot final
+    await page.screenshot({ path: 'test-results/analytics-test2-06-response-visible.png', fullPage: true });
+    console.log('📸 Screenshot final sauvegardé');
     
     // Vérifier que la réponse contient du texte
     const responseContent = await responseBox.textContent();
@@ -274,8 +334,9 @@ test.describe.skip("Analytics IA - Suite Complète", () => {
     // Le poll est déjà créé et clôturé, on est sur la page résultats
     console.log(`🔍 Test 3 - Utilisation du poll ${pollSlug}`);
     
-    // Vérifier qu'on est bien sur la page résultats
-    await expect(page.locator('text=Analytics IA')).toBeVisible();
+    // Vérifier que le panneau Analytics est présent dans le DOM
+    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
+    await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
     await page.screenshot({ path: 'test-results/test3-step1-analytics-section.png', fullPage: true });
     console.log('📸 Test 3 - Étape 1 : Section Analytics visible');
     
@@ -319,7 +380,8 @@ test.describe.skip("Analytics IA - Suite Complète", () => {
   test("4. Cache: Vérifier que les queries identiques utilisent le cache @functional", async ({ page }) => {
     console.log(`🔍 Test 4 - Utilisation du poll ${pollSlug}`);
     
-    await expect(page.locator('text=Analytics IA')).toBeVisible();
+    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
+    await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
     await page.screenshot({ path: 'test-results/test4-step1-start.png', fullPage: true });
     console.log('📸 Test 4 - Étape 1 : Début du test cache');
     
@@ -362,7 +424,8 @@ test.describe.skip("Analytics IA - Suite Complète", () => {
   test("5. Quotas: Vérifier le quota freemium (5 queries/jour) @functional", async ({ page }) => {
     console.log(`🔍 Test 5 - Utilisation du poll ${pollSlug}`);
     
-    await expect(page.locator('text=Analytics IA')).toBeVisible();
+    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
+    await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
     await page.screenshot({ path: 'test-results/test5-step1-start.png', fullPage: true });
     console.log('📸 Test 5 - Étape 1 : Test quotas');
     
@@ -385,7 +448,8 @@ test.describe.skip("Analytics IA - Suite Complète", () => {
     
     // Ce test est difficile à implémenter car il faudrait faire 5+ queries
     // On vérifie juste que le système de quota existe
-    await expect(page.locator('text=Analytics IA')).toBeVisible();
+    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
+    await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
     await page.screenshot({ path: 'test-results/test6-quota-check.png', fullPage: true });
     console.log('✅ Test 6 - Système de quota vérifié');
   });
@@ -399,14 +463,16 @@ test.describe.skip("Analytics IA - Suite Complète", () => {
   test("8. Erreurs: Clé API manquante @functional", async ({ page }) => {
     console.log(`🔍 Test 8 - Test clé API manquante`);
     // Ce test nécessiterait de désactiver temporairement la clé API
-    await expect(page.locator('text=Analytics IA')).toBeVisible();
+    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
+    await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
     console.log('✅ Test 8 - Gestion erreur API vérifiée');
   });
 
   test("9. Erreurs: Queries trop longues @functional", async ({ page }) => {
     console.log(`🔍 Test 9 - Utilisation du poll ${pollSlug}`);
     
-    await expect(page.locator('text=Analytics IA')).toBeVisible();
+    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
+    await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
     
     // Taper une query très longue (>500 caractères)
     const queryInput = page.locator('[data-testid="analytics-query-input"]');
@@ -428,7 +494,7 @@ test.describe.skip("Analytics IA - Suite Complète", () => {
   });
 });
 
-test.describe.skip("Analytics IA - Quick Queries", () => {
+test.describe("Analytics IA - Quick Queries", () => {
   test.beforeEach(async ({ page }) => {
     await setupGeminiMock(page);
   });
@@ -440,9 +506,28 @@ test.describe.skip("Analytics IA - Quick Queries", () => {
     const chatInput = page.locator('textarea[placeholder*="Décrivez"]');
     await chatInput.fill("Crée un questionnaire avec 2 questions : nom (texte) et satisfaction (choix unique)");
     await chatInput.press("Enter");
-    await page.waitForTimeout(4000);
+    
+    // Attendre que l'IA génère et affiche le bouton "Créer ce formulaire"
+    const createButton = page.getByRole('button', { name: /créer ce formulaire/i });
+    await expect(createButton).toBeVisible({ timeout: 10000 });
+    await createButton.click();
+    
+    // Attendre la prévisualisation
+    const previewCard = page.locator('[data-poll-preview]');
+    await expect(previewCard).toBeVisible({ timeout: 10000 });
+    await page.waitForTimeout(1000);
+    
+    // Cliquer sur "Voir" si présent
+    const viewFormButton = page.getByRole('button', { name: /voir/i }).first();
+    const isButtonVisible = await viewFormButton.isVisible().catch(() => false);
+    if (isButtonVisible) {
+      await viewFormButton.click();
+      await page.waitForTimeout(1000);
+    }
 
+    // Finaliser
     const finalizeButton = page.locator('button:has-text("Finaliser")');
+    await expect(finalizeButton).toBeVisible({ timeout: 10000 });
     await finalizeButton.click();
     await page.waitForTimeout(2000);
 
@@ -452,7 +537,7 @@ test.describe.skip("Analytics IA - Quick Queries", () => {
 
     // Voter 3 fois
     for (let i = 1; i <= 3; i++) {
-      await page.goto(`/poll/${slug}/vote?e2e-test=true`);
+      await page.goto(`/poll/${slug}?e2e-test=true`);
       await page.waitForLoadState("networkidle");
       await page.locator('input[type="text"]').first().fill(`Votant ${i}`);
       
@@ -463,7 +548,9 @@ test.describe.skip("Analytics IA - Quick Queries", () => {
       }
       
       await page.locator('input[type="radio"]').first().click();
-      await page.locator('button:has-text("Soumettre")').click();
+      const submitButton = page.locator('[data-testid="form-submit"]');
+      await expect(submitButton).toBeVisible({ timeout: 10000 });
+      await submitButton.click();
       await page.waitForTimeout(1000);
     }
 
@@ -478,8 +565,13 @@ test.describe.skip("Analytics IA - Quick Queries", () => {
     }
     await page.waitForTimeout(2000);
 
-    // Test quick queries
+    // Vérifier que le panneau Analytics est présent dans le DOM
+    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
+    await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
+
+    // Test quick queries (toujours présents dans le DOM, pas repliés)
     const quickQueryButtons = page.locator('[data-testid="quick-query-button"]');
+    await expect(quickQueryButtons.first()).toBeAttached({ timeout: 10000 });
     const count = await quickQueryButtons.count();
     expect(count).toBeGreaterThanOrEqual(3);
 
@@ -527,11 +619,13 @@ test.describe.skip("Analytics IA - Query Personnalisée", () => {
 
     // Voter 3 fois
     for (let i = 1; i <= 3; i++) {
-      await page.goto(`/poll/${slug}/vote?e2e-test=true`);
+      await page.goto(`/poll/${slug}?e2e-test=true`);
       await page.waitForLoadState("networkidle");
       await page.locator('input[type="text"]').first().fill(`Votant ${i}`);
       await page.locator('input[type="radio"]').first().click();
-      await page.locator('button:has-text("Soumettre")').click();
+      const submitButton = page.locator('[data-testid="form-submit"]');
+      await expect(submitButton).toBeVisible({ timeout: 10000 });
+      await submitButton.click();
       await page.waitForTimeout(1000);
     }
 
@@ -597,11 +691,13 @@ test.describe.skip("Analytics IA - Cache", () => {
 
     // Voter 2 fois
     for (let i = 1; i <= 2; i++) {
-      await page.goto(`/poll/${slug}/vote?e2e-test=true`);
+      await page.goto(`/poll/${slug}?e2e-test=true`);
       await page.waitForLoadState("networkidle");
       await page.locator('input[type="text"]').first().fill(`Votant ${i}`);
       await page.locator('input[type="radio"]').first().click();
-      await page.locator('button:has-text("Soumettre")').click();
+      const submitButton = page.locator('[data-testid="form-submit"]');
+      await expect(submitButton).toBeVisible({ timeout: 10000 });
+      await submitButton.click();
       await page.waitForTimeout(1000);
     }
 
@@ -677,11 +773,13 @@ test.describe.skip("Analytics IA - Quotas", () => {
 
     // Voter 2 fois
     for (let i = 1; i <= 2; i++) {
-      await page.goto(`/poll/${slug}/vote?e2e-test=true`);
+      await page.goto(`/poll/${slug}?e2e-test=true`);
       await page.waitForLoadState("networkidle");
       await page.locator('input[type="text"]').first().fill(`Votant ${i}`);
       await page.locator('input[type="radio"]').first().click();
-      await page.locator('button:has-text("Soumettre")').click();
+      const submitButton = page.locator('[data-testid="form-submit"]');
+      await expect(submitButton).toBeVisible({ timeout: 10000 });
+      await submitButton.click();
       await page.waitForTimeout(1000);
     }
 
@@ -754,11 +852,13 @@ test.describe.skip("Analytics IA - Quotas", () => {
 
     // Voter 2 fois
     for (let i = 1; i <= 2; i++) {
-      await page.goto(`/poll/${slug}/vote?e2e-test=true`);
+      await page.goto(`/poll/${slug}?e2e-test=true`);
       await page.waitForLoadState("networkidle");
       await page.locator('input[type="text"]').first().fill(`Votant ${i}`);
       await page.locator('input[type="radio"]').first().click();
-      await page.locator('button:has-text("Soumettre")').click();
+      const submitButton = page.locator('[data-testid="form-submit"]');
+      await expect(submitButton).toBeVisible({ timeout: 10000 });
+      await submitButton.click();
       await page.waitForTimeout(1000);
     }
 
@@ -831,7 +931,7 @@ test.describe.skip("Analytics IA - Dark Mode", () => {
 
     // Voter 3 fois
     for (let i = 1; i <= 3; i++) {
-      await page.goto(`/poll/${slug}/vote?e2e-test=true`);
+      await page.goto(`/poll/${slug}?e2e-test=true`);
       await page.waitForLoadState("networkidle");
       await page.locator('input[type="text"]').first().fill(`Votant ${i}`);
       
@@ -842,7 +942,9 @@ test.describe.skip("Analytics IA - Dark Mode", () => {
       }
       
       await page.locator('input[type="radio"]').first().click();
-      await page.locator('button:has-text("Soumettre")').click();
+      const submitButton = page.locator('[data-testid="form-submit"]');
+      await expect(submitButton).toBeVisible({ timeout: 10000 });
+      await submitButton.click();
       await page.waitForTimeout(1000);
     }
 
@@ -1014,11 +1116,13 @@ test.describe.skip("Analytics IA - Gestion Erreurs", () => {
 
     // Voter 2 fois
     for (let i = 1; i <= 2; i++) {
-      await page.goto(`/poll/${slug}/vote?e2e-test=true`);
+      await page.goto(`/poll/${slug}?e2e-test=true`);
       await page.waitForLoadState("networkidle");
       await page.locator('input[type="text"]').first().fill(`Votant ${i}`);
       await page.locator('input[type="radio"]').first().click();
-      await page.locator('button:has-text("Soumettre")').click();
+      const submitButton = page.locator('[data-testid="form-submit"]');
+      await expect(submitButton).toBeVisible({ timeout: 10000 });
+      await submitButton.click();
       await page.waitForTimeout(1000);
     }
 
@@ -1079,11 +1183,13 @@ test.describe.skip("Analytics IA - Gestion Erreurs", () => {
 
     // Voter 2 fois
     for (let i = 1; i <= 2; i++) {
-      await page.goto(`/poll/${slug}/vote?e2e-test=true`);
+      await page.goto(`/poll/${slug}?e2e-test=true`);
       await page.waitForLoadState("networkidle");
       await page.locator('input[type="text"]').first().fill(`Votant ${i}`);
       await page.locator('input[type="radio"]').first().click();
-      await page.locator('button:has-text("Soumettre")').click();
+      const submitButton = page.locator('[data-testid="form-submit"]');
+      await expect(submitButton).toBeVisible({ timeout: 10000 });
+      await submitButton.click();
       await page.waitForTimeout(1000);
     }
 

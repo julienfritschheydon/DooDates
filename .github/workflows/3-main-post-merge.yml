@@ -70,13 +70,66 @@ jobs:
 
       # ✅ OPTIMISATION: Sharding réduit (2 au lieu de 3)
       - name: 🔥 Run Smoke Tests (Shard ${{ matrix.shard }}/2)
-        run: npx playwright test --project=chromium --grep @smoke --grep-invert "@analytics|@functional" --shard=${{ matrix.shard }}/2
+        run: npx playwright test --project=chromium --grep @smoke --grep-invert "@functional" --shard=${{ matrix.shard }}/2
 
       - name: 📊 Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-smoke-report-${{ matrix.shard }}
+          path: playwright-report
+          retention-days: 7
+
+  # ========================================
+  # SUITE COMPLÈTE ANALYTICS IA (SERIAL)
+  # Exécutée hors sharding car mode serial
+  # ========================================
+  e2e-analytics-suite:
+    name: 📊 Analytics IA - Suite Complète (Serial)
+    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Cache dependencies and Playwright
+        uses: actions/cache@v4
+        id: cache-deps
+        with:
+          path: |
+            node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-e2e-v2-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-e2e-v2-
+
+      - name: 📦 Install dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 🧭 Install Playwright browsers
+        run: |
+          if [ ! -d ~/.cache/ms-playwright/chromium-* ]; then
+            echo "Installing Playwright with deps..."
+            npx playwright install --with-deps chromium
+          else
+            echo "Playwright browsers already cached"
+          fi
+
+      - name: 📊 Run Analytics IA Suite (Serial - No Sharding)
+        run: npx playwright test analytics-ai.spec.ts --grep "Analytics IA - Suite Complète" --project=chromium
+
+      - name: 📊 Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-analytics-suite-report
           path: playwright-report
           retention-days: 7
 
@@ -126,7 +179,7 @@ jobs:
 
       # ✅ OPTIMISATION: Utilise la config optimisée
       - name: ⚡ Run Functional Tests (Shard ${{ matrix.shard }}/2)
-        run: npx playwright test --config=playwright.config.optimized.ts --project=chromium --grep @functional --grep-invert "@wip|@flaky|@analytics" --shard=${{ matrix.shard }}/2
+        run: npx playwright test --config=playwright.config.optimized.ts --project=chromium --grep @functional --grep-invert "@wip|@flaky" --shard=${{ matrix.shard }}/2
 
       - name: 📊 Upload Playwright report
         if: failure()

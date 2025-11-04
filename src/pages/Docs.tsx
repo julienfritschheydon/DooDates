@@ -20,30 +20,15 @@ const docCategories = [
       { id: "03-Sondages-Dates", name: "Sondages de Dates" },
       { id: "04-Formulaires-Questionnaires", name: "Formulaires et Questionnaires" },
       { id: "05-Assistant-IA", name: "Assistant IA Conversationnel" },
-      { id: "06-Analytics-IA", name: "Analytics IA" },
-      { id: "07-Simulation-Reponses", name: "Simulation de Réponses" },
-      { id: "08-Gestion-Resultats", name: "Gestion des Résultats" },
-      { id: "09-Export-Partage", name: "Export et Partage" },
-      { id: "10-Tableau-Bord", name: "Tableau de Bord" },
-    ],
-  },
-  {
-    title: "Guides Pratiques",
-    icon: Book,
-    docs: [
-      { id: "11-Cas-Usage", name: "Cas d'Usage" },
-      { id: "12-Bonnes-Pratiques", name: "Bonnes Pratiques" },
-      { id: "13-Personnalisation", name: "Personnalisation" },
+      { id: "06-Gestion-Resultats", name: "Gestion des Résultats" },
+      { id: "07-Tableau-Bord", name: "Tableau de Bord" },
     ],
   },
   {
     title: "Support",
     icon: HelpCircle,
     docs: [
-      { id: "14-FAQ", name: "FAQ" },
-      { id: "15-Glossaire", name: "Glossaire" },
-      { id: "16-Raccourcis-Clavier", name: "Raccourcis Clavier" },
-      { id: "17-Resolution-Problemes", name: "Résolution de Problèmes" },
+      { id: "08-FAQ", name: "FAQ" },
     ],
   },
 ];
@@ -84,30 +69,10 @@ const DocsHome: React.FC = () => {
           </p>
         </Link>
 
-        <Link
-          to="/docs/11-Cas-Usage"
-          className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <Book className="w-6 h-6 text-primary" />
-            <h3 className="text-xl font-semibold">💼 Cas d'Usage</h3>
-          </div>
-          <p className="text-gray-600 dark:text-gray-400">8 exemples pratiques détaillés</p>
-        </Link>
+
 
         <Link
-          to="/docs/06-Analytics-IA"
-          className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <BarChart className="w-6 h-6 text-primary" />
-            <h3 className="text-xl font-semibold">📊 Analytics IA</h3>
-          </div>
-          <p className="text-gray-600 dark:text-gray-400">Analyse automatique de vos résultats</p>
-        </Link>
-
-        <Link
-          to="/docs/14-FAQ"
+          to="/docs/08-FAQ"
           className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
         >
           <div className="flex items-center gap-3 mb-2">
@@ -117,16 +82,6 @@ const DocsHome: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400">Réponses aux questions fréquentes</p>
         </Link>
 
-        <Link
-          to="/docs/12-Bonnes-Pratiques"
-          className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <Book className="w-6 h-6 text-primary" />
-            <h3 className="text-xl font-semibold">✨ Bonnes Pratiques</h3>
-          </div>
-          <p className="text-gray-600 dark:text-gray-400">Optimisez vos sondages</p>
-        </Link>
       </div>
     </div>
   );

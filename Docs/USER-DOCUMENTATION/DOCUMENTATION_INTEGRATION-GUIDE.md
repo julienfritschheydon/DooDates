@@ -16,34 +16,6 @@ Cette documentation est conçue pour être affichée comme des pages web dans la
 
 ---
 
-## 🗂️ Structure des Fichiers
-
-```
-Docs/USER-DOCUMENTATION/
-├── README.md                          # Index principal
-├── 01-Guide-Demarrage-Rapide.md      # ✅ Créé
-├── 02-Concepts-Base.md                # ✅ Créé
-├── 03-Sondages-Dates.md               # ⏳ À créer
-├── 04-Formulaires-Questionnaires.md   # ⏳ À créer
-├── 05-Assistant-IA.md                 # ✅ Créé
-├── 06-Analytics-IA.md                 # ✅ Créé
-├── 07-Simulation-Reponses.md          # ⏳ À créer
-├── 08-Gestion-Resultats.md            # ⏳ À créer
-├── 09-Export-Partage.md               # ✅ Créé
-├── 10-Tableau-Bord.md                 # ⏳ À créer
-├── 11-Cas-Usage.md                    # ✅ Créé
-├── 12-Bonnes-Pratiques.md             # ✅ Créé
-├── 13-Personnalisation.md             # ⏳ À créer
-├── 14-FAQ.md                          # ✅ Créé
-├── 15-Glossaire.md                    # ✅ Créé
-├── 16-Raccourcis-Clavier.md           # ⏳ À créer
-└── 17-Resolution-Problemes.md         # ✅ Créé
-```
-
-**Total : 10/17 guides créés (59%)**
-
----
-
 ## 🛠️ Installation des Dépendances
 
 ```bash
@@ -312,8 +284,6 @@ const docCategories = [
     icon: BarChart,
     docs: [
       { id: '05-Assistant-IA', name: 'Assistant IA Conversationnel' },
-      { id: '06-Analytics-IA', name: 'Analytics IA' },
-      { id: '09-Export-Partage', name: 'Export et Partage' },
     ],
   },
   {
@@ -328,9 +298,7 @@ const docCategories = [
     title: 'Support',
     icon: HelpCircle,
     docs: [
-      { id: '14-FAQ', name: 'FAQ' },
-      { id: '15-Glossaire', name: 'Glossaire' },
-      { id: '17-Resolution-Problemes', name: 'Résolution de Problèmes' },
+      { id: '08-FAQ', name: 'FAQ' },
     ],
   },
 ];
@@ -419,7 +387,7 @@ const DocsHome: React.FC = () => {
         </Link>
 
         <Link
-          to="/settings/docs/14-FAQ"
+          to="/settings/docs/08-FAQ"
           className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow"
         >
           <h3 className="text-xl font-semibold mb-2">❓ FAQ</h3>

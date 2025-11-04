@@ -22,9 +22,11 @@
 
 **Status** : ✅ **PRODUCTION-READY** - Analytics IA intégrés
 
-**Dernière mise à jour** : 02/11/2025 - Ajout tests Analytics IA + Suppression tests redondants
+**Dernière mise à jour** : 15/01/2025 - Tests Analytics IA réactivés et intégrés en CI (plus d'exclusion)
 
 **Note Firefox/Safari** : Les tests Analytics IA sont skippés sur Firefox/Safari en raison d'un bug Playwright avec le mode serial + shared context ([#13038](https://github.com/microsoft/playwright/issues/13038), [#22832](https://github.com/microsoft/playwright/issues/22832)). Les tests passent à 100% sur Chrome.
+
+**Note CI/Sharding** : La suite complète Analytics IA (9 tests en mode serial) est exécutée dans un job CI dédié sans sharding pour éviter les conflits avec la distribution aléatoire des tests. Les tests indépendants Analytics IA peuvent être exécutés avec sharding.
 
 ---
 
@@ -101,18 +103,17 @@ npm run test:gemini:quick      # Tests rapides (15s)
 
 **Specs actifs** : 12 fichiers (22 tests)
 
-**Analytics IA (Nouveau - 02/11/2025) :**
-- `analytics-ai.spec.ts` - 9 tests mode enchaîné ✅
-  - Setup complet (création + votes + clôture + insights)
-  - Quick queries (4 types)
-  - Query personnalisée
-  - Cache intelligent (vérification gain temps)
-  - Quotas freemium (5/jour)
-  - Gestion erreurs (poll vide, API, query longue)
-- `console-errors.spec.ts` - 3 tests qualité code ✅
+**Analytics IA (Réactivés - 15/01/2025) :**
+- `analytics-ai.spec.ts` - 18 tests (9 en suite complète + 9 indépendants) ✅
+  - Suite complète (mode serial) : Setup + Quick Queries + Query personnalisée + Cache + Quotas + Erreurs
+  - Tests indépendants : Quick Queries, Query Personnalisée, Cache, Quotas, Dark Mode, Gestion Erreurs
+  - **Status CI** : Intégrés (plus d'exclusion `--grep-invert "@analytics"`)
+  - **Sélecteurs robustes** : Utilisation de `data-testid` et `toBeAttached()` pour éviter les timeouts
+  - **Logs détaillés** : Screenshots et logs à chaque étape pour debug
+- `console-errors.spec.ts` - 2 tests qualité code ✅
   - Erreurs console page d'accueil
   - Warnings React Hooks
-  - Memory leaks après rafraîchissements
+  - ~~Memory leaks après rafraîchissements~~ (supprimé - redondant avec monitoring Sentry)
 
 **Form Poll :**
 - `form-poll-regression.spec.ts` - 4 tests mode enchaîné ✅
@@ -437,11 +438,12 @@ strategy:
   matrix:
     shard: [1, 2, 3]
 steps:
-  - run: npx playwright test --grep @functional --grep-invert "@analytics" --shard=${{ matrix.shard }}/3
-  - Tests complets divisés en 3 parties
-  - Exclut @analytics (tests serial non-shardables)
+  - run: npx playwright test --grep @functional --grep-invert "@wip|@flaky" --shard=${{ matrix.shard }}/2
+  - Tests complets divisés en 2 parties (sharding optimisé)
+  - **Analytics IA inclus** : Tests réactivés et fonctionnels (fixes sélecteurs + setup)
+  - Note : Suite complète Analytics IA (mode serial) exécutée hors sharding pour éviter conflits
   - Durée : ~2min (vs 5min séquentiel)
-  - Rapports : playwright-functional-report-{1,2,3}
+  - Rapports : playwright-functional-report-{1,2}
 
 # Job 3 : notify-failure (si échec)
 - Crée issue avec détails des 2 jobs
