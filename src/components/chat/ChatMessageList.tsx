@@ -178,7 +178,8 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                             const dates = datePollSuggestion.dates || [];
 
                             // Grouper les dates consécutives (week-ends, semaines, quinzaines)
-                            const dateGroups = groupConsecutiveDates(dates);
+                            // allowWeekendGrouping = true car ce sont des suggestions du chat (ex: "les week-ends du mois")
+                            const dateGroups = groupConsecutiveDates(dates, true);
 
                             return dateGroups.map((group, groupIndex) => {
                               // Pour les groupes, afficher le label groupé
@@ -233,6 +234,11 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                     {/* Bouton Créer */}
                     {hasLinkedPoll ? (
                       <button
+                        data-testid={
+                          (message.pollSuggestion as any).type === "form"
+                            ? "view-form-button"
+                            : "view-poll-button"
+                        }
                         onClick={() => {
                           logger.debug("Bouton Voir cliqué", "poll", { currentPoll, linkedPollId });
                           // Ouvrir la dernière version du sondage lié
@@ -275,6 +281,11 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                       </button>
                     ) : (
                       <button
+                        data-testid={
+                          (message.pollSuggestion as any).type === "form"
+                            ? "create-form-button"
+                            : "create-poll-button"
+                        }
                         onClick={() => {
                           logger.debug("Bouton Utiliser cliqué", "poll", {
                             pollSuggestion: message.pollSuggestion,
