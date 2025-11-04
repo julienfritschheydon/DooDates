@@ -69,8 +69,10 @@ jobs:
           fi
 
       # ✅ OPTIMISATION: Sharding réduit (2 au lieu de 3)
+      # ⚠️ EXCLUSION: Suites en mode serial - exécutées dans jobs dédiés sans sharding
+      # Pattern: Exclure "Suite Complète" et "Tests de non-régression" qui sont dans des suites serial
       - name: 🔥 Run Smoke Tests (Shard ${{ matrix.shard }}/2)
-        run: npx playwright test --project=chromium --grep @smoke --grep-invert "@functional" --shard=${{ matrix.shard }}/2
+        run: npx playwright test --project=chromium --grep @smoke --grep-invert "@functional|Suite Complète|Tests de non-régression" --shard=${{ matrix.shard }}/2
 
       - name: 📊 Upload Playwright report
         if: failure()
@@ -231,8 +233,10 @@ jobs:
           fi
 
       # ✅ OPTIMISATION: Utilise la config optimisée
+      # ⚠️ EXCLUSION: Suites en mode serial - exécutées dans jobs dédiés sans sharding
+      # Pattern: Exclure "Suite Complète" et "Tests de non-régression" qui sont dans des suites serial
       - name: ⚡ Run Functional Tests (Shard ${{ matrix.shard }}/2)
-        run: npx playwright test --config=playwright.config.optimized.ts --project=chromium --grep @functional --grep-invert "@wip|@flaky" --shard=${{ matrix.shard }}/2
+        run: npx playwright test --config=playwright.config.optimized.ts --project=chromium --grep @functional --grep-invert "@wip|@flaky|Suite Complète|Tests de non-régression" --shard=${{ matrix.shard }}/2
 
       - name: 📊 Upload Playwright report
         if: failure()
