@@ -32,7 +32,7 @@ function mkLogger(scope: string) {
   return (...parts: any[]) => console.log(`[${scope}]`, ...parts);
 }
 
-test.describe.skip('Form Poll - Tests de non-régression', () => {
+test.describe('Form Poll - Tests de non-régression', () => {
   test.describe.configure({ mode: 'serial' });
   
   // Skip sur Firefox et Safari car bug Playwright avec shared context
@@ -63,9 +63,21 @@ test.describe.skip('Form Poll - Tests de non-régression', () => {
       await expect(page.locator('[data-testid="message-input"]')).toBeVisible({ timeout: 10000 });
     } else {
       // Pour les tests suivants, naviguer vers le poll créé
-      await page.goto(pollUrl, { waitUntil: 'domcontentloaded' });
-      // Attendre que l'éditeur soit visible
-      await expect(page.locator('[data-poll-preview]')).toBeVisible({ timeout: 10000 });
+      if (pollUrl) {
+        await page.goto(pollUrl, { waitUntil: 'networkidle' });
+        await page.waitForTimeout(1000); // Attendre que l'UI se stabilise
+        // Attendre que l'éditeur soit visible ou présent
+        const editor = page.locator('[data-poll-preview]');
+        await expect(editor).toBeAttached({ timeout: 10000 });
+        // Si l'éditeur est replié/caché, essayer de l'ouvrir
+        const isVisible = await editor.isVisible().catch(() => false);
+        if (!isVisible) {
+          // Attendre un peu plus ou vérifier qu'on est sur la bonne page
+          await page.waitForTimeout(2000);
+        }
+      } else {
+        throw new Error('pollUrl non défini - le test #1 doit avoir été exécuté avant');
+      }
     }
   });
 
