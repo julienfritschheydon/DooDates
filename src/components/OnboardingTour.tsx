@@ -154,7 +154,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
         </div>
       </div>
     ),
-    docLink: "/docs/10-Tableau-Bord",
+    docLink: "/docs/07-Tableau-Bord",
     docLabel: "En savoir plus sur le tableau de bord",
   },
   {
