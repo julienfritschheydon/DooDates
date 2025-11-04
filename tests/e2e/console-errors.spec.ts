@@ -12,7 +12,111 @@ import { test, expect } from '@playwright/test';
 import { setupGeminiMock } from './global-setup';
 
 test.describe('Console Errors & React Warnings', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, context }) => {
+    // IMPORTANT : Configurer le mock au niveau du CONTEXT (pas de la page)
+    // Le context route est actif AVANT que la page soit créée, ce qui évite
+    // les problèmes de timing dans webkit où testConnection() peut partir très tôt
+    
+    // Importons la fonction de génération de mock depuis global-setup
+    // (on va la dupliquer ici pour éviter les imports circulaires)
+    
+    // Fonction locale pour générer la réponse mock
+    const generateMockResponse = (userPrompt: string) => {
+      const lowerPrompt = userPrompt.toLowerCase();
+      const isFormPoll = lowerPrompt.includes('questionnaire') || 
+                         lowerPrompt.includes('formulaire') || 
+                         lowerPrompt.includes('form') ||
+                         lowerPrompt.includes('question');
+      
+      if (isFormPoll) {
+        let numQuestions = 3;
+        const questionMatch = lowerPrompt.match(/(\d+)\s*(question|q)/);
+        numQuestions = questionMatch ? parseInt(questionMatch[1]) : 3;
+        
+        const questions = [];
+        for (let i = 1; i <= numQuestions; i++) {
+          questions.push({
+            title: `Question ${i} générée par mock`,
+            type: i === 1 ? 'single' : i === 2 ? 'multiple' : 'text',
+            required: true,
+            ...(i === 1 && { options: ['Option A', 'Option B', 'Option C'] }),
+            ...(i === 2 && { options: ['Choix 1', 'Choix 2', 'Choix 3'], maxChoices: 2 }),
+            ...(i === 3 && { placeholder: 'Votre réponse...', maxLength: 500 })
+          });
+        }
+        
+        return {
+          candidates: [{
+            content: {
+              parts: [{ text: JSON.stringify({
+                type: 'form',
+                title: 'Questionnaire Mock E2E',
+                description: 'Questionnaire généré automatiquement pour les tests',
+                questions
+              })}]
+            },
+            finishReason: 'STOP'
+          }]
+        };
+      } else {
+        return {
+          candidates: [{
+            content: {
+              parts: [{ text: JSON.stringify({
+                type: 'date',
+                title: 'Sondage de dates Mock E2E',
+                description: 'Sondage généré automatiquement pour les tests',
+                dates: ['2025-11-01', '2025-11-02', '2025-11-03']
+              })}]
+            },
+            finishReason: 'STOP'
+          }]
+        };
+      }
+    };
+    
+    // Configurer le route au niveau du context (plus fiable pour webkit)
+    await context.route('**/generativelanguage.googleapis.com/**', async (route) => {
+      const request = route.request();
+      const postData = request.postDataJSON();
+      
+      let userPrompt = '';
+      if (postData?.contents) {
+        const lastContent = postData.contents[postData.contents.length - 1];
+        if (lastContent?.parts?.[0]?.text) {
+          userPrompt = lastContent.parts[0].text;
+        }
+      }
+      
+      // Test de connexion - répondre immédiatement
+      if (userPrompt.toLowerCase().includes('test de connexion') || userPrompt.toLowerCase().includes('ok')) {
+        console.log('🤖 Gemini API mock (context) - Test de connexion');
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            candidates: [{
+              content: {
+                parts: [{ text: 'OK' }]
+              },
+              finishReason: 'STOP'
+            }]
+          })
+        });
+        return;
+      }
+      
+      // Autres requêtes - générer la réponse mock
+      console.log('🤖 Gemini API mock (context) - Prompt:', userPrompt.substring(0, 100) + '...');
+      const mockResponse = generateMockResponse(userPrompt);
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(mockResponse)
+      });
+    });
+    
+    // Aussi configurer au niveau de la page (doublon de sécurité)
     await setupGeminiMock(page);
   });
 
@@ -77,17 +181,53 @@ test.describe('Console Errors & React Warnings', () => {
 
     // Créer un poll via IA
     await page.goto('/?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    
+    // 📸 Capture 1 : Page chargée
+    await page.screenshot({ path: 'test-results/debug-1-page-loaded.png', fullPage: true });
 
     const chatInput = page.locator('[data-testid="message-input"]');
     await chatInput.fill('Crée un questionnaire avec 1 question');
+    
+    // 📸 Capture 2 : Message rempli avant Enter
+    await page.screenshot({ path: 'test-results/debug-2-message-filled.png', fullPage: true });
+    
     await chatInput.press('Enter');
     
-    // Attendre que le message AI avec la suggestion soit visible (indique que la réponse est reçue)
-    await expect(page.locator('text=/questionnaire|formulaire/i')).toBeVisible({ timeout: 15000 });
+    // 📸 Capture 3 : Message envoyé (attente de la réponse)
+    await page.screenshot({ path: 'test-results/debug-3-message-sent.png', fullPage: true });
+    
+    // Attendre un peu pour que la requête soit lancée
+    await page.waitForTimeout(1000);
+    
+    // 📸 Capture 4 : Après 1 seconde d'attente
+    await page.screenshot({ path: 'test-results/debug-4-after-1s.png', fullPage: true });
     
     // Attendre que le bouton de création soit visible (utiliser data-testid pour plus de fiabilité)
+    // Le timeout est plus long pour webkit qui peut être plus lent
     const createButton = page.locator('[data-testid="create-form-button"]');
-    await expect(createButton).toBeVisible({ timeout: 10000 });
+    
+    try {
+      await expect(createButton).toBeVisible({ timeout: 20000 });
+      // 📸 Capture 5 : Bouton trouvé et visible
+      await page.screenshot({ path: 'test-results/debug-5-button-found.png', fullPage: true });
+    } catch (error) {
+      // 📸 Capture 6 : Échec - bouton non trouvé après timeout
+      await page.screenshot({ path: 'test-results/debug-6-button-not-found.png', fullPage: true });
+      
+      // Debug : Vérifier ce qui est dans le DOM
+      const pageContent = await page.content();
+      const hasButton = pageContent.includes('create-form-button');
+      const hasPollSuggestion = pageContent.includes('pollSuggestion') || pageContent.includes('poll-suggestion');
+      const hasMessageAI = await page.locator('text=/voici votre/i').count() > 0;
+      
+      console.log('🔍 Debug - État de la page:');
+      console.log('- Bouton avec data-testid présent:', hasButton);
+      console.log('- PollSuggestion dans le DOM:', hasPollSuggestion);
+      console.log('- Message AI visible:', hasMessageAI);
+      console.log('- Nombre de messages:', await page.locator('[class*="message"]').count());
+      
+      throw error;
+    }
 
     // Cliquer sur "Créer ce formulaire"
     await createButton.click();

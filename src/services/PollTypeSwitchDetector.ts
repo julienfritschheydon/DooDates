@@ -199,8 +199,11 @@ export class PollTypeSwitchDetector {
 
     // Détecter les phrases de création de nouveau sondage (même sans verbe explicite)
     // Ex: "nouveau questionnaire de satisfaction" → Form
-    const isNewPollCreation = /(nouveau|nouvelle)\s+(questionnaire|formulaire|sondage)/i.test(message);
-    const isNewPollCreationDate = /(nouveau|nouvelle)\s+sondage\s+de\s+(date|disponibilité|réunion)/i.test(message);
+    const isNewPollCreation = /(nouveau|nouvelle)\s+(questionnaire|formulaire|sondage)/i.test(
+      message,
+    );
+    const isNewPollCreationDate =
+      /(nouveau|nouvelle)\s+sondage\s+de\s+(date|disponibilité|réunion)/i.test(message);
 
     if (isNewPollCreation && !isNewPollCreationDate) {
       return "form";
@@ -445,7 +448,9 @@ IMPORTANT :
         currentType,
         requestedType: aiResult.requestedType,
         confidence: Math.min(0.9, aiResult.confidence), // Cap à 0.9 pour l'IA (moins fiable que les patterns)
-        explanation: aiResult.explanation || `Changement de type détecté par l'IA : ${currentType} → ${aiResult.requestedType}`,
+        explanation:
+          aiResult.explanation ||
+          `Changement de type détecté par l'IA : ${currentType} → ${aiResult.requestedType}`,
       };
     } catch (error) {
       logger.error("Erreur lors de la détection de changement de type par IA", "poll", error);
