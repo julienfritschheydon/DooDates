@@ -133,6 +133,59 @@ jobs:
           path: playwright-report
           retention-days: 7
 
+  # ========================================
+  # SUITE COMPLÈTE FORM POLL REGRESSION (SERIAL)
+  # Exécutée hors sharding car mode serial
+  # ========================================
+  e2e-form-poll-regression:
+    name: 📋 Form Poll Regression - Suite Complète (Serial)
+    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Cache dependencies and Playwright
+        uses: actions/cache@v4
+        id: cache-deps
+        with:
+          path: |
+            node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-e2e-v2-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-e2e-v2-
+
+      - name: 📦 Install dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 🧭 Install Playwright browsers
+        run: |
+          if [ ! -d ~/.cache/ms-playwright/chromium-* ]; then
+            echo "Installing Playwright with deps..."
+            npx playwright install --with-deps chromium
+          else
+            echo "Playwright browsers already cached"
+          fi
+
+      - name: 📋 Run Form Poll Regression Suite (Serial - No Sharding)
+        run: npx playwright test form-poll-regression.spec.ts --grep "Form Poll - Tests de non-régression" --project=chromium
+
+      - name: 📊 Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-form-poll-regression-report
+          path: playwright-report
+          retention-days: 7
+
   e2e-functional:
     name: ⚡ E2E Functional Tests
     if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'

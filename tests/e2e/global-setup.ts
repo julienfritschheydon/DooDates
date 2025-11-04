@@ -128,6 +128,62 @@ export async function setupGeminiMock(page: Page) {
       return;
     }
     
+    // Détecter les demandes de modification de poll (ajout/suppression de questions)
+    const lowerPrompt = userPrompt.toLowerCase();
+    const isModificationRequest = 
+      lowerPrompt.includes('ajoute') || lowerPrompt.includes('ajouter') ||
+      lowerPrompt.includes('supprime') || lowerPrompt.includes('supprimer') ||
+      lowerPrompt.includes('modifie') || lowerPrompt.includes('modifier') ||
+      lowerPrompt.includes('change') || lowerPrompt.includes('changer') ||
+      lowerPrompt.includes('renomme') || lowerPrompt.includes('renommer');
+    
+    // Si c'est une demande de modification (détection d'intention)
+    if (isModificationRequest && (lowerPrompt.includes('intention') || lowerPrompt.includes('détecte') || lowerPrompt.includes('assistant qui détecte'))) {
+      console.log('🤖 Gemini API mock - Détection intention (modification)');
+      let action = null;
+      let payload: any = {};
+      
+      if (lowerPrompt.includes('ajoute') || lowerPrompt.includes('ajouter')) {
+        action = 'ADD_QUESTION';
+        // Extraire le sujet de la question
+        const ageMatch = lowerPrompt.match(/âge|age/i);
+        const subjectMatch = lowerPrompt.match(/sur\s+(.+?)(?:$|\.|,|\s+question)/i);
+        const subject = subjectMatch ? subjectMatch[1] : (ageMatch ? 'l\'âge' : 'le sujet');
+        payload = {
+          title: `Quel est votre ${subject} ?`,
+          type: 'text'
+        };
+      } else if (lowerPrompt.includes('supprime') || lowerPrompt.includes('supprimer')) {
+        action = 'REMOVE_QUESTION';
+        const numMatch = lowerPrompt.match(/question\s+(\d+)/i);
+        payload = {
+          questionIndex: numMatch ? parseInt(numMatch[1]) : 2
+        };
+      }
+      
+      const intentResponse = {
+        isModification: true,
+        action: action,
+        payload: payload,
+        confidence: 0.9,
+        explanation: `Action détectée: ${action}`
+      };
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          candidates: [{
+            content: {
+              parts: [{ text: JSON.stringify(intentResponse) }]
+            },
+            finishReason: 'STOP'
+          }]
+        })
+      });
+      return;
+    }
+    
     console.log('🤖 Gemini API mock - Prompt:', userPrompt.substring(0, 100) + '...');
     
     const mockResponse = generateMockPollResponse(userPrompt);
