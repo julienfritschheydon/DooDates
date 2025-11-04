@@ -32,7 +32,7 @@ Bienvenue dans DooDates ! Ce guide vous permettra de créer votre premier sondag
 2. Connectez-vous avec votre compte Google
 3. Profitez de toutes les fonctionnalités :
    - ✅ Synchronisation multi-appareils
-   - ✅ 50 conversations IA par mois (gratuit)
+   - ✅ 1000 conversations IA (gratuit)
    - ✅ Historique complet
    - ✅ Sauvegarde automatique
 
@@ -152,18 +152,12 @@ https://doodates.com/vote/abc123def456
 
 #### Options de Partage
 
-1. **Copier le lien**
-   - Cliquez sur l'icône 📋 "Copier le lien"
-   - Collez-le dans votre email, chat, etc.
+**Copier le lien :**
+- Cliquez sur l'icône 📋 "Copier le lien" dans le Dashboard
+- Le lien est copié dans votre presse-papier
+- Collez-le dans votre email, message, chat, etc.
 
-2. **Partage direct**
-   - Email : Envoyez directement depuis l'app
-   - WhatsApp : Partagez sur un groupe
-   - Réseaux sociaux : Twitter, LinkedIn, Facebook
-
-3. **QR Code**
-   - Générez un QR Code pour événements physiques
-   - Affichez-le sur un écran ou imprimez-le
+**Note :** Les fonctionnalités de partage direct (email automatique, QR Code, intégrations) sont prévues pour une prochaine version.
 
 ### Voter sur un Sondage
 
@@ -244,6 +238,8 @@ Après avoir reçu des réponses, demandez à l'IA :
 "Compare les réponses par âge"
 ```
 
+**En savoir plus :** [Formulaires - Analytics IA](./04-Formulaires-Questionnaires.md#analyser-les-résultats-avec-analytics-ia)
+
 ### 🧪 Simulation de Réponses
 Avant de partager votre formulaire :
 ```
@@ -267,7 +263,7 @@ Maintenant que vous avez créé votre premier sondage, explorez :
 
 1. **[Concepts de Base](./02-Concepts-Base.md)** - Comprendre en profondeur
 2. **[Assistant IA](./05-Assistant-IA.md)** - Maîtriser l'assistant
-3. **[Cas d'Usage](./11-Cas-Usage.md)** - Inspirez-vous d'exemples concrets
+3. **[Formulaires](./04-Formulaires-Questionnaires.md)** - Cas d'usage et exemples pratiques
 
 ---
 
@@ -276,7 +272,7 @@ Maintenant que vous avez créé votre premier sondage, explorez :
 ### Combien de sondages puis-je créer ?
 - **Mode invité** : Illimité (stocké localement)
 - **Compte gratuit** : Illimité
-- **Conversations IA** : 5 (invité) / 50 (compte gratuit) / Illimité (Pro)
+- **Conversations IA** : 5 (invité) / 1000 (compte gratuit) / Illimité (Pro)
 
 ### Mes données sont-elles sécurisées ?
 Oui ! DooDates utilise :
@@ -301,13 +297,14 @@ Pour plus de fonctionnalités (conversations IA illimitées, features avancées,
 
 - 💬 **Chat support** : Icône 💬 en bas à droite
 - 📧 **Email** : support@doodates.com
-- 📖 **Documentation complète** : [Retour à l'index](./README.md)
+- 📖 **Documentation complète** : Explorez tous les guides depuis la page Documentation
 - 🐛 **Signaler un bug** : feedback@doodates.com
+- 💬 **Proposer une idée**: feature@doodates.com
 
 ---
 
 **Prêt à créer votre premier sondage ?** 🚀  
-[→ Retour à l'accueil](./README.md) | [→ Concepts de Base](./02-Concepts-Base.md)
+[→ Concepts de Base](./02-Concepts-Base.md) | [→ Sondages de Dates](./03-Sondages-Dates.md)
 
 ---
 

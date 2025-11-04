@@ -35,19 +35,6 @@ Pour plus de fonctionnalités avancées (conversations IA illimitées, intégrat
 
 ---
 
-### Quelle est la différence avec Doodle, SurveyMonkey ou Google Forms ?
-
-| Feature | DooDates | Concurrents |
-|---------|----------|-------------|
-| **IA conversationnelle** | ✅ Créer en parlant naturellement | ❌ Formulaires classiques |
-| **Analytics IA** | ✅ Insights automatiques | ⚠️ Basique ou payant |
-| **Export gratuit** | ✅ 4 formats illimités | ⚠️ Limité ou payant |
-| **Réponses illimitées** | ✅ Toujours | ⚠️ Limité (25-100) |
-| **Interface moderne** | ✅ Mobile-first 2025 | ⚠️ Datée (2010s) |
-| **Simulation réponses** | ✅ IA génère des tests | ❌ Non disponible |
-
----
-
 ### Sur quels appareils DooDates fonctionne-t-il ?
 
 DooDates fonctionne sur :
@@ -72,7 +59,7 @@ DooDates fonctionne sur :
 
 **Avec compte (recommandé) :**
 - ✅ Synchronisation multi-appareils
-- ✅ 50 conversations IA/mois
+- ✅ 1000 conversations IA
 - ✅ Historique complet
 - ✅ Sauvegarde cloud
 
@@ -125,7 +112,7 @@ En attendant, utilisez le **mode invité** sans compte.
 - 💼 **Pro** : Sondages illimités
 - 🚀 **Premium** : Sondages illimités
 
-**Seule limite :** Conversations IA (5, 50, ou illimité selon plan).
+**Seule limite :** Conversations IA (5, 1000, ou illimité selon plan).
 
 ---
 
@@ -266,7 +253,7 @@ C'est normal et permet des formulaires plus courts et pertinents.
 | Plan | Quota |
 |------|-------|
 | **🆓 Invité** | 5 conversations IA (création de sondages) |
-| **👤 Gratuit** | 50/mois (reset le 1er) |
+| **👤 Gratuit** | 1000 conversations IA |
 | **💼 Pro** | Illimité |
 | **🚀 Premium** | Illimité |
 
@@ -470,7 +457,7 @@ Exporter en CSV → Supprimer colonne "Nom" dans Excel
 | **Sondages** | ✅ Illimité | ✅ Illimité | ✅ Illimité |
 | **Réponses** | ✅ Illimité | ✅ Illimité | ✅ Illimité |
 | **Export** | ✅ 4 formats | ✅ 4 formats | ✅ Tous formats |
-| **Conversations IA** | 50/mois | ✅ Illimité | ✅ Illimité |
+| **Conversations IA** | 1000 | ✅ Illimité | ✅ Illimité |
 | **Analytics IA avancés** | ❌ | ✅ | ✅ |
 | **Simulation réponses** | ❌ | ✅ | ✅ |
 | **Intégrations** | ❌ | ⚠️ Basiques | ✅ Complètes |
@@ -533,32 +520,127 @@ Compte → Abonnement → "Annuler"
    - Pro : < 8h
    - Premium : < 2h
 
-3. **📖 Documentation** : docs.doodates.com
-   - 17 guides complets
-   - FAQ exhaustive
-   - Tutoriels vidéo
+3. **🐛 Signaler un bug** (icône en bas de page)
+   - Formulaire détaillé
+   - Suivez le traitement en temps réel
+   - **Récompense :** Bugs critiques récompensés (crédit compte Pro)
+
+**Avant de contacter :**
+- [ ] J'ai vérifié cette FAQ
+- [ ] J'ai consulté le guide correspondant (Assistant IA, Export, etc.)
+- [ ] J'ai essayé dans un autre navigateur
+- [ ] J'ai vidé mon cache
+
+**Informations à fournir :**
+```
+1. Description du problème
+   "Impossible d'exporter en PDF, erreur '504 Timeout'"
+
+2. Étapes pour reproduire
+   "1. Dashboard → Résultats
+    2. Clic sur Exporter
+    3. Sélection PDF
+    4. Erreur après 30 secondes"
+
+3. Environnement technique
+   • Navigateur : Chrome 120.0.6099.109
+   • OS : Windows 11
+   • Type de compte : Gratuit
+   • Sondage concerné : ID abc123
+
+4. Capture d'écran (si pertinent)
+   → Joindre une image de l'erreur
+
+5. Message d'erreur exact (si affiché)
+   "Error 504: Gateway Timeout"
+```
 
 ---
 
-### J'ai trouvé un bug, que faire ?
+### Application lente / freeze
 
-**Signaler un bug :**
+**Causes possibles :**
 
-```
-1. Cliquez sur l'icône 🐛 en bas de page
-2. Décrivez le problème
-3. (Optionnel) Ajoutez une capture d'écran
-4. Envoyez !
-```
+1. **Trop d'onglets ouverts**
+   ```
+   Solution : Fermez les onglets inutiles
+   Chrome peut ralentir avec 20+ onglets
+   ```
 
-**Informations utiles :**
-- Navigateur et version
-- URL de la page concernée
-- Étapes pour reproduire
+2. **Formulaire très long**
+   ```
+   > 50 questions → Peut ralentir sur mobile
+   
+   Solution :
+   • Mode multi-étapes (plus fluide)
+   • Divisez en plusieurs formulaires
+   ```
 
-**Récompense :** Bugs critiques récompensés (crédit compte Pro).
+3. **Cache saturé**
+   ```
+   Solution :
+   Chrome : Ctrl+Shift+Delete
+   Cochez "Images et fichiers en cache"
+   Effacez et rafraîchissez
+   ```
 
 ---
+
+### Graphiques ne s'affichent pas
+
+**Solutions :**
+
+1. **Désactiver extensions**
+   ```
+   Certaines extensions bloquent les graphiques :
+   • AdBlock
+   • NoScript
+   • Privacy Badger
+   
+   → Désactivez temporairement
+   ```
+
+2. **Vérifier JavaScript**
+   ```
+   1. Paramètres navigateur
+   2. Confidentialité
+   3. Vérifiez que JavaScript est autorisé
+   ```
+
+3. **Essayer un autre navigateur**
+   ```
+   Chrome recommandé pour meilleure compatibilité
+   ```
+
+---
+
+### Interface mal affichée sur smartphone
+
+**Solutions :**
+
+1. **Mode responsive**
+   ```
+   Zoom du navigateur = 100%
+   (Pincer pour dézoomer si besoin)
+   ```
+
+2. **Orientation portrait**
+   ```
+   DooDates optimisé pour portrait sur mobile
+   → Basculez en mode portrait
+   ```
+
+3. **Navigateur obsolète**
+   ```
+   iOS : Safari 14+
+   Android : Chrome 90+
+   
+   → Mettez à jour votre OS/navigateur
+   ```
+
+---
+
+
 
 ### Où puis-je suggérer une fonctionnalité ?
 
@@ -578,23 +660,14 @@ Compte → Abonnement → "Annuler"
 
 **Langues actuellement disponibles :**
 - 🇫🇷 Français (complet)
-- 🇬🇧 Anglais (complet)
+<!-- - 🇬🇧 Anglais (complet) -->
 
-**Langues en développement :**
+<!-- **Langues en développement :**
 - 🇪🇸 Espagnol (Q1 2026)
 - 🇩🇪 Allemand (Q2 2026)
-- 🇮🇹 Italien (Q2 2026)
+- 🇮🇹 Italien (Q2 2026) -->
 
-**Contribution :** Intéressé pour traduire ? → translate@doodates.com
-
----
-
-## 🔗 Liens Utiles
-
-- 📖 **Documentation complète** : [Retour à l'index](./README.md)
-- 🚀 **Guide de démarrage** : [Premiers pas](./01-Guide-Demarrage-Rapide.md)
-- 💡 **Cas d'usage** : [Exemples concrets](./11-Cas-Usage.md)
-- 📧 **Contact support** : support@doodates.com
+<!-- **Contribution :** Intéressé pour traduire ? → translate@doodates.com -->
 
 ---
 
@@ -603,7 +676,7 @@ Contactez-nous : support@doodates.com
 
 ---
 
-**[← Personnalisation](./13-Personnalisation.md) | [Accueil](./README.md) | [Glossaire →](./15-Glossaire.md)**
+**[← Tableau de Bord](./07-Tableau-Bord.md) | [Guide de Démarrage →](./01-Guide-Demarrage-Rapide.md)**
 
 ---
 

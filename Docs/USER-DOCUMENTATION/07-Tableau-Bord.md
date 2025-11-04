@@ -573,11 +573,11 @@ Actuellement : 1 dashboard = 1 compte
 
 - [Créer un Sondage](./03-Sondages-Dates.md)
 - [Créer un Formulaire](./04-Formulaires-Questionnaires.md)
-- [Gestion des Résultats](./08-Gestion-Resultats.md)
+- [Gestion des Résultats](./06-Gestion-Resultats.md)
 
 ---
 
-**[← Export](./09-Export-Partage.md) | [Accueil](./README.md) | [Cas d'Usage →](./11-Cas-Usage.md)**
+**[← Résultats](./06-Gestion-Resultats.md) | [FAQ →](./08-FAQ.md)**
 
 ---
 

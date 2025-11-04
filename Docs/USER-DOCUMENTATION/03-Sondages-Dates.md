@@ -584,15 +584,50 @@ Après 10 votes :
 
 ---
 
-## 🔗 Guides Connexes
+## 💼 Cas d'Usage Pratique
 
-- [Assistant IA](./05-Assistant-IA.md) - Créer avec l'IA
-- [Export et Partage](./09-Export-Partage.md) - Partager efficacement
-- [Cas d'Usage](./11-Cas-Usage.md) - Exemples pratiques
+### Organiser une Réunion d'Équipe
+
+**Contexte :** Réunion hebdomadaire avec 8 personnes, emplois du temps différents.
+
+**Création avec l'IA :**
+```
+💬 Vous : "Réunion d'équipe, 8 personnes, 3 créneaux entre lundi et jeudi, 
+           matin (9h-11h) ou après-midi (14h-16h)"
+
+🤖 IA : Crée le sondage avec les créneaux proposés
+```
+
+**Configuration recommandée :**
+- Votes non anonymes (voir qui est disponible)
+- Peut-être autorisé (flexibilité)
+- Deadline : Vendredi 17h
+- Visibilité résultats : Participants
+
+**Résultat :** DooDates identifie automatiquement le créneau optimal (100% disponibles).
 
 ---
 
-**[← Concepts](./02-Concepts-Base.md) | [Accueil](./README.md) | [Formulaires →](./04-Formulaires-Questionnaires.md)**
+### Événement Familial
+
+**Contexte :** Anniversaire surprise avec 20 invités.
+
+**Stratégie :**
+1. Sondage de dates pour choisir la date
+2. Une fois la date fixée, formulaire pour préférences (lieu, activité, budget)
+
+**Astuce :** Envoyez le sondage de dates d'abord, puis le formulaire une fois la date validée.
+
+---
+
+## 📚 Ressources Complémentaires
+
+- [Assistant IA](./05-Assistant-IA.md) - Créer avec l'IA
+- [Formulaires](./04-Formulaires-Questionnaires.md) - Créer des questionnaires
+
+---
+
+**[← Concepts](./02-Concepts-Base.md) | [Formulaires →](./04-Formulaires-Questionnaires.md)**
 
 ---
 

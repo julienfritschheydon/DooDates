@@ -13,6 +13,7 @@ Guide complet pour créer des formulaires professionnels avec DooDates.
 5. [Mode Multi-Étapes](#mode-multi-étapes)
 6. [Thèmes et Personnalisation](#thèmes-et-personnalisation)
 7. [Tester Votre Formulaire](#tester-votre-formulaire)
+8. [Analyser les Résultats avec Analytics IA](#analyser-les-résultats-avec-analytics-ia)
 
 ---
 
@@ -492,42 +493,9 @@ Question 4 sur 10
 
 ---
 
-## 🎨 Thèmes et Personnalisation
+## 🎨 Thèmes Visuels
 
-### Thèmes Disponibles
-
-#### 1. Par Défaut
-```
-Couleurs : Bleu & Gris
-Usage : Formulaires professionnels, B2B
-```
-
-#### 2. Nature (Gratuit)
-```
-Couleurs : Vert & Brun
-Usage : Événements, associations, écologie
-```
-
-#### 3. Minimaliste Light/Dark (Premium)
-```
-Couleurs : Noir/Blanc avec accent Coral/Mint
-Usage : Design moderne, tech, startups
-```
-
----
-
-### Personnalisation Avancée (Premium)
-
-**Options :**
-```
-Logo : [Télécharger votre logo]
-Couleur primaire : [#FF6B6B]
-Couleur secondaire : [#4ECDC4]
-Police : Inter / Roboto / Open Sans / Custom
-
-Suppression branding :
-☑ Masquer "Créé avec DooDates"
-```
+**Note :** Les thèmes visuels ne sont pas encore implémentés. Cette fonctionnalité est prévue pour une prochaine version.
 
 ---
 
@@ -547,73 +515,324 @@ Suppression branding :
 
 ### Simulation de Réponses IA
 
-**Fonctionnalité puissante :**
+La **simulation de réponses** utilise l'IA pour générer des réponses fictives mais réalistes à votre formulaire.
+
+#### Pourquoi Simuler ?
+
+**Avant de partager, vérifiez :**
+- ✅ **Logique conditionnelle** : Les questions s'affichent correctement
+- ✅ **Graphiques** : Les visualisations sont claires
+- ✅ **Durée** : Temps de complétion réaliste
+- ✅ **Objectif** : Le formulaire atteint votre but
+- ✅ **Clarté** : Pas de questions ambiguës
+
+**Bénéfices :**
+- 🎯 **Confiance** : Publiez sans crainte
+- 📊 **Aperçu** : Visualisez les résultats futurs
+- 🐛 **Bugs** : Détectez les problèmes avant
+- ⏱️ **Gain de temps** : Pas besoin de vrais testeurs
+
+#### Lancer une Simulation
+
+**Depuis l'éditeur :**
 ```
-1. Cliquez sur "Simuler des réponses"
-2. Choisissez le nombre : 20, 50, ou 100
-3. L'IA génère des réponses réalistes
-4. Consultez les résultats simulés
-5. Vérifiez que tout fonctionne
-6. Publiez en confiance !
+Formulaire Éditeur → [🧪 Simuler des réponses]
 ```
 
-**Avantages :**
-- ✅ Teste la logique conditionnelle
-- ✅ Prévisualise les graphiques
-- ✅ Identifie les questions ambiguës
-- ✅ Valide que le formulaire atteint votre objectif
+**Paramètres :**
+- **Nombre de réponses** : 20 (rapide), 50 (recommandé), 100 (complet)
+- **Profil des répondants** (optionnel) : "Clients restaurant, 30-60 ans"
+- **Objectif du formulaire** (optionnel) : "Mesurer la satisfaction client"
 
-**Voir :** [Guide Simulation](./07-Simulation-Reponses.md)
+**Processus :**
+```
+🔄 Analyse du formulaire... (5s)
+🤖 Génération des réponses... (45s)
+✅ Simulation terminée ! (50 réponses générées)
+   [Voir les résultats]
+```
+
+#### Analyser les Résultats Simulés
+
+Après simulation, vous accédez aux résultats avec :
+- 📊 Graphiques standards (choix, NPS, Rating, Matrix)
+- 📝 Commentaires texte libres réalistes
+- ✅ Vérification de la logique conditionnelle
+
+**Note :** Les données sont marquées comme "simulées" et ne comptent pas dans les statistiques réelles.
+
+#### Validation d'Objectifs (Premium)
+
+L'IA analyse si votre formulaire atteint votre objectif :
+
+**Exemple :**
+```
+Objectif : "Mesurer la satisfaction client"
+
+✅ Score d'adéquation : 85/100
+
+💡 Recommandations :
+1. Ajouter une question sur les priorités d'amélioration
+2. Renforcer les questions ouvertes
+```
+
+#### Bonnes Pratiques
+
+1. **Simulez toujours avant publication** (30+ réponses)
+2. **Utilisez un profil réaliste** pour des réponses contextualisées
+3. **Itérez plusieurs fois** : 1ère simulation = détection, 2ème = validation, 3ème = polish final
+
+**Quota :** 1 simulation (50 réponses) = 1 crédit IA. Les réponses simulées sont visibles temporairement et supprimées automatiquement après 24h.
 
 ---
 
-## 📊 Paramètres du Formulaire
+## 🤖 Analyser les Résultats avec Analytics IA
 
-### Paramètres de Base
+### Vue d'Ensemble
 
+Analytics IA est un système d'analyse automatique qui :
+- 🔍 **Détecte les tendances** dans vos réponses
+- 💡 **Génère des insights** pertinents automatiquement
+- ❓ **Répond à vos questions** sur les données
+- 📊 **Crée des visualisations** intelligentes
+- 🎯 **Identifie des corrélations** cachées
+
+**Gain de temps :** 80% plus rapide que l'analyse manuelle
+
+---
+
+### Accéder aux Analytics IA
+
+**Étapes :**
 ```
-Titre : "Enquête Satisfaction Client"
-Description : "5 minutes pour nous aider à nous améliorer"
+1. Ouvrez votre formulaire dans le Dashboard
+2. Cliquez sur "Voir les résultats"
+3. Le panneau "Analytics IA" s'affiche à droite
+```
 
-☑ Afficher le logo DooDates
-☑ Afficher le temps estimé (5 min)
-☑ Afficher le nombre de questions (6)
+**Interface :**
+```
+┌─────────────────────────────────────────────┐
+│  📊 Résultats : Satisfaction Client 2025    │
+├─────────────────────────────────────────────┤
+│                                             │
+│  [Graphiques et stats]  │  🤖 Analytics IA  │
+│                         │                   │
+│                         │  💡 Insights (3)  │
+│                         │  ❓ Quick Queries │
+│                         │  💬 Poser une Q   │
+└─────────────────────────────────────────────┘
 ```
 
 ---
 
-### Paramètres Avancés
+### Insights Automatiques
 
-**Réponses :**
-```
-☑ Autoriser les réponses anonymes
-☐ Connexion requise (compte Google)
-☑ Une seule réponse par personne (cookie)
-☐ Autoriser la modification après soumission
-```
+Un **insight** est une observation pertinente détectée automatiquement par l'IA.
 
-**Collecte :**
+#### Types d'Insights
+
+**1. Tendances Générales 📈**
 ```
-Deadline : [15/11/2025 23:59]
-Limite réponses : [Illimité] ou [100 max]
+💡 Tendance forte détectée
+"78% des répondants sont satisfaits ou très satisfaits.
+ Taux de satisfaction en hausse de +15% vs dernier trimestre."
 ```
 
-**Email confirmation :**
+**2. Corrélations 🔗**
 ```
-☑ Proposer copie par email au répondant
-Texte checkbox : "Recevoir une copie de mes réponses"
+💡 Corrélation identifiée
+"Les personnes donnant une note NPS ≥ 9 mentionnent 
+ systématiquement 'rapidité' dans leurs commentaires positifs.
+ Corrélation : 0.87 (très forte)"
 ```
+
+**3. Anomalies 🚨**
+```
+⚠️ Anomalie détectée
+"Les réponses du 15 novembre montrent un taux de satisfaction 
+ de 32%, significativement inférieur à la moyenne de 76%.
+ 18 réponses concernées."
+```
+
+**4. Segmentation 👥**
+```
+💡 Différence de segment
+"Les utilisateurs de 25-34 ans sont 2x plus susceptibles 
+ de recommander le produit (NPS moyen: 8.2) que les 55+ (NPS: 4.1)"
+```
+
+**5. Points d'Amélioration 🎯**
+```
+🎯 Axe d'amélioration prioritaire
+"'Délai de livraison' mentionné dans 64% des commentaires négatifs.
+ Impact estimé sur NPS : -12 points si résolu."
+```
+
+**Mise à jour :** Les insights se mettent à jour automatiquement toutes les 5 nouvelles réponses ou toutes les 24h.
 
 ---
 
-### Visibilité des Résultats
+### Quick Queries
+
+Des **questions prédéfinies** pour analyse rapide sans rédiger de prompt.
+
+#### Exemples de Quick Queries
+
+**Métriques Générales :**
+```
+❓ Combien de personnes ont répondu ?
+   → "127 réponses reçues entre le 1er et le 15 novembre"
+
+❓ Quel est le taux de complétion ?
+   → "89% des participants ont complété le formulaire (113/127)"
+
+❓ Temps de réponse moyen ?
+   → "3 minutes 42 secondes (médiane : 2min 15s)"
+```
+
+**Satisfaction & NPS :**
+```
+❓ Quel est le score NPS global ?
+   → "NPS = +42 (Excellent)
+       Promoteurs: 58% | Passifs: 26% | Détracteurs: 16%"
+
+❓ Quelle est la satisfaction moyenne ?
+   → "4.2/5 étoiles (84% de satisfaction)"
+```
+
+**Top Réponses :**
+```
+❓ Quels sont les 3 points forts ?
+   → "1. Rapidité (mentionnée 45x)
+       2. Qualité (38x)
+       3. Prix compétitif (32x)"
+
+❓ Quels sont les 3 axes d'amélioration ?
+   → "1. SAV (23 mentions négatives)
+       2. Livraison (18x)
+       3. Disponibilité produits (15x)"
+```
+
+**Utilisation :** Cliquez directement sur la question dans la liste, ou recherchez-la avec la barre de recherche.
+
+---
+
+### Questions Libres
+
+Vous pouvez poser **n'importe quelle question** sur vos données.
+
+#### ✅ Bonnes Questions (Spécifiques)
 
 ```
-Qui peut voir les résultats ?
-⚫ Moi uniquement (créateur)
-○ Les participants (après leur vote)
-○ Tout le monde (public)
+"Quelle est la corrélation entre l'âge et la satisfaction ?"
+→ Analyse statistique précise
+
+"Les personnes ayant choisi 'Prix' comme point fort 
+ ont-elles un NPS plus élevé ?"
+→ Segmentation croisée
+
+"Quels mots reviennent le plus dans les commentaires négatifs ?"
+→ Analyse sémantique
 ```
+
+#### ❌ Questions Trop Vagues
+
+```
+"Analyse les résultats"
+→ Trop général, l'IA ne saura pas quoi prioriser
+
+"C'est bien ?"
+→ Pas de critère clair
+```
+
+**Format de réponse :** L'IA structure ses réponses en 3 parties : réponse directe, détails & chiffres, recommandations.
+
+---
+
+### Quotas et Limites
+
+Une **"conversation IA"** consomme 1 crédit pour :
+- 1 insight généré automatiquement
+- 1 quick query exécutée
+- 1 question libre posée
+
+**Quotas par plan :**
+- 🆓 **Mode Invité** : 5 conversations IA (création de sondages)
+- 👤 **Compte Gratuit** : 1000 conversations IA
+- 💼 **Pro** : Illimité
+- 🚀 **Premium** : Illimité + fonctionnalités avancées
+
+**Optimiser votre quota :**
+1. Désactiver les insights automatiques (si non nécessaires)
+2. Utiliser les graphiques natifs d'abord
+3. Poser des questions groupées (au lieu de plusieurs séparées)
+4. Exporter les insights importants
+
+**Vérifier votre quota :** Indicateur visible dans l'en-tête du Dashboard
+
+---
+
+### Bonnes Pratiques Analytics IA
+
+**1. Attendez un minimum de réponses**
+- ⚠️ **< 10 réponses** : Insights peu fiables
+- ✅ **10-30 réponses** : Tendances générales OK
+- 🎯 **30-100 réponses** : Analyses fiables
+- 🚀 **100+ réponses** : Insights très précis
+
+**2. Contextualisez vos questions**
+```
+❌ "Les résultats sont bons ?"
+✅ "Le NPS de +38 est-il bon pour une entreprise SaaS B2B 
+    comparé aux benchmarks du secteur ?"
+```
+
+**3. Combinez Insights IA + Jugement Humain**
+L'IA détecte les patterns statistiques, vous apportez le contexte métier et les décisions.
+
+---
+
+### Dépannage Analytics IA
+
+#### "Quota IA épuisé"
+
+**Solutions :**
+1. Attendez le reset (1er du mois pour comptes gratuits)
+2. Passez en Pro (conversations illimitées)
+3. Optimisez votre usage (désactivez insights auto, utilisez graphiques natifs d'abord)
+
+#### Insights IA peu pertinents
+
+**Causes :**
+1. Trop peu de réponses (< 10)
+2. Questions mal formulées (ambiguës)
+3. Données incohérentes (erreurs de saisie)
+
+**Solutions :** Attendez 30+ réponses, reformulez les questions, validez les réponses aberrantes.
+
+#### Quick Query ne répond pas
+
+**Solutions :**
+1. Rafraîchir la page (F5)
+2. Vérifier le quota IA
+3. Vérifier la connexion internet
+
+---
+
+### FAQ Analytics IA
+
+**Les insights sont-ils toujours fiables ?**
+La fiabilité dépend du nombre de réponses : 10-30 = tendances générales, 30-100 = bonne fiabilité, 100+ = très fiable.
+
+**L'IA a-t-elle accès à toutes mes données ?**
+L'IA n'analyse que les réponses au formulaire concerné et métadonnées anonymisées. Pas vos autres sondages ni données personnelles.
+
+**Puis-je désactiver les insights automatiques ?**
+Oui : `Paramètres` → `Analytics IA` → `Insights auto : OFF`. Économise 3 crédits par ouverture.
+
+**Que fait l'IA de mes données après analyse ?**
+Analyse en temps réel (non stockée), pas d'entraînement de modèle, conformité RGPD stricte, pas de partage avec tiers.
 
 ---
 
@@ -648,17 +867,98 @@ Qui peut voir les résultats ?
 
 ---
 
+## ❌ Dépannage
+
+### "Vous avez déjà voté"
+
+**Cause :** Cookie de vote déjà présent
+
+**Solutions :**
+
+1. **Vote légitime à modifier**
+   ```
+   → Cliquez sur "Modifier mon vote"
+   → Changez vos réponses
+   → Enregistrez
+   ```
+
+2. **Voter depuis un autre appareil**
+   ```
+   → Normal : 1 vote par appareil en mode invité
+   → Solution : Utilisez un autre appareil/navigateur
+   ```
+
+3. **Erreur de cookie**
+   ```
+   1. Supprimez les cookies de doodates.com
+   2. Rafraîchissez la page
+   3. Revotez
+   ```
+
+---
+
+### Questions conditionnelles ne s'affichent pas
+
+**Cause :** Logique conditionnelle mal configurée ou réponse inattendue
+
+**Vérifications :**
+
+1. **Réponse attendue**
+   ```
+   Exemple :
+   Q1 : "Êtes-vous satisfait ?" → Réponse : "Non"
+   Q2 (si Q1 = "Non") : "Pourquoi ?" → Devrait s'afficher
+   
+   Si Q2 ne s'affiche pas :
+   → Vérifiez que la condition est bien "Q1 = Non"
+   → Pas "Q1 ≠ Oui" (différent si option "Neutre" existe)
+   ```
+
+2. **Tester en mode aperçu**
+   ```
+   Créateur : Dashboard → Sondage → "Aperçu"
+   → Testez toutes les branches conditionnelles
+   ```
+
+---
+
+### Lien de vote invalide
+
+**Message : "Sondage introuvable"**
+
+**Causes possibles :**
+
+1. **Sondage supprimé**
+   ```
+   → Le créateur a supprimé le sondage
+   → Contactez-le pour vérification
+   ```
+
+2. **Sondage clôturé avec deadline**
+   ```
+   → Date de clôture dépassée
+   → Demandez au créateur de le rouvrir
+   ```
+
+3. **Lien réinitialisé**
+   ```
+   → Le créateur a généré un nouveau lien
+   → Demandez le nouveau lien
+   ```
+
+
+
+---
+
 ## 📚 Ressources Complémentaires
 
 **Guides connexes :**
 - [Assistant IA](./05-Assistant-IA.md) - Créer avec l'IA
-- [Simulation](./07-Simulation-Reponses.md) - Tester avant publication
-- [Analytics](./06-Analytics-IA.md) - Analyser les résultats
-- [Bonnes Pratiques](./12-Bonnes-Pratiques.md) - Optimiser vos formulaires
+- [Gestion des Résultats](./06-Gestion-Resultats.md) - Visualiser et exporter
 
 ---
 
-**[← Sondages de Dates](./03-Sondages-Dates.md) | [Accueil](./README.md) | [Assistant IA →](./05-Assistant-IA.md)**
+**[← Sondages de Dates](./03-Sondages-Dates.md) | [Assistant IA →](./05-Assistant-IA.md)**
 
 ---
 
