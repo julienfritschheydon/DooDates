@@ -71,7 +71,6 @@ describe("SimulationService", () => {
     expect(result.generationTime).toBeGreaterThanOrEqual(0);
   });
 
-
   it("respecte le taux de complétion des personas", async () => {
     const config: SimulationConfig = {
       pollId: "test-poll",
