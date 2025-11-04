@@ -27,7 +27,15 @@ test.describe('Documentation - Tests E2E', () => {
       await expect(page).toHaveURL(/.*\/docs/);
       
       // Vérifier que le titre ou le contenu principal est visible
-      await expect(page.getByText(/Documentation DooDates/i).or(page.getByText(/Bienvenue dans la documentation/i))).toBeVisible({ timeout: 5000 });
+      // Utiliser getByRole pour le h1 (plus spécifique) ou vérifier que le contenu est présent
+      const title = page.getByRole('heading', { name: /Documentation DooDates/i });
+      const description = page.getByText(/Bienvenue dans la documentation/i);
+      
+      // Vérifier que l'un ou l'autre est visible (mais pas les deux avec .or() qui cause strict mode violation)
+      const titleVisible = await title.isVisible().catch(() => false);
+      const descVisible = await description.isVisible().catch(() => false);
+      
+      expect(titleVisible || descVisible).toBe(true);
       
       // Vérifier qu'il n'y a pas d'erreurs de chargement de ressources
       const response = await page.goto('/docs', { waitUntil: 'networkidle' }).catch(() => null);
