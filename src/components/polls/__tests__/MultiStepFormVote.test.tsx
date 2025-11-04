@@ -78,16 +78,25 @@ describe("MultiStepFormVote", () => {
     expect(screen.getByText("Question 1 sur 3")).toBeInTheDocument();
   });
 
-  // FIXME: Précision flottante JavaScript (33.333333333333336% vs 33.33333333333333%)
-  it.skip("affiche la barre de progression correcte", () => {
+  it("affiche la barre de progression correcte", () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
       </BrowserRouter>,
     );
 
+    // Trouver la barre de progression (première question sur 3 questions + 1 étape coordonnées = 4 total)
+    // Step 0, donc progress = (0+1)/4 * 100 = 25%
     const progressBar = document.querySelector(".bg-gradient-to-r");
-    expect(progressBar).toHaveStyle({ width: "33.333333333333336%" }); // 1/3
+    expect(progressBar).toBeTruthy();
+
+    const widthStyle = progressBar?.getAttribute("style") || "";
+    const widthMatch = widthStyle.match(/width:\s*([\d.]+)%/);
+    expect(widthMatch).toBeTruthy();
+
+    const widthValue = parseFloat(widthMatch![1]);
+    // Step 0 sur 4 steps = 25%
+    expect(widthValue).toBeCloseTo(25, 1);
   });
 
   it("désactive le bouton Continuer si question requise non répondue", () => {
