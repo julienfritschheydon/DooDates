@@ -71,24 +71,6 @@ describe("SimulationService", () => {
     expect(result.generationTime).toBeGreaterThanOrEqual(0);
   });
 
-  it.skip("génère des réponses avec Gemini", async () => {
-    const config: SimulationConfig = {
-      pollId: "test-poll",
-      volume: 2,
-      context: "event",
-      useGemini: true,
-    };
-
-    const result = await simulate(config, mockQuestions);
-
-    expect(result.respondents).toHaveLength(2);
-
-    // Vérifier qu'au moins une réponse texte a été générée
-    const textResponses = result.respondents.flatMap((r) =>
-      r.responses.filter((resp) => resp.questionId === "q1" && resp.value !== null),
-    );
-    expect(textResponses.length).toBeGreaterThan(0);
-  });
 
   it("respecte le taux de complétion des personas", async () => {
     const config: SimulationConfig = {

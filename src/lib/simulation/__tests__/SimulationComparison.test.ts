@@ -31,7 +31,7 @@ vi.mock("../../logger", () => ({
 // Setup mock localStorage en mémoire (comme dans pollStorage.test.ts)
 function installLocalStorage(preset: Record<string, string> = {}) {
   const store: Record<string, string> = { ...preset };
-  
+
   const localStorageMock = {
     getItem: (key: string) => store[key] || null,
     setItem: (key: string, value: string) => {
