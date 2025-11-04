@@ -3,6 +3,10 @@ name: 3️⃣ Main Post-Merge E2E
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows: ["2️⃣ Develop → Main (Auto-merge)"]
+    types: [completed]
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,6 +24,7 @@ jobs:
   
   e2e-smoke:
     name: 🔥 E2E Smoke Tests
+    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -77,6 +82,7 @@ jobs:
 
   e2e-functional:
     name: ⚡ E2E Functional Tests
+    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

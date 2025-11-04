@@ -187,7 +187,7 @@ if (submitted) {
             <Link
               to={`/poll/${poll.slug || poll.id}/results`}
               className="inline-block text-white px-4 py-2 rounded transition-colors"
-              style={{ backgroundColor: "var(--theme-primary, #3B82F6)" }}
+              style={ { backgroundColor: "var(--theme-primary, #3B82F6)" } }
             >
               Voir les résultats
             </Link>
