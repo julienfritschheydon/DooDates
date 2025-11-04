@@ -103,14 +103,17 @@ describe("PollActions - Bouton Clôturer", () => {
 
     // Mock getAllPolls to return empty array by default
     vi.mocked(pollStorage.getAllPolls).mockReturnValue([]);
-    
+
     // Mock addPoll to do nothing by default (il appelle getAllPolls et savePolls en interne)
     vi.mocked(pollStorage.addPoll).mockImplementation(() => {
       // Simuler le comportement de addPoll : mettre à jour le poll dans la liste
-      const currentPolls = vi.mocked(pollStorage.getAllPolls).mock.results[vi.mocked(pollStorage.getAllPolls).mock.results.length - 1]?.value || [];
+      const currentPolls =
+        vi.mocked(pollStorage.getAllPolls).mock.results[
+          vi.mocked(pollStorage.getAllPolls).mock.results.length - 1
+        ]?.value || [];
       // Cette logique sera gérée par les tests individuels qui mockent getAllPolls
     });
-    
+
     // Mock savePolls to resolve successfully by default (appelé par addPoll)
     vi.mocked(pollStorage.savePolls).mockResolvedValue(undefined);
 
@@ -283,14 +286,17 @@ describe("PollActions - Bouton Clôturer", () => {
       const closeButton = screen.getByTestId("poll-action-close");
       fireEvent.click(closeButton);
 
-      await waitFor(() => {
-        expect(mockToast).toHaveBeenCalledWith(
-          expect.objectContaining({
-            title: "Questionnaire clôturé",
-            description: "Précision de la simulation : 87%",
-          }),
-        );
-      }, { timeout: 10000 });
+      await waitFor(
+        () => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: "Questionnaire clôturé",
+              description: "Précision de la simulation : 87%",
+            }),
+          );
+        },
+        { timeout: 10000 },
+      );
     });
 
     it("devrait gérer les erreurs de comparaison gracieusement", async () => {
@@ -308,14 +314,17 @@ describe("PollActions - Bouton Clôturer", () => {
       const closeButton = screen.getByTestId("poll-action-close");
       fireEvent.click(closeButton);
 
-      await waitFor(() => {
-        expect(mockToast).toHaveBeenCalledWith(
-          expect.objectContaining({
-            title: "Questionnaire clôturé",
-            description: "Le questionnaire est maintenant fermé aux nouvelles réponses.",
-          }),
-        );
-      }, { timeout: 10000 });
+      await waitFor(
+        () => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: "Questionnaire clôturé",
+              description: "Le questionnaire est maintenant fermé aux nouvelles réponses.",
+            }),
+          );
+        },
+        { timeout: 10000 },
+      );
     });
   });
 
@@ -332,14 +341,17 @@ describe("PollActions - Bouton Clôturer", () => {
       const closeButton = screen.getByTestId("poll-action-close");
       fireEvent.click(closeButton);
 
-      await waitFor(() => {
-        expect(mockToast).toHaveBeenCalledWith(
-          expect.objectContaining({
-            title: "Questionnaire clôturé",
-            description: "Le questionnaire est maintenant fermé aux nouvelles réponses.",
-          }),
-        );
-      }, { timeout: 10000 });
+      await waitFor(
+        () => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: "Questionnaire clôturé",
+              description: "Le questionnaire est maintenant fermé aux nouvelles réponses.",
+            }),
+          );
+        },
+        { timeout: 10000 },
+      );
     });
 
     it("ne devrait PAS appeler compareSimulationWithReality sans simulation", async () => {
@@ -354,9 +366,12 @@ describe("PollActions - Bouton Clôturer", () => {
       const closeButton = screen.getByTestId("poll-action-close");
       fireEvent.click(closeButton);
 
-      await waitFor(() => {
-        expect(simulationComparison.compareSimulationWithReality).not.toHaveBeenCalled();
-      }, { timeout: 10000 });
+      await waitFor(
+        () => {
+          expect(simulationComparison.compareSimulationWithReality).not.toHaveBeenCalled();
+        },
+        { timeout: 10000 },
+      );
     });
   });
 
@@ -373,14 +388,17 @@ describe("PollActions - Bouton Clôturer", () => {
       const closeButton = screen.getByTestId("poll-action-close");
       fireEvent.click(closeButton);
 
-      await waitFor(() => {
-        expect(mockToast).toHaveBeenCalledWith(
-          expect.objectContaining({
-            title: "Sondage clôturé",
-            description: "Le sondage est maintenant fermé aux nouveaux votes.",
-          }),
-        );
-      }, { timeout: 10000 });
+      await waitFor(
+        () => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: "Sondage clôturé",
+              description: "Le sondage est maintenant fermé aux nouveaux votes.",
+            }),
+          );
+        },
+        { timeout: 10000 },
+      );
     });
   });
 
@@ -422,15 +440,18 @@ describe("PollActions - Bouton Clôturer", () => {
       const closeButton = screen.getByTestId("poll-action-close");
       fireEvent.click(closeButton);
 
-      await waitFor(() => {
-        expect(mockToast).toHaveBeenCalledWith(
-          expect.objectContaining({
-            title: "Erreur",
-            description: "Impossible de clôturer le questionnaire.",
-            variant: "destructive",
-          }),
-        );
-      }, { timeout: 10000 });
+      await waitFor(
+        () => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: "Erreur",
+              description: "Impossible de clôturer le questionnaire.",
+              variant: "destructive",
+            }),
+          );
+        },
+        { timeout: 10000 },
+      );
     });
   });
 });
