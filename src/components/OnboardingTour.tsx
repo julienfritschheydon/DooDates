@@ -52,9 +52,6 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
               <h3 className="text-lg font-semibold text-white">DooDates</h3>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center">
-                  <BookOpen className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center">
                   <HelpCircle className="w-4 h-4 text-gray-400" />
                 </div>
                 <div className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center">
