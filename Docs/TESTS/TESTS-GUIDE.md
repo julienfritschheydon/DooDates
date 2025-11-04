@@ -22,11 +22,11 @@
 
 **Status** : ✅ **PRODUCTION-READY** - Analytics IA intégrés
 
-**Dernière mise à jour** : 15/01/2025 - Tests Analytics IA réactivés et intégrés en CI (plus d'exclusion)
+**Dernière mise à jour** : 15/01/2025 - Tests Analytics IA et Form Poll Regression réactivés et intégrés en CI
 
 **Note Firefox/Safari** : Les tests Analytics IA sont skippés sur Firefox/Safari en raison d'un bug Playwright avec le mode serial + shared context ([#13038](https://github.com/microsoft/playwright/issues/13038), [#22832](https://github.com/microsoft/playwright/issues/22832)). Les tests passent à 100% sur Chrome.
 
-**Note CI/Sharding** : La suite complète Analytics IA (9 tests en mode serial) est exécutée dans un job CI dédié sans sharding pour éviter les conflits avec la distribution aléatoire des tests. Les tests indépendants Analytics IA peuvent être exécutés avec sharding.
+**Note CI/Sharding** : Les suites complètes en mode serial (Analytics IA - 9 tests, Form Poll Regression - 4 tests) sont exécutées dans des jobs CI dédiés sans sharding pour éviter les conflits avec la distribution aléatoire des tests. Les tests indépendants peuvent être exécutés avec sharding.
 
 ---
 
@@ -115,8 +115,16 @@ npm run test:gemini:quick      # Tests rapides (15s)
   - Warnings React Hooks
   - ~~Memory leaks après rafraîchissements~~ (supprimé - redondant avec monitoring Sentry)
 
-**Form Poll :**
+**Form Poll Regression (Réactivés - 15/01/2025) :**
 - `form-poll-regression.spec.ts` - 4 tests mode enchaîné ✅
+  - RÉGRESSION #1 : Créer Form Poll avec 1 question via IA (@smoke @critical @functional)
+  - RÉGRESSION #2 : Ajouter une question via IA (@functional)
+  - RÉGRESSION #3 : Supprimer une question (@functional)
+  - RÉGRESSION #4 : Reprendre conversation après refresh (@functional)
+  - **Status CI** : Intégrés (job dédié `e2e-form-poll-regression`)
+  - **Mode serial** : Tests enchaînés avec variables partagées (`pollUrl`, `pollCreated`)
+  - **Mock IA amélioré** : Détection intention pour ajout/suppression de questions
+  - **Navigation robuste** : Utilisation de `toBeAttached()` et `networkidle` pour stabilité
 
 **Autres :**
 - `ultra-simple.spec.ts` - Workflow DatePoll complet ✅
@@ -149,6 +157,7 @@ npm run test:e2e:headed        # Mode visible
 # Tests spécifiques Analytics IA
 npx playwright test analytics-ai.spec.ts --project=chromium
 npx playwright test console-errors.spec.ts --project=chromium
+npx playwright test form-poll-regression.spec.ts --project=chromium
 ```
 
 **Configuration** : `playwright.config.ts`
@@ -441,7 +450,8 @@ steps:
   - run: npx playwright test --grep @functional --grep-invert "@wip|@flaky" --shard=${{ matrix.shard }}/2
   - Tests complets divisés en 2 parties (sharding optimisé)
   - **Analytics IA inclus** : Tests réactivés et fonctionnels (fixes sélecteurs + setup)
-  - Note : Suite complète Analytics IA (mode serial) exécutée hors sharding pour éviter conflits
+  - **Form Poll Regression inclus** : Tests réactivés et fonctionnels (mock IA amélioré)
+  - Note : Suites complètes en mode serial (Analytics IA, Form Poll Regression) exécutées hors sharding pour éviter conflits
   - Durée : ~2min (vs 5min séquentiel)
   - Rapports : playwright-functional-report-{1,2}
 
