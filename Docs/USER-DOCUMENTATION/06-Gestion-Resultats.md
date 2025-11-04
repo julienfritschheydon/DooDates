@@ -387,24 +387,25 @@ Sans voter → Message "Votez pour voir les résultats"
 └── Markdown (Documentation)
 ```
 
-**Voir :** [Guide Export](./09-Export-Partage.md)
+**Voir :** Les exports sont disponibles directement depuis la page de résultats (bouton "Exporter").
 
 ---
 
 ### Partager les Résultats
 
-**Options :**
+**Copier le lien :**
 ```
-🔗 Copier le lien des résultats
-📧 Envoyer par email
-💬 Partager sur Slack/Teams
-📱 QR Code pour affichage
+1. Sur la page de résultats, cliquez sur "Partager"
+2. Le lien est copié dans votre presse-papier
+3. Collez-le dans votre email, message, etc.
 ```
 
-**Lien généré :**
+**Format du lien :**
 ```
-https://doodates.com/results/abc123
+https://doodates.com/results/{poll-slug}
 ```
+
+**Note :** Les fonctionnalités de partage direct (email automatique, QR Code, intégrations Slack/Teams) sont prévues pour une prochaine version.
 
 ---
 
@@ -419,7 +420,7 @@ https://doodates.com/results/abc123
 → Questions libres
 ```
 
-**Voir :** [Guide Analytics](./06-Analytics-IA.md)
+**Voir :** [Section Analytics IA](./04-Formulaires-Questionnaires.md#analyser-les-résultats-avec-analytics-ia) dans le guide Formulaires
 
 ---
 
@@ -567,13 +568,12 @@ Affichage côte à côte :
 
 ## 🔗 Guides Connexes
 
-- [Analytics IA](./06-Analytics-IA.md) - Analyse approfondie
-- [Export et Partage](./09-Export-Partage.md) - Exporter les données
-- [Dashboard](./10-Tableau-Bord.md) - Gérer vos sondages
+- [Formulaires](./04-Formulaires-Questionnaires.md#analyser-les-résultats-avec-analytics-ia) - Analytics IA
+- [Dashboard](./07-Tableau-Bord.md) - Gérer vos sondages
 
 ---
 
-**[← Simulation](./07-Simulation-Reponses.md) | [Accueil](./README.md) | [Export →](./09-Export-Partage.md)**
+**[← Formulaires](./04-Formulaires-Questionnaires.md) | [Dashboard →](./07-Tableau-Bord.md)**
 
 ---
 

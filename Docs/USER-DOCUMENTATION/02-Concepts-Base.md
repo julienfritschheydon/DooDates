@@ -511,7 +511,7 @@ Via l'éditeur de règles conditionnelles (voir [Formulaires Avancés](./04-Form
 5. Publiez en confiance
 ```
 
-Plus de détails : [Guide Simulation](./07-Simulation-Reponses.md)
+Plus de détails : [Formulaires - Simulation](./04-Formulaires-Questionnaires.md#simulation-de-réponses-ia)
 
 ---
 
@@ -532,7 +532,7 @@ Plus de détails : [Guide Simulation](./07-Simulation-Reponses.md)
  dans leurs commentaires. Corrélation forte identifiée."
 ```
 
-Plus de détails : [Guide Analytics IA](./06-Analytics-IA.md)
+Plus de détails : [Section Analytics IA](./04-Formulaires-Questionnaires.md#analyser-les-résultats-avec-analytics-ia)
 
 ---
 
@@ -571,7 +571,7 @@ Plus de détails : [Guide Analytics IA](./06-Analytics-IA.md)
 
 ---
 
-**[← Guide de Démarrage](./01-Guide-Demarrage-Rapide.md) | [Accueil](./README.md) | [Sondages de Dates →](./03-Sondages-Dates.md)**
+**[← Guide de Démarrage](./01-Guide-Demarrage-Rapide.md) | [Sondages de Dates →](./03-Sondages-Dates.md)**
 
 ---
 

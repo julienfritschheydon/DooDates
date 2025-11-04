@@ -609,16 +609,65 @@ IA : "Enquête satisfaction créée (6 questions, mode multi-étapes, NPS inclus
 
 ---
 
-## 🎓 Aller Plus Loin
+## ❌ Dépannage
 
-**Guides connexes :**
-- [Formulaires Avancés](./04-Formulaires-Questionnaires.md)
-- [Analytics IA](./06-Analytics-IA.md)
-- [Cas d'Usage](./11-Cas-Usage.md)
+### Assistant IA ne répond pas
+
+**Symptômes :** Message envoyé, pas de réponse après 10 secondes
+
+**Solutions :**
+
+1. **Vérifier la connexion internet**
+   ```
+   → Ouvrez un autre site pour tester
+   → Réessayez si connexion rétablie
+   ```
+
+2. **Quota IA épuisé**
+   ```
+   Vérifiez en haut à droite : "Conversations IA : 1000/1000"
+   
+   Solutions :
+   • Attendez le 1er du mois (reset)
+   • Passez en Pro (conversations illimitées)
+   • Créez manuellement (Dashboard → Nouveau)
+   ```
+
+3. **Requête trop vague**
+   ```
+   ❌ "Crée un sondage"
+   ✅ "Crée un sondage de dates pour une réunion mardi ou jeudi"
+   ```
+
+4. **Vider le cache**
+   ```
+   Chrome :
+   1. Ctrl+Shift+Delete
+   2. Cochez "Images et fichiers en cache"
+   3. Période : "Dernières 24 heures"
+   4. Effacer
+   5. Rafraîchissez DooDates
+   ```
+
+5. **Mode navigation privée**
+   ```
+   Testez en navigation privée :
+   Chrome : Ctrl+Shift+N
+   Firefox : Ctrl+Shift+P
+   
+   Si ça fonctionne → Problème d'extension
+   ```
 
 ---
 
-**[← Formulaires](./04-Formulaires-Questionnaires.md) | [Accueil](./README.md) | [Analytics →](./06-Analytics-IA.md)**
+## 🎓 Aller Plus Loin
+
+**Guides connexes :**
+- [Formulaires](./04-Formulaires-Questionnaires.md) - Créer, analyser, cas d'usage et bonnes pratiques
+
+---
+
+**[← Formulaires](./04-Formulaires-Questionnaires.md) | [Résultats →](./06-Gestion-Resultats.md)**
 
 ---
 
