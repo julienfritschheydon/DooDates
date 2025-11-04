@@ -28,11 +28,43 @@ vi.mock("../../logger", () => ({
   },
 }));
 
-// FIXME: Tests fragiles - localStorage mock ne fonctionne pas correctement
-describe.skip("SimulationComparison", () => {
+// Setup mock localStorage en mémoire (comme dans pollStorage.test.ts)
+function installLocalStorage(preset: Record<string, string> = {}) {
+  const store: Record<string, string> = { ...preset };
+  
+  const localStorageMock = {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      Object.keys(store).forEach((k) => delete store[k]);
+    },
+    get length() {
+      return Object.keys(store).length;
+    },
+    key: (index: number) => {
+      const keys = Object.keys(store);
+      return keys[index] || null;
+    },
+  };
+
+  Object.defineProperty(window, "localStorage", {
+    value: localStorageMock,
+    writable: true,
+    configurable: true,
+  });
+
+  return localStorageMock;
+}
+
+describe("SimulationComparison", () => {
   beforeEach(() => {
-    // Clear localStorage before each test
-    localStorage.clear();
+    // Installer localStorage mock en mémoire
+    installLocalStorage();
     vi.clearAllMocks();
 
     // Reset mocks
