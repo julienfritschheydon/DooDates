@@ -21,7 +21,9 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
       try {
         setLoading(true);
         // Import du fichier Markdown depuis public/docs/
-        const response = await fetch(`/docs/${docPath}`);
+        // Utiliser BASE_URL pour respecter le base path (ex: /DooDates/ en production)
+        const baseUrl = import.meta.env.BASE_URL || '/';
+        const response = await fetch(`${baseUrl}docs/${docPath}`);
         if (!response.ok) {
           throw ErrorFactory.notFound("Document non trouvé", "Le document demandé n'existe pas");
         }
