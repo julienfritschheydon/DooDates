@@ -6,8 +6,9 @@ import { useNavigate, Link } from "react-router-dom";
 
 export function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const currentTier = profile?.plan_type || "free";
 
   const handleGetStarted = () => {
     if (user) {
@@ -82,8 +83,8 @@ export function PricingPage() {
               }`}
             >
               Annuel
-              <span className="ml-2 text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                -10%
+              <span className="ml-2 text-sm bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-full font-semibold">
+                Économisez 10%
               </span>
             </button>
           </div>
@@ -108,9 +109,10 @@ export function PricingPage() {
               // { text: "Intégrations", included: false },
               { text: "Support garanti", included: false },
             ]}
-            cta="Commencer gratuitement"
-            onCTA={handleGetStarted}
+            cta={currentTier === "free" ? "Plan actuel" : "Commencer gratuitement"}
+            onCTA={currentTier === "free" ? () => {} : handleGetStarted}
             highlighted={false}
+            isCurrentPlan={currentTier === "free"}
           />
 
           {/* Tier Premium */}
@@ -134,9 +136,12 @@ export function PricingPage() {
               // { text: "Intégrations avancées", included: false },
               // { text: "White-label", included: false },
             ]}
-            cta={user ? "Passer en Premium" : "Essayer Premium"}
-            onCTA={() => handleUpgrade("premium", billingCycle)}
+            cta={currentTier === "premium" ? "Plan actuel" : user ? "Passer en Premium" : "Essayer Premium"}
+            onCTA={currentTier === "premium" ? () => {} : () => handleUpgrade("premium", billingCycle)}
             highlighted={true}
+            betaBadge={true}
+            trialDays={7}
+            isCurrentPlan={currentTier === "premium"}
           />
 
           {/* Tier Pro */}
@@ -160,9 +165,11 @@ export function PricingPage() {
                 highlight: billingCycle === "annual",
               },
             ]}
-            cta={user ? "Passer en Pro" : "Essayer Pro"}
-            onCTA={() => handleUpgrade("pro", billingCycle)}
+            cta={currentTier === "pro" ? "Plan actuel" : user ? "Passer en Pro" : "Essayer Pro"}
+            onCTA={currentTier === "pro" ? () => {} : () => handleUpgrade("pro", billingCycle)}
             highlighted={false}
+            betaBadge={true}
+            isCurrentPlan={currentTier === "pro"}
           />
         </div>
 
@@ -236,6 +243,9 @@ interface PricingCardProps {
   cta: string;
   onCTA: () => void;
   highlighted?: boolean;
+  betaBadge?: boolean;
+  trialDays?: number;
+  isCurrentPlan?: boolean;
 }
 
 function PricingCard({
@@ -248,6 +258,9 @@ function PricingCard({
   cta,
   onCTA,
   highlighted,
+  betaBadge,
+  trialDays,
+  isCurrentPlan,
 }: PricingCardProps) {
   return (
     <div
@@ -265,7 +278,14 @@ function PricingCard({
         <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg text-blue-600 dark:text-blue-400">
           {icon}
         </div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{name}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{name}</h3>
+          {betaBadge && (
+            <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full font-semibold">
+              Bêta
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="mb-4">
@@ -275,7 +295,12 @@ function PricingCard({
 
       <p className="text-gray-600 dark:text-gray-300 mb-6">{description}</p>
 
-      <Button className="w-full mb-6" variant={highlighted ? "default" : "outline"} onClick={onCTA}>
+      <Button
+        className="w-full mb-6"
+        variant={isCurrentPlan ? "secondary" : highlighted ? "default" : "outline"}
+        onClick={onCTA}
+        disabled={isCurrentPlan}
+      >
         {cta}
       </Button>
 

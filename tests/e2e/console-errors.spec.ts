@@ -82,8 +82,11 @@ test.describe('Console Errors & React Warnings', () => {
     await chatInput.fill('Crée un questionnaire avec 1 question');
     await chatInput.press('Enter');
     
-    // Attendre que le bouton de création soit visible
-    const createButton = page.getByRole('button', { name: /créer ce formulaire/i });
+    // Attendre que le message AI avec la suggestion soit visible (indique que la réponse est reçue)
+    await expect(page.locator('text=/questionnaire|formulaire/i')).toBeVisible({ timeout: 15000 });
+    
+    // Attendre que le bouton de création soit visible (utiliser data-testid pour plus de fiabilité)
+    const createButton = page.locator('[data-testid="create-form-button"]');
     await expect(createButton).toBeVisible({ timeout: 10000 });
 
     // Cliquer sur "Créer ce formulaire"
@@ -129,8 +132,8 @@ test.describe('Console Errors & React Warnings', () => {
     await chatInput.fill('Crée un questionnaire avec 1 question');
     await chatInput.press('Enter');
     
-    // Attendre que le bouton de création soit visible
-    const createButton = page.getByRole('button', { name: /créer ce formulaire/i });
+    // Attendre que le bouton de création soit visible (utiliser data-testid pour plus de fiabilité)
+    const createButton = page.locator('[data-testid="create-form-button"]');
     await expect(createButton).toBeVisible({ timeout: 10000 });
     await createButton.click();
     
