@@ -122,7 +122,7 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, rehypeSanitize]}
-        components={{
+        components={ {
           // Liens internes → React Router Links
           a: ({ node, href, children, ...props }) => {
             // Lien interne (commence par ./)
@@ -180,7 +180,7 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
               </code>
             );
           },
-        }}
+        } }
       >
         {content}
       </ReactMarkdown>
