@@ -27,9 +27,7 @@ const docCategories = [
   {
     title: "Support",
     icon: HelpCircle,
-    docs: [
-      { id: "08-FAQ", name: "FAQ" },
-    ],
+    docs: [{ id: "08-FAQ", name: "FAQ" }],
   },
 ];
 
@@ -69,8 +67,6 @@ const DocsHome: React.FC = () => {
           </p>
         </Link>
 
-
-
         <Link
           to="/docs/08-FAQ"
           className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
@@ -81,7 +77,6 @@ const DocsHome: React.FC = () => {
           </div>
           <p className="text-gray-600 dark:text-gray-400">Réponses aux questions fréquentes</p>
         </Link>
-
       </div>
     </div>
   );
