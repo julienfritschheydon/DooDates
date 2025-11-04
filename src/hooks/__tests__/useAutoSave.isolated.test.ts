@@ -33,6 +33,7 @@ vi.mock("../../lib/services/titleGeneration", () => ({
 const mockGetConversation = ConversationStorage.getConversation as any;
 const mockGetConversationWithMessages = ConversationStorage.getConversationWithMessages as any;
 const mockAddMessages = ConversationStorage.addMessages as any;
+const mockGetMessages = ConversationStorage.getMessages as any;
 
 import {
   createMockConversation,
@@ -64,6 +65,8 @@ const createTestMessage = () =>
 describe("useAutoSave - Tests Isolés (2, 9, 11, 12)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock getMessages to return empty array by default
+    mockGetMessages.mockReturnValue([]);
   });
 
   it("TEST 2: should return null for non-existent conversation", async () => {

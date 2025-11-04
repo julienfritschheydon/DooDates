@@ -96,6 +96,7 @@ function generateMockPollResponse(prompt: string): any {
  * Setup Gemini API mock to prevent API costs during E2E tests
  */
 export async function setupGeminiMock(page: Page) {
+  // Intercepter toutes les requêtes Gemini (incluant les tests de connexion)
   await page.route('**/generativelanguage.googleapis.com/**', async (route: Route) => {
     const request = route.request();
     const postData = request.postDataJSON();
@@ -107,6 +108,24 @@ export async function setupGeminiMock(page: Page) {
       if (lastContent?.parts?.[0]?.text) {
         userPrompt = lastContent.parts[0].text;
       }
+    }
+    
+    // Si c'est un test de connexion (prompt court comme "Test de connexion"), retourner une réponse simple
+    if (userPrompt.toLowerCase().includes('test de connexion') || userPrompt.toLowerCase().includes('ok')) {
+      console.log('🤖 Gemini API mock - Test de connexion');
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          candidates: [{
+            content: {
+              parts: [{ text: 'OK' }]
+            },
+            finishReason: 'STOP'
+          }]
+        })
+      });
+      return;
     }
     
     console.log('🤖 Gemini API mock - Prompt:', userPrompt.substring(0, 100) + '...');

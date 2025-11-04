@@ -198,7 +198,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         ConversationStorage.addMessages(activeConversationId, [convertedMessage]);
 
         // Verify it was saved
-        const allMessages = ConversationStorage.getMessages(activeConversationId);
+        const allMessages = ConversationStorage.getMessages(activeConversationId) || [];
         setLastSaved(new Date());
         log("Message saved immediately", {
           messageId: message.id,
