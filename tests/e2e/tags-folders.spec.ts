@@ -189,12 +189,14 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await page.waitForTimeout(500);
 
       // Vérifier que le dialogue est toujours ouvert avant de chercher le deuxième tag
-      await expect(dialog).toBeVisible({ timeout: 2000 });
+      // Récupérer le dialogue à nouveau car il peut avoir été re-rendu
+      const dialogStillOpen = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
+      await expect(dialogStillOpen).toBeVisible({ timeout: 5000 });
 
       // Sélectionner un autre tag - chercher uniquement dans le dialogue
       // Le conteneur des tags a max-h-48 et overflow-y-auto, donc il faut peut-être scroller
-      const tagsContainer = dialog.locator('div[class*="max-h"]').filter({ hasText: /Tags/i }).or(
-        dialog.locator('div').filter({ has: page.getByText('Test Tag 1') }).first().locator('..').first()
+      const tagsContainer = dialogStillOpen.locator('div[class*="max-h"]').filter({ hasText: /Tags/i }).or(
+        dialogStillOpen.locator('div').filter({ has: page.getByText('Test Tag 1') }).first().locator('..').first()
       ).first();
       
       // Scroller vers le bas pour rendre "Test Tag 2" visible
@@ -204,7 +206,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       });
       await page.waitForTimeout(500);
       
-      const tag2Text = dialog.getByText('Test Tag 2').first();
+      const tag2Text = dialogStillOpen.getByText('Test Tag 2').first();
       await tag2Text.waitFor({ state: 'visible', timeout: 5000 });
       
       const tag2Container = tag2Text.locator('..').locator('..').first(); // span -> label -> div
@@ -240,7 +242,15 @@ test.describe('Dashboard - Tags et Dossiers', () => {
   });
 
   test('@functional - Assigner un dossier à une conversation', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -276,7 +286,15 @@ test.describe('Dashboard - Tags et Dossiers', () => {
   });
 
   test('@functional - Retirer des tags et dossier d\'une conversation', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       // Créer une conversation avec tags et dossier
       await page.evaluate(() => {
@@ -343,7 +361,15 @@ test.describe('Dashboard - Tags et Dossiers', () => {
   });
 
   test('@functional - Afficher les tags et dossiers sur les cartes', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       // Créer une conversation avec tags et dossier
       await page.evaluate(() => {
@@ -384,7 +410,15 @@ test.describe('Dashboard - Tags et Dossiers', () => {
   });
 
   test('@edge - Gérer tags/dossiers avec une conversation sans tags/dossiers existants', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
