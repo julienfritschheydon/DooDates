@@ -81,6 +81,24 @@ jobs:
           if-no-files-found: ignore
           retention-days: 3
 
+      - name: 🎥 Upload videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-videos
+          path: test-results/**/*.webm
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: 📋 Upload traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-traces
+          path: test-results/**/*.zip
+          if-no-files-found: ignore
+          retention-days: 3
+
   # Summary avec commentaire
   test-summary:
     needs: [e2e-isolated]
