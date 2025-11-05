@@ -4,6 +4,13 @@ echo "🔍 DooDates - Validation pre-commit..."
 # Détection branche courante
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
 
+# Skip tous les tests pour les branches de test (test, test-*)
+if echo "$BRANCH" | grep -qE "^test"; then
+  echo "⚡ Branche TEST ($BRANCH): skip validation complète (tests gérés par CI)"
+  echo "✅ Pre-commit (test branch) validé - Commit autorisé"
+  exit 0
+fi
+
 # ggshield secret scan (fail-fast sur toutes les branches)
 if command -v ggshield >/dev/null 2>&1; then
   echo "🛡️ ggshield: scan des secrets (pre-commit)..."

@@ -4,6 +4,13 @@ echo "🚀 DooDates - Validation pre-push..."
 # Détection branche courante
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
 
+# Skip tous les tests pour les branches de test (test, test-*)
+if echo "$BRANCH" | grep -qE "^test"; then
+  echo "⚡ Branche TEST ($BRANCH): skip validation complète (tests gérés par CI)"
+  echo "✅ Pre-push (test branch) validé - Push autorisé"
+  exit 0
+fi
+
 # Récupérer la branche cible du push
 while read local_ref local_sha remote_ref remote_sha
 do
