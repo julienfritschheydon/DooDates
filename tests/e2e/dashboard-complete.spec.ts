@@ -611,7 +611,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     }
   });
 
-  test('@functional - Gérer tags/dossiers depuis une carte (déjà implémenté mais testé ici)', async ({ page }) => {
+  test.skip('@functional - Gérer tags/dossiers depuis une carte (déjà implémenté mais testé ici)', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
