@@ -11,7 +11,7 @@ interface UseViewportItemsOptions {
 /**
  * Hook pour calculer dynamiquement le nombre d'items par page selon le viewport
  * Optimisé pour éviter les reflows forcés avec debounce et requestAnimationFrame
- * 
+ *
  * @param viewMode - Mode de vue ("grid" ou "table")
  * @param minItems - Nombre minimum d'items par page (défaut: 6)
  * @param maxItems - Nombre maximum d'items par page (défaut: 24)
@@ -25,7 +25,7 @@ export function useViewportItems({
   // Calcul initial immédiat pour éviter le délai du premier rendu
   const calculateInitial = () => {
     if (typeof window === "undefined") return minItems;
-    
+
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
@@ -166,7 +166,7 @@ export function useViewportItems({
     };
 
     window.addEventListener("resize", handleResize, { passive: true });
-    
+
     return () => {
       window.removeEventListener("resize", handleResize);
       if (timeoutRef.current) {

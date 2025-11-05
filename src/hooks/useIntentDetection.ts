@@ -176,7 +176,10 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
       }
 
       // Essayer d'abord la détection Date Poll (avec support multi-intentions)
-      const multiIntent = IntentDetectionService.detectMultipleIntents(trimmedText, currentPoll);
+      const multiIntent = await IntentDetectionService.detectMultipleIntents(
+        trimmedText,
+        currentPoll,
+      );
 
       if (multiIntent && multiIntent.isModification && multiIntent.confidence > 0.7) {
         // Ajouter le message utilisateur

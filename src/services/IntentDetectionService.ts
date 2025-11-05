@@ -7,9 +7,31 @@
  * - Dates relatives (demain, la semaine prochaine, jeudi prochain)
  * - Plages de dates (du 4 au 8)
  * - Support multilingue (FR, EN, etc.)
+ *
+ * chrono-node est lazy loaded pour réduire le bundle initial
  */
 
-import * as chrono from "chrono-node";
+// Lazy load chrono-node - utilisé uniquement quand l'utilisateur modifie un poll via IA
+let chronoModule: typeof import("chrono-node") | null = null;
+let chronoLoadingPromise: Promise<typeof import("chrono-node")> | null = null;
+
+const getChrono = async (): Promise<typeof import("chrono-node")> => {
+  if (chronoModule) {
+    return chronoModule;
+  }
+
+  if (chronoLoadingPromise) {
+    return chronoLoadingPromise;
+  }
+
+  chronoLoadingPromise = import("chrono-node").then((module) => {
+    chronoModule = module;
+    return module;
+  });
+
+  return chronoLoadingPromise;
+};
+
 import type { Poll } from "../lib/pollStorage";
 import type { PollAction } from "../reducers/pollReducer";
 import { formatDateLocal } from "../lib/date-utils";
@@ -50,10 +72,10 @@ export class IntentDetectionService {
    * Détecte plusieurs intentions dans une même phrase
    * Ex: "ajoute vendredi 7 et jeudi 13" → 2 intentions
    */
-  static detectMultipleIntents(
+  static async detectMultipleIntents(
     message: string,
     currentPoll: Poll | null,
-  ): MultiModificationIntent | null {
+  ): Promise<MultiModificationIntent | null> {
     if (!currentPoll) return null;
 
     // Découper la phrase en segments avec leurs verbes d'action
@@ -92,7 +114,7 @@ export class IntentDetectionService {
 
     // Si une seule partie, utiliser detectSimpleIntent
     if (segments.length === 1) {
-      const singleIntent = this.detectSimpleIntent(message, currentPoll);
+      const singleIntent = await this.detectSimpleIntent(message, currentPoll);
       if (singleIntent) {
         return {
           isModification: true,
@@ -110,7 +132,7 @@ export class IntentDetectionService {
     for (const segment of segments) {
       // Chaque segment devrait déjà contenir son verbe d'action
       // Si ce n'est pas le cas, on essaie quand même detectSimpleIntent
-      const intent = this.detectSimpleIntent(segment, currentPoll);
+      const intent = await this.detectSimpleIntent(segment, currentPoll);
       if (intent) {
         intents.push(intent);
       }
@@ -143,7 +165,10 @@ export class IntentDetectionService {
     };
   }
 
-  static detectSimpleIntent(message: string, currentPoll: Poll | null): ModificationIntent | null {
+  static async detectSimpleIntent(
+    message: string,
+    currentPoll: Poll | null,
+  ): Promise<ModificationIntent | null> {
     if (!currentPoll) return null;
 
     // 📊 Log de la demande de modification
@@ -479,6 +504,8 @@ export class IntentDetectionService {
       }
     }
 
+    // Lazy load chrono si nécessaire
+    const chrono = await getChrono();
     const parsedDates = chrono.fr.parse(enhancedMessage, referenceDate, { forwardDate: true });
 
     // Si aucune date trouvée par Chrono, essayer de détecter un jour de la semaine

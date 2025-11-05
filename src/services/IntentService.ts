@@ -53,7 +53,7 @@ export interface IntentDetectionStrategy {
   detect(
     message: string,
     currentPoll: Poll | null,
-  ): Promise<IntentResult | null> | IntentResult | null;
+  ): Promise<IntentResult | null> | IntentResult | null; // Supporte async et sync pour compatibilité
 
   /**
    * Vérifie si cette stratégie peut traiter ce type de poll
@@ -71,8 +71,8 @@ class DatePollStrategy implements IntentDetectionStrategy {
     return pollType === "date" || pollType === null;
   }
 
-  detect(message: string, currentPoll: Poll | null): IntentResult | null {
-    const result = IntentDetectionService.detectSimpleIntent(message, currentPoll);
+  async detect(message: string, currentPoll: Poll | null): Promise<IntentResult | null> {
+    const result = await IntentDetectionService.detectSimpleIntent(message, currentPoll);
 
     if (!result) return null;
 

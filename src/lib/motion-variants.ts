@@ -3,9 +3,11 @@
  *
  * Ce fichier centralise toutes les animations pour garantir
  * une cohérence visuelle à travers toute l'application.
+ *
+ * Utilise un type import pour éviter de charger framer-motion au démarrage
  */
 
-import { Variants } from "framer-motion";
+import type { Variants } from "framer-motion";
 
 /**
  * Durées de transition standard

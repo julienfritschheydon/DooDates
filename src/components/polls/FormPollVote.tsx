@@ -193,7 +193,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
         respondentName: voterName.trim(),
         items,
       });
-      
+
       setSubmitted(true);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Erreur lors de l'enregistrement";
