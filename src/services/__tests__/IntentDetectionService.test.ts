@@ -51,7 +51,10 @@ describe("IntentDetectionService", () => {
 
   describe("ADD_TIMESLOT (Pattern prioritaire)", () => {
     it('détecte "ajoute 14h-15h le 29"', async () => {
-      const intent = await IntentDetectionService.detectSimpleIntent("ajoute 14h-15h le 29", mockPoll);
+      const intent = await IntentDetectionService.detectSimpleIntent(
+        "ajoute 14h-15h le 29",
+        mockPoll,
+      );
 
       expect(intent).not.toBeNull();
       expect(intent?.action).toBe("ADD_TIMESLOT");
@@ -86,7 +89,10 @@ describe("IntentDetectionService", () => {
     });
 
     it('normalise la date partielle "le 29" vers mois courant', async () => {
-      const intent = await IntentDetectionService.detectSimpleIntent("ajoute 14h-15h le 29", mockPoll);
+      const intent = await IntentDetectionService.detectSimpleIntent(
+        "ajoute 14h-15h le 29",
+        mockPoll,
+      );
 
       const payload = intent?.payload as { date: string; start: string; end: string };
       expect(payload.date).toMatch(/^\d{4}-\d{2}-29$/); // Format YYYY-MM-29
@@ -115,7 +121,10 @@ describe("IntentDetectionService", () => {
     });
 
     it('détecte "ajoute le dimanche"', async () => {
-      const intent = await IntentDetectionService.detectSimpleIntent("ajoute le dimanche", mockPoll);
+      const intent = await IntentDetectionService.detectSimpleIntent(
+        "ajoute le dimanche",
+        mockPoll,
+      );
 
       expect(intent?.action).toBe("ADD_DATE");
       const payload = intent?.payload as string;
@@ -154,9 +163,7 @@ describe("IntentDetectionService", () => {
       expect(intent?.action).toBe("ADD_DATE");
       const payload = intent?.payload as string;
       expect(payload).toMatch(/^\d{4}-\d{2}-27$/); // Format YYYY-MM-27
-      expect(parseInt(payload.split("-")[0])).toBeGreaterThanOrEqual(
-        new Date().getFullYear(),
-      );
+      expect(parseInt(payload.split("-")[0])).toBeGreaterThanOrEqual(new Date().getFullYear());
     });
 
     it('détecte "ajoute le DD mois YYYY" (mois en texte)', async () => {
@@ -176,7 +183,10 @@ describe("IntentDetectionService", () => {
 
     it('détecte "ajoute le YYYY-MM-DD" (format ISO)', async () => {
       const testDate = getTestDate(3);
-      const intent = await IntentDetectionService.detectSimpleIntent(`ajoute le ${testDate}`, mockPoll);
+      const intent = await IntentDetectionService.detectSimpleIntent(
+        `ajoute le ${testDate}`,
+        mockPoll,
+      );
 
       expect(intent?.action).toBe("ADD_DATE");
       expect(intent?.payload).toBe(getTestDate(3)); // 27 oct
@@ -321,7 +331,10 @@ describe("IntentDetectionService", () => {
     });
 
     it("gère les messages avec espaces multiples", async () => {
-      const intent = await IntentDetectionService.detectSimpleIntent("ajoute    le    27", mockPoll);
+      const intent = await IntentDetectionService.detectSimpleIntent(
+        "ajoute    le    27",
+        mockPoll,
+      );
 
       expect(intent?.action).toBe("ADD_DATE");
     });
@@ -329,7 +342,10 @@ describe("IntentDetectionService", () => {
 
   describe("Priorité des patterns", () => {
     it('ADD_TIMESLOT a priorité sur ADD_DATE pour "14h-15h le 29"', async () => {
-      const intent = await IntentDetectionService.detectSimpleIntent("ajoute 14h-15h le 29", mockPoll);
+      const intent = await IntentDetectionService.detectSimpleIntent(
+        "ajoute 14h-15h le 29",
+        mockPoll,
+      );
 
       // Doit détecter ADD_TIMESLOT, pas ADD_DATE
       expect(intent?.action).toBe("ADD_TIMESLOT");

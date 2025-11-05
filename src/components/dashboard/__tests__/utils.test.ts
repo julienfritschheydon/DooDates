@@ -81,25 +81,30 @@ describe("Dashboard Utils", () => {
 
     it("should filter by status 'active'", () => {
       const result = filterConversationItems(mockItems, "active", "");
-      // Les items sans poll ne sont pas filtrés (car filter === 'all' ou !item.poll)
       expect(result.length).toBeGreaterThanOrEqual(1);
-      // Vérifier que tous les résultats avec poll ont le statut 'active'
+      // Vérifier que tous les résultats ont un poll avec le statut 'active'
+      // Les conversations sans poll ne doivent PAS être incluses
       result.forEach((item) => {
-        if (item.poll) {
-          expect(item.poll.status).toBe("active");
-        }
+        expect(item.poll).toBeDefined();
+        expect(item.poll?.status).toBe("active");
       });
+      // Vérifier que les conversations sans poll ne sont pas incluses
+      const itemsWithoutPoll = result.filter((item) => !item.poll);
+      expect(itemsWithoutPoll).toHaveLength(0);
     });
 
     it("should filter by status 'draft'", () => {
       const result = filterConversationItems(mockItems, "draft", "");
       expect(result.length).toBeGreaterThanOrEqual(1);
-      // Vérifier que tous les résultats avec poll ont le statut 'draft'
+      // Vérifier que tous les résultats ont un poll avec le statut 'draft'
+      // Les conversations sans poll ne doivent PAS être incluses
       result.forEach((item) => {
-        if (item.poll) {
-          expect(item.poll.status).toBe("draft");
-        }
+        expect(item.poll).toBeDefined();
+        expect(item.poll?.status).toBe("draft");
       });
+      // Vérifier que les conversations sans poll ne sont pas incluses
+      const itemsWithoutPoll = result.filter((item) => !item.poll);
+      expect(itemsWithoutPoll).toHaveLength(0);
     });
 
     it("should filter by status 'closed'", () => {

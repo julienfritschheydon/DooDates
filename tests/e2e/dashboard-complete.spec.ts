@@ -425,7 +425,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     }
   });
 
-  test.skip('@functional - Sélectionner/désélectionner des conversations', async ({ page }) => {
+  test('@functional - Sélectionner/désélectionner des conversations', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -441,35 +441,38 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
 
-      // Sélectionner une conversation en cliquant sur son checkbox (top-right corner)
+      // Prendre la première carte pour vérifier le border bleu
       const firstCard = page.locator('[data-testid="poll-item"]').first();
       
-      // Le checkbox est dans un div avec position absolute (top-right corner)
-      // Il contient un div avec border-2 et w-6 h-6
-      // Utiliser un sélecteur simple : chercher le div avec w-6 h-6 et border-2 dans la carte
-      const checkbox = firstCard.locator('div[class*="w-6"][class*="h-6"][class*="border-2"]').first();
+      // Vérifier que la carte n'est pas sélectionnée initialement
+      await expect(firstCard).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 1000 });
+
+      // Utiliser le bouton "Sélectionner" en haut pour sélectionner toutes les conversations
+      const selectButton = page.getByRole('button', { name: /Sélectionner/i });
+      await selectButton.waitFor({ state: 'visible', timeout: 5000 });
+      await selectButton.click();
       
-      await checkbox.waitFor({ state: 'visible', timeout: 5000 });
-      await checkbox.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(200); // Petit délai pour s'assurer que le scroll est terminé
-      await checkbox.click({ force: true });
+      // Attendre que React se mette à jour
+      await page.waitForTimeout(100);
+
+      // Vérifier que la carte est sélectionnée en vérifiant le border bleu
+      await expect(firstCard).toHaveClass(/border-blue-500|ring-blue-500|border-blue/, { timeout: 3000 });
+
+      // Vérifier que le bouton affiche maintenant "X sélectionné(s)"
+      const selectedText = page.getByText(/\d+ sélectionné/i);
+      await expect(selectedText).toBeVisible({ timeout: 2000 });
+
+      // Cliquer à nouveau sur le bouton (maintenant "Désélectionner tout" - le texte a changé)
+      // Le bouton a changé de texte, donc on doit le re-trouver avec le nouveau texte
+      const deselectButton = page.getByRole('button', { name: /\d+ sélectionné/i });
+      await deselectButton.waitFor({ state: 'visible', timeout: 3000 });
+      await deselectButton.click();
       
-      // Attendre que la sélection se mette à jour
-      await page.waitForTimeout(500);
+      // Attendre que React se mette à jour
+      await page.waitForTimeout(100);
 
-      // Vérifier que la carte est sélectionnée (border bleu ou texte dans le bouton)
-      const selectButton = page.getByRole('button', { name: /1 sélectionné/i }).or(
-        page.getByRole('button', { name: /sélectionné/i })
-      );
-      await expect(selectButton).toBeVisible({ timeout: 3000 });
-
-      // Désélectionner en cliquant à nouveau
-      await checkbox.click({ force: true });
-      await page.waitForTimeout(500);
-
-      // Vérifier que la sélection est annulée
-      const selectButtonReset = page.getByRole('button', { name: /^Sélectionner$/i });
-      await expect(selectButtonReset).toBeVisible({ timeout: 3000 });
+      // Vérifier que la sélection est annulée (border bleu disparaît)
+      await expect(firstCard).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 3000 });
     } finally {
       await guard.assertClean();
       guard.stop();
@@ -611,7 +614,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     }
   });
 
-  test.skip('@functional - Gérer tags/dossiers depuis une carte (déjà implémenté mais testé ici)', async ({ page }) => {
+  test('@functional - Gérer tags/dossiers depuis une carte (déjà implémenté mais testé ici)', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -627,17 +630,37 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
 
-      // Trouver la carte et ouvrir le menu
+      // Trouver la carte et ouvrir le menu avec sélecteur robuste
       const conversationCard = page.locator('[data-testid="poll-item"]').first();
-      const menuButton = conversationCard.locator('button').filter({ has: page.locator('svg') }).first();
+      await conversationCard.waitFor({ state: 'attached' });
+      
+      // Sélecteur robuste : chercher tous les boutons et prendre le dernier visible
+      const menuButtons = conversationCard.locator('button');
+      const menuButtonCount = await menuButtons.count();
+      let menuButton = menuButtons.last();
+      
+      if (menuButtonCount > 1) {
+        for (let i = menuButtonCount - 1; i >= 0; i--) {
+          const btn = menuButtons.nth(i);
+          const isVisible = await btn.isVisible();
+          if (isVisible) {
+            menuButton = btn;
+            break;
+          }
+        }
+      }
+      
       await menuButton.waitFor({ state: 'visible', timeout: 5000 });
       await menuButton.click();
+      await page.waitForTimeout(500); // Attendre que le menu s'ouvre
 
-      // Cliquer sur "Gérer les tags/dossier"
-      await page.getByText('Gérer les tags/dossier').click();
+      // Attendre que le menu s'ouvre et contient "Gérer les tags/dossier"
+      const manageMenuItem = page.getByText('Gérer les tags/dossier');
+      await expect(manageMenuItem).toBeVisible({ timeout: 5000 });
+      await manageMenuItem.click();
 
       // Vérifier que le dialogue s'ouvre
-      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 3000 });
+      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
     } finally {
       await guard.assertClean();
       guard.stop();
