@@ -30,7 +30,7 @@ export const usePollDeletionCascade = () => {
       try {
         // Find conversations that have this poll linked via tags or pollId field
         const conversationsWithPoll =
-          conversations.conversations.conversations?.filter(
+          conversations.conversations?.conversations?.filter(
             (conv) =>
               conv.tags?.some((tag) => tag === `poll:${pollId}`) ||
               (conv as any).pollId === pollId ||
@@ -100,7 +100,7 @@ export const usePollDeletionCascade = () => {
 
         // Find conversations linked to this poll
         const conversationsWithPoll =
-          conversations.conversations.conversations?.filter(
+          conversations.conversations?.conversations?.filter(
             (conv) =>
               conv.tags?.some((tag) => tag === `poll:${pollId}`) ||
               (conv as any).pollId === pollId ||
@@ -193,7 +193,7 @@ export const usePollDeletionCascade = () => {
       linkedConversations: string[];
     } => {
       const conversationsWithPoll =
-        conversations.conversations.conversations?.filter((conv) =>
+        conversations.conversations?.conversations?.filter((conv) =>
           conv.tags?.some((tag) => tag === `poll:${pollId}`),
         ) || [];
 
@@ -202,7 +202,7 @@ export const usePollDeletionCascade = () => {
         linkedConversations: conversationsWithPoll.map((conv) => conv.id),
       };
     },
-    [conversations.conversations.conversations],
+    [conversations.conversations?.conversations],
   );
 
   /**
@@ -215,7 +215,7 @@ export const usePollDeletionCascade = () => {
 
       const orphanedConversations: string[] = [];
 
-      conversations.conversations.conversations?.forEach((conv) => {
+      conversations.conversations?.conversations?.forEach((conv) => {
         const pollTags = conv.tags?.filter((tag) => tag.startsWith("poll:")) || [];
 
         pollTags.forEach((tag) => {
@@ -244,7 +244,7 @@ export const usePollDeletionCascade = () => {
 
       return [];
     }
-  }, [conversations.conversations.conversations]);
+  }, [conversations.conversations?.conversations]);
 
   /**
    * Clean up all orphaned conversation links
@@ -258,7 +258,7 @@ export const usePollDeletionCascade = () => {
       const existingPollIds = new Set(polls.map((poll: any) => poll.id));
 
       for (const conversationId of orphanedConversationIds) {
-        const conversation = conversations.conversations.conversations?.find(
+        const conversation = conversations.conversations?.conversations?.find(
           (c) => c.id === conversationId,
         );
         if (!conversation) continue;
