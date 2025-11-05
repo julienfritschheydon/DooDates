@@ -110,7 +110,11 @@ export const usePollDeletionCascade = () => {
           ) || [];
 
         // If deleteConversation option is true, delete the conversations
-        if (options.deleteConversation && conversationsWithPoll.length > 0 && conversations.deleteConversation) {
+        if (
+          options.deleteConversation &&
+          conversationsWithPoll.length > 0 &&
+          conversations.deleteConversation
+        ) {
           for (const conversation of conversationsWithPoll) {
             await conversations.deleteConversation.mutateAsync(conversation.id);
             logger.info("Deleted conversation linked to poll", "conversation", {
