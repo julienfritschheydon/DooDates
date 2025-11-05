@@ -1,0 +1,258 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Calendar,
+  ClipboardList,
+  MessageSquare,
+  Users,
+  Vote,
+  BarChart3,
+  Trash2,
+  Check,
+} from "lucide-react";
+import { ConversationItem } from "./types";
+import { getStatusColor, getStatusLabel } from "./utils";
+import PollActions from "@/components/polls/PollActions";
+import { useConversations } from "@/hooks/useConversations";
+import { useToast } from "@/hooks/use-toast";
+
+interface DashboardTableViewProps {
+  items: ConversationItem[];
+  selectedIds: Set<string>;
+  onToggleSelection: (id: string) => void;
+  onRefresh: () => void;
+}
+
+export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
+  items,
+  selectedIds,
+  onToggleSelection,
+  onRefresh,
+}) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { deleteConversation } = useConversations();
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+
+  const handleDeleteConversation = async (itemId: string) => {
+    if (!window.confirm("Voulez-vous vraiment supprimer cette conversation ?")) {
+      return;
+    }
+
+    setDeletingIds((prev) => new Set(prev).add(itemId));
+    try {
+      await deleteConversation.mutateAsync(itemId);
+      toast({
+        title: "Conversation supprimée",
+        description: "La conversation a été supprimée avec succès.",
+      });
+      onRefresh();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer la conversation.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(itemId);
+        return newSet;
+      });
+    }
+  };
+
+  if (items.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="border-b border-gray-700">
+            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400 w-12">
+              <span className="sr-only">Sélection</span>
+            </th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Titre</th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Statut</th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Statistiques</th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Date</th>
+            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, index) => {
+            const isSelected = selectedIds.has(item.id);
+            const isDeleting = deletingIds.has(item.id);
+
+            return (
+              <tr
+                key={item.id}
+                className={`border-b border-gray-800 hover:bg-[#2a2a2a] transition-colors cursor-pointer ${
+                  isSelected ? "bg-blue-900/20" : ""
+                } ${index % 2 === 0 ? "bg-[#1e1e1e]" : "bg-[#252525]"}`}
+                onClick={() => navigate(`/workspace?resume=${item.id}`)}
+              >
+                {/* Checkbox */}
+                <td className="py-3 px-4">
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-blue-600 border-blue-600"
+                        : "bg-transparent border-gray-500 hover:border-blue-400"
+                    }`}
+                    onClick={() => onToggleSelection(item.id)}
+                  >
+                    {isSelected && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                </td>
+
+                {/* Titre */}
+                <td className="py-3 px-4">
+                  <div className="flex items-center gap-2">
+                    {item.poll ? (
+                      item.poll.type === "form" ? (
+                        <ClipboardList className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      ) : (
+                        <Calendar className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                      )
+                    ) : (
+                      <MessageSquare className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white font-medium truncate">
+                        {item.poll ? item.poll.title : item.conversationTitle}
+                      </div>
+                      {item.poll?.description && (
+                        <div className="text-gray-400 text-xs truncate mt-1">
+                          {item.poll.description}
+                        </div>
+                      )}
+                      {item.hasAI && (
+                        <span className="inline-flex items-center gap-1 text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded mt-1">
+                          💬 IA
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </td>
+
+                {/* Statut */}
+                <td className="py-3 px-4">
+                  {item.poll ? (
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        item.poll.status === "draft"
+                          ? "bg-gray-700 text-gray-300"
+                          : item.poll.status === "active"
+                            ? "bg-blue-900/50 text-blue-300"
+                            : item.poll.status === "closed"
+                              ? "bg-blue-900/50 text-blue-300"
+                              : "bg-red-900/50 text-red-300"
+                      }`}
+                    >
+                      {getStatusLabel(item.poll.status)}
+                    </span>
+                  ) : (
+                    <span className="text-gray-500 text-xs">Conversation</span>
+                  )}
+                </td>
+
+                {/* Statistiques */}
+                <td className="py-3 px-4">
+                  {item.poll ? (
+                    <div className="flex items-center gap-4 text-xs text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        <span>{item.poll.participants_count || 0}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Vote className="w-3 h-3" />
+                        <span>{item.poll.votes_count || 0}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-gray-500 text-xs">-</span>
+                  )}
+                </td>
+
+                {/* Date */}
+                <td className="py-3 px-4">
+                  <div className="text-xs text-gray-400">
+                    {item.conversationDate.toLocaleDateString("fr-FR", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </div>
+                </td>
+
+                {/* Actions */}
+                <td className="py-3 px-4">
+                  <div className="flex items-center gap-2">
+                    {item.poll ? (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/poll/${item.poll!.slug}/results`);
+                          }}
+                          className="p-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 rounded transition-colors"
+                          title="Résultats"
+                        >
+                          <BarChart3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/poll/${item.poll!.slug}`);
+                          }}
+                          className="p-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 rounded transition-colors"
+                          title="Voter"
+                        >
+                          <Vote className="w-4 h-4" />
+                        </button>
+                        <PollActions
+                          poll={item.poll as any}
+                          showVoteButton={false}
+                          variant="compact"
+                          onAfterDuplicate={onRefresh}
+                          onAfterDelete={onRefresh}
+                          onAfterArchive={onRefresh}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/workspace?resume=${item.id}`);
+                          }}
+                          className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors"
+                        >
+                          Reprendre
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteConversation(item.id);
+                          }}
+                          className="p-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors disabled:opacity-50"
+                          title="Supprimer"
+                          disabled={isDeleting}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+};

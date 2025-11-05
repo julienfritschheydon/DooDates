@@ -10,7 +10,7 @@
 ### ✅ Résultats Actuels
 
 ```
-🎯 Tests Unitaires (Vitest)    : 598/604 passent (99%)
+🎯 Tests Unitaires (Vitest)    : 669/675 passent (99%)
 🤖 Tests IA (Gemini/Jest)      : 14/15 passent (93%)
 🌐 Tests E2E (Playwright)      : 22/22 passent (100% sur Chrome)
    - Analytics IA              : 9/9 passent (mode enchaîné)
@@ -22,7 +22,7 @@
 
 **Status** : ✅ **PRODUCTION-READY** - Analytics IA intégrés
 
-**Dernière mise à jour** : 04/01/2025 - Tests Analytics IA, Form Poll Regression, PollActions.close et SimulationComparison réactivés et intégrés
+**Dernière mise à jour** : 05/01/2025 - Tests PollAnalyticsPanel créés (29 tests), Tests useAnalyticsQuota créés (22 tests), Tests PollAnalyticsService créés (20 tests), Tests Analytics IA, Form Poll Regression, PollActions.close et SimulationComparison réactivés et intégrés
 
 **Note Firefox/Safari** : Les tests Analytics IA sont skippés sur Firefox/Safari en raison d'un bug Playwright avec le mode serial + shared context ([#13038](https://github.com/microsoft/playwright/issues/13038), [#22832](https://github.com/microsoft/playwright/issues/22832)). Les tests passent à 100% sur Chrome.
 
@@ -58,12 +58,29 @@ npx playwright test analytics-ai.spec.ts console-errors.spec.ts --project=chromi
 
 ### 1. Tests Unitaires - Vitest
 
-**Couverture** : 38 fichiers actifs
-- Hooks : useAutoSave, useConversations, usePollDeletionCascade
-- Services : IntentDetection, FormPollIntent, titleGeneration
+**Couverture** : 41 fichiers actifs
+- Hooks : useAutoSave, useConversations, usePollDeletionCascade, useAnalyticsQuota (22 tests) ✅
+- Services : IntentDetection, FormPollIntent, titleGeneration, PollAnalyticsService (20 tests) ✅
 - Lib : conditionalEvaluator (41 tests), exports (23 tests), SimulationComparison (13 tests) ✅, SimulationService (5 tests) ✅
-- Components : ConversationCard, PollActions (14 tests close) ✅, MultiStepFormVote (12 tests) ✅
+- Components : ConversationCard, PollActions (14 tests close) ✅, MultiStepFormVote (12 tests) ✅, PollAnalyticsPanel (29 tests) ✅
 - Storage : statsStorage (36 tests), messageCounter
+
+**Tests réactivés récemment (04-05/01/2025) :**
+- `PollAnalyticsPanel.test.tsx` - 29 tests ✅ (NOUVEAU)
+  - Tests complets pour le composant UI d'analytics IA (interface critique)
+  - **Couverture** : Rendu initial, chargement insights automatiques, soumission requête (query, réponse, cache), gestion quotas (vérification, incrémentation, blocage), quick queries, affichage/masquage insights, affichage réponse (confiance, insights additionnels, cache), gestion erreurs
+  - **Mocks** : pollAnalyticsService, useAnalyticsQuota, useToast, logger
+  - **Status** : Tous les tests passent (8.59s)
+- `useAnalyticsQuota.test.ts` - 22 tests ✅ (NOUVEAU)
+  - Tests complets pour le hook de quotas analytics (fonctionnalité critique freemium)
+  - **Couverture** : Initialisation (anonyme/authentifié), chargement localStorage, reset automatique (changement jour), incrémentation, blocage quota atteint, messages quota, gestion erreurs localStorage
+  - **Mocks** : useAuth, localStorage (mock en mémoire)
+  - **Status** : Tous les tests passent (357ms)
+- `PollAnalyticsService.test.ts` - 20 tests ✅ (NOUVEAU)
+  - Tests complets pour le service d'analytics IA (fonctionnalité critique)
+  - **Couverture** : getInstance (singleton), queryPoll (cache, insights, context types, erreurs), generateAutoInsights (JSON parsing, normalisation confidence, erreurs non-bloquantes), clearCache (spécifique et complet), getCacheStats, buildPollContext
+  - **Mocks** : GoogleGenerativeAI, pollStorage (getPollBySlugOrId, getFormResults, getFormResponses), logger
+  - **Status** : Tous les tests passent (245ms)
 
 **Tests réactivés récemment (04/01/2025) :**
 - `PollActions.close.test.tsx` - 14 tests ✅
