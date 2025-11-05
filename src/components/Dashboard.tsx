@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageSquare, X, Info, Trash2, CheckSquare, ExternalLink } from "lucide-react";
 import { useDashboardData } from "./dashboard/useDashboardData";
-import { DashboardFilters } from "./dashboard/DashboardFilters";
+import { DashboardFilters, ViewMode } from "./dashboard/DashboardFilters";
 import { ConversationCard } from "./dashboard/ConversationCard";
+import { DashboardTableView } from "./dashboard/DashboardTableView";
 import { filterConversationItems } from "./dashboard/utils";
 import { FilterType } from "./dashboard/types";
 import { logger } from "@/lib/logger";
@@ -12,6 +13,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useConversations } from "@/hooks/useConversations";
 import { usePollDeletionCascade } from "@/hooks/usePollDeletionCascade";
 import { useToast } from "@/hooks/use-toast";
+import { useViewportItems } from "@/hooks/useViewportItems";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -26,7 +37,24 @@ const Dashboard: React.FC = () => {
   const { deletePollWithCascade } = usePollDeletionCascade();
   const { toast } = useToast();
 
+  // Vue mode avec persistance localStorage
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const saved = localStorage.getItem("dashboard_view_preference");
+    return (saved === "grid" || saved === "table" ? saved : "grid") as ViewMode;
+  });
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+
   const { conversationItems, loading, reload } = useDashboardData(refreshKey);
+
+  // Calcul itemsPerPage selon viewport
+  const itemsPerPage = useViewportItems({ viewMode });
+
+  // Sauvegarder préférence vue
+  useEffect(() => {
+    localStorage.setItem("dashboard_view_preference", viewMode);
+  }, [viewMode]);
 
   // Écouter l'événement de création de poll
   useEffect(() => {
@@ -40,7 +68,24 @@ const Dashboard: React.FC = () => {
   }, []);
 
   // Appliquer les filtres
-  const filteredItems = filterConversationItems(conversationItems, filter, searchQuery);
+  const filteredItems = useMemo(
+    () => filterConversationItems(conversationItems, filter, searchQuery),
+    [conversationItems, filter, searchQuery],
+  );
+
+  // Reset page à 1 lors changement filtres/recherche
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, searchQuery]);
+
+  // Pagination des items filtrés
+  const paginatedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredItems.slice(startIndex, endIndex);
+  }, [filteredItems, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   // Gestion de la sélection
   const toggleSelection = (id: string) => {
@@ -56,7 +101,8 @@ const Dashboard: React.FC = () => {
   };
 
   const selectAll = () => {
-    setSelectedIds(new Set(filteredItems.map((item) => item.id)));
+    // Sélectionner uniquement les items de la page courante
+    setSelectedIds(new Set(paginatedItems.map((item) => item.id)));
   };
 
   const clearSelection = () => {
@@ -227,9 +273,11 @@ const Dashboard: React.FC = () => {
             onSearchChange={setSearchQuery}
             filter={filter}
             onFilterChange={setFilter}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
           />
 
-          {/* Grille de cartes */}
+          {/* Contenu selon vue */}
           {filteredItems.length === 0 ? (
             <div className="text-center py-12">
               <MessageSquare className="w-16 h-16 text-gray-600 mx-auto mb-4" />
@@ -242,9 +290,16 @@ const Dashboard: React.FC = () => {
                   : "Commencez une conversation avec l'IA pour créer des sondages"}
               </p>
             </div>
+          ) : viewMode === "table" ? (
+            <DashboardTableView
+              items={paginatedItems}
+              selectedIds={selectedIds}
+              onToggleSelection={toggleSelection}
+              onRefresh={() => setRefreshKey((prev) => prev + 1)}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item) => (
+              {paginatedItems.map((item) => (
                 <ConversationCard
                   key={item.id}
                   item={item}
@@ -253,6 +308,124 @@ const Dashboard: React.FC = () => {
                   onRefresh={() => setRefreshKey((prev) => prev + 1)}
                 />
               ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {filteredItems.length > 0 && totalPages > 1 && (
+            <div className="mt-8">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage > 1) {
+                          setCurrentPage(currentPage - 1);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+                      }}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+
+                  {/* Pages */}
+                  {(() => {
+                    const pages: (number | "ellipsis")[] = [];
+                    const maxVisible = 7;
+
+                    if (totalPages <= maxVisible) {
+                      // Afficher toutes les pages
+                      for (let i = 1; i <= totalPages; i++) {
+                        pages.push(i);
+                      }
+                    } else {
+                      // Toujours afficher la première page
+                      pages.push(1);
+
+                      // Calculer les pages autour de la page courante
+                      let start = Math.max(2, currentPage - 1);
+                      let end = Math.min(totalPages - 1, currentPage + 1);
+
+                      // Ajuster si on est trop proche du début
+                      if (currentPage <= 3) {
+                        start = 2;
+                        end = 4;
+                      }
+
+                      // Ajuster si on est trop proche de la fin
+                      if (currentPage >= totalPages - 2) {
+                        start = totalPages - 3;
+                        end = totalPages - 1;
+                      }
+
+                      // Ajouter ellipsis avant si nécessaire
+                      if (start > 2) {
+                        pages.push("ellipsis");
+                      }
+
+                      // Ajouter les pages du milieu
+                      for (let i = start; i <= end; i++) {
+                        pages.push(i);
+                      }
+
+                      // Ajouter ellipsis après si nécessaire
+                      if (end < totalPages - 1) {
+                        pages.push("ellipsis");
+                      }
+
+                      // Toujours afficher la dernière page
+                      pages.push(totalPages);
+                    }
+
+                    return pages.map((page, index) => {
+                      if (page === "ellipsis") {
+                        return (
+                          <PaginationItem key={`ellipsis-${index}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        );
+                      }
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setCurrentPage(page);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            isActive={currentPage === page}
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    });
+                  })()}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage < totalPages) {
+                          setCurrentPage(currentPage + 1);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+                      }}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+
+              {/* Info pagination */}
+              <div className="text-center mt-4 text-sm text-gray-400">
+                Page {currentPage} sur {totalPages} ({filteredItems.length} élément
+                {filteredItems.length > 1 ? "s" : ""})
+              </div>
             </div>
           )}
         </div>
