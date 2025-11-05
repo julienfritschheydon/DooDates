@@ -1,8 +1,8 @@
-name: 🧪 Test Branch - CI Conditions
+name: 🧪 Test Branch - Tests Dashboard Corrigés
 
 on:
   push:
-    branches: [test]
+    branches: [test, test-dashboard]
   workflow_dispatch: # Permet de lancer manuellement depuis GitHub UI
 
 concurrency:
@@ -10,13 +10,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Job 1: E2E Functional Tests (même configuration que CI principale)
-  e2e-functional:
+  # Job unique: Tests dashboard corrigés
+  e2e-isolated:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2] # 2 shards comme en CI principale
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -27,20 +23,36 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: 🔧 Install dependencies
         run: npm ci
 
       - name: 🧭 Install Playwright (Chromium only)
-        run: npx playwright install --with-deps chromium
+        run: |
+          if [ "${{ steps.cache-playwright.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Cache trouvé, installation rapide (sans deps)..."
+            npx playwright install chromium
+          else
+            echo "⚠️ Cache vide, installation avec dépendances système..."
+            npx playwright install --with-deps chromium
+          fi
 
-      - name: ⚡ Run Functional Tests (CI mode - same config as develop/main)
+      - name: 🎯 Run Dashboard Tests (Tests corrigés)
         run: |
           npx playwright test \
+            tests/e2e/dashboard-complete.spec.ts \
+            tests/e2e/tags-folders.spec.ts \
             --config=playwright.config.optimized.ts \
             --project=chromium \
-            --grep "@functional" \
-            --grep-invert "@wip|@flaky|Suite Complète|Tests de non-régression" \
-            --shard=${{ matrix.shard }}/2 \
+            --grep="@functional - (Sélectionner|Assigner)" \
             --reporter=html,json
         env:
           CI: true
@@ -50,7 +62,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-functional-shard-${{ matrix.shard }}
+          name: playwright-report-dashboard
           path: playwright-report
           retention-days: 3
 
@@ -58,54 +70,40 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-functional-shard-${{ matrix.shard }}
+          name: test-results-dashboard
           path: test-results
           retention-days: 3
 
-  # Job 2: E2E Smoke Tests (tests critiques rapides)
-  e2e-smoke:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: 🔧 Install dependencies
-        run: npm ci
-
-      - name: 🧭 Install Playwright (Chromium only)
-        run: npx playwright install --with-deps chromium
-
-      - name: 🔥 Run Smoke Tests
-        run: npm run test:e2e:smoke -- --reporter=html,json
-        env:
-          CI: true
-          VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
-
-      - name: 📊 Upload Playwright HTML report
+      - name: 📸 Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-smoke
-          path: playwright-report
+          name: test-screenshots
+          path: test-results/**/*.png
+          if-no-files-found: ignore
           retention-days: 3
 
-      - name: 📤 Upload test results JSON
+      - name: 🎥 Upload videos
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-smoke
-          path: test-results
+          name: test-videos
+          path: test-results/**/*.webm
+          if-no-files-found: ignore
           retention-days: 3
 
-  # Job 3: Summary avec commentaire
+      - name: 📋 Upload traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-traces
+          path: test-results/**/*.zip
+          if-no-files-found: ignore
+          retention-days: 3
+
+  # Summary avec commentaire
   test-summary:
-    needs: [e2e-functional, e2e-smoke]
+    needs: [e2e-isolated]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -113,43 +111,20 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const jobs = [
-              { name: 'E2E Functional', status: '${{ needs.e2e-functional.result }}' },
-              { name: 'E2E Smoke', status: '${{ needs.e2e-smoke.result }}' }
-            ];
+            const status = '${{ needs.e2e-isolated.result }}' === 'success' ? '✅' : '❌';
             
-            const passed = jobs.filter(j => j.status === 'success').length;
-            const total = jobs.length;
-            const status = passed === total ? '✅' : '❌';
+            let summary = `## ${status} Tests Dashboard - ${status === '✅' ? 'Réussis' : 'Échoués'}\n\n`;
+            summary += `**Branche:** \`${context.ref.replace('refs/heads/', '')}\`\n`;
+            summary += `**Objectif:** Tester les tests corrigés (Sélectionner, Assigner tags/dossiers)\n\n`;
             
-            let summary = `## ${status} Test Branch CI - ${passed}/${total} jobs réussis\n\n`;
-            summary += `**Branche:** \`test\`\n`;
-            summary += `**Objectif:** Tester rapidement des corrections en conditions CI\n\n`;
-            summary += `${jobs.map(j => `- ${j.status === 'success' ? '✅' : '❌'} ${j.name}`).join('\n')}\n\n`;
-            
-            if (passed === total) {
-              summary += '🚀 **Tous les tests passent ! Les corrections peuvent être mergées vers develop.**';
+            if (status === '✅') {
+              summary += '🚀 **Les tests passent !**\n';
+              summary += '📸 **Screenshots disponibles dans les artefacts pour debug**';
             } else {
-              summary += '⚠️ **Des tests ont échoué. Vérifier les rapports dans les artefacts.**';
+              summary += '⚠️ **Des tests ont échoué. Vérifier les rapports et screenshots dans les artefacts.**';
             }
             
             summary += `\n\n📋 **Rapports détaillés disponibles dans les artefacts GitHub Actions**`;
             
-            // Créer un commentaire sur le commit ou la PR si disponible
-            if (context.payload.pull_request) {
-              github.rest.issues.createComment({
-                issue_number: context.payload.pull_request.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: summary
-              });
-            } else {
-              // Créer un commentaire sur le commit
-              github.rest.repos.createCommitComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                commit_sha: context.sha,
-                body: summary
-              });
-            }
-
+            // Afficher le summary dans les logs (pas de commentaire GitHub pour éviter les erreurs de permissions)
+            console.log(summary);

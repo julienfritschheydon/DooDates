@@ -30,7 +30,7 @@ export const usePollDeletionCascade = () => {
       try {
         // Find conversations that have this poll linked via tags or pollId field
         const conversationsWithPoll =
-          conversations.conversations.conversations?.filter(
+          conversations.conversations?.conversations?.filter(
             (conv) =>
               conv.tags?.some((tag) => tag === `poll:${pollId}`) ||
               (conv as any).pollId === pollId ||
@@ -52,13 +52,15 @@ export const usePollDeletionCascade = () => {
               }
             : undefined;
 
-          await conversations.updateConversation.mutateAsync({
-            id: conversation.id,
-            updates: {
-              tags: updatedTags,
-              relatedPollId: undefined,
-            },
-          });
+          if (conversations.updateConversation) {
+            await conversations.updateConversation.mutateAsync({
+              id: conversation.id,
+              updates: {
+                tags: updatedTags,
+                relatedPollId: undefined,
+              },
+            });
+          }
 
           logger.info("Removed poll link from conversation", "conversation", {
             conversationId: conversation.id,
@@ -100,7 +102,7 @@ export const usePollDeletionCascade = () => {
 
         // Find conversations linked to this poll
         const conversationsWithPoll =
-          conversations.conversations.conversations?.filter(
+          conversations.conversations?.conversations?.filter(
             (conv) =>
               conv.tags?.some((tag) => tag === `poll:${pollId}`) ||
               (conv as any).pollId === pollId ||
@@ -108,7 +110,7 @@ export const usePollDeletionCascade = () => {
           ) || [];
 
         // If deleteConversation option is true, delete the conversations
-        if (options.deleteConversation && conversationsWithPoll.length > 0) {
+        if (options.deleteConversation && conversationsWithPoll.length > 0 && conversations.deleteConversation) {
           for (const conversation of conversationsWithPoll) {
             await conversations.deleteConversation.mutateAsync(conversation.id);
             logger.info("Deleted conversation linked to poll", "conversation", {
@@ -193,7 +195,7 @@ export const usePollDeletionCascade = () => {
       linkedConversations: string[];
     } => {
       const conversationsWithPoll =
-        conversations.conversations.conversations?.filter((conv) =>
+        conversations.conversations?.conversations?.filter((conv) =>
           conv.tags?.some((tag) => tag === `poll:${pollId}`),
         ) || [];
 
@@ -202,7 +204,7 @@ export const usePollDeletionCascade = () => {
         linkedConversations: conversationsWithPoll.map((conv) => conv.id),
       };
     },
-    [conversations.conversations.conversations],
+    [conversations.conversations?.conversations],
   );
 
   /**
@@ -215,7 +217,7 @@ export const usePollDeletionCascade = () => {
 
       const orphanedConversations: string[] = [];
 
-      conversations.conversations.conversations?.forEach((conv) => {
+      conversations.conversations?.conversations?.forEach((conv) => {
         const pollTags = conv.tags?.filter((tag) => tag.startsWith("poll:")) || [];
 
         pollTags.forEach((tag) => {
@@ -244,7 +246,7 @@ export const usePollDeletionCascade = () => {
 
       return [];
     }
-  }, [conversations.conversations.conversations]);
+  }, [conversations.conversations?.conversations]);
 
   /**
    * Clean up all orphaned conversation links
@@ -258,7 +260,7 @@ export const usePollDeletionCascade = () => {
       const existingPollIds = new Set(polls.map((poll: any) => poll.id));
 
       for (const conversationId of orphanedConversationIds) {
-        const conversation = conversations.conversations.conversations?.find(
+        const conversation = conversations.conversations?.conversations?.find(
           (c) => c.id === conversationId,
         );
         if (!conversation) continue;
@@ -271,12 +273,14 @@ export const usePollDeletionCascade = () => {
           }) || [];
 
         if (cleanTags.length !== conversation.tags?.length) {
-          await conversations.updateConversation.mutateAsync({
-            id: conversationId,
-            updates: {
-              tags: cleanTags,
-            },
-          });
+          if (conversations.updateConversation) {
+            await conversations.updateConversation.mutateAsync({
+              id: conversationId,
+              updates: {
+                tags: cleanTags,
+              },
+            });
+          }
           cleanedCount++;
         }
       }
@@ -315,8 +319,8 @@ export const usePollDeletionCascade = () => {
     cleanupOrphanedLinks,
 
     // State
-    isDeleting: conversations.updateConversation.isLoading,
-    deleteError: conversations.updateConversation.error,
+    isDeleting: conversations.updateConversation?.isLoading ?? false,
+    deleteError: conversations.updateConversation?.error,
   };
 };
 

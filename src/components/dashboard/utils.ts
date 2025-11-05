@@ -59,7 +59,9 @@ export function filterConversationItems(
 ): ConversationItem[] {
   return items.filter((item) => {
     // Filtre par statut (appliqué au poll si existe)
-    const matchesFilter = filter === "all" || !item.poll || item.poll.status === filter;
+    // Pour "all", on affiche tout
+    // Pour les autres filtres (draft, active, closed, archived), on n'affiche que les items avec un poll ayant le statut correspondant
+    const matchesFilter = filter === "all" || (item.poll && item.poll.status === filter);
 
     // Recherche dans le titre de la conversation et du poll
     const searchLower = searchQuery.toLowerCase();
