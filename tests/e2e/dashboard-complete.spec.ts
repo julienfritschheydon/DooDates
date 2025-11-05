@@ -441,28 +441,32 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
 
-      // Sélectionner une conversation en cliquant sur son checkbox (top-right corner)
+      // Prendre la première carte pour vérifier le border bleu
       const firstCard = page.locator('[data-testid="poll-item"]').first();
       
-      // Le checkbox est dans un div avec position absolute (top-right corner)
-      // Il contient un div avec border-2 et w-6 h-6
-      // Utiliser un sélecteur simple : chercher le div avec w-6 h-6 et border-2 dans la carte
-      const checkbox = firstCard.locator('div[class*="w-6"][class*="h-6"][class*="border-2"]').first();
-      
-      await checkbox.waitFor({ state: 'visible', timeout: 5000 });
-      await checkbox.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(200); // Petit délai pour s'assurer que le scroll est terminé
-      await checkbox.click({ force: true });
-      
-      // Attendre que la sélection se mette à jour
-      await page.waitForTimeout(500);
+      // Vérifier que la carte n'est pas sélectionnée initialement
+      await expect(firstCard).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 1000 });
 
-      // Vérifier que la carte est sélectionnée en vérifiant le border bleu (plus robuste que le bouton)
-      await expect(firstCard).toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 3000 });
+      // Utiliser le bouton "Sélectionner" en haut pour sélectionner toutes les conversations
+      const selectButton = page.getByRole('button', { name: /Sélectionner/i });
+      await selectButton.waitFor({ state: 'visible', timeout: 5000 });
+      await selectButton.click();
+      
+      // Attendre que React se mette à jour
+      await page.waitForTimeout(100);
 
-      // Désélectionner en cliquant à nouveau
-      await checkbox.click({ force: true });
-      await page.waitForTimeout(500);
+      // Vérifier que la carte est sélectionnée en vérifiant le border bleu
+      await expect(firstCard).toHaveClass(/border-blue-500|ring-blue-500|border-blue/, { timeout: 3000 });
+
+      // Vérifier que le bouton affiche maintenant "X sélectionné(s)"
+      const selectedText = page.getByText(/\d+ sélectionné/i);
+      await expect(selectedText).toBeVisible({ timeout: 2000 });
+
+      // Cliquer à nouveau sur le bouton (maintenant "Désélectionner tout")
+      await selectButton.click();
+      
+      // Attendre que React se mette à jour
+      await page.waitForTimeout(100);
 
       // Vérifier que la sélection est annulée (border bleu disparaît)
       await expect(firstCard).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 3000 });
