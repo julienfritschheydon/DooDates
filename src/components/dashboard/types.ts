@@ -15,6 +15,8 @@ export interface ConversationItem {
   conversationDate: Date;
   poll?: DashboardPoll; // Poll associé (optionnel)
   hasAI: boolean; // Créé par IA
+  tags?: string[]; // Tags assignés
+  folderId?: string; // ID du dossier (optionnel)
 }
 
 // Type pour les filtres

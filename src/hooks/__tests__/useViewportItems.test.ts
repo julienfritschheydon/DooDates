@@ -68,12 +68,8 @@ describe("useViewportItems", () => {
     Object.defineProperty(window, "innerWidth", { value: 1920, configurable: true });
     Object.defineProperty(window, "innerHeight", { value: 1080, configurable: true });
 
-    const { result: gridResult } = renderHook(() =>
-      useViewportItems({ viewMode: "grid" }),
-    );
-    const { result: tableResult } = renderHook(() =>
-      useViewportItems({ viewMode: "table" }),
-    );
+    const { result: gridResult } = renderHook(() => useViewportItems({ viewMode: "grid" }));
+    const { result: tableResult } = renderHook(() => useViewportItems({ viewMode: "table" }));
 
     expect(tableResult.current).toBeGreaterThanOrEqual(gridResult.current);
   });
@@ -101,9 +97,7 @@ describe("useViewportItems", () => {
   });
 
   it("should respect minItems option", () => {
-    const { result } = renderHook(() =>
-      useViewportItems({ viewMode: "grid", minItems: 10 }),
-    );
+    const { result } = renderHook(() => useViewportItems({ viewMode: "grid", minItems: 10 }));
 
     expect(result.current).toBeGreaterThanOrEqual(10);
   });
@@ -112,9 +106,7 @@ describe("useViewportItems", () => {
     Object.defineProperty(window, "innerWidth", { value: 1920, configurable: true });
     Object.defineProperty(window, "innerHeight", { value: 2000, configurable: true });
 
-    const { result } = renderHook(() =>
-      useViewportItems({ viewMode: "table", maxItems: 20 }),
-    );
+    const { result } = renderHook(() => useViewportItems({ viewMode: "table", maxItems: 20 }));
 
     expect(result.current).toBeLessThanOrEqual(20);
   });

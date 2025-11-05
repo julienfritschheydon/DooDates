@@ -69,11 +69,7 @@ const mockFormResults: FormResults = {
     },
   },
   textAnswers: {
-    q3: [
-      "Très satisfait",
-      "Peut mieux faire",
-      "Excellent service",
-    ],
+    q3: ["Très satisfait", "Peut mieux faire", "Excellent service"],
   },
 };
 
@@ -134,7 +130,7 @@ describe("PollAnalyticsService", () => {
     vi.clearAllMocks();
     // Reset singleton instance
     (PollAnalyticsService as any).instance = undefined;
-    
+
     // Setup mock for Gemini BEFORE creating service instance
     mockModel = {
       generateContent: vi.fn(),
@@ -144,10 +140,10 @@ describe("PollAnalyticsService", () => {
     };
     (GoogleGenerativeAI as any).mockImplementation(() => mockGenAI);
     mockGenerateContent = mockModel.generateContent;
-    
+
     // Ensure API key is set
     vi.stubEnv("VITE_GEMINI_API_KEY", "test-api-key");
-    
+
     service = PollAnalyticsService.getInstance();
   });
 
@@ -167,7 +163,8 @@ describe("PollAnalyticsService", () => {
     beforeEach(() => {
       mockGenerateContent.mockResolvedValue({
         response: {
-          text: () => "Il y a 10 réponses au total. La majorité (7 personnes) a choisi 'Excellent'.",
+          text: () =>
+            "Il y a 10 réponses au total. La majorité (7 personnes) a choisi 'Excellent'.",
         },
       });
     });
@@ -207,7 +204,8 @@ describe("PollAnalyticsService", () => {
     it("extrait les insights mentionnés (tendance, consensus, anomalie)", async () => {
       mockGenerateContent.mockResolvedValueOnce({
         response: {
-          text: () => "Il y a une tendance claire vers l'option Excellent. La majorité des répondants sont satisfaits. Une anomalie inhabituelle a été détectée.",
+          text: () =>
+            "Il y a une tendance claire vers l'option Excellent. La majorité des répondants sont satisfaits. Une anomalie inhabituelle a été détectée.",
         },
       });
 
@@ -289,26 +287,27 @@ describe("PollAnalyticsService", () => {
     beforeEach(() => {
       mockGenerateContent.mockResolvedValue({
         response: {
-          text: () => JSON.stringify([
-            {
-              type: "trend",
-              title: "Tendance positive",
-              description: "Les répondants sont majoritairement satisfaits",
-              confidence: 85,
-            },
-            {
-              type: "anomaly",
-              title: "Anomalie détectée",
-              description: "Une réponse négative isolée",
-              confidence: 60,
-            },
-            {
-              type: "summary",
-              title: "Résumé des résultats",
-              description: "10 réponses au total",
-              confidence: 90,
-            },
-          ]),
+          text: () =>
+            JSON.stringify([
+              {
+                type: "trend",
+                title: "Tendance positive",
+                description: "Les répondants sont majoritairement satisfaits",
+                confidence: 85,
+              },
+              {
+                type: "anomaly",
+                title: "Anomalie détectée",
+                description: "Une réponse négative isolée",
+                confidence: 60,
+              },
+              {
+                type: "summary",
+                title: "Résumé des résultats",
+                description: "10 réponses au total",
+                confidence: 90,
+              },
+            ]),
         },
       });
     });
@@ -514,4 +513,3 @@ describe("PollAnalyticsService", () => {
     });
   });
 });
-

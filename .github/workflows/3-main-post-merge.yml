@@ -72,7 +72,7 @@ jobs:
       # ⚠️ EXCLUSION: Suites en mode serial - exécutées dans jobs dédiés sans sharding
       # Pattern: Exclure "Suite Complète" et "Tests de non-régression" qui sont dans des suites serial
       - name: 🔥 Run Smoke Tests (Shard ${{ matrix.shard }}/2)
-        run: npx playwright test --project=chromium --grep @smoke --grep-invert "@functional|Suite Complète|Tests de non-régression" --shard=${{ matrix.shard }}/2
+        run: npx playwright test --project=chromium --grep @smoke --grep-invert "@functional|Suite Complète|Tests de non-régression" --shard=${{ matrix.shard }}/2 --reporter=html,json
 
       - name: 📊 Upload Playwright report
         if: failure()
@@ -80,6 +80,14 @@ jobs:
         with:
           name: playwright-smoke-report-${{ matrix.shard }}
           path: playwright-report
+          retention-days: 7
+
+      - name: 📤 Upload test results JSON
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-smoke-${{ matrix.shard }}
+          path: test-results
           retention-days: 7
 
   # ========================================
@@ -125,7 +133,7 @@ jobs:
           fi
 
       - name: 📊 Run Analytics IA Suite (Serial - No Sharding)
-        run: npx playwright test analytics-ai.spec.ts --grep "Analytics IA - Suite Complète" --project=chromium
+        run: npx playwright test analytics-ai.spec.ts --grep "Analytics IA - Suite Complète" --project=chromium --reporter=html,json
 
       - name: 📊 Upload Playwright report
         if: failure()
@@ -133,6 +141,14 @@ jobs:
         with:
           name: playwright-analytics-suite-report
           path: playwright-report
+          retention-days: 7
+
+      - name: 📤 Upload test results JSON
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-analytics-suite
+          path: test-results
           retention-days: 7
 
   # ========================================
@@ -178,7 +194,7 @@ jobs:
           fi
 
       - name: 📋 Run Form Poll Regression Suite (Serial - No Sharding)
-        run: npx playwright test form-poll-regression.spec.ts --grep "Form Poll - Tests de non-régression" --project=chromium
+        run: npx playwright test form-poll-regression.spec.ts --grep "Form Poll - Tests de non-régression" --project=chromium --reporter=html,json
 
       - name: 📊 Upload Playwright report
         if: failure()
@@ -186,6 +202,14 @@ jobs:
         with:
           name: playwright-form-poll-regression-report
           path: playwright-report
+          retention-days: 7
+
+      - name: 📤 Upload test results JSON
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-form-poll-regression
+          path: test-results
           retention-days: 7
 
   e2e-functional:
@@ -236,7 +260,7 @@ jobs:
       # ⚠️ EXCLUSION: Suites en mode serial - exécutées dans jobs dédiés sans sharding
       # Pattern: Exclure "Suite Complète" et "Tests de non-régression" qui sont dans des suites serial
       - name: ⚡ Run Functional Tests (Shard ${{ matrix.shard }}/2)
-        run: npx playwright test --config=playwright.config.optimized.ts --project=chromium --grep @functional --grep-invert "@wip|@flaky|Suite Complète|Tests de non-régression" --shard=${{ matrix.shard }}/2
+        run: npx playwright test --config=playwright.config.optimized.ts --project=chromium --grep @functional --grep-invert "@wip|@flaky|Suite Complète|Tests de non-régression" --shard=${{ matrix.shard }}/2 --reporter=html,json
 
       - name: 📊 Upload Playwright report
         if: failure()
@@ -246,6 +270,14 @@ jobs:
           path: playwright-report
           retention-days: 7
 
+      - name: 📤 Upload test results JSON
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-functional-${{ matrix.shard }}
+          path: test-results
+          retention-days: 7
+
   # ========================================
   # NOTIFICATION SI ÉCHEC
   # ========================================
@@ -253,32 +285,77 @@ jobs:
   notify-failure:
     name: 📢 Notify Failures
     runs-on: ubuntu-latest
-    needs: [e2e-smoke, e2e-functional]
+    needs: [e2e-smoke, e2e-functional, e2e-analytics-suite, e2e-form-poll-regression]
     if: failure()
     steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 📥 Download test results (if available)
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: test-results-*
+          merge-multiple: true
+          path: test-results
+
+      - name: 📊 Generate E2E Summary
+        id: e2e-summary
+        run: |
+          if [ -d test-results ]; then
+            node scripts/generate-regression-summary.js || echo "Summary generation failed"
+          else
+            echo "No test results available"
+          fi
+        continue-on-error: true
+
       - name: Create Issue for Failed Tests
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
+            const fs = require('fs');
+            const path = require('path');
+            
             const smokeStatus = '${{ needs.e2e-smoke.result }}';
             const functionalStatus = '${{ needs.e2e-functional.result }}';
+            const analyticsStatus = '${{ needs.e2e-analytics-suite.result }}';
+            const formPollStatus = '${{ needs.e2e-form-poll-regression.result }}';
             
             let failedTests = [];
             if (smokeStatus === 'failure') failedTests.push('Smoke Tests');
             if (functionalStatus === 'failure') failedTests.push('Functional Tests');
+            if (analyticsStatus === 'failure') failedTests.push('Analytics IA Suite');
+            if (formPollStatus === 'failure') failedTests.push('Form Poll Regression');
             
-            const issueBody = [
-              '❌ Tests E2E échoués sur main',
-              '',
-              'Tests en échec: ' + failedTests.join(', '),
-              'Commit: ' + context.sha,
-              'Auteur: ' + context.actor,
-              'Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
-              '',
-              'Détails:',
-              '- Smoke: ' + smokeStatus,
-              '- Functional: ' + functionalStatus
-            ].join('\n');
+            let issueBody = `## ❌ Tests E2E échoués sur main\n\n`;
+            issueBody += `**Tests en échec:** ${failedTests.join(', ')}\n\n`;
+            issueBody += `**Détails:**\n`;
+            issueBody += `- 🔥 Smoke Tests: ${smokeStatus === 'failure' ? '❌' : '✅'} ${smokeStatus}\n`;
+            issueBody += `- ⚡ Functional Tests: ${functionalStatus === 'failure' ? '❌' : '✅'} ${functionalStatus}\n`;
+            issueBody += `- 📊 Analytics IA Suite: ${analyticsStatus === 'failure' ? '❌' : '✅'} ${analyticsStatus}\n`;
+            issueBody += `- 📋 Form Poll Regression: ${formPollStatus === 'failure' ? '❌' : '✅'} ${formPollStatus}\n\n`;
+            issueBody += `**Informations:**\n`;
+            issueBody += `- Commit: \`${context.sha.substring(0, 7)}\`\n`;
+            issueBody += `- Auteur: ${context.actor}\n`;
+            issueBody += `- Workflow: [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})\n\n`;
+            
+            // Ajouter le résumé E2E détaillé si disponible
+            const summaryPath = path.join(process.cwd(), 'regression-summary.md');
+            if (fs.existsSync(summaryPath)) {
+              const e2eSummary = fs.readFileSync(summaryPath, 'utf-8');
+              issueBody += `---\n\n## 🔍 Détails des Erreurs\n\n${e2eSummary}\n`;
+            } else {
+              issueBody += `---\n\n📋 **Rapports détaillés disponibles dans les artefacts GitHub Actions**\n`;
+            }
             
             github.rest.issues.create({
               owner: context.repo.owner,

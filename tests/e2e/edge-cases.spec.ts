@@ -118,7 +118,11 @@ test.describe.skip('Edge Cases and Error Handling', () => {
     const createButton = page.locator('button').filter({ hasText: /créer|create/i }).first();
     if (await createButton.isVisible()) {
       await createButton.click();
-      await page.waitForTimeout(2000);
+      // Wait for navigation or form to appear instead of fixed timeout
+      await expect(page.locator('input, form, [data-testid="poll-title"]').first()).toBeVisible({ timeout: 5000 }).catch(() => {
+        // If no form appears, just verify page is still responsive
+        return expect(page.locator('body')).toBeVisible();
+      });
     }
     
     // Check if localStorage quota error is handled gracefully
@@ -160,7 +164,8 @@ test.describe.skip('Edge Cases and Error Handling', () => {
       const newChatButton = page.locator('button').filter({ hasText: /new chat|nouvelle discussion/i }).first();
       if (await newChatButton.isVisible()) {
         await newChatButton.click();
-        await page.waitForTimeout(500);
+        // Wait for input to appear instead of fixed timeout
+        await expect(page.locator('[data-testid="message-input"]')).toBeVisible({ timeout: 5000 });
       }
       
       // Send a test message using robust selector
@@ -170,8 +175,11 @@ test.describe.skip('Edge Cases and Error Handling', () => {
       await input.fill(messageText);
       await input.press('Enter');
       
-      // Wait for message to be sent
-      await page.waitForTimeout(1000);
+      // Wait for message to appear in chat instead of fixed timeout
+      await expect(page.locator(`text=${messageText}`)).toBeVisible({ timeout: 5000 }).catch(() => {
+        // If message doesn't appear, just verify input is still available
+        return expect(input).toBeVisible();
+      });
       
       return messageText;
     };
@@ -243,15 +251,18 @@ test.describe.skip('Edge Cases and Error Handling', () => {
     // Rapidly fill message input multiple times
     const messageInput = page.locator('[data-testid="message-input"]');
     if (await messageInput.isVisible()) {
-      // Fill rapidly 10 times
+      // Fill rapidly 10 times (no timeout needed - just fill)
       for (let i = 0; i < 10; i++) {
         await messageInput.fill(`Rapid test ${i}`);
-        await page.waitForTimeout(50);
+        // Small delay only if needed for UI update (reduced from 50ms to minimal)
+        if (i < 9) {
+          await page.waitForLoadState('domcontentloaded');
+        }
       }
     }
     
-    // Should not create multiple conversations or crash
-    await page.waitForTimeout(2000);
+    // Should not create multiple conversations or crash - wait for any UI update
+    await expect(page.locator('body')).toBeVisible();
     
     // Count conversation elements
     const conversations = page.locator('[data-testid="conversation"], .conversation');
@@ -283,7 +294,8 @@ test.describe.skip('Edge Cases and Error Handling', () => {
         }
       }
       
-      await page.waitForTimeout(1000);
+      // Wait for any response or error message instead of fixed timeout
+      await expect(page.locator('body')).toBeVisible({ timeout: 2000 });
       
       // Should not execute scripts or cause errors
       const hasAlert = await page.locator('text=xss').isVisible();
@@ -294,19 +306,21 @@ test.describe.skip('Edge Cases and Error Handling', () => {
   test('should handle browser back/forward navigation', async ({ page }) => {
     await page.goto('/');
     
-    // Wait for page to load
-    await page.waitForTimeout(1000);
+    // Wait for page to load (wait for title or main content)
+    await expect(page).toHaveTitle(/DooDates/);
     
     // Navigate to dashboard if available
     const dashboardButton = page.locator('[data-testid="dashboard-button"], button').filter({ hasText: /sondages|dashboard/i }).first();
     if (await dashboardButton.isVisible()) {
       await dashboardButton.click();
-      await page.waitForTimeout(1000);
+      // Wait for dashboard to load instead of fixed timeout
+      await expect(page.locator('h1, [role="heading"], [data-testid]').first()).toBeVisible({ timeout: 5000 });
     }
     
     // Go back to home
     await page.goBack();
-    await page.waitForTimeout(1000);
+    // Wait for navigation to complete
+    await expect(page.locator('body')).toBeVisible();
     
     // Verify we're back on home - app should be responsive
     const isOnHome = await page.locator('body').isVisible();
@@ -314,11 +328,13 @@ test.describe.skip('Edge Cases and Error Handling', () => {
     
     // Go forward
     await page.goForward();
-    await page.waitForTimeout(1000);
+    // Wait for navigation to complete
+    await expect(page.locator('body')).toBeVisible();
     
     // Go back again
     await page.goBack();
-    await page.waitForTimeout(1000);
+    // Wait for navigation to complete
+    await expect(page.locator('body')).toBeVisible();
     
     // App should still be functional after navigation
     const isStillWorking = await page.locator('body').isVisible();
@@ -328,7 +344,8 @@ test.describe.skip('Edge Cases and Error Handling', () => {
   test('should handle page refresh during conversation creation', async ({ page }) => {
     await page.goto('/');
     
-    await page.waitForTimeout(1000);
+    // Wait for page to load
+    await expect(page).toHaveTitle(/DooDates/);
     
     // Start any interaction
     const anyButton = page.locator('button').first();
@@ -339,7 +356,8 @@ test.describe.skip('Edge Cases and Error Handling', () => {
       await page.reload();
     }
     
-    await page.waitForTimeout(2000);
+    // Wait for page to reload instead of fixed timeout
+    await expect(page.locator('body')).toBeVisible({ timeout: 5000 });
     
     // App should recover gracefully from interrupted refresh
     // Verify page loaded successfully after refresh
@@ -366,8 +384,9 @@ test.describe.skip('Edge Cases and Error Handling', () => {
     await page1.goto('/');
     await page2.goto('/');
     
-    await page1.waitForTimeout(1000);
-    await page2.waitForTimeout(1000);
+    // Wait for both pages to load instead of fixed timeout
+    await expect(page1).toHaveTitle(/DooDates/);
+    await expect(page2).toHaveTitle(/DooDates/);
     
     // Verify both pages loaded independently
     const page1Loaded = await page1.locator('body').isVisible();
@@ -402,7 +421,8 @@ test.describe.skip('Edge Cases and Error Handling', () => {
     await page.reload();
     
     // App should handle malformed data gracefully and not crash
-    await page.waitForTimeout(2000);
+    // Wait for page to reload instead of fixed timeout
+    await expect(page.locator('body')).toBeVisible({ timeout: 5000 });
     
     // Verify app recovered and is functional
     const isPageWorking = await page.locator('body').isVisible();

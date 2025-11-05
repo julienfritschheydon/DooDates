@@ -95,14 +95,17 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                 onClick={() => navigate(`/workspace?resume=${item.id}`)}
               >
                 {/* Checkbox */}
-                <td className="py-3 px-4">
+                <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
                   <div
                     className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer ${
                       isSelected
                         ? "bg-blue-600 border-blue-600"
                         : "bg-transparent border-gray-500 hover:border-blue-400"
                     }`}
-                    onClick={() => onToggleSelection(item.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleSelection(item.id);
+                    }}
                   >
                     {isSelected && <Check className="w-3 h-3 text-white" />}
                   </div>

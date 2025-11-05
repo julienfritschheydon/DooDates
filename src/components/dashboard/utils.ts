@@ -49,11 +49,13 @@ export function getStatusLabel(status: DashboardPoll["status"]): string {
   }
 }
 
-// Filtrer les items selon le filtre et la recherche
+// Filtrer les items selon le filtre, la recherche, les tags et les dossiers
 export function filterConversationItems(
   items: ConversationItem[],
   filter: FilterType,
   searchQuery: string,
+  selectedTags?: string[],
+  selectedFolderId?: string | null,
 ): ConversationItem[] {
   return items.filter((item) => {
     // Filtre par statut (appliqué au poll si existe)
@@ -64,8 +66,21 @@ export function filterConversationItems(
     const matchesSearch =
       item.conversationTitle.toLowerCase().includes(searchLower) ||
       (item.poll?.title?.toLowerCase().includes(searchLower) ?? false) ||
-      (item.poll?.description?.toLowerCase().includes(searchLower) ?? false);
+      (item.poll?.description?.toLowerCase().includes(searchLower) ?? false) ||
+      (item.tags?.some((tag) => tag.toLowerCase().includes(searchLower)) ?? false);
 
-    return matchesFilter && matchesSearch;
+    // Filtre par tags
+    const matchesTags =
+      !selectedTags ||
+      selectedTags.length === 0 ||
+      selectedTags.every((tag) => item.tags?.includes(tag));
+
+    // Filtre par dossier
+    const matchesFolder =
+      selectedFolderId === null ||
+      selectedFolderId === undefined ||
+      item.folderId === selectedFolderId;
+
+    return matchesFilter && matchesSearch && matchesTags && matchesFolder;
   });
 }
