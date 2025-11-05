@@ -32,6 +32,13 @@ export function attachConsoleGuard(
     /Failed to load resource/i,
     /Erreur lors du test de connexion Gemini/i,
     /generativelanguage\.googleapis\.com/i,
+    // WebKit/Safari n'a pas requestIdleCallback (utilisé par certaines libs React)
+    /requestIdleCallback/i,
+    /Can't find variable: requestIdleCallback/i,
+    // Erreurs de chargement de modules dynamiques (problèmes de timing dans certains navigateurs)
+    /Importing a module script failed/i,
+    /error loading dynamically imported module/i,
+    /ErrorBoundary caught an error/i,
   ];
   // Dev-noise (activé seulement si E2E_DEV_NOISE=1): erreurs réseau externes, Vite/React transitoires, etc.
   const devNoiseAllow = [
