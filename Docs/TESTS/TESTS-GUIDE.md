@@ -1,4 +1,4 @@
-# DooDates - Guide Complet des Tests
+# DooDates - Guide des Tests
 
 > **Document de référence unique** - Novembre 2025  
 > **Dernière mise à jour** : 03 novembre 2025 (Phases 2 & 3 optimisations)
@@ -7,116 +7,132 @@
 
 ## 📊 Vue d'Ensemble
 
-### ✅ Résultats Actuels
+### Résultats Actuels
 
 ```
-🎯 Tests Unitaires (Vitest)    : 669/675 passent (99%)
+🎯 Tests Unitaires (Vitest)    : 737/743 passent (99%)
+   - Dashboard                 : ~68 tests
 🤖 Tests IA (Gemini/Jest)      : 14/15 passent (93%)
-🌐 Tests E2E (Playwright)      : 22/22 passent (100% sur Chrome)
-   - Analytics IA              : 9/9 passent (mode enchaîné)
-   - Console & React           : 3/3 passent (hooks, errors, leaks)
-   - Form Poll Regression      : 4/4 passent (mode enchaîné)
-   - Autres E2E                : 6/6 passent
+🌐 Tests E2E (Playwright)      : 42/42 passent (100% sur Chrome)
+   - Dashboard                 : 22 tests
+   - Analytics IA              : 9/9 passent
+   - Form Poll Regression      : 4/4 passent
 📈 SCORE GLOBAL                : 98%
 ```
 
-**Status** : ✅ **PRODUCTION-READY** - Analytics IA intégrés
+**Status** : ✅ **PRODUCTION-READY**
 
-**Dernière mise à jour** : 05/01/2025 - Phase 2 E2E optimisations complétée (49 occurrences waitForTimeout supprimées), Tests PollAnalyticsPanel créés (29 tests), Tests useAnalyticsQuota créés (22 tests), Tests PollAnalyticsService créés (20 tests), Tests Analytics IA, Form Poll Regression, PollActions.close et SimulationComparison réactivés et intégrés
-
-**Note Firefox/Safari** : Les tests Analytics IA sont skippés sur Firefox/Safari en raison d'un bug Playwright avec le mode serial + shared context ([#13038](https://github.com/microsoft/playwright/issues/13038), [#22832](https://github.com/microsoft/playwright/issues/22832)). Les tests passent à 100% sur Chrome.
-
-**Note CI/Sharding** : Les suites complètes en mode serial (Analytics IA - 9 tests, Form Poll Regression - 4 tests) sont exécutées dans des jobs CI dédiés sans sharding pour éviter les conflits avec la distribution aléatoire des tests. Les tests indépendants peuvent être exécutés avec sharding.
+**Note** : Tests Analytics IA skippés sur Firefox/Safari (bug Playwright). Passent à 100% sur Chrome.
 
 ---
 
 ## 🚀 Quick Start
 
-**Lancer tous les tests (2 minutes) :**
+### Tests Essentiels (2 minutes)
+
 ```bash
-# Tests E2E Analytics IA + Console
+# Tests E2E critiques (Analytics IA + Console)
 npx playwright test analytics-ai.spec.ts console-errors.spec.ts --project=chromium
 ```
 
-**Résultat attendu :**
-- 12/12 tests passent
-- Durée : ~2 minutes
-- Rapport HTML généré automatiquement
+**Résultat attendu** : 12/12 tests passent, ~2 minutes
 
-**Tests manuels optionnels (17 minutes) :**
-1. Créer FormPoll (2min)
-2. Voter 5 fois (3min)
-3. Clôturer + Analytics IA (5min)
-4. Responsive mobile (5min)
-5. Cache & Quota (2min)
+### Tests Complets par Type
 
-**Temps total : 19 minutes** (vs 6-8h avant automatisation)
+```bash
+# Tests unitaires
+npm run test:unit              # Tous les tests (~30s)
+
+# Tests IA
+npm run test:gemini            # Tests complets (~30s)
+
+# Tests E2E
+npm run test:e2e:smoke         # Tests critiques (~2min)
+npm run test:e2e:functional    # Tests fonctionnels (~5min)
+npm run test:e2e               # Tous navigateurs (~15min)
+```
+
+### Tests Spécifiques
+
+```bash
+# Dashboard
+npx playwright test dashboard-complete.spec.ts tags-folders.spec.ts --project=chromium
+npm run test:unit -- src/components/dashboard/__tests__
+
+# Documentation
+npm run test:docs              # Mode dev
+npm run test:docs:production   # Mode production
+
+# Form Poll Regression
+npx playwright test form-poll-regression.spec.ts --project=chromium
+```
+
+---
+
+## 📦 Scripts NPM
+
+### Tests
+
+```bash
+# Unitaires
+npm run test:unit              # Tous les tests Vitest
+npm run test:unit:fast         # Mode rapide
+npm run test:integration       # Tests d'intégration
+
+# IA
+npm run test:gemini            # Tests IA complets
+npm run test:gemini:quick      # Tests IA rapides
+
+# E2E
+npm run test:e2e               # Tous navigateurs
+npm run test:e2e:smoke         # Tests critiques (Chromium)
+npm run test:e2e:functional    # Tests fonctionnels (Chromium)
+npm run test:e2e:ui            # Interface graphique
+npm run test:e2e:headed        # Mode visible
+
+# Documentation
+npm run test:docs              # Tests E2E documentation (mode dev)
+npm run test:docs:production   # Test production avec base path
+```
+
+### Validation Code
+
+```bash
+npm run type-check             # TypeScript
+npm run lint                   # ESLint
+npm run format                 # Prettier
+npm run build                  # Build production
+npm run validate:workflows     # Validation workflows YAML
+```
+
+### Suites Complètes
+
+```bash
+npm run test                   # Tous tests Vitest
+npm run test:ci                # Suite CI complète
+```
 
 ---
 
 ## 🏗️ Architecture des Tests
 
-### 1. Tests Unitaires - Vitest
+### 1. Tests Unitaires (Vitest)
 
-**Couverture** : 41 fichiers actifs
-- Hooks : useAutoSave, useConversations, usePollDeletionCascade, useAnalyticsQuota (22 tests) ✅
-- Services : IntentDetection, FormPollIntent, titleGeneration, PollAnalyticsService (20 tests) ✅
-- Lib : conditionalEvaluator (41 tests), exports (23 tests), SimulationComparison (13 tests) ✅, SimulationService (5 tests) ✅
-- Components : ConversationCard, PollActions (14 tests close) ✅, MultiStepFormVote (12 tests) ✅, PollAnalyticsPanel (29 tests) ✅
-- Storage : statsStorage (36 tests), messageCounter
+**Couverture** : 45 fichiers actifs
 
-**Tests réactivés récemment (04-05/01/2025) :**
-- `PollAnalyticsPanel.test.tsx` - 29 tests ✅ (NOUVEAU)
-  - Tests complets pour le composant UI d'analytics IA (interface critique)
-  - **Couverture** : Rendu initial, chargement insights automatiques, soumission requête (query, réponse, cache), gestion quotas (vérification, incrémentation, blocage), quick queries, affichage/masquage insights, affichage réponse (confiance, insights additionnels, cache), gestion erreurs
-  - **Mocks** : pollAnalyticsService, useAnalyticsQuota, useToast, logger
-  - **Status** : Tous les tests passent (8.59s)
-- `useAnalyticsQuota.test.ts` - 22 tests ✅ (NOUVEAU)
-  - Tests complets pour le hook de quotas analytics (fonctionnalité critique freemium)
-  - **Couverture** : Initialisation (anonyme/authentifié), chargement localStorage, reset automatique (changement jour), incrémentation, blocage quota atteint, messages quota, gestion erreurs localStorage
-  - **Mocks** : useAuth, localStorage (mock en mémoire)
-  - **Status** : Tous les tests passent (357ms)
-- `PollAnalyticsService.test.ts` - 20 tests ✅ (NOUVEAU)
-  - Tests complets pour le service d'analytics IA (fonctionnalité critique)
-  - **Couverture** : getInstance (singleton), queryPoll (cache, insights, context types, erreurs), generateAutoInsights (JSON parsing, normalisation confidence, erreurs non-bloquantes), clearCache (spécifique et complet), getCacheStats, buildPollContext
-  - **Mocks** : GoogleGenerativeAI, pollStorage (getPollBySlugOrId, getFormResults, getFormResponses), logger
-  - **Status** : Tous les tests passent (245ms)
-
-**Tests réactivés récemment (04/01/2025) :**
-- `PollActions.close.test.tsx` - 14 tests ✅
-  - Tests pour fonctionnalité de clôture de poll (critique en production)
-  - **Corrections** : Mock `addPoll` corrigé (le code utilise `addPoll`, pas `savePolls`), ajout mocks manquants (`useAuth`, `useConversations`, `usePollDeletionCascade`), timeouts augmentés à 10s
-  - **Status** : Tous les tests passent (338ms)
-- `SimulationComparison.test.ts` - 13 tests ✅
-  - Tests pour comparaison simulations vs réalité (affichée dans UI)
-  - **Corrections** : Mock localStorage en mémoire (comme `pollStorage.test.ts`), fonction `installLocalStorage()` créée
-  - **Status** : Tous les tests passent (14ms)
-- `MultiStepFormVote.test.tsx` - 1 test réactivé ✅
-  - Test de barre de progression (UI visible)
-  - **Corrections** : Remplacement de `toHaveStyle()` avec valeur exacte par extraction numérique + `toBeCloseTo()` pour éviter problème précision flottante
-  - **Status** : Test passe maintenant (12 tests passent au total)
-- `SimulationService.test.ts` - Test Gemini supprimé ✅
-  - **Raison** : Test unitaire avec mock ne valide pas vraiment l'intégration Gemini réelle
-  - **Note** : Si besoin de valider Gemini, utiliser un test E2E ou d'intégration
-  - **Status** : 5 tests passent (test Gemini supprimé)
-
-**Commandes** :
-```bash
-npm run test:unit              # Tous les tests
-npm run test:unit:fast         # Mode rapide
-npm run test:integration       # Tests d'intégration
-```
+**Principales zones couvertes** :
+- **Hooks** : useAutoSave, useConversations, usePollDeletionCascade, useAnalyticsQuota
+- **Services** : PollAnalyticsService, FormPollIntent, IntentDetection
+- **Components** : DashboardFilters, ManageTagsFolderDialog, PollAnalyticsPanel, MultiStepFormVote
+- **Lib** : conditionalEvaluator, exports, SimulationComparison
+- **Storage** : statsStorage, messageCounter
 
 **Configuration** : `vitest.config.ts`
 - Environment: jsdom
 - Coverage: v8 (html, json, text)
-- Exclude: node_modules, tests (E2E séparés)
+- Workers: 4 threads parallèles
 
----
-
-### 2. Tests IA Gemini - Jest
-
-**Innovation** : Premier système de tests IA automatisés avec quality gates
+### 2. Tests IA (Gemini/Jest)
 
 **Tests actifs** :
 - Détection intention (Form vs Date)
@@ -124,196 +140,63 @@ npm run test:integration       # Tests d'intégration
 - Parsing markdown structuré
 - Validation qualité réponses
 
-**Commandes** :
-```bash
-npm run test:gemini            # Tests complets (30s)
-npm run test:gemini:quick      # Tests rapides (15s)
-```
-
 **Quality Gate** : Score > 70% requis pour merge
 
----
+### 3. Tests E2E (Playwright)
 
-### 3. Tests E2E - Playwright
+**Specs actifs** : 15 fichiers (~46 tests)
 
-**Specs actifs** : 13 fichiers (26 tests)
-
-**Analytics IA (Réactivés - 15/01/2025) :**
-- `analytics-ai.spec.ts` - 18 tests (9 en suite complète + 9 indépendants) ✅
-  - Suite complète (mode serial) : Setup + Quick Queries + Query personnalisée + Cache + Quotas + Erreurs
-  - Tests indépendants : Quick Queries, Query Personnalisée, Cache, Quotas, Dark Mode, Gestion Erreurs
-  - **Status CI** : Intégrés (plus d'exclusion `--grep-invert "@analytics"`)
-  - **Sélecteurs robustes** : Utilisation de `data-testid` et `toBeAttached()` pour éviter les timeouts
-  - **Logs détaillés** : Screenshots et logs à chaque étape pour debug
-- `console-errors.spec.ts` - 2 tests qualité code ✅
-  - Erreurs console page d'accueil
-  - Warnings React Hooks
-  - ~~Memory leaks après rafraîchissements~~ (supprimé - redondant avec monitoring Sentry)
-
-**Form Poll Regression (Réactivés - 15/01/2025) :**
-- `form-poll-regression.spec.ts` - 4 tests mode enchaîné ✅
-  - RÉGRESSION #1 : Créer Form Poll avec 1 question via IA (@smoke @critical @functional)
-  - RÉGRESSION #2 : Ajouter une question via IA (@functional)
-  - RÉGRESSION #3 : Supprimer une question (@functional)
-  - RÉGRESSION #4 : Reprendre conversation après refresh (@functional)
-  - **Status CI** : Intégrés (job dédié `e2e-form-poll-regression`)
-  - **Mode serial** : Tests enchaînés avec variables partagées (`pollUrl`, `pollCreated`)
-  - **Mock IA amélioré** : Détection intention pour ajout/suppression de questions
-  - **Navigation robuste** : Utilisation de `toBeAttached()` et `networkidle` pour stabilité
-
-**Documentation (Ajoutés - 04/01/2025) :**
-- `docs.spec.ts` - 4 tests documentation ✅
-  - Documentation page loads without errors @smoke
-  - Documentation page loads a specific document @functional
-  - Documentation page handles 404 gracefully @functional
-  - Documentation assets load correctly (no 404 errors) @smoke
-  - **Correction appliquée** : `DocsViewer` utilise maintenant `import.meta.env.BASE_URL` pour respecter le base path `/DooDates/` en production
-  - **Status** : Intégrés dans tests smoke (CI)
-
-**Autres :**
-- `ultra-simple.spec.ts` - Workflow DatePoll complet ✅
-- `security-isolation.spec.ts` - Tests sécurité ✅
-- `mobile-voting.spec.ts` - Vote mobile ✅
-- `navigation-regression.spec.ts` - Navigation ✅
-- `poll-actions.spec.ts` - Actions polls ✅
-
-**WIP (skippés) :**
-- `guest-workflow.spec.ts` - Mode invité ⏸️
-- `authenticated-workflow.spec.ts` - Mode authentifié ⏸️
-- `edge-cases.spec.ts` - Cas limites ⏸️
+**Principales suites** :
+- **Dashboard** : `dashboard-complete.spec.ts` (16 tests), `tags-folders.spec.ts` (6 tests)
+- **Analytics IA** : `analytics-ai.spec.ts` (18 tests)
+- **Form Poll Regression** : `form-poll-regression.spec.ts` (4 tests)
+- **Documentation** : `docs.spec.ts` (4 tests)
+- **Autres** : ultra-simple, security-isolation, mobile-voting, navigation-regression, poll-actions
 
 **Navigateurs testés** : Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari
-
-**Tests WIP exclus de la CI** :
-Les tests marqués `.skip()` sont automatiquement exclus via `--grep-invert` dans le workflow CI :
-- `Edge Cases and Error Handling`
-- `Guest User Workflow`
-- `Authenticated User Workflow`
-
-**Commandes** :
-```bash
-npm run test:e2e               # Tous navigateurs
-npm run test:e2e:smoke         # Tests critiques (Chromium)
-npm run test:e2e:functional    # Tests fonctionnels (Chromium)
-npm run test:e2e:ui            # Interface graphique
-npm run test:e2e:headed        # Mode visible
-
-# Tests spécifiques Analytics IA
-npx playwright test analytics-ai.spec.ts --project=chromium
-npx playwright test console-errors.spec.ts --project=chromium
-npx playwright test form-poll-regression.spec.ts --project=chromium
-
-# Tests documentation
-npm run test:docs              # Tests E2E documentation (mode dev)
-npm run test:docs:production   # Test production avec base path (simulation GitHub Pages)
-```
 
 **Configuration** : `playwright.config.ts`
 - Timeout: 30s par test
 - Retries: 2 sur CI, 0 en local
-- Reporters: html, list
 - Base URL: http://localhost:8080
 
----
-
-## 🛡️ Protection contre les Régressions
-
-### Tags des Tests E2E
-
-**@smoke @critical** (Tests rapides ~2min) :
-- `ultra-simple.spec.ts` - Workflow DatePoll
-- `form-poll-regression.spec.ts` Test #1 - Créer Form Poll
-- `security-isolation.spec.ts` - 2 tests sécurité
-
-**@functional** (Tests complets ~5min) :
-- `form-poll-regression.spec.ts` Tests #2, #3, #4
-
-### Protection Multi-Niveaux
-
-**Niveau 1 : Git Hooks (Local)**
-- Pre-push exécute tests E2E smoke sur push vers `main`
-- Bloque automatiquement si tests échouent
-- Fichier : `.husky/pre-push`
-- Bypass urgence : `git push --no-verify`
-
-**Niveau 2 : GitHub Actions (PR)**
-- Workflow `pr-validation.yml` sur chaque PR
-- 7 jobs : tests unitaires, IA, build, lint, E2E smoke/functional/matrix
-- Commentaire automatique avec résumé
-- Durée : ~15-20 minutes
-
-**Niveau 3 : GitHub Actions (Post-Merge)**
-- Workflow `post-merge.yml` après merge vers main
-- Tests smoke rapides (~2min)
-- Création d'issue automatique si échec
-
-**Niveau 4 : GitHub Actions (Nightly)**
-- Workflow `nightly-e2e.yml` tous les jours à 2h UTC
-- Tests complets sur 5 navigateurs (~30min)
-- Création d'issue automatique si échec
+**Tags** :
+- `@smoke @critical` : Tests rapides (~2min)
+- `@functional` : Tests complets (~5min)
+- `@wip` : Tests en cours (skippés en CI)
 
 ---
 
 ## 🔄 CI/CD - Workflows GitHub Actions
 
-### Workflows Actifs
+### Workflows Principaux
 
-**1. `develop-to-main.yml`** - Auto-merge Develop → Main ⭐ NOUVEAU
+**1. `develop-to-main.yml`** - Auto-merge Develop → Main
 - Trigger : Push sur develop
-- Jobs parallèles : tests-unit (unitaires, intégration, UX), tests-e2e (smoke only), build-validation (type-check, lint, build)
-- Optimisations : Cache agressif (node_modules + Playwright browsers)
-- E2E sélectifs : Smoke uniquement sur develop (tests complets sur main)
+- Jobs : tests-unit, tests-e2e (smoke), build-validation
 - Auto-merge : Si tous les tests passent → merge automatique vers main
-- Notification : Issue créée si échec
-- Durée : ~5-8 minutes (vs 15-20min avant)
+- Durée : ~5-8 minutes
 
 **2. `pr-validation.yml`** - Validation Pull Requests
 - Trigger : Chaque PR vers main/develop
-- Jobs : quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix
+- Jobs : tests-unit, ai-validation, build, lint, e2e-smoke/functional/matrix
 - Durée : ~15-20 minutes
 
-**3. `post-merge.yml`** - Validation Post-Merge ⭐ PARALLÉLISÉ + SHARDING
+**3. `post-merge.yml`** - Validation Post-Merge
 - Trigger : Push sur main
-- Jobs parallèles : e2e-smoke (3 shards ~1min), e2e-functional (3 shards ~2min), notify-failure (si échec)
-- Optimisations : Sharding Playwright (3 runners par job), cache partagé (node_modules + Playwright browsers)
-- Déclenche : error-handling-enforcement, deploy-github-pages, production-deployment
-- Durée : ~2 minutes (temps du shard le plus long - gain ~5-6min vs séquentiel)
+- Jobs : e2e-smoke (3 shards ~1min), e2e-functional (3 shards ~2min)
+- Optimisations : Sharding Playwright, cache agressif
+- Durée : ~2 minutes (gain ~5-6min vs séquentiel)
 
-**4. `production-deploy-fixed.yml`** - Déploiement Production
-- Trigger : workflow_run après post-merge (success)
-- Quality gates stricts : tous tests passent
-- Déploiement seulement si 100% validé
-- Durée : ~8 minutes
-
-**5. `deploy-github-pages.yml`** - Déploiement Pages
-- Trigger : workflow_run après post-merge (success)
-- Déploie rapports Playwright
-- Durée : ~3 minutes
-
-**6. `error-handling-enforcement.yml`** - Validation Erreurs
-- Trigger : workflow_run après post-merge (success)
-- Jobs : Force utilisation ErrorFactory
-- Durée : ~2 minutes
-
-**7. `nightly-e2e.yml`** - Tests Nocturnes
+**4. `nightly-e2e.yml`** - Tests Nocturnes
 - Trigger : Quotidien 2h UTC + manuel
-- Jobs : Tests complets 5 navigateurs
+- Tests complets sur 5 navigateurs
 - Durée : ~30 minutes
-
-**8. `gemini-tests.yml`** - Tests IA Mensuels
-- Trigger : 1er du mois + manuel
-- Jobs : Tests IA complets
-- Quality gate : Score > 70%
-
-**9. `validate-yaml.yml`** - Validation Workflows YAML
-- Trigger : PR/Push modifiant `.github/workflows/**`
-- Vérifie syntaxe YAML et patterns problématiques
-- Durée : < 1min
 
 ### Exécuter un Workflow Manuellement
 
 1. Aller sur : `https://github.com/julienfritschheydon/DooDates/actions`
-2. Sélectionner le workflow (ex: `Nightly E2E Tests`)
+2. Sélectionner le workflow
 3. Cliquer sur "Run workflow"
 4. Sélectionner la branche `main`
 5. Cliquer sur "Run workflow"
@@ -327,65 +210,42 @@ npm run test:docs:production   # Test production avec base path (simulation GitH
 
 ---
 
-## 🪝 Hooks Git Locaux
+## 🪝 Git Hooks Locaux
 
 ### Stratégie: Workflow Develop → CI → Main
 
-**Objectif** : Commits rapides en développement, validation complète en CI, merge automatique vers main si succès.
-
-**Architecture** :
-- **Branche `develop`** : Hooks allégés (lint + format), push rapide, CI complète
-- **Branche `main`** : Hooks complets (tests + build + E2E), protection maximale
-- **Auto-merge** : Si CI develop ✅ → merge automatique vers main
+**Branche `develop`** : Hooks allégés (lint + format), push rapide, CI complète  
+**Branche `main`** : Hooks complets (tests + build + E2E), protection maximale
 
 ### Pre-Commit Hook
 
-**Comportement conditionnel selon la branche** :
+**Sur `develop`** (rapide ~10-20s) :
+- Scan secrets (ggshield)
+- Lint (ESLint)
+- Formatage automatique (Prettier)
 
-#### Sur branche `develop` (rapide ~10-20s)
-1. Scan secrets (ggshield)
-2. Lint (ESLint)
-3. Formatage automatique (Prettier)
-
-#### Sur branche `main` (complet ~2min)
-1. Scan secrets (ggshield)
-2. Tests unitaires rapides
-3. Vérification TypeScript
-4. Tests UX Régression
-5. Tests d'intégration
-6. Error Handling Enforcement
-7. Formatage automatique (Prettier)
+**Sur `main`** (complet ~2min) :
+- Scan secrets
+- Tests unitaires rapides
+- Vérification TypeScript
+- Tests UX Régression
+- Tests d'intégration
+- Error Handling Enforcement
+- Formatage automatique
 
 **Bypass** :
 ```bash
-# Mode rapide (toutes branches)
-FAST_HOOKS=1 git commit -m "message"
-
-# Skip formatage
-NO_FORMAT=1 git commit -m "message"
-
-# Bypass complet (déconseillé)
-git commit --no-verify -m "message"
+FAST_HOOKS=1 git commit -m "message"      # Mode rapide
+NO_FORMAT=1 git commit -m "message"       # Skip formatage
+git commit --no-verify -m "message"        # Bypass complet (déconseillé)
 ```
 
 ### Pre-Push Hook
 
-**Comportement conditionnel selon la branche** :
+**Sur `develop`** : Aucune validation (CI fera tout sur GitHub)  
+**Sur `main`** : Tests unitaires complets + Tests d'intégration + Build + E2E smoke
 
-#### Sur branche `develop` (instantané)
-- Aucune validation (CI fera tout sur GitHub)
-- Push immédiat
-
-#### Sur branche `main` (complet ~3-5min)
-1. Tests unitaires complets (604 tests)
-2. Tests d'intégration
-3. Build production
-4. Tests E2E smoke (~2min)
-
-**Bypass** :
-```bash
-git push --no-verify
-```
+**Bypass** : `git push --no-verify`
 
 ### Workflow Quotidien Recommandé
 
@@ -393,189 +253,26 @@ git push --no-verify
 # 1. Développement sur develop
 git checkout develop
 
-# 2. Commits rapides depuis Cursor (lint + format only)
-# Utiliser l'outil Git de Cursor (Ctrl+Shift+G)
-# Écrire message → Commit → ~10s
+# 2. Commits rapides (lint + format only, ~10s)
 git add .
-git commit -m "feat: nouvelle feature"  # ~10s
+git commit -m "feat: nouvelle feature"
 
-# 3. Push vers develop (instantané depuis Cursor)
+# 3. Push vers develop (instantané)
 git push  # CI complète s'exécute sur GitHub (~5-8min)
 
-# 4. Continue à coder pendant que CI tourne
-# Si CI ✅ → Auto-merge vers main → déploiement
-# Si CI ❌ → Issue créée, corriger et re-push
-
+# 4. Si CI ✅ → Auto-merge vers main → déploiement
 # 5. Skip CI pour changements mineurs (docs, typos)
 git commit -m "docs: fix typo [skip ci]"
 ```
 
 ### Optimisations CI
 
-**Parallélisation (gain ~12min):**
-- Workflow `develop-to-main.yml` : 3 jobs en parallèle (tests-unit, tests-e2e, build-validation) → Durée ~5-8min
-- Workflow `post-merge.yml` : 2 jobs E2E en parallèle (smoke + functional) → Durée ~5min (gain ~2-3min)
-- Durée totale = temps du job le plus long (au lieu de la somme séquentielle)
-
-**Sharding Playwright (gain ~3-5min):** ⭐ NOUVEAU
-- Tests E2E divisés en 3 shards (runners) parallèles
-- Smoke : 3min → ~1min (divisé par 3)
-- Functional : 5min → ~2min (divisé par 2-3)
-- 6 runners simultanés (3 smoke + 3 functional)
-
-**Cache agressif (gain ~3-5min):**
-- `node_modules` mis en cache entre runs (clé: `package-lock.json`)
-- Navigateurs Playwright mis en cache (clé: `package-lock.json`)
-- ESLint cache (`.eslintcache`) → gain ~30s par run
-- Réinstallation uniquement si dépendances changent
-- Cache partagé entre jobs du même workflow
-
-**Tests parallèles Vitest (gain ~1min):** ⭐ Phase 1
-- 4 workers (threads) en parallèle
-- Tests unitaires : 2min → ~1min
-- Configuration : `vitest.config.ts` (maxWorkers: 4, pool: 'threads')
-
-**Skip Docs Only (gain ~8min si docs uniquement):** ⭐ Phase 2
-- Détection changements avec `dorny/paths-filter@v2`
-- Skip complet des tests/build si seuls docs/md modifiés
-- Docs-only commits : < 10s (vs ~8-10min avant)
-- Workflow affiche notification "Docs only - Skip tests"
-
-**Vite Build Cache (gain ~30s-1min):** ⭐ Phase 2
-- Cache `dist/` et `node_modules/.vite/`
-- Clé : Hash de `src/**`, `vite.config.ts`, `tsconfig.json`
-- Réutilisation entre runs si code inchangé
-
-**TypeScript Incremental (gain ~30s-1min):** ⭐ Phase 3
-- Project References déjà configurées (`composite: true`)
-- Cache `.tsbuildinfo` pour builds incrémentaux
-- Clé : Hash de `src/**/*.ts*`, `tsconfig*.json`
-- Réutilisation entre runs pour `tsc` et `type-check`
-
-**Cache Multi-Niveaux (gain cumulatif):** ⭐ Phase 3
-- 5 caches en parallèle : deps, eslint, tsbuildinfo, vite, playwright
-- Restore-keys multi-niveaux pour fallback intelligent
-- Invalidation automatique sur changement de dépendances/code
-
-**E2E sélectifs (gain ~5min):**
-- Develop : Smoke tests uniquement (~2min)
-- Main : Smoke + Functional shardés (~2min vs ~8min séquentiel)
-- Nightly : Tous tests + 5 navigateurs (~30min)
-
-**Conditional E2E (gain ~2min si tests-only):** ⭐ Phase 4 - NOUVEAU
-- Détection intelligente avec `dorny/paths-filter@v2`
-- E2E **requis** si changements :
-  - Code source (`src/**/*.tsx`, `src/**/*.ts` hors tests)
-  - Config (`package.json`, `vite.config.ts`, `playwright.config.ts`)
-  - Tests E2E (`tests/e2e/**`)
-- E2E **skip** si uniquement :
-  - Tests unitaires (`src/**/__tests__/**`, `src/**/*.test.ts`)
-  - Config Vitest (`vitest.config.ts`)
-- Safeguards : Patterns négatifs pour éviter faux négatifs
-- Cas d'usage : Fix test unitaire → gain ~2min (pas besoin d'E2E)
-- Workflow affiche notification "E2E Skipped - Tests unitaires uniquement"
-
-**Parallélisation E2E + Sharding (détails) :**
-
-Tests E2E shardés dans `post-merge.yml` :
-
-```yaml
-# Job 1 : e2e-smoke (3 shards en parallèle)
-strategy:
-  matrix:
-    shard: [1, 2, 3]
-steps:
-  - run: npx playwright test --grep @smoke --shard=${{ matrix.shard }}/3
-  - Tests critiques (@smoke) divisés en 3 parties
-  - Durée : ~1min (vs 3min séquentiel)
-  - Rapports : playwright-smoke-report-{1,2,3}
-
-# Job 2 : e2e-functional (3 shards en parallèle)
-strategy:
-  matrix:
-    shard: [1, 2, 3]
-steps:
-  - run: npx playwright test --grep @functional --grep-invert "@wip|@flaky" --shard=${{ matrix.shard }}/2
-  - Tests complets divisés en 2 parties (sharding optimisé)
-  - **Analytics IA inclus** : Tests réactivés et fonctionnels (fixes sélecteurs + setup)
-  - **Form Poll Regression inclus** : Tests réactivés et fonctionnels (mock IA amélioré)
-  - Note : Suites complètes en mode serial (Analytics IA, Form Poll Regression) exécutées hors sharding pour éviter conflits
-  - Durée : ~2min (vs 5min séquentiel)
-  - Rapports : playwright-functional-report-{1,2}
-
-# Job 3 : notify-failure (si échec)
-- Crée issue avec détails des 2 jobs
-- Labels : critical, bug, main-branch, e2e-failure
-```
-
-**Avantages :**
-- ✅ Gain de temps : **~5-6min** (2min vs 8min séquentiel)
-- ✅ Scalabilité : Facile d'ajouter plus de shards (4, 5...)
-- ✅ Isolation : Pas de collision de ports (Playwright gère automatiquement)
-- ✅ Rapports séparés : Debugging plus facile par shard
-- ✅ Fail-fast : Échec d'un shard n'empêche pas les autres
-
-**Coût GitHub Actions :** 6 runners simultanés (gratuit pour projets publics)
-
-**Impact total CI (Phases 1+2+3+4) :**
-- Avant optimisations : ~8-10min
-- Après Phase 1 (sharding) : ~2min
-- Après Phase 2 (skip docs, vite cache) : ~1-2min (si code change)
-- Après Phase 3 (TS incremental) : ~1min (builds répétés)
-- Après Phase 4 (conditional E2E) : ~30s-1min (si tests-only)
-- **Gain total : ~7-9min par run (80-90% plus rapide)**
-- **Docs-only commits : < 10s (skip complet)**
-- **Tests-only commits : ~30s-1min (skip E2E, ~2min gagnés)**
-
-**Skip CI:**
-```bash
-# Pour docs, README, commentaires
-git commit -m "docs: update README [skip ci]"
-git commit -m "style: format code [skip ci]"
-
-# NE PAS skip pour code fonctionnel
-git commit -m "feat: nouvelle feature"  # ← CI obligatoire
-```
-
----
-
-## 📦 Scripts NPM Essentiels
-
-### Tests
-```bash
-# Unitaires
-npm run test:unit              # Tous les tests Vitest
-npm run test:integration       # Tests d'intégration
-
-# IA
-npm run test:gemini            # Tests IA complets
-npm run test:gemini:quick      # Tests IA rapides
-
-# E2E
-npm run test:e2e               # Tous navigateurs
-npm run test:e2e:smoke         # Tests critiques (Chromium)
-npm run test:e2e:functional    # Tests fonctionnels (Chromium)
-npm run test:e2e:ui            # Interface graphique
-
-# Documentation
-npm run test:docs              # Tests E2E documentation (mode dev)
-npm run test:docs:production  # Test production avec base path (simulation GitHub Pages)
-```
-
-### Validation Code
-```bash
-npm run type-check             # TypeScript
-npm run lint                   # ESLint
-npm run format                 # Prettier
-npm run build                  # Build production
-npm run validate:workflows     # Validation workflows YAML
-```
-
-### Suites Complètes
-```bash
-npm run test                   # Tous tests Vitest
-npm run test:ci                # Suite CI complète
-```
+- **Sharding Playwright** : Tests E2E divisés en 3 shards parallèles (gain ~5-6min)
+- **Cache agressif** : node_modules, Playwright browsers, ESLint, TypeScript, Vite
+- **Tests parallèles Vitest** : 4 workers en parallèle
+- **Skip Docs Only** : Skip complet si seuls docs/md modifiés (< 10s)
+- **Conditional E2E** : Skip E2E si uniquement tests unitaires modifiés (gain ~2min)
+- **Gain total** : ~7-9min par run (80-90% plus rapide)
 
 ---
 
@@ -623,131 +320,80 @@ VITE_SUPABASE_ANON_KEY=...
 
 **Problème** : "Invalid workflow file" dans GitHub Actions
 
-**Causes communes** :
-- Emoji ❌ dans les strings `body` ou `title`
-- Markdown bold `**` dans les multi-lignes
-- Listes numérotées `1.` au lieu de puces `-`
-- Backticks non fermés
-
 **Solutions** :
 ```bash
-# Valider localement avant de push
 npm run validate:workflows
-
-# Vérifier les patterns problématiques
-bash scripts/validate-workflows.sh
 ```
 
-**Règles à suivre** :
+**Règles** :
 - ✅ Utiliser du texte simple dans les `body`
 - ✅ Utiliser des puces `-` au lieu de `1.`
 - ✅ Éviter les emojis dans les strings multi-lignes
-- ✅ Tester avec `npm run validate:workflows`
 
 ### Tests Unitaires Lents
 
-**Problème** : Tests > 5min
-
 **Solutions** :
 ```bash
-# Mode rapide
-npm run test:unit:fast
-
-# Parallélisation
-npm run test:unit
+npm run test:unit:fast         # Mode rapide
+npm run test:unit              # Parallélisation
 ```
 
 ### Tests E2E Instables
 
-**Problème** : Timeouts, éléments non trouvés
-
 **Solutions** :
 ```bash
-# Mode headed (voir ce qui se passe)
-npm run test:e2e:headed
-
-# Mode debug
-npm run test:e2e:debug
-
-# Utiliser robustClick() dans les specs
-import { robustClick, robustFill } from './utils';
-await robustClick(page.locator('button'));
-await robustFill(page.locator('input'), 'text');
+npm run test:e2e:headed        # Mode visible
+npm run test:e2e:debug         # Mode debug
 ```
 
 ### Tests Gemini Échouent
 
-**Problème** : API errors, quotas
-
 **Solutions** :
 ```bash
-# Vérifier API key
-echo $VITE_GEMINI_API_KEY
-
-# Tester connexion
-npm run test:gemini:quick
-
+echo $VITE_GEMINI_API_KEY      # Vérifier API key
+npm run test:gemini:quick      # Tester connexion
 # Attendre si quota dépassé
-sleep 60 && npm run test:gemini
 ```
 
 ### Documentation ne Charge Pas (404)
 
-**Problème** : Erreurs 404 pour fichiers JS/Markdown en production
-
 **Solutions** :
 ```bash
-# Tester localement en mode dev
-npm run test:docs
-
-# Tester localement en mode production (simulation GitHub Pages)
-npm run test:docs:production
+npm run test:docs              # Tester mode dev
+npm run test:docs:production   # Tester mode production
 
 # Vérifier que DocsViewer utilise BASE_URL
-# Fichier: src/components/docs/DocsViewer.tsx
-# Doit contenir: const baseUrl = import.meta.env.BASE_URL || '/';
-
-# Vérifier vite.config.ts
-# Doit avoir: base: process.env.NODE_ENV === 'production' ? '/DooDates/' : '/'
+# src/components/docs/DocsViewer.tsx doit contenir:
+# const baseUrl = import.meta.env.BASE_URL || '/';
 ```
 
 ### Hooks Git Bloquent Commits
 
-**Problème** : Pre-commit trop lent
-
 **Solutions** :
 ```bash
-# Mode rapide (skip formatage)
-NO_FORMAT=1 git commit -m "message"
-
-# Bypass (déconseillé)
-git commit --no-verify -m "message"
+NO_FORMAT=1 git commit -m "message"      # Skip formatage
+git commit --no-verify -m "message"       # Bypass (déconseillé)
 ```
 
 ### Build Production Échoue
 
-**Problème** : Erreurs TypeScript
-
 **Solutions** :
 ```bash
-# Vérifier erreurs
-npm run type-check
-
-# Build dev pour debug
-npm run build:dev
+npm run type-check             # Vérifier erreurs TypeScript
+npm run build:dev              # Build dev pour debug
 ```
 
 ---
 
-## 📊 Métriques
-
-### Temps d'Exécution
+## 📊 Métriques et Temps d'Exécution
 
 | Suite | Temps | Contexte |
 |-------|-------|----------|
 | Tests unitaires | 30s | Local |
+| Tests unitaires dashboard | ~10s | Local (68 tests) |
 | Tests IA | 15-30s | Local |
 | Tests E2E smoke | 2min | Chromium |
+| Tests E2E dashboard | ~5-8min | Chromium (22 tests) |
 | Tests E2E functional | 5min | Chromium |
 | Tests E2E matrix | 15min | 5 navigateurs |
 | Pre-commit hook | < 2min | Local |
@@ -793,190 +439,249 @@ const QUALITY_THRESHOLDS = {
 
 ---
 
-## 📚 Tests Documentation - Guide Complet
+## 📚 Sections Spécialisées
 
-### 🎯 Vue d'Ensemble
+### Dashboard - Tests Complets
 
-La documentation est servie depuis `/docs` et doit fonctionner correctement avec le base path `/DooDates/` en production (GitHub Pages).
+**Tests E2E** : 22 tests (2 fichiers)
+- `dashboard-complete.spec.ts` : 16 tests
+- `tags-folders.spec.ts` : 6 tests
 
-**Problèmes corrigés (04/01/2025)** :
-1. ✅ **Fetch des fichiers Markdown** : Utilise maintenant `import.meta.env.BASE_URL` pour respecter le base path
-2. ✅ **Tests E2E** : 4 tests créés pour vérifier le chargement de la documentation
-3. ✅ **Scripts de test production** : Scripts pour tester localement avec le base path de production
+**Tests Unitaires** : ~68 tests (4 fichiers)
+- `utils.test.ts` : 30 tests
+- `DashboardFilters.test.tsx` : ~20 tests
+- `ManageTagsFolderDialog.test.tsx` : 11 tests
+- `DashboardTableView.test.tsx` : 7 tests
 
-### ✅ Tests en Local (Mode Dev)
+**Tests Manuels** : 97 tests (2 fichiers)
+- `TESTS-MANUELS-DASHBOARD-COMPLET.md` : 71 tests
+- `TESTS-MANUELS-TAGS-FOLDERS.md` : 26 tests
 
-**Test rapide** :
+**Exécution** :
 ```bash
-npm run test:docs
+# Tests E2E
+npx playwright test dashboard-complete.spec.ts tags-folders.spec.ts --project=chromium
+
+# Tests Unitaires
+npm run test:unit -- src/components/dashboard/__tests__
 ```
 
-Cela va :
-- Démarrer le serveur de dev (`npm run dev:e2e`)
-- Exécuter les tests E2E de documentation (4 tests)
-- Vérifier que la page se charge sans erreurs
-- Vérifier qu'un document spécifique se charge
-- Vérifier la gestion des erreurs 404
+### Documentation - Tests
 
-**Test manuel** :
-1. Démarrer le serveur : `npm run dev`
-2. Ouvrir : http://localhost:8080/docs
-3. Ouvrir la console (F12) et vérifier qu'il n'y a **pas d'erreurs 404** pour :
-   - Les fichiers JS (ex: `Docs-*.js`, `react-vendor-*.js`)
-   - Les fichiers CSS
-   - Les fichiers Markdown (`/docs/*.md`)
+**Tests E2E** : 4 tests dans `docs.spec.ts`
+- Documentation page loads without errors @smoke
+- Documentation page loads a specific document @functional
+- Documentation page handles 404 gracefully @functional
+- Documentation assets load correctly @smoke
 
-### 🏭 Tests en Mode Production (Simulation GitHub Pages)
-
-**Script automatique (recommandé)** :
-
-**Windows (PowerShell)** :
-```powershell
-.\scripts\test-docs-production.ps1
-```
-
-**Linux/Mac (Bash)** :
+**Exécution** :
 ```bash
-bash scripts/test-docs-production.sh
+npm run test:docs              # Mode dev
+npm run test:docs:production   # Mode production (base path /DooDates/)
 ```
 
-Le script va :
-1. Build de production avec `NODE_ENV=production`
-2. Démarrer un serveur local sur `http://localhost:4173/DooDates/`
-3. Vous permettre de tester manuellement dans le navigateur
-4. Arrêter le serveur automatiquement
+**Note** : `DocsViewer` utilise `import.meta.env.BASE_URL` pour respecter le base path en production.
 
-**Test manuel étape par étape** :
-1. Build : `NODE_ENV=production npm run build`
-2. Installer serve : `npm install -g serve`
-3. Démarrer : `serve dist -s -p 4173 --listen`
-4. Tester : http://localhost:4173/DooDates/docs
-5. Vérifier la console (F12) : pas d'erreurs 404
+---
 
-**Vérifications spécifiques** :
+## 📈 Analyse de Couverture
 
-✅ **Vérifier les assets JS** : Les URLs doivent contenir `/DooDates/`
+### Résumé
+
 ```
-✅ CORRECT : /DooDates/assets/Docs-*.js
-❌ INCORRECT : /assets/Docs-*.js
+🎯 Tests Unitaires (Vitest)    : 742/773 passent (96%)
+   - Tests en échec             : 31 tests (4%)
+   - Tests désactivés           : ~10 fichiers (.disabled, .skip)
+🤖 Tests IA (Gemini/Jest)      : 14/15 passent (93%)
+🌐 Tests E2E (Playwright)      : 42/42 passent (100% sur Chrome)
+📈 SCORE GLOBAL                : 97%
 ```
 
-✅ **Vérifier les fetch Markdown** : Les requêtes doivent utiliser le base path
+### Zones Bien Couvertes
+
+- ✅ Hooks critiques : useAutoSave, useConversations, useAnalyticsQuota
+- ✅ Services critiques : PollAnalyticsService, sort-comparator
+- ✅ Components Dashboard : DashboardFilters, ManageTagsFolderDialog, DashboardTableView
+- ✅ Components Analytics : PollAnalyticsPanel
+
+### Zones Non Couvertes / Priorités
+
+**Priorité 1 (Critiques)** :
+- 🔴 `IntentDetectionService` - 31 tests en échec
+- 🔴 `GeminiChatInterface` - Aucun test unitaire (1510 lignes)
+
+**Priorité 2 (Importantes)** :
+- 🟠 Services : ConversationService, QuotaService, PollCreatorService
+- 🟠 Hooks : useGeminiAPI, useIntentDetection, usePollManagement
+- 🟠 Lib : error-handling.ts, temporal-parser.ts
+
+**Priorité 3 (Souhaitables)** :
+- 🟡 Composants UI Shadcn (56 fichiers)
+- 🟡 Pages principales (12 fichiers)
+- 🟡 Contexts (AuthContext, OnboardingContext)
+
+### Objectifs
+
+**Court Terme (1 mois)** :
+- Tests unitaires : 95% de réussite
+- Tests E2E : Maintenir 100% sur Chrome
+- Tests IA : Maintenir > 90%
+
+**Moyen Terme (3 mois)** :
+- Couverture code : 70%
+- Tests critiques : 100%
+
+**Long Terme (6 mois)** :
+- Couverture code : 80%+
+- Tests de performance : Intégrés
+
+---
+dema
+## 🎯 Prochaines Étapes
+
+### Priorité 1 : Critiques (À faire immédiatement)
+
+#### 1. Corriger IntentDetectionService (28 tests en échec) 🔴
+
+**Problème** : `detectSimpleIntent` retourne `undefined` au lieu des intentions attendues
+
+**Actions** :
+```bash
+# Vérifier l'implémentation actuelle
+npm run test:unit -- src/services/__tests__/IntentDetectionService.test.ts
 ```
-✅ CORRECT : GET /DooDates/docs/01-Guide-Demarrage-Rapide.md
-❌ INCORRECT : GET /docs/01-Guide-Demarrage-Rapide.md
+
+**Étapes** :
+1. Vérifier que `IntentDetectionService.detectSimpleIntent()` existe
+2. Comparer l'implémentation avec les tests attendus
+3. Corriger les patterns regex ou la logique de détection
+4. Vérifier les helpers (getTestDate, formatDate)
+
+**Fichiers** : `src/services/IntentDetectionService.ts`, `src/services/__tests__/IntentDetectionService.test.ts`  
+**Durée** : 2-4 heures
+
+#### 2. Réactiver useAiMessageQuota.test.skip.ts 🟠
+
+**Actions** :
+1. Renommer `useAiMessageQuota.test.skip.ts` → `useAiMessageQuota.test.ts`
+2. Vérifier les imports (`@/contexts/AuthContext`)
+3. Corriger les mocks si nécessaire
+4. Relancer les tests
+
+**Durée** : 1-2 heures
+
+#### 3. Corriger les 3 tests mineurs en échec 🟡
+
+**Tests concernés** :
+- `DashboardFilters.test.tsx` - 1 test (comportement debounce)
+- `ManageTagsFolderDialog.test.tsx` - 1 test (sélection multiple)
+- `utils.test.ts` (dashboard) - 1 test (filtrage par dossier)
+
+**Durée** : 1-2 heures
+
+### Priorité 2 : Importantes (À planifier)
+
+#### 4. Ajouter tests pour GeminiChatInterface 🔴
+
+**Problème** : Composant le plus complexe (1510 lignes) sans tests unitaires
+
+**Approche** : Tests par responsabilité (11 responsabilités identifiées)
+- Gestion des messages, état de conversation, détection d'intentions
+- Création/modification de polls, gestion des quotas, erreurs
+- Auto-save, navigation, affichage conditionnel, formulaires
+
+**Stratégie** :
+- Commencer par les fonctions utilitaires isolables
+- Tester les hooks personnalisés séparément
+- Mocker les dépendances externes (Gemini API, storage)
+
+**Durée** : 8-12 heures (réparti sur plusieurs sessions)
+
+#### 5-7. Ajouter tests pour services/hooks/lib critiques 🟠
+
+**Services** : ConversationService, QuotaService, PollCreatorService, PollCreationBusinessLogic  
+**Hooks** : useGeminiAPI, useIntentDetection, usePollManagement  
+**Lib** : error-handling.ts, temporal-parser.ts, enhanced-gemini.ts
+
+**Durée** : 2-6 heures par fichier
+
+### Priorité 3 : Souhaitables (Nice to have)
+
+#### 8-10. Tests pour composants UI, pages, contexts 🟡
+
+**Composants UI** : Shadcn (56 fichiers), voting (18 fichiers), polls (25 fichiers)  
+**Pages** : App.tsx, Index.tsx, Auth.tsx, Vote.tsx, Results.tsx  
+**Contexts** : AuthContext, OnboardingContext
+
+**Durée** : 1-3 heures par fichier
+
+### 📋 Checklist de Progression
+
+**Phase 1 : Corrections Critiques (1-2 semaines)**
+- [ ] Corriger IntentDetectionService (28 tests)
+- [ ] Réactiver useAiMessageQuota.test.skip.ts
+- [ ] Corriger DashboardFilters (1 test)
+- [ ] Corriger ManageTagsFolderDialog (1 test)
+- [ ] Corriger utils.test.ts dashboard (1 test)
+
+**Objectif** : 100% de réussite des tests existants
+
+**Phase 2 : Couverture Critiques (2-4 semaines)**
+- [ ] Ajouter tests GeminiChatInterface (par responsabilité)
+- [ ] Ajouter tests services critiques
+- [ ] Ajouter tests hooks critiques
+
+**Objectif** : Couverture 100% des composants/services critiques
+
+**Phase 3 : Couverture Complémentaire (1-2 mois)**
+- [ ] Ajouter tests lib critiques
+- [ ] Ajouter tests composants UI principaux
+- [ ] Ajouter tests pages principales
+- [ ] Ajouter tests contexts
+
+**Objectif** : Couverture code 70%+
+
+### 🚀 Commandes Utiles
+
+```bash
+# Vérifier l'état actuel
+npm run test:unit
+
+# Tests en échec uniquement
+npm run test:unit 2>&1 | Select-String -Pattern "FAIL"
+
+# Tests spécifiques
+npm run test:unit -- src/services/__tests__/IntentDetectionService.test.ts
+
+# Générer rapport de couverture
+npm run test:unit -- --coverage
 ```
-
-### 🚀 Tests en CI
-
-Les tests E2E de documentation sont automatiquement exécutés dans les workflows GitHub Actions :
-
-1. **PR Validation** (`1-pr-validation.yml`) : Tests smoke incluant `docs.spec.ts` avec tag `@smoke`
-2. **Post-Merge E2E** (`3-main-post-merge.yml`) : Tests smoke incluant `docs.spec.ts` avec tag `@smoke`
-
-**Vérifier les résultats CI** :
-1. Aller sur : https://github.com/julienfritschheydon/DooDates/actions
-2. Ouvrir le workflow "3️⃣ Main Post-Merge E2E"
-3. Vérifier le job "🔥 E2E Smoke Tests"
-4. Vérifier que les tests `docs.spec.ts` passent
-
-### 🌐 Vérification en Production (GitHub Pages)
-
-**Après déploiement** :
-1. Attendre le déploiement (workflow `4-main-deploy-pages.yml`, ~5-10 min)
-2. Tester : https://julienfritschheydon.github.io/DooDates/docs
-3. Vérifier la console (F12) :
-   - ✅ Pas d'erreurs 404
-   - ✅ Pas d'erreurs "Failed to fetch dynamically imported module"
-   - ✅ Les fichiers Markdown se chargent correctement
-
-**Dépannage** :
-
-**Erreur** : `Failed to load resource: 404 (Docs-*.js)`
-- **Cause** : Base path pas correctement configuré
-- **Solution** : Vérifier `vite.config.ts` a `base: '/DooDates/'` en production
-
-**Erreur** : `Failed to fetch /docs/*.md`
-- **Cause** : `DocsViewer` n'utilise pas le base path
-- **Solution** : Vérifier que `src/components/docs/DocsViewer.tsx` utilise :
-  ```typescript
-  const baseUrl = import.meta.env.BASE_URL || '/';
-  const response = await fetch(`${baseUrl}docs/${docPath}`);
-  ```
-
-### 📋 Checklist Documentation
-
-**Avant de merger en main** :
-- [ ] Tests E2E locaux passent : `npm run test:docs`
-- [ ] Test production local fonctionne : `npm run test:docs:production`
-- [ ] Pas d'erreurs 404 dans la console du navigateur
-- [ ] Les fichiers Markdown se chargent correctement
-
-**Après déploiement** :
-- [ ] La documentation est accessible sur GitHub Pages
-- [ ] Pas d'erreurs 404 dans la console (F12)
-- [ ] Les documents se chargent correctement
-- [ ] Les liens internes fonctionnent
-
-### 🔍 Tests E2E Disponibles
-
-**`docs.spec.ts` (Mode Dev)** - 4 tests :
-1. **Documentation page loads without errors @smoke**
-   - Vérifie que la page `/docs` se charge
-   - Vérifie qu'il n'y a pas d'erreurs console
-
-2. **Documentation page loads a specific document @functional**
-   - Vérifie qu'un document spécifique se charge
-   - Vérifie que le contenu Markdown est rendu
-
-3. **Documentation page handles 404 gracefully @functional**
-   - Vérifie la gestion d'erreur pour documents inexistants
-
-4. **Documentation assets load correctly @smoke**
-   - Vérifie qu'il n'y a pas d'erreurs 404 pour les assets
-
-**`docs-production.spec.ts` (Mode Production)** :
-- Test pour simuler l'environnement GitHub Pages (skippé par défaut)
-- À exécuter manuellement : `npx playwright test docs-production.spec.ts --project=chromium`
-- Nécessite un serveur de production avec base path `/DooDates/`
-
-### 📝 Notes Techniques
-
-**Base Path Configuration** :
-- **Development** : Base path = `/` (pas de préfixe)
-- **Production** : Base path = `/DooDates/` (pour GitHub Pages)
-
-Le base path est injecté automatiquement par Vite via `import.meta.env.BASE_URL`.
-
-**Correction Appliquée** :
-- **Avant** : `const response = await fetch(`/docs/${docPath}`);`
-- **Après** : `const baseUrl = import.meta.env.BASE_URL || '/'; const response = await fetch(`${baseUrl}docs/${docPath}`);`
-
-Cela garantit que les fetch utilisent le bon chemin, même avec le base path `/DooDates/` en production.
 
 ---
 
 ## 📝 Notes Importantes
 
+### Tests Désactivés
+
+**Fichiers `.disabled`** : Tests obsolètes après refonte architecture
+- ConversationStorageSupabase.test.ts.disabled
+- PollCreator.test.tsx.disabled
+- ConversationSearch.test.tsx.disabled
+
+**Fichiers `.skip`** : Tests temporairement désactivés
+- useAiMessageQuota.test.skip.ts
+- GeminiChatInterface.integration.test.tsx.skip
+
+**Tests E2E skippés** : 4 tests sur mobile (form-poll-regression Tests #2, #3)
+
 ### Branch Protection
 
-**Note** : Branch Protection GitHub nécessite un compte Team/Enterprise (payant).  
-On utilise une approche alternative gratuite mais efficace :
+GitHub Branch Protection nécessite un compte Team/Enterprise (payant).  
+Approche alternative gratuite :
 - Git Hooks locaux (bloquent les pushs vers main)
 - GitHub Actions (vérifient chaque PR)
 - Post-merge (détecte les régressions)
 - Nightly (couverture complète)
-
-### Tests Désactivés
-
-**Tests unitaires** : 1 test échoue actuellement (non-bloquant)
-- `useAiMessageQuota.test.ts` - Import manquant
-- ~~`providers-integration.test.tsx`~~ - ✅ **SUPPRIMÉ** (30/10/2025) - Redondant avec E2E
-
-**Tests E2E** : 4 tests skippés sur mobile
-- `form-poll-regression.spec.ts` Tests #2, #3 - Textarea caché par z-index
-
-**Note** : Les providers (`ConversationStateProvider`, `EditorStateProvider`) sont validés par les tests E2E Playwright qui couvrent les workflows complets utilisateur.
 
 ### Maintenance
 
@@ -993,4 +698,4 @@ On utilise une approche alternative gratuite mais efficace :
 ---
 
 **Document maintenu par** : Équipe DooDates  
-**Dernière révision** : 04 janvier 2025
+**Dernière révision** : Janvier 2025

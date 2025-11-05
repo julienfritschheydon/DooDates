@@ -76,10 +76,12 @@ export function filterConversationItems(
       selectedTags.every((tag) => item.tags?.includes(tag));
 
     // Filtre par dossier
+    // Si selectedFolderId === null, on filtre uniquement les items sans dossier
+    // Si selectedFolderId === undefined, on affiche tous les items
+    // Sinon, on filtre par folderId spécifique
     const matchesFolder =
-      selectedFolderId === null ||
       selectedFolderId === undefined ||
-      item.folderId === selectedFolderId;
+      (selectedFolderId === null ? !item.folderId : item.folderId === selectedFolderId);
 
     return matchesFilter && matchesSearch && matchesTags && matchesFolder;
   });
