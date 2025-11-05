@@ -39,7 +39,7 @@ const TestDashboardFolder: React.FC = () => {
             <li>Le dialogue s'ouvre automatiquement au chargement</li>
             <li>Cliquer sur le checkbox "Test Folder 1"</li>
             <li>Vérifier que <code className="bg-gray-700 px-2 py-1 rounded">data-state="checked"</code> apparaît</li>
-            <li>Le sélecteur doit utiliser <code className="bg-gray-700 px-2 py-1 rounded">getByRole("checkbox", { name: /Test Folder 1/i })</code></li>
+            <li>Le sélecteur doit utiliser <code className="bg-gray-700 px-2 py-1 rounded">getByRole(&quot;checkbox&quot;, &#123; name: /Test Folder 1/i &#125;)</code></li>
           </ul>
         </div>
 

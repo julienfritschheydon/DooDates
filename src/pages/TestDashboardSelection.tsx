@@ -7,15 +7,10 @@ const TestDashboardSelection: React.FC = () => {
 
   const mockConversation: ConversationItem = {
     id: "test-conv-1",
-    title: "Test Conversation",
-    status: "active",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    firstMessage: "Premier message de test",
-    messageCount: 1,
-    isFavorite: false,
+    conversationTitle: "Test Conversation",
+    conversationDate: new Date(),
+    hasAI: false,
     tags: [],
-    metadata: {},
   };
 
   const toggleSelection = (id: string) => {
