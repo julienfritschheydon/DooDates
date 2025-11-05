@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Archive, Check, Copy, Download, Edit, Lock, Share2, Trash2, Vote } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -56,6 +56,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
   const [isCopied, setIsCopied] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const { deletePollWithCascade } = usePollDeletionCascade();
+  const preloadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleCopyLink = async () => {
     try {
@@ -82,6 +83,27 @@ export const PollActions: React.FC<PollActionsProps> = ({
       navigate(`/create/form?edit=${poll.id}`);
     } else {
       navigate(`/create/date?edit=${poll.id}`);
+    }
+  };
+
+  const handlePreloadEdit = () => {
+    // Précharger PollCreator si c'est un sondage de dates (pas formulaire)
+    if ((poll as any)?.type !== "form") {
+      if (preloadTimeoutRef.current) {
+        clearTimeout(preloadTimeoutRef.current);
+      }
+      preloadTimeoutRef.current = setTimeout(() => {
+        if (typeof (window as any).preloadPollCreator === "function") {
+          (window as any).preloadPollCreator();
+        }
+      }, 300);
+    }
+  };
+
+  const handleMouseLeaveEdit = () => {
+    if (preloadTimeoutRef.current) {
+      clearTimeout(preloadTimeoutRef.current);
+      preloadTimeoutRef.current = null;
     }
   };
 
@@ -384,6 +406,8 @@ export const PollActions: React.FC<PollActionsProps> = ({
 
       <button
         onClick={handleEdit}
+        onMouseEnter={handlePreloadEdit}
+        onMouseLeave={handleMouseLeaveEdit}
         className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
         data-testid="poll-action-edit"
       >

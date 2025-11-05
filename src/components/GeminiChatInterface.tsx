@@ -5,8 +5,12 @@ import React, {
   useMemo,
   useCallback,
   useImperativeHandle,
+  lazy,
+  Suspense,
 } from "react";
-import { Plus } from "lucide-react";
+// Lazy load Plus pour réduire le bundle initial
+import { createLazyIcon } from "../lib/lazy-icons";
+const PlusLazy = createLazyIcon("Plus");
 import { ChatMessageList } from "./chat/ChatMessageList";
 import { ChatInput } from "./chat/ChatInput";
 import {
@@ -14,7 +18,8 @@ import {
   type FormPollSuggestion,
   type DatePollSuggestion,
 } from "../lib/gemini";
-import PollCreator from "./PollCreator";
+// Lazy load PollCreator - ne se charge que si nécessaire
+const PollCreator = lazy(() => import("./PollCreator"));
 import FormPollCreator from "./polls/FormPollCreator";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { useConversationResume } from "../hooks/useConversationResume";
@@ -738,12 +743,25 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       }
 
       return (
-        <PollCreator
-          initialData={(pollManagement.selectedPollData as DatePollSuggestion) || undefined}
-          onBack={() => {
-            pollManagement.closePollCreator();
-          }}
-        />
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <Suspense fallback={<div className="w-8 h-8 mx-auto mb-4" />}>
+                  <PlusLazy className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+                </Suspense>
+                <p className="text-gray-600 font-medium">Chargement du créateur...</p>
+              </div>
+            </div>
+          }
+        >
+          <PollCreator
+            initialData={(pollManagement.selectedPollData as DatePollSuggestion) || undefined}
+            onBack={() => {
+              pollManagement.closePollCreator();
+            }}
+          />
+        </Suspense>
       );
     }
 
@@ -793,7 +811,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                 onClick={handleNewChat}
                 className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <Plus className="w-4 h-4" />
+                <Suspense fallback={<span className="w-4 h-4" />}>
+                  <PlusLazy className="w-4 h-4" />
+                </Suspense>
                 <span className="hidden sm:inline">Nouveau chat</span>
               </button>
             </div>

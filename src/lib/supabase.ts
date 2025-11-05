@@ -45,8 +45,9 @@ export const supabase = createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_KEY, {
 // Mode développement local détecté
 export const isLocalDevelopment = true;
 
-console.warn("🚧 Mode développement local activé - Supabase désactivé");
-console.log("📝 Les données sont stockées dans localStorage");
+// Logs de développement désactivés pour réduire le bruit en console
+// console.warn("🚧 Mode développement local activé - Supabase désactivé");
+// console.log("📝 Les données sont stockées dans localStorage");
 
 // Types pour TypeScript
 export type Database = {

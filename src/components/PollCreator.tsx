@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
 import {
   X,
   ChevronLeft,
@@ -34,13 +34,16 @@ import {
   type TimeSlot,
 } from "../services/PollCreationBusinessLogic";
 import { useAuth } from "../contexts/AuthContext";
-import { googleCalendar } from "../lib/google-calendar";
+// ❌ RETIRÉ: googleCalendar et geminiService - imports inutilisés
 import { UserMenu } from "./UserMenu";
-import { geminiService, type PollSuggestion, type DatePollSuggestion } from "../lib/gemini";
+import type { DatePollSuggestion } from "../lib/gemini";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { linkPollToConversationBidirectional } from "@/lib/ConversationPollLink";
-import { VoteGrid } from "@/components/voting/VoteGrid";
+// Lazy load VoteGrid - utilisé uniquement dans la preview conditionnelle (code actuellement commenté)
+const VoteGrid = lazy(() =>
+  import("@/components/voting/VoteGrid").then((m) => ({ default: m.VoteGrid })),
+);
 import { groupConsecutiveDates } from "../lib/date-utils";
 
 interface PollCreatorProps {

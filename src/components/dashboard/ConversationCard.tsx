@@ -11,6 +11,8 @@ import {
   Check,
   Tag,
   Folder,
+  MoreVertical,
+  Settings,
 } from "lucide-react";
 import { ConversationItem } from "./types";
 import { getStatusColor, getStatusLabel } from "./utils";
@@ -19,6 +21,15 @@ import { useConversations } from "@/hooks/useConversations";
 import { useToast } from "@/hooks/use-toast";
 import { getAllTags } from "@/lib/storage/TagStorage";
 import { getAllFolders, getFolderById } from "@/lib/storage/FolderStorage";
+import { ManageTagsFolderDialog } from "./ManageTagsFolderDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface ConversationCardProps {
   item: ConversationItem;
@@ -37,6 +48,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
   const { toast } = useToast();
   const { deleteConversation, updateConversation } = useConversations();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showTagsFolderDialog, setShowTagsFolderDialog] = useState(false);
   const tags = getAllTags();
   const folders = getAllFolders();
   const folder = item.folderId ? getFolderById(item.folderId) : null;
@@ -311,21 +323,82 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                 Reprendre
               </button>
 
-              {/* Bouton supprimer - style identique à PollActions */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteConversation();
-                }}
-                className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
-                title="Supprimer"
-                disabled={isDeleting}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              {/* Menu pour gérer tags/dossier */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowTagsFolderDialog(true);
+                    }}
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Gérer les tags/dossier
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteConversation();
+                    }}
+                    className="text-red-600 focus:text-red-600"
+                    disabled={isDeleting}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Supprimer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           )}
+
+          {/* Menu pour gérer tags/dossier pour les polls aussi */}
+          {item.poll && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowTagsFolderDialog(true);
+                  }}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Gérer les tags/dossier
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
+
+        {/* Dialog pour gérer tags et dossier */}
+        <ManageTagsFolderDialog
+          conversationId={item.id}
+          currentTags={item.tags || []}
+          currentFolderId={item.folderId}
+          open={showTagsFolderDialog}
+          onOpenChange={setShowTagsFolderDialog}
+          onSuccess={onRefresh}
+        />
       </div>
     </div>
   );

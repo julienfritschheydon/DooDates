@@ -37,7 +37,7 @@ class Logger {
   private config: LogConfig = {
     enableProduction: false,
     minLevel: "debug",
-    silentCategories: ["calendar"], // Désactiver les logs calendar par défaut
+    silentCategories: ["calendar", "performance"], // Désactiver les logs calendar et performance par défaut
     enableMonitoring: false,
   };
 

@@ -47,11 +47,7 @@ export function saveFolders(folders: Folder[]): void {
 /**
  * Crée un nouveau dossier
  */
-export function createFolder(
-  name: string,
-  color: string = "#3b82f6",
-  icon: string = "📁",
-): Folder {
+export function createFolder(name: string, color: string = "#3b82f6", icon: string = "📁"): Folder {
   const folders = getAllFolders();
   const newFolder: Folder = {
     id: `folder-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -92,7 +88,10 @@ export function updateFolder(
   }
 
   // Vérifier que le nouveau nom n'existe pas déjà (si changement de nom)
-  if (updates.name && folders.some((f, i) => i !== index && f.name.toLowerCase() === updates.name!.toLowerCase())) {
+  if (
+    updates.name &&
+    folders.some((f, i) => i !== index && f.name.toLowerCase() === updates.name!.toLowerCase())
+  ) {
     throw ErrorFactory.validation(
       `Un dossier avec le nom "${updates.name}" existe déjà`,
       `Le dossier "${updates.name}" existe déjà. Veuillez choisir un autre nom.`,
@@ -132,4 +131,3 @@ export function getFolderById(folderId: string): Folder | undefined {
 export function getFolderItemCount(folderId: string, allItems: { folderId?: string }[]): number {
   return allItems.filter((item) => item.folderId === folderId).length;
 }
-
