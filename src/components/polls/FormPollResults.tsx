@@ -108,20 +108,6 @@ export default function FormPollResults({ idOrSlug }: Props) {
   }
 
   const totalRespondents = uniqueResponses.length;
-  
-  // DEBUG: Log pour comprendre pourquoi le panneau analytics n'apparaît pas
-  if (process.env.NODE_ENV === 'development' || (typeof window !== 'undefined' && window.location.search.includes('e2e-test'))) {
-    console.log('🔍 FormPollResults DEBUG:', {
-      pollId: poll?.id,
-      pollType: poll?.type,
-      pollStatus: poll?.status,
-      totalResponses: total,
-      uniqueResponsesCount: totalRespondents,
-      responsesCount: responses.length,
-      questionsCount: questions.length,
-      willShowAnalytics: totalRespondents > 0
-    });
-  }
 
   const getAccuracyColor = (score: number) => {
     if (score >= 80) return "text-green-600 bg-green-50 border-green-200";
