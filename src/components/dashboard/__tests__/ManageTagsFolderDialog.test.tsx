@@ -21,8 +21,20 @@ vi.mock("@/lib/storage/TagStorage", () => ({
 
 vi.mock("@/lib/storage/FolderStorage", () => ({
   getAllFolders: vi.fn(() => [
-    { id: "folder-1", name: "Projets", color: "#3b82f6", icon: "📁", createdAt: new Date().toISOString() },
-    { id: "folder-2", name: "Clients", color: "#ef4444", icon: "📂", createdAt: new Date().toISOString() },
+    {
+      id: "folder-1",
+      name: "Projets",
+      color: "#3b82f6",
+      icon: "📁",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "folder-2",
+      name: "Clients",
+      color: "#ef4444",
+      icon: "📂",
+      createdAt: new Date().toISOString(),
+    },
   ]),
 }));
 

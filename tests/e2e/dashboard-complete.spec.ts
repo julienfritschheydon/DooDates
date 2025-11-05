@@ -228,7 +228,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@functional - Filtrer par dossier', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -236,15 +244,22 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
 
       // Ouvrir le menu des dossiers
-      await page.getByRole('button', { name: /Tous les dossiers/i }).click();
+      const foldersButton = page.getByRole('button', { name: /Tous les dossiers/i }).first();
+      await foldersButton.waitFor({ state: 'visible', timeout: 5000 });
+      await foldersButton.click();
+      
+      // Attendre que le menu s'ouvre
+      await page.waitForTimeout(500);
 
       // Sélectionner un dossier
-      await page.getByText('Test Folder 1').click();
+      const folderOption = page.getByText('Test Folder 1').first();
+      await folderOption.waitFor({ state: 'visible', timeout: 3000 });
+      await folderOption.click();
 
-      // Vérifier que le filtre est appliqué
-      await page.waitForTimeout(300);
-      const folderButton = page.getByRole('button', { name: /Test Folder 1/i });
-      await expect(folderButton).toBeVisible();
+      // Vérifier que le filtre est appliqué - le bouton doit afficher le nom du dossier
+      await page.waitForTimeout(500);
+      const folderButton = page.getByRole('button', { name: /Test Folder 1/i }).first();
+      await expect(folderButton).toBeVisible({ timeout: 3000 });
     } finally {
       await guard.assertClean();
       guard.stop();

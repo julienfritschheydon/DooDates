@@ -27,8 +27,20 @@ vi.mock("@/lib/storage/TagStorage", () => ({
 
 vi.mock("@/lib/storage/FolderStorage", () => ({
   getAllFolders: vi.fn(() => [
-    { id: "folder-1", name: "Projets", color: "#3b82f6", icon: "📁", createdAt: new Date().toISOString() },
-    { id: "folder-2", name: "Clients", color: "#ef4444", icon: "📂", createdAt: new Date().toISOString() },
+    {
+      id: "folder-1",
+      name: "Projets",
+      color: "#3b82f6",
+      icon: "📁",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "folder-2",
+      name: "Clients",
+      color: "#ef4444",
+      icon: "📂",
+      createdAt: new Date().toISOString(),
+    },
   ]),
   createFolder: vi.fn((name: string) => ({
     id: `folder-${Date.now()}`,
@@ -61,19 +73,24 @@ describe("DashboardFilters", () => {
     render(<DashboardFilters {...defaultProps} />);
     const searchInput = screen.getByTestId("search-conversations");
     expect(searchInput).toBeInTheDocument();
-    expect(searchInput).toHaveAttribute("placeholder", "Rechercher une conversation ou un sondage...");
+    expect(searchInput).toHaveAttribute(
+      "placeholder",
+      "Rechercher une conversation ou un sondage...",
+    );
   });
 
   it("should call onSearchChange when typing in search input", async () => {
     const user = userEvent.setup();
     const onSearchChange = vi.fn();
-    const { rerender } = render(<DashboardFilters {...defaultProps} searchQuery="" onSearchChange={onSearchChange} />);
+    const { rerender } = render(
+      <DashboardFilters {...defaultProps} searchQuery="" onSearchChange={onSearchChange} />,
+    );
 
     const searchInput = screen.getByTestId("search-conversations");
-    
+
     // Simuler la saisie en utilisant fireEvent pour être sûr que onChange est déclenché
     fireEvent.change(searchInput, { target: { value: "test" } });
-    
+
     // Attendre que l'événement soit traité
     await waitFor(() => {
       expect(onSearchChange).toHaveBeenCalledWith("test");
@@ -260,7 +277,11 @@ describe("DashboardFilters", () => {
     const user = userEvent.setup();
     const onTagsChange = vi.fn();
     render(
-      <DashboardFilters {...defaultProps} selectedTags={["Prioritaire", "Client"]} onTagsChange={onTagsChange} />,
+      <DashboardFilters
+        {...defaultProps}
+        selectedTags={["Prioritaire", "Client"]}
+        onTagsChange={onTagsChange}
+      />,
     );
 
     const prioritaireBadge = screen.getByText("Prioritaire").closest("span");
