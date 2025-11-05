@@ -433,12 +433,16 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
       const conversationCard = page.locator('[data-testid="poll-item"]').first();
 
-      // Vérifier que les tags sont visibles
-      await expect(conversationCard.locator('text=Test Tag 1')).toBeVisible({ timeout: 5000 });
-      await expect(conversationCard.locator('text=Test Tag 2')).toBeVisible({ timeout: 5000 });
+      // Vérifier que les tags sont visibles - utiliser getByText (comme dans les autres tests corrigés)
+      const tag1OnCard = conversationCard.getByText(/Test Tag 1/i);
+      await expect(tag1OnCard).toBeVisible({ timeout: 5000 });
+      
+      const tag2OnCard = conversationCard.getByText(/Test Tag 2/i);
+      await expect(tag2OnCard).toBeVisible({ timeout: 5000 });
 
-      // Vérifier que le dossier est visible
-      await expect(conversationCard.locator('text=Test Folder 1')).toBeVisible({ timeout: 5000 });
+      // Vérifier que le dossier est visible - utiliser getByText
+      const folderOnCard = conversationCard.getByText(/Test Folder 1/i);
+      await expect(folderOnCard).toBeVisible({ timeout: 5000 });
     } finally {
       await guard.assertClean();
       guard.stop();
