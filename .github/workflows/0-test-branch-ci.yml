@@ -1,4 +1,4 @@
-name: 🧪 Test Branch - Tests Isolés Uniquement
+        name: 🧪 Test Branch - Tests Dashboard Corrigés
 
 on:
   push:
@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Job unique: Tests isolés uniquement (2 tests rapides)
-  e2e-isolated:
+          # Job unique: Tests dashboard corrigés
+          e2e-isolated:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -45,32 +45,34 @@ jobs:
             npx playwright install --with-deps chromium
           fi
 
-      - name: 🎯 Run Isolated Tests Only (2 tests rapides)
-        run: |
-          npx playwright test \
-            tests/e2e/test-dashboard-isolated.spec.ts \
-            --config=playwright.config.optimized.ts \
-            --project=chromium \
-            --reporter=html,json
+              - name: 🎯 Run Dashboard Tests (Tests corrigés)
+                run: |
+                  npx playwright test \
+                    tests/e2e/dashboard-complete.spec.ts \
+                    tests/e2e/tags-folders.spec.ts \
+                    --config=playwright.config.optimized.ts \
+                    --project=chromium \
+                    --grep="@functional - (Sélectionner|Assigner)" \
+                    --reporter=html,json
         env:
           CI: true
           VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
 
-      - name: 📊 Upload Playwright HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-isolated
-          path: playwright-report
-          retention-days: 3
+              - name: 📊 Upload Playwright HTML report
+                if: always()
+                uses: actions/upload-artifact@v4
+                with:
+                  name: playwright-report-dashboard
+                  path: playwright-report
+                  retention-days: 3
 
-      - name: 📤 Upload test results JSON
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-isolated
-          path: test-results
-          retention-days: 3
+              - name: 📤 Upload test results JSON
+                if: always()
+                uses: actions/upload-artifact@v4
+                with:
+                  name: test-results-dashboard
+                  path: test-results
+                  retention-days: 3
 
       - name: 📸 Upload screenshots
         if: always()
@@ -99,30 +101,30 @@ jobs:
           if-no-files-found: ignore
           retention-days: 3
 
-  # Summary avec commentaire
-  test-summary:
-    needs: [e2e-isolated]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: 📊 Test Summary
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const status = '${{ needs.e2e-isolated.result }}' === 'success' ? '✅' : '❌';
-            
-            let summary = `## ${status} Tests Isolés - ${status === '✅' ? 'Réussis' : 'Échoués'}\n\n`;
-            summary += `**Branche:** \`${context.ref.replace('refs/heads/', '')}\`\n`;
-            summary += `**Objectif:** Tester rapidement les pages isolées (2 tests uniquement)\n\n`;
-            
-            if (status === '✅') {
-              summary += '🚀 **Les tests isolés passent !**\n';
-              summary += '📸 **Screenshots disponibles dans les artefacts pour debug**';
-            } else {
-              summary += '⚠️ **Des tests ont échoué. Vérifier les rapports et screenshots dans les artefacts.**';
-            }
-            
-            summary += `\n\n📋 **Rapports détaillés disponibles dans les artefacts GitHub Actions**`;
-            
-            // Afficher le summary dans les logs (pas de commentaire GitHub pour éviter les erreurs de permissions)
-            console.log(summary);
+          # Summary avec commentaire
+          test-summary:
+            needs: [e2e-isolated]
+            runs-on: ubuntu-latest
+            if: always()
+            steps:
+              - name: 📊 Test Summary
+                uses: actions/github-script@v7
+                with:
+                  script: |
+                    const status = '${{ needs.e2e-isolated.result }}' === 'success' ? '✅' : '❌';
+                    
+                    let summary = `## ${status} Tests Dashboard - ${status === '✅' ? 'Réussis' : 'Échoués'}\n\n`;
+                    summary += `**Branche:** \`${context.ref.replace('refs/heads/', '')}\`\n`;
+                    summary += `**Objectif:** Tester les tests corrigés (Sélectionner, Assigner tags/dossiers)\n\n`;
+                    
+                    if (status === '✅') {
+                      summary += '🚀 **Les tests passent !**\n';
+                      summary += '📸 **Screenshots disponibles dans les artefacts pour debug**';
+                    } else {
+                      summary += '⚠️ **Des tests ont échoué. Vérifier les rapports et screenshots dans les artefacts.**';
+                    }
+                    
+                    summary += `\n\n📋 **Rapports détaillés disponibles dans les artefacts GitHub Actions**`;
+                    
+                    // Afficher le summary dans les logs (pas de commentaire GitHub pour éviter les erreurs de permissions)
+                    console.log(summary);

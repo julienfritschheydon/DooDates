@@ -157,7 +157,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
   const handleClose = () => {
     if (
       !window.confirm(
-        "Êtes-vous sûr de vouloir clôturer ce questionnaire ? Il ne sera plus possible de recevoir de nouvelles réponses.",
+        "Êtes-vous sûr de vouloir terminer ce questionnaire ? Il ne sera plus possible de recevoir de nouvelles réponses.",
       )
     )
       return;
@@ -176,24 +176,24 @@ export const PollActions: React.FC<PollActionsProps> = ({
           try {
             const comparison = compareSimulationWithReality(poll.id, lastSimulation);
             toast({
-              title: "Questionnaire clôturé",
+              title: "Questionnaire terminé",
               description: `Précision de la simulation : ${comparison.accuracy.overall}%`,
             });
           } catch (error) {
             toast({
-              title: "Questionnaire clôturé",
+              title: "Questionnaire terminé",
               description: "Le questionnaire est maintenant fermé aux nouvelles réponses.",
             });
           }
         } else {
           toast({
-            title: "Questionnaire clôturé",
+            title: "Questionnaire terminé",
             description: "Le questionnaire est maintenant fermé aux nouvelles réponses.",
           });
         }
       } else {
         toast({
-          title: "Sondage clôturé",
+          title: "Sondage terminé",
           description: "Le sondage est maintenant fermé aux nouveaux votes.",
         });
       }
@@ -201,7 +201,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
     } catch {
       toast({
         title: "Erreur",
-        description: "Impossible de clôturer le questionnaire.",
+        description: "Impossible de terminer le questionnaire.",
         variant: "destructive",
       });
     }
@@ -428,11 +428,11 @@ export const PollActions: React.FC<PollActionsProps> = ({
         <button
           onClick={handleClose}
           className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
-          title="Clôturer"
+          title="Terminer"
           data-testid="poll-action-close"
         >
           <Lock className="w-4 h-4" />
-          {variant === "full" && <span className="hidden sm:inline">Clôturer</span>}
+          {variant === "full" && <span className="hidden sm:inline">Terminer</span>}
         </button>
       )}
 

@@ -81,7 +81,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
     return map;
   }, [questions, countsByQuestion, textAnswers]);
 
-  // Récupérer la comparaison simulation si le poll est clôturé
+  // Récupérer la comparaison simulation si le poll est terminé
   const comparison = useMemo(() => {
     if (poll?.status === "closed") {
       return getComparisonByPollId(poll.id);
@@ -167,7 +167,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
                   <div>
                     <h3 className="font-semibold text-lg">Simulation vs Réalité</h3>
                     <p className="text-sm opacity-80">
-                      Comparaison avec la simulation effectuée avant clôture
+                      Comparaison avec la simulation effectuée avant terminaison
                     </p>
                   </div>
                 </div>
