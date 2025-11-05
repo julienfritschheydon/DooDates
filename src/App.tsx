@@ -49,6 +49,8 @@ const WorkspacePage = lazy(() => import("./app/workspace/page"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const Docs = lazy(() => import("./pages/Docs").then((m) => ({ default: m.Docs })));
 const Pricing = lazy(() => import("./pages/Pricing").then((m) => ({ default: m.PricingPage })));
+const TestDashboardSelection = lazy(() => import("./pages/TestDashboardSelection"));
+const TestDashboardFolder = lazy(() => import("./pages/TestDashboardFolder"));
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -332,7 +334,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     location.pathname.startsWith("/vote/") ||
     location.pathname.startsWith("/auth") ||
     location.pathname.startsWith("/docs") ||
-    location.pathname.startsWith("/pricing");
+    location.pathname.startsWith("/pricing") ||
+    location.pathname.startsWith("/dashboard");
 
   // Si page classique, utiliser layout simple
   if (useClassicLayout) {
@@ -399,6 +402,8 @@ const App = () => {
                                 />
                                 <Route path="/pricing" element={<Pricing />} />
                                 <Route path="/docs/*" element={<Docs />} />
+                                <Route path="/test/dashboard/selection" element={<TestDashboardSelection />} />
+                                <Route path="/test/dashboard/folder" element={<TestDashboardFolder />} />
                                 <Route path="*" element={<NotFound />} />
                               </Routes>
                             </ConversationProvider>
