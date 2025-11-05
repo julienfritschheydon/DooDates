@@ -125,7 +125,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
   });
 
-  test.skip('@functional - Assigner des tags à une conversation', async ({ page }) => {
+  test('@functional - Assigner des tags à une conversation', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -169,82 +169,34 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
       await expect(dialog).toBeVisible({ timeout: 5000 });
 
-      // Sélectionner un tag - trouver le conteneur div avec les classes flex items-center space-x-2
-      // qui contient le texte "Test Tag 1" dans le dialogue
-      const tag1Text = dialog.getByText('Test Tag 1').first();
-      await tag1Text.waitFor({ state: 'visible', timeout: 5000 });
-      
-      // Trouver le conteneur parent (div.flex.items-center.space-x-2) qui contient ce texte
-      const tag1Container = tag1Text.locator('..').locator('..').first(); // span -> label -> div
-      await tag1Container.waitFor({ state: 'visible', timeout: 3000 });
-      await tag1Container.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(200);
-      
-      // Trouver le checkbox Radix UI dans ce conteneur
-      const tag1Checkbox = tag1Container.locator('[role="checkbox"]').first();
-      await tag1Checkbox.waitFor({ state: 'visible', timeout: 3000 });
+      // Sélectionner un tag - utiliser getByRole (comme dans les tests isolés qui marchent)
+      const tagCheckbox = page.getByRole('checkbox', { name: /Test Tag 1/i });
+      await tagCheckbox.waitFor({ state: 'visible', timeout: 3000 });
+      await tagCheckbox.scrollIntoViewIfNeeded();
       
       // Vérifier que le dialogue est toujours visible avant le clic
       await expect(dialog).toBeVisible({ timeout: 2000 });
       
       // Cliquer sur le checkbox
-      await tag1Checkbox.click({ force: true });
+      await tagCheckbox.click({ force: true });
       
-      // Attendre que l'état change (peut être asynchrone)
-      await page.waitForTimeout(300);
+      // Attendre que React se mette à jour
+      await page.waitForTimeout(100);
 
       // Vérifier que le dialogue est toujours ouvert après le clic
-      // Attendre un peu plus longtemps pour permettre les re-renders
-      await page.waitForTimeout(500);
-      
-      // Re-questionner le dialogue pour s'assurer qu'il n'est pas stale
-      const dialogStillOpen = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
-      
-      // Vérifier plusieurs fois avec des timeouts courts pour gérer les cas où le dialogue pourrait être temporairement invisible
-      let retries = 0;
-      const maxRetries = 10;
-      while (retries < maxRetries) {
-        try {
-          await expect(dialogStillOpen).toBeVisible({ timeout: 1000 });
-          break; // Le dialogue est visible, on peut continuer
-        } catch (error) {
-          retries++;
-          if (retries >= maxRetries) {
-            // Si après tous les essais le dialogue n'est toujours pas visible, c'est une erreur
-            throw new Error(`Le dialogue n'est pas visible après ${maxRetries} tentatives. Il s'est peut-être fermé après le premier clic.`);
-          }
-          // Attendre un peu avant de réessayer
-          await page.waitForTimeout(300);
-        }
-      }
+      await expect(dialog).toBeVisible({ timeout: 2000 });
 
-      // Sélectionner un autre tag - chercher uniquement dans le dialogue
-      // Le conteneur des tags a max-h-48 et overflow-y-auto, donc il faut peut-être scroller
-      const tagsContainer = dialogStillOpen.locator('div[class*="max-h"]').filter({ hasText: /Tags/i }).or(
-        dialogStillOpen.locator('div').filter({ has: page.getByText('Test Tag 1') }).first().locator('..').first()
-      ).first();
-      
-      // Scroller vers le bas pour rendre "Test Tag 2" visible
-      await tagsContainer.evaluate((el) => {
-        const scrollable = el.querySelector('[class*="overflow-y"]') || el;
-        scrollable.scrollTop = scrollable.scrollHeight;
-      });
-      await page.waitForTimeout(500);
-      
-      const tag2Text = dialogStillOpen.getByText('Test Tag 2').first();
-      await tag2Text.waitFor({ state: 'visible', timeout: 5000 });
-      
-      const tag2Container = tag2Text.locator('..').locator('..').first(); // span -> label -> div
-      await tag2Container.waitFor({ state: 'visible', timeout: 3000 });
-      await tag2Container.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(300);
-      
-      const tag2Checkbox = tag2Container.locator('[role="checkbox"]').first();
+      // Sélectionner un autre tag - utiliser getByRole (comme dans les tests isolés qui marchent)
+      const tag2Checkbox = page.getByRole('checkbox', { name: /Test Tag 2/i });
       await tag2Checkbox.waitFor({ state: 'visible', timeout: 3000 });
+      await tag2Checkbox.scrollIntoViewIfNeeded();
       await tag2Checkbox.click({ force: true });
       
-      // Attendre que l'état change
-      await page.waitForTimeout(500);
+      // Attendre que React se mette à jour
+      await page.waitForTimeout(100);
+      
+      // Vérifier que le dialogue est toujours ouvert
+      await expect(dialog).toBeVisible({ timeout: 2000 });
 
       // Sauvegarder
       const saveButton = page.getByRole('button', { name: /Enregistrer/i });
