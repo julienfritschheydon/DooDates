@@ -95,9 +95,9 @@ Cmd + D (Mac)
 → En cours de création
 ```
 
-**4. Clôturés**
+**4. Terminés**
 ```
-🔒 Clôturés
+🔒 Terminés
 → Sondages terminés
 → Plus de votes possibles
 ```
@@ -126,13 +126,22 @@ Cmd + D (Mac)
 ```
 **Avantage :** Visuel, aperçu rapide, adapté mobile
 
-#### Vue Liste
+#### Vue Tableau (Desktop uniquement)
 ```
 ☰ Réunion Sprint Planning | 8/10 | Actif | 2j | [Actions]
 ☰ Satisfaction Client Q4 | 47/100 | Actif | 5j | [Actions]
-☰ Sondage Déjeuner      | 5/8 | Clôturé | 10j | [Actions]
+☰ Sondage Déjeuner      | 5/8 | Terminé | 10j | [Actions]
 ```
 **Avantage :** Compact, plus d'infos visibles, tri facile
+
+**Disponibilité :**
+- ✅ **Desktop** (> 1024px) : Vue complète avec toutes les colonnes
+- ✅ **Tablette** (768-1024px) : Vue optimisée (colonnes principales uniquement)
+- ❌ **Mobile** (< 768px) : Vue grille uniquement (tableau masqué)
+
+**Colonnes visibles :**
+- **Desktop** : Sélection | Titre (2 lignes max) | Statut | Statistiques | Date | Actions
+- **Tablette** : Sélection | Titre (2 lignes max) | Statut | Actions
 
 ---
 
@@ -173,10 +182,12 @@ Cmd + D (Mac)
 | Badge | Signification | Couleur |
 |-------|---------------|---------|
 | ✅ **Actif** | En cours de collecte | Vert |
-| 📝 **Brouillon** | Non publié | Gris |
-| 🔒 **Clôturé** | Terminé | Rouge |
+| 📝 **Brouillon** | Non publié (avec sondage uniquement) | Gris |
+| 🔒 **Terminé** | Terminé | Rouge |
 | 🗂️ **Archivé** | Masqué du dashboard | Gris clair |
 | ⏰ **Deadline proche** | Fermeture < 24h | Orange |
+
+**Note :** Le filtre "Brouillons" affiche uniquement les conversations avec un sondage en brouillon. Les conversations sans sondage ne sont pas incluses.
 
 ---
 
@@ -201,7 +212,11 @@ Cmd + D (Mac)
 
 **Recherche intelligente :**
 ```
-🔍 [Rechercher par titre, description, tags...]
+🔍 [Rechercher par titre, description, tags...] [X]
+
+• Bouton [X] pour effacer rapidement la recherche
+• Apparaît automatiquement quand la recherche contient du texte
+• Cliquer pour réinitialiser et afficher tous les sondages
 
 Exemples :
 • "satisfaction"  → Trouve "Satisfaction Client Q4"
@@ -274,19 +289,37 @@ Options :
 
 ## ⚡ Actions Rapides
 
-### Menu Actions (•••)
+### Menu Actions
 
-**Clic sur •••** dans une carte :
+**Actions principales visibles** (boutons directs) :
+- **Sondages** : 📊 Résultats | 🗳️ Voter
+- **Conversations** : 💬 Reprendre
+
+**Menu "..." (Plus d'actions)** :
 ```
 ┌─────────────────────────────┐
-│  📊 Voir les résultats       │
-│  ✏️ Modifier                 │
+│  ⚙️ Gérer les tags/dossier  │
+│  ─────────────────────────   │
 │  🔗 Copier le lien           │
-│  📤 Partager                 │
-│  📥 Exporter                 │
+│  📥 Exporter (sous-menu)     │
+│    ├─ 📊 CSV                │
+│    ├─ 📄 PDF                │
+│    ├─ 🔧 JSON               │
+│    └─ 📝 Markdown           │
+│  ✏️ Modifier                 │
 │  📋 Dupliquer                │
-│  🔒 Clôturer                 │
+│  🔒 Terminer                 │
 │  🗂️ Archiver                 │
+│  ─────────────────────────   │
+│  🗑️ Supprimer               │
+└─────────────────────────────┘
+```
+
+**Pour les conversations sans sondage :**
+```
+┌─────────────────────────────┐
+│  ⚙️ Gérer les tags/dossier  │
+│  ─────────────────────────   │
 │  🗑️ Supprimer               │
 └─────────────────────────────┘
 ```
@@ -332,7 +365,7 @@ Options :
 → Vides les réponses
 ```
 
-#### 🔒 Clôturer
+#### 🔒 Terminer
 ```
 → Ferme le sondage aux nouveaux votes
 → Confirmation requise
@@ -375,29 +408,8 @@ Options :
 
 ---
 
-### Graphiques de Tendance
 
-**Cliquez sur un widget pour voir les détails :**
 
-**Exemple : Réponses dans le temps**
-```
-📊 Réponses reçues (30 derniers jours)
-
-   50 │                            ▄█
-      │                         ▄█▀
-   40 │                      ▄█▀
-      │                   ▄█▀
-   30 │                ▄█▀
-      │             ▄█▀
-   20 │          ▄█▀
-      │       ▄█▀
-   10 │    ▄█▀
-      │ ▄█▀
-    0 └───────────────────────────────
-      Nov 1    Nov 10    Nov 20   Nov 30
-```
-
----
 
 ## 🗂️ Organisation
 
@@ -421,7 +433,11 @@ Tags disponibles :
 ```
 Filtres → Tags → ☑ Prioritaire
 → Affiche uniquement sondages "Prioritaire"
+→ Les tags sélectionnés apparaissent comme badges sous les filtres
+→ Cliquer sur [X] d'un badge pour retirer le filtre
 ```
+
+**Note :** Les clics dans les menus de tags et dossiers ne déclenchent plus l'ouverture de la conversation (propagation corrigée).
 
 ---
 
@@ -510,7 +526,7 @@ Sondage → Menu ••• → "Historique des versions"
 "Sondages à relancer"
 → Filtre : Actifs + Réponses < 30% + Créés > 3 jours
 
-"À clôturer cette semaine"
+"À terminer cette semaine"
 → Filtre : Actifs + Deadline < 7 jours
 
 "Brouillons à terminer"
@@ -524,7 +540,7 @@ Sondage → Menu ••• → "Historique des versions"
 **Nettoyez votre dashboard :**
 ```
 Tous les mois :
-• Archivez les sondages clôturés il y a > 30 jours
+• Archivez les sondages terminés il y a > 30 jours
 • Supprimez les brouillons abandonnés
 • Exportez les données importantes
 

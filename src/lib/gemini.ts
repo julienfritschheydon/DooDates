@@ -1521,6 +1521,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
 
   async testConnection(): Promise<boolean> {
     if (!API_KEY) {
+      logger.warn("Clé API Gemini non configurée (VITE_GEMINI_API_KEY manquante)", "api");
       return false;
     }
 
@@ -1534,14 +1535,31 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
       const result = await this.model.generateContent("Test de connexion");
       const response = await result.response;
       return response !== null;
-    } catch (error) {
+    } catch (error: any) {
+      // Détecter spécifiquement les erreurs de clé API invalide
+      const errorMessage = error?.message || "";
+      const isApiKeyError =
+        errorMessage.includes("API key not valid") ||
+        errorMessage.includes("Please pass a valid API key") ||
+        errorMessage.includes("API_KEY_INVALID");
+
+      if (isApiKeyError) {
+        logger.error(
+          "Clé API Gemini invalide. Vérifiez VITE_GEMINI_API_KEY dans .env.local",
+          "api",
+          { error: errorMessage },
+        );
+      }
+
       const connectionError = handleError(
         error,
         {
           component: "GeminiService",
           operation: "testConnection",
         },
-        "Erreur lors du test de connexion Gemini",
+        isApiKeyError
+          ? "Clé API Gemini invalide ou manquante"
+          : "Erreur lors du test de connexion Gemini",
       );
 
       logError(connectionError, {

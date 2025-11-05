@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -13,15 +13,10 @@ import {
   Folder,
   MoreVertical,
   Settings,
-  Share2,
-  Download,
-  Edit,
-  Copy,
-  Lock,
-  Archive,
 } from "lucide-react";
 import { ConversationItem } from "./types";
 import { getStatusColor, getStatusLabel } from "./utils";
+import PollActions from "@/components/polls/PollActions";
 import { useConversations } from "@/hooks/useConversations";
 import { useToast } from "@/hooks/use-toast";
 import { getAllTags } from "@/lib/storage/TagStorage";
@@ -33,28 +28,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import {
-  buildPublicLink,
-  copyToClipboard,
-  duplicatePoll,
-  addPoll,
-  deleteVotesByPollId,
-} from "@/lib/pollStorage";
-import {
-  exportFormPollToCSV,
-  exportFormPollToPDF,
-  exportFormPollToJSON,
-  exportFormPollToMarkdown,
-  hasExportableData,
-} from "@/lib/exports";
-import { usePollDeletionCascade } from "@/hooks/usePollDeletionCascade";
-import { createConversationForPoll } from "@/lib/ConversationPollLink";
-import { logError, ErrorFactory } from "@/lib/error-handling";
 
 interface ConversationCardProps {
   item: ConversationItem;
@@ -72,11 +47,8 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const { deleteConversation, updateConversation } = useConversations();
-  const { deletePollWithCascade } = usePollDeletionCascade();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showTagsFolderDialog, setShowTagsFolderDialog] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-  const preloadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const tags = getAllTags();
   const folders = getAllFolders();
   const folder = item.folderId ? getFolderById(item.folderId) : null;
@@ -107,225 +79,6 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
       });
     } finally {
       setIsDeleting(false);
-    }
-  };
-
-  // Handlers pour les actions de poll (extraits de PollActions)
-  const handleCopyLink = async () => {
-    if (!item.poll) return;
-    try {
-      const url = buildPublicLink(item.poll.slug);
-      await copyToClipboard(url);
-      setIsCopied(true);
-      toast({
-        title: "Lien copié",
-        description: "Le lien du sondage a été copié.",
-      });
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch {
-      toast({
-        title: "Erreur",
-        description: "Impossible de copier le lien.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handlePreloadEdit = () => {
-    if (!item.poll) return;
-    // Précharger PollCreator si c'est un sondage de dates (pas formulaire)
-    if (item.poll.type !== "form") {
-      if (preloadTimeoutRef.current) {
-        clearTimeout(preloadTimeoutRef.current);
-      }
-      preloadTimeoutRef.current = setTimeout(() => {
-        if (typeof (window as any).preloadPollCreator === "function") {
-          (window as any).preloadPollCreator();
-        }
-      }, 300);
-    }
-  };
-
-  const handleMouseLeaveEdit = () => {
-    if (preloadTimeoutRef.current) {
-      clearTimeout(preloadTimeoutRef.current);
-      preloadTimeoutRef.current = null;
-    }
-  };
-
-  const handleEdit = () => {
-    if (!item.poll) return;
-    if (item.poll.type === "form") {
-      navigate(`/create/form?edit=${item.poll.id}`);
-    } else {
-      navigate(`/create/date?edit=${item.poll.id}`);
-    }
-  };
-
-  const handleDuplicate = () => {
-    if (!item.poll) return;
-    try {
-      const dup = duplicatePoll(item.poll);
-      addPoll(dup);
-      createConversationForPoll(dup.id, dup.title, dup.type || "date");
-      toast({
-        title: "Sondage copié",
-        description: "Le sondage et sa conversation ont été copiés avec succès.",
-      });
-      onRefresh();
-    } catch (error) {
-      logError(error, { component: "ConversationCard", operation: "duplicatePoll" });
-      toast({
-        title: "Erreur",
-        description: "Impossible de copier le sondage.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleArchive = () => {
-    if (!item.poll) return;
-    try {
-      const updatedPoll = {
-        ...item.poll,
-        status: "archived" as const,
-        updated_at: new Date().toISOString(),
-      };
-      addPoll(updatedPoll);
-      toast({
-        title: "Sondage archivé",
-        description: "Le sondage a été archivé avec succès.",
-      });
-      onRefresh();
-    } catch {
-      toast({
-        title: "Erreur",
-        description: "Impossible d'archiver le sondage.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleClose = () => {
-    if (!item.poll) return;
-    if (
-      !window.confirm(
-        "Êtes-vous sûr de vouloir terminer ce questionnaire ? Il ne sera plus possible de recevoir de nouvelles réponses.",
-      )
-    )
-      return;
-    try {
-      const updatedPoll = {
-        ...item.poll,
-        status: "closed" as const,
-        updated_at: new Date().toISOString(),
-      };
-      addPoll(updatedPoll);
-      toast({
-        title: "Sondage terminé",
-        description: "Le sondage est maintenant fermé aux nouveaux votes.",
-      });
-      onRefresh();
-    } catch {
-      toast({
-        title: "Erreur",
-        description: "Impossible de terminer le questionnaire.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeletePoll = async () => {
-    if (!item.poll) return;
-    const confirmMessage =
-      "Êtes-vous sûr de vouloir supprimer ce sondage ?\n\n" +
-      "Note: Les conversations liées seront également supprimées.";
-
-    if (!window.confirm(confirmMessage)) return;
-
-    try {
-      deleteVotesByPollId(item.poll.id);
-      const result = await deletePollWithCascade(item.poll.id, { deleteConversation: true });
-      if (result.success) {
-        toast({
-          title: "Sondage supprimé",
-          description: "Le sondage a été supprimé avec succès.",
-        });
-        onRefresh();
-      } else {
-        throw ErrorFactory.storage(
-          result.error || "Failed to delete poll",
-          "Impossible de supprimer le sondage",
-        );
-      }
-    } catch (error) {
-      logError(error, { component: "ConversationCard", operation: "deletePoll" });
-      toast({
-        title: "Erreur",
-        description: error instanceof Error ? error.message : "Impossible de supprimer le sondage.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleExport = (format: "csv" | "pdf" | "json" | "markdown") => {
-    if (!item.poll || item.poll.type !== "form") {
-      toast({
-        title: "Non supporté",
-        description: "L'export n'est supporté que pour les formulaires actuellement.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      switch (format) {
-        case "csv":
-          exportFormPollToCSV(item.poll);
-          toast({
-            title: "Export CSV réussi",
-            description: "Le fichier CSV a été téléchargé.",
-          });
-          break;
-        case "pdf":
-          exportFormPollToPDF(item.poll);
-          toast({
-            title: "Export PDF",
-            description:
-              "Une fenêtre d'impression s'est ouverte. Sélectionnez 'Enregistrer en PDF'.",
-          });
-          break;
-        case "json":
-          exportFormPollToJSON(item.poll);
-          toast({
-            title: "Export JSON réussi",
-            description: "Le fichier JSON a été téléchargé.",
-          });
-          break;
-        case "markdown":
-          exportFormPollToMarkdown(item.poll);
-          toast({
-            title: "Export Markdown réussi",
-            description: "Le fichier Markdown a été téléchargé.",
-          });
-          break;
-      }
-    } catch (err) {
-      logError(
-        err instanceof Error
-          ? err
-          : ErrorFactory.api("Export error", "Erreur lors de l'export du sondage"),
-        {
-          component: "ConversationCard",
-          operation: "handleExport",
-          pollId: item.poll.id,
-        },
-      );
-      toast({
-        title: "Erreur d'export",
-        description: err instanceof Error ? err.message : "Impossible d'exporter le sondage.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -526,7 +279,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
         <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
           {item.poll ? (
             <>
-              {/* Actions principales pour poll : Résultats et Voter */}
+              {/* Actions pour poll */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -547,145 +300,14 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                 <Vote className="w-4 h-4" />
                 <span className="hidden lg:inline">Voter</span>
               </button>
-
-              {/* Menu avec toutes les autres actions */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowTagsFolderDialog(true);
-                    }}
-                  >
-                    <Settings className="w-4 h-4 mr-2" />
-                    Gérer les tags/dossier
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopyLink();
-                    }}
-                  >
-                    {isCopied ? (
-                      <>
-                        <Check className="w-4 h-4 mr-2" />
-                        Lien copié !
-                      </>
-                    ) : (
-                      <>
-                        <Share2 className="w-4 h-4 mr-2" />
-                        Copier le lien
-                      </>
-                    )}
-                  </DropdownMenuItem>
-                  {item.poll.type === "form" && hasExportableData(item.poll) && (
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>
-                        <Download className="w-4 h-4 mr-2" />
-                        Exporter
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExport("csv");
-                          }}
-                        >
-                          📊 CSV
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExport("pdf");
-                          }}
-                        >
-                          📄 PDF
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExport("json");
-                          }}
-                        >
-                          🔧 JSON
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExport("markdown");
-                          }}
-                        >
-                          📝 Markdown
-                        </DropdownMenuItem>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                  )}
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit();
-                    }}
-                    onMouseEnter={handlePreloadEdit}
-                    onMouseLeave={handleMouseLeaveEdit}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Modifier
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDuplicate();
-                    }}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Dupliquer
-                  </DropdownMenuItem>
-                  {item.poll.status === "active" && (
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleClose();
-                      }}
-                    >
-                      <Lock className="w-4 h-4 mr-2" />
-                      Terminer
-                    </DropdownMenuItem>
-                  )}
-                  {item.poll.status !== "archived" && (
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleArchive();
-                      }}
-                    >
-                      <Archive className="w-4 h-4 mr-2" />
-                      Archiver
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeletePoll();
-                    }}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <PollActions
+                poll={item.poll as any}
+                showVoteButton={false}
+                variant="compact"
+                onAfterDuplicate={onRefresh}
+                onAfterDelete={onRefresh}
+                onAfterArchive={onRefresh}
+              />
             </>
           ) : (
             <>
@@ -738,6 +360,33 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
+          )}
+
+          {/* Menu pour gérer tags/dossier pour les polls aussi */}
+          {item.poll && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowTagsFolderDialog(true);
+                  }}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Gérer les tags/dossier
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
 

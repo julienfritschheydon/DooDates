@@ -1,5 +1,5 @@
 /**
- * Tests pour le bouton "Clôturer" dans PollActions
+ * Tests pour le bouton "Terminer" dans PollActions
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
@@ -80,7 +80,7 @@ vi.mock("@/hooks/usePollDeletionCascade", () => ({
   }),
 }));
 
-describe("PollActions - Bouton Clôturer", () => {
+describe("PollActions - Bouton Terminer", () => {
   const mockPoll: Poll = {
     id: "poll-123",
     creator_id: "user-1",
@@ -124,7 +124,7 @@ describe("PollActions - Bouton Clôturer", () => {
     vi.mocked(simulationComparison.getLastSimulation).mockReturnValue(null);
   });
 
-  it("devrait afficher le bouton Clôturer pour un poll actif", () => {
+  it("devrait afficher le bouton Terminer pour un poll actif", () => {
     render(
       <BrowserRouter>
         <PollActions poll={mockPoll} />
@@ -133,10 +133,10 @@ describe("PollActions - Bouton Clôturer", () => {
 
     const closeButton = screen.getByTestId("poll-action-close");
     expect(closeButton).toBeInTheDocument();
-    expect(closeButton).toHaveTextContent("Clôturer");
+    expect(closeButton).toHaveTextContent("Terminer");
   });
 
-  it("ne devrait PAS afficher le bouton Clôturer pour un poll clôturé", () => {
+  it("ne devrait PAS afficher le bouton Terminer pour un poll terminé", () => {
     const closedPoll = { ...mockPoll, status: "closed" as const };
 
     render(
@@ -149,7 +149,7 @@ describe("PollActions - Bouton Clôturer", () => {
     expect(closeButton).not.toBeInTheDocument();
   });
 
-  it("ne devrait PAS afficher le bouton Clôturer pour un poll archivé", () => {
+  it("ne devrait PAS afficher le bouton Terminer pour un poll archivé", () => {
     const archivedPoll = { ...mockPoll, status: "archived" as const };
 
     render(
@@ -162,7 +162,7 @@ describe("PollActions - Bouton Clôturer", () => {
     expect(closeButton).not.toBeInTheDocument();
   });
 
-  it("devrait demander confirmation avant de clôturer", () => {
+  it("devrait demander confirmation avant de terminer", () => {
     render(
       <BrowserRouter>
         <PollActions poll={mockPoll} />
@@ -173,11 +173,11 @@ describe("PollActions - Bouton Clôturer", () => {
     fireEvent.click(closeButton);
 
     expect(global.confirm).toHaveBeenCalledWith(
-      expect.stringContaining("clôturer ce questionnaire"),
+      expect.stringContaining("terminer ce questionnaire"),
     );
   });
 
-  it("ne devrait PAS clôturer si l'utilisateur annule", () => {
+  it("ne devrait PAS terminer si l'utilisateur annule", () => {
     global.confirm = vi.fn(() => false);
 
     render(
@@ -192,7 +192,7 @@ describe("PollActions - Bouton Clôturer", () => {
     expect(pollStorage.addPoll).not.toHaveBeenCalled();
   });
 
-  it("devrait passer le statut à 'closed' lors de la clôture", () => {
+  it("devrait passer le statut à 'closed' lors de la terminaison", () => {
     vi.mocked(simulationComparison.getLastSimulation).mockReturnValue(null);
 
     render(
@@ -290,7 +290,7 @@ describe("PollActions - Bouton Clôturer", () => {
         () => {
           expect(mockToast).toHaveBeenCalledWith(
             expect.objectContaining({
-              title: "Questionnaire clôturé",
+              title: "Questionnaire terminé",
               description: "Précision de la simulation : 87%",
             }),
           );
@@ -318,7 +318,7 @@ describe("PollActions - Bouton Clôturer", () => {
         () => {
           expect(mockToast).toHaveBeenCalledWith(
             expect.objectContaining({
-              title: "Questionnaire clôturé",
+              title: "Questionnaire terminé",
               description: "Le questionnaire est maintenant fermé aux nouvelles réponses.",
             }),
           );
@@ -345,7 +345,7 @@ describe("PollActions - Bouton Clôturer", () => {
         () => {
           expect(mockToast).toHaveBeenCalledWith(
             expect.objectContaining({
-              title: "Questionnaire clôturé",
+              title: "Questionnaire terminé",
               description: "Le questionnaire est maintenant fermé aux nouvelles réponses.",
             }),
           );
@@ -392,7 +392,7 @@ describe("PollActions - Bouton Clôturer", () => {
         () => {
           expect(mockToast).toHaveBeenCalledWith(
             expect.objectContaining({
-              title: "Sondage clôturé",
+              title: "Sondage terminé",
               description: "Le sondage est maintenant fermé aux nouveaux votes.",
             }),
           );
@@ -403,7 +403,7 @@ describe("PollActions - Bouton Clôturer", () => {
   });
 
   describe("Callback onAfterClose", () => {
-    it("devrait appeler onAfterClose après clôture réussie", async () => {
+    it("devrait appeler onAfterClose après terminaison réussie", async () => {
       const onAfterClose = vi.fn();
       vi.mocked(simulationComparison.getLastSimulation).mockReturnValue(null);
 
@@ -445,7 +445,7 @@ describe("PollActions - Bouton Clôturer", () => {
           expect(mockToast).toHaveBeenCalledWith(
             expect.objectContaining({
               title: "Erreur",
-              description: "Impossible de clôturer le questionnaire.",
+              description: "Impossible de terminer le questionnaire.",
               variant: "destructive",
             }),
           );

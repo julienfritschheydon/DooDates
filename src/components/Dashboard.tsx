@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageSquare, X, Info, Trash2, CheckSquare, ExternalLink } from "lucide-react";
+import { MessageSquare, X, Info, Trash2, ExternalLink } from "lucide-react";
 import { useDashboardData } from "./dashboard/useDashboardData";
 import { DashboardFilters, ViewMode } from "./dashboard/DashboardFilters";
 import { ConversationCard } from "./dashboard/ConversationCard";
@@ -38,7 +38,12 @@ const Dashboard: React.FC = () => {
   const { toast } = useToast();
 
   // Vue mode avec persistance localStorage
+  // Sur mobile (< 768px), forcer toujours "grid"
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    // Vérifier si on est sur mobile
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      return "grid";
+    }
     const saved = localStorage.getItem("dashboard_view_preference");
     return (saved === "grid" || saved === "table" ? saved : "grid") as ViewMode;
   });
@@ -50,6 +55,20 @@ const Dashboard: React.FC = () => {
 
   // Calcul itemsPerPage selon viewport
   const itemsPerPage = useViewportItems({ viewMode });
+
+  // Forcer vue grille sur mobile (< 768px)
+  useEffect(() => {
+    const checkViewport = () => {
+      if (window.innerWidth < 768 && viewMode === "table") {
+        setViewMode("grid");
+      }
+    };
+
+    // Vérifier au montage et lors du redimensionnement
+    checkViewport();
+    window.addEventListener("resize", checkViewport);
+    return () => window.removeEventListener("resize", checkViewport);
+  }, [viewMode]);
 
   // Sauvegarder préférence vue
   useEffect(() => {
@@ -194,7 +213,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a] pb-8">
       <div className="pt-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
@@ -206,24 +225,6 @@ const Dashboard: React.FC = () => {
               </h1>
 
               <div className="flex items-center gap-2">
-                {/* Bouton sélection multiple */}
-                {filteredItems.length > 0 && (
-                  <button
-                    onClick={selectedIds.size > 0 ? clearSelection : selectAll}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 border ${
-                      selectedIds.size > 0
-                        ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-500"
-                        : "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white border-gray-700"
-                    }`}
-                    title={selectedIds.size > 0 ? "Désélectionner tout" : "Sélectionner tout"}
-                  >
-                    <CheckSquare className="w-5 h-5" />
-                    <span className="hidden sm:inline">
-                      {selectedIds.size > 0 ? `${selectedIds.size} sélectionné(s)` : "Sélectionner"}
-                    </span>
-                  </button>
-                )}
-
                 {/* Bouton fermer */}
                 <button
                   onClick={() => {
@@ -300,6 +301,10 @@ const Dashboard: React.FC = () => {
             onTagsChange={setSelectedTags}
             selectedFolderId={selectedFolderId}
             onFolderChange={setSelectedFolderId}
+            selectedIdsCount={selectedIds.size}
+            onSelectAll={selectAll}
+            onClearSelection={clearSelection}
+            hasItems={filteredItems.length > 0}
           />
 
           {/* Contenu selon vue */}
@@ -338,7 +343,7 @@ const Dashboard: React.FC = () => {
 
           {/* Pagination */}
           {filteredItems.length > 0 && totalPages > 1 && (
-            <div className="mt-8">
+            <div className="mt-8 mb-8" id="dashboard-pagination">
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
