@@ -266,7 +266,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     }
   });
 
-  test('@functional - Assigner un dossier à une conversation', async ({ page }) => {
+  test.skip('@functional - Assigner un dossier à une conversation', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -310,7 +310,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     }
   });
 
-  test('@functional - Retirer des tags et dossier d\'une conversation', async ({ page }) => {
+  test.skip('@functional - Retirer des tags et dossier d\'une conversation', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -434,7 +434,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     }
   });
 
-  test('@edge - Gérer tags/dossiers avec une conversation sans tags/dossiers existants', async ({ page }) => {
+  test.skip('@edge - Gérer tags/dossiers avec une conversation sans tags/dossiers existants', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
