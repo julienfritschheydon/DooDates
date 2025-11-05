@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback } from "react";
+import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,9 +8,10 @@ import { BrowserRouter, Routes, Route, useParams, useLocation } from "react-rout
 import { AuthProvider } from "./contexts/AuthContext";
 import { Auth, AuthCallback } from "./pages/Auth";
 import { logger } from "@/lib/logger";
+import { performanceMeasurement } from "@/lib/performance-measurement";
+import { performanceAnalyzer } from "@/lib/performance-analyzer";
 import VotingSwipe from "./components/voting/VotingSwipe";
 // import { VotingSwipe as ExVotingSwipe } from "./components/voting/ex-VotingSwipe";
-import { Loader2 } from "lucide-react";
 import { ConversationProvider } from "./components/prototype/ConversationProvider";
 import { UIStateProvider } from "./components/prototype/UIStateProvider";
 import { ConversationStateProvider } from "./components/prototype/ConversationStateProvider";
@@ -18,11 +20,11 @@ import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
-// Composant de loading optimisé
+// Composant de loading avec spinner CSS pur
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-gray-50 flex items-center justify-center">
     <div className="text-center">
-      <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+      <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
       <p className="text-gray-600 font-medium">Chargement...</p>
       <p className="text-sm text-gray-400 mt-1">Préparation de votre sondage</p>
     </div>
@@ -81,8 +83,8 @@ const preloadPollCreator = async () => {
     try {
       const startTime = performance.now();
 
-      // Précharger le module PollCreator
-      const module = await import("./components/PollCreator");
+      // Précharger le module PollCreator (page wrapper, pas le composant direct)
+      const module = await import("./pages/PollCreator");
       pollCreatorModule = module;
 
       const endTime = performance.now();
@@ -92,10 +94,23 @@ const preloadPollCreator = async () => {
       sessionStorage.setItem(CACHE_KEY, "true");
       sessionStorage.setItem("pollCreator-loadTime", loadTime.toString());
 
-      // Log seulement si temps de chargement élevé
+      // Mesurer avec l'utilitaire de performance (utilise le temps déjà calculé)
+      performanceMeasurement.measurePollCreatorLoad(loadTime);
+
+      // Log détaillé selon le temps de chargement
       if (loadTime > 1000) {
-        logger.warn("PollCreator - Rechargement lent", "performance", {
-          loadTime,
+        logger.warn("⚠️ PollCreator - Rechargement lent", "performance", {
+          loadTime: loadTime.toFixed(2) + " ms",
+          suggestion: "Vérifier les dépendances lourdes ou la connexion réseau",
+        });
+      } else if (loadTime < 50) {
+        // Probablement du cache ou module déjà chargé
+        logger.debug("⚡ PollCreator - Chargement depuis cache", "performance", {
+          loadTime: loadTime.toFixed(2) + " ms",
+        });
+      } else {
+        logger.info("✅ PollCreator - Chargement rapide", "performance", {
+          loadTime: loadTime.toFixed(2) + " ms",
         });
       }
 
@@ -179,60 +194,38 @@ const preloadStaticCalendar = async () => {
   }
 };
 
-// Démarrer le preload immédiatement + fonctions TimeSlot
-preloadPollCreator();
+// Marquer le début du chargement initial
+performanceAnalyzer.mark("App-Initialization", "initialization");
 
-// Précharger aussi les fonctions TimeSlot globalement avec cache
+// Précharger les fonctions TimeSlot globalement avec cache (légères)
+performanceAnalyzer.mark("Preload-TimeSlot-Start", "preload");
 preloadTimeSlotFunctions();
-preloadProgressiveCalendar();
-preloadStaticCalendar();
+performanceAnalyzer.mark("Preload-TimeSlot-End", "preload");
 
-// Préchargement complet en arrière-plan (après 1 seconde)
+// Calendars chargés à la demande (lazy) pour réduire le bundle initial
+
+// ❌ RETIRÉ: preloadPollCreator() ne se charge plus au démarrage
+// Le préchargement se fera maintenant à la demande (navigation, hover, idle)
+
+// Préchargement minimal différé (après 3s) - seulement modules critiques
 setTimeout(() => {
-  //console.log("🚀 Préchargement complet en arrière-plan...");
-  //console.time("📦 Préchargement complet");
-  // Diviser le préchargement en chunks plus petits pour éviter les violations
-  const preloadInBatches = async () => {
-    // Batch 1: Composants critiques (petits)
-    await Promise.all([
-      import("./components/ui/button"),
-      import("./components/ui/card"),
-      import("./lib/utils"),
-    ]);
-
-    // Petit délai pour éviter de bloquer le thread principal
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    // Batch 2: Composants moyens
-    await Promise.all([
-      import("./components/ui/calendar"),
-      import("./components/Calendar"),
-      import("./lib/schemas"),
-    ]);
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    // Batch 3: Gros modules (chargement différé)
-    requestIdleCallback(() => {
-      Promise.all([
-        import("framer-motion"),
-        import("@supabase/supabase-js"),
-        import("lucide-react"),
-      ]).catch((error) => {
+  // Précharger seulement Supabase (nécessaire pour l'auth)
+  requestIdleCallback(
+    () => {
+      Promise.all([import("@supabase/supabase-js")]).catch((error) => {
         logger.warn("Erreur préchargement gros modules", "performance", error);
       });
-    });
+    },
+    { timeout: 5000 },
+  ); // Timeout pour éviter d'attendre trop longtemps
 
-    // PollCreator en dernier si pas déjà chargé
-    if (!pollCreatorModule) {
-      await preloadPollCreator();
-    }
-  };
-
-  preloadInBatches().catch((error) => {
-    logger.warn("Erreur préchargement complet", "performance", error);
-  });
-}, 1000);
+  // ❌ RETIRÉ: Préchargement idle automatique
+  // PollCreator ne se charge maintenant QUE sur :
+  // 1. Hover sur boutons de création (>300ms)
+  // 2. Navigation vers /create ou /create/date
+  // 3. Appel explicite via window.preloadPollCreator()
+  // Cela garantit un vrai 0 ms au démarrage
+}, 3000); // Augmenté de 1s à 3s pour laisser plus de temps au chargement initial
 
 // Exposer globalement pour utilisation dans PollCreator
 (window as any).getTimeSlotFunctions = () => timeSlotFunctionsModule;
@@ -280,9 +273,12 @@ const queryClient = new QueryClient({
   },
 });
 
-// Plus besoin de préchargement au survol - tout se charge en arrière-plan
+// Exposer fonction de préchargement pour utilisation sur hover/click
 (window as any).preloadPollCreator = () => {
-  logger.info("Préchargement déjà effectué en arrière-plan", "performance");
+  if (pollCreatorModule) {
+    return Promise.resolve(pollCreatorModule);
+  }
+  return preloadPollCreator();
 };
 
 // Composant wrapper pour VotingSwipe qui extrait le pollId de l'URL
@@ -301,11 +297,33 @@ const VotingSwipeWrapper = () => {
 //   return <ExVotingSwipe onBack={() => window.history.back()} />;
 // };
 
+// Hook pour précharger PollCreator sur navigation vers /create
+const usePreloadOnNavigation = () => {
+  const location = useLocation();
+
+  React.useEffect(() => {
+    // Précharger PollCreator si navigation vers /create ou /create/date
+    if (
+      location.pathname === "/create" ||
+      location.pathname.startsWith("/create/date") ||
+      location.pathname.startsWith("/create/form")
+    ) {
+      // Précharger immédiatement car l'utilisateur va probablement l'utiliser
+      preloadPollCreator().catch(() => {
+        // Ignorer les erreurs silencieusement
+      });
+    }
+  }, [location.pathname]);
+};
+
 // Layout principal (anciennement LayoutPrototype)
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   // ✅ Hook appelé AVANT tout retour conditionnel
   const isMobile = useIsMobile();
+
+  // Précharger PollCreator sur navigation vers /create
+  usePreloadOnNavigation();
 
   // Pages qui ne doivent pas afficher la Sidebar (garde TopNav)
   const useClassicLayout =
@@ -333,6 +351,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => {
   const AppLayout = Layout;
+
+  // Marquer le début du rendu
+  React.useEffect(() => {
+    performanceAnalyzer.mark("App-Render-Complete", "rendering");
+  }, []);
 
   return (
     <ErrorBoundary>
@@ -370,7 +393,10 @@ const App = () => {
                                 <Route path="/create" element={<CreateChooser />} />
                                 <Route path="/create/date" element={<DateCreator />} />
                                 <Route path="/create/form" element={<FormCreator />} />
-                                <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
+                                <Route
+                                  path="/poll/:pollSlug/results/:adminToken"
+                                  element={<Vote />}
+                                />
                                 <Route path="/pricing" element={<Pricing />} />
                                 <Route path="/docs/*" element={<Docs />} />
                                 <Route path="*" element={<NotFound />} />

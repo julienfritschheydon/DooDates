@@ -57,7 +57,8 @@ export function getStaticCalendarSync(): PreGeneratedCalendar {
   }
 
   // Si pas encore chargé, on ne peut pas faire de sync, donc fallback minimal
-  console.warn("⚠️ Calendrier statique pas encore chargé - Fallback minimal");
+  // Log désactivé pour réduire le bruit en console
+  // console.warn("⚠️ Calendrier statique pas encore chargé - Fallback minimal");
 
   const currentYear = new Date().getFullYear();
   return {

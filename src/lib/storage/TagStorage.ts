@@ -93,7 +93,10 @@ export function updateTag(tagId: string, updates: Partial<Pick<Tag, "name" | "co
   }
 
   // Vérifier que le nouveau nom n'existe pas déjà (si changement de nom)
-  if (updates.name && tags.some((t, i) => i !== index && t.name.toLowerCase() === updates.name!.toLowerCase())) {
+  if (
+    updates.name &&
+    tags.some((t, i) => i !== index && t.name.toLowerCase() === updates.name!.toLowerCase())
+  ) {
     throw ErrorFactory.validation(
       `Un tag avec le nom "${updates.name}" existe déjà`,
       `Le tag "${updates.name}" existe déjà. Veuillez choisir un autre nom.`,
@@ -126,4 +129,3 @@ export function deleteTag(tagId: string): void {
 export function getTagUsageCount(tagName: string, allItems: { tags?: string[] }[]): number {
   return allItems.filter((item) => item.tags?.includes(tagName)).length;
 }
-
