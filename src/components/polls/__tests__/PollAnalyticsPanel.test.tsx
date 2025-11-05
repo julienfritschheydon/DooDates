@@ -76,7 +76,7 @@ describe("PollAnalyticsPanel", () => {
       type: "anomaly",
       title: "Anomalie détectée",
       description: "Une réponse négative isolée",
-      confidence: 0.60,
+      confidence: 0.6,
     },
   ];
 
@@ -570,4 +570,3 @@ describe("PollAnalyticsPanel", () => {
     });
   });
 });
-

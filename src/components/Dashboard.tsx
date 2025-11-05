@@ -67,25 +67,46 @@ const Dashboard: React.FC = () => {
     return () => window.removeEventListener("pollCreated", handlePollCreated);
   }, []);
 
+  // États pour tags et dossiers
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null | undefined>(undefined);
+
   // Appliquer les filtres
   const filteredItems = useMemo(
-    () => filterConversationItems(conversationItems, filter, searchQuery),
-    [conversationItems, filter, searchQuery],
+    () =>
+      filterConversationItems(
+        conversationItems,
+        filter,
+        searchQuery,
+        selectedTags.length > 0 ? selectedTags : undefined,
+        selectedFolderId,
+      ),
+    [conversationItems, filter, searchQuery, selectedTags, selectedFolderId],
   );
 
-  // Reset page à 1 lors changement filtres/recherche
+  // Reset page à 1 lors changement filtres/recherche ou vue
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter, searchQuery]);
+  }, [filter, searchQuery, viewMode]);
+
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  // Réinitialiser currentPage si elle dépasse totalPages (ex: itemsPerPage change)
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
 
   // Pagination des items filtrés
   const paginatedItems = useMemo(() => {
+    if (filteredItems.length === 0) return [];
+    if (itemsPerPage <= 0) return filteredItems; // Fallback si itemsPerPage invalide
+    
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return filteredItems.slice(startIndex, endIndex);
   }, [filteredItems, currentPage, itemsPerPage]);
-
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   // Gestion de la sélection
   const toggleSelection = (id: string) => {
@@ -275,6 +296,10 @@ const Dashboard: React.FC = () => {
             onFilterChange={setFilter}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
+            selectedTags={selectedTags}
+            onTagsChange={setSelectedTags}
+            selectedFolderId={selectedFolderId}
+            onFolderChange={setSelectedFolderId}
           />
 
           {/* Contenu selon vue */}
@@ -461,3 +486,4 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+
