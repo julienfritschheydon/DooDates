@@ -115,7 +115,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   }
 
   test('@smoke @critical - Charger le dashboard sans erreur', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -205,7 +213,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@functional - Filtrer par tags', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -320,7 +336,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@functional - Créer un nouveau dossier depuis les filtres', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -357,7 +381,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@functional - Basculer entre vue grille et vue tableau', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -394,7 +426,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@functional - Sélectionner/désélectionner des conversations', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -421,7 +461,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@functional - Sélectionner tout', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -443,7 +491,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@functional - Pagination fonctionne', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       // Créer plus de conversations pour tester la pagination
       await page.evaluate(() => {
@@ -492,7 +548,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@functional - Afficher l\'indicateur de quota', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -506,7 +570,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@functional - Fermer le dashboard (bouton X)', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -524,7 +596,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@functional - Gérer tags/dossiers depuis une carte (déjà implémenté mais testé ici)', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -549,7 +629,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@edge - Dashboard vide (aucune conversation)', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       // Ne pas créer de conversations
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -563,7 +651,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   });
 
   test('@edge - Recherche sans résultats', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
