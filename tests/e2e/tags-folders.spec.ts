@@ -262,11 +262,17 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await manageMenuItem.click();
       await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
 
-      // Sélectionner un dossier (trouver via le label associé)
-      const folderLabel = page.getByText('Test Folder 1').first();
-      await folderLabel.waitFor({ state: 'visible', timeout: 3000 });
-      const folderCheckbox = folderLabel.locator('..').locator('input[type="checkbox"]').first();
-      await folderCheckbox.check();
+      // Sélectionner un dossier - utiliser getByRole (comme dans les tests isolés qui marchent)
+      const folderCheckbox = page.getByRole('checkbox', { name: /Test Folder 1/i });
+      await folderCheckbox.waitFor({ state: 'visible', timeout: 3000 });
+      await folderCheckbox.scrollIntoViewIfNeeded();
+      await folderCheckbox.click({ force: true });
+      
+      // Attendre que React se mette à jour
+      await page.waitForTimeout(100);
+      
+      // Vérifier que le checkbox est coché
+      await expect(folderCheckbox).toHaveAttribute('data-state', 'checked', { timeout: 2000 });
 
       // Sauvegarder
       await page.getByRole('button', { name: /Enregistrer/i }).click();
