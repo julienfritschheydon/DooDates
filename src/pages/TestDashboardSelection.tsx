@@ -42,15 +42,13 @@ const TestDashboardSelection: React.FC = () => {
           }`}
           data-testid="poll-item"
         >
-          {/* Checkbox de sélection - EXACTEMENT comme ConversationCard */}
+          {/* Checkbox de sélection - Simplifié pour que le clic fonctionne */}
           <div
             className="absolute top-4 right-4 z-10"
             onClick={(e) => {
               e.stopPropagation();
-              e.preventDefault();
               toggleSelection();
             }}
-            onMouseDown={(e) => e.stopPropagation()}
           >
             <div
               className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${
@@ -58,10 +56,6 @@ const TestDashboardSelection: React.FC = () => {
                   ? "bg-blue-600 border-blue-600"
                   : "bg-transparent border-gray-500 hover:border-blue-400"
               }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
             >
               {isSelected && (
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
