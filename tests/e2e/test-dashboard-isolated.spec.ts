@@ -9,39 +9,7 @@ test.use({
 
 test.describe("Dashboard - Tests Isolés", () => {
   test.beforeEach(async ({ page }) => {
-    // Setup localStorage AVANT navigation (via addInitScript)
-    await page.addInitScript(() => {
-      // Créer une conversation de test
-      const conversations = [
-        {
-          id: "test-conv-1",
-          title: "Test Conversation",
-          status: "active",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          firstMessage: "Premier message de test",
-          messageCount: 1,
-          isFavorite: false,
-          tags: [],
-          metadata: {},
-        },
-      ];
-      localStorage.setItem("doodates_conversations", JSON.stringify(conversations));
-
-      // Créer des tags de test
-      const tags = [
-        { id: "tag-1", name: "Test Tag 1", color: "#3b82f6" },
-        { id: "tag-2", name: "Test Tag 2", color: "#10b981" },
-      ];
-      localStorage.setItem("doodates_tags", JSON.stringify(tags));
-
-      // Créer des dossiers de test
-      const folders = [
-        { id: "folder-1", name: "Test Folder 1", icon: "📁", color: "#f59e0b" },
-      ];
-      localStorage.setItem("doodates_folders", JSON.stringify(folders));
-    });
-
+    // Pages isolées - pas besoin de localStorage car les pages sont complètement autonomes
     await enableE2ELocalMode(page);
   });
 
