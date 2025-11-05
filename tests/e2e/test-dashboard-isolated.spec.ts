@@ -42,16 +42,21 @@ test.describe("Dashboard - Tests Isolés", () => {
 
       // Cliquer sur le checkbox pour sélectionner
       console.log("🔍 Recherche du checkbox...");
-      const checkbox = card.locator('div[class*="w-6"][class*="h-6"][class*="border-2"]').first();
-      await checkbox.waitFor({ state: "visible", timeout: 3000 });
-      console.log("✅ Checkbox trouvé");
-      await checkbox.scrollIntoViewIfNeeded();
-      console.log("🖱️ Clic sur le checkbox...");
-      await checkbox.click({ force: true });
+      // Cliquer sur le parent qui a l'onClick (plus fiable que l'enfant)
+      const checkboxContainer = card.locator('div[class*="absolute"][class*="top-4"][class*="right-4"]').first();
+      await checkboxContainer.waitFor({ state: "visible", timeout: 3000 });
+      console.log("✅ Checkbox container trouvé");
+      await checkboxContainer.scrollIntoViewIfNeeded();
+      console.log("🖱️ Clic sur le checkbox container...");
+      await checkboxContainer.click({ force: true });
       console.log("✅ Clic effectué");
+      
+      // Attendre un peu pour que React se mette à jour
+      await page.waitForTimeout(100);
+      console.log("⏳ Attente de la mise à jour React...");
 
       // Attendre que la sélection se mette à jour (vérification automatique par toHaveClass)
-      await expect(card).toHaveClass(/border-blue-500|ring-blue-500|border-blue/, { timeout: 2000 });
+      await expect(card).toHaveClass(/border-blue-500|ring-blue-500|border-blue/, { timeout: 3000 });
 
       // Screenshot après sélection (essentiel pour debug)
       await page.screenshot({ path: "test-results/selection-after.png", fullPage: true });
