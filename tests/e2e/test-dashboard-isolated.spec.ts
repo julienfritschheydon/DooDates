@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { attachConsoleGuard } from "../helpers/consoleGuard";
+import { attachConsoleGuard } from "./utils";
 
 test.describe("Dashboard - Tests Isolés", () => {
   test.beforeEach(async ({ page }) => {
@@ -54,6 +54,9 @@ test.describe("Dashboard - Tests Isolés", () => {
     const card = page.locator('[data-testid="poll-item"]').first();
     await expect(card).toBeVisible({ timeout: 3000 });
 
+    // Screenshot initial
+    await page.screenshot({ path: "test-results/selection-initial.png", fullPage: true });
+
     // Vérifier que la carte n'est pas sélectionnée initialement
     await expect(card).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 1000 });
 
@@ -67,7 +70,8 @@ test.describe("Dashboard - Tests Isolés", () => {
     // Attendre que la sélection se mette à jour (vérification automatique par toHaveClass)
     await expect(card).toHaveClass(/border-blue-500|ring-blue-500|border-blue/, { timeout: 2000 });
 
-    // Screenshot uniquement si échec (géré par Playwright)
+    // Screenshot après sélection (essentiel pour debug)
+    await page.screenshot({ path: "test-results/selection-after.png", fullPage: true });
     const cardClasses = await card.getAttribute("class");
     console.log("Classes CSS de la carte après sélection:", cardClasses);
   });
@@ -78,6 +82,9 @@ test.describe("Dashboard - Tests Isolés", () => {
     // Attendre que le dialogue soit ouvert
     const dialog = page.locator('[role="dialog"]');
     await expect(dialog).toBeVisible({ timeout: 3000 });
+
+    // Screenshot du dialogue ouvert
+    await dialog.screenshot({ path: "test-results/folder-dialog-open.png" });
 
     // Utiliser getByRole pour trouver le checkbox Radix UI (plus robuste)
     const folderCheckbox = page.getByRole("checkbox", { name: /Test Folder 1/i });
@@ -93,6 +100,10 @@ test.describe("Dashboard - Tests Isolés", () => {
 
     // Vérifier que la checkbox est cochée (vérification automatique avec timeout)
     await expect(folderCheckbox).toHaveAttribute("data-state", "checked", { timeout: 2000 });
+
+    // Screenshot après clic (essentiel pour debug)
+    await dialog.screenshot({ path: "test-results/folder-dialog-after.png" });
+    await page.screenshot({ path: "test-results/folder-final.png", fullPage: true });
   });
 });
 

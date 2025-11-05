@@ -62,6 +62,7 @@ jobs:
         with:
           name: test-screenshots
           path: test-results/*.png
+          if-no-files-found: ignore
           retention-days: 3
 
   # Summary avec commentaire
@@ -89,20 +90,5 @@ jobs:
             
             summary += `\n\n📋 **Rapports détaillés disponibles dans les artefacts GitHub Actions**`;
             
-            // Créer un commentaire sur le commit ou la PR si disponible
-            if (context.payload.pull_request) {
-              github.rest.issues.createComment({
-                issue_number: context.payload.pull_request.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: summary
-              });
-            } else {
-              // Créer un commentaire sur le commit
-              github.rest.repos.createCommitComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                commit_sha: context.sha,
-                body: summary
-              });
-            }
+            // Afficher le summary dans les logs (pas de commentaire GitHub pour éviter les erreurs de permissions)
+            console.log(summary);
