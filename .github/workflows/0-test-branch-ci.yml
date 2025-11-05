@@ -1,4 +1,4 @@
-name: 🧪 Test Branch - CI Conditions
+name: 🧪 Test Branch - Tests Isolés Uniquement
 
 on:
   push:
@@ -10,13 +10,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Job 1: E2E Functional Tests (même configuration que CI principale)
-  e2e-functional:
+  # Job unique: Tests isolés uniquement (2 tests rapides)
+  e2e-isolated:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2] # 2 shards comme en CI principale
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -33,14 +29,12 @@ jobs:
       - name: 🧭 Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
 
-      - name: ⚡ Run Functional Tests (CI mode - same config as develop/main)
+      - name: 🎯 Run Isolated Tests Only (2 tests rapides)
         run: |
           npx playwright test \
+            tests/e2e/test-dashboard-isolated.spec.ts \
             --config=playwright.config.optimized.ts \
             --project=chromium \
-            --grep "@functional" \
-            --grep-invert "@wip|@flaky|Suite Complète|Tests de non-régression" \
-            --shard=${{ matrix.shard }}/2 \
             --reporter=html,json
         env:
           CI: true
@@ -50,7 +44,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-functional-shard-${{ matrix.shard }}
+          name: playwright-report-isolated
           path: playwright-report
           retention-days: 3
 
@@ -58,54 +52,21 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-functional-shard-${{ matrix.shard }}
+          name: test-results-isolated
           path: test-results
           retention-days: 3
 
-  # Job 2: E2E Smoke Tests (tests critiques rapides)
-  e2e-smoke:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: 🔧 Install dependencies
-        run: npm ci
-
-      - name: 🧭 Install Playwright (Chromium only)
-        run: npx playwright install --with-deps chromium
-
-      - name: 🔥 Run Smoke Tests
-        run: npm run test:e2e:smoke -- --reporter=html,json
-        env:
-          CI: true
-          VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
-
-      - name: 📊 Upload Playwright HTML report
+      - name: 📸 Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-smoke
-          path: playwright-report
+          name: test-screenshots
+          path: test-results/*.png
           retention-days: 3
 
-      - name: 📤 Upload test results JSON
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-smoke
-          path: test-results
-          retention-days: 3
-
-  # Job 3: Summary avec commentaire
+  # Summary avec commentaire
   test-summary:
-    needs: [e2e-functional, e2e-smoke]
+    needs: [e2e-isolated]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -113,24 +74,17 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const jobs = [
-              { name: 'E2E Functional', status: '${{ needs.e2e-functional.result }}' },
-              { name: 'E2E Smoke', status: '${{ needs.e2e-smoke.result }}' }
-            ];
+            const status = '${{ needs.e2e-isolated.result }}' === 'success' ? '✅' : '❌';
             
-            const passed = jobs.filter(j => j.status === 'success').length;
-            const total = jobs.length;
-            const status = passed === total ? '✅' : '❌';
-            
-            let summary = `## ${status} Test Branch CI - ${passed}/${total} jobs réussis\n\n`;
+            let summary = `## ${status} Tests Isolés - ${status === '✅' ? 'Réussis' : 'Échoués'}\n\n`;
             summary += `**Branche:** \`${context.ref.replace('refs/heads/', '')}\`\n`;
-            summary += `**Objectif:** Tester rapidement des corrections en conditions CI\n\n`;
-            summary += `${jobs.map(j => `- ${j.status === 'success' ? '✅' : '❌'} ${j.name}`).join('\n')}\n\n`;
+            summary += `**Objectif:** Tester rapidement les pages isolées (2 tests uniquement)\n\n`;
             
-            if (passed === total) {
-              summary += '🚀 **Tous les tests passent ! Les corrections peuvent être mergées vers develop.**';
+            if (status === '✅') {
+              summary += '🚀 **Les tests isolés passent !**\n';
+              summary += '📸 **Screenshots disponibles dans les artefacts pour debug**';
             } else {
-              summary += '⚠️ **Des tests ont échoué. Vérifier les rapports dans les artefacts.**';
+              summary += '⚠️ **Des tests ont échoué. Vérifier les rapports et screenshots dans les artefacts.**';
             }
             
             summary += `\n\n📋 **Rapports détaillés disponibles dans les artefacts GitHub Actions**`;
@@ -152,4 +106,3 @@ jobs:
                 body: summary
               });
             }
-
