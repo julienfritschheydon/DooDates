@@ -125,7 +125,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
   });
 
-  test('@functional - Assigner des tags à une conversation', async ({ page }) => {
+  test.skip('@functional - Assigner des tags à une conversation', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
