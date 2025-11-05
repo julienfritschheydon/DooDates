@@ -174,7 +174,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: "Tests E2E Smoke (develop: fast validation)"
-        run: npm run test:e2e:smoke
+        run: npm run test:e2e:smoke -- --reporter=html,json
 
       - name: 📊 Upload Playwright report
         if: always()
@@ -182,6 +182,14 @@ jobs:
         with:
           name: playwright-report-develop-smoke
           path: playwright-report
+          retention-days: 7
+
+      - name: 📤 Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-develop-smoke
+          path: test-results
           retention-days: 7
 
   # ========================================
@@ -308,15 +316,83 @@ jobs:
        needs.build-validation.result == 'failure')
     runs-on: ubuntu-latest
     steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 📥 Download test results (if E2E failed)
+        if: needs.tests-e2e.result == 'failure' && needs.tests-e2e.result != 'skipped'
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: test-results-develop-*
+          merge-multiple: true
+          path: test-results
+
+      - name: 📊 Generate E2E Summary (if E2E failed)
+        id: e2e-summary
+        if: needs.tests-e2e.result == 'failure' && needs.tests-e2e.result != 'skipped'
+        run: |
+          if [ -d test-results ]; then
+            node scripts/generate-regression-summary.js || echo "Summary generation failed"
+          else
+            echo "No test results available"
+          fi
+        continue-on-error: true
+
       - name: Create Issue if Validation Failed
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            const unitStatus = '${{ needs.tests-unit.result }}';
+            const e2eStatus = '${{ needs.tests-e2e.result }}';
+            const buildStatus = '${{ needs.build-validation.result }}';
+            
+            let failedComponents = [];
+            if (unitStatus === 'failure') failedComponents.push('Tests Unitaires');
+            if (e2eStatus === 'failure' && e2eStatus !== 'skipped') failedComponents.push('Tests E2E');
+            if (buildStatus === 'failure') failedComponents.push('Build & Validation');
+            
+            let issueBody = `## ❌ Validation échouée sur develop - Auto-merge bloqué\n\n`;
+            issueBody += `**Composants en échec:** ${failedComponents.join(', ')}\n\n`;
+            issueBody += `**Détails:**\n`;
+            issueBody += `- 🧪 Tests Unitaires: ${unitStatus === 'failure' ? '❌' : '✅'} ${unitStatus}\n`;
+            issueBody += `- 🔥 Tests E2E Smoke: ${e2eStatus === 'failure' && e2eStatus !== 'skipped' ? '❌' : e2eStatus === 'skipped' ? '⏭️' : '✅'} ${e2eStatus}\n`;
+            issueBody += `- 🏗️ Build & Validation: ${buildStatus === 'failure' ? '❌' : '✅'} ${buildStatus}\n\n`;
+            issueBody += `**Informations:**\n`;
+            issueBody += `- Commit: \`${context.sha.substring(0, 7)}\`\n`;
+            issueBody += `- Auteur: ${context.actor}\n`;
+            issueBody += `- Workflow: [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})\n\n`;
+            issueBody += `⚠️ **Le merge automatique vers main a été bloqué.**\n\n`;
+            issueBody += `Corrigez les erreurs et re-pushez sur develop.\n\n`;
+            
+            // Ajouter le résumé E2E détaillé si disponible
+            if (e2eStatus === 'failure' && e2eStatus !== 'skipped') {
+              const summaryPath = path.join(process.cwd(), 'regression-summary.md');
+              if (fs.existsSync(summaryPath)) {
+                const e2eSummary = fs.readFileSync(summaryPath, 'utf-8');
+                issueBody += `---\n\n## 🔍 Détails des Erreurs E2E\n\n${e2eSummary}\n`;
+              } else {
+                issueBody += `---\n\n📋 **Rapports E2E détaillés disponibles dans les artefacts GitHub Actions**\n`;
+              }
+            }
+            
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'Develop Validation Failed - Auto-merge blocked',
-              body: 'Validation echouee sur develop. Commit: ' + context.sha + ' - Auteur: ' + context.actor + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId + '\n\nLe merge automatique vers main a ete bloque. Corrigez les erreurs et re-pushez sur develop.',
+              body: issueBody,
               labels: ['bug', 'develop-branch', 'automated', 'ci-failure']
             });
 

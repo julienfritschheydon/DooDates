@@ -172,6 +172,9 @@ test.describe("Analytics IA - Suite Complète", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
+    // Attendre que les actions du poll soient chargées
+    await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
+
     // Gérer le dialog de confirmation
     page.once('dialog', async dialog => {
       await dialog.accept();
@@ -182,14 +185,8 @@ test.describe("Analytics IA - Suite Complète", () => {
     await expect(closeButton).toBeVisible({ timeout: 10000 });
     await closeButton.click();
 
-    // Attendre que le poll soit clôturé et que la page se mette à jour
-    await page.waitForTimeout(1000);
-    
-    // Recharger la page pour s'assurer que le statut est à jour
-    await page.reload({ waitUntil: 'networkidle' });
-    await page.waitForTimeout(1000);
-
-    await page.waitForTimeout(2000);
+    // Attendre que le poll soit clôturé (le bouton disparaît)
+    await expect(closeButton).not.toBeVisible({ timeout: 5000 });
 
     // Vérifier le statut après clôture
     const statusAfterClose = await page.evaluate((s) => {
@@ -563,11 +560,83 @@ test.describe("Analytics IA - Quick Queries", () => {
       await expect(submitButton).toBeVisible({ timeout: 10000 });
       await submitButton.click();
       await page.waitForTimeout(1000);
+      
+      // DEBUG: Vérifier que le vote a été enregistré
+      const responsesAfterVote = await page.evaluate((pollIdParam) => {
+        try {
+          const stored = localStorage.getItem('doodates_form_responses');
+          const all = stored ? JSON.parse(stored) : [];
+          const pollResponses = all.filter((r: any) => r.pollId === pollIdParam);
+          return {
+            total: all.length,
+            pollResponses: pollResponses.length,
+            responses: pollResponses.map((r: any) => ({
+              id: r.id,
+              pollId: r.pollId,
+              respondentName: r.respondentName,
+              itemsCount: r.items?.length || 0
+            }))
+          };
+        } catch (e) {
+          return { error: String(e) };
+        }
+      }, pollId);
+      console.log(`📊 DEBUG Vote ${i}/3 - Réponses (pollId: ${pollId}):`, JSON.stringify(responsesAfterVote, null, 2));
     }
 
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
+    
+    // DEBUG: Vérifier les réponses avant de chercher le panneau analytics
+    const debugInfo = await page.evaluate((pollIdParam) => {
+      try {
+        // Vérifier les réponses
+        const storedResponses = localStorage.getItem('doodates_form_responses');
+        const allResponses = storedResponses ? JSON.parse(storedResponses) : [];
+        const pollResponses = allResponses.filter((r: any) => r.pollId === pollIdParam);
+        
+        // Vérifier le poll
+        const storedPolls = localStorage.getItem('doodates_polls');
+        const allPolls = storedPolls ? JSON.parse(storedPolls) : [];
+        const poll = allPolls.find((p: any) => p.slug === pollIdParam || p.id === pollIdParam);
+        
+        // Simuler getFormResults
+        const questions = poll?.questions || [];
+        const uniqueResponses = pollResponses.filter((r: any, index: number, self: any[]) => 
+          index === self.findIndex((resp: any) => 
+            (resp.respondentName || '').trim().toLowerCase() === (r.respondentName || '').trim().toLowerCase()
+          )
+        );
+        
+        return {
+          pollId: pollIdParam,
+          pollFound: !!poll,
+          pollType: poll?.type,
+          pollStatus: poll?.status,
+          questionsCount: questions.length,
+          totalResponses: pollResponses.length,
+          uniqueResponses: uniqueResponses.length,
+          responses: pollResponses.map((r: any) => ({
+            id: r.id?.substring(0, 20),
+            respondentName: r.respondentName,
+            itemsCount: r.items?.length || 0
+          }))
+        };
+      } catch (e) {
+        return { error: String(e) };
+      }
+    }, pollId);
+    console.log('📊 DEBUG Avant recherche panneau analytics (pollId:', pollId, '):', JSON.stringify(debugInfo, null, 2));
+    
+    // Attendre que les actions du poll soient chargées
+    await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
+    
+    // Vérifier que le panneau Analytics est présent AVANT la clôture (il devrait être là avec 3 votes)
+    // On attend soit le data-testid, soit le titre "Analytics IA" pour être plus robuste
+    await page.waitForSelector('[data-testid="analytics-panel"], h2:has-text("Analytics IA")', { timeout: 10000 });
+    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
+    await expect(analyticsPanel).toBeAttached({ timeout: 5000 });
     
     // Gérer le dialog de confirmation
     page.once('dialog', async dialog => {
@@ -578,16 +647,11 @@ test.describe("Analytics IA - Quick Queries", () => {
     await expect(closeButton).toBeVisible({ timeout: 10000 });
     await closeButton.click();
     
-    // Attendre que le poll soit clôturé et que la page se mette à jour
-    await page.waitForTimeout(1000);
+    // Attendre que le bouton disparaisse (confirmant la clôture)
+    await expect(closeButton).not.toBeVisible({ timeout: 5000 });
     
-    // Recharger la page pour s'assurer que le statut est à jour
-    await page.reload({ waitUntil: 'networkidle' });
-    await page.waitForTimeout(1000);
-
-    // Vérifier que le panneau Analytics est présent dans le DOM
-    const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
-    await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
+    // Le panneau analytics devrait toujours être présent après la clôture
+    await expect(analyticsPanel).toBeAttached({ timeout: 5000 });
 
     // Test quick queries (toujours présents dans le DOM, pas repliés)
     const quickQueryButtons = page.locator('[data-testid="quick-query-button"]');
@@ -652,6 +716,9 @@ test.describe.skip("Analytics IA - Query Personnalisée", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
+    
+    // Attendre que les actions du poll soient chargées
+    await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
     
     // Gérer le dialog de confirmation
     page.once('dialog', async dialog => {
@@ -733,6 +800,9 @@ test.describe.skip("Analytics IA - Cache", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
+    
+    // Attendre que les actions du poll soient chargées
+    await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
     
     // Gérer le dialog de confirmation
     page.once('dialog', async dialog => {
@@ -825,6 +895,9 @@ test.describe.skip("Analytics IA - Quotas", () => {
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
     
+    // Attendre que les actions du poll soient chargées
+    await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
+    
     // Gérer le dialog de confirmation
     page.once('dialog', async dialog => {
       await dialog.accept();
@@ -912,6 +985,9 @@ test.describe.skip("Analytics IA - Quotas", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
+    
+    // Attendre que les actions du poll soient chargées
+    await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
     
     // Gérer le dialog de confirmation
     page.once('dialog', async dialog => {
@@ -1007,6 +1083,9 @@ test.describe.skip("Analytics IA - Dark Mode", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
+    
+    // Attendre que les actions du poll soient chargées
+    await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
     
     // Gérer le dialog de confirmation
     page.once('dialog', async dialog => {
@@ -1195,6 +1274,9 @@ test.describe.skip("Analytics IA - Gestion Erreurs", () => {
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
     
+    // Attendre que les actions du poll soient chargées
+    await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
+    
     // Gérer le dialog de confirmation
     page.once('dialog', async dialog => {
       await dialog.accept();
@@ -1270,6 +1352,9 @@ test.describe.skip("Analytics IA - Gestion Erreurs", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
+    
+    // Attendre que les actions du poll soient chargées
+    await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
     
     // Gérer le dialog de confirmation
     page.once('dialog', async dialog => {

@@ -26,22 +26,21 @@ test.describe.skip('Guest User Workflow', () => {
   test('should allow guest to create first conversation', async ({ page }) => {
     await page.goto('/');
     
-    // Wait for chat interface to load
-    await page.waitForTimeout(1000);
-    
-    // Find the message input
+    // Wait for chat interface to load (wait for input instead of timeout)
     const messageInput = page.locator('[data-testid="message-input"]');
     await expect(messageInput).toBeVisible({ timeout: 5000 });
     
     // Type the message
     await messageInput.fill('Hello, this is my first conversation');
-    await page.waitForTimeout(500);
     
     // Send message (usually with Enter or send button)
     await messageInput.press('Enter');
     
-    // Wait for AI response
-    await page.waitForTimeout(3000);
+    // Wait for message to appear in chat instead of fixed timeout
+    await expect(page.locator('text=Hello, this is my first conversation')).toBeVisible({ timeout: 5000 }).catch(() => {
+      // If message doesn't appear, verify chat is still responsive
+      return expect(messageInput).toBeVisible();
+    });
     
     // Verify message was sent - check for message in chat history
     const hasMessage = await page.locator('text=Hello, this is my first conversation').isVisible().catch(() => false);
@@ -77,8 +76,11 @@ test.describe.skip('Guest User Workflow', () => {
       }
     }
     
-    // Wait a bit for the conversation to be processed
-    await page.waitForTimeout(2000);
+    // Wait for conversation to be processed (wait for message or modal instead of timeout)
+    await expect(page.locator('text=First conversation, [data-testid="auth-incentive-modal"]').first()).toBeVisible({ timeout: 5000 }).catch(() => {
+      // If nothing appears, verify page is still responsive
+      return expect(page.locator('body')).toBeVisible();
+    });
     
     // Try to create second conversation (should trigger limit)
     const messageInput2 = page.locator('[data-testid="message-input"]');
@@ -99,14 +101,20 @@ test.describe.skip('Guest User Workflow', () => {
 
   test('should persist guest conversations in localStorage', async ({ page }) => {
     await page.goto('/');
-    await page.waitForTimeout(1000);
+    
+    // Wait for input to be visible instead of timeout
+    const messageInput = page.locator('[data-testid="message-input"]');
+    await expect(messageInput).toBeVisible({ timeout: 5000 });
     
     // Send a message
-    const messageInput = page.locator('[data-testid="message-input"]');
     await messageInput.fill('Test persistence message');
     await messageInput.press('Enter');
     
-    await page.waitForTimeout(2000);
+    // Wait for message to appear instead of fixed timeout
+    await expect(page.locator('text=Test persistence message')).toBeVisible({ timeout: 5000 }).catch(() => {
+      // If message doesn't appear, verify input is still available
+      return expect(messageInput).toBeVisible();
+    });
     
     // Verify data is in localStorage
     const localStorageData = await page.evaluate(() => {
@@ -119,7 +127,8 @@ test.describe.skip('Guest User Workflow', () => {
     
     // Reload page and verify chat interface still works
     await page.reload();
-    await page.waitForTimeout(1000);
+    // Wait for page to reload instead of fixed timeout
+    await expect(page.locator('[data-testid="message-input"]')).toBeVisible({ timeout: 5000 });
     
     // Verify conversations counter shows activity
     const conversationCounter = page.locator('text=/Conversations?\s+\d+\/\d+/i');
@@ -154,8 +163,11 @@ test.describe.skip('Guest User Workflow', () => {
       }
     }
     
-    // Wait for processing
-    await page.waitForTimeout(2000);
+    // Wait for processing (wait for message or quota update instead of timeout)
+    await expect(page.locator('text=Maximum conversation test, [data-testid="quota-indicator"]').first()).toBeVisible({ timeout: 5000 }).catch(() => {
+      // If nothing appears, verify page is still responsive
+      return expect(page.locator('body')).toBeVisible();
+    });
     
     // Verify quota indicator shows limit reached
     const quotaIndicator = page.locator('[data-testid="quota-indicator"], .quota-indicator').first();
@@ -180,18 +192,25 @@ test.describe.skip('Guest User Workflow', () => {
 
   test('should maintain guest session across page refreshes', async ({ page }) => {
     await page.goto('/');
-    await page.waitForTimeout(1000);
+    
+    // Wait for input to be visible instead of timeout
+    const messageInput = page.locator('[data-testid="message-input"]');
+    await expect(messageInput).toBeVisible({ timeout: 5000 });
     
     // Send a message
-    const messageInput = page.locator('[data-testid="message-input"]');
     await messageInput.fill('Session persistence test');
     await messageInput.press('Enter');
     
-    await page.waitForTimeout(2000);
+    // Wait for message to appear instead of fixed timeout
+    await expect(page.locator('text=Session persistence test')).toBeVisible({ timeout: 5000 }).catch(() => {
+      // If message doesn't appear, verify input is still available
+      return expect(messageInput).toBeVisible();
+    });
     
     // Refresh the page
     await page.reload();
-    await page.waitForTimeout(2000);
+    // Wait for page to reload instead of fixed timeout
+    await expect(page.locator('[data-testid="message-input"]')).toBeVisible({ timeout: 5000 });
     
     // Verify chat interface reloaded successfully
     const isChatVisible = await page.locator('[data-testid="message-input"]').isVisible();

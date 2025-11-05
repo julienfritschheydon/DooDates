@@ -120,7 +120,7 @@ describe("DashboardTableView", () => {
     // Check that selected row has the blue background class
     const selectedRow = container.querySelector(".bg-blue-900\\/20");
     expect(selectedRow).toBeInTheDocument();
-    
+
     // Check that checkbox div has blue background
     const selectedCheckbox = container.querySelector(".bg-blue-600");
     expect(selectedCheckbox).toBeInTheDocument();

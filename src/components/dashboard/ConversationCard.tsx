@@ -9,12 +9,16 @@ import {
   BarChart3,
   Trash2,
   Check,
+  Tag,
+  Folder,
 } from "lucide-react";
 import { ConversationItem } from "./types";
 import { getStatusColor, getStatusLabel } from "./utils";
 import PollActions from "@/components/polls/PollActions";
 import { useConversations } from "@/hooks/useConversations";
 import { useToast } from "@/hooks/use-toast";
+import { getAllTags } from "@/lib/storage/TagStorage";
+import { getAllFolders, getFolderById } from "@/lib/storage/FolderStorage";
 
 interface ConversationCardProps {
   item: ConversationItem;
@@ -31,8 +35,11 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { deleteConversation } = useConversations();
+  const { deleteConversation, updateConversation } = useConversations();
   const [isDeleting, setIsDeleting] = useState(false);
+  const tags = getAllTags();
+  const folders = getAllFolders();
+  const folder = item.folderId ? getFolderById(item.folderId) : null;
 
   const handleCardClick = () => {
     // Ouvrir le workspace avec la conversation
@@ -76,8 +83,10 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
           className="absolute top-4 right-4 z-10"
           onClick={(e) => {
             e.stopPropagation();
+            e.preventDefault();
             onToggleSelection();
           }}
+          onMouseDown={(e) => e.stopPropagation()}
         >
           <div
             className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${
@@ -85,6 +94,10 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                 ? "bg-blue-600 border-blue-600"
                 : "bg-transparent border-gray-500 hover:border-blue-400"
             }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
           >
             {isSelected && <Check className="w-4 h-4 text-white" />}
           </div>
@@ -206,6 +219,31 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
             </button>
           </div>
         )}
+
+        {/* Tags et Dossier */}
+        {(item.tags && item.tags.length > 0) || folder ? (
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            {folder && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-700 text-gray-300">
+                <Folder className="w-3 h-3" />
+                {folder.icon} {folder.name}
+              </span>
+            )}
+            {item.tags?.map((tagName) => {
+              const tag = tags.find((t) => t.name === tagName);
+              return (
+                <span
+                  key={tagName}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-white"
+                  style={{ backgroundColor: tag?.color || "#3b82f6" }}
+                >
+                  <Tag className="w-3 h-3" />
+                  {tagName}
+                </span>
+              );
+            })}
+          </div>
+        ) : null}
 
         {/* Dates */}
         <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
