@@ -31,12 +31,33 @@ const TestDashboardFolder: React.FC = () => {
           Test isolé pour vérifier la sélection de dossiers dans le dialogue
         </p>
 
+        <div className="mb-4 p-4 bg-gray-800 rounded-lg">
+          <p className="text-white font-semibold mb-2">
+            Instructions pour le test:
+          </p>
+          <ul className="text-gray-400 text-sm list-disc list-inside space-y-1">
+            <li>Le dialogue s'ouvre automatiquement au chargement</li>
+            <li>Cliquer sur le checkbox "Test Folder 1"</li>
+            <li>Vérifier que <code className="bg-gray-700 px-2 py-1 rounded">data-state="checked"</code> apparaît</li>
+            <li>Le sélecteur doit utiliser <code className="bg-gray-700 px-2 py-1 rounded">getByRole("checkbox", { name: /Test Folder 1/i })</code></li>
+          </ul>
+        </div>
+
         <button
           onClick={() => setOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mb-4"
         >
           Ouvrir Dialogue
         </button>
+
+        {open && (
+          <div className="mt-4 p-4 bg-green-900/20 border border-green-500 rounded-lg">
+            <p className="text-green-400 font-semibold">✅ Dialogue ouvert</p>
+            <p className="text-gray-400 text-sm mt-2">
+              Le dialogue devrait être visible. Vérifiez que le checkbox "Test Folder 1" est cliquable.
+            </p>
+          </div>
+        )}
 
         <ManageTagsFolderDialog
           conversationId="test-conv-1"

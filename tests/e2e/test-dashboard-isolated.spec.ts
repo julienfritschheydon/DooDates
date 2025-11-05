@@ -50,9 +50,15 @@ test.describe("Dashboard - Tests Isolés", () => {
   test("Test isolé - Sélection d'une carte (border bleu)", async ({ page }) => {
     await page.goto("/test/dashboard/selection", { waitUntil: "networkidle" });
 
+    // Screenshot initial
+    await page.screenshot({ path: "test-results/selection-initial.png", fullPage: true });
+
     // Attendre que la carte soit visible
     const card = page.locator('[data-testid="poll-item"]').first();
     await expect(card).toBeVisible({ timeout: 5000 });
+
+    // Screenshot de la carte avant sélection
+    await card.screenshot({ path: "test-results/selection-card-before.png" });
 
     // Vérifier que la carte n'est pas sélectionnée initialement
     await expect(card).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 1000 });
@@ -62,14 +68,28 @@ test.describe("Dashboard - Tests Isolés", () => {
     await checkbox.waitFor({ state: "visible", timeout: 5000 });
     await checkbox.scrollIntoViewIfNeeded();
     await page.waitForTimeout(200);
+
+    // Screenshot du checkbox avant clic
+    await checkbox.screenshot({ path: "test-results/selection-checkbox-before.png" });
+
     await checkbox.click({ force: true });
 
     // Attendre que la sélection se mette à jour
     await page.waitForTimeout(500);
 
+    // Screenshot de la carte après sélection
+    await card.screenshot({ path: "test-results/selection-card-after.png" });
+    await page.screenshot({ path: "test-results/selection-after.png", fullPage: true });
+
     // Vérifier que la carte est sélectionnée - VÉRIFIER LES CLASSES CSS RÉELLES
     const cardClasses = await card.getAttribute("class");
     console.log("Classes CSS de la carte après sélection:", cardClasses);
+
+    // Screenshot de la console avec les classes
+    const checkboxElement = await checkbox.elementHandle();
+    if (checkboxElement) {
+      await checkboxElement.screenshot({ path: "test-results/selection-checkbox-after.png" });
+    }
 
     // Vérifier avec une regex plus flexible
     expect(cardClasses).toMatch(/border-blue-500|ring-blue-500|border-blue/);
@@ -78,8 +98,16 @@ test.describe("Dashboard - Tests Isolés", () => {
   test("Test isolé - Sélection d'un dossier dans le dialogue", async ({ page }) => {
     await page.goto("/test/dashboard/folder", { waitUntil: "networkidle" });
 
+    // Screenshot initial
+    await page.screenshot({ path: "test-results/folder-initial.png", fullPage: true });
+
     // Attendre que le dialogue soit ouvert
-    await expect(page.getByText("Gérer les tags et le dossier")).toBeVisible({ timeout: 5000 });
+    const dialog = page.locator('[role="dialog"]');
+    await expect(dialog).toBeVisible({ timeout: 5000 });
+
+    // Screenshot du dialogue ouvert
+    await dialog.screenshot({ path: "test-results/folder-dialog-open.png" });
+    await page.screenshot({ path: "test-results/folder-dialog-full.png", fullPage: true });
 
     // Utiliser getByRole pour trouver le checkbox Radix UI (plus robuste)
     // Radix UI Checkbox utilise role="checkbox" et aria-label ou label associé
@@ -88,9 +116,19 @@ test.describe("Dashboard - Tests Isolés", () => {
     await folderCheckbox.scrollIntoViewIfNeeded();
     await page.waitForTimeout(200);
 
+    // Screenshot de la section dossier avant clic
+    const folderSection = dialog.locator('text=Dossier').locator('..').first();
+    await folderSection.screenshot({ path: "test-results/folder-section-before.png" });
+
     // Vérifier l'état initial (non coché)
     const initialState = await folderCheckbox.getAttribute("data-state");
     console.log("État initial checkbox dossier:", initialState);
+
+    // Screenshot du checkbox avant clic
+    const checkboxElement = await folderCheckbox.elementHandle();
+    if (checkboxElement) {
+      await checkboxElement.screenshot({ path: "test-results/folder-checkbox-before.png" });
+    }
 
     // Cliquer sur le checkbox
     await folderCheckbox.click({ force: true });
@@ -98,8 +136,19 @@ test.describe("Dashboard - Tests Isolés", () => {
     // Attendre que la checkbox soit cochée
     await page.waitForTimeout(500);
 
+    // Screenshot après clic
+    await folderSection.screenshot({ path: "test-results/folder-section-after.png" });
+    await dialog.screenshot({ path: "test-results/folder-dialog-after.png" });
+
+    if (checkboxElement) {
+      await checkboxElement.screenshot({ path: "test-results/folder-checkbox-after.png" });
+    }
+
     // Vérifier que la checkbox est cochée en utilisant l'attribut data-state de Radix UI
     await expect(folderCheckbox).toHaveAttribute("data-state", "checked", { timeout: 3000 });
+
+    // Screenshot final
+    await page.screenshot({ path: "test-results/folder-final.png", fullPage: true });
   });
 });
 
