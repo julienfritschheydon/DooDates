@@ -16,6 +16,7 @@ import { ConversationStateProvider } from "./components/prototype/ConversationSt
 import { EditorStateProvider } from "./components/prototype/EditorStateProvider";
 import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // Composant de loading optimisé
 const LoadingSpinner = () => (
@@ -334,56 +335,61 @@ const App = () => {
   const AppLayout = Layout;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <BrowserRouter basename={import.meta.env.BASE_URL}>
-            <AppLayout>
-              <Suspense fallback={<LoadingSpinner />}>
-                {/* OnboardingProvider pour l'état onboarding partagé */}
-                <OnboardingProvider>
-                  {/* UIStateProvider pour l'état UI (sidebar, highlights) */}
-                  <UIStateProvider>
-                    {/* ConversationStateProvider pour l'état conversation (messages, ID) */}
-                    <ConversationStateProvider>
-                      {/* EditorStateProvider pour l'état éditeur (poll, actions) */}
-                      <EditorStateProvider>
-                        {/* ConversationProvider LEGACY - À migrer progressivement */}
-                        <ConversationProvider>
-                          <Routes>
-                            {/* Route / vers WorkspacePage (AI-First UX) */}
-                            <Route path="/" element={<WorkspacePage />} />
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <BrowserRouter basename={import.meta.env.BASE_URL}>
+              <AppLayout>
+                <ErrorBoundary>
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {/* OnboardingProvider pour l'état onboarding partagé */}
+                    <OnboardingProvider>
+                      {/* UIStateProvider pour l'état UI (sidebar, highlights) */}
+                      <UIStateProvider>
+                        {/* ConversationStateProvider pour l'état conversation (messages, ID) */}
+                        <ConversationStateProvider>
+                          {/* EditorStateProvider pour l'état éditeur (poll, actions) */}
+                          <EditorStateProvider>
+                            {/* ConversationProvider LEGACY - À migrer progressivement */}
+                            <ConversationProvider>
+                              <Routes>
+                                {/* Route / vers WorkspacePage (AI-First UX) */}
+                                <Route path="/" element={<WorkspacePage />} />
 
-                            {/* Redirections vers / */}
-                            <Route path="/workspace" element={<WorkspacePage />} />
-                            <Route path="/dashboard" element={<Dashboard />} />
+                                {/* Redirections vers / */}
+                                <Route path="/workspace" element={<WorkspacePage />} />
+                                <Route path="/chat" element={<WorkspacePage />} />
+                                <Route path="/dashboard" element={<Dashboard />} />
 
-                            <Route path="/auth" element={<Auth />} />
-                            <Route path="/auth/callback" element={<AuthCallback />} />
-                            <Route path="/poll/:slug" element={<Vote />} />
-                            <Route path="/poll/:slug/results" element={<Results />} />
-                            <Route path="/vote/:pollId" element={<Vote />} />
-                            <Route path="/create" element={<CreateChooser />} />
-                            <Route path="/create/date" element={<DateCreator />} />
-                            <Route path="/create/form" element={<FormCreator />} />
-                            <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
-                            <Route path="/pricing" element={<Pricing />} />
-                            <Route path="/docs/*" element={<Docs />} />
-                            <Route path="*" element={<NotFound />} />
-                          </Routes>
-                        </ConversationProvider>
-                      </EditorStateProvider>
-                    </ConversationStateProvider>
-                  </UIStateProvider>
-                </OnboardingProvider>
-              </Suspense>
-            </AppLayout>
-          </BrowserRouter>
-        </TooltipProvider>
-        <Toaster />
-        <Sonner />
-      </AuthProvider>
-    </QueryClientProvider>
+                                <Route path="/auth" element={<Auth />} />
+                                <Route path="/auth/callback" element={<AuthCallback />} />
+                                <Route path="/poll/:slug" element={<Vote />} />
+                                <Route path="/poll/:slug/results" element={<Results />} />
+                                <Route path="/vote/:pollId" element={<Vote />} />
+                                <Route path="/create" element={<CreateChooser />} />
+                                <Route path="/create/date" element={<DateCreator />} />
+                                <Route path="/create/form" element={<FormCreator />} />
+                                <Route path="/poll/:pollSlug/results/:adminToken" element={<Vote />} />
+                                <Route path="/pricing" element={<Pricing />} />
+                                <Route path="/docs/*" element={<Docs />} />
+                                <Route path="*" element={<NotFound />} />
+                              </Routes>
+                            </ConversationProvider>
+                          </EditorStateProvider>
+                        </ConversationStateProvider>
+                      </UIStateProvider>
+                    </OnboardingProvider>
+                  </Suspense>
+                </ErrorBoundary>
+              </AppLayout>
+            </BrowserRouter>
+          </TooltipProvider>
+          <Toaster />
+          <Sonner />
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 

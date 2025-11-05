@@ -61,7 +61,7 @@ describe("useAnalyticsQuota", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorageMock = installLocalStorage();
-    
+
     // Remplacer localStorage global
     Object.defineProperty(window, "localStorage", {
       value: localStorageMock,
@@ -101,10 +101,7 @@ describe("useAnalyticsQuota", () => {
 
     it("charge le quota depuis localStorage si présent", () => {
       const today = new Date().toISOString().split("T")[0];
-      localStorageMock.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ count: 3, date: today }),
-      );
+      localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 3, date: today }));
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
@@ -120,17 +117,14 @@ describe("useAnalyticsQuota", () => {
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
-      localStorageMock.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ count: 10, date: yesterdayStr }),
-      );
+      localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 10, date: yesterdayStr }));
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
       waitFor(() => {
         expect(result.current.quota.used).toBe(0);
         expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
-        
+
         // Vérifier que localStorage a été mis à jour avec la date d'aujourd'hui
         const stored = JSON.parse(localStorageMock.getItem(STORAGE_KEY) || "{}");
         expect(stored.date).toBe(new Date().toISOString().split("T")[0]);
@@ -143,7 +137,7 @@ describe("useAnalyticsQuota", () => {
       waitFor(() => {
         expect(result.current.quota.used).toBe(0);
         expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
-        
+
         // Vérifier que localStorage a été initialisé
         const stored = JSON.parse(localStorageMock.getItem(STORAGE_KEY) || "{}");
         expect(stored.count).toBe(0);
@@ -216,10 +210,7 @@ describe("useAnalyticsQuota", () => {
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
-      localStorageMock.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ count: 10, date: yesterdayStr }),
-      );
+      localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 10, date: yesterdayStr }));
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
@@ -242,14 +233,11 @@ describe("useAnalyticsQuota", () => {
 
       // Préparer localStorage avec une valeur existante
       const today = new Date().toISOString().split("T")[0];
-      localStorageMock.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ count: 0, date: today }),
-      );
+      localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 0, date: today }));
 
       // Utiliser vi.spyOn pour intercepter setItem et lancer l'erreur seulement lors de l'incrémentation
       const setItemSpy = vi.spyOn(localStorageMock, "setItem");
-      
+
       // Compter les appels - lancer l'erreur au 2ème appel (après l'init)
       let callCount = 0;
       setItemSpy.mockImplementation((key, value) => {
@@ -443,4 +431,3 @@ describe("useAnalyticsQuota", () => {
     });
   });
 });
-

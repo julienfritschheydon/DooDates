@@ -138,7 +138,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
 
   const handleSubmit = async () => {
     try {
-      addFormResponse({
+      const response = addFormResponse({
         pollId: poll.id,
         respondentName: respondentName || undefined,
         items: Object.entries(answers).map(([questionId, value]) => ({

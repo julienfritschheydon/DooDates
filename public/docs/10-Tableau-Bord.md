@@ -49,7 +49,7 @@ Cmd + D (Mac)
 │  │ Sondages │ Réponses │ Actifs   │ Brouillons│             │
 │  └──────────┴──────────┴──────────┴──────────┘             │
 ├──────────────────────────────────────────────────────────────┤
-│  🔍 [Rechercher...] [Filtres ▼] [Vue: ⊞ Grille | ☰ Liste]  │ ← Recherche
+│  🔍 [Rechercher...] [⊞|☰] [Filtres: Tous ▼]                │ ← Recherche
 ├──────────────────────────────────────────────────────────────┤
 │                                                              │
 │  📋 Vos Sondages                                            │
@@ -126,17 +126,71 @@ Cmd + D (Mac)
 ```
 **Avantage :** Visuel, aperçu rapide, adapté mobile
 
-#### Vue Liste
+**Changer de vue :**
 ```
-☰ Réunion Sprint Planning | 8/10 | Actif | 2j | [Actions]
-☰ Satisfaction Client Q4 | 47/100 | Actif | 5j | [Actions]
-☰ Sondage Déjeuner      | 5/8 | Clôturé | 10j | [Actions]
+Barre de filtres → [⊞ Grille] [☰ Table]
 ```
-**Avantage :** Compact, plus d'infos visibles, tri facile
+
+#### Vue Table (Compacte)
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ☑ │ Titre              │ Statut │ Stats │ Date  │ Actions │
+├─────────────────────────────────────────────────────────────┤
+│ ☐ │ Réunion Sprint... │ Actif  │ 8/10  │ 2j    │ [•••]   │
+│ ☐ │ Satisfaction Q4   │ Actif  │ 47/100│ 5j    │ [•••]   │
+│ ☐ │ Sondage Déjeuner  │ Clôturé│ 5/8   │ 10j   │ [•••]   │
+└─────────────────────────────────────────────────────────────┘
+```
+**Avantage :** Compact, plus d'items visibles simultanément, meilleure densité d'information
+
+**Fonctionnalités :**
+- ✅ Toutes les informations essentielles en un coup d'œil
+- ✅ Plus d'items par page (calcul automatique selon votre écran)
+- ✅ Lignes alternées pour faciliter la lecture
+- ✅ Clic sur une ligne pour ouvrir le sondage
+- ✅ Sélection multiple avec cases à cocher
+
+**Changer de vue :**
+```
+Barre de filtres → [⊞ Grille] [☰ Table]
+→ Votre préférence est sauvegardée automatiquement
+```
 
 ---
 
 ## 📋 Liste des Sondages
+
+### Pagination Automatique
+
+**Fonctionnement :**
+```
+Quand vous avez beaucoup de sondages (centaines), le Dashboard les affiche
+automatiquement par pages pour optimiser les performances.
+
+Page 1 : [1] 2 3 ... 10
+Page 2 : 1 [2] 3 4 ... 10
+Page 3 : 1 2 [3] 4 5 ... 10
+```
+
+**Navigation :**
+- **Boutons Précédent/Suivant** : Navigation entre pages
+- **Clic sur un numéro** : Aller directement à une page
+- **Info en bas** : "Page X sur Y (Z éléments)" pour voir où vous êtes
+
+**Calcul automatique :**
+Le nombre d'items par page s'adapte automatiquement à :
+- 📱 **Votre taille d'écran** (mobile, tablette, desktop)
+- 🎯 **Votre mode de vue** (grille = moins d'items, table = plus d'items)
+- 📏 **Votre hauteur de fenêtre**
+
+**Exemples :**
+- 📱 Mobile + Grille : ~6-8 items/page
+- 💻 Desktop + Grille : ~12-18 items/page
+- 💻 Desktop + Table : ~18-24 items/page
+
+**Astuce :** La pagination se réinitialise automatiquement à la page 1 quand vous changez de filtre ou de recherche.
+
+---
 
 ### Carte de Sondage (Vue Grille)
 
@@ -196,6 +250,41 @@ Cmd + D (Mac)
 ---
 
 ## 🔍 Filtres et Recherche
+
+### Changement de Vue (Grid/Table)
+
+**Bouton de vue :**
+```
+Barre de filtres → [⊞] [☰]
+  ├─ ⊞ = Vue Grille (cartes)
+  └─ ☰ = Vue Table (compacte)
+```
+
+**Utilisation :**
+1. Cliquez sur l'icône **⊞** pour la vue grille (cartes visuelles)
+2. Cliquez sur l'icône **☰** pour la vue table (liste compacte)
+
+**Caractéristiques :**
+- ✅ Votre préférence est **sauvegardée automatiquement**
+- ✅ Vous retrouvez votre vue préférée à chaque visite
+- ✅ Accessible à **tous les utilisateurs** (gratuit, pro, premium)
+- ✅ Adaptation automatique du nombre d'items selon la vue
+
+**Quand utiliser chaque vue :**
+
+**Vue Grille (⊞) - Recommandée pour :**
+- 👀 Aperçu visuel rapide
+- 📱 Consultation sur mobile
+- 🎨 Présentation à des clients
+- 🆕 Découverte de nouveaux sondages
+
+**Vue Table (☰) - Recommandée pour :**
+- 📊 Beaucoup de sondages à gérer (centaines)
+- ⚡ Navigation rapide entre items
+- 📈 Comparaison de statistiques
+- 💼 Utilisation professionnelle intensive
+
+---
 
 ### Barre de Recherche
 
@@ -375,59 +464,22 @@ Options :
 
 ---
 
-### Graphiques de Tendance
-
-**Cliquez sur un widget pour voir les détails :**
-
-**Exemple : Réponses dans le temps**
-```
-📊 Réponses reçues (30 derniers jours)
-
-   50 │                            ▄█
-      │                         ▄█▀
-   40 │                      ▄█▀
-      │                   ▄█▀
-   30 │                ▄█▀
-      │             ▄█▀
-   20 │          ▄█▀
-      │       ▄█▀
-   10 │    ▄█▀
-      │ ▄█▀
-    0 └───────────────────────────────
-      Nov 1    Nov 10    Nov 20   Nov 30
-```
-
----
 
 ## 🗂️ Organisation
 
-### Tags et Libellés
+> **Note :** Les fonctionnalités d'organisation (tags, dossiers) sont prévues pour une future version. Actuellement, vous pouvez utiliser la recherche et les filtres (statut, type) pour organiser vos sondages.
 
-**Ajouter des tags :**
-```
-Sondage → Menu ••• → "Gérer les tags"
+### Tags et Libellés (Prévu)
 
-Tags disponibles :
-☐ Prioritaire
-☐ Client
-☐ Interne
-☐ Marketing
-☐ Produit
-
-[+ Créer un nouveau tag]
-```
-
-**Filtrer par tags :**
-```
-Filtres → Tags → ☑ Prioritaire
-→ Affiche uniquement sondages "Prioritaire"
-```
+Les tags permettront de catégoriser vos sondages pour une meilleure organisation. Cette fonctionnalité sera disponible dans une prochaine mise à jour.
 
 ---
 
-### Dossiers (Feature Pro)
+### Dossiers (Prévu)
 
-**Organiser en dossiers :**
+Les dossiers permettront d'organiser vos sondages en groupes thématiques. Cette fonctionnalité sera disponible pour tous les utilisateurs dans une future version.
+
+**Exemple d'organisation prévue :**
 ```
 Dashboard
 ├── 📁 Satisfaction Client
@@ -443,131 +495,18 @@ Dashboard
     └── Exit Interview
 ```
 
-**Créer un dossier :**
-```
-Dashboard → [+ Nouveau dossier]
-Nom : "Satisfaction Client"
-Couleur : Bleu
-Icône : 😊
-```
-
 ---
 
 ### Sauvegardes Automatiques
 
-**Feature automatique :**
+**Fonctionnalité actuelle :**
 ```
-✅ Sauvegarde automatique toutes les 30 secondes
-✅ Historique des versions (10 dernières)
-✅ Restauration possible en 1 clic
-```
-
-**Accéder à l'historique :**
-```
-Sondage → Menu ••• → "Historique des versions"
-
-┌─────────────────────────────────────────┐
-│  Version 12 (actuelle)                  │
-│  Aujourd'hui 15:42 - Modifié par vous  │
-│                                         │
-│  Version 11                             │
-│  Aujourd'hui 10:23 - Modifié par vous  │
-│  [Restaurer]  [Comparer]               │
-│                                         │
-│  Version 10                             │
-│  Hier 16:15 - Modifié par vous         │
-│  [Restaurer]  [Comparer]               │
-└─────────────────────────────────────────┘
+✅ Sauvegarde automatique des brouillons
+✅ Sauvegarde lors de la modification (debounce ~500-800ms)
+✅ Persistance dans le navigateur (localStorage)
 ```
 
----
-
-## ⌨️ Raccourcis Clavier
-
-### Dashboard
-
-| Raccourci | Action |
-|-----------|--------|
-| `Ctrl/Cmd + D` | Ouvrir Dashboard |
-| `Ctrl/Cmd + N` | Nouveau sondage |
-| `Ctrl/Cmd + F` | Focus recherche |
-| `Ctrl/Cmd + K` | Ouvrir Assistant IA |
-| `↑` `↓` | Naviguer entre sondages |
-| `Entrée` | Ouvrir sondage sélectionné |
-| `E` | Éditer le sondage |
-| `R` | Voir résultats |
-| `S` | Partager |
-| `Del` | Supprimer (avec confirmation) |
-
----
-
-## 💡 Conseils et Astuces
-
-### 1. Utilisez les Filtres Intelligents
-
-**Créez des vues personnalisées :**
-```
-"Sondages à relancer"
-→ Filtre : Actifs + Réponses < 30% + Créés > 3 jours
-
-"À clôturer cette semaine"
-→ Filtre : Actifs + Deadline < 7 jours
-
-"Brouillons à terminer"
-→ Filtre : Brouillons + Créés > 7 jours
-```
-
----
-
-### 2. Archivez Régulièrement
-
-**Nettoyez votre dashboard :**
-```
-Tous les mois :
-• Archivez les sondages clôturés il y a > 30 jours
-• Supprimez les brouillons abandonnés
-• Exportez les données importantes
-
-→ Dashboard clair et performant
-```
-
----
-
-### 3. Dupliquez pour Gagner du Temps
-
-**Sondages récurrents :**
-```
-Enquête mensuelle → Dupliquer → Changer les dates → Partager
-(Gain : 5 minutes par création)
-```
-
----
-
-## ❓ Questions Fréquentes
-
-### Combien de sondages puis-je avoir ?
-
-**Illimité !** Quel que soit votre plan (Gratuit, Pro, Premium).
-
----
-
-### Les brouillons comptent-ils dans la limite ?
-
-**Non**, seuls les sondages **actifs** comptent.
-
----
-
-### Puis-je partager l'accès au dashboard ?
-
-**Pas encore** (Feature en développement).
-
-Actuellement : 1 dashboard = 1 compte
-
-**Plan pour Q1 2026 :**
-- Équipes avec dashboards partagés
-- Permissions granulaires (Éditeur, Viewer, Admin)
-
----
+> **Note :** L'historique des versions et la restauration de versions précédentes sont prévues pour une future version. Actuellement, seul le dernier état sauvegardé est conservé.
 
 ## 🔗 Guides Connexes
 
@@ -581,5 +520,22 @@ Actuellement : 1 dashboard = 1 compte
 
 ---
 
-**© 2025 DooDates - Dashboard v1.0**
+**© 2025 DooDates - Dashboard v1.1** (Pagination & Vue Table)
+
+---
+
+## 📝 Notes de Version
+
+### v1.1 (Novembre 2025)
+
+**Nouvelles fonctionnalités :**
+- ✅ **Pagination automatique** : Gestion optimale de grandes quantités de sondages
+- ✅ **Vue Table compacte** : Affichage dense avec plus d'items visibles
+- ✅ **Calcul dynamique** : Adaptation automatique selon votre écran
+- ✅ **Sauvegarde de préférences** : Votre vue préférée est mémorisée
+
+**Améliorations :**
+- ⚡ Performance améliorée avec beaucoup de sondages
+- 🎯 Navigation plus efficace
+- 📱 Meilleure expérience sur tous les appareils
 

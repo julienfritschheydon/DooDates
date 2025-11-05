@@ -20,9 +20,24 @@ export function useDashboardData(refreshKey: number) {
 
       // Récupérer les polls avec statistiques
       const localPolls = getAllPolls();
-      const localVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
+      
+      // Parser les votes une seule fois et créer un index par poll_id pour éviter les filtres répétés
+      const votesRaw = localStorage.getItem("dev-votes");
+      const localVotes: any[] = votesRaw ? JSON.parse(votesRaw) : [];
+      
+      // Indexer les votes par poll_id pour accès O(1) au lieu de O(n)
+      const votesByPollId = new Map<string, any[]>();
+      for (const vote of localVotes) {
+        const pollId = vote.poll_id;
+        if (pollId) {
+          if (!votesByPollId.has(pollId)) {
+            votesByPollId.set(pollId, []);
+          }
+          votesByPollId.get(pollId)!.push(vote);
+        }
+      }
 
-      // Calculer les statistiques pour chaque sondage
+      // Calculer les statistiques pour chaque sondage (optimisé)
       const pollsWithStats: DashboardPoll[] = localPolls.map((poll: any) => {
         if (poll?.type === "form") {
           const resps = getFormResponses(poll.id);
@@ -34,10 +49,11 @@ export function useDashboardData(refreshKey: number) {
           };
         }
 
-        const pollVotes = localVotes.filter((vote: any) => vote.poll_id === poll.id);
+        // Utiliser l'index au lieu de filter pour éviter O(n) par poll
+        const pollVotes = votesByPollId.get(poll.id) || [];
         const uniqueVoters = new Set(pollVotes.map((vote: any) => getVoterId(vote))).size;
 
-        // Calculer les meilleures dates
+        // Calculer les meilleures dates (optimisé)
         let topDates: { date: string; score: number }[] = [];
         const selectedDates = poll.settings?.selectedDates || poll.options;
 
@@ -47,22 +63,31 @@ export function useDashboardData(refreshKey: number) {
           pollVotes.length > 0 &&
           poll.type !== "form"
         ) {
-          const dateScores = selectedDates.map((dateStr: any, index: number) => {
+          // Pré-calculer les scores dans une seule passe
+          const dateScoresMap = new Map<string, number>();
+          
+          for (let index = 0; index < selectedDates.length; index++) {
+            const dateStr = selectedDates[index];
             const dateLabel =
               typeof dateStr === "string" ? dateStr : dateStr.label || dateStr.title;
             const optionId = `option-${index}`;
-
+            
             let score = 0;
-            pollVotes.forEach((vote: any) => {
+            // Parcourir les votes une seule fois
+            for (const vote of pollVotes) {
               const selection = vote.vote_data?.[optionId] || vote.selections?.[optionId];
               if (selection === "yes") score += 3;
               else if (selection === "maybe") score += 1;
-            });
-            return { date: dateLabel, score };
-          });
+            }
+            
+            if (score > 0) {
+              dateScoresMap.set(dateLabel, score);
+            }
+          }
 
-          topDates = dateScores
-            .filter((d) => d.score > 0)
+          // Convertir en array et trier
+          topDates = Array.from(dateScoresMap.entries())
+            .map(([date, score]) => ({ date, score }))
             .sort((a, b) => b.score - a.score)
             .slice(0, 2);
         }
@@ -89,6 +114,8 @@ export function useDashboardData(refreshKey: number) {
           conversationDate: new Date(conv.updatedAt || conv.createdAt || Date.now()),
           poll: relatedPoll,
           hasAI: !!metadata?.pollGenerated,
+          tags: conv.tags || [],
+          folderId: metadata?.folderId,
         };
       });
 

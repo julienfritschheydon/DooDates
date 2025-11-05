@@ -1,7 +1,10 @@
-import React from "react";
-import { Search, LayoutGrid, Table } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Search, LayoutGrid, Table, Tag, Folder, X, Plus } from "lucide-react";
 import { FilterType } from "./types";
 import { getStatusLabel } from "./utils";
+import { getAllTags, createTag, Tag as TagType } from "@/lib/storage/TagStorage";
+import { getAllFolders, createFolder, Folder as FolderType } from "@/lib/storage/FolderStorage";
+import { useToast } from "@/hooks/use-toast";
 
 export type ViewMode = "grid" | "table";
 
@@ -12,6 +15,10 @@ interface DashboardFiltersProps {
   onFilterChange: (filter: FilterType) => void;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
+  selectedTags: string[];
+  onTagsChange: (tags: string[]) => void;
+  selectedFolderId: string | null | undefined;
+  onFolderChange: (folderId: string | null | undefined) => void;
 }
 
 export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
@@ -21,11 +28,87 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   onFilterChange,
   viewMode,
   onViewModeChange,
+  selectedTags,
+  onTagsChange,
+  selectedFolderId,
+  onFolderChange,
 }) => {
   const filters: FilterType[] = ["all", "draft", "active", "closed", "archived"];
+  const [tags, setTags] = useState<TagType[]>(getAllTags());
+  const [folders, setFolders] = useState<FolderType[]>(getAllFolders());
+  const [showTagMenu, setShowTagMenu] = useState(false);
+  const [showFolderMenu, setShowFolderMenu] = useState(false);
+  const [newTagName, setNewTagName] = useState("");
+  const [newFolderName, setNewFolderName] = useState("");
+  const { toast } = useToast();
+  const tagMenuRef = useRef<HTMLDivElement>(null);
+  const folderMenuRef = useRef<HTMLDivElement>(null);
+
+  // Fermer les menus en cliquant ailleurs
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tagMenuRef.current && !tagMenuRef.current.contains(event.target as Node)) {
+        setShowTagMenu(false);
+      }
+      if (folderMenuRef.current && !folderMenuRef.current.contains(event.target as Node)) {
+        setShowFolderMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleTag = (tagName: string) => {
+    if (selectedTags.includes(tagName)) {
+      onTagsChange(selectedTags.filter((t) => t !== tagName));
+    } else {
+      onTagsChange([...selectedTags, tagName]);
+    }
+  };
+
+  const handleCreateTag = () => {
+    if (!newTagName.trim()) return;
+    try {
+      const newTag = createTag(newTagName);
+      setTags(getAllTags());
+      setNewTagName("");
+      setShowTagMenu(false);
+      toast({
+        title: "Tag créé",
+        description: `Le tag "${newTag.name}" a été créé.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de créer le tag.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCreateFolder = () => {
+    if (!newFolderName.trim()) return;
+    try {
+      const newFolder = createFolder(newFolderName);
+      setFolders(getAllFolders());
+      setNewFolderName("");
+      setShowFolderMenu(false);
+      toast({
+        title: "Dossier créé",
+        description: `Le dossier "${newFolder.name}" a été créé.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de créer le dossier.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         {/* Barre de recherche */}
         <div className="relative flex-1 max-w-md">
@@ -46,9 +129,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             <button
               onClick={() => onViewModeChange("grid")}
               className={`p-2 rounded transition-colors ${
-                viewMode === "grid"
-                  ? "bg-blue-500 text-white"
-                  : "text-gray-300 hover:bg-[#2a2a2a]"
+                viewMode === "grid" ? "bg-blue-500 text-white" : "text-gray-300 hover:bg-[#2a2a2a]"
               }`}
               title="Vue grille"
               aria-label="Vue grille"
@@ -58,9 +139,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             <button
               onClick={() => onViewModeChange("table")}
               className={`p-2 rounded transition-colors ${
-                viewMode === "table"
-                  ? "bg-blue-500 text-white"
-                  : "text-gray-300 hover:bg-[#2a2a2a]"
+                viewMode === "table" ? "bg-blue-500 text-white" : "text-gray-300 hover:bg-[#2a2a2a]"
               }`}
               title="Vue table"
               aria-label="Vue table"
@@ -86,6 +165,173 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Tags et Dossiers */}
+      <div className="flex flex-wrap gap-3 items-center">
+        {/* Filtre par Tags */}
+        <div className="relative" ref={tagMenuRef}>
+          <button
+            onClick={() => setShowTagMenu(!showTagMenu)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+              selectedTags.length > 0
+                ? "bg-blue-500 text-white border-blue-500"
+                : "bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700"
+            }`}
+          >
+            <Tag className="w-4 h-4" />
+            Tags {selectedTags.length > 0 && `(${selectedTags.length})`}
+          </button>
+
+          {showTagMenu && (
+            <div className="absolute top-full left-0 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
+              <div className="p-3 border-b border-gray-700">
+                <input
+                  type="text"
+                  placeholder="Nouveau tag..."
+                  value={newTagName}
+                  onChange={(e) => setNewTagName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleCreateTag();
+                  }}
+                  className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 text-white rounded text-sm"
+                  autoFocus
+                />
+                <button
+                  onClick={handleCreateTag}
+                  className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                >
+                  <Plus className="w-3 h-3" />
+                  Créer
+                </button>
+              </div>
+              <div className="p-2 space-y-1">
+                {tags.map((tag) => (
+                  <label
+                    key={tag.id}
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2a2a] rounded cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedTags.includes(tag.name)}
+                      onChange={() => toggleTag(tag.name)}
+                      className="w-4 h-4 rounded"
+                    />
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: tag.color }}
+                    />
+                    <span className="text-sm text-gray-300">{tag.name}</span>
+                  </label>
+                ))}
+                {tags.length === 0 && (
+                  <p className="px-3 py-2 text-sm text-gray-500">Aucun tag disponible</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Filtre par Dossier */}
+        <div className="relative" ref={folderMenuRef}>
+          <button
+            onClick={() => setShowFolderMenu(!showFolderMenu)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+              selectedFolderId
+                ? "bg-blue-500 text-white border-blue-500"
+                : "bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700"
+            }`}
+          >
+            <Folder className="w-4 h-4" />
+            {selectedFolderId
+              ? folders.find((f) => f.id === selectedFolderId)?.name || "Dossier"
+              : "Tous les dossiers"}
+          </button>
+
+          {showFolderMenu && (
+            <div className="absolute top-full left-0 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg z-50 min-w-[200px]">
+              <div className="p-3 border-b border-gray-700">
+                <input
+                  type="text"
+                  placeholder="Nouveau dossier..."
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleCreateFolder();
+                  }}
+                  className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 text-white rounded text-sm"
+                  autoFocus
+                />
+                <button
+                  onClick={handleCreateFolder}
+                  className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                >
+                  <Plus className="w-3 h-3" />
+                  Créer
+                </button>
+              </div>
+              <div className="p-2 space-y-1">
+                <button
+                  onClick={() => {
+                    onFolderChange(undefined);
+                    setShowFolderMenu(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded text-sm ${
+                    !selectedFolderId
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-300 hover:bg-[#2a2a2a]"
+                  }`}
+                >
+                  Tous les dossiers
+                </button>
+                {folders.map((folder) => (
+                  <button
+                    key={folder.id}
+                    onClick={() => {
+                      onFolderChange(folder.id);
+                      setShowFolderMenu(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 ${
+                      selectedFolderId === folder.id
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-300 hover:bg-[#2a2a2a]"
+                    }`}
+                  >
+                    <span>{folder.icon}</span>
+                    <span>{folder.name}</span>
+                  </button>
+                ))}
+                {folders.length === 0 && (
+                  <p className="px-3 py-2 text-sm text-gray-500">Aucun dossier disponible</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Tags sélectionnés - affichage */}
+        {selectedTags.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {selectedTags.map((tagName) => {
+              const tag = tags.find((t) => t.name === tagName);
+              return (
+                <span
+                  key={tagName}
+                  className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-blue-600 text-white"
+                  style={{ backgroundColor: tag?.color || "#3b82f6" }}
+                >
+                  {tagName}
+                  <button
+                    onClick={() => toggleTag(tagName)}
+                    className="hover:bg-blue-700 rounded p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
