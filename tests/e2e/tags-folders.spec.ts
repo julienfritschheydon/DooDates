@@ -278,8 +278,9 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       // Sauvegarder
       await page.getByRole('button', { name: /Enregistrer/i }).click();
 
-      // Vérifier le toast de succès
-      await expect(page.getByText(/Mise à jour réussie/i)).toBeVisible({ timeout: 3000 });
+      // Vérifier le toast de succès (utiliser .first() pour éviter strict mode violation)
+      // Le texte apparaît dans le toast visible ET dans l'élément aria-live, on prend le premier
+      await expect(page.getByText(/Mise à jour réussie/i).first()).toBeVisible({ timeout: 3000 });
 
       // Vérifier que le dossier apparaît sur la carte
       await page.waitForTimeout(1000); // Attendre le rafraîchissement
