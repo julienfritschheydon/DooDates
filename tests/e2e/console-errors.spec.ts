@@ -330,8 +330,34 @@ test.describe('Console Errors & React Warnings', () => {
     // 📸 Capture 3 : Message envoyé (attente de la réponse)
     await page.screenshot({ path: 'test-results/debug-3-message-sent.png', fullPage: true });
     
-    // Attendre un peu pour que la requête soit lancée
-    await page.waitForTimeout(3000);
+    // Attendre que le bouton de création soit visible (utiliser data-testid pour plus de fiabilité)
+    // Le timeout est plus long pour webkit qui peut être plus lent
+    const createButton = page.locator('[data-testid="create-form-button"]');
+    
+    // Attendre que la réponse IA soit reçue et le bouton apparaisse
+    // On attend d'abord qu'un message avec pollSuggestion apparaisse dans le DOM
+    try {
+      // Attendre qu'un message avec le bouton create-form-button apparaisse
+      await page.waitForFunction(
+        () => {
+          const button = document.querySelector('[data-testid="create-form-button"]');
+          return button !== null && button.offsetParent !== null; // Vérifier qu'il est visible
+        },
+        { timeout: 20000 }
+      );
+    } catch (error) {
+      // Si le waitForFunction échoue, on essaie une approche alternative
+      // Attendre qu'au moins un message de réponse IA soit présent
+      await page.waitForFunction(
+        () => {
+          const messages = Array.from(document.querySelectorAll('[class*="message"], [class*="Message"]'));
+          return messages.length >= 2; // Au moins le message utilisateur + la réponse IA
+        },
+        { timeout: 15000 }
+      ).catch(() => {
+        // Si ça échoue aussi, on continue avec le wait classique
+      });
+    }
     
     // Vérifier les messages affichés dans le chat
     const allMessages = await page.locator('[class*="message"], [class*="Message"]').all();
@@ -362,8 +388,8 @@ test.describe('Console Errors & React Warnings', () => {
                            pageContent.includes('Erreur réseau');
     console.log('🔍 Message réseau dans le HTML:', hasNetworkError ? 'OUI' : 'NON');
     
-    // 📸 Capture 4 : Après 3 secondes d'attente
-    await page.screenshot({ path: 'test-results/debug-4-after-3s.png', fullPage: true });
+    // 📸 Capture 4 : Après attente de la réponse
+    await page.screenshot({ path: 'test-results/debug-4-after-wait.png', fullPage: true });
     
     // Si c'est webkit et qu'il y a un message réseau, skip le test proprement
     // (le code fonctionne en production, c'est juste un problème de mock dans les tests)
@@ -373,10 +399,6 @@ test.describe('Console Errors & React Warnings', () => {
       test.skip();
       return; // Sortir proprement du test
     }
-    
-    // Attendre que le bouton de création soit visible (utiliser data-testid pour plus de fiabilité)
-    // Le timeout est plus long pour webkit qui peut être plus lent
-    const createButton = page.locator('[data-testid="create-form-button"]');
     
     try {
       await expect(createButton).toBeVisible({ timeout: 20000 });

@@ -160,7 +160,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: 🔥 Run Smoke Tests (Critical paths only)
-        run: npm run test:e2e:smoke
+        run: npm run test:e2e:smoke -- --reporter=html,json
         env:
           VITE_GEMINI_API_KEY: fake-key-for-e2e-tests  # Mock will intercept API calls
 
@@ -170,6 +170,14 @@ jobs:
         with:
           name: playwright-report-smoke
           path: playwright-report
+          retention-days: 7
+
+      - name: 📤 Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-smoke
+          path: test-results
           retention-days: 7
 
   # Job 5b: E2E Functional (Chromium only - Tests fonctionnels complets)
@@ -193,7 +201,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: ⚡ Run Functional Tests (Complete user flows)
-        run: npm run test:e2e:functional
+        run: npm run test:e2e:functional -- --reporter=html,json
         env:
           VITE_GEMINI_API_KEY: fake-key-for-e2e-tests  # Mock will intercept API calls
 
@@ -203,6 +211,14 @@ jobs:
         with:
           name: playwright-report-functional
           path: playwright-report
+          retention-days: 7
+
+      - name: 📤 Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-functional
+          path: test-results
           retention-days: 7
 
   # Job 5c: E2E Matrix (Desktop + Mobile - Tests multi-navigateurs)
@@ -236,7 +252,7 @@ jobs:
 
       - name: 🧪 Run Playwright E2E (${{ matrix.project }})
         run: |
-          npx playwright test --project="${{ matrix.project }}" --reporter=html --ignore-snapshots --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow"
+          npx playwright test --project="${{ matrix.project }}" --reporter=html,json --ignore-snapshots --grep-invert "Edge Cases and Error Handling|Guest User Workflow|Authenticated User Workflow"
 
       - name: 📊 Upload Playwright report (${{ matrix.project }})
         if: always()
@@ -246,6 +262,14 @@ jobs:
           path: playwright-report
           retention-days: 7
 
+      - name: 📤 Upload test results JSON (${{ matrix.project }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.project }}
+          path: test-results
+          retention-days: 7
+
   # Job 6: Summary
   validation-summary:
     needs: [quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix]
@@ -253,10 +277,44 @@ jobs:
     if: always() && github.event_name == 'pull_request'
 
     steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 📥 Download test results (if available)
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: test-results-*
+          merge-multiple: true
+          path: test-results
+
+      - name: 📊 Generate E2E Summary (if failures)
+        id: e2e-summary
+        if: needs.e2e-smoke.result == 'failure' || needs.e2e-functional.result == 'failure' || needs.e2e-matrix.result == 'failure'
+        run: |
+          if [ -d test-results ]; then
+            node scripts/generate-regression-summary.js || echo "Summary generation failed"
+          else
+            echo "No test results available"
+          fi
+        continue-on-error: true
+
       - name: 📊 Validation Summary
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
+            const fs = require('fs');
+            const path = require('path');
+            
             const jobs = [
               { name: 'Tests Rapides', status: '${{ needs.quick-tests.result }}' },
               { name: 'Validation IA', status: '${{ needs.ai-validation.result }}' },
@@ -271,14 +329,21 @@ jobs:
             const total = jobs.length;
             const status = passed === total ? '✅' : '❌';
             
-            const summary = `## ${status} Validation PR - ${passed}/${total} jobs réussis
+            let summary = `## ${status} Validation PR - ${passed}/${total} jobs réussis\n\n`;
+            summary += `${jobs.map(j => `- ${j.status === 'success' ? '✅' : '❌'} ${j.name}`).join('\n')}\n\n`;
             
-            ${jobs.map(j => `- ${j.status === 'success' ? '✅' : '❌'} ${j.name}`).join('\n')}
+            // Ajouter le résumé E2E détaillé si disponible
+            const summaryPath = path.join(process.cwd(), 'regression-summary.md');
+            if (fs.existsSync(summaryPath)) {
+              const e2eSummary = fs.readFileSync(summaryPath, 'utf-8');
+              summary += `\n---\n\n## 🔍 Détails des Tests E2E\n\n${e2eSummary}\n`;
+            }
             
-            ${passed === total ? 
+            summary += `\n---\n\n`;
+            summary += passed === total ? 
               '🚀 **Toutes les validations sont passées ! Cette PR peut être mergée.**' : 
-              '⚠️ **Des validations ont échoué. Veuillez corriger avant de merger.**'
-            }`;
+              '⚠️ **Des validations ont échoué. Veuillez corriger avant de merger.**\n\n';
+            summary += `📋 **Rapports détaillés disponibles dans les artefacts GitHub Actions**`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,

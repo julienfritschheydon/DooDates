@@ -172,16 +172,22 @@ test.describe("Analytics IA - Suite Complète", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
+    // Gérer le dialog de confirmation
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+
     // Cliquer directement sur "Clôturer" (pas de menu Actions)
-    const closeButton = page.locator('button:has-text("Clôturer")');
+    const closeButton = page.locator('[data-testid="poll-action-close"]');
     await expect(closeButton).toBeVisible({ timeout: 10000 });
     await closeButton.click();
 
-    // Confirmer
-    const confirmButton = page.locator('button:has-text("Confirmer")');
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
+    // Attendre que le poll soit clôturé et que la page se mette à jour
+    await page.waitForTimeout(1000);
+    
+    // Recharger la page pour s'assurer que le statut est à jour
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
     await page.waitForTimeout(2000);
 
@@ -495,6 +501,11 @@ test.describe("Analytics IA - Suite Complète", () => {
 });
 
 test.describe("Analytics IA - Quick Queries", () => {
+  // Skip sur Firefox et Safari car bug Playwright avec shared context
+  // https://github.com/microsoft/playwright/issues/13038
+  // https://github.com/microsoft/playwright/issues/22832
+  test.skip(({ browserName }) => browserName !== 'chromium', 'Shared context non supporté sur Firefox/Safari');
+  
   test.beforeEach(async ({ page }) => {
     await setupGeminiMock(page);
   });
@@ -557,13 +568,22 @@ test.describe("Analytics IA - Quick Queries", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
-    await page.locator('button:has-text("Actions")').click();
-    await page.locator('button:has-text("Clôturer")').click();
-    const confirmButton = page.locator('button:has-text("Confirmer")');
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
-    await page.waitForTimeout(2000);
+    
+    // Gérer le dialog de confirmation
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+    
+    const closeButton = page.locator('[data-testid="poll-action-close"]');
+    await expect(closeButton).toBeVisible({ timeout: 10000 });
+    await closeButton.click();
+    
+    // Attendre que le poll soit clôturé et que la page se mette à jour
+    await page.waitForTimeout(1000);
+    
+    // Recharger la page pour s'assurer que le statut est à jour
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
     // Vérifier que le panneau Analytics est présent dans le DOM
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
@@ -632,13 +652,22 @@ test.describe.skip("Analytics IA - Query Personnalisée", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
-    await page.locator('button:has-text("Actions")').click();
-    await page.locator('button:has-text("Clôturer")').click();
-    const confirmButton = page.locator('button:has-text("Confirmer")');
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
-    await page.waitForTimeout(2000);
+    
+    // Gérer le dialog de confirmation
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+    
+    const closeButton = page.locator('[data-testid="poll-action-close"]');
+    await expect(closeButton).toBeVisible({ timeout: 10000 });
+    await closeButton.click();
+    
+    // Attendre que le poll soit clôturé et que la page se mette à jour
+    await page.waitForTimeout(1000);
+    
+    // Recharger la page pour s'assurer que le statut est à jour
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
     // Test query personnalisée
     const queryInput = page.locator('[data-testid="analytics-query-input"]');
@@ -704,13 +733,22 @@ test.describe.skip("Analytics IA - Cache", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
-    await page.locator('button:has-text("Actions")').click();
-    await page.locator('button:has-text("Clôturer")').click();
-    const confirmButton = page.locator('button:has-text("Confirmer")');
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
-    await page.waitForTimeout(2000);
+    
+    // Gérer le dialog de confirmation
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+    
+    const closeButton = page.locator('[data-testid="poll-action-close"]');
+    await expect(closeButton).toBeVisible({ timeout: 10000 });
+    await closeButton.click();
+    
+    // Attendre que le poll soit clôturé et que la page se mette à jour
+    await page.waitForTimeout(1000);
+    
+    // Recharger la page pour s'assurer que le statut est à jour
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
     // Première query
     const queryInput = page.locator('[data-testid="analytics-query-input"]');
@@ -786,13 +824,22 @@ test.describe.skip("Analytics IA - Quotas", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
-    await page.locator('button:has-text("Actions")').click();
-    await page.locator('button:has-text("Clôturer")').click();
-    const confirmButton = page.locator('button:has-text("Confirmer")');
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
-    await page.waitForTimeout(2000);
+    
+    // Gérer le dialog de confirmation
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+    
+    const closeButton = page.locator('[data-testid="poll-action-close"]');
+    await expect(closeButton).toBeVisible({ timeout: 10000 });
+    await closeButton.click();
+    
+    // Attendre que le poll soit clôturé et que la page se mette à jour
+    await page.waitForTimeout(1000);
+    
+    // Recharger la page pour s'assurer que le statut est à jour
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
     // Vérifier quota initial (5 pour anonyme)
     const quotaIndicator = page.locator('[data-testid="quota-indicator"]');
@@ -865,13 +912,22 @@ test.describe.skip("Analytics IA - Quotas", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
-    await page.locator('button:has-text("Actions")').click();
-    await page.locator('button:has-text("Clôturer")').click();
-    const confirmButton = page.locator('button:has-text("Confirmer")');
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
-    await page.waitForTimeout(2000);
+    
+    // Gérer le dialog de confirmation
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+    
+    const closeButton = page.locator('[data-testid="poll-action-close"]');
+    await expect(closeButton).toBeVisible({ timeout: 10000 });
+    await closeButton.click();
+    
+    // Attendre que le poll soit clôturé et que la page se mette à jour
+    await page.waitForTimeout(1000);
+    
+    // Recharger la page pour s'assurer que le statut est à jour
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
     // Faire 5 queries pour atteindre le quota
     const queryInput = page.locator('[data-testid="analytics-query-input"]');
@@ -951,13 +1007,22 @@ test.describe.skip("Analytics IA - Dark Mode", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
-    await page.locator('button:has-text("Actions")').click();
-    await page.locator('button:has-text("Clôturer")').click();
-    const confirmButton = page.locator('button:has-text("Confirmer")');
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
-    await page.waitForTimeout(2000);
+    
+    // Gérer le dialog de confirmation
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+    
+    const closeButton = page.locator('[data-testid="poll-action-close"]');
+    await expect(closeButton).toBeVisible({ timeout: 10000 });
+    await closeButton.click();
+    
+    // Attendre que le poll soit clôturé et que la page se mette à jour
+    await page.waitForTimeout(1000);
+    
+    // Recharger la page pour s'assurer que le statut est à jour
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
     // Activer dark mode
     const darkModeToggle = page.locator('[data-testid="dark-mode-toggle"]');
@@ -1129,13 +1194,22 @@ test.describe.skip("Analytics IA - Gestion Erreurs", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
-    await page.locator('button:has-text("Actions")').click();
-    await page.locator('button:has-text("Clôturer")').click();
-    const confirmButton = page.locator('button:has-text("Confirmer")');
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
-    await page.waitForTimeout(2000);
+    
+    // Gérer le dialog de confirmation
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+    
+    const closeButton = page.locator('[data-testid="poll-action-close"]');
+    await expect(closeButton).toBeVisible({ timeout: 10000 });
+    await closeButton.click();
+    
+    // Attendre que le poll soit clôturé et que la page se mette à jour
+    await page.waitForTimeout(1000);
+    
+    // Recharger la page pour s'assurer que le statut est à jour
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
     // Vérifier qu'il n'y a pas d'erreur console critique
     const errors: string[] = [];
@@ -1196,13 +1270,22 @@ test.describe.skip("Analytics IA - Gestion Erreurs", () => {
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
-    await page.locator('button:has-text("Actions")').click();
-    await page.locator('button:has-text("Clôturer")').click();
-    const confirmButton = page.locator('button:has-text("Confirmer")');
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
-    await page.waitForTimeout(2000);
+    
+    // Gérer le dialog de confirmation
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+    
+    const closeButton = page.locator('[data-testid="poll-action-close"]');
+    await expect(closeButton).toBeVisible({ timeout: 10000 });
+    await closeButton.click();
+    
+    // Attendre que le poll soit clôturé et que la page se mette à jour
+    await page.waitForTimeout(1000);
+    
+    // Recharger la page pour s'assurer que le statut est à jour
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
     // Taper une query très longue (> 500 caractères)
     const longQuery = "A".repeat(600);
