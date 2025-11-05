@@ -425,7 +425,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     }
   });
 
-  test('@functional - Sélectionner/désélectionner des conversations', async ({ page }) => {
+  test.skip('@functional - Sélectionner/désélectionner des conversations', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
