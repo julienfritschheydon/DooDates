@@ -283,8 +283,10 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await expect(page.getByText(/Mise à jour réussie/i).first()).toBeVisible({ timeout: 3000 });
 
       // Vérifier que le dossier apparaît sur la carte
+      // Le dossier est affiché comme "📁 Test Folder 1" (icône + nom)
       await page.waitForTimeout(1000); // Attendre le rafraîchissement
-      const folderOnCard = conversationCard.locator('text=Test Folder 1');
+      // Utiliser getByText avec le nom du dossier dans le contexte de la carte
+      const folderOnCard = conversationCard.getByText(/Test Folder 1/i);
       await expect(folderOnCard).toBeVisible({ timeout: 5000 });
     } finally {
       await guard.assertClean();
