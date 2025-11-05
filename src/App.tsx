@@ -332,7 +332,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     location.pathname.startsWith("/vote/") ||
     location.pathname.startsWith("/auth") ||
     location.pathname.startsWith("/docs") ||
-    location.pathname.startsWith("/pricing");
+    location.pathname.startsWith("/pricing") ||
+    location.pathname.startsWith("/dashboard");
 
   // Si page classique, utiliser layout simple
   if (useClassicLayout) {

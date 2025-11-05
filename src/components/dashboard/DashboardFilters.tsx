@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Search, LayoutGrid, Table, Tag, Folder, X, Plus } from "lucide-react";
+import { Search, LayoutGrid, Table, Tag, Folder, X, Plus, CheckSquare } from "lucide-react";
 import { FilterType } from "./types";
 import { getStatusLabel } from "./utils";
 import { getAllTags, createTag, Tag as TagType } from "@/lib/storage/TagStorage";
@@ -19,6 +19,10 @@ interface DashboardFiltersProps {
   onTagsChange: (tags: string[]) => void;
   selectedFolderId: string | null | undefined;
   onFolderChange: (folderId: string | null | undefined) => void;
+  selectedIdsCount: number;
+  onSelectAll: () => void;
+  onClearSelection: () => void;
+  hasItems: boolean;
 }
 
 export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
@@ -32,6 +36,10 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   onTagsChange,
   selectedFolderId,
   onFolderChange,
+  selectedIdsCount,
+  onSelectAll,
+  onClearSelection,
+  hasItems,
 }) => {
   const filters: FilterType[] = ["all", "draft", "active", "closed", "archived"];
   const [tags, setTags] = useState<TagType[]>(getAllTags());
@@ -109,6 +117,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
 
   return (
     <div className="mb-6 space-y-4">
+      {/* Ligne 1: Recherche + Actions principales (Vue + Sélectionner) */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         {/* Barre de recherche */}
         <div className="relative flex-1 max-w-md">
@@ -118,11 +127,23 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             placeholder="Rechercher une conversation ou un sondage..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#1e1e1e] border border-gray-700 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-10 py-2 bg-[#1e1e1e] border border-gray-700 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             data-testid="search-conversations"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => onSearchChange("")}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+              aria-label="Effacer la recherche"
+              title="Effacer la recherche"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
+        {/* Actions principales: Vue + Sélectionner */}
         <div className="flex items-center gap-3">
           {/* Toggle Grid/Table */}
           <div className="flex items-center gap-1 bg-[#1e1e1e] border border-gray-700 rounded-lg p-1">
@@ -138,7 +159,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             </button>
             <button
               onClick={() => onViewModeChange("table")}
-              className={`p-2 rounded transition-colors ${
+              className={`hidden md:block p-2 rounded transition-colors ${
                 viewMode === "table" ? "bg-blue-500 text-white" : "text-gray-300 hover:bg-[#2a2a2a]"
               }`}
               title="Vue table"
@@ -148,27 +169,46 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             </button>
           </div>
 
-          {/* Filtres */}
-          <div className="flex gap-2 flex-wrap">
-            {filters.map((f) => (
-              <button
-                key={f}
-                onClick={() => onFilterChange(f)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  filter === f
-                    ? "bg-blue-500 text-white"
-                    : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700"
-                }`}
-              >
-                {f === "all" ? "Tous" : getStatusLabel(f as any)}
-              </button>
-            ))}
-          </div>
+          {/* Bouton Sélectionner */}
+          {hasItems && (
+            <button
+              onClick={selectedIdsCount > 0 ? onClearSelection : onSelectAll}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 border ${
+                selectedIdsCount > 0
+                  ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-500"
+                  : "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white border-gray-700"
+              }`}
+              title={selectedIdsCount > 0 ? "Désélectionner tout" : "Sélectionner tout"}
+            >
+              <CheckSquare className="w-5 h-5" />
+              <span className="hidden sm:inline">
+                {selectedIdsCount > 0 ? `${selectedIdsCount} sélectionné(s)` : "Sélectionner"}
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Tags et Dossiers */}
+      {/* Ligne 2: Filtres statut + Tags + Dossiers */}
       <div className="flex flex-wrap gap-3 items-center">
+        {/* Filtres par statut */}
+        <div className="flex gap-2 flex-wrap">
+          {filters.map((f) => (
+            <button
+              key={f}
+              onClick={() => onFilterChange(f)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filter === f
+                  ? "bg-blue-500 text-white"
+                  : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700"
+              }`}
+            >
+              {f === "all" ? "Tous" : getStatusLabel(f as any)}
+            </button>
+          ))}
+        </div>
+
+        {/* Tags et Dossiers */}
         {/* Filtre par Tags */}
         <div className="relative" ref={tagMenuRef}>
           <button
@@ -184,7 +224,11 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
           </button>
 
           {showTagMenu && (
-            <div className="absolute top-full left-0 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
+            <div
+              className="absolute top-full left-0 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg z-50 min-w-[200px] max-h-[300px] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
               <div className="p-3 border-b border-gray-700">
                 <input
                   type="text"
@@ -194,11 +238,15 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleCreateTag();
                   }}
+                  onClick={(e) => e.stopPropagation()}
                   className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 text-white rounded text-sm"
                   autoFocus
                 />
                 <button
-                  onClick={handleCreateTag}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCreateTag();
+                  }}
                   className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
                 >
                   <Plus className="w-3 h-3" />
@@ -210,11 +258,18 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   <label
                     key={tag.id}
                     className="flex items-center gap-2 px-3 py-2 hover:bg-[#2a2a2a] rounded cursor-pointer"
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
                   >
                     <input
                       type="checkbox"
                       checked={selectedTags.includes(tag.name)}
-                      onChange={() => toggleTag(tag.name)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        toggleTag(tag.name);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
                       className="w-4 h-4 rounded"
                     />
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color }} />
@@ -246,7 +301,10 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
           </button>
 
           {showFolderMenu && (
-            <div className="absolute top-full left-0 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg z-50 min-w-[200px]">
+            <div
+              className="absolute top-full left-0 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg z-50 min-w-[200px]"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="p-3 border-b border-gray-700">
                 <input
                   type="text"
@@ -256,11 +314,15 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleCreateFolder();
                   }}
+                  onClick={(e) => e.stopPropagation()}
                   className="w-full px-3 py-2 bg-[#0a0a0a] border border-gray-700 text-white rounded text-sm"
                   autoFocus
                 />
                 <button
-                  onClick={handleCreateFolder}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCreateFolder();
+                  }}
                   className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
                 >
                   <Plus className="w-3 h-3" />
@@ -269,7 +331,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               </div>
               <div className="p-2 space-y-1">
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     onFolderChange(undefined);
                     setShowFolderMenu(false);
                   }}
@@ -284,7 +347,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                 {folders.map((folder) => (
                   <button
                     key={folder.id}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       onFolderChange(folder.id);
                       setShowFolderMenu(false);
                     }}

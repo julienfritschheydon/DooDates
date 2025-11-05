@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -119,12 +120,15 @@ export const ManageTagsFolderDialog: React.FC<ManageTagsFolderDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle>Gérer les tags et le dossier</DialogTitle>
+          <DialogDescription>
+            Sélectionnez les tags et le dossier à associer à cette conversation.
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 py-4" onClick={(e) => e.stopPropagation()}>
           {/* Tags Section */}
           <div className="space-y-3">
             <Label className="text-base font-semibold flex items-center gap-2">
@@ -136,15 +140,21 @@ export const ManageTagsFolderDialog: React.FC<ManageTagsFolderDialogProps> = ({
                 <p className="text-sm text-gray-400">Aucun tag disponible</p>
               ) : (
                 allTags.map((tag: TagType) => (
-                  <div key={tag.id} className="flex items-center space-x-2">
+                  <div
+                    key={tag.id}
+                    className="flex items-center space-x-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Checkbox
                       id={`tag-${tag.id}`}
                       checked={selectedTags.has(tag.name)}
                       onCheckedChange={() => handleTagToggle(tag.name)}
+                      onClick={(e) => e.stopPropagation()}
                     />
                     <Label
                       htmlFor={`tag-${tag.id}`}
                       className="flex items-center gap-2 cursor-pointer flex-1"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <span
                         className="inline-block w-3 h-3 rounded-full"
@@ -169,26 +179,37 @@ export const ManageTagsFolderDialog: React.FC<ManageTagsFolderDialogProps> = ({
                 <p className="text-sm text-gray-400">Aucun dossier disponible</p>
               ) : (
                 <>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                       id="folder-none"
                       checked={selectedFolderId === null}
                       onCheckedChange={() => handleFolderSelect(null)}
+                      onClick={(e) => e.stopPropagation()}
                     />
-                    <Label htmlFor="folder-none" className="cursor-pointer">
+                    <Label
+                      htmlFor="folder-none"
+                      className="cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       Aucun dossier
                     </Label>
                   </div>
                   {allFolders.map((folder: FolderType) => (
-                    <div key={folder.id} className="flex items-center space-x-2">
+                    <div
+                      key={folder.id}
+                      className="flex items-center space-x-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Checkbox
                         id={`folder-${folder.id}`}
                         checked={selectedFolderId === folder.id}
                         onCheckedChange={() => handleFolderSelect(folder.id)}
+                        onClick={(e) => e.stopPropagation()}
                       />
                       <Label
                         htmlFor={`folder-${folder.id}`}
                         className="flex items-center gap-2 cursor-pointer flex-1"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <span>{folder.icon}</span>
                         <span>{folder.name}</span>
