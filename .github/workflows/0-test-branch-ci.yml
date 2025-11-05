@@ -24,6 +24,7 @@ jobs:
           cache: 'npm'
 
       - name: 🎭 Cache Playwright browsers
+        id: cache-playwright
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
@@ -36,11 +37,11 @@ jobs:
 
       - name: 🧭 Install Playwright (Chromium only)
         run: |
-          if ls ~/.cache/ms-playwright/chromium-* 1> /dev/null 2>&1; then
-            echo "Cache trouvé, installation rapide (sans deps)..."
+          if [ "${{ steps.cache-playwright.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Cache trouvé, installation rapide (sans deps)..."
             npx playwright install chromium
           else
-            echo "Cache vide, installation avec dépendances système..."
+            echo "⚠️ Cache vide, installation avec dépendances système..."
             npx playwright install --with-deps chromium
           fi
 
