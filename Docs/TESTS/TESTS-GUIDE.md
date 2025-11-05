@@ -1,7 +1,7 @@
 # DooDates - Guide des Tests
 
 > **Document de référence unique** - Novembre 2025  
-> **Dernière mise à jour** : 03 novembre 2025 (Phases 2 & 3 optimisations)
+> **Dernière mise à jour** : 05 novembre 2025 (Tests Gemini Form Polls + useAiMessageQuota réactivé)
 
 ---
 
@@ -12,12 +12,15 @@
 ```
 🎯 Tests Unitaires (Vitest)    : 737/743 passent (99%)
    - Dashboard                 : ~68 tests
-🤖 Tests IA (Gemini/Jest)      : 14/15 passent (93%)
+   - useAiMessageQuota         : 17/22 passent (77%)
+🤖 Tests IA (Gemini/Jest)      : 23/25 passent (92%)
+   - Date Polls                : 15/15 passent (100%)
+   - Form Polls                : 8/10 passent (80%)
 🌐 Tests E2E (Playwright)      : 42/42 passent (100% sur Chrome)
    - Dashboard                 : 22 tests
    - Analytics IA              : 9/9 passent
    - Form Poll Regression      : 4/4 passent
-📈 SCORE GLOBAL                : 98%
+📈 SCORE GLOBAL                : 97%
 ```
 
 **Status** : ✅ **PRODUCTION-READY**
@@ -121,7 +124,7 @@ npm run test:ci                # Suite CI complète
 **Couverture** : 45 fichiers actifs
 
 **Principales zones couvertes** :
-- **Hooks** : useAutoSave, useConversations, usePollDeletionCascade, useAnalyticsQuota
+- **Hooks** : useAutoSave, useConversations, usePollDeletionCascade, useAnalyticsQuota, useAiMessageQuota (17/22 tests)
 - **Services** : PollAnalyticsService, FormPollIntent, IntentDetection
 - **Components** : DashboardFilters, ManageTagsFolderDialog, PollAnalyticsPanel, MultiStepFormVote
 - **Lib** : conditionalEvaluator, exports, SimulationComparison
@@ -134,13 +137,24 @@ npm run test:ci                # Suite CI complète
 
 ### 2. Tests IA (Gemini/Jest)
 
-**Tests actifs** :
+**Tests actifs** : 25 tests (Date Polls + Form Polls)
+- **Date Polls** : 15 tests (Réunions, Événements, Formations) - 100% réussite
+- **Form Polls** : 10 tests (Simples, Rating, NPS, Matrix, Validation, Mix Types, Event, Feedback, Complex) - 80% réussite
+
+**Catégories testées** :
 - Détection intention (Form vs Date)
 - Génération questions pertinentes
 - Parsing markdown structuré
 - Validation qualité réponses
+- Types de questions avancés (rating, nps, matrix)
+- Validations (email, phone, url)
+- Questions conditionnelles
+
+**Score actuel** : 91.83/100 (92%) - ✅ **EXCELLENT**
 
 **Quality Gate** : Score > 70% requis pour merge
+
+**Rapports** : Générés automatiquement dans `tests/reports/gemini-test-report.md`
 
 ### 3. Tests E2E (Playwright)
 
@@ -239,11 +253,11 @@ git push origin test
 
 **3. Le workflow CI se déclenche automatiquement**
 
-Le workflow `.github/workflows/0-test-branch-ci.yml` s'exécute automatiquement sur chaque push vers `test` et :
+Le workflow `.github/workflows/0-test-branch-ci.yml` s'exécute automatiquement sur chaque push vers `test` ou `test-dashboard` et :
 
-- ✅ Lance les tests E2E fonctionnels (même configuration que CI principale)
-- ✅ Lance les tests E2E smoke (tests critiques)
-- ✅ Utilise les mêmes shards, workers, retries que la CI principale
+- ✅ Lance les tests E2E dashboard (tests corrigés)
+- ✅ Focus sur tests fonctionnels dashboard (Sélectionner, Assigner tags/dossiers)
+- ✅ Utilise `playwright.config.optimized.ts`
 - ✅ Génère des rapports HTML et JSON dans les artefacts
 
 **4. Vérifier les résultats**
@@ -264,14 +278,13 @@ git push origin develop
 
 #### 📋 Configuration
 
-Le workflow utilise **exactement la même configuration** que la CI principale :
+Le workflow utilise une configuration optimisée pour les tests dashboard :
 
 - ✅ `playwright.config.optimized.ts`
 - ✅ `--project=chromium`
-- ✅ `--grep "@functional"` (exclut `@wip`, `@flaky`, etc.)
-- ✅ `--shard=1/2` et `--shard=2/2` (2 shards)
+- ✅ `--grep "@functional - (Sélectionner|Assigner)"` (tests dashboard spécifiques)
+- ✅ Tests : `dashboard-complete.spec.ts` et `tags-folders.spec.ts`
 - ✅ `CI=true` (mode CI)
-- ✅ Workers: 3 (comme en CI)
 - ✅ Retries: 2 (comme en CI)
 
 #### ⚡ Avantages
@@ -479,7 +492,7 @@ npm run build:dev              # Build dev pour debug
 |-------|-------|----------|
 | Tests unitaires | 30s | Local |
 | Tests unitaires dashboard | ~10s | Local (68 tests) |
-| Tests IA | 15-30s | Local |
+| Tests IA | 30-60s | Local (25 tests : Date + Form Polls) |
 | Tests E2E smoke | 2min | Chromium |
 | Tests E2E dashboard | ~5-8min | Chromium (22 tests) |
 | Tests E2E functional | 5min | Chromium |
@@ -578,11 +591,16 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 
 ```
 🎯 Tests Unitaires (Vitest)    : 742/773 passent (96%)
-   - Tests en échec             : 31 tests (4%)
+   - Tests en échec             : ~5 tests (useAiMessageQuota) + autres mineurs
    - Tests désactivés           : ~10 fichiers (.disabled, .skip)
-🤖 Tests IA (Gemini/Jest)      : 14/15 passent (93%)
+   - useAiMessageQuota          : 17/22 passent (77%) - Réactivé ✅
+   - ✅ Récemment corrigés      : IntentDetectionService (29/29), DashboardFilters (20/20), 
+                                  ManageTagsFolderDialog (11/11), utils.test.ts (30/30)
+🤖 Tests IA (Gemini/Jest)      : 23/25 passent (92%)
+   - Date Polls                 : 15/15 passent (100%)
+   - Form Polls                 : 8/10 passent (80%)
 🌐 Tests E2E (Playwright)      : 42/42 passent (100% sur Chrome)
-📈 SCORE GLOBAL                : 97%
+📈 SCORE GLOBAL                : 96%
 ```
 
 ### Zones Bien Couvertes
@@ -595,8 +613,13 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 ### Zones Non Couvertes / Priorités
 
 **Priorité 1 (Critiques)** :
-- 🔴 `IntentDetectionService` - 31 tests en échec
 - 🔴 `GeminiChatInterface` - Aucun test unitaire (1510 lignes)
+
+**Récemment corrigés** ✅ :
+- ✅ `IntentDetectionService` - 29/29 tests passent (corrigé)
+- ✅ `DashboardFilters` - 20/20 tests passent (corrigé)
+- ✅ `ManageTagsFolderDialog` - 11/11 tests passent (corrigé)
+- ✅ `utils.test.ts` (dashboard) - 30/30 tests passent (corrigé)
 
 **Priorité 2 (Importantes)** :
 - 🟠 Services : ConversationService, QuotaService, PollCreatorService
@@ -613,7 +636,9 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 **Court Terme (1 mois)** :
 - Tests unitaires : 95% de réussite
 - Tests E2E : Maintenir 100% sur Chrome
-- Tests IA : Maintenir > 90%
+- Tests IA : Maintenir > 90% (actuellement 92%)
+- Corriger les 5 tests restants useAiMessageQuota
+- Améliorer Form Polls tests (actuellement 80%)
 
 **Moyen Terme (3 mois)** :
 - Couverture code : 70%
@@ -629,43 +654,28 @@ dema
 
 ### Priorité 1 : Critiques (À faire immédiatement)
 
-#### 1. Corriger IntentDetectionService (28 tests en échec) 🔴
+#### 1. IntentDetectionService - ✅ Corrigé
+#### 2. useAiMessageQuota.test.ts - Réactivé ✅ (Partiellement corrigé)
 
-**Problème** : `detectSimpleIntent` retourne `undefined` au lieu des intentions attendues
+**Statut actuel** : 17/22 tests passent (77%)
 
-**Actions** :
-```bash
-# Vérifier l'implémentation actuelle
-npm run test:unit -- src/services/__tests__/IntentDetectionService.test.ts
-```
+**Problèmes restants** :
+- `should persist quota in localStorage` - localStorage null (effet ne sauvegarde pas)
+- `should restore quota from localStorage` - aiMessagesUsed = 0 au lieu de 1
+- `should persist poll counts in localStorage` - localStorage null
+- `should allow message after cooldown expires` - isInCooldown reste true (setInterval problème)
+- `should initialize reset date for authenticated users` - localStorage null (guest au lieu de auth)
 
-**Étapes** :
-1. Vérifier que `IntentDetectionService.detectSimpleIntent()` existe
-2. Comparer l'implémentation avec les tests attendus
-3. Corriger les patterns regex ou la logique de détection
-4. Vérifier les helpers (getTestDate, formatDate)
+**Solutions appliquées** :
+- ✅ Refactorisé logique reset mensuel → fonction pure `processMonthlyQuotaReset()` (100% couverture)
+- ✅ Ajouté 4 tests unitaires pour `processMonthlyQuotaReset()`
+- ✅ Utilisé real timers pour localStorage
+- ✅ Avancement progressif pour cooldown
 
-**Fichiers** : `src/services/IntentDetectionService.ts`, `src/services/__tests__/IntentDetectionService.test.ts`  
-**Durée** : 2-4 heures
+**Durée restante** : 2-4 heures pour corriger les 5 tests restants
 
-#### 2. Réactiver useAiMessageQuota.test.skip.ts 🟠
+#### 3. Tests Dashboard - ✅ Tous corrigés
 
-**Actions** :
-1. Renommer `useAiMessageQuota.test.skip.ts` → `useAiMessageQuota.test.ts`
-2. Vérifier les imports (`@/contexts/AuthContext`)
-3. Corriger les mocks si nécessaire
-4. Relancer les tests
-
-**Durée** : 1-2 heures
-
-#### 3. Corriger les 3 tests mineurs en échec 🟡
-
-**Tests concernés** :
-- `DashboardFilters.test.tsx` - 1 test (comportement debounce)
-- `ManageTagsFolderDialog.test.tsx` - 1 test (sélection multiple)
-- `utils.test.ts` (dashboard) - 1 test (filtrage par dossier)
-
-**Durée** : 1-2 heures
 
 ### Priorité 2 : Importantes (À planifier)
 
@@ -706,11 +716,12 @@ npm run test:unit -- src/services/__tests__/IntentDetectionService.test.ts
 ### 📋 Checklist de Progression
 
 **Phase 1 : Corrections Critiques (1-2 semaines)**
-- [ ] Corriger IntentDetectionService (28 tests)
-- [ ] Réactiver useAiMessageQuota.test.skip.ts
-- [ ] Corriger DashboardFilters (1 test)
-- [ ] Corriger ManageTagsFolderDialog (1 test)
-- [ ] Corriger utils.test.ts dashboard (1 test)
+- [x] Corriger IntentDetectionService ✅ (29/29 tests passent - corrigé)
+- [x] Réactiver useAiMessageQuota.test.ts ✅ (17/22 passent, 5 restants)
+- [ ] Corriger les 5 tests restants useAiMessageQuota (localStorage, cooldown)
+- [x] Corriger DashboardFilters ✅ (20/20 tests passent - corrigé)
+- [x] Corriger ManageTagsFolderDialog ✅ (11/11 tests passent - corrigé)
+- [x] Corriger utils.test.ts dashboard ✅ (30/30 tests passent - corrigé)
 
 **Objectif** : 100% de réussite des tests existants
 
@@ -757,8 +768,10 @@ npm run test:unit -- --coverage
 - ConversationSearch.test.tsx.disabled
 
 **Fichiers `.skip`** : Tests temporairement désactivés
-- useAiMessageQuota.test.skip.ts
 - GeminiChatInterface.integration.test.tsx.skip
+
+**Tests réactivés** :
+- ✅ useAiMessageQuota.test.ts (17/22 passent, 77%)
 
 **Tests E2E skippés** : 4 tests sur mobile (form-poll-regression Tests #2, #3)
 
@@ -786,4 +799,4 @@ Approche alternative gratuite :
 ---
 
 **Document maintenu par** : Équipe DooDates  
-**Dernière révision** : Janvier 2025
+**Dernière révision** : 05 novembre 2025
