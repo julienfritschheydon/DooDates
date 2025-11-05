@@ -36,12 +36,12 @@ jobs:
 
       - name: 🧭 Install Playwright (Chromium only)
         run: |
-          if [ ! -d ~/.cache/ms-playwright/chromium-* ]; then
-            echo "Cache vide, installation avec dépendances système..."
-            npx playwright install --with-deps chromium
-          else
+          if ls ~/.cache/ms-playwright/chromium-* 1> /dev/null 2>&1; then
             echo "Cache trouvé, installation rapide (sans deps)..."
             npx playwright install chromium
+          else
+            echo "Cache vide, installation avec dépendances système..."
+            npx playwright install --with-deps chromium
           fi
 
       - name: 🎯 Run Isolated Tests Only (2 tests rapides)
