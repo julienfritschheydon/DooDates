@@ -1,19 +1,29 @@
-import {
-  X,
-  Menu,
-  Plus,
-  Calendar,
-  ClipboardList,
-  FileText,
-  MessageSquare,
-  Sparkles,
-  Settings,
-  User,
-  LogOut,
-  UserCircle,
-  Book,
-  DollarSign,
-} from "lucide-react";
+// Lazy load de toutes les icônes (chargées à la demande)
+import { Suspense } from "react";
+import { createLazyIcon } from "../../lib/lazy-icons";
+
+// Lazy load de toutes les icônes (X et Plus utilisées dans sidebar/éditeur conditionnels)
+const X = createLazyIcon("X");
+const Plus = createLazyIcon("Plus");
+const Menu = createLazyIcon("Menu");
+const Calendar = createLazyIcon("Calendar");
+const ClipboardList = createLazyIcon("ClipboardList");
+const FileText = createLazyIcon("FileText");
+const MessageSquare = createLazyIcon("MessageSquare");
+const Sparkles = createLazyIcon("Sparkles");
+const Settings = createLazyIcon("Settings");
+const User = createLazyIcon("User");
+const LogOut = createLazyIcon("LogOut");
+const UserCircle = createLazyIcon("UserCircle");
+const Book = createLazyIcon("Book");
+const DollarSign = createLazyIcon("DollarSign");
+
+// Wrapper pour icônes lazy avec Suspense
+const LazyIconWrapper = ({ Icon, ...props }: { Icon: any; [key: string]: any }) => (
+  <Suspense fallback={<span className={props.className || "w-5 h-5"} />}>
+    <Icon {...props} />
+  </Suspense>
+);
 import { useState, useEffect, useRef } from "react";
 import { useConversation } from "./ConversationProvider";
 import { useEditorState, useEditorActions } from "./EditorStateProvider";
@@ -274,7 +284,7 @@ export function WorkspaceLayoutPrototype() {
                 aria-label="Fermer le menu"
                 title="Fermer le menu"
               >
-                <X className="w-5 h-5 text-gray-300" />
+                <LazyIconWrapper Icon={X} className="w-5 h-5 text-gray-300" />
               </button>
             </div>
           </div>
@@ -291,7 +301,7 @@ export function WorkspaceLayoutPrototype() {
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg transition-colors font-medium"
                 >
-                  <Sparkles className="w-5 h-5" />
+                  <LazyIconWrapper Icon={Sparkles} className="w-5 h-5" />
                   <span>Créer avec IA</span>
                 </button>
 
@@ -302,7 +312,7 @@ export function WorkspaceLayoutPrototype() {
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
-                  <Plus className="w-5 h-5" />
+                  <LazyIconWrapper Icon={Plus} className="w-5 h-5" />
                   <span>Créer sans IA</span>
                 </button>
 
@@ -331,7 +341,7 @@ export function WorkspaceLayoutPrototype() {
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
-                  <DollarSign className="w-5 h-5" />
+                  <LazyIconWrapper Icon={DollarSign} className="w-5 h-5" />
                   <span>Tarifs</span>
                 </button>
 
@@ -342,7 +352,7 @@ export function WorkspaceLayoutPrototype() {
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
-                  <Book className="w-5 h-5" />
+                  <LazyIconWrapper Icon={Book} className="w-5 h-5" />
                   <span>Documentation</span>
                 </button>
               </div>
@@ -382,7 +392,10 @@ export function WorkspaceLayoutPrototype() {
                           className="w-full flex items-start gap-3 p-3 hover:bg-[#2a2a2a] rounded-lg transition-colors text-left mb-1"
                         >
                           <div className="p-2 bg-[#0a0a0a] rounded-lg flex-shrink-0">
-                            <MessageSquare className="w-4 h-4 text-gray-400" />
+                            <LazyIconWrapper
+                              Icon={MessageSquare}
+                              className="w-4 h-4 text-gray-400"
+                            />
                           </div>
                           <div className="flex-1 min-w-0">
                             {/* Titre de la conversation */}
@@ -394,9 +407,15 @@ export function WorkspaceLayoutPrototype() {
                             {relatedPoll && (
                               <div className="flex items-center gap-1.5 mt-1">
                                 {relatedPoll.type === "form" ? (
-                                  <ClipboardList className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                                  <LazyIconWrapper
+                                    Icon={ClipboardList}
+                                    className="w-3 h-3 text-gray-500 flex-shrink-0"
+                                  />
                                 ) : (
-                                  <Calendar className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                                  <LazyIconWrapper
+                                    Icon={Calendar}
+                                    className="w-3 h-3 text-gray-500 flex-shrink-0"
+                                  />
                                 )}
                                 <p className="text-xs text-gray-500 truncate">
                                   {relatedPoll.type === "form" ? "Formulaire" : "Sondage"} :{" "}
@@ -423,7 +442,10 @@ export function WorkspaceLayoutPrototype() {
                 {/* Message si rien */}
                 {conversations.length === 0 && recentPolls.length === 0 && (
                   <div className="text-center py-8">
-                    <FileText className="w-8 h-8 mx-auto mb-2 text-gray-500" />
+                    <LazyIconWrapper
+                      Icon={FileText}
+                      className="w-8 h-8 mx-auto mb-2 text-gray-500"
+                    />
                     <p className="text-xs text-gray-400">Aucune conversation</p>
                   </div>
                 )}
@@ -457,7 +479,7 @@ export function WorkspaceLayoutPrototype() {
                   });
                 }}
               >
-                <Settings className="w-5 h-5 text-gray-300 mx-auto" />
+                <LazyIconWrapper Icon={Settings} className="w-5 h-5 text-gray-300 mx-auto" />
               </button>
 
               {/* Bouton Account */}
@@ -472,7 +494,7 @@ export function WorkspaceLayoutPrototype() {
                 title="Compte"
                 aria-label="Compte"
               >
-                <User className="w-5 h-5 text-gray-300 mx-auto" />
+                <LazyIconWrapper Icon={User} className="w-5 h-5 text-gray-300 mx-auto" />
               </button>
             </div>
 
@@ -483,7 +505,7 @@ export function WorkspaceLayoutPrototype() {
                 <span>IA connectée</span>
               </div>
               <div className="flex items-center gap-2 text-gray-400">
-                <MessageSquare className="w-3 h-3" />
+                <LazyIconWrapper Icon={MessageSquare} className="w-3 h-3" />
                 <span>
                   {conversations.length} conversation
                   {conversations.length > 1 ? "s" : ""}
@@ -508,7 +530,7 @@ export function WorkspaceLayoutPrototype() {
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                 aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
               >
-                <Menu className="w-5 h-5 text-gray-300" />
+                <LazyIconWrapper Icon={Menu} className="w-5 h-5 text-gray-300" />
               </button>
               <h1 className="text-xl font-medium text-white">DooDates</h1>
             </div>
@@ -549,7 +571,7 @@ export function WorkspaceLayoutPrototype() {
                     aria-label="Fermer l'éditeur"
                     title="Fermer"
                   >
-                    <X className="w-5 h-5" />
+                    <LazyIconWrapper Icon={X} className="w-5 h-5" />
                   </button>
                   <PollPreview poll={currentPoll} />
 
@@ -594,7 +616,7 @@ export function WorkspaceLayoutPrototype() {
                 aria-label="Fermer l'éditeur"
                 title="Fermer"
               >
-                <X className="w-5 h-5" />
+                <LazyIconWrapper Icon={X} className="w-5 h-5" />
               </button>
               <PollPreview poll={currentPoll} />
             </div>

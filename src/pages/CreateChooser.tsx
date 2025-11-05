@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Calendar, ClipboardList, X } from "lucide-react";
 
 export default function CreateChooser() {
   const navigate = useNavigate();
+  const preloadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handlePreload = (path: string) => {
+    // Précharger après 300ms de hover pour éviter les préchargements accidentels
+    if (preloadTimeoutRef.current) {
+      clearTimeout(preloadTimeoutRef.current);
+    }
+    preloadTimeoutRef.current = setTimeout(() => {
+      if (path === "/create/date" && typeof (window as any).preloadPollCreator === "function") {
+        (window as any).preloadPollCreator();
+      }
+    }, 300);
+  };
+
+  const handleMouseLeave = () => {
+    if (preloadTimeoutRef.current) {
+      clearTimeout(preloadTimeoutRef.current);
+      preloadTimeoutRef.current = null;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -25,6 +45,8 @@ export default function CreateChooser() {
           <Link
             to="/create/date"
             data-testid="poll-type-date"
+            onMouseEnter={() => handlePreload("/create/date")}
+            onMouseLeave={handleMouseLeave}
             className="group block rounded-lg border border-gray-700 bg-[#1e1e1e] p-5 hover:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
           >
             <div className="flex items-start gap-3">

@@ -20,11 +20,11 @@ export function useDashboardData(refreshKey: number) {
 
       // Récupérer les polls avec statistiques
       const localPolls = getAllPolls();
-      
+
       // Parser les votes une seule fois et créer un index par poll_id pour éviter les filtres répétés
       const votesRaw = localStorage.getItem("dev-votes");
       const localVotes: any[] = votesRaw ? JSON.parse(votesRaw) : [];
-      
+
       // Indexer les votes par poll_id pour accès O(1) au lieu de O(n)
       const votesByPollId = new Map<string, any[]>();
       for (const vote of localVotes) {
@@ -65,13 +65,13 @@ export function useDashboardData(refreshKey: number) {
         ) {
           // Pré-calculer les scores dans une seule passe
           const dateScoresMap = new Map<string, number>();
-          
+
           for (let index = 0; index < selectedDates.length; index++) {
             const dateStr = selectedDates[index];
             const dateLabel =
               typeof dateStr === "string" ? dateStr : dateStr.label || dateStr.title;
             const optionId = `option-${index}`;
-            
+
             let score = 0;
             // Parcourir les votes une seule fois
             for (const vote of pollVotes) {
@@ -79,7 +79,7 @@ export function useDashboardData(refreshKey: number) {
               if (selection === "yes") score += 3;
               else if (selection === "maybe") score += 1;
             }
-            
+
             if (score > 0) {
               dateScoresMap.set(dateLabel, score);
             }

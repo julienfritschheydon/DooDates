@@ -22,7 +22,7 @@
 
 **Status** : ✅ **PRODUCTION-READY** - Analytics IA intégrés
 
-**Dernière mise à jour** : 05/01/2025 - Tests PollAnalyticsPanel créés (29 tests), Tests useAnalyticsQuota créés (22 tests), Tests PollAnalyticsService créés (20 tests), Tests Analytics IA, Form Poll Regression, PollActions.close et SimulationComparison réactivés et intégrés
+**Dernière mise à jour** : 05/01/2025 - Phase 2 E2E optimisations complétée (49 occurrences waitForTimeout supprimées), Tests PollAnalyticsPanel créés (29 tests), Tests useAnalyticsQuota créés (22 tests), Tests PollAnalyticsService créés (20 tests), Tests Analytics IA, Form Poll Regression, PollActions.close et SimulationComparison réactivés et intégrés
 
 **Note Firefox/Safari** : Les tests Analytics IA sont skippés sur Firefox/Safari en raison d'un bug Playwright avec le mode serial + shared context ([#13038](https://github.com/microsoft/playwright/issues/13038), [#22832](https://github.com/microsoft/playwright/issues/22832)). Les tests passent à 100% sur Chrome.
 

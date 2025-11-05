@@ -217,10 +217,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                       onChange={() => toggleTag(tag.name)}
                       className="w-4 h-4 rounded"
                     />
-                    <span
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: tag.color }}
-                    />
+                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color }} />
                     <span className="text-sm text-gray-300">{tag.name}</span>
                   </label>
                 ))}

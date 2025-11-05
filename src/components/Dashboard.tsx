@@ -102,7 +102,7 @@ const Dashboard: React.FC = () => {
   const paginatedItems = useMemo(() => {
     if (filteredItems.length === 0) return [];
     if (itemsPerPage <= 0) return filteredItems; // Fallback si itemsPerPage invalide
-    
+
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return filteredItems.slice(startIndex, endIndex);
@@ -486,4 +486,3 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
-

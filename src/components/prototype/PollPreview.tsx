@@ -1,5 +1,19 @@
-import React, { useState } from "react";
-import { Calendar, Clock, Users, Check, ExternalLink } from "lucide-react";
+import React, { useState, Suspense } from "react";
+// Lazy load des icônes
+import { createLazyIcon } from "../../lib/lazy-icons";
+
+const Calendar = createLazyIcon("Calendar");
+const Clock = createLazyIcon("Clock");
+const Users = createLazyIcon("Users");
+const Check = createLazyIcon("Check");
+const ExternalLink = createLazyIcon("ExternalLink");
+
+// Wrapper pour icônes lazy
+const LazyIconWrapper = ({ Icon, ...props }: { Icon: any; [key: string]: any }) => (
+  <Suspense fallback={<span className={props.className || "w-5 h-5"} />}>
+    <Icon {...props} />
+  </Suspense>
+);
 import { Link } from "react-router-dom";
 import PollCreator from "../PollCreator";
 import FormPollCreator from "../polls/FormPollCreator";
@@ -34,7 +48,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
             {/* Icône de succès */}
             <div className="flex justify-center">
               <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
-                <Check className="w-10 h-10 text-green-500" />
+                <LazyIconWrapper Icon={Check} className="w-10 h-10 text-green-500" />
               </div>
             </div>
 
@@ -52,14 +66,14 @@ export function PollPreview({ poll }: PollPreviewProps) {
                 to="/dashboard"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold transition-all shadow-lg"
               >
-                <Check className="w-5 h-5" />
+                <LazyIconWrapper Icon={Check} className="w-5 h-5" />
                 Aller au Tableau de bord
               </Link>
               <Link
                 to={pollUrl}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent text-gray-300 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
               >
-                <ExternalLink className="w-5 h-5" />
+                <LazyIconWrapper Icon={ExternalLink} className="w-5 h-5" />
                 Voir le {pollType.toLowerCase()}
               </Link>
             </div>
