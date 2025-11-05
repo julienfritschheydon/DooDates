@@ -407,7 +407,23 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       ],
     });
     try {
-      // Créer une conversation avec tags et dossier
+      // D'abord setup les tags et dossiers (sans écraser les conversations)
+      await page.evaluate(() => {
+        const tags = [
+          { id: 'tag-1', name: 'Test Tag 1', color: '#3b82f6', createdAt: new Date().toISOString() },
+          { id: 'tag-2', name: 'Test Tag 2', color: '#ef4444', createdAt: new Date().toISOString() },
+          { id: 'tag-3', name: 'Test Tag 3', color: '#10b981', createdAt: new Date().toISOString() },
+        ];
+        localStorage.setItem('doodates_tags', JSON.stringify(tags));
+
+        const folders = [
+          { id: 'folder-1', name: 'Test Folder 1', color: '#3b82f6', icon: '📁', createdAt: new Date().toISOString() },
+          { id: 'folder-2', name: 'Test Folder 2', color: '#ef4444', icon: '📂', createdAt: new Date().toISOString() },
+        ];
+        localStorage.setItem('doodates_folders', JSON.stringify(folders));
+      });
+
+      // Ensuite créer la conversation avec tags et dossier (APRÈS setupTestData sinon elle est écrasée)
       await page.evaluate(() => {
         const conversations = [
           {
@@ -425,8 +441,6 @@ test.describe('Dashboard - Tags et Dossiers', () => {
         ];
         localStorage.setItem('doodates_conversations', JSON.stringify(conversations));
       });
-
-      await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
 
       // Attendre que les cartes se chargent
