@@ -2,6 +2,12 @@ import { test, expect } from "@playwright/test";
 import { attachConsoleGuard, enableE2ELocalMode } from "./utils";
 
 test.describe("Dashboard - Tests Isolés", () => {
+  // Activer les traces et vidéo pour voir ce qui se passe
+  test.use({
+    trace: 'on',
+    video: 'on',
+  });
+
   test.beforeEach(async ({ page }) => {
     // Setup localStorage AVANT navigation (via addInitScript)
     await page.addInitScript(() => {
@@ -50,11 +56,15 @@ test.describe("Dashboard - Tests Isolés", () => {
       ],
     });
     try {
+      console.log("📸 Navigation vers /test/dashboard/selection");
       await page.goto("/test/dashboard/selection", { waitUntil: "domcontentloaded" });
+      console.log("✅ Page chargée");
 
       // Attendre que la carte soit visible
+      console.log("🔍 Recherche de la carte...");
       const card = page.locator('[data-testid="poll-item"]').first();
       await expect(card).toBeVisible({ timeout: 3000 });
+      console.log("✅ Carte trouvée et visible");
 
       // Screenshot initial
       await page.screenshot({ path: "test-results/selection-initial.png", fullPage: true });
@@ -63,11 +73,14 @@ test.describe("Dashboard - Tests Isolés", () => {
       await expect(card).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 1000 });
 
       // Cliquer sur le checkbox pour sélectionner
+      console.log("🔍 Recherche du checkbox...");
       const checkbox = card.locator('div[class*="w-6"][class*="h-6"][class*="border-2"]').first();
       await checkbox.waitFor({ state: "visible", timeout: 3000 });
+      console.log("✅ Checkbox trouvé");
       await checkbox.scrollIntoViewIfNeeded();
-
+      console.log("🖱️ Clic sur le checkbox...");
       await checkbox.click({ force: true });
+      console.log("✅ Clic effectué");
 
       // Attendre que la sélection se mette à jour (vérification automatique par toHaveClass)
       await expect(card).toHaveClass(/border-blue-500|ring-blue-500|border-blue/, { timeout: 2000 });
@@ -93,26 +106,34 @@ test.describe("Dashboard - Tests Isolés", () => {
       ],
     });
     try {
+      console.log("📸 Navigation vers /test/dashboard/folder");
       await page.goto("/test/dashboard/folder", { waitUntil: "domcontentloaded" });
+      console.log("✅ Page chargée");
 
       // Attendre que le dialogue soit ouvert
+      console.log("🔍 Recherche du dialogue...");
       const dialog = page.locator('[role="dialog"]');
       await expect(dialog).toBeVisible({ timeout: 3000 });
+      console.log("✅ Dialogue ouvert et visible");
 
       // Screenshot du dialogue ouvert
       await dialog.screenshot({ path: "test-results/folder-dialog-open.png" });
 
       // Utiliser getByRole pour trouver le checkbox Radix UI (plus robuste)
+      console.log("🔍 Recherche du checkbox 'Test Folder 1'...");
       const folderCheckbox = page.getByRole("checkbox", { name: /Test Folder 1/i });
       await folderCheckbox.waitFor({ state: "visible", timeout: 3000 });
+      console.log("✅ Checkbox trouvé");
       await folderCheckbox.scrollIntoViewIfNeeded();
 
       // Vérifier l'état initial (non coché)
       const initialState = await folderCheckbox.getAttribute("data-state");
-      console.log("État initial checkbox dossier:", initialState);
+      console.log("📊 État initial checkbox dossier:", initialState);
 
       // Cliquer sur le checkbox
+      console.log("🖱️ Clic sur le checkbox...");
       await folderCheckbox.click({ force: true });
+      console.log("✅ Clic effectué");
 
       // Vérifier que la checkbox est cochée (vérification automatique avec timeout)
       await expect(folderCheckbox).toHaveAttribute("data-state", "checked", { timeout: 2000 });
