@@ -266,7 +266,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     }
   });
 
-  test.skip('@functional - Assigner un dossier à une conversation', async ({ page }) => {
+  test('@functional - Assigner un dossier à une conversation', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -280,13 +280,35 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
 
-      // Ouvrir le dialogue
+      // Ouvrir le dialogue avec sélecteur robuste
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
       const conversationCard = page.locator('[data-testid="poll-item"]').first();
-      const menuButton = conversationCard.locator('button').filter({ has: page.locator('svg') }).first();
+      await conversationCard.waitFor({ state: 'attached' });
+      
+      // Sélecteur robuste : chercher tous les boutons et prendre le dernier visible
+      const menuButtons = conversationCard.locator('button');
+      const menuButtonCount = await menuButtons.count();
+      let menuButton = menuButtons.last();
+      
+      if (menuButtonCount > 1) {
+        for (let i = menuButtonCount - 1; i >= 0; i--) {
+          const btn = menuButtons.nth(i);
+          const isVisible = await btn.isVisible();
+          if (isVisible) {
+            menuButton = btn;
+            break;
+          }
+        }
+      }
+      
+      await menuButton.waitFor({ state: 'visible', timeout: 5000 });
       await menuButton.click();
-      await page.getByText('Gérer les tags/dossier').click();
-      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible();
+      await page.waitForTimeout(500); // Attendre que le menu s'ouvre
+      
+      const manageMenuItem = page.getByText('Gérer les tags/dossier');
+      await expect(manageMenuItem).toBeVisible({ timeout: 5000 });
+      await manageMenuItem.click();
+      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
 
       // Sélectionner un dossier (trouver via le label associé)
       const folderLabel = page.getByText('Test Folder 1').first();
@@ -310,7 +332,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     }
   });
 
-  test.skip('@functional - Retirer des tags et dossier d\'une conversation', async ({ page }) => {
+  test('@functional - Retirer des tags et dossier d\'une conversation', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -343,13 +365,35 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
 
-      // Ouvrir le dialogue
+      // Ouvrir le dialogue avec sélecteur robuste
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
       const conversationCard = page.locator('[data-testid="poll-item"]').first();
-      const menuButton = conversationCard.locator('button').filter({ has: page.locator('svg') }).first();
+      await conversationCard.waitFor({ state: 'attached' });
+      
+      // Sélecteur robuste : chercher tous les boutons et prendre le dernier visible
+      const menuButtons = conversationCard.locator('button');
+      const menuButtonCount = await menuButtons.count();
+      let menuButton = menuButtons.last();
+      
+      if (menuButtonCount > 1) {
+        for (let i = menuButtonCount - 1; i >= 0; i--) {
+          const btn = menuButtons.nth(i);
+          const isVisible = await btn.isVisible();
+          if (isVisible) {
+            menuButton = btn;
+            break;
+          }
+        }
+      }
+      
+      await menuButton.waitFor({ state: 'visible', timeout: 5000 });
       await menuButton.click();
-      await page.getByText('Gérer les tags/dossier').click();
-      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible();
+      await page.waitForTimeout(500); // Attendre que le menu s'ouvre
+      
+      const manageMenuItem = page.getByText('Gérer les tags/dossier');
+      await expect(manageMenuItem).toBeVisible({ timeout: 5000 });
+      await manageMenuItem.click();
+      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
 
       // Désélectionner tous les tags
       // Trouver les labels des tags et leurs checkboxes associées
@@ -434,7 +478,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     }
   });
 
-  test.skip('@edge - Gérer tags/dossiers avec une conversation sans tags/dossiers existants', async ({ page }) => {
+  test('@edge - Gérer tags/dossiers avec une conversation sans tags/dossiers existants', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -448,13 +492,35 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
 
-      // Ouvrir le dialogue
+      // Ouvrir le dialogue avec sélecteur robuste
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
       const conversationCard = page.locator('[data-testid="poll-item"]').first();
-      const menuButton = conversationCard.locator('button').filter({ has: page.locator('svg') }).first();
+      await conversationCard.waitFor({ state: 'attached' });
+      
+      // Sélecteur robuste : chercher tous les boutons et prendre le dernier visible
+      const menuButtons = conversationCard.locator('button');
+      const menuButtonCount = await menuButtons.count();
+      let menuButton = menuButtons.last();
+      
+      if (menuButtonCount > 1) {
+        for (let i = menuButtonCount - 1; i >= 0; i--) {
+          const btn = menuButtons.nth(i);
+          const isVisible = await btn.isVisible();
+          if (isVisible) {
+            menuButton = btn;
+            break;
+          }
+        }
+      }
+      
+      await menuButton.waitFor({ state: 'visible', timeout: 5000 });
       await menuButton.click();
-      await page.getByText('Gérer les tags/dossier').click();
-      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible();
+      await page.waitForTimeout(500); // Attendre que le menu s'ouvre
+      
+      const manageMenuItem = page.getByText('Gérer les tags/dossier');
+      await expect(manageMenuItem).toBeVisible({ timeout: 5000 });
+      await manageMenuItem.click();
+      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
 
       // Vérifier que le dialogue s'ouvre sans erreur
       await expect(page.getByText(/Tags/i)).toBeVisible();

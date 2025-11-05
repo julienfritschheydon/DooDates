@@ -425,7 +425,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     }
   });
 
-  test.skip('@functional - Sélectionner/désélectionner des conversations', async ({ page }) => {
+  test('@functional - Sélectionner/désélectionner des conversations', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -457,19 +457,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       // Attendre que la sélection se mette à jour
       await page.waitForTimeout(500);
 
-      // Vérifier que la carte est sélectionnée (border bleu ou texte dans le bouton)
-      const selectButton = page.getByRole('button', { name: /1 sélectionné/i }).or(
-        page.getByRole('button', { name: /sélectionné/i })
-      );
-      await expect(selectButton).toBeVisible({ timeout: 3000 });
+      // Vérifier que la carte est sélectionnée en vérifiant le border bleu (plus robuste que le bouton)
+      await expect(firstCard).toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 3000 });
 
       // Désélectionner en cliquant à nouveau
       await checkbox.click({ force: true });
       await page.waitForTimeout(500);
 
-      // Vérifier que la sélection est annulée
-      const selectButtonReset = page.getByRole('button', { name: /^Sélectionner$/i });
-      await expect(selectButtonReset).toBeVisible({ timeout: 3000 });
+      // Vérifier que la sélection est annulée (border bleu disparaît)
+      await expect(firstCard).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 3000 });
     } finally {
       await guard.assertClean();
       guard.stop();
@@ -611,7 +607,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     }
   });
 
-  test.skip('@functional - Gérer tags/dossiers depuis une carte (déjà implémenté mais testé ici)', async ({ page }) => {
+  test('@functional - Gérer tags/dossiers depuis une carte (déjà implémenté mais testé ici)', async ({ page }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -627,17 +623,37 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
 
-      // Trouver la carte et ouvrir le menu
+      // Trouver la carte et ouvrir le menu avec sélecteur robuste
       const conversationCard = page.locator('[data-testid="poll-item"]').first();
-      const menuButton = conversationCard.locator('button').filter({ has: page.locator('svg') }).first();
+      await conversationCard.waitFor({ state: 'attached' });
+      
+      // Sélecteur robuste : chercher tous les boutons et prendre le dernier visible
+      const menuButtons = conversationCard.locator('button');
+      const menuButtonCount = await menuButtons.count();
+      let menuButton = menuButtons.last();
+      
+      if (menuButtonCount > 1) {
+        for (let i = menuButtonCount - 1; i >= 0; i--) {
+          const btn = menuButtons.nth(i);
+          const isVisible = await btn.isVisible();
+          if (isVisible) {
+            menuButton = btn;
+            break;
+          }
+        }
+      }
+      
       await menuButton.waitFor({ state: 'visible', timeout: 5000 });
       await menuButton.click();
+      await page.waitForTimeout(500); // Attendre que le menu s'ouvre
 
-      // Cliquer sur "Gérer les tags/dossier"
-      await page.getByText('Gérer les tags/dossier').click();
+      // Attendre que le menu s'ouvre et contient "Gérer les tags/dossier"
+      const manageMenuItem = page.getByText('Gérer les tags/dossier');
+      await expect(manageMenuItem).toBeVisible({ timeout: 5000 });
+      await manageMenuItem.click();
 
       // Vérifier que le dialogue s'ouvre
-      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 3000 });
+      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
     } finally {
       await guard.assertClean();
       guard.stop();
