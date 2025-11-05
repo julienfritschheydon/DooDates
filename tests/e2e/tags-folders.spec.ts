@@ -305,7 +305,23 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       ],
     });
     try {
-      // Créer une conversation avec tags et dossier
+      // D'abord setup les tags et dossiers (sans écraser les conversations)
+      await page.evaluate(() => {
+        const tags = [
+          { id: 'tag-1', name: 'Test Tag 1', color: '#3b82f6', createdAt: new Date().toISOString() },
+          { id: 'tag-2', name: 'Test Tag 2', color: '#ef4444', createdAt: new Date().toISOString() },
+          { id: 'tag-3', name: 'Test Tag 3', color: '#10b981', createdAt: new Date().toISOString() },
+        ];
+        localStorage.setItem('doodates_tags', JSON.stringify(tags));
+
+        const folders = [
+          { id: 'folder-1', name: 'Test Folder 1', color: '#3b82f6', icon: '📁', createdAt: new Date().toISOString() },
+          { id: 'folder-2', name: 'Test Folder 2', color: '#ef4444', icon: '📂', createdAt: new Date().toISOString() },
+        ];
+        localStorage.setItem('doodates_folders', JSON.stringify(folders));
+      });
+
+      // Ensuite créer la conversation avec tags et dossier (APRÈS setup des tags/dossiers sinon elle est écrasée)
       await page.evaluate(() => {
         const conversations = [
           {
@@ -323,8 +339,6 @@ test.describe('Dashboard - Tags et Dossiers', () => {
         ];
         localStorage.setItem('doodates_conversations', JSON.stringify(conversations));
       });
-
-      await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
 
       // Ouvrir le dialogue avec sélecteur robuste
@@ -507,24 +521,29 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await manageMenuItem.click();
       await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
 
-      // Vérifier que le dialogue s'ouvre sans erreur
-      await expect(page.getByText(/Tags/i)).toBeVisible();
-      await expect(page.getByText(/Dossier/i)).toBeVisible();
+      // Vérifier que le dialogue s'ouvre sans erreur - être plus spécifique pour éviter strict mode violation
+      const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
+      await expect(dialog).toBeVisible({ timeout: 5000 });
+      // Chercher "Tags" dans le contexte du dialogue uniquement
+      await expect(dialog.getByText(/Tags/i).first()).toBeVisible({ timeout: 3000 });
+      await expect(dialog.getByText(/Dossier/i).first()).toBeVisible({ timeout: 3000 });
 
-      // Sélectionner un tag et un dossier
-      const tag1Label = page.getByText('Test Tag 1').first();
-      const tag1Checkbox = tag1Label.locator('..').locator('input[type="checkbox"]').first();
-      await tag1Checkbox.check();
+      // Sélectionner un tag et un dossier - utiliser getByRole (comme dans les autres tests corrigés)
+      const tag1Checkbox = page.getByRole('checkbox', { name: /Test Tag 1/i });
+      await tag1Checkbox.waitFor({ state: 'visible', timeout: 3000 });
+      await tag1Checkbox.scrollIntoViewIfNeeded();
+      await tag1Checkbox.check({ timeout: 3000 });
 
-      const folder1Label = page.getByText('Test Folder 1').first();
-      const folder1Checkbox = folder1Label.locator('..').locator('input[type="checkbox"]').first();
-      await folder1Checkbox.check();
+      const folder1Checkbox = page.getByRole('checkbox', { name: /Test Folder 1/i });
+      await folder1Checkbox.waitFor({ state: 'visible', timeout: 3000 });
+      await folder1Checkbox.scrollIntoViewIfNeeded();
+      await folder1Checkbox.check({ timeout: 3000 });
 
       // Sauvegarder
       await page.getByRole('button', { name: /Enregistrer/i }).click();
 
-      // Vérifier le succès
-      await expect(page.getByText(/Mise à jour réussie/i)).toBeVisible({ timeout: 3000 });
+      // Vérifier le succès (utiliser .first() pour éviter strict mode violation)
+      await expect(page.getByText(/Mise à jour réussie/i).first()).toBeVisible({ timeout: 3000 });
     } finally {
       await guard.assertClean();
       guard.stop();
