@@ -165,17 +165,59 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await page.getByText('Gérer les tags/dossier').click();
       await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
 
-      // Sélectionner un tag (trouver via le label associé)
-      const tag1Label = page.getByText('Test Tag 1').first();
-      await tag1Label.waitFor({ state: 'visible', timeout: 5000 });
-      const tag1Checkbox = tag1Label.locator('..').locator('input[type="checkbox"]').first();
-      await tag1Checkbox.check();
+      // S'assurer que le dialogue est ouvert
+      const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
+      await expect(dialog).toBeVisible({ timeout: 5000 });
 
-      // Sélectionner un autre tag
-      const tag2Label = page.getByText('Test Tag 2').first();
-      await tag2Label.waitFor({ state: 'visible', timeout: 3000 });
-      const tag2Checkbox = tag2Label.locator('..').locator('input[type="checkbox"]').first();
-      await tag2Checkbox.check();
+      // Sélectionner un tag - trouver le conteneur div avec les classes flex items-center space-x-2
+      // qui contient le texte "Test Tag 1" dans le dialogue
+      const tag1Text = dialog.getByText('Test Tag 1').first();
+      await tag1Text.waitFor({ state: 'visible', timeout: 5000 });
+      
+      // Trouver le conteneur parent (div.flex.items-center.space-x-2) qui contient ce texte
+      const tag1Container = tag1Text.locator('..').locator('..').first(); // span -> label -> div
+      await tag1Container.waitFor({ state: 'visible', timeout: 3000 });
+      await tag1Container.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(200);
+      
+      // Trouver le checkbox Radix UI dans ce conteneur
+      const tag1Checkbox = tag1Container.locator('[role="checkbox"]').first();
+      await tag1Checkbox.waitFor({ state: 'visible', timeout: 3000 });
+      await tag1Checkbox.click({ force: true });
+      
+      // Attendre que l'état change (peut être asynchrone)
+      await page.waitForTimeout(500);
+
+      // Vérifier que le dialogue est toujours ouvert avant de chercher le deuxième tag
+      await expect(dialog).toBeVisible({ timeout: 2000 });
+
+      // Sélectionner un autre tag - chercher uniquement dans le dialogue
+      // Le conteneur des tags a max-h-48 et overflow-y-auto, donc il faut peut-être scroller
+      const tagsContainer = dialog.locator('div[class*="max-h"]').filter({ hasText: /Tags/i }).or(
+        dialog.locator('div').filter({ has: page.getByText('Test Tag 1') }).first().locator('..').first()
+      ).first();
+      
+      // Scroller vers le bas pour rendre "Test Tag 2" visible
+      await tagsContainer.evaluate((el) => {
+        const scrollable = el.querySelector('[class*="overflow-y"]') || el;
+        scrollable.scrollTop = scrollable.scrollHeight;
+      });
+      await page.waitForTimeout(500);
+      
+      const tag2Text = dialog.getByText('Test Tag 2').first();
+      await tag2Text.waitFor({ state: 'visible', timeout: 5000 });
+      
+      const tag2Container = tag2Text.locator('..').locator('..').first(); // span -> label -> div
+      await tag2Container.waitFor({ state: 'visible', timeout: 3000 });
+      await tag2Container.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(300);
+      
+      const tag2Checkbox = tag2Container.locator('[role="checkbox"]').first();
+      await tag2Checkbox.waitFor({ state: 'visible', timeout: 3000 });
+      await tag2Checkbox.click({ force: true });
+      
+      // Attendre que l'état change
+      await page.waitForTimeout(500);
 
       // Sauvegarder
       const saveButton = page.getByRole('button', { name: /Enregistrer/i });
