@@ -2,7 +2,7 @@ name: 🧪 Test Branch - CI Conditions
 
 on:
   push:
-    branches: [test]
+    branches: [test, test-dashboard]
   workflow_dispatch: # Permet de lancer manuellement depuis GitHub UI
 
 concurrency:
@@ -123,7 +123,7 @@ jobs:
             const status = passed === total ? '✅' : '❌';
             
             let summary = `## ${status} Test Branch CI - ${passed}/${total} jobs réussis\n\n`;
-            summary += `**Branche:** \`test\`\n`;
+            summary += `**Branche:** \`${context.ref.replace('refs/heads/', '')}\`\n`;
             summary += `**Objectif:** Tester rapidement des corrections en conditions CI\n\n`;
             summary += `${jobs.map(j => `- ${j.status === 'success' ? '✅' : '❌'} ${j.name}`).join('\n')}\n\n`;
             
