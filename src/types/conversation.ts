@@ -43,6 +43,7 @@ export interface ConversationMetadata {
   aiModel?: string;
   language?: "fr" | "en";
   userAgent?: string;
+  folderId?: string; // ID du dossier pour organiser les conversations
 }
 
 export interface MessageMetadata {
