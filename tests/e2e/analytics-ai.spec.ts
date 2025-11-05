@@ -100,8 +100,6 @@ test.describe("Analytics IA - Suite Complète", () => {
 
     // Récupérer le slug depuis l'URL ou depuis le localStorage
     let currentUrl = page.url();
-    console.log('📍 URL après finalisation:', currentUrl);
-    
     let slug = currentUrl.split('/poll/')[1]?.split('/')[0] || currentUrl.split('/poll/')[1]?.split('?')[0];
     
     // Si pas de slug dans l'URL, chercher dans localStorage
@@ -112,42 +110,13 @@ test.describe("Analytics IA - Suite Complète", () => {
         return lastPoll?.slug;
       });
     }
-    
-    console.log('📍 Poll créé avec slug:', slug);
-
-    // DEBUG: Afficher le poll créé
-    const pollData = await page.evaluate(() => {
-      const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
-      return polls[polls.length - 1];
-    });
-    console.log('📋 Poll créé:', JSON.stringify(pollData, null, 2));
 
     // 2. Voter 5 fois (questionnaire avec 1 question text)
     for (let i = 1; i <= 5; i++) {
-      console.log(`🗳️ Vote ${i}/5...`);
       // Pour les FormPolls, l'URL est /poll/{slug} pas /poll/{slug}/vote
       await page.goto(`/poll/${slug}?e2e-test=true`);
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(1000);
-
-      // Debug: vérifier ce qui est affiché
-      if (i === 1) {
-        await page.screenshot({ path: 'test-results/debug-page-vote.png', fullPage: true });
-        console.log('📸 Capture d\'écran sauvegardée: test-results/debug-page-vote.png');
-        
-        const pageContent = await page.textContent('body');
-        console.log('📄 Contenu de la page de vote (premiers 500 chars):', pageContent?.substring(0, 500));
-        
-        const textareaCount = await page.locator('textarea').count();
-        console.log('📝 Nombre de textarea trouvés:', textareaCount);
-        
-        // Afficher tous les éléments visibles
-        const allText = await page.evaluate(() => {
-          return Array.from(document.querySelectorAll('h1, h2, h3, button, input, textarea'))
-            .map(el => `${el.tagName}: ${el.textContent?.substring(0, 50) || el.getAttribute('placeholder') || ''}`);
-        });
-        console.log('🔍 Éléments trouvés sur la page:', allText);
-      }
 
       // Remplir le nom
       const nameInput = page.locator('input[placeholder*="nom" i]').first();
@@ -185,8 +154,21 @@ test.describe("Analytics IA - Suite Complète", () => {
     await expect(closeButton).toBeVisible({ timeout: 10000 });
     await closeButton.click();
 
-    // Attendre que le poll soit clôturé (le bouton disparaît)
-    await expect(closeButton).not.toBeVisible({ timeout: 5000 });
+    // Attendre que le statut du poll soit mis à jour dans localStorage (confirmant la clôture)
+    await page.waitForFunction(
+      (slugParam) => {
+        try {
+          const storedPolls = localStorage.getItem('doodates_polls');
+          const allPolls = storedPolls ? JSON.parse(storedPolls) : [];
+          const foundPoll = allPolls.find((p: any) => p.slug === slugParam);
+          return foundPoll?.status === 'closed';
+        } catch {
+          return false;
+        }
+      },
+      slug,
+      { timeout: 5000 }
+    );
 
     // Vérifier le statut après clôture
     const statusAfterClose = await page.evaluate((s) => {
@@ -194,26 +176,22 @@ test.describe("Analytics IA - Suite Complète", () => {
       const poll = polls.find((p: any) => p.slug === s);
       return poll?.status;
     }, slug);
-    console.log(`📦 Statut après clôture: ${statusAfterClose}`);
 
     // 4. Vérifier insights automatiques (panneau présent dans le DOM)
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
     await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
-    console.log('✅ Section Analytics IA présente dans le DOM');
 
     // Attendre génération insights (max 5 secondes)
     await page.waitForTimeout(5000);
 
     // Capture pour debug (accessible à Cascade)
     await page.screenshot({ path: 'Docs/screenshots/analytics-insights.png', fullPage: true });
-    console.log('📸 Capture sauvegardée dans Docs/screenshots/');
 
     // Déplier la section "Insights automatiques" si elle est repliée
     // Le texte contient un emoji et un compteur: "✨ Insights automatiques (1)"
     const insightsAccordion = page.locator('text=/.*Insights automatiques.*/');
     await expect(insightsAccordion).toBeVisible({ timeout: 5000 });
     await insightsAccordion.click();
-    console.log('✅ Section Insights dépliée');
 
     // Attendre que les insights soient visibles
     await page.waitForTimeout(500);
@@ -221,9 +199,7 @@ test.describe("Analytics IA - Suite Complète", () => {
     // Vérifier présence d'au moins 1 insight
     const insightCards = page.locator('[data-testid="insight-card"]');
     const count = await insightCards.count();
-    console.log(`📊 Nombre d'insights trouvés: ${count}`);
     expect(count).toBeGreaterThanOrEqual(1);
-    console.log(`✅ ${count} insight(s) généré(s)`);
 
     // Vérifier types d'insights (optionnel - les emojis peuvent ne pas être affichés)
     const insightTypes = ["📊", "📈", "⚠️", "💡"];
@@ -234,246 +210,154 @@ test.describe("Analytics IA - Suite Complète", () => {
         foundTypes++;
       }
     }
-    console.log(`📊 ${foundTypes} type(s) d'insight avec emoji trouvé(s)`);
     // Note: Les emojis peuvent ne pas être affichés selon le rendu, on ne vérifie pas strictement
     
     // Sauvegarder le slug pour les tests suivants
     pollSlug = slug;
     pollCreated = true;
-    console.log(`✅ Test 1 terminé - Poll ${pollSlug} prêt pour les tests suivants`);
   });
 
   test("2. Quick Queries: Tester les requêtes rapides @smoke @functional", async ({ page }) => {
     // Le poll est déjà créé et clôturé dans le test 1
-    console.log(`🔍 Test 2 - Utilisation du poll ${pollSlug}`);
-    
     // Vérifier que pollSlug est défini
     if (!pollSlug) {
       throw new Error('pollSlug non défini - le test 1 (Setup) doit avoir été exécuté avant');
     }
     
     // Naviguer vers la page résultats du poll
-    console.log(`📍 Navigation vers /poll/${pollSlug}/results`);
     await page.goto(`/poll/${pollSlug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
     
-    console.log(`📍 URL actuelle: ${page.url()}`);
-    
     // Screenshot initial
     await page.screenshot({ path: 'test-results/analytics-test2-01-initial.png', fullPage: true });
-    console.log('📸 Screenshot initial sauvegardé');
     
     // Vérifier que le panneau Analytics est présent dans le DOM (même si replié)
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
-    const panelAttached = await analyticsPanel.count();
-    console.log(`🔍 Panneau Analytics trouvé: ${panelAttached} élément(s)`);
     await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
-    console.log('✅ Panneau Analytics IA présent dans le DOM');
     
     // Screenshot après vérification panneau
     await page.screenshot({ path: 'test-results/analytics-test2-02-panel-verified.png', fullPage: true });
     
     // Trouver les boutons de quick queries directement dans le DOM (toujours présents, pas repliés)
     const quickQueryButtons = page.locator('[data-testid="quick-query-button"]');
-    const buttonsCountBeforeWait = await quickQueryButtons.count();
-    console.log(`🔍 Quick queries buttons trouvés avant wait: ${buttonsCountBeforeWait}`);
     await expect(quickQueryButtons.first()).toBeAttached({ timeout: 10000 });
     const buttonCount = await quickQueryButtons.count();
-    console.log(`🔘 ${buttonCount} quick query button(s) trouvé(s)`);
-    
-    // Log des textes des boutons
-    const buttonTexts = await Promise.all(
-      Array.from({ length: buttonCount }).map(async (_, i) => {
-        const text = await quickQueryButtons.nth(i).textContent();
-        return text;
-      })
-    );
-    console.log(`📋 Textes des boutons: ${JSON.stringify(buttonTexts)}`);
     expect(buttonCount).toBeGreaterThan(0);
-    
-    // Screenshot avant clic
-    await page.screenshot({ path: 'test-results/analytics-test2-03-before-click.png', fullPage: true });
     
     // Cliquer sur la première quick query
     const firstQuery = quickQueryButtons.first();
-    const queryText = await firstQuery.textContent();
-    console.log(`🖊️ Clic sur: "${queryText}"`);
-    const isFirstQueryVisible = await firstQuery.isVisible();
-    console.log(`👁️ Premier bouton visible: ${isFirstQueryVisible}`);
     await firstQuery.click();
     
-    // Screenshot juste après clic
-    await page.screenshot({ path: 'test-results/analytics-test2-04-after-click.png', fullPage: true });
-    console.log('📸 Screenshot après clic sauvegardé');
-    
     // Attendre la réponse (max 10 secondes)
-    console.log('⏳ Attente de la réponse IA...');
     await page.waitForTimeout(5000);
-    
-    // Screenshot pendant attente
-    await page.screenshot({ path: 'test-results/analytics-test2-05-waiting-response.png', fullPage: true });
     
     // Vérifier qu'une réponse est affichée
     const responseBox = page.locator('[data-testid="analytics-response"]');
-    const responseCount = await responseBox.count();
-    const responseVisible = await responseBox.isVisible().catch(() => false);
-    console.log(`🔍 Analytics response trouvée: ${responseCount}, visible: ${responseVisible}`);
     await expect(responseBox).toBeVisible({ timeout: 10000 });
-    console.log('✅ Test 2 - Réponse affichée');
-    
-    // Screenshot final
-    await page.screenshot({ path: 'test-results/analytics-test2-06-response-visible.png', fullPage: true });
-    console.log('📸 Screenshot final sauvegardé');
     
     // Vérifier que la réponse contient du texte
     const responseContent = await responseBox.textContent();
     expect(responseContent).toBeTruthy();
     expect(responseContent!.length).toBeGreaterThan(10);
-    console.log(`✅ Réponse reçue (${responseContent!.length} caractères)`);
   });
 
   test("3. Query Personnalisée: Taper une question personnalisée @functional", async ({ page }) => {
     // Le poll est déjà créé et clôturé, on est sur la page résultats
-    console.log(`🔍 Test 3 - Utilisation du poll ${pollSlug}`);
-    
     // Vérifier que le panneau Analytics est présent dans le DOM
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
     await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
-    await page.screenshot({ path: 'test-results/test3-step1-analytics-section.png', fullPage: true });
-    console.log('📸 Test 3 - Étape 1 : Section Analytics visible');
     
     // Trouver le champ de saisie pour query personnalisée
     const queryInput = page.locator('[data-testid="analytics-query-input"]');
     await expect(queryInput).toBeVisible();
-    await page.screenshot({ path: 'test-results/test3-step2-input-visible.png', fullPage: true });
-    console.log('📸 Test 3 - Étape 2 : Champ de saisie visible');
     
     // Taper une question personnalisée
     const customQuery = "Quelle est la tendance générale des réponses ?";
     await queryInput.fill(customQuery);
-    console.log(`⌨️ Question tapée: "${customQuery}"`);
-    await page.screenshot({ path: 'test-results/test3-step3-query-typed.png', fullPage: true });
-    console.log('📸 Test 3 - Étape 3 : Question saisie');
     
     // Cliquer sur le bouton Envoyer
     const sendButton = page.locator('[data-testid="analytics-send-button"]');
     await expect(sendButton).toBeVisible();
     await sendButton.click();
-    console.log('🖱️ Clic sur Envoyer');
     
     // Attendre la réponse (max 10 secondes)
-    console.log('⏳ Attente de la réponse IA...');
     await page.waitForTimeout(5000);
-    await page.screenshot({ path: 'test-results/test3-step4-after-send.png', fullPage: true });
     
     // Vérifier qu'une réponse est affichée
     const responseBox = page.locator('[data-testid="analytics-response"]');
     await expect(responseBox).toBeVisible({ timeout: 10000 });
-    await page.screenshot({ path: 'test-results/test3-step5-response-visible.png', fullPage: true });
-    console.log('📸 Test 3 - Étape 5 : Réponse affichée');
     
     // Vérifier que la réponse contient du texte
     const responseContent = await responseBox.textContent();
     expect(responseContent).toBeTruthy();
     expect(responseContent!.length).toBeGreaterThan(10);
-    console.log(`✅ Réponse reçue (${responseContent!.length} caractères)`);
   });
 
   test("4. Cache: Vérifier que les queries identiques utilisent le cache @functional", async ({ page }) => {
-    console.log(`🔍 Test 4 - Utilisation du poll ${pollSlug}`);
-    
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
     await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
-    await page.screenshot({ path: 'test-results/test4-step1-start.png', fullPage: true });
-    console.log('📸 Test 4 - Étape 1 : Début du test cache');
     
     // Première query
     const queryInput = page.locator('[data-testid="analytics-query-input"]');
     const testQuery = "Combien de réponses avons-nous ?";
     await queryInput.fill(testQuery);
-    await page.screenshot({ path: 'test-results/test4-step2-first-query.png', fullPage: true });
     
     const sendButton = page.locator('[data-testid="analytics-send-button"]');
     const startTime1 = Date.now();
     await sendButton.click();
-    console.log('🖱️ Première query envoyée');
     
     await page.waitForTimeout(5000);
     const responseBox = page.locator('[data-testid="analytics-response"]');
     await expect(responseBox).toBeVisible({ timeout: 10000 });
     const duration1 = Date.now() - startTime1;
-    await page.screenshot({ path: 'test-results/test4-step3-first-response.png', fullPage: true });
-    console.log(`✅ Première réponse reçue en ${duration1}ms`);
     
     // Deuxième query identique (devrait utiliser le cache)
     await queryInput.fill(testQuery);
-    await page.screenshot({ path: 'test-results/test4-step4-second-query.png', fullPage: true });
     
     const startTime2 = Date.now();
     await sendButton.click();
-    console.log('🖱️ Deuxième query identique envoyée');
     
     await page.waitForTimeout(2000);
     await expect(responseBox).toBeVisible({ timeout: 5000 });
     const duration2 = Date.now() - startTime2;
-    await page.screenshot({ path: 'test-results/test4-step5-cached-response.png', fullPage: true });
-    console.log(`✅ Deuxième réponse (cache) reçue en ${duration2}ms`);
     
     // La 2ème devrait être plus rapide (cache)
-    console.log(`⚡ Gain de temps: ${duration1 - duration2}ms`);
+    expect(duration2).toBeLessThan(duration1);
   });
 
   test("5. Quotas: Vérifier le quota freemium (5 queries/jour) @functional", async ({ page }) => {
-    console.log(`🔍 Test 5 - Utilisation du poll ${pollSlug}`);
-    
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
     await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
-    await page.screenshot({ path: 'test-results/test5-step1-start.png', fullPage: true });
-    console.log('📸 Test 5 - Étape 1 : Test quotas');
     
     // Vérifier l'indicateur de quota
     const quotaIndicator = page.locator('[data-testid="quota-indicator"]');
     if (await quotaIndicator.isVisible()) {
       const quotaText = await quotaIndicator.textContent();
-      console.log(`📊 Quota actuel: ${quotaText}`);
-      await page.screenshot({ path: 'test-results/test5-step2-quota-visible.png', fullPage: true });
-      
       // Le quota devrait indiquer qu'on a utilisé des queries
       expect(quotaText).toBeTruthy();
-    } else {
-      console.log('⚠️ Indicateur de quota non visible');
     }
   });
 
   test("6. Quotas: Vérifier le message quand quota atteint @functional", async ({ page }) => {
-    console.log(`🔍 Test 6 - Utilisation du poll ${pollSlug}`);
-    
     // Ce test est difficile à implémenter car il faudrait faire 5+ queries
     // On vérifie juste que le système de quota existe
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
     await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
-    await page.screenshot({ path: 'test-results/test6-quota-check.png', fullPage: true });
-    console.log('✅ Test 6 - Système de quota vérifié');
   });
 
   test("7. Erreurs: Poll sans réponses @functional", async ({ page }) => {
-    console.log(`🔍 Test 7 - Test gestion erreur poll vide`);
     // Ce test nécessiterait de créer un nouveau poll sans réponses
-    console.log('✅ Test 7 - À implémenter avec un poll vide');
+    // À implémenter avec un poll vide
   });
 
   test("8. Erreurs: Clé API manquante @functional", async ({ page }) => {
-    console.log(`🔍 Test 8 - Test clé API manquante`);
     // Ce test nécessiterait de désactiver temporairement la clé API
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
     await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
-    console.log('✅ Test 8 - Gestion erreur API vérifiée');
   });
 
   test("9. Erreurs: Queries trop longues @functional", async ({ page }) => {
-    console.log(`🔍 Test 9 - Utilisation du poll ${pollSlug}`);
-    
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
     await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
     
@@ -481,18 +365,14 @@ test.describe("Analytics IA - Suite Complète", () => {
     const queryInput = page.locator('[data-testid="analytics-query-input"]');
     const longQuery = "A".repeat(600);
     await queryInput.fill(longQuery);
-    console.log('⌨️ Query très longue saisie (600 caractères)');
     
     const sendButton = page.locator('[data-testid="analytics-send-button"]');
     
     // Vérifier si le bouton est désactivé ou si un message d'erreur apparaît
     const isDisabled = await sendButton.isDisabled().catch(() => false);
-    if (isDisabled) {
-      console.log('✅ Bouton désactivé pour query trop longue');
-    } else {
+    if (!isDisabled) {
       await sendButton.click();
       await page.waitForTimeout(2000);
-      console.log('✅ Query longue envoyée - vérification erreur');
     }
   });
 });
@@ -510,20 +390,25 @@ test.describe("Analytics IA - Quick Queries", () => {
     // Setup : Créer un poll avec réponses
     await page.goto("/?e2e-test=true");
     await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: 'test-results/debug-setup-1-home.png', fullPage: true });
 
-    const chatInput = page.locator('textarea[placeholder*="Décrivez"]');
+    const chatInput = page.locator('[data-testid="message-input"]');
+    await expect(chatInput).toBeVisible({ timeout: 10000 });
     await chatInput.fill("Crée un questionnaire avec 2 questions : nom (texte) et satisfaction (choix unique)");
+    await page.screenshot({ path: 'test-results/debug-setup-2-message-filled.png', fullPage: true });
     await chatInput.press("Enter");
     
     // Attendre que l'IA génère et affiche le bouton "Créer ce formulaire"
     const createButton = page.getByRole('button', { name: /créer ce formulaire/i });
     await expect(createButton).toBeVisible({ timeout: 10000 });
+    await page.screenshot({ path: 'test-results/debug-setup-3-create-button.png', fullPage: true });
     await createButton.click();
     
     // Attendre la prévisualisation
     const previewCard = page.locator('[data-poll-preview]');
     await expect(previewCard).toBeVisible({ timeout: 10000 });
     await page.waitForTimeout(1000);
+    await page.screenshot({ path: 'test-results/debug-setup-4-preview.png', fullPage: true });
     
     // Cliquer sur "Voir" si présent
     const viewFormButton = page.getByRole('button', { name: /voir/i }).first();
@@ -531,109 +416,104 @@ test.describe("Analytics IA - Quick Queries", () => {
     if (isButtonVisible) {
       await viewFormButton.click();
       await page.waitForTimeout(1000);
+      await page.screenshot({ path: 'test-results/debug-setup-5-after-view.png', fullPage: true });
     }
 
     // Finaliser
     const finalizeButton = page.locator('button:has-text("Finaliser")');
     await expect(finalizeButton).toBeVisible({ timeout: 10000 });
+    await page.screenshot({ path: 'test-results/debug-setup-6-before-finalize.png', fullPage: true });
     await finalizeButton.click();
     await page.waitForTimeout(2000);
+    await page.screenshot({ path: 'test-results/debug-setup-7-after-finalize.png', fullPage: true });
 
     const pollLink = page.locator('a[href*="/poll/"]').first();
     const href = await pollLink.getAttribute("href");
     const slug = href?.split("/")[2];
+    
+    // Récupérer le pollId depuis le localStorage
+    const pollInfo = await page.evaluate((slugParam) => {
+      try {
+        const storedPolls = localStorage.getItem('doodates_polls');
+        const allPolls = storedPolls ? JSON.parse(storedPolls) : [];
+        const poll = allPolls.find((p: any) => p.slug === slugParam || p.id === slugParam);
+        return poll ? { id: poll.id, slug: poll.slug, type: poll.type } : null;
+      } catch (e) {
+        return { error: String(e) };
+      }
+    }, slug);
+    const pollId = pollInfo?.id || slug; // Utiliser l'id si disponible, sinon le slug
 
     // Voter 3 fois
     for (let i = 1; i <= 3; i++) {
       await page.goto(`/poll/${slug}?e2e-test=true`);
       await page.waitForLoadState("networkidle");
-      await page.locator('input[type="text"]').first().fill(`Votant ${i}`);
+      await page.screenshot({ path: `test-results/debug-vote-${i}-1-page-loaded.png`, fullPage: true });
       
+      // Remplir le nom
+      const nameInput = page.locator('input[type="text"]').first();
+      await expect(nameInput).toBeVisible({ timeout: 10000 });
+      await nameInput.fill(`Votant ${i}`);
+      await page.screenshot({ path: `test-results/debug-vote-${i}-2-name-filled.png`, fullPage: true });
+      
+      // Vérifier si c'est multi-step
       const nextButton = page.locator('button:has-text("Suivant")');
-      if (await nextButton.isVisible()) {
+      const isMultiStep = await nextButton.isVisible({ timeout: 2000 }).catch(() => false);
+      
+      if (isMultiStep) {
         await nextButton.click();
         await page.waitForTimeout(500);
+        await page.screenshot({ path: `test-results/debug-vote-${i}-3-after-next.png`, fullPage: true });
       }
       
-      await page.locator('input[type="radio"]').first().click();
+      // Remplir TOUTES les questions obligatoires
+      // Question choix unique (radio)
+      const radioInputs = page.locator('input[type="radio"]');
+      const radioCount = await radioInputs.count();
+      if (radioCount > 0) {
+        await radioInputs.first().click();
+        await page.waitForTimeout(300);
+        await page.screenshot({ path: `test-results/debug-vote-${i}-4a-radio-selected.png`, fullPage: true });
+      }
+      
+      // Question choix multiples (checkboxes) - OBLIGATOIRE
+      const checkboxes = page.locator('input[type="checkbox"]');
+      const checkboxCount = await checkboxes.count();
+      if (checkboxCount > 0) {
+        // Sélectionner au moins une checkbox (obligatoire)
+        await checkboxes.first().click();
+        await page.waitForTimeout(300);
+        await page.screenshot({ path: `test-results/debug-vote-${i}-4b-checkbox-selected.png`, fullPage: true });
+      }
+      
+      // Question texte (textarea ou input text)
+      const textInput = page.locator('textarea, input[type="text"]').filter({ hasNot: page.locator('input[placeholder*="nom" i]') }).first();
+      if (await textInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await textInput.fill("Ma réponse");
+        await page.screenshot({ path: `test-results/debug-vote-${i}-4c-text-filled.png`, fullPage: true });
+      }
+      
+      // Soumettre
       const submitButton = page.locator('[data-testid="form-submit"]');
       await expect(submitButton).toBeVisible({ timeout: 10000 });
+      await page.screenshot({ path: `test-results/debug-vote-${i}-5-before-submit.png`, fullPage: true });
       await submitButton.click();
-      await page.waitForTimeout(1000);
       
-      // DEBUG: Vérifier que le vote a été enregistré
-      const responsesAfterVote = await page.evaluate((pollIdParam) => {
-        try {
-          const stored = localStorage.getItem('doodates_form_responses');
-          const all = stored ? JSON.parse(stored) : [];
-          const pollResponses = all.filter((r: any) => r.pollId === pollIdParam);
-          return {
-            total: all.length,
-            pollResponses: pollResponses.length,
-            responses: pollResponses.map((r: any) => ({
-              id: r.id,
-              pollId: r.pollId,
-              respondentName: r.respondentName,
-              itemsCount: r.items?.length || 0
-            }))
-          };
-        } catch (e) {
-          return { error: String(e) };
-        }
-      }, pollId);
-      console.log(`📊 DEBUG Vote ${i}/3 - Réponses (pollId: ${pollId}):`, JSON.stringify(responsesAfterVote, null, 2));
+      // Attendre que la soumission soit complète
+      await page.waitForTimeout(2000);
     }
 
     // Clôturer
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
     
-    // DEBUG: Vérifier les réponses avant de chercher le panneau analytics
-    const debugInfo = await page.evaluate((pollIdParam) => {
-      try {
-        // Vérifier les réponses
-        const storedResponses = localStorage.getItem('doodates_form_responses');
-        const allResponses = storedResponses ? JSON.parse(storedResponses) : [];
-        const pollResponses = allResponses.filter((r: any) => r.pollId === pollIdParam);
-        
-        // Vérifier le poll
-        const storedPolls = localStorage.getItem('doodates_polls');
-        const allPolls = storedPolls ? JSON.parse(storedPolls) : [];
-        const poll = allPolls.find((p: any) => p.slug === pollIdParam || p.id === pollIdParam);
-        
-        // Simuler getFormResults
-        const questions = poll?.questions || [];
-        const uniqueResponses = pollResponses.filter((r: any, index: number, self: any[]) => 
-          index === self.findIndex((resp: any) => 
-            (resp.respondentName || '').trim().toLowerCase() === (r.respondentName || '').trim().toLowerCase()
-          )
-        );
-        
-        return {
-          pollId: pollIdParam,
-          pollFound: !!poll,
-          pollType: poll?.type,
-          pollStatus: poll?.status,
-          questionsCount: questions.length,
-          totalResponses: pollResponses.length,
-          uniqueResponses: uniqueResponses.length,
-          responses: pollResponses.map((r: any) => ({
-            id: r.id?.substring(0, 20),
-            respondentName: r.respondentName,
-            itemsCount: r.items?.length || 0
-          }))
-        };
-      } catch (e) {
-        return { error: String(e) };
-      }
-    }, pollId);
-    console.log('📊 DEBUG Avant recherche panneau analytics (pollId:', pollId, '):', JSON.stringify(debugInfo, null, 2));
-    
     // Attendre que les actions du poll soient chargées
     await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
+    await page.screenshot({ path: 'test-results/debug-actions-loaded.png', fullPage: true });
     
     // Vérifier que le panneau Analytics est présent AVANT la clôture (il devrait être là avec 3 votes)
     // On attend soit le data-testid, soit le titre "Analytics IA" pour être plus robuste
+    await page.screenshot({ path: 'test-results/debug-before-wait-analytics.png', fullPage: true });
     await page.waitForSelector('[data-testid="analytics-panel"], h2:has-text("Analytics IA")', { timeout: 10000 });
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
     await expect(analyticsPanel).toBeAttached({ timeout: 5000 });
@@ -647,8 +527,21 @@ test.describe("Analytics IA - Quick Queries", () => {
     await expect(closeButton).toBeVisible({ timeout: 10000 });
     await closeButton.click();
     
-    // Attendre que le bouton disparaisse (confirmant la clôture)
-    await expect(closeButton).not.toBeVisible({ timeout: 5000 });
+    // Attendre que le statut du poll soit mis à jour dans localStorage (confirmant la clôture)
+    await page.waitForFunction(
+      (slugParam) => {
+        try {
+          const storedPolls = localStorage.getItem('doodates_polls');
+          const allPolls = storedPolls ? JSON.parse(storedPolls) : [];
+          const foundPoll = allPolls.find((p: any) => p.slug === slugParam);
+          return foundPoll?.status === 'closed';
+        } catch {
+          return false;
+        }
+      },
+      slug,
+      { timeout: 5000 }
+    );
     
     // Le panneau analytics devrait toujours être présent après la clôture
     await expect(analyticsPanel).toBeAttached({ timeout: 5000 });
@@ -670,11 +563,13 @@ test.describe("Analytics IA - Quick Queries", () => {
     const responseText = page.locator('[data-testid="analytics-response"]');
     await expect(responseText).toBeVisible();
 
-    // Vérifier que le quota a été décrémenté
+    // Vérifier que le quota a été décrémenté (1 requête utilisée sur 5)
     const quotaIndicator = page.locator('[data-testid="quota-indicator"]');
     if (await quotaIndicator.isVisible()) {
       const quotaText = await quotaIndicator.textContent();
-      expect(quotaText).toContain("4/5"); // 1 query utilisée
+      // Le format peut être "4 requêtes restantes aujourd'hui1/5 utilisées" ou similaire
+      // On vérifie qu'il indique bien 1/5 utilisées (ou 4 restantes)
+      expect(quotaText).toMatch(/1\/5|4.*requêtes.*restantes/i);
     }
   });
 });
