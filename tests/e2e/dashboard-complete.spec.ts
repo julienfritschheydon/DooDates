@@ -441,19 +441,35 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
 
-      // Sélectionner une conversation
+      // Sélectionner une conversation en cliquant sur son checkbox (top-right corner)
       const firstCard = page.locator('[data-testid="poll-item"]').first();
-      const checkbox = firstCard.locator('input[type="checkbox"]').or(firstCard.locator('[class*="border-2"]').first());
       
-      // Cliquer sur la zone de sélection (checkbox ou zone de sélection)
-      await firstCard.click({ position: { x: 10, y: 10 } });
+      // Le checkbox est dans un div avec position absolute (top-right corner)
+      // Il contient un div avec border-2 et w-6 h-6
+      // Utiliser un sélecteur simple : chercher le div avec w-6 h-6 et border-2 dans la carte
+      const checkbox = firstCard.locator('div[class*="w-6"][class*="h-6"][class*="border-2"]').first();
       
-      // Utiliser le bouton "Sélectionner" pour activer la sélection
-      const selectButton = page.getByRole('button', { name: /Sélectionner/i });
-      await selectButton.click();
+      await checkbox.waitFor({ state: 'visible', timeout: 5000 });
+      await checkbox.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(200); // Petit délai pour s'assurer que le scroll est terminé
+      await checkbox.click({ force: true });
+      
+      // Attendre que la sélection se mette à jour
+      await page.waitForTimeout(500);
 
-      // Vérifier que la sélection est active
-      await expect(page.getByText(/sélectionné/i)).toBeVisible({ timeout: 3000 });
+      // Vérifier que la carte est sélectionnée (border bleu ou texte dans le bouton)
+      const selectButton = page.getByRole('button', { name: /1 sélectionné/i }).or(
+        page.getByRole('button', { name: /sélectionné/i })
+      );
+      await expect(selectButton).toBeVisible({ timeout: 3000 });
+
+      // Désélectionner en cliquant à nouveau
+      await checkbox.click({ force: true });
+      await page.waitForTimeout(500);
+
+      // Vérifier que la sélection est annulée
+      const selectButtonReset = page.getByRole('button', { name: /^Sélectionner$/i });
+      await expect(selectButtonReset).toBeVisible({ timeout: 3000 });
     } finally {
       await guard.assertClean();
       guard.stop();

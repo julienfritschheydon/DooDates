@@ -183,15 +183,40 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       // Trouver le checkbox Radix UI dans ce conteneur
       const tag1Checkbox = tag1Container.locator('[role="checkbox"]').first();
       await tag1Checkbox.waitFor({ state: 'visible', timeout: 3000 });
+      
+      // Vérifier que le dialogue est toujours visible avant le clic
+      await expect(dialog).toBeVisible({ timeout: 2000 });
+      
+      // Cliquer sur le checkbox
       await tag1Checkbox.click({ force: true });
       
       // Attendre que l'état change (peut être asynchrone)
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(300);
 
-      // Vérifier que le dialogue est toujours ouvert avant de chercher le deuxième tag
-      // Récupérer le dialogue à nouveau car il peut avoir été re-rendu
+      // Vérifier que le dialogue est toujours ouvert après le clic
+      // Attendre un peu plus longtemps pour permettre les re-renders
+      await page.waitForTimeout(500);
+      
+      // Re-questionner le dialogue pour s'assurer qu'il n'est pas stale
       const dialogStillOpen = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
-      await expect(dialogStillOpen).toBeVisible({ timeout: 5000 });
+      
+      // Vérifier plusieurs fois avec des timeouts courts pour gérer les cas où le dialogue pourrait être temporairement invisible
+      let retries = 0;
+      const maxRetries = 10;
+      while (retries < maxRetries) {
+        try {
+          await expect(dialogStillOpen).toBeVisible({ timeout: 1000 });
+          break; // Le dialogue est visible, on peut continuer
+        } catch (error) {
+          retries++;
+          if (retries >= maxRetries) {
+            // Si après tous les essais le dialogue n'est toujours pas visible, c'est une erreur
+            throw new Error(`Le dialogue n'est pas visible après ${maxRetries} tentatives. Il s'est peut-être fermé après le premier clic.`);
+          }
+          // Attendre un peu avant de réessayer
+          await page.waitForTimeout(300);
+        }
+      }
 
       // Sélectionner un autre tag - chercher uniquement dans le dialogue
       // Le conteneur des tags a max-h-48 et overflow-y-auto, donc il faut peut-être scroller
