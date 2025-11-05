@@ -203,8 +203,9 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await saveButton.waitFor({ state: 'visible', timeout: 3000 });
       await saveButton.click();
 
-      // Vérifier le toast de succès
-      await expect(page.getByText(/Mise à jour réussie/i)).toBeVisible({ timeout: 5000 });
+      // Vérifier le toast de succès (utiliser .first() pour éviter strict mode violation)
+      // Le texte apparaît dans le toast visible ET dans l'élément aria-live, on prend le premier
+      await expect(page.getByText(/Mise à jour réussie/i).first()).toBeVisible({ timeout: 5000 });
 
       // Attendre que le dialogue se ferme et que la carte se rafraîchisse
       await page.waitForTimeout(1500);

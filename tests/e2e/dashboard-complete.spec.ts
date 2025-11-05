@@ -462,8 +462,11 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       const selectedText = page.getByText(/\d+ sélectionné/i);
       await expect(selectedText).toBeVisible({ timeout: 2000 });
 
-      // Cliquer à nouveau sur le bouton (maintenant "Désélectionner tout")
-      await selectButton.click();
+      // Cliquer à nouveau sur le bouton (maintenant "Désélectionner tout" - le texte a changé)
+      // Le bouton a changé de texte, donc on doit le re-trouver avec le nouveau texte
+      const deselectButton = page.getByRole('button', { name: /\d+ sélectionné/i });
+      await deselectButton.waitFor({ state: 'visible', timeout: 3000 });
+      await deselectButton.click();
       
       // Attendre que React se mette à jour
       await page.waitForTimeout(100);
