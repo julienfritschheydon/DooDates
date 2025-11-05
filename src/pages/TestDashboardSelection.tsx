@@ -47,8 +47,10 @@ const TestDashboardSelection: React.FC = () => {
             className="absolute top-4 right-4 z-10"
             onClick={(e) => {
               e.stopPropagation();
+              e.preventDefault();
               toggleSelection();
             }}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             <div
               className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${
@@ -58,7 +60,7 @@ const TestDashboardSelection: React.FC = () => {
               }`}
               onClick={(e) => {
                 e.stopPropagation();
-                toggleSelection();
+                e.preventDefault();
               }}
             >
               {isSelected && (
