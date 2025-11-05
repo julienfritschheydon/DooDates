@@ -521,9 +521,12 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await manageMenuItem.click();
       await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
 
-      // Vérifier que le dialogue s'ouvre sans erreur
-      await expect(page.getByText(/Tags/i)).toBeVisible();
-      await expect(page.getByText(/Dossier/i)).toBeVisible();
+      // Vérifier que le dialogue s'ouvre sans erreur - être plus spécifique pour éviter strict mode violation
+      const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
+      await expect(dialog).toBeVisible({ timeout: 5000 });
+      // Chercher "Tags" dans le contexte du dialogue uniquement
+      await expect(dialog.getByText(/Tags/i).first()).toBeVisible({ timeout: 3000 });
+      await expect(dialog.getByText(/Dossier/i).first()).toBeVisible({ timeout: 3000 });
 
       // Sélectionner un tag et un dossier - utiliser getByRole (comme dans les autres tests corrigés)
       const tag1Checkbox = page.getByRole('checkbox', { name: /Test Tag 1/i });
