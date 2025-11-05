@@ -357,33 +357,38 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await manageMenuItem.click();
       await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
 
-      // Désélectionner tous les tags
-      // Trouver les labels des tags et leurs checkboxes associées
+      // Désélectionner tous les tags - utiliser getByRole (comme dans les tests qui marchent)
       const tagLabels = ['Test Tag 1', 'Test Tag 2', 'Test Tag 3'];
       for (const tagName of tagLabels) {
-        const tagLabel = page.getByText(tagName).first();
-        if (await tagLabel.isVisible()) {
-          const checkbox = tagLabel.locator('..').locator('input[type="checkbox"]').first();
-          if (await checkbox.isChecked()) {
-            await checkbox.uncheck();
+        try {
+          const checkbox = page.getByRole('checkbox', { name: new RegExp(tagName, 'i') });
+          const isVisible = await checkbox.isVisible({ timeout: 2000 }).catch(() => false);
+          if (isVisible) {
+            const isChecked = await checkbox.isChecked({ timeout: 2000 }).catch(() => false);
+            if (isChecked) {
+              await checkbox.uncheck({ timeout: 3000 });
+            }
           }
+        } catch (error) {
+          // Tag non trouvé, continuer
         }
       }
 
-      // Désélectionner le dossier (sélectionner "Aucun dossier")
-      const noFolderLabel = page.getByText('Aucun dossier').first();
-      const noFolderCheckbox = noFolderLabel.locator('..').locator('input[type="checkbox"]').first();
+      // Désélectionner le dossier (sélectionner "Aucun dossier") - utiliser getByRole
+      const noFolderCheckbox = page.getByRole('checkbox', { name: /Aucun dossier/i });
+      await noFolderCheckbox.waitFor({ state: 'visible', timeout: 3000 });
       await noFolderCheckbox.check();
 
       // Sauvegarder
       await page.getByRole('button', { name: /Enregistrer/i }).click();
 
-      // Vérifier le toast de succès
-      await expect(page.getByText(/Mise à jour réussie/i)).toBeVisible({ timeout: 3000 });
+      // Vérifier le toast de succès (utiliser .first() pour éviter strict mode violation)
+      await expect(page.getByText(/Mise à jour réussie/i).first()).toBeVisible({ timeout: 3000 });
 
       // Vérifier que les tags et dossier ont disparu de la carte
       await page.waitForTimeout(1000);
-      const tagsOnCard = conversationCard.locator('text=Test Tag');
+      // Utiliser getByText pour une recherche plus flexible
+      const tagsOnCard = conversationCard.getByText(/Test Tag/i);
       await expect(tagsOnCard).toHaveCount(0, { timeout: 5000 });
     } finally {
       await guard.assertClean();
