@@ -30,7 +30,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: 🔍 Run Full Regression Suite (${{ matrix.project }})
-        run: npx playwright test --project="${{ matrix.project }}" --reporter=html
+        run: npx playwright test --project="${{ matrix.project }}" --reporter=html,json
 
       - name: 📊 Upload Playwright report
         if: always()
@@ -40,31 +40,145 @@ jobs:
           path: playwright-report
           retention-days: 30
 
+      - name: 📤 Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.project }}
+          path: test-results
+          retention-days: 7
+
   regression-summary:
     needs: [full-regression]
     runs-on: ubuntu-latest
     if: always()
     
     steps:
-      - name: 📊 Generate Summary
-        uses: actions/github-script@v6
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 📥 Download test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-results-*
+          merge-multiple: true
+          path: test-results
+
+      - name: 📥 Download Playwright reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-report-nightly-*
+          merge-multiple: true
+          path: artifacts
+
+      - name: 📊 Generate Regression Summary
+        id: summary
+        run: node scripts/generate-regression-summary.js
+        continue-on-error: true
+
+      - name: 📋 Display Summary
+        run: |
+          if [ -f regression-summary.md ]; then
+            cat regression-summary.md
+          fi
+
+      - name: 📤 Upload Summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-summary
+          path: regression-summary.md
+          retention-days: 30
+
+      - name: 📝 Create or Update GitHub Issue
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const status = '${{ needs.full-regression.result }}';
-            const emoji = status === 'success' ? '✅' : '❌';
-            const message = status === 'success' 
-              ? 'Tous les tests de régression sont passés !' 
-              : '⚠️ Des tests de régression ont échoué. Vérifiez les rapports.';
+            const fs = require('fs');
+            const path = require('path');
             
-            console.log(`${emoji} ${message}`);
+            let summaryContent = '';
+            const summaryPath = path.join(process.cwd(), 'regression-summary.md');
             
-            // Créer une issue si échec
-            if (status !== 'success') {
-              github.rest.issues.create({
+            if (fs.existsSync(summaryPath)) {
+              summaryContent = fs.readFileSync(summaryPath, 'utf-8');
+            } else {
+              // Fallback si le fichier n'existe pas
+              summaryContent = `# 📊 Résumé des Tests de Régression Nocturne\n\n`;
+              summaryContent += `**Date:** ${new Date().toISOString()}\n\n`;
+              summaryContent += `⚠️ Impossible de générer le résumé complet. Vérifiez les artefacts pour plus de détails.\n\n`;
+              summaryContent += `**Workflow:** ${context.payload.repository.html_url}/actions/runs/${context.runId}\n`;
+            }
+            
+            // Ajouter le lien vers le workflow
+            summaryContent += `\n\n---\n\n`;
+            summaryContent += `**🔗 Lien vers le workflow:** [Voir les détails](${context.payload.repository.html_url}/actions/runs/${context.runId})\n`;
+            
+            // Chercher une issue existante pour aujourd'hui
+            const today = new Date().toISOString().split('T')[0];
+            const issueTitle = `Nightly Regression Tests - ${today}`;
+            
+            try {
+              // Chercher les issues ouvertes avec le label 'regression'
+              const { data: issues } = await github.rest.issues.listForRepo({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: 'Nightly Regression Tests Failed - ' + new Date().toISOString().split('T')[0],
-                body: 'Tests de regression nocturnes echoues. Date: ' + new Date().toISOString() + ' - Workflow: ' + context.payload.repository.html_url + '/actions/runs/' + context.runId,
-                labels: ['bug', 'regression', 'automated']
+                state: 'open',
+                labels: 'regression,automated',
+                per_page: 10
               });
+              
+              // Chercher une issue créée aujourd'hui
+              const todayIssue = issues.find(issue => 
+                issue.title.includes(today) || 
+                issue.created_at.startsWith(today)
+              );
+              
+              if (todayIssue) {
+                // Mettre à jour l'issue existante
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: todayIssue.number,
+                  body: summaryContent
+                });
+                
+                // Ajouter un commentaire avec le nouveau résumé
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: todayIssue.number,
+                  body: `## 🔄 Résumé mis à jour - ${new Date().toISOString()}\n\n${summaryContent}`
+                });
+                
+                console.log(`✅ Issue #${todayIssue.number} mise à jour`);
+              } else {
+                // Créer une nouvelle issue
+                const hasFailures = summaryContent.includes('❌ Tests échoués') || 
+                                  summaryContent.includes('Erreurs détectées');
+                
+                const { data: issue } = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: issueTitle,
+                  body: summaryContent,
+                  labels: hasFailures ? ['bug', 'regression', 'automated'] : ['regression', 'automated']
+                });
+                
+                console.log(`✅ Issue #${issue.number} créée`);
+              }
+            } catch (error) {
+              console.error('❌ Erreur lors de la création/mise à jour de l\'issue:', error);
+              // Ne pas faire échouer le workflow si l'issue échoue
             }
