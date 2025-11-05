@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { attachConsoleGuard, enableE2ELocalMode } from "./utils";
 
-test.describe("Dashboard - Tests Isolés", () => {
-  // Activer les traces et vidéo pour voir ce qui se passe
-  test.use({
-    trace: 'on',
-    video: 'on',
-  });
+// Activer les traces et vidéo pour voir ce qui se passe (top-level requis)
+test.use({
+  trace: 'on',
+  video: 'on',
+});
 
+test.describe("Dashboard - Tests Isolés", () => {
   test.beforeEach(async ({ page }) => {
     // Setup localStorage AVANT navigation (via addInitScript)
     await page.addInitScript(() => {
