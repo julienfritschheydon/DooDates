@@ -34,9 +34,7 @@ export const ManageTagsFolderDialog: React.FC<ManageTagsFolderDialogProps> = ({
 }) => {
   const { toast } = useToast();
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set(currentTags));
-  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(
-    currentFolderId || null,
-  );
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(currentFolderId || null);
   const [isSaving, setIsSaving] = useState(false);
 
   const allTags = getAllTags();

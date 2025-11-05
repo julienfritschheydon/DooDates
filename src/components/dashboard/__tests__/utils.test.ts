@@ -190,7 +190,13 @@ describe("Dashboard Utils", () => {
     });
 
     it("should combine all filters", () => {
-      const result = filterConversationItems(mockItems, "active", "Réunion", ["Prioritaire"], "folder-1");
+      const result = filterConversationItems(
+        mockItems,
+        "active",
+        "Réunion",
+        ["Prioritaire"],
+        "folder-1",
+      );
       expect(result.length).toBeGreaterThanOrEqual(0);
       // Vérifier que tous les critères sont respectés
       result.forEach((item) => {

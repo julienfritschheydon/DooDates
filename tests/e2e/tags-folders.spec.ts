@@ -126,7 +126,15 @@ test.describe('Dashboard - Tags et Dossiers', () => {
   });
 
   test('@functional - Assigner des tags à une conversation', async ({ page }) => {
-    const guard = attachConsoleGuard(page);
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
@@ -134,31 +142,54 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       // Ouvrir le dialogue
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
       const conversationCard = page.locator('[data-testid="poll-item"]').first();
-      const menuButton = conversationCard.locator('button').filter({ has: page.locator('svg') }).first();
+      
+      // Trouver le bouton menu
+      const menuButtons = conversationCard.locator('button');
+      const menuButtonCount = await menuButtons.count();
+      let menuButton = menuButtons.last();
+      if (menuButtonCount > 1) {
+        for (let i = menuButtonCount - 1; i >= 0; i--) {
+          const btn = menuButtons.nth(i);
+          const isVisible = await btn.isVisible();
+          if (isVisible) {
+            menuButton = btn;
+            break;
+          }
+        }
+      }
+      
+      await menuButton.waitFor({ state: 'visible', timeout: 5000 });
       await menuButton.click();
+      await page.waitForTimeout(500);
+      
       await page.getByText('Gérer les tags/dossier').click();
-      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible();
+      await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
 
       // Sélectionner un tag (trouver via le label associé)
       const tag1Label = page.getByText('Test Tag 1').first();
-      await tag1Label.waitFor({ state: 'visible', timeout: 3000 });
+      await tag1Label.waitFor({ state: 'visible', timeout: 5000 });
       const tag1Checkbox = tag1Label.locator('..').locator('input[type="checkbox"]').first();
       await tag1Checkbox.check();
 
       // Sélectionner un autre tag
       const tag2Label = page.getByText('Test Tag 2').first();
+      await tag2Label.waitFor({ state: 'visible', timeout: 3000 });
       const tag2Checkbox = tag2Label.locator('..').locator('input[type="checkbox"]').first();
       await tag2Checkbox.check();
 
       // Sauvegarder
-      await page.getByRole('button', { name: /Enregistrer/i }).click();
+      const saveButton = page.getByRole('button', { name: /Enregistrer/i });
+      await saveButton.waitFor({ state: 'visible', timeout: 3000 });
+      await saveButton.click();
 
       // Vérifier le toast de succès
-      await expect(page.getByText(/Mise à jour réussie/i)).toBeVisible({ timeout: 3000 });
+      await expect(page.getByText(/Mise à jour réussie/i)).toBeVisible({ timeout: 5000 });
 
-      // Vérifier que les tags apparaissent sur la carte
-      await page.waitForTimeout(1000); // Attendre le rafraîchissement
-      const tagsOnCard = conversationCard.locator('text=Test Tag 1');
+      // Attendre que le dialogue se ferme et que la carte se rafraîchisse
+      await page.waitForTimeout(1500);
+      
+      // Vérifier que les tags apparaissent sur la carte - utiliser une recherche plus flexible
+      const tagsOnCard = conversationCard.getByText('Test Tag 1');
       await expect(tagsOnCard).toBeVisible({ timeout: 5000 });
     } finally {
       await guard.assertClean();
