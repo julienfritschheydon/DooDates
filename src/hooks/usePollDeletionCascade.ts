@@ -52,13 +52,15 @@ export const usePollDeletionCascade = () => {
               }
             : undefined;
 
-          await conversations.updateConversation.mutateAsync({
-            id: conversation.id,
-            updates: {
-              tags: updatedTags,
-              relatedPollId: undefined,
-            },
-          });
+          if (conversations.updateConversation) {
+            await conversations.updateConversation.mutateAsync({
+              id: conversation.id,
+              updates: {
+                tags: updatedTags,
+                relatedPollId: undefined,
+              },
+            });
+          }
 
           logger.info("Removed poll link from conversation", "conversation", {
             conversationId: conversation.id,
@@ -108,7 +110,7 @@ export const usePollDeletionCascade = () => {
           ) || [];
 
         // If deleteConversation option is true, delete the conversations
-        if (options.deleteConversation && conversationsWithPoll.length > 0) {
+        if (options.deleteConversation && conversationsWithPoll.length > 0 && conversations.deleteConversation) {
           for (const conversation of conversationsWithPoll) {
             await conversations.deleteConversation.mutateAsync(conversation.id);
             logger.info("Deleted conversation linked to poll", "conversation", {
@@ -271,12 +273,14 @@ export const usePollDeletionCascade = () => {
           }) || [];
 
         if (cleanTags.length !== conversation.tags?.length) {
-          await conversations.updateConversation.mutateAsync({
-            id: conversationId,
-            updates: {
-              tags: cleanTags,
-            },
-          });
+          if (conversations.updateConversation) {
+            await conversations.updateConversation.mutateAsync({
+              id: conversationId,
+              updates: {
+                tags: cleanTags,
+              },
+            });
+          }
           cleanedCount++;
         }
       }
@@ -315,8 +319,8 @@ export const usePollDeletionCascade = () => {
     cleanupOrphanedLinks,
 
     // State
-    isDeleting: conversations.updateConversation.isLoading,
-    deleteError: conversations.updateConversation.error,
+    isDeleting: conversations.updateConversation?.isLoading ?? false,
+    deleteError: conversations.updateConversation?.error,
   };
 };
 
