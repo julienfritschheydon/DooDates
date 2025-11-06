@@ -5,6 +5,7 @@ import { useConversations } from "../useConversations";
 import { useAuth } from "../../contexts/AuthContext";
 import type { ConversationMessage } from "../../types/conversation";
 import * as ConversationStorage from "../../lib/storage/ConversationStorageSimple";
+import * as ConversationStorageSupabase from "../../lib/storage/ConversationStorageSupabase";
 import {
   createMockUser,
   createMockConversation,
@@ -18,7 +19,22 @@ import {
 vi.mock("../../lib/storage/ConversationStorageSimple");
 vi.mock("../../contexts/AuthContext");
 
+// Mock ConversationStorageSupabase pour éviter les imports dynamiques qui échouent
+vi.mock("../../lib/storage/ConversationStorageSupabase", () => ({
+  getConversations: vi.fn(),
+  getConversation: vi.fn(),
+  createConversation: vi.fn(),
+  updateConversation: vi.fn(),
+  deleteConversation: vi.fn(),
+  getMessages: vi.fn(),
+  saveMessages: vi.fn(),
+  addMessages: vi.fn(),
+  deleteMessages: vi.fn(),
+  getConversationWithMessages: vi.fn(),
+}));
+
 const mockConversationStorage = vi.mocked(ConversationStorage);
+const mockConversationStorageSupabase = vi.mocked(ConversationStorageSupabase);
 const mockUseAuth = vi.mocked(useAuth);
 
 // Test data - utilisation des helpers
@@ -28,6 +44,7 @@ const mockConversations = [
     id: "conv-1",
     title: "Test Conversation 1",
     status: "active",
+    userId: mockUser.id, // Important : doit correspondre à l'utilisateur mocké
     createdAt: new Date("2024-01-01"),
     updatedAt: new Date("2024-01-01"),
     messageCount: 2,
@@ -36,6 +53,7 @@ const mockConversations = [
     id: "conv-2",
     title: "Test Conversation 2",
     status: "completed",
+    userId: mockUser.id, // Important : doit correspondre à l'utilisateur mocké
     createdAt: new Date("2024-01-02"),
     updatedAt: new Date("2024-01-02"),
     messageCount: 1,
@@ -57,7 +75,7 @@ describe("useConversations", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock ConversationStorage methods
+    // Mock ConversationStorage methods (localStorage)
     mockConversationStorage.getConversations.mockReturnValue(mockConversations);
     mockConversationStorage.getConversation.mockImplementation(
       (id: string) => mockConversations.find((c) => c.id === id) || null,
@@ -75,6 +93,29 @@ describe("useConversations", () => {
     mockConversationStorage.updateConversation.mockImplementation((conv) => conv);
     mockConversationStorage.deleteConversation.mockImplementation(() => {});
     mockConversationStorage.addMessages.mockImplementation(() => {});
+
+    // Mock ConversationStorageSupabase methods (pour utilisateurs authentifiés)
+    // Faire échouer Supabase pour forcer l'utilisation de localStorage dans les tests
+    // C'est le comportement attendu : fallback vers localStorage si Supabase échoue
+    mockConversationStorageSupabase.getConversations.mockRejectedValue(
+      new Error("Storage error")
+    );
+    mockConversationStorageSupabase.getConversation.mockRejectedValue(
+      new Error("Storage error")
+    );
+    mockConversationStorageSupabase.getMessages.mockRejectedValue(
+      new Error("Storage error")
+    );
+    // Faire échouer createConversation pour forcer le fallback vers localStorage
+    mockConversationStorageSupabase.createConversation.mockRejectedValue(
+      new Error("Storage error")
+    );
+    mockConversationStorageSupabase.updateConversation.mockResolvedValue(mockConversations[0]);
+    mockConversationStorageSupabase.deleteConversation.mockResolvedValue(undefined);
+    mockConversationStorageSupabase.addMessages.mockResolvedValue(undefined);
+    mockConversationStorageSupabase.getConversationWithMessages.mockRejectedValue(
+      new Error("Storage error")
+    );
 
     // Mock useAuth
     mockUseAuth.mockReturnValue({
@@ -365,6 +406,29 @@ describe("useConversations", () => {
 
   describe("guest mode", () => {
     it("should work without authenticated user", async () => {
+      // Pour le mode guest, utiliser des conversations sans userId
+      const guestConversations = [
+        createMockConversation({
+          id: "conv-1",
+          title: "Test Conversation 1",
+          status: "active",
+          userId: undefined, // Pas de userId pour les conversations guest
+          createdAt: new Date("2024-01-01"),
+          updatedAt: new Date("2024-01-01"),
+          messageCount: 2,
+        }),
+        createMockConversation({
+          id: "conv-2",
+          title: "Test Conversation 2",
+          status: "completed",
+          userId: undefined, // Pas de userId pour les conversations guest
+          createdAt: new Date("2024-01-02"),
+          updatedAt: new Date("2024-01-02"),
+          messageCount: 1,
+        }),
+      ];
+      mockConversationStorage.getConversations.mockReturnValue(guestConversations);
+
       mockUseAuth.mockReturnValue({
         user: null,
         loading: false,

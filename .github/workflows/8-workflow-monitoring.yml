@@ -1,0 +1,75 @@
+name: 8️⃣ Workflow Monitoring & Health Report
+
+on:
+  schedule:
+    # Exécution toutes les heures pour un suivi régulier
+    - cron: '0 * * * *'
+  workflow_dispatch:  # Permet exécution manuelle
+  # Déclenchement après chaque workflow important
+  workflow_run:
+    workflows:
+      - "1️⃣ PR Complete Validation"
+      - "2️⃣ Develop → Main (Auto-merge)"
+      - "3️⃣ Main Post-Merge E2E"
+      - "6️⃣ Nightly Full Regression"
+    types: [completed]
+
+concurrency:
+  group: ${{ github.workflow }}-monitoring
+  cancel-in-progress: false  # Ne pas annuler, laisser s'accumuler pour avoir l'historique
+
+permissions:
+  contents: write
+  actions: read
+  issues: write
+
+jobs:
+  generate-health-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 📊 Generate Workflow Health Report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_API_URL: ${{ github.api_url }}
+        run: node scripts/monitor-workflow-failures.js
+
+      - name: 📤 Commit and push report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Ajouter les fichiers de monitoring
+          git add "Docs/monitoring/workflow-failures-report.md" "Docs/monitoring/workflow-status.json" 2>/dev/null || true
+          
+          # Vérifier s'il y a des changements
+          if git diff --staged --quiet; then
+            echo "Aucun changement dans le rapport"
+          else
+            git commit -m "docs: mise à jour du rapport de monitoring des workflows [skip ci]"
+            git push origin HEAD:${{ github.ref }}
+          fi
+
+      - name: 📋 Display Report Summary
+        if: always()
+        run: |
+          if [ -f "Docs/monitoring/workflow-failures-report.md" ]; then
+            echo "## 📊 Résumé du Rapport de Monitoring"
+            echo ""
+            head -n 50 "Docs/monitoring/workflow-failures-report.md"
+          fi
+

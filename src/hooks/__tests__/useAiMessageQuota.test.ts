@@ -16,6 +16,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useAiMessageQuota, processMonthlyQuotaReset } from "../useAiMessageQuota";
+import { setupMockLocalStorage } from "../../__tests__/helpers/testHelpers";
 
 // Mock quotas avec des valeurs de test simplifiées
 vi.mock("@/constants/quotas", () => ({
@@ -39,8 +40,8 @@ const mockUseAuth = vi.mocked(useAuth);
 
 describe("useAiMessageQuota", () => {
   beforeEach(() => {
-    // Clear localStorage
-    localStorage.clear();
+    // Setup mock localStorage (comme dans les autres tests du projet)
+    setupMockLocalStorage();
 
     // Reset timers
     vi.useFakeTimers();
@@ -138,47 +139,26 @@ describe("useAiMessageQuota", () => {
       expect(result.current.canSendMessage).toBe(false);
     });
 
-    it("should persist quota in localStorage", async () => {
-      // Solution : Utiliser real timers pour localStorage car waitFor ne fonctionne pas avec fake timers
-      vi.useRealTimers();
-      localStorage.clear();
-
+    it("should persist quota in localStorage", () => {
+      // Solution : Utiliser act() qui flush automatiquement les effets React
+      // Pas besoin de real timers, act() gère déjà le flush des effets
       const { result } = renderHook(() => useAiMessageQuota());
 
-      // Attendre que le hook s'initialise
-      await waitFor(
-        () => {
-          expect(result.current).toBeDefined();
-        },
-        { timeout: 500 },
-      );
-
-      await act(async () => {
+      act(() => {
         result.current.incrementAiMessages();
-        // Attendre que l'effet sauvegarde dans localStorage (avec real timers)
-        // Les effets React sont asynchrones, donc on attend un peu
-        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
-      // Vérifier localStorage après l'act
-      await waitFor(
-        () => {
-          const stored = localStorage.getItem("doodates_ai_quota");
-          expect(stored).toBeTruthy();
-        },
-        { timeout: 2000 },
-      );
-
+      // act() flush les effets React, donc localStorage devrait être mis à jour immédiatement
       const stored = localStorage.getItem("doodates_ai_quota");
+      expect(stored).toBeTruthy();
       const data = JSON.parse(stored!);
       expect(data.aiMessagesUsed).toBe(1);
-
-      vi.useFakeTimers();
     });
 
-    it("should restore quota from localStorage", async () => {
-      // Solution : Utiliser real timers et attendre que le hook s'initialise
-      vi.useRealTimers();
+    it("should restore quota from localStorage", () => {
+      // Le hook lit depuis localStorage dans l'initializer de useState
+      // C'est synchrone, donc on peut utiliser fake timers
+      vi.useFakeTimers();
       localStorage.clear();
 
       // Set initial data (avec valeur de test : 1 message max)
@@ -192,18 +172,10 @@ describe("useAiMessageQuota", () => {
 
       const { result } = renderHook(() => useAiMessageQuota());
 
-      // Attendre que le hook s'initialise depuis localStorage
-      // Le hook lit depuis localStorage au montage, donc c'est immédiat
-      await waitFor(
-        () => {
-          expect(result.current).toBeDefined();
-          expect(result.current.aiMessagesUsed).toBe(1);
-          expect(result.current.aiMessagesRemaining).toBe(0); // 1 - 1 = 0
-        },
-        { timeout: 2000 },
-      );
-
-      vi.useFakeTimers();
+      // Le hook devrait avoir lu les données depuis localStorage immédiatement
+      // car useState initializer est synchrone
+      expect(result.current.aiMessagesUsed).toBe(1);
+      expect(result.current.aiMessagesRemaining).toBe(0); // 1 - 1 = 0
     });
   });
 
@@ -249,41 +221,19 @@ describe("useAiMessageQuota", () => {
       expect(result2.current.pollsInConversation).toBe(1);
     });
 
-    it("should persist poll counts in localStorage", async () => {
-      // Solution : Utiliser real timers pour localStorage
-      vi.useRealTimers();
-      localStorage.clear();
-
+    it("should persist poll counts in localStorage", () => {
+      // Solution : Utiliser act() qui flush automatiquement les effets React
       const { result } = renderHook(() => useAiMessageQuota("conv-1"));
 
-      // Attendre que le hook s'initialise
-      await waitFor(
-        () => {
-          expect(result.current).toBeDefined();
-        },
-        { timeout: 500 },
-      );
-
-      await act(async () => {
+      act(() => {
         result.current.incrementPollCount("conv-1");
-        // Attendre que l'effet sauvegarde dans localStorage
-        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
-      // Vérifier localStorage après l'act
-      await waitFor(
-        () => {
-          const stored = localStorage.getItem("doodates_poll_counts");
-          expect(stored).toBeTruthy();
-        },
-        { timeout: 2000 },
-      );
-
+      // act() flush les effets React, donc localStorage devrait être mis à jour immédiatement
       const stored = localStorage.getItem("doodates_poll_counts");
+      expect(stored).toBeTruthy();
       const data = JSON.parse(stored!);
       expect(data["conv-1"]).toBe(1);
-
-      vi.useFakeTimers();
     });
   });
 
@@ -300,35 +250,34 @@ describe("useAiMessageQuota", () => {
       expect(result.current.cooldownRemaining).toBeGreaterThan(0);
     });
 
-    it("should allow message after cooldown expires", async () => {
-      const { result } = renderHook(() => useAiMessageQuota());
+    it("should allow message after cooldown expires", () => {
+      // Solution : Utiliser fake timers avec setSystemTime pour synchroniser Date.now() et les timers
+      const { result, rerender } = renderHook(() => useAiMessageQuota());
 
+      const startTime = Date.now();
+      
       act(() => {
         result.current.incrementAiMessages();
       });
 
       expect(result.current.isInCooldown).toBe(true);
 
-      // Solution : Avancer le temps système ET les timers
-      // Le hook utilise Date.now() qui ne change pas avec vi.advanceTimersByTime seul
-      const startTime = Date.now();
+      // Avancer le temps système AVANT les timers pour que Date.now() soit à jour
       act(() => {
-        // Avancer le temps système de 3100ms
         vi.setSystemTime(startTime + 3100);
-        // Avancer aussi les timers pour déclencher setTimeout/setInterval
+        // Avancer les timers pour déclencher le setTimeout qui met isInCooldown à false
         vi.advanceTimersByTime(3100);
+        // Forcer un re-render pour que le useEffect recalcule avec le nouveau Date.now()
+        rerender();
       });
 
-      // Attendre que les effets React se mettent à jour
-      await waitFor(
-        () => {
-          expect(result.current.isInCooldown).toBe(false);
-        },
-        { timeout: 1000 },
-      );
+      // Vérifier que le cooldown est terminé
+      // Note: canSendMessage peut être false si le quota est épuisé, mais isInCooldown doit être false
+      expect(result.current.isInCooldown).toBe(false);
+      // canSendMessage = aiMessagesRemaining > 0 && !isInCooldown
+      // Ici aiMessagesRemaining = 0 (quota utilisé), donc canSendMessage = false même si cooldown terminé
+      // C'est normal, le test vérifie juste que le cooldown est terminé
 
-      expect(result.current.canSendMessage).toBe(true);
-      
       // Remettre le temps système à la normale
       vi.setSystemTime(startTime);
     });
@@ -464,46 +413,22 @@ describe("useAiMessageQuota", () => {
       } as any);
     });
 
-    it(
-      "should initialize reset date for authenticated users",
-      async () => {
-        // Solution : Utiliser real timers pour ce test
-        vi.useRealTimers();
-        localStorage.clear();
+    it("should initialize reset date for authenticated users", () => {
+      // Solution : Utiliser act() qui flush automatiquement les effets React
+      // L'effet processMonthlyQuotaReset se déclenche au montage pour les auth users
+      const { result } = renderHook(() => useAiMessageQuota());
 
-        const { result } = renderHook(() => useAiMessageQuota());
+      // act() est déjà appelé par renderHook, mais on peut forcer un flush supplémentaire
+      act(() => {
+        // Forcer un re-render pour s'assurer que tous les effets sont exécutés
+      });
 
-        // Wait for hook to initialize
-        await waitFor(
-          () => {
-            expect(result.current).toBeDefined();
-          },
-          { timeout: 1000 },
-        );
-
-        // Attendre que l'effet sauvegarde dans localStorage
-        // L'effet se déclenche pour les utilisateurs authentifiés
-        await act(async () => {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        });
-
-        // Vérifier localStorage après l'act
-        await waitFor(
-          () => {
-            const stored = localStorage.getItem("doodates_ai_quota");
-            expect(stored).toBeTruthy();
-          },
-          { timeout: 2000 },
-        );
-
-        const stored = localStorage.getItem("doodates_ai_quota");
-        const data = JSON.parse(stored!);
-        expect(data.resetDate).toBeTruthy();
-
-        vi.useFakeTimers();
-      },
-      { timeout: 5000 },
-    );
+      // L'effet devrait avoir initialisé resetDate et sauvegardé dans localStorage
+      const stored = localStorage.getItem("doodates_ai_quota");
+      expect(stored).toBeTruthy();
+      const data = JSON.parse(stored!);
+      expect(data.resetDate).toBeTruthy();
+    });
 
     it("should reset quota when month changes", async () => {
       // Solution : Utiliser la fonction pure processMonthlyQuotaReset pour tester la logique
