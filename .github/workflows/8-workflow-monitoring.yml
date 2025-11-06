@@ -31,6 +31,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4
@@ -53,15 +54,36 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
+          # Déterminer la branche cible
+          # Si déclenché par workflow_run, utiliser la branche du workflow déclencheur depuis l'événement
+          # Sinon, utiliser la branche par défaut
+          if [ -n "${{ github.event.workflow_run.head_branch }}" ]; then
+            BRANCH="${{ github.event.workflow_run.head_branch }}"
+          elif [ -n "${{ github.ref_name }}" ]; then
+            BRANCH="${{ github.ref_name }}"
+          else
+            BRANCH="main"
+          fi
+          
+          echo "Branche cible: $BRANCH"
+          
+          # S'assurer qu'on est sur la bonne branche et à jour
+          git fetch origin $BRANCH || git fetch origin main || git fetch origin develop
+          git checkout $BRANCH 2>/dev/null || git checkout -b $BRANCH origin/$BRANCH 2>/dev/null || echo "⚠️ Impossible de checkout $BRANCH, utilisation de la branche actuelle"
+          git pull origin $BRANCH 2>/dev/null || true
+          
           # Ajouter les fichiers de monitoring
           git add "Docs/monitoring/workflow-failures-report.md" "Docs/monitoring/workflow-status.json" 2>/dev/null || true
           
           # Vérifier s'il y a des changements
           if git diff --staged --quiet; then
-            echo "Aucun changement dans le rapport"
+            echo "✅ Aucun changement dans le rapport"
           else
             git commit -m "docs: mise à jour du rapport de monitoring des workflows [skip ci]"
-            git push origin HEAD:${{ github.ref }}
+            git push origin $BRANCH || {
+              echo "❌ Erreur lors du push, tentative avec HEAD"
+              git push origin HEAD:$BRANCH || echo "❌ Échec du push"
+            }
           fi
 
       - name: 📋 Display Report Summary
