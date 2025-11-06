@@ -10,6 +10,7 @@ import { getConsumptionJournal, type CreditJournalEntry } from "@/lib/quotaTrack
 import { ArrowLeft, Calendar, CreditCard, MessageSquare, BarChart3, Zap, FileText, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { logError, ErrorFactory } from "@/lib/error-handling";
 
 const ACTION_LABELS: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   conversation_created: {
@@ -59,7 +60,10 @@ export default function ConsumptionJournal() {
         setJournal(entries);
         setFilteredJournal(entries);
       } catch (error) {
-        console.error("Erreur lors du chargement du journal", error);
+        logError(
+          ErrorFactory.storage("Erreur lors du chargement du journal", "Impossible de charger l'historique"),
+          { context: "ConsumptionJournal.loadJournal", userId: user?.id, error }
+        );
       } finally {
         setLoading(false);
       }

@@ -240,7 +240,10 @@ export async function createConversation(
     try {
       result = await Promise.race([insertPromise, timeoutPromise]);
     } catch (timeoutError) {
-      console.error(`[${timestamp}] [${requestId}] ❌ Timeout Supabase insert:`, timeoutError);
+      logError(
+        ErrorFactory.storage("Timeout Supabase insert", "La création de conversation a pris trop de temps"),
+        { context: "ConversationStorageSupabase.createConversation", requestId, userId, timeout: "3s", error: timeoutError }
+      );
       throw timeoutError;
     }
     
@@ -254,7 +257,10 @@ export async function createConversation(
     });
 
     if (error) {
-      console.error(`[${timestamp}] [${requestId}] ❌ Erreur Supabase:`, error);
+      logError(
+        ErrorFactory.storage("Erreur Supabase lors de l'insertion", "Impossible de créer la conversation"),
+        { context: "ConversationStorageSupabase.createConversation", requestId, userId, duration: `${insertDuration}ms`, error }
+      );
       throw error;
     }
 
