@@ -8,6 +8,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { logError, ErrorFactory } from "../lib/error-handling";
 import { useConversations } from "./useConversations";
 import { logger } from "../lib/logger";
+import { getQuotaConsumed } from "../lib/quotaTracking";
 
 export interface QuotaLimits {
   conversations: number;
@@ -66,50 +67,26 @@ export const useFreemiumQuota = () => {
   const [authModalTrigger, setAuthModalTrigger] = useState<
     "conversation_limit" | "poll_limit" | "feature_locked" | "storage_full"
   >("conversation_limit");
+  const [quotaRefreshKey, setQuotaRefreshKey] = useState(0);
+  const [quotaUsage, setQuotaUsage] = useState<QuotaUsage>({
+    conversations: 0,
+    polls: 0,
+    storageUsed: 0,
+  });
 
   const isAuthenticated = !!user;
   const limits = isAuthenticated ? AUTHENTICATED_LIMITS : GUEST_LIMITS;
 
-  // Calculate current usage
-  const calculateUsage = useCallback((): QuotaUsage => {
-    // Get conversation count from localStorage (dev implementation)
-    let conversationCount = 0;
-    try {
-      const storageData = localStorage.getItem("doodates_conversations");
-      if (storageData) {
-        // Check if data is valid JSON before parsing
-        if (storageData.startsWith("{") || storageData.startsWith("[")) {
-          const data = JSON.parse(storageData);
-          // Handle both formats: array directly or object with conversations property
-          if (Array.isArray(data)) {
-            // Direct array format (current format)
-            conversationCount = data.length;
-          } else if (data && typeof data === "object" && "conversations" in data) {
-            // Legacy format: object with conversations property
-            if (Array.isArray(data.conversations)) {
-              conversationCount = data.conversations.length;
-            } else if (typeof data.conversations === "object") {
-              conversationCount = Object.keys(data.conversations).length;
-            }
-          }
-        } else {
-          // Data is corrupted, clear it
-          localStorage.removeItem("doodates_conversations");
-          conversationCount = 0;
-        }
-      }
-    } catch (error) {
-      logError(
-        ErrorFactory.storage(
-          "Failed to get conversation count",
-          "Impossible de compter les conversations",
-        ),
-        { component: "useFreemiumQuota", metadata: { originalError: error } },
-      );
-      // Clear corrupted data
-      localStorage.removeItem("doodates_conversations");
-      conversationCount = 0;
-    }
+  // Calculate current usage (async)
+  const calculateUsage = useCallback(async (): Promise<QuotaUsage> => {
+    // Utiliser le système de tracking des crédits consommés (créations)
+    // Les crédits consommés ne se remboursent jamais, même si on supprime
+    const quotaConsumed = await getQuotaConsumed(user?.id);
+    
+    // Le quota affiche les créations totales, pas les éléments existants
+    // Pour les conversations, on utilise le total des crédits consommés
+    // car le quota limite le nombre total de crédits, pas juste les conversations
+    const conversationCount = quotaConsumed.totalCreditsConsumed || 0;
 
     // Estimate storage usage from localStorage
     let storageUsed = 0;
@@ -126,28 +103,30 @@ export const useFreemiumQuota = () => {
       );
     }
 
-    // Get poll count from localStorage (dev implementation)
-    let pollCount = 0;
-    try {
-      const polls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
-      pollCount = polls.length;
-    } catch (error) {
-      logError(
-        ErrorFactory.storage("Failed to get poll count", "Impossible de compter les sondages"),
-        { component: "useFreemiumQuota", metadata: { originalError: error } },
-      );
-    }
+    // Utiliser le système de tracking des crédits consommés (créations)
+    // Les crédits consommés ne se remboursent jamais, même si on supprime
+    let pollCount = quotaConsumed.pollsCreated || 0;
 
     return {
       conversations: conversationCount,
       polls: pollCount,
       storageUsed,
     };
-  }, []);
+  }, [user?.id, quotaRefreshKey]);
+
+  // Charger les données de quota de manière asynchrone
+  useEffect(() => {
+    calculateUsage().then(setQuotaUsage).catch((error) => {
+      logError(
+        ErrorFactory.storage("Failed to calculate quota usage", "Erreur de calcul du quota"),
+        { component: "useFreemiumQuota", metadata: { originalError: error } },
+      );
+    });
+  }, [calculateUsage, quotaRefreshKey]);
 
   // Calculate quota status
   const getQuotaStatus = useCallback((): QuotaStatus => {
-    const usage = calculateUsage();
+    const usage = quotaUsage;
 
     const calculateStatus = (used: number, limit: number) => {
       const percentage = Math.min((used / limit) * 100, 100);
@@ -165,7 +144,7 @@ export const useFreemiumQuota = () => {
       polls: calculateStatus(usage.polls, limits.polls),
       storage: calculateStatus(usage.storageUsed, limits.storageSize),
     };
-  }, [calculateUsage, limits]);
+  }, [quotaUsage, limits]);
 
   // Check if action is allowed
   const canCreateConversation = useCallback(() => {
@@ -246,10 +225,32 @@ export const useFreemiumQuota = () => {
     }
   }, [getQuotaStatus, isAuthenticated]);
 
+  // Écouter les événements de changement pour mettre à jour le quota
+  useEffect(() => {
+    const handleConversationsChanged = () => {
+      // Forcer le recalcul du quota en incrémentant la clé de rafraîchissement
+      logger.debug("🔄 Quota: Conversations changées, recalcul nécessaire", "quota");
+      setQuotaRefreshKey((prev) => prev + 1);
+    };
+
+    const handlePollDeleted = () => {
+      logger.debug("🔄 Quota: Poll supprimé, recalcul nécessaire", "quota");
+      setQuotaRefreshKey((prev) => prev + 1);
+    };
+
+    window.addEventListener("conversationsChanged", handleConversationsChanged);
+    window.addEventListener("pollDeleted", handlePollDeleted);
+    
+    return () => {
+      window.removeEventListener("conversationsChanged", handleConversationsChanged);
+      window.removeEventListener("pollDeleted", handlePollDeleted);
+    };
+  }, []);
+
   return {
     // Quota information
     limits,
-    usage: calculateUsage(),
+    usage: quotaUsage,
     status: getQuotaStatus(),
     isAuthenticated,
 
@@ -271,10 +272,11 @@ export const useFreemiumQuota = () => {
 
     // Utility functions
     getRemainingConversations: () =>
-      Math.max(0, limits.conversations - calculateUsage().conversations),
-    getRemainingPolls: () => Math.max(0, limits.polls - calculateUsage().polls),
+      Math.max(0, limits.conversations - quotaUsage.conversations),
+    getRemainingPolls: () => Math.max(0, limits.polls - quotaUsage.polls),
     getStoragePercentage: () => getQuotaStatus().storage.percentage,
   };
 };
 
 export default useFreemiumQuota;
+

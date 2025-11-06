@@ -124,6 +124,10 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             );
             // Also save to localStorage as cache
             ConversationStorage.addConversation(result);
+            
+            // Incrémenter le compteur de crédits consommés
+            const { incrementConversationCreated } = await import("../lib/quotaTracking");
+            incrementConversationCreated(user.id);
           } catch (supabaseError) {
             logger.error(
               "Erreur lors de la création dans Supabase, utilisation de localStorage",
@@ -137,6 +141,10 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
               firstMessage: firstMessage.content,
               userId: user.id,
             });
+            
+            // Incrémenter le compteur de crédits consommés
+            const { incrementConversationCreated } = await import("../lib/quotaTracking");
+            incrementConversationCreated(user.id);
           }
         } else {
           // Guest mode: use localStorage only
@@ -146,6 +154,10 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             firstMessage: firstMessage.content,
             userId: "guest",
           });
+          
+          // Incrémenter le compteur de crédits consommés
+          const { incrementConversationCreated } = await import("../lib/quotaTracking");
+          incrementConversationCreated("guest");
         }
 
         currentConversationRef.current = result;

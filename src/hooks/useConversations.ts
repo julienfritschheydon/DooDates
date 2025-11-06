@@ -416,6 +416,11 @@ export function useConversations(config: UseConversationsConfig = {}) {
           );
           // Also save to localStorage as cache
           ConversationStorage.addConversation(conversation);
+          
+          // Incrémenter le compteur de crédits consommés
+          const { incrementConversationCreated } = await import("../lib/quotaTracking");
+          incrementConversationCreated(user.id);
+          
           return conversation;
         } catch (supabaseError) {
           logger.error(
@@ -427,11 +432,17 @@ export function useConversations(config: UseConversationsConfig = {}) {
         }
       }
       // Guest mode or fallback: use localStorage
-      return ConversationStorage.createConversation({
+      const conversation = ConversationStorage.createConversation({
         title: conversationData.title,
         firstMessage: conversationData.firstMessage,
         userId: user?.id || "guest",
       });
+      
+      // Incrémenter le compteur de crédits consommés
+      const { incrementConversationCreated } = await import("../lib/quotaTracking");
+      incrementConversationCreated(user?.id);
+      
+      return conversation;
     },
     onMutate: async (data) => {
       if (!enableOptimisticUpdates) return;
@@ -494,6 +505,17 @@ export function useConversations(config: UseConversationsConfig = {}) {
 
       // Force refetch of conversations list
       queryClient.refetchQueries({ queryKey: queryKeys.infinite });
+
+      // Dispatch conversationsChanged event to notify other components
+      logger.info(
+        `🔔 Dispatching conversationsChanged event for conversation ${newConversation.id}`,
+        "conversation",
+      );
+      const event = new CustomEvent("conversationsChanged", {
+        detail: { action: "create", conversationId: newConversation.id },
+      });
+      window.dispatchEvent(event);
+      logger.info(`✅ conversationsChanged event dispatched`, "conversation");
     },
   });
 

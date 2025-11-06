@@ -47,11 +47,8 @@ export function useConnectionStatus(options: UseConnectionStatusOptions = {}) {
       if (!isConnected) {
         // Afficher le message d'erreur seulement la première fois
         if (!hasShownOfflineMessage.current) {
-          // Vérifier si c'est un problème de clé API
-          const apiKeyMissing = !import.meta.env.VITE_GEMINI_API_KEY;
-          const errorMessage = apiKeyMissing
-            ? "⚠️ Clé API Gemini non configurée. Veuillez configurer VITE_GEMINI_API_KEY dans votre fichier .env.local"
-            : "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...";
+          const errorMessage =
+            "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...";
 
           onAddMessage?.({
             id: `error-${Date.now()}`,
@@ -93,19 +90,8 @@ export function useConnectionStatus(options: UseConnectionStatusOptions = {}) {
 
       // Afficher le message d'erreur seulement la première fois
       if (!hasShownOfflineMessage.current) {
-        // Vérifier si c'est un problème de clé API
-        const apiKeyMissing = !import.meta.env.VITE_GEMINI_API_KEY;
-        const errorMessageText = processedError?.message || "";
-        const isApiKeyError =
-          apiKeyMissing ||
-          errorMessageText.includes("API key not valid") ||
-          errorMessageText.includes("Please pass a valid API key") ||
-          errorMessageText.includes("API_KEY_INVALID") ||
-          errorMessageText.includes("Clé API Gemini invalide");
-
-        const errorMessage = isApiKeyError
-          ? "⚠️ Clé API Gemini invalide ou manquante. Vérifiez VITE_GEMINI_API_KEY dans .env.local"
-          : "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...";
+        const errorMessage =
+          "⚠️ Je suis temporairement indisponible. Je vais réessayer de me connecter automatiquement...";
 
         onAddMessage?.({
           id: `connection-error-${Date.now()}`,

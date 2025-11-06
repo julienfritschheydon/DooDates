@@ -273,6 +273,7 @@ export function addPoll(poll: Poll): void {
   // Ajouter ou remplacer dans l'ensemble unifié
   const polls = getAllPolls();
   const existingIndex = polls.findIndex((p) => p.id === poll.id);
+  const isNewPoll = existingIndex < 0;
 
   if (existingIndex >= 0) {
     // Remplacer le poll existant
@@ -285,6 +286,18 @@ export function addPoll(poll: Poll): void {
   savePolls(polls);
   // Mettre à jour le cache mémoire pour robustesse (tests/concurrence)
   memoryPollCache.set(poll.id, poll);
+
+  // Incrémenter le compteur de crédits consommés uniquement pour les nouveaux polls
+  if (isNewPoll) {
+    try {
+      const { incrementPollCreated } = require("./quotaTracking");
+      // Utiliser creator_id du poll pour identifier l'utilisateur
+      incrementPollCreated(poll.creator_id);
+    } catch (error) {
+      // Ignorer les erreurs d'import en mode développement
+      logger.debug("Impossible d'incrémenter le quota poll", "quota", { error });
+    }
+  }
 }
 
 export function deletePollById(id: string): void {

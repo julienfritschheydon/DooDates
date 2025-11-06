@@ -238,6 +238,17 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       // 🎯 NEW: Incrémenter le compteur de messages IA
       aiQuota.incrementAiMessages();
 
+      // Consommer les crédits pour le message IA (1 crédit selon la doc)
+      try {
+        const { consumeAiMessageCredits } = await import("../lib/quotaTracking");
+        const conversationId = autoSave.getRealConversationId() || autoSave.conversationId;
+        const { getCurrentUserId } = await import("../lib/pollStorage");
+        const currentUserId = getCurrentUserId();
+        consumeAiMessageCredits(currentUserId, conversationId);
+      } catch (error) {
+        logger.debug("Impossible de consommer les crédits message IA", "quota", { error });
+      }
+
       // Supprimer le message de progression si présent
       if (isLongMarkdown) {
         setMessages((prev) => prev.filter((msg) => !msg.id.startsWith("progress-")));
