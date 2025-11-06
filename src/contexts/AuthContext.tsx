@@ -128,7 +128,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       // En mode local, désactiver l'authentification Supabase
       if (isLocalDevelopment) {
-        const errorMessage = "L'authentification n'est pas disponible en mode développement local. Veuillez configurer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY pour utiliser l'authentification.";
+        const errorMessage =
+          "L'authentification n'est pas disponible en mode développement local. Veuillez configurer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY pour utiliser l'authentification.";
         logger.warn("Tentative de connexion en mode local", "auth", { email: data.email });
         setError(errorMessage);
         return { error: { message: errorMessage } as AuthError };
@@ -182,7 +183,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       // En mode local, désactiver l'authentification Supabase
       if (isLocalDevelopment) {
-        const errorMessage = "L'inscription n'est pas disponible en mode développement local. Veuillez configurer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY pour utiliser l'authentification.";
+        const errorMessage =
+          "L'inscription n'est pas disponible en mode développement local. Veuillez configurer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY pour utiliser l'authentification.";
         logger.warn("Tentative d'inscription en mode local", "auth", { email: data.email });
         setError(errorMessage);
         return { error: { message: errorMessage } as AuthError };
@@ -216,7 +218,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       // En mode local, désactiver l'authentification Supabase
       if (isLocalDevelopment) {
-        const errorMessage = "L'authentification Google n'est pas disponible en mode développement local. Veuillez configurer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY pour utiliser l'authentification.";
+        const errorMessage =
+          "L'authentification Google n'est pas disponible en mode développement local. Veuillez configurer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY pour utiliser l'authentification.";
         logger.warn("Tentative de connexion Google en mode local", "auth");
         setError(errorMessage);
         setLoading(false);

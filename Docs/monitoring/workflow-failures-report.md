@@ -1,6 +1,6 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 06/11/2025 21:01:52
+**Dernière mise à jour:** 06/11/2025 20:56:24
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -26,11 +26,11 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ✅ success
 
-**Dernier run:** 06/11/2025 20:59:30
+**Dernier run:** 06/11/2025 20:19:03
 
 **Statistiques:**
 - ❌ Échecs (24h): **5**
-- ❌ Échecs (7 jours): **5**
+- ❌ Échecs (7 jours): **6**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
@@ -187,9 +187,9 @@ Error: "errors": [],
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ⏳ unknown
+**Statut:** ✅ success
 
-**Dernier run:** 06/11/2025 21:01:28
+**Dernier run:** 06/11/2025 20:21:24
 
 **Statistiques:**
 - ❌ Échecs (24h): **5**
@@ -551,7 +551,7 @@ Error: "errors": [],
 ## 📈 Résumé Global
 
 - ❌ **Total échecs (24h):** 10
-- ❌ **Total échecs (7 jours):** 13
+- ❌ **Total échecs (7 jours):** 14
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
