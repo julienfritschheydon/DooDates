@@ -15,9 +15,7 @@ const MIGRATION_FLAG_KEY = "doodates_guest_conversations_migrated";
  */
 export function hasMigratedGuestConversations(userId: string): boolean {
   try {
-    const migratedUsers = JSON.parse(
-      localStorage.getItem(MIGRATION_FLAG_KEY) || "[]",
-    ) as string[];
+    const migratedUsers = JSON.parse(localStorage.getItem(MIGRATION_FLAG_KEY) || "[]") as string[];
     return migratedUsers.includes(userId);
   } catch {
     return false;
@@ -29,9 +27,7 @@ export function hasMigratedGuestConversations(userId: string): boolean {
  */
 function markAsMigrated(userId: string): void {
   try {
-    const migratedUsers = JSON.parse(
-      localStorage.getItem(MIGRATION_FLAG_KEY) || "[]",
-    ) as string[];
+    const migratedUsers = JSON.parse(localStorage.getItem(MIGRATION_FLAG_KEY) || "[]") as string[];
     if (!migratedUsers.includes(userId)) {
       migratedUsers.push(userId);
       localStorage.setItem(MIGRATION_FLAG_KEY, JSON.stringify(migratedUsers));
@@ -60,11 +56,14 @@ export async function migrateGuestConversations(userId: string): Promise<{
   try {
     // Get all conversations from localStorage
     const allConversations = ConversationStorage.getConversations();
-    
+
     // Filter guest conversations (userId === null, undefined, or "guest")
     const guestConversations = allConversations.filter(
       (conv) =>
-        !conv.userId || conv.userId === "guest" || conv.userId === null || conv.userId === undefined,
+        !conv.userId ||
+        conv.userId === "guest" ||
+        conv.userId === null ||
+        conv.userId === undefined,
     );
 
     if (guestConversations.length === 0) {
@@ -82,10 +81,8 @@ export async function migrateGuestConversations(userId: string): Promise<{
     let migratedCount = 0;
 
     // Import Supabase storage
-    const {
-      createConversation: createSupabaseConversation,
-      addMessages: addSupabaseMessages,
-    } = await import("./ConversationStorageSupabase");
+    const { createConversation: createSupabaseConversation, addMessages: addSupabaseMessages } =
+      await import("./ConversationStorageSupabase");
 
     // Migrate each conversation
     for (const conversation of guestConversations) {
@@ -98,7 +95,7 @@ export async function migrateGuestConversations(userId: string): Promise<{
         const { createConversation: createSupabaseConversation } = await import(
           "./ConversationStorageSupabase"
         );
-        
+
         const migratedConversation = await createSupabaseConversation(
           {
             ...conversation,
@@ -189,4 +186,3 @@ export async function migrateGuestConversations(userId: string): Promise<{
     };
   }
 }
-

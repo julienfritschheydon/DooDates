@@ -1,7 +1,7 @@
 /**
  * Supabase Conversation Storage
  * DooDates - Conversation History System
- * 
+ *
  * Stores conversations and messages in Supabase for authenticated users
  * Provides synchronization across devices and persistence after logout
  */
@@ -106,7 +106,7 @@ export async function getConversations(userId: string): Promise<Conversation[]> 
     }
 
     const conversations = (data || []).map(fromSupabaseConversation);
-    
+
     // Update cache
     conversations.forEach((conv) => {
       conversationCache.set(conv.id, conv);
@@ -140,10 +140,7 @@ export async function getConversations(userId: string): Promise<Conversation[]> 
 /**
  * Get a single conversation by ID
  */
-export async function getConversation(
-  id: string,
-  userId: string,
-): Promise<Conversation | null> {
+export async function getConversation(id: string, userId: string): Promise<Conversation | null> {
   // Check cache first
   const cached = conversationCache.get(id);
   if (cached && cached.userId === userId) {
@@ -314,10 +311,7 @@ export async function updateConversation(
 /**
  * Delete a conversation
  */
-export async function deleteConversation(
-  id: string,
-  userId: string,
-): Promise<void> {
+export async function deleteConversation(id: string, userId: string): Promise<void> {
   try {
     // Delete messages first (CASCADE should handle this, but explicit is better)
     await deleteMessages(id, userId);
@@ -435,9 +429,7 @@ export async function saveMessages(
     if (messages.length > 0) {
       const supabaseMessages = messages.map(toSupabaseMessage);
 
-      const { error } = await supabase
-        .from("conversation_messages")
-        .insert(supabaseMessages);
+      const { error } = await supabase.from("conversation_messages").insert(supabaseMessages);
 
       if (error) {
         throw error;
@@ -594,4 +586,3 @@ export function clearCache(): void {
   conversationCache.clear();
   messageCache.clear();
 }
-

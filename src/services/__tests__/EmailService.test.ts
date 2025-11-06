@@ -83,7 +83,7 @@ describe("EmailService", () => {
     expect(consoleLogSpy).toHaveBeenCalledTimes(1);
     const callArgs = consoleLogSpy.mock.calls[0][0];
     expect(callArgs).toContain("📧 Email à envoyer:");
-    
+
     const emailData = consoleLogSpy.mock.calls[0][1];
     expect(emailData.to).toBe("john@example.com");
     expect(emailData.subject).toBe("Vos réponses : Test Poll");
@@ -184,4 +184,3 @@ describe("EmailService", () => {
     expect(emailData.html).toContain("/poll/test-poll/results");
   });
 });
-

@@ -400,12 +400,7 @@ export function Auth() {
             <p className="text-sm text-blue-900 font-medium mb-2">
               Vous êtes déjà connecté en tant que {user.email}
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/")}
-              className="text-xs"
-            >
+            <Button variant="outline" size="sm" onClick={() => navigate("/")} className="text-xs">
               Retour à l'accueil
             </Button>
           </div>

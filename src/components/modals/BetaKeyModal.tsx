@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -27,7 +21,7 @@ export function BetaKeyModal({ open, onOpenChange }: BetaKeyModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       toast({
         title: "Erreur",
@@ -49,7 +43,7 @@ export function BetaKeyModal({ open, onOpenChange }: BetaKeyModalProps) {
     setIsSubmitting(true);
     try {
       const result = await BetaKeyService.redeemKey(user.id, code, session?.access_token);
-      
+
       if (result.success) {
         toast({
           title: "Clé bêta activée !",
@@ -147,4 +141,3 @@ export function BetaKeyModal({ open, onOpenChange }: BetaKeyModalProps) {
     </Dialog>
   );
 }
-

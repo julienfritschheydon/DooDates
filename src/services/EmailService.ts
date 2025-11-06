@@ -1,4 +1,5 @@
 import { Poll, FormResponse, FormQuestionShape } from "@/lib/pollStorage";
+import { ErrorFactory } from "@/lib/error-handling";
 
 interface EmailResponseData {
   poll: Poll;
@@ -11,14 +12,14 @@ interface EmailResponseData {
  */
 export async function sendVoteConfirmationEmail(data: EmailResponseData): Promise<void> {
   const { poll, response, questions } = data;
-  
+
   if (!response.respondentEmail) {
-    throw new Error("Email du votant manquant");
+    throw ErrorFactory.validation("Email du votant manquant", "Email du votant manquant");
   }
-  
+
   // Générer le contenu HTML de l'email
   const emailHtml = generateEmailHtml(data);
-  
+
   // TODO: Intégration avec Resend API
   // Pour l'instant, log en console (MVP)
   console.log("📧 Email à envoyer:", {
@@ -26,7 +27,7 @@ export async function sendVoteConfirmationEmail(data: EmailResponseData): Promis
     subject: `Vos réponses : ${poll.title}`,
     html: emailHtml,
   });
-  
+
   // PHASE 2 : Vraie implémentation avec Resend
   /*
   const resendApiKey = import.meta.env.VITE_RESEND_API_KEY;
@@ -50,7 +51,7 @@ export async function sendVoteConfirmationEmail(data: EmailResponseData): Promis
   });
   
   if (!response.ok) {
-    throw new Error("Erreur lors de l'envoi de l'email");
+    throw ErrorFactory.api("Erreur lors de l'envoi de l'email", "Erreur lors de l'envoi de l'email");
   }
   */
 }
@@ -60,7 +61,7 @@ export async function sendVoteConfirmationEmail(data: EmailResponseData): Promis
  */
 function generateEmailHtml(data: EmailResponseData): string {
   const { poll, response, questions } = data;
-  
+
   let html = `
     <!DOCTYPE html>
     <html>
@@ -88,29 +89,29 @@ function generateEmailHtml(data: EmailResponseData): string {
           <p><strong>Date :</strong> ${new Date(response.created_at).toLocaleString("fr-FR")}</p>
           <hr>
   `;
-  
+
   // Ajouter chaque question/réponse
   response.items.forEach((item) => {
-    const question = questions.find(q => q.id === item.questionId);
+    const question = questions.find((q) => q.id === item.questionId);
     if (!question) return;
-    
+
     let answerDisplay = "";
     const kind = question.kind || question.type || "single";
-    
+
     if (kind === "text" || kind === "long-text") {
       answerDisplay = String(item.value);
     } else if (kind === "single") {
-      const option = question.options?.find(o => o.id === item.value);
+      const option = question.options?.find((o) => o.id === item.value);
       answerDisplay = option?.label || String(item.value);
     } else if (kind === "multiple") {
       const ids = Array.isArray(item.value) ? item.value : [];
-      const labels = ids.map(id => {
-        const opt = question.options?.find(o => o.id === id);
+      const labels = ids.map((id) => {
+        const opt = question.options?.find((o) => o.id === id);
         return opt?.label || id;
       });
       answerDisplay = labels.join(", ");
     } else if (kind === "rating" || kind === "nps") {
-      answerDisplay = `${item.value}/${kind === "nps" ? 10 : (question.ratingScale || 5)}`;
+      answerDisplay = `${item.value}/${kind === "nps" ? 10 : question.ratingScale || 5}`;
     } else if (kind === "matrix") {
       const matrixVal = item.value as Record<string, string | string[]>;
       if (matrixVal && typeof matrixVal === "object" && !Array.isArray(matrixVal)) {
@@ -131,7 +132,7 @@ function generateEmailHtml(data: EmailResponseData): string {
         answerDisplay = rowLabels.join(" • ");
       }
     }
-    
+
     html += `
       <div class="question">
         <div class="question-title">${question.title}</div>
@@ -139,7 +140,7 @@ function generateEmailHtml(data: EmailResponseData): string {
       </div>
     `;
   });
-  
+
   const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost";
   html += `
         </div>
@@ -151,7 +152,6 @@ function generateEmailHtml(data: EmailResponseData): string {
     </body>
     </html>
   `;
-  
+
   return html;
 }
-

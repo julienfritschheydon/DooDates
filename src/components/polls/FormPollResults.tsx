@@ -56,21 +56,21 @@ export default function FormPollResults({ idOrSlug }: Props) {
   const canViewResults = useMemo(() => {
     if (!poll) return false;
     const visibility = poll.resultsVisibility || "creator-only";
-    
+
     // 1. Public : tout le monde peut voir
     if (visibility === "public") return true;
-    
+
     // 2. Créateur : vérifier si c'est le créateur (via localStorage ou auth)
     const currentUserId = getCurrentUserId(user?.id); // Passer user.id si authentifié
     const isCreator = poll.creator_id === currentUserId;
     if (isCreator) return true;
-    
+
     // 3. Voters : vérifier si l'utilisateur a voté
     if (visibility === "voters") {
       const hasVoted = checkIfUserHasVoted(poll.id);
       return hasVoted;
     }
-    
+
     return false;
   }, [poll, user?.id]);
 

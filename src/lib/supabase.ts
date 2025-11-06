@@ -23,29 +23,29 @@ if (isLocalDev) {
   // En mode développement/test, utiliser mock si variables manquantes
   const MOCK_SUPABASE_URL = "https://mock.supabase.co";
   const MOCK_SUPABASE_KEY = "mock-key";
-  
+
   supabaseClient = createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_KEY, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-    detectSessionInUrl: false,
-  },
-  global: {
-    fetch: fetch.bind(globalThis),
-  },
-});
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      fetch: fetch.bind(globalThis),
+    },
+  });
 } else {
   // Configuration Supabase réelle
   supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-      autoRefreshToken: true,  // ✅ Activer pour la bêta
-      persistSession: true,     // ✅ Activer pour la bêta
+    auth: {
+      autoRefreshToken: true, // ✅ Activer pour la bêta
+      persistSession: true, // ✅ Activer pour la bêta
       detectSessionInUrl: true, // ✅ Activer pour la bêta
-  },
-  global: {
-    fetch: fetch.bind(globalThis),
-  },
-});
+    },
+    global: {
+      fetch: fetch.bind(globalThis),
+    },
+  });
 }
 
 export const supabase = supabaseClient;

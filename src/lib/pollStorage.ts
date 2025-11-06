@@ -952,7 +952,7 @@ export function getRespondentId(resp: FormResponse): string {
 
 /**
  * Récupère l'ID de l'utilisateur actuel (device ID ou user ID si authentifié)
- * 
+ *
  * @param authenticatedUserId - ID utilisateur Supabase si authentifié (optionnel)
  * @returns user.id si authentifié, sinon deviceId
  */
@@ -961,7 +961,7 @@ export function getCurrentUserId(authenticatedUserId?: string | null): string {
   if (authenticatedUserId) {
     return authenticatedUserId;
   }
-  
+
   // Sinon, retourner device ID (mode invité/localStorage)
   return getDeviceId();
 }
@@ -973,15 +973,15 @@ export function getCurrentUserId(authenticatedUserId?: string | null): string {
 export function checkIfUserHasVoted(pollId: string): boolean {
   const deviceId = getDeviceId();
   const responses = getFormResponses(pollId);
-  
+
   // Vérifier si une réponse existe avec cet appareil
   // Priorité 1: Vérifier deviceId stocké dans la réponse (nouveau, fonctionne toujours)
-  const hasVotedByDeviceId = responses.some(r => r.deviceId === deviceId);
+  const hasVotedByDeviceId = responses.some((r) => r.deviceId === deviceId);
   if (hasVotedByDeviceId) return true;
-  
+
   // Priorité 2: Fallback pour réponses anciennes (sans deviceId stocké)
   // Pour les réponses anonymes, le respondentId contient le deviceId
-  return responses.some(r => {
+  return responses.some((r) => {
     const respondentId = getRespondentId(r);
     // Si la réponse est anonyme, le respondentId contient le deviceId
     if (respondentId.startsWith(`anon:${deviceId}:`)) {

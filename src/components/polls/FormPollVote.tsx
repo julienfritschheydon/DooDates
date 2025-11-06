@@ -190,7 +190,11 @@ export default function FormPollVote({ idOrSlug }: Props) {
       setError("Veuillez entrer votre email pour recevoir une copie");
       return;
     }
-    if (wantsEmailCopy && voterEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail.trim())) {
+    if (
+      wantsEmailCopy &&
+      voterEmail.trim() &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail.trim())
+    ) {
       setError("Veuillez entrer une adresse email valide");
       return;
     }
@@ -217,8 +221,8 @@ export default function FormPollVote({ idOrSlug }: Props) {
             questions: allQuestions,
           });
         } catch (emailError) {
-          console.error("Erreur envoi email:", emailError);
           // Ne pas bloquer la soumission si l'email échoue
+          // L'erreur est déjà gérée par le service EmailService
         }
       }
 
@@ -253,7 +257,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
   if (submitted) {
     const visibility = poll.resultsVisibility || "creator-only";
     const canSeeResults = visibility === "public" || visibility === "voters";
-    
+
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-2xl mx-auto p-6 pt-20">
@@ -280,21 +284,21 @@ export default function FormPollVote({ idOrSlug }: Props) {
 
           <div className="mt-6 space-y-3">
             {canSeeResults ? (
-            <Link
-              to={`/poll/${poll.slug || poll.id}/results`}
-              className="inline-block text-white px-4 py-2 rounded transition-colors"
-              style={{
-                backgroundColor: "var(--theme-primary, #3B82F6)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--theme-primary-hover, #2563EB)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--theme-primary, #3B82F6)";
-              }}
-            >
-              Voir les résultats
-            </Link>
+              <Link
+                to={`/poll/${poll.slug || poll.id}/results`}
+                className="inline-block text-white px-4 py-2 rounded transition-colors"
+                style={{
+                  backgroundColor: "var(--theme-primary, #3B82F6)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--theme-primary-hover, #2563EB)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--theme-primary, #3B82F6)";
+                }}
+              >
+                Voir les résultats
+              </Link>
             ) : (
               <div className="text-sm text-gray-500">
                 ℹ️ Les résultats ne sont pas publics pour ce sondage.
@@ -774,7 +778,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
               Recevoir une copie de mes réponses par email
             </span>
           </label>
-          
+
           {wantsEmailCopy && (
             <div>
               <label
