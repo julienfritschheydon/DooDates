@@ -15,7 +15,7 @@ export function findRelatedConversation(
     const conversations = userId
       ? allConversations.filter((conv) => conv.userId === userId)
       : allConversations;
-    
+
     const match = conversations.find((conv) => {
       const metadata = conv.metadata as any;
       return metadata?.pollGenerated && metadata?.pollId === poll.id;

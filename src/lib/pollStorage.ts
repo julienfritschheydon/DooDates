@@ -291,13 +291,15 @@ export function addPoll(poll: Poll): void {
   if (isNewPoll) {
     try {
       // Import dynamique pour éviter les problèmes dans les tests
-      import("./quotaTracking").then(({ incrementPollCreated }) => {
-        // Utiliser creator_id du poll pour identifier l'utilisateur
-        incrementPollCreated(poll.creator_id);
-      }).catch((error) => {
-        // Ignorer les erreurs d'import en mode développement
-        logger.debug("Impossible d'incrémenter le quota poll", "quota", { error });
-      });
+      import("./quotaTracking")
+        .then(({ incrementPollCreated }) => {
+          // Utiliser creator_id du poll pour identifier l'utilisateur
+          incrementPollCreated(poll.creator_id);
+        })
+        .catch((error) => {
+          // Ignorer les erreurs d'import en mode développement
+          logger.debug("Impossible d'incrémenter le quota poll", "quota", { error });
+        });
     } catch (error) {
       // Ignorer les erreurs d'import en mode développement
       logger.debug("Impossible d'incrémenter le quota poll", "quota", { error });

@@ -122,13 +122,13 @@ export function useMessageSender(options: UseMessageSenderOptions) {
     async (text: string, notifyParent: boolean) => {
       const requestId = crypto.randomUUID();
       const timestamp = new Date().toISOString();
-      
+
       console.log(`[${timestamp}] [${requestId}] 🔴 useMessageSender.sendMessage DÉBUT`, {
         textLength: text?.length || 0,
         notifyParent,
         isLoading,
       });
-      
+
       const trimmedText = (text || "").trim();
       if (!trimmedText || isLoading) {
         console.log(`[${timestamp}] [${requestId}] ❌ Arrêt: texte vide ou déjà en chargement`, {
@@ -142,8 +142,8 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
       // Check conversation quota before proceeding
       const conversationLimitOk = quota.checkConversationLimit();
-      console.log(`[${timestamp}] [${requestId}] 📊 Vérification quota conversation:`, { 
-        checkConversationLimit: conversationLimitOk 
+      console.log(`[${timestamp}] [${requestId}] 📊 Vérification quota conversation:`, {
+        checkConversationLimit: conversationLimitOk,
       });
       if (!conversationLimitOk) {
         console.log(`[${timestamp}] [${requestId}] ❌ Arrêt: quota conversation dépassé`);
@@ -153,9 +153,9 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       // 🎯 NEW: Check AI message quota (Freemium)
       const { checkAiMessageQuota, handleQuotaError } = await import("../services/AiQuotaService");
       const quotaCheck = checkAiMessageQuota(aiQuota);
-      console.log(`[${timestamp}] [${requestId}] 📊 Vérification quota AI:`, { 
+      console.log(`[${timestamp}] [${requestId}] 📊 Vérification quota AI:`, {
         canProceed: quotaCheck.canProceed,
-        quotaCheck 
+        quotaCheck,
       });
       if (!quotaCheck.canProceed) {
         console.log(`[${timestamp}] [${requestId}] ❌ Arrêt: quota AI dépassé`);
@@ -166,7 +166,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       // 🎯 PROTOTYPE: Détecter les intentions de modification
       console.log(`[${timestamp}] [${requestId}] 🔍 Détection d'intentions...`);
       const intentResult = await intentDetection.detectIntent(trimmedText);
-      console.log(`[${timestamp}] [${requestId}] 🔍 Résultat détection intent:`, { 
+      console.log(`[${timestamp}] [${requestId}] 🔍 Résultat détection intent:`, {
         handled: intentResult.handled,
         isTypeSwitch: intentResult.isTypeSwitch,
       });
@@ -228,7 +228,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       }
 
       console.log(`[${timestamp}] [${requestId}] ✅ Intent non géré - continuation vers Gemini`);
-      
+
       // Détecter si c'est un markdown questionnaire long
       const trimmedInput = trimmedText;
       const isLongMarkdown = trimmedInput.length > 500 && /^#\s+.+$/m.test(trimmedInput);
@@ -247,7 +247,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         isLongMarkdown,
         displayContentLength: displayContent.length,
       });
-      
+
       setMessages((prev) => [...prev, userMessage]);
       setIsLoading(true);
 
@@ -273,10 +273,13 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       console.log(`[${timestamp}] [${requestId}] ✅ Auto-save terminé`);
 
       // Appel API Gemini via le hook
-      console.log(`[${timestamp}] [${requestId}] 🟣 useMessageSender: Appel geminiAPI.generatePoll`, {
-        messageLength: trimmedInput.length,
-        messagePreview: trimmedInput.substring(0, 50),
-      });
+      console.log(
+        `[${timestamp}] [${requestId}] 🟣 useMessageSender: Appel geminiAPI.generatePoll`,
+        {
+          messageLength: trimmedInput.length,
+          messagePreview: trimmedInput.substring(0, 50),
+        },
+      );
       const pollResponse = await geminiAPI.generatePoll(trimmedInput);
       console.log(`[${new Date().toISOString()}] 🟣 useMessageSender: Réponse reçue`, {
         success: pollResponse.success,

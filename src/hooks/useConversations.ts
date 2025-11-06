@@ -416,11 +416,11 @@ export function useConversations(config: UseConversationsConfig = {}) {
           );
           // Also save to localStorage as cache
           ConversationStorage.addConversation(conversation);
-          
+
           // Incrémenter le compteur de crédits consommés
           const { incrementConversationCreated } = await import("../lib/quotaTracking");
           incrementConversationCreated(user.id);
-          
+
           return conversation;
         } catch (supabaseError) {
           logger.error(
@@ -437,11 +437,11 @@ export function useConversations(config: UseConversationsConfig = {}) {
         firstMessage: conversationData.firstMessage,
         userId: user?.id || "guest",
       });
-      
+
       // Incrémenter le compteur de crédits consommés
       const { incrementConversationCreated } = await import("../lib/quotaTracking");
       incrementConversationCreated(user?.id);
-      
+
       return conversation;
     },
     onMutate: async (data) => {

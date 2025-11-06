@@ -650,7 +650,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         inputLength: inputValue?.length || 0,
         isLoading,
       });
-      
+
       if (!inputValue.trim() || isLoading) {
         console.log(`[${timestamp}] ❌ handleSendMessage: arrêt (texte vide ou chargement)`, {
           hasInput: !!inputValue.trim(),
@@ -658,7 +658,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         });
         return;
       }
-      
+
       console.log(`[${timestamp}] ✅ handleSendMessage: appel sendMessageWithText`);
       await sendMessageWithText(inputValue, true);
       setInputValue("");
