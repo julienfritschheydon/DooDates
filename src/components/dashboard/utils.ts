@@ -2,11 +2,20 @@ import { DashboardPoll, ConversationItem, FilterType } from "./types";
 import { getConversations } from "@/lib/storage/ConversationStorageSimple";
 
 // Trouver la conversation liée à un sondage
-export function findRelatedConversation(poll: DashboardPoll): string | undefined {
+// userId optionnel pour filtrer par utilisateur (sécurité)
+export function findRelatedConversation(
+  poll: DashboardPoll,
+  userId?: string | null,
+): string | undefined {
   if (poll.relatedConversationId) return poll.relatedConversationId;
 
   try {
-    const conversations = getConversations();
+    const allConversations = getConversations();
+    // Filtrer par utilisateur si userId est fourni
+    const conversations = userId
+      ? allConversations.filter((conv) => conv.userId === userId)
+      : allConversations;
+    
     const match = conversations.find((conv) => {
       const metadata = conv.metadata as any;
       return metadata?.pollGenerated && metadata?.pollId === poll.id;

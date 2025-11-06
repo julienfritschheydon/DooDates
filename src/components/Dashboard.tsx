@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageSquare, X, Info, Trash2, ExternalLink } from "lucide-react";
+import { MessageSquare, X, Info, Trash2, ExternalLink, FileText } from "lucide-react";
 import { useDashboardData } from "./dashboard/useDashboardData";
 import { DashboardFilters, ViewMode } from "./dashboard/DashboardFilters";
 import { ConversationCard } from "./dashboard/ConversationCard";
@@ -254,12 +254,12 @@ const Dashboard: React.FC = () => {
                   quotaStatus.conversations.isNearLimit ? "text-orange-400" : "text-blue-400"
                 }`}
               />
-              <div className="flex-1">
+              <div className="flex-1 cursor-pointer" onClick={() => navigate("/dashboard/journal")}>
                 <p className="text-sm text-gray-300">
                   <span className="font-semibold">
                     {quotaStatus.conversations.used}/{quotaStatus.conversations.limit}
                   </span>{" "}
-                  conversations utilisées
+                  crédits utilisés
                   {!user && (
                     <span className="ml-2 text-blue-400">
                       • Créez un compte pour synchroniser vos données
@@ -274,18 +274,33 @@ const Dashboard: React.FC = () => {
                     style={{ width: `${Math.min(quotaStatus.conversations.percentage, 100)}%` }}
                   />
                 </div>
+                <p className="text-xs text-gray-400 mt-1 hover:text-gray-300 transition-colors">
+                  Cliquez pour voir le journal détaillé
+                </p>
               </div>
 
-              {/* Bouton vers la page pricing */}
-              <button
-                onClick={() => navigate("/pricing")}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
-                title="Voir les quotas et tarifs"
-              >
-                <Info className="w-4 h-4" />
-                <span className="hidden sm:inline">En savoir plus</span>
-                <ExternalLink className="w-3 h-3" />
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Bouton vers le journal */}
+                <button
+                  onClick={() => navigate("/dashboard/journal")}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                  title="Voir le journal de consommation"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span className="hidden sm:inline">Journal</span>
+                </button>
+
+                {/* Bouton vers la page pricing */}
+                <button
+                  onClick={() => navigate("/pricing")}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                  title="Voir les quotas et tarifs"
+                >
+                  <Info className="w-4 h-4" />
+                  <span className="hidden sm:inline">En savoir plus</span>
+                  <ExternalLink className="w-3 h-3" />
+                </button>
+              </div>
             </div>
           </div>
 
