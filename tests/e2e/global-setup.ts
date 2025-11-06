@@ -140,12 +140,18 @@ function generateEdgeFunctionResponse(userInput: string, prompt?: string): any {
  */
 export async function setupSupabaseEdgeFunctionMock(page: Page) {
   // Intercepter les requêtes à l'Edge Function Supabase
-  await page.route('**/functions/v1/hyper-task**', async (route: Route) => {
+  // Pattern pour capturer toutes les variantes d'URL (absolues et relatives)
+  // Utiliser une regex pour capturer toutes les variantes
+  await page.route(/.*\/functions\/v1\/hyper-task.*/, async (route: Route) => {
     const request = route.request();
     const method = request.method();
+    const url = request.url();
+    
+    console.log('🔧 Edge Function mock - Intercepted request:', method, url);
     
     // Handle OPTIONS preflight requests for CORS
     if (method === 'OPTIONS') {
+      console.log('🔧 Edge Function mock - Handling OPTIONS preflight');
       await route.fulfill({
         status: 200,
         headers: {
@@ -160,6 +166,7 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
     
     // Handle POST requests
     if (method !== 'POST') {
+      console.log('🔧 Edge Function mock - Non-POST request, continuing');
       await route.continue();
       return;
     }
@@ -170,6 +177,70 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
       const prompt = postData?.prompt;
       
       console.log('🔧 Edge Function mock - User input:', userInput.substring(0, 100) + '...');
+      
+      const mockResponse = generateEdgeFunctionResponse(userInput, prompt);
+      
+      console.log('🔧 Edge Function mock - Returning response:', JSON.stringify(mockResponse).substring(0, 200));
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+        body: JSON.stringify(mockResponse)
+      });
+    } catch (error) {
+      console.error('❌ Edge Function mock error:', error);
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          success: false,
+          error: 'MOCK_ERROR',
+          message: 'Erreur dans le mock de l\'Edge Function'
+        })
+      });
+    }
+  });
+  
+  // Also intercept with glob pattern as fallback
+  await page.route('**/functions/v1/hyper-task', async (route: Route) => {
+    const request = route.request();
+    const method = request.method();
+    const url = request.url();
+    
+    console.log('🔧 Edge Function mock (alt pattern) - Intercepted request:', method, url);
+    
+    if (method === 'OPTIONS') {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+        body: ''
+      });
+      return;
+    }
+    
+    if (method !== 'POST') {
+      await route.continue();
+      return;
+    }
+    
+    try {
+      const postData = request.postDataJSON();
+      const userInput = postData?.userInput || '';
+      const prompt = postData?.prompt;
+      
+      console.log('🔧 Edge Function mock (alt pattern) - User input:', userInput.substring(0, 100) + '...');
       
       const mockResponse = generateEdgeFunctionResponse(userInput, prompt);
       
@@ -184,7 +255,7 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
         body: JSON.stringify(mockResponse)
       });
     } catch (error) {
-      console.error('❌ Edge Function mock error:', error);
+      console.error('❌ Edge Function mock (alt pattern) error:', error);
       await route.fulfill({
         status: 500,
         contentType: 'application/json',
