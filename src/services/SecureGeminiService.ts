@@ -48,34 +48,42 @@ export class SecureGeminiService {
       // Vérifier d'abord si on est probablement en mode invité pour éviter l'appel inutile
       let session = null;
       const sessionStartTime = Date.now();
-      
+
       // Vérifier rapidement si une session existe dans localStorage (sans timeout long)
       // Supabase stocke la session dans localStorage avec une clé comme "sb-<project-ref>-auth-token"
-      const hasStoredSession = typeof window !== "undefined" && (() => {
-        try {
-          // Chercher toutes les clés Supabase dans localStorage
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith("sb-") && key.includes("-auth-token")) {
-              const value = localStorage.getItem(key);
-              if (value && value !== "null" && value !== "undefined") {
-                return true;
+      const hasStoredSession =
+        typeof window !== "undefined" &&
+        (() => {
+          try {
+            // Chercher toutes les clés Supabase dans localStorage
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && key.startsWith("sb-") && key.includes("-auth-token")) {
+                const value = localStorage.getItem(key);
+                if (value && value !== "null" && value !== "undefined") {
+                  return true;
+                }
               }
             }
+            return false;
+          } catch {
+            return false;
           }
-          return false;
-        } catch {
-          return false;
-        }
-      })();
-      
+        })();
+
       if (hasStoredSession) {
         // Seulement essayer getSession si on pense avoir une session
         const SESSION_TIMEOUT = 1000; // Timeout réduit à 1 seconde
         const sessionTimeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error(`Timeout: getSession a pris plus de ${SESSION_TIMEOUT / 1000} secondes`)), SESSION_TIMEOUT);
+          setTimeout(
+            () =>
+              reject(
+                new Error(`Timeout: getSession a pris plus de ${SESSION_TIMEOUT / 1000} secondes`),
+              ),
+            SESSION_TIMEOUT,
+          );
         });
-        
+
         try {
           const sessionPromise = supabase.auth.getSession();
           const sessionResult = await Promise.race([sessionPromise, sessionTimeoutPromise]);
@@ -90,7 +98,7 @@ export class SecureGeminiService {
       // On utilise l'anon key pour les invités, ou le token utilisateur si authentifié
       const headers: Record<string, string> = {};
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
+
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
       } else if (supabaseAnonKey) {
@@ -101,23 +109,29 @@ export class SecureGeminiService {
       // Utiliser fetch direct au lieu de supabase.functions.invoke() pour plus de contrôle
       const edgeFunctionUrl = `${this.supabaseUrl}/functions/v1/hyper-task`;
       const invokeStartTime = Date.now();
-      
+
       // Timeout de 10 secondes
       const FETCH_TIMEOUT = 10000;
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error(`Timeout: Edge Function a pris plus de ${FETCH_TIMEOUT / 1000} secondes`)), FETCH_TIMEOUT);
+        setTimeout(
+          () =>
+            reject(
+              new Error(`Timeout: Edge Function a pris plus de ${FETCH_TIMEOUT / 1000} secondes`),
+            ),
+          FETCH_TIMEOUT,
+        );
       });
-      
+
       // Ajouter apikey dans les headers (requis par Supabase)
       const fetchHeaders: Record<string, string> = {
         "Content-Type": "application/json",
         ...headers,
       };
-      
+
       if (supabaseAnonKey) {
         fetchHeaders["apikey"] = supabaseAnonKey;
       }
-      
+
       const fetchPromise = fetch(edgeFunctionUrl, {
         method: "POST",
         headers: fetchHeaders,
@@ -127,20 +141,21 @@ export class SecureGeminiService {
         }),
       }).then(async (response) => {
         const data = await response.json();
-        
+
         if (!response.ok) {
           // Erreur 401 = authentification requise
           if (response.status === 401) {
             return {
               data: null,
               error: {
-                message: data.message || "Authentification requise. Vérifiez que l'apikey est configuré.",
+                message:
+                  data.message || "Authentification requise. Vérifiez que l'apikey est configuré.",
                 status: response.status,
                 code: "UNAUTHORIZED",
               },
             };
           }
-          
+
           return {
             data: null,
             error: {
@@ -149,15 +164,15 @@ export class SecureGeminiService {
             },
           };
         }
-        
+
         return {
           data,
           error: data.error ? { message: data.error } : null,
         };
       });
-      
+
       const result = await Promise.race([fetchPromise, timeoutPromise]);
-      
+
       const { data, error } = result as any;
 
       if (error) {
@@ -237,7 +252,7 @@ export class SecureGeminiService {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
-      
+
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
       } else {

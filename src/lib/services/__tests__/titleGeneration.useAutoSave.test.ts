@@ -31,6 +31,9 @@ vi.mock("../../storage/ConversationStorageSupabase", () => ({
   updateConversation: vi.fn().mockRejectedValue(new Error("Supabase not available in tests")),
 }));
 
+// Set environment variable to disable Supabase conversations
+import.meta.env.VITE_DISABLE_SUPABASE_CONVERSATIONS = "true";
+
 import { createMockConversation } from "../../../__tests__/helpers/testHelpers";
 
 describe("titleGeneration + useAutoSave Integration", () => {

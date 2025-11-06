@@ -1,13 +1,13 @@
 /**
  * Système de tracking des crédits consommés (créations et actions IA)
- * 
+ *
  * Les crédits consommés ne se remboursent jamais (sauf reset mensuel pour auth users)
  * - 1 conversation créée = 1 crédit consommé
  * - 1 poll créé = 1 crédit consommé
  * - 1 message IA = 1 crédit consommé
  * - 1 query analytics IA = 1 crédit consommé
  * - 1 simulation complète = 5 crédits consommés
- * 
+ *
  * Même si l'utilisateur supprime ses conversations/polls, les crédits restent consommés.
  */
 
@@ -59,9 +59,7 @@ interface AllQuotaData {
 /**
  * Obtenir la date de début d'abonnement depuis le profil utilisateur
  */
-async function getSubscriptionStartDate(
-  userId: string | null | undefined,
-): Promise<Date | null> {
+async function getSubscriptionStartDate(userId: string | null | undefined): Promise<Date | null> {
   if (!userId || userId === "guest") return null;
 
   try {
@@ -109,7 +107,7 @@ function calculateNextResetDate(subscriptionStartDate: Date | null): Date {
 
   // Prochaine date de reset = même jour du mois suivant
   let nextReset = new Date(subscriptionYear, subscriptionMonth, subscriptionDay);
-  
+
   // Si on est déjà passé ce mois, prendre le mois suivant
   if (nextReset <= now) {
     nextReset = new Date(subscriptionYear, subscriptionMonth + 1, subscriptionDay);

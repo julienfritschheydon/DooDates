@@ -320,7 +320,7 @@ export class GeminiService {
   async generatePollFromText(userInput: string): Promise<GeminiResponse> {
     const requestId = crypto.randomUUID();
     const timestamp = new Date().toISOString();
-    
+
     console.log(`[${timestamp}] [${requestId}] 🟡 GeminiService.generatePollFromText appelé`, {
       userInputLength: userInput?.length || 0,
       userInputPreview: userInput?.substring(0, 50) || "",
@@ -331,7 +331,7 @@ export class GeminiService {
       const isMarkdown = this.isMarkdownQuestionnaire(userInput);
       let processedInput = userInput;
       let pollType: "date" | "form";
-      
+
       console.log(`[${timestamp}] [${requestId}] 📋 Détection type:`, { isMarkdown });
 
       if (isMarkdown) {

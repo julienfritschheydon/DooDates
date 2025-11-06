@@ -7,7 +7,16 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getConsumptionJournal, type CreditJournalEntry } from "@/lib/quotaTracking";
-import { ArrowLeft, Calendar, CreditCard, MessageSquare, BarChart3, Zap, FileText, Search } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  CreditCard,
+  MessageSquare,
+  BarChart3,
+  Zap,
+  FileText,
+  Search,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { logError, ErrorFactory } from "@/lib/error-handling";
@@ -61,8 +70,11 @@ export default function ConsumptionJournal() {
         setFilteredJournal(entries);
       } catch (error) {
         logError(
-          ErrorFactory.storage("Erreur lors du chargement du journal", "Impossible de charger l'historique"),
-          { context: "ConsumptionJournal.loadJournal", userId: user?.id, error }
+          ErrorFactory.storage(
+            "Erreur lors du chargement du journal",
+            "Impossible de charger l'historique",
+          ),
+          { context: "ConsumptionJournal.loadJournal", userId: user?.id, error },
         );
       } finally {
         setLoading(false);
@@ -90,27 +102,33 @@ export default function ConsumptionJournal() {
   }, [searchQuery, journal]);
 
   // Grouper par date
-  const groupedByDate = filteredJournal.reduce((acc, entry) => {
-    const date = new Date(entry.timestamp);
-    const dateKey = date.toLocaleDateString("fr-FR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const groupedByDate = filteredJournal.reduce(
+    (acc, entry) => {
+      const date = new Date(entry.timestamp);
+      const dateKey = date.toLocaleDateString("fr-FR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
 
-    if (!acc[dateKey]) {
-      acc[dateKey] = [];
-    }
-    acc[dateKey].push(entry);
-    return acc;
-  }, {} as Record<string, CreditJournalEntry[]>);
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(entry);
+      return acc;
+    },
+    {} as Record<string, CreditJournalEntry[]>,
+  );
 
   // Calculer les totaux
   const totalCredits = journal.reduce((sum, entry) => sum + entry.credits, 0);
-  const totalByAction = journal.reduce((acc, entry) => {
-    acc[entry.action] = (acc[entry.action] || 0) + entry.credits;
-    return acc;
-  }, {} as Record<string, number>);
+  const totalByAction = journal.reduce(
+    (acc, entry) => {
+      acc[entry.action] = (acc[entry.action] || 0) + entry.credits;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   if (loading) {
     return (
@@ -174,10 +192,7 @@ export default function ConsumptionJournal() {
             if (total === 0) return null;
 
             return (
-              <div
-                key={action}
-                className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-4"
-              >
+              <div key={action} className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-4">
                 <div className={`flex items-center gap-2 mb-2 ${color}`}>
                   {icon}
                   <span className="text-sm font-medium">{label}</span>
@@ -243,7 +258,9 @@ export default function ConsumptionJournal() {
                               {entry.metadata && (
                                 <div className="text-xs text-gray-400 mt-1">
                                   {entry.metadata.conversationId && (
-                                    <span>Conversation: {entry.metadata.conversationId.slice(0, 8)}...</span>
+                                    <span>
+                                      Conversation: {entry.metadata.conversationId.slice(0, 8)}...
+                                    </span>
                                   )}
                                   {entry.metadata.pollId && (
                                     <span className="ml-2">
@@ -251,7 +268,9 @@ export default function ConsumptionJournal() {
                                     </span>
                                   )}
                                   {entry.metadata.analyticsQuery && (
-                                    <span className="ml-2">Query: {entry.metadata.analyticsQuery}</span>
+                                    <span className="ml-2">
+                                      Query: {entry.metadata.analyticsQuery}
+                                    </span>
                                   )}
                                 </div>
                               )}
@@ -275,4 +294,3 @@ export default function ConsumptionJournal() {
     </div>
   );
 }
-

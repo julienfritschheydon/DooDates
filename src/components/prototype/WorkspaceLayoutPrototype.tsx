@@ -272,7 +272,11 @@ export function WorkspaceLayoutPrototype() {
     };
 
     window.addEventListener("conversationsChanged", handleConversationsChanged as EventListener);
-    return () => window.removeEventListener("conversationsChanged", handleConversationsChanged as EventListener);
+    return () =>
+      window.removeEventListener(
+        "conversationsChanged",
+        handleConversationsChanged as EventListener,
+      );
   }, []);
 
   return (

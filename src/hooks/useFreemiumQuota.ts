@@ -82,7 +82,7 @@ export const useFreemiumQuota = () => {
     // Utiliser le système de tracking des crédits consommés (créations)
     // Les crédits consommés ne se remboursent jamais, même si on supprime
     const quotaConsumed = await getQuotaConsumed(user?.id);
-    
+
     // Le quota affiche les créations totales, pas les éléments existants
     // Pour les conversations, on utilise le total des crédits consommés
     // car le quota limite le nombre total de crédits, pas juste les conversations
@@ -116,12 +116,14 @@ export const useFreemiumQuota = () => {
 
   // Charger les données de quota de manière asynchrone
   useEffect(() => {
-    calculateUsage().then(setQuotaUsage).catch((error) => {
-      logError(
-        ErrorFactory.storage("Failed to calculate quota usage", "Erreur de calcul du quota"),
-        { component: "useFreemiumQuota", metadata: { originalError: error } },
-      );
-    });
+    calculateUsage()
+      .then(setQuotaUsage)
+      .catch((error) => {
+        logError(
+          ErrorFactory.storage("Failed to calculate quota usage", "Erreur de calcul du quota"),
+          { component: "useFreemiumQuota", metadata: { originalError: error } },
+        );
+      });
   }, [calculateUsage, quotaRefreshKey]);
 
   // Calculate quota status
@@ -240,7 +242,7 @@ export const useFreemiumQuota = () => {
 
     window.addEventListener("conversationsChanged", handleConversationsChanged);
     window.addEventListener("pollDeleted", handlePollDeleted);
-    
+
     return () => {
       window.removeEventListener("conversationsChanged", handleConversationsChanged);
       window.removeEventListener("pollDeleted", handlePollDeleted);
@@ -271,12 +273,10 @@ export const useFreemiumQuota = () => {
     closeAuthModal: () => setShowAuthModal(false),
 
     // Utility functions
-    getRemainingConversations: () =>
-      Math.max(0, limits.conversations - quotaUsage.conversations),
+    getRemainingConversations: () => Math.max(0, limits.conversations - quotaUsage.conversations),
     getRemainingPolls: () => Math.max(0, limits.polls - quotaUsage.polls),
     getStoragePercentage: () => getQuotaStatus().storage.percentage,
   };
 };
 
 export default useFreemiumQuota;
-
