@@ -304,17 +304,29 @@ Distribution :
 
 ### Configurer la Visibilité
 
-**Paramètres du sondage :**
+**Paramètres du sondage (lors de la création) :**
 ```
-Qui peut voir les résultats ?
-⚫ Moi uniquement (créateur)
-○ Les participants (après leur vote)
-○ Tout le monde (public)
+Visibilité des résultats :
+⚫ Moi uniquement (par défaut)
+○ Personnes ayant voté (recommandé)
+○ Public (tout le monde)
 ```
+
+**Où trouver :**
+- Dans l'éditeur de formulaire, section "Visibilité des résultats"
+- Modifiable après publication via Dashboard → Modifier
 
 ---
 
-### Visibilité : Créateur Uniquement
+### Visibilité : Moi Uniquement (Creator-Only)
+
+**Qui peut voir :**
+- ✅ Seulement le créateur du sondage
+
+**Comportement :**
+- Après avoir voté, le bouton "Voir les résultats" **n'apparaît pas**
+- Accès direct à `/poll/{slug}/results` → Message "Accès restreint"
+- Seul le créateur peut voir les résultats depuis son Dashboard
 
 **Avantages :**
 - ✅ Confidentialité maximale
@@ -325,30 +337,44 @@ Qui peut voir les résultats ?
 - Enquêtes RH sensibles
 - Feedback confidentiel
 - Études de marché compétitives
+- Éviter les biais de réponses
 
 ---
 
-### Visibilité : Participants
+### Visibilité : Personnes Ayant Voté (Voters)
+
+**Qui peut voir :**
+- ✅ Le créateur
+- ✅ Toute personne ayant voté
+
+**Comportement :**
+- Après avoir voté, le bouton **"Voir les résultats"** apparaît
+- Cliquer sur le bouton → Accès aux résultats
+- Accès direct à `/poll/{slug}/results` → Résultats visibles (si vous avez voté)
+- Si vous n'avez pas voté → Message "Accès restreint" + "💡 Votez pour voir les résultats !"
 
 **Avantages :**
-- ✅ Transparence
+- ✅ Transparence après participation
 - ✅ Engagement des participants
 - ✅ Décisions collaboratives
-
-**Mécanisme :**
-```
-Après avoir voté → Bouton "Voir les résultats" activé
-Sans voter → Message "Votez pour voir les résultats"
-```
 
 **Cas d'usage :**
 - Sondages de groupe (date de réunion)
 - Décisions d'équipe
 - Votes communautaires
+- Transparence après participation
 
 ---
 
 ### Visibilité : Public
+
+**Qui peut voir :**
+- ✅ Tout le monde (même sans voter)
+
+**Comportement :**
+- Accès direct à `/poll/{slug}/results` → Résultats visibles immédiatement
+- Pas besoin de voter pour voir les résultats
+- Partage facile des résultats
 
 **Avantages :**
 - ✅ Maximum de transparence
@@ -356,13 +382,40 @@ Sans voter → Message "Votez pour voir les résultats"
 - ✅ Marketing viral
 
 **Risques :**
-- ⚠️ Biais de réponses ("effet mouton")
+- ⚠️ Biais de réponses ("effet mouton" - les gens voient les réponses avant de voter)
 - ⚠️ Données sensibles exposées
 
 **Cas d'usage :**
 - Sondages d'opinion publics
 - Études de marché transparentes
 - Votes ouverts
+
+---
+
+### Vérification des Permissions
+
+**Accès autorisé si :**
+- ✅ Vous êtes le **créateur** du sondage
+- ✅ Vous avez **voté** (si visibilité = "Personnes ayant voté")
+- ✅ Visibilité = "Public"
+
+**Accès refusé si :**
+- ❌ Visibilité = "Moi uniquement" ET vous n'êtes pas le créateur
+- ❌ Visibilité = "Personnes ayant voté" ET vous n'avez pas voté
+
+**Message d'erreur :**
+```
+┌─────────────────────────────────────────┐
+│  🔒 Accès restreint                     │
+├─────────────────────────────────────────┤
+│  Le créateur de ce sondage a choisi de  │
+│  ne pas partager les résultats          │
+│  publiquement.                          │
+│                                         │
+│  💡 Votez pour voir les résultats !     │
+│  (si visibilité = "Personnes ayant voté")
+└─────────────────────────────────────────┘
+```
 
 ---
 

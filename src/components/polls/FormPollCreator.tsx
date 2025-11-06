@@ -3,7 +3,8 @@ import { Undo2, Save, Check, X, List, ArrowRight, Lightbulb } from "lucide-react
 import CloseButton from "@/components/ui/CloseButton";
 import FormEditor from "./FormEditor";
 import type { Question as EditorQuestion } from "./QuestionCard";
-import { getAllPolls, savePolls, type Poll } from "../../lib/pollStorage";
+import { getAllPolls, savePolls, type Poll, getCurrentUserId } from "../../lib/pollStorage";
+import { useAuth } from "../../contexts/AuthContext";
 import { logger } from "@/lib/logger";
 import type { ConditionalRule } from "../../types/conditionalRules";
 import { validateConditionalRules } from "../../lib/conditionalValidator";
@@ -95,6 +96,7 @@ export interface FormPollDraft {
   conditionalRules?: ConditionalRule[]; // Règles pour questions conditionnelles
   themeId?: string; // Thème visuel (Quick Win #3)
   displayMode?: "all-at-once" | "multi-step"; // Mode d'affichage du formulaire
+  resultsVisibility?: "creator-only" | "voters" | "public"; // Visibilité des résultats
 }
 
 interface FormPollCreatorProps {
@@ -117,6 +119,7 @@ export default function FormPollCreator({
   onSave,
   onFinalize,
 }: FormPollCreatorProps) {
+  const { user } = useAuth();
   const { modifiedQuestionId, modifiedField } = useUIState();
 
   const [title, setTitle] = useState(initialDraft?.title || "");
@@ -145,6 +148,9 @@ export default function FormPollCreator({
   const [displayMode, setDisplayMode] = useState<"all-at-once" | "multi-step">(
     initialDraft?.displayMode || suggestedDisplayMode,
   );
+  const [resultsVisibility, setResultsVisibility] = useState<"creator-only" | "voters" | "public">(
+    initialDraft?.resultsVisibility || "creator-only",
+  );
 
   // Si le brouillon change (montée en props), synchroniser l'état
   useEffect(() => {
@@ -153,6 +159,7 @@ export default function FormPollCreator({
       setQuestions(initialDraft.questions || []);
       setConditionalRules(initialDraft.conditionalRules || []);
       setDisplayMode(initialDraft.displayMode || suggestedDisplayMode);
+      setResultsVisibility(initialDraft.resultsVisibility || "creator-only");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialDraft?.id]); // Intentionnel : on veut seulement initialiser au montage, pas tracker initialDraft entier
@@ -166,8 +173,9 @@ export default function FormPollCreator({
       conditionalRules,
       themeId,
       displayMode,
+      resultsVisibility,
     }),
-    [draftId, title, questions, conditionalRules, themeId, displayMode],
+    [draftId, title, questions, conditionalRules, themeId, displayMode, resultsVisibility],
   );
 
   const canSave = useMemo(() => validateDraft(currentDraft).ok, [currentDraft]);
@@ -299,7 +307,7 @@ export default function FormPollCreator({
       status,
       updated_at: now,
       type: "form",
-      creator_id: "",
+      creator_id: getCurrentUserId(user?.id),
       dates: [],
       questions: draft.questions.map((q) => {
         const base: any = { ...q, kind: q.type };
@@ -316,6 +324,7 @@ export default function FormPollCreator({
       conditionalRules: draft.conditionalRules, // Persister les règles conditionnelles
       themeId: draft.themeId, // Persister le thème visuel
       displayMode: draft.displayMode, // Persister le mode d'affichage
+      resultsVisibility: draft.resultsVisibility, // Persister la visibilité des résultats
     };
     if (existingIdx >= 0) {
       all[existingIdx] = base;
@@ -564,6 +573,50 @@ export default function FormPollCreator({
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Paramètres de visibilité des résultats */}
+            <div className="mb-6 p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Visibilité des résultats
+              </label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="resultsVisibility"
+                    value="creator-only"
+                    checked={resultsVisibility === "creator-only"}
+                    onChange={(e) => setResultsVisibility(e.target.value as "creator-only")}
+                    className="cursor-pointer"
+                  />
+                  <span className="text-white">Moi uniquement</span>
+                  <span className="text-xs text-gray-500">(par défaut)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="resultsVisibility"
+                    value="voters"
+                    checked={resultsVisibility === "voters"}
+                    onChange={(e) => setResultsVisibility(e.target.value as "voters")}
+                    className="cursor-pointer"
+                  />
+                  <span className="text-white">Personnes ayant voté</span>
+                  <span className="text-xs text-gray-500">(recommandé)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="resultsVisibility"
+                    value="public"
+                    checked={resultsVisibility === "public"}
+                    onChange={(e) => setResultsVisibility(e.target.value as "public")}
+                    className="cursor-pointer"
+                  />
+                  <span className="text-white">Public (tout le monde)</span>
+                </label>
+              </div>
             </div>
 
             <div className="space-y-4">

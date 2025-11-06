@@ -80,7 +80,18 @@ export const useFreemiumQuota = () => {
         // Check if data is valid JSON before parsing
         if (storageData.startsWith("{") || storageData.startsWith("[")) {
           const data = JSON.parse(storageData);
-          conversationCount = Object.keys(data.conversations || {}).length;
+          // Handle both formats: array directly or object with conversations property
+          if (Array.isArray(data)) {
+            // Direct array format (current format)
+            conversationCount = data.length;
+          } else if (data && typeof data === "object" && "conversations" in data) {
+            // Legacy format: object with conversations property
+            if (Array.isArray(data.conversations)) {
+              conversationCount = data.conversations.length;
+            } else if (typeof data.conversations === "object") {
+              conversationCount = Object.keys(data.conversations).length;
+            }
+          }
         } else {
           // Data is corrupted, clear it
           localStorage.removeItem("doodates_conversations");

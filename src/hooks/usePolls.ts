@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Poll as TypesPoll, PollOption, PollData as TypesPollData } from "../types/poll";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
@@ -550,8 +550,110 @@ export function usePolls() {
     setError(null);
 
     try {
-      // Mode développement local - utiliser getAllPolls() pour cohérence avec le Dashboard
-      const userPolls = getAllPolls();
+      let userPolls: StoragePoll[] = [];
+
+      // Si l'utilisateur est connecté, charger depuis Supabase
+      if (user?.id) {
+        try {
+          // Récupérer le token JWT
+          let token = null;
+          const supabaseSession = localStorage.getItem("supabase.auth.token");
+          if (supabaseSession) {
+            const sessionData = JSON.parse(supabaseSession);
+            token = sessionData?.access_token || sessionData?.currentSession?.access_token;
+          }
+
+          if (!token) {
+            const authData = localStorage.getItem(
+              `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
+            );
+            if (authData) {
+              const parsed = JSON.parse(authData);
+              token = parsed?.access_token;
+            }
+          }
+
+          if (token) {
+            // Charger les sondages depuis Supabase
+            const response = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls?user_id=eq.${user.id}&select=*`,
+              {
+                method: "GET",
+                headers: {
+                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+              },
+            );
+
+            if (response.ok) {
+              const supabasePolls = await response.json();
+              logger.info("Sondages chargés depuis Supabase", "poll", {
+                count: supabasePolls.length,
+                userId: user.id,
+              });
+
+              // Convertir les sondages Supabase au format StoragePoll
+              userPolls = supabasePolls.map((p: any) => ({
+                id: p.id,
+                title: p.title,
+                slug: p.slug,
+                description: p.description,
+                type: p.type || "date",
+                status: p.status || "active",
+                created_at: p.created_at,
+                updated_at: p.updated_at,
+                user_id: p.user_id,
+                settings: p.settings || {},
+              }));
+
+              // Sauvegarder dans localStorage pour cohérence
+              const existingPolls = getAllPolls();
+              const mergedPolls = [...existingPolls];
+              
+              // Ajouter les sondages Supabase qui ne sont pas déjà dans localStorage
+              userPolls.forEach((supabasePoll) => {
+                const exists = mergedPolls.find((p) => p.id === supabasePoll.id);
+                if (!exists) {
+                  mergedPolls.push(supabasePoll);
+                } else {
+                  // Mettre à jour si le sondage Supabase est plus récent
+                  const existingDate = new Date(exists.updated_at || exists.created_at).getTime();
+                  const supabaseDate = new Date(supabasePoll.updated_at || supabasePoll.created_at).getTime();
+                  if (supabaseDate > existingDate) {
+                    const index = mergedPolls.findIndex((p) => p.id === supabasePoll.id);
+                    if (index !== -1) {
+                      mergedPolls[index] = supabasePoll;
+                    }
+                  }
+                }
+              });
+
+              // Sauvegarder les sondages fusionnés
+              const { savePolls } = await import("../lib/pollStorage");
+              savePolls(mergedPolls);
+              userPolls = mergedPolls;
+            } else {
+              logger.warn("Erreur lors du chargement depuis Supabase, utilisation de localStorage", "poll", {
+                status: response.status,
+              });
+              // Fallback sur localStorage
+              userPolls = getAllPolls();
+            }
+          } else {
+            logger.warn("Token non trouvé, utilisation de localStorage", "poll");
+            userPolls = getAllPolls();
+          }
+        } catch (supabaseError) {
+          logger.error("Erreur lors du chargement depuis Supabase, utilisation de localStorage", "poll", supabaseError);
+          // Fallback sur localStorage en cas d'erreur
+          userPolls = getAllPolls();
+        }
+      } else {
+        // Mode guest - utiliser localStorage uniquement
+        userPolls = getAllPolls();
+      }
 
       setPolls(userPolls);
       return { polls: userPolls };
@@ -684,6 +786,11 @@ export function usePolls() {
     },
     [getUserPolls],
   );
+
+  // Charger automatiquement les sondages quand l'utilisateur change
+  useEffect(() => {
+    getUserPolls();
+  }, [user?.id, getUserPolls]);
 
   return {
     loading,

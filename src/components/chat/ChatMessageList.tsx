@@ -53,9 +53,9 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
 }) => {
   return (
     <div
-      className={`flex-1 overflow-y-auto ${
+      className={`${
         darkTheme ? "bg-[#0a0a0a]" : "bg-gradient-to-br from-blue-50 to-indigo-50"
-      } ${messages.length === 0 ? "flex items-center justify-center" : "pb-20 md:pb-32"}`}
+      } ${messages.length === 0 ? "flex items-center justify-center min-h-[60vh]" : ""}`}
     >
       <div
         className={`max-w-4xl mx-auto p-2 md:p-4 ${

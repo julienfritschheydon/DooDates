@@ -17,6 +17,7 @@ const LogOut = createLazyIcon("LogOut");
 const UserCircle = createLazyIcon("UserCircle");
 const Book = createLazyIcon("Book");
 const DollarSign = createLazyIcon("DollarSign");
+const Key = createLazyIcon("Key");
 
 // Wrapper pour icônes lazy avec Suspense
 const LazyIconWrapper = ({ Icon, ...props }: { Icon: any; [key: string]: any }) => (
@@ -42,6 +43,18 @@ import { logger } from "../../lib/logger";
 import { getConversations } from "../../lib/storage/ConversationStorageSimple";
 import { useOnboarding } from "../../hooks/useOnboarding";
 import { useAuth } from "../../contexts/AuthContext";
+import { AuthModal } from "../modals/AuthModal";
+import { BetaKeyModal } from "../modals/BetaKeyModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 // Fonction pour trouver la conversation liée à un sondage (rétrocompatibilité)
 function findRelatedConversation(poll: Poll): string | undefined {
@@ -118,6 +131,9 @@ export function WorkspaceLayoutPrototype() {
 
   // Hook auth
   const { user, profile, signOut } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
+  const [betaKeyModalOpen, setBetaKeyModalOpen] = useState(false);
 
   // Hook reconnaissance vocale UNIQUE pour toute l'application
   // Partagé entre le chat et la preview pour éviter les conflits
@@ -225,7 +241,7 @@ export function WorkspaceLayoutPrototype() {
 
   return (
     <>
-      <div className={`flex h-screen bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : ""}`}>
+      <div className={`flex h-full bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : "overflow-y-auto"}`}>
         {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur */}
         {isSidebarOpen && (
           <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsSidebarOpen(false)} />
@@ -238,7 +254,7 @@ export function WorkspaceLayoutPrototype() {
           }`}
         >
           {/* Header avec bouton fermer */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800">
             <h2 className="text-lg font-semibold text-white">DooDates</h2>
             <div className="flex items-center gap-2">
               {/* Bouton Documentation
@@ -343,6 +359,21 @@ export function WorkspaceLayoutPrototype() {
                 >
                   <LazyIconWrapper Icon={DollarSign} className="w-5 h-5" />
                   <span>Tarifs</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (user) {
+                      setBetaKeyModalOpen(true);
+                    } else {
+                      setAuthModalOpen(true);
+                    }
+                    if (isMobile) setIsSidebarOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
+                >
+                  <LazyIconWrapper Icon={Key} className="w-5 h-5" />
+                  <span>Clé bêta</span>
                 </button>
 
                 <button
@@ -453,63 +484,92 @@ export function WorkspaceLayoutPrototype() {
             </>
           )}
 
-          {/* Boutons settings & compte en bas de la sidebar */}
-          <div className="p-4 border-t border-gray-800">
-            {/* Nom d'utilisateur si connecté */}
-            {user && (
-              <div className="mb-3 px-2">
-                <p className="text-sm font-medium text-white truncate">
-                  {profile?.full_name || user.email?.split("@")[0] || "Utilisateur"}
-                </p>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+          {/* Menu utilisateur en bas de la sidebar */}
+          <div className="p-3 border-t border-gray-800/50 space-y-3">
+            {/* Section utilisateur */}
+            {user ? (
+              <div className="px-3 py-3 bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl border border-gray-700/50 shadow-lg backdrop-blur-sm">
+                {/* En-tête utilisateur */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md">
+                      <span className="text-sm font-semibold text-white">
+                        {(profile?.full_name || user.email?.split("@")[0] || "U")
+                          .charAt(0)
+                          .toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-gray-900 shadow-sm"></div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-white truncate leading-tight">
+                      {profile?.full_name || user.email?.split("@")[0] || "Utilisateur"}
+                    </p>
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{user.email}</p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 min-w-0">
+                  <button
+                    onClick={() => {
+                      toast({
+                        title: "Paramètres",
+                        description: "Page en cours de développement",
+                      });
+                    }}
+                    className="flex-1 min-w-0 px-2 py-2 text-xs font-medium text-gray-200 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 border border-gray-700/30 hover:border-gray-600/50"
+                    title="Paramètres"
+                  >
+                    <LazyIconWrapper Icon={Settings} className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">Paramètres</span>
+                  </button>
+                  <button
+                    onClick={() => setSignOutDialogOpen(true)}
+                    className="flex-1 min-w-0 px-2 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 border border-red-500/30 hover:border-red-500/50 hover:shadow-sm hover:shadow-red-500/10"
+                    title="Déconnexion"
+                  >
+                    <LazyIconWrapper Icon={LogOut} className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">Déconnexion</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="px-3 py-3 bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl border border-gray-700/50 shadow-lg backdrop-blur-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0 border border-gray-600">
+                    <LazyIconWrapper Icon={User} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-400">Invité</p>
+                    <p className="text-xs text-gray-500">Non connecté</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setAuthModalOpen(true)}
+                  className="w-full px-3 py-2.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-blue-500/20"
+                >
+                  Se connecter
+                </button>
               </div>
             )}
 
-            <div className="flex items-center gap-2 mb-4">
-              {/* Bouton Settings */}
-              <button
-                className="flex-1 p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                title="Paramètres"
-                aria-label="Paramètres"
-                onClick={() => {
-                  // TODO: Ouvrir page settings
-                  toast({
-                    title: "Paramètres",
-                    description: "Page en cours de développement",
-                  });
-                }}
-              >
-                <LazyIconWrapper Icon={Settings} className="w-5 h-5 text-gray-300 mx-auto" />
-              </button>
-
-              {/* Bouton Account */}
-              <button
-                onClick={() =>
-                  toast({
-                    title: "Compte",
-                    description: "Page en cours de développement",
-                  })
-                }
-                className="w-full p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                title="Compte"
-                aria-label="Compte"
-              >
-                <LazyIconWrapper Icon={User} className="w-5 h-5 text-gray-300 mx-auto" />
-              </button>
-            </div>
-
-            {/* Statut */}
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-blue-400">
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
-                <span>IA connectée</span>
+            {/* Statut système */}
+            <div className="px-2 py-2 bg-gray-800/30 rounded-lg border border-gray-700/30 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-gray-300">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full shadow-sm shadow-blue-400/50"></div>
+                  <span className="text-xs font-medium">IA connectée</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-gray-400">
-                <LazyIconWrapper Icon={MessageSquare} className="w-3 h-3" />
-                <span>
-                  {conversations.length} conversation
-                  {conversations.length > 1 ? "s" : ""}
-                </span>
+              <div className="flex items-center justify-between text-gray-400">
+                <div className="flex items-center gap-2">
+                  <LazyIconWrapper Icon={MessageSquare} className="w-3.5 h-3.5" />
+                  <span className="text-xs">
+                    {conversations.length} conversation
+                    {conversations.length > 1 ? "s" : ""}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -540,7 +600,7 @@ export function WorkspaceLayoutPrototype() {
           <div className="flex-1 min-h-0 pt-14">
             {/* Chat toujours rendu (masqué en Preview) pour que chatRef soit accessible */}
             <div
-              className={`h-full ${isMobile && showPreviewOnMobile && isEditorOpen && currentPoll ? "hidden" : ""}`}
+              className={`w-full pb-32 ${isMobile && showPreviewOnMobile && isEditorOpen && currentPoll ? "hidden" : ""}`}
             >
               <GeminiChatInterface
                 ref={chatRef}
@@ -623,6 +683,63 @@ export function WorkspaceLayoutPrototype() {
           </div>
         )}
       </div>
-    </>
-  );
-}
+
+            {/* Modal d'authentification */}
+            <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+
+            {/* Modal clé bêta */}
+            <BetaKeyModal open={betaKeyModalOpen} onOpenChange={setBetaKeyModalOpen} />
+
+            {/* Dialog de confirmation de déconnexion */}
+            <AlertDialog open={signOutDialogOpen} onOpenChange={setSignOutDialogOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Déconnexion</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Êtes-vous sûr de vouloir vous déconnecter ?
+                    <br />
+                    <br />
+                    <span className="font-medium">Connecté en tant que {user?.email}</span>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={async () => {
+                      try {
+                        const { error } = await signOut();
+                        if (error) {
+                          toast({
+                            title: "Erreur",
+                            description: error.message || "Erreur lors de la déconnexion",
+                            variant: "destructive",
+                          });
+                        } else {
+                          toast({
+                            title: "Déconnexion",
+                            description: "Vous avez été déconnecté",
+                          });
+                          setSignOutDialogOpen(false);
+                          // Forcer le rechargement pour s'assurer que tout est nettoyé
+                          setTimeout(() => {
+                            window.location.href = "/";
+                          }, 500);
+                        }
+                      } catch (error) {
+                        toast({
+                          title: "Erreur",
+                          description: "Erreur lors de la déconnexion",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Se déconnecter
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        );
+      }

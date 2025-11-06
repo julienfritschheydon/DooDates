@@ -1,25 +1,44 @@
 import { useState, useEffect } from "react";
 import { DashboardPoll, ConversationItem } from "./types";
-import { getAllPolls, getFormResponses, getRespondentId, getVoterId } from "@/lib/pollStorage";
+import { getAllPolls, getFormResponses, getRespondentId, getVoterId, getCurrentUserId } from "@/lib/pollStorage";
 import { getConversations } from "@/lib/storage/ConversationStorageSimple";
 import { logError, ErrorFactory } from "@/lib/error-handling";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function useDashboardData(refreshKey: number) {
   const [conversationItems, setConversationItems] = useState<ConversationItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     loadData();
-  }, [refreshKey]);
+  }, [refreshKey, user?.id]);
 
   const loadData = async () => {
     setLoading(true);
     try {
       // Récupérer les conversations
-      const conversations = getConversations();
+      const allConversations = getConversations();
 
       // Récupérer les polls avec statistiques
-      const localPolls = getAllPolls();
+      const allPolls = getAllPolls();
+      
+      // Filtrer les polls pour ne garder que ceux du créateur actuel
+      const currentUserId = getCurrentUserId(user?.id);
+      const localPolls = allPolls.filter((poll) => poll.creator_id === currentUserId);
+      
+      // Filtrer les conversations pour ne garder que celles du créateur actuel
+      // Si connecté : garder celles avec userId === user.id
+      // Si invité : garder celles avec userId === "guest" ou undefined (rétrocompatibilité)
+      const conversations = allConversations.filter((conv) => {
+        if (user?.id) {
+          // Mode connecté : garder seulement les conversations de l'utilisateur
+          return conv.userId === user.id;
+        } else {
+          // Mode invité : garder seulement les conversations invitées
+          return conv.userId === "guest" || conv.userId === undefined;
+        }
+      });
 
       // Parser les votes une seule fois et créer un index par poll_id pour éviter les filtres répétés
       const votesRaw = localStorage.getItem("dev-votes");
@@ -101,12 +120,20 @@ export function useDashboardData(refreshKey: number) {
       });
 
       // Créer les items unifiés
-      const items: ConversationItem[] = conversations.map((conv) => {
+      // Filtrer aussi les conversations liées à des polls qui ne sont pas du créateur actuel
+      const items: ConversationItem[] = conversations
+        .map((conv) => {
         const metadata = conv.metadata as any;
 
         // Chercher le poll associé via pollId (directement sur conv ou dans metadata)
         const pollId = (conv as any).pollId || metadata?.pollId;
         const relatedPoll = pollId ? pollsWithStats.find((p) => p.id === pollId) : undefined;
+          
+          // Si la conversation est liée à un poll, vérifier que le poll appartient au créateur actuel
+          if (pollId && !relatedPoll) {
+            // La conversation est liée à un poll qui n'appartient pas au créateur actuel
+            return null;
+          }
 
         return {
           id: conv.id,
@@ -116,8 +143,9 @@ export function useDashboardData(refreshKey: number) {
           hasAI: !!metadata?.pollGenerated,
           tags: conv.tags || [],
           folderId: metadata?.folderId,
-        };
-      });
+          } as ConversationItem;
+        })
+        .filter((item): item is ConversationItem => item !== null); // Filtrer les null
 
       // Trier par date (plus récent en premier)
       items.sort((a, b) => b.conversationDate.getTime() - a.conversationDate.getTime());

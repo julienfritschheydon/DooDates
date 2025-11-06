@@ -26,7 +26,7 @@ export default function CreateChooser() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a] pb-8">
       <main className="max-w-4xl mx-auto p-6 pt-20 relative">
         <button
           onClick={() => navigate("/")}
