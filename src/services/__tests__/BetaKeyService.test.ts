@@ -27,8 +27,15 @@ vi.mock("@/lib/error-handling", () => ({
   ErrorFactory: {
     storage: (msg: string, userMsg: string) => new Error(userMsg),
     validation: (msg: string, userMsg: string) => new Error(userMsg),
+    auth: (msg: string, userMsg: string) => new Error(userMsg),
   },
   logError: vi.fn(),
+  handleError: vi.fn((error: unknown, context: any, fallbackMessage?: string) => {
+    if (error instanceof Error) {
+      return error;
+    }
+    return new Error(fallbackMessage || "Une erreur inattendue s'est produite");
+  }),
 }));
 
 describe("BetaKeyService", () => {

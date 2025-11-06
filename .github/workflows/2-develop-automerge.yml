@@ -20,10 +20,10 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      code: ${{ steps.changes.outputs.code || 'false' }}
-      src: ${{ steps.changes.outputs.src || 'false' }}
-      tests-only: ${{ steps.changes.outputs.tests-only || 'false' }}
-      e2e-required: ${{ steps.changes.outputs.e2e-required || 'false' }}
+      code: ${{ steps.changes.outputs.code }}
+      src: ${{ steps.changes.outputs.src }}
+      tests-only: ${{ steps.changes.outputs.tests-only }}
+      e2e-required: ${{ steps.changes.outputs.e2e-required }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
