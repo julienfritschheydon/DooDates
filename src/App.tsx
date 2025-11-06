@@ -47,6 +47,7 @@ const ChatLandingPrototype = lazy(() =>
 );
 const WorkspacePage = lazy(() => import("./app/workspace/page"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
+const ConsumptionJournal = lazy(() => import("./pages/ConsumptionJournal"));
 const Docs = lazy(() => import("./pages/Docs").then((m) => ({ default: m.Docs })));
 const Pricing = lazy(() => import("./pages/Pricing").then((m) => ({ default: m.PricingPage })));
 
@@ -409,6 +410,7 @@ const App = () => {
                                 <Route path="/workspace" element={<WorkspacePage />} />
                                 <Route path="/chat" element={<WorkspacePage />} />
                                 <Route path="/dashboard" element={<Dashboard />} />
+                                <Route path="/dashboard/journal" element={<ConsumptionJournal />} />
 
                                 <Route path="/auth" element={<Auth />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />

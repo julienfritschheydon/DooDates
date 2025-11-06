@@ -25,7 +25,7 @@ const LazyIconWrapper = ({ Icon, ...props }: { Icon: any; [key: string]: any }) 
     <Icon {...props} />
   </Suspense>
 );
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useConversation } from "./ConversationProvider";
 import { useEditorState, useEditorActions } from "./EditorStateProvider";
 import { useUIState } from "./UIStateProvider";
@@ -109,6 +109,7 @@ export function WorkspaceLayoutPrototype() {
   const chatKey = resumeId || conversationId || newChatTimestamp || "new-chat";
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
   const [conversations, setConversations] = useState<ReturnType<typeof getConversations>>([]);
+  const [conversationsRefreshKey, setConversationsRefreshKey] = useState(0);
 
   // Nouveaux hooks spécialisés
   const { isEditorOpen, currentPoll } = useEditorState();
@@ -198,9 +199,8 @@ export function WorkspaceLayoutPrototype() {
     }
   }, [newChatTimestamp, clearConversation, navigate]);
 
-  // Charger les sondages récents et conversations
-  // Se recharge quand on change de conversation (chatKey change) ou quand un poll est mis à jour
-  useEffect(() => {
+  // Fonction pour charger les données
+  const loadData = useCallback(() => {
     try {
       // Charger sondages
       const polls = getAllPolls();
@@ -228,16 +228,56 @@ export function WorkspaceLayoutPrototype() {
         .slice(0, 5);
       setRecentPolls(sorted);
 
-      // Charger conversations
-      const convs = getConversations();
-      const sortedConvs = convs.sort(
+      // Charger conversations et filtrer par utilisateur
+      const allConvs = getConversations();
+      // Filtrer les conversations pour ne garder que celles du créateur actuel
+      // Si connecté : garder celles avec userId === user.id
+      // Si invité : garder celles avec userId === "guest" ou undefined (rétrocompatibilité)
+      const filteredConvs = allConvs.filter((conv) => {
+        if (user?.id) {
+          // Mode connecté : garder seulement les conversations de l'utilisateur
+          return conv.userId === user.id;
+        } else {
+          // Mode invité : garder seulement les conversations invitées
+          return conv.userId === "guest" || conv.userId === undefined;
+        }
+      });
+      const sortedConvs = filteredConvs.sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
       setConversations(sortedConvs);
     } catch (error) {
       logger.error("Erreur chargement données", error);
     }
-  }, [chatKey, currentPoll]);
+  }, [user?.id]);
+
+  // Charger les sondages récents et conversations
+  // Se recharge quand on change de conversation (chatKey change), quand un poll est mis à jour, ou quand conversationsRefreshKey change
+  useEffect(() => {
+    loadData();
+  }, [chatKey, currentPoll, loadData, conversationsRefreshKey]);
+
+  // Écouter les événements de changement de conversations (suppression, création, etc.)
+  useEffect(() => {
+    const handleConversationsChanged = (event?: CustomEvent) => {
+      logger.info("🔄 Conversations changées, rechargement du sidebar", "conversation", {
+        action: event?.detail?.action,
+        conversationId: event?.detail?.conversationId,
+      });
+      // Petit délai pour s'assurer que localStorage est bien mis à jour
+      // puis forcer le rechargement en incrémentant la clé de rafraîchissement
+      setTimeout(() => {
+        setConversationsRefreshKey((prev) => prev + 1);
+      }, 0);
+    };
+
+    window.addEventListener("conversationsChanged", handleConversationsChanged as EventListener);
+    return () =>
+      window.removeEventListener(
+        "conversationsChanged",
+        handleConversationsChanged as EventListener,
+      );
+  }, []);
 
   return (
     <>

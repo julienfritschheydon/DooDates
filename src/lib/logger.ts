@@ -16,6 +16,7 @@ type LogCategory =
   | "poll"
   | "vote"
   | "analytics"
+  | "quota"
   | "general";
 
 interface LogEntry {
@@ -164,6 +165,7 @@ class Logger {
       auth: "🔐",
       api: "🌐",
       analytics: "📊",
+      quota: "💳",
       error: "❌",
       success: "✅",
       general: "ℹ️",
