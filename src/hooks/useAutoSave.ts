@@ -11,6 +11,7 @@ import { generateConversationTitle, shouldRegenerateTitle } from "../lib/service
 import type { Conversation, ConversationMessage } from "../types/conversation";
 import { ConversationError } from "../types/conversation";
 import { logger } from "@/lib/logger";
+import { logError, ErrorFactory } from "@/lib/error-handling";
 
 export interface AutoSaveMessage {
   id: string;
@@ -145,7 +146,10 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             incrementConversationCreated(user.id);
             console.log(`[${timestamp}] [${requestId}] 🆕 Quota incrémenté`);
           } catch (supabaseError) {
-            console.error(`[${timestamp}] [${requestId}] ❌ Erreur Supabase, fallback localStorage:`, supabaseError);
+            logError(
+              ErrorFactory.storage("Erreur Supabase, fallback localStorage", "La conversation sera sauvegardée localement"),
+              { context: "useAutoSave.createConversation", requestId, userId: user.id, error: supabaseError }
+            );
             logger.error(
               "Erreur lors de la création dans Supabase, utilisation de localStorage",
               "conversation",
@@ -197,7 +201,10 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         log("Conversation created", { id: result.id, title: result.title });
         return result;
       } catch (error) {
-        console.error(`[${timestamp}] [${requestId}] ❌ Erreur dans createConversation:`, error);
+        logError(
+          ErrorFactory.storage("Erreur dans createConversation", "Impossible de créer la conversation"),
+          { context: "useAutoSave.createConversation", requestId, userId: user?.id, error }
+        );
         log("Error creating conversation", { error });
         throw error;
       }
@@ -335,7 +342,10 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             await Promise.race([addPromise, timeoutPromise]);
             console.log(`[${timestamp}] [${requestId}] 💾 Sauvegarde Supabase terminée`);
           } catch (supabaseError) {
-            console.error(`[${timestamp}] [${requestId}] ❌ Erreur Supabase:`, supabaseError);
+            logError(
+              ErrorFactory.storage("Erreur Supabase lors de l'ajout du message", "Le message sera sauvegardé localement"),
+              { context: "useAutoSave.addMessage", requestId, conversationId: activeConversationId, userId: user.id, error: supabaseError }
+            );
             logger.error(
               "Erreur lors de l'ajout du message dans Supabase, utilisation de localStorage",
               "conversation",
@@ -369,7 +379,10 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         triggerTitleGeneration(activeConversationId, allMessages);
         console.log(`[${timestamp}] [${requestId}] ✅ useAutoSave.addMessage TERMINÉ`);
       } catch (error) {
-        console.error(`[${timestamp}] [${requestId}] ❌ Erreur dans addMessage:`, error);
+        logError(
+          ErrorFactory.storage("Erreur dans addMessage", "Impossible de sauvegarder le message"),
+          { context: "useAutoSave.addMessage", requestId, messageId: message.id, error }
+        );
         logger.error("Failed to save message immediately", "conversation", error);
         log("Error saving message", { error, messageId: message.id });
       }
