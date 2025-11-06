@@ -174,8 +174,8 @@ describe("useAiMessageQuota", () => {
 
       // Le hook devrait avoir lu les données depuis localStorage immédiatement
       // car useState initializer est synchrone
-      expect(result.current.aiMessagesUsed).toBe(1);
-      expect(result.current.aiMessagesRemaining).toBe(0); // 1 - 1 = 0
+          expect(result.current.aiMessagesUsed).toBe(1);
+          expect(result.current.aiMessagesRemaining).toBe(0); // 1 - 1 = 0
     });
   });
 
@@ -255,7 +255,7 @@ describe("useAiMessageQuota", () => {
       const { result, rerender } = renderHook(() => useAiMessageQuota());
 
       const startTime = Date.now();
-      
+
       act(() => {
         result.current.incrementAiMessages();
       });
@@ -273,7 +273,7 @@ describe("useAiMessageQuota", () => {
 
       // Vérifier que le cooldown est terminé
       // Note: canSendMessage peut être false si le quota est épuisé, mais isInCooldown doit être false
-      expect(result.current.isInCooldown).toBe(false);
+          expect(result.current.isInCooldown).toBe(false);
       // canSendMessage = aiMessagesRemaining > 0 && !isInCooldown
       // Ici aiMessagesRemaining = 0 (quota utilisé), donc canSendMessage = false même si cooldown terminé
       // C'est normal, le test vérifie juste que le cooldown est terminé
@@ -416,7 +416,7 @@ describe("useAiMessageQuota", () => {
     it("should initialize reset date for authenticated users", () => {
       // Solution : Utiliser act() qui flush automatiquement les effets React
       // L'effet processMonthlyQuotaReset se déclenche au montage pour les auth users
-      const { result } = renderHook(() => useAiMessageQuota());
+        const { result } = renderHook(() => useAiMessageQuota());
 
       // act() est déjà appelé par renderHook, mais on peut forcer un flush supplémentaire
       act(() => {
@@ -424,10 +424,10 @@ describe("useAiMessageQuota", () => {
       });
 
       // L'effet devrait avoir initialisé resetDate et sauvegardé dans localStorage
-      const stored = localStorage.getItem("doodates_ai_quota");
-      expect(stored).toBeTruthy();
-      const data = JSON.parse(stored!);
-      expect(data.resetDate).toBeTruthy();
+            const stored = localStorage.getItem("doodates_ai_quota");
+            expect(stored).toBeTruthy();
+        const data = JSON.parse(stored!);
+        expect(data.resetDate).toBeTruthy();
     });
 
     it("should reset quota when month changes", async () => {

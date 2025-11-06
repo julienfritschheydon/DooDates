@@ -419,6 +419,7 @@ function isDatePoll(p: Poll): boolean {
 export function getAllPolls(): Poll[] {
   try {
     migrateFormDraftsIntoUnified();
+    migrateCreatorIdsForGuestPolls();
     // Utiliser readFromStorage pour maintenir la cohérence du cache mémoire
     const polls = readFromStorage(STORAGE_KEY, memoryPollCache, []);
 
@@ -502,6 +503,50 @@ export function getAllPolls(): Poll[] {
     });
 
     return [];
+  }
+}
+
+// Migration: mettre à jour les creator_id des polls existants pour les utilisateurs non connectés
+// (pour compatibilité avec les polls créés avant la correction qui utilisaient "anonymous" ou un ancien device ID)
+function migrateCreatorIdsForGuestPolls(): void {
+  if (!hasWindow()) return;
+  try {
+    const rawUnified = window.localStorage.getItem(STORAGE_KEY);
+    const unified = rawUnified ? (JSON.parse(rawUnified) as Poll[]) : [];
+    if (!Array.isArray(unified) || unified.length === 0) return;
+
+    const currentDeviceId = getDeviceId();
+    let migrated = 0;
+    let hasChanges = false;
+
+    for (const poll of unified) {
+      // Ne migrer que les polls qui n'ont pas de creator_id valide (pas d'UUID Supabase)
+      // et qui ont un creator_id différent du device ID actuel
+      const isGuestPoll =
+        poll.creator_id &&
+        !poll.creator_id.startsWith("dev-") &&
+        poll.creator_id !== currentDeviceId &&
+        (poll.creator_id === "anonymous" ||
+          poll.creator_id === undefined ||
+          poll.creator_id === null ||
+          (poll.creator_id.startsWith("dev-") && poll.creator_id !== currentDeviceId));
+
+      if (isGuestPoll || !poll.creator_id) {
+        poll.creator_id = currentDeviceId;
+        poll.updated_at = new Date().toISOString();
+        migrated++;
+        hasChanges = true;
+      }
+    }
+
+    if (hasChanges) {
+      writeToStorage(STORAGE_KEY, unified, memoryPollCache);
+      if (migrated > 0) {
+        logger.info(`Migrated ${migrated} polls to use current device ID`, "poll");
+      }
+    }
+  } catch (error) {
+    logger.warn("Error migrating creator IDs for guest polls", "poll", error);
   }
 }
 

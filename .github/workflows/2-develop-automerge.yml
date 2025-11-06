@@ -342,7 +342,7 @@ jobs:
         if: needs.tests-e2e.result == 'failure'
         run: |
           if [ -d test-results ]; then
-            node scripts/generate-regression-summary.js || echo "Summary generation failed"
+            node scripts/generate-regression-summary.js develop || echo "Summary generation failed"
           else
             echo "No test results available"
           fi

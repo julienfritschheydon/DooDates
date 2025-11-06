@@ -16,6 +16,37 @@ const PROJECTS = ['chromium', 'firefox', 'webkit', 'Mobile Chrome', 'Mobile Safa
 const ARTIFACTS_DIR = path.join(process.cwd(), 'artifacts');
 const TEST_RESULTS_DIR = path.join(process.cwd(), 'test-results');
 
+// Détecter le contexte (nightly, develop, main, pr)
+const CONTEXT = process.argv[2] || 'nightly'; // 'nightly' par défaut
+const IS_DEVELOP = CONTEXT === 'develop';
+const IS_MAIN = CONTEXT === 'main';
+const IS_PR = CONTEXT === 'pr';
+
+/**
+ * Trouve récursivement tous les fichiers JSON dans un dossier
+ */
+function findJsonFilesRecursive(dir, maxDepth = 3, currentDepth = 0) {
+  const files = [];
+  if (currentDepth >= maxDepth) return files;
+  
+  try {
+    if (!fs.existsSync(dir)) return files;
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        files.push(...findJsonFilesRecursive(fullPath, maxDepth, currentDepth + 1));
+      } else if (entry.name === 'test-results.json' || entry.name === 'results.json' || 
+                 (entry.name.endsWith('.json') && entry.name.includes('result'))) {
+        files.push(fullPath);
+      }
+    }
+  } catch (error) {
+    // Ignorer les erreurs de lecture
+  }
+  return files;
+}
+
 /**
  * Parse les résultats JSON de Playwright
  * Playwright génère test-results.json à la racine ou dans test-results/
@@ -26,11 +57,17 @@ function parsePlaywrightResults(projectName) {
   if (fs.existsSync(rootJsonFile)) {
     try {
       const content = fs.readFileSync(rootJsonFile, 'utf-8');
-      return JSON.parse(content);
+      const parsed = JSON.parse(content);
+      if (parsed && (parsed.stats || parsed.suites)) {
+        return parsed;
+      }
     } catch (error) {
       console.error(`Erreur lors de la lecture de ${rootJsonFile}:`, error.message);
     }
   }
+
+  // Pour develop, main et PR, la recherche récursive est déjà faite dans parseArtifactResults
+  // Ici on cherche dans les emplacements standards
 
   // Chercher dans un sous-dossier spécifique au projet
   const resultsDir = path.join(TEST_RESULTS_DIR, projectName);
@@ -39,7 +76,10 @@ function parsePlaywrightResults(projectName) {
     if (fs.existsSync(resultsFile)) {
       try {
         const content = fs.readFileSync(resultsFile, 'utf-8');
-        return JSON.parse(content);
+        const parsed = JSON.parse(content);
+        if (parsed && (parsed.stats || parsed.suites)) {
+          return parsed;
+        }
       } catch (error) {
         console.error(`Erreur lors de la lecture des résultats pour ${projectName}:`, error.message);
       }
@@ -51,7 +91,10 @@ function parsePlaywrightResults(projectName) {
   if (fs.existsSync(projectJsonFile)) {
     try {
       const content = fs.readFileSync(projectJsonFile, 'utf-8');
-      return JSON.parse(content);
+      const parsed = JSON.parse(content);
+      if (parsed && (parsed.stats || parsed.suites)) {
+        return parsed;
+      }
     } catch (error) {
       console.error(`Erreur lors de la lecture de ${projectJsonFile}:`, error.message);
     }
@@ -64,7 +107,25 @@ function parsePlaywrightResults(projectName) {
  * Parse les résultats depuis les artefacts téléchargés
  */
 function parseArtifactResults(projectName) {
-  // Chercher dans test-results-{project} (artefact téléchargé)
+  // Pour develop, main et PR, chercher récursivement dans tous les dossiers d'artefacts
+  if (IS_DEVELOP || IS_MAIN || IS_PR) {
+    // Chercher récursivement tous les fichiers JSON dans test-results
+    const jsonFiles = findJsonFilesRecursive(TEST_RESULTS_DIR);
+    for (const jsonFile of jsonFiles) {
+      try {
+        const content = fs.readFileSync(jsonFile, 'utf-8');
+        const parsed = JSON.parse(content);
+        if (parsed && (parsed.stats || parsed.suites)) {
+          console.log(`  ✅ Résultats trouvés dans artefact: ${jsonFile}`);
+          return parsed;
+        }
+      } catch (error) {
+        // Continuer avec le fichier suivant
+      }
+    }
+  }
+  
+  // Chercher dans test-results-{project} (artefact téléchargé pour nightly)
   const testResultsArtifactDir = path.join(TEST_RESULTS_DIR, `test-results-${projectName}`);
   if (fs.existsSync(testResultsArtifactDir)) {
     // Chercher test-results.json à la racine
@@ -212,7 +273,19 @@ function generateMarkdownSummary(summaries) {
   const date = new Date().toISOString().split('T')[0];
   const time = new Date().toLocaleTimeString('fr-FR', { timeZone: 'UTC' });
   
-  let md = `# 📊 Résumé des Tests de Régression Nocturne\n\n`;
+  // Titre selon le contexte
+  let title;
+  if (IS_DEVELOP) {
+    title = `📊 Résumé des Tests E2E Smoke (Develop)`;
+  } else if (IS_MAIN) {
+    title = `📊 Résumé des Tests E2E (Main)`;
+  } else if (IS_PR) {
+    title = `📊 Résumé des Tests E2E (PR)`;
+  } else {
+    title = `📊 Résumé des Tests de Régression Nocturne`;
+  }
+  
+  let md = `# ${title}\n\n`;
   md += `**Date:** ${date} ${time} UTC\n\n`;
   md += `---\n\n`;
 
@@ -238,7 +311,8 @@ function generateMarkdownSummary(summaries) {
   md += `| ❌ Tests échoués | ${totalFailed} |\n`;
   md += `| ⏭️ Tests ignorés | ${totalSkipped} |\n`;
   md += `| 🔴 Erreurs totales | ${totalErrors} |\n`;
-  md += `| 📦 Navigateurs testés | ${summaries.filter(s => s).length}/${PROJECTS.length} |\n\n`;
+  const expectedProjects = (IS_DEVELOP || IS_MAIN || IS_PR) ? 1 : PROJECTS.length;
+  md += `| 📦 Navigateurs testés | ${summaries.filter(s => s).length}/${expectedProjects} |\n\n`;
 
   // Résultats par navigateur
   md += `## 🌐 Résultats par Navigateur\n\n`;
@@ -331,7 +405,17 @@ function generateMarkdownSummary(summaries) {
   md += `Les rapports HTML complets sont disponibles dans les artefacts GitHub Actions:\n\n`;
   for (const summary of summaries) {
     if (!summary) continue;
-    md += `- \`playwright-report-nightly-${summary.project}\`\n`;
+    let artifactName;
+    if (IS_DEVELOP) {
+      artifactName = `playwright-report-develop-smoke`;
+    } else if (IS_MAIN) {
+      artifactName = `playwright-smoke-report-*`; // Peut être shardé
+    } else if (IS_PR) {
+      artifactName = `playwright-report-smoke`;
+    } else {
+      artifactName = `playwright-report-nightly-${summary.project}`;
+    }
+    md += `- \`${artifactName}\`\n`;
   }
 
   return md;
@@ -341,20 +425,52 @@ function generateMarkdownSummary(summaries) {
  * Fonction principale
  */
 async function main() {
-  console.log('🔍 Analyse des résultats de régression...\n');
+  let contextLabel;
+  if (IS_DEVELOP) {
+    contextLabel = 'E2E Smoke (Develop)';
+  } else if (IS_MAIN) {
+    contextLabel = 'E2E (Main)';
+  } else if (IS_PR) {
+    contextLabel = 'E2E (PR)';
+  } else {
+    contextLabel = 'Régression Nocturne';
+  }
+  console.log(`🔍 Analyse des résultats de ${contextLabel}...\n`);
 
   const summaries = [];
+  
+  // Pour develop, main et PR, on ne teste que chromium (smoke tests)
+  // Pour nightly, on teste tous les navigateurs
+  const projectsToTest = (IS_DEVELOP || IS_MAIN || IS_PR) ? ['chromium'] : PROJECTS;
 
-  for (const project of PROJECTS) {
+  for (const project of projectsToTest) {
     console.log(`📦 Analyse de ${project}...`);
+    
+    // Debug: afficher la structure du dossier test-results
+    if ((IS_DEVELOP || IS_MAIN || IS_PR) && fs.existsSync(TEST_RESULTS_DIR)) {
+      console.log(`  📁 Contenu de test-results:`);
+      try {
+        const entries = fs.readdirSync(TEST_RESULTS_DIR, { withFileTypes: true });
+        for (const entry of entries) {
+          const fullPath = path.join(TEST_RESULTS_DIR, entry.name);
+          const stat = entry.isDirectory() ? '📁' : '📄';
+          console.log(`    ${stat} ${entry.name}`);
+        }
+      } catch (error) {
+        console.log(`    ⚠️ Erreur lors de la lecture: ${error.message}`);
+      }
+    }
     
     let results = parsePlaywrightResults(project);
     if (!results) {
+      console.log(`  🔍 Recherche dans les artefacts...`);
       results = parseArtifactResults(project);
     }
 
     if (!results) {
       console.log(`  ⚠️ Aucun résultat trouvé pour ${project}`);
+      console.log(`  📂 TEST_RESULTS_DIR: ${TEST_RESULTS_DIR}`);
+      console.log(`  📂 Existe: ${fs.existsSync(TEST_RESULTS_DIR)}`);
       // Si aucun résultat n'est trouvé, créer un résumé vide pour indiquer le problème
       summaries.push({
         project,
@@ -379,10 +495,59 @@ async function main() {
 
     // Compter les résultats
     if (results.stats) {
-      summary.passed = results.stats.expected || 0;
-      summary.failed = results.stats.unexpected || 0;
+      // Playwright peut utiliser différentes structures
+      summary.passed = results.stats.expected || results.stats.passed || 0;
+      summary.failed = results.stats.unexpected || results.stats.failed || 0;
       summary.skipped = results.stats.skipped || 0;
       summary.duration = results.stats.duration || 0;
+      
+      // Si les stats ne sont pas disponibles, compter depuis les suites
+      if (summary.passed === 0 && summary.failed === 0 && results.suites) {
+        const allTests = parseAllTests(results.suites);
+        summary.failed = allTests.length;
+        // Compter les tests réussis depuis les suites
+        const countTests = (suites) => {
+          let count = 0;
+          if (!suites || !Array.isArray(suites)) return count;
+          for (const suite of suites) {
+            if (suite.tests && Array.isArray(suite.tests)) {
+              count += suite.tests.length;
+            }
+            if (suite.suites && Array.isArray(suite.suites)) {
+              count += countTests(suite.suites);
+            }
+          }
+          return count;
+        };
+        const totalTests = countTests(results.suites);
+        summary.passed = totalTests - summary.failed - summary.skipped;
+      }
+    } else if (results.suites) {
+      // Si pas de stats, compter depuis les suites
+      const allTests = parseAllTests(results.suites);
+      summary.failed = allTests.length;
+      const countTests = (suites) => {
+        let count = 0;
+        let skipped = 0;
+        if (!suites || !Array.isArray(suites)) return { count, skipped };
+        for (const suite of suites) {
+          if (suite.tests && Array.isArray(suite.tests)) {
+            for (const test of suite.tests) {
+              count++;
+              if (test.status === 'skipped') skipped++;
+            }
+          }
+          if (suite.suites && Array.isArray(suite.suites)) {
+            const nested = countTests(suite.suites);
+            count += nested.count;
+            skipped += nested.skipped;
+          }
+        }
+        return { count, skipped };
+      };
+      const totals = countTests(results.suites);
+      summary.skipped = totals.skipped;
+      summary.passed = totals.count - summary.failed - summary.skipped;
     }
 
     // Extraire les erreurs
@@ -409,7 +574,8 @@ async function main() {
 
   // Dans GitHub Actions, écrire dans GITHUB_STEP_SUMMARY pour l'afficher dans le workflow
   if (process.env.GITHUB_STEP_SUMMARY) {
-    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, markdown);
+    // Écrire le résumé complet (le titre sera celui du markdown)
+    fs.writeFileSync(process.env.GITHUB_STEP_SUMMARY, markdown);
     console.log('\n✅ Résumé ajouté à GitHub Actions Step Summary');
   }
 
