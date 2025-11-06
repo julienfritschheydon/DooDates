@@ -207,7 +207,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({ pollId, onBack, onVoteSubmitt
   const progressPercent = (userTotalVotes / options.length) * 100;
 
   return (
-    <div className="flex flex-col h-screen bg-[#0a0a0a]">
+    <div className="flex flex-col min-h-screen bg-[#0a0a0a] pb-8">
       {/* En-tête avec titre et bouton retour */}
       <PollHeader
         poll={

@@ -99,12 +99,55 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
       log("Creating new conversation");
 
       try {
-        const result = ConversationStorage.createConversation({
-          title:
-            firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
-          firstMessage: firstMessage.content,
-          userId: user?.id || "guest",
-        });
+        // Create conversation - save to Supabase if logged in, otherwise localStorage
+        let result: Conversation;
+
+        if (user?.id) {
+          try {
+            const { createConversation: createSupabaseConversation } = await import(
+              "../lib/storage/ConversationStorageSupabase"
+            );
+            result = await createSupabaseConversation(
+              {
+                title:
+                  firstMessage.content.slice(0, 50) +
+                  (firstMessage.content.length > 50 ? "..." : ""),
+                status: "active",
+                firstMessage: firstMessage.content,
+                messageCount: 0,
+                isFavorite: false,
+                tags: [],
+                metadata: {},
+                userId: user.id,
+              },
+              user.id,
+            );
+            // Also save to localStorage as cache
+            ConversationStorage.addConversation(result);
+          } catch (supabaseError) {
+            logger.error(
+              "Erreur lors de la création dans Supabase, utilisation de localStorage",
+              "conversation",
+              supabaseError,
+            );
+            // Fallback to localStorage
+            result = ConversationStorage.createConversation({
+              title:
+                firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
+              firstMessage: firstMessage.content,
+              userId: user.id,
+            });
+          }
+        } else {
+          // Guest mode: use localStorage only
+          result = ConversationStorage.createConversation({
+            title:
+              firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
+            firstMessage: firstMessage.content,
+            userId: "guest",
+          });
+        }
+
         currentConversationRef.current = result;
         setConversationId(result.id);
         log("Conversation created", { id: result.id, title: result.title });
@@ -157,6 +200,27 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
                 updatedAt: new Date(),
               };
 
+              // Save to Supabase if logged in and owned by user
+              if (conversation.userId && conversation.userId !== "guest") {
+                try {
+                  const { updateConversation: updateSupabaseConversation } = await import(
+                    "../lib/storage/ConversationStorageSupabase"
+                  );
+                  // Get user ID from conversation or useAuth
+                  const userId = conversation.userId;
+                  if (userId && userId !== "guest") {
+                    await updateSupabaseConversation(updatedConversation, userId);
+                  }
+                } catch (supabaseError) {
+                  logger.error(
+                    "Erreur lors de la mise à jour du titre dans Supabase",
+                    "conversation",
+                    supabaseError,
+                  );
+                  // Continue with localStorage
+                }
+              }
+
               // Get all conversations, update the specific one, and save back
               const allConversations = ConversationStorage.getConversations();
               const updatedConversations = allConversations.map((conv) =>
@@ -195,6 +259,28 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
 
         // Convert and save this single message immediately
         const convertedMessage = convertMessage(message, activeConversationId);
+
+        // Get conversation to check ownership
+        const conversation = ConversationStorage.getConversation(activeConversationId);
+
+        // Save to Supabase if logged in and owned by user
+        if (user?.id && conversation?.userId === user.id) {
+          try {
+            const { addMessages: addSupabaseMessages } = await import(
+              "../lib/storage/ConversationStorageSupabase"
+            );
+            await addSupabaseMessages(activeConversationId, [convertedMessage], user.id);
+          } catch (supabaseError) {
+            logger.error(
+              "Erreur lors de l'ajout du message dans Supabase, utilisation de localStorage",
+              "conversation",
+              supabaseError,
+            );
+            // Continue with localStorage
+          }
+        }
+
+        // Always save to localStorage as cache
         ConversationStorage.addMessages(activeConversationId, [convertedMessage]);
 
         // Verify it was saved
@@ -224,9 +310,33 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         // Add small delay to ensure localStorage is synchronized
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        // Use ConversationStorage directly
+        let conversation: Conversation | null = null;
 
-        const conversation = ConversationStorage.getConversation(id);
+        // Try Supabase first if logged in
+        if (user?.id) {
+          try {
+            const { getConversation: getSupabaseConversation } = await import(
+              "../lib/storage/ConversationStorageSupabase"
+            );
+            conversation = await getSupabaseConversation(id, user.id);
+            if (conversation) {
+              // Also cache in localStorage
+              ConversationStorage.updateConversation(conversation);
+            }
+          } catch (supabaseError) {
+            logger.error(
+              "Erreur lors du chargement depuis Supabase, utilisation de localStorage",
+              "conversation",
+              supabaseError,
+            );
+            // Fallback to localStorage
+          }
+        }
+
+        // Fallback to localStorage if not found in Supabase
+        if (!conversation) {
+          conversation = ConversationStorage.getConversation(id);
+        }
 
         if (conversation) {
           setConversationId(id);
@@ -243,7 +353,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         throw error;
       }
     },
-    [conversationId, log],
+    [conversationId, log, user?.id],
   );
 
   // Get current conversation with messages

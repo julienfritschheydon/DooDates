@@ -18,10 +18,23 @@ vi.mock("../../lib/storage/ConversationStorageSimple", () => ({
   getConversationWithMessages: vi.fn(),
 }));
 
-// Mock AuthContext
+// Mock AuthContext - utiliser un utilisateur guest pour les tests (pas de Supabase)
 vi.mock("../../contexts/AuthContext", () => ({
-  useAuth: () => ({ user: { id: "test-user-123" } }),
+  useAuth: () => ({ user: null, isAuthenticated: false }), // Guest user - pas de Supabase dans les tests
   AuthProvider: ({ children }: any) => children,
+}));
+
+// Mock ConversationStorageSupabase pour éviter les imports dynamiques
+vi.mock("../../lib/storage/ConversationStorageSupabase", () => ({
+  createConversation: vi.fn(),
+  getConversation: vi.fn(),
+  updateConversation: vi.fn(),
+  deleteConversation: vi.fn(),
+  getMessages: vi.fn(),
+  saveMessages: vi.fn(),
+  addMessages: vi.fn(),
+  deleteMessages: vi.fn(),
+  getConversationWithMessages: vi.fn(),
 }));
 
 // Mock title generation
@@ -130,10 +143,7 @@ describe("useAutoSave - Tests Isolés (2, 9, 11, 12)", () => {
 
     await act(async () => {
       await result.current.resumeConversation(conversation.id);
-    });
-
-    act(() => {
-      result.current.addMessage(message);
+      await result.current.addMessage(message);
     });
 
     expect(mockAddMessages).toHaveBeenCalledWith(

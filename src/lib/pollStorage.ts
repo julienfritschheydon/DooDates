@@ -91,6 +91,8 @@ export interface FormResponse {
   id: string;
   pollId: string;
   respondentName?: string;
+  respondentEmail?: string;
+  deviceId?: string; // Device ID pour vérification de vote (même avec nom)
   created_at: string;
   items: FormResponseItem[];
 }
@@ -145,6 +147,8 @@ export interface Poll {
   relatedConversationId?: string; // ID de la conversation qui a créé ce sondage
   // NOUVEAU : Lien bidirectionnel avec conversation (architecture centrée conversations)
   conversationId?: string; // ID de la conversation parente
+  // Visibilité des résultats
+  resultsVisibility?: "creator-only" | "voters" | "public";
 }
 
 const STORAGE_KEY = "doodates_polls";
@@ -415,6 +419,7 @@ function isDatePoll(p: Poll): boolean {
 export function getAllPolls(): Poll[] {
   try {
     migrateFormDraftsIntoUnified();
+    migrateCreatorIdsForGuestPolls();
     // Utiliser readFromStorage pour maintenir la cohérence du cache mémoire
     const polls = readFromStorage(STORAGE_KEY, memoryPollCache, []);
 
@@ -501,6 +506,50 @@ export function getAllPolls(): Poll[] {
   }
 }
 
+// Migration: mettre à jour les creator_id des polls existants pour les utilisateurs non connectés
+// (pour compatibilité avec les polls créés avant la correction qui utilisaient "anonymous" ou un ancien device ID)
+function migrateCreatorIdsForGuestPolls(): void {
+  if (!hasWindow()) return;
+  try {
+    const rawUnified = window.localStorage.getItem(STORAGE_KEY);
+    const unified = rawUnified ? (JSON.parse(rawUnified) as Poll[]) : [];
+    if (!Array.isArray(unified) || unified.length === 0) return;
+
+    const currentDeviceId = getDeviceId();
+    let migrated = 0;
+    let hasChanges = false;
+
+    for (const poll of unified) {
+      // Ne migrer que les polls qui n'ont pas de creator_id valide (pas d'UUID Supabase)
+      // et qui ont un creator_id différent du device ID actuel
+      const isGuestPoll =
+        poll.creator_id &&
+        !poll.creator_id.startsWith("dev-") &&
+        poll.creator_id !== currentDeviceId &&
+        (poll.creator_id === "anonymous" ||
+          poll.creator_id === undefined ||
+          poll.creator_id === null ||
+          (poll.creator_id.startsWith("dev-") && poll.creator_id !== currentDeviceId));
+
+      if (isGuestPoll || !poll.creator_id) {
+        poll.creator_id = currentDeviceId;
+        poll.updated_at = new Date().toISOString();
+        migrated++;
+        hasChanges = true;
+      }
+    }
+
+    if (hasChanges) {
+      writeToStorage(STORAGE_KEY, unified, memoryPollCache);
+      if (migrated > 0) {
+        logger.info(`Migrated ${migrated} polls to use current device ID`, "poll");
+      }
+    }
+  } catch (error) {
+    logger.warn("Error migrating creator IDs for guest polls", "poll", error);
+  }
+}
+
 // Migration: fusionner les brouillons formulaires stockés dans FORM_STORAGE_KEY vers STORAGE_KEY
 function migrateFormDraftsIntoUnified(): void {
   if (!hasWindow()) return;
@@ -523,7 +572,7 @@ function migrateFormDraftsIntoUnified(): void {
       if (id && existingIds.has(id)) continue;
       const formPoll: Poll = {
         id: id || `form-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        creator_id: "anonymous",
+        creator_id: getDeviceId(), // Pour les polls migrés, utiliser deviceId (probablement créés en mode invité)
         title: (f?.title as string) || "Sans titre",
         slug: (f?.slug as string) || `form-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         created_at: (f?.created_at as string) || new Date().toISOString(),
@@ -707,6 +756,7 @@ function assertValidFormAnswer(poll: Poll, items: FormResponseItem[]): void {
 export function addFormResponse(params: {
   pollId: string;
   respondentName?: string;
+  respondentEmail?: string;
   items: FormResponseItem[];
 }): FormResponse {
   const poll = getFormPollById(params.pollId);
@@ -743,6 +793,8 @@ export function addFormResponse(params: {
         : `resp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     pollId: params.pollId,
     respondentName: normalizedName ? normalizedName : undefined,
+    respondentEmail: params.respondentEmail,
+    deviceId: getDeviceId(), // Stocker deviceId pour vérification de vote
     created_at: now,
     items: params.items,
   };
@@ -941,6 +993,47 @@ export function getRespondentId(resp: FormResponse): string {
   if (name) return `name:${name}`;
   // Stable fallback combines deviceId and response id
   return `anon:${getDeviceId()}:${resp.id}`;
+}
+
+/**
+ * Récupère l'ID de l'utilisateur actuel (device ID ou user ID si authentifié)
+ *
+ * @param authenticatedUserId - ID utilisateur Supabase si authentifié (optionnel)
+ * @returns user.id si authentifié, sinon deviceId
+ */
+export function getCurrentUserId(authenticatedUserId?: string | null): string {
+  // Si un userId authentifié est fourni, l'utiliser
+  if (authenticatedUserId) {
+    return authenticatedUserId;
+  }
+
+  // Sinon, retourner device ID (mode invité/localStorage)
+  return getDeviceId();
+}
+
+/**
+ * Vérifie si l'utilisateur actuel a voté sur ce poll
+ * Vérifie par deviceId stocké dans la réponse (fonctionne pour votes anonymes et avec nom)
+ */
+export function checkIfUserHasVoted(pollId: string): boolean {
+  const deviceId = getDeviceId();
+  const responses = getFormResponses(pollId);
+
+  // Vérifier si une réponse existe avec cet appareil
+  // Priorité 1: Vérifier deviceId stocké dans la réponse (nouveau, fonctionne toujours)
+  const hasVotedByDeviceId = responses.some((r) => r.deviceId === deviceId);
+  if (hasVotedByDeviceId) return true;
+
+  // Priorité 2: Fallback pour réponses anciennes (sans deviceId stocké)
+  // Pour les réponses anonymes, le respondentId contient le deviceId
+  return responses.some((r) => {
+    const respondentId = getRespondentId(r);
+    // Si la réponse est anonyme, le respondentId contient le deviceId
+    if (respondentId.startsWith(`anon:${deviceId}:`)) {
+      return true;
+    }
+    return false;
+  });
 }
 
 // ============================================================================

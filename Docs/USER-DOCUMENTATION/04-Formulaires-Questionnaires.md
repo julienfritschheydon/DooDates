@@ -330,6 +330,11 @@ IA : "📋 Enquête Satisfaction Restaurant (6 questions)
    Thème : Nature / Minimaliste / Par défaut
    ☑ Afficher la progression
    ☑ Sauvegarder automatiquement
+   
+   Visibilité des résultats :
+   ⚫ Moi uniquement (par défaut)
+   ○ Personnes ayant voté (recommandé)
+   ○ Public (tout le monde)
    ```
 
 5. **Prévisualiser et publier**
@@ -863,7 +868,7 @@ Analyse en temps réel (non stockée), pas d'entraînement de modèle, conformit
 - [ ] Lien de partage testé
 - [ ] Message d'accompagnement rédigé
 - [ ] Deadline configurée
-- [ ] Visibilité résultats définie
+- [ ] Visibilité résultats définie (Moi uniquement / Votants / Public)
 
 ---
 
@@ -946,7 +951,178 @@ Analyse en temps réel (non stockée), pas d'entraînement de modèle, conformit
    → Demandez le nouveau lien
    ```
 
+---
 
+## 📧 Email de Confirmation
+
+Après avoir voté sur un formulaire, vous pouvez recevoir une copie de vos réponses par email.
+
+### Activer l'Email de Confirmation
+
+**Lors du vote :**
+
+1. Remplissez vos réponses aux questions
+2. **Cochez** la case "Recevoir une copie de mes réponses par email"
+3. Un champ email apparaît automatiquement
+4. Entrez votre adresse email valide
+5. Soumettez le formulaire
+
+**Exemple :**
+```
+┌─────────────────────────────────────────┐
+│  Vos réponses                           │
+│  ...                                    │
+│                                         │
+│  ─────────────────────────────────────  │
+│                                         │
+│  ☑ Recevoir une copie de mes réponses  │
+│    par email                            │
+│                                         │
+│  Votre email                            │
+│  [votre@email.com________________]      │
+│                                         │
+│  [Envoyer mes réponses]                 │
+└─────────────────────────────────────────┘
+```
+
+### Contenu de l'Email
+
+L'email reçu contient :
+- ✅ **Titre du formulaire**
+- ✅ **Votre nom** (si renseigné)
+- ✅ **Toutes vos réponses** formatées par question
+- ✅ **Lien vers les résultats** (si vous y avez accès)
+
+**Format :**
+```
+Sujet : Vos réponses : [Titre du formulaire]
+
+Bonjour [Votre nom],
+
+Merci d'avoir participé au formulaire "[Titre]".
+
+Vos réponses :
+
+1. Question 1
+   → Votre réponse
+
+2. Question 2
+   → Votre réponse 1
+   → Votre réponse 2
+
+...
+
+[Voir les résultats] → Lien cliquable
+```
+
+### Validation Email
+
+**Règles :**
+- ✅ Email requis si la case est cochée
+- ✅ Format email valide (ex: `nom@domaine.com`)
+- ✅ Message d'erreur si email invalide ou manquant
+
+**Erreurs possibles :**
+- ❌ "Veuillez entrer votre email pour recevoir une copie" (si case cochée mais email vide)
+- ❌ "Veuillez entrer une adresse email valide" (si format incorrect)
+
+### Disponibilité
+
+**Mode actuel (MVP) :**
+- ✅ Email généré et logué dans la console (pour développement)
+- ⏸️ Envoi réel par email (prévu pour Phase 2 avec Resend API)
+
+**Note :** Pour l'instant, l'email est généré mais non envoyé automatiquement. Cette fonctionnalité sera activée dans une prochaine version.
+
+---
+
+## 🔐 Visibilité des Résultats
+
+Lors de la création d'un formulaire, vous pouvez définir qui peut voir les résultats.
+
+### Configurer la Visibilité
+
+**Dans l'éditeur de formulaire :**
+
+```
+┌─────────────────────────────────────────┐
+│  Visibilité des résultats               │
+├─────────────────────────────────────────┤
+│  ⚫ Moi uniquement (par défaut)         │
+│  ○ Personnes ayant voté (recommandé)   │
+│  ○ Public (tout le monde)               │
+└─────────────────────────────────────────┘
+```
+
+### Les 3 Modes de Visibilité
+
+#### 1. Moi Uniquement (Creator-Only)
+
+**Qui peut voir :**
+- ✅ Seulement le créateur du formulaire
+
+**Comportement :**
+- Après avoir voté, le bouton "Voir les résultats" **n'apparaît pas**
+- Accès direct à `/poll/{slug}/results` → Message "Accès restreint"
+- Seul le créateur peut voir les résultats depuis son Dashboard
+
+**Cas d'usage :**
+- Enquêtes RH sensibles
+- Feedback confidentiel
+- Études de marché compétitives
+- Éviter les biais de réponses
+
+---
+
+#### 2. Personnes Ayant Voté (Voters)
+
+**Qui peut voir :**
+- ✅ Le créateur
+- ✅ Toute personne ayant voté
+
+**Comportement :**
+- Après avoir voté, le bouton **"Voir les résultats"** apparaît
+- Cliquer sur le bouton → Accès aux résultats
+- Accès direct à `/poll/{slug}/results` → Résultats visibles (si vous avez voté)
+- Si vous n'avez pas voté → Message "Accès restreint" + "💡 Votez pour voir les résultats !"
+
+**Cas d'usage :**
+- Sondages de groupe (date de réunion)
+- Décisions d'équipe collaboratives
+- Votes communautaires
+- Transparence après participation
+
+---
+
+#### 3. Public (Public)
+
+**Qui peut voir :**
+- ✅ Tout le monde (même sans voter)
+
+**Comportement :**
+- Accès direct à `/poll/{slug}/results` → Résultats visibles immédiatement
+- Pas besoin de voter pour voir les résultats
+- Partage facile des résultats
+
+**Cas d'usage :**
+- Sondages d'opinion publics
+- Études de marché transparentes
+- Votes ouverts
+- Marketing viral
+
+**⚠️ Attention :** Mode public peut créer un biais de réponses ("effet mouton" - les gens voient les réponses avant de voter).
+
+---
+
+### Changer la Visibilité
+
+**Après publication :**
+1. Dashboard → Votre formulaire → "Modifier"
+2. Section "Visibilité des résultats"
+3. Sélectionnez le nouveau mode
+4. Enregistrez
+
+**Note :** Le changement s'applique immédiatement. Les personnes ayant déjà accès conservent leur accès, mais les nouvelles règles s'appliquent aux nouveaux visiteurs.
 
 ---
 

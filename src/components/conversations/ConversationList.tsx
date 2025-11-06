@@ -244,11 +244,11 @@ export function ConversationList({
     isFavorite: showFavoritesOnly ? true : undefined,
   });
 
-  // Use search results if search is active, otherwise use provided conversations
+  // Use search results if search is active AND search is enabled, otherwise use provided conversations
   const displayConversations = useMemo(() => {
-    const baseConversations = query ? searchResults : conversations;
+    const baseConversations = showSearch && query ? searchResults : conversations;
     return sortConversations(baseConversations, sortBy, sortOrder);
-  }, [searchResults, conversations, query, sortBy, sortOrder]);
+  }, [searchResults, conversations, query, sortBy, sortOrder, showSearch]);
 
   // Status filter options with counts
   const statusOptions = useMemo(() => getStatusFilterOptions(conversations), [conversations]);

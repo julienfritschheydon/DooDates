@@ -28,10 +28,10 @@ export function ChatLandingPrototype({ onPollCreated }: ChatLandingPrototypeProp
     navigate("/workspace");
   };
 
-  // Layout pleine page pour le chat avec padding pour TopBar
+  // Layout pleine page pour le chat
   return (
     <div className="h-full flex flex-col bg-[#0a0a0a]">
-      {/* Padding top pour compenser la TopBar fixe (h-14 = 56px) */}
+      {/* Padding top pour le header */}
       <div className="pt-14 h-full">
         <GeminiChatInterface onPollCreated={handlePollCreated} darkTheme={true} />
       </div>

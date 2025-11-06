@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPollBySlugOrId, addFormResponse } from "../../lib/pollStorage";
+import { sendVoteConfirmationEmail } from "../../services/EmailService";
 import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
 import type { Poll, FormQuestionShape, FormQuestionOption } from "../../lib/pollStorage";
 import { StructuredInput } from "./StructuredInput";
@@ -26,6 +27,8 @@ export default function FormPollVote({ idOrSlug }: Props) {
   const [otherTexts, setOtherTexts] = useState<Record<string, string>>({}); // Pour stocker les textes "Autre"
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [voterEmail, setVoterEmail] = useState("");
+  const [wantsEmailCopy, setWantsEmailCopy] = useState(false);
 
   useEffect(() => {
     const p = getPollBySlugOrId(idOrSlug);
@@ -172,7 +175,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
     return null;
   };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     const v = validate();
@@ -181,6 +184,20 @@ export default function FormPollVote({ idOrSlug }: Props) {
       return;
     }
     if (!poll) return;
+
+    // Validation email si demandé
+    if (wantsEmailCopy && !voterEmail.trim()) {
+      setError("Veuillez entrer votre email pour recevoir une copie");
+      return;
+    }
+    if (
+      wantsEmailCopy &&
+      voterEmail.trim() &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail.trim())
+    ) {
+      setError("Veuillez entrer une adresse email valide");
+      return;
+    }
 
     // Map answers object to items array expected by addFormResponse
     const items = Object.keys(answers).map((qid) => ({
@@ -191,8 +208,23 @@ export default function FormPollVote({ idOrSlug }: Props) {
       const response = addFormResponse({
         pollId: poll.id,
         respondentName: voterName.trim(),
+        respondentEmail: wantsEmailCopy ? voterEmail.trim() : undefined,
         items,
       });
+
+      // Envoyer l'email si demandé
+      if (wantsEmailCopy && voterEmail.trim()) {
+        try {
+          await sendVoteConfirmationEmail({
+            poll,
+            response,
+            questions: allQuestions,
+          });
+        } catch (emailError) {
+          // Ne pas bloquer la soumission si l'email échoue
+          // L'erreur est déjà gérée par le service EmailService
+        }
+      }
 
       setSubmitted(true);
     } catch (err: unknown) {
@@ -223,6 +255,9 @@ export default function FormPollVote({ idOrSlug }: Props) {
   }
 
   if (submitted) {
+    const visibility = poll.resultsVisibility || "creator-only";
+    const canSeeResults = visibility === "public" || visibility === "voters";
+
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-2xl mx-auto p-6 pt-20">
@@ -247,22 +282,28 @@ export default function FormPollVote({ idOrSlug }: Props) {
             </p>
           </div>
 
-          <div className="mt-6">
-            <Link
-              to={`/poll/${poll.slug || poll.id}/results`}
-              className="inline-block text-white px-4 py-2 rounded transition-colors"
-              style={{
-                backgroundColor: "var(--theme-primary, #3B82F6)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--theme-primary-hover, #2563EB)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--theme-primary, #3B82F6)";
-              }}
-            >
-              Voir les résultats
-            </Link>
+          <div className="mt-6 space-y-3">
+            {canSeeResults ? (
+              <Link
+                to={`/poll/${poll.slug || poll.id}/results`}
+                className="inline-block text-white px-4 py-2 rounded transition-colors"
+                style={{
+                  backgroundColor: "var(--theme-primary, #3B82F6)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--theme-primary-hover, #2563EB)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--theme-primary, #3B82F6)";
+                }}
+              >
+                Voir les résultats
+              </Link>
+            ) : (
+              <div className="text-sm text-gray-500">
+                ℹ️ Les résultats ne sont pas publics pour ce sondage.
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -718,6 +759,56 @@ export default function FormPollVote({ idOrSlug }: Props) {
             {error}
           </div>
         )}
+
+        <div className="border-t pt-4" style={{ borderColor: "var(--theme-border, #E2E8F0)" }}>
+          <label className="flex items-center gap-2 mb-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={wantsEmailCopy}
+              onChange={(e) => setWantsEmailCopy(e.target.checked)}
+              className="cursor-pointer"
+              data-themed="true"
+            />
+            <span
+              className="text-sm"
+              style={{
+                color: "var(--theme-text-primary, #1E293B)",
+              }}
+            >
+              Recevoir une copie de mes réponses par email
+            </span>
+          </label>
+
+          {wantsEmailCopy && (
+            <div>
+              <label
+                className="block text-sm mb-1"
+                htmlFor="voter-email"
+                style={{
+                  color: "var(--theme-text-secondary, #475569)",
+                }}
+              >
+                Votre email
+              </label>
+              <input
+                id="voter-email"
+                type="email"
+                className="w-full rounded px-3 py-2"
+                style={{
+                  backgroundColor: "var(--theme-bg-input, #F1F5F9)",
+                  borderColor: "var(--theme-border, #E2E8F0)",
+                  borderWidth: "1px",
+                  color: "var(--theme-text-primary, #1E293B)",
+                }}
+                value={voterEmail}
+                onChange={(e) => setVoterEmail(e.target.value)}
+                placeholder="votremail@example.com"
+                required={wantsEmailCopy}
+                aria-required={wantsEmailCopy}
+              />
+            </div>
+          )}
+        </div>
 
         <div className="flex justify-end">
           <button

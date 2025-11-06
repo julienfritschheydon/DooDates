@@ -297,9 +297,24 @@ utilité perçue, prix acceptable, fonctionnalités manquantes"
 
 ---
 
-## ✅ Améliorations Récentes (15/10/2025)
+## ✅ Améliorations Récentes
 
-### Bugs Corrigés
+### Novembre 2025 - Visibilité des Résultats + Email de Confirmation
+
+**1. Contrôle d'Accès aux Résultats** ✅
+- **Nouveau :** 3 modes de visibilité lors de la création :
+  - **Moi uniquement** (par défaut) : Seul le créateur voit les résultats
+  - **Personnes ayant voté** (recommandé) : Les votants peuvent voir après leur vote
+  - **Public** : Tout le monde peut voir les résultats
+- **Bénéfice :** Contrôle total sur la confidentialité des résultats
+
+**2. Email de Confirmation** ✅
+- **Nouveau :** Option pour recevoir une copie de vos réponses par email
+- **Fonctionnement :** Cochez "Recevoir une copie par email" lors du vote, entrez votre email
+- **Contenu :** Email avec toutes vos réponses formatées + lien vers les résultats
+- **Bénéfice :** Gardez une trace de vos réponses
+
+### Octobre 2025 - Bugs Corrigés
 
 **1. Questions Pré-Remplies** ✅
 - **Avant :** Le formulaire s'affichait vide après avoir cliqué sur "Créer ce questionnaire"

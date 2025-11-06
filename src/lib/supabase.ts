@@ -1,49 +1,55 @@
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "./database.types";
 import { handleError, ErrorFactory, logError } from "./error-handling";
 
-// 🚧 MODE DÉVELOPPEMENT LOCAL ACTIVÉ
-// L'URL Supabase actuelle n'est plus accessible
-// Configuration commentée en attendant une nouvelle URL valide
-
-/*
-// Configuration Supabase originale (URL inaccessible)
+// Configuration Supabase pour bêta
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw ErrorFactory.critical("Variables d'environnement Supabase manquantes", "Configuration Supabase requise");
+// Debug: Log des variables d'environnement (uniquement en dev)
+if (import.meta.env.DEV) {
+  console.log("🔧 Supabase Config Debug:", {
+    url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : "MISSING",
+    key: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : "MISSING",
+    isLocalDev: !supabaseUrl || !supabaseAnonKey,
+  });
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-    detectSessionInUrl: false,
-  },
-  global: {
-    fetch: fetch.bind(globalThis),
-  },
-});
-*/
+// Déterminer si on est en mode développement local
+const isLocalDev = !supabaseUrl || !supabaseAnonKey;
 
-// Configuration temporaire pour éviter les erreurs
-const MOCK_SUPABASE_URL = "https://mock.supabase.co";
-const MOCK_SUPABASE_KEY = "mock-key";
+// Configuration Supabase
+let supabaseClient;
+if (isLocalDev) {
+  // En mode développement/test, utiliser mock si variables manquantes
+  const MOCK_SUPABASE_URL = "https://mock.supabase.co";
+  const MOCK_SUPABASE_KEY = "mock-key";
 
-export const supabase = createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_KEY, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-    detectSessionInUrl: false,
-  },
-  global: {
-    fetch: fetch.bind(globalThis),
-  },
-});
+  supabaseClient = createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      fetch: fetch.bind(globalThis),
+    },
+  });
+} else {
+  // Configuration Supabase réelle
+  supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true, // ✅ Activer pour la bêta
+      persistSession: true, // ✅ Activer pour la bêta
+      detectSessionInUrl: true, // ✅ Activer pour la bêta
+    },
+    global: {
+      fetch: fetch.bind(globalThis),
+    },
+  });
+}
 
-// Mode développement local détecté
-export const isLocalDevelopment = true;
+export const supabase = supabaseClient;
+export const isLocalDevelopment = isLocalDev;
 
 // Logs de développement désactivés pour réduire le bruit en console
 // console.warn("🚧 Mode développement local activé - Supabase désactivé");

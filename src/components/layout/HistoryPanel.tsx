@@ -5,7 +5,8 @@ import { useConversations } from "../../hooks/useConversations";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useState, useEffect } from "react";
-import { getAllPolls, type Poll } from "../../lib/pollStorage";
+import { getAllPolls, type Poll, getCurrentUserId } from "../../lib/pollStorage";
+import { useAuth } from "../../contexts/AuthContext";
 import { logger } from "../../lib/logger";
 
 interface HistoryPanelProps {
@@ -22,6 +23,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
   const navigate = useNavigate();
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
   const [pollsRefreshKey, setPollsRefreshKey] = useState(0);
+  const { user } = useAuth();
 
   // Récupérer les vraies conversations depuis le storage
   const { conversations: conversationsState, refresh: refetchConversations } = useConversations({
@@ -34,14 +36,28 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
     logger.info(`🔄 HistoryPanel: Loading polls (refreshKey=${pollsRefreshKey})`, "poll");
     try {
       // Utiliser getAllPolls() comme le Dashboard
-      const polls = getAllPolls();
-      logger.info("📊 HistoryPanel: Polls récupérés via getAllPolls", "poll", {
-        count: polls.length,
-        pollIds: polls.map((p) => p.id),
+      const allPolls = getAllPolls();
+      
+      // Filtrer les polls pour ne garder que ceux du créateur actuel (sécurité)
+      const currentUserId = getCurrentUserId(user?.id);
+      const filteredPolls = allPolls.filter((poll) => {
+        if (user?.id) {
+          // Mode connecté : seulement les polls du créateur authentifié
+          return poll.creator_id === user.id;
+        } else {
+          // Mode invité : SEULEMENT les polls avec le device ID actuel
+          return poll.creator_id === currentUserId;
+        }
+      });
+      
+      logger.info("📊 HistoryPanel: Polls récupérés et filtrés", "poll", {
+        total: allPolls.length,
+        filtered: filteredPolls.length,
+        pollIds: filteredPolls.map((p) => p.id),
       });
 
       // Trier par date de création décroissante et prendre les 5 derniers
-      const withDate = polls.filter((p) => p.created_at);
+      const withDate = filteredPolls.filter((p) => p.created_at);
       logger.debug("Polls avec created_at", "poll", { count: withDate.length });
 
       const sorted = withDate
@@ -60,7 +76,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
     } catch (error) {
       logger.error("[HistoryPanel] Erreur chargement sondages", error);
     }
-  }, [pollsRefreshKey]);
+  }, [pollsRefreshKey, user?.id]);
 
   // Écouter les changements de polls pour rafraîchir automatiquement
   useEffect(() => {
@@ -312,7 +328,18 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
     if (conversation.relatedPollId || conversation.pollId) {
       const pollId = conversation.relatedPollId || conversation.pollId;
       try {
-        const poll = getAllPolls().find((p) => p.id === pollId);
+        // Filtrer les polls pour ne garder que ceux du créateur actuel (sécurité)
+        const { user } = useAuth();
+        const currentUserId = getCurrentUserId(user?.id);
+        const allPolls = getAllPolls();
+        const filteredPolls = allPolls.filter((poll) => {
+          if (user?.id) {
+            return poll.creator_id === user.id;
+          } else {
+            return poll.creator_id === currentUserId;
+          }
+        });
+        const poll = filteredPolls.find((p) => p.id === pollId);
         if (poll?.title) return poll.title;
       } catch {
         // Ignore errors

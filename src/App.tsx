@@ -335,15 +335,39 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     location.pathname.startsWith("/pricing") ||
     location.pathname.startsWith("/dashboard");
 
+  // ✅ Hook appelé AVANT tout return conditionnel
+  React.useEffect(() => {
+    // Ne s'exécuter que si ce n'est pas une page classique
+    if (!useClassicLayout) {
+      const mainElement = document.querySelector("main[data-app-main]") as HTMLElement;
+      const containerElement = document.querySelector("[data-app-container]") as HTMLElement;
+      if (mainElement) {
+        console.log("🔍 App Layout - Main Element Debug:", {
+          mainHeight: mainElement.offsetHeight,
+          mainScrollHeight: mainElement.scrollHeight,
+          mainClientHeight: mainElement.clientHeight,
+          mainOverflow: window.getComputedStyle(mainElement).overflowY,
+          containerHeight: containerElement?.offsetHeight,
+          containerOverflow: containerElement
+            ? window.getComputedStyle(containerElement).overflowY
+            : "N/A",
+          canScroll: mainElement.scrollHeight > mainElement.clientHeight,
+          pathname: location.pathname,
+        });
+      }
+    }
+  }, [location.pathname, useClassicLayout]);
+
   // Si page classique, utiliser layout simple
   if (useClassicLayout) {
     return <>{children}</>;
   }
 
-  // Sinon, utiliser layout sans TopBar (style Gemini)
+  // Sinon, utiliser layout simple (style Gemini)
+
   return (
-    <div className="flex flex-col h-screen">
-      <main className={`flex-1 ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}>
+    <div data-app-container className="flex flex-col h-screen">
+      <main data-app-main className="flex-1 min-h-0 overflow-y-auto">
         {children}
       </main>
     </div>
