@@ -1,7 +1,7 @@
 {
-  "lastUpdate": "2025-11-06T20:01:52.285Z",
-  "totalFailures24h": 10,
-  "totalFailures7d": 13,
+  "lastUpdate": "2025-11-06T20:17:18.056Z",
+  "totalFailures24h": 9,
+  "totalFailures7d": 12,
   "workflowsMonitored": 6,
   "hasFailures": true,
   "reportPath": "Docs/monitoring/workflow-failures-report.md"

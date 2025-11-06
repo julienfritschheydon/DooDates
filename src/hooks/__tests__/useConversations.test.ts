@@ -97,24 +97,18 @@ describe("useConversations", () => {
     // Mock ConversationStorageSupabase methods (pour utilisateurs authentifiés)
     // Faire échouer Supabase pour forcer l'utilisation de localStorage dans les tests
     // C'est le comportement attendu : fallback vers localStorage si Supabase échoue
-    mockConversationStorageSupabase.getConversations.mockRejectedValue(
-      new Error("Storage error")
-    );
-    mockConversationStorageSupabase.getConversation.mockRejectedValue(
-      new Error("Storage error")
-    );
-    mockConversationStorageSupabase.getMessages.mockRejectedValue(
-      new Error("Storage error")
-    );
+    mockConversationStorageSupabase.getConversations.mockRejectedValue(new Error("Storage error"));
+    mockConversationStorageSupabase.getConversation.mockRejectedValue(new Error("Storage error"));
+    mockConversationStorageSupabase.getMessages.mockRejectedValue(new Error("Storage error"));
     // Faire échouer createConversation pour forcer le fallback vers localStorage
     mockConversationStorageSupabase.createConversation.mockRejectedValue(
-      new Error("Storage error")
+      new Error("Storage error"),
     );
     mockConversationStorageSupabase.updateConversation.mockResolvedValue(mockConversations[0]);
     mockConversationStorageSupabase.deleteConversation.mockResolvedValue(undefined);
     mockConversationStorageSupabase.addMessages.mockResolvedValue(undefined);
     mockConversationStorageSupabase.getConversationWithMessages.mockRejectedValue(
-      new Error("Storage error")
+      new Error("Storage error"),
     );
 
     // Mock useAuth

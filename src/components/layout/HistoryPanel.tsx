@@ -37,7 +37,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
     try {
       // Utiliser getAllPolls() comme le Dashboard
       const allPolls = getAllPolls();
-      
+
       // Filtrer les polls pour ne garder que ceux du créateur actuel (sécurité)
       const currentUserId = getCurrentUserId(user?.id);
       const filteredPolls = allPolls.filter((poll) => {
@@ -49,7 +49,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
           return poll.creator_id === currentUserId;
         }
       });
-      
+
       logger.info("📊 HistoryPanel: Polls récupérés et filtrés", "poll", {
         total: allPolls.length,
         filtered: filteredPolls.length,

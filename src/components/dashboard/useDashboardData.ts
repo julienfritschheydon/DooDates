@@ -28,7 +28,7 @@ export function useDashboardData(refreshKey: number) {
       const allConversations = getConversations();
       logger.info("🔍 Dashboard - Conversations brutes", "dashboard", {
         count: allConversations.length,
-        conversations: allConversations.map(c => ({
+        conversations: allConversations.map((c) => ({
           id: c.id,
           title: c.title,
           userId: c.userId,
@@ -40,7 +40,7 @@ export function useDashboardData(refreshKey: number) {
       const allPolls = getAllPolls();
       logger.info("🔍 Dashboard - Polls bruts", "dashboard", {
         count: allPolls.length,
-        polls: allPolls.map(p => ({
+        polls: allPolls.map((p) => ({
           id: p.id,
           title: p.title,
           creator_id: p.creator_id,
@@ -54,7 +54,7 @@ export function useDashboardData(refreshKey: number) {
         currentUserId,
         isGuest: !user?.id,
       });
-      
+
       // Filtrer strictement par creator_id pour éviter qu'un utilisateur non loggé voie les sondages d'un autre
       const localPolls = allPolls.filter((poll) => {
         if (user?.id) {
@@ -68,7 +68,7 @@ export function useDashboardData(refreshKey: number) {
       });
       logger.info("🔍 Dashboard - Polls filtrés", "dashboard", {
         count: localPolls.length,
-        polls: localPolls.map(p => ({
+        polls: localPolls.map((p) => ({
           id: p.id,
           title: p.title,
           creator_id: p.creator_id,
@@ -102,10 +102,10 @@ export function useDashboardData(refreshKey: number) {
           return matches;
         }
       });
-      
+
       logger.info("🔍 Dashboard - Conversations filtrées", "dashboard", {
         count: conversations.length,
-        conversations: conversations.map(c => ({
+        conversations: conversations.map((c) => ({
           id: c.id,
           title: c.title,
           userId: c.userId,
@@ -217,7 +217,7 @@ export function useDashboardData(refreshKey: number) {
             logger.debug("🔍 Dashboard - Conversation exclue (poll non trouvé)", "dashboard", {
               convId: conv.id,
               pollId,
-              availablePollIds: pollsWithStats.map(p => p.id),
+              availablePollIds: pollsWithStats.map((p) => p.id),
             });
             return null;
           }
@@ -236,7 +236,7 @@ export function useDashboardData(refreshKey: number) {
 
       logger.info("🔍 Dashboard - Items finaux", "dashboard", {
         count: items.length,
-        items: items.map(i => ({
+        items: items.map((i) => ({
           id: i.id,
           title: i.conversationTitle,
           hasPoll: !!i.poll,

@@ -71,21 +71,15 @@ describe("useConversations - Favorites Sorting", () => {
 
     // Mock ConversationStorageSupabase (faire échouer pour forcer localStorage)
     // C'est le comportement attendu : fallback vers localStorage si Supabase échoue
-    mockConversationStorageSupabase.getConversations.mockRejectedValue(
-      new Error("Storage error")
-    );
-    mockConversationStorageSupabase.getConversation.mockRejectedValue(
-      new Error("Storage error")
-    );
-    mockConversationStorageSupabase.getMessages.mockRejectedValue(
-      new Error("Storage error")
-    );
+    mockConversationStorageSupabase.getConversations.mockRejectedValue(new Error("Storage error"));
+    mockConversationStorageSupabase.getConversation.mockRejectedValue(new Error("Storage error"));
+    mockConversationStorageSupabase.getMessages.mockRejectedValue(new Error("Storage error"));
     mockConversationStorageSupabase.createConversation.mockResolvedValue({} as any);
     mockConversationStorageSupabase.updateConversation.mockResolvedValue({} as any);
     mockConversationStorageSupabase.deleteConversation.mockResolvedValue(undefined);
     mockConversationStorageSupabase.addMessages.mockResolvedValue(undefined);
     mockConversationStorageSupabase.getConversationWithMessages.mockRejectedValue(
-      new Error("Storage error")
+      new Error("Storage error"),
     );
 
     // Mock auth context
