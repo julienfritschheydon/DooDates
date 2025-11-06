@@ -105,7 +105,7 @@ export const useFreemiumQuota = () => {
 
     // Utiliser le système de tracking des crédits consommés (créations)
     // Les crédits consommés ne se remboursent jamais, même si on supprime
-    let pollCount = quotaConsumed.pollsCreated || 0;
+    const pollCount = quotaConsumed.pollsCreated || 0;
 
     return {
       conversations: conversationCount,

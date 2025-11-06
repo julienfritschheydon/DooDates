@@ -196,6 +196,13 @@ export async function createConversation(
   conversation: Omit<Conversation, "id" | "createdAt" | "updatedAt">,
   userId: string,
 ): Promise<Conversation> {
+  const requestId = crypto.randomUUID();
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] [${requestId}] 🗄️ ConversationStorageSupabase.createConversation DÉBUT`, {
+    userId,
+    title: conversation.title?.substring(0, 30),
+  });
+
   try {
     const now = new Date();
     const newConversation: Conversation = {
@@ -205,22 +212,61 @@ export async function createConversation(
       updatedAt: now,
       userId,
     };
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Conversation créée localement:`, { id: newConversation.id });
 
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Conversion vers format Supabase...`);
     const supabaseData = toSupabaseConversation(newConversation);
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Données Supabase préparées:`, {
+      id: supabaseData.id,
+      title: supabaseData.title,
+      user_id: supabaseData.user_id,
+    });
 
-    const { data, error } = await supabase
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Appel Supabase insert...`);
+    const insertStartTime = Date.now();
+    
+    // Ajouter un timeout pour éviter les blocages infinis (5 secondes)
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Timeout: Supabase insert a pris plus de 5 secondes")), 5000);
+    });
+    
+    const insertPromise = supabase
       .from("conversations")
       .insert(supabaseData)
       .select()
       .single();
+    
+    let result;
+    try {
+      result = await Promise.race([insertPromise, timeoutPromise]);
+    } catch (timeoutError) {
+      console.error(`[${timestamp}] [${requestId}] ❌ Timeout Supabase insert:`, timeoutError);
+      throw timeoutError;
+    }
+    
+    const { data, error } = result as any;
+    const insertDuration = Date.now() - insertStartTime;
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Réponse Supabase reçue (${insertDuration}ms)`, {
+      hasData: !!data,
+      hasError: !!error,
+      errorCode: error?.code,
+      errorMessage: error?.message,
+    });
 
     if (error) {
+      console.error(`[${timestamp}] [${requestId}] ❌ Erreur Supabase:`, error);
       throw error;
     }
 
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Conversion réponse Supabase...`);
     const created = fromSupabaseConversation(data);
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Mise en cache...`);
     conversationCache.set(created.id, created);
 
+    console.log(`[${timestamp}] [${requestId}] ✅ ConversationStorageSupabase.createConversation TERMINÉ`, {
+      conversationId: created.id,
+      userId,
+    });
     logger.info("Conversation créée dans Supabase", "conversation", {
       conversationId: created.id,
       userId,
@@ -429,8 +475,16 @@ export async function saveMessages(
     if (messages.length > 0) {
       const supabaseMessages = messages.map(toSupabaseMessage);
 
-      const { error } = await supabase.from("conversation_messages").insert(supabaseMessages);
-
+      // Ajouter un timeout pour éviter les blocages
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Timeout: Supabase insert messages a pris plus de 5 secondes")), 5000);
+      });
+      
+      const insertPromise = supabase.from("conversation_messages").insert(supabaseMessages);
+      
+      const result = await Promise.race([insertPromise, timeoutPromise]);
+      
+      const { error } = result as any;
       if (error) {
         throw error;
       }

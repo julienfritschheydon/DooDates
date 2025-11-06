@@ -36,7 +36,6 @@ export class SecureGeminiService {
    */
   async generateContent(userInput: string, prompt?: string): Promise<SecureGeminiResponse> {
     try {
-      // Vérifier que Supabase est configuré
       if (!this.supabaseUrl) {
         return {
           success: false,
@@ -45,24 +44,121 @@ export class SecureGeminiService {
         };
       }
 
-      // Récupérer la session Supabase (optionnelle pour invités)
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      // Appeler l'Edge Function (avec ou sans token selon authentification)
-      const headers: Record<string, string> = {};
-      if (session?.access_token) {
-        headers.Authorization = `Bearer ${session.access_token}`;
+      // OPTIMISATION: Récupérer la session avec un timeout très court (1s) ou skip si localStorage indique mode invité
+      // Vérifier d'abord si on est probablement en mode invité pour éviter l'appel inutile
+      let session = null;
+      const sessionStartTime = Date.now();
+      
+      // Vérifier rapidement si une session existe dans localStorage (sans timeout long)
+      // Supabase stocke la session dans localStorage avec une clé comme "sb-<project-ref>-auth-token"
+      const hasStoredSession = typeof window !== "undefined" && (() => {
+        try {
+          // Chercher toutes les clés Supabase dans localStorage
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("sb-") && key.includes("-auth-token")) {
+              const value = localStorage.getItem(key);
+              if (value && value !== "null" && value !== "undefined") {
+                return true;
+              }
+            }
+          }
+          return false;
+        } catch {
+          return false;
+        }
+      })();
+      
+      if (hasStoredSession) {
+        // Seulement essayer getSession si on pense avoir une session
+        const SESSION_TIMEOUT = 1000; // Timeout réduit à 1 seconde
+        const sessionTimeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error(`Timeout: getSession a pris plus de ${SESSION_TIMEOUT / 1000} secondes`)), SESSION_TIMEOUT);
+        });
+        
+        try {
+          const sessionPromise = supabase.auth.getSession();
+          const sessionResult = await Promise.race([sessionPromise, sessionTimeoutPromise]);
+          session = (sessionResult as any)?.data?.session || null;
+        } catch {
+          session = null;
+        }
       }
 
-      const { data, error } = await supabase.functions.invoke("check-quota-and-chat", {
-        body: {
+      // Appeler l'Edge Function (avec ou sans token selon authentification)
+      // IMPORTANT: Supabase nécessite toujours un header Authorization, même pour les invités
+      // On utilise l'anon key pour les invités, ou le token utilisateur si authentifié
+      const headers: Record<string, string> = {};
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (session?.access_token) {
+        headers.Authorization = `Bearer ${session.access_token}`;
+      } else if (supabaseAnonKey) {
+        // Mode invité: utiliser l'anon key pour autoriser l'appel
+        headers.Authorization = `Bearer ${supabaseAnonKey}`;
+      }
+
+      // Utiliser fetch direct au lieu de supabase.functions.invoke() pour plus de contrôle
+      const edgeFunctionUrl = `${this.supabaseUrl}/functions/v1/hyper-task`;
+      const invokeStartTime = Date.now();
+      
+      // Timeout de 10 secondes
+      const FETCH_TIMEOUT = 10000;
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error(`Timeout: Edge Function a pris plus de ${FETCH_TIMEOUT / 1000} secondes`)), FETCH_TIMEOUT);
+      });
+      
+      // Ajouter apikey dans les headers (requis par Supabase)
+      const fetchHeaders: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...headers,
+      };
+      
+      if (supabaseAnonKey) {
+        fetchHeaders["apikey"] = supabaseAnonKey;
+      }
+      
+      const fetchPromise = fetch(edgeFunctionUrl, {
+        method: "POST",
+        headers: fetchHeaders,
+        body: JSON.stringify({
           userInput,
           prompt,
-        },
-        headers,
+        }),
+      }).then(async (response) => {
+        const data = await response.json();
+        
+        if (!response.ok) {
+          // Erreur 401 = authentification requise
+          if (response.status === 401) {
+            return {
+              data: null,
+              error: {
+                message: data.message || "Authentification requise. Vérifiez que l'apikey est configuré.",
+                status: response.status,
+                code: "UNAUTHORIZED",
+              },
+            };
+          }
+          
+          return {
+            data: null,
+            error: {
+              message: data.message || `HTTP ${response.status}: ${response.statusText}`,
+              status: response.status,
+            },
+          };
+        }
+        
+        return {
+          data,
+          error: data.error ? { message: data.error } : null,
+        };
       });
+      
+      const result = await Promise.race([fetchPromise, timeoutPromise]);
+      
+      const { data, error } = result as any;
 
       if (error) {
         logger.error("Edge Function error", "api", error);
@@ -138,20 +234,31 @@ export class SecureGeminiService {
         data: { session },
       } = await supabase.auth.getSession();
 
-      const headers: Record<string, string> = {};
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
+      } else {
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        if (supabaseAnonKey) {
+          headers.Authorization = `Bearer ${supabaseAnonKey}`;
+          headers["apikey"] = supabaseAnonKey;
+        }
       }
 
-      const { error } = await supabase.functions.invoke("check-quota-and-chat", {
-        body: {
-          userInput: "test",
-        },
+      const edgeFunctionUrl = `${this.supabaseUrl}/functions/v1/hyper-task`;
+      const response = await fetch(edgeFunctionUrl, {
+        method: "POST",
         headers,
+        body: JSON.stringify({
+          userInput: "test",
+        }),
       });
 
       // Même si erreur, si c'est pas une erreur d'auth, la fonction est accessible
-      return !error || !error.message?.includes("UNAUTHORIZED");
+      return response.status !== 401 && response.status !== 403;
     } catch {
       return false;
     }

@@ -17,7 +17,7 @@ echo ""
 
 # Étape 1: Déployer l'Edge Function
 echo "📦 Étape 1: Déploiement de l'Edge Function..."
-echo "Commande: supabase functions deploy check-quota-and-chat"
+echo "Commande: supabase functions deploy hyper-task"
 echo ""
 echo "⚠️  IMPORTANT: Assurez-vous d'avoir configuré:"
 echo "   - SUPABASE_URL (automatique)"
@@ -26,7 +26,7 @@ echo "   - GEMINI_API_KEY (à configurer manuellement)"
 echo ""
 read -p "Voulez-vous déployer maintenant? (o/N) " deploy
 if [[ $deploy == "o" || $deploy == "O" ]]; then
-    supabase functions deploy check-quota-and-chat
+    supabase functions deploy hyper-task
     if [ $? -ne 0 ]; then
         echo "❌ Erreur lors du déploiement"
         exit 1
@@ -82,7 +82,7 @@ echo ""
 
 # Résumé
 echo "📋 Résumé:"
-echo "✅ Edge Function créée: supabase/functions/check-quota-and-chat/"
+echo "✅ Edge Function créée: supabase/functions/hyper-task/"
 echo "✅ Service frontend créé: src/services/SecureGeminiService.ts"
 echo "✅ Script SQL créé: sql-scripts/create-consume-ai-credit-function.sql"
 echo "✅ Documentation créée: Docs/SECURISATION-QUOTAS-IMPLEMENTATION.md"

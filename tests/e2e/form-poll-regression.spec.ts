@@ -12,7 +12,7 @@
 
 import { test as base, expect } from '@playwright/test';
 import { attachConsoleGuard, robustFill } from './utils';
-import { setupGeminiMock } from './global-setup';
+import { setupAllMocks } from './global-setup';
 
 // Créer un test avec contexte partagé pour que localStorage persiste entre les tests
 const test = base.extend<{}, { sharedContext: any }>({
@@ -54,7 +54,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
   });
   
   test.beforeEach(async ({ page }) => {
-    await setupGeminiMock(page);
+    await setupAllMocks(page);
     
     // Clear localStorage SEULEMENT pour le premier test
     if (!pollCreated) {
@@ -119,17 +119,48 @@ test.describe('Form Poll - Tests de non-régression', () => {
       log('📸 TEST #1 - Capture AVANT Enter');
       
       await chatInput.press('Enter');
-      // Attendre que le bouton de création soit visible
-      await expect(page.getByRole('button', { name: /créer ce formulaire/i })).toBeVisible({ timeout: 10000 });
-      log('✅ Enter pressé');
+      
+      // Attendre que l'IA réponde - vérifier soit le message de succès, soit une erreur
+      // On attend d'abord qu'un message AI apparaisse (succès ou erreur)
+      const successText = page.getByText(/Voici votre (questionnaire|sondage)/i);
+      const errorText = page.getByText(/désolé|quota.*dépassé|erreur/i);
+      
+      // Attendre que l'un ou l'autre apparaisse
+      await Promise.race([
+        successText.waitFor({ state: 'visible', timeout: 30000 }).catch(() => null),
+        errorText.waitFor({ state: 'visible', timeout: 30000 }).catch(() => null),
+      ]);
+      
+      // Vérifier qu'il n'y a pas de message d'erreur
+      const hasError = await errorText.isVisible({ timeout: 2000 }).catch(() => false);
+      if (hasError) {
+        await page.screenshot({ path: 'test-results/TEST1-ERROR-IA.png', fullPage: true });
+        const errorContent = await errorText.textContent();
+        log(`❌ L'IA a retourné une erreur: ${errorContent}`);
+        log('💡 Cause probable: Edge Function Supabase "hyper-task" bloquée par CORS ou quota dépassé');
+        log('💡 Solution: Configurer CORS dans l\'Edge Function ou utiliser un mock pour les tests E2E');
+        throw new Error(
+          `L'IA a retourné une erreur au lieu de générer un formulaire. ` +
+          `Vérifiez que l'Edge Function Supabase est configurée avec CORS. ` +
+          `Erreur: ${errorContent}`
+        );
+      }
+      
+      // Vérifier que le message de succès est visible
+      await expect(successText).toBeVisible({ timeout: 5000 });
+      log('✅ Réponse IA visible');
+      
+      // Attendre que le bouton de création soit visible (utiliser data-testid pour plus de fiabilité)
+      // Le bouton apparaît après que pollSuggestion soit ajouté au message
+      const createButton = page.locator('[data-testid="create-form-button"]');
+      await expect(createButton).toBeVisible({ timeout: 10000 });
+      log('✅ Enter pressé et bouton trouvé');
       
       // 📸 CAPTURE APRÈS ENTER (Test #1)
       await page.screenshot({ path: 'test-results/TEST1-AFTER-ENTER.png', fullPage: true });
       log('📸 TEST #1 - Capture APRÈS Enter');
 
-      // 2. Cliquer sur "Créer ce formulaire"
-      const createButton = page.getByRole('button', { name: /créer ce formulaire/i });
-      await expect(createButton).toBeVisible({ timeout: 10000 });
+      // 2. Cliquer sur "Créer ce formulaire" (le bouton est déjà trouvé et visible ci-dessus)
       await createButton.click();
       log('✅ Bouton "Créer ce formulaire" cliqué');
 

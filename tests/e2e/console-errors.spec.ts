@@ -9,7 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { setupGeminiMock } from './global-setup';
+import { setupAllMocks } from './global-setup';
 
 test.describe('Console Errors & React Warnings', () => {
   test.beforeEach(async ({ page, context, browserName }) => {
@@ -128,7 +128,7 @@ test.describe('Console Errors & React Warnings', () => {
       });
       
       // Aussi configurer au niveau de la page (doublon de sécurité)
-      await setupGeminiMock(page);
+      await setupAllMocks(page);
     }
   });
 
@@ -398,6 +398,23 @@ test.describe('Console Errors & React Warnings', () => {
       console.log('⚠️ Skip du test sur webkit - problème connu avec les routes d\'interception Playwright');
       test.skip();
       return; // Sortir proprement du test
+    }
+    
+    // Vérifier qu'il n'y a pas de message d'erreur de l'IA
+    const errorMessage = page.getByText(/désolé.*je n'ai pas pu traiter/i);
+    const hasError = await errorMessage.isVisible({ timeout: 2000 }).catch(() => false);
+    if (hasError) {
+      // Prendre une capture pour debug
+      await page.screenshot({ path: 'test-results/debug-console-errors-ia-error.png', fullPage: true });
+      const errorText = await errorMessage.textContent();
+      console.error(`❌ L'IA a retourné une erreur: ${errorText}`);
+      console.error('💡 Cause probable: Edge Function Supabase "hyper-task" non disponible');
+      console.error('💡 Solution: Configurer l\'Edge Function ou utiliser un mock pour les tests E2E');
+      throw new Error(
+        `L'IA a retourné une erreur au lieu de générer un formulaire. ` +
+        `Vérifiez que l'Edge Function Supabase est configurée et accessible. ` +
+        `Erreur: ${errorText}`
+      );
     }
     
     try {

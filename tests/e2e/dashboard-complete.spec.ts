@@ -580,8 +580,8 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
 
-      // Vérifier que l'indicateur de quota est visible
-      await expect(page.getByText(/conversations utilisées/i)).toBeVisible({ timeout: 5000 });
+      // Vérifier que l'indicateur de quota est visible (texte changé en "crédits utilisés")
+      await expect(page.getByText(/crédits utilisés/i)).toBeVisible({ timeout: 5000 });
     } finally {
       await guard.assertClean();
       guard.stop();

@@ -69,9 +69,20 @@ export class PollAnalyticsService {
   }
 
   private initializeGemini(): void {
-    // Note: Ce service utilise maintenant SecureGeminiService via geminiService
-    // L'initialisation directe de Gemini n'est plus nécessaire
-    logger.info("Poll Analytics Service initialized (using secure service)", "analytics");
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        logger.warn("VITE_GEMINI_API_KEY not set, analytics will not work", "analytics");
+        return;
+      }
+
+      this.genAI = new GoogleGenerativeAI(apiKey);
+      this.model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
+      logger.info("Poll Analytics Service initialized", "analytics");
+    } catch (error) {
+      logger.error("Failed to initialize Gemini for analytics", error);
+      this.model = null;
+    }
   }
 
   /**
