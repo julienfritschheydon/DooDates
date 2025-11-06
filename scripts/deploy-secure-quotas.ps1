@@ -17,7 +17,7 @@ Write-Host ""
 
 # Étape 1: Déployer l'Edge Function
 Write-Host "📦 Étape 1: Déploiement de l'Edge Function..." -ForegroundColor Cyan
-Write-Host "Commande: supabase functions deploy check-quota-and-chat" -ForegroundColor Gray
+Write-Host "Commande: supabase functions deploy hyper-task" -ForegroundColor Gray
 Write-Host ""
 Write-Host "⚠️  IMPORTANT: Assurez-vous d'avoir configuré:" -ForegroundColor Yellow
 Write-Host "   - SUPABASE_URL (automatique)" -ForegroundColor Gray
@@ -26,7 +26,7 @@ Write-Host "   - GEMINI_API_KEY (à configurer manuellement)" -ForegroundColor Y
 Write-Host ""
 $deploy = Read-Host "Voulez-vous déployer maintenant? (o/N)"
 if ($deploy -eq "o" -or $deploy -eq "O") {
-    supabase functions deploy check-quota-and-chat
+    supabase functions deploy hyper-task
     if ($LASTEXITCODE -ne 0) {
         Write-Host "❌ Erreur lors du déploiement" -ForegroundColor Red
         exit 1
@@ -86,7 +86,7 @@ Write-Host ""
 
 # Résumé
 Write-Host "📋 Résumé:" -ForegroundColor Cyan
-Write-Host "✅ Edge Function créée: supabase/functions/check-quota-and-chat/" -ForegroundColor Green
+Write-Host "✅ Edge Function créée: supabase/functions/hyper-task/" -ForegroundColor Green
 Write-Host "✅ Service frontend créé: src/services/SecureGeminiService.ts" -ForegroundColor Green
 Write-Host "✅ Script SQL créé: sql-scripts/create-consume-ai-credit-function.sql" -ForegroundColor Green
 Write-Host "✅ Documentation créée: Docs/SECURISATION-QUOTAS-IMPLEMENTATION.md" -ForegroundColor Green

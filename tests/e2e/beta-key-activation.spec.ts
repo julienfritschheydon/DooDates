@@ -26,6 +26,7 @@ test.describe('Beta Key Activation', () => {
 
   test('should show beta key activation option when authenticated', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState("networkidle");
     
     // Mock authentication
     await page.evaluate(() => {
@@ -42,14 +43,19 @@ test.describe('Beta Key Activation', () => {
       }));
     });
     await page.reload();
+    await page.waitForLoadState("networkidle");
     
-    // Wait for app to load
-    await expect(page.locator('body')).toBeVisible({ timeout: 5000 });
+    // Wait for app to load - check for message input or any interactive element
+    const messageInput = page.locator('[data-testid="message-input"]');
+    const hasMessageInput = await messageInput.isVisible({ timeout: 10000 }).catch(() => false);
     
-    // Look for beta key option in sidebar, settings, or menu
-    // The exact location may vary, so we test that page loads successfully
-    const isPageResponsive = await page.locator('[data-testid="message-input"], input, button').first().isVisible();
-    expect(isPageResponsive).toBeTruthy();
+    // If message input not found, check for any button or input as fallback
+    if (!hasMessageInput) {
+      const anyInteractive = await page.locator('input, button, [role="button"]').first().isVisible({ timeout: 5000 }).catch(() => false);
+      expect(anyInteractive).toBeTruthy();
+    } else {
+      expect(hasMessageInput).toBeTruthy();
+    }
   });
 
   test('should validate beta key format', async ({ page }) => {

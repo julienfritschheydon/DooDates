@@ -120,28 +120,59 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
   const sendMessage = useCallback(
     async (text: string, notifyParent: boolean) => {
+      const requestId = crypto.randomUUID();
+      const timestamp = new Date().toISOString();
+      
+      console.log(`[${timestamp}] [${requestId}] 🔴 useMessageSender.sendMessage DÉBUT`, {
+        textLength: text?.length || 0,
+        notifyParent,
+        isLoading,
+      });
+      
       const trimmedText = (text || "").trim();
-      if (!trimmedText || isLoading) return;
+      if (!trimmedText || isLoading) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Arrêt: texte vide ou déjà en chargement`, {
+          hasText: !!trimmedText,
+          isLoading,
+        });
+        return;
+      }
 
       if (notifyParent) onUserMessageRef.current?.();
 
       // Check conversation quota before proceeding
-      if (!quota.checkConversationLimit()) {
+      const conversationLimitOk = quota.checkConversationLimit();
+      console.log(`[${timestamp}] [${requestId}] 📊 Vérification quota conversation:`, { 
+        checkConversationLimit: conversationLimitOk 
+      });
+      if (!conversationLimitOk) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Arrêt: quota conversation dépassé`);
         return; // Modal will be shown by the quota hook
       }
 
       // 🎯 NEW: Check AI message quota (Freemium)
       const { checkAiMessageQuota, handleQuotaError } = await import("../services/AiQuotaService");
       const quotaCheck = checkAiMessageQuota(aiQuota);
+      console.log(`[${timestamp}] [${requestId}] 📊 Vérification quota AI:`, { 
+        canProceed: quotaCheck.canProceed,
+        quotaCheck 
+      });
       if (!quotaCheck.canProceed) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Arrêt: quota AI dépassé`);
         handleQuotaError(quotaCheck, quota, toast);
         return;
       }
 
       // 🎯 PROTOTYPE: Détecter les intentions de modification
+      console.log(`[${timestamp}] [${requestId}] 🔍 Détection d'intentions...`);
       const intentResult = await intentDetection.detectIntent(trimmedText);
+      console.log(`[${timestamp}] [${requestId}] 🔍 Résultat détection intent:`, { 
+        handled: intentResult.handled,
+        isTypeSwitch: intentResult.isTypeSwitch,
+      });
 
       if (intentResult.handled) {
+        console.log(`[${timestamp}] [${requestId}] ⚠️ Intent détecté - pas d'appel Gemini`);
         // Cas spécial : changement de type de sondage détecté
         if (intentResult.isTypeSwitch && onStartNewChatRef.current) {
           logger.info("🔄 Démarrage d'un nouveau chat pour changement de type", "poll");
@@ -196,6 +227,8 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         return; // Ne pas appeler Gemini
       }
 
+      console.log(`[${timestamp}] [${requestId}] ✅ Intent non géré - continuation vers Gemini`);
+      
       // Détecter si c'est un markdown questionnaire long
       const trimmedInput = trimmedText;
       const isLongMarkdown = trimmedInput.length > 500 && /^#\s+.+$/m.test(trimmedInput);
@@ -210,6 +243,11 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         timestamp: new Date(),
       };
 
+      console.log(`[${timestamp}] [${requestId}] 📝 Création message utilisateur`, {
+        isLongMarkdown,
+        displayContentLength: displayContent.length,
+      });
+      
       setMessages((prev) => [...prev, userMessage]);
       setIsLoading(true);
 
@@ -224,6 +262,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         setMessages((prev) => [...prev, progressMessage]);
       }
 
+      console.log(`[${timestamp}] [${requestId}] 💾 Auto-save message utilisateur...`);
       // Auto-save user message (avec le contenu original pour les markdown)
       await autoSave.addMessage({
         id: userMessage.id,
@@ -231,9 +270,19 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         isAI: userMessage.isAI,
         timestamp: userMessage.timestamp,
       });
+      console.log(`[${timestamp}] [${requestId}] ✅ Auto-save terminé`);
 
       // Appel API Gemini via le hook
+      console.log(`[${timestamp}] [${requestId}] 🟣 useMessageSender: Appel geminiAPI.generatePoll`, {
+        messageLength: trimmedInput.length,
+        messagePreview: trimmedInput.substring(0, 50),
+      });
       const pollResponse = await geminiAPI.generatePoll(trimmedInput);
+      console.log(`[${new Date().toISOString()}] 🟣 useMessageSender: Réponse reçue`, {
+        success: pollResponse.success,
+        hasData: !!pollResponse.data,
+        error: pollResponse.error,
+      });
 
       // 🎯 NEW: Incrémenter le compteur de messages IA
       aiQuota.incrementAiMessages();

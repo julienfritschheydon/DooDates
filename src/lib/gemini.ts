@@ -318,11 +318,21 @@ export class GeminiService {
   }
 
   async generatePollFromText(userInput: string): Promise<GeminiResponse> {
+    const requestId = crypto.randomUUID();
+    const timestamp = new Date().toISOString();
+    
+    console.log(`[${timestamp}] [${requestId}] 🟡 GeminiService.generatePollFromText appelé`, {
+      userInputLength: userInput?.length || 0,
+      userInputPreview: userInput?.substring(0, 50) || "",
+    });
+
     try {
       // NOUVEAU : Détecter si c'est du markdown
       const isMarkdown = this.isMarkdownQuestionnaire(userInput);
       let processedInput = userInput;
       let pollType: "date" | "form";
+      
+      console.log(`[${timestamp}] [${requestId}] 📋 Détection type:`, { isMarkdown });
 
       if (isMarkdown) {
         // Parser le markdown et convertir en prompt structuré
@@ -369,7 +379,17 @@ export class GeminiService {
       }
 
       // Appeler Gemini via Edge Function sécurisée
+      console.log(`[${timestamp}] [${requestId}] 🔵 Appel secureGeminiService.generateContent...`, {
+        hasUserInput: !!userInput,
+        hasPrompt: !!prompt,
+        promptLength: prompt?.length || 0,
+      });
       const secureResponse = await secureGeminiService.generateContent(userInput, prompt);
+      console.log(`[${timestamp}] [${requestId}] 🟢 Réponse secureGeminiService reçue`, {
+        success: secureResponse.success,
+        hasData: !!secureResponse.data,
+        error: secureResponse.error,
+      });
 
       if (!secureResponse.success) {
         // Gérer les erreurs spécifiques

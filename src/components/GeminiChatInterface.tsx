@@ -644,7 +644,22 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     }));
 
     const handleSendMessage = async () => {
-      if (!inputValue.trim() || isLoading) return;
+      const timestamp = new Date().toISOString();
+      console.log(`[${timestamp}] 🟠 GeminiChatInterface.handleSendMessage appelé`, {
+        inputValue: inputValue?.substring(0, 50),
+        inputLength: inputValue?.length || 0,
+        isLoading,
+      });
+      
+      if (!inputValue.trim() || isLoading) {
+        console.log(`[${timestamp}] ❌ handleSendMessage: arrêt (texte vide ou chargement)`, {
+          hasInput: !!inputValue.trim(),
+          isLoading,
+        });
+        return;
+      }
+      
+      console.log(`[${timestamp}] ✅ handleSendMessage: appel sendMessageWithText`);
       await sendMessageWithText(inputValue, true);
       setInputValue("");
     };

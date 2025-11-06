@@ -2,7 +2,7 @@
  * Global setup for E2E tests
  * Mocks external APIs to prevent costs and ensure test reliability
  */
-import { Page, Route } from '@playwright/test';
+import { Page, Route, BrowserContext } from '@playwright/test';
 
 /**
  * Generate intelligent mock response based on user prompt
@@ -90,6 +90,115 @@ function generateMockPollResponse(prompt: string): any {
       }]
     };
   }
+}
+
+/**
+ * Generate mock response for Supabase Edge Function
+ * Simulates the response from hyper-task Edge Function
+ * 
+ * The real Edge Function returns: { success: true, data: responseText }
+ * where responseText is the raw JSON string from Gemini
+ */
+function generateEdgeFunctionResponse(userInput: string, prompt?: string): any {
+  // Use userInput directly (it's already the user's message)
+  // The prompt is the full system prompt, we don't need to extract from it
+  const userPrompt = userInput || (prompt ? prompt.split('\n').pop() : '');
+  
+  console.log('🔧 Edge Function mock - Generating response for:', userPrompt.substring(0, 100));
+  
+  // Generate the poll response using the same logic as Gemini mock
+  const mockPollResponse = generateMockPollResponse(userPrompt);
+  
+  // Extract the poll data from the mock response
+  // This is the JSON string that Gemini would return
+  const pollDataText = mockPollResponse.candidates[0].content.parts[0].text;
+  
+  console.log('🔧 Edge Function mock - Generated poll data:', pollDataText.substring(0, 200));
+  console.log('🔧 Edge Function mock - Full poll data:', pollDataText);
+  
+  // Validate that pollDataText is valid JSON
+  try {
+    const parsed = JSON.parse(pollDataText);
+    console.log('🔧 Edge Function mock - JSON is valid, type:', parsed.type, 'questions:', parsed.questions?.length);
+  } catch (e) {
+    console.error('❌ Edge Function mock - Invalid JSON generated!', e);
+    throw e;
+  }
+  
+  // Return the Edge Function response format (matches real Edge Function exactly)
+  // The real Edge Function returns: { success: true, data: responseText }
+  // where responseText is the raw text from Gemini (a JSON string)
+  return {
+    success: true,
+    data: pollDataText // The Edge Function returns the raw text from Gemini (JSON string)
+    // Note: creditsRemaining is only returned on errors, not on success
+  };
+}
+
+/**
+ * Setup Supabase Edge Function mock to prevent CORS errors and API costs during E2E tests
+ */
+export async function setupSupabaseEdgeFunctionMock(page: Page) {
+  // Intercepter les requêtes à l'Edge Function Supabase
+  await page.route('**/functions/v1/hyper-task**', async (route: Route) => {
+    const request = route.request();
+    const method = request.method();
+    
+    // Handle OPTIONS preflight requests for CORS
+    if (method === 'OPTIONS') {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+        body: ''
+      });
+      return;
+    }
+    
+    // Handle POST requests
+    if (method !== 'POST') {
+      await route.continue();
+      return;
+    }
+    
+    try {
+      const postData = request.postDataJSON();
+      const userInput = postData?.userInput || '';
+      const prompt = postData?.prompt;
+      
+      console.log('🔧 Edge Function mock - User input:', userInput.substring(0, 100) + '...');
+      
+      const mockResponse = generateEdgeFunctionResponse(userInput, prompt);
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+        body: JSON.stringify(mockResponse)
+      });
+    } catch (error) {
+      console.error('❌ Edge Function mock error:', error);
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          success: false,
+          error: 'MOCK_ERROR',
+          message: 'Erreur dans le mock de l\'Edge Function'
+        })
+      });
+    }
+  });
 }
 
 /**
@@ -193,5 +302,96 @@ export async function setupGeminiMock(page: Page) {
       contentType: 'application/json',
       body: JSON.stringify(mockResponse)
     });
+  });
+}
+
+/**
+ * Setup all mocks (Gemini API + Supabase Edge Function)
+ * Use this in beforeEach to mock all external API calls
+ */
+export async function setupAllMocks(page: Page) {
+  await setupGeminiMock(page);
+  await setupSupabaseEdgeFunctionMock(page);
+}
+
+/**
+ * Setup mocks at context level (more performant for multiple pages)
+ */
+export async function setupAllMocksContext(context: BrowserContext) {
+  // Mock Gemini API
+  await context.route('**/generativelanguage.googleapis.com/**', async (route: Route) => {
+    const request = route.request();
+    const postData = request.postDataJSON();
+    
+    let userPrompt = '';
+    if (postData?.contents) {
+      const lastContent = postData.contents[postData.contents.length - 1];
+      if (lastContent?.parts?.[0]?.text) {
+        userPrompt = lastContent.parts[0].text;
+      }
+    }
+    
+    const mockResponse = generateMockPollResponse(userPrompt);
+    
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(mockResponse)
+    });
+  });
+  
+  // Mock Supabase Edge Function
+  await context.route('**/functions/v1/hyper-task**', async (route: Route) => {
+    const request = route.request();
+    
+    if (request.method() === 'OPTIONS') {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+        body: ''
+      });
+      return;
+    }
+    
+    if (request.method() !== 'POST') {
+      await route.continue();
+      return;
+    }
+    
+    try {
+      const postData = request.postDataJSON();
+      const userInput = postData?.userInput || '';
+      const prompt = postData?.prompt;
+      
+      const mockResponse = generateEdgeFunctionResponse(userInput, prompt);
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+        body: JSON.stringify(mockResponse)
+      });
+    } catch (error) {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          success: false,
+          error: 'MOCK_ERROR',
+          message: 'Erreur dans le mock de l\'Edge Function'
+        })
+      });
+    }
   });
 }

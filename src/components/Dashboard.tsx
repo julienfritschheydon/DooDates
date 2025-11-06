@@ -290,16 +290,16 @@ const Dashboard: React.FC = () => {
                   <span className="hidden sm:inline">Journal</span>
                 </button>
 
-                {/* Bouton vers la page pricing */}
-                <button
-                  onClick={() => navigate("/pricing")}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
-                  title="Voir les quotas et tarifs"
-                >
-                  <Info className="w-4 h-4" />
-                  <span className="hidden sm:inline">En savoir plus</span>
-                  <ExternalLink className="w-3 h-3" />
-                </button>
+              {/* Bouton vers la page pricing */}
+              <button
+                onClick={() => navigate("/pricing")}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                title="Voir les quotas et tarifs"
+              >
+                <Info className="w-4 h-4" />
+                <span className="hidden sm:inline">En savoir plus</span>
+                <ExternalLink className="w-3 h-3" />
+              </button>
               </div>
             </div>
           </div>

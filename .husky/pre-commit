@@ -65,7 +65,15 @@ else
     exit 1
   fi
   
-  # 3. Formatage automatique
+  # 3. Tests E2E Chrome (smoke)
+  echo "🌐 Tests E2E Chrome (smoke)..."
+  npm run test:e2e:smoke
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests E2E Chrome échoués - Commit bloqué"
+    exit 1
+  fi
+  
+  # 4. Formatage automatique
   if [ "$NO_FORMAT" != "1" ]; then
     echo "💅 Formatage du code..."
     npm run format
