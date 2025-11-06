@@ -126,15 +126,39 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
-      return { error };
+      if (error) {
+        // Log détaillé pour diagnostic
+        logger.error("Erreur de connexion", "auth", {
+          message: error.message,
+          status: error.status,
+          email: data.email,
+        });
+
+        // Messages d'erreur plus clairs
+        let userMessage = error.message;
+        if (error.message?.includes("Invalid login credentials")) {
+          userMessage = "Email ou mot de passe incorrect";
+        } else if (error.message?.includes("Email not confirmed")) {
+          userMessage = "Veuillez confirmer votre email avant de vous connecter. Vérifiez votre boîte de réception.";
+        } else if (error.message?.includes("User not found")) {
+          userMessage = "Aucun compte trouvé avec cet email. Voulez-vous créer un compte ?";
+        }
+
+        setError(userMessage);
+        return { error: { ...error, message: userMessage } };
+      }
+
+      logger.info("Connexion réussie", "auth", { email: data.email });
+      return { error: null };
     } catch (err) {
       const error = err as AuthError;
-      setError(error.message);
+      logger.error("Exception lors de la connexion", "auth", err);
+      setError(error.message || "Une erreur inattendue s'est produite");
       return { error };
     } finally {
       setLoading(false);
@@ -212,16 +236,57 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signOut();
-
-      // Nettoyer l'état local
+      // Nettoyer l'état local IMMÉDIATEMENT (avant l'appel Supabase qui peut bloquer)
       setUser(null);
       setProfile(null);
       setSession(null);
 
-      return { error };
+      // Nettoyer le localStorage Supabase IMMÉDIATEMENT
+      if (typeof window !== "undefined") {
+        // Nettoyer toutes les clés Supabase
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith("sb-") || key.includes("supabase"))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach((key) => localStorage.removeItem(key));
+      }
+
+      // Appel Supabase avec timeout pour éviter le blocage
+      const signOutPromise = supabase.auth.signOut();
+      const timeoutPromise = new Promise<{ error: AuthError | null }>((resolve) => {
+        setTimeout(() => {
+          logger.warn("Timeout lors de la déconnexion Supabase, continuation de la déconnexion locale", "auth");
+          resolve({ error: null });
+        }, 3000);
+      });
+
+      await Promise.race([signOutPromise, timeoutPromise]);
+
+      logger.info("Déconnexion réussie", "auth");
+      return { error: null };
     } catch (err) {
       const error = err as AuthError;
+      logger.error("Erreur lors de la déconnexion", "auth", err);
+      
+      // Même en cas d'erreur, nettoyer l'état local
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      
+      if (typeof window !== "undefined") {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith("sb-") || key.includes("supabase"))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach((key) => localStorage.removeItem(key));
+      }
+      
       setError(error.message);
       return { error };
     } finally {
@@ -246,6 +311,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (session?.user && !isLocalDevelopment) {
           const profileData = await fetchProfile(session.user.id);
           setProfile(profileData);
+
+          // Migrate guest conversations to Supabase on initial session
+          try {
+            const { migrateGuestConversations } = await import(
+              "../lib/storage/autoMigrateGuestConversations"
+            );
+            const migrationResult = await migrateGuestConversations(session.user.id);
+            if (migrationResult.migratedCount > 0) {
+              logger.info("Conversations guest migrées automatiquement (session initiale)", "conversation", {
+                userId: session.user.id,
+                migratedCount: migrationResult.migratedCount,
+              });
+            }
+          } catch (migrationError) {
+            logger.error("Erreur lors de la migration automatique (session initiale)", "conversation", migrationError);
+            // Don't block login if migration fails
+          }
         }
 
         setLoading(false);
@@ -268,6 +350,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Récupérer le profil pour les nouveaux utilisateurs
         const profileData = await fetchProfile(session.user.id);
         setProfile(profileData);
+
+        // Migrate guest conversations to Supabase
+        try {
+          const { migrateGuestConversations } = await import(
+            "../lib/storage/autoMigrateGuestConversations"
+          );
+          const migrationResult = await migrateGuestConversations(session.user.id);
+          if (migrationResult.migratedCount > 0) {
+            logger.info("Conversations guest migrées automatiquement", "conversation", {
+              userId: session.user.id,
+              migratedCount: migrationResult.migratedCount,
+            });
+          }
+        } catch (migrationError) {
+          logger.error("Erreur lors de la migration automatique", "conversation", migrationError);
+          // Don't block login if migration fails
+        }
       } else {
         setProfile(null);
       }

@@ -27,9 +27,8 @@ export default defineConfig({
   define: {
     'process.env': 'import.meta.env',
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-    'process.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL),
-    'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY),
-    'process.env.VITE_GEMINI_API_KEY': JSON.stringify(process.env.VITE_GEMINI_API_KEY),
+    // Note: Vite charge automatiquement les variables VITE_* dans import.meta.env
+    // Pas besoin de les redéfinir ici, cela peut causer des conflits
   },
   build: {
     rollupOptions: {

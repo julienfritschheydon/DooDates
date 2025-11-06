@@ -35,6 +35,7 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
       const { error } = await signIn(data);
 
       if (error) {
+        // Le message d'erreur est déjà formaté dans AuthContext
         setError("root", {
           message: error.message || "Erreur de connexion",
         });

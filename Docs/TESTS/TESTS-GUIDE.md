@@ -1,7 +1,7 @@
 # DooDates - Guide des Tests
 
 > **Document de référence unique** - Novembre 2025  
-> **Dernière mise à jour** : 05 novembre 2025 (Tests Gemini Form Polls + useAiMessageQuota réactivé)
+> **Dernière mise à jour** : 05 novembre 2025 (Tests FormPoll Results Access + Email - 19 nouveaux tests)
 
 ---
 
@@ -10,16 +10,21 @@
 ### Résultats Actuels
 
 ```
-🎯 Tests Unitaires (Vitest)    : 737/743 passent (99%)
+🎯 Tests Unitaires (Vitest)    : 776/782 passent (99%)
    - Dashboard                 : ~68 tests
+   - BetaKeyService            : 25/25 passent (100%) ✅ NOUVEAU
    - useAiMessageQuota         : 17/22 passent (77%)
+   - FormPoll Results Access   : 14/14 passent (100%) 
 🤖 Tests IA (Gemini/Jest)      : 23/25 passent (92%)
    - Date Polls                : 15/15 passent (100%)
    - Form Polls                : 8/10 passent (80%)
-🌐 Tests E2E (Playwright)      : 42/42 passent (100% sur Chrome)
+🌐 Tests E2E (Playwright)      : 62/62 passent (100% sur Chrome)
    - Dashboard                 : 22 tests
    - Analytics IA              : 9/9 passent
    - Form Poll Regression      : 4/4 passent
+   - FormPoll Results Access   : 5/5 passent
+   - Beta Key Activation       : 9/9 passent ✅ NOUVEAU
+   - Authenticated Workflow    : 6/6 passent ✅ RÉACTIVÉ
 📈 SCORE GLOBAL                : 97%
 ```
 
@@ -61,6 +66,10 @@ npm run test:e2e               # Tous navigateurs (~15min)
 # Dashboard
 npx playwright test dashboard-complete.spec.ts tags-folders.spec.ts --project=chromium
 npm run test:unit -- src/components/dashboard/__tests__
+
+# Authentification & Clés Bêta
+npm run test:unit -- BetaKeyService
+npx playwright test authenticated-workflow.spec.ts beta-key-activation.spec.ts --project=chromium
 
 # Documentation
 npm run test:docs              # Mode dev
@@ -125,9 +134,9 @@ npm run test:ci                # Suite CI complète
 
 **Principales zones couvertes** :
 - **Hooks** : useAutoSave, useConversations, usePollDeletionCascade, useAnalyticsQuota, useAiMessageQuota (17/22 tests)
-- **Services** : PollAnalyticsService, FormPollIntent, IntentDetection
+- **Services** : BetaKeyService (25/25 tests) ✅ NOUVEAU, PollAnalyticsService, FormPollIntent, IntentDetection, EmailService
 - **Components** : DashboardFilters, ManageTagsFolderDialog, PollAnalyticsPanel, MultiStepFormVote
-- **Lib** : conditionalEvaluator, exports, SimulationComparison
+- **Lib** : conditionalEvaluator, exports, SimulationComparison, pollStorage (resultsVisibility)
 - **Storage** : statsStorage, messageCounter
 
 **Configuration** : `vitest.config.ts`
@@ -158,12 +167,15 @@ npm run test:ci                # Suite CI complète
 
 ### 3. Tests E2E (Playwright)
 
-**Specs actifs** : 15 fichiers (~46 tests)
+**Specs actifs** : 18 fichiers (~66 tests)
 
 **Principales suites** :
 - **Dashboard** : `dashboard-complete.spec.ts` (16 tests), `tags-folders.spec.ts` (6 tests)
 - **Analytics IA** : `analytics-ai.spec.ts` (18 tests)
+- **Authentification** : `authenticated-workflow.spec.ts` (6 tests) ✅ RÉACTIVÉ
+- **Beta Keys** : `beta-key-activation.spec.ts` (9 tests) ✅ NOUVEAU
 - **Form Poll Regression** : `form-poll-regression.spec.ts` (4 tests)
+- **Form Poll Results Access** : `form-poll-results-access.spec.ts` (5 tests)
 - **Documentation** : `docs.spec.ts` (4 tests)
 - **Autres** : ultra-simple, security-isolation, mobile-voting, navigation-regression, poll-actions
 
@@ -590,25 +602,28 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 ### Résumé
 
 ```
-🎯 Tests Unitaires (Vitest)    : 742/773 passent (96%)
+🎯 Tests Unitaires (Vitest)    : 756/787 passent (96%)
    - Tests en échec             : ~5 tests (useAiMessageQuota) + autres mineurs
    - Tests désactivés           : ~10 fichiers (.disabled, .skip)
    - useAiMessageQuota          : 17/22 passent (77%) - Réactivé ✅
+   - FormPoll Results Access    : 14/14 passent (100%) ✅ NOUVEAU
    - ✅ Récemment corrigés      : IntentDetectionService (29/29), DashboardFilters (20/20), 
                                   ManageTagsFolderDialog (11/11), utils.test.ts (30/30)
 🤖 Tests IA (Gemini/Jest)      : 23/25 passent (92%)
    - Date Polls                 : 15/15 passent (100%)
    - Form Polls                 : 8/10 passent (80%)
-🌐 Tests E2E (Playwright)      : 42/42 passent (100% sur Chrome)
-📈 SCORE GLOBAL                : 96%
+🌐 Tests E2E (Playwright)      : 47/47 passent (100% sur Chrome)
+   - FormPoll Results Access    : 5/5 passent ✅ NOUVEAU
+📈 SCORE GLOBAL                : 97%
 ```
 
 ### Zones Bien Couvertes
 
 - ✅ Hooks critiques : useAutoSave, useConversations, useAnalyticsQuota
-- ✅ Services critiques : PollAnalyticsService, sort-comparator
+- ✅ Services critiques : PollAnalyticsService, sort-comparator, EmailService ✅ NOUVEAU
 - ✅ Components Dashboard : DashboardFilters, ManageTagsFolderDialog, DashboardTableView
 - ✅ Components Analytics : PollAnalyticsPanel
+- ✅ Lib pollStorage : resultsVisibility, email confirmation ✅ NOUVEAU
 
 ### Zones Non Couvertes / Priorités
 
@@ -799,4 +814,133 @@ Approche alternative gratuite :
 ---
 
 **Document maintenu par** : Équipe DooDates  
-**Dernière révision** : 05 novembre 2025
+**Dernière révision** : 06 novembre 2025 (Tests Authentification & Clés Bêta ajoutés)
+
+---
+
+## 📋 Tests FormPoll Results Access - Novembre 2025
+
+**Tests unitaires** : 14/14 passent (100%)
+- `pollStorage.resultsVisibility.test.ts` (9 tests)
+- `EmailService.test.ts` (5 tests)
+
+**Tests E2E** : 5/5 passent (100%) - `form-poll-results-access.spec.ts`
+- Visibilité creator-only/voters/public
+- Email de confirmation + validation
+
+**Exécution** :
+```bash
+npm run test:unit -- src/lib/__tests__/pollStorage.resultsVisibility.test.ts src/services/__tests__/EmailService.test.ts
+npx playwright test form-poll-results-access.spec.ts --project=chromium
+```
+
+---
+
+## 🔐 Tests Authentification & Clés Bêta - Novembre 2025
+
+### Tests Unitaires BetaKeyService
+
+**Tests** : 25/25 passent (100%) ✅  
+**Fichier** : `src/services/__tests__/BetaKeyService.test.ts`
+
+**Couverture** :
+- `redeemKey()` - 9 tests (activation, validation, erreurs HTTP)
+- `generateKeys()` - 3 tests (génération, session, erreurs)
+- `exportToCSV()` - 2 tests (export, cas vide)
+- Helper functions - 11 tests (`isValidBetaKeyFormat`, `formatBetaKey`)
+
+**Exécution** :
+```bash
+npm run test:unit -- BetaKeyService
+```
+
+### Tests E2E Authenticated Workflow
+
+**Tests** : 6 tests réactivés ✅  
+**Fichier** : `tests/e2e/authenticated-workflow.spec.ts`
+
+**Couverture** :
+- Sign up/sign in process
+- Création conversations (limites premium)
+- Migration données guest → authenticated
+- Persistance sessions
+- Gestion quotas
+
+**Exécution** :
+```bash
+npx playwright test authenticated-workflow.spec.ts --project=chromium
+```
+
+### Tests E2E Beta Key Activation
+
+**Tests** : 9 tests ✅  
+**Fichier** : `tests/e2e/beta-key-activation.spec.ts`
+
+**Couverture** :
+- Validation format clé
+- Activation avec mock API
+- Gestion erreurs (invalide, déjà utilisée, 401, 403, 404)
+- Formatage automatique input
+- Normalisation (trim, uppercase)
+- Tests intégration (skipped par défaut)
+
+**Exécution** :
+```bash
+npx playwright test beta-key-activation.spec.ts --project=chromium
+```
+
+### Helpers de Test Supabase
+
+**Fichier** : `tests/e2e/helpers/supabase-test-helpers.ts`
+
+**Fonctions disponibles** :
+- `createTestUser(email, password)` - Créer utilisateur test
+- `signInTestUser(email, password)` - Se connecter
+- `signOutTestUser()` - Se déconnecter
+- `generateTestEmail(prefix)` - Email unique
+- `cleanupTestData(userId)` - Nettoyer données test
+- `isBetaKeyActive(code)` - Vérifier clé active
+- `getUserQuotas(userId)` - Récupérer quotas
+
+### Configuration Supabase Test
+
+**Variables d'environnement** (`.env.local`) :
+```bash
+# Variables de test Supabase (optionnel)
+VITE_SUPABASE_URL_TEST=https://votre-projet-test.supabase.co
+VITE_SUPABASE_ANON_KEY_TEST=votre-anon-key-de-test
+```
+
+**Configuration Playwright** : `playwright.config.ts` charge automatiquement `.env.local` et utilise :
+1. `VITE_SUPABASE_URL_TEST` si défini
+2. Sinon fallback sur `VITE_SUPABASE_URL`
+
+**Générer clés bêta de test** (dans Supabase SQL Editor) :
+```sql
+SELECT * FROM generate_beta_key(5, 'Test keys', 12);
+```
+
+### CI/CD - Secrets GitHub
+
+Pour GitHub Actions, ajouter les secrets :
+- `VITE_SUPABASE_URL_TEST`
+- `VITE_SUPABASE_ANON_KEY_TEST`
+
+**Dans workflow YAML** :
+```yaml
+env:
+  VITE_SUPABASE_URL_TEST: ${{ secrets.VITE_SUPABASE_URL_TEST }}
+  VITE_SUPABASE_ANON_KEY_TEST: ${{ secrets.VITE_SUPABASE_ANON_KEY_TEST }}
+```
+
+### Bonnes Pratiques
+
+**Tests avec Supabase de test** :
+- ✅ Utiliser un projet Supabase séparé pour les tests
+- ✅ Générer des emails uniques : `generateTestEmail()`
+- ✅ Nettoyer les données après tests : `cleanupTestData()`
+- ❌ Ne jamais utiliser la base de production pour les tests
+
+**Mocking** :
+- Tests unitaires : Supabase complètement mocké
+- Tests E2E : API Supabase réelle, Gemini mocké

@@ -19,7 +19,7 @@ const Vote = () => {
 
   if (!actualPollId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 pb-8">
         <div className="pt-20">
           <div className="flex items-center justify-center p-4 min-h-[calc(100vh-80px)]">
             <div className="text-center">
@@ -45,7 +45,7 @@ const Vote = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a] pb-8">
       {/* Bouton retour en haut à droite */}
       <button
         onClick={() => window.history.back()}

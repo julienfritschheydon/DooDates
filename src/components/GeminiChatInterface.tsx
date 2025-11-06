@@ -766,7 +766,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     }
 
     return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col w-full">
         {/* Barre d'état compacte */}
         {false && (
           <div

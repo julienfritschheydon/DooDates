@@ -91,6 +91,8 @@ export interface FormResponse {
   id: string;
   pollId: string;
   respondentName?: string;
+  respondentEmail?: string;
+  deviceId?: string; // Device ID pour vérification de vote (même avec nom)
   created_at: string;
   items: FormResponseItem[];
 }
@@ -145,6 +147,8 @@ export interface Poll {
   relatedConversationId?: string; // ID de la conversation qui a créé ce sondage
   // NOUVEAU : Lien bidirectionnel avec conversation (architecture centrée conversations)
   conversationId?: string; // ID de la conversation parente
+  // Visibilité des résultats
+  resultsVisibility?: "creator-only" | "voters" | "public";
 }
 
 const STORAGE_KEY = "doodates_polls";
@@ -523,7 +527,7 @@ function migrateFormDraftsIntoUnified(): void {
       if (id && existingIds.has(id)) continue;
       const formPoll: Poll = {
         id: id || `form-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        creator_id: "anonymous",
+        creator_id: getDeviceId(), // Pour les polls migrés, utiliser deviceId (probablement créés en mode invité)
         title: (f?.title as string) || "Sans titre",
         slug: (f?.slug as string) || `form-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         created_at: (f?.created_at as string) || new Date().toISOString(),
@@ -707,6 +711,7 @@ function assertValidFormAnswer(poll: Poll, items: FormResponseItem[]): void {
 export function addFormResponse(params: {
   pollId: string;
   respondentName?: string;
+  respondentEmail?: string;
   items: FormResponseItem[];
 }): FormResponse {
   const poll = getFormPollById(params.pollId);
@@ -743,6 +748,8 @@ export function addFormResponse(params: {
         : `resp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     pollId: params.pollId,
     respondentName: normalizedName ? normalizedName : undefined,
+    respondentEmail: params.respondentEmail,
+    deviceId: getDeviceId(), // Stocker deviceId pour vérification de vote
     created_at: now,
     items: params.items,
   };
@@ -941,6 +948,47 @@ export function getRespondentId(resp: FormResponse): string {
   if (name) return `name:${name}`;
   // Stable fallback combines deviceId and response id
   return `anon:${getDeviceId()}:${resp.id}`;
+}
+
+/**
+ * Récupère l'ID de l'utilisateur actuel (device ID ou user ID si authentifié)
+ * 
+ * @param authenticatedUserId - ID utilisateur Supabase si authentifié (optionnel)
+ * @returns user.id si authentifié, sinon deviceId
+ */
+export function getCurrentUserId(authenticatedUserId?: string | null): string {
+  // Si un userId authentifié est fourni, l'utiliser
+  if (authenticatedUserId) {
+    return authenticatedUserId;
+  }
+  
+  // Sinon, retourner device ID (mode invité/localStorage)
+  return getDeviceId();
+}
+
+/**
+ * Vérifie si l'utilisateur actuel a voté sur ce poll
+ * Vérifie par deviceId stocké dans la réponse (fonctionne pour votes anonymes et avec nom)
+ */
+export function checkIfUserHasVoted(pollId: string): boolean {
+  const deviceId = getDeviceId();
+  const responses = getFormResponses(pollId);
+  
+  // Vérifier si une réponse existe avec cet appareil
+  // Priorité 1: Vérifier deviceId stocké dans la réponse (nouveau, fonctionne toujours)
+  const hasVotedByDeviceId = responses.some(r => r.deviceId === deviceId);
+  if (hasVotedByDeviceId) return true;
+  
+  // Priorité 2: Fallback pour réponses anciennes (sans deviceId stocké)
+  // Pour les réponses anonymes, le respondentId contient le deviceId
+  return responses.some(r => {
+    const respondentId = getRespondentId(r);
+    // Si la réponse est anonyme, le respondentId contient le deviceId
+    if (respondentId.startsWith(`anon:${deviceId}:`)) {
+      return true;
+    }
+    return false;
+  });
 }
 
 // ============================================================================

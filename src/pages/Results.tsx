@@ -76,7 +76,7 @@ const Results: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-[#0a0a0a] pb-8">
         <div className="pt-20">
           <ResultsLoading label="Chargement des résultats..." />
         </div>
@@ -86,7 +86,7 @@ const Results: React.FC = () => {
 
   if (!poll) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-[#0a0a0a] pb-8">
         <div className="pt-20">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <ResultsEmpty
@@ -150,7 +150,7 @@ const Results: React.FC = () => {
   const allDates = getAllDates();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a] pb-8">
       <div className="pt-20">
         <ResultsLayout
           title={`Résultats : ${poll.title}`}

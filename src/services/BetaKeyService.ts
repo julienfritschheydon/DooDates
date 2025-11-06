@@ -60,29 +60,94 @@ export class BetaKeyService {
     durationMonths: number = 3,
   ): Promise<BetaKeyGeneration[]> {
     try {
-      const { data, error } = await supabase.rpc("generate_beta_key", {
+      logger.info("Calling generate_beta_key RPC", "api", { count, notes, durationMonths });
+      console.log("🔑 [BetaKeyService] Appel RPC avec params:", {
         p_count: count,
-        p_notes: notes,
+        p_notes: notes || null,
         p_duration_months: durationMonths,
       });
-
-      if (error) {
-        const err = ErrorFactory.storage(
-          `Failed to generate beta keys: ${error.message}`,
-          "Erreur lors de la génération des clés beta",
-        );
-        logError(err, {
-          component: "BetaKeyService",
-          operation: "generateKeys",
-          metadata: { error },
-        });
-        throw err;
+      
+      // Vérifier la session AVANT tout
+      console.log("🔑 [BetaKeyService] Récupération de la session...");
+      const session = await supabase.auth.getSession();
+      console.log("🔑 [BetaKeyService] Session récupérée:", session);
+      
+      if (!session.data.session) {
+        throw new Error("Aucune session active. Veuillez vous reconnecter.");
       }
-
-      logger.info(`Generated ${count} beta keys`, "beta-keys", { count, notes });
+      
+      // Récupérer l'URL et la clé depuis les variables d'env
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      console.log("🔑 [BetaKeyService] Configuration:", {
+        supabaseUrl,
+        hasAnonKey: !!supabaseAnonKey,
+        hasAccessToken: !!session.data.session.access_token,
+      });
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error("Configuration Supabase manquante. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.");
+      }
+      
+      // Utiliser fetch directement car supabase.rpc() ne semble pas fonctionner
+      console.log("🔑 [BetaKeyService] Appel direct via fetch...");
+      const response = await fetch(`${supabaseUrl}/rest/v1/rpc/generate_beta_key`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${session.data.session.access_token}`,
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({
+          p_count: count,
+          p_notes: notes || null,
+          p_duration_months: durationMonths,
+        }),
+      });
+      
+      console.log("🔑 [BetaKeyService] Réponse reçue:", {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ [BetaKeyService] Erreur HTTP:", {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+        });
+        
+        let errorMessage = `Erreur HTTP ${response.status}: ${errorText}`;
+        if (response.status === 401) {
+          errorMessage = "Non autorisé. Vérifiez votre session.";
+        } else if (response.status === 403) {
+          errorMessage = "Accès refusé. Vérifiez les permissions.";
+        } else if (response.status === 404) {
+          errorMessage = "Fonction RPC introuvable. Vérifiez que generate_beta_key existe dans Supabase.";
+        }
+        
+        throw ErrorFactory.storage(errorMessage, errorMessage);
+      }
+      
+      const data = await response.json();
+      console.log("🔑 [BetaKeyService] Données reçues:", data);
+      
+      if (!data || data.length === 0) {
+        throw ErrorFactory.storage(
+          "Aucune clé générée",
+          "La fonction a retourné un résultat vide",
+        );
+      }
+      
+      logger.info(`Generated ${data.length} beta keys`, "api", { count, notes, keys: data });
       return data as BetaKeyGeneration[];
-    } catch (error) {
-      logger.error("Exception generating beta keys", "beta-keys", { error });
+    } catch (error: any) {
+      logger.error("Exception generating beta keys", "api", { error });
+      // Re-throw avec le message d'erreur original pour affichage dans le toast
       throw error;
     }
   }
@@ -90,46 +155,130 @@ export class BetaKeyService {
   /**
    * Active une clé beta pour un utilisateur
    */
-  static async redeemKey(userId: string, code: string): Promise<RedemptionResult> {
+  static async redeemKey(userId: string, code: string, accessToken?: string): Promise<RedemptionResult> {
     try {
       // Normaliser le code (uppercase, trim)
       const normalizedCode = code.trim().toUpperCase();
+      console.log("🔑 [BetaKeyService] Activation clé:", { userId, code: normalizedCode });
 
-      const { data, error } = await supabase.rpc("redeem_beta_key", {
-        p_user_id: userId,
-        p_code: normalizedCode,
-      });
+      // Récupérer le token d'accès (depuis paramètre ou session)
+      let token = accessToken;
+      if (!token) {
+        // Essayer de récupérer depuis la session avec timeout
+        try {
+          const sessionPromise = supabase.auth.getSession();
+          const timeoutPromise = new Promise<{ data: { session: null } }>((resolve) => {
+            setTimeout(() => resolve({ data: { session: null } }), 2000);
+          });
+          const session = await Promise.race([sessionPromise, timeoutPromise]);
+          token = session.data.session?.access_token;
+        } catch (err) {
+          console.warn("⚠️ [BetaKeyService] Impossible de récupérer la session, utilisation du token depuis localStorage");
+          // Fallback : essayer de récupérer depuis localStorage
+          const sessionStr = localStorage.getItem(`sb-${import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token`);
+          if (sessionStr) {
+            try {
+              const sessionData = JSON.parse(sessionStr);
+              token = sessionData?.access_token;
+            } catch (e) {
+              // Ignore
+            }
+          }
+        }
+      }
 
-      if (error) {
-        logger.error("Failed to redeem beta key", "beta-keys", { error, userId });
+      if (!token) {
         return {
           success: false,
-          error: "Erreur lors de l'activation de la clé",
+          error: "Aucune session active. Veuillez vous reconnecter.",
         };
       }
 
-      const result = data as RedemptionResult;
+      // Récupérer l'URL et la clé depuis les variables d'env
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      if (!supabaseUrl || !supabaseAnonKey) {
+        return {
+          success: false,
+          error: "Configuration Supabase manquante.",
+        };
+      }
+
+      // Utiliser fetch directement (comme pour generateKeys)
+      console.log("🔑 [BetaKeyService] Appel RPC redeem_beta_key via fetch...");
+      const response = await fetch(`${supabaseUrl}/rest/v1/rpc/redeem_beta_key`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${token}`,
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({
+          p_user_id: userId,
+          p_code: normalizedCode,
+        }),
+      });
+
+      console.log("🔑 [BetaKeyService] Réponse redeem:", {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ [BetaKeyService] Erreur HTTP:", {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+        });
+
+        let errorMessage = `Erreur HTTP ${response.status}: ${errorText}`;
+        if (response.status === 401) {
+          errorMessage = "Non autorisé. Vérifiez votre session.";
+        } else if (response.status === 403) {
+          errorMessage = "Accès refusé. Vérifiez les permissions.";
+        } else if (response.status === 404) {
+          errorMessage = "Fonction RPC introuvable.";
+        }
+
+        logger.error("Failed to redeem beta key", "api", { 
+          error: errorMessage, 
+          userId,
+          status: response.status,
+        });
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
+
+      const result = await response.json();
+      console.log("🔑 [BetaKeyService] Résultat redeem:", result);
 
       if (result.success) {
-        logger.info("Beta key redeemed successfully", "beta-keys", {
+        logger.info("Beta key redeemed successfully", "api", {
           userId,
           code: normalizedCode,
           tier: result.tier,
         });
       } else {
-        logger.warn("Beta key redemption failed", "beta-keys", {
+        logger.warn("Beta key redemption failed", "api", {
           userId,
           code: normalizedCode,
           error: result.error,
         });
       }
 
-      return result;
-    } catch (error) {
-      logger.error("Exception redeeming beta key", "beta-keys", { error, userId });
+      return result as RedemptionResult;
+    } catch (error: any) {
+      console.error("❌ [BetaKeyService] Exception redeeming beta key:", error);
+      logger.error("Exception redeeming beta key", "api", { error, userId });
       return {
         success: false,
-        error: "Une erreur inattendue s'est produite",
+        error: error?.message || "Erreur lors de l'activation de la clé",
       };
     }
   }
@@ -159,7 +308,7 @@ export class BetaKeyService {
 
       return data as BetaKey[];
     } catch (error) {
-      logger.error("Exception fetching beta keys", "beta-keys", { error });
+      logger.error("Exception fetching beta keys", "api", { error });
       throw error;
     }
   }
@@ -190,7 +339,7 @@ export class BetaKeyService {
 
       return data as BetaKey[];
     } catch (error) {
-      logger.error("Exception fetching active beta keys", "beta-keys", { error });
+      logger.error("Exception fetching active beta keys", "api", { error });
       throw error;
     }
   }
@@ -226,7 +375,7 @@ export class BetaKeyService {
 
       return data as BetaKey;
     } catch (error) {
-      logger.error("Exception fetching user beta key", "beta-keys", { error, userId });
+      logger.error("Exception fetching user beta key", "api", { error, userId });
       throw error;
     }
   }
@@ -246,7 +395,7 @@ export class BetaKeyService {
 
       return expiresAt > now;
     } catch (error) {
-      logger.error("Exception checking beta key status", "beta-keys", { error, userId });
+      logger.error("Exception checking beta key status", "api", { error, userId });
       return false;
     }
   }
@@ -277,9 +426,9 @@ export class BetaKeyService {
         throw err;
       }
 
-      logger.info("Beta key revoked", "beta-keys", { keyId, reason });
+      logger.info("Beta key revoked", "api", { keyId, reason });
     } catch (error) {
-      logger.error("Exception revoking beta key", "beta-keys", { error, keyId });
+      logger.error("Exception revoking beta key", "api", { error, keyId });
       throw error;
     }
   }
@@ -294,12 +443,12 @@ export class BetaKeyService {
       });
 
       if (error) {
-        logger.error("Failed to record bug report", "beta-keys", { error, userId });
+        logger.error("Failed to record bug report", "api", { error, userId });
       }
 
-      logger.info("Bug report recorded", "beta-keys", { userId });
+      logger.info("Bug report recorded", "api", { userId });
     } catch (error) {
-      logger.error("Exception recording bug report", "beta-keys", { error, userId });
+      logger.error("Exception recording bug report", "api", { error, userId });
     }
   }
 
@@ -336,9 +485,9 @@ export class BetaKeyService {
         throw err;
       }
 
-      logger.info("Feedback recorded", "beta-keys", { userId, score });
+      logger.info("Feedback recorded", "api", { userId, score });
     } catch (error) {
-      logger.error("Exception recording feedback", "beta-keys", { error, userId });
+      logger.error("Exception recording feedback", "api", { error, userId });
       throw error;
     }
   }
@@ -393,7 +542,7 @@ export class BetaKeyService {
     link.click();
     document.body.removeChild(link);
 
-    logger.info("Beta keys exported to CSV", "beta-keys", { filename, count: keys.length });
+    logger.info("Beta keys exported to CSV", "api", { filename, count: keys.length });
   }
 
   /**
@@ -427,7 +576,7 @@ export class BetaKeyService {
 
       return stats;
     } catch (error) {
-      logger.error("Exception calculating beta key statistics", "beta-keys", { error });
+      logger.error("Exception calculating beta key statistics", "api", { error });
       throw error;
     }
   }

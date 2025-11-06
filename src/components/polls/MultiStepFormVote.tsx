@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import type { Poll, FormQuestionShape } from "../../lib/pollStorage";
 import { addFormResponse } from "../../lib/pollStorage";
+import { sendVoteConfirmationEmail } from "../../services/EmailService";
 import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
 import { useToast } from "../../hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +22,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
   const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
   const [respondentName, setRespondentName] = useState("");
   const [respondentEmail, setRespondentEmail] = useState("");
+  const [wantsEmailCopy, setWantsEmailCopy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   // Filtrer les questions visibles selon les règles conditionnelles
@@ -138,14 +140,47 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
 
   const handleSubmit = async () => {
     try {
+      // Validation email si demandé
+      if (wantsEmailCopy && !respondentEmail.trim()) {
+        toast({
+          title: "Email requis",
+          description: "Veuillez entrer votre email pour recevoir une copie",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (wantsEmailCopy && respondentEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(respondentEmail.trim())) {
+        toast({
+          title: "Email invalide",
+          description: "Veuillez entrer une adresse email valide",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const response = addFormResponse({
         pollId: poll.id,
         respondentName: respondentName || undefined,
+        respondentEmail: wantsEmailCopy ? respondentEmail.trim() : undefined,
         items: Object.entries(answers).map(([questionId, value]) => ({
           questionId,
           value,
         })),
       });
+
+      // Envoyer l'email si demandé
+      if (wantsEmailCopy && respondentEmail.trim()) {
+        try {
+          await sendVoteConfirmationEmail({
+            poll,
+            response,
+            questions: (poll.questions || []) as FormQuestionShape[],
+          });
+        } catch (emailError) {
+          console.error("Erreur envoi email:", emailError);
+          // Ne pas bloquer la soumission si l'email échoue
+        }
+      }
 
       setSubmitted(true);
     } catch (error) {
@@ -204,12 +239,23 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
             </p>
           </div>
           <div className="space-y-3">
+            {(() => {
+              const visibility = poll.resultsVisibility || "creator-only";
+              const canSeeResults = visibility === "public" || visibility === "voters";
+              
+              return canSeeResults ? (
             <button
               onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
               className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
             >
               Voir les résultats
             </button>
+              ) : (
+                <div className="text-sm text-gray-500 text-center py-2">
+                  ℹ️ Les résultats ne sont pas publics pour ce sondage.
+                </div>
+              );
+            })()}
             <button
               onClick={() => navigate("/")}
               className="w-full bg-white text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-all border border-gray-300"
@@ -278,14 +324,30 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
                     />
                   </div>
                   <div>
+                    <label className="flex items-center gap-2 mb-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={wantsEmailCopy}
+                        onChange={(e) => setWantsEmailCopy(e.target.checked)}
+                        className="cursor-pointer"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        Recevoir une copie de mes réponses par email
+                      </span>
+                    </label>
+                    {wantsEmailCopy && (
+                      <>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                     <input
                       type="email"
                       value={respondentEmail}
                       onChange={(e) => setRespondentEmail(e.target.value)}
                       placeholder="votre@email.com"
+                          required={wantsEmailCopy}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 placeholder:text-gray-400"
                     />
+                      </>
+                    )}
                   </div>
                 </div>
               </>
