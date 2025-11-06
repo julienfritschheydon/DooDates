@@ -11,6 +11,7 @@ import {
   getAllPolls,
   deleteVotesByPollId,
   Poll as StoragePoll,
+  getCurrentUserId,
 } from "../lib/pollStorage";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "@/lib/logger";
@@ -119,9 +120,11 @@ export function usePolls() {
           const conversationId = urlParams.get("conversationId");
 
           // Simuler la création avec localStorage
+          // Utiliser getCurrentUserId pour être cohérent avec le filtrage du dashboard
+          const currentUserId = getCurrentUserId(user?.id);
           const mockPoll: StoragePoll = {
             id: `local-${Date.now()}`,
-            creator_id: user?.id || "anonymous",
+            creator_id: currentUserId,
             title: pollData.title,
             description: pollData.description || undefined,
             slug,
@@ -150,8 +153,10 @@ export function usePolls() {
         }
 
         // 1. Créer le sondage principal
+        // Utiliser getCurrentUserId pour être cohérent avec le filtrage du dashboard
+        // Pour les utilisateurs non loggés, cela retourne le deviceId au lieu de null
         const insertData = {
-          creator_id: user?.id || null, // null pour les sondages anonymes
+          creator_id: getCurrentUserId(user?.id), // Utiliser deviceId pour les utilisateurs non loggés
           title: pollData.title,
           description: pollData.description || null,
           slug: slug,

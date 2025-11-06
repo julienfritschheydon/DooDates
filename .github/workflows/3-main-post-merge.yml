@@ -312,7 +312,7 @@ jobs:
         id: e2e-summary
         run: |
           if [ -d test-results ]; then
-            node scripts/generate-regression-summary.js || echo "Summary generation failed"
+            node scripts/generate-regression-summary.js main || echo "Summary generation failed"
           else
             echo "No test results available"
           fi

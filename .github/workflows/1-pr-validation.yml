@@ -302,7 +302,7 @@ jobs:
         if: needs.e2e-smoke.result == 'failure' || needs.e2e-functional.result == 'failure' || needs.e2e-matrix.result == 'failure'
         run: |
           if [ -d test-results ]; then
-            node scripts/generate-regression-summary.js || echo "Summary generation failed"
+            node scripts/generate-regression-summary.js pr || echo "Summary generation failed"
           else
             echo "No test results available"
           fi

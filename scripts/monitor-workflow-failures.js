@@ -7,6 +7,13 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+// Charger les variables d'environnement depuis .env.local si disponible
+const envLocalPath = path.join(process.cwd(), '.env.local');
+if (fs.existsSync(envLocalPath)) {
+  dotenv.config({ path: envLocalPath });
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,7 +105,7 @@ async function getRunJobs(runId) {
 
   try {
     const response = await fetch(
-      `${GITHUB_API_BASE}/repos/${REPO}/actions/runs/${runId}/jobs`,
+      `${GITHUB_API_BASE}/repos/${REPO}/actions/runs/${runId}/jobs?per_page=100`,
       {
         headers: {
           'Authorization': `Bearer ${GITHUB_TOKEN}`,
@@ -117,6 +124,265 @@ async function getRunJobs(runId) {
     console.error(`❌ Erreur lors de la récupération des jobs pour run ${runId}:`, error.message);
     return getMockJobs();
   }
+}
+
+/**
+ * Récupère les logs d'un job
+ */
+async function getJobLogs(jobId) {
+  if (!GITHUB_TOKEN) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(
+      `${GITHUB_API_BASE}/repos/${REPO}/actions/jobs/${jobId}/logs`,
+      {
+        headers: {
+          'Authorization': `Bearer ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.text();
+  } catch (error) {
+    console.error(`❌ Erreur lors de la récupération des logs pour job ${jobId}:`, error.message);
+    return null;
+  }
+}
+
+/**
+ * Extrait les erreurs principales des logs avec numéros de lignes et détails
+ */
+function extractErrorsFromLogs(logs) {
+  if (!logs) return [];
+  
+  const errors = [];
+  const lines = logs.split('\n');
+  
+  // Patterns pour détecter les erreurs de tests Vitest
+  const vitestFailurePattern = /FAIL\s+(.+\.test\.(?:ts|tsx|js|jsx))\s+\((\d+)\s+test.*?\)/i;
+  const vitestTestPattern = /×\s+(.+?)\s+\((\d+)\s+ms\)/;
+  const vitestAssertPattern = /AssertionError|Expected.*but got|Expected.*received/i;
+  const vitestSummaryPattern = /Test Files\s+(\d+)\s+failed/i;
+  const vitestTestCountPattern = /Tests\s+(\d+)\s+failed/i;
+  
+  // Patterns pour détecter les erreurs Playwright
+  const playwrightErrorPattern = /Error:\s+.*expect\(.*\)\.(toContainText|toBeVisible|toBeEnabled|toHaveText)/i;
+  const playwrightTimeoutPattern = /Timeout.*ms|element\(s\) not found/i;
+  const playwrightLocatorPattern = /Locator:\s+(.+)/i;
+  const playwrightExpectedPattern = /Expected.*:\s*(.+)/i;
+  
+  // Patterns généraux
+  const errorPattern = /(Error|AssertionError|TypeError|ReferenceError|SyntaxError|Test failed)/i;
+  const fileLinePattern = /at\s+(.+?):(\d+):(\d+)/;
+  const fileLinePattern2 = /(.+\.(?:ts|tsx|js|jsx|spec\.ts)):(\d+):(\d+)/;
+  
+  let currentError = null;
+  let errorContext = [];
+  let inErrorBlock = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const lineNum = i + 1;
+    
+    // Détecter un échec de test Vitest
+    const vitestMatch = line.match(vitestFailurePattern);
+    if (vitestMatch) {
+      if (currentError) {
+        errors.push({
+          type: 'test_failure',
+          file: currentError.file,
+          testName: currentError.testName,
+          message: currentError.message,
+          context: errorContext.join('\n'),
+          line: currentError.line,
+        });
+      }
+      currentError = {
+        file: vitestMatch[1],
+        testName: null,
+        message: null,
+        line: lineNum,
+      };
+      errorContext = [line];
+      inErrorBlock = true;
+      continue;
+    }
+    
+    // Détecter une erreur Playwright
+    if (playwrightErrorPattern.test(line) || playwrightTimeoutPattern.test(line)) {
+      if (!currentError) {
+        currentError = {
+          file: null,
+          testName: null,
+          message: line.trim(),
+          line: lineNum,
+        };
+        inErrorBlock = true;
+      }
+      errorContext.push(line);
+      
+      // Chercher le locator et l'expected
+      const locatorMatch = line.match(playwrightLocatorPattern);
+      if (locatorMatch && currentError) {
+        currentError.message = `${currentError.message}\nLocator: ${locatorMatch[1]}`;
+      }
+      const expectedMatch = line.match(playwrightExpectedPattern);
+      if (expectedMatch && currentError) {
+        currentError.message = `${currentError.message}\nExpected: ${expectedMatch[1]}`;
+      }
+      continue;
+    }
+    
+    // Détecter le nom du test qui échoue (Vitest)
+    const vitestTestMatch = line.match(vitestTestPattern);
+    if (vitestTestMatch && currentError) {
+      currentError.testName = vitestTestMatch[1].trim();
+      errorContext.push(line);
+      continue;
+    }
+    
+    // Détecter un fichier de test dans la ligne (pour Playwright)
+    const fileMatch2 = line.match(fileLinePattern2);
+    if (fileMatch2 && currentError && !currentError.file) {
+      currentError.file = fileMatch2[1];
+      currentError.line = fileMatch2[2];
+      errorContext.push(line);
+      continue;
+    }
+    
+    // Détecter une erreur (Vitest assertion)
+    if (vitestAssertPattern.test(line) || (errorPattern.test(line) && !playwrightErrorPattern.test(line))) {
+      if (!currentError) {
+        currentError = {
+          file: null,
+          testName: null,
+          message: null,
+          line: lineNum,
+        };
+        inErrorBlock = true;
+      }
+      if (!currentError.message) {
+        currentError.message = line.trim();
+      }
+      errorContext.push(line);
+      continue;
+    }
+    
+    // Détecter un fichier et numéro de ligne dans la stack trace
+    const fileMatch = line.match(fileLinePattern);
+    if (fileMatch && currentError && !currentError.file) {
+      currentError.file = fileMatch[1];
+      currentError.line = fileMatch[2];
+      errorContext.push(line);
+      continue;
+    }
+    
+    // Continuer à collecter le contexte de l'erreur
+    if (inErrorBlock && currentError) {
+      // Collecter jusqu'à 15 lignes de contexte
+      if (errorContext.length < 15) {
+        if (line.trim().startsWith('at ') || 
+            line.trim().startsWith('  ') || 
+            line.trim().startsWith('❌') ||
+            line.trim().startsWith('×') ||
+            line.trim() === '' ||
+            /^\s+\^/.test(line) ||
+            /Expected|Received|Assertion|Error/.test(line)) {
+          errorContext.push(line);
+        } else if (errorContext.length > 3) {
+          // Fin du bloc d'erreur
+          errors.push({
+            type: currentError.testName ? 'test_failure' : 'error',
+            file: currentError.file || 'unknown',
+            testName: currentError.testName,
+            message: currentError.message || errorContext[0] || 'Unknown error',
+            context: errorContext.join('\n'),
+            line: currentError.line,
+          });
+          currentError = null;
+          errorContext = [];
+          inErrorBlock = false;
+        }
+      } else {
+        // Trop de lignes, sauvegarder et continuer
+        errors.push({
+          type: currentError.testName ? 'test_failure' : 'error',
+          file: currentError.file || 'unknown',
+          testName: currentError.testName,
+          message: currentError.message || errorContext[0] || 'Unknown error',
+          context: errorContext.join('\n'),
+          line: currentError.line,
+        });
+        currentError = null;
+        errorContext = [];
+        inErrorBlock = false;
+      }
+    }
+  }
+  
+  // Sauvegarder la dernière erreur
+  if (currentError && errorContext.length > 0) {
+    errors.push({
+      type: currentError.testName ? 'test_failure' : 'error',
+      file: currentError.file || 'unknown',
+      testName: currentError.testName,
+      message: currentError.message || errorContext[0] || 'Unknown error',
+      context: errorContext.join('\n'),
+      line: currentError.line,
+    });
+  }
+  
+  // Filtrer les erreurs : exclure les logs normaux (Storage error de fallback Supabase)
+  const filteredErrors = errors.filter(err => {
+    // Exclure les erreurs qui sont juste des logs de fallback Supabase
+    if (err.message && err.message.includes('Erreur lors du chargement depuis Supabase, utilisation de localStorage')) {
+      // Garder seulement si c'est un vrai échec de test (avec testName)
+      return err.testName !== null;
+    }
+    // Garder toutes les autres erreurs
+    return true;
+  });
+  
+  // Formater les erreurs pour l'affichage
+  return filteredErrors.slice(0, 10).map(err => {
+    let formatted = '';
+    if (err.testName) {
+      formatted += `Test: ${err.testName}\n`;
+    }
+    if (err.file && err.file !== 'unknown') {
+      // Nettoyer le chemin du fichier (enlever les codes ANSI et chemins absolus)
+      let cleanFile = err.file.replace(/\x1b\[[0-9;]*m/g, ''); // Enlever codes ANSI
+      cleanFile = cleanFile.replace(/.*\/(src|tests)\//, '$1/'); // Simplifier le chemin
+      formatted += `File: ${cleanFile}`;
+      if (err.line) {
+        formatted += `:${err.line}`;
+      }
+      formatted += '\n';
+    }
+    // Nettoyer le message (enlever timestamps et codes ANSI)
+    let cleanMessage = err.message.replace(/\d{4}-\d{2}-\d{2}T[\d:\.]+Z\s*/g, ''); // Timestamps
+    cleanMessage = cleanMessage.replace(/\x1b\[[0-9;]*m/g, ''); // Codes ANSI
+    cleanMessage = cleanMessage.replace(/\[22m|\[39m|\[90m|\[2m/g, ''); // Codes ANSI spécifiques
+    formatted += `Error: ${cleanMessage.trim()}\n`;
+    if (err.context) {
+      // Nettoyer le contexte aussi
+      let cleanContext = err.context.replace(/\d{4}-\d{2}-\d{2}T[\d:\.]+Z\s*/g, '');
+      cleanContext = cleanContext.replace(/\x1b\[[0-9;]*m/g, '');
+      cleanContext = cleanContext.replace(/\[22m|\[39m|\[90m|\[2m/g, '');
+      formatted += `\n${cleanContext.substring(0, 800)}`;
+      if (cleanContext.length > 800) {
+        formatted += '\n... (truncated)';
+      }
+    }
+    return formatted;
+  });
 }
 
 /**
@@ -206,6 +472,37 @@ async function generateReport() {
           reportSections.push(`- **Jobs en échec:**\n`);
           for (const job of failedJobs) {
             reportSections.push(`  - ❌ \`${job.name}\` (${job.conclusion})\n`);
+            // Afficher les steps qui ont échoué
+            if (job.steps && job.steps.length > 0) {
+              const failedSteps = job.steps.filter(s => s.conclusion === 'failure');
+              if (failedSteps.length > 0) {
+                reportSections.push(`    - Steps en échec: ${failedSteps.map(s => `\`${s.name}\``).join(', ')}\n`);
+              }
+            }
+            
+            // Pour le dernier run seulement, récupérer les logs et extraire les erreurs
+            if (failure.id === recentFailures[0].id && GITHUB_TOKEN) {
+              try {
+                console.log(`  📥 Récupération des logs pour job ${job.id}...`);
+                const logs = await getJobLogs(job.id);
+                if (logs) {
+                  const errors = extractErrorsFromLogs(logs);
+                  if (errors.length > 0) {
+                    reportSections.push(`    - **Erreurs détectées (${errors.length}):**\n`);
+                    for (const error of errors.slice(0, 5)) {
+                      reportSections.push(`      \`\`\`\n${error}\n\`\`\`\n`);
+                    }
+                    if (errors.length > 5) {
+                      reportSections.push(`      *... et ${errors.length - 5} autre(s) erreur(s)*\n`);
+                    }
+                  } else {
+                    reportSections.push(`    - ⚠️ Aucune erreur structurée détectée dans les logs\n`);
+                  }
+                }
+              } catch (err) {
+                reportSections.push(`    - ⚠️ Impossible de récupérer les logs: ${err.message}\n`);
+              }
+            }
           }
         }
         

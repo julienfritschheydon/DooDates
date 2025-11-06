@@ -1,0 +1,1510 @@
+2025-11-06T18:07:14.4601995Z Current runner version: '2.329.0'
+2025-11-06T18:07:14.4634790Z ##[group]Runner Image Provisioner
+2025-11-06T18:07:14.4636216Z Hosted Compute Agent
+2025-11-06T18:07:14.4637030Z Version: 20251016.436
+2025-11-06T18:07:14.4637963Z Commit: 8ab8ac8bfd662a3739dab9fe09456aba92132568
+2025-11-06T18:07:14.4639076Z Build Date: 2025-10-15T20:44:12Z
+2025-11-06T18:07:14.4640193Z ##[endgroup]
+2025-11-06T18:07:14.4641023Z ##[group]Operating System
+2025-11-06T18:07:14.4641979Z Ubuntu
+2025-11-06T18:07:14.4642696Z 24.04.3
+2025-11-06T18:07:14.4643422Z LTS
+2025-11-06T18:07:14.4644062Z ##[endgroup]
+2025-11-06T18:07:14.4645063Z ##[group]Runner Image
+2025-11-06T18:07:14.4645962Z Image: ubuntu-24.04
+2025-11-06T18:07:14.4646689Z Version: 20251030.96.2
+2025-11-06T18:07:14.4648446Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20251030.96/images/ubuntu/Ubuntu2404-Readme.md
+2025-11-06T18:07:14.4651079Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20251030.96
+2025-11-06T18:07:14.4652743Z ##[endgroup]
+2025-11-06T18:07:14.4654670Z ##[group]GITHUB_TOKEN Permissions
+2025-11-06T18:07:14.4657187Z Contents: write
+2025-11-06T18:07:14.4658015Z Issues: write
+2025-11-06T18:07:14.4659494Z Metadata: read
+2025-11-06T18:07:14.4660613Z PullRequests: write
+2025-11-06T18:07:14.4661429Z ##[endgroup]
+2025-11-06T18:07:14.4664166Z Secret source: Actions
+2025-11-06T18:07:14.4665306Z Prepare workflow directory
+2025-11-06T18:07:14.5298764Z Prepare all required actions
+2025-11-06T18:07:14.5338109Z Getting action download info
+2025-11-06T18:07:14.9917107Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+2025-11-06T18:07:15.1684078Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2025-11-06T18:07:15.2562453Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2025-11-06T18:07:15.3558073Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2025-11-06T18:07:15.5714834Z Complete job name: tests-e2e
+2025-11-06T18:07:15.6414206Z ##[group]Run actions/checkout@v4
+2025-11-06T18:07:15.6415050Z with:
+2025-11-06T18:07:15.6415523Z   repository: julienfritschheydon/DooDates
+2025-11-06T18:07:15.6416246Z   token: ***
+2025-11-06T18:07:15.6416620Z   ssh-strict: true
+2025-11-06T18:07:15.6417004Z   ssh-user: git
+2025-11-06T18:07:15.6417396Z   persist-credentials: true
+2025-11-06T18:07:15.6417837Z   clean: true
+2025-11-06T18:07:15.6418226Z   sparse-checkout-cone-mode: true
+2025-11-06T18:07:15.6418694Z   fetch-depth: 1
+2025-11-06T18:07:15.6419068Z   fetch-tags: false
+2025-11-06T18:07:15.6419466Z   show-progress: true
+2025-11-06T18:07:15.6419849Z   lfs: false
+2025-11-06T18:07:15.6420370Z   submodules: false
+2025-11-06T18:07:15.6420764Z   set-safe-directory: true
+2025-11-06T18:07:15.6421418Z ##[endgroup]
+2025-11-06T18:07:15.7517254Z Syncing repository: julienfritschheydon/DooDates
+2025-11-06T18:07:15.7519223Z ##[group]Getting Git version info
+2025-11-06T18:07:15.7520172Z Working directory is '/home/runner/work/DooDates/DooDates'
+2025-11-06T18:07:15.7521113Z [command]/usr/bin/git version
+2025-11-06T18:07:15.7611413Z git version 2.51.2
+2025-11-06T18:07:15.7638332Z ##[endgroup]
+2025-11-06T18:07:15.7660432Z Temporarily overriding HOME='/home/runner/work/_temp/a3fc3656-bf33-4bc4-9dfe-d35e7747d06c' before making global git config changes
+2025-11-06T18:07:15.7661809Z Adding repository directory to the temporary git global config as a safe directory
+2025-11-06T18:07:15.7665784Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/DooDates/DooDates
+2025-11-06T18:07:15.7704053Z Deleting the contents of '/home/runner/work/DooDates/DooDates'
+2025-11-06T18:07:15.7707626Z ##[group]Initializing the repository
+2025-11-06T18:07:15.7711630Z [command]/usr/bin/git init /home/runner/work/DooDates/DooDates
+2025-11-06T18:07:15.7834331Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-11-06T18:07:15.7835542Z hint: is subject to change. To configure the initial branch name to use in all
+2025-11-06T18:07:15.7836919Z hint: of your new repositories, which will suppress this warning, call:
+2025-11-06T18:07:15.7837620Z hint:
+2025-11-06T18:07:15.7838315Z hint: 	git config --global init.defaultBranch <name>
+2025-11-06T18:07:15.7838992Z hint:
+2025-11-06T18:07:15.7839879Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-11-06T18:07:15.7841305Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-11-06T18:07:15.7842036Z hint:
+2025-11-06T18:07:15.7842418Z hint: 	git branch -m <name>
+2025-11-06T18:07:15.7842869Z hint:
+2025-11-06T18:07:15.7843665Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-11-06T18:07:15.7844836Z Initialized empty Git repository in /home/runner/work/DooDates/DooDates/.git/
+2025-11-06T18:07:15.7851958Z [command]/usr/bin/git remote add origin https://github.com/julienfritschheydon/DooDates
+2025-11-06T18:07:15.7890904Z ##[endgroup]
+2025-11-06T18:07:15.7892150Z ##[group]Disabling automatic garbage collection
+2025-11-06T18:07:15.7896135Z [command]/usr/bin/git config --local gc.auto 0
+2025-11-06T18:07:15.7925934Z ##[endgroup]
+2025-11-06T18:07:15.7927105Z ##[group]Setting up auth
+2025-11-06T18:07:15.7933600Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-11-06T18:07:15.7964545Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-11-06T18:07:15.8428019Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-11-06T18:07:15.8459343Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-11-06T18:07:15.8682070Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-11-06T18:07:15.8717752Z ##[endgroup]
+2025-11-06T18:07:15.8718518Z ##[group]Fetching the repository
+2025-11-06T18:07:15.8726652Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +8df910d22961f6102876667582e8a7c3dceed3b2:refs/remotes/origin/develop
+2025-11-06T18:07:20.4918459Z From https://github.com/julienfritschheydon/DooDates
+2025-11-06T18:07:20.4919438Z  * [new ref]         8df910d22961f6102876667582e8a7c3dceed3b2 -> origin/develop
+2025-11-06T18:07:20.4953357Z ##[endgroup]
+2025-11-06T18:07:20.4954173Z ##[group]Determining the checkout info
+2025-11-06T18:07:20.4955659Z ##[endgroup]
+2025-11-06T18:07:20.4961256Z [command]/usr/bin/git sparse-checkout disable
+2025-11-06T18:07:20.5006343Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-11-06T18:07:20.5036085Z ##[group]Checking out the ref
+2025-11-06T18:07:20.5041283Z [command]/usr/bin/git checkout --progress --force -B develop refs/remotes/origin/develop
+2025-11-06T18:07:21.5033259Z Switched to a new branch 'develop'
+2025-11-06T18:07:21.5034125Z branch 'develop' set up to track 'origin/develop'.
+2025-11-06T18:07:21.5105294Z ##[endgroup]
+2025-11-06T18:07:21.5150827Z [command]/usr/bin/git log -1 --format=%H
+2025-11-06T18:07:21.5177326Z 8df910d22961f6102876667582e8a7c3dceed3b2
+2025-11-06T18:07:21.5416846Z ##[group]Run actions/setup-node@v4
+2025-11-06T18:07:21.5417189Z with:
+2025-11-06T18:07:21.5417405Z   node-version: 20
+2025-11-06T18:07:21.5417626Z   cache: npm
+2025-11-06T18:07:21.5417835Z   always-auth: false
+2025-11-06T18:07:21.5418072Z   check-latest: false
+2025-11-06T18:07:21.5418463Z   token: ***
+2025-11-06T18:07:21.5418679Z ##[endgroup]
+2025-11-06T18:07:21.7199550Z Found in cache @ /opt/hostedtoolcache/node/20.19.5/x64
+2025-11-06T18:07:21.7206062Z ##[group]Environment details
+2025-11-06T18:07:24.0824302Z node: v20.19.5
+2025-11-06T18:07:24.0824993Z npm: 10.8.2
+2025-11-06T18:07:24.0825274Z yarn: 1.22.22
+2025-11-06T18:07:24.0826593Z ##[endgroup]
+2025-11-06T18:07:24.0845356Z [command]/opt/hostedtoolcache/node/20.19.5/x64/bin/npm config get cache
+2025-11-06T18:07:24.3724820Z /home/runner/.npm
+2025-11-06T18:07:24.6757891Z Cache hit for: node-cache-Linux-x64-npm-ef5b18348fb37d26adc6f73485b78d3e39c53fac58f6018ead24814f1997c378
+2025-11-06T18:07:25.9699652Z Received 4194304 of 91910531 (4.6%), 4.0 MBs/sec
+2025-11-06T18:07:26.8655223Z Received 91910531 of 91910531 (100.0%), 46.2 MBs/sec
+2025-11-06T18:07:26.8657713Z Cache Size: ~88 MB (91910531 B)
+2025-11-06T18:07:26.8719225Z [command]/usr/bin/tar -xf /home/runner/work/_temp/6a5dca37-7ddb-40b7-ab47-7c11901d0629/cache.tzst -P -C /home/runner/work/DooDates/DooDates --use-compress-program unzstd
+2025-11-06T18:07:27.1451326Z Cache restored successfully
+2025-11-06T18:07:27.1642412Z Cache restored from key: node-cache-Linux-x64-npm-ef5b18348fb37d26adc6f73485b78d3e39c53fac58f6018ead24814f1997c378
+2025-11-06T18:07:27.2385153Z ##[group]Run actions/cache@v4
+2025-11-06T18:07:27.2385452Z with:
+2025-11-06T18:07:27.2385671Z   path: node_modules
+~/.npm
+
+2025-11-06T18:07:27.2386066Z   key: Linux-node-ef5b18348fb37d26adc6f73485b78d3e39c53fac58f6018ead24814f1997c378
+2025-11-06T18:07:27.2386474Z   restore-keys: Linux-node-
+
+2025-11-06T18:07:27.2386716Z   enableCrossOsArchive: false
+2025-11-06T18:07:27.2386966Z   fail-on-cache-miss: false
+2025-11-06T18:07:27.2387194Z   lookup-only: false
+2025-11-06T18:07:27.2387395Z   save-always: false
+2025-11-06T18:07:27.2387589Z ##[endgroup]
+2025-11-06T18:07:27.6568454Z Cache hit for: Linux-node-ef5b18348fb37d26adc6f73485b78d3e39c53fac58f6018ead24814f1997c378
+2025-11-06T18:07:28.9797748Z Received 0 of 174523565 (0.0%), 0.0 MBs/sec
+2025-11-06T18:07:29.9830761Z Received 117440512 of 174523565 (67.3%), 56.0 MBs/sec
+2025-11-06T18:07:30.5827116Z Received 174523565 of 174523565 (100.0%), 63.9 MBs/sec
+2025-11-06T18:07:30.5830617Z Cache Size: ~166 MB (174523565 B)
+2025-11-06T18:07:30.5939181Z [command]/usr/bin/tar -xf /home/runner/work/_temp/f1bb0427-97fe-471b-8d72-ed648684b29d/cache.tzst -P -C /home/runner/work/DooDates/DooDates --use-compress-program unzstd
+2025-11-06T18:07:32.5362034Z Cache restored successfully
+2025-11-06T18:07:32.5843117Z Cache restored from key: Linux-node-ef5b18348fb37d26adc6f73485b78d3e39c53fac58f6018ead24814f1997c378
+2025-11-06T18:07:32.6497023Z ##[group]Run actions/cache@v4
+2025-11-06T18:07:32.6497298Z with:
+2025-11-06T18:07:32.6497492Z   path: ~/.cache/ms-playwright
+2025-11-06T18:07:32.6497917Z   key: Linux-playwright-ef5b18348fb37d26adc6f73485b78d3e39c53fac58f6018ead24814f1997c378
+2025-11-06T18:07:32.6498378Z   restore-keys: Linux-playwright-
+
+2025-11-06T18:07:32.6498667Z   enableCrossOsArchive: false
+2025-11-06T18:07:32.6498902Z   fail-on-cache-miss: false
+2025-11-06T18:07:32.6499122Z   lookup-only: false
+2025-11-06T18:07:32.6499320Z   save-always: false
+2025-11-06T18:07:32.6499558Z ##[endgroup]
+2025-11-06T18:07:33.0647252Z Cache hit for: Linux-playwright-ef5b18348fb37d26adc6f73485b78d3e39c53fac58f6018ead24814f1997c378
+2025-11-06T18:07:34.3809828Z Received 4194304 of 278978601 (1.5%), 4.0 MBs/sec
+2025-11-06T18:07:35.3815257Z Received 121634816 of 278978601 (43.6%), 57.9 MBs/sec
+2025-11-06T18:07:36.3824850Z Received 226492416 of 278978601 (81.2%), 71.9 MBs/sec
+2025-11-06T18:07:36.9315006Z Received 278978601 of 278978601 (100.0%), 74.9 MBs/sec
+2025-11-06T18:07:36.9363996Z Cache Size: ~266 MB (278978601 B)
+2025-11-06T18:07:36.9427528Z [command]/usr/bin/tar -xf /home/runner/work/_temp/35121bc5-df2d-4645-81cc-2d7d35c3955d/cache.tzst -P -C /home/runner/work/DooDates/DooDates --use-compress-program unzstd
+2025-11-06T18:07:38.5021924Z Cache restored successfully
+2025-11-06T18:07:38.5643670Z Cache restored from key: Linux-playwright-ef5b18348fb37d26adc6f73485b78d3e39c53fac58f6018ead24814f1997c378
+2025-11-06T18:07:38.5761364Z ##[group]Run npm ci
+2025-11-06T18:07:38.5761672Z [36;1mnpm ci[0m
+2025-11-06T18:07:38.6390432Z shell: /usr/bin/bash -e {0}
+2025-11-06T18:07:38.6390725Z ##[endgroup]
+2025-11-06T18:07:46.2775325Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2025-11-06T18:07:46.5504083Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+2025-11-06T18:07:46.5507757Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+2025-11-06T18:07:46.5512778Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+2025-11-06T18:07:46.5529377Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+2025-11-06T18:07:47.7520556Z npm warn deprecated later@1.2.0: Please upgrade to the maintained and new drop-in replacement @breejs/later at https://github.com/breejs/later 🚀 Thanks and happy hacking! 🚀  @niftylettuce
+2025-11-06T18:07:50.5719482Z 
+2025-11-06T18:07:50.5720334Z > vite_react_shadcn_ts@0.0.0 prepare
+2025-11-06T18:07:50.5720757Z > husky
+2025-11-06T18:07:50.5720919Z 
+2025-11-06T18:07:50.6408182Z 
+2025-11-06T18:07:50.6409024Z added 949 packages, and audited 950 packages in 12s
+2025-11-06T18:07:50.6409470Z 
+2025-11-06T18:07:50.6409779Z 227 packages are looking for funding
+2025-11-06T18:07:50.6420961Z   run `npm fund` for details
+2025-11-06T18:07:50.6429055Z 
+2025-11-06T18:07:50.6429323Z found 0 vulnerabilities
+2025-11-06T18:07:50.7055303Z ##[group]Run npx playwright install --with-deps chromium
+2025-11-06T18:07:50.7055749Z [36;1mnpx playwright install --with-deps chromium[0m
+2025-11-06T18:07:50.7096755Z shell: /usr/bin/bash -e {0}
+2025-11-06T18:07:50.7097006Z ##[endgroup]
+2025-11-06T18:07:51.7016179Z Installing dependencies...
+2025-11-06T18:07:51.7090898Z Switching to root user to install dependencies...
+2025-11-06T18:07:51.7948229Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2025-11-06T18:07:51.8236675Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2025-11-06T18:07:51.8256221Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2025-11-06T18:07:51.8301509Z Get:6 https://packages.microsoft.com/repos/azure-cli noble InRelease [3564 B]
+2025-11-06T18:07:51.8313209Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2025-11-06T18:07:51.8337912Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2025-11-06T18:07:51.8363084Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2025-11-06T18:07:51.9605551Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1584 kB]
+2025-11-06T18:07:51.9845915Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [298 kB]
+2025-11-06T18:07:51.9874834Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [175 kB]
+2025-11-06T18:07:51.9897183Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 c-n-f Metadata [15.7 kB]
+2025-11-06T18:07:51.9910385Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1498 kB]
+2025-11-06T18:07:51.9994350Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [303 kB]
+2025-11-06T18:07:52.0023168Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [378 kB]
+2025-11-06T18:07:52.0064220Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 c-n-f Metadata [31.4 kB]
+2025-11-06T18:07:52.0072736Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2240 kB]
+2025-11-06T18:07:52.0156214Z Get:20 https://packages.microsoft.com/repos/azure-cli noble/main amd64 Packages [1700 B]
+2025-11-06T18:07:52.0213834Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [508 kB]
+2025-11-06T18:07:52.0673762Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Components [212 B]
+2025-11-06T18:07:52.0685764Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+2025-11-06T18:07:52.0710572Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [7148 B]
+2025-11-06T18:07:52.0724128Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [11.0 kB]
+2025-11-06T18:07:52.0733394Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-backports/restricted amd64 Components [216 B]
+2025-11-06T18:07:52.0746255Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Components [212 B]
+2025-11-06T18:07:52.1163681Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1301 kB]
+2025-11-06T18:07:52.1285864Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [214 kB]
+2025-11-06T18:07:52.1305814Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [21.5 kB]
+2025-11-06T18:07:52.1320393Z Get:28 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 c-n-f Metadata [9336 B]
+2025-11-06T18:07:52.1339577Z Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [906 kB]
+2025-11-06T18:07:52.1394851Z Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [203 kB]
+2025-11-06T18:07:52.1442028Z Get:31 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [52.2 kB]
+2025-11-06T18:07:52.1457830Z Get:32 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 c-n-f Metadata [19.4 kB]
+2025-11-06T18:07:52.1735122Z Get:37 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [49.1 kB]
+2025-11-06T18:07:52.1784999Z Get:38 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [66.5 kB]
+2025-11-06T18:07:52.1821222Z Get:39 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [11.1 kB]
+2025-11-06T18:07:52.1908316Z Get:33 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2131 kB]
+2025-11-06T18:07:52.2012562Z Get:34 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [483 kB]
+2025-11-06T18:07:52.2046040Z Get:35 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Components [212 B]
+2025-11-06T18:07:52.2058567Z Get:36 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Components [208 B]
+2025-11-06T18:08:01.4175966Z Fetched 12.9 MB in 1s (8727 kB/s)
+2025-11-06T18:08:02.2311235Z Reading package lists...
+2025-11-06T18:08:02.2573709Z Reading package lists...
+2025-11-06T18:08:02.4572943Z Building dependency tree...
+2025-11-06T18:08:02.4580432Z Reading state information...
+2025-11-06T18:08:02.6335725Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.1).
+2025-11-06T18:08:02.6336520Z libasound2t64 set to manually installed.
+2025-11-06T18:08:02.6338011Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+2025-11-06T18:08:02.6338968Z libatk-bridge2.0-0t64 set to manually installed.
+2025-11-06T18:08:02.6339735Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+2025-11-06T18:08:02.6342317Z libatk1.0-0t64 set to manually installed.
+2025-11-06T18:08:02.6342993Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+2025-11-06T18:08:02.6343610Z libatspi2.0-0t64 set to manually installed.
+2025-11-06T18:08:02.6344262Z libcairo2 is already the newest version (1.18.0-3build1).
+2025-11-06T18:08:02.6344904Z libcairo2 set to manually installed.
+2025-11-06T18:08:02.6345351Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.4).
+2025-11-06T18:08:02.6345750Z libcups2t64 set to manually installed.
+2025-11-06T18:08:02.6346151Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+2025-11-06T18:08:02.6346529Z libdbus-1-3 set to manually installed.
+2025-11-06T18:08:02.6346931Z libdrm2 is already the newest version (2.4.122-1~ubuntu0.24.04.1).
+2025-11-06T18:08:02.6347308Z libdrm2 set to manually installed.
+2025-11-06T18:08:02.6347690Z libgbm1 is already the newest version (25.0.7-0ubuntu0.24.04.2).
+2025-11-06T18:08:02.6348059Z libgbm1 set to manually installed.
+2025-11-06T18:08:02.6348792Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.4).
+2025-11-06T18:08:02.6349188Z libglib2.0-0t64 set to manually installed.
+2025-11-06T18:08:02.6349592Z libnspr4 is already the newest version (2:4.35-1.1build1).
+2025-11-06T18:08:02.6349952Z libnspr4 set to manually installed.
+2025-11-06T18:08:02.6350628Z libnss3 is already the newest version (2:3.98-1build1).
+2025-11-06T18:08:02.6350970Z libnss3 set to manually installed.
+2025-11-06T18:08:02.6351362Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+2025-11-06T18:08:02.6351880Z libpango-1.0-0 set to manually installed.
+2025-11-06T18:08:02.6352262Z libx11-6 is already the newest version (2:1.8.7-1build1).
+2025-11-06T18:08:02.6352603Z libx11-6 set to manually installed.
+2025-11-06T18:08:02.6352945Z libxcb1 is already the newest version (1.15-1ubuntu2).
+2025-11-06T18:08:02.6353284Z libxcb1 set to manually installed.
+2025-11-06T18:08:02.6353694Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+2025-11-06T18:08:02.6354097Z libxcomposite1 set to manually installed.
+2025-11-06T18:08:02.6354496Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+2025-11-06T18:08:02.6354860Z libxdamage1 set to manually installed.
+2025-11-06T18:08:02.6355327Z libxext6 is already the newest version (2:1.3.4-1build2).
+2025-11-06T18:08:02.6355855Z libxext6 set to manually installed.
+2025-11-06T18:08:02.6356246Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+2025-11-06T18:08:02.6356612Z libxfixes3 set to manually installed.
+2025-11-06T18:08:02.6356995Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+2025-11-06T18:08:02.6357372Z libxkbcommon0 set to manually installed.
+2025-11-06T18:08:02.6357884Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+2025-11-06T18:08:02.6358527Z libxrandr2 set to manually installed.
+2025-11-06T18:08:02.6359255Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+2025-11-06T18:08:02.6359800Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+2025-11-06T18:08:02.6360469Z libfontconfig1 set to manually installed.
+2025-11-06T18:08:02.6360898Z libfreetype6 is already the newest version (2.13.2+dfsg-1build3).
+2025-11-06T18:08:02.6361290Z libfreetype6 set to manually installed.
+2025-11-06T18:08:02.6361703Z fonts-liberation is already the newest version (1:2.1.5-3).
+2025-11-06T18:08:02.6362093Z fonts-liberation set to manually installed.
+2025-11-06T18:08:02.6362478Z The following additional packages will be installed:
+2025-11-06T18:08:02.6362844Z   xfonts-encodings xfonts-utils xserver-common
+2025-11-06T18:08:02.6363155Z Recommended packages:
+2025-11-06T18:08:02.6363449Z   fonts-ipafont-mincho fonts-tlwg-loma xfonts-base
+2025-11-06T18:08:02.6560845Z The following NEW packages will be installed:
+2025-11-06T18:08:02.6561765Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+2025-11-06T18:08:02.6567693Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+2025-11-06T18:08:02.6568358Z   xfonts-utils
+2025-11-06T18:08:02.6577442Z The following packages will be upgraded:
+2025-11-06T18:08:02.6577981Z   xserver-common xvfb
+2025-11-06T18:08:02.6745895Z 2 upgraded, 9 newly installed, 0 to remove and 35 not upgraded.
+2025-11-06T18:08:02.6746337Z Need to get 22.0 MB of archives.
+2025-11-06T18:08:02.6746778Z After this operation, 79.6 MB of additional disk space will be used.
+2025-11-06T18:08:02.6747582Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2025-11-06T18:08:02.7602081Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+2025-11-06T18:08:02.9801958Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+2025-11-06T18:08:03.2806463Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+2025-11-06T18:08:03.3512562Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+2025-11-06T18:08:03.4983407Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+2025-11-06T18:08:03.7737132Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+2025-11-06T18:08:03.8540307Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+2025-11-06T18:08:03.9324418Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+2025-11-06T18:08:04.0135235Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+2025-11-06T18:08:04.0917842Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 xserver-common all 2:21.1.12-1ubuntu1.5 [34.6 kB]
+2025-11-06T18:08:04.1615211Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 xvfb amd64 2:21.1.12-1ubuntu1.5 [877 kB]
+2025-11-06T18:08:04.4353093Z Fetched 22.0 MB in 2s (14.5 MB/s)
+2025-11-06T18:08:04.4608723Z Selecting previously unselected package fonts-ipafont-gothic.
+2025-11-06T18:08:04.4937934Z (Reading database ... 
+2025-11-06T18:08:04.4938526Z (Reading database ... 5%
+2025-11-06T18:08:04.4939075Z (Reading database ... 10%
+2025-11-06T18:08:04.4939580Z (Reading database ... 15%
+2025-11-06T18:08:04.4940448Z (Reading database ... 20%
+2025-11-06T18:08:04.4940826Z (Reading database ... 25%
+2025-11-06T18:08:04.4941158Z (Reading database ... 30%
+2025-11-06T18:08:04.4941480Z (Reading database ... 35%
+2025-11-06T18:08:04.4941797Z (Reading database ... 40%
+2025-11-06T18:08:04.4942115Z (Reading database ... 45%
+2025-11-06T18:08:04.4942433Z (Reading database ... 50%
+2025-11-06T18:08:04.5108421Z (Reading database ... 55%
+2025-11-06T18:08:04.7684741Z (Reading database ... 60%
+2025-11-06T18:08:04.9760549Z (Reading database ... 65%
+2025-11-06T18:08:05.1757169Z (Reading database ... 70%
+2025-11-06T18:08:05.3489208Z (Reading database ... 75%
+2025-11-06T18:08:05.5751335Z (Reading database ... 80%
+2025-11-06T18:08:05.8353432Z (Reading database ... 85%
+2025-11-06T18:08:06.0736772Z (Reading database ... 90%
+2025-11-06T18:08:06.2857293Z (Reading database ... 95%
+2025-11-06T18:08:06.2857816Z (Reading database ... 100%
+2025-11-06T18:08:06.2858587Z (Reading database ... 215550 files and directories currently installed.)
+2025-11-06T18:08:06.2902250Z Preparing to unpack .../00-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+2025-11-06T18:08:06.2994415Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+2025-11-06T18:08:06.5305120Z Selecting previously unselected package fonts-freefont-ttf.
+2025-11-06T18:08:06.5438850Z Preparing to unpack .../01-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+2025-11-06T18:08:06.5449232Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+2025-11-06T18:08:06.6345837Z Selecting previously unselected package fonts-tlwg-loma-otf.
+2025-11-06T18:08:06.6478601Z Preparing to unpack .../02-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+2025-11-06T18:08:06.6490711Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2025-11-06T18:08:06.6722608Z Selecting previously unselected package fonts-unifont.
+2025-11-06T18:08:06.6857210Z Preparing to unpack .../03-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+2025-11-06T18:08:06.6869768Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+2025-11-06T18:08:06.8123085Z Selecting previously unselected package fonts-wqy-zenhei.
+2025-11-06T18:08:06.8257150Z Preparing to unpack .../04-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+2025-11-06T18:08:06.8359902Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+2025-11-06T18:08:07.3113973Z Selecting previously unselected package xfonts-encodings.
+2025-11-06T18:08:07.3246737Z Preparing to unpack .../05-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+2025-11-06T18:08:07.3255810Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2025-11-06T18:08:07.3555290Z Selecting previously unselected package xfonts-utils.
+2025-11-06T18:08:07.3688633Z Preparing to unpack .../06-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+2025-11-06T18:08:07.3696863Z Unpacking xfonts-utils (1:7.7+6build3) ...
+2025-11-06T18:08:07.4130947Z Selecting previously unselected package xfonts-cyrillic.
+2025-11-06T18:08:07.4262746Z Preparing to unpack .../07-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+2025-11-06T18:08:07.4270651Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+2025-11-06T18:08:07.4642172Z Selecting previously unselected package xfonts-scalable.
+2025-11-06T18:08:07.4772995Z Preparing to unpack .../08-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+2025-11-06T18:08:07.4801969Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+2025-11-06T18:08:07.5216648Z Preparing to unpack .../09-xserver-common_2%3a21.1.12-1ubuntu1.5_all.deb ...
+2025-11-06T18:08:07.5241859Z Unpacking xserver-common (2:21.1.12-1ubuntu1.5) over (2:21.1.12-1ubuntu1.4) ...
+2025-11-06T18:08:07.5693009Z Preparing to unpack .../10-xvfb_2%3a21.1.12-1ubuntu1.5_amd64.deb ...
+2025-11-06T18:08:07.5741061Z Unpacking xvfb (2:21.1.12-1ubuntu1.5) over (2:21.1.12-1ubuntu1.4) ...
+2025-11-06T18:08:07.6321478Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+2025-11-06T18:08:07.6471357Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+2025-11-06T18:08:07.6499225Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2025-11-06T18:08:07.6529043Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2025-11-06T18:08:07.6555161Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+2025-11-06T18:08:07.6629651Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+2025-11-06T18:08:07.6646203Z Setting up xserver-common (2:21.1.12-1ubuntu1.5) ...
+2025-11-06T18:08:07.6671305Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+2025-11-06T18:08:07.6696080Z Setting up xvfb (2:21.1.12-1ubuntu1.5) ...
+2025-11-06T18:08:07.6735861Z Setting up xfonts-utils (1:7.7+6build3) ...
+2025-11-06T18:08:07.6784880Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+2025-11-06T18:08:07.7086167Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+2025-11-06T18:08:07.7379161Z Processing triggers for man-db (2.12.0-4build2) ...
+2025-11-06T18:08:19.7154639Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+2025-11-06T18:08:20.5111919Z 
+2025-11-06T18:08:20.5113284Z Running kernel seems to be up-to-date.
+2025-11-06T18:08:20.5113706Z 
+2025-11-06T18:08:20.5113997Z No services need to be restarted.
+2025-11-06T18:08:20.5114306Z 
+2025-11-06T18:08:20.5114567Z No containers need to be restarted.
+2025-11-06T18:08:20.5114862Z 
+2025-11-06T18:08:20.5115159Z No user sessions are running outdated binaries.
+2025-11-06T18:08:20.5115490Z 
+2025-11-06T18:08:20.5115951Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2025-11-06T18:08:21.4016916Z ##[group]Run npm run test:e2e:smoke -- --reporter=html,json
+2025-11-06T18:08:21.4017352Z [36;1mnpm run test:e2e:smoke -- --reporter=html,json[0m
+2025-11-06T18:08:21.4050266Z shell: /usr/bin/bash -e {0}
+2025-11-06T18:08:21.4050521Z ##[endgroup]
+2025-11-06T18:08:21.5163634Z 
+2025-11-06T18:08:21.5164198Z > vite_react_shadcn_ts@0.0.0 test:e2e:smoke
+2025-11-06T18:08:21.5165554Z > playwright test --project=chromium --grep @smoke --grep-invert "@analytics|@functional" --reporter=html,json
+2025-11-06T18:08:21.5166317Z 
+2025-11-06T18:09:18.1689821Z {
+2025-11-06T18:09:18.1690503Z   "config": {
+2025-11-06T18:09:18.1691369Z     "configFile": "/home/runner/work/DooDates/DooDates/playwright.config.ts",
+2025-11-06T18:09:18.1692440Z     "rootDir": "/home/runner/work/DooDates/DooDates/tests/e2e",
+2025-11-06T18:09:18.1693176Z     "forbidOnly": true,
+2025-11-06T18:09:18.1693676Z     "fullyParallel": true,
+2025-11-06T18:09:18.1694162Z     "globalSetup": null,
+2025-11-06T18:09:18.1694725Z     "globalTeardown": null,
+2025-11-06T18:09:18.1695202Z     "globalTimeout": 0,
+2025-11-06T18:09:18.1695702Z     "grep": {},
+2025-11-06T18:09:18.1696147Z     "grepInvert": null,
+2025-11-06T18:09:18.1696600Z     "maxFailures": 0,
+2025-11-06T18:09:18.1697187Z     "metadata": {
+2025-11-06T18:09:18.1697625Z       "ci": {
+2025-11-06T18:09:18.1698987Z         "commitHref": "https://github.com/julienfritschheydon/DooDates/commit/8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1700470Z         "commitHash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1701459Z         "buildHref": "https://github.com/julienfritschheydon/DooDates/actions/runs/19145287292"
+2025-11-06T18:09:18.1702193Z       },
+2025-11-06T18:09:18.1702518Z       "gitCommit": {
+2025-11-06T18:09:18.1702914Z         "shortHash": "8df910d",
+2025-11-06T18:09:18.1703430Z         "hash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1704344Z         "subject": "fix: corriger les tests unitaires en échec",
+2025-11-06T18:09:18.1706987Z         "body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conversations mockées et corriger le test guest mode\n- useConversations.favorites.test.ts: ajouter les mocks pour ConversationStorageSupabase\n\nTous les tests passent maintenant (25/25)\n",
+2025-11-06T18:09:18.1709255Z         "author": {
+2025-11-06T18:09:18.1709689Z           "name": "julienfritschheydon",
+2025-11-06T18:09:18.1710435Z           "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1710957Z           "time": 1762452376000
+2025-11-06T18:09:18.1711331Z         },
+2025-11-06T18:09:18.1711661Z         "committer": {
+2025-11-06T18:09:18.1712093Z           "name": "julienfritschheydon",
+2025-11-06T18:09:18.1712581Z           "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1713098Z           "time": 1762452401000
+2025-11-06T18:09:18.1713478Z         },
+2025-11-06T18:09:18.1713802Z         "branch": "develop"
+2025-11-06T18:09:18.1714127Z       },
+2025-11-06T18:09:18.1714435Z       "actualWorkers": 3
+2025-11-06T18:09:18.1714784Z     },
+2025-11-06T18:09:18.1715166Z     "preserveOutput": "always",
+2025-11-06T18:09:18.1715780Z     "reporter": [
+2025-11-06T18:09:18.1716093Z       [
+2025-11-06T18:09:18.1716411Z         "html"
+2025-11-06T18:09:18.1716739Z       ],
+2025-11-06T18:09:18.1717038Z       [
+2025-11-06T18:09:18.1717337Z         "json"
+2025-11-06T18:09:18.1717658Z       ]
+2025-11-06T18:09:18.1717954Z     ],
+2025-11-06T18:09:18.1718261Z     "reportSlowTests": {
+2025-11-06T18:09:18.1718657Z       "max": 5,
+2025-11-06T18:09:18.1718989Z       "threshold": 300000
+2025-11-06T18:09:18.1719347Z     },
+2025-11-06T18:09:18.1719645Z     "quiet": false,
+2025-11-06T18:09:18.1719978Z     "projects": [
+2025-11-06T18:09:18.1720476Z       {
+2025-11-06T18:09:18.1721293Z         "outputDir": "/home/runner/work/DooDates/DooDates/test-results",
+2025-11-06T18:09:18.1721930Z         "repeatEach": 1,
+2025-11-06T18:09:18.1722299Z         "retries": 2,
+2025-11-06T18:09:18.1722646Z         "metadata": {
+2025-11-06T18:09:18.1722983Z           "ci": {
+2025-11-06T18:09:18.1723882Z             "commitHref": "https://github.com/julienfritschheydon/DooDates/commit/8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1724906Z             "commitHash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1725802Z             "buildHref": "https://github.com/julienfritschheydon/DooDates/actions/runs/19145287292"
+2025-11-06T18:09:18.1726503Z           },
+2025-11-06T18:09:18.1726817Z           "gitCommit": {
+2025-11-06T18:09:18.1727215Z             "shortHash": "8df910d",
+2025-11-06T18:09:18.1727749Z             "hash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1728568Z             "subject": "fix: corriger les tests unitaires en échec",
+2025-11-06T18:09:18.1732749Z             "body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conversations mockées et corriger le test guest mode\n- useConversations.favorites.test.ts: ajouter les mocks pour ConversationStorageSupabase\n\nTous les tests passent maintenant (25/25)\n",
+2025-11-06T18:09:18.1735850Z             "author": {
+2025-11-06T18:09:18.1736295Z               "name": "julienfritschheydon",
+2025-11-06T18:09:18.1736838Z               "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1737329Z               "time": 1762452376000
+2025-11-06T18:09:18.1737721Z             },
+2025-11-06T18:09:18.1738040Z             "committer": {
+2025-11-06T18:09:18.1738488Z               "name": "julienfritschheydon",
+2025-11-06T18:09:18.1739030Z               "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1739533Z               "time": 1762452401000
+2025-11-06T18:09:18.1739921Z             },
+2025-11-06T18:09:18.1740433Z             "branch": "develop"
+2025-11-06T18:09:18.1740905Z           },
+2025-11-06T18:09:18.1741272Z           "actualWorkers": 3
+2025-11-06T18:09:18.1741655Z         },
+2025-11-06T18:09:18.1741956Z         "id": "chromium",
+2025-11-06T18:09:18.1742321Z         "name": "chromium",
+2025-11-06T18:09:18.1742881Z         "testDir": "/home/runner/work/DooDates/DooDates/tests/e2e",
+2025-11-06T18:09:18.1743406Z         "testIgnore": [
+2025-11-06T18:09:18.1743765Z           "**/OLD/**"
+2025-11-06T18:09:18.1744085Z         ],
+2025-11-06T18:09:18.1744395Z         "testMatch": [
+2025-11-06T18:09:18.1744750Z           "**/*.spec.ts",
+2025-11-06T18:09:18.1745110Z           "**/*.test.ts",
+2025-11-06T18:09:18.1745473Z           "**/*_test.ts"
+2025-11-06T18:09:18.1745814Z         ],
+2025-11-06T18:09:18.1746122Z         "timeout": 60000
+2025-11-06T18:09:18.1746475Z       },
+2025-11-06T18:09:18.1746766Z       {
+2025-11-06T18:09:18.1747300Z         "outputDir": "/home/runner/work/DooDates/DooDates/test-results",
+2025-11-06T18:09:18.1747889Z         "repeatEach": 1,
+2025-11-06T18:09:18.1748236Z         "retries": 2,
+2025-11-06T18:09:18.1748568Z         "metadata": {
+2025-11-06T18:09:18.1748901Z           "ci": {
+2025-11-06T18:09:18.1749800Z             "commitHref": "https://github.com/julienfritschheydon/DooDates/commit/8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1751025Z             "commitHash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1751961Z             "buildHref": "https://github.com/julienfritschheydon/DooDates/actions/runs/19145287292"
+2025-11-06T18:09:18.1752675Z           },
+2025-11-06T18:09:18.1752996Z           "gitCommit": {
+2025-11-06T18:09:18.1753400Z             "shortHash": "8df910d",
+2025-11-06T18:09:18.1753930Z             "hash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1754935Z             "subject": "fix: corriger les tests unitaires en échec",
+2025-11-06T18:09:18.1758858Z             "body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conversations mockées et corriger le test guest mode\n- useConversations.favorites.test.ts: ajouter les mocks pour ConversationStorageSupabase\n\nTous les tests passent maintenant (25/25)\n",
+2025-11-06T18:09:18.1761518Z             "author": {
+2025-11-06T18:09:18.1761854Z               "name": "julienfritschheydon",
+2025-11-06T18:09:18.1762379Z               "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1762696Z               "time": 1762452376000
+2025-11-06T18:09:18.1762938Z             },
+2025-11-06T18:09:18.1763137Z             "committer": {
+2025-11-06T18:09:18.1763405Z               "name": "julienfritschheydon",
+2025-11-06T18:09:18.1763735Z               "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1764023Z               "time": 1762452401000
+2025-11-06T18:09:18.1764247Z             },
+2025-11-06T18:09:18.1764454Z             "branch": "develop"
+2025-11-06T18:09:18.1764681Z           },
+2025-11-06T18:09:18.1765062Z           "actualWorkers": 3
+2025-11-06T18:09:18.1765281Z         },
+2025-11-06T18:09:18.1765463Z         "id": "firefox",
+2025-11-06T18:09:18.1765680Z         "name": "firefox",
+2025-11-06T18:09:18.1765996Z         "testDir": "/home/runner/work/DooDates/DooDates/tests/e2e",
+2025-11-06T18:09:18.1766323Z         "testIgnore": [
+2025-11-06T18:09:18.1766531Z           "**/OLD/**"
+2025-11-06T18:09:18.1766720Z         ],
+2025-11-06T18:09:18.1766894Z         "testMatch": [
+2025-11-06T18:09:18.1767101Z           "**/*.spec.ts",
+2025-11-06T18:09:18.1767310Z           "**/*.test.ts",
+2025-11-06T18:09:18.1767511Z           "**/*_test.ts"
+2025-11-06T18:09:18.1767703Z         ],
+2025-11-06T18:09:18.1767883Z         "timeout": 60000
+2025-11-06T18:09:18.1768080Z       },
+2025-11-06T18:09:18.1768247Z       {
+2025-11-06T18:09:18.1768559Z         "outputDir": "/home/runner/work/DooDates/DooDates/test-results",
+2025-11-06T18:09:18.1768898Z         "repeatEach": 1,
+2025-11-06T18:09:18.1769113Z         "retries": 2,
+2025-11-06T18:09:18.1769321Z         "metadata": {
+2025-11-06T18:09:18.1769515Z           "ci": {
+2025-11-06T18:09:18.1770240Z             "commitHref": "https://github.com/julienfritschheydon/DooDates/commit/8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1771105Z             "commitHash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1771630Z             "buildHref": "https://github.com/julienfritschheydon/DooDates/actions/runs/19145287292"
+2025-11-06T18:09:18.1772037Z           },
+2025-11-06T18:09:18.1772231Z           "gitCommit": {
+2025-11-06T18:09:18.1772473Z             "shortHash": "8df910d",
+2025-11-06T18:09:18.1772794Z             "hash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1773276Z             "subject": "fix: corriger les tests unitaires en échec",
+2025-11-06T18:09:18.1775495Z             "body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conversations mockées et corriger le test guest mode\n- useConversations.favorites.test.ts: ajouter les mocks pour ConversationStorageSupabase\n\nTous les tests passent maintenant (25/25)\n",
+2025-11-06T18:09:18.1777112Z             "author": {
+2025-11-06T18:09:18.1777368Z               "name": "julienfritschheydon",
+2025-11-06T18:09:18.1777681Z               "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1777970Z               "time": 1762452376000
+2025-11-06T18:09:18.1778202Z             },
+2025-11-06T18:09:18.1778395Z             "committer": {
+2025-11-06T18:09:18.1778801Z               "name": "julienfritschheydon",
+2025-11-06T18:09:18.1779122Z               "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1779404Z               "time": 1762452401000
+2025-11-06T18:09:18.1779629Z             },
+2025-11-06T18:09:18.1779832Z             "branch": "develop"
+2025-11-06T18:09:18.1780254Z           },
+2025-11-06T18:09:18.1780453Z           "actualWorkers": 3
+2025-11-06T18:09:18.1780670Z         },
+2025-11-06T18:09:18.1780847Z         "id": "webkit",
+2025-11-06T18:09:18.1781051Z         "name": "webkit",
+2025-11-06T18:09:18.1781366Z         "testDir": "/home/runner/work/DooDates/DooDates/tests/e2e",
+2025-11-06T18:09:18.1781683Z         "testIgnore": [
+2025-11-06T18:09:18.1781882Z           "**/OLD/**"
+2025-11-06T18:09:18.1782068Z         ],
+2025-11-06T18:09:18.1782242Z         "testMatch": [
+2025-11-06T18:09:18.1782444Z           "**/*.spec.ts",
+2025-11-06T18:09:18.1782649Z           "**/*.test.ts",
+2025-11-06T18:09:18.1782856Z           "**/*_test.ts"
+2025-11-06T18:09:18.1783052Z         ],
+2025-11-06T18:09:18.1783224Z         "timeout": 60000
+2025-11-06T18:09:18.1783421Z       },
+2025-11-06T18:09:18.1783588Z       {
+2025-11-06T18:09:18.1783892Z         "outputDir": "/home/runner/work/DooDates/DooDates/test-results",
+2025-11-06T18:09:18.1784367Z         "repeatEach": 1,
+2025-11-06T18:09:18.1784582Z         "retries": 2,
+2025-11-06T18:09:18.1784785Z         "metadata": {
+2025-11-06T18:09:18.1784975Z           "ci": {
+2025-11-06T18:09:18.1785502Z             "commitHref": "https://github.com/julienfritschheydon/DooDates/commit/8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1786111Z             "commitHash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1786625Z             "buildHref": "https://github.com/julienfritschheydon/DooDates/actions/runs/19145287292"
+2025-11-06T18:09:18.1787030Z           },
+2025-11-06T18:09:18.1787221Z           "gitCommit": {
+2025-11-06T18:09:18.1787455Z             "shortHash": "8df910d",
+2025-11-06T18:09:18.1787767Z             "hash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1788223Z             "subject": "fix: corriger les tests unitaires en échec",
+2025-11-06T18:09:18.1790598Z             "body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conversations mockées et corriger le test guest mode\n- useConversations.favorites.test.ts: ajouter les mocks pour ConversationStorageSupabase\n\nTous les tests passent maintenant (25/25)\n",
+2025-11-06T18:09:18.1792211Z             "author": {
+2025-11-06T18:09:18.1792463Z               "name": "julienfritschheydon",
+2025-11-06T18:09:18.1792774Z               "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1793063Z               "time": 1762452376000
+2025-11-06T18:09:18.1793299Z             },
+2025-11-06T18:09:18.1793485Z             "committer": {
+2025-11-06T18:09:18.1793741Z               "name": "julienfritschheydon",
+2025-11-06T18:09:18.1794047Z               "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1794327Z               "time": 1762452401000
+2025-11-06T18:09:18.1794558Z             },
+2025-11-06T18:09:18.1794773Z             "branch": "develop"
+2025-11-06T18:09:18.1794991Z           },
+2025-11-06T18:09:18.1795180Z           "actualWorkers": 3
+2025-11-06T18:09:18.1795413Z         },
+2025-11-06T18:09:18.1795645Z         "id": "Mobile Chrome",
+2025-11-06T18:09:18.1795888Z         "name": "Mobile Chrome",
+2025-11-06T18:09:18.1796220Z         "testDir": "/home/runner/work/DooDates/DooDates/tests/e2e",
+2025-11-06T18:09:18.1796534Z         "testIgnore": [
+2025-11-06T18:09:18.1796734Z           "**/OLD/**"
+2025-11-06T18:09:18.1796924Z         ],
+2025-11-06T18:09:18.1797098Z         "testMatch": [
+2025-11-06T18:09:18.1797300Z           "**/*.spec.ts",
+2025-11-06T18:09:18.1797699Z           "**/*.test.ts",
+2025-11-06T18:09:18.1797913Z           "**/*_test.ts"
+2025-11-06T18:09:18.1798109Z         ],
+2025-11-06T18:09:18.1798283Z         "timeout": 60000
+2025-11-06T18:09:18.1798480Z       },
+2025-11-06T18:09:18.1798644Z       {
+2025-11-06T18:09:18.1798944Z         "outputDir": "/home/runner/work/DooDates/DooDates/test-results",
+2025-11-06T18:09:18.1799286Z         "repeatEach": 1,
+2025-11-06T18:09:18.1799492Z         "retries": 2,
+2025-11-06T18:09:18.1799687Z         "metadata": {
+2025-11-06T18:09:18.1799880Z           "ci": {
+2025-11-06T18:09:18.1800755Z             "commitHref": "https://github.com/julienfritschheydon/DooDates/commit/8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1801361Z             "commitHash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1801876Z             "buildHref": "https://github.com/julienfritschheydon/DooDates/actions/runs/19145287292"
+2025-11-06T18:09:18.1802279Z           },
+2025-11-06T18:09:18.1802472Z           "gitCommit": {
+2025-11-06T18:09:18.1802710Z             "shortHash": "8df910d",
+2025-11-06T18:09:18.1803013Z             "hash": "8df910d22961f6102876667582e8a7c3dceed3b2",
+2025-11-06T18:09:18.1803472Z             "subject": "fix: corriger les tests unitaires en échec",
+2025-11-06T18:09:18.1805873Z             "body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conversations mockées et corriger le test guest mode\n- useConversations.favorites.test.ts: ajouter les mocks pour ConversationStorageSupabase\n\nTous les tests passent maintenant (25/25)\n",
+2025-11-06T18:09:18.1807499Z             "author": {
+2025-11-06T18:09:18.1807750Z               "name": "julienfritschheydon",
+2025-11-06T18:09:18.1808062Z               "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1808356Z               "time": 1762452376000
+2025-11-06T18:09:18.1808582Z             },
+2025-11-06T18:09:18.1808770Z             "committer": {
+2025-11-06T18:09:18.1809028Z               "name": "julienfritschheydon",
+2025-11-06T18:09:18.1809338Z               "email": "julien.fritsch@gmail.com",
+2025-11-06T18:09:18.1809628Z               "time": 1762452401000
+2025-11-06T18:09:18.1809850Z             },
+2025-11-06T18:09:18.1810231Z             "branch": "develop"
+2025-11-06T18:09:18.1810457Z           },
+2025-11-06T18:09:18.1810644Z           "actualWorkers": 3
+2025-11-06T18:09:18.1810855Z         },
+2025-11-06T18:09:18.1811050Z         "id": "Mobile Safari",
+2025-11-06T18:09:18.1811303Z         "name": "Mobile Safari",
+2025-11-06T18:09:18.1811632Z         "testDir": "/home/runner/work/DooDates/DooDates/tests/e2e",
+2025-11-06T18:09:18.1811945Z         "testIgnore": [
+2025-11-06T18:09:18.1812148Z           "**/OLD/**"
+2025-11-06T18:09:18.1812334Z         ],
+2025-11-06T18:09:18.1812515Z         "testMatch": [
+2025-11-06T18:09:18.1812721Z           "**/*.spec.ts",
+2025-11-06T18:09:18.1812930Z           "**/*.test.ts",
+2025-11-06T18:09:18.1813133Z           "**/*_test.ts"
+2025-11-06T18:09:18.1813330Z         ],
+2025-11-06T18:09:18.1813505Z         "timeout": 60000
+2025-11-06T18:09:18.1813701Z       }
+2025-11-06T18:09:18.1813871Z     ],
+2025-11-06T18:09:18.1814045Z     "shard": null,
+2025-11-06T18:09:18.1814269Z     "updateSnapshots": "missing",
+2025-11-06T18:09:18.1814547Z     "updateSourceMethod": "patch",
+2025-11-06T18:09:18.1814791Z     "version": "1.56.1",
+2025-11-06T18:09:18.1814999Z     "workers": 3,
+2025-11-06T18:09:18.1815190Z     "webServer": {
+2025-11-06T18:09:18.1815417Z       "command": "npm run dev:e2e",
+2025-11-06T18:09:18.1815713Z       "url": "http://localhost:8080",
+2025-11-06T18:09:18.1815996Z       "reuseExistingServer": false,
+2025-11-06T18:09:18.1816236Z       "timeout": 120000,
+2025-11-06T18:09:18.1816436Z       "env": {
+2025-11-06T18:09:18.1816645Z         "VITE_SUPABASE_URL": "",
+2025-11-06T18:09:18.1817039Z         "VITE_SUPABASE_ANON_KEY": ""
+2025-11-06T18:09:18.1817281Z       }
+2025-11-06T18:09:18.1817443Z     }
+2025-11-06T18:09:18.1817602Z   },
+2025-11-06T18:09:18.1817767Z   "suites": [
+2025-11-06T18:09:18.1817941Z     {
+2025-11-06T18:09:18.1818151Z       "title": "analytics-ai.spec.ts",
+2025-11-06T18:09:18.1818448Z       "file": "analytics-ai.spec.ts",
+2025-11-06T18:09:18.1818692Z       "column": 0,
+2025-11-06T18:09:18.1818879Z       "line": 0,
+2025-11-06T18:09:18.1819062Z       "specs": [],
+2025-11-06T18:09:18.1819246Z       "suites": [
+2025-11-06T18:09:18.1819425Z         {
+2025-11-06T18:09:18.1819721Z           "title": "Analytics IA - Suite Complète",
+2025-11-06T18:09:18.1820238Z           "file": "analytics-ai.spec.ts",
+2025-11-06T18:09:18.1820511Z           "line": 36,
+2025-11-06T18:09:18.1820712Z           "column": 6,
+2025-11-06T18:09:18.1820911Z           "specs": [
+2025-11-06T18:09:18.1821108Z             {
+2025-11-06T18:09:18.1821559Z               "title": "1. Setup: Créer et clôturer un FormPoll avec 5 réponses @smoke @critical",
+2025-11-06T18:09:18.1821930Z               "ok": true,
+2025-11-06T18:09:18.1822140Z               "tags": [
+2025-11-06T18:09:18.1822341Z                 "smoke",
+2025-11-06T18:09:18.1822549Z                 "critical"
+2025-11-06T18:09:18.1822896Z               ],
+2025-11-06T18:09:18.1823082Z               "tests": [
+2025-11-06T18:09:18.1823276Z                 {
+2025-11-06T18:09:18.1823487Z                   "timeout": 60000,
+2025-11-06T18:09:18.1823751Z                   "annotations": [],
+2025-11-06T18:09:18.1824039Z                   "expectedStatus": "passed",
+2025-11-06T18:09:18.1824333Z                   "projectId": "chromium",
+2025-11-06T18:09:18.1824620Z                   "projectName": "chromium",
+2025-11-06T18:09:18.1824890Z                   "results": [
+2025-11-06T18:09:18.1825108Z                     {
+2025-11-06T18:09:18.1825336Z                       "workerIndex": 0,
+2025-11-06T18:09:18.1825625Z                       "parallelIndex": 0,
+2025-11-06T18:09:18.1825904Z                       "status": "passed",
+2025-11-06T18:09:18.1826177Z                       "duration": 32986,
+2025-11-06T18:09:18.1826438Z                       "errors": [],
+2025-11-06T18:09:18.1826690Z                       "stdout": [
+2025-11-06T18:09:18.1826925Z                         {
+2025-11-06T18:09:18.1827647Z                           "text": "🤖 Gemini API mock - Prompt: Tu es l'IA DooDates, expert en création de questionnaires et formulaires.\n\nOBJECTIF: Créer un questi...\n"
+2025-11-06T18:09:18.1828193Z                         },
+2025-11-06T18:09:18.1828402Z                         {
+2025-11-06T18:09:18.1829088Z                           "text": "🤖 Gemini API mock - Prompt: Tu es un analyste de données expert. Analyse les résultats de ce sondage et génère des insights auto...\n"
+2025-11-06T18:09:18.1829607Z                         }
+2025-11-06T18:09:18.1829810Z                       ],
+2025-11-06T18:09:18.1830213Z                       "stderr": [],
+2025-11-06T18:09:18.1830496Z                       "retry": 0,
+2025-11-06T18:09:18.1830791Z                       "startTime": "2025-11-06T18:08:25.988Z",
+2025-11-06T18:09:18.1831100Z                       "annotations": [],
+2025-11-06T18:09:18.1831374Z                       "attachments": []
+2025-11-06T18:09:18.1831622Z                     }
+2025-11-06T18:09:18.1831813Z                   ],
+2025-11-06T18:09:18.1832038Z                   "status": "expected"
+2025-11-06T18:09:18.1832273Z                 }
+2025-11-06T18:09:18.1832455Z               ],
+2025-11-06T18:09:18.1832714Z               "id": "1e3762d551ec1b1259b5-5585f9f9e0e331e2ae3b",
+2025-11-06T18:09:18.1833039Z               "file": "analytics-ai.spec.ts",
+2025-11-06T18:09:18.1833301Z               "line": 54,
+2025-11-06T18:09:18.1833507Z               "column": 3
+2025-11-06T18:09:18.1833703Z             }
+2025-11-06T18:09:18.1833876Z           ]
+2025-11-06T18:09:18.1834052Z         }
+2025-11-06T18:09:18.1834219Z       ]
+2025-11-06T18:09:18.1834515Z     },
+2025-11-06T18:09:18.1834685Z     {
+2025-11-06T18:09:18.1834904Z       "title": "console-errors.spec.ts",
+2025-11-06T18:09:18.1835203Z       "file": "console-errors.spec.ts",
+2025-11-06T18:09:18.1835457Z       "column": 0,
+2025-11-06T18:09:18.1835649Z       "line": 0,
+2025-11-06T18:09:18.1835836Z       "specs": [],
+2025-11-06T18:09:18.1836028Z       "suites": [
+2025-11-06T18:09:18.1836209Z         {
+2025-11-06T18:09:18.1836443Z           "title": "Console Errors & React Warnings",
+2025-11-06T18:09:18.1836762Z           "file": "console-errors.spec.ts",
+2025-11-06T18:09:18.1837029Z           "line": 14,
+2025-11-06T18:09:18.1837228Z           "column": 6,
+2025-11-06T18:09:18.1837424Z           "specs": [
+2025-11-06T18:09:18.1837614Z             {
+2025-11-06T18:09:18.1837971Z               "title": "devrait ne pas avoir d'erreurs console sur la page d'accueil @smoke",
+2025-11-06T18:09:18.1838341Z               "ok": true,
+2025-11-06T18:09:18.1838549Z               "tags": [
+2025-11-06T18:09:18.1838757Z                 "smoke"
+2025-11-06T18:09:18.1838947Z               ],
+2025-11-06T18:09:18.1839135Z               "tests": [
+2025-11-06T18:09:18.1839337Z                 {
+2025-11-06T18:09:18.1839555Z                   "timeout": 60000,
+2025-11-06T18:09:18.1839821Z                   "annotations": [],
+2025-11-06T18:09:18.1840413Z                   "expectedStatus": "passed",
+2025-11-06T18:09:18.1840717Z                   "projectId": "chromium",
+2025-11-06T18:09:18.1841014Z                   "projectName": "chromium",
+2025-11-06T18:09:18.1841290Z                   "results": [
+2025-11-06T18:09:18.1841509Z                     {
+2025-11-06T18:09:18.1841738Z                       "workerIndex": 1,
+2025-11-06T18:09:18.1842018Z                       "parallelIndex": 1,
+2025-11-06T18:09:18.1842297Z                       "status": "passed",
+2025-11-06T18:09:18.1842568Z                       "duration": 942,
+2025-11-06T18:09:18.1842830Z                       "errors": [],
+2025-11-06T18:09:18.1843088Z                       "stdout": [],
+2025-11-06T18:09:18.1843335Z                       "stderr": [],
+2025-11-06T18:09:18.1843583Z                       "retry": 0,
+2025-11-06T18:09:18.1843873Z                       "startTime": "2025-11-06T18:08:25.922Z",
+2025-11-06T18:09:18.1844175Z                       "annotations": [],
+2025-11-06T18:09:18.1844455Z                       "attachments": []
+2025-11-06T18:09:18.1844694Z                     }
+2025-11-06T18:09:18.1844884Z                   ],
+2025-11-06T18:09:18.1845107Z                   "status": "expected"
+2025-11-06T18:09:18.1845418Z                 }
+2025-11-06T18:09:18.1845714Z               ],
+2025-11-06T18:09:18.1846159Z               "id": "7a5bf7e682ebda22706a-a0d18a26d7718c25f831",
+2025-11-06T18:09:18.1846726Z               "file": "console-errors.spec.ts",
+2025-11-06T18:09:18.1847194Z               "line": 135,
+2025-11-06T18:09:18.1847462Z               "column": 3
+2025-11-06T18:09:18.1847670Z             }
+2025-11-06T18:09:18.1847844Z           ]
+2025-11-06T18:09:18.1848020Z         }
+2025-11-06T18:09:18.1848187Z       ]
+2025-11-06T18:09:18.1848348Z     },
+2025-11-06T18:09:18.1848510Z     {
+2025-11-06T18:09:18.1848734Z       "title": "dashboard-complete.spec.ts",
+2025-11-06T18:09:18.1849046Z       "file": "dashboard-complete.spec.ts",
+2025-11-06T18:09:18.1849306Z       "column": 0,
+2025-11-06T18:09:18.1849506Z       "line": 0,
+2025-11-06T18:09:18.1849696Z       "specs": [],
+2025-11-06T18:09:18.1849882Z       "suites": [
+2025-11-06T18:09:18.1850234Z         {
+2025-11-06T18:09:18.1850597Z           "title": "Dashboard - Fonctionnalités Complètes",
+2025-11-06T18:09:18.1850962Z           "file": "dashboard-complete.spec.ts",
+2025-11-06T18:09:18.1851236Z           "line": 10,
+2025-11-06T18:09:18.1851436Z           "column": 6,
+2025-11-06T18:09:18.1851638Z           "specs": [
+2025-11-06T18:09:18.1851827Z             {
+2025-11-06T18:09:18.1852129Z               "title": "@smoke @critical - Charger le dashboard sans erreur",
+2025-11-06T18:09:18.1852460Z               "ok": true,
+2025-11-06T18:09:18.1852860Z               "tags": [
+2025-11-06T18:09:18.1853077Z                 "smoke",
+2025-11-06T18:09:18.1853286Z                 "critical"
+2025-11-06T18:09:18.1853492Z               ],
+2025-11-06T18:09:18.1853681Z               "tests": [
+2025-11-06T18:09:18.1853880Z                 {
+2025-11-06T18:09:18.1854111Z                   "timeout": 60000,
+2025-11-06T18:09:18.1854377Z                   "annotations": [],
+2025-11-06T18:09:18.1854663Z                   "expectedStatus": "passed",
+2025-11-06T18:09:18.1854956Z                   "projectId": "chromium",
+2025-11-06T18:09:18.1855246Z                   "projectName": "chromium",
+2025-11-06T18:09:18.1855516Z                   "results": [
+2025-11-06T18:09:18.1855736Z                     {
+2025-11-06T18:09:18.1855964Z                       "workerIndex": 2,
+2025-11-06T18:09:18.1856245Z                       "parallelIndex": 2,
+2025-11-06T18:09:18.1856527Z                       "status": "passed",
+2025-11-06T18:09:18.1856806Z                       "duration": 2559,
+2025-11-06T18:09:18.1857184Z                       "errors": [],
+2025-11-06T18:09:18.1857546Z                       "stdout": [],
+2025-11-06T18:09:18.1857797Z                       "stderr": [],
+2025-11-06T18:09:18.1858176Z                       "retry": 0,
+2025-11-06T18:09:18.1858769Z                       "startTime": "2025-11-06T18:08:25.959Z",
+2025-11-06T18:09:18.1859092Z                       "annotations": [],
+2025-11-06T18:09:18.1859369Z                       "attachments": []
+2025-11-06T18:09:18.1859608Z                     }
+2025-11-06T18:09:18.1859802Z                   ],
+2025-11-06T18:09:18.1860217Z                   "status": "expected"
+2025-11-06T18:09:18.1860616Z                 }
+2025-11-06T18:09:18.1860919Z               ],
+2025-11-06T18:09:18.1861353Z               "id": "2bb7966ca15115d3b94b-d9ddfa3f7d44854dea03",
+2025-11-06T18:09:18.1861770Z               "file": "dashboard-complete.spec.ts",
+2025-11-06T18:09:18.1862051Z               "line": 117,
+2025-11-06T18:09:18.1862272Z               "column": 3
+2025-11-06T18:09:18.1862475Z             }
+2025-11-06T18:09:18.1862648Z           ]
+2025-11-06T18:09:18.1862820Z         }
+2025-11-06T18:09:18.1862983Z       ]
+2025-11-06T18:09:18.1863153Z     },
+2025-11-06T18:09:18.1863322Z     {
+2025-11-06T18:09:18.1863528Z       "title": "docs.spec.ts",
+2025-11-06T18:09:18.1863770Z       "file": "docs.spec.ts",
+2025-11-06T18:09:18.1863994Z       "column": 0,
+2025-11-06T18:09:18.1864182Z       "line": 0,
+2025-11-06T18:09:18.1864375Z       "specs": [],
+2025-11-06T18:09:18.1864564Z       "suites": [
+2025-11-06T18:09:18.1864745Z         {
+2025-11-06T18:09:18.1864970Z           "title": "Documentation - Tests E2E",
+2025-11-06T18:09:18.1865262Z           "file": "docs.spec.ts",
+2025-11-06T18:09:18.1865492Z           "line": 4,
+2025-11-06T18:09:18.1865690Z           "column": 6,
+2025-11-06T18:09:18.1865894Z           "specs": [
+2025-11-06T18:09:18.1866087Z             {
+2025-11-06T18:09:18.1866419Z               "title": "Documentation page loads without errors @smoke",
+2025-11-06T18:09:18.1866738Z               "ok": true,
+2025-11-06T18:09:18.1866944Z               "tags": [
+2025-11-06T18:09:18.1867151Z                 "smoke"
+2025-11-06T18:09:18.1867346Z               ],
+2025-11-06T18:09:18.1867532Z               "tests": [
+2025-11-06T18:09:18.1867744Z                 {
+2025-11-06T18:09:18.1867958Z                   "timeout": 60000,
+2025-11-06T18:09:18.1868219Z                   "annotations": [],
+2025-11-06T18:09:18.1868506Z                   "expectedStatus": "passed",
+2025-11-06T18:09:18.1868797Z                   "projectId": "chromium",
+2025-11-06T18:09:18.1869088Z                   "projectName": "chromium",
+2025-11-06T18:09:18.1869361Z                   "results": [
+2025-11-06T18:09:18.1869577Z                     {
+2025-11-06T18:09:18.1869807Z                       "workerIndex": 1,
+2025-11-06T18:09:18.1870246Z                       "parallelIndex": 1,
+2025-11-06T18:09:18.1870528Z                       "status": "passed",
+2025-11-06T18:09:18.1870943Z                       "duration": 2673,
+2025-11-06T18:09:18.1871217Z                       "errors": [],
+2025-11-06T18:09:18.1871470Z                       "stdout": [],
+2025-11-06T18:09:18.1871721Z                       "stderr": [],
+2025-11-06T18:09:18.1871968Z                       "retry": 0,
+2025-11-06T18:09:18.1872268Z                       "startTime": "2025-11-06T18:08:28.883Z",
+2025-11-06T18:09:18.1872567Z                       "annotations": [],
+2025-11-06T18:09:18.1872842Z                       "attachments": []
+2025-11-06T18:09:18.1873077Z                     }
+2025-11-06T18:09:18.1873271Z                   ],
+2025-11-06T18:09:18.1873501Z                   "status": "expected"
+2025-11-06T18:09:18.1873736Z                 }
+2025-11-06T18:09:18.1873916Z               ],
+2025-11-06T18:09:18.1874178Z               "id": "d1b7b038ec79048035c3-7463cbd5fab1c328b0d1",
+2025-11-06T18:09:18.1874491Z               "file": "docs.spec.ts",
+2025-11-06T18:09:18.1874736Z               "line": 10,
+2025-11-06T18:09:18.1874953Z               "column": 3
+2025-11-06T18:09:18.1875156Z             },
+2025-11-06T18:09:18.1875335Z             {
+2025-11-06T18:09:18.1875663Z               "title": "Documentation assets load correctly (no 404 errors) @smoke",
+2025-11-06T18:09:18.1876012Z               "ok": true,
+2025-11-06T18:09:18.1876352Z               "tags": [
+2025-11-06T18:09:18.1876554Z                 "smoke"
+2025-11-06T18:09:18.1876744Z               ],
+2025-11-06T18:09:18.1876931Z               "tests": [
+2025-11-06T18:09:18.1877130Z                 {
+2025-11-06T18:09:18.1877345Z                   "timeout": 60000,
+2025-11-06T18:09:18.1877604Z                   "annotations": [],
+2025-11-06T18:09:18.1877885Z                   "expectedStatus": "passed",
+2025-11-06T18:09:18.1878179Z                   "projectId": "chromium",
+2025-11-06T18:09:18.1878469Z                   "projectName": "chromium",
+2025-11-06T18:09:18.1878739Z                   "results": [
+2025-11-06T18:09:18.1878965Z                     {
+2025-11-06T18:09:18.1879191Z                       "workerIndex": 2,
+2025-11-06T18:09:18.1879475Z                       "parallelIndex": 2,
+2025-11-06T18:09:18.1879754Z                       "status": "passed",
+2025-11-06T18:09:18.1880195Z                       "duration": 2219,
+2025-11-06T18:09:18.1880485Z                       "errors": [],
+2025-11-06T18:09:18.1880735Z                       "stdout": [],
+2025-11-06T18:09:18.1881082Z                       "stderr": [],
+2025-11-06T18:09:18.1881427Z                       "retry": 0,
+2025-11-06T18:09:18.1881850Z                       "startTime": "2025-11-06T18:08:30.461Z",
+2025-11-06T18:09:18.1882338Z                       "annotations": [],
+2025-11-06T18:09:18.1882999Z                       "attachments": []
+2025-11-06T18:09:18.1883516Z                     }
+2025-11-06T18:09:18.1884056Z                   ],
+2025-11-06T18:09:18.1884639Z                   "status": "expected"
+2025-11-06T18:09:18.1885069Z                 }
+2025-11-06T18:09:18.1885364Z               ],
+2025-11-06T18:09:18.1885711Z               "id": "d1b7b038ec79048035c3-01329bc4a44ed2bb1345",
+2025-11-06T18:09:18.1886192Z               "file": "docs.spec.ts",
+2025-11-06T18:09:18.1886571Z               "line": 142,
+2025-11-06T18:09:18.1901700Z               "column": 3
+2025-11-06T18:09:18.1902096Z             }
+2025-11-06T18:09:18.1902405Z           ]
+2025-11-06T18:09:18.1902689Z         }
+2025-11-06T18:09:18.1902971Z       ]
+2025-11-06T18:09:18.1903248Z     },
+2025-11-06T18:09:18.1903522Z     {
+2025-11-06T18:09:18.1903912Z       "title": "security-isolation.spec.ts",
+2025-11-06T18:09:18.1904459Z       "file": "security-isolation.spec.ts",
+2025-11-06T18:09:18.1904913Z       "column": 0,
+2025-11-06T18:09:18.1905238Z       "line": 0,
+2025-11-06T18:09:18.1905575Z       "specs": [],
+2025-11-06T18:09:18.1905898Z       "suites": [
+2025-11-06T18:09:18.1906206Z         {
+2025-11-06T18:09:18.1906596Z           "title": "Security and Data Isolation",
+2025-11-06T18:09:18.1907340Z           "file": "security-isolation.spec.ts",
+2025-11-06T18:09:18.1907801Z           "line": 14,
+2025-11-06T18:09:18.1908133Z           "column": 6,
+2025-11-06T18:09:18.1908463Z           "specs": [
+2025-11-06T18:09:18.1908784Z             {
+2025-11-06T18:09:18.1909322Z               "title": "Basic navigation security - no crashes @smoke @critical",
+2025-11-06T18:09:18.1909883Z               "ok": true,
+2025-11-06T18:09:18.1910419Z               "tags": [
+2025-11-06T18:09:18.1910752Z                 "smoke",
+2025-11-06T18:09:18.1911076Z                 "critical"
+2025-11-06T18:09:18.1911411Z               ],
+2025-11-06T18:09:18.1911720Z               "tests": [
+2025-11-06T18:09:18.1912043Z                 {
+2025-11-06T18:09:18.1912383Z                   "timeout": 60000,
+2025-11-06T18:09:18.1912807Z                   "annotations": [],
+2025-11-06T18:09:18.1913261Z                   "expectedStatus": "passed",
+2025-11-06T18:09:18.1913761Z                   "projectId": "chromium",
+2025-11-06T18:09:18.1914258Z                   "projectName": "chromium",
+2025-11-06T18:09:18.1914696Z                   "results": [
+2025-11-06T18:09:18.1915046Z                     {
+2025-11-06T18:09:18.1915419Z                       "workerIndex": 1,
+2025-11-06T18:09:18.1915883Z                       "parallelIndex": 1,
+2025-11-06T18:09:18.1916345Z                       "status": "passed",
+2025-11-06T18:09:18.1917004Z                       "duration": 2741,
+2025-11-06T18:09:18.1917441Z                       "errors": [],
+2025-11-06T18:09:18.1917867Z                       "stdout": [],
+2025-11-06T18:09:18.1918309Z                       "stderr": [],
+2025-11-06T18:09:18.1918712Z                       "retry": 0,
+2025-11-06T18:09:18.1919174Z                       "startTime": "2025-11-06T18:08:31.585Z",
+2025-11-06T18:09:18.1919686Z                       "annotations": [],
+2025-11-06T18:09:18.1920300Z                       "attachments": []
+2025-11-06T18:09:18.1920714Z                     }
+2025-11-06T18:09:18.1921054Z                   ],
+2025-11-06T18:09:18.1921461Z                   "status": "expected"
+2025-11-06T18:09:18.1921873Z                 }
+2025-11-06T18:09:18.1922172Z               ],
+2025-11-06T18:09:18.1922601Z               "id": "ce6be65bb02c44d5f87e-76d54d364b36da249d80",
+2025-11-06T18:09:18.1923149Z               "file": "security-isolation.spec.ts",
+2025-11-06T18:09:18.1923607Z               "line": 24,
+2025-11-06T18:09:18.1923964Z               "column": 3
+2025-11-06T18:09:18.1924305Z             },
+2025-11-06T18:09:18.1924617Z             {
+2025-11-06T18:09:18.1925173Z               "title": "should handle authentication token security @smoke @critical",
+2025-11-06T18:09:18.1925749Z               "ok": true,
+2025-11-06T18:09:18.1926089Z               "tags": [
+2025-11-06T18:09:18.1926428Z                 "smoke",
+2025-11-06T18:09:18.1926696Z                 "critical"
+2025-11-06T18:09:18.1926912Z               ],
+2025-11-06T18:09:18.1927105Z               "tests": [
+2025-11-06T18:09:18.1927307Z                 {
+2025-11-06T18:09:18.1927530Z                   "timeout": 60000,
+2025-11-06T18:09:18.1927807Z                   "annotations": [],
+2025-11-06T18:09:18.1928115Z                   "expectedStatus": "passed",
+2025-11-06T18:09:18.1928424Z                   "projectId": "chromium",
+2025-11-06T18:09:18.1928716Z                   "projectName": "chromium",
+2025-11-06T18:09:18.1929090Z                   "results": [
+2025-11-06T18:09:18.1929669Z                     {
+2025-11-06T18:09:18.1930226Z                       "workerIndex": 2,
+2025-11-06T18:09:18.1930698Z                       "parallelIndex": 2,
+2025-11-06T18:09:18.1931184Z                       "status": "passed",
+2025-11-06T18:09:18.1931642Z                       "duration": 2439,
+2025-11-06T18:09:18.1931918Z                       "errors": [],
+2025-11-06T18:09:18.1932179Z                       "stdout": [],
+2025-11-06T18:09:18.1932430Z                       "stderr": [],
+2025-11-06T18:09:18.1932685Z                       "retry": 0,
+2025-11-06T18:09:18.1933140Z                       "startTime": "2025-11-06T18:08:32.722Z",
+2025-11-06T18:09:18.1933456Z                       "annotations": [],
+2025-11-06T18:09:18.1933731Z                       "attachments": []
+2025-11-06T18:09:18.1933969Z                     }
+2025-11-06T18:09:18.1934164Z                   ],
+2025-11-06T18:09:18.1934391Z                   "status": "expected"
+2025-11-06T18:09:18.1934628Z                 }
+2025-11-06T18:09:18.1934819Z               ],
+2025-11-06T18:09:18.1935089Z               "id": "ce6be65bb02c44d5f87e-1e9211ed67e2d89cb659",
+2025-11-06T18:09:18.1935434Z               "file": "security-isolation.spec.ts",
+2025-11-06T18:09:18.1935707Z               "line": 41,
+2025-11-06T18:09:18.1935921Z               "column": 3
+2025-11-06T18:09:18.1936115Z             }
+2025-11-06T18:09:18.1936290Z           ]
+2025-11-06T18:09:18.1936454Z         }
+2025-11-06T18:09:18.1936619Z       ]
+2025-11-06T18:09:18.1936779Z     },
+2025-11-06T18:09:18.1936940Z     {
+2025-11-06T18:09:18.1937149Z       "title": "tags-folders.spec.ts",
+2025-11-06T18:09:18.1937439Z       "file": "tags-folders.spec.ts",
+2025-11-06T18:09:18.1937684Z       "column": 0,
+2025-11-06T18:09:18.1937874Z       "line": 0,
+2025-11-06T18:09:18.1938061Z       "specs": [],
+2025-11-06T18:09:18.1938248Z       "suites": [
+2025-11-06T18:09:18.1938432Z         {
+2025-11-06T18:09:18.1938797Z           "title": "Dashboard - Tags et Dossiers",
+2025-11-06T18:09:18.1939106Z           "file": "tags-folders.spec.ts",
+2025-11-06T18:09:18.1939363Z           "line": 10,
+2025-11-06T18:09:18.1939562Z           "column": 6,
+2025-11-06T18:09:18.1939760Z           "specs": [
+2025-11-06T18:09:18.1939947Z             {
+2025-11-06T18:09:18.1940683Z               "title": "@smoke @critical - Ouvrir le dialogue de gestion tags/dossiers",
+2025-11-06T18:09:18.1941242Z               "ok": true,
+2025-11-06T18:09:18.1941566Z               "tags": [
+2025-11-06T18:09:18.1941875Z                 "smoke",
+2025-11-06T18:09:18.1942191Z                 "critical"
+2025-11-06T18:09:18.1942506Z               ],
+2025-11-06T18:09:18.1942818Z               "tests": [
+2025-11-06T18:09:18.1943135Z                 {
+2025-11-06T18:09:18.1943483Z                   "timeout": 60000,
+2025-11-06T18:09:18.1943907Z                   "annotations": [],
+2025-11-06T18:09:18.1944365Z                   "expectedStatus": "passed",
+2025-11-06T18:09:18.1944851Z                   "projectId": "chromium",
+2025-11-06T18:09:18.1945335Z                   "projectName": "chromium",
+2025-11-06T18:09:18.1945781Z                   "results": [
+2025-11-06T18:09:18.1946136Z                     {
+2025-11-06T18:09:18.1946502Z                       "workerIndex": 1,
+2025-11-06T18:09:18.1946954Z                       "parallelIndex": 1,
+2025-11-06T18:09:18.1947402Z                       "status": "passed",
+2025-11-06T18:09:18.1947731Z                       "duration": 3132,
+2025-11-06T18:09:18.1947995Z                       "errors": [],
+2025-11-06T18:09:18.1948247Z                       "stdout": [],
+2025-11-06T18:09:18.1948500Z                       "stderr": [],
+2025-11-06T18:09:18.1948745Z                       "retry": 0,
+2025-11-06T18:09:18.1949038Z                       "startTime": "2025-11-06T18:08:34.398Z",
+2025-11-06T18:09:18.1949337Z                       "annotations": [],
+2025-11-06T18:09:18.1949610Z                       "attachments": []
+2025-11-06T18:09:18.1949851Z                     }
+2025-11-06T18:09:18.1950234Z                   ],
+2025-11-06T18:09:18.1950477Z                   "status": "expected"
+2025-11-06T18:09:18.1950714Z                 }
+2025-11-06T18:09:18.1950896Z               ],
+2025-11-06T18:09:18.1951155Z               "id": "f4114343166053419696-98b227a00c85b9afb097",
+2025-11-06T18:09:18.1951474Z               "file": "tags-folders.spec.ts",
+2025-11-06T18:09:18.1951737Z               "line": 75,
+2025-11-06T18:09:18.1951947Z               "column": 3
+2025-11-06T18:09:18.1952145Z             }
+2025-11-06T18:09:18.1952321Z           ]
+2025-11-06T18:09:18.1952491Z         }
+2025-11-06T18:09:18.1952658Z       ]
+2025-11-06T18:09:18.1952965Z     },
+2025-11-06T18:09:18.1953137Z     {
+2025-11-06T18:09:18.1953348Z       "title": "ultra-simple.spec.ts",
+2025-11-06T18:09:18.1953634Z       "file": "ultra-simple.spec.ts",
+2025-11-06T18:09:18.1953878Z       "column": 0,
+2025-11-06T18:09:18.1954067Z       "line": 0,
+2025-11-06T18:09:18.1954260Z       "specs": [],
+2025-11-06T18:09:18.1954450Z       "suites": [
+2025-11-06T18:09:18.1954633Z         {
+2025-11-06T18:09:18.1954864Z           "title": "DooDates - Test Ultra Simple",
+2025-11-06T18:09:18.1955174Z           "file": "ultra-simple.spec.ts",
+2025-11-06T18:09:18.1955432Z           "line": 10,
+2025-11-06T18:09:18.1955636Z           "column": 6,
+2025-11-06T18:09:18.1955843Z           "specs": [
+2025-11-06T18:09:18.1956039Z             {
+2025-11-06T18:09:18.1956571Z               "title": "Workflow complet : Création DatePoll → Dashboard @smoke @critical",
+2025-11-06T18:09:18.1956959Z               "ok": false,
+2025-11-06T18:09:18.1957176Z               "tags": [
+2025-11-06T18:09:18.1957391Z                 "smoke",
+2025-11-06T18:09:18.1957603Z                 "critical"
+2025-11-06T18:09:18.1957808Z               ],
+2025-11-06T18:09:18.1958001Z               "tests": [
+2025-11-06T18:09:18.1958202Z                 {
+2025-11-06T18:09:18.1958418Z                   "timeout": 180000,
+2025-11-06T18:09:18.1958818Z                   "annotations": [
+2025-11-06T18:09:18.1959051Z                     {
+2025-11-06T18:09:18.1959278Z                       "type": "slow",
+2025-11-06T18:09:18.1959544Z                       "location": {
+2025-11-06T18:09:18.1959973Z                         "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.1960562Z                         "line": 34,
+2025-11-06T18:09:18.1960823Z                         "column": 12
+2025-11-06T18:09:18.1961061Z                       }
+2025-11-06T18:09:18.1961262Z                     }
+2025-11-06T18:09:18.1961456Z                   ],
+2025-11-06T18:09:18.1961709Z                   "expectedStatus": "passed",
+2025-11-06T18:09:18.1962016Z                   "projectId": "chromium",
+2025-11-06T18:09:18.1962303Z                   "projectName": "chromium",
+2025-11-06T18:09:18.1962574Z                   "results": [
+2025-11-06T18:09:18.1962792Z                     {
+2025-11-06T18:09:18.1963019Z                       "workerIndex": 2,
+2025-11-06T18:09:18.1963309Z                       "parallelIndex": 2,
+2025-11-06T18:09:18.1963589Z                       "status": "failed",
+2025-11-06T18:09:18.1963860Z                       "duration": 13246,
+2025-11-06T18:09:18.1964121Z                       "error": {
+2025-11-06T18:09:18.1965972Z                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first()\nExpected substring: \u001b[32m\"Test E2E Ultra Simple\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-item\"]').first()\u001b[22m\n",
+2025-11-06T18:09:18.1969385Z                         "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first()\nExpected substring: \u001b[32m\"Test E2E Ultra Simple\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-item\"]').first()\u001b[22m\n\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts:138:71",
+2025-11-06T18:09:18.1971700Z                         "location": {
+2025-11-06T18:09:18.1972148Z                           "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.1972715Z                           "column": 71,
+2025-11-06T18:09:18.1972995Z                           "line": 138
+2025-11-06T18:09:18.1973231Z                         },
+2025-11-06T18:09:18.1976807Z                         "snippet": "\u001b[0m \u001b[90m 136 |\u001b[39m\n \u001b[90m 137 |\u001b[39m       \u001b[90m// Vérifier sondage dans dashboard (l'attente est incluse dans toContainText)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 138 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"poll-item\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Test E2E Ultra Simple'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 139 |\u001b[39m       console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Sondage visible dans dashboard'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 140 |\u001b[39m\n \u001b[90m 141 |\u001b[39m       \u001b[90m// Copier lien (optionnel)\u001b[39m\u001b[0m"
+2025-11-06T18:09:18.1979220Z                       },
+2025-11-06T18:09:18.1979458Z                       "errors": [
+2025-11-06T18:09:18.1979821Z                         {
+2025-11-06T18:09:18.1980275Z                           "location": {
+2025-11-06T18:09:18.1980732Z                             "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.1981157Z                             "column": 71,
+2025-11-06T18:09:18.1981429Z                             "line": 138
+2025-11-06T18:09:18.1981668Z                           },
+2025-11-06T18:09:18.1985527Z                           "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first()\nExpected substring: \u001b[32m\"Test E2E Ultra Simple\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-item\"]').first()\u001b[22m\n\n\n  136 |\n  137 |       // Vérifier sondage dans dashboard (l'attente est incluse dans toContainText)\n> 138 |       await expect(page.locator('[data-testid=\"poll-item\"]').first()).toContainText('Test E2E Ultra Simple', { timeout: 10000 });\n      |                                                                       ^\n  139 |       console.log('✅ Sondage visible dans dashboard');\n  140 |\n  141 |       // Copier lien (optionnel)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts:138:71"
+2025-11-06T18:09:18.1988402Z                         }
+2025-11-06T18:09:18.1988610Z                       ],
+2025-11-06T18:09:18.1988848Z                       "stdout": [
+2025-11-06T18:09:18.1989075Z                         {
+2025-11-06T18:09:18.1989379Z                           "text": "✅ App charge\n"
+2025-11-06T18:09:18.1989640Z                         },
+2025-11-06T18:09:18.1989847Z                         {
+2025-11-06T18:09:18.1990359Z                           "text": "✅ Page /create accessible\n"
+2025-11-06T18:09:18.1990653Z                         },
+2025-11-06T18:09:18.1990870Z                         {
+2025-11-06T18:09:18.1991254Z                           "text": "✅ Carte \"Sondage Dates\" cliquée → /create/date\n"
+2025-11-06T18:09:18.1991579Z                         },
+2025-11-06T18:09:18.1991780Z                         {
+2025-11-06T18:09:18.1992079Z                           "text": "✅ Calendrier visible\n"
+2025-11-06T18:09:18.1992346Z                         },
+2025-11-06T18:09:18.1992547Z                         {
+2025-11-06T18:09:18.1993001Z                           "text": "✅ Dates à sélectionner (espacées): 2025-11-07, 2025-11-10, 2025-11-13\n"
+2025-11-06T18:09:18.1993519Z                         },
+2025-11-06T18:09:18.1993730Z                         {
+2025-11-06T18:09:18.1994053Z                           "text": "✅ 3 dates sélectionnées\n"
+2025-11-06T18:09:18.1994323Z                         },
+2025-11-06T18:09:18.1994525Z                         {
+2025-11-06T18:09:18.1994852Z                           "text": "✅ Section horaires visible\n"
+2025-11-06T18:09:18.1995119Z                         },
+2025-11-06T18:09:18.1995319Z                         {
+2025-11-06T18:09:18.1995773Z                           "text": "[UltraSimple] Créneau 09-00 sélectionné pour colonne 1\n"
+2025-11-06T18:09:18.1996112Z                         },
+2025-11-06T18:09:18.1996316Z                         {
+2025-11-06T18:09:18.1996721Z                           "text": "[UltraSimple] Créneau 09-00 sélectionné pour colonne 2\n"
+2025-11-06T18:09:18.1997052Z                         },
+2025-11-06T18:09:18.1997254Z                         {
+2025-11-06T18:09:18.1997664Z                           "text": "[UltraSimple] Créneau 09-00 sélectionné pour colonne 3\n"
+2025-11-06T18:09:18.1997990Z                         },
+2025-11-06T18:09:18.1998192Z                         {
+2025-11-06T18:09:18.1998522Z                           "text": "✅ 3 créneau(x) sélectionné(s)\n"
+2025-11-06T18:09:18.1998956Z                         },
+2025-11-06T18:09:18.1999164Z                         {
+2025-11-06T18:09:18.1999489Z                           "text": "✅ Bouton Partager cliqué\n"
+2025-11-06T18:09:18.1999757Z                         },
+2025-11-06T18:09:18.1999955Z                         {
+2025-11-06T18:09:18.2000424Z                           "text": "✅ Titre saisi\n"
+2025-11-06T18:09:18.2000688Z                         },
+2025-11-06T18:09:18.2000888Z                         {
+2025-11-06T18:09:18.2001210Z                           "text": "✅ Bouton \"Finaliser\" cliqué\n"
+2025-11-06T18:09:18.2001483Z                         },
+2025-11-06T18:09:18.2001684Z                         {
+2025-11-06T18:09:18.2002020Z                           "text": "✅ Navigation vers /dashboard\n"
+2025-11-06T18:09:18.2002292Z                         }
+2025-11-06T18:09:18.2002494Z                       ],
+2025-11-06T18:09:18.2002731Z                       "stderr": [],
+2025-11-06T18:09:18.2002985Z                       "retry": 0,
+2025-11-06T18:09:18.2003277Z                       "startTime": "2025-11-06T18:08:35.205Z",
+2025-11-06T18:09:18.2003578Z                       "annotations": [
+2025-11-06T18:09:18.2003818Z                         {
+2025-11-06T18:09:18.2004055Z                           "type": "slow",
+2025-11-06T18:09:18.2004328Z                           "location": {
+2025-11-06T18:09:18.2004771Z                             "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.2005189Z                             "line": 34,
+2025-11-06T18:09:18.2005454Z                             "column": 12
+2025-11-06T18:09:18.2005695Z                           }
+2025-11-06T18:09:18.2005911Z                         }
+2025-11-06T18:09:18.2006111Z                       ],
+2025-11-06T18:09:18.2006346Z                       "attachments": [
+2025-11-06T18:09:18.2006583Z                         {
+2025-11-06T18:09:18.2006827Z                           "name": "screenshot",
+2025-11-06T18:09:18.2007145Z                           "contentType": "image/png",
+2025-11-06T18:09:18.2008181Z                           "path": "/home/runner/work/DooDates/DooDates/test-results/ultra-simple-DooDates---Te-306a7--→-Dashboard-smoke-critical-chromium/test-failed-1.png"
+2025-11-06T18:09:18.2008841Z                         },
+2025-11-06T18:09:18.2009046Z                         {
+2025-11-06T18:09:18.2009296Z                           "name": "error-context",
+2025-11-06T18:09:18.2009608Z                           "contentType": "text/markdown",
+2025-11-06T18:09:18.2010790Z                           "path": "/home/runner/work/DooDates/DooDates/test-results/ultra-simple-DooDates---Te-306a7--→-Dashboard-smoke-critical-chromium/error-context.md"
+2025-11-06T18:09:18.2011468Z                         }
+2025-11-06T18:09:18.2011671Z                       ],
+2025-11-06T18:09:18.2011916Z                       "errorLocation": {
+2025-11-06T18:09:18.2012359Z                         "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.2012783Z                         "column": 71,
+2025-11-06T18:09:18.2013043Z                         "line": 138
+2025-11-06T18:09:18.2013273Z                       }
+2025-11-06T18:09:18.2013470Z                     },
+2025-11-06T18:09:18.2013663Z                     {
+2025-11-06T18:09:18.2013886Z                       "workerIndex": 3,
+2025-11-06T18:09:18.2014164Z                       "parallelIndex": 1,
+2025-11-06T18:09:18.2014444Z                       "status": "failed",
+2025-11-06T18:09:18.2014728Z                       "duration": 14125,
+2025-11-06T18:09:18.2014989Z                       "error": {
+2025-11-06T18:09:18.2016829Z                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first()\nExpected substring: \u001b[32m\"Test E2E Ultra Simple\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-item\"]').first()\u001b[22m\n",
+2025-11-06T18:09:18.2020613Z                         "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first()\nExpected substring: \u001b[32m\"Test E2E Ultra Simple\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-item\"]').first()\u001b[22m\n\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts:138:71",
+2025-11-06T18:09:18.2022444Z                         "location": {
+2025-11-06T18:09:18.2022881Z                           "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.2023298Z                           "column": 71,
+2025-11-06T18:09:18.2023563Z                           "line": 138
+2025-11-06T18:09:18.2023796Z                         },
+2025-11-06T18:09:18.2027296Z                         "snippet": "\u001b[0m \u001b[90m 136 |\u001b[39m\n \u001b[90m 137 |\u001b[39m       \u001b[90m// Vérifier sondage dans dashboard (l'attente est incluse dans toContainText)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 138 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"poll-item\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Test E2E Ultra Simple'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 139 |\u001b[39m       console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Sondage visible dans dashboard'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 140 |\u001b[39m\n \u001b[90m 141 |\u001b[39m       \u001b[90m// Copier lien (optionnel)\u001b[39m\u001b[0m"
+2025-11-06T18:09:18.2029695Z                       },
+2025-11-06T18:09:18.2029931Z                       "errors": [
+2025-11-06T18:09:18.2030360Z                         {
+2025-11-06T18:09:18.2030602Z                           "location": {
+2025-11-06T18:09:18.2031044Z                             "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.2031465Z                             "column": 71,
+2025-11-06T18:09:18.2031882Z                             "line": 138
+2025-11-06T18:09:18.2032132Z                           },
+2025-11-06T18:09:18.2036004Z                           "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first()\nExpected substring: \u001b[32m\"Test E2E Ultra Simple\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-item\"]').first()\u001b[22m\n\n\n  136 |\n  137 |       // Vérifier sondage dans dashboard (l'attente est incluse dans toContainText)\n> 138 |       await expect(page.locator('[data-testid=\"poll-item\"]').first()).toContainText('Test E2E Ultra Simple', { timeout: 10000 });\n      |                                                                       ^\n  139 |       console.log('✅ Sondage visible dans dashboard');\n  140 |\n  141 |       // Copier lien (optionnel)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts:138:71"
+2025-11-06T18:09:18.2038862Z                         }
+2025-11-06T18:09:18.2039067Z                       ],
+2025-11-06T18:09:18.2039419Z                       "stdout": [
+2025-11-06T18:09:18.2039647Z                         {
+2025-11-06T18:09:18.2039947Z                           "text": "✅ App charge\n"
+2025-11-06T18:09:18.2040396Z                         },
+2025-11-06T18:09:18.2040604Z                         {
+2025-11-06T18:09:18.2040926Z                           "text": "✅ Page /create accessible\n"
+2025-11-06T18:09:18.2041201Z                         },
+2025-11-06T18:09:18.2041408Z                         {
+2025-11-06T18:09:18.2041791Z                           "text": "✅ Carte \"Sondage Dates\" cliquée → /create/date\n"
+2025-11-06T18:09:18.2042105Z                         },
+2025-11-06T18:09:18.2042320Z                         {
+2025-11-06T18:09:18.2042618Z                           "text": "✅ Calendrier visible\n"
+2025-11-06T18:09:18.2042882Z                         },
+2025-11-06T18:09:18.2043082Z                         {
+2025-11-06T18:09:18.2043537Z                           "text": "✅ Dates à sélectionner (espacées): 2025-11-07, 2025-11-10, 2025-11-13\n"
+2025-11-06T18:09:18.2043901Z                         },
+2025-11-06T18:09:18.2044102Z                         {
+2025-11-06T18:09:18.2044419Z                           "text": "✅ 3 dates sélectionnées\n"
+2025-11-06T18:09:18.2044688Z                         },
+2025-11-06T18:09:18.2044888Z                         {
+2025-11-06T18:09:18.2045206Z                           "text": "✅ Section horaires visible\n"
+2025-11-06T18:09:18.2045476Z                         },
+2025-11-06T18:09:18.2045677Z                         {
+2025-11-06T18:09:18.2046088Z                           "text": "[UltraSimple] Créneau 09-00 sélectionné pour colonne 1\n"
+2025-11-06T18:09:18.2046431Z                         },
+2025-11-06T18:09:18.2046633Z                         {
+2025-11-06T18:09:18.2047030Z                           "text": "[UltraSimple] Créneau 09-00 sélectionné pour colonne 2\n"
+2025-11-06T18:09:18.2047362Z                         },
+2025-11-06T18:09:18.2047562Z                         {
+2025-11-06T18:09:18.2047971Z                           "text": "[UltraSimple] Créneau 09-00 sélectionné pour colonne 3\n"
+2025-11-06T18:09:18.2048292Z                         },
+2025-11-06T18:09:18.2048494Z                         {
+2025-11-06T18:09:18.2048821Z                           "text": "✅ 3 créneau(x) sélectionné(s)\n"
+2025-11-06T18:09:18.2049098Z                         },
+2025-11-06T18:09:18.2049300Z                         {
+2025-11-06T18:09:18.2049616Z                           "text": "✅ Bouton Partager cliqué\n"
+2025-11-06T18:09:18.2049885Z                         },
+2025-11-06T18:09:18.2050300Z                         {
+2025-11-06T18:09:18.2050782Z                           "text": "✅ Titre saisi\n"
+2025-11-06T18:09:18.2051051Z                         },
+2025-11-06T18:09:18.2051252Z                         {
+2025-11-06T18:09:18.2051587Z                           "text": "✅ Bouton \"Finaliser\" cliqué\n"
+2025-11-06T18:09:18.2051857Z                         },
+2025-11-06T18:09:18.2052058Z                         {
+2025-11-06T18:09:18.2052387Z                           "text": "✅ Navigation vers /dashboard\n"
+2025-11-06T18:09:18.2052660Z                         }
+2025-11-06T18:09:18.2052858Z                       ],
+2025-11-06T18:09:18.2053087Z                       "stderr": [],
+2025-11-06T18:09:18.2053350Z                       "retry": 1,
+2025-11-06T18:09:18.2053636Z                       "startTime": "2025-11-06T18:08:49.107Z",
+2025-11-06T18:09:18.2053930Z                       "annotations": [
+2025-11-06T18:09:18.2054168Z                         {
+2025-11-06T18:09:18.2054402Z                           "type": "slow",
+2025-11-06T18:09:18.2054675Z                           "location": {
+2025-11-06T18:09:18.2055125Z                             "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.2055536Z                             "line": 34,
+2025-11-06T18:09:18.2055799Z                             "column": 12
+2025-11-06T18:09:18.2056037Z                           }
+2025-11-06T18:09:18.2056370Z                         }
+2025-11-06T18:09:18.2056569Z                       ],
+2025-11-06T18:09:18.2056803Z                       "attachments": [
+2025-11-06T18:09:18.2057038Z                         {
+2025-11-06T18:09:18.2057284Z                           "name": "screenshot",
+2025-11-06T18:09:18.2057593Z                           "contentType": "image/png",
+2025-11-06T18:09:18.2058515Z                           "path": "/home/runner/work/DooDates/DooDates/test-results/ultra-simple-DooDates---Te-306a7--→-Dashboard-smoke-critical-chromium-retry1/test-failed-1.png"
+2025-11-06T18:09:18.2059188Z                         },
+2025-11-06T18:09:18.2059405Z                         {
+2025-11-06T18:09:18.2059655Z                           "name": "error-context",
+2025-11-06T18:09:18.2059967Z                           "contentType": "text/markdown",
+2025-11-06T18:09:18.2061139Z                           "path": "/home/runner/work/DooDates/DooDates/test-results/ultra-simple-DooDates---Te-306a7--→-Dashboard-smoke-critical-chromium-retry1/error-context.md"
+2025-11-06T18:09:18.2061817Z                         },
+2025-11-06T18:09:18.2062024Z                         {
+2025-11-06T18:09:18.2062256Z                           "name": "trace",
+2025-11-06T18:09:18.2062565Z                           "contentType": "application/zip",
+2025-11-06T18:09:18.2063431Z                           "path": "/home/runner/work/DooDates/DooDates/test-results/ultra-simple-DooDates---Te-306a7--→-Dashboard-smoke-critical-chromium-retry1/trace.zip"
+2025-11-06T18:09:18.2064070Z                         }
+2025-11-06T18:09:18.2064269Z                       ],
+2025-11-06T18:09:18.2064516Z                       "errorLocation": {
+2025-11-06T18:09:18.2064962Z                         "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.2065375Z                         "column": 71,
+2025-11-06T18:09:18.2065642Z                         "line": 138
+2025-11-06T18:09:18.2065877Z                       }
+2025-11-06T18:09:18.2066082Z                     },
+2025-11-06T18:09:18.2066276Z                     {
+2025-11-06T18:09:18.2066505Z                       "workerIndex": 4,
+2025-11-06T18:09:18.2066785Z                       "parallelIndex": 0,
+2025-11-06T18:09:18.2067063Z                       "status": "failed",
+2025-11-06T18:09:18.2067329Z                       "duration": 13717,
+2025-11-06T18:09:18.2067589Z                       "error": {
+2025-11-06T18:09:18.2069552Z                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first()\nExpected substring: \u001b[32m\"Test E2E Ultra Simple\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-item\"]').first()\u001b[22m\n",
+2025-11-06T18:09:18.2073097Z                         "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first()\nExpected substring: \u001b[32m\"Test E2E Ultra Simple\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-item\"]').first()\u001b[22m\n\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts:138:71",
+2025-11-06T18:09:18.2074912Z                         "location": {
+2025-11-06T18:09:18.2075349Z                           "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.2075762Z                           "column": 71,
+2025-11-06T18:09:18.2076027Z                           "line": 138
+2025-11-06T18:09:18.2076383Z                         },
+2025-11-06T18:09:18.2079873Z                         "snippet": "\u001b[0m \u001b[90m 136 |\u001b[39m\n \u001b[90m 137 |\u001b[39m       \u001b[90m// Vérifier sondage dans dashboard (l'attente est incluse dans toContainText)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 138 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"poll-item\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Test E2E Ultra Simple'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 139 |\u001b[39m       console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Sondage visible dans dashboard'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 140 |\u001b[39m\n \u001b[90m 141 |\u001b[39m       \u001b[90m// Copier lien (optionnel)\u001b[39m\u001b[0m"
+2025-11-06T18:09:18.2082367Z                       },
+2025-11-06T18:09:18.2082598Z                       "errors": [
+2025-11-06T18:09:18.2082827Z                         {
+2025-11-06T18:09:18.2083061Z                           "location": {
+2025-11-06T18:09:18.2083494Z                             "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.2083913Z                             "column": 71,
+2025-11-06T18:09:18.2084181Z                             "line": 138
+2025-11-06T18:09:18.2084413Z                           },
+2025-11-06T18:09:18.2088226Z                           "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first()\nExpected substring: \u001b[32m\"Test E2E Ultra Simple\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"poll-item\"]').first()\u001b[22m\n\n\n  136 |\n  137 |       // Vérifier sondage dans dashboard (l'attente est incluse dans toContainText)\n> 138 |       await expect(page.locator('[data-testid=\"poll-item\"]').first()).toContainText('Test E2E Ultra Simple', { timeout: 10000 });\n      |                                                                       ^\n  139 |       console.log('✅ Sondage visible dans dashboard');\n  140 |\n  141 |       // Copier lien (optionnel)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts:138:71"
+2025-11-06T18:09:18.2091310Z                         }
+2025-11-06T18:09:18.2091535Z                       ],
+2025-11-06T18:09:18.2091765Z                       "stdout": [
+2025-11-06T18:09:18.2091992Z                         {
+2025-11-06T18:09:18.2092292Z                           "text": "✅ App charge\n"
+2025-11-06T18:09:18.2092565Z                         },
+2025-11-06T18:09:18.2092770Z                         {
+2025-11-06T18:09:18.2093090Z                           "text": "✅ Page /create accessible\n"
+2025-11-06T18:09:18.2093367Z                         },
+2025-11-06T18:09:18.2093568Z                         {
+2025-11-06T18:09:18.2093945Z                           "text": "✅ Carte \"Sondage Dates\" cliquée → /create/date\n"
+2025-11-06T18:09:18.2094257Z                         },
+2025-11-06T18:09:18.2094459Z                         {
+2025-11-06T18:09:18.2094758Z                           "text": "✅ Calendrier visible\n"
+2025-11-06T18:09:18.2095021Z                         },
+2025-11-06T18:09:18.2095229Z                         {
+2025-11-06T18:09:18.2095716Z                           "text": "✅ Dates à sélectionner (espacées): 2025-11-07, 2025-11-10, 2025-11-13\n"
+2025-11-06T18:09:18.2096069Z                         },
+2025-11-06T18:09:18.2096277Z                         {
+2025-11-06T18:09:18.2096593Z                           "text": "✅ 3 dates sélectionnées\n"
+2025-11-06T18:09:18.2096994Z                         },
+2025-11-06T18:09:18.2097256Z                         {
+2025-11-06T18:09:18.2097576Z                           "text": "✅ Section horaires visible\n"
+2025-11-06T18:09:18.2097846Z                         },
+2025-11-06T18:09:18.2098047Z                         {
+2025-11-06T18:09:18.2098458Z                           "text": "[UltraSimple] Créneau 09-00 sélectionné pour colonne 1\n"
+2025-11-06T18:09:18.2098792Z                         },
+2025-11-06T18:09:18.2098993Z                         {
+2025-11-06T18:09:18.2099401Z                           "text": "[UltraSimple] Créneau 09-00 sélectionné pour colonne 2\n"
+2025-11-06T18:09:18.2099734Z                         },
+2025-11-06T18:09:18.2099936Z                         {
+2025-11-06T18:09:18.2100451Z                           "text": "[UltraSimple] Créneau 09-00 sélectionné pour colonne 3\n"
+2025-11-06T18:09:18.2100774Z                         },
+2025-11-06T18:09:18.2100987Z                         {
+2025-11-06T18:09:18.2101316Z                           "text": "✅ 3 créneau(x) sélectionné(s)\n"
+2025-11-06T18:09:18.2101594Z                         },
+2025-11-06T18:09:18.2101795Z                         {
+2025-11-06T18:09:18.2102116Z                           "text": "✅ Bouton Partager cliqué\n"
+2025-11-06T18:09:18.2102385Z                         },
+2025-11-06T18:09:18.2102587Z                         {
+2025-11-06T18:09:18.2102877Z                           "text": "✅ Titre saisi\n"
+2025-11-06T18:09:18.2103133Z                         },
+2025-11-06T18:09:18.2103334Z                         {
+2025-11-06T18:09:18.2103661Z                           "text": "✅ Bouton \"Finaliser\" cliqué\n"
+2025-11-06T18:09:18.2103935Z                         },
+2025-11-06T18:09:18.2104136Z                         {
+2025-11-06T18:09:18.2104454Z                           "text": "✅ Navigation vers /dashboard\n"
+2025-11-06T18:09:18.2104729Z                         }
+2025-11-06T18:09:18.2104938Z                       ],
+2025-11-06T18:09:18.2105170Z                       "stderr": [],
+2025-11-06T18:09:18.2105422Z                       "retry": 2,
+2025-11-06T18:09:18.2105707Z                       "startTime": "2025-11-06T18:09:04.221Z",
+2025-11-06T18:09:18.2106004Z                       "annotations": [
+2025-11-06T18:09:18.2106249Z                         {
+2025-11-06T18:09:18.2106484Z                           "type": "slow",
+2025-11-06T18:09:18.2106757Z                           "location": {
+2025-11-06T18:09:18.2107197Z                             "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.2107732Z                             "line": 34,
+2025-11-06T18:09:18.2108018Z                             "column": 12
+2025-11-06T18:09:18.2108263Z                           }
+2025-11-06T18:09:18.2108478Z                         }
+2025-11-06T18:09:18.2108687Z                       ],
+2025-11-06T18:09:18.2108923Z                       "attachments": [
+2025-11-06T18:09:18.2109169Z                         {
+2025-11-06T18:09:18.2109414Z                           "name": "screenshot",
+2025-11-06T18:09:18.2109722Z                           "contentType": "image/png",
+2025-11-06T18:09:18.2110744Z                           "path": "/home/runner/work/DooDates/DooDates/test-results/ultra-simple-DooDates---Te-306a7--→-Dashboard-smoke-critical-chromium-retry2/test-failed-1.png"
+2025-11-06T18:09:18.2111420Z                         },
+2025-11-06T18:09:18.2111635Z                         {
+2025-11-06T18:09:18.2111885Z                           "name": "error-context",
+2025-11-06T18:09:18.2112197Z                           "contentType": "text/markdown",
+2025-11-06T18:09:18.2113103Z                           "path": "/home/runner/work/DooDates/DooDates/test-results/ultra-simple-DooDates---Te-306a7--→-Dashboard-smoke-critical-chromium-retry2/error-context.md"
+2025-11-06T18:09:18.2113765Z                         }
+2025-11-06T18:09:18.2113966Z                       ],
+2025-11-06T18:09:18.2114333Z                       "errorLocation": {
+2025-11-06T18:09:18.2114781Z                         "file": "/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple.spec.ts",
+2025-11-06T18:09:18.2115192Z                         "column": 71,
+2025-11-06T18:09:18.2115455Z                         "line": 138
+2025-11-06T18:09:18.2115687Z                       }
+2025-11-06T18:09:18.2115890Z                     }
+2025-11-06T18:09:18.2116083Z                   ],
+2025-11-06T18:09:18.2116313Z                   "status": "unexpected"
+2025-11-06T18:09:18.2116557Z                 }
+2025-11-06T18:09:18.2116744Z               ],
+2025-11-06T18:09:18.2117024Z               "id": "5d39ff5d78afce075de1-32d2c6a719a068e2de17",
+2025-11-06T18:09:18.2117158Z               "file": "ultra-simple.spec.ts",
+2025-11-06T18:09:18.2117241Z               "line": 17,
+2025-11-06T18:09:18.2117328Z               "column": 3
+2025-11-06T18:09:18.2117401Z             }
+2025-11-06T18:09:18.2117479Z           ]
+2025-11-06T18:09:18.2117558Z         }
+2025-11-06T18:09:18.2117636Z       ]
+2025-11-06T18:09:18.2117707Z     }
+2025-11-06T18:09:18.2117783Z   ],
+2025-11-06T18:09:18.2117869Z   "errors": [],
+2025-11-06T18:09:18.2117947Z   "stats": {
+2025-11-06T18:09:18.2118077Z     "startTime": "2025-11-06T18:08:22.424Z",
+2025-11-06T18:09:18.2118159Z     "duration": 55673,
+2025-11-06T18:09:18.2118245Z     "expected": 8,
+2025-11-06T18:09:18.2118327Z     "skipped": 0,
+2025-11-06T18:09:18.2118416Z     "unexpected": 1,
+2025-11-06T18:09:18.2118497Z     "flaky": 0
+2025-11-06T18:09:18.2118568Z   }
+2025-11-06T18:09:18.2118648Z }
+2025-11-06T18:09:18.2129127Z ##[error]Process completed with exit code 1.
+2025-11-06T18:09:18.2186871Z ##[group]Run actions/upload-artifact@v4
+2025-11-06T18:09:18.2186961Z with:
+2025-11-06T18:09:18.2187082Z   name: playwright-report-develop-smoke
+2025-11-06T18:09:18.2187174Z   path: playwright-report
+2025-11-06T18:09:18.2187256Z   retention-days: 7
+2025-11-06T18:09:18.2187337Z   if-no-files-found: warn
+2025-11-06T18:09:18.2187430Z   compression-level: 6
+2025-11-06T18:09:18.2187503Z   overwrite: false
+2025-11-06T18:09:18.2187593Z   include-hidden-files: false
+2025-11-06T18:09:18.2187667Z ##[endgroup]
+2025-11-06T18:09:18.4429762Z With the provided path, there will be 19 files uploaded
+2025-11-06T18:09:18.4435107Z Artifact name is valid!
+2025-11-06T18:09:18.4436337Z Root directory input is valid!
+2025-11-06T18:09:18.7911955Z Beginning upload of artifact content to blob storage
+2025-11-06T18:09:19.9500332Z Uploaded bytes 3245567
+2025-11-06T18:09:20.0315638Z Finished uploading artifact content to blob storage!
+2025-11-06T18:09:20.0319875Z SHA256 digest of uploaded artifact zip is 1462f5189aff45aae80d126389c3bce54e43b370eaf02b35cdfea1bb6260cb93
+2025-11-06T18:09:20.0321160Z Finalizing artifact upload
+2025-11-06T18:09:20.2121584Z Artifact playwright-report-develop-smoke.zip successfully finalized. Artifact ID 4490576400
+2025-11-06T18:09:20.2123463Z Artifact playwright-report-develop-smoke has been successfully uploaded! Final size is 3245567 bytes. Artifact ID is 4490576400
+2025-11-06T18:09:20.2130696Z Artifact download URL: https://github.com/julienfritschheydon/DooDates/actions/runs/19145287292/artifacts/4490576400
+2025-11-06T18:09:20.2250624Z ##[group]Run actions/upload-artifact@v4
+2025-11-06T18:09:20.2250931Z with:
+2025-11-06T18:09:20.2251140Z   name: test-results-develop-smoke
+2025-11-06T18:09:20.2251397Z   path: test-results
+2025-11-06T18:09:20.2251609Z   retention-days: 7
+2025-11-06T18:09:20.2251816Z   if-no-files-found: warn
+2025-11-06T18:09:20.2252048Z   compression-level: 6
+2025-11-06T18:09:20.2252256Z   overwrite: false
+2025-11-06T18:09:20.2252459Z   include-hidden-files: false
+2025-11-06T18:09:20.2252688Z ##[endgroup]
+2025-11-06T18:09:20.4549429Z With the provided path, there will be 7 files uploaded
+2025-11-06T18:09:20.4555441Z Artifact name is valid!
+2025-11-06T18:09:20.4556651Z Root directory input is valid!
+2025-11-06T18:09:20.7348176Z Beginning upload of artifact content to blob storage
+2025-11-06T18:09:21.7868746Z Uploaded bytes 2677582
+2025-11-06T18:09:21.8752268Z Finished uploading artifact content to blob storage!
+2025-11-06T18:09:21.8755302Z SHA256 digest of uploaded artifact zip is 99597715cb46418b1cd4ee58cf5e767d6a623b1ac72f21a738de5e2fad67454a
+2025-11-06T18:09:21.8756950Z Finalizing artifact upload
+2025-11-06T18:09:22.0248225Z Artifact test-results-develop-smoke.zip successfully finalized. Artifact ID 4490576771
+2025-11-06T18:09:22.0250330Z Artifact test-results-develop-smoke has been successfully uploaded! Final size is 2677582 bytes. Artifact ID is 4490576771
+2025-11-06T18:09:22.0257753Z Artifact download URL: https://github.com/julienfritschheydon/DooDates/actions/runs/19145287292/artifacts/4490576771
+2025-11-06T18:09:22.0407726Z Post job cleanup.
+2025-11-06T18:09:22.1349222Z [command]/usr/bin/git version
+2025-11-06T18:09:22.1385741Z git version 2.51.2
+2025-11-06T18:09:22.1428276Z Temporarily overriding HOME='/home/runner/work/_temp/a8fe6fad-4c88-4010-89a2-b228f45fc2a8' before making global git config changes
+2025-11-06T18:09:22.1429733Z Adding repository directory to the temporary git global config as a safe directory
+2025-11-06T18:09:22.1440822Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/DooDates/DooDates
+2025-11-06T18:09:22.1474718Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-11-06T18:09:22.1506364Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-11-06T18:09:22.1749851Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-11-06T18:09:22.1769593Z http.https://github.com/.extraheader
+2025-11-06T18:09:22.1781901Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2025-11-06T18:09:22.1811927Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-11-06T18:09:22.2133170Z Cleaning up orphan processes
