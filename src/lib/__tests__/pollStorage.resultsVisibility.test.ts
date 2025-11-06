@@ -317,4 +317,3 @@ describe("addFormResponse with respondentEmail", () => {
     expect(stored[0].respondentEmail).toBe("test@example.com");
   });
 });
-

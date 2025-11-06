@@ -107,7 +107,13 @@ export function useConversations(config: UseConversationsConfig = {}) {
       conversation: (id: string) => ["conversation", user?.id || "guest", id] as const,
       messages: (conversationId: string) =>
         ["messages", user?.id || "guest", conversationId] as const,
-      infinite: ["conversations-infinite", user?.id || "guest", filters, sortBy, sortOrder] as const,
+      infinite: [
+        "conversations-infinite",
+        user?.id || "guest",
+        filters,
+        sortBy,
+        sortOrder,
+      ] as const,
     }),
     [user?.id, filters, sortBy, sortOrder],
   );
@@ -227,11 +233,11 @@ export function useConversations(config: UseConversationsConfig = {}) {
           count: filteredConversations.length,
           filters,
           currentUserId: user?.id || "guest",
-          conversations: filteredConversations.map((c) => ({ 
-            id: c.id, 
-            title: c.title, 
+          conversations: filteredConversations.map((c) => ({
+            id: c.id,
+            title: c.title,
             status: c.status,
-            userId: c.userId 
+            userId: c.userId,
           })),
         });
 
@@ -597,7 +603,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
     mutationFn: async (conversationId: string) => {
       // Get conversation first to check ownership
       const conversation = ConversationStorage.getConversation(conversationId);
-      
+
       // Delete from Supabase if logged in and owned by user
       if (user?.id && conversation?.userId === user.id) {
         try {
@@ -687,7 +693,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
 
       // Get conversation first to check ownership
       const conversation = ConversationStorage.getConversation(conversationId);
-      
+
       // Save to Supabase if logged in and owned by user
       if (user?.id && conversation?.userId === user.id) {
         try {
@@ -715,7 +721,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
           messageCount: conversation.messageCount + 1,
           updatedAt: new Date(),
         };
-        
+
         // Update in Supabase if logged in
         if (user?.id && conversation.userId === user.id) {
           try {
@@ -731,7 +737,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
             );
           }
         }
-        
+
         // Always update localStorage
         ConversationStorage.updateConversation(updatedConversation);
       }

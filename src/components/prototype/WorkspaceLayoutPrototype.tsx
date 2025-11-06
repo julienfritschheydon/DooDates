@@ -241,7 +241,9 @@ export function WorkspaceLayoutPrototype() {
 
   return (
     <>
-      <div className={`flex h-full bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : "overflow-y-auto"}`}>
+      <div
+        className={`flex h-full bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : "overflow-y-auto"}`}
+      >
         {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur */}
         {isSidebarOpen && (
           <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsSidebarOpen(false)} />
@@ -684,62 +686,62 @@ export function WorkspaceLayoutPrototype() {
         )}
       </div>
 
-            {/* Modal d'authentification */}
-            <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+      {/* Modal d'authentification */}
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
 
-            {/* Modal clé bêta */}
-            <BetaKeyModal open={betaKeyModalOpen} onOpenChange={setBetaKeyModalOpen} />
+      {/* Modal clé bêta */}
+      <BetaKeyModal open={betaKeyModalOpen} onOpenChange={setBetaKeyModalOpen} />
 
-            {/* Dialog de confirmation de déconnexion */}
-            <AlertDialog open={signOutDialogOpen} onOpenChange={setSignOutDialogOpen}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Déconnexion</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Êtes-vous sûr de vouloir vous déconnecter ?
-                    <br />
-                    <br />
-                    <span className="font-medium">Connecté en tant que {user?.email}</span>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={async () => {
-                      try {
-                        const { error } = await signOut();
-                        if (error) {
-                          toast({
-                            title: "Erreur",
-                            description: error.message || "Erreur lors de la déconnexion",
-                            variant: "destructive",
-                          });
-                        } else {
-                          toast({
-                            title: "Déconnexion",
-                            description: "Vous avez été déconnecté",
-                          });
-                          setSignOutDialogOpen(false);
-                          // Forcer le rechargement pour s'assurer que tout est nettoyé
-                          setTimeout(() => {
-                            window.location.href = "/";
-                          }, 500);
-                        }
-                      } catch (error) {
-                        toast({
-                          title: "Erreur",
-                          description: "Erreur lors de la déconnexion",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    Se déconnecter
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </>
-        );
-      }
+      {/* Dialog de confirmation de déconnexion */}
+      <AlertDialog open={signOutDialogOpen} onOpenChange={setSignOutDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Déconnexion</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir vous déconnecter ?
+              <br />
+              <br />
+              <span className="font-medium">Connecté en tant que {user?.email}</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                try {
+                  const { error } = await signOut();
+                  if (error) {
+                    toast({
+                      title: "Erreur",
+                      description: error.message || "Erreur lors de la déconnexion",
+                      variant: "destructive",
+                    });
+                  } else {
+                    toast({
+                      title: "Déconnexion",
+                      description: "Vous avez été déconnecté",
+                    });
+                    setSignOutDialogOpen(false);
+                    // Forcer le rechargement pour s'assurer que tout est nettoyé
+                    setTimeout(() => {
+                      window.location.href = "/";
+                    }, 500);
+                  }
+                } catch (error) {
+                  toast({
+                    title: "Erreur",
+                    description: "Erreur lors de la déconnexion",
+                    variant: "destructive",
+                  });
+                }
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Se déconnecter
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

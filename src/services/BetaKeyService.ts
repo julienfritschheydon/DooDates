@@ -9,7 +9,7 @@
 
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
-import { ErrorFactory, logError } from "@/lib/error-handling";
+import { ErrorFactory, logError, handleError } from "@/lib/error-handling";
 
 // ================================================
 // TYPES
@@ -66,39 +66,45 @@ export class BetaKeyService {
         p_notes: notes || null,
         p_duration_months: durationMonths,
       });
-      
+
       // Vérifier la session AVANT tout
       console.log("🔑 [BetaKeyService] Récupération de la session...");
       const session = await supabase.auth.getSession();
       console.log("🔑 [BetaKeyService] Session récupérée:", session);
-      
+
       if (!session.data.session) {
-        throw new Error("Aucune session active. Veuillez vous reconnecter.");
+        throw ErrorFactory.auth(
+          "Aucune session active. Veuillez vous reconnecter.",
+          "Aucune session active. Veuillez vous reconnecter.",
+        );
       }
-      
+
       // Récupérer l'URL et la clé depuis les variables d'env
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
+
       console.log("🔑 [BetaKeyService] Configuration:", {
         supabaseUrl,
         hasAnonKey: !!supabaseAnonKey,
         hasAccessToken: !!session.data.session.access_token,
       });
-      
+
       if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error("Configuration Supabase manquante. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.");
+        throw ErrorFactory.critical(
+          "Configuration Supabase manquante. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.",
+          "Configuration Supabase manquante. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.",
+        );
       }
-      
+
       // Utiliser fetch directement car supabase.rpc() ne semble pas fonctionner
       console.log("🔑 [BetaKeyService] Appel direct via fetch...");
       const response = await fetch(`${supabaseUrl}/rest/v1/rpc/generate_beta_key`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'apikey': supabaseAnonKey,
-          'Authorization': `Bearer ${session.data.session.access_token}`,
-          'Prefer': 'return=representation',
+          "Content-Type": "application/json",
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${session.data.session.access_token}`,
+          Prefer: "return=representation",
         },
         body: JSON.stringify({
           p_count: count,
@@ -106,43 +112,36 @@ export class BetaKeyService {
           p_duration_months: durationMonths,
         }),
       });
-      
+
       console.log("🔑 [BetaKeyService] Réponse reçue:", {
         status: response.status,
         statusText: response.statusText,
         ok: response.ok,
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("❌ [BetaKeyService] Erreur HTTP:", {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-        });
-        
+
         let errorMessage = `Erreur HTTP ${response.status}: ${errorText}`;
         if (response.status === 401) {
           errorMessage = "Non autorisé. Vérifiez votre session.";
         } else if (response.status === 403) {
           errorMessage = "Accès refusé. Vérifiez les permissions.";
         } else if (response.status === 404) {
-          errorMessage = "Fonction RPC introuvable. Vérifiez que generate_beta_key existe dans Supabase.";
+          errorMessage =
+            "Fonction RPC introuvable. Vérifiez que generate_beta_key existe dans Supabase.";
         }
-        
+
         throw ErrorFactory.storage(errorMessage, errorMessage);
       }
-      
+
       const data = await response.json();
       console.log("🔑 [BetaKeyService] Données reçues:", data);
-      
+
       if (!data || data.length === 0) {
-        throw ErrorFactory.storage(
-          "Aucune clé générée",
-          "La fonction a retourné un résultat vide",
-        );
+        throw ErrorFactory.storage("Aucune clé générée", "La fonction a retourné un résultat vide");
       }
-      
+
       logger.info(`Generated ${data.length} beta keys`, "api", { count, notes, keys: data });
       return data as BetaKeyGeneration[];
     } catch (error: any) {
@@ -155,7 +154,11 @@ export class BetaKeyService {
   /**
    * Active une clé beta pour un utilisateur
    */
-  static async redeemKey(userId: string, code: string, accessToken?: string): Promise<RedemptionResult> {
+  static async redeemKey(
+    userId: string,
+    code: string,
+    accessToken?: string,
+  ): Promise<RedemptionResult> {
     try {
       // Normaliser le code (uppercase, trim)
       const normalizedCode = code.trim().toUpperCase();
@@ -173,9 +176,13 @@ export class BetaKeyService {
           const session = await Promise.race([sessionPromise, timeoutPromise]);
           token = session.data.session?.access_token;
         } catch (err) {
-          console.warn("⚠️ [BetaKeyService] Impossible de récupérer la session, utilisation du token depuis localStorage");
+          console.warn(
+            "⚠️ [BetaKeyService] Impossible de récupérer la session, utilisation du token depuis localStorage",
+          );
           // Fallback : essayer de récupérer depuis localStorage
-          const sessionStr = localStorage.getItem(`sb-${import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token`);
+          const sessionStr = localStorage.getItem(
+            `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
+          );
           if (sessionStr) {
             try {
               const sessionData = JSON.parse(sessionStr);
@@ -208,12 +215,12 @@ export class BetaKeyService {
       // Utiliser fetch directement (comme pour generateKeys)
       console.log("🔑 [BetaKeyService] Appel RPC redeem_beta_key via fetch...");
       const response = await fetch(`${supabaseUrl}/rest/v1/rpc/redeem_beta_key`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'apikey': supabaseAnonKey,
-          'Authorization': `Bearer ${token}`,
-          'Prefer': 'return=representation',
+          "Content-Type": "application/json",
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${token}`,
+          Prefer: "return=representation",
         },
         body: JSON.stringify({
           p_user_id: userId,
@@ -229,11 +236,6 @@ export class BetaKeyService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("❌ [BetaKeyService] Erreur HTTP:", {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-        });
 
         let errorMessage = `Erreur HTTP ${response.status}: ${errorText}`;
         if (response.status === 401) {
@@ -244,8 +246,8 @@ export class BetaKeyService {
           errorMessage = "Fonction RPC introuvable.";
         }
 
-        logger.error("Failed to redeem beta key", "api", { 
-          error: errorMessage, 
+        logger.error("Failed to redeem beta key", "api", {
+          error: errorMessage,
           userId,
           status: response.status,
         });
@@ -274,7 +276,18 @@ export class BetaKeyService {
 
       return result as RedemptionResult;
     } catch (error: any) {
-      console.error("❌ [BetaKeyService] Exception redeeming beta key:", error);
+      const processedError = handleError(
+        error,
+        {
+          component: "BetaKeyService",
+          operation: "redeemBetaKey",
+        },
+        "Erreur lors de l'activation de la clé",
+      );
+      logError(processedError, {
+        component: "BetaKeyService",
+        operation: "redeemBetaKey",
+      });
       logger.error("Exception redeeming beta key", "api", { error, userId });
       return {
         success: false,

@@ -611,7 +611,7 @@ export function usePolls() {
               // Sauvegarder dans localStorage pour cohérence
               const existingPolls = getAllPolls();
               const mergedPolls = [...existingPolls];
-              
+
               // Ajouter les sondages Supabase qui ne sont pas déjà dans localStorage
               userPolls.forEach((supabasePoll) => {
                 const exists = mergedPolls.find((p) => p.id === supabasePoll.id);
@@ -620,7 +620,9 @@ export function usePolls() {
                 } else {
                   // Mettre à jour si le sondage Supabase est plus récent
                   const existingDate = new Date(exists.updated_at || exists.created_at).getTime();
-                  const supabaseDate = new Date(supabasePoll.updated_at || supabasePoll.created_at).getTime();
+                  const supabaseDate = new Date(
+                    supabasePoll.updated_at || supabasePoll.created_at,
+                  ).getTime();
                   if (supabaseDate > existingDate) {
                     const index = mergedPolls.findIndex((p) => p.id === supabasePoll.id);
                     if (index !== -1) {
@@ -635,9 +637,13 @@ export function usePolls() {
               savePolls(mergedPolls);
               userPolls = mergedPolls;
             } else {
-              logger.warn("Erreur lors du chargement depuis Supabase, utilisation de localStorage", "poll", {
-                status: response.status,
-              });
+              logger.warn(
+                "Erreur lors du chargement depuis Supabase, utilisation de localStorage",
+                "poll",
+                {
+                  status: response.status,
+                },
+              );
               // Fallback sur localStorage
               userPolls = getAllPolls();
             }
@@ -646,7 +652,11 @@ export function usePolls() {
             userPolls = getAllPolls();
           }
         } catch (supabaseError) {
-          logger.error("Erreur lors du chargement depuis Supabase, utilisation de localStorage", "poll", supabaseError);
+          logger.error(
+            "Erreur lors du chargement depuis Supabase, utilisation de localStorage",
+            "poll",
+            supabaseError,
+          );
           // Fallback sur localStorage en cas d'erreur
           userPolls = getAllPolls();
         }

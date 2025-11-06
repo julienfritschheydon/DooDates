@@ -101,7 +101,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
       try {
         // Create conversation - save to Supabase if logged in, otherwise localStorage
         let result: Conversation;
-        
+
         if (user?.id) {
           try {
             const { createConversation: createSupabaseConversation } = await import(
@@ -110,7 +110,8 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             result = await createSupabaseConversation(
               {
                 title:
-                  firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
+                  firstMessage.content.slice(0, 50) +
+                  (firstMessage.content.length > 50 ? "..." : ""),
                 status: "active",
                 firstMessage: firstMessage.content,
                 messageCount: 0,
@@ -146,7 +147,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             userId: "guest",
           });
         }
-        
+
         currentConversationRef.current = result;
         setConversationId(result.id);
         log("Conversation created", { id: result.id, title: result.title });
@@ -258,10 +259,10 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
 
         // Convert and save this single message immediately
         const convertedMessage = convertMessage(message, activeConversationId);
-        
+
         // Get conversation to check ownership
         const conversation = ConversationStorage.getConversation(activeConversationId);
-        
+
         // Save to Supabase if logged in and owned by user
         if (user?.id && conversation?.userId === user.id) {
           try {
@@ -278,7 +279,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             // Continue with localStorage
           }
         }
-        
+
         // Always save to localStorage as cache
         ConversationStorage.addMessages(activeConversationId, [convertedMessage]);
 

@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { DashboardPoll, ConversationItem } from "./types";
-import { getAllPolls, getFormResponses, getRespondentId, getVoterId, getCurrentUserId } from "@/lib/pollStorage";
+import {
+  getAllPolls,
+  getFormResponses,
+  getRespondentId,
+  getVoterId,
+  getCurrentUserId,
+} from "@/lib/pollStorage";
 import { getConversations } from "@/lib/storage/ConversationStorageSimple";
 import { logError, ErrorFactory } from "@/lib/error-handling";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,11 +28,11 @@ export function useDashboardData(refreshKey: number) {
 
       // Récupérer les polls avec statistiques
       const allPolls = getAllPolls();
-      
+
       // Filtrer les polls pour ne garder que ceux du créateur actuel
       const currentUserId = getCurrentUserId(user?.id);
       const localPolls = allPolls.filter((poll) => poll.creator_id === currentUserId);
-      
+
       // Filtrer les conversations pour ne garder que celles du créateur actuel
       // Si connecté : garder celles avec userId === user.id
       // Si invité : garder celles avec userId === "guest" ou undefined (rétrocompatibilité)
@@ -123,26 +129,26 @@ export function useDashboardData(refreshKey: number) {
       // Filtrer aussi les conversations liées à des polls qui ne sont pas du créateur actuel
       const items: ConversationItem[] = conversations
         .map((conv) => {
-        const metadata = conv.metadata as any;
+          const metadata = conv.metadata as any;
 
-        // Chercher le poll associé via pollId (directement sur conv ou dans metadata)
-        const pollId = (conv as any).pollId || metadata?.pollId;
-        const relatedPoll = pollId ? pollsWithStats.find((p) => p.id === pollId) : undefined;
-          
+          // Chercher le poll associé via pollId (directement sur conv ou dans metadata)
+          const pollId = (conv as any).pollId || metadata?.pollId;
+          const relatedPoll = pollId ? pollsWithStats.find((p) => p.id === pollId) : undefined;
+
           // Si la conversation est liée à un poll, vérifier que le poll appartient au créateur actuel
           if (pollId && !relatedPoll) {
             // La conversation est liée à un poll qui n'appartient pas au créateur actuel
             return null;
           }
 
-        return {
-          id: conv.id,
-          conversationTitle: conv.title || "Conversation sans titre",
-          conversationDate: new Date(conv.updatedAt || conv.createdAt || Date.now()),
-          poll: relatedPoll,
-          hasAI: !!metadata?.pollGenerated,
-          tags: conv.tags || [],
-          folderId: metadata?.folderId,
+          return {
+            id: conv.id,
+            conversationTitle: conv.title || "Conversation sans titre",
+            conversationDate: new Date(conv.updatedAt || conv.createdAt || Date.now()),
+            poll: relatedPoll,
+            hasAI: !!metadata?.pollGenerated,
+            tags: conv.tags || [],
+            folderId: metadata?.folderId,
           } as ConversationItem;
         })
         .filter((item): item is ConversationItem => item !== null); // Filtrer les null

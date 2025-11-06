@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { SignInForm } from "../auth/SignInForm";
 import { SignUpForm } from "../../pages/Auth";
 import { useAuth } from "@/contexts/AuthContext";
@@ -47,13 +41,12 @@ export function AuthModal({ open, onOpenChange, defaultMode = "signin" }: AuthMo
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Déjà connecté</DialogTitle>
-            <DialogDescription>
-              Vous êtes déjà connecté en tant que {user.email}
-            </DialogDescription>
+            <DialogDescription>Vous êtes déjà connecté en tant que {user.email}</DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-2">
             <p className="text-sm text-muted-foreground">
-              Si vous souhaitez vous déconnecter, utilisez le bouton de déconnexion dans le menu utilisateur.
+              Si vous souhaitez vous déconnecter, utilisez le bouton de déconnexion dans le menu
+              utilisateur.
             </p>
           </div>
         </DialogContent>
@@ -74,19 +67,12 @@ export function AuthModal({ open, onOpenChange, defaultMode = "signin" }: AuthMo
         </DialogHeader>
         <div className="mt-4">
           {mode === "signin" ? (
-            <SignInForm
-              onSuccess={handleAuthSuccess}
-              onSwitchToSignUp={() => setMode("signup")}
-            />
+            <SignInForm onSuccess={handleAuthSuccess} onSwitchToSignUp={() => setMode("signup")} />
           ) : (
-            <SignUpForm
-              onSuccess={handleAuthSuccess}
-              onSwitchToSignIn={() => setMode("signin")}
-            />
+            <SignUpForm onSuccess={handleAuthSuccess} onSwitchToSignIn={() => setMode("signin")} />
           )}
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-

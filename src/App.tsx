@@ -339,16 +339,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   React.useEffect(() => {
     // Ne s'exécuter que si ce n'est pas une page classique
     if (!useClassicLayout) {
-      const mainElement = document.querySelector('main[data-app-main]') as HTMLElement;
-      const containerElement = document.querySelector('[data-app-container]') as HTMLElement;
+      const mainElement = document.querySelector("main[data-app-main]") as HTMLElement;
+      const containerElement = document.querySelector("[data-app-container]") as HTMLElement;
       if (mainElement) {
-        console.log('🔍 App Layout - Main Element Debug:', {
+        console.log("🔍 App Layout - Main Element Debug:", {
           mainHeight: mainElement.offsetHeight,
           mainScrollHeight: mainElement.scrollHeight,
           mainClientHeight: mainElement.clientHeight,
           mainOverflow: window.getComputedStyle(mainElement).overflowY,
           containerHeight: containerElement?.offsetHeight,
-          containerOverflow: containerElement ? window.getComputedStyle(containerElement).overflowY : 'N/A',
+          containerOverflow: containerElement
+            ? window.getComputedStyle(containerElement).overflowY
+            : "N/A",
           canScroll: mainElement.scrollHeight > mainElement.clientHeight,
           pathname: location.pathname,
         });

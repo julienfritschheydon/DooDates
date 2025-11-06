@@ -149,7 +149,11 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
         });
         return;
       }
-      if (wantsEmailCopy && respondentEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(respondentEmail.trim())) {
+      if (
+        wantsEmailCopy &&
+        respondentEmail.trim() &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(respondentEmail.trim())
+      ) {
         toast({
           title: "Email invalide",
           description: "Veuillez entrer une adresse email valide",
@@ -177,7 +181,16 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
             questions: (poll.questions || []) as FormQuestionShape[],
           });
         } catch (emailError) {
-          console.error("Erreur envoi email:", emailError);
+          logError(
+            ErrorFactory.api(
+              "Erreur lors de l'envoi de l'email",
+              "Erreur lors de l'envoi de l'email",
+            ),
+            {
+              component: "MultiStepFormVote",
+              operation: "sendVoteConfirmationEmail",
+            },
+          );
           // Ne pas bloquer la soumission si l'email échoue
         }
       }
@@ -242,14 +255,14 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
             {(() => {
               const visibility = poll.resultsVisibility || "creator-only";
               const canSeeResults = visibility === "public" || visibility === "voters";
-              
+
               return canSeeResults ? (
-            <button
-              onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
-              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
-            >
-              Voir les résultats
-            </button>
+                <button
+                  onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+                >
+                  Voir les résultats
+                </button>
               ) : (
                 <div className="text-sm text-gray-500 text-center py-2">
                   ℹ️ Les résultats ne sont pas publics pour ce sondage.
@@ -337,15 +350,17 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
                     </label>
                     {wantsEmailCopy && (
                       <>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={respondentEmail}
-                      onChange={(e) => setRespondentEmail(e.target.value)}
-                      placeholder="votre@email.com"
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          value={respondentEmail}
+                          onChange={(e) => setRespondentEmail(e.target.value)}
+                          placeholder="votre@email.com"
                           required={wantsEmailCopy}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 placeholder:text-gray-400"
-                    />
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 placeholder:text-gray-400"
+                        />
                       </>
                     )}
                   </div>

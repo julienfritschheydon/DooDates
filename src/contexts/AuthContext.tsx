@@ -144,7 +144,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (error.message?.includes("Invalid login credentials")) {
           userMessage = "Email ou mot de passe incorrect";
         } else if (error.message?.includes("Email not confirmed")) {
-          userMessage = "Veuillez confirmer votre email avant de vous connecter. Vérifiez votre boîte de réception.";
+          userMessage =
+            "Veuillez confirmer votre email avant de vous connecter. Vérifiez votre boîte de réception.";
         } else if (error.message?.includes("User not found")) {
           userMessage = "Aucun compte trouvé avec cet email. Voulez-vous créer un compte ?";
         }
@@ -258,7 +259,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const signOutPromise = supabase.auth.signOut();
       const timeoutPromise = new Promise<{ error: AuthError | null }>((resolve) => {
         setTimeout(() => {
-          logger.warn("Timeout lors de la déconnexion Supabase, continuation de la déconnexion locale", "auth");
+          logger.warn(
+            "Timeout lors de la déconnexion Supabase, continuation de la déconnexion locale",
+            "auth",
+          );
           resolve({ error: null });
         }, 3000);
       });
@@ -270,12 +274,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (err) {
       const error = err as AuthError;
       logger.error("Erreur lors de la déconnexion", "auth", err);
-      
+
       // Même en cas d'erreur, nettoyer l'état local
       setUser(null);
       setProfile(null);
       setSession(null);
-      
+
       if (typeof window !== "undefined") {
         const keysToRemove: string[] = [];
         for (let i = 0; i < localStorage.length; i++) {
@@ -286,7 +290,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
         keysToRemove.forEach((key) => localStorage.removeItem(key));
       }
-      
+
       setError(error.message);
       return { error };
     } finally {
@@ -319,13 +323,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
             );
             const migrationResult = await migrateGuestConversations(session.user.id);
             if (migrationResult.migratedCount > 0) {
-              logger.info("Conversations guest migrées automatiquement (session initiale)", "conversation", {
-                userId: session.user.id,
-                migratedCount: migrationResult.migratedCount,
-              });
+              logger.info(
+                "Conversations guest migrées automatiquement (session initiale)",
+                "conversation",
+                {
+                  userId: session.user.id,
+                  migratedCount: migrationResult.migratedCount,
+                },
+              );
             }
           } catch (migrationError) {
-            logger.error("Erreur lors de la migration automatique (session initiale)", "conversation", migrationError);
+            logger.error(
+              "Erreur lors de la migration automatique (session initiale)",
+              "conversation",
+              migrationError,
+            );
             // Don't block login if migration fails
           }
         }

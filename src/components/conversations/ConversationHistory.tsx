@@ -182,7 +182,11 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
     conversationsCount: conversations.length,
     conversations: conversations.map((c) => ({ id: c.id, title: c.title, status: c.status })),
     filteredConversationsCount: filteredConversations.length,
-    filteredConversations: filteredConversations.map((c) => ({ id: c.id, title: c.title, status: c.status })),
+    filteredConversations: filteredConversations.map((c) => ({
+      id: c.id,
+      title: c.title,
+      status: c.status,
+    })),
     searchQuery,
     isLoading,
     isError,
