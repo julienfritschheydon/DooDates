@@ -69,18 +69,19 @@ export class PollAnalyticsService {
   }
 
   private initializeGemini(): void {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      logger.warn("Gemini API key not found, analytics will be disabled", "analytics");
-      return;
-    }
-
     try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        logger.warn("VITE_GEMINI_API_KEY not set, analytics will not work", "analytics");
+        return;
+      }
+
       this.genAI = new GoogleGenerativeAI(apiKey);
-      this.model = this.genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      this.model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
       logger.info("Poll Analytics Service initialized", "analytics");
     } catch (error) {
-      logger.error("Failed to initialize Gemini for analytics", "analytics", { error });
+      logger.error("Failed to initialize Gemini for analytics", error);
+      this.model = null;
     }
   }
 
@@ -301,6 +302,16 @@ Réponds maintenant à la question de l'utilisateur.`;
       // Mettre en cache
       this.addToCache(query.pollId, query.question, analyticsResponse);
 
+      // Consommer les crédits pour la query analytics (1 crédit selon la doc)
+      try {
+        const { consumeAnalyticsCredits } = await import("../lib/quotaTracking");
+        const { getCurrentUserId } = await import("../lib/pollStorage");
+        const currentUserId = getCurrentUserId();
+        consumeAnalyticsCredits(currentUserId, query.pollId, query.question);
+      } catch (error) {
+        logger.debug("Impossible de consommer les crédits analytics", "analytics", { error });
+      }
+
       logger.info("Analytics query completed", "analytics", {
         pollId: query.pollId,
         insightsCount: insights.length,
@@ -395,6 +406,16 @@ Réponds UNIQUEMENT avec le JSON, sans texte additionnel.`;
         pollId,
         count: insights.length,
       });
+
+      // Consommer les crédits pour la génération d'insights (1 crédit selon la doc)
+      try {
+        const { consumeAnalyticsCredits } = await import("../lib/quotaTracking");
+        const { getCurrentUserId } = await import("../lib/pollStorage");
+        const currentUserId = getCurrentUserId();
+        consumeAnalyticsCredits(currentUserId, pollId, "auto-insights");
+      } catch (error) {
+        logger.debug("Impossible de consommer les crédits insights", "analytics", { error });
+      }
 
       return insights.map((insight) => ({
         ...insight,

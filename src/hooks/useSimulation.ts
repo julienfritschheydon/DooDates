@@ -6,8 +6,10 @@
  */
 
 import { useState, useCallback } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import type { SimulationConfig, SimulationResult, SimulationContext } from "../types/simulation";
 import { simulate } from "../lib/simulation/SimulationService";
+import { consumeSimulationCredits } from "../lib/quotaTracking";
 
 interface UseSimulationOptions {
   /** ID du poll */
@@ -63,6 +65,7 @@ export function useSimulation({
   questions,
   detectedContext,
 }: UseSimulationOptions): UseSimulationReturn {
+  const { user } = useAuth();
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [progress, setProgress] = useState(0);
@@ -95,6 +98,9 @@ export function useSimulation({
         // Lancer la simulation
         const simulationResult = await simulate(config, questions);
 
+        // Consommer les crédits pour la simulation (5 crédits selon la doc)
+        consumeSimulationCredits(user?.id, pollId, simulationResult.id);
+
         // Arrêter l'interval
         clearInterval(progressInterval);
 
@@ -110,7 +116,7 @@ export function useSimulation({
         setIsRunning(false);
       }
     },
-    [questions],
+    [questions, pollId, user?.id],
   );
 
   const reset = useCallback(() => {

@@ -61,9 +61,17 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
    */
   const generatePoll = useCallback(
     async (userMessage: string): Promise<GeminiAPIResponse> => {
+      const requestId = crypto.randomUUID();
+      const timestamp = new Date().toISOString();
       const trimmedMessage = userMessage.trim();
 
+      console.log(`[${timestamp}] [${requestId}] 🟢 useGeminiAPI.generatePoll appelé`, {
+        messageLength: trimmedMessage.length,
+        messagePreview: trimmedMessage.substring(0, 50),
+      });
+
       if (!trimmedMessage) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Message vide, arrêt`);
         return {
           success: false,
           error: "Message vide",
@@ -79,8 +87,14 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
       }
 
       try {
+        console.log(`[${timestamp}] [${requestId}] 🔵 Appel geminiService.generatePollFromText...`);
         // Appel à l'API Gemini
         const pollResponse = await geminiService.generatePollFromText(trimmedMessage);
+        console.log(`[${timestamp}] [${requestId}] 🟡 Réponse geminiService reçue`, {
+          success: pollResponse.success,
+          hasData: !!pollResponse.data,
+          error: pollResponse.error,
+        });
 
         if (pollResponse.success && pollResponse.data) {
           if (debug) {

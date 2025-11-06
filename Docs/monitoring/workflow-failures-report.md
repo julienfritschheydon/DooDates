@@ -1,6 +1,6 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 06/11/2025 21:17:18
+**Dernière mise à jour:** 06/11/2025 21:51:42
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -26,7 +26,7 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ✅ success
 
-**Dernier run:** 06/11/2025 21:14:28
+**Dernier run:** 06/11/2025 21:48:43
 
 **Statistiques:**
 - ❌ Échecs (24h): **5**
@@ -189,11 +189,11 @@ Error: "errors": [],
 
 **Statut:** ⏳ unknown
 
-**Dernier run:** 06/11/2025 21:16:47
+**Dernier run:** 06/11/2025 21:51:02
 
 **Statistiques:**
-- ❌ Échecs (24h): **4**
-- ❌ Échecs (7 jours): **11**
+- ❌ Échecs (24h): **3**
+- ❌ Échecs (7 jours): **10**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
@@ -279,16 +279,6 @@ Expected: 32",
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
 - **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19117388174)
-- **Jobs en échec:**
-  - ❌ `⚡ E2E Functional Tests (2)` (failure)
-    - Steps en échec: `⚡ Run Functional Tests (Shard 2/2)`
-
-#### Run #29 - 05/11/2025 21:17:52
-
-- **Commit:** `10bbf69`
-- **Auteur:** julienfritschheydon
-- **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19115094876)
 - **Jobs en échec:**
   - ❌ `⚡ E2E Functional Tests (2)` (failure)
     - Steps en échec: `⚡ Run Functional Tests (Shard 2/2)`
@@ -540,8 +530,8 @@ Error: "errors": [],
 
 ## 📈 Résumé Global
 
-- ❌ **Total échecs (24h):** 9
-- ❌ **Total échecs (7 jours):** 12
+- ❌ **Total échecs (24h):** 8
+- ❌ **Total échecs (7 jours):** 11
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations

@@ -24,16 +24,78 @@ const RATE_LIMITS = {
   ip: { perHour: 100, perDay: 500 },
 };
 
+// Origines CORS autorisées
+const ALLOWED_ORIGINS = [
+  "http://localhost:8080",
+  "http://localhost:5173", // Vite dev server par défaut
+  "http://localhost:3000", // Autre port dev commun
+  "https://julienfritschheydon.github.io", // Production GitHub Pages
+];
+
+// Patterns d'origines autorisées (pour plus de flexibilité)
+const ALLOWED_PATTERNS = [
+  /^http:\/\/localhost:\d+$/, // Tous les localhost avec n'importe quel port
+  /^https:\/\/julienfritschheydon\.github\.io$/, // Production GitHub Pages
+  /^https:\/\/.*\.github\.io$/, // Tous les GitHub Pages (pour les forks)
+];
+
+// Fonction helper pour obtenir les headers CORS
+function getCorsHeaders(origin: string | null): HeadersInit {
+  let allowedOrigin: string | null = null;
+  
+  if (origin) {
+    // Vérifier si l'origine est dans la liste exacte
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      allowedOrigin = origin;
+    } else {
+      // Vérifier si l'origine correspond à un pattern
+      for (const pattern of ALLOWED_PATTERNS) {
+        if (pattern.test(origin)) {
+          allowedOrigin = origin;
+          break;
+        }
+      }
+    }
+  }
+  
+  // Fallback : utiliser la première origine de la liste (localhost:8080)
+  if (!allowedOrigin) {
+    allowedOrigin = ALLOWED_ORIGINS[0];
+  }
+
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "authorization, content-type, apikey",
+    "Access-Control-Allow-Credentials": "true",
+  };
+}
+
 serve(async (req) => {
-  // CORS headers
+  // Log IMMÉDIATEMENT au début pour capturer toutes les requêtes
+  const requestId = crypto.randomUUID();
+  const timestamp = new Date().toISOString();
+  
+  console.log(`[${timestamp}] [${requestId}] ========================================`);
+  console.log(`[${timestamp}] [${requestId}] 🚀 EDGE FUNCTION DÉMARRÉE`);
+  console.log(`[${timestamp}] [${requestId}] ========================================`);
+  
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
+
+  console.log(`[${timestamp}] [${requestId}] 📥 Requête reçue:`, {
+    method: req.method,
+    origin,
+    url: req.url,
+    userAgent: req.headers.get("user-agent"),
+  });
+
+  // CORS preflight
   if (req.method === "OPTIONS") {
+    console.log(`[${timestamp}] [${requestId}] ✅ CORS preflight OK`);
     return new Response(null, {
       status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "authorization, content-type",
-      },
+      headers: corsHeaders,
     });
   }
 
@@ -44,7 +106,10 @@ serve(async (req) => {
         JSON.stringify({ error: "Method not allowed" }),
         {
           status: 405,
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders,
+          },
         },
       );
     }
@@ -53,6 +118,8 @@ serve(async (req) => {
     const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0] || 
                      req.headers.get("x-real-ip") || 
                      "unknown";
+
+    console.log(`[${timestamp}] [${requestId}] 🌐 IP client: ${clientIp}`);
 
     // Initialiser Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -67,18 +134,26 @@ serve(async (req) => {
     if (authHeader) {
       // Vérifier le JWT si présent
       const token = authHeader.replace("Bearer ", "");
+      console.log(`[${timestamp}] [${requestId}] 🔐 Vérification authentification...`);
       const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
       if (!authError && user) {
         userId = user.id;
         isAuthenticated = true;
+        console.log(`[${timestamp}] [${requestId}] ✅ Utilisateur authentifié: ${userId}`);
+      } else {
+        console.log(`[${timestamp}] [${requestId}] ⚠️  Authentification échouée:`, authError?.message || "Token invalide");
       }
+    } else {
+      console.log(`[${timestamp}] [${requestId}] 👤 Mode invité (pas d'authentification)`);
     }
 
     // Rate limiting par IP
     const ipKey = `ip:${clientIp}`;
     const ipLimit = checkRateLimit(ipKey, RATE_LIMITS.ip);
+    console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit IP:`, { allowed: ipLimit.allowed, retryAfter: ipLimit.retryAfter });
     if (!ipLimit.allowed) {
+      console.log(`[${timestamp}] [${requestId}] ❌ Rate limit IP dépassé`);
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -90,7 +165,7 @@ serve(async (req) => {
           headers: { 
             "Content-Type": "application/json",
             "Retry-After": ipLimit.retryAfter.toString(),
-            "Access-Control-Allow-Origin": "*",
+            ...corsHeaders,
           },
         },
       );
@@ -100,7 +175,9 @@ serve(async (req) => {
     if (isAuthenticated) {
       const userKey = `user:${userId}`;
       const userLimit = checkRateLimit(userKey, RATE_LIMITS.authenticated);
+      console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit User:`, { allowed: userLimit.allowed, retryAfter: userLimit.retryAfter });
       if (!userLimit.allowed) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Rate limit User dépassé`);
         return new Response(
           JSON.stringify({ 
             success: false, 
@@ -112,7 +189,7 @@ serve(async (req) => {
             headers: { 
               "Content-Type": "application/json",
               "Retry-After": userLimit.retryAfter.toString(),
-              "Access-Control-Allow-Origin": "*",
+              ...corsHeaders,
             },
           },
         );
@@ -121,7 +198,9 @@ serve(async (req) => {
       // Rate limiting pour invités
       const guestKey = `guest:${clientIp}`;
       const guestLimit = checkRateLimit(guestKey, RATE_LIMITS.guest);
+      console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit Guest:`, { allowed: guestLimit.allowed, retryAfter: guestLimit.retryAfter });
       if (!guestLimit.allowed) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Rate limit Guest dépassé`);
         return new Response(
           JSON.stringify({ 
             success: false, 
@@ -133,7 +212,7 @@ serve(async (req) => {
             headers: { 
               "Content-Type": "application/json",
               "Retry-After": guestLimit.retryAfter.toString(),
-              "Access-Control-Allow-Origin": "*",
+              ...corsHeaders,
             },
           },
         );
@@ -142,8 +221,15 @@ serve(async (req) => {
 
     // Vérifier et consommer le quota (si authentifié)
     if (isAuthenticated && userId) {
+      console.log(`[${timestamp}] [${requestId}] 💳 Vérification quota utilisateur...`);
       const quotaCheck = await checkAndConsumeQuota(supabase, userId);
+      console.log(`[${timestamp}] [${requestId}] 💳 Résultat quota:`, { 
+        success: quotaCheck.success, 
+        creditsRemaining: quotaCheck.creditsRemaining,
+        error: quotaCheck.error 
+      });
       if (!quotaCheck.success) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Quota insuffisant:`, quotaCheck.message);
         return new Response(
           JSON.stringify({ 
             success: false, 
@@ -155,7 +241,7 @@ serve(async (req) => {
             status: 403,
             headers: { 
               "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*",
+              ...corsHeaders,
             },
           },
         );
@@ -166,7 +252,14 @@ serve(async (req) => {
     let body;
     try {
       body = await req.json();
+      console.log(`[${timestamp}] [${requestId}] 📦 Body reçu:`, { 
+        hasUserInput: !!body.userInput, 
+        hasPrompt: !!body.prompt,
+        userInputLength: body.userInput?.length || 0,
+        promptLength: body.prompt?.length || 0
+      });
     } catch (error) {
+      console.log(`[${timestamp}] [${requestId}] ❌ Erreur parsing JSON:`, error);
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -177,7 +270,7 @@ serve(async (req) => {
           status: 400,
           headers: { 
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            ...corsHeaders,
           },
         },
       );
@@ -195,7 +288,7 @@ serve(async (req) => {
           status: 400,
           headers: { 
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            ...corsHeaders,
           },
         },
       );
@@ -204,7 +297,7 @@ serve(async (req) => {
     // Récupérer la clé API Gemini (variable serveur)
     const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
     if (!geminiApiKey) {
-      console.error("GEMINI_API_KEY non configurée");
+      console.error(`[${timestamp}] [${requestId}] ❌ GEMINI_API_KEY non configurée`);
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -215,7 +308,7 @@ serve(async (req) => {
           status: 500,
           headers: { 
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            ...corsHeaders,
           },
         },
       );
@@ -223,6 +316,11 @@ serve(async (req) => {
 
     // Appeler Gemini API
     const geminiPrompt = prompt || userInput;
+    console.log(`[${timestamp}] [${requestId}] 🤖 Appel Gemini API...`, { 
+      promptLength: geminiPrompt?.length || 0 
+    });
+    
+    const geminiStartTime = Date.now();
     const geminiResponse = await fetch(
       `${GEMINI_API_URL}?key=${geminiApiKey}`,
       {
@@ -239,10 +337,11 @@ serve(async (req) => {
         }),
       },
     );
+    const geminiDuration = Date.now() - geminiStartTime;
 
     if (!geminiResponse.ok) {
       const errorText = await geminiResponse.text();
-      console.error("Gemini API error:", errorText);
+      console.error(`[${timestamp}] [${requestId}] ❌ Gemini API error (${geminiResponse.status}):`, errorText);
       
       // Si erreur de quota Gemini, ne pas consommer notre quota
       if (geminiResponse.status === 429) {
@@ -262,7 +361,7 @@ serve(async (req) => {
           status: geminiResponse.status,
           headers: { 
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            ...corsHeaders,
           },
         },
       );
@@ -270,8 +369,13 @@ serve(async (req) => {
 
     const geminiData = await geminiResponse.json();
     const responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+    console.log(`[${timestamp}] [${requestId}] ✅ Gemini API réponse reçue (${geminiDuration}ms)`, { 
+      hasResponse: !!responseText,
+      responseLength: responseText?.length || 0 
+    });
 
     if (!responseText) {
+      console.log(`[${timestamp}] [${requestId}] ❌ Réponse Gemini invalide (pas de texte)`);
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -282,7 +386,7 @@ serve(async (req) => {
           status: 500,
           headers: { 
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            ...corsHeaders,
           },
         },
       );
@@ -290,10 +394,11 @@ serve(async (req) => {
 
     // Log audit (optionnel - peut être stocké en DB)
     if (isAuthenticated) {
-      console.log(`[AUDIT] User ${userId} consumed 1 credit at ${new Date().toISOString()}`);
+      console.log(`[${timestamp}] [${requestId}] [AUDIT] User ${userId} consumed 1 credit`);
     }
 
     // Retourner la réponse
+    console.log(`[${timestamp}] [${requestId}] ✅ Réponse envoyée avec succès`);
     return new Response(
       JSON.stringify({ 
         success: true, 
@@ -303,12 +408,12 @@ serve(async (req) => {
         status: 200,
         headers: { 
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
+          ...corsHeaders,
         },
       },
     );
   } catch (error) {
-    console.error("Edge Function error:", error);
+    console.error(`[${timestamp}] [${requestId}] ❌ Erreur Edge Function:`, error);
     return new Response(
       JSON.stringify({ 
         success: false, 
@@ -319,7 +424,7 @@ serve(async (req) => {
         status: 500,
         headers: { 
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
+          ...corsHeaders,
         },
       },
     );

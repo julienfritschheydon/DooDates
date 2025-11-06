@@ -52,8 +52,9 @@ export default defineConfig({
     timeout: 120 * 1000,
     env: {
       // Injecter les variables d'environnement de test dans le serveur de dev
-      VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || '',
-      VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY || '',
+      // Utiliser localhost:8080 comme URL factice pour que les mocks puissent intercepter
+      VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'http://localhost:8080',
+      VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY || 'test-anon-key',
     },
   },
 });

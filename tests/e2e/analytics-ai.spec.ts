@@ -1,5 +1,5 @@
 import { test as base, expect } from "@playwright/test";
-import { setupGeminiMock } from "./global-setup";
+import { setupAllMocks } from "./global-setup";
 
 // Créer un test avec contexte partagé pour que localStorage persiste entre les tests
 const test = base.extend<{}, { sharedContext: any }>({
@@ -42,7 +42,7 @@ test.describe("Analytics IA - Suite Complète", () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'Shared context non supporté sur Firefox/Safari');
   
   test.beforeEach(async ({ page }) => {
-    await setupGeminiMock(page);
+    await setupAllMocks(page);
     
     // Si le poll est déjà créé, aller directement aux résultats
     if (pollCreated && pollSlug) {
@@ -62,11 +62,41 @@ test.describe("Analytics IA - Suite Complète", () => {
     const chatInput = page.locator('[data-testid="message-input"]');
     await chatInput.fill("Crée un questionnaire avec 1 seule question");
     await chatInput.press("Enter");
-    await page.waitForTimeout(3000);
+    
+    // Attendre que l'IA réponde - vérifier soit le message de succès, soit une erreur
+    // On attend d'abord qu'un message AI apparaisse (succès ou erreur)
+    const successText = page.getByText(/Voici votre (questionnaire|sondage)/i);
+    const errorText = page.getByText(/désolé|quota.*dépassé|erreur/i);
+    
+    // Attendre que l'un ou l'autre apparaisse
+    await Promise.race([
+      successText.waitFor({ state: 'visible', timeout: 30000 }).catch(() => null),
+      errorText.waitFor({ state: 'visible', timeout: 30000 }).catch(() => null),
+    ]);
+    
+    // Vérifier qu'il n'y a pas de message d'erreur
+    const hasError = await errorText.isVisible({ timeout: 2000 }).catch(() => false);
+    if (hasError) {
+      // Prendre une capture pour debug
+      await page.screenshot({ path: 'test-results/debug-setup-error.png', fullPage: true });
+      const errorContent = await errorText.textContent();
+      console.error(`❌ L'IA a retourné une erreur: ${errorContent}`);
+      console.error('💡 Cause probable: Edge Function Supabase "hyper-task" non disponible');
+      console.error('💡 Solution: Configurer l\'Edge Function ou utiliser un mock pour les tests E2E');
+      throw new Error(
+        `L'IA a retourné une erreur au lieu de générer un formulaire. ` +
+        `Vérifiez que l'Edge Function Supabase est configurée et accessible. ` +
+        `Erreur: ${errorContent}`
+      );
+    }
+    
+    // Vérifier que le message de succès est visible
+    await expect(successText).toBeVisible({ timeout: 5000 });
 
-    // Étape 2 : Cliquer sur "Créer ce formulaire"
-    const createButton = page.getByRole('button', { name: /créer ce formulaire/i });
-    await expect(createButton).toBeVisible({ timeout: 5000 });
+    // Étape 2 : Cliquer sur "Créer ce formulaire" (utiliser data-testid pour plus de fiabilité)
+    // Le bouton apparaît après que pollSuggestion soit ajouté au message
+    const createButton = page.locator('[data-testid="create-form-button"]');
+    await expect(createButton).toBeVisible({ timeout: 10000 });
     await createButton.click();
 
     // Attendre la prévisualisation
@@ -384,7 +414,7 @@ test.describe("Analytics IA - Quick Queries", () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'Shared context non supporté sur Firefox/Safari');
   
   test.beforeEach(async ({ page }) => {
-    await setupGeminiMock(page);
+    await setupAllMocks(page);
   });
   test("devrait répondre aux quick queries", async ({ page }) => {
     // Setup : Créer un poll avec réponses
@@ -507,6 +537,20 @@ test.describe("Analytics IA - Quick Queries", () => {
     await page.goto(`/poll/${slug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
     
+    // Attendre que les résultats soient chargés (vérifier qu'il y a des réponses)
+    // Le panneau Analytics n'apparaît que si totalRespondents > 0
+    await page.waitForFunction(
+      () => {
+        // Vérifier que la page a chargé les résultats (chercher des éléments de résultats)
+        const hasResults = document.querySelector('[data-testid="analytics-panel"]') ||
+                          document.querySelector('h2:has-text("Analytics IA")') ||
+                          document.querySelector('[class*="response"]') ||
+                          document.querySelector('[class*="result"]');
+        return !!hasResults;
+      },
+      { timeout: 15000 }
+    );
+    
     // Attendre que les actions du poll soient chargées
     await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
     await page.screenshot({ path: 'test-results/debug-actions-loaded.png', fullPage: true });
@@ -514,9 +558,9 @@ test.describe("Analytics IA - Quick Queries", () => {
     // Vérifier que le panneau Analytics est présent AVANT la clôture (il devrait être là avec 3 votes)
     // On attend soit le data-testid, soit le titre "Analytics IA" pour être plus robuste
     await page.screenshot({ path: 'test-results/debug-before-wait-analytics.png', fullPage: true });
-    await page.waitForSelector('[data-testid="analytics-panel"], h2:has-text("Analytics IA")', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="analytics-panel"], h2:has-text("Analytics IA")', { timeout: 15000 });
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
-    await expect(analyticsPanel).toBeAttached({ timeout: 5000 });
+    await expect(analyticsPanel).toBeVisible({ timeout: 5000 });
     
     // Gérer le dialog de confirmation
     page.once('dialog', async dialog => {
@@ -576,7 +620,7 @@ test.describe("Analytics IA - Quick Queries", () => {
 
 test.describe.skip("Analytics IA - Query Personnalisée", () => {
   test.beforeEach(async ({ page }) => {
-    await setupGeminiMock(page);
+    await setupAllMocks(page);
   });
   test("devrait répondre à une query personnalisée", async ({ page }) => {
     // Setup : Créer un poll avec réponses
@@ -658,7 +702,7 @@ test.describe.skip("Analytics IA - Query Personnalisée", () => {
 
 test.describe.skip("Analytics IA - Cache", () => {
   test.beforeEach(async ({ page }) => {
-    await setupGeminiMock(page);
+    await setupAllMocks(page);
   });
   test("devrait utiliser le cache pour les queries identiques", async ({
     page,
@@ -752,7 +796,7 @@ test.describe.skip("Analytics IA - Cache", () => {
 
 test.describe.skip("Analytics IA - Quotas", () => {
   test.beforeEach(async ({ page }) => {
-    await setupGeminiMock(page);
+    await setupAllMocks(page);
   });
   test("devrait respecter les quotas freemium (5 queries/jour)", async ({
     page,
@@ -934,7 +978,7 @@ test.describe.skip("Analytics IA - Quotas", () => {
 
 test.describe.skip("Analytics IA - Dark Mode", () => {
   test.beforeEach(async ({ page }) => {
-    await setupGeminiMock(page);
+    await setupAllMocks(page);
   });
   test("devrait afficher correctement tous les éléments en dark mode", async ({
     page,
@@ -1092,7 +1136,7 @@ test.describe.skip("Analytics IA - Dark Mode", () => {
 
 test.describe.skip("Analytics IA - Gestion Erreurs", () => {
   test.beforeEach(async ({ page }) => {
-    await setupGeminiMock(page);
+    await setupAllMocks(page);
   });
   test("devrait afficher un message si poll sans réponses", async ({ page }) => {
     // Créer un poll SANS réponses

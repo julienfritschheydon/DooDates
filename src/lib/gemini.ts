@@ -1,31 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GenerativeModel } from "@google/generative-ai";
 import CalendarQuery, { CalendarDay } from "./calendar-generator";
 import { handleError, ErrorFactory, logError } from "./error-handling";
 import { logger } from "./logger";
 import { formatDateLocal, getTodayLocal } from "./date-utils";
-
-// Configuration pour Gemini - Simplifié pour Vite
-const API_KEY: string | undefined = import.meta.env.VITE_GEMINI_API_KEY;
-
-// Debug logging pour diagnostiquer le problème de clé API
-if (import.meta.env.DEV) {
-  // Logs de debug disponibles si nécessaire
-}
-
-// Initialisation différée pour éviter le blocage au chargement
-let genAI: GoogleGenerativeAI | null = null;
-let model: GenerativeModel | null = null;
-
-// Fonction d'initialisation lazy
-const initializeGemini = () => {
-  if (!genAI && API_KEY) {
-    genAI = new GoogleGenerativeAI(API_KEY);
-    // Utilisation de gemini-2.0-flash (stable, rapide, largement supporté)
-    model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-  }
-  return { genAI, model };
-};
+import { secureGeminiService } from "@/services/SecureGeminiService";
 
 // Constantes pour la gestion des quotas
 const RATE_LIMIT = {
@@ -91,12 +68,6 @@ export interface GeminiResponse {
 
 export class GeminiService {
   private static instance: GeminiService;
-  private static warnedAboutApiKey = false;
-  private genAI: GoogleGenerativeAI | null = null;
-  private model: GenerativeModel | null = null;
-  private lastRequestTime: number = 0;
-  private requestsToday: number = 0;
-  private isInitialized: boolean = false;
   private calendarQuery: CalendarQuery;
 
   public static getInstance(): GeminiService {
@@ -109,46 +80,6 @@ export class GeminiService {
   private constructor() {
     // Initialiser le calendrier pré-généré
     this.calendarQuery = new CalendarQuery();
-
-    // Pas d'initialisation immédiate de Gemini - sera fait lors du premier appel
-    if (!API_KEY && import.meta.env.DEV && !GeminiService.warnedAboutApiKey) {
-      logger.warn("Gemini API Key not configured, using mock response", "api");
-      GeminiService.warnedAboutApiKey = true;
-    }
-  }
-
-  private async ensureInitialized(): Promise<boolean> {
-    if (this.isInitialized) {
-      return true;
-    }
-
-    if (!API_KEY) {
-      return false;
-    }
-
-    try {
-      const { genAI: newGenAI, model: newModel } = initializeGemini();
-      this.genAI = newGenAI;
-      this.model = newModel;
-      this.isInitialized = true;
-      return true;
-    } catch (error) {
-      const initError = handleError(
-        error,
-        {
-          component: "GeminiService",
-          operation: "ensureInitialized",
-        },
-        "Erreur lors de l'initialisation de Gemini",
-      );
-
-      logError(initError, {
-        component: "GeminiService",
-        operation: "ensureInitialized",
-      });
-
-      return false;
-    }
   }
 
   /**
@@ -387,21 +318,21 @@ export class GeminiService {
   }
 
   async generatePollFromText(userInput: string): Promise<GeminiResponse> {
-    // Initialisation différée
-    const initialized = await this.ensureInitialized();
-    if (!initialized || !this.model) {
-      return {
-        success: false,
-        message: "Service IA temporairement indisponible",
-        error: "INITIALIZATION_FAILED",
-      };
-    }
+    const requestId = crypto.randomUUID();
+    const timestamp = new Date().toISOString();
+
+    console.log(`[${timestamp}] [${requestId}] 🟡 GeminiService.generatePollFromText appelé`, {
+      userInputLength: userInput?.length || 0,
+      userInputPreview: userInput?.substring(0, 50) || "",
+    });
 
     try {
       // NOUVEAU : Détecter si c'est du markdown
       const isMarkdown = this.isMarkdownQuestionnaire(userInput);
       let processedInput = userInput;
       let pollType: "date" | "form";
+
+      console.log(`[${timestamp}] [${requestId}] 📋 Détection type:`, { isMarkdown });
 
       if (isMarkdown) {
         // Parser le markdown et convertir en prompt structuré
@@ -447,9 +378,53 @@ export class GeminiService {
         prompt = this.buildPollGenerationPrompt(processedInput);
       }
 
-      const result = await this.model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
+      // Appeler Gemini via Edge Function sécurisée
+      console.log(`[${timestamp}] [${requestId}] 🔵 Appel secureGeminiService.generateContent...`, {
+        hasUserInput: !!userInput,
+        hasPrompt: !!prompt,
+        promptLength: prompt?.length || 0,
+      });
+      const secureResponse = await secureGeminiService.generateContent(userInput, prompt);
+      console.log(`[${timestamp}] [${requestId}] 🟢 Réponse secureGeminiService reçue`, {
+        success: secureResponse.success,
+        hasData: !!secureResponse.data,
+        error: secureResponse.error,
+      });
+
+      if (!secureResponse.success) {
+        // Gérer les erreurs spécifiques
+        if (secureResponse.error === "QUOTA_EXCEEDED") {
+          return {
+            success: false,
+            message: secureResponse.message || "Quota de crédits IA dépassé",
+            error: "QUOTA_EXCEEDED",
+          };
+        }
+
+        if (secureResponse.error === "RATE_LIMIT_EXCEEDED") {
+          return {
+            success: false,
+            message: secureResponse.message || "Trop de requêtes. Veuillez patienter.",
+            error: "RATE_LIMIT_EXCEEDED",
+          };
+        }
+
+        if (secureResponse.error === "UNAUTHORIZED") {
+          return {
+            success: false,
+            message: "Erreur d'authentification. Veuillez vous reconnecter.",
+            error: "UNAUTHORIZED",
+          };
+        }
+
+        return {
+          success: false,
+          message: secureResponse.message || "Erreur lors de la communication avec le service IA",
+          error: secureResponse.error || "UNKNOWN_ERROR",
+        };
+      }
+
+      const text = secureResponse.data || "";
 
       if (import.meta.env.DEV) {
         logger.info("Raw Gemini response received", "api");
@@ -519,16 +494,21 @@ export class GeminiService {
   }
 
   async chatAboutPoll(userInput: string, context?: string): Promise<string> {
-    const initialized = await this.ensureInitialized();
-    if (!initialized || !this.model) {
-      return "Désolé, le service IA n'est pas disponible actuellement.";
-    }
-
     try {
       const prompt = this.buildChatPrompt(userInput, context);
-      const result = await this.model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      const secureResponse = await secureGeminiService.generateContent(userInput, prompt);
+
+      if (!secureResponse.success) {
+        if (secureResponse.error === "QUOTA_EXCEEDED") {
+          return "Désolé, votre quota de crédits IA est dépassé. Veuillez mettre à niveau votre compte.";
+        }
+        if (secureResponse.error === "UNAUTHORIZED") {
+          return "Désolé, vous devez être connecté pour utiliser l'IA.";
+        }
+        return "Désolé, je n'ai pas pu traiter votre demande.";
+      }
+
+      return secureResponse.data || "Désolé, je n'ai pas pu traiter votre demande.";
     } catch (error) {
       const chatError = handleError(
         error,
@@ -1520,53 +1500,10 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
   }
 
   async testConnection(): Promise<boolean> {
-    if (!API_KEY) {
-      logger.warn("Clé API Gemini non configurée (VITE_GEMINI_API_KEY manquante)", "api");
-      return false;
-    }
-
     try {
-      // S'assurer que le modèle est initialisé avant de tester
-      const initialized = await this.ensureInitialized();
-      if (!initialized || !this.model) {
-        return false;
-      }
-
-      const result = await this.model.generateContent("Test de connexion");
-      const response = await result.response;
-      return response !== null;
-    } catch (error: any) {
-      // Détecter spécifiquement les erreurs de clé API invalide
-      const errorMessage = error?.message || "";
-      const isApiKeyError =
-        errorMessage.includes("API key not valid") ||
-        errorMessage.includes("Please pass a valid API key") ||
-        errorMessage.includes("API_KEY_INVALID");
-
-      if (isApiKeyError) {
-        logger.error(
-          "Clé API Gemini invalide. Vérifiez VITE_GEMINI_API_KEY dans .env.local",
-          "api",
-          { error: errorMessage },
-        );
-      }
-
-      const connectionError = handleError(
-        error,
-        {
-          component: "GeminiService",
-          operation: "testConnection",
-        },
-        isApiKeyError
-          ? "Clé API Gemini invalide ou manquante"
-          : "Erreur lors du test de connexion Gemini",
-      );
-
-      logError(connectionError, {
-        component: "GeminiService",
-        operation: "testConnection",
-      });
-
+      return await secureGeminiService.testConnection();
+    } catch (error) {
+      logger.error("Erreur lors du test de connexion", "api", error);
       return false;
     }
   }

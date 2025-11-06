@@ -11,6 +11,7 @@ import { generateConversationTitle, shouldRegenerateTitle } from "../lib/service
 import type { Conversation, ConversationMessage } from "../types/conversation";
 import { ConversationError } from "../types/conversation";
 import { logger } from "@/lib/logger";
+import { logError, ErrorFactory } from "@/lib/error-handling";
 
 export interface AutoSaveMessage {
   id: string;
@@ -96,17 +97,33 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
   // Create new conversation
   const createConversation = useCallback(
     async (firstMessage: AutoSaveMessage): Promise<Conversation> => {
+      const requestId = crypto.randomUUID();
+      const timestamp = new Date().toISOString();
+      console.log(`[${timestamp}] [${requestId}] 🆕 createConversation DÉBUT`, {
+        hasUser: !!user?.id,
+        userId: user?.id || "guest",
+        messageLength: firstMessage.content?.length || 0,
+      });
       log("Creating new conversation");
 
       try {
         // Create conversation - save to Supabase if logged in, otherwise localStorage
         let result: Conversation;
 
-        if (user?.id) {
+        // TEMPORAIRE: Désactiver Supabase si timeout fréquent
+        const DISABLE_SUPABASE_CONVERSATIONS =
+          import.meta.env.VITE_DISABLE_SUPABASE_CONVERSATIONS === "true";
+
+        if (!DISABLE_SUPABASE_CONVERSATIONS && user?.id) {
+          console.log(
+            `[${timestamp}] [${requestId}] 🆕 Utilisateur connecté - création Supabase...`,
+          );
           try {
+            console.log(`[${timestamp}] [${requestId}] 🆕 Import ConversationStorageSupabase...`);
             const { createConversation: createSupabaseConversation } = await import(
               "../lib/storage/ConversationStorageSupabase"
             );
+            console.log(`[${timestamp}] [${requestId}] 🆕 Appel createSupabaseConversation...`);
             result = await createSupabaseConversation(
               {
                 title:
@@ -122,37 +139,91 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
               },
               user.id,
             );
+            console.log(`[${timestamp}] [${requestId}] 🆕 Conversation Supabase créée:`, {
+              id: result.id,
+            });
             // Also save to localStorage as cache
             ConversationStorage.addConversation(result);
+
+            // Incrémenter le compteur de crédits consommés
+            console.log(`[${timestamp}] [${requestId}] 🆕 Incrémentation quota...`);
+            const { incrementConversationCreated } = await import("../lib/quotaTracking");
+            incrementConversationCreated(user.id);
+            console.log(`[${timestamp}] [${requestId}] 🆕 Quota incrémenté`);
           } catch (supabaseError) {
+            logError(
+              ErrorFactory.storage(
+                "Erreur Supabase, fallback localStorage",
+                "La conversation sera sauvegardée localement",
+              ),
+              {
+                operation: "useAutoSave.createConversation",
+                metadata: { requestId, userId: user.id, error: supabaseError },
+              },
+            );
             logger.error(
               "Erreur lors de la création dans Supabase, utilisation de localStorage",
               "conversation",
               supabaseError,
             );
             // Fallback to localStorage
+            console.log(`[${timestamp}] [${requestId}] 🆕 Création localStorage (fallback)...`);
             result = ConversationStorage.createConversation({
               title:
                 firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
               firstMessage: firstMessage.content,
               userId: user.id,
             });
+
+            // Incrémenter le compteur de crédits consommés
+            console.log(`[${timestamp}] [${requestId}] 🆕 Incrémentation quota (fallback)...`);
+            const { incrementConversationCreated } = await import("../lib/quotaTracking");
+            incrementConversationCreated(user.id);
+            console.log(`[${timestamp}] [${requestId}] 🆕 Quota incrémenté (fallback)`);
           }
         } else {
-          // Guest mode: use localStorage only
+          // Guest mode or Supabase disabled: use localStorage only
+          if (DISABLE_SUPABASE_CONVERSATIONS) {
+            console.log(
+              `[${timestamp}] [${requestId}] 🆕 Supabase désactivé - création localStorage...`,
+            );
+          } else {
+            console.log(`[${timestamp}] [${requestId}] 🆕 Mode invité - création localStorage...`);
+          }
           result = ConversationStorage.createConversation({
             title:
               firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
             firstMessage: firstMessage.content,
             userId: "guest",
           });
+
+          // Incrémenter le compteur de crédits consommés
+          console.log(`[${timestamp}] [${requestId}] 🆕 Incrémentation quota guest...`);
+          const { incrementConversationCreated } = await import("../lib/quotaTracking");
+          incrementConversationCreated("guest");
+          console.log(`[${timestamp}] [${requestId}] 🆕 Quota guest incrémenté`);
         }
 
+        console.log(`[${timestamp}] [${requestId}] 🆕 Mise à jour refs...`);
         currentConversationRef.current = result;
         setConversationId(result.id);
+        console.log(`[${timestamp}] [${requestId}] ✅ createConversation TERMINÉ`, {
+          conversationId: result.id,
+          title: result.title,
+        });
         log("Conversation created", { id: result.id, title: result.title });
         return result;
       } catch (error) {
+        logError(
+          ErrorFactory.storage(
+            "Erreur dans createConversation",
+            "Impossible de créer la conversation",
+          ),
+          {
+            operation: "useAutoSave.createConversation",
+            metadata: { requestId, userId: user?.id, error },
+          },
+        );
         log("Error creating conversation", { error });
         throw error;
       }
@@ -245,32 +316,76 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
   // Add message and save immediately (simplified architecture)
   const addMessage = useCallback(
     async (message: AutoSaveMessage) => {
+      const requestId = crypto.randomUUID();
+      const timestamp = new Date().toISOString();
+      console.log(`[${timestamp}] [${requestId}] 💾 useAutoSave.addMessage DÉBUT`, {
+        messageId: message.id,
+      });
       log("Saving message immediately", { messageId: message.id });
 
       try {
         // Get current conversation ID
         let activeConversationId = currentConversationRef.current?.id || conversationId;
+        console.log(`[${timestamp}] [${requestId}] 💾 Conversation ID actuelle:`, {
+          activeConversationId,
+        });
 
         // Create conversation if needed (for temp conversations)
         if (!activeConversationId || activeConversationId.startsWith("temp-")) {
+          console.log(`[${timestamp}] [${requestId}] 💾 Création conversation nécessaire...`);
           const conversation = await createConversation(message);
           activeConversationId = conversation.id;
+          console.log(`[${timestamp}] [${requestId}] 💾 Conversation créée:`, {
+            conversationId: activeConversationId,
+          });
         }
 
         // Convert and save this single message immediately
+        console.log(`[${timestamp}] [${requestId}] 💾 Conversion message...`);
         const convertedMessage = convertMessage(message, activeConversationId);
 
         // Get conversation to check ownership
+        console.log(`[${timestamp}] [${requestId}] 💾 Récupération conversation...`);
         const conversation = ConversationStorage.getConversation(activeConversationId);
 
         // Save to Supabase if logged in and owned by user
-        if (user?.id && conversation?.userId === user.id) {
+        // TEMPORAIRE: Désactiver Supabase si timeout fréquent (à réactiver une fois Supabase configuré)
+        const DISABLE_SUPABASE_CONVERSATIONS =
+          import.meta.env.VITE_DISABLE_SUPABASE_CONVERSATIONS === "true";
+
+        if (!DISABLE_SUPABASE_CONVERSATIONS && user?.id && conversation?.userId === user.id) {
+          console.log(`[${timestamp}] [${requestId}] 💾 Sauvegarde Supabase...`);
           try {
             const { addMessages: addSupabaseMessages } = await import(
               "../lib/storage/ConversationStorageSupabase"
             );
-            await addSupabaseMessages(activeConversationId, [convertedMessage], user.id);
+            // Ajouter un timeout pour éviter les blocages
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(
+                () => reject(new Error("Timeout: Supabase addMessages a pris plus de 3 secondes")),
+                3000,
+              );
+            });
+
+            const addPromise = addSupabaseMessages(
+              activeConversationId,
+              [convertedMessage],
+              user.id,
+            );
+            await Promise.race([addPromise, timeoutPromise]);
+            console.log(`[${timestamp}] [${requestId}] 💾 Sauvegarde Supabase terminée`);
           } catch (supabaseError) {
+            logError(
+              ErrorFactory.storage(
+                "Erreur Supabase lors de l'ajout du message",
+                "Le message sera sauvegardé localement",
+              ),
+              {
+                operation: "useAutoSave.addMessage",
+                conversationId: activeConversationId,
+                metadata: { requestId, userId: user.id, error: supabaseError },
+              },
+            );
             logger.error(
               "Erreur lors de l'ajout du message dans Supabase, utilisation de localStorage",
               "conversation",
@@ -278,22 +393,45 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             );
             // Continue with localStorage
           }
+        } else {
+          if (DISABLE_SUPABASE_CONVERSATIONS) {
+            console.log(
+              `[${timestamp}] [${requestId}] 💾 Supabase conversations désactivé (VITE_DISABLE_SUPABASE_CONVERSATIONS=true)`,
+            );
+          } else {
+            console.log(
+              `[${timestamp}] [${requestId}] 💾 Pas de sauvegarde Supabase (guest ou pas de user)`,
+            );
+          }
         }
 
         // Always save to localStorage as cache
+        console.log(`[${timestamp}] [${requestId}] 💾 Sauvegarde localStorage...`);
         ConversationStorage.addMessages(activeConversationId, [convertedMessage]);
 
         // Verify it was saved
         const allMessages = ConversationStorage.getMessages(activeConversationId) || [];
         setLastSaved(new Date());
+        console.log(
+          `[${timestamp}] [${requestId}] 💾 Message sauvegardé, total: ${allMessages.length}`,
+        );
         log("Message saved immediately", {
           messageId: message.id,
           totalMessages: allMessages.length,
         });
 
         // Trigger title generation with debounce (1.5s)
+        console.log(`[${timestamp}] [${requestId}] 💾 Déclenchement génération titre...`);
         triggerTitleGeneration(activeConversationId, allMessages);
+        console.log(`[${timestamp}] [${requestId}] ✅ useAutoSave.addMessage TERMINÉ`);
       } catch (error) {
+        logError(
+          ErrorFactory.storage("Erreur dans addMessage", "Impossible de sauvegarder le message"),
+          {
+            operation: "useAutoSave.addMessage",
+            metadata: { requestId, messageId: message.id, error },
+          },
+        );
         logger.error("Failed to save message immediately", "conversation", error);
         log("Error saving message", { error, messageId: message.id });
       }
