@@ -126,6 +126,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
 
     try {
+      // En mode local, désactiver l'authentification Supabase
+      if (isLocalDevelopment) {
+        const errorMessage = "L'authentification n'est pas disponible en mode développement local. Veuillez configurer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY pour utiliser l'authentification.";
+        logger.warn("Tentative de connexion en mode local", "auth", { email: data.email });
+        setError(errorMessage);
+        return { error: { message: errorMessage } as AuthError };
+      }
+
       const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
@@ -172,6 +180,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
 
     try {
+      // En mode local, désactiver l'authentification Supabase
+      if (isLocalDevelopment) {
+        const errorMessage = "L'inscription n'est pas disponible en mode développement local. Veuillez configurer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY pour utiliser l'authentification.";
+        logger.warn("Tentative d'inscription en mode local", "auth", { email: data.email });
+        setError(errorMessage);
+        return { error: { message: errorMessage } as AuthError };
+      }
+
       const { error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -198,6 +214,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
 
     try {
+      // En mode local, désactiver l'authentification Supabase
+      if (isLocalDevelopment) {
+        const errorMessage = "L'authentification Google n'est pas disponible en mode développement local. Veuillez configurer VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY pour utiliser l'authentification.";
+        logger.warn("Tentative de connexion Google en mode local", "auth");
+        setError(errorMessage);
+        setLoading(false);
+        return { error: { message: errorMessage } as AuthError };
+      }
+
       logger.info("Tentative de connexion Google", "auth");
 
       const { error } = await supabase.auth.signInWithOAuth({
