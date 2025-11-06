@@ -12,12 +12,15 @@ import {
   savePolls,
   type Poll as StoragePoll,
   type FormQuestionShape,
+  getCurrentUserId,
 } from "@/lib/pollStorage";
+import { useAuth } from "@/contexts/AuthContext";
 
 const PollCreator = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { user } = useAuth();
   const params = new URLSearchParams(location.search);
   const isForm = (params.get("type") || "").toLowerCase() === "form";
   const draftIdParam = params.get("draftId") || undefined;
@@ -66,7 +69,7 @@ const PollCreator = () => {
 
     const created: StoragePoll = {
       id: draft.id, // réutiliser l'id du brouillon comme id local
-      creator_id: "anonymous",
+      creator_id: getCurrentUserId(user?.id),
       title: draft.title.trim() || "Sans titre",
       slug: mkSlug(),
       created_at: now,
@@ -112,7 +115,7 @@ const PollCreator = () => {
   // Écran de succès après publication
   if (published && publishedPoll) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-[#0a0a0a] pb-8">
         <div className="pt-20">
           <div className="max-w-2xl mx-auto p-4 sm:p-6">
             <div className="bg-[#3c4043] rounded-lg border border-gray-700 p-8 text-center space-y-6">
@@ -202,7 +205,7 @@ const PollCreator = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-8">
       {isForm ? (
         <FormPollCreator
           initialDraft={latestFormDraft}

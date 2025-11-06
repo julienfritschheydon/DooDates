@@ -159,6 +159,7 @@
     /* Correction focus Android */
     position: relative;
     overflow-x: hidden;
+    overflow-y: auto;
   }
 
   /* Correction spécifique pour Android PWA */

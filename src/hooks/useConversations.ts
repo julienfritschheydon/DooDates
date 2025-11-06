@@ -100,23 +100,99 @@ export function useConversations(config: UseConversationsConfig = {}) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Query keys
-  const queryKeys = {
-    conversations: ["conversations", user?.id || "guest", filters, sortBy, sortOrder] as const,
-    conversation: (id: string) => ["conversation", user?.id || "guest", id] as const,
-    messages: (conversationId: string) =>
-      ["messages", user?.id || "guest", conversationId] as const,
-    infinite: ["conversations-infinite", user?.id || "guest", filters, sortBy, sortOrder] as const,
-  };
+  // Query keys - memoized to prevent unnecessary re-renders
+  const queryKeys = useMemo(
+    () => ({
+      conversations: ["conversations", user?.id || "guest", filters, sortBy, sortOrder] as const,
+      conversation: (id: string) => ["conversation", user?.id || "guest", id] as const,
+      messages: (conversationId: string) =>
+        ["messages", user?.id || "guest", conversationId] as const,
+      infinite: [
+        "conversations-infinite",
+        user?.id || "guest",
+        filters,
+        sortBy,
+        sortOrder,
+      ] as const,
+    }),
+    [user?.id, filters, sortBy, sortOrder],
+  );
 
   // Conversations list query with pagination
   const conversationsQuery = useInfiniteQuery({
     queryKey: queryKeys.infinite,
     queryFn: async ({ pageParam = 0 }) => {
       try {
-        logger.debug("Chargement conversations depuis localStorage", "conversation");
-        const conversations = ConversationStorage.getConversations();
-        logger.debug("Conversations chargées", "conversation", { count: conversations.length });
+        let conversations: Conversation[] = [];
+
+        // If user is logged in, load from Supabase
+        if (user?.id) {
+          try {
+            const { getConversations: getSupabaseConversations } = await import(
+              "../lib/storage/ConversationStorageSupabase"
+            );
+            const supabaseConversations = await getSupabaseConversations(user.id);
+            logger.debug("Conversations chargées depuis Supabase", "conversation", {
+              count: supabaseConversations.length,
+              userId: user.id,
+            });
+
+            // Also get localStorage conversations for merge
+            const localConversations = ConversationStorage.getConversations();
+            logger.debug("Conversations chargées depuis localStorage", "conversation", {
+              count: localConversations.length,
+            });
+
+            // Merge: Supabase is source of truth, but keep local if more recent
+            const mergedMap = new Map<string, Conversation>();
+
+            // Add Supabase conversations first
+            supabaseConversations.forEach((conv) => {
+              mergedMap.set(conv.id, conv);
+            });
+
+            // Add local conversations if they're more recent or not in Supabase
+            localConversations.forEach((localConv) => {
+              if (localConv.userId === user.id) {
+                const existing = mergedMap.get(localConv.id);
+                if (!existing) {
+                  // Not in Supabase, add it
+                  mergedMap.set(localConv.id, localConv);
+                } else {
+                  // Compare timestamps, keep the most recent
+                  const localDate = new Date(localConv.updatedAt).getTime();
+                  const supabaseDate = new Date(existing.updatedAt).getTime();
+                  if (localDate > supabaseDate) {
+                    mergedMap.set(localConv.id, localConv);
+                  }
+                }
+              }
+            });
+
+            conversations = Array.from(mergedMap.values());
+          } catch (supabaseError) {
+            logger.error(
+              "Erreur lors du chargement depuis Supabase, utilisation de localStorage",
+              "conversation",
+              supabaseError,
+            );
+            // Fallback to localStorage
+            conversations = ConversationStorage.getConversations();
+          }
+        } else {
+          // Guest mode: use localStorage only
+          conversations = ConversationStorage.getConversations();
+        }
+
+        logger.debug("Conversations chargées (après merge)", "conversation", {
+          count: conversations.length,
+          currentUserId: user?.id || "guest",
+          conversations: conversations.map((c) => ({
+            id: c.id,
+            title: c.title,
+            userId: c.userId,
+          })),
+        });
 
         // Convertir les dates string en Date objects
         const conversationsWithDates = conversations.map((conv) => ({
@@ -127,6 +203,16 @@ export function useConversations(config: UseConversationsConfig = {}) {
 
         // Apply filters
         let filteredConversations = conversationsWithDates.filter((conv) => {
+          // Filter by user ID: if user is logged in, only show their conversations
+          // If user is guest, only show guest conversations (userId is undefined/null)
+          if (user?.id) {
+            // User is logged in: only show conversations with matching userId
+            if (conv.userId !== user.id) return false;
+          } else {
+            // User is guest: only show guest conversations (no userId)
+            if (conv.userId !== undefined && conv.userId !== null) return false;
+          }
+
           if (filters.status && !filters.status.includes(conv.status)) return false;
           if (filters.isFavorite !== undefined && conv.isFavorite !== filters.isFavorite)
             return false;
@@ -143,6 +229,18 @@ export function useConversations(config: UseConversationsConfig = {}) {
           return true;
         });
 
+        logger.debug("Conversations après filtrage", "conversation", {
+          count: filteredConversations.length,
+          filters,
+          currentUserId: user?.id || "guest",
+          conversations: filteredConversations.map((c) => ({
+            id: c.id,
+            title: c.title,
+            status: c.status,
+            userId: c.userId,
+          })),
+        });
+
         // Apply unified sorting with favorites support
         filteredConversations = sortConversations(filteredConversations, {
           criteria: sortBy === "updatedAt" ? "activity" : sortBy,
@@ -154,6 +252,16 @@ export function useConversations(config: UseConversationsConfig = {}) {
         const start = pageParam * pageSize;
         const end = start + pageSize;
         const paginatedConversations = filteredConversations.slice(start, end);
+
+        logger.debug("Conversations paginées", "conversation", {
+          totalCount: filteredConversations.length,
+          pageParam,
+          pageSize,
+          start,
+          end,
+          paginatedCount: paginatedConversations.length,
+          hasMore: end < filteredConversations.length,
+        });
 
         return {
           conversations: paginatedConversations,
@@ -204,13 +312,57 @@ export function useConversations(config: UseConversationsConfig = {}) {
     (conversationId: string) => {
       const conversationQuery = useQuery({
         queryKey: queryKeys.conversation(conversationId),
-        queryFn: () => ConversationStorage.getConversation(conversationId),
+        queryFn: async () => {
+          if (user?.id) {
+            try {
+              const { getConversation: getSupabaseConversation } = await import(
+                "../lib/storage/ConversationStorageSupabase"
+              );
+              const supabaseConv = await getSupabaseConversation(conversationId, user.id);
+              if (supabaseConv) {
+                // Also cache in localStorage
+                ConversationStorage.updateConversation(supabaseConv);
+                return supabaseConv;
+              }
+            } catch (supabaseError) {
+              logger.error(
+                "Erreur lors du chargement depuis Supabase, utilisation de localStorage",
+                "conversation",
+                supabaseError,
+              );
+            }
+          }
+          // Fallback to localStorage
+          return ConversationStorage.getConversation(conversationId);
+        },
         staleTime: 1000 * 60 * 2,
       });
 
       const messagesQuery = useQuery({
         queryKey: queryKeys.messages(conversationId),
-        queryFn: () => ConversationStorage.getMessages(conversationId),
+        queryFn: async () => {
+          if (user?.id) {
+            try {
+              const { getMessages: getSupabaseMessages } = await import(
+                "../lib/storage/ConversationStorageSupabase"
+              );
+              const supabaseMessages = await getSupabaseMessages(conversationId, user.id);
+              if (supabaseMessages.length > 0) {
+                // Also cache in localStorage
+                ConversationStorage.saveMessages(conversationId, supabaseMessages);
+                return supabaseMessages;
+              }
+            } catch (supabaseError) {
+              logger.error(
+                "Erreur lors du chargement des messages depuis Supabase, utilisation de localStorage",
+                "conversation",
+                supabaseError,
+              );
+            }
+          }
+          // Fallback to localStorage
+          return ConversationStorage.getMessages(conversationId);
+        },
         staleTime: 1000 * 60 * 2,
       });
 
@@ -249,7 +401,32 @@ export function useConversations(config: UseConversationsConfig = {}) {
         },
       };
 
-      // Create conversation using simple storage
+      // Create conversation - save to Supabase if logged in, otherwise localStorage
+      if (user?.id) {
+        try {
+          const { createConversation: createSupabaseConversation } = await import(
+            "../lib/storage/ConversationStorageSupabase"
+          );
+          const conversation = await createSupabaseConversation(
+            {
+              ...conversationData,
+              userId: user.id,
+            },
+            user.id,
+          );
+          // Also save to localStorage as cache
+          ConversationStorage.addConversation(conversation);
+          return conversation;
+        } catch (supabaseError) {
+          logger.error(
+            "Erreur lors de la création dans Supabase, utilisation de localStorage",
+            "conversation",
+            supabaseError,
+          );
+          // Fallback to localStorage
+        }
+      }
+      // Guest mode or fallback: use localStorage
       return ConversationStorage.createConversation({
         title: conversationData.title,
         firstMessage: conversationData.firstMessage,
@@ -351,6 +528,25 @@ export function useConversations(config: UseConversationsConfig = {}) {
         ...finalUpdates,
         updatedAt: new Date(),
       };
+
+      // Save to Supabase if logged in
+      if (user?.id && conversation.userId === user.id) {
+        try {
+          const { updateConversation: updateSupabaseConversation } = await import(
+            "../lib/storage/ConversationStorageSupabase"
+          );
+          await updateSupabaseConversation(updatedConversation, user.id);
+        } catch (supabaseError) {
+          logger.error(
+            "Erreur lors de la mise à jour dans Supabase, utilisation de localStorage",
+            "conversation",
+            supabaseError,
+          );
+          // Continue with localStorage update
+        }
+      }
+
+      // Always update localStorage as cache
       ConversationStorage.updateConversation(updatedConversation);
       return updatedConversation;
     },
@@ -405,6 +601,27 @@ export function useConversations(config: UseConversationsConfig = {}) {
   // Delete conversation mutation
   const deleteConversationMutation = useMutation({
     mutationFn: async (conversationId: string) => {
+      // Get conversation first to check ownership
+      const conversation = ConversationStorage.getConversation(conversationId);
+
+      // Delete from Supabase if logged in and owned by user
+      if (user?.id && conversation?.userId === user.id) {
+        try {
+          const { deleteConversation: deleteSupabaseConversation } = await import(
+            "../lib/storage/ConversationStorageSupabase"
+          );
+          await deleteSupabaseConversation(conversationId, user.id);
+        } catch (supabaseError) {
+          logger.error(
+            "Erreur lors de la suppression dans Supabase, utilisation de localStorage",
+            "conversation",
+            supabaseError,
+          );
+          // Continue with localStorage deletion
+        }
+      }
+
+      // Always delete from localStorage
       ConversationStorage.deleteConversation(conversationId);
       return conversationId;
     },
@@ -474,16 +691,55 @@ export function useConversations(config: UseConversationsConfig = {}) {
         conversationId,
       };
 
+      // Get conversation first to check ownership
+      const conversation = ConversationStorage.getConversation(conversationId);
+
+      // Save to Supabase if logged in and owned by user
+      if (user?.id && conversation?.userId === user.id) {
+        try {
+          const { addMessages: addSupabaseMessages } = await import(
+            "../lib/storage/ConversationStorageSupabase"
+          );
+          await addSupabaseMessages(conversationId, [messageWithId], user.id);
+        } catch (supabaseError) {
+          logger.error(
+            "Erreur lors de l'ajout du message dans Supabase, utilisation de localStorage",
+            "conversation",
+            supabaseError,
+          );
+          // Continue with localStorage
+        }
+      }
+
+      // Always save to localStorage as cache
       ConversationStorage.addMessages(conversationId, [messageWithId]);
 
       // Update conversation message count
-      const conversation = ConversationStorage.getConversation(conversationId);
       if (conversation) {
-        ConversationStorage.updateConversation({
+        const updatedConversation = {
           ...conversation,
           messageCount: conversation.messageCount + 1,
           updatedAt: new Date(),
-        });
+        };
+
+        // Update in Supabase if logged in
+        if (user?.id && conversation.userId === user.id) {
+          try {
+            const { updateConversation: updateSupabaseConversation } = await import(
+              "../lib/storage/ConversationStorageSupabase"
+            );
+            await updateSupabaseConversation(updatedConversation, user.id);
+          } catch (supabaseError) {
+            logger.error(
+              "Erreur lors de la mise à jour du message count dans Supabase",
+              "conversation",
+              supabaseError,
+            );
+          }
+        }
+
+        // Always update localStorage
+        ConversationStorage.updateConversation(updatedConversation);
       }
 
       return messageWithId;
@@ -586,13 +842,10 @@ export function useConversations(config: UseConversationsConfig = {}) {
     };
 
     // Placeholder for real-time subscription setup
-    logger.debug("Real-time sync would be enabled here", "conversation", {
-      userId: user.id,
-    });
+    // Real-time sync will be implemented when Supabase storage is available
 
     return () => {
       // Cleanup real-time subscriptions
-      logger.debug("Real-time sync cleanup", "conversation");
     };
   }, [enableRealtime, user, queryClient, queryKeys]);
 

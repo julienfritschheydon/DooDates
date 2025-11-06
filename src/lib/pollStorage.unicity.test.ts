@@ -101,4 +101,52 @@ describe("addFormResponse normalization and deduplication", () => {
     const latest = stored[0];
     expect(latest.items[0].value).toBe("o2");
   });
+
+  it("should preserve email when replacing response with same name", () => {
+    const poll: Poll = {
+      id: "form-email-dedup",
+      slug: "form-email-dedup",
+      title: "Test Form",
+      type: "form",
+      status: "draft",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      questions: [
+        {
+          id: "q1",
+          kind: "single",
+          title: "Q1",
+          options: [
+            { id: "o1", label: "A" },
+            { id: "o2", label: "B" },
+          ],
+        },
+      ],
+    } as any;
+
+    addPoll(poll);
+
+    // First response with email
+    const r1 = addFormResponse({
+      pollId: poll.id,
+      respondentName: "Bob",
+      respondentEmail: "bob@example.com",
+      items: [{ questionId: "q1", value: "o1" }],
+    });
+
+    // Second response with same name but different email (should replace)
+    const r2 = addFormResponse({
+      pollId: poll.id,
+      respondentName: "bob", // same person
+      respondentEmail: "bob.new@example.com",
+      items: [{ questionId: "q1", value: "o2" }],
+    });
+
+    expect(r2.id).toBe(r1.id); // Same ID = replaced
+    expect(r2.respondentEmail).toBe("bob.new@example.com");
+
+    const stored = getFormResponses(poll.id);
+    expect(stored.length).toBe(1);
+    expect(stored[0].respondentEmail).toBe("bob.new@example.com");
+  });
 });

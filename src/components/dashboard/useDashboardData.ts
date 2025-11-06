@@ -1,25 +1,117 @@
 import { useState, useEffect } from "react";
 import { DashboardPoll, ConversationItem } from "./types";
-import { getAllPolls, getFormResponses, getRespondentId, getVoterId } from "@/lib/pollStorage";
+import {
+  getAllPolls,
+  getFormResponses,
+  getRespondentId,
+  getVoterId,
+  getCurrentUserId,
+} from "@/lib/pollStorage";
 import { getConversations } from "@/lib/storage/ConversationStorageSimple";
 import { logError, ErrorFactory } from "@/lib/error-handling";
+import { useAuth } from "@/contexts/AuthContext";
+import { logger } from "@/lib/logger";
 
 export function useDashboardData(refreshKey: number) {
   const [conversationItems, setConversationItems] = useState<ConversationItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     loadData();
-  }, [refreshKey]);
+  }, [refreshKey, user?.id]);
 
   const loadData = async () => {
     setLoading(true);
     try {
       // Récupérer les conversations
-      const conversations = getConversations();
+      const allConversations = getConversations();
+      logger.info("🔍 Dashboard - Conversations brutes", "dashboard", {
+        count: allConversations.length,
+        conversations: allConversations.map(c => ({
+          id: c.id,
+          title: c.title,
+          userId: c.userId,
+          pollId: (c as any).pollId || (c as any).metadata?.pollId,
+        })),
+      });
 
       // Récupérer les polls avec statistiques
-      const localPolls = getAllPolls();
+      const allPolls = getAllPolls();
+      logger.info("🔍 Dashboard - Polls bruts", "dashboard", {
+        count: allPolls.length,
+        polls: allPolls.map(p => ({
+          id: p.id,
+          title: p.title,
+          creator_id: p.creator_id,
+        })),
+      });
+
+      // Filtrer les polls pour ne garder que ceux du créateur actuel
+      const currentUserId = getCurrentUserId(user?.id);
+      logger.info("🔍 Dashboard - User ID pour filtrage", "dashboard", {
+        userAuthId: user?.id,
+        currentUserId,
+        isGuest: !user?.id,
+      });
+      
+      // Filtrer strictement par creator_id pour éviter qu'un utilisateur non loggé voie les sondages d'un autre
+      const localPolls = allPolls.filter((poll) => {
+        if (user?.id) {
+          // Mode connecté : seulement les polls du créateur authentifié
+          return poll.creator_id === user.id;
+        } else {
+          // Mode invité : SEULEMENT les polls avec le device ID actuel
+          // Ne pas accepter "anonymous", undefined ou null pour éviter les fuites de données
+          return poll.creator_id === currentUserId;
+        }
+      });
+      logger.info("🔍 Dashboard - Polls filtrés", "dashboard", {
+        count: localPolls.length,
+        polls: localPolls.map(p => ({
+          id: p.id,
+          title: p.title,
+          creator_id: p.creator_id,
+        })),
+      });
+
+      // Filtrer les conversations pour ne garder que celles du créateur actuel
+      // Si connecté : garder celles avec userId === user.id
+      // Si invité : garder celles avec userId === "guest" ou undefined (rétrocompatibilité)
+      const conversations = allConversations.filter((conv) => {
+        if (user?.id) {
+          // Mode connecté : garder seulement les conversations de l'utilisateur
+          const matches = conv.userId === user.id;
+          if (!matches) {
+            logger.debug("🔍 Dashboard - Conversation exclue (mode connecté)", "dashboard", {
+              convId: conv.id,
+              convUserId: conv.userId,
+              userAuthId: user.id,
+            });
+          }
+          return matches;
+        } else {
+          // Mode invité : garder seulement les conversations invitées
+          const matches = conv.userId === "guest" || conv.userId === undefined;
+          if (!matches) {
+            logger.debug("🔍 Dashboard - Conversation exclue (mode invité)", "dashboard", {
+              convId: conv.id,
+              convUserId: conv.userId,
+            });
+          }
+          return matches;
+        }
+      });
+      
+      logger.info("🔍 Dashboard - Conversations filtrées", "dashboard", {
+        count: conversations.length,
+        conversations: conversations.map(c => ({
+          id: c.id,
+          title: c.title,
+          userId: c.userId,
+          pollId: (c as any).pollId || (c as any).metadata?.pollId,
+        })),
+      });
 
       // Parser les votes une seule fois et créer un index par poll_id pour éviter les filtres répétés
       const votesRaw = localStorage.getItem("dev-votes");
@@ -101,22 +193,56 @@ export function useDashboardData(refreshKey: number) {
       });
 
       // Créer les items unifiés
-      const items: ConversationItem[] = conversations.map((conv) => {
-        const metadata = conv.metadata as any;
+      // Filtrer aussi les conversations liées à des polls qui ne sont pas du créateur actuel
+      const items: ConversationItem[] = conversations
+        .map((conv) => {
+          const metadata = conv.metadata as any;
 
-        // Chercher le poll associé via pollId (directement sur conv ou dans metadata)
-        const pollId = (conv as any).pollId || metadata?.pollId;
-        const relatedPoll = pollId ? pollsWithStats.find((p) => p.id === pollId) : undefined;
+          // Chercher le poll associé via pollId (directement sur conv ou dans metadata)
+          const pollId = (conv as any).pollId || metadata?.pollId;
+          const relatedPoll = pollId ? pollsWithStats.find((p) => p.id === pollId) : undefined;
 
-        return {
-          id: conv.id,
-          conversationTitle: conv.title || "Conversation sans titre",
-          conversationDate: new Date(conv.updatedAt || conv.createdAt || Date.now()),
-          poll: relatedPoll,
-          hasAI: !!metadata?.pollGenerated,
-          tags: conv.tags || [],
-          folderId: metadata?.folderId,
-        };
+          logger.debug("🔍 Dashboard - Mapping conversation", "dashboard", {
+            convId: conv.id,
+            convTitle: conv.title,
+            pollId,
+            hasRelatedPoll: !!relatedPoll,
+            relatedPollId: relatedPoll?.id,
+            relatedPollTitle: relatedPoll?.title,
+          });
+
+          // Si la conversation est liée à un poll, vérifier que le poll appartient au créateur actuel
+          if (pollId && !relatedPoll) {
+            // La conversation est liée à un poll qui n'appartient pas au créateur actuel
+            logger.debug("🔍 Dashboard - Conversation exclue (poll non trouvé)", "dashboard", {
+              convId: conv.id,
+              pollId,
+              availablePollIds: pollsWithStats.map(p => p.id),
+            });
+            return null;
+          }
+
+          return {
+            id: conv.id,
+            conversationTitle: conv.title || "Conversation sans titre",
+            conversationDate: new Date(conv.updatedAt || conv.createdAt || Date.now()),
+            poll: relatedPoll,
+            hasAI: !!metadata?.pollGenerated,
+            tags: conv.tags || [],
+            folderId: metadata?.folderId,
+          } as ConversationItem;
+        })
+        .filter((item): item is ConversationItem => item !== null); // Filtrer les null
+
+      logger.info("🔍 Dashboard - Items finaux", "dashboard", {
+        count: items.length,
+        items: items.map(i => ({
+          id: i.id,
+          title: i.conversationTitle,
+          hasPoll: !!i.poll,
+          pollId: i.poll?.id,
+          pollTitle: i.poll?.title,
+        })),
       });
 
       // Trier par date (plus récent en premier)

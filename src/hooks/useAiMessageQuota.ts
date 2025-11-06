@@ -72,6 +72,47 @@ const STORAGE_KEY = "doodates_ai_quota";
 const POLL_COUNT_KEY = "doodates_poll_counts";
 
 /**
+ * Fonction pure pour gérer le reset mensuel du quota
+ * Testable indépendamment de React
+ */
+export function processMonthlyQuotaReset(
+  currentQuotaData: AiMessageQuotaData,
+  isGuest: boolean,
+): AiMessageQuotaData | null {
+  // Pas de reset pour les guests
+  if (isGuest) {
+    return null;
+  }
+
+  // Si resetDate existe, vérifier si on doit reset
+  if (currentQuotaData.resetDate) {
+    const resetDate = new Date(currentQuotaData.resetDate);
+    const now = new Date();
+
+    // Reset si on a dépassé le mois
+    if (now > resetDate) {
+      const nextReset = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      return {
+        aiMessagesUsed: 0,
+        lastMessageTimestamp: 0,
+        resetDate: nextReset.toISOString(),
+      };
+    }
+  } else {
+    // Initialiser date de reset pour auth users
+    const nextReset = new Date();
+    nextReset.setMonth(nextReset.getMonth() + 1);
+    nextReset.setDate(1);
+    return {
+      ...currentQuotaData,
+      resetDate: nextReset.toISOString(),
+    };
+  }
+
+  return null; // Pas de changement nécessaire
+}
+
+/**
  * Hook pour gérer le quota de messages IA
  */
 export function useAiMessageQuota(currentConversationId?: string): AiMessageQuota {
@@ -113,30 +154,12 @@ export function useAiMessageQuota(currentConversationId?: string): AiMessageQuot
 
   // Vérifier reset mensuel pour auth users
   useEffect(() => {
-    if (!isGuest && quotaData.resetDate) {
-      const resetDate = new Date(quotaData.resetDate);
-      const now = new Date();
-
-      // Reset si on a dépassé le mois
-      if (now > resetDate) {
-        const nextReset = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-        setQuotaData({
-          aiMessagesUsed: 0,
-          lastMessageTimestamp: 0,
-          resetDate: nextReset.toISOString(),
-        });
-      }
-    } else if (!isGuest && !quotaData.resetDate) {
-      // Initialiser date de reset pour auth users
-      const nextReset = new Date();
-      nextReset.setMonth(nextReset.getMonth() + 1);
-      nextReset.setDate(1);
-      setQuotaData((prev) => ({
-        ...prev,
-        resetDate: nextReset.toISOString(),
-      }));
+    const updatedQuota = processMonthlyQuotaReset(quotaData, isGuest);
+    if (updatedQuota) {
+      setQuotaData(updatedQuota);
     }
-  }, [isGuest, quotaData.resetDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGuest, quotaData.resetDate, quotaData.aiMessagesUsed]);
 
   // Sauvegarder dans localStorage
   useEffect(() => {

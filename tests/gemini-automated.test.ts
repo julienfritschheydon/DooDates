@@ -1,9 +1,6 @@
 /**
  * Tests Automatisés Gemini - Suite Complète
  * Validation de l'IA conversationnelle avec métriques de qualité
- * 
- * ⚠️ TESTS DÉSACTIVÉS - API Gemini temporairement indisponible
- * Ces tests seront réactivés une fois l'API Gemini stabilisée
  */
 
 import { GeminiService } from '../src/lib/gemini';
@@ -12,9 +9,16 @@ interface TestCase {
   id: number;
   category: string;
   input: string;
-  expectedType: string;
+  expectedType: string; // 'date' | 'datetime' | 'form'
+  // Pour Date Polls
   expectedDayConstraints?: string[];
   expectedTimeConstraints?: { start?: string; end?: string };
+  // Pour Form Polls
+  expectedQuestionTypes?: string[]; // Types de questions attendus (single, multiple, text, rating, nps, matrix)
+  minQuestions?: number;
+  maxQuestions?: number;
+  expectedValidationTypes?: string[]; // email, phone, url, etc.
+  // Commun
   requiredWords?: string[];
   weight: number;
 }
@@ -25,13 +29,19 @@ interface TestResult {
   score: number;
   details: string;
   response?: any;
+  scoreBreakdown?: {
+    type: { passed: boolean; expected: string; actual: string };
+    dayConstraints: { passed: boolean; score: number; expected?: string[]; actual?: string[] };
+    timeConstraints: { passed: boolean; score: number; expected?: { start?: string; end?: string }; actual?: any };
+    requiredWords: { passed: boolean; score: number; expected?: string[]; found?: string[]; missing?: string[] };
+  };
 }
 
-describe.skip('Tests Automatisés Gemini', () => {
+describe('Tests Automatisés Gemini', () => {
   let geminiService: GeminiService;
   const testResults: TestResult[] = [];
 
-  // 15 cas de tests définis selon les spécifications
+  // Tests Gemini : Date Polls + Form Polls
   const testCases: TestCase[] = [
     // Tests prompts IA - Réunions (5 tests)
     {
@@ -175,11 +185,125 @@ describe.skip('Tests Automatisés Gemini', () => {
     {
       id: 15,
       category: 'Formations',
-      input: 'Trouve un créneau pour une formation Excel cette semaine',
+      input: 'Trouve un créneau horaire pour une formation Excel cette semaine entre 8h et 18h',
       expectedType: 'datetime',
       expectedDayConstraints: ['semaine'],
       expectedTimeConstraints: { start: '08:00', end: '18:00' },
       requiredWords: ['formation', 'Excel'],
+      weight: 4
+    },
+
+    // Tests prompts IA - Form Polls (Questionnaires) - 10 tests
+    {
+      id: 16,
+      category: 'Form Polls - Simples',
+      input: 'Crée un questionnaire de satisfaction client avec au moins 3 questions : une question à choix unique, une à choix multiples, et une question de réponse libre',
+      expectedType: 'form',
+      expectedQuestionTypes: ['single', 'multiple', 'text'],
+      minQuestions: 3,
+      maxQuestions: 10,
+      requiredWords: ['satisfaction', 'client'],
+      weight: 4
+    },
+    {
+      id: 17,
+      category: 'Form Polls - Simples',
+      input: 'Fais un sondage d\'opinion sur notre nouveau produit',
+      expectedType: 'form',
+      expectedQuestionTypes: ['single', 'multiple'],
+      minQuestions: 3,
+      maxQuestions: 8,
+      requiredWords: ['produit'],
+      weight: 4
+    },
+    {
+      id: 18,
+      category: 'Form Polls - Rating',
+      input: 'Crée un questionnaire avec des notes de 1 à 5 pour évaluer notre service',
+      expectedType: 'form',
+      expectedQuestionTypes: ['rating'],
+      minQuestions: 1,
+      maxQuestions: 10,
+      requiredWords: ['service'],
+      weight: 4
+    },
+    {
+      id: 19,
+      category: 'Form Polls - NPS',
+      input: 'Crée un questionnaire avec une question de type NPS (Net Promoter Score) demandant la probabilité de recommandation de notre service sur une échelle de 0 à 10',
+      expectedType: 'form',
+      expectedQuestionTypes: ['nps'],
+      minQuestions: 1,
+      maxQuestions: 5,
+      requiredWords: ['recommandation'],
+      weight: 4
+    },
+    {
+      id: 20,
+      category: 'Form Polls - Matrix',
+      input: 'Crée une matrice d\'évaluation pour noter la qualité, le prix et le service',
+      expectedType: 'form',
+      expectedQuestionTypes: ['matrix'],
+      minQuestions: 1,
+      maxQuestions: 5,
+      requiredWords: ['qualité', 'prix', 'service'],
+      weight: 4
+    },
+    {
+      id: 21,
+      category: 'Form Polls - Validation',
+      input: 'Crée un formulaire de contact avec validation email et téléphone',
+      expectedType: 'form',
+      expectedQuestionTypes: ['text'],
+      expectedValidationTypes: ['email', 'phone'],
+      minQuestions: 2,
+      maxQuestions: 8,
+      requiredWords: ['contact'],
+      weight: 4
+    },
+    {
+      id: 22,
+      category: 'Form Polls - Mix Types',
+      input: 'Crée un questionnaire complet avec choix unique, choix multiples et réponse libre',
+      expectedType: 'form',
+      expectedQuestionTypes: ['single', 'multiple', 'text'],
+      minQuestions: 3,
+      maxQuestions: 10,
+      requiredWords: [],
+      weight: 4
+    },
+    {
+      id: 23,
+      category: 'Form Polls - Event',
+      input: 'Crée un questionnaire pour recueillir les préférences des participants : type de nourriture préféré, horaire préféré, et allergies alimentaires',
+      expectedType: 'form',
+      expectedQuestionTypes: ['single', 'multiple', 'text'],
+      minQuestions: 3,
+      maxQuestions: 8,
+      requiredWords: [],
+      weight: 4
+    },
+    {
+      id: 24,
+      category: 'Form Polls - Feedback',
+      input: 'Crée un formulaire de feedback avec évaluation par étoiles et commentaires',
+      expectedType: 'form',
+      expectedQuestionTypes: ['rating', 'text'],
+      minQuestions: 2,
+      maxQuestions: 6,
+      requiredWords: ['feedback'],
+      weight: 4
+    },
+    {
+      id: 25,
+      category: 'Form Polls - Complex',
+      input: 'Crée un questionnaire d\'enquête client avec : une matrice d\'évaluation pour noter plusieurs aspects, des questions de choix multiples avec maximum 3 réponses, et une question email avec validation',
+      expectedType: 'form',
+      expectedQuestionTypes: ['matrix', 'multiple', 'text'],
+      expectedValidationTypes: ['email'],
+      minQuestions: 3,
+      maxQuestions: 10,
+      requiredWords: ['client'],
       weight: 4
     }
   ];
@@ -202,7 +326,7 @@ describe.skip('Tests Automatisés Gemini', () => {
       
       expect(result.passed).toBe(true);
       expect(result.score).toBeGreaterThanOrEqual(2.8); // 70% minimum par test
-    }, 30000);
+    }, 45000); // 45s pour Form Polls (plus complexes)
   });
 
   async function runSingleTest(testCase: TestCase): Promise<TestResult> {
@@ -218,15 +342,69 @@ describe.skip('Tests Automatisés Gemini', () => {
         };
       }
 
-      const score = calculateTestScore(testCase, response.data);
-      const passed = score >= 2.8; // 70% du score max (4 points)
+      const { totalScore, breakdown } = calculateTestScore(testCase, response.data);
+      const passed = totalScore >= 2.8; // 70% du score max (4 points)
+
+      // Construire les détails pour les échecs
+      let details = `Score: ${totalScore.toFixed(1)}/4 - ${passed ? 'RÉUSSI' : 'ÉCHEC'}`;
+      if (!passed && breakdown) {
+        const failures: string[] = [];
+        if (!breakdown.type.passed) failures.push(`Type: attendu "${breakdown.type.expected}" mais obtenu "${breakdown.type.actual}"`);
+        
+        // Détails spécifiques Date Polls
+        if (testCase.expectedType !== 'form') {
+          if (!breakdown.dayConstraints.passed && testCase.expectedDayConstraints) {
+            failures.push(`Jours: ${breakdown.dayConstraints.score.toFixed(1)}/1 (attendu: ${testCase.expectedDayConstraints.join(', ')})`);
+          }
+          if (!breakdown.timeConstraints.passed && testCase.expectedTimeConstraints) {
+            failures.push(`Horaires: ${breakdown.timeConstraints.score.toFixed(1)}/1`);
+          }
+        }
+        
+        // Détails spécifiques Form Polls
+        if (testCase.expectedType === 'form' && response.data && response.data.type === 'form') {
+          const formData = response.data as { questions?: any[] };
+          const questionsCount = formData.questions?.length || 0;
+          if (testCase.minQuestions && questionsCount < testCase.minQuestions) {
+            failures.push(`Questions: ${questionsCount} (minimum attendu: ${testCase.minQuestions})`);
+          }
+          if (testCase.maxQuestions && questionsCount > testCase.maxQuestions) {
+            failures.push(`Questions: ${questionsCount} (maximum attendu: ${testCase.maxQuestions})`);
+          }
+          if (testCase.expectedQuestionTypes && testCase.expectedQuestionTypes.length > 0) {
+            const actualTypes = formData.questions?.map((q: any) => q.type).filter(Boolean) || [];
+            const uniqueActualTypes = [...new Set(actualTypes)];
+            const missingTypes = testCase.expectedQuestionTypes.filter(t => !uniqueActualTypes.includes(t));
+            if (missingTypes.length > 0) {
+              failures.push(`Types de questions manquants: ${missingTypes.join(', ')} (obtenus: ${uniqueActualTypes.join(', ') || 'aucun'})`);
+            }
+          }
+          if (testCase.expectedValidationTypes && testCase.expectedValidationTypes.length > 0) {
+            const questionsWithValidation = formData.questions?.filter((q: any) => 
+              q.validationType && testCase.expectedValidationTypes?.includes(q.validationType)
+            ) || [];
+            if (questionsWithValidation.length === 0) {
+              failures.push(`Validations attendues manquantes: ${testCase.expectedValidationTypes.join(', ')}`);
+            }
+          }
+        }
+        
+        if (!breakdown.requiredWords.passed && testCase.requiredWords) {
+          const missing = breakdown.requiredWords.missing || [];
+          if (missing.length > 0) failures.push(`Mots-clés manquants: ${missing.join(', ')}`);
+        }
+        if (failures.length > 0) {
+          details += `\n  - ${failures.join('\n  - ')}`;
+        }
+      }
 
       return {
         testId: testCase.id,
         passed,
-        score,
-        details: `Score: ${score}/4 - ${passed ? 'RÉUSSI' : 'ÉCHEC'}`,
-        response: response.data
+        score: totalScore,
+        details,
+        response: response.data,
+        scoreBreakdown: breakdown
       };
 
     } catch (error) {
@@ -239,38 +417,163 @@ describe.skip('Tests Automatisés Gemini', () => {
     }
   }
 
-  function calculateTestScore(testCase: TestCase, response: any): number {
+  function calculateTestScore(testCase: TestCase, response: any): { totalScore: number; breakdown: NonNullable<TestResult['scoreBreakdown']> } {
     let score = 0;
     const maxScore = testCase.weight;
 
     // 1. Validation du type (1 point)
-    if (response.type === testCase.expectedType) {
+    const typePassed = response.type === testCase.expectedType;
+    if (typePassed) {
       score += 1;
     }
 
-    // 2. Validation des contraintes de jours (1 point)
-    if (testCase.expectedDayConstraints) {
-      const dayScore = validateDayConstraints(testCase, response);
-      score += dayScore;
-    } else {
-      score += 1; // Pas de contrainte = point accordé
-    }
+    // Logique différente selon le type de poll
+    if (testCase.expectedType === 'form') {
+      // VALIDATION FORM POLLS
+      let dayConstraints: NonNullable<TestResult['scoreBreakdown']>['dayConstraints'] = { passed: true, score: 1 };
+      let timeConstraints: NonNullable<TestResult['scoreBreakdown']>['timeConstraints'] = { passed: true, score: 1 };
 
-    // 3. Validation des contraintes horaires (1 point)
-    if (testCase.expectedTimeConstraints) {
-      const timeScore = validateTimeConstraints(testCase, response);
-      score += timeScore;
-    } else {
-      score += 1; // Pas de contrainte = point accordé
-    }
+      // 2. Validation nombre de questions (1 point)
+      const questionsCount = response.questions?.length || 0;
+      let questionsScore = 1;
+      if (testCase.minQuestions || testCase.maxQuestions) {
+        const minOk = testCase.minQuestions ? questionsCount >= testCase.minQuestions : true;
+        const maxOk = testCase.maxQuestions ? questionsCount <= testCase.maxQuestions : true;
+        questionsScore = (minOk && maxOk) ? 1 : (minOk ? 0.5 : 0);
+      }
+      score += questionsScore;
 
-    // 4. Validation du contenu du titre (1 point)
-    if (testCase.requiredWords) {
-      const contentScore = validateRequiredWords(testCase, response);
+      // 3. Validation types de questions (1 point)
+      let questionTypesScore = 1;
+      if (testCase.expectedQuestionTypes && testCase.expectedQuestionTypes.length > 0) {
+        const actualTypes = response.questions?.map((q: any) => q.type).filter(Boolean) || [];
+        const uniqueActualTypes = [...new Set(actualTypes)];
+        const foundTypes = testCase.expectedQuestionTypes.filter(expectedType => 
+          uniqueActualTypes.includes(expectedType)
+        );
+        questionTypesScore = foundTypes.length / testCase.expectedQuestionTypes.length;
+      }
+      score += questionTypesScore;
+
+      // 4. Validation validationTypes (email, phone, etc.) - 0.5 point
+      let validationScore = 0.5;
+      if (testCase.expectedValidationTypes && testCase.expectedValidationTypes.length > 0) {
+        const questionsWithValidation = response.questions?.filter((q: any) => 
+          q.validationType && testCase.expectedValidationTypes?.includes(q.validationType)
+        ) || [];
+        validationScore = questionsWithValidation.length > 0 ? 0.5 : 0;
+      }
+      score += validationScore;
+
+      // 5. Validation mots-clés dans le titre (0.5 point)
+      let contentScore = 0.5;
+      let requiredWords: NonNullable<TestResult['scoreBreakdown']>['requiredWords'];
+      if (testCase.requiredWords && testCase.requiredWords.length > 0) {
+        const title = (response.title || '').toLowerCase();
+        const found = testCase.requiredWords.filter(w => title.includes(w.toLowerCase()));
+        const missing = testCase.requiredWords.filter(w => !title.includes(w.toLowerCase()));
+        contentScore = found.length / testCase.requiredWords.length * 0.5;
+        requiredWords = {
+          passed: contentScore >= 0.4,
+          score: contentScore * 2, // Normaliser sur 1 pour l'affichage
+          expected: testCase.requiredWords,
+          found: found,
+          missing: missing
+        };
+      } else {
+        requiredWords = { passed: true, score: 1 };
+        contentScore = 0.5;
+      }
       score += contentScore;
-    }
 
-    return Math.min(score, maxScore);
+      return {
+        totalScore: Math.min(score, maxScore),
+        breakdown: {
+          type: {
+            passed: typePassed,
+            expected: testCase.expectedType,
+            actual: response.type || 'N/A'
+          },
+          dayConstraints,
+          timeConstraints,
+          requiredWords
+        }
+      };
+    } else {
+      // VALIDATION DATE POLLS (logique existante)
+      // 2. Validation des contraintes de jours (1 point)
+      let dayScore = 1;
+      let dayConstraints: NonNullable<TestResult['scoreBreakdown']>['dayConstraints'];
+      if (testCase.expectedDayConstraints) {
+        dayScore = validateDayConstraints(testCase, response);
+        const actualDays = response.dates?.map((d: string) => {
+          const date = new Date(d);
+          const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+          return dayNames[date.getDay()];
+        }) || [];
+        dayConstraints = {
+          passed: dayScore >= 0.8,
+          score: dayScore,
+          expected: testCase.expectedDayConstraints,
+          actual: actualDays
+        };
+        score += dayScore;
+      } else {
+        dayConstraints = { passed: true, score: 1 };
+        score += 1; // Pas de contrainte = point accordé
+      }
+
+      // 3. Validation des contraintes horaires (1 point)
+      let timeScore = 1;
+      let timeConstraints: NonNullable<TestResult['scoreBreakdown']>['timeConstraints'];
+      if (testCase.expectedTimeConstraints) {
+        timeScore = validateTimeConstraints(testCase, response);
+        timeConstraints = {
+          passed: timeScore >= 0.8,
+          score: timeScore,
+          expected: testCase.expectedTimeConstraints,
+          actual: response.timeSlots
+        };
+        score += timeScore;
+      } else {
+        timeConstraints = { passed: true, score: 1 };
+        score += 1; // Pas de contrainte = point accordé
+      }
+
+      // 4. Validation du contenu du titre (1 point)
+      let contentScore = 1;
+      let requiredWords: NonNullable<TestResult['scoreBreakdown']>['requiredWords'];
+      if (testCase.requiredWords) {
+        contentScore = validateRequiredWords(testCase, response);
+        const title = (response.title || '').toLowerCase();
+        const found = testCase.requiredWords.filter(w => title.includes(w.toLowerCase()));
+        const missing = testCase.requiredWords.filter(w => !title.includes(w.toLowerCase()));
+        requiredWords = {
+          passed: contentScore >= 0.8,
+          score: contentScore,
+          expected: testCase.requiredWords,
+          found: found,
+          missing: missing
+        };
+        score += contentScore;
+      } else {
+        requiredWords = { passed: true, score: 1 };
+      }
+
+      return {
+        totalScore: Math.min(score, maxScore),
+        breakdown: {
+          type: {
+            passed: typePassed,
+            expected: testCase.expectedType,
+            actual: response.type || 'N/A'
+          },
+          dayConstraints,
+          timeConstraints,
+          requiredWords
+        }
+      };
+    }
   }
 
   function validateDayConstraints(testCase: TestCase, response: any): number {
@@ -344,7 +647,8 @@ describe.skip('Tests Automatisés Gemini', () => {
     console.log('='.repeat(60));
     console.log(`Score final: ${totalScore}/${maxPossibleScore} (${percentage}%)`);
     console.log(`Tests réussis: ${passedTests}/${totalTests}`);
-    console.log(`Objectif minimum: 42/60 (70%) - ${percentage >= 70 ? '✅ ATTEINT' : '❌ NON ATTEINT'}`);
+    const minScore = Math.round(maxPossibleScore * 0.7);
+    console.log(`Objectif minimum: ${minScore}/${maxPossibleScore} (70%) - ${percentage >= 70 ? '✅ ATTEINT' : '❌ NON ATTEINT'}`);
 
     // Générer le rapport Markdown
     const reportPath = 'tests/reports/gemini-test-report.md';
@@ -381,7 +685,97 @@ describe.skip('Tests Automatisés Gemini', () => {
     for (const result of results) {
       const testCase = testCases.find(t => t.id === result.testId);
       const status = result.passed ? '✅' : '❌';
-      reportContent += `| ${result.testId} | ${testCase?.category || 'N/A'} | ${result.score}/4 | ${status} | ${result.details} |\n`;
+      reportContent += `| ${result.testId} | ${testCase?.category || 'N/A'} | ${result.score.toFixed(1)}/4 | ${status} | ${result.details.split('\n')[0]} |\n`;
+    }
+    
+    // Section détaillée pour les tests en échec
+    const failedTests = results.filter(r => !r.passed);
+    if (failedTests.length > 0) {
+      reportContent += `\n## 🔍 Analyse des Échecs\n\n`;
+      for (const result of failedTests) {
+        const testCase = testCases.find(t => t.id === result.testId);
+        reportContent += `### Test ${result.testId}: ${testCase?.category} - ${testCase?.input}\n\n`;
+        reportContent += `**Score:** ${result.score.toFixed(1)}/4\n\n`;
+        
+        if (result.scoreBreakdown) {
+          const b = result.scoreBreakdown;
+          reportContent += `**Détails des critères:**\n\n`;
+          
+          // Type
+          reportContent += `- **Type:** ${b.type.passed ? '✅' : '❌'} `;
+          reportContent += `Attendu: \`${b.type.expected}\`, Obtenu: \`${b.type.actual}\`\n`;
+          
+          // Contraintes de jours
+          if (testCase?.expectedDayConstraints) {
+            reportContent += `- **Jours:** ${b.dayConstraints.passed ? '✅' : '❌'} `;
+            reportContent += `Score: ${b.dayConstraints.score.toFixed(1)}/1\n`;
+            reportContent += `  - Attendu: ${b.dayConstraints.expected?.join(', ')}\n`;
+            reportContent += `  - Obtenu: ${b.dayConstraints.actual?.join(', ') || 'Aucune date'}\n`;
+          }
+          
+          // Contraintes horaires
+          if (testCase?.expectedTimeConstraints) {
+            reportContent += `- **Horaires:** ${b.timeConstraints.passed ? '✅' : '❌'} `;
+            reportContent += `Score: ${b.timeConstraints.score.toFixed(1)}/1\n`;
+          }
+          
+          // Form Polls spécifiques
+          if (testCase?.expectedType === 'form' && result.response && result.response.type === 'form') {
+            const formData = result.response as { questions?: any[] };
+            const questionsCount = formData.questions?.length || 0;
+            reportContent += `- **Nombre de questions:** ${questionsCount}`;
+            if (testCase.minQuestions || testCase.maxQuestions) {
+              reportContent += ` (attendu: ${testCase.minQuestions || '?'}-${testCase.maxQuestions || '?'})`;
+            }
+            reportContent += `\n`;
+            
+            if (testCase.expectedQuestionTypes && testCase.expectedQuestionTypes.length > 0) {
+              const actualTypes = formData.questions?.map((q: any) => q.type).filter(Boolean) || [];
+              const uniqueActualTypes = [...new Set(actualTypes)];
+              const foundTypes = testCase.expectedQuestionTypes.filter(t => uniqueActualTypes.includes(t));
+              const missingTypes = testCase.expectedQuestionTypes.filter(t => !uniqueActualTypes.includes(t));
+              reportContent += `- **Types de questions:** `;
+              if (foundTypes.length > 0) {
+                reportContent += `✅ Trouvés: ${foundTypes.join(', ')}`;
+              }
+              if (missingTypes.length > 0) {
+                reportContent += ` ❌ Manquants: ${missingTypes.join(', ')}`;
+              }
+              reportContent += ` (obtenus: ${uniqueActualTypes.join(', ') || 'aucun'})\n`;
+            }
+            
+            if (testCase.expectedValidationTypes && testCase.expectedValidationTypes.length > 0) {
+              const questionsWithValidation = formData.questions?.filter((q: any) => 
+                q.validationType && testCase.expectedValidationTypes?.includes(q.validationType)
+              ) || [];
+              reportContent += `- **Validations:** ${questionsWithValidation.length > 0 ? '✅' : '❌'} `;
+              if (questionsWithValidation.length === 0) {
+                reportContent += `Attendues: ${testCase.expectedValidationTypes.join(', ')} mais aucune trouvée\n`;
+              } else {
+                reportContent += `Trouvées: ${questionsWithValidation.map((q: any) => q.validationType).join(', ')}\n`;
+              }
+            }
+          }
+          
+          // Mots-clés
+          if (testCase?.requiredWords) {
+            reportContent += `- **Mots-clés:** ${b.requiredWords.passed ? '✅' : '❌'} `;
+            reportContent += `Score: ${b.requiredWords.score.toFixed(1)}/1\n`;
+            if (b.requiredWords.found && b.requiredWords.found.length > 0) {
+              reportContent += `  - Trouvés: ${b.requiredWords.found.join(', ')}\n`;
+            }
+            if (b.requiredWords.missing && b.requiredWords.missing.length > 0) {
+              reportContent += `  - ❌ Manquants: ${b.requiredWords.missing.join(', ')}\n`;
+            }
+          }
+        }
+        
+        if (result.response) {
+          reportContent += `\n**Réponse API:**\n\`\`\`json\n${JSON.stringify(result.response, null, 2)}\n\`\`\`\n\n`;
+        }
+        
+        reportContent += `---\n\n`;
+      }
     }
     
     reportContent += `\n## 📈 Recommandations\n\n`;

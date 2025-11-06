@@ -129,13 +129,79 @@ test.describe('DooDates - Test Ultra Simple', () => {
       await robustClick(finalizeBtn);
       console.log('✅ Bouton "Finaliser" cliqué');
 
-      // Aller au dashboard
-      await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-      await expect(page).toHaveURL(/.*\/dashboard/);
-      console.log('✅ Navigation vers /dashboard');
+      // Attendre l'écran de succès qui apparaît après la finalisation
+      await expect(page.getByText(/Sondage publié !/i)).toBeVisible({ timeout: 15000 });
+      console.log('✅ Écran de succès affiché');
+      
+      // Prendre une photo après la finalisation
+      await page.screenshot({ path: 'test-results/after-finalization.png', fullPage: true });
+      console.log('📸 Photo prise après finalisation: test-results/after-finalization.png');
 
+      // Cliquer sur le bouton "Aller au Tableau de bord" depuis l'écran de succès
+      const dashboardLink = page.getByRole('link', { name: /Aller au Tableau de bord/i });
+      await expect(dashboardLink).toBeVisible({ timeout: 5000 });
+      await robustClick(dashboardLink);
+      console.log('✅ Bouton "Aller au Tableau de bord" cliqué');
+
+      // Vérifier qu'on est bien sur le dashboard
+      await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 10000 });
+      console.log('✅ Navigation vers /dashboard confirmée');
+
+      // Attendre que le dashboard charge les données
+      await page.waitForLoadState('networkidle');
+      
+      // Attendre un peu pour que le dashboard charge les données
+      await page.waitForTimeout(1000);
+      
+      // Debug: Vérifier ce qui est dans le dashboard
+      const pollItems = page.locator('[data-testid="poll-item"]');
+      const pollCount = await pollItems.count();
+      console.log(`DEBUG: Nombre de polls dans le dashboard: ${pollCount}`);
+      
+      if (pollCount === 0) {
+        // Debug: Vérifier le localStorage
+        const debugInfo = await page.evaluate(() => {
+          try {
+            const polls = localStorage.getItem('dev-polls');
+            const convs = localStorage.getItem('dev-conversations');
+            const pollsData = polls ? JSON.parse(polls) : [];
+            const convsData = convs ? JSON.parse(convs) : [];
+            
+            return {
+              pollsCount: pollsData.length,
+              lastPoll: pollsData.length > 0 ? {
+                id: pollsData[pollsData.length - 1]?.id,
+                title: pollsData[pollsData.length - 1]?.title,
+                creator_id: pollsData[pollsData.length - 1]?.creator_id,
+                relatedConversationId: pollsData[pollsData.length - 1]?.relatedConversationId,
+              } : null,
+              convsCount: convsData.length,
+              lastConv: convsData.length > 0 ? {
+                id: convsData[convsData.length - 1]?.id,
+                title: convsData[convsData.length - 1]?.title,
+                userId: convsData[convsData.length - 1]?.userId,
+                pollId: (convsData[convsData.length - 1] as any)?.pollId || (convsData[convsData.length - 1] as any)?.metadata?.pollId,
+              } : null,
+            };
+          } catch (e) {
+            return { error: String(e) };
+          }
+        });
+        console.log(`DEBUG: localStorage info:`, JSON.stringify(debugInfo, null, 2));
+        
+        // Attendre un peu plus et réessayer
+        await page.waitForTimeout(2000);
+        await page.reload({ waitUntil: 'networkidle' });
+        await page.waitForTimeout(1000);
+        
+        const pollCountAfterReload = await pollItems.count();
+        console.log(`DEBUG: Nombre de polls après reload: ${pollCountAfterReload}`);
+      }
+      
       // Vérifier sondage dans dashboard (l'attente est incluse dans toContainText)
-      await expect(page.locator('[data-testid="poll-item"]').first()).toContainText('Test E2E Ultra Simple', { timeout: 10000 });
+      const pollItem = page.locator('[data-testid="poll-item"]').first();
+      await expect(pollItem).toBeVisible({ timeout: 15000 });
+      await expect(pollItem).toContainText('Test E2E Ultra Simple', { timeout: 5000 });
       console.log('✅ Sondage visible dans dashboard');
 
       // Copier lien (optionnel)

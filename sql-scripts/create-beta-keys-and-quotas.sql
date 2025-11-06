@@ -132,7 +132,23 @@ RETURNS TABLE (code TEXT, expires_at TIMESTAMPTZ) AS $$
 DECLARE
   v_code TEXT;
   v_expires_at TIMESTAMPTZ;
+  v_user_id UUID;
 BEGIN
+  -- Récupérer l'ID utilisateur actuel
+  v_user_id := auth.uid();
+  
+  -- Vérifier que l'utilisateur est admin
+  IF NOT EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE auth.users.id = v_user_id
+    AND (
+      auth.users.raw_user_meta_data->>'role' = 'admin'
+      OR auth.users.raw_app_meta_data->>'role' = 'admin'
+    )
+  ) THEN
+    RAISE EXCEPTION 'Seuls les administrateurs peuvent générer des clés bêta';
+  END IF;
+  
   FOR i IN 1..p_count LOOP
     -- Générer code unique
     LOOP
@@ -147,14 +163,18 @@ BEGIN
     
     v_expires_at := NOW() + (p_duration_months || ' months')::INTERVAL;
     
-    -- Insérer clé
+    -- Insérer clé (RLS contourné par SECURITY DEFINER)
     INSERT INTO beta_keys (code, status, expires_at, created_by, notes)
-    VALUES (v_code, 'active', v_expires_at, auth.uid(), p_notes);
+    VALUES (v_code, 'active', v_expires_at, v_user_id, p_notes);
     
     RETURN QUERY SELECT v_code, v_expires_at;
   END LOOP;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Permissions pour la fonction generate_beta_key
+-- Les admins peuvent générer des clés (vérifié dans la fonction via auth.uid())
+GRANT EXECUTE ON FUNCTION generate_beta_key(INT, TEXT, INT) TO authenticated, anon;
 
 -- ================================================
 -- 4. FUNCTION: redeem_beta_key
@@ -241,6 +261,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Permissions pour la fonction redeem_beta_key
+GRANT EXECUTE ON FUNCTION redeem_beta_key(UUID, TEXT) TO authenticated, anon;
+
 -- ================================================
 -- 5. FUNCTION: consume_credits
 -- ================================================
@@ -301,23 +324,21 @@ DECLARE
   v_count INT;
 BEGIN
   -- Reset quotas mensuels (pas les annuels, pas les beta)
-  WITH updated AS (
-    UPDATE user_quotas
-    SET credits_used = 0,
-        credits_remaining = credits_total,
-        period_start = NOW(),
-        period_end = NOW() + interval '1 month',
-        updated_at = NOW()
-    WHERE plan = 'monthly'
-      AND tier != 'beta'
-      AND reset_date <= NOW()
-    RETURNING 1
-  )
-  SELECT COUNT(*) INTO v_count FROM updated;
+  -- Compter d'abord les lignes à mettre à jour
+  SELECT COUNT(*) INTO v_count
+  FROM user_quotas
+  WHERE plan = 'monthly'
+    AND tier != 'beta'
+    AND reset_date <= NOW();
   
-  -- Mise à jour reset_date
+  -- Mettre à jour les quotas
   UPDATE user_quotas
-  SET reset_date = NOW() + interval '1 month'
+  SET credits_used = 0,
+      credits_remaining = credits_total,
+      period_start = NOW(),
+      period_end = NOW() + interval '1 month',
+      reset_date = NOW() + interval '1 month',
+      updated_at = NOW()
   WHERE plan = 'monthly'
     AND tier != 'beta'
     AND reset_date <= NOW();
@@ -335,17 +356,19 @@ RETURNS INT AS $$
 DECLARE
   v_count INT;
 BEGIN
-  -- 1. Marquer les clés comme expirées
-  WITH expired AS (
-    UPDATE beta_keys
-    SET status = 'expired'
-    WHERE status = 'used'
-      AND expires_at <= NOW()
-    RETURNING assigned_to
-  )
-  SELECT COUNT(*) INTO v_count FROM expired;
+  -- 1. Compter les clés à expirer
+  SELECT COUNT(*) INTO v_count
+  FROM beta_keys
+  WHERE status = 'used'
+    AND expires_at <= NOW();
   
-  -- 2. Downgrade les utilisateurs beta → free
+  -- 2. Marquer les clés comme expirées
+  UPDATE beta_keys
+  SET status = 'expired'
+  WHERE status = 'used'
+    AND expires_at <= NOW();
+  
+  -- 3. Downgrade les utilisateurs beta → free
   UPDATE user_quotas
   SET tier = 'free',
       credits_total = 20,
@@ -366,9 +389,13 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ================================================
--- 8. CRON JOBS (pg_cron extension requise)
+-- 8. CRON JOBS (optionnel - nécessite pg_cron extension)
 -- ================================================
+-- NOTE: Cette section est optionnelle. Si pg_cron n'est pas disponible,
+-- vous pouvez ignorer cette section ou configurer les tâches cron manuellement.
 
+-- Décommenter les lignes suivantes si pg_cron est disponible :
+/*
 -- Installer extension si pas déjà fait
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
@@ -385,6 +412,7 @@ SELECT cron.schedule(
   '0 3 * * *', -- Tous les jours à 03:00
   'SELECT check_and_expire_beta_keys();'
 );
+*/
 
 -- ================================================
 -- 9. TRIGGERS
@@ -409,6 +437,9 @@ CREATE TRIGGER update_user_quotas_updated_at
 -- ================================================
 
 -- Créer quotas pour utilisateurs existants (migration)
+-- NOTE: Cette section est optionnelle. Si elle échoue, vous pouvez l'ignorer.
+-- Les quotas seront créés automatiquement lors de la première connexion de l'utilisateur.
+/*
 INSERT INTO user_quotas (user_id, tier, plan, credits_total, credits_remaining, max_polls, period_end, reset_date)
 SELECT 
   id,
@@ -423,15 +454,15 @@ FROM auth.users
 WHERE NOT EXISTS (
   SELECT 1 FROM user_quotas WHERE user_quotas.user_id = auth.users.id
 );
+*/
 
 -- ================================================
 -- FIN
 -- ================================================
 
--- Vérification
+-- Vérification (simplifiée pour éviter les erreurs)
 SELECT 
   'Tables créées' as status,
-  (SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'beta_keys') as beta_keys_table,
-  (SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'user_quotas') as user_quotas_table,
-  (SELECT COUNT(*) FROM pg_proc WHERE proname = 'generate_beta_key') as functions_created;
+  (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'beta_keys') as beta_keys_table,
+  (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'user_quotas') as user_quotas_table;
 

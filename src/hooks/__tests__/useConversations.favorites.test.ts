@@ -4,8 +4,10 @@
  */
 
 import { renderHook, act } from "@testing-library/react";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { useConversations } from "../useConversations";
 import * as ConversationStorage from "../../lib/storage/ConversationStorageSimple";
+import * as ConversationStorageSupabase from "../../lib/storage/ConversationStorageSupabase";
 import { useAuth } from "../../contexts/AuthContext";
 import { Conversation } from "../../types/conversation";
 import {
@@ -18,8 +20,23 @@ import {
 vi.mock("../../lib/storage/ConversationStorageSimple");
 vi.mock("../../contexts/AuthContext");
 
-const mockConversationStorage = ConversationStorage as any;
-const mockUseAuth = useAuth as any;
+// Mock ConversationStorageSupabase pour éviter les imports dynamiques qui échouent
+vi.mock("../../lib/storage/ConversationStorageSupabase", () => ({
+  getConversations: vi.fn(),
+  getConversation: vi.fn(),
+  createConversation: vi.fn(),
+  updateConversation: vi.fn(),
+  deleteConversation: vi.fn(),
+  getMessages: vi.fn(),
+  saveMessages: vi.fn(),
+  addMessages: vi.fn(),
+  deleteMessages: vi.fn(),
+  getConversationWithMessages: vi.fn(),
+}));
+
+const mockConversationStorage = vi.mocked(ConversationStorage);
+const mockConversationStorageSupabase = vi.mocked(ConversationStorageSupabase);
+const mockUseAuth = vi.mocked(useAuth);
 
 // Mock conversations data avec helper
 const createMockConversation = (
@@ -42,6 +59,34 @@ const createMockConversation = (
 describe("useConversations - Favorites Sorting", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Mock ConversationStorage methods (localStorage)
+    mockConversationStorage.getConversations.mockReturnValue([]);
+    mockConversationStorage.getConversation.mockReturnValue(null);
+    mockConversationStorage.getMessages.mockReturnValue([]);
+    mockConversationStorage.createConversation.mockImplementation((data) => data as any);
+    mockConversationStorage.updateConversation.mockImplementation((conv) => conv);
+    mockConversationStorage.deleteConversation.mockImplementation(() => {});
+    mockConversationStorage.addMessages.mockImplementation(() => {});
+
+    // Mock ConversationStorageSupabase (faire échouer pour forcer localStorage)
+    // C'est le comportement attendu : fallback vers localStorage si Supabase échoue
+    mockConversationStorageSupabase.getConversations.mockRejectedValue(
+      new Error("Storage error")
+    );
+    mockConversationStorageSupabase.getConversation.mockRejectedValue(
+      new Error("Storage error")
+    );
+    mockConversationStorageSupabase.getMessages.mockRejectedValue(
+      new Error("Storage error")
+    );
+    mockConversationStorageSupabase.createConversation.mockResolvedValue({} as any);
+    mockConversationStorageSupabase.updateConversation.mockResolvedValue({} as any);
+    mockConversationStorageSupabase.deleteConversation.mockResolvedValue(undefined);
+    mockConversationStorageSupabase.addMessages.mockResolvedValue(undefined);
+    mockConversationStorageSupabase.getConversationWithMessages.mockRejectedValue(
+      new Error("Storage error")
+    );
 
     // Mock auth context
     mockUseAuth.mockReturnValue({

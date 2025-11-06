@@ -19,7 +19,7 @@ interface SignUpFormProps {
   onSwitchToSignIn?: () => void;
 }
 
-function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
+export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
   const { signUp, signInWithGoogle, loading, error } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -290,9 +290,10 @@ export function Auth() {
     signInWithGoogle,
   ]);
 
-  // Redirection des utilisateurs authentifiés
+  // Redirection des utilisateurs authentifiés (sauf si paramètre ?force=true)
+  const forceAccess = searchParams.get("force") === "true";
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !loading && !forceAccess) {
       const returnTo = localStorage.getItem("doodates-return-to");
       if (returnTo === "create") {
         localStorage.removeItem("doodates-return-to");
@@ -302,7 +303,7 @@ export function Auth() {
         navigate("/", { replace: true });
       }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, forceAccess]);
 
   const handleAuthSuccess = () => {
     const returnTo = localStorage.getItem("doodates-return-to");
@@ -392,6 +393,18 @@ export function Auth() {
           <h1 className="text-3xl font-bold text-gray-900">DooDates</h1>
           <p className="mt-2 text-sm text-gray-600">Planification intelligente de rendez-vous</p>
         </div>
+
+        {/* Message si utilisateur déjà connecté */}
+        {user && forceAccess && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+            <p className="text-sm text-blue-900 font-medium mb-2">
+              Vous êtes déjà connecté en tant que {user.email}
+            </p>
+            <Button variant="outline" size="sm" onClick={() => navigate("/")} className="text-xs">
+              Retour à l'accueil
+            </Button>
+          </div>
+        )}
 
         {mode === "signin" ? (
           <SignInForm onSuccess={handleAuthSuccess} onSwitchToSignUp={() => setMode("signup")} />
