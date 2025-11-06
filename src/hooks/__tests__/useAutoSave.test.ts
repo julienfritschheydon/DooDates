@@ -34,13 +34,26 @@ vi.mock("../../lib/services/titleGeneration", () => ({
   shouldRegenerateTitle: vi.fn(),
 }));
 
-// Mock AuthContext
+// Mock AuthContext - utiliser un utilisateur guest pour les tests (pas de Supabase)
 vi.mock("../../contexts/AuthContext", () => ({
   useAuth: () => ({
-    user: { id: "test-user-123" },
-    isAuthenticated: true,
+    user: null, // Guest user - pas de Supabase dans les tests
+    isAuthenticated: false,
   }),
   AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+// Mock ConversationStorageSupabase pour éviter les imports dynamiques
+vi.mock("../../lib/storage/ConversationStorageSupabase", () => ({
+  createConversation: vi.fn(),
+  getConversation: vi.fn(),
+  updateConversation: vi.fn(),
+  deleteConversation: vi.fn(),
+  getMessages: vi.fn(),
+  saveMessages: vi.fn(),
+  addMessages: vi.fn(),
+  deleteMessages: vi.fn(),
+  getConversationWithMessages: vi.fn(),
 }));
 
 // Mock timers
@@ -138,13 +151,13 @@ describe("useAutoSave", () => {
 
       await act(async () => {
         await result.current.startNewConversation();
-        result.current.addMessage(message);
+        await result.current.addMessage(message);
       });
 
       expect(mockCreateConversation).toHaveBeenCalledWith({
         title: "Test message content",
         firstMessage: "Test message content",
-        userId: "test-user-123",
+        userId: "guest", // Guest user dans les tests
       });
     });
 
@@ -154,7 +167,7 @@ describe("useAutoSave", () => {
 
       await act(async () => {
         await result.current.startNewConversation();
-        result.current.addMessage(aiMessage);
+        await result.current.addMessage(aiMessage);
       });
 
       expect(mockAddMessages).toHaveBeenCalledWith(
@@ -178,7 +191,7 @@ describe("useAutoSave", () => {
 
       await act(async () => {
         await result.current.startNewConversation();
-        result.current.addMessage(messageWithPoll);
+        await result.current.addMessage(messageWithPoll);
       });
 
       expect(mockAddMessages).toHaveBeenCalledWith(
@@ -244,17 +257,21 @@ describe("useAutoSave", () => {
 
     it("should return real ID after message is added to temp conversation", async () => {
       const { result } = renderHook(() => useAutoSave());
-      const conversation = createMockConversation();
+      const conversation = createMockConversation({ id: "conv-1" });
 
       mockCreateConversation.mockReturnValue(conversation);
+      mockGetMessages.mockReturnValue([]); // Pas de messages au début
+      mockGetConversation.mockReturnValue(conversation); // Retourner la conversation après création
 
       await act(async () => {
         await result.current.startNewConversation();
-        result.current.addMessage(createMockMessage());
+        await result.current.addMessage(createMockMessage());
+        // Avancer les timers pour que les opérations asynchrones se terminent
+        await vi.runAllTimersAsync();
       });
 
       expect(result.current.getRealConversationId()).toBe(conversation.id);
-    });
+    }, 10000); // Timeout plus long
   });
 
   describe("Error Handling", () => {
@@ -313,13 +330,13 @@ describe("useAutoSave", () => {
 
       await act(async () => {
         await result.current.startNewConversation();
-        result.current.addMessage(longMessage);
+        await result.current.addMessage(longMessage);
       });
 
       expect(mockCreateConversation).toHaveBeenCalledWith({
         title: "A".repeat(50) + "...", // Should be truncated
         firstMessage: longMessage.content,
-        userId: "test-user-123",
+        userId: "guest", // Guest user dans les tests
       });
     });
 

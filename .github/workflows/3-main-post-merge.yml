@@ -360,9 +360,9 @@ jobs:
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: '⚡ Post-Merge E2E Tests Failed: ' + failedTests.join(', '),
+              title: '🚨 Post-Merge E2E Tests Failed: ' + failedTests.join(', '),
               body: issueBody,
-              labels: ['critical', 'bug', 'main-branch', 'e2e-failure', 'automated']
+              labels: ['critical', 'bug', 'main-branch', 'e2e-failure', 'automated', 'urgent']
             });
 
 # ========================================

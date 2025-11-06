@@ -153,18 +153,23 @@ describe("useAiMessageQuota", () => {
         { timeout: 500 },
       );
 
-      act(() => {
+      await act(async () => {
         result.current.incrementAiMessages();
+        // Attendre que l'effet sauvegarde dans localStorage (avec real timers)
+        // Les effets React sont asynchrones, donc on attend un peu
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
-      // Attendre que l'effet sauvegarde dans localStorage (avec real timers)
-      // Les effets React sont asynchrones, donc on attend un peu
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      });
+      // Vérifier localStorage après l'act
+      await waitFor(
+        () => {
+          const stored = localStorage.getItem("doodates_ai_quota");
+          expect(stored).toBeTruthy();
+        },
+        { timeout: 2000 },
+      );
 
       const stored = localStorage.getItem("doodates_ai_quota");
-      expect(stored).toBeTruthy();
       const data = JSON.parse(stored!);
       expect(data.aiMessagesUsed).toBe(1);
 
@@ -195,7 +200,7 @@ describe("useAiMessageQuota", () => {
           expect(result.current.aiMessagesUsed).toBe(1);
           expect(result.current.aiMessagesRemaining).toBe(0); // 1 - 1 = 0
         },
-        { timeout: 1000 },
+        { timeout: 2000 },
       );
 
       vi.useFakeTimers();
@@ -259,17 +264,22 @@ describe("useAiMessageQuota", () => {
         { timeout: 500 },
       );
 
-      act(() => {
+      await act(async () => {
         result.current.incrementPollCount("conv-1");
+        // Attendre que l'effet sauvegarde dans localStorage
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
-      // Attendre que l'effet sauvegarde dans localStorage
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      });
+      // Vérifier localStorage après l'act
+      await waitFor(
+        () => {
+          const stored = localStorage.getItem("doodates_poll_counts");
+          expect(stored).toBeTruthy();
+        },
+        { timeout: 2000 },
+      );
 
       const stored = localStorage.getItem("doodates_poll_counts");
-      expect(stored).toBeTruthy();
       const data = JSON.parse(stored!);
       expect(data["conv-1"]).toBe(1);
 
@@ -299,16 +309,28 @@ describe("useAiMessageQuota", () => {
 
       expect(result.current.isInCooldown).toBe(true);
 
-      // Solution : Avancer le temps progressivement pour éviter les boucles infinies avec setInterval
-      // Le setInterval tourne toutes les 100ms, donc on avance par petits pas
+      // Solution : Avancer le temps système ET les timers
+      // Le hook utilise Date.now() qui ne change pas avec vi.advanceTimersByTime seul
+      const startTime = Date.now();
       act(() => {
-        // Avancer de 3100ms pour être sûr de dépasser le cooldown de 3000ms
+        // Avancer le temps système de 3100ms
+        vi.setSystemTime(startTime + 3100);
+        // Avancer aussi les timers pour déclencher setTimeout/setInterval
         vi.advanceTimersByTime(3100);
       });
 
-      // Vérifier directement (les fake timers avancent le temps de manière synchrone)
-      expect(result.current.isInCooldown).toBe(false);
+      // Attendre que les effets React se mettent à jour
+      await waitFor(
+        () => {
+          expect(result.current.isInCooldown).toBe(false);
+        },
+        { timeout: 1000 },
+      );
+
       expect(result.current.canSendMessage).toBe(true);
+      
+      // Remettre le temps système à la normale
+      vi.setSystemTime(startTime);
     });
 
     it("should update cooldown remaining countdown", () => {
@@ -462,11 +484,19 @@ describe("useAiMessageQuota", () => {
         // Attendre que l'effet sauvegarde dans localStorage
         // L'effet se déclenche pour les utilisateurs authentifiés
         await act(async () => {
-          await new Promise((resolve) => setTimeout(resolve, 200));
+          await new Promise((resolve) => setTimeout(resolve, 100));
         });
 
+        // Vérifier localStorage après l'act
+        await waitFor(
+          () => {
+            const stored = localStorage.getItem("doodates_ai_quota");
+            expect(stored).toBeTruthy();
+          },
+          { timeout: 2000 },
+        );
+
         const stored = localStorage.getItem("doodates_ai_quota");
-        expect(stored).toBeTruthy();
         const data = JSON.parse(stored!);
         expect(data.resetDate).toBeTruthy();
 

@@ -18,31 +18,68 @@ const TEST_RESULTS_DIR = path.join(process.cwd(), 'test-results');
 
 /**
  * Parse les résultats JSON de Playwright
+ * Playwright génère test-results.json à la racine ou dans test-results/
  */
 function parsePlaywrightResults(projectName) {
+  // Chercher test-results.json à la racine du dossier téléchargé
+  const rootJsonFile = path.join(TEST_RESULTS_DIR, 'test-results.json');
+  if (fs.existsSync(rootJsonFile)) {
+    try {
+      const content = fs.readFileSync(rootJsonFile, 'utf-8');
+      return JSON.parse(content);
+    } catch (error) {
+      console.error(`Erreur lors de la lecture de ${rootJsonFile}:`, error.message);
+    }
+  }
+
+  // Chercher dans un sous-dossier spécifique au projet
   const resultsDir = path.join(TEST_RESULTS_DIR, projectName);
-  if (!fs.existsSync(resultsDir)) {
-    return null;
+  if (fs.existsSync(resultsDir)) {
+    const resultsFile = path.join(resultsDir, 'results.json');
+    if (fs.existsSync(resultsFile)) {
+      try {
+        const content = fs.readFileSync(resultsFile, 'utf-8');
+        return JSON.parse(content);
+      } catch (error) {
+        console.error(`Erreur lors de la lecture des résultats pour ${projectName}:`, error.message);
+      }
+    }
   }
 
-  const resultsFile = path.join(resultsDir, 'results.json');
-  if (!fs.existsSync(resultsFile)) {
-    return null;
+  // Chercher test-results.json dans le dossier du projet
+  const projectJsonFile = path.join(TEST_RESULTS_DIR, projectName, 'test-results.json');
+  if (fs.existsSync(projectJsonFile)) {
+    try {
+      const content = fs.readFileSync(projectJsonFile, 'utf-8');
+      return JSON.parse(content);
+    } catch (error) {
+      console.error(`Erreur lors de la lecture de ${projectJsonFile}:`, error.message);
+    }
   }
 
-  try {
-    const content = fs.readFileSync(resultsFile, 'utf-8');
-    return JSON.parse(content);
-  } catch (error) {
-    console.error(`Erreur lors de la lecture des résultats pour ${projectName}:`, error.message);
-    return null;
-  }
+  return null;
 }
 
 /**
  * Parse les résultats depuis les artefacts téléchargés
  */
 function parseArtifactResults(projectName) {
+  // Chercher dans test-results-{project} (artefact téléchargé)
+  const testResultsArtifactDir = path.join(TEST_RESULTS_DIR, `test-results-${projectName}`);
+  if (fs.existsSync(testResultsArtifactDir)) {
+    // Chercher test-results.json à la racine
+    const rootJson = path.join(testResultsArtifactDir, 'test-results.json');
+    if (fs.existsSync(rootJson)) {
+      try {
+        const content = fs.readFileSync(rootJson, 'utf-8');
+        return JSON.parse(content);
+      } catch (error) {
+        console.error(`Erreur lors de la lecture de ${rootJson}:`, error.message);
+      }
+    }
+  }
+
+  // Chercher dans playwright-report (rapport HTML contient aussi les données)
   const artifactDir = path.join(ARTIFACTS_DIR, `playwright-report-nightly-${projectName}`);
   if (!fs.existsSync(artifactDir)) {
     return null;
@@ -57,7 +94,7 @@ function parseArtifactResults(projectName) {
         const fullPath = path.join(dir, entry.name);
         if (entry.isDirectory()) {
           files.push(...findJsonFiles(fullPath));
-        } else if (entry.name === 'results.json' || entry.name.endsWith('.json')) {
+        } else if (entry.name === 'test-results.json' || entry.name === 'results.json' || entry.name.endsWith('.json')) {
           files.push(fullPath);
         }
       }
@@ -208,15 +245,29 @@ function generateMarkdownSummary(summaries) {
   for (const summary of summaries) {
     if (!summary) continue;
     
-    const status = summary.failed > 0 ? '❌' : summary.passed > 0 ? '✅' : '⚠️';
-    md += `### ${status} ${summary.project}\n\n`;
-    md += `- ✅ Réussis: ${summary.passed || 0}\n`;
-    md += `- ❌ Échoués: ${summary.failed || 0}\n`;
-    md += `- ⏭️ Ignorés: ${summary.skipped || 0}\n`;
-    md += `- ⏱️ Durée: ${summary.duration ? (summary.duration / 1000).toFixed(1) + 's' : 'N/A'}\n\n`;
+    let status = '⚠️';
+    if (summary.noResults) {
+      status = '❌';
+    } else if (summary.failed > 0) {
+      status = '❌';
+    } else if (summary.passed > 0) {
+      status = '✅';
+    }
     
-    if (summary.errors.length > 0) {
-      md += `**Erreurs détectées:** ${summary.errors.length}\n\n`;
+    md += `### ${status} ${summary.project}\n\n`;
+    
+    if (summary.noResults) {
+      md += `⚠️ **Aucun résultat de test trouvé pour ce navigateur**\n\n`;
+      md += `Les tests ont peut-être échoué avant de générer un rapport, ou les fichiers de résultats n'ont pas été trouvés.\n\n`;
+    } else {
+      md += `- ✅ Réussis: ${summary.passed || 0}\n`;
+      md += `- ❌ Échoués: ${summary.failed || 0}\n`;
+      md += `- ⏭️ Ignorés: ${summary.skipped || 0}\n`;
+      md += `- ⏱️ Durée: ${summary.duration ? (summary.duration / 1000).toFixed(1) + 's' : 'N/A'}\n\n`;
+      
+      if (summary.errors.length > 0) {
+        md += `**Erreurs détectées:** ${summary.errors.length}\n\n`;
+      }
     }
   }
 
@@ -304,7 +355,16 @@ async function main() {
 
     if (!results) {
       console.log(`  ⚠️ Aucun résultat trouvé pour ${project}`);
-      summaries.push(null);
+      // Si aucun résultat n'est trouvé, créer un résumé vide pour indiquer le problème
+      summaries.push({
+        project,
+        passed: 0,
+        failed: 0,
+        skipped: 0,
+        duration: 0,
+        errors: [],
+        noResults: true
+      });
       continue;
     }
 
@@ -360,9 +420,22 @@ async function main() {
     console.log('✅ Résumé ajouté à GitHub Actions Output');
   }
 
-  // Code de sortie
-  const hasFailures = summaries.some(s => s && s.failed > 0);
-  process.exit(hasFailures ? 1 : 0);
+  // Code de sortie - échouer si des tests ont échoué ou si aucun résultat n'a été trouvé
+  const hasFailures = summaries.some(s => s && (s.failed > 0 || s.noResults));
+  const hasNoResults = summaries.every(s => !s || s.noResults);
+  
+  if (hasNoResults) {
+    console.error('❌ Aucun résultat de test trouvé pour aucun navigateur');
+    process.exit(1);
+  }
+  
+  if (hasFailures) {
+    console.error('❌ Des tests ont échoué ou des résultats sont manquants');
+    process.exit(1);
+  }
+  
+  console.log('✅ Tous les tests sont passés avec succès');
+  process.exit(0);
 }
 
 main().catch(error => {
