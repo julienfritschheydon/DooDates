@@ -20,10 +20,10 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      code: ${{ steps.changes.outputs.code }}
-      src: ${{ steps.changes.outputs.src }}
-      tests-only: ${{ steps.changes.outputs.tests-only }}
-      e2e-required: ${{ steps.changes.outputs.e2e-required }}
+      code: ${{ steps.changes.outputs.code || 'false' }}
+      src: ${{ steps.changes.outputs.src || 'false' }}
+      tests-only: ${{ steps.changes.outputs.tests-only || 'false' }}
+      e2e-required: ${{ steps.changes.outputs.e2e-required || 'false' }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -312,7 +312,7 @@ jobs:
       always() &&
       needs.changes.outputs.code == 'true' &&
       (needs.tests-unit.result == 'failure' ||
-       (needs.tests-e2e.result == 'failure' && needs.tests-e2e.result != 'skipped') ||
+       needs.tests-e2e.result == 'failure' ||
        needs.build-validation.result == 'failure')
     runs-on: ubuntu-latest
     steps:
@@ -329,7 +329,7 @@ jobs:
         run: npm ci
 
       - name: 📥 Download test results (if E2E failed)
-        if: needs.tests-e2e.result == 'failure' && needs.tests-e2e.result != 'skipped'
+        if: needs.tests-e2e.result == 'failure'
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
@@ -339,7 +339,7 @@ jobs:
 
       - name: 📊 Generate E2E Summary (if E2E failed)
         id: e2e-summary
-        if: needs.tests-e2e.result == 'failure' && needs.tests-e2e.result != 'skipped'
+        if: needs.tests-e2e.result == 'failure'
         run: |
           if [ -d test-results ]; then
             node scripts/generate-regression-summary.js || echo "Summary generation failed"
@@ -361,14 +361,14 @@ jobs:
             
             let failedComponents = [];
             if (unitStatus === 'failure') failedComponents.push('Tests Unitaires');
-            if (e2eStatus === 'failure' && e2eStatus !== 'skipped') failedComponents.push('Tests E2E');
+            if (e2eStatus === 'failure') failedComponents.push('Tests E2E');
             if (buildStatus === 'failure') failedComponents.push('Build & Validation');
             
             let issueBody = `## ❌ Validation échouée sur develop - Auto-merge bloqué\n\n`;
             issueBody += `**Composants en échec:** ${failedComponents.join(', ')}\n\n`;
             issueBody += `**Détails:**\n`;
             issueBody += `- 🧪 Tests Unitaires: ${unitStatus === 'failure' ? '❌' : '✅'} ${unitStatus}\n`;
-            issueBody += `- 🔥 Tests E2E Smoke: ${e2eStatus === 'failure' && e2eStatus !== 'skipped' ? '❌' : e2eStatus === 'skipped' ? '⏭️' : '✅'} ${e2eStatus}\n`;
+            issueBody += `- 🔥 Tests E2E Smoke: ${e2eStatus === 'failure' ? '❌' : e2eStatus === 'skipped' ? '⏭️' : '✅'} ${e2eStatus}\n`;
             issueBody += `- 🏗️ Build & Validation: ${buildStatus === 'failure' ? '❌' : '✅'} ${buildStatus}\n\n`;
             issueBody += `**Informations:**\n`;
             issueBody += `- Commit: \`${context.sha.substring(0, 7)}\`\n`;
@@ -378,7 +378,7 @@ jobs:
             issueBody += `Corrigez les erreurs et re-pushez sur develop.\n\n`;
             
             // Ajouter le résumé E2E détaillé si disponible
-            if (e2eStatus === 'failure' && e2eStatus !== 'skipped') {
+            if (e2eStatus === 'failure') {
               const summaryPath = path.join(process.cwd(), 'regression-summary.md');
               if (fs.existsSync(summaryPath)) {
                 const e2eSummary = fs.readFileSync(summaryPath, 'utf-8');
@@ -391,8 +391,8 @@ jobs:
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'Develop Validation Failed - Auto-merge blocked',
+              title: '🚨 Develop Validation Failed - Auto-merge blocked',
               body: issueBody,
-              labels: ['bug', 'develop-branch', 'automated', 'ci-failure']
+              labels: ['bug', 'develop-branch', 'automated', 'ci-failure', 'urgent']
             });
 
