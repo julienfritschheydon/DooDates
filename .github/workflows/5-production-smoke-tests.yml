@@ -1,0 +1,268 @@
+name: 5️⃣ Production Smoke Tests
+
+# 🔥 CE WORKFLOW EST CRITIQUE - Il détecte si l'application déployée est cassée
+# 
+# Déclenché APRÈS le déploiement sur GitHub Pages
+# Teste la VRAIE application en production, PAS DE MOCKS
+#
+# Si ces tests échouent:
+# - L'application est cassée en production
+# - Une issue critique est créée automatiquement
+# - Une alerte est envoyée
+
+on:
+  # Déclenché après le déploiement GitHub Pages
+  workflow_run:
+    workflows: ["4️⃣ Main Deploy to GitHub Pages"]
+    types: [completed]
+  
+  # Permet de lancer manuellement pour tester
+  workflow_dispatch:
+    inputs:
+      production_url:
+        description: 'URL de production à tester (laisser vide pour utiliser GitHub Pages)'
+        required: false
+        type: string
+
+# Permissions nécessaires pour créer des issues
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  smoke-tests-production:
+    name: 🔥 Tests de Smoke en Production
+    runs-on: ubuntu-latest
+    
+    # N'exécuter que si le déploiement a réussi
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🧭 Install Playwright (Chromium only - suffisant pour smoke tests)
+        run: npx playwright install --with-deps chromium
+
+      - name: ⏰ Attendre que le déploiement soit effectif
+        run: |
+          echo "⏳ Attente de 30 secondes pour que GitHub Pages propage le déploiement..."
+          sleep 30
+
+      - name: 🔍 Déterminer l'URL de production
+        id: production-url
+        run: |
+          if [ -n "${{ github.event.inputs.production_url }}" ]; then
+            PROD_URL="${{ github.event.inputs.production_url }}"
+          else
+            # URL GitHub Pages par défaut
+            PROD_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          fi
+          echo "url=${PROD_URL}" >> $GITHUB_OUTPUT
+          echo "🌐 URL de production: ${PROD_URL}"
+
+      - name: 🔥 Run Production Smoke Tests
+        id: smoke-tests
+        run: |
+          echo "🔥 Exécution des tests de smoke contre la production..."
+          echo "🌐 URL: ${{ steps.production-url.outputs.url }}"
+          npx playwright test tests/e2e/production-smoke.spec.ts \
+            --project=chromium \
+            --reporter=html,json \
+            --retries=2
+        env:
+          # Tester contre l'URL de production réelle
+          BASE_URL: ${{ steps.production-url.outputs.url }}
+          # Mode production - pas de mocks
+          NODE_ENV: production
+          CI: true
+        continue-on-error: true
+
+      - name: 📊 Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-production-smoke
+          path: playwright-report
+          retention-days: 30  # Garder plus longtemps pour les tests de production
+
+      - name: 📤 Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-production-smoke
+          path: test-results
+          retention-days: 30
+
+      - name: 📸 Upload screenshots (si échec)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-smoke-screenshots
+          path: test-results/**/*.png
+          if-no-files-found: ignore
+          retention-days: 30
+
+      # 🚨 CRITIQUE: Créer une issue si les tests échouent
+      - name: 🚨 Create Critical Issue on Failure
+        if: steps.smoke-tests.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Lire les résultats des tests si disponibles
+            let failedTests = [];
+            let testDetails = '';
+            
+            try {
+              const resultsPath = path.join(process.cwd(), 'test-results');
+              if (fs.existsSync(resultsPath)) {
+                testDetails = '\n\n## 📋 Détails des Tests\n\n';
+                testDetails += 'Les rapports détaillés sont disponibles dans les artefacts.\n';
+              }
+            } catch (error) {
+              console.log('Could not read test results:', error);
+            }
+            
+            const prodUrl = '${{ steps.production-url.outputs.url }}';
+            const workflowUrl = `${context.payload.repository.html_url}/actions/runs/${context.runId}`;
+            const commitSha = context.sha.substring(0, 7);
+            
+            const issueBody = [
+              '## 🚨 ALERTE CRITIQUE: APPLICATION EN PRODUCTION NON FONCTIONNELLE',
+              '',
+              '### ❌ Problème Détecté',
+              'Les tests de smoke en production ont échoué. L\'application déployée ne fonctionne pas correctement.',
+              '',
+              '### 📊 Informations',
+              `- **URL testée:** ${prodUrl}`,
+              `- **Commit:** \`${commitSha}\``,
+              `- **Déployé par:** ${context.actor}`,
+              `- **Date:** ${new Date().toISOString()}`,
+              `- **Workflow:** [Voir les logs](${workflowUrl})`,
+              '',
+              '### 🔍 Tests Échoués',
+              'Les tests de smoke ont échoué. Voir les artefacts pour les détails complets.',
+              testDetails,
+              '',
+              '### 📸 Captures d\'écran',
+              'Les captures d\'écran des échecs sont disponibles dans les artefacts du workflow.',
+              '',
+              '### ⚡ Actions Requises IMMÉDIATEMENT',
+              '',
+              `1. **Vérifier l'application en production** - [Ouvrir l'app](${prodUrl})`,
+              `2. **Consulter les logs** - [Workflow logs](${workflowUrl})`,
+              '3. **Télécharger les rapports** - Voir les artefacts du workflow',
+              '4. **Considérer un rollback** si le problème est critique',
+              '',
+              '### 🔧 Actions Possibles',
+              '',
+              '#### Option 1: Rollback (Recommandé si critique)',
+              '```bash',
+              '# Revenir au commit précédent',
+              `git revert ${context.sha}`,
+              'git push origin main',
+              '```',
+              '',
+              '#### Option 2: Hotfix',
+              '1. Identifier le problème dans les logs',
+              '2. Créer une branche hotfix/production-smoke-fix',
+              '3. Fix et tester localement avec npm run build && npm run preview',
+              '4. Déployer le fix',
+              '',
+              '### 📊 Métriques de Santé',
+              '- Tests de smoke: ÉCHEC',
+              '- Production: POTENTIELLEMENT CASSÉE',
+              '- Priorité: CRITIQUE',
+              '',
+              '### 📋 Checklist de Résolution',
+              '- [ ] Problème identifié',
+              '- [ ] Solution implémentée',
+              '- [ ] Tests passent localement',
+              '- [ ] Déployé et vérifié en production',
+              '- [ ] Tests de smoke passent',
+              '- [ ] Issue fermée',
+              '',
+              '---',
+              '',
+              '**⚠️ Cette issue a été créée automatiquement par le système de monitoring de production.**',
+              '**Ne pas fermer tant que les tests de smoke ne passent pas en production.**'
+            ].join('\n');
+
+            // Créer l'issue critique
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 PRODUCTION CASSÉE - Tests de Smoke Échoués',
+              body: issueBody,
+              labels: ['critical', 'production', 'bug', 'incident', 'automated', 'urgent', 'smoke-tests'],
+              assignees: [context.actor]
+            });
+            
+            console.log(`🚨 Issue critique créée: #${issue.data.number}`);
+            
+            // Ajouter un commentaire avec le lien vers les artefacts
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.data.number,
+              body: `📦 **Artefacts disponibles:**\n\n` +
+                    `- [Rapport Playwright HTML](${context.payload.repository.html_url}/actions/runs/${context.runId})\n` +
+                    `- [Résultats JSON](${context.payload.repository.html_url}/actions/runs/${context.runId})\n` +
+                    `- [Screenshots](${context.payload.repository.html_url}/actions/runs/${context.runId})\n\n` +
+                    `Ces artefacts sont conservés pendant 30 jours.`
+            });
+
+      # ✅ Succès: Confirmer que la production fonctionne
+      - name: ✅ Confirmer le succès du déploiement
+        if: steps.smoke-tests.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('✅ Tests de smoke réussis!');
+            console.log('🚀 L\'application en production fonctionne correctement.');
+            console.log('🌐 URL: ${{ steps.production-url.outputs.url }}');
+
+      # ❌ Échec: Marquer le workflow comme échoué
+      - name: ❌ Marquer comme échoué si les tests ont échoué
+        if: steps.smoke-tests.outcome == 'failure'
+        run: |
+          echo "❌ Les tests de smoke en production ont échoué!"
+          echo "🚨 Une issue critique a été créée."
+          echo "⚠️ L'application en production est potentiellement cassée."
+          exit 1
+
+# ========================================
+# 📋 NOTES SUR CE WORKFLOW
+# ========================================
+#
+# Ce workflow est la dernière ligne de défense contre les déploiements cassés.
+#
+# Il teste:
+# - Que la page se charge
+# - Que les assets sont présents
+# - Qu'il n'y a pas d'erreurs JS critiques
+# - Que la configuration Supabase fonctionne
+# - Que le routing SPA fonctionne
+# - Que les fonctionnalités de base sont accessibles
+#
+# Si ces tests échouent:
+# - Une issue critique est créée automatiquement
+# - L'équipe est alertée
+# - Un rollback doit être envisagé
+#
+# Temps d'exécution: ~2-3 minutes
+# Critique: OUI - Ne pas désactiver
+# Retries: 2 (pour éviter les faux positifs dus au réseau)
+
