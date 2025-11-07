@@ -191,7 +191,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
         <div className="relative border-2 border-gray-200 rounded-lg overflow-hidden">
           {/* Image avec numéros superposés */}
           <img
-            src="/onboarding/poll-creation.png"
+            src={`${import.meta.env.BASE_URL}onboarding/poll-creation.png`}
             alt="Interface de création de sondage de dates"
             className="w-full h-auto"
             onError={(e) => {
@@ -243,7 +243,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
         <div className="relative border-2 border-gray-200 rounded-lg overflow-hidden">
           {/* Image avec numéros superposés */}
           <img
-            src="/onboarding/form-creation.png"
+            src={`${import.meta.env.BASE_URL}onboarding/form-creation.png`}
             alt="Interface de création de formulaire"
             className="w-full h-auto"
             onError={(e) => {

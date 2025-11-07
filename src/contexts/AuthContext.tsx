@@ -329,57 +329,105 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Effet pour écouter les changements d'authentification
   useEffect(() => {
     let mounted = true;
+    console.log('🔐 AuthProvider - useEffect started');
 
     // Récupérer la session initiale
     const getInitialSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        console.log('🔐 AuthProvider - Getting initial session...');
+        
+        // Ajouter un timeout pour éviter le blocage infini
+        let isTimeout = false;
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise<{ data: { session: null }, isTimeout: true }>((resolve) => {
+          setTimeout(() => {
+            console.warn('⚠️ AuthProvider - getSession timeout after 10 seconds');
+            isTimeout = true;
+            resolve({ data: { session: null }, isTimeout: true });
+          }, 10000); // Augmenté à 10 secondes pour laisser le temps à Supabase
+        });
 
-      if (mounted) {
-        setSession(session);
-        setUser(session?.user ?? null);
+        const result = await Promise.race([
+          sessionPromise.then(r => ({ ...r, isTimeout: false })),
+          timeoutPromise
+        ]);
+        const session = result.data.session;
+        
+        console.log('🔐 AuthProvider - Session retrieved:', { 
+          hasSession: !!session, 
+          userId: session?.user?.id,
+          wasTimeout: result.isTimeout
+        });
 
-        if (session?.user && !isLocalDevelopment) {
-          const profileData = await fetchProfile(session.user.id);
-          setProfile(profileData);
-
-          // Migrate guest conversations to Supabase on initial session
-          try {
-            const { migrateGuestConversations } = await import(
-              "../lib/storage/autoMigrateGuestConversations"
-            );
-            const migrationResult = await migrateGuestConversations(session.user.id);
-            if (migrationResult.migratedCount > 0) {
-              logger.info(
-                "Conversations guest migrées automatiquement (session initiale)",
-                "conversation",
-                {
-                  userId: session.user.id,
-                  migratedCount: migrationResult.migratedCount,
-                },
-              );
-            }
-          } catch (migrationError) {
-            logger.error(
-              "Erreur lors de la migration automatique (session initiale)",
-              "conversation",
-              migrationError,
-            );
-            // Don't block login if migration fails
-          }
+        // Si timeout, on continue en mode guest temporaire
+        // L'event listener onAuthStateChange détectera la session quand Supabase répondra
+        if (!session && result.isTimeout) {
+          console.warn('⚠️ AuthProvider - Session timeout, continuing in guest mode temporarily');
+          console.log('🔐 AuthProvider - onAuthStateChange will handle the session when Supabase responds');
         }
 
-        setLoading(false);
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          console.log('🔐 AuthProvider - State updated:', { 
+            hasUser: !!session?.user,
+            userId: session?.user?.id 
+          });
+
+          if (session?.user && !isLocalDevelopment) {
+            console.log('🔐 AuthProvider - Fetching profile...');
+            const profileData = await fetchProfile(session.user.id);
+            setProfile(profileData);
+            console.log('🔐 AuthProvider - Profile fetched');
+
+            // Migrate guest conversations to Supabase on initial session
+            console.log('🔐 AuthProvider - Starting migration...');
+            try {
+              const { migrateGuestConversations } = await import(
+                "../lib/storage/autoMigrateGuestConversations"
+              );
+              const migrationResult = await migrateGuestConversations(session.user.id);
+              if (migrationResult.migratedCount > 0) {
+                logger.info(
+                  "Conversations guest migrées automatiquement (session initiale)",
+                  "conversation",
+                  {
+                    userId: session.user.id,
+                    migratedCount: migrationResult.migratedCount,
+                  },
+                );
+              }
+              console.log('🔐 AuthProvider - Migration complete');
+            } catch (migrationError) {
+              logger.error(
+                "Erreur lors de la migration automatique (session initiale)",
+                "conversation",
+                migrationError,
+              );
+              // Don't block login if migration fails
+            }
+          }
+
+          console.log('🔐 AuthProvider - Setting loading to false');
+          setLoading(false);
+        }
+      } catch (error) {
+        logger.error('Erreur lors de l\'initialisation de la session', 'auth', error);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
+    console.log('🔐 AuthProvider - Calling getInitialSession...');
     getInitialSession();
 
     // Écouter les changements d'authentification
+    console.log('🔐 AuthProvider - Setting up auth state change listener...');
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔐 AuthProvider - Auth state changed:', { event, hasSession: !!session });
       if (!mounted) return;
 
       setSession(session);

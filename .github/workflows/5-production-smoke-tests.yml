@@ -64,8 +64,12 @@ jobs:
           if [ -n "${{ github.event.inputs.production_url }}" ]; then
             PROD_URL="${{ github.event.inputs.production_url }}"
           else
+            # Extraire le nom du repo depuis github.repository (format: owner/repo)
+            REPO_NAME="${{ github.repository }}"
+            REPO_NAME="${REPO_NAME#*/}"  # Retire "owner/" pour ne garder que "repo"
+            
             # URL GitHub Pages par défaut
-            PROD_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+            PROD_URL="https://${{ github.repository_owner }}.github.io/${REPO_NAME}"
           fi
           echo "url=${PROD_URL}" >> $GITHUB_OUTPUT
           echo "🌐 URL de production: ${PROD_URL}"
@@ -78,10 +82,9 @@ jobs:
           npx playwright test tests/e2e/production-smoke.spec.ts \
             --project=chromium \
             --reporter=html,json \
-            --retries=2
+            --retries=2 \
+            --base-url="${{ steps.production-url.outputs.url }}"
         env:
-          # Tester contre l'URL de production réelle
-          BASE_URL: ${{ steps.production-url.outputs.url }}
           # Mode production - pas de mocks
           NODE_ENV: production
           CI: true

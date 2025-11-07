@@ -94,7 +94,6 @@ export function usePolls() {
         const isLocalMode =
           import.meta.env.MODE === "test" ||
           Boolean(import.meta.env.VITEST) ||
-          import.meta.env.MODE === "development" ||
           // Détection runtime E2E côté navigateur
           (typeof window !== "undefined" &&
             (() => {
@@ -503,9 +502,19 @@ export function usePolls() {
           }
         }
 
-        // 4. Analytics (optionnel - ne doit pas bloquer la création)
+        // 4. Mettre à jour le cache localStorage avec le poll créé
+        const createdPoll: StoragePoll = {
+          ...poll,
+          dates: pollData.selectedDates,
+          type: "date",
+          creatorEmail: user?.email || undefined,
+        };
+        addPoll(createdPoll);
+        setPolls((prev) => [...prev, createdPoll]);
 
-        return { poll };
+        // 5. Analytics (optionnel - ne doit pas bloquer la création)
+
+        return { poll: createdPoll };
       } catch (error: any) {
         const processedError = handleError(
           error,
@@ -581,7 +590,7 @@ export function usePolls() {
           if (token) {
             // Charger les sondages depuis Supabase
             const response = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls?user_id=eq.${user.id}&select=*`,
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls?creator_id=eq.${user.id}&select=*`,
               {
                 method: "GET",
                 headers: {

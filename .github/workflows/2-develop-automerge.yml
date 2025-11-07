@@ -274,14 +274,94 @@ jobs:
       - name: 🏗️ Build production
         run: npm run build
 
-  auto-merge-to-main:
+  # ========================================
+  # 🔥 PRODUCTION SMOKE TESTS (PRE-MERGE)
+  # ========================================
+  # CRITIQUE : Bloque le merge si le build production est cassé
+  # Ces tests s'exécutent AVANT le merge vers main
+  production-smoke-pre-merge:
     needs: [changes, tests-unit, tests-e2e, build-validation]
+    if: |
+      needs.changes.outputs.code == 'true' &&
+      needs.tests-unit.result == 'success' &&
+      (needs.tests-e2e.result == 'success' || needs.tests-e2e.result == 'skipped') &&
+      needs.build-validation.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: 🔧 Install dependencies
+        run: npm ci
+      
+      - name: 🧭 Install Playwright (Chromium only)
+        run: npx playwright install --with-deps chromium
+      
+      - name: 📦 Build production (avec base path local pour tests)
+        run: npm run build
+        env:
+          NODE_ENV: production
+          VITE_BASE_PATH: /
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+      
+      - name: 🚀 Start preview server
+        run: |
+          npm run preview &
+          echo $! > preview.pid
+      
+      - name: ⏳ Wait for server to be ready
+        run: npx wait-on http://localhost:4173 --timeout 60000
+      
+      - name: 🔥 Run production smoke tests
+        run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
+        env:
+          BASE_URL: http://localhost:4173
+          CI: true
+      
+      - name: 🛑 Stop preview server
+        if: always()
+        run: |
+          if [ -f preview.pid ]; then
+            kill $(cat preview.pid) || true
+            rm preview.pid
+          fi
+      
+      - name: 📊 Upload Playwright report (if failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-production-smoke-pre-merge
+          path: playwright-report
+          retention-days: 7
+      
+      - name: 📤 Upload test results (if failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-production-smoke-pre-merge
+          path: test-results
+          retention-days: 7
+
+  # ========================================
+  # AUTO-MERGE TO MAIN
+  # ========================================
+  auto-merge-to-main:
+    needs: [changes, tests-unit, tests-e2e, build-validation, production-smoke-pre-merge]
     if: |
       always() &&
       needs.changes.outputs.code == 'true' &&
       needs.tests-unit.result == 'success' &&
       (needs.tests-e2e.result == 'success' || needs.tests-e2e.result == 'skipped') &&
-      needs.build-validation.result == 'success'
+      needs.build-validation.result == 'success' &&
+      needs.production-smoke-pre-merge.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -307,13 +387,14 @@ jobs:
           echo "All tests passed, deployment workflows will now run"
 
   notify-failure:
-    needs: [changes, tests-unit, tests-e2e, build-validation]
+    needs: [changes, tests-unit, tests-e2e, build-validation, production-smoke-pre-merge]
     if: |
       always() &&
       needs.changes.outputs.code == 'true' &&
-      (needs.tests-unit.result == 'failure' ||
-       needs.tests-e2e.result == 'failure' ||
-       needs.build-validation.result == 'failure')
+      (needs.tests-unit.result == 'failure' || 
+       needs.tests-e2e.result == 'failure' || 
+       needs.build-validation.result == 'failure' ||
+       needs.production-smoke-pre-merge.result == 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -358,18 +439,21 @@ jobs:
             const unitStatus = '${{ needs.tests-unit.result }}';
             const e2eStatus = '${{ needs.tests-e2e.result }}';
             const buildStatus = '${{ needs.build-validation.result }}';
+            const prodSmokeStatus = '${{ needs.production-smoke-pre-merge.result }}';
             
             let failedComponents = [];
             if (unitStatus === 'failure') failedComponents.push('Tests Unitaires');
             if (e2eStatus === 'failure') failedComponents.push('Tests E2E');
             if (buildStatus === 'failure') failedComponents.push('Build & Validation');
+            if (prodSmokeStatus === 'failure') failedComponents.push('🔥 Production Smoke (PRE-MERGE)');
             
             let issueBody = `## ❌ Validation échouée sur develop - Auto-merge bloqué\n\n`;
             issueBody += `**Composants en échec:** ${failedComponents.join(', ')}\n\n`;
             issueBody += `**Détails:**\n`;
             issueBody += `- 🧪 Tests Unitaires: ${unitStatus === 'failure' ? '❌' : '✅'} ${unitStatus}\n`;
             issueBody += `- 🔥 Tests E2E Smoke: ${e2eStatus === 'failure' ? '❌' : e2eStatus === 'skipped' ? '⏭️' : '✅'} ${e2eStatus}\n`;
-            issueBody += `- 🏗️ Build & Validation: ${buildStatus === 'failure' ? '❌' : '✅'} ${buildStatus}\n\n`;
+            issueBody += `- 🏗️ Build & Validation: ${buildStatus === 'failure' ? '❌' : '✅'} ${buildStatus}\n`;
+            issueBody += `- 🔥 Production Smoke (Pre-Merge): ${prodSmokeStatus === 'failure' ? '❌' : '✅'} ${prodSmokeStatus}\n\n`;
             issueBody += `**Informations:**\n`;
             issueBody += `- Commit: \`${context.sha.substring(0, 7)}\`\n`;
             issueBody += `- Auteur: ${context.actor}\n`;
