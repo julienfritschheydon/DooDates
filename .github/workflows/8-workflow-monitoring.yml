@@ -42,6 +42,9 @@ jobs:
       - name: 🔧 Install dependencies
         run: npm ci
 
+      - name: 🎭 Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
       - name: 📊 Generate Workflow Health Report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
