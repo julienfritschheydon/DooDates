@@ -43,7 +43,13 @@ export function PricingPage() {
                   Créer un sondage
                 </Button>
               ) : (
-                <Button onClick={() => navigate("/auth")} size="sm">
+                <Button
+                  onClick={() => {
+                    localStorage.setItem("doodates-return-to", "/pricing");
+                    navigate("/auth");
+                  }}
+                  size="sm"
+                >
                   Connexion
                 </Button>
               )}

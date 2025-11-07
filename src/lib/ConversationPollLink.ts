@@ -20,6 +20,7 @@ import {
   getPollBySlugOrId,
   updatePollConversationLink,
   getPollByConversationId,
+  getCurrentUserId,
   type Poll,
 } from "./pollStorage";
 import { logger } from "./logger";
@@ -212,11 +213,17 @@ export function createConversationForPoll(
       return existingConversation.id;
     }
 
-    // Créer une conversation vide
+    // Créer une conversation vide avec le userId approprié
+    // En mode invité, utiliser "guest" pour être cohérent avec le filtrage du dashboard
+    // En mode connecté, utiliser le userId authentifié
+    const currentUserId = getCurrentUserId();
+    // Si c'est un device ID (commence par "dev-"), on est en mode invité → utiliser "guest"
+    const userId = currentUserId.startsWith("dev-") ? undefined : currentUserId;
     const conversation = createConversation({
       title: pollTitle,
       firstMessage:
         pollType === "date" ? "Sondage de dates créé manuellement" : "Formulaire créé manuellement",
+      userId: userId, // undefined sera converti en "guest" par createConversation
     });
 
     // Mettre à jour le status à "completed" car le poll est déjà créé
