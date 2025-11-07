@@ -262,17 +262,21 @@ export class GeminiService {
   private detectPollType(userInput: string): "date" | "form" {
     const inputLower = userInput.toLowerCase();
 
-    // Mots-clés pour Form Polls (questionnaires)
-    const formKeywords = [
+    // Mots-clés explicites pour Form Polls (haute priorité)
+    const strongFormKeywords = [
       "questionnaire",
-      "sondage d'opinion",
       "enquête",
       "formulaire",
+      "satisfaction",
+      "feedback",
+      "avis",
+      "sondage d'opinion",
+    ];
+
+    // Mots-clés secondaires pour Form Polls
+    const formKeywords = [
       "questions",
       "choix multiple",
-      "avis",
-      "feedback",
-      "satisfaction",
       "préférences",
       "vote sur",
       "classement",
@@ -301,15 +305,23 @@ export class GeminiService {
     ];
 
     // Compter les occurrences de chaque type de mot-clé
+    const strongFormScore = strongFormKeywords.filter((kw) => inputLower.includes(kw)).length;
     const formScore = formKeywords.filter((kw) => inputLower.includes(kw)).length;
     const dateScore = dateKeywords.filter((kw) => inputLower.includes(kw)).length;
+    
+    const totalFormScore = strongFormScore + formScore;
 
     if (import.meta.env.DEV) {
-      logger.info(`Poll type detection: formScore=${formScore}, dateScore=${dateScore}`, "api");
+      logger.info(`Poll type detection: strongFormScore=${strongFormScore}, formScore=${formScore}, totalFormScore=${totalFormScore}, dateScore=${dateScore}`, "api");
     }
 
-    // Si score Form > Date → Form Poll
-    if (formScore > dateScore) {
+    // Si des mots-clés explicites de formulaire sont présents, priorité au form
+    if (strongFormScore > 0) {
+      return "form";
+    }
+
+    // Sinon, comparer les scores totaux
+    if (totalFormScore > dateScore) {
       return "form";
     }
 

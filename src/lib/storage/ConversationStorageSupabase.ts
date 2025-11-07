@@ -229,13 +229,13 @@ export async function createConversation(
 
     // Log actual request details
     console.log(`[${timestamp}] [${requestId}] 🗄️ Supabase URL:`, supabase["supabaseUrl"]);
-    console.log(`[${timestamp}] [${requestId}] 🗄️ Data to insert:`, JSON.stringify(supabaseData, null, 2));
+    console.log(
+      `[${timestamp}] [${requestId}] 🗄️ Data to insert:`,
+      JSON.stringify(supabaseData, null, 2),
+    );
 
     // INSERT and get response
-    const { data, error } = await supabase
-      .from("conversations")
-      .insert(supabaseData)
-      .select();
+    const { data, error } = await supabase.from("conversations").insert(supabaseData).select();
     const insertDuration = Date.now() - insertStartTime;
     console.log(`[${timestamp}] [${requestId}] 🗄️ Réponse Supabase reçue (${insertDuration}ms)`, {
       hasData: !!data,
