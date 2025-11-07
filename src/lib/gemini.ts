@@ -308,11 +308,14 @@ export class GeminiService {
     const strongFormScore = strongFormKeywords.filter((kw) => inputLower.includes(kw)).length;
     const formScore = formKeywords.filter((kw) => inputLower.includes(kw)).length;
     const dateScore = dateKeywords.filter((kw) => inputLower.includes(kw)).length;
-    
+
     const totalFormScore = strongFormScore + formScore;
 
     if (import.meta.env.DEV) {
-      logger.info(`Poll type detection: strongFormScore=${strongFormScore}, formScore=${formScore}, totalFormScore=${totalFormScore}, dateScore=${dateScore}`, "api");
+      logger.info(
+        `Poll type detection: strongFormScore=${strongFormScore}, formScore=${formScore}, totalFormScore=${totalFormScore}, dateScore=${dateScore}`,
+        "api",
+      );
     }
 
     // Si des mots-clés explicites de formulaire sont présents, priorité au form
