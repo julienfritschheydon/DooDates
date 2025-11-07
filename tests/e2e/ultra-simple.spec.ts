@@ -164,11 +164,18 @@ test.describe('DooDates - Test Ultra Simple', () => {
           try {
             const polls = localStorage.getItem('dev-polls');
             const convs = localStorage.getItem('dev-conversations');
+            const deviceId = localStorage.getItem('dd-device-id');
             const pollsData = polls ? JSON.parse(polls) : [];
             const convsData = convs ? JSON.parse(convs) : [];
             
             return {
+              deviceId,
               pollsCount: pollsData.length,
+              allPolls: pollsData.map((p: any) => ({
+                id: p.id,
+                title: p.title,
+                creator_id: p.creator_id,
+              })),
               lastPoll: pollsData.length > 0 ? {
                 id: pollsData[pollsData.length - 1]?.id,
                 title: pollsData[pollsData.length - 1]?.title,
