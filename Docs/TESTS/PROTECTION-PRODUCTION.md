@@ -35,43 +35,58 @@
 
 #### 🎯 Ce qui a été implémenté:
 
-1. **Tests de Smoke Post-Déploiement**
-   - Fichier: `tests/e2e/production-smoke.spec.ts`
-   - S'exécute APRÈS chaque déploiement
-   - Teste la VRAIE application en production (pas de mocks)
-   - 10 tests critiques qui vérifient:
-     - ✅ Page d'accueil charge
-     - ✅ Assets (JS/CSS) chargent sans erreur
-     - ✅ Pas d'erreurs console critiques
-     - ✅ Navigation fonctionne
-     - ✅ Configuration Supabase est valide
-     - ✅ Routing SPA fonctionne (404 fallback)
-     - ✅ UI principale est rendue
-     - ✅ Service Worker est disponible
-     - ✅ Mode invité accessible
-     - ✅ Assets statiques accessibles
+**🔥 DOUBLE PROTECTION: PRÉ-MERGE + POST-DÉPLOIEMENT**
 
-2. **Workflow GitHub Actions**
+1. **Tests Production Smoke Pré-Merge (BLOQUANTS)** 🛡️ **PRIORITAIRE**
+   - Fichier: `.github/workflows/1-pr-validation.yml`
+   - Job: `production-smoke` (Job 0 - s'exécute EN PREMIER)
+   - **BLOQUE automatiquement le merge** si le build de production est cassé
+   - S'exécute sur un build local AVANT que le code n'atteigne `main`
+   - Tous les autres jobs dépendent de celui-ci (`needs: [production-smoke]`)
+   - **Workflow:**
+     1. Build de production avec vraies variables d'env
+     2. Lance serveur preview local (port 4173)
+     3. Exécute les 10 tests de smoke
+     4. ❌ Si échec → MERGE BLOQUÉ + rapport dans PR
+     5. ✅ Si succès → Autres tests peuvent s'exécuter
+
+2. **Tests de Smoke Post-Déploiement (FILET DE SÉCURITÉ)** 🚨
    - Fichier: `.github/workflows/5-production-smoke-tests.yml`
-   - Se déclenche automatiquement après le déploiement
+   - S'exécute APRÈS chaque déploiement sur GitHub Pages
+   - Teste la VRAIE application en production (URL réelle)
    - Attend 30 secondes que le CDN propage
-   - Exécute les tests contre la vraie URL de production
    - **SI ÉCHEC:**
      - ❌ Crée une issue GitHub critique automatiquement
      - 🚨 Assigne l'auteur du commit
-     - 📸 Sauvegarde les screenshots
+     - 📸 Sauvegarde les screenshots (30 jours)
      - 📊 Génère un rapport détaillé
-     - ⚠️ Labels: `critical`, `production`, `incident`
+     - ⚠️ Labels: `critical`, `production`, `incident`, `automated`, `urgent`
 
-3. **Script de Test Local**
+3. **10 Tests Critiques Sans Mocks**
+   - Fichier: `tests/e2e/production-smoke.spec.ts`
+   - Testent la VRAIE application (pas de mocks)
+   - ✅ Page d'accueil charge
+   - ✅ Assets (JS/CSS) chargent sans erreur
+   - ✅ Pas d'erreurs console critiques
+   - ✅ Navigation fonctionne
+   - ✅ Configuration Supabase est valide
+   - ✅ Routing SPA fonctionne (404 fallback)
+   - ✅ UI principale est rendue
+   - ✅ Service Worker est disponible
+   - ✅ Mode invité accessible
+   - ✅ Assets statiques accessibles
+
+4. **Script de Test Local**
    - Windows: `scripts/test-production-build.ps1`
    - Linux/Mac: `scripts/test-production-build.sh`
    - Commande npm: `npm run test:production`
    - **Workflow:**
-     1. Build de production avec vraies variables d'env
-     2. Lance serveur preview local
-     3. Exécute les tests de smoke
-     4. Nettoie automatiquement
+     1. Vérifie variables d'environnement (.env.local)
+     2. Build de production avec vraies variables
+     3. Lance serveur preview local (port 4173)
+     4. Exécute les tests de smoke
+     5. Nettoie automatiquement
+     6. Affiche résumé coloré
    - **Objectif:** Tester AVANT de pusher vers production
 
 #### 📖 Comment Utiliser
@@ -92,20 +107,54 @@ npm run test:production:bash
 
 **⚠️ IMPORTANT:** Toujours exécuter ce script AVANT de merger vers `main`
 
-##### Workflow Automatique
+##### Workflow Automatique - Double Protection
 
 ```
-main branch
+PR créée → main
+    ↓
+┌──────────────────────────────────────────────────────────┐
+│ [1️⃣ PR Validation]                                       │
+│                                                           │
+│  🔥 production-smoke (JOB 0 - BLOQUANT - PRIORITAIRE)    │
+│     ├─ Build production local                            │
+│     ├─ Tests smoke (10 tests critiques)                  │
+│     └─ ❌ SI ÉCHEC → MERGE BLOQUÉ                        │
+│                                                           │
+│  ⏬ Tous les autres jobs dépendent de production-smoke   │
+│     ├─ quick-tests                                       │
+│     ├─ ai-validation                                     │
+│     ├─ e2e-smoke                                         │
+│     └─ ... (validation complète)                         │
+└──────────────────────────────────────────────────────────┘
+    ↓ (si tout passe)
+✅ Merge autorisé vers main
     ↓
 [3️⃣ Main Post-Merge E2E] ← Tests E2E normaux
     ↓ (si succès)
 [4️⃣ Main Deploy to GitHub Pages] ← Déploiement
     ↓ (si succès)
-[5️⃣ Production Smoke Tests] ← NOUVEAU - Vérifie que la prod fonctionne
-    ↓
-    ├─ ✅ Succès → Application OK
-    └─ ❌ Échec → Issue critique créée
+┌──────────────────────────────────────────────────────────┐
+│ [5️⃣ Production Smoke Tests] 🚨 FILET DE SÉCURITÉ        │
+│     ├─ Attend 30s (propagation CDN)                      │
+│     ├─ Tests sur URL production RÉELLE                   │
+│     ├─ ✅ Succès → Application OK                        │
+│     └─ ❌ Échec → Issue critique créée automatiquement   │
+└──────────────────────────────────────────────────────────┘
 ```
+
+**🛡️ Double Protection Expliquée:**
+
+1. **Niveau 1 - Pré-Merge (Prioritaire)**
+   - Empêche le code cassé d'atteindre `main`
+   - Tests sur build local avant merge
+   - Bloque automatiquement si échec
+   - = **0 déploiement cassé**
+
+2. **Niveau 2 - Post-Déploiement (Filet de sécurité)**
+   - Vérifie la production réelle après déploiement
+   - Détecte problèmes de CDN, propagation, config prod
+   - Alerte immédiate si problème
+   - = **Détection < 3 minutes** si problème post-deploy
 
 #### 🚨 Que Se Passe-t-il en Cas d'Échec?
 
@@ -309,41 +358,76 @@ Monitoring proactif et tests de performance pour anticiper les problèmes.
 
 | Aspect | ❌ Avant | ✅ Phase 1 | ✅ Phase 2 (prévu) | ✅ Phase 3 (prévu) |
 |--------|----------|------------|-------------------|-------------------|
-| **Tests de prod** | Aucun | Smoke tests auto | + Intégration réelle | + Monitoring continu |
-| **Détection de panne** | Utilisateurs | < 3 min après deploy | Avant deploy | Temps réel |
+| **Tests de prod** | Aucun | Double protection (pré-merge + post-deploy) | + Intégration réelle | + Monitoring continu |
+| **Détection de panne** | Utilisateurs (heures/jours) | **Pré-merge (0 déploiement cassé)** + post-deploy < 3 min | Avant deploy | Temps réel |
+| **Blocage merge** | ❌ Aucun | ✅ **Automatique si build prod cassé** | ✅ + Tests intégration | ✅ + Métriques perf |
 | **Mocks** | 100% mocké | Tests prod sans mocks | 80% réduits | Tous environnements testés |
-| **Alertes** | Manuelles | Issue auto + assign | + Blocage merge | + Alertes temps réel |
+| **Alertes** | Manuelles | Issue auto + assign (post-deploy) | + Blocage intégration | + Alertes temps réel |
 | **Rollback** | Manuel lent | Procédure définie | Automatique | Instant |
-| **Confiance déploiement** | 🔴 Faible | 🟡 Moyenne | 🟢 Haute | 🟢 Très haute |
+| **Pre-commit** | E2E lents (3-5 min) | **Tests unitaires rapides (< 1 min)** | Idem | Idem |
+| **Confiance déploiement** | 🔴 Faible | 🟢 **Haute** (double protection) | 🟢 Très haute | 🟢 Maximale |
 
 ---
 
 ## 🚀 Workflow Développeur Recommandé
 
-### Avant chaque commit vers `main`:
+### Sur `develop` (workflow quotidien rapide):
 
 ```bash
-# 1. Tests unitaires
-npm run test:unit
+# Pre-commit automatique (< 10s)
+- Lint + format automatique
+- Pas de tests (CI fera tout)
 
-# 2. Tests E2E locaux
-npm run test:e2e:smoke
-
-# 3. 🔥 NOUVEAU: Test du build de production
-npm run test:production
-
-# 4. Si tout passe, commit et push
+# Développer, commit, push
 git add .
 git commit -m "feat: nouvelle fonctionnalité"
-git push origin main
+git push origin develop
+
+# ✅ CI s'exécute automatiquement
+# Si OK → Auto-merge vers main
 ```
 
-### Après le déploiement:
+### Avant de créer une PR vers `main`:
+
+```bash
+# 1. Tests unitaires (rapides)
+npm run test:unit
+
+# 2. 🔥 RECOMMANDÉ: Test du build de production localement
+npm run test:production
+
+# 3. Si tout passe, créer la PR
+git push origin feature/ma-fonctionnalite
+# Créer PR sur GitHub
+
+# ✅ Le workflow 1-pr-validation.yml va:
+# - Exécuter production-smoke (BLOQUANT)
+# - Si OK → exécuter tous les autres tests
+# - Si tout passe → Merge autorisé
+```
+
+**⚠️ IMPORTANT:** 
+- Les tests E2E ne sont **plus dans le pre-commit** (trop lents)
+- Ils s'exécutent **automatiquement en CI** (plus efficace)
+- Le job `production-smoke` en CI **bloque le merge** si problème
+- = **Workflow plus rapide SANS perte de qualité**
+
+### Après le merge et déploiement:
 
 1. ⏳ Attendre 3-5 minutes
 2. 🔍 Vérifier que le workflow `5️⃣ Production Smoke Tests` passe
 3. ✅ Si vert → Tout va bien
 4. ❌ Si rouge → Issue créée automatiquement, agir immédiatement
+
+### En cas de modification des E2E:
+
+```bash
+# Tester localement avant de pusher
+npm run test:e2e:smoke
+
+# Ou tous les E2E
+npm run test:e2e
+```
 
 ---
 
@@ -371,15 +455,28 @@ git push origin main
 
 ---
 
-## 🔗 Fichiers Créés
+## 🔗 Fichiers Créés/Modifiés
 
 ### Phase 1 (Terminée)
 
-- `tests/e2e/production-smoke.spec.ts` - Tests de smoke pour la production
-- `.github/workflows/5-production-smoke-tests.yml` - Workflow de tests post-déploiement
+**Fichiers créés:**
+- `tests/e2e/production-smoke.spec.ts` - 10 tests critiques sans mocks
+- `.github/workflows/5-production-smoke-tests.yml` - Workflow post-déploiement (filet de sécurité)
 - `scripts/test-production-build.ps1` - Script Windows pour tests locaux
 - `scripts/test-production-build.sh` - Script Linux/Mac pour tests locaux
-- `Docs/PROTECTION-PRODUCTION.md` - Cette documentation
+- `Docs/TESTS/PROTECTION-PRODUCTION.md` - Cette documentation
+
+**Fichiers modifiés:**
+- `.github/workflows/1-pr-validation.yml` - Ajout job `production-smoke` BLOQUANT (Job 0)
+- `.github/workflows/8-workflow-monitoring.yml` - Monitoring hybride (après workflows critiques + backup 6h)
+- `package.json` - Ajout scripts `test:production` et `test:production:bash`
+- `Docs/TESTS/TESTS-GUIDE.md` - Section protection production ajoutée
+- `Docs/TESTS/PROTECTION-PRODUCTION.md` - Cette documentation (mise à jour double protection)
+
+**Recommandations hooks Git (à implémenter):**
+- Pre-commit `develop`: Lint + format uniquement (< 10s)
+- Pre-commit `main`: Tests unitaires + lint + format (< 1 min)
+- Pre-push: Retirer E2E (CI bloque si problème)
 
 ### Phase 2 (À créer)
 
