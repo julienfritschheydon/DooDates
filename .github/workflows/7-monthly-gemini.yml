@@ -16,6 +16,10 @@ on:
       - 'tests/setup.ts'  # Config Jest
       - 'jest.config.js'  # Config Jest
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   test-gemini:
     runs-on: ubuntu-latest

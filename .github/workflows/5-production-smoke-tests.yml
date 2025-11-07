@@ -82,12 +82,12 @@ jobs:
           npx playwright test tests/e2e/production-smoke.spec.ts \
             --project=chromium \
             --reporter=html,json \
-            --retries=2 \
-            --base-url="${{ steps.production-url.outputs.url }}"
+            --retries=2
         env:
           # Mode production - pas de mocks
           NODE_ENV: production
           CI: true
+          BASE_URL: ${{ steps.production-url.outputs.url }}
         continue-on-error: true
 
       - name: 📊 Upload Playwright HTML report
