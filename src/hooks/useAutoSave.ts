@@ -353,6 +353,14 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         const DISABLE_SUPABASE_CONVERSATIONS =
           import.meta.env.VITE_DISABLE_SUPABASE_CONVERSATIONS === "true";
 
+        console.log(`[${timestamp}] [${requestId}] 💾 Vérification conditions Supabase:`, {
+          DISABLE_SUPABASE_CONVERSATIONS,
+          hasUser: !!user?.id,
+          userId: user?.id,
+          conversationUserId: conversation?.userId,
+          userIdMatch: conversation?.userId === user?.id,
+        });
+
         if (!DISABLE_SUPABASE_CONVERSATIONS && user?.id && conversation?.userId === user.id) {
           console.log(`[${timestamp}] [${requestId}] 💾 Sauvegarde Supabase...`);
           try {
