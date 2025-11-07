@@ -89,12 +89,10 @@ export function usePolls() {
 
         // Creating poll with generated slug and admin token if needed
 
-        // Mode local/mock si Supabase n'est pas configuré, en environnement de test/Vitest,
-        // ou si le runtime E2E (Playwright) est actif via indicateur global/localStorage.
+        // Vérifier si mode local/test ou si Supabase n'est pas configuré
         const isLocalMode =
           import.meta.env.MODE === "test" ||
           Boolean(import.meta.env.VITEST) ||
-          // Détection runtime E2E côté navigateur
           (typeof window !== "undefined" &&
             (() => {
               try {
@@ -107,7 +105,6 @@ export function usePolls() {
                 return false;
               }
             })()) ||
-          // Fallback: variables d'env manquantes
           !import.meta.env.VITE_SUPABASE_URL ||
           !import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -151,91 +148,128 @@ export function usePolls() {
           return { poll: mockPoll };
         }
 
-        // 1. Créer le sondage principal
-        // Utiliser getCurrentUserId pour être cohérent avec le filtrage du dashboard
-        // Pour les utilisateurs non loggés, cela retourne le deviceId au lieu de null
-        const insertData = {
-          creator_id: getCurrentUserId(user?.id), // Utiliser deviceId pour les utilisateurs non loggés
+        // 🆕 ARCHITECTURE V2 : Créer dans table conversations (pas polls)
+        // Préparer poll_data avec toutes les infos du sondage
+        const pollData_json = {
+          type: "date",
           title: pollData.title,
           description: pollData.description || null,
-          slug: slug,
-          admin_token: adminToken, // Token pour gérer les sondages anonymes
-          settings: mergedSettings,
-          status: "active" as const,
-          expires_at: pollData.settings.expiresAt || null,
+          dates: pollData.selectedDates,
+          timeSlots: pollData.timeSlotsByDate,
+          settings: {
+            timeGranularity: pollData.settings.timeGranularity,
+            allowAnonymousVotes: pollData.settings.allowAnonymousVotes,
+            allowMaybeVotes: pollData.settings.allowMaybeVotes,
+            sendNotifications: pollData.settings.sendNotifications,
+            expiresAt: pollData.settings.expiresAt,
+          },
+          creatorEmail: user?.email || undefined,
         };
 
-        // Utiliser fetch() direct pour les sondages (comme pour les options)
-        let poll: any;
+        // Préparer les données de la conversation
+        const conversationData = {
+          user_id: user?.id || null,
+          session_id: user?.id || `guest-${Date.now()}`,
+          title: pollData.title,
+          first_message: "Sondage de dates créé manuellement",
+          message_count: 0,
+          messages: [],
+          context: {},
+          poll_data: pollData_json,
+          poll_type: "date",
+          poll_status: "active",
+          poll_slug: slug,
+          status: "completed", // Conversation complétée car poll créé
+          is_favorite: false,
+          tags: [],
+          metadata: {
+            created_manually: true,
+            admin_token: adminToken,
+          },
+        };
+
+        let conversation: any;
         try {
-          // Pour les sondages anonymes, pas besoin de token JWT
           if (!user) {
-            // Creating anonymous poll - no token required
+            // Utilisateur non connecté - utiliser localStorage pour l'instant
+            // TODO : Gérer les invités dans Supabase
+            logger.warn("Utilisateur non connecté, sauvegarde en localStorage", "poll");
 
-            // Utiliser la clé API publique pour les sondages anonymes
-            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls`, {
-              method: "POST",
-              headers: {
-                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                "Content-Type": "application/json",
-                Prefer: "return=representation",
-              },
-              body: JSON.stringify(insertData),
-            });
+            const currentUserId = getCurrentUserId(user?.id);
+            const mockPoll: StoragePoll = {
+              id: `local-${Date.now()}`,
+              creator_id: currentUserId,
+              title: pollData.title,
+              description: pollData.description || undefined,
+              slug,
+              settings: mergedSettings,
+              status: "active",
+              expires_at: pollData.settings.expiresAt || undefined,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              creatorEmail: user?.email || undefined,
+              dates: pollData.selectedDates,
+              type: "date",
+            };
 
-            if (!response.ok) {
-              const errorData = await response.text();
-              const apiError = ErrorFactory.api(
-                `Erreur API Supabase ${response.status}`,
-                "Erreur lors de la création du sondage",
-                { status: response.status, errorData },
-              );
+            addPoll(mockPoll);
+            window.dispatchEvent(
+              new CustomEvent("pollCreated", {
+                detail: { poll: mockPoll },
+              }),
+            );
 
-              logError(apiError, {
-                component: "usePolls",
-                operation: "createPoll",
-                status: response.status,
-              });
+            return { poll: mockPoll };
+          }
 
-              throw apiError;
+          // Utilisateur connecté - sauvegarder dans Supabase
+          // Récupérer le token JWT
+          let token = null;
+          const supabaseSession = localStorage.getItem("supabase.auth.token");
+          if (supabaseSession) {
+            const sessionData = JSON.parse(supabaseSession);
+            token = sessionData?.access_token || sessionData?.currentSession?.access_token;
+          }
+
+          if (!token) {
+            const authData = localStorage.getItem(
+              `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
+            );
+            if (authData) {
+              const parsed = JSON.parse(authData);
+              token = parsed?.access_token;
             }
+          }
 
-            const result = await response.json();
-            poll = Array.isArray(result) ? result[0] : result;
-          } else {
-            // Pour les utilisateurs connectés, récupérer le token JWT
-            let token = null;
-            const supabaseSession = localStorage.getItem("supabase.auth.token");
-            if (supabaseSession) {
-              const sessionData = JSON.parse(supabaseSession);
-              token = sessionData?.access_token || sessionData?.currentSession?.access_token;
-            }
+          if (!token) {
+            logger.warn("Token non trouvé, sauvegarde en localStorage", "poll");
 
-            if (!token) {
-              const authData = localStorage.getItem(
-                `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
-              );
-              if (authData) {
-                const parsed = JSON.parse(authData);
-                token = parsed?.access_token;
-              }
-            }
+            const currentUserId = getCurrentUserId(user?.id);
+            const mockPoll: StoragePoll = {
+              id: `local-${Date.now()}`,
+              creator_id: currentUserId,
+              title: pollData.title,
+              description: pollData.description || undefined,
+              slug,
+              settings: mergedSettings,
+              status: "active",
+              expires_at: pollData.settings.expiresAt || undefined,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              creatorEmail: user?.email || undefined,
+              dates: pollData.selectedDates,
+              type: "date",
+            };
 
-            if (!token) {
-              const authError = ErrorFactory.auth(
-                "Token d'authentification non trouvé pour utilisateur connecté",
-              );
+            addPoll(mockPoll);
+            return { poll: mockPoll };
+          }
 
-              logError(authError, {
-                component: "usePolls",
-                operation: "createPollOptions",
-              });
-
-              throw authError;
-            }
-
-            // Faire l'insertion avec token d'authentification
-            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls`, {
+          // Créer dans table conversations
+          logger.info("💾 Sauvegarde dans Supabase (table conversations)", "poll");
+          const response = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/conversations`,
+            {
               method: "POST",
               headers: {
                 apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
@@ -243,278 +277,107 @@ export function usePolls() {
                 "Content-Type": "application/json",
                 Prefer: "return=representation",
               },
-              body: JSON.stringify(insertData),
+              body: JSON.stringify(conversationData),
+            },
+          );
+
+          if (!response.ok) {
+            const errorData = await response.text();
+            logger.error("Erreur création conversation", "poll", {
+              status: response.status,
+              errorData,
             });
 
-            if (!response.ok) {
-              const errorData = await response.text();
-              const apiError = ErrorFactory.api(
-                `Erreur API Supabase ${response.status}`,
-                "Erreur lors de la création du sondage",
-                { status: response.status, errorData },
-              );
+            // Fallback sur localStorage
+            logger.warn("Fallback sur localStorage après erreur Supabase", "poll");
+            const currentUserId = getCurrentUserId(user?.id);
+            const mockPoll: StoragePoll = {
+              id: `local-${Date.now()}`,
+              creator_id: currentUserId,
+              title: pollData.title,
+              description: pollData.description || undefined,
+              slug,
+              settings: mergedSettings,
+              status: "active",
+              expires_at: pollData.settings.expiresAt || undefined,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              creatorEmail: user?.email || undefined,
+              dates: pollData.selectedDates,
+              type: "date",
+            };
 
-              logError(apiError, {
-                component: "usePolls",
-                operation: "createPoll",
-                status: response.status,
-              });
-
-              throw apiError;
-            }
-
-            const result = await response.json();
-            poll = Array.isArray(result) ? result[0] : result;
+            addPoll(mockPoll);
+            return { poll: mockPoll };
           }
+
+          const result = await response.json();
+          conversation = Array.isArray(result) ? result[0] : result;
+
+          logger.info("✅ Conversation créée dans Supabase", "poll", {
+            conversationId: conversation.id,
+            pollSlug: slug,
+          });
+
+          // Convertir conversation → poll pour compatibilité
+          const createdPoll: StoragePoll = {
+            id: conversation.id,
+            creator_id: conversation.user_id,
+            title: conversation.title,
+            description: conversation.poll_data?.description,
+            slug: conversation.poll_slug,
+            settings: {
+              ...conversation.poll_data?.settings,
+              selectedDates: conversation.poll_data?.dates || [], // 🔧 Fix validation
+            },
+            status: conversation.poll_status,
+            expires_at: conversation.poll_data?.settings?.expiresAt,
+            created_at: conversation.created_at,
+            updated_at: conversation.updated_at,
+            creatorEmail: user?.email || undefined,
+            dates: conversation.poll_data?.dates || [],
+            type: "date",
+            conversationId: conversation.id,
+          };
+
+          // Sauvegarder aussi dans localStorage pour cache local
+          addPoll(createdPoll);
+          setPolls((prev) => [...prev, createdPoll]);
+
+          return { poll: createdPoll };
         } catch (fetchError) {
           logError(fetchError as Error, {
             component: "usePolls",
             operation: "createPoll",
           });
-          // Améliorer le message d'erreur pour l'utilisateur
-          if (fetchError instanceof TypeError && fetchError.message.includes("fetch")) {
-            throw ErrorFactory.network(
-              fetchError.message,
-              "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.",
-            );
-          }
-          throw handleError(fetchError, {
-            component: "usePolls",
-            operation: "createPoll",
-          });
-        }
 
-        // Step 2: Creating date options
-
-        const pollOptions = pollData.selectedDates.map((date, index) => {
-          const timeSlots = pollData.timeSlotsByDate[date] || [];
-
-          // Transformer les créneaux au format attendu par la DB
-          const enabledSlots = timeSlots.filter((slot) => slot.enabled);
-
-          // Trier les créneaux par heure et minute
-          const sortedSlots = enabledSlots.sort((a, b) => {
-            if (a.hour !== b.hour) return a.hour - b.hour;
-            return a.minute - b.minute;
-          });
-
-          const formattedTimeSlots = sortedSlots.map((slot, slotIndex) => {
-            // Calculer l'heure de fin correctement
-            const totalMinutes =
-              slot.hour * 60 + slot.minute + (pollData.settings?.timeGranularity || 30);
-            const endHour = Math.floor(totalMinutes / 60);
-            const endMinute = totalMinutes % 60;
-
-            return {
-              id: `slot-${date}-${slotIndex + 1}`,
-              start_hour: slot.hour,
-              start_minute: slot.minute,
-              end_hour: endHour,
-              end_minute: endMinute,
-              duration: pollData.settings?.timeGranularity || 30,
-              label: `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")} - ${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}`,
-            };
-          });
-
-          return {
-            poll_id: poll.id,
-            option_date: date,
-            time_slots: formattedTimeSlots,
-            display_order: index,
+          // Fallback localStorage en cas d'erreur
+          logger.warn("Fallback localStorage après erreur réseau", "poll");
+          const currentUserId = getCurrentUserId(user?.id);
+          const mockPoll: StoragePoll = {
+            id: `local-${Date.now()}`,
+            creator_id: currentUserId,
+            title: pollData.title,
+            description: pollData.description || undefined,
+            slug,
+            settings: mergedSettings,
+            status: "active",
+            expires_at: pollData.settings.expiresAt || undefined,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            creatorEmail: user?.email || undefined,
+            dates: pollData.selectedDates,
+            type: "date",
           };
-        });
 
-        // Utiliser fetch() direct pour les options (comme pour le sondage principal)
-        try {
-          // Pour les sondages anonymes, pas besoin de token JWT
-          if (!user) {
-            // Creating anonymous poll - no token required
-
-            // Utiliser la clé API publique pour les sondages anonymes
-            const optionsResponse = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/poll_options`,
-              {
-                method: "POST",
-                headers: {
-                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                  "Content-Type": "application/json",
-                  Prefer: "return=representation",
-                },
-                body: JSON.stringify(pollOptions),
-              },
-            );
-
-            logger.debug("Options insertion response", "poll", {
-              status: optionsResponse.status,
-              statusText: optionsResponse.statusText,
-            });
-
-            if (!optionsResponse.ok) {
-              const errorText = await optionsResponse.text();
-              const optionsError = ErrorFactory.api(
-                `Erreur création options ${optionsResponse.status}`,
-                "Erreur lors de la création des options du sondage",
-                { status: optionsResponse.status, errorText },
-              );
-
-              logError(optionsError, {
-                component: "usePolls",
-                operation: "createPollOptions",
-              });
-
-              throw optionsError;
-            }
-
-            const optionsData = await optionsResponse.json();
-            logger.info("Options créées avec succès", "poll", {
-              optionsCount: optionsData.length,
-            });
-          } else {
-            // Pour les utilisateurs connectés, récupérer le token JWT
-            let token = null;
-            const supabaseSession = localStorage.getItem("supabase.auth.token");
-            if (supabaseSession) {
-              const sessionData = JSON.parse(supabaseSession);
-              token = sessionData?.access_token || sessionData?.currentSession?.access_token;
-            }
-
-            if (!token) {
-              const authData = localStorage.getItem(
-                `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
-              );
-              if (authData) {
-                const parsed = JSON.parse(authData);
-                token = parsed?.access_token;
-              }
-            }
-
-            if (!token) {
-              const authError = ErrorFactory.auth(
-                "Token d'authentification non trouvé pour utilisateur connecté",
-              );
-
-              logError(authError, {
-                component: "usePolls",
-                operation: "createPollOptions",
-              });
-
-              throw authError;
-            }
-
-            // Faire l'insertion avec token d'authentification
-            const optionsResponse = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/poll_options`,
-              {
-                method: "POST",
-                headers: {
-                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                  Prefer: "return=representation",
-                },
-                body: JSON.stringify(pollOptions),
-              },
-            );
-
-            logger.debug("Options insertion response", "poll", {
-              status: optionsResponse.status,
-              statusText: optionsResponse.statusText,
-            });
-
-            if (!optionsResponse.ok) {
-              const errorText = await optionsResponse.text();
-              const optionsError = ErrorFactory.api(
-                `Erreur création options ${optionsResponse.status}`,
-                "Erreur lors de la création des options du sondage",
-                { status: optionsResponse.status, errorText },
-              );
-
-              logError(optionsError, {
-                component: "usePolls",
-                operation: "createPollOptions",
-              });
-
-              throw optionsError;
-            }
-
-            const optionsData = await optionsResponse.json();
-            // Options created successfully
-          }
-        } catch (optionsError) {
-          const processedError = handleError(
-            optionsError,
-            {
-              component: "usePolls",
-              operation: "createPollOptions",
-            },
-            "Erreur lors de la création des options du sondage",
-          );
-
-          logError(processedError, {
-            component: "usePolls",
-            operation: "createPollOptions",
-            pollId: poll.id,
-          });
-
-          // Nettoyer le sondage créé en cas d'erreur sur les options
-          try {
-            await supabase.from("polls").delete().eq("id", poll.id);
-          } catch (cleanupError) {
-            const cleanupErr = handleError(
-              cleanupError,
-              {
-                component: "usePolls",
-                operation: "pollCleanup",
-              },
-              "Erreur lors du nettoyage du sondage",
-            );
-
-            logError(cleanupErr, {
-              component: "usePolls",
-              operation: "pollCleanup",
-              pollId: poll.id,
-            });
-          }
-
-          throw optionsError;
+          addPoll(mockPoll);
+          return { poll: mockPoll };
         }
 
-        // 3. Envoyer les emails aux participants si demandé
+        // ❌ ANCIEN CODE SUPPRIMÉ : poll_options (maintenant dans poll_data)
+        // Les dates et créneaux sont maintenant dans conversations.poll_data.timeSlots
 
-        if (pollData.settings.sendNotifications && pollData.participantEmails.length > 0) {
-          try {
-            const emailResult = await EmailService.sendPollCreatedNotification(
-              pollData.title,
-              poll.slug,
-              user?.email || user?.user_metadata?.full_name || "Un organisateur",
-              pollData.participantEmails,
-            );
-
-            if (emailResult.success) {
-              // Emails sent successfully
-            } else {
-              logger.warn("Email sending error", "api", emailResult.error);
-              // Ne pas faire échouer la création du sondage si l'email échoue
-            }
-          } catch (emailError) {
-            logger.warn("Error sending emails", "api", emailError);
-            // Ne pas faire échouer la création du sondage si l'email échoue
-          }
-        }
-
-        // 4. Mettre à jour le cache localStorage avec le poll créé
-        const createdPoll: StoragePoll = {
-          ...poll,
-          dates: pollData.selectedDates,
-          type: "date",
-          creatorEmail: user?.email || undefined,
-        };
-        addPoll(createdPoll);
-        setPolls((prev) => [...prev, createdPoll]);
-
-        // 5. Analytics (optionnel - ne doit pas bloquer la création)
-
-        return { poll: createdPoll };
+        logger.info("✅ Sondage créé avec succès", "poll");
       } catch (error: any) {
         const processedError = handleError(
           error,
@@ -566,7 +429,9 @@ export function usePolls() {
     try {
       let userPolls: StoragePoll[] = [];
 
-      // Si l'utilisateur est connecté, charger depuis Supabase
+      // 🆕 ARCHITECTURE V2 : Charger depuis conversations (pas polls)
+
+      // Si l'utilisateur est connecté, essayer de charger depuis Supabase
       if (user?.id) {
         try {
           // Récupérer le token JWT
@@ -588,9 +453,10 @@ export function usePolls() {
           }
 
           if (token) {
-            // Charger les sondages depuis Supabase
+            // Charger les conversations avec polls depuis Supabase
+            logger.info("📥 Chargement depuis Supabase (table conversations)", "poll");
             const response = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls?creator_id=eq.${user.id}&select=*`,
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/conversations?user_id=eq.${user.id}&poll_data=not.is.null&select=*`,
               {
                 method: "GET",
                 headers: {
@@ -602,37 +468,67 @@ export function usePolls() {
             );
 
             if (response.ok) {
-              const supabasePolls = await response.json();
-              logger.info("Sondages chargés depuis Supabase", "poll", {
-                count: supabasePolls.length,
+              const conversations = await response.json();
+              logger.info("✅ Conversations chargées depuis Supabase", "poll", {
+                count: conversations.length,
                 userId: user.id,
               });
 
-              // Convertir les sondages Supabase au format StoragePoll
-              userPolls = supabasePolls.map((p: any) => ({
-                id: p.id,
-                title: p.title,
-                slug: p.slug,
-                description: p.description,
-                type: p.type || "date",
-                status: p.status || "active",
-                created_at: p.created_at,
-                updated_at: p.updated_at,
-                user_id: p.user_id,
-                settings: p.settings || {},
+              // Convertir conversations → polls
+              userPolls = conversations.map((c: any) => ({
+                id: c.id,
+                conversationId: c.id,
+                title: c.title || c.poll_data?.title,
+                slug: c.poll_slug,
+                description: c.poll_data?.description,
+                type: c.poll_type || "date",
+                status: c.poll_status || "active",
+                created_at: c.created_at,
+                updated_at: c.updated_at,
+                creator_id: c.user_id,
+                dates: c.poll_data?.dates || [],
+                settings: {
+                  ...c.poll_data?.settings,
+                  selectedDates: c.poll_data?.dates || [], // 🔧 Fix validation
+                },
               }));
 
-              // Sauvegarder dans localStorage pour cohérence
-              const existingPolls = getAllPolls();
-              const mergedPolls = [...existingPolls];
+              // Sauvegarder aussi les conversations dans localStorage
+              const { addConversation, getConversation } = await import(
+                "../lib/storage/ConversationStorageSimple"
+              );
+              conversations.forEach((c: any) => {
+                // Vérifier si la conversation existe déjà
+                const existingConv = getConversation(c.id);
+                if (!existingConv) {
+                  // Créer la conversation dans localStorage
+                  addConversation({
+                    id: c.id,
+                    title: c.title || c.poll_data?.title || "Sondage sans titre",
+                    status: c.status || "completed",
+                    createdAt: new Date(c.created_at),
+                    updatedAt: new Date(c.updated_at),
+                    firstMessage: c.first_message || "Sondage créé",
+                    messageCount: 0,
+                    isFavorite: c.is_favorite || false,
+                    tags: c.tags || [],
+                    userId: c.user_id,
+                    pollId: c.id,
+                    pollType: c.poll_type,
+                    pollStatus: c.poll_status,
+                  });
+                }
+              });
 
-              // Ajouter les sondages Supabase qui ne sont pas déjà dans localStorage
+              // Fusionner avec localStorage pour garder polls locaux
+              const localPolls = getAllPolls();
+              const mergedPolls = [...localPolls];
+
               userPolls.forEach((supabasePoll) => {
                 const exists = mergedPolls.find((p) => p.id === supabasePoll.id);
                 if (!exists) {
                   mergedPolls.push(supabasePoll);
                 } else {
-                  // Mettre à jour si le sondage Supabase est plus récent
                   const existingDate = new Date(exists.updated_at || exists.created_at).getTime();
                   const supabaseDate = new Date(
                     supabasePoll.updated_at || supabasePoll.created_at,
@@ -646,36 +542,30 @@ export function usePolls() {
                 }
               });
 
-              // Sauvegarder les sondages fusionnés
               const { savePolls } = await import("../lib/pollStorage");
               savePolls(mergedPolls);
               userPolls = mergedPolls;
             } else {
-              logger.warn(
-                "Erreur lors du chargement depuis Supabase, utilisation de localStorage",
-                "poll",
-                {
-                  status: response.status,
-                },
-              );
-              // Fallback sur localStorage
+              logger.warn("Erreur chargement conversations, utilisation localStorage", "poll", {
+                status: response.status,
+              });
               userPolls = getAllPolls();
             }
           } else {
-            logger.warn("Token non trouvé, utilisation de localStorage", "poll");
+            logger.warn("Token non trouvé, utilisation localStorage", "poll");
             userPolls = getAllPolls();
           }
         } catch (supabaseError) {
           logger.error(
-            "Erreur lors du chargement depuis Supabase, utilisation de localStorage",
+            "Erreur chargement Supabase, utilisation localStorage",
             "poll",
             supabaseError,
           );
-          // Fallback sur localStorage en cas d'erreur
           userPolls = getAllPolls();
         }
       } else {
-        // Mode guest - utiliser localStorage uniquement
+        // Mode guest - localStorage uniquement
+        logger.info("Mode guest - utilisation localStorage", "poll");
         userPolls = getAllPolls();
       }
 
