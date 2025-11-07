@@ -437,11 +437,7 @@ function PricingFAQ() {
       </div>
 
       {/* Auth Modal */}
-      <AuthModal
-        open={showAuthModal}
-        onOpenChange={setShowAuthModal}
-        defaultMode={authMode}
-      />
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} defaultMode={authMode} />
     </div>
   );
 }

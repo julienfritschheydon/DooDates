@@ -11,6 +11,7 @@ import type { Conversation, ConversationMessage } from "../../types/conversation
 import { ConversationErrorFactory } from "../../types/conversation";
 import { logger } from "../logger";
 import { handleError, ErrorFactory, logError } from "../error-handling";
+import { supabaseInsert, supabaseUpdate, getSupabaseToken } from "../supabaseApi";
 
 // Local cache for performance (in-memory)
 const conversationCache = new Map<string, Conversation>();
@@ -227,26 +228,29 @@ export async function createConversation(
     console.log(`[${timestamp}] [${requestId}] 🗄️ Appel Supabase insert...`);
     const insertStartTime = Date.now();
 
-    // Log actual request details
-    console.log(`[${timestamp}] [${requestId}] 🗄️ Supabase URL:`, supabase["supabaseUrl"]);
+    // Check token
+    const token = getSupabaseToken();
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Auth token:`, {
+      hasToken: !!token,
+      userId,
+    });
+
+    if (!token) {
+      throw ErrorFactory.auth("No authentication token found");
+    }
+
     console.log(
       `[${timestamp}] [${requestId}] 🗄️ Data to insert:`,
       JSON.stringify(supabaseData, null, 2),
     );
 
-    // INSERT and get response
-    const { data, error } = await supabase.from("conversations").insert(supabaseData).select();
-    const insertDuration = Date.now() - insertStartTime;
-    console.log(`[${timestamp}] [${requestId}] 🗄️ Réponse Supabase reçue (${insertDuration}ms)`, {
-      hasData: !!data,
-      hasError: !!error,
-      errorCode: error?.code,
-      errorMessage: error?.message,
-      errorDetails: error?.details,
-      errorHint: error?.hint,
-    });
-
-    if (error) {
+    // INSERT using centralized API utility with timeout
+    let data;
+    try {
+      data = await supabaseInsert("conversations", supabaseData, { timeout: 5000 });
+    } catch (error: any) {
+      const insertDuration = Date.now() - insertStartTime;
+      
       const detailedError = ErrorFactory.storage(
         "Erreur Supabase lors de l'insertion",
         error.message || "Impossible de créer la conversation",
@@ -257,15 +261,18 @@ export async function createConversation(
           requestId,
           userId,
           duration: `${insertDuration}ms`,
-          errorCode: error.code,
-          errorDetails: error.details,
-          errorHint: error.hint,
+          error: error.message,
         },
       });
       throw detailedError;
     }
 
-    if (!data || !Array.isArray(data) || data.length === 0) {
+    const insertDuration = Date.now() - insertStartTime;
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Réponse Supabase reçue (${insertDuration}ms)`, {
+      hasData: !!data,
+    });
+
+    if (!data) {
       const noDataError = ErrorFactory.storage(
         "Aucune donnée retournée par Supabase",
         "Échec de la création de la conversation",
@@ -275,16 +282,13 @@ export async function createConversation(
         metadata: {
           requestId,
           userId,
-          hasData: !!data,
-          isArray: Array.isArray(data),
-          dataLength: Array.isArray(data) ? data.length : 0,
         },
       });
       throw noDataError;
     }
 
     console.log(`[${timestamp}] [${requestId}] 🗄️ Conversion réponse Supabase...`);
-    const created = fromSupabaseConversation(data[0]);
+    const created = fromSupabaseConversation(data);
     console.log(`[${timestamp}] [${requestId}] 🗄️ Mise en cache...`);
     conversationCache.set(created.id, created);
 

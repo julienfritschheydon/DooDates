@@ -4,13 +4,19 @@ This directory contains SQL scripts for database setup and maintenance of the co
 
 ## 🗄️ Database Schema Files
 
-### `create-conversations-tables.sql`
-**Complete database schema for conversations system**
+### `00-INIT-DATABASE-COMPLETE.sql` ⭐ **RECOMMANDÉ**
+**Complete database initialization script**
+- Creates ALL tables needed for DooDates
+- Uses JSONB `messages` field in `conversations` table
+- Compatible with TypeScript code (`ConversationStorageSupabase.ts`)
+- Includes RLS policies, indexes, and triggers
+- **THIS IS THE SCHEMA USED BY THE APPLICATION**
+
+### `create-conversations-tables.sql` ⚠️ **OBSOLÈTE**
+**Alternative schema with separate tables**
 - Creates `conversations` and `conversation_messages` tables
-- Includes all constraints, indexes, and triggers
-- Supports both authenticated users and guest sessions
-- Full-text search capabilities (French language)
-- Automatic timestamp and message count management
+- Uses separate table for messages (NOT compatible with current code)
+- **DO NOT USE unless you modify ConversationStorageSupabase.ts**
 
 **Key Features:**
 - UUID primary keys with auto-generation
@@ -19,6 +25,15 @@ This directory contains SQL scripts for database setup and maintenance of the co
 - JSONB metadata storage for flexibility
 - Guest session tracking with expiration
 - Poll integration fields
+
+### `diagnostic-conversations.sql` 🔧 **NOUVEAU**
+**Diagnostic tool for troubleshooting conversations system**
+- Checks table structure
+- Verifies JSONB `messages` column exists
+- Detects schema mismatches
+- Shows RLS policies status
+- Counts conversations and messages
+- **RUN THIS FIRST if you have any issues**
 
 ### `setup-rls-policies.sql`
 **Row Level Security (RLS) configuration**
