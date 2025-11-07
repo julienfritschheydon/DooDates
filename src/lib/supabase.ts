@@ -5,14 +5,13 @@ import { handleError, ErrorFactory, logError } from "./error-handling";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Debug: Log des variables d'environnement (uniquement en dev)
-if (import.meta.env.DEV) {
-  console.log("🔧 Supabase Config Debug:", {
-    url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : "MISSING",
-    key: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : "MISSING",
-    isLocalDev: !supabaseUrl || !supabaseAnonKey,
-  });
-}
+// Debug: Log des variables d'environnement (toujours pour diagnostic production)
+console.log("🔧 DooDates Supabase Config:", {
+  url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : "❌ MISSING",
+  key: supabaseAnonKey ? "✅ Configured" : "❌ MISSING",
+  isLocalDev: !supabaseUrl || !supabaseAnonKey,
+  mode: import.meta.env.MODE,
+});
 
 // Déterminer si on est en mode développement local
 const isLocalDev = !supabaseUrl || !supabaseAnonKey;

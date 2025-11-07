@@ -10,7 +10,11 @@ export interface Poll {
   created_at: string;
   updated_at: string;
   creatorEmail?: string; // Email du créateur pour les notifications
-  dates: string[]; // Dates sélectionnées pour le sondage
+  dates?: string[]; // Dates sélectionnées pour le sondage (uniquement pour type: "date")
+  // Support des formulaires
+  type?: "date" | "form";
+  questions?: any[]; // Questions du formulaire
+  conversationId?: string; // Lien avec conversation
 }
 
 export interface PollData {
