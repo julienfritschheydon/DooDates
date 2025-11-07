@@ -5,6 +5,10 @@ on:
     - cron: '0 2 * * *'  # Tous les jours à 2h du matin (UTC)
   workflow_dispatch:  # Permet exécution manuelle
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   full-regression:
     runs-on: ubuntu-latest
