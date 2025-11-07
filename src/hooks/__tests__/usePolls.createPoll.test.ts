@@ -44,6 +44,7 @@ describe("usePolls.createPoll", () => {
     const { result } = renderHook(() => usePolls());
 
     const pollData: any = {
+      type: "date", // ✅ Required type property
       title: "RÃ©union produit",
       description: "",
       selectedDates: ["2025-09-01", "2025-09-02"],
