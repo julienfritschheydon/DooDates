@@ -581,7 +581,7 @@ export function usePolls() {
           if (token) {
             // Charger les sondages depuis Supabase
             const response = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls?user_id=eq.${user.id}&select=*`,
+              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/polls?creator_id=eq.${user.id}&select=*`,
               {
                 method: "GET",
                 headers: {
