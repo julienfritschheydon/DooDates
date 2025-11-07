@@ -1,6 +1,6 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 06/11/2025 21:51:42
+**Dernière mise à jour:** 07/11/2025 08:30:27
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -26,14 +26,97 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ✅ success
 
-**Dernier run:** 06/11/2025 21:48:43
+**Dernier run:** 07/11/2025 08:25:15
 
 **Statistiques:**
-- ❌ Échecs (24h): **5**
-- ❌ Échecs (7 jours): **5**
+- ❌ Échecs (24h): **6**
+- ❌ Échecs (7 jours): **7**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
+
+#### Run #64 - 07/11/2025 00:37:22
+
+- **Commit:** `06ae38d`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19153200043)
+- **Jobs en échec:**
+  - ❌ `tests-unit` (failure)
+    - Steps en échec: `🧪 Tests unitaires`
+    - **Erreurs détectées (10):**
+      ```
+File: src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29
+Error: [] [4f185223-2d7e-42b5-adf1-d02db22ec173] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
+
+[] [4f185223-2d7e-42b5-adf1-d02db22ec173] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
+at /home/runner/work/DooDates/DooDates/src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29:49
+❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage Error: Supabase not available in tests
+[] [a13e4a82-9ff9-4fad-acfb-bf5f6eb516ea] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
+```
+      ```
+File: src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29
+Error: ❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage Error: Supabase not available in tests
+
+❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage Error: Supabase not available in tests
+at /home/runner/work/DooDates/DooDates/src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29:49
+[] [7449806b-a1ea-4697-aea4-9cb038cf3604] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
+❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage Error: Supabase not available in tests
+```
+      ```
+File: src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29
+Error: [] [4924e7ca-2822-4dba-a19a-3dbfeb0c072b] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
+
+[] [4924e7ca-2822-4dba-a19a-3dbfeb0c072b] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
+at /home/runner/work/DooDates/DooDates/src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29:49
+❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage Error: Supabase not available in tests
+[] [88626269-7143-4b60-900d-843494ee3874] ❌ Erreur Supabase, fallback localStorage: TypeError: Cannot read properties of undefined (reading 'id')
+```
+      ```
+File: src/hooks/useAutoSave.ts:138
+Error: ❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage TypeError: Cannot read properties of undefined (reading 'id')
+
+❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage TypeError: Cannot read properties of undefined (reading 'id')
+at /home/runner/work/DooDates/DooDates/src/hooks/useAutoSave.ts:138:103
+[] [dbdf914f-2857-4808-87dc-934450d9133e] ❌ Erreur Supabase, fallback localStorage: TypeError: Cannot read properties of undefined (reading 'id')
+❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage TypeError: Cannot read properties of undefined (reading 'id')
+```
+      ```
+File: src/hooks/useAutoSave.ts:138
+Error: [] [319108be-ece0-4538-a28d-4cdc816cefd1] ❌ Erreur Supabase, fallback localStorage: TypeError: Cannot read properties of undefined (reading 'id')
+
+[] [319108be-ece0-4538-a28d-4cdc816cefd1] ❌ Erreur Supabase, fallback localStorage: TypeError: Cannot read properties of undefined (reading 'id')
+at /home/runner/work/DooDates/DooDates/src/hooks/useAutoSave.ts:138:103
+❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage TypeError: Cannot read properties of undefined (reading 'id')
+[] [992d699e-5051-4b46-8cde-30d2ae33c632] ❌ Erreur Supabase, fallback localStorage: TypeError: Cannot read properties of undefined (reading 'id')
+```
+      *... et 5 autre(s) erreur(s)*
+
+#### Run #63 - 07/11/2025 00:15:05
+
+- **Commit:** `c8055d9`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19152755549)
+- **Jobs en échec:**
+  - ❌ `tests-unit` (failure)
+    - Steps en échec: `🧪 Tests unitaires`
+  - ❌ `tests-e2e` (failure)
+    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
+
+#### Run #62 - 06/11/2025 22:28:17
+
+- **Commit:** `56181eb`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19150412550)
+- **Jobs en échec:**
+  - ❌ `tests-unit` (failure)
+    - Steps en échec: `🧪 Tests unitaires`
+  - ❌ `build-validation` (failure)
+    - Steps en échec: `🧹 Lint (warnings allowed on develop)`
+  - ❌ `tests-e2e` (failure)
+    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
 
 #### Run #57 - 06/11/2025 19:06:56
 
@@ -44,100 +127,8 @@ Aucun échec détecté dans les 7 derniers jours.
 - **Jobs en échec:**
   - ❌ `tests-unit` (failure)
     - Steps en échec: `🧪 Tests unitaires`
-    - **Erreurs détectées (10):**
-      ```
-File: src/lib/error-handling.ts:150
-Error: name: 'DooDatesError',
-
-name: 'DooDatesError',
-stack: 'DooDatesError: Gemini model not initialized\n' +
-'    at Object.api (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:150:8)\n' +
-🚨 DooDates Error: {
-```
-      ```
-File: src/lib/error-handling.ts:136
-Error: name: 'DooDatesError',
-
-name: 'DooDatesError',
-stack: 'DooDatesError: Poll not found\n' +
-'    at Object.validation (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:136:5)\n' +
-🚨 DooDates Error: {
-message: 'API Error',
-name: 'DooDatesError',
-stack: 'DooDatesError: API Error\n' +
-'    at handleError (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:103:22)\n' +
-```
-      ```
-File: src/lib/error-handling.ts:103
-Error: 🚨 DooDates Error: {
-
-🚨 DooDates Error: {
-message: 'API Error',
-name: 'DooDatesError',
-stack: 'DooDatesError: API Error\n' +
-'    at handleError (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:103:22)\n' +
-```
-      ```
-File: src/lib/error-handling.ts:150
-Error: 🚨 DooDates Error: {
-
-🚨 DooDates Error: {
-name: 'DooDatesError',
-stack: 'DooDatesError: Gemini model not initialized\n' +
-'    at Object.api (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:150:8)\n' +
-```
-      ```
-File: src/lib/error-handling.ts:136
-Error: 🚨 DooDates Error: {
-
-🚨 DooDates Error: {
-name: 'DooDatesError',
-stack: 'DooDatesError: Poll not found\n' +
-'    at Object.validation (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:136:5)\n' +
-```
-      *... et 5 autre(s) erreur(s)*
   - ❌ `tests-e2e` (failure)
     - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conversations mockées et corriger le test guest mode\n- useConversations.favorites.test.ts: ajouter les mocks pour ConversationStorageSupabase\n\nTous les tests passent maintenant (25/25)\n",
-
-"body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conversations mockées et corriger le test guest mode\n- useConversations.favorites.test.ts: ajouter les mocks pour ConversationStorageSupabase\n\nTous les tests passent maintenant (25/25)\n",
-"body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conver
-... (truncated)
-```
-      ```
-Error: "body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conversations mockées et corriger le test guest mode\n- useConversations.favorites.test.ts: ajouter les mocks pour ConversationStorageSupabase\n\nTous les tests passent maintenant (25/25)\n",
-
-"body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conversations mockées et corriger le test guest mode\n- useConversations.favorites.test.ts: ajouter les mocks pour ConversationStorageSupabase\n\nTous les tests passent maintenant (25/25)\n",
-"body": "fix: corriger les tests unitaires en échec\n\n- useAiMessageQuota.test.ts: utiliser act() pour les effets React et vi.setSystemTime() pour le cooldown\n- BetaKeyService.test.ts: ajouter les mocks manquants pour handleError et ErrorFactory.auth\n- useConversations.test.ts: ajouter userId aux conver
-... (truncated)
-```
-      ```
-Error: "title": "Console Errors & React Warnings",
-
-"title": "Console Errors & React Warnings",
-"file": "console-errors.spec.ts",
-"errors": [],
-"file": "console-errors.spec.ts",
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"title": "Documentation page loads without errors @smoke",
-"errors": [],
-"title": "Documentation assets load correctly (no 404 errors) @smoke",
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      *... et 5 autre(s) erreur(s)*
 
 #### Run #56 - 06/11/2025 18:13:03
 
@@ -151,137 +142,22 @@ Error: "errors": [],
   - ❌ `tests-e2e` (failure)
     - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
 
-#### Run #55 - 06/11/2025 18:01:00
-
-- **Commit:** `ad3abfe`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19143507905)
-- **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🧪 Tests unitaires`
-  - ❌ `tests-e2e` (failure)
-    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
-
-#### Run #53 - 05/11/2025 23:34:37
-
-- **Commit:** `28ea5e9`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19118439223)
-- **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🧪 Tests unitaires`
-
-#### Run #47 - 05/11/2025 22:36:16
-
-- **Commit:** `1c6ea9c`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19117072227)
-- **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🧪 Tests unitaires`
-
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
 **Statut:** ⏳ unknown
 
-**Dernier run:** 06/11/2025 21:51:02
+**Dernier run:** 07/11/2025 08:29:13
 
 **Statistiques:**
-- ❌ Échecs (24h): **3**
+- ❌ Échecs (24h): **0**
 - ❌ Échecs (7 jours): **10**
 - 📊 Total runs analysés: **20**
 
-### 🔴 Échecs récents (24h)
+### ⚠️ Échecs récents (7 jours)
 
-#### Run #32 - 05/11/2025 23:06:37
-
-- **Commit:** `2401316`
-- **Auteur:** julienfritschheydon
-- **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19117793740)
-- **Jobs en échec:**
-  - ❌ `⚡ E2E Functional Tests (2)` (failure)
-    - Steps en échec: `⚡ Run Functional Tests (Shard 2/2)`
-    - **Erreurs détectées (9):**
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-Locator: locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\u001b\n",
-Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\u001b\n",
-Locator: locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\u001b\n\n    at /home/runner/work/DooDates/DooDates/tests/e2e/tags-folders.spec.ts:438:32",
-Expected: 32",
-
-"errors": [],
-"errors": [],
-"errors": [],
-"error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\u001b\n",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"
-... (truncated)
-```
-      ```
-Error: "errors": [
-Locator: locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\u001b\n\n\n  436 |       // Vérifier que les tags sont visibles - utiliser getByText (comme dans les autres tests corrigés)\n  437 |       const tag1OnCard = conversationCard.getByText(/Test Tag 1/i);\n> 438 |       await expect(tag1OnCard).toBeVisible({ timeout: 5000 });\n      |                                ^\n  439 |       \n  440 |       const tag2OnCard = conversationCard.getByText(/Test Tag 2/i);\n  441 |       await expect(tag2OnCard).toBeVisible({ timeout: 5000 });\n    at /home/runner/work/DooDates/DooDates/tests/e2e/tags-folders.spec.ts:438:32"
-Expected: 32"
-
-"errors": [
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\u001b\n\n\n  436 |       // Vérifier que les tags sont visibles - utiliser getByText (comme dans les autres tests corrigés)\n  437 |       const tag1OnCard = conversationCard.getByText(/Test Tag 1/i);\n> 438 |       await expect(tag1OnCard).toBeVisible({ timeout: 5000 });\n      |                                ^\n  439 |       \n  440 |       const
-... (truncated)
-```
-      ```
-Error: "errorLocation": {
-Locator: locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\u001b\n",
-Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\u001b\n",
-Locator: locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\u001b\n\n    at /home/runner/work/DooDates/DooDates/tests/e2e/tags-folders.spec.ts:438:32",
-Expected: 32",
-
-"errorLocation": {
-"error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\u001b\n",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"poll-item\"]').first().getByText(/Test Tag 1/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with time
-... (truncated)
-```
-      *... et 4 autre(s) erreur(s)*
-
-#### Run #31 - 05/11/2025 22:57:14
-
-- **Commit:** `8ad185b`
-- **Auteur:** julienfritschheydon
-- **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19117560292)
-- **Jobs en échec:**
-  - ❌ `⚡ E2E Functional Tests (2)` (failure)
-    - Steps en échec: `⚡ Run Functional Tests (Shard 2/2)`
-
-#### Run #30 - 05/11/2025 22:49:40
-
-- **Commit:** `befcd11`
-- **Auteur:** julienfritschheydon
-- **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19117388174)
-- **Jobs en échec:**
-  - ❌ `⚡ E2E Functional Tests (2)` (failure)
-    - Steps en échec: `⚡ Run Functional Tests (Shard 2/2)`
+Aucun échec dans les 24 dernières heures, mais **10** échec(s) cette semaine.
 
 ---
 
@@ -289,24 +165,118 @@ Expected: 32",
 
 **Statut:** ❌ failure
 
-**Dernier run:** 06/11/2025 04:06:52
+**Dernier run:** 07/11/2025 04:04:00
 
 **Statistiques:**
 - ❌ Échecs (24h): **1**
-- ❌ Échecs (7 jours): **3**
-- 📊 Total runs analysés: **3**
+- ❌ Échecs (7 jours): **4**
+- 📊 Total runs analysés: **4**
 
 ### 🔴 Échecs récents (24h)
 
-#### Run #3 - 06/11/2025 04:06:52
+#### Run #4 - 07/11/2025 04:04:00
 
-- **Commit:** `3ac5fcc`
+- **Commit:** `698aa0c`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19123469257)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19156822356)
 - **Jobs en échec:**
+  - ❌ `full-regression (Mobile Safari)` (failure)
+    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
+    - **Erreurs détectées (10):**
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      *... et 5 autre(s) erreur(s)*
   - ❌ `full-regression (firefox)` (failure)
     - Steps en échec: `🔍 Run Full Regression Suite (firefox)`
+    - **Erreurs détectées (10):**
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      ```
+Error: "errors": [],
+Locator: locator('body, form, [role=\"dialog\"]').first()\nExpected: visible\nReceived: undefined\nTimeout:  5000ms\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('body, form, [role=\"dialog\"]').first()\u001b\n",
+Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('body, form, [role=\"dialog\"]').first()\u001b\n",
+Locator: locator('body, form, [role=\"dialog\"]').first()\nExpected: visible\nReceived: undefined\nTimeout:  5000ms\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('body, form, [role=\"dialog\"]').first()\u001b\n\n    at /home/runner/work/DooDates/DooDates/tests/e2e/authenticated-workflow.spec.ts:57:71",
+Expected: 71",
+
+"errors": [],
+"errors": [],
+"error": {
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator:  locator('body, form, [role=\"dialog\"]').first()\nExpected: visible\nReceived: undefined\nTimeout:  5000ms\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('body, form, [role=\"dialog\"]').first()\u001b\n",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator:  locator('body, form, [role=\"dialog\"]').first()\nExpected: visible\nReceived: undefined\nTimeout:  5000ms\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('body, form, [role=\"dia
+... (truncated)
+```
+      *... et 5 autre(s) erreur(s)*
+  - ❌ `full-regression (webkit)` (failure)
+    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
     - **Erreurs détectées (10):**
       ```
 Error: "errors": [],
@@ -393,145 +363,13 @@ Error: "errors": [],
 "errors": [],
 ```
       *... et 5 autre(s) erreur(s)*
-  - ❌ `full-regression (webkit)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      *... et 5 autre(s) erreur(s)*
-  - ❌ `full-regression (chromium)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (chromium)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      *... et 5 autre(s) erreur(s)*
-  - ❌ `full-regression (Mobile Safari)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      *... et 5 autre(s) erreur(s)*
 
 ---
 
 ## 📈 Résumé Global
 
-- ❌ **Total échecs (24h):** 8
-- ❌ **Total échecs (7 jours):** 11
+- ❌ **Total échecs (24h):** 4
+- ❌ **Total échecs (7 jours):** 9
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
