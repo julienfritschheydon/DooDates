@@ -171,10 +171,12 @@ export function Auth() {
   useEffect(() => {
     if (user && !loading && !forceAccess) {
       const returnTo = localStorage.getItem("doodates-return-to");
-      if (returnTo === "create") {
+      if (returnTo) {
         localStorage.removeItem("doodates-return-to");
-        localStorage.removeItem("doodates-connect-calendar");
-        navigate("/create", { replace: true });
+        if (returnTo === "create") {
+          localStorage.removeItem("doodates-connect-calendar");
+        }
+        navigate(returnTo, { replace: true });
       } else {
         navigate("/", { replace: true });
       }
@@ -183,10 +185,12 @@ export function Auth() {
 
   const handleAuthSuccess = () => {
     const returnTo = localStorage.getItem("doodates-return-to");
-    if (returnTo === "create") {
+    if (returnTo) {
       localStorage.removeItem("doodates-return-to");
-      localStorage.removeItem("doodates-connect-calendar");
-      navigate("/create", { replace: true });
+      if (returnTo === "create") {
+        localStorage.removeItem("doodates-connect-calendar");
+      }
+      navigate(returnTo, { replace: true });
     } else {
       navigate("/", { replace: true });
     }
@@ -261,9 +265,12 @@ export function AuthCallback() {
         if (user) {
           logger.info("User authenticated, redirecting appropriately", "auth");
           const returnTo = localStorage.getItem("doodates-return-to");
-          if (returnTo === "create") {
+          if (returnTo) {
             localStorage.removeItem("doodates-return-to");
-            navigate("/create", { replace: true });
+            if (returnTo === "create") {
+              localStorage.removeItem("doodates-connect-calendar");
+            }
+            navigate(returnTo, { replace: true });
           } else {
             navigate("/", { replace: true });
           }

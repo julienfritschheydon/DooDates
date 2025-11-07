@@ -28,10 +28,11 @@ jobs:
       - name: 🧭 Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
       
-      - name: 📦 Build production
+      - name: 📦 Build production (avec base path local pour tests)
         run: npm run build
         env:
           NODE_ENV: production
+          VITE_BASE_PATH: /
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}

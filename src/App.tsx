@@ -48,6 +48,12 @@ const ChatLandingPrototype = lazy(() =>
 const WorkspacePage = lazy(() => import("./app/workspace/page"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const ConsumptionJournal = lazy(() => import("./pages/ConsumptionJournal"));
+const SupabaseDiagnostic = lazy(() =>
+  import("./pages/SupabaseDiagnostic").then((m) => ({
+    default: m.SupabaseDiagnostic,
+  })),
+);
+const StorageDiagnostic = lazy(() => import("./pages/StorageDiagnostic"));
 const Docs = lazy(() => import("./pages/Docs").then((m) => ({ default: m.Docs })));
 const Pricing = lazy(() => import("./pages/Pricing").then((m) => ({ default: m.PricingPage })));
 
@@ -411,6 +417,11 @@ const App = () => {
                                 <Route path="/chat" element={<WorkspacePage />} />
                                 <Route path="/dashboard" element={<Dashboard />} />
                                 <Route path="/dashboard/journal" element={<ConsumptionJournal />} />
+                                <Route
+                                  path="/diagnostic/supabase"
+                                  element={<SupabaseDiagnostic />}
+                                />
+                                <Route path="/diagnostic/storage" element={<StorageDiagnostic />} />
 
                                 <Route path="/auth" element={<Auth />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />

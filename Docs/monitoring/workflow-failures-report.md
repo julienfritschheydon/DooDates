@@ -1,6 +1,6 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 07/11/2025 08:37:09
+**Dernière mise à jour:** 07/11/2025 09:28:08
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -24,16 +24,76 @@ Aucun échec détecté dans les 7 derniers jours.
 
 ## 2️⃣ Develop → Main (Auto-merge)
 
-**Statut:** ✅ success
+**Statut:** ❌ failure
 
-**Dernier run:** 07/11/2025 08:34:00
+**Dernier run:** 07/11/2025 09:22:04
 
 **Statistiques:**
-- ❌ Échecs (24h): **6**
-- ❌ Échecs (7 jours): **7**
+- ❌ Échecs (24h): **7**
+- ❌ Échecs (7 jours): **8**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
+
+#### Run #71 - 07/11/2025 09:22:04
+
+- **Commit:** `6da5d06`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19162482977)
+- **Jobs en échec:**
+  - ❌ `production-smoke-pre-merge` (failure)
+    - Steps en échec: `🔥 Run production smoke tests`
+    - **Erreurs détectées (9):**
+      ```
+File: tests/e2e/production-smoke.spec.ts:138
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"error": {
+"message": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b\n    at /home/runner/work/DooDates/DooDates/tests/e2e/production-smoke.spec.ts:138:34",
+```
+      ```
+File: tests/e2e/production-smoke.spec.ts:138
+Error: "snippet": "\u001b[0m \u001b 136 |\u001b     }\n \u001b 137 |\u001b     \n\u001b[31m\u001b[1m>\u001b\u001b\u001b 138 |\u001b     expect(consoleErrors\u001b[33m.\u001blength)\u001b[33m.\u001btoBe(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                  \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 139 |\u001b   })\u001b[33m;\u001b\n \u001b 140 |\u001b\n \u001b 141 |\u001b   \u001b/**\u001b\u001b[0m"
+
+"snippet": "\u001b[0m \u001b 136 |\u001b     }\n \u001b 137 |\u001b     \n\u001b[31m\u001b[1m>\u001b\u001b\u001b 138 |\u001b     expect(consoleErrors\u001b[33m.\u001blength)\u001b[33m.\u001btoBe(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                  \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 139 |\u001b   })\u001b[33m;\u001b\n \u001b 140 |\u001b\n \u001b 141 |\u001b   \u001b/**\u001b\u001b[0m"
+"errors": [
+"message": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b\n\n  136 |     }\n  137 |     \n> 138 |     expect(consoleErrors.length).toBe(0);\n      |                                  ^\n  139 |   });\n  
+... (truncated)
+```
+      ```
+File: tests/e2e/production-smoke.spec.ts:138
+Error: "path": "/home/runner/work/DooDates/DooDates/test-results/production-smoke-🔥-Produc-226ec-d-erreurs-console-critiques-chromium/error-context.md"
+
+"path": "/home/runner/work/DooDates/DooDates/test-results/production-smoke-🔥-Produc-226ec-d-erreurs-console-critiques-chromium/error-context.md"
+"errorLocation": {
+"error": {
+"message": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b\n    at /home/runner/work/DooDates/DooDates/tests/e2e/production-smoke.spec.ts:138:34",
+```
+      ```
+File: tests/e2e/production-smoke.spec.ts:138
+Error: "snippet": "\u001b[0m \u001b 136 |\u001b     }\n \u001b 137 |\u001b     \n\u001b[31m\u001b[1m>\u001b\u001b\u001b 138 |\u001b     expect(consoleErrors\u001b[33m.\u001blength)\u001b[33m.\u001btoBe(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                  \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 139 |\u001b   })\u001b[33m;\u001b\n \u001b 140 |\u001b\n \u001b 141 |\u001b   \u001b/**\u001b\u001b[0m"
+
+"snippet": "\u001b[0m \u001b 136 |\u001b     }\n \u001b 137 |\u001b     \n\u001b[31m\u001b[1m>\u001b\u001b\u001b 138 |\u001b     expect(consoleErrors\u001b[33m.\u001blength)\u001b[33m.\u001btoBe(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                  \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 139 |\u001b   })\u001b[33m;\u001b\n \u001b 140 |\u001b\n \u001b 141 |\u001b   \u001b/**\u001b\u001b[0m"
+"errors": [
+"message": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b\n\n  136 |     }\n  137 |     \n> 138 |     expect(consoleErrors.length).toBe(0);\n      |                                  ^\n  139 |   });\n  
+... (truncated)
+```
+      ```
+File: tests/e2e/production-smoke.spec.ts:138
+Error: "path": "/home/runner/work/DooDates/DooDates/test-results/production-smoke-🔥-Produc-226ec-d-erreurs-console-critiques-chromium-retry1/error-context.md"
+
+"path": "/home/runner/work/DooDates/DooDates/test-results/production-smoke-🔥-Produc-226ec-d-erreurs-console-critiques-chromium-retry1/error-context.md"
+"errorLocation": {
+"error": {
+"message": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b\n    at /home/runner/work/DooDates/DooDates/tests/e2e/production-smoke.spec.ts:138:34",
+```
+      *... et 4 autre(s) erreur(s)*
 
 #### Run #64 - 07/11/2025 00:37:22
 
@@ -44,53 +104,6 @@ Aucun échec détecté dans les 7 derniers jours.
 - **Jobs en échec:**
   - ❌ `tests-unit` (failure)
     - Steps en échec: `🧪 Tests unitaires`
-    - **Erreurs détectées (10):**
-      ```
-File: src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29
-Error: [] [4f185223-2d7e-42b5-adf1-d02db22ec173] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
-
-[] [4f185223-2d7e-42b5-adf1-d02db22ec173] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
-at /home/runner/work/DooDates/DooDates/src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29:49
-❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage Error: Supabase not available in tests
-[] [a13e4a82-9ff9-4fad-acfb-bf5f6eb516ea] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
-```
-      ```
-File: src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29
-Error: ❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage Error: Supabase not available in tests
-
-❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage Error: Supabase not available in tests
-at /home/runner/work/DooDates/DooDates/src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29:49
-[] [7449806b-a1ea-4697-aea4-9cb038cf3604] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
-❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage Error: Supabase not available in tests
-```
-      ```
-File: src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29
-Error: [] [4924e7ca-2822-4dba-a19a-3dbfeb0c072b] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
-
-[] [4924e7ca-2822-4dba-a19a-3dbfeb0c072b] ❌ Erreur Supabase, fallback localStorage: Error: Supabase not available in tests
-at /home/runner/work/DooDates/DooDates/src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts:29:49
-❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage Error: Supabase not available in tests
-[] [88626269-7143-4b60-900d-843494ee3874] ❌ Erreur Supabase, fallback localStorage: TypeError: Cannot read properties of undefined (reading 'id')
-```
-      ```
-File: src/hooks/useAutoSave.ts:138
-Error: ❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage TypeError: Cannot read properties of undefined (reading 'id')
-
-❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage TypeError: Cannot read properties of undefined (reading 'id')
-at /home/runner/work/DooDates/DooDates/src/hooks/useAutoSave.ts:138:103
-[] [dbdf914f-2857-4808-87dc-934450d9133e] ❌ Erreur Supabase, fallback localStorage: TypeError: Cannot read properties of undefined (reading 'id')
-❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage TypeError: Cannot read properties of undefined (reading 'id')
-```
-      ```
-File: src/hooks/useAutoSave.ts:138
-Error: [] [319108be-ece0-4538-a28d-4cdc816cefd1] ❌ Erreur Supabase, fallback localStorage: TypeError: Cannot read properties of undefined (reading 'id')
-
-[] [319108be-ece0-4538-a28d-4cdc816cefd1] ❌ Erreur Supabase, fallback localStorage: TypeError: Cannot read properties of undefined (reading 'id')
-at /home/runner/work/DooDates/DooDates/src/hooks/useAutoSave.ts:138:103
-❌ ℹ️ Erreur lors de la création dans Supabase, utilisation de localStorage TypeError: Cannot read properties of undefined (reading 'id')
-[] [992d699e-5051-4b46-8cde-30d2ae33c632] ❌ Erreur Supabase, fallback localStorage: TypeError: Cannot read properties of undefined (reading 'id')
-```
-      *... et 5 autre(s) erreur(s)*
 
 #### Run #63 - 07/11/2025 00:15:05
 
@@ -130,25 +143,13 @@ at /home/runner/work/DooDates/DooDates/src/hooks/useAutoSave.ts:138:103
   - ❌ `tests-e2e` (failure)
     - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
 
-#### Run #56 - 06/11/2025 18:13:03
-
-- **Commit:** `e3cdc79`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19143857151)
-- **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🧪 Tests unitaires`
-  - ❌ `tests-e2e` (failure)
-    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
-
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ⏳ unknown
+**Statut:** ✅ success
 
-**Dernier run:** 07/11/2025 08:36:04
+**Dernier run:** 07/11/2025 09:01:45
 
 **Statistiques:**
 - ❌ Échecs (24h): **0**
@@ -368,7 +369,7 @@ Error: "errors": [],
 
 ## 📈 Résumé Global
 
-- ❌ **Total échecs (24h):** 4
+- ❌ **Total échecs (24h):** 5
 - ❌ **Total échecs (7 jours):** 8
 - 📊 **Workflows monitorés:** 6
 

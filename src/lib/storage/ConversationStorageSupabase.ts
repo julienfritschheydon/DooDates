@@ -47,19 +47,16 @@ function toSupabaseConversation(conversation: Conversation): any {
   return {
     id: conversation.id,
     user_id: conversation.userId || null,
+    session_id: conversation.id, // Utiliser l'ID comme session_id
     title: conversation.title,
-    status: conversation.status,
-    first_message: conversation.firstMessage,
+    first_message: conversation.firstMessage || null,
     message_count: conversation.messageCount || 0,
+    messages: [], // JSONB vide par défaut
+    context: conversation.metadata || {}, // Mapper metadata vers context
+    poll_id: conversation.pollId || conversation.relatedPollId || null,
     related_poll_id: conversation.pollId || conversation.relatedPollId || null,
     is_favorite: conversation.isFavorite || false,
-    tags: conversation.tags || [],
-    metadata: {
-      ...conversation.metadata,
-      pollType: conversation.pollType,
-      pollStatus: conversation.pollStatus,
-      favorite_rank: conversation.favorite_rank,
-    },
+    status: conversation.status,
   };
 }
 
@@ -230,64 +227,64 @@ export async function createConversation(
     console.log(`[${timestamp}] [${requestId}] 🗄️ Appel Supabase insert...`);
     const insertStartTime = Date.now();
 
-    // Ajouter un timeout pour éviter les blocages infinis (5 secondes)
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(
-        () => reject(new Error("Timeout: Supabase insert a pris plus de 5 secondes")),
-        5000,
-      );
-    });
+    // Log actual request details
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Supabase URL:`, supabase["supabaseUrl"]);
+    console.log(
+      `[${timestamp}] [${requestId}] 🗄️ Data to insert:`,
+      JSON.stringify(supabaseData, null, 2),
+    );
 
-    const insertPromise = supabase.from("conversations").insert(supabaseData).select().single();
-
-    let result;
-    try {
-      result = await Promise.race([insertPromise, timeoutPromise]);
-    } catch (timeoutError) {
-      logError(
-        ErrorFactory.storage(
-          "Timeout Supabase insert",
-          "La création de conversation a pris trop de temps",
-        ),
-        {
-          context: "ConversationStorageSupabase.createConversation",
-          requestId,
-          userId,
-          timeout: "3s",
-          error: timeoutError,
-        },
-      );
-      throw timeoutError;
-    }
-
-    const { data, error } = result as any;
+    // INSERT and get response
+    const { data, error } = await supabase.from("conversations").insert(supabaseData).select();
     const insertDuration = Date.now() - insertStartTime;
     console.log(`[${timestamp}] [${requestId}] 🗄️ Réponse Supabase reçue (${insertDuration}ms)`, {
       hasData: !!data,
       hasError: !!error,
       errorCode: error?.code,
       errorMessage: error?.message,
+      errorDetails: error?.details,
+      errorHint: error?.hint,
     });
 
     if (error) {
-      logError(
-        ErrorFactory.storage(
-          "Erreur Supabase lors de l'insertion",
-          "Impossible de créer la conversation",
-        ),
-        {
-          context: "ConversationStorageSupabase.createConversation",
+      const detailedError = ErrorFactory.storage(
+        "Erreur Supabase lors de l'insertion",
+        error.message || "Impossible de créer la conversation",
+      );
+      logError(detailedError, {
+        operation: "ConversationStorageSupabase.createConversation",
+        metadata: {
           requestId,
           userId,
           duration: `${insertDuration}ms`,
-          error,
+          errorCode: error.code,
+          errorDetails: error.details,
+          errorHint: error.hint,
         },
+      });
+      throw detailedError;
+    }
+
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      const noDataError = ErrorFactory.storage(
+        "Aucune donnée retournée par Supabase",
+        "Échec de la création de la conversation",
       );
-      throw error;
+      logError(noDataError, {
+        operation: "ConversationStorageSupabase.createConversation",
+        metadata: {
+          requestId,
+          userId,
+          hasData: !!data,
+          isArray: Array.isArray(data),
+          dataLength: Array.isArray(data) ? data.length : 0,
+        },
+      });
+      throw noDataError;
     }
 
     console.log(`[${timestamp}] [${requestId}] 🗄️ Conversion réponse Supabase...`);
-    const created = fromSupabaseConversation(data);
+    const created = fromSupabaseConversation(data[0]);
     console.log(`[${timestamp}] [${requestId}] 🗄️ Mise en cache...`);
     conversationCache.set(created.id, created);
 
@@ -444,23 +441,25 @@ export async function getMessages(
   }
 
   try {
-    // Verify conversation ownership
+    // Verify conversation ownership and get messages from JSONB column
     const conversation = await getConversation(conversationId, userId);
     if (!conversation) {
       return [];
     }
 
+    // Messages are stored in the conversations.messages JSONB column
     const { data, error } = await supabase
-      .from("conversation_messages")
-      .select("*")
-      .eq("conversation_id", conversationId)
-      .order("timestamp", { ascending: true });
+      .from("conversations")
+      .select("messages")
+      .eq("id", conversationId)
+      .single();
 
     if (error) {
       throw error;
     }
 
-    const messages = (data || []).map(fromSupabaseMessage);
+    // Parse messages from JSONB (already in correct format)
+    const messages = (data?.messages || []) as ConversationMessage[];
     messageCache.set(conversationId, messages);
 
     return messages;
@@ -499,39 +498,20 @@ export async function saveMessages(
       throw ConversationErrorFactory.notFound(conversationId);
     }
 
-    // Delete existing messages
-    await deleteMessages(conversationId, userId);
+    // Update messages in JSONB column (all at once)
+    const { error } = await supabase
+      .from("conversations")
+      .update({
+        messages: messages,
+        message_count: messages.length,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", conversationId)
+      .eq("user_id", userId);
 
-    // Insert new messages
-    if (messages.length > 0) {
-      const supabaseMessages = messages.map(toSupabaseMessage);
-
-      // Ajouter un timeout pour éviter les blocages
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(
-          () => reject(new Error("Timeout: Supabase insert messages a pris plus de 5 secondes")),
-          5000,
-        );
-      });
-
-      const insertPromise = supabase.from("conversation_messages").insert(supabaseMessages);
-
-      const result = await Promise.race([insertPromise, timeoutPromise]);
-
-      const { error } = result as any;
-      if (error) {
-        throw error;
-      }
+    if (error) {
+      throw error;
     }
-
-    // Update message count in conversation
-    await updateConversation(
-      {
-        ...conversation,
-        messageCount: messages.length,
-      },
-      userId,
-    );
 
     messageCache.set(conversationId, messages);
 
@@ -597,6 +577,7 @@ export async function addMessages(
 
 /**
  * Delete messages for a conversation
+ * (Now just clears the JSONB messages array)
  */
 async function deleteMessages(conversationId: string, userId: string): Promise<void> {
   try {
@@ -606,10 +587,16 @@ async function deleteMessages(conversationId: string, userId: string): Promise<v
       return; // Conversation doesn't exist or not owned by user
     }
 
+    // Clear messages in JSONB column
     const { error } = await supabase
-      .from("conversation_messages")
-      .delete()
-      .eq("conversation_id", conversationId);
+      .from("conversations")
+      .update({
+        messages: [],
+        message_count: 0,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", conversationId)
+      .eq("user_id", userId);
 
     if (error) {
       throw error;

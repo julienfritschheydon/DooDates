@@ -112,7 +112,9 @@ describe("GeminiService - Poll Type Detection", () => {
     });
 
     it("prioritise Date si plus de mots-clés Date", () => {
-      const input = "Organiser une réunion pour discuter du questionnaire";
+      // Changé "questionnaire" (strongKeyword) par "sondage" (keyword normal)
+      // pour permettre la comparaison de scores
+      const input = "Organiser une réunion pour discuter du sondage";
       // @ts-expect-error - Testing private method
       const result = service.detectPollType(input);
       expect(result).toBe("date");

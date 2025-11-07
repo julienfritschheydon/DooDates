@@ -5,7 +5,9 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   // Base URL pour GitHub Pages
-  base: process.env.NODE_ENV === 'production' ? '/DooDates/' : '/',
+  // En CI (tests pre-merge), on utilise '/' pour tester localement
+  // En production (deploy), on utilise '/DooDates/' pour GitHub Pages
+  base: process.env.VITE_BASE_PATH || (process.env.NODE_ENV === 'production' ? '/DooDates/' : '/'),
   
   server: {
     port: 8080,
