@@ -60,9 +60,9 @@ export declare function filterFutureDates(dates: string[], referenceDate?: strin
  * Type pour représenter un groupe de dates consécutives
  */
 export interface DateGroup {
-    dates: string[];
-    label: string;
-    type: "weekend" | "week" | "fortnight" | "custom";
+  dates: string[];
+  label: string;
+  type: "weekend" | "week" | "fortnight" | "custom";
 }
 /**
  * Détecte et groupe les dates consécutives en périodes significatives
@@ -81,4 +81,7 @@ export interface DateGroup {
  * //   { dates: [...], label: "Semaine du 6 au 12 décembre", type: "week" }
  * // ]
  */
-export declare function groupConsecutiveDates(dates: string[], allowWeekendGrouping?: boolean): DateGroup[];
+export declare function groupConsecutiveDates(
+  dates: string[],
+  allowWeekendGrouping?: boolean,
+): DateGroup[];

@@ -4,12 +4,12 @@
  */
 export type ContentType = "conversations" | "polls";
 interface LifetimeStats {
-    conversations: {
-        totalCreated: number;
-    };
-    polls: {
-        totalCreated: number;
-    };
+  conversations: {
+    totalCreated: number;
+  };
+  polls: {
+    totalCreated: number;
+  };
 }
 /**
  * Get lifetime count for a content type
@@ -36,11 +36,14 @@ export declare function canCreate(type: ContentType, limit: number): boolean;
 /**
  * Get quota usage info for UI display
  */
-export declare function getQuotaUsage(type: ContentType, limit: number): {
-    totalCreated: number;
-    limit: number;
-    remaining: number;
-    isAtLimit: boolean;
-    usagePercentage: number;
+export declare function getQuotaUsage(
+  type: ContentType,
+  limit: number,
+): {
+  totalCreated: number;
+  limit: number;
+  remaining: number;
+  isAtLimit: boolean;
+  usagePercentage: number;
 };
 export {};

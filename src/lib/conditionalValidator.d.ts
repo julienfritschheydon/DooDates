@@ -8,7 +8,11 @@ import type { ConditionalRule } from "../types/conditionalRules";
  * @param visited Questions déjà visitées (pour détecter les boucles)
  * @returns true si une dépendance circulaire est détectée
  */
-export declare function hasCircularDependency(rules: ConditionalRule[], questionId: string, visited?: Set<string>): boolean;
+export declare function hasCircularDependency(
+  rules: ConditionalRule[],
+  questionId: string,
+  visited?: Set<string>,
+): boolean;
 /**
  * Vérifie qu'une question conditionnelle dépend d'une question qui la précède
  * (une question ne peut pas dépendre d'une question suivante)
@@ -18,9 +22,13 @@ export declare function hasCircularDependency(rules: ConditionalRule[], question
  * @param questionId ID de la question à vérifier
  * @returns true si la question dépend d'une question précédente (valide)
  */
-export declare function dependsOnPreviousQuestion(rules: ConditionalRule[], questions: Array<{
+export declare function dependsOnPreviousQuestion(
+  rules: ConditionalRule[],
+  questions: Array<{
     id: string;
-}>, questionId: string): boolean;
+  }>,
+  questionId: string,
+): boolean;
 /**
  * Vérifie qu'une valeur existe dans les options d'une question
  *
@@ -29,12 +37,16 @@ export declare function dependsOnPreviousQuestion(rules: ConditionalRule[], ques
  * @param questions Liste des questions avec leurs options
  * @returns true si la valeur existe dans les options
  */
-export declare function valueExistsInOptions(questionId: string, value: string, questions: Array<{
+export declare function valueExistsInOptions(
+  questionId: string,
+  value: string,
+  questions: Array<{
     id: string;
     options?: Array<{
-        label: string;
+      label: string;
     }>;
-}>): boolean;
+  }>,
+): boolean;
 /**
  * Vérifie qu'une valeur est contenue dans au moins une option (correspondance partielle)
  *
@@ -43,12 +55,16 @@ export declare function valueExistsInOptions(questionId: string, value: string, 
  * @param questions Liste des questions avec leurs options
  * @returns true si la valeur est contenue dans au moins une option
  */
-export declare function valueContainedInOptions(questionId: string, value: string, questions: Array<{
+export declare function valueContainedInOptions(
+  questionId: string,
+  value: string,
+  questions: Array<{
     id: string;
     options?: Array<{
-        label: string;
+      label: string;
     }>;
-}>): boolean;
+  }>,
+): boolean;
 /**
  * Valide toutes les règles conditionnelles d'un formulaire
  *
@@ -56,10 +72,13 @@ export declare function valueContainedInOptions(questionId: string, value: strin
  * @param questions Questions du formulaire
  * @returns Tableau des erreurs de validation
  */
-export declare function validateConditionalRules(rules: ConditionalRule[], questions: Array<{
+export declare function validateConditionalRules(
+  rules: ConditionalRule[],
+  questions: Array<{
     id: string;
     title: string;
     options?: Array<{
-        label: string;
+      label: string;
     }>;
-}>): string[];
+  }>,
+): string[];

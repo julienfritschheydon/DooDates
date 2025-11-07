@@ -339,9 +339,11 @@ export function usePolls() {
 
           // Créer dans table conversations avec fonction utilitaire
           logger.info("💾 Sauvegarde dans Supabase (table conversations)", "poll");
-          
+
           try {
-            conversation = await supabaseInsert("conversations", conversationData, { timeout: 10000 });
+            conversation = await supabaseInsert("conversations", conversationData, {
+              timeout: 10000,
+            });
           } catch (error: any) {
             logger.error("Erreur création conversation", "poll", {
               error: error.message,

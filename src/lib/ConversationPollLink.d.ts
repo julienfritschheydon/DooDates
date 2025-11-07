@@ -19,7 +19,11 @@ import type { Conversation } from "../types/conversation";
  * @param pollId - ID du poll
  * @param pollType - Type du poll ("date" ou "form")
  */
-export declare function linkPollToConversationBidirectional(conversationId: string, pollId: string, pollType: "date" | "form"): void;
+export declare function linkPollToConversationBidirectional(
+  conversationId: string,
+  pollId: string,
+  pollType: "date" | "form",
+): void;
 /**
  * Supprime le lien entre une conversation et son poll
  *
@@ -35,7 +39,11 @@ export declare function unlinkPollFromConversation(conversationId: string): void
  * @param pollType - Type du poll ("date" ou "form")
  * @returns ID de la conversation créée ou existante
  */
-export declare function createConversationForPoll(pollId: string, pollTitle: string, pollType: "date" | "form"): string;
+export declare function createConversationForPoll(
+  pollId: string,
+  pollTitle: string,
+  pollType: "date" | "form",
+): string;
 /**
  * Récupère une conversation avec son poll enrichi
  *
@@ -43,6 +51,6 @@ export declare function createConversationForPoll(pollId: string, pollTitle: str
  * @returns Objet contenant la conversation et le poll (si existe)
  */
 export declare function getConversationWithPoll(conversationId: string): {
-    conversation: Conversation;
-    poll: Poll | null;
+  conversation: Conversation;
+  poll: Poll | null;
 } | null;

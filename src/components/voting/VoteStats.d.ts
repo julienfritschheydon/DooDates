@@ -1,12 +1,12 @@
 import React from "react";
 import { VoteType } from "./utils/types";
 interface VoteStatsProps {
-    voteType: VoteType;
-    isActive: boolean;
-    existingVotes: number;
-    totalVotes: number;
-    userSwipe: VoteType | null;
-    userHasVoted: boolean;
+  voteType: VoteType;
+  isActive: boolean;
+  existingVotes: number;
+  totalVotes: number;
+  userSwipe: VoteType | null;
+  userHasVoted: boolean;
 }
 /**
  * Composant VoteStats - Affiche les statistiques de vote avec un système de double couche

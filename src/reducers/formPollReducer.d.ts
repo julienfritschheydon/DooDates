@@ -12,50 +12,58 @@
  * - REPLACE_POLL : Remplacer complètement le poll (initialisation)
  */
 import type { Poll } from "../lib/pollStorage";
-export type FormPollAction = {
-    type: "ADD_QUESTION";
-    payload: {
+export type FormPollAction =
+  | {
+      type: "ADD_QUESTION";
+      payload: {
         subject: string;
-    };
-} | {
-    type: "REMOVE_QUESTION";
-    payload: {
+      };
+    }
+  | {
+      type: "REMOVE_QUESTION";
+      payload: {
         questionIndex: number;
-    };
-} | {
-    type: "CHANGE_QUESTION_TYPE";
-    payload: {
+      };
+    }
+  | {
+      type: "CHANGE_QUESTION_TYPE";
+      payload: {
         questionIndex: number;
         newType: "single" | "multiple" | "text" | "matrix";
-    };
-} | {
-    type: "ADD_OPTION";
-    payload: {
+      };
+    }
+  | {
+      type: "ADD_OPTION";
+      payload: {
         questionIndex: number;
         optionText: string;
-    };
-} | {
-    type: "REMOVE_OPTION";
-    payload: {
+      };
+    }
+  | {
+      type: "REMOVE_OPTION";
+      payload: {
         questionIndex: number;
         optionText: string;
-    };
-} | {
-    type: "SET_REQUIRED";
-    payload: {
+      };
+    }
+  | {
+      type: "SET_REQUIRED";
+      payload: {
         questionIndex: number;
         required: boolean;
-    };
-} | {
-    type: "RENAME_QUESTION";
-    payload: {
+      };
+    }
+  | {
+      type: "RENAME_QUESTION";
+      payload: {
         questionIndex: number;
         newTitle: string;
+      };
+    }
+  | {
+      type: "REPLACE_POLL";
+      payload: Poll;
     };
-} | {
-    type: "REPLACE_POLL";
-    payload: Poll;
-};
 /**
  * Reducer pour gérer les modifications du FormPoll
  * Retourne le poll avec une propriété temporaire _highlightedId pour les animations

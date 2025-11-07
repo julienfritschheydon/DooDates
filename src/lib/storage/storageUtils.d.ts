@@ -6,7 +6,11 @@ export declare function hasWindow(): boolean;
 /**
  * Generic localStorage read with memory cache
  */
-export declare function readFromStorage<T>(key: string, cache: Map<string, T>, defaultValue?: T[]): T[];
+export declare function readFromStorage<T>(
+  key: string,
+  cache: Map<string, T>,
+  defaultValue?: T[],
+): T[];
 /**
  * Generic localStorage write with memory cache
  */
@@ -22,7 +26,11 @@ export declare function findById<T>(id: string, key: string, cache: Map<string, 
 /**
  * Generic update item in storage
  */
-export declare function updateInStorage<T>(key: string, updatedItem: T, cache: Map<string, T>): void;
+export declare function updateInStorage<T>(
+  key: string,
+  updatedItem: T,
+  cache: Map<string, T>,
+): void;
 /**
  * Generic delete item from storage
  */
@@ -34,16 +42,34 @@ export declare function clearStorage(keys: string[], caches: Map<string, any>[])
 /**
  * Generic record-based storage (for messages, responses, etc.)
  */
-export declare function readRecordStorage<T>(key: string, cache: Map<string, T[]>, recordId: string): T[];
+export declare function readRecordStorage<T>(
+  key: string,
+  cache: Map<string, T[]>,
+  recordId: string,
+): T[];
 /**
  * Generic record-based write
  */
-export declare function writeRecordStorage<T>(key: string, cache: Map<string, T[]>, recordId: string, records: T[]): void;
+export declare function writeRecordStorage<T>(
+  key: string,
+  cache: Map<string, T[]>,
+  recordId: string,
+  records: T[],
+): void;
 /**
  * Generic add records (append)
  */
-export declare function addRecords<T>(key: string, cache: Map<string, T[]>, recordId: string, newRecords: T[]): void;
+export declare function addRecords<T>(
+  key: string,
+  cache: Map<string, T[]>,
+  recordId: string,
+  newRecords: T[],
+): void;
 /**
  * Generic delete records
  */
-export declare function deleteRecords<T>(key: string, cache: Map<string, T[]>, recordId: string): void;
+export declare function deleteRecords<T>(
+  key: string,
+  cache: Map<string, T[]>,
+  recordId: string,
+): void;
