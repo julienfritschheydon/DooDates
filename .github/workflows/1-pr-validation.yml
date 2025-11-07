@@ -28,10 +28,11 @@ jobs:
       - name: 🧭 Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
       
-      - name: 📦 Build production
+      - name: 📦 Build production (avec base path local pour tests)
         run: npm run build
         env:
           NODE_ENV: production
+          VITE_BASE_PATH: /
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
@@ -42,12 +43,12 @@ jobs:
           echo $! > preview.pid
       
       - name: ⏳ Wait for server to be ready
-        run: npx wait-on http://localhost:4173/DooDates --timeout 60000
+        run: npx wait-on http://localhost:4173 --timeout 60000
       
       - name: 🔥 Run production smoke tests
         run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
         env:
-          BASE_URL: http://localhost:4173/DooDates
+          BASE_URL: http://localhost:4173
           CI: true
       
       - name: 🛑 Stop preview server
