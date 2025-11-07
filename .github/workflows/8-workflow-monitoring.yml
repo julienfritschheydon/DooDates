@@ -1,18 +1,26 @@
 name: 8️⃣ Workflow Monitoring & Health Report
 
 on:
-  schedule:
-    # Exécution toutes les heures pour un suivi régulier
-    - cron: '0 * * * *'
-  workflow_dispatch:  # Permet exécution manuelle
-  # Déclenchement après chaque workflow important
+  # 🔥 Monitoring hybride intelligent:
+  # 1️⃣ Déclenché immédiatement après workflows CRITIQUES
   workflow_run:
     workflows:
-      - "1️⃣ PR Complete Validation"
-      - "2️⃣ Develop → Main (Auto-merge)"
-      - "3️⃣ Main Post-Merge E2E"
-      - "6️⃣ Nightly Full Regression"
+      - "1️⃣ PR Complete Validation"           # PR validation (+ production-smoke)
+      - "2️⃣ Develop → Main (Auto-merge)"      # Auto-merge develop
+      - "3️⃣ Main Post-Merge E2E"              # Tests post-merge
+      - "4️⃣ Main Deploy to GitHub Pages"      # Déploiement production
+      - "5️⃣ Production Smoke Tests"           # Tests production réelle
+      - "6️⃣ Nightly Full Regression"          # Tests nocturnes
     types: [completed]
+  
+  # 2️⃣ Backup périodique (détecte workflows bloqués/jamais terminés)
+  schedule:
+    # Toutes les 6 heures au lieu de 1h (4x/jour au lieu de 24x/jour)
+    # = 83% moins d'exécutions inutiles
+    - cron: '0 */6 * * *'
+  
+  # 3️⃣ Manuel (toujours pratique pour debug)
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-monitoring
@@ -26,7 +34,29 @@ permissions:
 jobs:
   generate-health-report:
     runs-on: ubuntu-latest
+    
+    # 🎯 Condition intelligente: Ne s'exécute que si pertinent
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_run' && 
+       (github.event.workflow_run.conclusion != 'success' || 
+        contains(fromJSON('["4️⃣ Main Deploy to GitHub Pages", "5️⃣ Production Smoke Tests"]'), github.event.workflow_run.name)))
+    
     steps:
+      - name: 📊 Contexte de déclenchement
+        run: |
+          echo "🔔 Monitoring déclenché par: ${{ github.event_name }}"
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "📋 Workflow surveillé: ${{ github.event.workflow_run.name }}"
+            echo "✅ Status: ${{ github.event.workflow_run.conclusion }}"
+            echo "🎯 Raison: Workflow critique ou échec détecté"
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "⏰ Exécution périodique (backup 6h)"
+          else
+            echo "👤 Exécution manuelle"
+          fi
+      
       - name: 📥 Checkout code
         uses: actions/checkout@v4
         with:
