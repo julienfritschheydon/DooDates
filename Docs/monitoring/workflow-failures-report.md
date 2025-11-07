@@ -1,6 +1,6 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 07/11/2025 08:30:27
+**Dernière mise à jour:** 07/11/2025 08:37:09
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -26,7 +26,7 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ✅ success
 
-**Dernier run:** 07/11/2025 08:25:15
+**Dernier run:** 07/11/2025 08:34:00
 
 **Statistiques:**
 - ❌ Échecs (24h): **6**
@@ -148,7 +148,7 @@ at /home/runner/work/DooDates/DooDates/src/hooks/useAutoSave.ts:138:103
 
 **Statut:** ⏳ unknown
 
-**Dernier run:** 07/11/2025 08:29:13
+**Dernier run:** 07/11/2025 08:36:04
 
 **Statistiques:**
 - ❌ Échecs (24h): **0**
@@ -369,7 +369,7 @@ Error: "errors": [],
 ## 📈 Résumé Global
 
 - ❌ **Total échecs (24h):** 4
-- ❌ **Total échecs (7 jours):** 9
+- ❌ **Total échecs (7 jours):** 8
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
