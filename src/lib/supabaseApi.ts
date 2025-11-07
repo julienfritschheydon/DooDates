@@ -65,10 +65,7 @@ export async function supabaseRestApi<T = any>(
   // Get token
   const token = getSupabaseToken();
   if (requireAuth && !token) {
-    throw ErrorFactory.authentication(
-      "No authentication token found",
-      "Please sign in to continue",
-    );
+    throw ErrorFactory.auth("No authentication token found", "Please sign in to continue");
   }
 
   // Build URL
@@ -76,10 +73,7 @@ export async function supabaseRestApi<T = any>(
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   if (!baseUrl || !anonKey) {
-    throw ErrorFactory.configuration(
-      "Supabase configuration missing",
-      "System configuration error",
-    );
+    throw ErrorFactory.validation("Supabase configuration missing", "System configuration error");
   }
 
   let url = `${baseUrl}/rest/v1/${table}`;
@@ -194,6 +188,14 @@ export async function supabaseDelete(
 
 /**
  * Get data from Supabase table
+ * 
+ * @example
+ * // Get all conversations for a user
+ * supabaseSelect("conversations", {
+ *   user_id: `eq.${userId}`,
+ *   order: "updated_at.desc",
+ *   select: "*"
+ * })
  */
 export async function supabaseSelect<T = any>(
   table: string,

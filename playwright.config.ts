@@ -6,7 +6,7 @@ import * as path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: './tests',
   testMatch: ['**/*.spec.ts', '**/*.test.ts', '**/*_test.ts'],
   testIgnore: ['**/OLD/**'],
   fullyParallel: true,
