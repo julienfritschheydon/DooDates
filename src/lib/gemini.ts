@@ -4,10 +4,11 @@ import { logger } from "./logger";
 import { formatDateLocal, getTodayLocal } from "./date-utils";
 import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
+import { getEnv, isDev } from "./env";
 
 // Choisir entre appel direct Gemini ou Edge Function
 // Pour forcer appel direct, définir VITE_USE_DIRECT_GEMINI=true dans .env.local
-const USE_DIRECT_GEMINI = import.meta.env.VITE_USE_DIRECT_GEMINI === "true";
+const USE_DIRECT_GEMINI = getEnv('VITE_USE_DIRECT_GEMINI') === "true";
 const geminiBackend = USE_DIRECT_GEMINI ? directGeminiService : secureGeminiService;
 
 if (USE_DIRECT_GEMINI) {
