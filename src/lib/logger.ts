@@ -6,6 +6,8 @@
  * - Remplacement des console.log
  */
 
+import { isDev } from "./env";
+
 type LogLevel = "debug" | "info" | "warn" | "error";
 type LogCategory =
   | "calendar"
@@ -35,7 +37,7 @@ interface LogConfig {
 
 class Logger {
   private activeTimers = new Map<string, LogEntry>();
-  private isDev = import.meta.env.DEV;
+  private isDev = isDev();
   private config: LogConfig = {
     enableProduction: false,
     minLevel: "debug",
