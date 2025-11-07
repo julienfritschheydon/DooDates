@@ -330,6 +330,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     let mounted = true;
 
+    // Timeout de sécurité pour forcer loading=false si l'init bloque
+    const safetyTimeout = setTimeout(() => {
+      if (mounted) {
+        logger.warn("Timeout d'initialisation auth - forçage loading=false", "auth");
+        setLoading(false);
+      }
+    }, 5000); // 5 secondes max
+
     // Récupérer la session initiale
     const getInitialSession = async () => {
       try {
@@ -371,11 +379,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
           }
 
+          clearTimeout(safetyTimeout);
           setLoading(false);
         }
       } catch (error) {
         logger.error("Erreur lors de l'initialisation de la session", "auth", error);
         if (mounted) {
+          clearTimeout(safetyTimeout);
           setLoading(false);
         }
       }
@@ -444,6 +454,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return () => {
       mounted = false;
+      clearTimeout(safetyTimeout);
       subscription.unsubscribe();
     };
   }, []);

@@ -135,7 +135,7 @@ export interface Poll {
   created_at: string;
   updated_at: string;
   creatorEmail?: string; // Email du créateur pour les notifications
-  dates: string[]; // Dates sélectionnées pour le sondage
+  dates?: string[]; // Dates sélectionnées pour le sondage (uniquement pour type: "date")
   // Unification des types de sondages
   type?: "date" | "form";
   // Champs spécifiques aux formulaires - properly typed now

@@ -3,6 +3,18 @@ import { handleError, ErrorFactory, logError } from "./error-handling";
 import { logger } from "./logger";
 import { formatDateLocal, getTodayLocal } from "./date-utils";
 import { secureGeminiService } from "@/services/SecureGeminiService";
+import { directGeminiService } from "@/services/DirectGeminiService";
+
+// Choisir entre appel direct Gemini ou Edge Function
+// Pour forcer appel direct, définir VITE_USE_DIRECT_GEMINI=true dans .env.local
+const USE_DIRECT_GEMINI = import.meta.env.VITE_USE_DIRECT_GEMINI === "true";
+const geminiBackend = USE_DIRECT_GEMINI ? directGeminiService : secureGeminiService;
+
+if (USE_DIRECT_GEMINI) {
+  logger.info("🔵 Mode DIRECT GEMINI API activé (bypass Edge Function)", "api");
+} else {
+  logger.info("🟢 Mode Edge Function activé", "api");
+}
 
 // Constantes pour la gestion des quotas
 const RATE_LIMIT = {
@@ -393,14 +405,15 @@ export class GeminiService {
         prompt = this.buildPollGenerationPrompt(processedInput);
       }
 
-      // Appeler Gemini via Edge Function sécurisée
-      console.log(`[${timestamp}] [${requestId}] 🔵 Appel secureGeminiService.generateContent...`, {
+      // Appeler Gemini via backend configuré (direct ou Edge Function)
+      console.log(`[${timestamp}] [${requestId}] 🔵 Appel geminiBackend.generateContent...`, {
+        mode: USE_DIRECT_GEMINI ? "DIRECT" : "EDGE_FUNCTION",
         hasUserInput: !!userInput,
         hasPrompt: !!prompt,
         promptLength: prompt?.length || 0,
       });
-      const secureResponse = await secureGeminiService.generateContent(userInput, prompt);
-      console.log(`[${timestamp}] [${requestId}] 🟢 Réponse secureGeminiService reçue`, {
+      const secureResponse = await geminiBackend.generateContent(userInput, prompt);
+      console.log(`[${timestamp}] [${requestId}] 🟢 Réponse geminiBackend reçue`, {
         success: secureResponse.success,
         hasData: !!secureResponse.data,
         error: secureResponse.error,
@@ -511,7 +524,7 @@ export class GeminiService {
   async chatAboutPoll(userInput: string, context?: string): Promise<string> {
     try {
       const prompt = this.buildChatPrompt(userInput, context);
-      const secureResponse = await secureGeminiService.generateContent(userInput, prompt);
+      const secureResponse = await geminiBackend.generateContent(userInput, prompt);
 
       if (!secureResponse.success) {
         if (secureResponse.error === "QUOTA_EXCEEDED") {

@@ -16,6 +16,7 @@ import { useUIState } from "../prototype/UIStateProvider";
 import { ThemeSelector } from "./ThemeSelector";
 import { DEFAULT_THEME } from "../../lib/themes";
 import { FormSimulationIntegration } from "../simulation/FormSimulationIntegration";
+import { useFormPollCreation } from "../../hooks/useFormPollCreation";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
 export type FormQuestionType =
@@ -120,6 +121,7 @@ export default function FormPollCreator({
   onFinalize,
 }: FormPollCreatorProps) {
   const { user } = useAuth();
+  const { createFormPoll } = useFormPollCreation();
   const { modifiedQuestionId, modifiedField } = useUIState();
 
   const [title, setTitle] = useState(initialDraft?.title || "");
@@ -427,7 +429,7 @@ export default function FormPollCreator({
     logger.info("FormPoll draft enregistré", "poll", { pollId: saved.id });
   };
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     // Protection contre les appels multiples
     if (isFinalizingRef.current) {
       logger.warn("⚠️ handleFinalize déjà en cours, ignoré", "poll");
@@ -444,28 +446,44 @@ export default function FormPollCreator({
     isFinalizingRef.current = true;
 
     try {
-      // Créer/mettre à jour le poll actif (upsertFormPoll gère déjà la logique de mise à jour)
-      const saved = upsertFormPoll(draft, "active");
+      // ✅ Utiliser le hook centralisé pour créer le formulaire
+      const { poll: saved, error } = await createFormPoll({
+        title: draft.title,
+        description: undefined,
+        questions: draft.questions.map((q: any) => ({
+          id: q.id,
+          type: q.type,
+          title: q.title,
+          required: q.required,
+          options: q.options,
+          maxChoices: q.maxChoices,
+          placeholder: q.placeholder,
+          maxLength: q.maxLength,
+          matrixRows: q.matrixRows,
+          matrixColumns: q.matrixColumns,
+          matrixType: q.matrixType,
+          matrixColumnsNumeric: q.matrixColumnsNumeric,
+          ratingScale: q.ratingScale,
+          ratingStyle: q.ratingStyle,
+          ratingMinLabel: q.ratingMinLabel,
+          ratingMaxLabel: q.ratingMaxLabel,
+          validationType: q.validationType,
+        })),
+        settings: {
+          allowAnonymousResponses: true,
+          expiresAt: undefined,
+        },
+      });
 
-      // Supprimer les anciens brouillons avec le même ID (mais garder le poll actif qu'on vient de créer)
+      if (error || !saved) {
+        alert(`Erreur: ${error || "Impossible de créer le formulaire"}`);
+        return;
+      }
+
+      // Supprimer les anciens brouillons avec le même ID
       const all = getAllPolls();
       const withoutOldDrafts = all.filter((p) => !(p.id === draft.id && p.status === "draft"));
       savePolls(withoutOldDrafts);
-
-      // Lier bidirectionnellement le formulaire à la conversation (Session 1 - Architecture centrée conversations)
-      const urlParams = new URLSearchParams(window.location.search);
-      const conversationId = urlParams.get("conversationId");
-      if (conversationId) {
-        // Formulaire créé via IA → Lier à la conversation existante
-        linkPollToConversationBidirectional(conversationId, saved.id, "form");
-      } else {
-        // Formulaire créé manuellement → Créer une conversation vide (Session 2)
-        // La fonction createConversationForPoll a maintenant une protection intégrée
-        createConversationForPoll(saved.id, saved.title, "form");
-        logger.info("✅ Conversation vide créée pour formulaire manuel", "poll", {
-          pollId: saved.id,
-        });
-      }
 
       // Passer le poll sauvegardé complet (avec slug) au callback
       if (onFinalize) onFinalize(draft, saved);

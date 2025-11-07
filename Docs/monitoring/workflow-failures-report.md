@@ -1,6 +1,6 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 07/11/2025 09:28:08
+**Dernière mise à jour:** 07/11/2025 17:08:01
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -26,122 +26,119 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ❌ failure
 
-**Dernier run:** 07/11/2025 09:22:04
+**Dernier run:** 07/11/2025 17:02:57
 
 **Statistiques:**
-- ❌ Échecs (24h): **7**
-- ❌ Échecs (7 jours): **8**
+- ❌ Échecs (24h): **11**
+- ❌ Échecs (7 jours): **11**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
 
-#### Run #71 - 07/11/2025 09:22:04
+#### Run #87 - 07/11/2025 17:02:57
 
-- **Commit:** `6da5d06`
+- **Commit:** `f0a18ea`
 - **Auteur:** julienfritschheydon
 - **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19162482977)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19173881984)
+- **Jobs en échec:**
+  - ❌ `tests-unit` (failure)
+    - Steps en échec: `🧪 Tests unitaires`
+    - **Erreurs détectées (10):**
+      ```
+File: src/hooks/__tests__/useConversations.favorites.test.ts:74
+Error: stdout | src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts > titleGeneration + useAutoSave Integration > Error Handling Integration > should handle title generation errors gracefully
+
+stdout | src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts > titleGeneration + useAutoSave Integration > Error Handling Integration > should handle title generation errors gracefully
+❌ ℹ️ Erreur lors du chargement depuis Supabase, utilisation de localStorage Error: Storage error
+at /home/runner/work/DooDates/DooDates/src/hooks/__tests__/useConversations.favorites.test.ts:74:72
+[] [0773ddc1-8e0a-4e15-b267-6c7b0b798983] ✅ createConversation TERMINÉ { conversationId: 'conv-123', title: 'This should cause an error' }
+```
+      ```
+File: src/lib/error-handling.ts:136
+Error: 🚨 DooDates Error: {
+
+🚨 DooDates Error: {
+name: 'DooDatesError',
+stack: 'DooDatesError: Poll not found\n' +
+'    at Object.validation (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:136:5)\n' +
+```
+      ```
+File: src/lib/error-handling.ts:103
+Error: 🚨 DooDates Error: {
+
+🚨 DooDates Error: {
+message: 'API Error',
+name: 'DooDatesError',
+stack: 'DooDatesError: API Error\n' +
+'    at handleError (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:103:22)\n' +
+```
+      ```
+File: src/lib/error-handling.ts:103
+Error: 🚨 DooDates Error: {
+
+🚨 DooDates Error: {
+message: 'API Error',
+name: 'DooDatesError',
+stack: 'DooDatesError: API Error\n' +
+'    at handleError (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:103:22)\n' +
+```
+      ```
+File: src/lib/error-handling.ts:150
+Error: 🚨 DooDates Error: {
+
+🚨 DooDates Error: {
+name: 'DooDatesError',
+stack: 'DooDatesError: Gemini model not initialized\n' +
+'    at Object.api (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:150:8)\n' +
+```
+      *... et 5 autre(s) erreur(s)*
+
+#### Run #86 - 07/11/2025 16:58:28
+
+- **Commit:** `b1b9c86`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19173762402)
+- **Jobs en échec:**
+  - ❌ `tests-unit` (failure)
+    - Steps en échec: `🧪 Tests unitaires`
+  - ❌ `tests-e2e` (failure)
+    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
+  - ❌ `build-validation` (failure)
+    - Steps en échec: `🏗️ Build production`
+
+#### Run #85 - 07/11/2025 16:49:07
+
+- **Commit:** `12586af`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19173531042)
+- **Jobs en échec:**
+  - ❌ `tests-e2e` (failure)
+    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
+  - ❌ `build-validation` (failure)
+    - Steps en échec: `🏗️ Build production`
+
+#### Run #79 - 07/11/2025 13:42:18
+
+- **Commit:** `a89b0a1`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19168691785)
 - **Jobs en échec:**
   - ❌ `production-smoke-pre-merge` (failure)
     - Steps en échec: `🔥 Run production smoke tests`
-    - **Erreurs détectées (9):**
-      ```
-File: tests/e2e/production-smoke.spec.ts:138
-Error: "errors": [],
 
-"errors": [],
-"errors": [],
-"error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b\n    at /home/runner/work/DooDates/DooDates/tests/e2e/production-smoke.spec.ts:138:34",
-```
-      ```
-File: tests/e2e/production-smoke.spec.ts:138
-Error: "snippet": "\u001b[0m \u001b 136 |\u001b     }\n \u001b 137 |\u001b     \n\u001b[31m\u001b[1m>\u001b\u001b\u001b 138 |\u001b     expect(consoleErrors\u001b[33m.\u001blength)\u001b[33m.\u001btoBe(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                  \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 139 |\u001b   })\u001b[33m;\u001b\n \u001b 140 |\u001b\n \u001b 141 |\u001b   \u001b/**\u001b\u001b[0m"
+#### Run #78 - 07/11/2025 13:21:25
 
-"snippet": "\u001b[0m \u001b 136 |\u001b     }\n \u001b 137 |\u001b     \n\u001b[31m\u001b[1m>\u001b\u001b\u001b 138 |\u001b     expect(consoleErrors\u001b[33m.\u001blength)\u001b[33m.\u001btoBe(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                  \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 139 |\u001b   })\u001b[33m;\u001b\n \u001b 140 |\u001b\n \u001b 141 |\u001b   \u001b/**\u001b\u001b[0m"
-"errors": [
-"message": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b\n\n  136 |     }\n  137 |     \n> 138 |     expect(consoleErrors.length).toBe(0);\n      |                                  ^\n  139 |   });\n  
-... (truncated)
-```
-      ```
-File: tests/e2e/production-smoke.spec.ts:138
-Error: "path": "/home/runner/work/DooDates/DooDates/test-results/production-smoke-🔥-Produc-226ec-d-erreurs-console-critiques-chromium/error-context.md"
-
-"path": "/home/runner/work/DooDates/DooDates/test-results/production-smoke-🔥-Produc-226ec-d-erreurs-console-critiques-chromium/error-context.md"
-"errorLocation": {
-"error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b\n    at /home/runner/work/DooDates/DooDates/tests/e2e/production-smoke.spec.ts:138:34",
-```
-      ```
-File: tests/e2e/production-smoke.spec.ts:138
-Error: "snippet": "\u001b[0m \u001b 136 |\u001b     }\n \u001b 137 |\u001b     \n\u001b[31m\u001b[1m>\u001b\u001b\u001b 138 |\u001b     expect(consoleErrors\u001b[33m.\u001blength)\u001b[33m.\u001btoBe(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                  \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 139 |\u001b   })\u001b[33m;\u001b\n \u001b 140 |\u001b\n \u001b 141 |\u001b   \u001b/**\u001b\u001b[0m"
-
-"snippet": "\u001b[0m \u001b 136 |\u001b     }\n \u001b 137 |\u001b     \n\u001b[31m\u001b[1m>\u001b\u001b\u001b 138 |\u001b     expect(consoleErrors\u001b[33m.\u001blength)\u001b[33m.\u001btoBe(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                  \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 139 |\u001b   })\u001b[33m;\u001b\n \u001b 140 |\u001b\n \u001b 141 |\u001b   \u001b/**\u001b\u001b[0m"
-"errors": [
-"message": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b\n\n  136 |     }\n  137 |     \n> 138 |     expect(consoleErrors.length).toBe(0);\n      |                                  ^\n  139 |   });\n  
-... (truncated)
-```
-      ```
-File: tests/e2e/production-smoke.spec.ts:138
-Error: "path": "/home/runner/work/DooDates/DooDates/test-results/production-smoke-🔥-Produc-226ec-d-erreurs-console-critiques-chromium-retry1/error-context.md"
-
-"path": "/home/runner/work/DooDates/DooDates/test-results/production-smoke-🔥-Produc-226ec-d-erreurs-console-critiques-chromium-retry1/error-context.md"
-"errorLocation": {
-"error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoBe\u001b(\u001b\u001b[32mexpected\u001b\u001b) // Object.is equality\u001b\n\nExpected: \u001b[32m0\u001b\nReceived: \u001b[31m1\u001b\n    at /home/runner/work/DooDates/DooDates/tests/e2e/production-smoke.spec.ts:138:34",
-```
-      *... et 4 autre(s) erreur(s)*
-
-#### Run #64 - 07/11/2025 00:37:22
-
-- **Commit:** `06ae38d`
+- **Commit:** `56e7c8b`
 - **Auteur:** julienfritschheydon
 - **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19153200043)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19168202224)
 - **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🧪 Tests unitaires`
-
-#### Run #63 - 07/11/2025 00:15:05
-
-- **Commit:** `c8055d9`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19152755549)
-- **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🧪 Tests unitaires`
-  - ❌ `tests-e2e` (failure)
-    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
-
-#### Run #62 - 06/11/2025 22:28:17
-
-- **Commit:** `56181eb`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19150412550)
-- **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🧪 Tests unitaires`
-  - ❌ `build-validation` (failure)
-    - Steps en échec: `🧹 Lint (warnings allowed on develop)`
-  - ❌ `tests-e2e` (failure)
-    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
-
-#### Run #57 - 06/11/2025 19:06:56
-
-- **Commit:** `8df910d`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19145287292)
-- **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🧪 Tests unitaires`
-  - ❌ `tests-e2e` (failure)
-    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
+  - ❌ `production-smoke-pre-merge` (failure)
+    - Steps en échec: `🔥 Run production smoke tests`
 
 ---
 
@@ -149,16 +146,16 @@ Error: "path": "/home/runner/work/DooDates/DooDates/test-results/production-smok
 
 **Statut:** ✅ success
 
-**Dernier run:** 07/11/2025 09:01:45
+**Dernier run:** 07/11/2025 16:06:57
 
 **Statistiques:**
 - ❌ Échecs (24h): **0**
-- ❌ Échecs (7 jours): **10**
+- ❌ Échecs (7 jours): **6**
 - 📊 Total runs analysés: **20**
 
 ### ⚠️ Échecs récents (7 jours)
 
-Aucun échec dans les 24 dernières heures, mais **10** échec(s) cette semaine.
+Aucun échec dans les 24 dernières heures, mais **6** échec(s) cette semaine.
 
 ---
 
@@ -369,8 +366,8 @@ Error: "errors": [],
 
 ## 📈 Résumé Global
 
-- ❌ **Total échecs (24h):** 5
-- ❌ **Total échecs (7 jours):** 8
+- ❌ **Total échecs (24h):** 6
+- ❌ **Total échecs (7 jours):** 9
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
