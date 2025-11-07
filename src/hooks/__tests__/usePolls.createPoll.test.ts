@@ -86,6 +86,7 @@ describe("usePolls.createPoll", () => {
     const res = await act(
       async () =>
         await result.current.createPoll({
+          type: "date", // ✅ Ajout du type requis
           title: "Sans dates",
           description: "",
           selectedDates: [],

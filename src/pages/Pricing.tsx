@@ -3,9 +3,12 @@ import { Check, X, Sparkles, Zap, Rocket, ArrowRight, Home } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { AuthModal } from "@/components/modals/AuthModal";
 
 export function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signup");
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const currentTier = profile?.plan_type || "free";
@@ -14,8 +17,16 @@ export function PricingPage() {
     if (user) {
       navigate("/create");
     } else {
-      navigate("/signup");
+      localStorage.setItem("doodates-return-to", "/create");
+      setAuthMode("signup");
+      setShowAuthModal(true);
     }
+  };
+
+  const handleSignIn = () => {
+    localStorage.setItem("doodates-return-to", "/pricing");
+    setAuthMode("signin");
+    setShowAuthModal(true);
   };
 
   return (
@@ -43,13 +54,7 @@ export function PricingPage() {
                   Créer un sondage
                 </Button>
               ) : (
-                <Button
-                  onClick={() => {
-                    localStorage.setItem("doodates-return-to", "/pricing");
-                    navigate("/auth");
-                  }}
-                  size="sm"
-                >
+                <Button onClick={handleSignIn} size="sm">
                   Connexion
                 </Button>
               )}
@@ -430,6 +435,13 @@ function PricingFAQ() {
           </details>
         ))}
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        defaultMode={authMode}
+      />
     </div>
   );
 }

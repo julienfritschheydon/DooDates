@@ -16,7 +16,9 @@ import {
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "@/lib/logger";
 
-export interface PollData {
+// Interface pour les sondages de dates
+export interface DatePollData {
+  type: "date";
   title: string;
   description?: string | null;
   selectedDates: string[];
@@ -30,6 +32,21 @@ export interface PollData {
     expiresAt?: string;
   };
 }
+
+// Interface pour les formulaires
+export interface FormPollData {
+  type: "form";
+  title: string;
+  description?: string | null;
+  questions: any[]; // Questions du formulaire
+  settings?: {
+    allowAnonymousResponses?: boolean;
+    expiresAt?: string;
+  };
+}
+
+// Union type pour supporter les deux
+export type PollData = DatePollData | FormPollData;
 
 // Poll interface is now imported from pollStorage.ts as StoragePoll
 
@@ -70,21 +87,43 @@ export function usePolls() {
       setError(null);
 
       try {
-        // Validation stricte: au moins une date doit être sélectionnée
-        if (!Array.isArray(pollData.selectedDates) || pollData.selectedDates.length === 0) {
-          throw ErrorFactory.validation(
-            "No dates selected for poll creation",
-            "Sélectionnez au moins une date pour créer le sondage.",
-          );
+        // Validation selon le type
+        if (pollData.type === "date") {
+          // Validation stricte: au moins une date doit être sélectionnée
+          if (!Array.isArray(pollData.selectedDates) || pollData.selectedDates.length === 0) {
+            throw ErrorFactory.validation(
+              "No dates selected for poll creation",
+              "Sélectionnez au moins une date pour créer le sondage.",
+            );
+          }
+        } else if (pollData.type === "form") {
+          // Validation formulaire: au moins une question
+          if (!Array.isArray(pollData.questions) || pollData.questions.length === 0) {
+            throw ErrorFactory.validation(
+              "No questions in form",
+              "Ajoutez au moins une question pour créer le formulaire.",
+            );
+          }
         }
 
         const slug = generateSlug(pollData.title);
-        // Toujours embarquer les dates et créneaux dans settings pour cohérence UI
-        const mergedSettings = {
-          ...pollData.settings,
-          selectedDates: pollData.selectedDates,
-          timeSlotsByDate: pollData.timeSlotsByDate,
-        } as any;
+
+        // Préparer les settings selon le type
+        let mergedSettings: any;
+        if (pollData.type === "date") {
+          // Toujours embarquer les dates et créneaux dans settings pour cohérence UI
+          mergedSettings = {
+            ...pollData.settings,
+            selectedDates: pollData.selectedDates,
+            timeSlotsByDate: pollData.timeSlotsByDate,
+          };
+        } else {
+          // Formulaire
+          mergedSettings = {
+            ...pollData.settings,
+          };
+        }
+
         const adminToken = user ? null : generateAdminToken(); // Token admin seulement pour sondages anonymes
 
         // Creating poll with generated slug and admin token if needed
@@ -118,22 +157,29 @@ export function usePolls() {
           // Simuler la création avec localStorage
           // Utiliser getCurrentUserId pour être cohérent avec le filtrage du dashboard
           const currentUserId = getCurrentUserId(user?.id);
-          const mockPoll: StoragePoll = {
+
+          // Construire mockPoll selon le type
+          const basePoll = {
             id: `local-${Date.now()}`,
             creator_id: currentUserId,
             title: pollData.title,
             description: pollData.description || undefined,
             slug,
             settings: mergedSettings,
-            status: "active",
-            expires_at: pollData.settings.expiresAt || undefined,
+            status: "active" as const,
+            expires_at: pollData.settings?.expiresAt || undefined,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
             creatorEmail: user?.email || undefined,
-            dates: pollData.selectedDates,
-            type: "date",
+            type: pollData.type,
             relatedConversationId: conversationId || undefined,
           };
+
+          const mockPoll: StoragePoll = {
+            ...basePoll,
+            ...(pollData.type === "date" ? { dates: pollData.selectedDates } : {}),
+            ...(pollData.type === "form" ? { questions: pollData.questions } : {}),
+          } as StoragePoll;
 
           // Use centralized pollStorage instead of direct localStorage access
           addPoll(mockPoll);
@@ -149,34 +195,54 @@ export function usePolls() {
         }
 
         // 🆕 ARCHITECTURE V2 : Créer dans table conversations (pas polls)
-        // Préparer poll_data avec toutes les infos du sondage
-        const pollData_json = {
-          type: "date",
-          title: pollData.title,
-          description: pollData.description || null,
-          dates: pollData.selectedDates,
-          timeSlots: pollData.timeSlotsByDate,
-          settings: {
-            timeGranularity: pollData.settings.timeGranularity,
-            allowAnonymousVotes: pollData.settings.allowAnonymousVotes,
-            allowMaybeVotes: pollData.settings.allowMaybeVotes,
-            sendNotifications: pollData.settings.sendNotifications,
-            expiresAt: pollData.settings.expiresAt,
-          },
-          creatorEmail: user?.email || undefined,
-        };
+        // Préparer poll_data avec toutes les infos selon le type
+        let pollData_json: any;
+        let firstMessage: string;
+
+        if (pollData.type === "date") {
+          pollData_json = {
+            type: "date",
+            title: pollData.title,
+            description: pollData.description || null,
+            dates: pollData.selectedDates,
+            timeSlots: pollData.timeSlotsByDate,
+            settings: {
+              timeGranularity: pollData.settings.timeGranularity,
+              allowAnonymousVotes: pollData.settings.allowAnonymousVotes,
+              allowMaybeVotes: pollData.settings.allowMaybeVotes,
+              sendNotifications: pollData.settings.sendNotifications,
+              expiresAt: pollData.settings.expiresAt,
+            },
+            creatorEmail: user?.email || undefined,
+          };
+          firstMessage = "Sondage de dates créé manuellement";
+        } else {
+          // type === "form"
+          pollData_json = {
+            type: "form",
+            title: pollData.title,
+            description: pollData.description || null,
+            questions: pollData.questions,
+            settings: {
+              allowAnonymousResponses: pollData.settings?.allowAnonymousResponses,
+              expiresAt: pollData.settings?.expiresAt,
+            },
+            creatorEmail: user?.email || undefined,
+          };
+          firstMessage = "Formulaire créé manuellement";
+        }
 
         // Préparer les données de la conversation
         const conversationData = {
           user_id: user?.id || null,
           session_id: user?.id || `guest-${Date.now()}`,
           title: pollData.title,
-          first_message: "Sondage de dates créé manuellement",
+          first_message: firstMessage,
           message_count: 0,
           messages: [],
           context: {},
           poll_data: pollData_json,
-          poll_type: "date",
+          poll_type: pollData.type,
           poll_status: "active",
           poll_slug: slug,
           status: "completed", // Conversation complétée car poll créé
@@ -196,21 +262,31 @@ export function usePolls() {
             logger.warn("Utilisateur non connecté, sauvegarde en localStorage", "poll");
 
             const currentUserId = getCurrentUserId(user?.id);
-            const mockPoll: StoragePoll = {
+            const basePoll = {
               id: `local-${Date.now()}`,
               creator_id: currentUserId,
               title: pollData.title,
               description: pollData.description || undefined,
               slug,
               settings: mergedSettings,
-              status: "active",
-              expires_at: pollData.settings.expiresAt || undefined,
+              status: "active" as const,
+              expires_at: pollData.settings?.expiresAt || undefined,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
               creatorEmail: user?.email || undefined,
-              dates: pollData.selectedDates,
-              type: "date",
+              type: pollData.type,
             };
+
+            const mockPoll: StoragePoll =
+              pollData.type === "date"
+                ? {
+                    ...basePoll,
+                    dates: pollData.selectedDates,
+                  }
+                : {
+                    ...basePoll,
+                    questions: pollData.questions,
+                  };
 
             addPoll(mockPoll);
             window.dispatchEvent(
@@ -245,21 +321,31 @@ export function usePolls() {
             logger.warn("Token non trouvé, sauvegarde en localStorage", "poll");
 
             const currentUserId = getCurrentUserId(user?.id);
-            const mockPoll: StoragePoll = {
+            const basePoll = {
               id: `local-${Date.now()}`,
               creator_id: currentUserId,
               title: pollData.title,
               description: pollData.description || undefined,
               slug,
               settings: mergedSettings,
-              status: "active",
-              expires_at: pollData.settings.expiresAt || undefined,
+              status: "active" as const,
+              expires_at: pollData.settings?.expiresAt || undefined,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
               creatorEmail: user?.email || undefined,
-              dates: pollData.selectedDates,
-              type: "date",
+              type: pollData.type,
             };
+
+            const mockPoll: StoragePoll =
+              pollData.type === "date"
+                ? {
+                    ...basePoll,
+                    dates: pollData.selectedDates,
+                  }
+                : {
+                    ...basePoll,
+                    questions: pollData.questions,
+                  };
 
             addPoll(mockPoll);
             return { poll: mockPoll };
@@ -291,21 +377,31 @@ export function usePolls() {
             // Fallback sur localStorage
             logger.warn("Fallback sur localStorage après erreur Supabase", "poll");
             const currentUserId = getCurrentUserId(user?.id);
-            const mockPoll: StoragePoll = {
+            const basePoll = {
               id: `local-${Date.now()}`,
               creator_id: currentUserId,
               title: pollData.title,
               description: pollData.description || undefined,
               slug,
               settings: mergedSettings,
-              status: "active",
-              expires_at: pollData.settings.expiresAt || undefined,
+              status: "active" as const,
+              expires_at: pollData.settings?.expiresAt || undefined,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
               creatorEmail: user?.email || undefined,
-              dates: pollData.selectedDates,
-              type: "date",
+              type: pollData.type,
             };
+
+            const mockPoll: StoragePoll =
+              pollData.type === "date"
+                ? {
+                    ...basePoll,
+                    dates: pollData.selectedDates,
+                  }
+                : {
+                    ...basePoll,
+                    questions: pollData.questions,
+                  };
 
             addPoll(mockPoll);
             return { poll: mockPoll };
@@ -320,25 +416,36 @@ export function usePolls() {
           });
 
           // Convertir conversation → poll pour compatibilité
-          const createdPoll: StoragePoll = {
+          const basePollFromConversation = {
             id: conversation.id,
             creator_id: conversation.user_id,
             title: conversation.title,
             description: conversation.poll_data?.description,
             slug: conversation.poll_slug,
-            settings: {
-              ...conversation.poll_data?.settings,
-              selectedDates: conversation.poll_data?.dates || [], // 🔧 Fix validation
-            },
+            settings: conversation.poll_data?.settings || {},
             status: conversation.poll_status,
             expires_at: conversation.poll_data?.settings?.expiresAt,
             created_at: conversation.created_at,
             updated_at: conversation.updated_at,
             creatorEmail: user?.email || undefined,
-            dates: conversation.poll_data?.dates || [],
-            type: "date",
+            type: conversation.poll_type || pollData.type,
             conversationId: conversation.id,
           };
+
+          const createdPoll: StoragePoll = {
+            ...basePollFromConversation,
+            ...(conversation.poll_type === "date"
+              ? {
+                  settings: {
+                    ...conversation.poll_data?.settings,
+                    selectedDates: conversation.poll_data?.dates || [], // 🔧 Fix validation
+                  },
+                  dates: conversation.poll_data?.dates || [],
+                }
+              : {
+                  questions: conversation.poll_data?.questions || [],
+                }),
+          } as StoragePoll;
 
           // Sauvegarder aussi dans localStorage pour cache local
           addPoll(createdPoll);
@@ -354,21 +461,26 @@ export function usePolls() {
           // Fallback localStorage en cas d'erreur
           logger.warn("Fallback localStorage après erreur réseau", "poll");
           const currentUserId = getCurrentUserId(user?.id);
-          const mockPoll: StoragePoll = {
+          const basePoll = {
             id: `local-${Date.now()}`,
             creator_id: currentUserId,
             title: pollData.title,
             description: pollData.description || undefined,
             slug,
             settings: mergedSettings,
-            status: "active",
-            expires_at: pollData.settings.expiresAt || undefined,
+            status: "active" as const,
+            expires_at: pollData.settings?.expiresAt || undefined,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
             creatorEmail: user?.email || undefined,
-            dates: pollData.selectedDates,
-            type: "date",
+            type: pollData.type,
           };
+
+          const mockPoll: StoragePoll = {
+            ...basePoll,
+            ...(pollData.type === "date" ? { dates: pollData.selectedDates } : {}),
+            ...(pollData.type === "form" ? { questions: pollData.questions } : {}),
+          } as StoragePoll;
 
           addPoll(mockPoll);
           return { poll: mockPoll };
