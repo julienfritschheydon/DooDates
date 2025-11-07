@@ -3,33 +3,33 @@
  * Quick Win #3 : 3 thèmes basiques gratuits
  */
 export interface Theme {
-    id: string;
-    name: string;
-    description: string;
-    preview: {
-        primary: string;
-        secondary: string;
-        background: string;
-        text: string;
-    };
-    cssVariables: {
-        "--theme-primary": string;
-        "--theme-primary-hover": string;
-        "--theme-primary-light": string;
-        "--theme-secondary": string;
-        "--theme-secondary-hover": string;
-        "--theme-bg-main": string;
-        "--theme-bg-card": string;
-        "--theme-bg-input": string;
-        "--theme-text-primary": string;
-        "--theme-text-secondary": string;
-        "--theme-text-muted": string;
-        "--theme-border": string;
-        "--theme-border-hover": string;
-        "--theme-success": string;
-        "--theme-error": string;
-        "--theme-warning": string;
-    };
+  id: string;
+  name: string;
+  description: string;
+  preview: {
+    primary: string;
+    secondary: string;
+    background: string;
+    text: string;
+  };
+  cssVariables: {
+    "--theme-primary": string;
+    "--theme-primary-hover": string;
+    "--theme-primary-light": string;
+    "--theme-secondary": string;
+    "--theme-secondary-hover": string;
+    "--theme-bg-main": string;
+    "--theme-bg-card": string;
+    "--theme-bg-input": string;
+    "--theme-text-primary": string;
+    "--theme-text-secondary": string;
+    "--theme-text-muted": string;
+    "--theme-border": string;
+    "--theme-border-hover": string;
+    "--theme-success": string;
+    "--theme-error": string;
+    "--theme-warning": string;
+  };
 }
 /**
  * Thème Bleu Océan (par défaut)

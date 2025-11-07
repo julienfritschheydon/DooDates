@@ -36,10 +36,10 @@ import type { FormPollDraft } from "../components/polls/FormPollCreator";
  * @returns {Function} getFormDraft - Récupère le draft Form converti
  */
 export declare function usePollManagement(): {
-    showPollCreator: boolean;
-    selectedPollData: PollSuggestion;
-    openPollCreator: (pollData: PollSuggestion) => void;
-    closePollCreator: () => void;
-    getFormDraft: () => FormPollDraft | null;
-    isFormPoll: boolean;
+  showPollCreator: boolean;
+  selectedPollData: PollSuggestion;
+  openPollCreator: (pollData: PollSuggestion) => void;
+  closePollCreator: () => void;
+  getFormDraft: () => FormPollDraft | null;
+  isFormPoll: boolean;
 };

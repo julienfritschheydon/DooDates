@@ -32,15 +32,15 @@ export declare function selectPersonas(context: SimulationContext, count: number
  * Statistiques sur les personas
  */
 export declare function getPersonaStats(): {
-    total: number;
-    principal: number;
-    secondary: number;
-    byContext: {
-        context: string;
-        count: number;
-        personas: string[];
-    }[];
-    avgResponseRate: number;
-    avgAttentionSpan: number;
+  total: number;
+  principal: number;
+  secondary: number;
+  byContext: {
+    context: string;
+    count: number;
+    personas: string[];
+  }[];
+  avgResponseRate: number;
+  avgAttentionSpan: number;
 };
 export { PERSONAS_PRINCIPAL, PERSONAS_SECONDARY };

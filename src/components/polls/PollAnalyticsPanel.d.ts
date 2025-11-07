@@ -5,8 +5,11 @@
  * et affiche les insights automatiques générés par l'IA.
  */
 interface Props {
-    pollId: string;
-    pollTitle: string;
+  pollId: string;
+  pollTitle: string;
 }
-export default function PollAnalyticsPanel({ pollId, pollTitle }: Props): import("react/jsx-runtime").JSX.Element;
+export default function PollAnalyticsPanel({
+  pollId,
+  pollTitle,
+}: Props): import("react/jsx-runtime").JSX.Element;
 export {};

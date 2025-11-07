@@ -8,17 +8,20 @@ import type { SimulationResult } from "../../types/simulation";
 /**
  * Analyse les résultats de simulation et détecte les problèmes
  */
-export declare function analyzeSimulation(result: SimulationResult, questions?: Array<{
+export declare function analyzeSimulation(
+  result: SimulationResult,
+  questions?: Array<{
     id: string;
     type: string;
     title: string;
     required?: boolean;
     options?: Array<{
-        id: string;
-        label: string;
+      id: string;
+      label: string;
     }>;
     matrixRows?: Array<{
-        id: string;
-        label: string;
+      id: string;
+      label: string;
     }>;
-}>): Promise<SimulationResult>;
+  }>,
+): Promise<SimulationResult>;

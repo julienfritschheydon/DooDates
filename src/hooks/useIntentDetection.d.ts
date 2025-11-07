@@ -20,49 +20,46 @@
  * @module hooks/useIntentDetection
  */
 interface Message {
-    id: string;
-    content: string;
-    isAI: boolean;
-    timestamp: Date;
+  id: string;
+  content: string;
+  isAI: boolean;
+  timestamp: Date;
 }
 interface IntentResult {
-    handled: boolean;
-    userMessage?: Message;
-    confirmMessage?: Message;
-    aiProposal?: {
-        userRequest: string;
-        generatedContent: any;
-        pollContext?: {
-            pollId?: string;
-            pollTitle?: string;
-            pollType?: string;
-            action?: string;
-        };
+  handled: boolean;
+  userMessage?: Message;
+  confirmMessage?: Message;
+  aiProposal?: {
+    userRequest: string;
+    generatedContent: any;
+    pollContext?: {
+      pollId?: string;
+      pollTitle?: string;
+      pollType?: string;
+      action?: string;
     };
-    action?: {
-        type: string;
-        payload: any;
-    };
-    modifiedQuestionId?: string;
-    modifiedField?: "title" | "type" | "options" | "required";
-    /** Indique qu'un changement de type de sondage a été détecté */
-    isTypeSwitch?: boolean;
-    /** Le message original pour créer un nouveau sondage */
-    originalMessage?: string;
-    /** Type de sondage demandé */
-    requestedType?: "date" | "form";
+  };
+  action?: {
+    type: string;
+    payload: any;
+  };
+  modifiedQuestionId?: string;
+  modifiedField?: "title" | "type" | "options" | "required";
+  /** Indique qu'un changement de type de sondage a été détecté */
+  isTypeSwitch?: boolean;
+  /** Le message original pour créer un nouveau sondage */
+  originalMessage?: string;
+  /** Type de sondage demandé */
+  requestedType?: "date" | "form";
 }
 /**
  * Options pour le hook useIntentDetection
  */
 interface UseIntentDetectionOptions {
-    /** Poll actuellement édité (Date ou Form) */
-    currentPoll: any;
-    /** Callback pour dispatcher les actions de modification du poll */
-    onDispatchAction: (action: {
-        type: string;
-        payload: any;
-    }) => void;
+  /** Poll actuellement édité (Date ou Form) */
+  currentPoll: any;
+  /** Callback pour dispatcher les actions de modification du poll */
+  onDispatchAction: (action: { type: string; payload: any }) => void;
 }
 /**
  * Hook de détection d'intentions pour modifications de polls.
@@ -75,6 +72,6 @@ interface UseIntentDetectionOptions {
  * @returns Objet avec la fonction detectIntent
  */
 export declare function useIntentDetection(options: UseIntentDetectionOptions): {
-    detectIntent: (trimmedText: string) => Promise<IntentResult>;
+  detectIntent: (trimmedText: string) => Promise<IntentResult>;
 };
 export {};

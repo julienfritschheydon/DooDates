@@ -2,7 +2,8 @@
  * Utility functions for date and time formatting
  */
 export declare const formatDate: (dateString: string) => string;
-export declare const formatTime: (timeSlots: Array<{
+export declare const formatTime: (
+  timeSlots: Array<{
     hour?: number;
     minute?: number;
     duration?: number;
@@ -11,4 +12,5 @@ export declare const formatTime: (timeSlots: Array<{
     end_hour?: number;
     end_minute?: number;
     label?: string;
-}>) => string;
+  }>,
+) => string;

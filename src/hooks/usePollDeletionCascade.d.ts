@@ -3,24 +3,27 @@
  * DooDates - Poll Deletion Cascade Management
  */
 export interface PollDeletionResult {
-    success: boolean;
-    conversationUpdated?: boolean;
-    conversationDeleted?: boolean;
-    error?: string;
+  success: boolean;
+  conversationUpdated?: boolean;
+  conversationDeleted?: boolean;
+  error?: string;
 }
 export interface PollDeletionOptions {
-    deleteConversation?: boolean;
+  deleteConversation?: boolean;
 }
 export declare const usePollDeletionCascade: () => {
-    deletePollWithCascade: (pollId: string, options?: PollDeletionOptions) => Promise<PollDeletionResult>;
-    cleanupConversationLink: (pollId: string) => Promise<boolean>;
-    checkPollLinks: (pollId: string) => {
-        hasLinks: boolean;
-        linkedConversations: string[];
-    };
-    getOrphanedLinks: () => string[];
-    cleanupOrphanedLinks: () => Promise<number>;
-    isDeleting: boolean;
-    deleteError: import("../types/conversation").ConversationError;
+  deletePollWithCascade: (
+    pollId: string,
+    options?: PollDeletionOptions,
+  ) => Promise<PollDeletionResult>;
+  cleanupConversationLink: (pollId: string) => Promise<boolean>;
+  checkPollLinks: (pollId: string) => {
+    hasLinks: boolean;
+    linkedConversations: string[];
+  };
+  getOrphanedLinks: () => string[];
+  cleanupOrphanedLinks: () => Promise<number>;
+  isDeleting: boolean;
+  deleteError: import("../types/conversation").ConversationError;
 };
 export default usePollDeletionCascade;

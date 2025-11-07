@@ -1,8 +1,8 @@
 export type ViewMode = "grid" | "table";
 interface UseViewportItemsOptions {
-    viewMode: ViewMode;
-    minItems?: number;
-    maxItems?: number;
+  viewMode: ViewMode;
+  minItems?: number;
+  maxItems?: number;
 }
 /**
  * Hook pour calculer dynamiquement le nombre d'items par page selon le viewport
@@ -13,5 +13,9 @@ interface UseViewportItemsOptions {
  * @param maxItems - Nombre maximum d'items par page (défaut: 24)
  * @returns Nombre d'items par page calculé
  */
-export declare function useViewportItems({ viewMode, minItems, maxItems, }: UseViewportItemsOptions): number;
+export declare function useViewportItems({
+  viewMode,
+  minItems,
+  maxItems,
+}: UseViewportItemsOptions): number;
 export {};
