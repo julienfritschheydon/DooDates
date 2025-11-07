@@ -109,23 +109,56 @@ test.describe('🔥 Production Smoke Tests', () => {
    */
   test('Pas d\'erreurs console critiques', async ({ page }) => {
     const consoleErrors: string[] = [];
-    const failedRequests: { url: string; status: number }[] = [];
+    const failedRequests: { url: string; status: number; isCritical: boolean }[] = [];
+    const all404s: string[] = []; // Logger TOUTES les 404 pour diagnostic
     
-    // Capturer les requêtes échouées (500, etc. - MAIS PAS les 404)
-    // Les 404 sont souvent normales : source maps, polyfills optionnels, etc.
-    page.on('response', response => {
-      // Ignorer complètement les 404 (ressources optionnelles)
-      if (response.status() === 404) return;
+    /**
+     * Détermine si une 404 est critique ou optionnelle
+     */
+    function is404Critical(url: string): boolean {
+      // ✅ 404 OPTIONNELLES (ne bloquent pas le test)
+      const optionalPatterns = [
+        '.map',                    // Source maps (debug uniquement)
+        'favicon',                 // Favicon (navigateur le demande automatiquement)
+        'manifest.json',           // PWA manifest (optionnel)
+        'fonts.googleapis.com',    // Fonts externes (fallback possible)
+        'fonts.gstatic.com',       // Fonts CDN
+        'polyfill',                // Polyfills pour vieux navigateurs
+        'analytics',               // Google Analytics
+        'gtag',                    // Google Tag Manager
+        'googletagmanager',        // GTM
+        'third-party',             // Scripts tiers
+        'ads',                     // Publicités
+        'supabase.co/rest/v1/profiles', // Supabase profiles en mode invité (404 normal)
+      ];
       
-      // Pour les autres erreurs (5xx, 403, etc.)
-      if (response.status() >= 400) {
-        const url = response.url();
-        // Ignorer les erreurs non-critiques connues
+      const urlLower = url.toLowerCase();
+      return !optionalPatterns.some(pattern => urlLower.includes(pattern));
+    }
+    
+    // Capturer les requêtes échouées
+    page.on('response', response => {
+      const status = response.status();
+      const url = response.url();
+      
+      // Logger toutes les 404 pour diagnostic
+      if (status === 404) {
+        all404s.push(url);
+        const isCritical = is404Critical(url);
+        console.log(`🔍 404 détectée: ${url} → ${isCritical ? '❌ CRITIQUE' : '✅ Optionnelle'}`);
+        
+        // Ne bloquer que sur les 404 critiques
+        if (isCritical) {
+          failedRequests.push({ url, status, isCritical: true });
+        }
+      }
+      // Autres erreurs HTTP (5xx, 403, etc.) → toujours critiques
+      else if (status >= 400) {
         if (!url.includes('favicon') && 
-            !url.includes('manifest.json') &&
             !url.includes('analytics') &&
             !url.includes('third-party')) {
-          failedRequests.push({ url, status: response.status() });
+          console.error(`🚨 Erreur HTTP ${status}: ${url}`);
+          failedRequests.push({ url, status, isCritical: true });
         }
       }
     });
@@ -138,8 +171,19 @@ test.describe('🔥 Production Smoke Tests', () => {
         if (!text.includes('ResizeObserver') && 
             !text.includes('favicon') &&
             !text.includes('manifest.json') &&
-            !text.includes('third-party')) {
+            !text.includes('third-party') &&
+            !text.includes('chrome-extension://') &&  // Extensions Chrome/Edge
+            !text.includes('runtime/sendMessage')) {  // Erreurs extensions
+          console.error(`🚨 Erreur console: ${text}`);
           consoleErrors.push(text);
+        }
+      }
+      // Ignorer aussi les warnings de performance (pas des erreurs)
+      if (msg.type() === 'warning') {
+        const text = msg.text();
+        if (text.includes('[Violation]')) {
+          // Violations de performance : warnings, pas des erreurs bloquantes
+          return;
         }
       }
     });
@@ -151,17 +195,28 @@ test.describe('🔥 Production Smoke Tests', () => {
     // Attendre un peu pour que les erreurs asynchrones apparaissent
     await page.waitForTimeout(2000);
     
-    // Afficher les détails des erreurs
+    // Rapport détaillé
+    console.log(`\n📊 Rapport d'erreurs:`);
+    console.log(`  - Total 404 détectées: ${all404s.length}`);
+    console.log(`  - 404 critiques: ${failedRequests.filter(r => r.status === 404).length}`);
+    console.log(`  - Autres erreurs HTTP: ${failedRequests.filter(r => r.status !== 404).length}`);
+    console.log(`  - Erreurs console: ${consoleErrors.length}`);
+    
+    if (all404s.length > 0) {
+      console.log(`\n🔍 Liste complète des 404:`);
+      all404s.forEach(url => console.log(`  - ${url}`));
+    }
+    
     if (failedRequests.length > 0) {
-      console.error('❌ Requêtes échouées:', failedRequests);
+      console.error(`\n❌ Requêtes CRITIQUES échouées:`, JSON.stringify(failedRequests, null, 2));
     }
     if (consoleErrors.length > 0) {
-      console.error('❌ Erreurs console:', consoleErrors);
+      console.error(`\n❌ Erreurs console:`, consoleErrors);
     }
     
     // Vérifier qu'il n'y a pas d'erreurs critiques
-    expect(failedRequests.length).toBe(0);
-    expect(consoleErrors.length).toBe(0);
+    expect(failedRequests.length, `${failedRequests.length} requête(s) critique(s) échouée(s)`).toBe(0);
+    expect(consoleErrors.length, `${consoleErrors.length} erreur(s) console détectée(s)`).toBe(0);
   });
 
   /**
