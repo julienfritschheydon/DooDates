@@ -209,6 +209,10 @@ test.describe('🔥 Production Smoke Tests', () => {
     
     if (failedRequests.length > 0) {
       console.error(`\n❌ Requêtes CRITIQUES échouées:`, JSON.stringify(failedRequests, null, 2));
+      // Log détaillé pour chaque requête échouée
+      failedRequests.forEach(req => {
+        console.error(`\n🚨 ÉCHEC: ${req.status} ${req.url}`);
+      });
     }
     if (consoleErrors.length > 0) {
       console.error(`\n❌ Erreurs console:`, consoleErrors);
