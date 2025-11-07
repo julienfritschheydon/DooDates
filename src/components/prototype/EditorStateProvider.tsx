@@ -27,6 +27,8 @@ import { logError, ErrorFactory } from "@/lib/error-handling";
 import { pollReducer, type PollAction } from "@/reducers/pollReducer";
 import { addPoll, type Poll } from "@/lib/pollStorage";
 import { logger } from "@/lib/logger";
+import { usePolls } from "@/hooks/usePolls";
+import { useFormPollCreation } from "@/hooks/useFormPollCreation";
 
 export interface EditorStateContextType {
   // État éditeur
@@ -57,6 +59,8 @@ interface EditorStateProviderProps {
 
 export function EditorStateProvider({ children }: EditorStateProviderProps) {
   const location = useLocation();
+  const { createPoll } = usePolls();
+  const { createFormPoll } = useFormPollCreation();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [currentPoll, dispatchPoll] = useReducer(pollReducer, null);
 
@@ -226,28 +230,69 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
       logger.debug("Questions converties", "poll", { convertedQuestions });
     }
 
-    const poll: Poll = {
-      id: slug,
-      slug: slug,
-      title: pollData.title || "Nouveau sondage",
-      type: pollData.type || "date",
-      dates: pollData.dates || [],
-      questions: convertedQuestions,
-      created_at: now,
-      updated_at: now,
-      creator_id: "guest",
-      status: "draft" as const,
-      settings: {
-        selectedDates: pollData.dates || [],
-        timeSlotsByDate: timeSlotsByDate,
-      },
-    };
-
-    // Sauvegarder dans pollStorage et ouvrir l'éditeur
+    // ✅ Utiliser les hooks centralisés pour sauvegarder dans Supabase
     try {
-      addPoll(poll);
+      let pollResult;
+      
+      if (pollData.type === "form") {
+        // Créer un formulaire via le hook centralisé
+        pollResult = await createFormPoll({
+          title: pollData.title || "Nouveau formulaire",
+          description: undefined,
+          questions: convertedQuestions.map((q: any) => ({
+            id: q.id,
+            type: q.type,
+            title: q.title,
+            required: q.required || false,
+            options: q.options,
+            maxChoices: q.maxChoices,
+            placeholder: q.placeholder,
+            maxLength: q.maxLength,
+          })),
+          settings: {
+            allowAnonymousResponses: true,
+            expiresAt: undefined,
+          },
+        });
+      } else {
+        // Créer un sondage de dates
+        logger.info("💾 Création sondage via IA", "poll", { title: pollData.title });
+        const datePollData: import("../../hooks/usePolls").DatePollData = {
+          type: "date",
+          title: pollData.title || "Nouveau sondage",
+          description: undefined,
+          selectedDates: pollData.dates || [],
+          timeSlotsByDate: timeSlotsByDate,
+          participantEmails: [],
+          settings: {
+            timeGranularity: 30,
+            allowAnonymousVotes: true,
+            allowMaybeVotes: true,
+            sendNotifications: false,
+            expiresAt: undefined,
+          },
+        };
+        pollResult = await createPoll(datePollData);
+      }
+
+      if (pollResult.error || !pollResult.poll) {
+        logger.error("❌ Erreur création poll via IA", "poll", { error: pollResult.error });
+          throw ErrorFactory.storage(
+            pollResult.error || "Impossible de créer le poll",
+            "Une erreur s'est produite lors de la création du poll"
+          );
+      }
+
+      // Utiliser le poll créé
+      const poll = pollResult.poll;
       setCurrentPoll(poll as any);
       setIsEditorOpen(true);
+
+      logger.info("✅ Poll créé via IA et sauvegardé dans Supabase", "poll", {
+        pollId: poll.id,
+        pollType: poll.type,
+        conversationId: poll.conversationId,
+      });
 
       // 🔧 FIX: Sauvegarder le pollId dans les métadonnées de la conversation
       // pour pouvoir le retrouver après refresh ou dans les tests E2E
