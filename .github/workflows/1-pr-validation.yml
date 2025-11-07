@@ -42,12 +42,12 @@ jobs:
           echo $! > preview.pid
       
       - name: ⏳ Wait for server to be ready
-        run: npx wait-on http://localhost:4173 --timeout 60000
+        run: npx wait-on http://localhost:4173/DooDates --timeout 60000
       
       - name: 🔥 Run production smoke tests
         run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
         env:
-          BASE_URL: http://localhost:4173
+          BASE_URL: http://localhost:4173/DooDates
           CI: true
       
       - name: 🛑 Stop preview server
