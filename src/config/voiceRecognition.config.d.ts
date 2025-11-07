@@ -73,67 +73,67 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 export declare const VOICE_RECOGNITION_CONFIG: {
-    /**
-     * Langue de reconnaissance
-     */
-    readonly lang: "fr-FR";
-    /**
-     * Afficher les résultats intermédiaires pendant la reconnaissance
-     * ✅ VALIDÉ: true (config remarkablemark qui marche)
-     */
-    readonly interimResults: true;
-    /**
-     * Mode continu
-     * ✅ VALIDÉ: false (contre-intuitif mais c'est ça qui marche !)
-     * 📝 NOTE: Avec interimResults: true, il faut continuous: false
-     */
-    readonly continuous: false;
-    /**
-     * Redémarrage automatique
-     * ❌ TESTÉ: true crée des coupures et perd des mots
-     * ✅ TESTÉ: false fonctionne mieux (utilisateur contrôle)
-     */
-    readonly autoRestart: false;
-    /**
-     * Délai avant redémarrage (en ms)
-     * Utilisé seulement si autoRestart = true
-     */
-    readonly restartDelay: 100;
-    /**
-     * Ignorer l'erreur "no-speech" (silence détecté)
-     * true = ne pas afficher d'erreur pour le silence
-     */
-    readonly ignoreNoSpeechError: true;
+  /**
+   * Langue de reconnaissance
+   */
+  readonly lang: "fr-FR";
+  /**
+   * Afficher les résultats intermédiaires pendant la reconnaissance
+   * ✅ VALIDÉ: true (config remarkablemark qui marche)
+   */
+  readonly interimResults: true;
+  /**
+   * Mode continu
+   * ✅ VALIDÉ: false (contre-intuitif mais c'est ça qui marche !)
+   * 📝 NOTE: Avec interimResults: true, il faut continuous: false
+   */
+  readonly continuous: false;
+  /**
+   * Redémarrage automatique
+   * ❌ TESTÉ: true crée des coupures et perd des mots
+   * ✅ TESTÉ: false fonctionne mieux (utilisateur contrôle)
+   */
+  readonly autoRestart: false;
+  /**
+   * Délai avant redémarrage (en ms)
+   * Utilisé seulement si autoRestart = true
+   */
+  readonly restartDelay: 100;
+  /**
+   * Ignorer l'erreur "no-speech" (silence détecté)
+   * true = ne pas afficher d'erreur pour le silence
+   */
+  readonly ignoreNoSpeechError: true;
 };
 /**
  * Messages d'erreur personnalisés
  */
 export declare const VOICE_RECOGNITION_ERRORS: {
-    readonly "no-speech": "Aucune parole détectée";
-    readonly "audio-capture": "Impossible d'accéder au microphone";
-    readonly "not-allowed": "Permission microphone refusée";
-    readonly network: "Erreur réseau";
-    readonly aborted: "Reconnaissance interrompue";
-    readonly "service-not-allowed": "Service de reconnaissance non autorisé";
+  readonly "no-speech": "Aucune parole détectée";
+  readonly "audio-capture": "Impossible d'accéder au microphone";
+  readonly "not-allowed": "Permission microphone refusée";
+  readonly network: "Erreur réseau";
+  readonly aborted: "Reconnaissance interrompue";
+  readonly "service-not-allowed": "Service de reconnaissance non autorisé";
 };
 /**
  * Limites connues de Web Speech API
  */
 export declare const VOICE_RECOGNITION_LIMITATIONS: {
-    /**
-     * Durée maximale avant arrêt automatique (estimation)
-     */
-    readonly maxContinuousDuration: 15000;
-    /**
-     * Délai de silence avant arrêt (estimation)
-     */
-    readonly silenceTimeout: 3000;
-    /**
-     * Navigateurs supportés
-     */
-    readonly supportedBrowsers: readonly ["Chrome", "Edge", "Safari (partiel)"];
-    /**
-     * Navigateurs NON supportés
-     */
-    readonly unsupportedBrowsers: readonly ["Firefox", "Safari iOS"];
+  /**
+   * Durée maximale avant arrêt automatique (estimation)
+   */
+  readonly maxContinuousDuration: 15000;
+  /**
+   * Délai de silence avant arrêt (estimation)
+   */
+  readonly silenceTimeout: 3000;
+  /**
+   * Navigateurs supportés
+   */
+  readonly supportedBrowsers: readonly ["Chrome", "Edge", "Safari (partiel)"];
+  /**
+   * Navigateurs NON supportés
+   */
+  readonly unsupportedBrowsers: readonly ["Firefox", "Safari iOS"];
 };

@@ -1,5 +1,7 @@
 interface Props {
-    idOrSlug: string;
+  idOrSlug: string;
 }
-export default function FormPollResults({ idOrSlug }: Props): import("react/jsx-runtime").JSX.Element;
+export default function FormPollResults({
+  idOrSlug,
+}: Props): import("react/jsx-runtime").JSX.Element;
 export {};

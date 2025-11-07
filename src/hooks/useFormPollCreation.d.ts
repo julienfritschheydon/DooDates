@@ -4,40 +4,40 @@
  */
 import type { Poll } from "@/lib/pollStorage";
 export interface FormQuestion {
+  id: string;
+  type: string;
+  title: string;
+  required?: boolean;
+  options?: Array<{
     id: string;
-    type: string;
-    title: string;
-    required?: boolean;
-    options?: Array<{
-        id: string;
-        label: string;
-        isOther?: boolean;
-    }>;
-    maxChoices?: number;
-    placeholder?: string;
-    maxLength?: number;
-    matrixRows?: any[];
-    matrixColumns?: any[];
-    matrixType?: "single" | "multiple";
-    matrixColumnsNumeric?: boolean;
-    ratingScale?: number;
-    ratingStyle?: "numbers" | "stars" | "emojis";
-    ratingMinLabel?: string;
-    ratingMaxLabel?: string;
-    validationType?: "email" | "phone" | "url" | "number" | "date";
+    label: string;
+    isOther?: boolean;
+  }>;
+  maxChoices?: number;
+  placeholder?: string;
+  maxLength?: number;
+  matrixRows?: any[];
+  matrixColumns?: any[];
+  matrixType?: "single" | "multiple";
+  matrixColumnsNumeric?: boolean;
+  ratingScale?: number;
+  ratingStyle?: "numbers" | "stars" | "emojis";
+  ratingMinLabel?: string;
+  ratingMaxLabel?: string;
+  validationType?: "email" | "phone" | "url" | "number" | "date";
 }
 export interface CreateFormPollParams {
-    title: string;
-    description?: string;
-    questions: FormQuestion[];
-    settings?: {
-        allowAnonymousResponses?: boolean;
-        expiresAt?: string;
-    };
+  title: string;
+  description?: string;
+  questions: FormQuestion[];
+  settings?: {
+    allowAnonymousResponses?: boolean;
+    expiresAt?: string;
+  };
 }
 export declare function useFormPollCreation(): {
-    createFormPoll: (params: CreateFormPollParams) => Promise<{
-        poll?: Poll;
-        error?: string;
-    }>;
+  createFormPoll: (params: CreateFormPollParams) => Promise<{
+    poll?: Poll;
+    error?: string;
+  }>;
 };

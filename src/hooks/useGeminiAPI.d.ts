@@ -14,21 +14,21 @@
  */
 import { type PollSuggestion } from "../lib/gemini";
 export interface GeminiAPIResponse {
-    success: boolean;
-    data?: PollSuggestion;
-    error?: string;
-    errorType?: "quota" | "network" | "parsing" | "unknown";
+  success: boolean;
+  data?: PollSuggestion;
+  error?: string;
+  errorType?: "quota" | "network" | "parsing" | "unknown";
 }
 export interface UseGeminiAPIOptions {
-    onQuotaExceeded?: () => void;
-    onNetworkError?: () => void;
-    debug?: boolean;
+  onQuotaExceeded?: () => void;
+  onNetworkError?: () => void;
+  debug?: boolean;
 }
 export interface UseGeminiAPIReturn {
-    isLoading: boolean;
-    generatePoll: (userMessage: string) => Promise<GeminiAPIResponse>;
-    error: string | null;
-    clearError: () => void;
+  isLoading: boolean;
+  generatePoll: (userMessage: string) => Promise<GeminiAPIResponse>;
+  error: string | null;
+  clearError: () => void;
 }
 /**
  * Hook pour gérer les appels à l'API Gemini

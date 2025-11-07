@@ -250,7 +250,7 @@ export async function createConversation(
       data = await supabaseInsert("conversations", supabaseData, { timeout: 5000 });
     } catch (error: any) {
       const insertDuration = Date.now() - insertStartTime;
-      
+
       const detailedError = ErrorFactory.storage(
         "Erreur Supabase lors de l'insertion",
         error.message || "Impossible de créer la conversation",

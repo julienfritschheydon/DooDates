@@ -343,7 +343,6 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            onToggleSelection();
           }}
           onMouseDown={(e) => e.stopPropagation()}
         >
@@ -356,6 +355,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
+              onToggleSelection();
             }}
           >
             {isSelected && <Check className="w-4 h-4 text-white" />}

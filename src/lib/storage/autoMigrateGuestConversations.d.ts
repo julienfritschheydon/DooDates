@@ -10,7 +10,7 @@ export declare function hasMigratedGuestConversations(userId: string): boolean;
  * Migrate guest conversations to Supabase for the logged-in user
  */
 export declare function migrateGuestConversations(userId: string): Promise<{
-    success: boolean;
-    migratedCount: number;
-    errors: string[];
+  success: boolean;
+  migratedCount: number;
+  errors: string[];
 }>;

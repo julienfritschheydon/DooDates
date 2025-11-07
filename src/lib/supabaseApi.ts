@@ -44,7 +44,7 @@ export function getSupabaseToken(): string | null {
 /**
  * Make authenticated request to Supabase REST API
  * Uses fetch directly with JWT token from localStorage
- * 
+ *
  * @param table - Table name (e.g., "conversations", "polls")
  * @param method - HTTP method (GET, POST, PUT, DELETE, PATCH)
  * @param options - Request options
@@ -65,7 +65,10 @@ export async function supabaseRestApi<T = any>(
   // Get token
   const token = getSupabaseToken();
   if (requireAuth && !token) {
-    throw ErrorFactory.authentication("No authentication token found", "Please sign in to continue");
+    throw ErrorFactory.authentication(
+      "No authentication token found",
+      "Please sign in to continue",
+    );
   }
 
   // Build URL
@@ -73,7 +76,10 @@ export async function supabaseRestApi<T = any>(
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   if (!baseUrl || !anonKey) {
-    throw ErrorFactory.configuration("Supabase configuration missing", "System configuration error");
+    throw ErrorFactory.configuration(
+      "Supabase configuration missing",
+      "System configuration error",
+    );
   }
 
   let url = `${baseUrl}/rest/v1/${table}`;
@@ -149,7 +155,7 @@ export async function supabaseInsert<T = any>(
     body: data,
     timeout: options.timeout,
   });
-  
+
   // Supabase returns array with single item
   return Array.isArray(result) ? result[0] : result;
 }
@@ -168,7 +174,7 @@ export async function supabaseUpdate<T = any>(
     query,
     timeout: options.timeout,
   });
-  
+
   return Array.isArray(result) ? result[0] : result;
 }
 
@@ -199,4 +205,3 @@ export async function supabaseSelect<T = any>(
     timeout: options.timeout,
   });
 }
-

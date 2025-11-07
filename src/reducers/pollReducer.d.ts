@@ -10,26 +10,32 @@
  */
 import { Poll } from "../lib/pollStorage";
 import { type FormPollAction } from "./formPollReducer";
-export type PollAction = {
-    type: "ADD_DATE";
-    payload: string;
-} | {
-    type: "REMOVE_DATE";
-    payload: string;
-} | {
-    type: "UPDATE_TITLE";
-    payload: string;
-} | {
-    type: "ADD_TIMESLOT";
-    payload: {
+export type PollAction =
+  | {
+      type: "ADD_DATE";
+      payload: string;
+    }
+  | {
+      type: "REMOVE_DATE";
+      payload: string;
+    }
+  | {
+      type: "UPDATE_TITLE";
+      payload: string;
+    }
+  | {
+      type: "ADD_TIMESLOT";
+      payload: {
         date: string;
         start: string;
         end: string;
-    };
-} | {
-    type: "REPLACE_POLL";
-    payload: Poll;
-} | FormPollAction;
+      };
+    }
+  | {
+      type: "REPLACE_POLL";
+      payload: Poll;
+    }
+  | FormPollAction;
 /**
  * Reducer pour gérer les modifications du sondage
  */

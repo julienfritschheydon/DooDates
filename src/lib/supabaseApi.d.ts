@@ -16,33 +16,54 @@ export declare function getSupabaseToken(): string | null;
  * @param options - Request options
  * @returns Response data or throws error
  */
-export declare function supabaseRestApi<T = any>(table: string, method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE", options?: {
+export declare function supabaseRestApi<T = any>(
+  table: string,
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+  options?: {
     body?: any;
     query?: Record<string, string>;
     timeout?: number;
     requireAuth?: boolean;
-}): Promise<T>;
+  },
+): Promise<T>;
 /**
  * Insert data into Supabase table
  */
-export declare function supabaseInsert<T = any>(table: string, data: any, options?: {
+export declare function supabaseInsert<T = any>(
+  table: string,
+  data: any,
+  options?: {
     timeout?: number;
-}): Promise<T>;
+  },
+): Promise<T>;
 /**
  * Update data in Supabase table
  */
-export declare function supabaseUpdate<T = any>(table: string, data: any, query: Record<string, string>, options?: {
+export declare function supabaseUpdate<T = any>(
+  table: string,
+  data: any,
+  query: Record<string, string>,
+  options?: {
     timeout?: number;
-}): Promise<T>;
+  },
+): Promise<T>;
 /**
  * Delete data from Supabase table
  */
-export declare function supabaseDelete(table: string, query: Record<string, string>, options?: {
+export declare function supabaseDelete(
+  table: string,
+  query: Record<string, string>,
+  options?: {
     timeout?: number;
-}): Promise<void>;
+  },
+): Promise<void>;
 /**
  * Get data from Supabase table
  */
-export declare function supabaseSelect<T = any>(table: string, query: Record<string, string>, options?: {
+export declare function supabaseSelect<T = any>(
+  table: string,
+  query: Record<string, string>,
+  options?: {
     timeout?: number;
-}): Promise<T[]>;
+  },
+): Promise<T[]>;

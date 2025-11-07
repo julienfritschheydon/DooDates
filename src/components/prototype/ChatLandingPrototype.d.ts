@@ -5,7 +5,9 @@
  * Remplace le dashboard quand feature flag AI_FIRST_UX est activé
  */
 interface ChatLandingPrototypeProps {
-    onPollCreated?: (poll: any) => void;
+  onPollCreated?: (poll: any) => void;
 }
-export declare function ChatLandingPrototype({ onPollCreated }: ChatLandingPrototypeProps): import("react/jsx-runtime").JSX.Element;
+export declare function ChatLandingPrototype({
+  onPollCreated,
+}: ChatLandingPrototypeProps): import("react/jsx-runtime").JSX.Element;
 export {};
