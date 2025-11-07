@@ -6,12 +6,17 @@
  * Provides synchronization across devices and persistence after logout
  */
 
-import { supabase } from "../supabase";
 import type { Conversation, ConversationMessage } from "../../types/conversation";
 import { ConversationErrorFactory } from "../../types/conversation";
 import { logger } from "../logger";
 import { handleError, ErrorFactory, logError } from "../error-handling";
-import { supabaseInsert, supabaseUpdate, getSupabaseToken } from "../supabaseApi";
+import {
+  supabaseInsert,
+  supabaseUpdate,
+  supabaseDelete,
+  supabaseSelect,
+  getSupabaseToken,
+} from "../supabaseApi";
 
 // Local cache for performance (in-memory)
 const conversationCache = new Map<string, Conversation>();
@@ -93,15 +98,15 @@ function toSupabaseMessage(message: ConversationMessage): any {
  */
 export async function getConversations(userId: string): Promise<Conversation[]> {
   try {
-    const { data, error } = await supabase
-      .from("conversations")
-      .select("*")
-      .eq("user_id", userId)
-      .order("updated_at", { ascending: false });
-
-    if (error) {
-      throw error;
-    }
+    const data = await supabaseSelect<any>(
+      "conversations",
+      {
+        user_id: `eq.${userId}`,
+        order: "updated_at.desc",
+        select: "*",
+      },
+      { timeout: 10000 }, // 10s timeout
+    );
 
     const conversations = (data || []).map(fromSupabaseConversation);
 
@@ -146,28 +151,30 @@ export async function getConversation(id: string, userId: string): Promise<Conve
   }
 
   try {
-    const { data, error } = await supabase
-      .from("conversations")
-      .select("*")
-      .eq("id", id)
-      .eq("user_id", userId)
-      .single();
+    const data = await supabaseSelect<any>(
+      "conversations",
+      {
+        id: `eq.${id}`,
+        user_id: `eq.${userId}`,
+        select: "*",
+      },
+      { timeout: 5000 },
+    );
 
-    if (error) {
-      if (error.code === "PGRST116") {
-        // Not found
-        return null;
-      }
-      throw error;
+    if (!data || data.length === 0) {
+      return null;
     }
 
-    if (!data) return null;
-
-    const conversation = fromSupabaseConversation(data);
+    const conversation = fromSupabaseConversation(data[0]);
     conversationCache.set(conversation.id, conversation);
 
     return conversation;
-  } catch (error) {
+  } catch (error: any) {
+    // If not found, return null
+    if (error.message?.includes("404") || error.message?.includes("not found")) {
+      return null;
+    }
+
     const processedError = handleError(
       error,
       {
@@ -345,17 +352,15 @@ export async function updateConversation(
       updatedAt: new Date(),
     });
 
-    const { data, error } = await supabase
-      .from("conversations")
-      .update(supabaseData)
-      .eq("id", conversation.id)
-      .eq("user_id", userId)
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
+    const data = await supabaseUpdate<any>(
+      "conversations",
+      supabaseData,
+      {
+        id: `eq.${conversation.id}`,
+        user_id: `eq.${userId}`,
+      },
+      { timeout: 5000 },
+    );
 
     const updated = fromSupabaseConversation(data);
     conversationCache.set(updated.id, updated);
@@ -394,15 +399,14 @@ export async function deleteConversation(id: string, userId: string): Promise<vo
     // Delete messages first (CASCADE should handle this, but explicit is better)
     await deleteMessages(id, userId);
 
-    const { error } = await supabase
-      .from("conversations")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", userId);
-
-    if (error) {
-      throw error;
-    }
+    await supabaseDelete(
+      "conversations",
+      {
+        id: `eq.${id}`,
+        user_id: `eq.${userId}`,
+      },
+      { timeout: 5000 },
+    );
 
     conversationCache.delete(id);
     messageCache.delete(id);
@@ -452,18 +456,21 @@ export async function getMessages(
     }
 
     // Messages are stored in the conversations.messages JSONB column
-    const { data, error } = await supabase
-      .from("conversations")
-      .select("messages")
-      .eq("id", conversationId)
-      .single();
+    const data = await supabaseSelect<any>(
+      "conversations",
+      {
+        id: `eq.${conversationId}`,
+        select: "messages",
+      },
+      { timeout: 5000 },
+    );
 
-    if (error) {
-      throw error;
+    if (!data || data.length === 0) {
+      return [];
     }
 
     // Parse messages from JSONB (already in correct format)
-    const messages = (data?.messages || []) as ConversationMessage[];
+    const messages = (data[0]?.messages || []) as ConversationMessage[];
     messageCache.set(conversationId, messages);
 
     return messages;
@@ -503,19 +510,19 @@ export async function saveMessages(
     }
 
     // Update messages in JSONB column (all at once)
-    const { error } = await supabase
-      .from("conversations")
-      .update({
+    await supabaseUpdate(
+      "conversations",
+      {
         messages: messages,
         message_count: messages.length,
         updated_at: new Date().toISOString(),
-      })
-      .eq("id", conversationId)
-      .eq("user_id", userId);
-
-    if (error) {
-      throw error;
-    }
+      },
+      {
+        id: `eq.${conversationId}`,
+        user_id: `eq.${userId}`,
+      },
+      { timeout: 8000 }, // Longer timeout for messages
+    );
 
     messageCache.set(conversationId, messages);
 
@@ -592,19 +599,19 @@ async function deleteMessages(conversationId: string, userId: string): Promise<v
     }
 
     // Clear messages in JSONB column
-    const { error } = await supabase
-      .from("conversations")
-      .update({
+    await supabaseUpdate(
+      "conversations",
+      {
         messages: [],
         message_count: 0,
         updated_at: new Date().toISOString(),
-      })
-      .eq("id", conversationId)
-      .eq("user_id", userId);
-
-    if (error) {
-      throw error;
-    }
+      },
+      {
+        id: `eq.${conversationId}`,
+        user_id: `eq.${userId}`,
+      },
+      { timeout: 5000 },
+    );
 
     messageCache.delete(conversationId);
   } catch (error) {

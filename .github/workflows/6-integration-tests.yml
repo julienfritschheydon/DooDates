@@ -1,0 +1,172 @@
+name: 6. Integration Tests (Real Supabase)
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Exécution séquentielle pour éviter conflits sur compte de test
+concurrency:
+  group: integration-tests
+  cancel-in-progress: false
+
+jobs:
+  integration-tests:
+    name: Tests d'Intégration Réels
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      # Variables Supabase (production)
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      
+      # Compte de test dédié
+      INTEGRATION_TEST_PASSWORD: ${{ secrets.INTEGRATION_TEST_PASSWORD }}
+      
+      # URL de l'application déployée
+      BASE_URL: https://julienfritschheydon.github.io/DooDates
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📚 Install dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: 🔍 Vérifier configuration Supabase
+        run: |
+          echo "🔧 Configuration Supabase"
+          if [ -z "$VITE_SUPABASE_URL" ]; then
+            echo "❌ VITE_SUPABASE_URL manquant"
+            exit 1
+          fi
+          if [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
+            echo "❌ VITE_SUPABASE_ANON_KEY manquant"
+            exit 1
+          fi
+          if [ -z "$INTEGRATION_TEST_PASSWORD" ]; then
+            echo "❌ INTEGRATION_TEST_PASSWORD manquant"
+            exit 1
+          fi
+          echo "✅ Configuration complète"
+          echo "📍 URL: ${VITE_SUPABASE_URL:0:30}..."
+          echo "🔑 Key: Configured"
+          echo "🧪 Test account: test-integration@doodates.com"
+
+      - name: 🧪 Run Integration Tests
+        run: |
+          echo "🚀 Exécution des tests d'intégration réels..."
+          npx playwright test tests/integration/real-supabase.test.ts \
+            --project=chromium \
+            --reporter=list \
+            --max-failures=5
+        continue-on-error: true
+        id: integration_tests
+
+      - name: 📊 Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+      - name: 📈 Test Summary
+        if: always()
+        run: |
+          echo "## 📊 Résultats des Tests d'Intégration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type:** Tests réels sur Supabase Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **Compte:** test-integration@doodates.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** $BASE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.integration_tests.outcome }}" = "success" ]; then
+            echo "### ✅ Tous les tests passent" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Le système Supabase fonctionne correctement :" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Authentification" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ CRUD Conversations" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ RLS (Row Level Security)" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Messages" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Quotas" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ RPC Functions" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Des tests ont échoué" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **ATTENTION:** Des problèmes d'intégration Supabase détectés" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Actions requises:**" >> $GITHUB_STEP_SUMMARY
+            echo "1. Consulter les logs ci-dessus" >> $GITHUB_STEP_SUMMARY
+            echo "2. Vérifier la configuration Supabase" >> $GITHUB_STEP_SUMMARY
+            echo "3. Tester manuellement avec le compte de test" >> $GITHUB_STEP_SUMMARY
+            echo "4. Corriger les problèmes avant merge" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: ❌ Fail if tests failed
+        if: steps.integration_tests.outcome != 'success'
+        run: |
+          echo "❌ Les tests d'intégration ont échoué"
+          echo "⚠️ Merge bloqué jusqu'à correction"
+          exit 1
+
+  # Job de notification si échec
+  notify-failure:
+    name: Notifier échec
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    if: failure()
+    
+    steps:
+      - name: 📧 Create issue on failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🔴 Échec Tests d\'Intégration Supabase',
+              body: `## ⚠️ Tests d'intégration en échec
+
+            **Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            **Branch:** ${{ github.ref_name }}
+            **Commit:** ${{ github.sha }}
+
+            ### 🔍 Détails
+            Les tests d'intégration réels sur Supabase ont échoué. Cela indique un problème potentiel avec :
+            - L'authentification Supabase
+            - Les permissions RLS
+            - Les fonctions RPC
+            - Les quotas utilisateurs
+            - La structure de la base de données
+
+            ### 🚨 Actions Immédiates
+            1. Consulter les logs du workflow
+            2. Tester manuellement avec test-integration@doodates.com
+            3. Vérifier la configuration Supabase en production
+            4. Corriger le problème AVANT le prochain déploiement
+
+            ### 📚 Ressources
+            - [Logs du workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - [Guide des tests](./Docs/TESTS/TESTS-GUIDE.md)
+            - [Protection Production](./Docs/TESTS/PROTECTION-PRODUCTION.md)
+            `,
+              labels: ['bug', 'critical', 'integration-tests']
+            });
+            
+            console.log('Issue créée:', issue.data.html_url);
+

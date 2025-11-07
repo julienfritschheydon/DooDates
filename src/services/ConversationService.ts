@@ -32,13 +32,15 @@ export interface Message {
 export class ConversationService {
   /**
    * Resume conversation from URL parameter
+   * Accepts both 'resume' and 'conversationId' URL parameters
    */
   static async resumeFromUrl(autoSave: UseAutoSaveReturn): Promise<{
     conversation: Conversation;
     messages: ConversationMessage[];
   } | null> {
     const urlParams = new URLSearchParams(window.location.search);
-    const resumeId = urlParams.get("resume");
+    // Accept both 'resume' (from dashboard) and 'conversationId' (from other parts of the app)
+    const resumeId = urlParams.get("resume") || urlParams.get("conversationId");
 
     try {
       logger.debug("ConversationService.resumeFromUrl", "conversation", {
@@ -50,32 +52,88 @@ export class ConversationService {
       });
 
       if (!resumeId) {
-        logger.debug("No resume ID found in URL", "conversation");
+        logger.debug("No resume ID found in URL (checked both 'resume' and 'conversationId' params)", "conversation");
         return null;
       }
 
       logger.info("Attempting to resume conversation", "conversation", { resumeId });
 
-      // First, set the conversation ID in autoSave
+      // First, set the conversation ID in autoSave (loads conversation from Supabase if logged in)
       const conversation = await autoSave.resumeConversation(resumeId);
-      logger.debug("Conversation loaded", "conversation", { title: conversation?.title || "null" });
+      logger.info("Conversation loaded from autoSave", "conversation", { 
+        title: conversation?.title || "null",
+        userId: conversation?.userId,
+        hasConversation: !!conversation 
+      });
 
       if (!conversation) {
         logger.warn("Conversation not found", "conversation", { resumeId });
         return null;
       }
 
-      // Import storage directly to get messages (avoid state timing issue)
-      const { getConversationWithMessages } = await import(
-        "../lib/storage/ConversationStorageSimple"
-      );
-      const result = getConversationWithMessages(resumeId);
-
-      logger.info("Resume result", "conversation", {
-        success: !!result,
-        messageCount: result?.messages.length || 0,
+      // Get messages: Try Supabase first if user is logged in, then fallback to localStorage
+      logger.info("Starting message loading process", "conversation", { 
+        resumeId,
+        userId: conversation.userId,
+        isGuest: conversation.userId === "guest"
       });
-      return result;
+      let messages: ConversationMessage[] = [];
+
+      // Check if user is logged in (conversation.userId is set and not "guest")
+      if (conversation.userId && conversation.userId !== "guest") {
+        try {
+          logger.debug("Loading messages from Supabase", "conversation", { resumeId, userId: conversation.userId });
+          const { getMessages: getSupabaseMessages } = await import(
+            "../lib/storage/ConversationStorageSupabase"
+          );
+          logger.info("Calling getSupabaseMessages...", "conversation", { resumeId, userId: conversation.userId });
+          messages = await getSupabaseMessages(resumeId, conversation.userId);
+          logger.info("✅ Messages loaded from Supabase", "conversation", {
+            resumeId,
+            messageCount: messages.length,
+            messages: messages.map(m => ({ id: m.id, role: m.role, content: m.content.substring(0, 50) }))
+          });
+
+          // Cache messages in localStorage for offline access
+          const { saveMessages: saveLocalMessages } = await import(
+            "../lib/storage/ConversationStorageSimple"
+          );
+          saveLocalMessages(resumeId, messages);
+        } catch (supabaseError) {
+          logger.error("❌ Failed to load messages from Supabase, trying localStorage", "conversation", {
+            resumeId,
+            error: supabaseError,
+            errorMessage: supabaseError instanceof Error ? supabaseError.message : String(supabaseError),
+          });
+          // Fallback to localStorage if Supabase fails
+          const { getMessages: getLocalMessages } = await import(
+            "../lib/storage/ConversationStorageSimple"
+          );
+          messages = getLocalMessages(resumeId);
+          logger.info("Loaded messages from localStorage (fallback)", "conversation", {
+            messageCount: messages.length,
+          });
+        }
+      } else {
+        // Guest mode: use localStorage only
+        logger.debug("Loading messages from localStorage (guest mode)", "conversation", { resumeId });
+        const { getMessages: getLocalMessages } = await import(
+          "../lib/storage/ConversationStorageSimple"
+        );
+        messages = getLocalMessages(resumeId);
+      }
+
+      logger.info("🎉 Resume result - Returning to caller", "conversation", {
+        success: true,
+        messageCount: messages.length,
+        conversationTitle: conversation.title,
+        hasMessages: messages.length > 0,
+      });
+
+      return {
+        conversation,
+        messages,
+      };
     } catch (error) {
       logError(
         ErrorFactory.storage(
