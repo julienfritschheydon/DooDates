@@ -7,8 +7,76 @@ on:
     branches: [test/workflows-validation]
 
 jobs:
+  # Job 0: Tests Production Build (PRIORITAIRE - Bloque tout si échec)
+  # 🔥 CRITIQUE: Teste le build de production AVANT tous les autres tests
+  # Si ce job échoue, tous les autres jobs sont bloqués (le merge est impossible)
+  production-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: 🔧 Install dependencies
+        run: npm ci
+      
+      - name: 🧭 Install Playwright (Chromium only)
+        run: npx playwright install --with-deps chromium
+      
+      - name: 📦 Build production
+        run: npm run build
+        env:
+          NODE_ENV: production
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+      
+      - name: 🚀 Start preview server
+        run: |
+          npm run preview &
+          echo $! > preview.pid
+      
+      - name: ⏳ Wait for server to be ready
+        run: npx wait-on http://localhost:4173 --timeout 60000
+      
+      - name: 🔥 Run production smoke tests
+        run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
+        env:
+          BASE_URL: http://localhost:4173
+          CI: true
+      
+      - name: 🛑 Stop preview server
+        if: always()
+        run: |
+          if [ -f preview.pid ]; then
+            kill $(cat preview.pid) || true
+            rm preview.pid
+          fi
+      
+      - name: 📊 Upload Playwright report (if failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-production-smoke
+          path: playwright-report
+          retention-days: 7
+      
+      - name: 📤 Upload test results (if failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-production-smoke
+          path: test-results
+          retention-days: 7
+
   # Job 1: Tests Rapides (Parallèle)
   quick-tests:
+    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -44,6 +112,7 @@ jobs:
 
   # Job 2: Tests IA (Critique)
   ai-validation:
+    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -89,6 +158,7 @@ jobs:
 
   # Job 3: Build & Type Check
   build-validation:
+    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -117,6 +187,7 @@ jobs:
 
   # Job 4: Code Quality
   code-quality:
+    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -142,6 +213,7 @@ jobs:
 
   # Job 5: E2E Smoke (Chromium only - Tests critiques rapides)
   e2e-smoke:
+    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -182,8 +254,8 @@ jobs:
 
   # Job 5b: E2E Functional (Chromium only - Tests fonctionnels complets)
   e2e-functional:
+    needs: [production-smoke, e2e-smoke]  # ⚠️ Bloqué si production-smoke échoue, exécuter après smoke tests
     runs-on: ubuntu-latest
-    needs: [e2e-smoke]  # Exécuter après smoke tests
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -223,6 +295,7 @@ jobs:
 
   # Job 5c: E2E Matrix (Desktop + Mobile - Tests multi-navigateurs)
   e2e-matrix:
+    needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -272,7 +345,7 @@ jobs:
 
   # Job 6: Summary
   validation-summary:
-    needs: [quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix]
+    needs: [production-smoke, quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix]
     runs-on: ubuntu-latest
     if: always() && github.event_name == 'pull_request'
 
@@ -316,6 +389,7 @@ jobs:
             const path = require('path');
             
             const jobs = [
+              { name: '🔥 Production Smoke (CRITIQUE)', status: '${{ needs.production-smoke.result }}' },
               { name: 'Tests Rapides', status: '${{ needs.quick-tests.result }}' },
               { name: 'Validation IA', status: '${{ needs.ai-validation.result }}' },
               { name: 'Build & Types', status: '${{ needs.build-validation.result }}' },
