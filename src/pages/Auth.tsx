@@ -166,6 +166,33 @@ export function Auth() {
   const { user, loading } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
 
+  // Sauvegarder automatiquement la page d'origine au montage
+  useEffect(() => {
+    // Si pas déjà défini, stocker la page d'origine depuis location.state ou document.referrer
+    if (!localStorage.getItem("doodates-return-to")) {
+      const fromState = location.state?.from;
+      const fromReferrer = document.referrer;
+
+      // Utiliser location.state en priorité
+      if (fromState && fromState !== "/auth") {
+        localStorage.setItem("doodates-return-to", fromState);
+      }
+      // Sinon, analyser le referrer
+      else if (fromReferrer) {
+        try {
+          const referrerUrl = new URL(fromReferrer);
+          const referrerPath = referrerUrl.pathname;
+          // Ne stocker que si c'est la même origine et pas /auth
+          if (referrerUrl.origin === window.location.origin && referrerPath !== "/auth") {
+            localStorage.setItem("doodates-return-to", referrerPath + referrerUrl.search);
+          }
+        } catch {
+          // Ignorer les erreurs de parsing d'URL
+        }
+      }
+    }
+  }, [location.state]);
+
   // Redirection des utilisateurs authentifiés (sauf si paramètre ?force=true)
   const forceAccess = searchParams.get("force") === "true";
   useEffect(() => {
@@ -178,6 +205,7 @@ export function Auth() {
         }
         navigate(returnTo, { replace: true });
       } else {
+        // Par défaut, rester sur la page d'accueil
         navigate("/", { replace: true });
       }
     }
@@ -192,6 +220,7 @@ export function Auth() {
       }
       navigate(returnTo, { replace: true });
     } else {
+      // Par défaut, rester sur la page d'accueil
       navigate("/", { replace: true });
     }
   };

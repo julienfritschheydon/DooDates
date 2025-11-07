@@ -53,7 +53,6 @@ const SupabaseDiagnostic = lazy(() =>
     default: m.SupabaseDiagnostic,
   })),
 );
-const StorageDiagnostic = lazy(() => import("./pages/StorageDiagnostic"));
 const Docs = lazy(() => import("./pages/Docs").then((m) => ({ default: m.Docs })));
 const Pricing = lazy(() => import("./pages/Pricing").then((m) => ({ default: m.PricingPage })));
 
@@ -421,7 +420,6 @@ const App = () => {
                                   path="/diagnostic/supabase"
                                   element={<SupabaseDiagnostic />}
                                 />
-                                <Route path="/diagnostic/storage" element={<StorageDiagnostic />} />
 
                                 <Route path="/auth" element={<Auth />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />

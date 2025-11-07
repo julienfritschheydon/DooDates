@@ -125,7 +125,7 @@ Les triggers automatiques pour créer les profils utilisateurs ne sont pas confi
 
 **Fichiers concernés :**
 - `database-triggers-fix.sql` (correction immédiate)
-- `Docs/5. Database-Schema.md` (documentation complète)
+- `Docs/Database/DATABASE-SCHEMA-COMPLETE.md` (documentation architecture)
 
 ---
 

@@ -11,11 +11,13 @@ import { getConversations } from "@/lib/storage/ConversationStorageSimple";
 import { logError, ErrorFactory } from "@/lib/error-handling";
 import { useAuth } from "@/contexts/AuthContext";
 import { logger } from "@/lib/logger";
+import { usePolls } from "@/hooks/usePolls";
 
 export function useDashboardData(refreshKey: number) {
   const [conversationItems, setConversationItems] = useState<ConversationItem[]>([]);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const { getUserPolls } = usePolls();
 
   useEffect(() => {
     loadData();
@@ -24,6 +26,11 @@ export function useDashboardData(refreshKey: number) {
   const loadData = async () => {
     setLoading(true);
     try {
+      // Charger les polls depuis Supabase (si utilisateur connecté)
+      if (user?.id) {
+        await getUserPolls();
+      }
+
       // Récupérer les conversations
       const allConversations = getConversations();
       logger.info("🔍 Dashboard - Conversations brutes", "dashboard", {
