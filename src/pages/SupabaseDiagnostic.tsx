@@ -34,7 +34,7 @@ export const SupabaseDiagnostic: React.FC = () => {
     return Promise.race([
       promise,
       new Promise<T>((_, reject) =>
-        setTimeout(() => reject(new Error(`Timeout après ${timeoutMs}ms`)), timeoutMs)
+        setTimeout(() => reject(new Error(`Timeout après ${timeoutMs}ms`)), timeoutMs),
       ),
     ]);
   };
@@ -97,7 +97,7 @@ export const SupabaseDiagnostic: React.FC = () => {
       const start = Date.now();
       const { data, error } = await withTimeout(
         supabase.from("profiles").select("*").limit(1),
-        5000
+        5000,
       );
       if (error) throw error;
       updateResult(test3Index, {
@@ -119,10 +119,7 @@ export const SupabaseDiagnostic: React.FC = () => {
     addResult({ name: "4. Lecture table polls", status: "pending" });
     try {
       const start = Date.now();
-      const { data, error } = await withTimeout(
-        supabase.from("polls").select("*").limit(1),
-        5000
-      );
+      const { data, error } = await withTimeout(supabase.from("polls").select("*").limit(1), 5000);
       if (error) throw error;
       updateResult(test4Index, {
         status: "success",
@@ -145,7 +142,7 @@ export const SupabaseDiagnostic: React.FC = () => {
       const start = Date.now();
       const { data, error } = await withTimeout(
         supabase.from("conversations").select("*").limit(1),
-        5000
+        5000,
       );
       if (error) throw error;
       updateResult(test5Index, {
@@ -185,7 +182,7 @@ export const SupabaseDiagnostic: React.FC = () => {
         };
         const { data, error } = await withTimeout(
           supabase.from("conversations").insert(testData).select(),
-          10000
+          10000,
         );
         if (error) throw error;
         updateResult(test6Index, {
@@ -206,7 +203,7 @@ export const SupabaseDiagnostic: React.FC = () => {
               .update({ title: "Test Diagnostic UPDATED" })
               .eq("id", testConvId)
               .select(),
-            10000
+            10000,
           );
           if (updateError) throw updateError;
           updateResult(test7Index, {
@@ -230,7 +227,7 @@ export const SupabaseDiagnostic: React.FC = () => {
           const start3 = Date.now();
           const { error: deleteError } = await withTimeout(
             supabase.from("conversations").delete().eq("id", testConvId),
-            10000
+            10000,
           );
           if (deleteError) throw deleteError;
           updateResult(test8Index, {
@@ -328,6 +325,8 @@ export const SupabaseDiagnostic: React.FC = () => {
               {results.map((result, index) => (
                 <div
                   key={index}
+                  data-test-name={result.name}
+                  data-test-status={result.status}
                   className={`border rounded-lg p-4 ${
                     result.status === "success"
                       ? "border-green-200 bg-green-50"
@@ -401,4 +400,3 @@ export const SupabaseDiagnostic: React.FC = () => {
     </div>
   );
 };
-
