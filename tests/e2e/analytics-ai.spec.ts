@@ -54,6 +54,8 @@ test.describe("Analytics IA - Suite Complète", () => {
   test("1. Setup: Créer et clôturer un FormPoll avec 5 réponses @smoke @critical", async ({
     page,
   }) => {
+    test.setTimeout(180000); // 3 minutes - ce test fait 5 votes + création + clôture
+    
     // 1. Créer un FormPoll via IA
     await page.goto("/?e2e-test=true");
     await page.waitForLoadState("networkidle");
