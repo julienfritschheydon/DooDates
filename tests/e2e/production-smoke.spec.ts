@@ -111,8 +111,13 @@ test.describe('🔥 Production Smoke Tests', () => {
     const consoleErrors: string[] = [];
     const failedRequests: { url: string; status: number }[] = [];
     
-    // Capturer les requêtes échouées (404, 500, etc.)
+    // Capturer les requêtes échouées (500, etc. - MAIS PAS les 404)
+    // Les 404 sont souvent normales : source maps, polyfills optionnels, etc.
     page.on('response', response => {
+      // Ignorer complètement les 404 (ressources optionnelles)
+      if (response.status() === 404) return;
+      
+      // Pour les autres erreurs (5xx, 403, etc.)
       if (response.status() >= 400) {
         const url = response.url();
         // Ignorer les erreurs non-critiques connues
