@@ -146,11 +146,11 @@ jobs:
               'Les tests de smoke en production ont échoué. L\'application déployée ne fonctionne pas correctement.',
               '',
               '### 📊 Informations',
-              `- **URL testée:** ${prodUrl}`,
-              `- **Commit:** \`${commitSha}\``,
-              `- **Déployé par:** ${context.actor}`,
-              `- **Date:** ${new Date().toISOString()}`,
-              `- **Workflow:** [Voir les logs](${workflowUrl})`,
+              `- URL testée: ${prodUrl}`,
+              `- Commit: \`${commitSha}\``,
+              `- Déployé par: ${context.actor}`,
+              `- Date: ${new Date().toISOString()}`,
+              `- Workflow: [Voir les logs](${workflowUrl})`,
               '',
               '### 🔍 Tests Échoués',
               'Les tests de smoke ont échoué. Voir les artefacts pour les détails complets.',
@@ -161,10 +161,10 @@ jobs:
               '',
               '### ⚡ Actions Requises IMMÉDIATEMENT',
               '',
-              `1. **Vérifier l'application en production** - [Ouvrir l'app](${prodUrl})`,
-              `2. **Consulter les logs** - [Workflow logs](${workflowUrl})`,
-              '3. **Télécharger les rapports** - Voir les artefacts du workflow',
-              '4. **Considérer un rollback** si le problème est critique',
+              `1. Vérifier l'application en production - [Ouvrir l'app](${prodUrl})`,
+              `2. Consulter les logs - [Workflow logs](${workflowUrl})`,
+              '3. Télécharger les rapports - Voir les artefacts du workflow',
+              '4. Considérer un rollback si le problème est critique',
               '',
               '### 🔧 Actions Possibles',
               '',
@@ -196,8 +196,8 @@ jobs:
               '',
               '---',
               '',
-              '**⚠️ Cette issue a été créée automatiquement par le système de monitoring de production.**',
-              '**Ne pas fermer tant que les tests de smoke ne passent pas en production.**'
+              'AVERTISSEMENT: Cette issue a été créée automatiquement par le système de monitoring de production.',
+              'Ne pas fermer tant que les tests de smoke ne passent pas en production.'
             ].join('\n');
 
             // Créer l'issue critique
@@ -217,7 +217,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.data.number,
-              body: `📦 **Artefacts disponibles:**\n\n` +
+              body: `📦 Artefacts disponibles:\n\n` +
                     `- [Rapport Playwright HTML](${context.payload.repository.html_url}/actions/runs/${context.runId})\n` +
                     `- [Résultats JSON](${context.payload.repository.html_url}/actions/runs/${context.runId})\n` +
                     `- [Screenshots](${context.payload.repository.html_url}/actions/runs/${context.runId})\n\n` +
