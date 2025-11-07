@@ -114,6 +114,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const handleFinalize = async () => {
     try {
       const result = await createPoll({
+        type: "date",
         title: state.pollTitle,
         description: null,
         selectedDates: state.selectedDates,

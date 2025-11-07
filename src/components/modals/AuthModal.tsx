@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { SignInForm } from "../auth/SignInForm";
-import { SignUpForm } from "../../pages/Auth";
+import { SignUpForm } from "../auth/SignUpForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
