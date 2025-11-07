@@ -8,14 +8,20 @@ import React, { ComponentType } from "react";
 /**
  * Crée un composant lazy pour une icône spécifique
  */
-export declare function createLazyIcon<T extends ComponentType<any>>(iconName: string): React.LazyExoticComponent<T>;
+export declare function createLazyIcon<T extends ComponentType<any>>(
+  iconName: string,
+): React.LazyExoticComponent<T>;
 /**
  * Wrapper avec Suspense pour une icône lazy
  */
-export declare function LazyIcon({ name, fallback, ...props }: {
-    name: string;
-    fallback?: React.ReactNode;
-    [key: string]: any;
+export declare function LazyIcon({
+  name,
+  fallback,
+  ...props
+}: {
+  name: string;
+  fallback?: React.ReactNode;
+  [key: string]: any;
 }): import("react/jsx-runtime").JSX.Element;
 /**
  * Précharger lucide-react (pour les icônes critiques)

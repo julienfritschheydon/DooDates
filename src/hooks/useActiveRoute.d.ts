@@ -7,6 +7,6 @@
  * <NavLink className={isActive('/workspace') ? 'active' : ''}>
  */
 export declare function useActiveRoute(): {
-    isActive: (route: string, exact?: boolean) => boolean;
-    pathname: string;
+  isActive: (route: string, exact?: boolean) => boolean;
+  pathname: string;
 };

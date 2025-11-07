@@ -15,17 +15,19 @@ import { ReactNode } from "react";
 import type { Message } from "@/services/ConversationService";
 export type { Message };
 export interface ConversationStateContextType {
-    conversationId: string | null;
-    messages: Message[];
-    setConversationId: (id: string | null) => void;
-    addMessage: (message: Omit<Message, "id" | "timestamp">) => void;
-    setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
-    clearMessages: () => void;
+  conversationId: string | null;
+  messages: Message[];
+  setConversationId: (id: string | null) => void;
+  addMessage: (message: Omit<Message, "id" | "timestamp">) => void;
+  setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
+  clearMessages: () => void;
 }
 interface ConversationStateProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
-export declare function ConversationStateProvider({ children }: ConversationStateProviderProps): import("react/jsx-runtime").JSX.Element;
+export declare function ConversationStateProvider({
+  children,
+}: ConversationStateProviderProps): import("react/jsx-runtime").JSX.Element;
 /**
  * Hook pour accéder à l'état conversation
  *
@@ -50,8 +52,8 @@ export declare function useConversationId(): string;
  * Le composant ne re-render jamais (actions stables)
  */
 export declare function useConversationActions(): {
-    addMessage: (message: Omit<Message, "id" | "timestamp">) => void;
-    setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
-    clearMessages: () => void;
-    setConversationId: (id: string | null) => void;
+  addMessage: (message: Omit<Message, "id" | "timestamp">) => void;
+  setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
+  clearMessages: () => void;
+  setConversationId: (id: string | null) => void;
 };

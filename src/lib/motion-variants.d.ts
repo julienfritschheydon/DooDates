@@ -11,23 +11,23 @@ import type { Variants } from "framer-motion";
  * Durées de transition standard
  */
 export declare const durations: {
-    readonly fast: 0.15;
-    readonly normal: 0.2;
-    readonly slow: 0.3;
-    readonly slower: 0.5;
+  readonly fast: 0.15;
+  readonly normal: 0.2;
+  readonly slow: 0.3;
+  readonly slower: 0.5;
 };
 /**
  * Easing curves standard
  */
 export declare const easings: {
-    readonly easeOut: readonly [0, 0, 0.2, 1];
-    readonly easeIn: readonly [0.4, 0, 1, 1];
-    readonly easeInOut: readonly [0.4, 0, 0.2, 1];
-    readonly spring: {
-        readonly type: "spring";
-        readonly stiffness: 300;
-        readonly damping: 30;
-    };
+  readonly easeOut: readonly [0, 0, 0.2, 1];
+  readonly easeIn: readonly [0.4, 0, 1, 1];
+  readonly easeInOut: readonly [0.4, 0, 0.2, 1];
+  readonly spring: {
+    readonly type: "spring";
+    readonly stiffness: 300;
+    readonly damping: 30;
+  };
 };
 /**
  * Fade in simple

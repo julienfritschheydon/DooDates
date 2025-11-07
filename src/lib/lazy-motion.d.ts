@@ -8,9 +8,9 @@
  */
 import React from "react";
 export declare const motion: {
-    div: (props: any) => import("react/jsx-runtime").JSX.Element;
-    span: (props: any) => import("react/jsx-runtime").JSX.Element;
-    button: (props: any) => import("react/jsx-runtime").JSX.Element;
+  div: (props: any) => import("react/jsx-runtime").JSX.Element;
+  span: (props: any) => import("react/jsx-runtime").JSX.Element;
+  button: (props: any) => import("react/jsx-runtime").JSX.Element;
 };
 export declare const AnimatePresence: (props: any) => import("react/jsx-runtime").JSX.Element;
 export declare const useMotionValue: React.LazyExoticComponent<React.ComponentType<any>>;

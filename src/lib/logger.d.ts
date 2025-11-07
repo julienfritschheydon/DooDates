@@ -6,34 +6,45 @@
  * - Remplacement des console.log
  */
 type LogLevel = "debug" | "info" | "warn" | "error";
-type LogCategory = "calendar" | "performance" | "auth" | "api" | "conversation" | "poll" | "vote" | "analytics" | "quota" | "dashboard" | "general";
+type LogCategory =
+  | "calendar"
+  | "performance"
+  | "auth"
+  | "api"
+  | "conversation"
+  | "poll"
+  | "vote"
+  | "analytics"
+  | "quota"
+  | "dashboard"
+  | "general";
 interface LogConfig {
-    enableProduction: boolean;
-    minLevel: LogLevel;
-    silentCategories: LogCategory[];
-    enableMonitoring: boolean;
+  enableProduction: boolean;
+  minLevel: LogLevel;
+  silentCategories: LogCategory[];
+  enableMonitoring: boolean;
 }
 declare class Logger {
-    private activeTimers;
-    private isDev;
-    private config;
-    private generateUniqueId;
-    time(message: string, category?: string): string;
-    timeEnd(timerId: string, message?: string): number;
-    debug(message: string, category?: LogCategory, data?: any): void;
-    info(message: string, category?: LogCategory, data?: any): void;
-    warn(message: string, category?: LogCategory, data?: any): void;
-    error(message: string, category?: LogCategory, error?: any): void;
-    log(message: string, category?: LogCategory, data?: any): void;
-    private logWithLevel;
-    private getLevelEmoji;
-    private getCategoryEmoji;
-    configure(config: Partial<LogConfig>): void;
-    silenceCategory(category: LogCategory, silent?: boolean): void;
-    private sendToMonitoring;
-    getStoredLogs(): any[];
-    cleanup(): void;
-    clearStoredLogs(): void;
+  private activeTimers;
+  private isDev;
+  private config;
+  private generateUniqueId;
+  time(message: string, category?: string): string;
+  timeEnd(timerId: string, message?: string): number;
+  debug(message: string, category?: LogCategory, data?: any): void;
+  info(message: string, category?: LogCategory, data?: any): void;
+  warn(message: string, category?: LogCategory, data?: any): void;
+  error(message: string, category?: LogCategory, error?: any): void;
+  log(message: string, category?: LogCategory, data?: any): void;
+  private logWithLevel;
+  private getLevelEmoji;
+  private getCategoryEmoji;
+  configure(config: Partial<LogConfig>): void;
+  silenceCategory(category: LogCategory, silent?: boolean): void;
+  private sendToMonitoring;
+  getStoredLogs(): any[];
+  cleanup(): void;
+  clearStoredLogs(): void;
 }
 export declare const logger: Logger;
 export {};

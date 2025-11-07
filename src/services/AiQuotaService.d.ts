@@ -5,13 +5,13 @@
 import { type AiMessageQuota } from "../hooks/useAiMessageQuota";
 import { type UseQuotaReturn } from "../hooks/useQuota";
 export interface QuotaCheckResult {
-    canProceed: boolean;
-    reason?: "cooldown" | "quota_exceeded";
-    message?: {
-        title: string;
-        description: string;
-        variant: "default" | "destructive";
-    };
+  canProceed: boolean;
+  reason?: "cooldown" | "quota_exceeded";
+  message?: {
+    title: string;
+    description: string;
+    variant: "default" | "destructive";
+  };
 }
 /**
  * Vérifie si l'utilisateur peut envoyer un message IA
@@ -24,16 +24,23 @@ export declare function checkPollCreationQuota(aiQuota: AiMessageQuota): QuotaCh
 /**
  * Gère l'affichage des messages d'erreur quota et trigger auth incentive
  */
-export declare function handleQuotaError(result: QuotaCheckResult, quota: UseQuotaReturn, toast: (options: {
+export declare function handleQuotaError(
+  result: QuotaCheckResult,
+  quota: UseQuotaReturn,
+  toast: (options: {
     title: string;
     description: string;
     variant?: "default" | "destructive";
-}) => void): void;
+  }) => void,
+): void;
 /**
  * Incrémente les compteurs après une action réussie
  */
-export declare function incrementQuotaCounters(aiQuota: AiMessageQuota, options: {
+export declare function incrementQuotaCounters(
+  aiQuota: AiMessageQuota,
+  options: {
     incrementMessages?: boolean;
     incrementPolls?: boolean;
     conversationId?: string;
-}): void;
+  },
+): void;

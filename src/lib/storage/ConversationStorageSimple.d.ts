@@ -38,7 +38,10 @@ export declare function saveMessages(conversationId: string, messages: Conversat
 /**
  * Add messages to a conversation (append)
  */
-export declare function addMessages(conversationId: string, newMessages: ConversationMessage[]): void;
+export declare function addMessages(
+  conversationId: string,
+  newMessages: ConversationMessage[],
+): void;
 /**
  * Delete messages for a conversation
  */
@@ -47,16 +50,16 @@ export declare function deleteMessages(conversationId: string): void;
  * Get conversation with its messages
  */
 export declare function getConversationWithMessages(id: string): {
-    conversation: Conversation;
-    messages: ConversationMessage[];
+  conversation: Conversation;
+  messages: ConversationMessage[];
 } | null;
 /**
  * Create a new conversation with first message
  */
 export declare function createConversation(data: {
-    title: string;
-    firstMessage: string;
-    userId?: string;
+  title: string;
+  firstMessage: string;
+  userId?: string;
 }): Conversation;
 /**
  * Clear all conversation data
@@ -66,6 +69,6 @@ export declare function clearAll(): void;
  * Export all data for debugging
  */
 export declare function exportData(): {
-    conversations: Conversation[];
-    messages: Record<string, ConversationMessage[]>;
+  conversations: Conversation[];
+  messages: Record<string, ConversationMessage[]>;
 };

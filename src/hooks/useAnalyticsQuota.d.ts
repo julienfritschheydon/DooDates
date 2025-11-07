@@ -9,17 +9,17 @@
  * (1 seul appel par poll, mis en cache)
  */
 interface AnalyticsQuota {
-    used: number;
-    limit: number;
-    remaining: number;
-    resetAt: Date;
-    canQuery: boolean;
+  used: number;
+  limit: number;
+  remaining: number;
+  resetAt: Date;
+  canQuery: boolean;
 }
 export declare function useAnalyticsQuota(): {
-    quota: AnalyticsQuota;
-    incrementQuota: () => boolean;
-    checkQuota: () => boolean;
-    resetQuota: () => void;
-    getQuotaMessage: () => string;
+  quota: AnalyticsQuota;
+  incrementQuota: () => boolean;
+  checkQuota: () => boolean;
+  resetQuota: () => void;
+  getQuotaMessage: () => string;
 };
 export {};

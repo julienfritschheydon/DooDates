@@ -15,29 +15,32 @@
  * et augmente la consommation de tokens Gemini
  */
 interface AiMessageQuotaData {
-    aiMessagesUsed: number;
-    lastMessageTimestamp: number;
-    resetDate?: string;
+  aiMessagesUsed: number;
+  lastMessageTimestamp: number;
+  resetDate?: string;
 }
 export interface AiMessageQuota {
-    aiMessagesUsed: number;
-    aiMessagesLimit: number;
-    aiMessagesRemaining: number;
-    canSendMessage: boolean;
-    pollsInConversation: number;
-    pollsLimit: number;
-    canCreatePoll: boolean;
-    incrementAiMessages: () => void;
-    incrementPollCount: (conversationId: string) => void;
-    resetQuota: () => void;
-    isInCooldown: boolean;
-    cooldownRemaining: number;
+  aiMessagesUsed: number;
+  aiMessagesLimit: number;
+  aiMessagesRemaining: number;
+  canSendMessage: boolean;
+  pollsInConversation: number;
+  pollsLimit: number;
+  canCreatePoll: boolean;
+  incrementAiMessages: () => void;
+  incrementPollCount: (conversationId: string) => void;
+  resetQuota: () => void;
+  isInCooldown: boolean;
+  cooldownRemaining: number;
 }
 /**
  * Fonction pure pour gérer le reset mensuel du quota
  * Testable indépendamment de React
  */
-export declare function processMonthlyQuotaReset(currentQuotaData: AiMessageQuotaData, isGuest: boolean): AiMessageQuotaData | null;
+export declare function processMonthlyQuotaReset(
+  currentQuotaData: AiMessageQuotaData,
+  isGuest: boolean,
+): AiMessageQuotaData | null;
 /**
  * Hook pour gérer le quota de messages IA
  */

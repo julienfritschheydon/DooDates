@@ -18,8 +18,8 @@ export declare function isFutureDate(dateString: string): boolean;
  * Validation d'une liste d'emails séparés par des virgules
  */
 export declare function validateEmailList(emailList: string): {
-    valid: string[];
-    invalid: string[];
+  valid: string[];
+  invalid: string[];
 };
 /**
  * Validation d'un créneau horaire (HH:MM format)

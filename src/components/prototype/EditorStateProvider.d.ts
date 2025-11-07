@@ -16,20 +16,22 @@ import { ReactNode } from "react";
 import { type PollAction } from "@/reducers/pollReducer";
 import { type Poll } from "@/lib/pollStorage";
 export interface EditorStateContextType {
-    isEditorOpen: boolean;
-    currentPoll: Poll | null;
-    openEditor: () => void;
-    closeEditor: () => void;
-    toggleEditor: () => void;
-    dispatchPollAction: (action: PollAction) => void;
-    setCurrentPoll: (poll: Poll | null) => void;
-    clearCurrentPoll: () => void;
-    createPollFromChat: (pollData: any) => void;
+  isEditorOpen: boolean;
+  currentPoll: Poll | null;
+  openEditor: () => void;
+  closeEditor: () => void;
+  toggleEditor: () => void;
+  dispatchPollAction: (action: PollAction) => void;
+  setCurrentPoll: (poll: Poll | null) => void;
+  clearCurrentPoll: () => void;
+  createPollFromChat: (pollData: any) => void;
 }
 interface EditorStateProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
-export declare function EditorStateProvider({ children }: EditorStateProviderProps): import("react/jsx-runtime").JSX.Element;
+export declare function EditorStateProvider({
+  children,
+}: EditorStateProviderProps): import("react/jsx-runtime").JSX.Element;
 /**
  * Hook pour accéder à l'état éditeur
  *
@@ -54,12 +56,12 @@ export declare function useIsEditorOpen(): boolean;
  * Le composant ne re-render jamais (actions stables)
  */
 export declare function useEditorActions(): {
-    openEditor: () => void;
-    closeEditor: () => void;
-    toggleEditor: () => void;
-    dispatchPollAction: (action: PollAction) => void;
-    setCurrentPoll: (poll: Poll | null) => void;
-    clearCurrentPoll: () => void;
-    createPollFromChat: (pollData: any) => void;
+  openEditor: () => void;
+  closeEditor: () => void;
+  toggleEditor: () => void;
+  dispatchPollAction: (action: PollAction) => void;
+  setCurrentPoll: (poll: Poll | null) => void;
+  clearCurrentPoll: () => void;
+  createPollFromChat: (pollData: any) => void;
 };
 export {};
