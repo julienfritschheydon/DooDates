@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import * as ConversationStorage from "@/lib/storage/ConversationStorageSimple";
@@ -7,17 +7,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { 
-  CheckCircle2, 
-  XCircle, 
-  AlertTriangle, 
-  Database, 
-  HardDrive, 
-  User, 
-  MessageSquare, 
+import { logError, ErrorFactory } from "@/lib/error-handling";
+import {
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Database,
+  HardDrive,
+  User,
+  MessageSquare,
   FileText,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
 } from "lucide-react";
 
 interface DiagnosticResult {
@@ -47,14 +48,29 @@ export default function StorageDiagnostic() {
   const { user, loading: authLoading } = useAuth();
   const [result, setResult] = useState<DiagnosticResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const prevUserIdRef = useRef<string | null | undefined>(undefined);
 
-  // Debug: Log user state
+  // Debug: Log user state with timestamp
   useEffect(() => {
-    console.log('🔍 StorageDiagnostic - Auth State:', {
+    const timestamp = new Date().toISOString();
+    console.log(`🔍 [${timestamp}] StorageDiagnostic - Auth State:`, {
       user: user ? { id: user.id, email: user.email } : null,
       authLoading,
-      hasUser: !!user
+      hasUser: !!user,
+      prevUserId: prevUserIdRef.current,
     });
+
+    // Timeout warning if authLoading takes too long
+    if (authLoading) {
+      const timeoutId = setTimeout(() => {
+        console.warn(
+          "⚠️ Auth loading is taking more than 10 seconds. This might indicate a problem.",
+        );
+        console.log("Current state:", { user: !!user, authLoading });
+      }, 10000);
+
+      return () => clearTimeout(timeoutId);
+    }
   }, [user, authLoading]);
 
   const runDiagnostic = useCallback(async () => {
@@ -63,7 +79,7 @@ export default function StorageDiagnostic() {
       // 1. Check localStorage
       const conversations = ConversationStorage.getConversations();
       const polls = getAllPolls();
-      const messagesObj = JSON.parse(localStorage.getItem('doodates_messages') || '{}');
+      const messagesObj = JSON.parse(localStorage.getItem("doodates_messages") || "{}");
       const messageCount = Object.keys(messagesObj).length;
 
       // 2. Check Supabase
@@ -73,13 +89,13 @@ export default function StorageDiagnostic() {
         conversations: [],
         messages: [],
         profile: null,
-        errors: {} as any
+        errors: {} as any,
       };
 
-      console.log('🔍 runDiagnostic - user state:', { 
-        hasUser: !!user, 
+      console.log("🔍 runDiagnostic - user state:", {
+        hasUser: !!user,
         userId: user?.id,
-        userEmail: user?.email
+        userEmail: user?.email,
       });
 
       if (user?.id) {
@@ -87,15 +103,15 @@ export default function StorageDiagnostic() {
         supabaseResult.user = {
           id: user.id,
           email: user.email,
-          created_at: user.created_at
+          created_at: user.created_at,
         };
-        console.log('✅ User detected, checking Supabase...', { userId: user.id });
+        console.log("✅ User detected, checking Supabase...", { userId: user.id });
 
         // Check conversations
         const { data: convs, error: convError } = await supabase
-          .from('conversations')
-          .select('*')
-          .order('created_at', { ascending: false })
+          .from("conversations")
+          .select("*")
+          .order("created_at", { ascending: false })
           .limit(10);
 
         if (convError) {
@@ -106,9 +122,9 @@ export default function StorageDiagnostic() {
 
         // Check messages
         const { data: msgs, error: msgError } = await supabase
-          .from('messages')
-          .select('*')
-          .order('created_at', { ascending: false })
+          .from("messages")
+          .select("*")
+          .order("created_at", { ascending: false })
           .limit(10);
 
         if (msgError) {
@@ -119,9 +135,9 @@ export default function StorageDiagnostic() {
 
         // Check profile
         const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
           .single();
 
         if (profileError) {
@@ -137,24 +153,30 @@ export default function StorageDiagnostic() {
           polls: polls.length,
           messages: messageCount,
           conversationsList: conversations.slice(0, 5),
-          pollsList: polls.slice(0, 5)
+          pollsList: polls.slice(0, 5),
         },
         supabase: supabaseResult,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
-      console.log('🎯 Diagnostic complete:', {
+      console.log("🎯 Diagnostic complete:", {
         connected: supabaseResult.connected,
         userEmail: supabaseResult.user?.email,
         conversationsCount: supabaseResult.conversations.length,
-        hasErrors: Object.keys(supabaseResult.errors).length > 0
+        hasErrors: Object.keys(supabaseResult.errors).length > 0,
       });
     } catch (error: any) {
-      logError(ErrorFactory.system('Erreur diagnostic', 'Impossible de charger les données de diagnostic'), {
-        component: 'StorageDiagnostic',
-        operation: 'runDiagnostic',
-        error
-      });
+      logError(
+        ErrorFactory.storage(
+          "Erreur diagnostic",
+          "Impossible de charger les données de diagnostic",
+        ),
+        {
+          component: "StorageDiagnostic",
+          operation: "runDiagnostic",
+          metadata: { error: error?.message || "Unknown error" },
+        },
+      );
     } finally {
       setLoading(false);
     }
@@ -163,9 +185,33 @@ export default function StorageDiagnostic() {
   useEffect(() => {
     // Ne lancer le diagnostic que si l'auth est chargé
     if (!authLoading) {
-      runDiagnostic();
+      const currentUserId = user?.id || null;
+      const prevUserId = prevUserIdRef.current;
+      
+      // Lancer le diagnostic si :
+      // 1. C'est le premier chargement (prevUserId === undefined)
+      // 2. L'utilisateur vient de se connecter (prevUserId === null && currentUserId !== null)
+      const shouldRun = prevUserId === undefined || (prevUserId === null && currentUserId !== null);
+      
+      console.log("✅ Auth loaded", {
+        hasUser: !!user,
+        userId: user?.id,
+        prevUserId,
+        currentUserId,
+        shouldRun,
+      });
+      
+      if (shouldRun) {
+        console.log("🔄 Running diagnostic...");
+        runDiagnostic();
+      }
+      
+      // Mettre à jour la référence
+      prevUserIdRef.current = currentUserId;
+    } else {
+      console.log("⏳ Waiting for auth to load...", { authLoading });
     }
-  }, [user, authLoading]);
+  }, [authLoading, runDiagnostic, user]);
 
   const getStatusIcon = (hasError: boolean, hasData: boolean) => {
     if (hasError) return <XCircle className="h-5 w-5 text-red-500" />;
@@ -187,10 +233,10 @@ export default function StorageDiagnostic() {
             <RefreshCw className="h-8 w-8 animate-spin text-blue-500" />
             <div className="text-center">
               <p className="text-lg text-gray-900 mb-2">
-                {authLoading ? 'Vérification de l\'authentification...' : 'Diagnostic en cours...'}
+                {authLoading ? "Vérification de l'authentification..." : "Diagnostic en cours..."}
               </p>
               <p className="text-sm text-gray-600">
-                {authLoading ? 'Chargement de votre session' : 'Analyse de vos données'}
+                {authLoading ? "Chargement de votre session" : "Analyse de vos données"}
               </p>
             </div>
           </div>
@@ -211,8 +257,12 @@ export default function StorageDiagnostic() {
                 Vérification complète de vos données localStorage et Supabase
               </p>
             </div>
-            <Button onClick={runDiagnostic} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white">
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <Button
+              onClick={runDiagnostic}
+              disabled={loading}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
               Actualiser
             </Button>
           </div>
@@ -250,7 +300,7 @@ export default function StorageDiagnostic() {
                 {result.supabase.connected ? result.supabase.conversations.length : 0}
               </div>
               <p className="text-xs text-gray-600">
-                {result.supabase.connected ? 'conversations en base' : 'non connecté'}
+                {result.supabase.connected ? "conversations en base" : "non connecté"}
               </p>
             </CardContent>
           </Card>
@@ -277,7 +327,7 @@ export default function StorageDiagnostic() {
                 )}
               </div>
               <p className="text-xs text-gray-600 mt-1">
-                {result.supabase.user?.email || 'Mode invité'}
+                {result.supabase.user?.email || "Mode invité"}
               </p>
             </CardContent>
           </Card>
@@ -298,7 +348,9 @@ export default function StorageDiagnostic() {
         {Object.keys(result.supabase.errors).length > 0 && (
           <Alert variant="destructive" className="mb-6 bg-red-50 border-red-400">
             <XCircle className="h-4 w-4 text-red-600" />
-            <AlertTitle className="text-gray-900 font-semibold">Erreurs Supabase détectées</AlertTitle>
+            <AlertTitle className="text-gray-900 font-semibold">
+              Erreurs Supabase détectées
+            </AlertTitle>
             <AlertDescription className="text-gray-700">
               <div className="mt-2 space-y-1">
                 {Object.entries(result.supabase.errors).map(([key, error]) => (
@@ -311,14 +363,16 @@ export default function StorageDiagnostic() {
                 className="mt-3 bg-white text-gray-900 border border-gray-300 hover:bg-gray-50"
                 size="sm"
                 variant="outline"
-                onClick={() => window.open('https://supabase.com/dashboard', '_blank')}
+                onClick={() => window.open("https://supabase.com/dashboard", "_blank")}
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Ouvrir le Dashboard Supabase
               </Button>
               <p className="text-sm mt-2 text-gray-800">
-                💡 <strong>Solution :</strong> Exécutez le script{' '}
-                <code className="bg-red-100 px-1 py-0.5 rounded text-gray-900">sql-scripts/fix-400-errors.sql</code>{' '}
+                💡 <strong>Solution :</strong> Exécutez le script{" "}
+                <code className="bg-red-100 px-1 py-0.5 rounded text-gray-900">
+                  sql-scripts/fix-400-errors.sql
+                </code>{" "}
                 dans le SQL Editor de Supabase.
               </p>
             </AlertDescription>
@@ -335,7 +389,7 @@ export default function StorageDiagnostic() {
               </div>
               {getStatusBadge(
                 false,
-                result.localStorage.conversations > 0 || result.localStorage.polls > 0
+                result.localStorage.conversations > 0 || result.localStorage.polls > 0,
               )}
             </div>
             <CardDescription className="text-gray-600">
@@ -347,7 +401,9 @@ export default function StorageDiagnostic() {
               <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
                 <MessageSquare className="h-5 w-5 text-blue-600" />
                 <div>
-                  <div className="font-semibold text-gray-900">{result.localStorage.conversations}</div>
+                  <div className="font-semibold text-gray-900">
+                    {result.localStorage.conversations}
+                  </div>
                   <div className="text-sm text-gray-700">Conversations</div>
                 </div>
               </div>
@@ -369,7 +425,9 @@ export default function StorageDiagnostic() {
 
             {result.localStorage.conversationsList.length > 0 && (
               <div>
-                <h4 className="font-semibold mb-2 text-sm text-gray-900">Dernières conversations :</h4>
+                <h4 className="font-semibold mb-2 text-sm text-gray-900">
+                  Dernières conversations :
+                </h4>
                 <div className="space-y-2">
                   {result.localStorage.conversationsList.map((conv) => (
                     <div
@@ -377,8 +435,11 @@ export default function StorageDiagnostic() {
                       className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm border border-gray-200"
                     >
                       <span className="truncate flex-1 text-gray-900">{conv.title}</span>
-                      <Badge variant="outline" className="text-xs bg-white text-gray-900 border-gray-300">
-                        {conv.userId === 'guest' ? 'Invité' : 'Utilisateur'}
+                      <Badge
+                        variant="outline"
+                        className="text-xs bg-white text-gray-900 border-gray-300"
+                      >
+                        {conv.userId === "guest" ? "Invité" : "Utilisateur"}
                       </Badge>
                     </div>
                   ))}
@@ -396,8 +457,11 @@ export default function StorageDiagnostic() {
                       className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm border border-gray-200"
                     >
                       <span className="truncate flex-1 text-gray-900">{poll.title}</span>
-                      <Badge variant="outline" className="text-xs bg-white text-gray-900 border-gray-300">
-                        {poll.type || 'form'}
+                      <Badge
+                        variant="outline"
+                        className="text-xs bg-white text-gray-900 border-gray-300"
+                      >
+                        {poll.type || "form"}
                       </Badge>
                     </div>
                   ))}
@@ -417,7 +481,7 @@ export default function StorageDiagnostic() {
               </div>
               {getStatusBadge(
                 Object.keys(result.supabase.errors).length > 0,
-                result.supabase.connected && result.supabase.conversations.length > 0
+                result.supabase.connected && result.supabase.conversations.length > 0,
               )}
             </div>
             <CardDescription className="text-gray-600">
@@ -428,13 +492,21 @@ export default function StorageDiagnostic() {
             {!result.supabase.connected ? (
               <div className="text-center py-8 text-gray-700">
                 <User className="h-12 w-12 mx-auto mb-3 opacity-50 text-gray-400" />
-                <p className="text-gray-900">Vous devez être connecté pour voir les données Supabase</p>
-                <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white" onClick={() => (window.location.href = '/auth')}>
-                  Se connecter
-                </Button>
+                <p className="text-gray-900">
+                  Vous devez être connecté pour voir les données Supabase
+                </p>
+            <Button
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => {
+                localStorage.setItem("doodates-return-to", "/diagnostic/storage");
+                window.location.href = "/auth";
+              }}
+            >
+              Se connecter
+            </Button>
               </div>
-          ) : (
-            <>
+            ) : (
+              <>
                 {/* User Info */}
                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
                   <div className="flex items-center gap-2 mb-2">
@@ -443,10 +515,11 @@ export default function StorageDiagnostic() {
                   </div>
                   <div className="text-sm space-y-1 ml-7 text-gray-800">
                     <div>
-                      <strong className="text-gray-900">Email :</strong> {result.supabase.user?.email}
+                      <strong className="text-gray-900">Email :</strong>{" "}
+                      {result.supabase.user?.email}
                     </div>
                     <div>
-                      <strong className="text-gray-900">ID :</strong>{' '}
+                      <strong className="text-gray-900">ID :</strong>{" "}
                       <code className="text-xs bg-white px-1 py-0.5 rounded text-gray-900 border border-gray-200">
                         {result.supabase.user?.id?.substring(0, 20)}...
                       </code>
@@ -456,18 +529,15 @@ export default function StorageDiagnostic() {
 
                 {/* Profile Status */}
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  {getStatusIcon(
-                    !!result.supabase.errors.profile,
-                    !!result.supabase.profile
-                  )}
+                  {getStatusIcon(!!result.supabase.errors.profile, !!result.supabase.profile)}
                   <div className="flex-1">
                     <div className="font-semibold text-gray-900">Profil utilisateur</div>
                     <div className="text-sm text-gray-700">
                       {result.supabase.errors.profile
                         ? result.supabase.errors.profile
                         : result.supabase.profile
-                          ? `Plan: ${result.supabase.profile.plan_type || 'free'}`
-                          : 'Profil trouvé'}
+                          ? `Plan: ${result.supabase.profile.plan_type || "free"}`
+                          : "Profil trouvé"}
                     </div>
                   </div>
                 </div>
@@ -476,7 +546,7 @@ export default function StorageDiagnostic() {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                   {getStatusIcon(
                     !!result.supabase.errors.conversations,
-                    result.supabase.conversations.length > 0
+                    result.supabase.conversations.length > 0,
                   )}
                   <div className="flex-1">
                     <div className="font-semibold text-gray-900">
@@ -493,10 +563,12 @@ export default function StorageDiagnostic() {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                   {getStatusIcon(
                     !!result.supabase.errors.messages,
-                    result.supabase.messages.length > 0
+                    result.supabase.messages.length > 0,
                   )}
                   <div className="flex-1">
-                    <div className="font-semibold text-gray-900">Messages ({result.supabase.messages.length})</div>
+                    <div className="font-semibold text-gray-900">
+                      Messages ({result.supabase.messages.length})
+                    </div>
                     <div className="text-sm text-gray-700">
                       {result.supabase.errors.messages ||
                         `${result.supabase.messages.length} messages en base de données`}
@@ -507,7 +579,9 @@ export default function StorageDiagnostic() {
                 {/* Conversations List */}
                 {result.supabase.conversations.length > 0 && (
                   <div>
-                    <h4 className="font-semibold mb-2 text-sm text-gray-900">Conversations en base :</h4>
+                    <h4 className="font-semibold mb-2 text-sm text-gray-900">
+                      Conversations en base :
+                    </h4>
                     <div className="space-y-2">
                       {result.supabase.conversations.slice(0, 5).map((conv: any) => (
                         <div
@@ -516,11 +590,14 @@ export default function StorageDiagnostic() {
                         >
                           <span className="truncate flex-1 text-gray-900">{conv.title}</span>
                           <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs bg-white text-gray-900 border-gray-300">
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-white text-gray-900 border-gray-300"
+                            >
                               {conv.message_count || 0} msg
                             </Badge>
                             <Badge
-                              variant={conv.status === 'active' ? 'default' : 'secondary'}
+                              variant={conv.status === "active" ? "default" : "secondary"}
                               className="text-xs bg-white text-gray-900 border-gray-300"
                             >
                               {conv.status}
@@ -545,17 +622,20 @@ export default function StorageDiagnostic() {
             {result.supabase.connected && result.supabase.conversations.length > 0 ? (
               <Alert className="border-green-400 bg-green-50">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <AlertTitle className="text-gray-900 font-semibold">✅ Tout fonctionne correctement !</AlertTitle>
+                <AlertTitle className="text-gray-900 font-semibold">
+                  ✅ Tout fonctionne correctement !
+                </AlertTitle>
                 <AlertDescription className="text-gray-700">
-                  Vos données sont sauvegardées en base de données Supabase. Elles sont sécurisées et
-                  synchronisées entre vos appareils.
+                  Vos données sont sauvegardées en base de données Supabase. Elles sont sécurisées
+                  et synchronisées entre vos appareils.
                 </AlertDescription>
               </Alert>
-            ) : result.supabase.connected &&
-              Object.keys(result.supabase.errors).length > 0 ? (
+            ) : result.supabase.connected && Object.keys(result.supabase.errors).length > 0 ? (
               <Alert variant="destructive" className="bg-red-50 border-red-400">
                 <XCircle className="h-4 w-4 text-red-600" />
-                <AlertTitle className="text-gray-900 font-semibold">⚠️ Erreurs détectées</AlertTitle>
+                <AlertTitle className="text-gray-900 font-semibold">
+                  ⚠️ Erreurs détectées
+                </AlertTitle>
                 <AlertDescription className="text-gray-700">
                   <p className="mb-2 text-gray-800">
                     Vos données sont sauvegardées mais certaines opérations échouent.
@@ -564,7 +644,7 @@ export default function StorageDiagnostic() {
                     <p className="font-semibold text-gray-900">Actions recommandées :</p>
                     <ol className="list-decimal list-inside space-y-1 text-sm text-gray-800">
                       <li>
-                        Ouvrez le{' '}
+                        Ouvrez le{" "}
                         <a
                           href="https://supabase.com/dashboard"
                           target="_blank"
@@ -576,7 +656,7 @@ export default function StorageDiagnostic() {
                       </li>
                       <li>Allez dans "SQL Editor" &gt; "New query"</li>
                       <li>
-                        Copiez le contenu du fichier{' '}
+                        Copiez le contenu du fichier{" "}
                         <code className="bg-red-100 px-1 py-0.5 rounded text-gray-900">
                           sql-scripts/fix-400-errors.sql
                         </code>
@@ -592,12 +672,18 @@ export default function StorageDiagnostic() {
                 <AlertTriangle className="h-4 w-4 text-yellow-600" />
                 <AlertTitle className="text-gray-900 font-semibold">⚠️ Mode invité</AlertTitle>
                 <AlertDescription className="text-gray-700">
-                  <p className="mb-2 text-gray-800">Vos données sont uniquement stockées localement.</p>
+                  <p className="mb-2 text-gray-800">
+                    Vos données sont uniquement stockées localement.
+                  </p>
                   <p className="text-sm text-gray-800">
                     <strong>Connectez-vous</strong> pour sauvegarder vos données en base de données
                     et les synchroniser entre vos appareils.
                   </p>
-                  <Button className="mt-3 bg-blue-600 hover:bg-blue-700 text-white" size="sm" onClick={() => (window.location.href = '/auth')}>
+                  <Button
+                    className="mt-3 bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                    onClick={() => (window.location.href = "/auth")}
+                  >
                     Se connecter maintenant
                   </Button>
                 </AlertDescription>
@@ -606,12 +692,15 @@ export default function StorageDiagnostic() {
 
             <div className="text-sm text-gray-700 space-y-2 mt-4">
               <p>
-                <strong className="text-gray-900">💡 Conseil :</strong> Pour une meilleure sécurité et synchronisation,
-                connectez-vous avec un compte utilisateur.
+                <strong className="text-gray-900">💡 Conseil :</strong> Pour une meilleure sécurité
+                et synchronisation, connectez-vous avec un compte utilisateur.
               </p>
               <p>
-                <strong className="text-gray-900">📚 Documentation :</strong> Consultez le fichier{' '}
-                <code className="bg-gray-100 px-1 py-0.5 rounded text-gray-900">DIAGNOSTIC_CONSOLE.md</code> pour plus d'informations.
+                <strong className="text-gray-900">📚 Documentation :</strong> Consultez le fichier{" "}
+                <code className="bg-gray-100 px-1 py-0.5 rounded text-gray-900">
+                  DIAGNOSTIC_CONSOLE.md
+                </code>{" "}
+                pour plus d'informations.
               </p>
             </div>
           </CardContent>
@@ -620,4 +709,3 @@ export default function StorageDiagnostic() {
     </div>
   );
 }
-

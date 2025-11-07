@@ -421,10 +421,7 @@ const App = () => {
                                   path="/diagnostic/supabase"
                                   element={<SupabaseDiagnostic />}
                                 />
-                                <Route
-                                  path="/diagnostic/storage"
-                                  element={<StorageDiagnostic />}
-                                />
+                                <Route path="/diagnostic/storage" element={<StorageDiagnostic />} />
 
                                 <Route path="/auth" element={<Auth />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />
