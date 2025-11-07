@@ -30,9 +30,7 @@ if (isLocalDev) {
       persistSession: false,
       detectSessionInUrl: false,
     },
-    global: {
-      fetch: fetch.bind(globalThis),
-    },
+    // Laisser Supabase utiliser fetch natif (même en mock)
   });
 } else {
   // Configuration Supabase réelle
@@ -42,9 +40,7 @@ if (isLocalDev) {
       persistSession: true, // ✅ Activer pour la bêta
       detectSessionInUrl: true, // ✅ Activer pour la bêta
     },
-    global: {
-      fetch: fetch.bind(globalThis),
-    },
+    // Laisser Supabase utiliser fetch natif
   });
 }
 
