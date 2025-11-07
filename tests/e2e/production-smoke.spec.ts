@@ -109,6 +109,21 @@ test.describe('🔥 Production Smoke Tests', () => {
    */
   test('Pas d\'erreurs console critiques', async ({ page }) => {
     const consoleErrors: string[] = [];
+    const failedRequests: { url: string; status: number }[] = [];
+    
+    // Capturer les requêtes échouées (404, 500, etc.)
+    page.on('response', response => {
+      if (response.status() >= 400) {
+        const url = response.url();
+        // Ignorer les erreurs non-critiques connues
+        if (!url.includes('favicon') && 
+            !url.includes('manifest.json') &&
+            !url.includes('analytics') &&
+            !url.includes('third-party')) {
+          failedRequests.push({ url, status: response.status() });
+        }
+      }
+    });
     
     // Capturer les erreurs console
     page.on('console', msg => {
@@ -117,6 +132,7 @@ test.describe('🔥 Production Smoke Tests', () => {
         // Ignorer les erreurs non-critiques connues
         if (!text.includes('ResizeObserver') && 
             !text.includes('favicon') &&
+            !text.includes('manifest.json') &&
             !text.includes('third-party')) {
           consoleErrors.push(text);
         }
@@ -130,11 +146,16 @@ test.describe('🔥 Production Smoke Tests', () => {
     // Attendre un peu pour que les erreurs asynchrones apparaissent
     await page.waitForTimeout(2000);
     
-    // Vérifier qu'il n'y a pas d'erreurs critiques
+    // Afficher les détails des erreurs
+    if (failedRequests.length > 0) {
+      console.error('❌ Requêtes échouées:', failedRequests);
+    }
     if (consoleErrors.length > 0) {
       console.error('❌ Erreurs console:', consoleErrors);
     }
     
+    // Vérifier qu'il n'y a pas d'erreurs critiques
+    expect(failedRequests.length).toBe(0);
     expect(consoleErrors.length).toBe(0);
   });
 
