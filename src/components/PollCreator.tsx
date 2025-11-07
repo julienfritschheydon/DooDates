@@ -1294,12 +1294,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                       <p className="text-sm text-gray-300 mt-1">
                         Connectez-vous pour gérer vos sondages et accéder à plus de fonctionnalités.
                       </p>
-                      <button
-                        onClick={() => (window.location.href = "/auth")}
-                        className="mt-2 text-sm text-blue-400 hover:text-blue-300 underline"
-                      >
-                        Se connecter maintenant
-                      </button>
+                      {/* TODO: Implémenter AuthModal ici */}
                     </div>
                   )}
 

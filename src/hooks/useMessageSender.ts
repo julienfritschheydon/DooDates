@@ -262,15 +262,15 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         setMessages((prev) => [...prev, progressMessage]);
       }
 
-      console.log(`[${timestamp}] [${requestId}] 💾 Auto-save message utilisateur...`);
-      // Auto-save user message (avec le contenu original pour les markdown)
-      await autoSave.addMessage({
-        id: userMessage.id,
-        content: isLongMarkdown ? trimmedInput : userMessage.content,
-        isAI: userMessage.isAI,
-        timestamp: userMessage.timestamp,
-      });
-      console.log(`[${timestamp}] [${requestId}] ✅ Auto-save terminé`);
+      // TEMPORAIRE : Désactiver auto-save AVANT Gemini pour débloquer le flux
+      // TODO: Réactiver après avoir appelé Gemini
+      console.log(`[${timestamp}] [${requestId}] ⏭️ Skip auto-save (avant Gemini)`);
+      // await autoSave.addMessage({
+      //   id: userMessage.id,
+      //   content: isLongMarkdown ? trimmedInput : userMessage.content,
+      //   isAI: userMessage.isAI,
+      //   timestamp: userMessage.timestamp,
+      // });
 
       // Appel API Gemini via le hook
       console.log(

@@ -233,7 +233,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
     // ✅ Utiliser les hooks centralisés pour sauvegarder dans Supabase
     try {
       let pollResult;
-      
+
       if (pollData.type === "form") {
         // Créer un formulaire via le hook centralisé
         pollResult = await createFormPoll({
@@ -277,10 +277,10 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
 
       if (pollResult.error || !pollResult.poll) {
         logger.error("❌ Erreur création poll via IA", "poll", { error: pollResult.error });
-          throw ErrorFactory.storage(
-            pollResult.error || "Impossible de créer le poll",
-            "Une erreur s'est produite lors de la création du poll"
-          );
+        throw ErrorFactory.storage(
+          pollResult.error || "Impossible de créer le poll",
+          "Une erreur s'est produite lors de la création du poll",
+        );
       }
 
       // Utiliser le poll créé

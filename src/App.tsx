@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useParams, useLocation } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
-import { Auth, AuthCallback } from "./pages/Auth";
 import { logger } from "@/lib/logger";
 import { performanceMeasurement } from "@/lib/performance-measurement";
 import { performanceAnalyzer } from "@/lib/performance-analyzer";
@@ -336,7 +335,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     location.pathname.startsWith("/poll/") ||
     location.pathname.startsWith("/create/") ||
     location.pathname.startsWith("/vote/") ||
-    location.pathname.startsWith("/auth") ||
     location.pathname.startsWith("/docs") ||
     location.pathname.startsWith("/pricing") ||
     location.pathname.startsWith("/dashboard");
@@ -421,8 +419,6 @@ const App = () => {
                                   element={<SupabaseDiagnostic />}
                                 />
 
-                                <Route path="/auth" element={<Auth />} />
-                                <Route path="/auth/callback" element={<AuthCallback />} />
                                 <Route path="/poll/:slug" element={<Vote />} />
                                 <Route path="/poll/:slug/results" element={<Results />} />
                                 <Route path="/vote/:pollId" element={<Vote />} />

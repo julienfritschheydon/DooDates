@@ -15,6 +15,7 @@ describe("usePolls.createPoll", () => {
     const { result } = renderHook(() => usePolls());
 
     const pollData: any = {
+      type: "date", // ✅ Ajout du type
       title: "Réunion produit",
       description: "",
       selectedDates: ["2025-09-01", "2025-09-02"],
@@ -40,7 +41,8 @@ describe("usePolls.createPoll", () => {
     expect(res.error).toBeUndefined();
     expect(res.poll).toBeTruthy();
 
-    const stored = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+    // ✅ Correction : Utiliser la clé de stockage correcte
+    const stored = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
     expect(Array.isArray(stored)).toBe(true);
     expect(stored.length).toBe(1);
 
@@ -56,6 +58,7 @@ describe("usePolls.createPoll", () => {
     const res = await act(
       async () =>
         await result.current.createPoll({
+          type: "date", // ✅ Ajout du type
           title: "Sans dates",
           description: "",
           selectedDates: [],
