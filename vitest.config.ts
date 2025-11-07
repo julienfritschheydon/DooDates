@@ -14,12 +14,12 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
     // Optimisations pour exécution parallèle
-    maxWorkers: 4,
-    minWorkers: 2,
     pool: 'threads',  // Threads plus rapides que forks
     poolOptions: {
       threads: {
         singleThread: false,
+        maxThreads: 4,
+        minThreads: 2,
       },
     },
     typecheck: {
