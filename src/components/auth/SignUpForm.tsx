@@ -155,4 +155,3 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
     </Card>
   );
 }
-

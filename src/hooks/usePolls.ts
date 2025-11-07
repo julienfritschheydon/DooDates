@@ -15,6 +15,7 @@ import {
 } from "../lib/pollStorage";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "@/lib/logger";
+import { supabaseInsert, getSupabaseToken } from "../lib/supabaseApi";
 
 // Interface pour les sondages de dates
 export interface DatePollData {
@@ -299,23 +300,8 @@ export function usePolls() {
           }
 
           // Utilisateur connecté - sauvegarder dans Supabase
-          // Récupérer le token JWT
-          let token = null;
-          const supabaseSession = localStorage.getItem("supabase.auth.token");
-          if (supabaseSession) {
-            const sessionData = JSON.parse(supabaseSession);
-            token = sessionData?.access_token || sessionData?.currentSession?.access_token;
-          }
-
-          if (!token) {
-            const authData = localStorage.getItem(
-              `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
-            );
-            if (authData) {
-              const parsed = JSON.parse(authData);
-              token = parsed?.access_token;
-            }
-          }
+          // Récupérer le token JWT via fonction utilitaire
+          const token = getSupabaseToken();
 
           if (!token) {
             logger.warn("Token non trouvé, sauvegarde en localStorage", "poll");
@@ -351,27 +337,14 @@ export function usePolls() {
             return { poll: mockPoll };
           }
 
-          // Créer dans table conversations
+          // Créer dans table conversations avec fonction utilitaire
           logger.info("💾 Sauvegarde dans Supabase (table conversations)", "poll");
-          const response = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/conversations`,
-            {
-              method: "POST",
-              headers: {
-                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-                Prefer: "return=representation",
-              },
-              body: JSON.stringify(conversationData),
-            },
-          );
-
-          if (!response.ok) {
-            const errorData = await response.text();
+          
+          try {
+            conversation = await supabaseInsert("conversations", conversationData, { timeout: 10000 });
+          } catch (error: any) {
             logger.error("Erreur création conversation", "poll", {
-              status: response.status,
-              errorData,
+              error: error.message,
             });
 
             // Fallback sur localStorage
@@ -406,9 +379,6 @@ export function usePolls() {
             addPoll(mockPoll);
             return { poll: mockPoll };
           }
-
-          const result = await response.json();
-          conversation = Array.isArray(result) ? result[0] : result;
 
           logger.info("✅ Conversation créée dans Supabase", "poll", {
             conversationId: conversation.id,
