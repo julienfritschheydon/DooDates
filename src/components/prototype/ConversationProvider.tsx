@@ -97,8 +97,12 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<Message[]>(() => {
     // Restaurer les messages depuis localStorage au démarrage
     try {
+      if (typeof localStorage === "undefined") return [];
       const saved = localStorage.getItem("prototype_messages");
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      // Valider que c'est bien un tableau
+      return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
       logger.error("Erreur restauration messages", error);
       return [];
@@ -137,18 +141,34 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Ouvrir l'éditeur uniquement si on a des messages (= pas une nouvelle conversation)
     try {
-      const savedMessages = localStorage.getItem("prototype_messages");
-      const hasMessages = savedMessages && JSON.parse(savedMessages).length > 0;
+      if (typeof localStorage === "undefined") return;
 
-      if (!hasMessages) {
-        return; // ✅ Ne rien retourner au lieu de return null
+      const savedMessages = localStorage.getItem("prototype_messages");
+      if (!savedMessages) return;
+
+      let parsedMessages;
+      try {
+        parsedMessages = JSON.parse(savedMessages);
+      } catch (e) {
+        logger.error("Erreur parsing messages", e);
+        return;
       }
 
-      const pollsStr = localStorage.getItem("doodates_polls");
-      if (!pollsStr) return; // ✅ Ne rien retourner
+      const hasMessages = Array.isArray(parsedMessages) && parsedMessages.length > 0;
+      if (!hasMessages) return;
 
-      const polls = JSON.parse(pollsStr);
-      if (!Array.isArray(polls) || polls.length === 0) return; // ✅ Ne rien retourner
+      const pollsStr = localStorage.getItem("doodates_polls");
+      if (!pollsStr) return;
+
+      let polls;
+      try {
+        polls = JSON.parse(pollsStr);
+      } catch (e) {
+        logger.error("Erreur parsing polls", e);
+        return;
+      }
+
+      if (!Array.isArray(polls) || polls.length === 0) return;
 
       // Trouver le poll le plus récemment modifié
       const sortedPolls = polls.sort((a: any, b: any) => {
@@ -159,7 +179,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
       const latestPoll = sortedPolls[0];
 
-      // ✅ Mettre à jour l'état au lieu de retourner la valeur
+      // Mettre à jour l'état au lieu de retourner la valeur
       if (latestPoll) {
         dispatchPoll({ type: "REPLACE_POLL", payload: latestPoll });
         setIsEditorOpen(true);
@@ -167,8 +187,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       logger.error("Erreur restauration poll", error);
     }
-    // ✅ useEffect ne retourne rien (ou une fonction de cleanup si nécessaire)
-  }, []); // ✅ Ajout du tableau de dépendances vide pour n'exécuter qu'au montage
+  }, []); // Ajout du tableau de dépendances vide pour n'exécuter qu'au montage
 
   // Ref pour debounce de la persistance
   const persistenceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -176,6 +195,8 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   // Persistance des messages dans localStorage
   useEffect(() => {
     try {
+      if (typeof localStorage === "undefined") return;
+      if (!Array.isArray(messages)) return;
       localStorage.setItem("prototype_messages", JSON.stringify(messages));
     } catch (error) {
       logger.error("Erreur sauvegarde messages", error);
@@ -190,7 +211,13 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   const clearConversation = useCallback(() => {
     setConversationId(null);
     setMessages([]);
-    localStorage.removeItem("prototype_messages");
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem("prototype_messages");
+      }
+    } catch (error) {
+      logger.error("Erreur suppression messages", error);
+    }
     setIsEditorOpen(false);
     dispatchPoll({ type: "REPLACE_POLL", payload: null as any });
     // Note: On ne supprime PAS doodates_polls car il contient tous les polls sauvegardés
