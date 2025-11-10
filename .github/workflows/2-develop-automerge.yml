@@ -133,13 +133,8 @@ jobs:
 
       - name: 🧭 Install Playwright browsers
         run: |
-          if [ "${{ steps.cache-playwright-unit.outputs.cache-hit }}" == "true" ]; then
-            echo "✅ Cache trouvé, installation rapide (sans deps)..."
-            npx playwright install chromium
-          else
-            echo "⚠️ Cache vide, installation avec dépendances système..."
-            npx playwright install --with-deps chromium
-          fi
+          echo "📦 Installation de chromium avec dépendances système..."
+          npx playwright install --with-deps chromium
 
       - name: 🧪 Tests unitaires
         run: npm run test:unit
@@ -206,13 +201,8 @@ jobs:
 
       - name: 🧭 Install Playwright (Chromium)
         run: |
-          if [ "${{ steps.cache-playwright-e2e.outputs.cache-hit }}" == "true" ]; then
-            echo "✅ Cache trouvé, installation rapide (sans deps)..."
-            npx playwright install chromium
-          else
-            echo "⚠️ Cache vide, installation avec dépendances système..."
-            npx playwright install --with-deps chromium
-          fi
+          echo "📦 Installation de chromium avec dépendances système..."
+          npx playwright install --with-deps chromium
 
       - name: "Tests E2E Smoke (develop: fast validation)"
         run: npm run test:e2e:smoke -- --reporter=html,json
@@ -353,13 +343,8 @@ jobs:
       
       - name: 🧭 Install Playwright (Chromium only)
         run: |
-          if [ "${{ steps.cache-playwright-smoke.outputs.cache-hit }}" == "true" ]; then
-            echo "✅ Cache trouvé, installation rapide (sans deps)..."
-            npx playwright install chromium
-          else
-            echo "⚠️ Cache vide, installation avec dépendances système..."
-            npx playwright install --with-deps chromium
-          fi
+          echo "📦 Installation de chromium avec dépendances système..."
+          npx playwright install --with-deps chromium
       
       - name: 📦 Build production (avec base path local pour tests)
         run: npm run build
