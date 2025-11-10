@@ -279,13 +279,10 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         console.log(`[${timestamp}] [${requestId}] ❌ Limite de messages IA atteinte`);
         setIsLoading(false);
 
-        // Afficher un toast d'erreur
-        toast({
-          title: "Limite atteinte",
-          description:
-            "Vous avez atteint la limite de messages IA pour les utilisateurs invités. Connectez-vous pour continuer.",
-          variant: "destructive",
-        });
+        // Afficher le modal d'authentification au lieu du toast
+        if (quota?.showAuthIncentive) {
+          quota.showAuthIncentive("conversation_limit");
+        }
 
         // Ajouter un message d'erreur dans le chat
         const errorMessage: Message = {

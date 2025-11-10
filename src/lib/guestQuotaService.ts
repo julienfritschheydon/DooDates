@@ -49,7 +49,7 @@ export interface GuestQuotaJournalEntry {
 const GUEST_LIMITS = {
   CONVERSATIONS: 5,
   POLLS: 5,
-  AI_MESSAGES: 20,
+  AI_MESSAGES: 2, // ⚠️ TEMPORAIRE POUR TESTS - Remettre à 20 après
   ANALYTICS_QUERIES: 10,
   SIMULATIONS: 2,
   TOTAL_CREDITS: 50,
