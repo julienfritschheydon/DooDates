@@ -58,14 +58,9 @@ jobs:
               ;;
           esac
           
-          # Installation conditionnelle selon le cache
-          if [ "${{ steps.cache-playwright.outputs.cache-hit }}" == "true" ]; then
-            echo "✅ Cache trouvé, installation rapide (sans deps)..."
-            npx playwright install $BROWSER
-          else
-            echo "⚠️ Cache vide, installation avec dépendances système..."
-            npx playwright install --with-deps $BROWSER
-          fi
+          # Toujours installer avec --with-deps en CI (dépendances système non cachées)
+          echo "📦 Installation de $BROWSER avec dépendances système..."
+          npx playwright install --with-deps $BROWSER
 
       - name: 🔍 Run Full Regression Suite (${{ matrix.project }})
         run: npx playwright test --project="${{ matrix.project }}" --reporter=html,json
