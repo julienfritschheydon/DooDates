@@ -93,12 +93,12 @@ export class DirectGeminiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         const errorMessage = errorData?.error?.message || JSON.stringify(errorData);
-        
+
         logger.error("Erreur HTTP Gemini", "api", {
           status: response.status,
           statusText: response.statusText,
           error: errorData,
-          errorMessage: errorMessage
+          errorMessage: errorMessage,
         });
 
         if (response.status === 429) {
