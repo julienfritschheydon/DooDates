@@ -51,7 +51,9 @@ jobs:
     - name: Run Gemini tests
       env:
         VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
-        VITE_USE_DIRECT_GEMINI: "true"
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        # Pas de VITE_USE_DIRECT_GEMINI - utilise Edge Function comme en prod
       run: npm run test:gemini
       
     - name: Upload test reports

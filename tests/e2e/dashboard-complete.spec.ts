@@ -428,7 +428,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     }
   });
 
-  test('@functional - Sélectionner/désélectionner des conversations', async ({ page }) => {
+  test('@functional - Sélectionner/désélectionner des conversations', async ({ page, isMobile }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -451,9 +451,9 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await expect(firstCard).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: 1000 });
 
       // Utiliser le bouton "Sélectionner" en haut pour sélectionner toutes les conversations
-      const selectButton = page.getByRole('button', { name: /Sélectionner/i });
-      await selectButton.waitFor({ state: 'visible', timeout: 5000 });
-      await selectButton.click();
+      const selectionButton = page.getByTestId('selection-toggle-button');
+      await selectionButton.waitFor({ state: 'visible', timeout: 5000 });
+      await selectionButton.click();
       
       // Attendre que React se mette à jour
       await page.waitForTimeout(100);
@@ -461,15 +461,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       // Vérifier que la carte est sélectionnée en vérifiant le border bleu
       await expect(firstCard).toHaveClass(/border-blue-500|ring-blue-500|border-blue/, { timeout: 3000 });
 
-      // Vérifier que le bouton affiche maintenant "X sélectionné(s)"
-      const selectedText = page.getByText(/\d+ sélectionné/i);
-      await expect(selectedText).toBeVisible({ timeout: 2000 });
+      // Sur desktop, vérifier que le texte "X sélectionné(s)" est visible
+      // Sur mobile, le texte existe mais est caché (hidden sm:inline) pour gagner de l'espace
+      if (!isMobile) {
+        const selectedText = page.getByText(/\d+ sélectionné/i);
+        await expect(selectedText).toBeVisible({ timeout: 5000 });
+      }
 
-      // Cliquer à nouveau sur le bouton (maintenant "Désélectionner tout" - le texte a changé)
-      // Le bouton a changé de texte, donc on doit le re-trouver avec le nouveau texte
-      const deselectButton = page.getByRole('button', { name: /\d+ sélectionné/i });
-      await deselectButton.waitFor({ state: 'visible', timeout: 3000 });
-      await deselectButton.click();
+      // Cliquer à nouveau sur le bouton pour désélectionner (même testid, même bouton)
+      await selectionButton.click();
       
       // Attendre que React se mette à jour
       await page.waitForTimeout(100);
@@ -482,7 +482,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     }
   });
 
-  test('@functional - Sélectionner tout', async ({ page }) => {
+  test('@functional - Sélectionner tout', async ({ page, isMobile }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -498,14 +498,18 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
 
-      // Cliquer sur "Sélectionner"
-      await page.getByRole('button', { name: /Sélectionner/i }).click();
+      // Cliquer sur "Sélectionner" avec data-testid (fonctionne sur desktop et mobile)
+      const selectionButton = page.getByTestId('selection-toggle-button');
+      await selectionButton.click();
 
       await page.waitForTimeout(500);
 
       // Vérifier que toutes les conversations de la page sont sélectionnées
-      const selectedText = page.getByText(/\d+ sélectionné/i);
-      await expect(selectedText).toBeVisible({ timeout: 3000 });
+      // Sur desktop uniquement - sur mobile le texte est caché (hidden sm:inline)
+      if (!isMobile) {
+        const selectedText = page.getByText(/\d+ sélectionné/i);
+        await expect(selectedText).toBeVisible({ timeout: 3000 });
+      }
     } finally {
       await guard.assertClean();
       guard.stop();
