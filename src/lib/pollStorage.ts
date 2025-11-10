@@ -262,12 +262,44 @@ export function savePolls(polls: Poll[]): void {
 
 export function getPollBySlugOrId(idOrSlug: string | undefined | null): Poll | null {
   if (!idOrSlug) return null;
-  // Rechercher dans l'ensemble unifié (date + form)
+
+  // 1) Essayer d'abord le cache mémoire (utile si localStorage n'est pas encore synchronisé)
+  logger.debug(`🔍 getPollBySlugOrId: Recherche de ${idOrSlug}`, "poll", {
+    cacheSize: memoryPollCache.size,
+    cacheKeys: Array.from(memoryPollCache.keys()),
+  });
+
+  const cachedById = memoryPollCache.get(idOrSlug);
+  if (cachedById) {
+    logger.debug(`✅ Poll trouvé dans cache mémoire: ${idOrSlug}`, "poll");
+    return cachedById;
+  }
+
+  // Vérifier aussi par slug dans le cache
+  for (const poll of memoryPollCache.values()) {
+    if (poll.slug === idOrSlug) {
+      logger.debug(`✅ Poll trouvé par slug dans cache: ${idOrSlug}`, "poll");
+      return poll;
+    }
+  }
+
+  // 2) Sinon, rechercher dans l'ensemble unifié (date + form)
+  logger.debug(`⚠️ Poll non trouvé dans cache, recherche dans localStorage`, "poll");
   const polls = getAllPolls();
-  return polls.find((p) => p.slug === idOrSlug) || polls.find((p) => p.id === idOrSlug) || null;
+  const found =
+    polls.find((p) => p.slug === idOrSlug) || polls.find((p) => p.id === idOrSlug) || null;
+
+  if (!found) {
+    logger.error(`❌ Poll introuvable: ${idOrSlug}`, "poll", {
+      totalPolls: polls.length,
+      pollIds: polls.map((p) => p.id).slice(0, 5),
+    });
+  }
+
+  return found;
 }
 
-export function addPoll(poll: Poll): void {
+export async function addPoll(poll: Poll): Promise<void> {
   // Validation écriture: empêcher l'enregistrement d'un sondage invalide
   validatePoll(poll);
   // Ajouter ou remplacer dans l'ensemble unifié
@@ -284,26 +316,26 @@ export function addPoll(poll: Poll): void {
   }
 
   savePolls(polls);
-  // Mettre à jour le cache mémoire pour robustesse (tests/concurrence)
+  // Mettre à jour le cache mémoire IMMÉDIATEMENT pour robustesse (tests/concurrence)
   memoryPollCache.set(poll.id, poll);
 
-  // Incrémenter le compteur de crédits consommés uniquement pour les nouveaux polls
+  logger.debug(`✅ Poll ajouté au cache mémoire: ${poll.id}`, "poll", {
+    cacheSize: memoryPollCache.size,
+    pollTitle: poll.title,
+  });
+
+  // VÉRIFIER ET CONSOMMER QUOTA APRÈS avoir sauvegardé (uniquement pour nouveaux polls)
+  // Fait en async pour ne pas bloquer la création
   if (isNewPoll) {
-    try {
-      // Import dynamique pour éviter les problèmes dans les tests
-      import("./quotaTracking")
-        .then(({ incrementPollCreated }) => {
-          // Utiliser creator_id du poll pour identifier l'utilisateur
-          incrementPollCreated(poll.creator_id);
-        })
-        .catch((error) => {
-          // Ignorer les erreurs d'import en mode développement
-          logger.debug("Impossible d'incrémenter le quota poll", "quota", { error });
-        });
-    } catch (error) {
-      // Ignorer les erreurs d'import en mode développement
-      logger.debug("Impossible d'incrémenter le quota poll", "quota", { error });
-    }
+    import("./quotaTracking")
+      .then(({ incrementPollCreated }) => {
+        // Utiliser creator_id du poll pour identifier l'utilisateur
+        return incrementPollCreated(poll.creator_id);
+      })
+      .catch((error) => {
+        // Ignorer les erreurs d'import en mode développement
+        logger.error("Erreur lors de la vérification du quota poll", "quota", { error });
+      });
   }
 }
 

@@ -177,9 +177,23 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                               message.pollSuggestion as import("../../lib/gemini").DatePollSuggestion;
                             const dates = datePollSuggestion.dates || [];
 
-                            // Grouper les dates consécutives (week-ends, semaines, quinzaines)
-                            // allowWeekendGrouping = true car ce sont des suggestions du chat (ex: "les week-ends du mois")
-                            const dateGroups = groupConsecutiveDates(dates, true);
+                            // NE PAS grouper les dates - afficher individuellement
+                            // Convertir chaque date en "groupe" individuel pour réutiliser le code d'affichage
+                            const dateGroups = dates.map((date) => {
+                              const dateObj = new Date(date);
+                              const dayName = dateObj.toLocaleDateString("fr-FR", {
+                                weekday: "long",
+                              });
+                              const day = dateObj.getDate();
+                              const month = dateObj.toLocaleDateString("fr-FR", { month: "long" });
+                              const year = dateObj.getFullYear();
+
+                              return {
+                                dates: [date],
+                                label: `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${day} ${month} ${year}`,
+                                type: "custom" as const,
+                              };
+                            });
 
                             return dateGroups.map((group, groupIndex) => {
                               // Pour les groupes, afficher le label groupé

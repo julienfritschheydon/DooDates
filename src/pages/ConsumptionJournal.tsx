@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getConsumptionJournal, type CreditJournalEntry } from "@/lib/quotaTracking";
+import { getGuestQuotaJournal, type GuestQuotaJournalEntry } from "@/lib/guestQuotaService";
 import {
   ArrowLeft,
   Calendar,
@@ -63,9 +64,27 @@ export default function ConsumptionJournal() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadJournal = () => {
+    const loadJournal = async () => {
       try {
-        const entries = getConsumptionJournal(user?.id, 500); // Limiter à 500 entrées
+        let entries: CreditJournalEntry[];
+
+        if (!user) {
+          // Guest: Utiliser Supabase
+          const guestEntries = await getGuestQuotaJournal(500);
+          // Convertir GuestQuotaJournalEntry vers CreditJournalEntry
+          entries = guestEntries.map((entry) => ({
+            id: entry.id,
+            action: entry.action,
+            credits: entry.credits,
+            timestamp: entry.createdAt,
+            userId: entry.fingerprint,
+            metadata: entry.metadata,
+          }));
+        } else {
+          // Authenticated: Utiliser localStorage
+          entries = getConsumptionJournal(user.id, 500);
+        }
+
         setJournal(entries);
         setFilteredJournal(entries);
       } catch (error) {
@@ -74,7 +93,7 @@ export default function ConsumptionJournal() {
             "Erreur lors du chargement du journal",
             "Impossible de charger l'historique",
           ),
-          { context: "ConsumptionJournal.loadJournal", userId: user?.id, error },
+          { component: "ConsumptionJournal", metadata: { userId: user?.id, error } },
         );
       } finally {
         setLoading(false);
@@ -82,7 +101,7 @@ export default function ConsumptionJournal() {
     };
 
     loadJournal();
-  }, [user?.id]);
+  }, [user]);
 
   // Filtrer le journal selon la recherche
   useEffect(() => {

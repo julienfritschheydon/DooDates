@@ -12,9 +12,9 @@ import { generateBrowserFingerprint } from "@/lib/browserFingerprint";
 if (import.meta.env.DEV) {
   (window as any).testFingerprint = async () => {
     const fp = await generateBrowserFingerprint();
-    console.log('Fingerprint:', fp.fingerprint);
-    console.log('Confidence:', fp.metadata.confidence);
-    console.log('Components:', fp.components);
+    console.log("Fingerprint:", fp.fingerprint);
+    console.log("Confidence:", fp.metadata.confidence);
+    console.log("Components:", fp.components);
     return fp;
   };
 }

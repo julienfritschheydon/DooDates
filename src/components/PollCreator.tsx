@@ -133,6 +133,23 @@ const PollCreator: React.FC<PollCreatorProps> = ({
             : undefined,
         },
       });
+
+      logger.debug("createPoll result", "poll", {
+        hasPoll: !!result.poll,
+        hasError: !!result.error,
+        error: result.error,
+      });
+
+      if (result.error) {
+        logger.error("Poll creation failed", "poll", { error: result.error });
+        toast({
+          title: "Erreur",
+          description: result.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (result.poll) {
         setCreatedPollSlug(result.poll.slug);
         setCreatedPoll(result.poll);
@@ -140,6 +157,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         // Lier bidirectionnellement le sondage à la conversation (Session 1 - Architecture centrée conversations)
         const urlParams = new URLSearchParams(window.location.search);
         const conversationId = urlParams.get("conversationId");
+
         if (conversationId) {
           // Poll créé via IA → Lier à la conversation existante
           linkPollToConversationBidirectional(conversationId, result.poll.id, "date");
@@ -162,9 +180,16 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         } else {
           logger.warn("onBack not provided, cannot show success screen", "poll");
         }
+      } else {
+        logger.error("No poll in result and no error", "poll", { result });
       }
     } catch (error) {
       logger.error("Error creating poll", "poll", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la création du sondage.",
+        variant: "destructive",
+      });
     }
   };
   const toggleDate = (dateString: string) =>
