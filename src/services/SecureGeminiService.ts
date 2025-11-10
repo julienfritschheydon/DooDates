@@ -26,7 +26,7 @@ export class SecureGeminiService {
   }
 
   private constructor() {
-    this.supabaseUrl = getEnv('VITE_SUPABASE_URL') || "";
+    this.supabaseUrl = getEnv("VITE_SUPABASE_URL") || "";
   }
 
   /**
@@ -98,7 +98,7 @@ export class SecureGeminiService {
       // IMPORTANT: Supabase nécessite toujours un header Authorization, même pour les invités
       // On utilise l'anon key pour les invités, ou le token utilisateur si authentifié
       const headers: Record<string, string> = {};
-      const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
+      const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
@@ -257,7 +257,7 @@ export class SecureGeminiService {
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
       } else {
-        const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
+        const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
         if (supabaseAnonKey) {
           headers.Authorization = `Bearer ${supabaseAnonKey}`;
           headers["apikey"] = supabaseAnonKey;

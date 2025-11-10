@@ -3,8 +3,8 @@ import { handleError, ErrorFactory, logError } from "./error-handling";
 import { getEnv, getMode } from "./env";
 
 // Configuration Supabase pour bêta
-const supabaseUrl = getEnv('VITE_SUPABASE_URL');
-const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
+const supabaseUrl = getEnv("VITE_SUPABASE_URL");
+const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
 // Debug: Log des variables d'environnement (toujours pour diagnostic production)
 console.log("🔧 DooDates Supabase Config:", {

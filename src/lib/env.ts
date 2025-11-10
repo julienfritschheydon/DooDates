@@ -11,17 +11,17 @@
  */
 export function getEnv(key: string, defaultValue?: string): string | undefined {
   // Try import.meta.env first (Vite/browser context)
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
+  if (typeof import.meta !== "undefined" && import.meta.env) {
     const value = import.meta.env[key];
     if (value !== undefined) return value;
   }
-  
+
   // Fallback to process.env (Node.js context, e.g., Playwright tests)
-  if (typeof process !== 'undefined' && process.env) {
+  if (typeof process !== "undefined" && process.env) {
     const value = process.env[key];
     if (value !== undefined) return value;
   }
-  
+
   return defaultValue;
 }
 
@@ -29,14 +29,14 @@ export function getEnv(key: string, defaultValue?: string): string | undefined {
  * Check if we're in development mode
  */
 export function isDev(): boolean {
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
+  if (typeof import.meta !== "undefined" && import.meta.env) {
     return import.meta.env.DEV === true;
   }
-  
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env.NODE_ENV === 'development';
+
+  if (typeof process !== "undefined" && process.env) {
+    return process.env.NODE_ENV === "development";
   }
-  
+
   return false;
 }
 
@@ -44,14 +44,13 @@ export function isDev(): boolean {
  * Get the current mode (development, production, test)
  */
 export function getMode(): string {
-  if (typeof import.meta !== 'undefined' && import.meta.env?.MODE) {
+  if (typeof import.meta !== "undefined" && import.meta.env?.MODE) {
     return import.meta.env.MODE;
   }
-  
-  if (typeof process !== 'undefined' && process.env?.NODE_ENV) {
+
+  if (typeof process !== "undefined" && process.env?.NODE_ENV) {
     return process.env.NODE_ENV;
   }
-  
-  return 'production';
-}
 
+  return "production";
+}
