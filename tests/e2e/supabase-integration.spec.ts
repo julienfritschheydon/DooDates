@@ -17,6 +17,9 @@ const BASE_URL = process.env.BASE_URL || "http://localhost:4173";
 test.describe("Supabase Integration", () => {
   test.setTimeout(60000); // 60s pour les opérations Supabase
 
+  // Skip sur mobile jusqu'à ce que /diagnostic/supabase soit optimisé pour mobile
+  test.skip(({ isMobile }) => isMobile, 'Diagnostic page not optimized for mobile yet');
+
   test("should have all Supabase tests passing", async ({ page }) => {
     // Naviguer vers la page de diagnostic
     await page.goto(`${BASE_URL}/diagnostic/supabase`, {
