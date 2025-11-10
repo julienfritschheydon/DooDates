@@ -1,6 +1,6 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 10/11/2025 09:37:33
+**Dernière mise à jour:** 10/11/2025 10:42:32
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -26,11 +26,11 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ✅ success
 
-**Dernier run:** 10/11/2025 09:27:29
+**Dernier run:** 10/11/2025 10:29:55
 
 **Statistiques:**
 - ❌ Échecs (24h): **6**
-- ❌ Échecs (7 jours): **12**
+- ❌ Échecs (7 jours): **10**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
@@ -140,7 +140,7 @@ stack: 'DooDatesError: Gemini model not initialized\n' +
 
 **Statut:** ✅ success
 
-**Dernier run:** 10/11/2025 09:26:21
+**Dernier run:** 10/11/2025 10:34:43
 
 **Statistiques:**
 - ❌ Échecs (24h): **0**
@@ -157,188 +157,59 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ❌ failure
 
-**Dernier run:** 10/11/2025 09:31:03
+**Dernier run:** 10/11/2025 10:35:48
 
 **Statistiques:**
-- ❌ Échecs (24h): **5**
-- ❌ Échecs (7 jours): **11**
-- 📊 Total runs analysés: **11**
+- ❌ Échecs (24h): **6**
+- ❌ Échecs (7 jours): **12**
+- 📊 Total runs analysés: **12**
 
 ### 🔴 Échecs récents (24h)
 
-#### Run #11 - 10/11/2025 09:31:03
+#### Run #12 - 10/11/2025 10:35:48
 
-- **Commit:** `5637606`
+- **Commit:** `4c1a83a`
 - **Auteur:** julienfritschheydon
 - **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19225448546)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19227115662)
 - **Jobs en échec:**
-  - ❌ `full-regression (chromium)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (chromium)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-```
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
-"**/error-handling-enforcement.test.ts",
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      *... et 5 autre(s) erreur(s)*
-  - ❌ `full-regression (webkit)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-```
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
-"**/error-handling-enforcement.test.ts",
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      *... et 5 autre(s) erreur(s)*
   - ❌ `full-regression (firefox)` (failure)
     - Steps en échec: `🔍 Run Full Regression Suite (firefox)`
     - **Erreurs détectées (10):**
       ```
-Error: "**/error-handling-enforcement.test.ts",
+Error: "subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
 
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts f
+... (truncated)
 ```
       ```
 Error: "**/error-handling-enforcement.test.ts",
 
 "**/error-handling-enforcement.test.ts",
-"errors": [],
-"errors": [],
-"errors": [],
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
 ```
       ```
-Error: "errors": [],
+Error: "subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
 
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      *... et 5 autre(s) erreur(s)*
-  - ❌ `full-regression (Mobile Safari)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
 "**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- 
+... (truncated)
 ```
       ```
 Error: "**/error-handling-enforcement.test.ts",
 
 "**/error-handling-enforcement.test.ts",
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
 ```
       ```
 Error: "errors": [],
@@ -353,36 +224,39 @@ Error: "errors": [],
     - Steps en échec: `🔍 Run Full Regression Suite (Mobile Chrome)`
     - **Erreurs détectées (10):**
       ```
-Error: "**/error-handling-enforcement.test.ts",
+Error: "subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
 
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts f
+... (truncated)
 ```
       ```
 Error: "**/error-handling-enforcement.test.ts",
 
 "**/error-handling-enforcement.test.ts",
-"errors": [],
-"errors": [],
-"errors": [],
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
 ```
       ```
-Error: "errors": [],
+Error: "subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
 
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- 
+... (truncated)
 ```
       ```
-Error: "errors": [],
+Error: "**/error-handling-enforcement.test.ts",
 
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
+"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
 ```
       ```
 Error: "errors": [],
@@ -393,6 +267,118 @@ Error: "errors": [],
 "errors": [],
 ```
       *... et 5 autre(s) erreur(s)*
+  - ❌ `full-regression (webkit)` (failure)
+    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
+    - **Erreurs détectées (10):**
+      ```
+Error: "subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts f
+... (truncated)
+```
+      ```
+Error: "**/error-handling-enforcement.test.ts",
+
+"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
+```
+      ```
+Error: "subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- 
+... (truncated)
+```
+      ```
+Error: "**/error-handling-enforcement.test.ts",
+
+"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
+```
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      *... et 5 autre(s) erreur(s)*
+  - ❌ `full-regression (Mobile Safari)` (failure)
+    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
+    - **Erreurs détectées (10):**
+      ```
+Error: "subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts f
+... (truncated)
+```
+      ```
+Error: "**/error-handling-enforcement.test.ts",
+
+"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
+```
+      ```
+Error: "subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- 
+... (truncated)
+```
+      ```
+Error: "**/error-handling-enforcement.test.ts",
+
+"**/error-handling-enforcement.test.ts",
+"subject": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode",
+"body": "fix: Resolve CONFIG_ERROR in Gemini tests by forcing DIRECT API mode\n\n- Added VITE_USE_DIRECT_GEMINI=true to workflow environment\n- Enhanced error diagnostics in gemini.ts for CONFIG_ERROR\n- Added API key validation logging at startup\n- Tests now correctly use DirectGeminiService instead of Edge Function\n- Current status: Tests run but fail with invalid API key (needs secret update)\n- Created GEMINI-TEST-FIX.md documentation\n",
+"**/error-handling-enforcement.test.ts",
+```
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      *... et 5 autre(s) erreur(s)*
+
+#### Run #11 - 10/11/2025 09:31:03
+
+- **Commit:** `5637606`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19225448546)
+- **Jobs en échec:**
+  - ❌ `full-regression (chromium)` (failure)
+    - Steps en échec: `🔍 Run Full Regression Suite (chromium)`
+  - ❌ `full-regression (webkit)` (failure)
+    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
+  - ❌ `full-regression (firefox)` (failure)
+    - Steps en échec: `🔍 Run Full Regression Suite (firefox)`
+  - ❌ `full-regression (Mobile Safari)` (failure)
+    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
+  - ❌ `full-regression (Mobile Chrome)` (failure)
+    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Chrome)`
 
 #### Run #10 - 10/11/2025 09:03:48
 
@@ -448,30 +434,12 @@ Error: "errors": [],
   - ❌ `full-regression (chromium)` (failure)
     - Steps en échec: `🔍 Run Full Regression Suite (chromium)`
 
-#### Run #7 - 10/11/2025 04:11:25
-
-- **Commit:** `323b6a5`
-- **Auteur:** julienfritschheydon
-- **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19219370765)
-- **Jobs en échec:**
-  - ❌ `full-regression (webkit)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
-  - ❌ `full-regression (Mobile Safari)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
-  - ❌ `full-regression (chromium)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (chromium)`
-  - ❌ `full-regression (Mobile Chrome)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Chrome)`
-  - ❌ `full-regression (firefox)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (firefox)`
-
 ---
 
 ## 📈 Résumé Global
 
-- ❌ **Total échecs (24h):** 10
-- ❌ **Total échecs (7 jours):** 15
+- ❌ **Total échecs (24h):** 9
+- ❌ **Total échecs (7 jours):** 13
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
