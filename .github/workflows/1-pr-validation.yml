@@ -326,8 +326,27 @@ jobs:
       - name: 🔧 Install dependencies
         run: npm ci
 
-      - name: 🧭 Install Playwright Browsers
-        run: npx playwright install --with-deps
+      - name: 🧭 Install Playwright Browser (${{ matrix.project }})
+        run: |
+          # Installer uniquement le navigateur nécessaire pour ce job
+          case "${{ matrix.project }}" in
+            "chromium")
+              npx playwright install --with-deps chromium
+              ;;
+            "firefox")
+              npx playwright install --with-deps firefox
+              ;;
+            "webkit"|"Mobile Safari")
+              npx playwright install --with-deps webkit
+              ;;
+            "Mobile Chrome")
+              npx playwright install --with-deps chromium
+              ;;
+            *)
+              echo "⚠️ Projet inconnu, installation de tous les navigateurs"
+              npx playwright install --with-deps
+              ;;
+          esac
 
       - name: 🧪 Run Playwright E2E (${{ matrix.project }})
         run: |
