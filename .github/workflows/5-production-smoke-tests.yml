@@ -62,13 +62,8 @@ jobs:
 
       - name: 🧭 Install Playwright (Chromium only - suffisant pour smoke tests)
         run: |
-          if [ "${{ steps.cache-playwright.outputs.cache-hit }}" == "true" ]; then
-            echo "✅ Cache trouvé, installation rapide (sans deps)..."
-            npx playwright install chromium
-          else
-            echo "⚠️ Cache vide, installation avec dépendances système..."
-            npx playwright install --with-deps chromium
-          fi
+          echo "📦 Installation de chromium avec dépendances système..."
+          npx playwright install --with-deps chromium
 
       - name: ⏰ Attendre que le déploiement soit effectif
         run: |

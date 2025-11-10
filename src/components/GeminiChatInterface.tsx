@@ -405,6 +405,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         return;
       }
 
+      // Check conversation quota BEFORE creating a new conversation
+      if (!quota.canCreateConversation) {
+        quota.showAuthIncentive("conversation_limit");
+        return;
+      }
+
       // Prevent multiple simultaneous initialization attempts
       if (isInitializing) {
         // Initialization already in progress, waiting...
@@ -511,6 +517,10 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         }
 
         // Resume conversation from URL if available
+        // Check if we're trying to resume a conversation (don't check quota for resume)
+        const urlParams = new URLSearchParams(window.location.search);
+        const resumeId = urlParams.get("resume") || urlParams.get("conversationId");
+        const isResumingConversation = !!resumeId;
 
         try {
           const result = await ConversationService.resumeFromUrl(autoSave);
@@ -581,7 +591,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             }
           } else {
             // No conversation to resume, initializing new conversation
-            if (isMounted && !isInitializing) {
+            // Only initialize if we weren't trying to resume (avoid showing quota modal for failed resume)
+            if (isMounted && !isInitializing && !isResumingConversation) {
               await initializeNewConversation();
             }
           }
@@ -600,7 +611,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             operation: "resumeConversation",
           });
 
-          if (isMounted && !isInitializing) {
+          // Only initialize new conversation if we weren't trying to resume
+          // (avoid showing quota modal when resume fails)
+          if (isMounted && !isInitializing && !isResumingConversation) {
             await initializeNewConversation();
           }
         }
