@@ -5,6 +5,15 @@
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
 
+<!-- 
+🤖 INSTRUCTION POUR L'IA (Cascade):
+- Lire ce fichier AUTOMATIQUEMENT au début de chaque session
+- Analyser les échecs récents (24h et 7 jours)
+- Signaler PROACTIVEMENT les problèmes détectés
+- Proposer des corrections sans attendre qu'on te le demande
+- Vérifier ce fichier AVANT chaque commit/push
+-->
+
 ---
 
 ## 1️⃣ PR Complete Validation
