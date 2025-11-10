@@ -10,7 +10,7 @@ import {
   getAllPolls,
   savePolls,
   type Poll,
-} from "@/lib/pollStorage";
+} from "../pollStorage";
 
 const makePoll = (overrides: Partial<Poll> = {}): Poll => ({
   id: overrides.id ?? "local-1",
@@ -25,7 +25,7 @@ const makePoll = (overrides: Partial<Poll> = {}): Poll => ({
   settings: overrides.settings ?? {
     selectedDates: ["2025-08-26"],
   },
-  updated_at: overrides.updated_at,
+  updated_at: overrides.updated_at ?? new Date().toISOString(),
 });
 
 import { setupMockLocalStorage } from "../../__tests__/helpers/testHelpers";
@@ -68,7 +68,7 @@ describe("pollStorage", () => {
     expect(dup.slug).toMatch(/^event-copy-/);
     expect(dup.title).toBe(`${p.title} (Copie)`);
     // persisted
-    expect(all.find((pp) => pp.id === dup.id)).toBeTruthy();
+    expect(all.find((pp: Poll) => pp.id === dup.id)).toBeTruthy();
   });
 
   it("deletePollById() should remove the poll and persist", () => {
@@ -135,12 +135,12 @@ describe("pollStorage", () => {
     savePolls([datePoll, formPoll]);
 
     const onlyDate = getPolls();
-    expect(onlyDate.find((p) => p.id === "d1")).toBeTruthy();
-    expect(onlyDate.find((p) => p.id === "f1")).toBeFalsy();
+    expect(onlyDate.find((p: Poll) => p.id === "d1")).toBeTruthy();
+    expect(onlyDate.find((p: Poll) => p.id === "f1")).toBeFalsy();
 
     const all = getAllPolls();
-    expect(all.find((p) => p.id === "d1")).toBeTruthy();
-    expect(all.find((p) => p.id === "f1" && (p as any).type === "form")).toBeTruthy();
+    expect(all.find((p: Poll) => p.id === "d1")).toBeTruthy();
+    expect(all.find((p: Poll) => p.id === "f1" && (p as any).type === "form")).toBeTruthy();
   });
 
   it("migrateFormDraftsIntoUnified should merge doodates_form_polls into doodates_polls on read", () => {
@@ -162,7 +162,7 @@ describe("pollStorage", () => {
     const all = getAllPolls();
 
     // Should now contain the migrated form poll with type=form
-    const migrated = all.find((p) => p.id === "legacy-1");
+    const migrated = all.find((p: Poll) => p.id === "legacy-1");
     expect(migrated).toBeTruthy();
     expect((migrated as any).type).toBe("form");
 
@@ -170,7 +170,7 @@ describe("pollStorage", () => {
     expect(window.localStorage.getItem("doodates_form_polls")).toBeNull();
   });
 
-  it("addPoll() should validate form polls: title is required", () => {
+  it("addPoll() should validate form polls: title is required", async () => {
     // Valid form poll
     const okForm = {
       id: "f-ok",
@@ -184,13 +184,13 @@ describe("pollStorage", () => {
       dates: [],
       questions: [],
     } as unknown as Poll;
-    expect(() => addPoll(okForm)).not.toThrow();
+    await expect(addPoll(okForm)).resolves.not.toThrow();
 
     // Invalid form poll (empty title)
     const badForm = {
-      id: "f-bad",
-      title: " ",
-      slug: "f-bad",
+      id: "poll-bad",
+      slug: "bad-form",
+      title: "", // Empty title should fail
       created_at: new Date().toISOString(),
       status: "draft",
       updated_at: new Date().toISOString(),
@@ -199,6 +199,6 @@ describe("pollStorage", () => {
       dates: [],
       questions: [],
     } as unknown as Poll;
-    expect(() => addPoll(badForm)).toThrow();
+    await expect(addPoll(badForm)).rejects.toThrow("Invalid form poll: title must be a non-empty string");
   });
 });

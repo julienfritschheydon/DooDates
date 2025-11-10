@@ -801,4 +801,3 @@ export function usePolls() {
     deletePoll,
   };
 }
-

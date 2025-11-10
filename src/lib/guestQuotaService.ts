@@ -66,22 +66,21 @@ function isE2EEnvironment(): boolean {
   // Vérifier les flags E2E
   try {
     const hasE2EFlag = (window as any).__E2E__ === true;
-    const hasE2ELocalStorage = localStorage.getItem('e2e') === '1';
-    const hasDevLocalMode = localStorage.getItem('dev-local-mode') === '1';
-    
-    console.log('🔍 isE2EEnvironment check:', {
+    const hasE2ELocalStorage = localStorage.getItem("e2e") === "1";
+    const hasDevLocalMode = localStorage.getItem("dev-local-mode") === "1";
+
+    console.log("🔍 isE2EEnvironment check:", {
       hasE2EFlag,
       hasE2ELocalStorage,
       hasDevLocalMode,
-      result: hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode
+      result: hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode,
     });
-    
+
     if (hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode) return true;
   } catch (e) {
-    logError(
-      ErrorFactory.storage('Error checking E2E flags', 'Failed to check E2E environment'),
-      { component: 'guestQuotaService' }
-    );
+    logError(ErrorFactory.storage("Error checking E2E flags", "Failed to check E2E environment"), {
+      component: "guestQuotaService",
+    });
   }
 
   // Vérifier si Supabase URL est mockée (pointe vers localhost)
@@ -119,7 +118,9 @@ export async function getOrCreateGuestQuota(): Promise<GuestQuotaData | null> {
       .eq("fingerprint", fingerprint);
 
     if (fetchError) {
-      logger.debug("Failed to fetch guest quota (non-critical)", "quota", { error: fetchError.message });
+      logger.debug("Failed to fetch guest quota (non-critical)", "quota", {
+        error: fetchError.message,
+      });
       return null;
     }
 

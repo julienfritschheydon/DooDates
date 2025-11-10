@@ -289,6 +289,7 @@ export class GeminiService {
       "satisfaction",
       "feedback",
       "avis",
+      "sondage",
       "sondage d'opinion",
     ];
 
@@ -403,24 +404,25 @@ export class GeminiService {
           if (parsedDates.length > 0) {
             const targetDate = formatDateLocal(parsedDates[0].start.date());
             const targetDateObj = parsedDates[0].start.date();
-            
+
             // Détecter si c'est un contexte professionnel (réunion, travail, équipe, etc.)
-            const isProfessionalContext = /réunion|travail|équipe|meeting|bureau|projet|client|présentation/i.test(userInput);
-            
+            const isProfessionalContext =
+              /réunion|travail|équipe|meeting|bureau|projet|client|présentation/i.test(userInput);
+
             // Détecter si c'est une expression de "semaine" (semaine prochaine, dans X semaines)
             const isWeekExpression = /semaine/i.test(parsedDates[0].text);
-            
+
             // Calculer la fenêtre de dates
             const dateWindow: string[] = [];
-            
+
             if (isProfessionalContext && isWeekExpression) {
               // Pour "semaine prochaine" en contexte pro : du lundi au vendredi de cette semaine
               const dayOfWeek = targetDateObj.getDay();
               const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si dimanche (0), reculer de 6 jours
-              
+
               const monday = new Date(targetDateObj);
               monday.setDate(targetDateObj.getDate() + daysToMonday);
-              
+
               // Ajouter lundi à vendredi
               for (let i = 0; i < 5; i++) {
                 const workDay = new Date(monday);
@@ -432,17 +434,17 @@ export class GeminiService {
               for (let offset = -3; offset <= 3; offset++) {
                 const windowDate = new Date(targetDateObj);
                 windowDate.setDate(targetDateObj.getDate() + offset);
-                
+
                 // Si contexte professionnel, exclure samedi (6) et dimanche (0)
                 const dayOfWeek = windowDate.getDay();
                 if (isProfessionalContext && (dayOfWeek === 0 || dayOfWeek === 6)) {
                   continue; // Skip week-end
                 }
-                
+
                 dateWindow.push(formatDateLocal(windowDate));
               }
             }
-            
+
             dateHints = `
 
 ⚠️⚠️⚠️ INSTRUCTION PRIORITAIRE - DATES CALCULÉES PAR LE SYSTÈME ⚠️⚠️⚠️
@@ -484,7 +486,11 @@ INTERDICTIONS STRICTES:
             }
           }
         } catch (error) {
-          logger.warn("Erreur lors du pré-parsing avec Chrono-node, continuation normale", "api", error);
+          logger.warn(
+            "Erreur lors du pré-parsing avec Chrono-node, continuation normale",
+            "api",
+            error,
+          );
         }
       }
 

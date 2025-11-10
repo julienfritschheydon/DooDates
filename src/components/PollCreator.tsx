@@ -133,13 +133,13 @@ const PollCreator: React.FC<PollCreatorProps> = ({
             : undefined,
         },
       });
-      
-      logger.debug("createPoll result", "poll", { 
-        hasPoll: !!result.poll, 
+
+      logger.debug("createPoll result", "poll", {
+        hasPoll: !!result.poll,
         hasError: !!result.error,
-        error: result.error 
+        error: result.error,
       });
-      
+
       if (result.error) {
         logger.error("Poll creation failed", "poll", { error: result.error });
         toast({
@@ -149,7 +149,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         });
         return;
       }
-      
+
       if (result.poll) {
         setCreatedPollSlug(result.poll.slug);
         setCreatedPoll(result.poll);
@@ -157,7 +157,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         // Lier bidirectionnellement le sondage à la conversation (Session 1 - Architecture centrée conversations)
         const urlParams = new URLSearchParams(window.location.search);
         const conversationId = urlParams.get("conversationId");
-        
+
         if (conversationId) {
           // Poll créé via IA → Lier à la conversation existante
           linkPollToConversationBidirectional(conversationId, result.poll.id, "date");

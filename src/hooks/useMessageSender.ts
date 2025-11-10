@@ -265,7 +265,9 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       console.log(`[${timestamp}] [${requestId}] ✅ Message utilisateur sauvegardé`);
 
       // VÉRIFIER ET CONSOMMER QUOTA AVANT d'appeler Gemini
-      console.log(`[${timestamp}] [${requestId}] 🔒 Vérification quota message IA AVANT appel Gemini...`);
+      console.log(
+        `[${timestamp}] [${requestId}] 🔒 Vérification quota message IA AVANT appel Gemini...`,
+      );
       try {
         const { consumeAiMessageCredits } = await import("../lib/quotaTracking");
         const conversationId = autoSave.getRealConversationId() || autoSave.conversationId;
@@ -276,23 +278,25 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       } catch (error: any) {
         console.log(`[${timestamp}] [${requestId}] ❌ Limite de messages IA atteinte`);
         setIsLoading(false);
-        
+
         // Afficher un toast d'erreur
         toast({
           title: "Limite atteinte",
-          description: "Vous avez atteint la limite de messages IA pour les utilisateurs invités. Connectez-vous pour continuer.",
+          description:
+            "Vous avez atteint la limite de messages IA pour les utilisateurs invités. Connectez-vous pour continuer.",
           variant: "destructive",
         });
-        
+
         // Ajouter un message d'erreur dans le chat
         const errorMessage: Message = {
           id: `error-${Date.now()}`,
-          content: "⚠️ Limite de messages IA atteinte. Veuillez vous connecter pour continuer à utiliser l'assistant IA.",
+          content:
+            "⚠️ Limite de messages IA atteinte. Veuillez vous connecter pour continuer à utiliser l'assistant IA.",
           isAI: true,
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, errorMessage]);
-        
+
         return; // Arrêter l'exécution
       }
 

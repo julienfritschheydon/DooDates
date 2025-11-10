@@ -133,7 +133,8 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             result = await createSupabaseConversation(
               {
                 title:
-                  firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
+                  firstMessage.content.slice(0, 50) +
+                  (firstMessage.content.length > 50 ? "..." : ""),
                 status: "active",
                 firstMessage: firstMessage.content,
                 messageCount: 0,
@@ -166,8 +167,12 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
               supabaseError,
             );
             // Fallback to localStorage
-            console.log(`[${timestamp}] [${requestId}] 🆕 Vérification quota AVANT création (fallback)...`);
-            const { incrementConversationCreated: incrementFallback } = await import("../lib/quotaTracking");
+            console.log(
+              `[${timestamp}] [${requestId}] 🆕 Vérification quota AVANT création (fallback)...`,
+            );
+            const { incrementConversationCreated: incrementFallback } = await import(
+              "../lib/quotaTracking"
+            );
             await incrementFallback(user.id);
             console.log(`[${timestamp}] [${requestId}] 🆕 Quota vérifié (fallback)`);
 
@@ -190,7 +195,9 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
           }
 
           // VÉRIFIER ET CONSOMMER QUOTA AVANT de créer la conversation
-          console.log(`[${timestamp}] [${requestId}] 🆕 Vérification quota guest AVANT création...`);
+          console.log(
+            `[${timestamp}] [${requestId}] 🆕 Vérification quota guest AVANT création...`,
+          );
           const { incrementConversationCreated } = await import("../lib/quotaTracking");
           await incrementConversationCreated("guest");
           console.log(`[${timestamp}] [${requestId}] 🆕 Quota guest vérifié et incrémenté`);
