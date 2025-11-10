@@ -65,6 +65,13 @@ else
     exit 1
   fi
   
+  # 2b. Vérification testabilité (data-testid, tests pour nouveau code)
+  echo "🧪 Vérification testabilité..."
+  node scripts/verify-testability.cjs
+  if [ $? -ne 0 ]; then
+    echo "⚠️ Problèmes de testabilité détectés (non bloquant pour le moment)"
+  fi
+  
   # 3. Tests E2E Chrome (smoke)
   echo "🌐 Tests E2E Chrome (smoke)..."
   npm run test:e2e:smoke

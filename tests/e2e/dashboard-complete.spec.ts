@@ -380,7 +380,10 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     }
   });
 
-  test('@functional - Basculer entre vue grille et vue tableau', async ({ page }) => {
+  test('@functional - Basculer entre vue grille et vue tableau', async ({ page, isMobile }) => {
+    // Skip sur mobile - la vue table n'est pas disponible
+    test.skip(isMobile, 'Table view not available on mobile devices');
+
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /GoogleGenerativeAI/i,
@@ -396,12 +399,12 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
 
-      // Vérifier que la vue grille est active par défaut
-      const gridButton = page.locator('button[title="Vue grille"]');
+      // Vérifier que la vue grille est active par défaut (utiliser data-testid)
+      const gridButton = page.locator('[data-testid="view-toggle-grid"]');
       await expect(gridButton).toHaveClass(/bg-blue-500/);
 
-      // Basculer vers la vue tableau
-      const tableButton = page.locator('button[title="Vue table"]');
+      // Basculer vers la vue tableau (utiliser data-testid)
+      const tableButton = page.locator('[data-testid="view-toggle-table"]');
       await tableButton.click();
 
       await page.waitForTimeout(500);
