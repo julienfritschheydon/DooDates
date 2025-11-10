@@ -326,27 +326,42 @@ jobs:
       - name: 🔧 Install dependencies
         run: npm ci
 
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ matrix.project }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-${{ matrix.project }}-
+            ${{ runner.os }}-playwright-
+
       - name: 🧭 Install Playwright Browser (${{ matrix.project }})
         run: |
-          # Installer uniquement le navigateur nécessaire pour ce job
+          # Déterminer le navigateur à installer
           case "${{ matrix.project }}" in
-            "chromium")
-              npx playwright install --with-deps chromium
+            "chromium"|"Mobile Chrome")
+              BROWSER="chromium"
               ;;
             "firefox")
-              npx playwright install --with-deps firefox
+              BROWSER="firefox"
               ;;
             "webkit"|"Mobile Safari")
-              npx playwright install --with-deps webkit
-              ;;
-            "Mobile Chrome")
-              npx playwright install --with-deps chromium
+              BROWSER="webkit"
               ;;
             *)
-              echo "⚠️ Projet inconnu, installation de tous les navigateurs"
-              npx playwright install --with-deps
+              BROWSER="chromium firefox webkit"
               ;;
           esac
+          
+          # Installation conditionnelle selon le cache
+          if [ "${{ steps.cache-playwright.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Cache trouvé, installation rapide (sans deps)..."
+            npx playwright install $BROWSER
+          else
+            echo "⚠️ Cache vide, installation avec dépendances système..."
+            npx playwright install --with-deps $BROWSER
+          fi
 
       - name: 🧪 Run Playwright E2E (${{ matrix.project }})
         run: |
