@@ -68,7 +68,7 @@ jobs:
       - name: 🧪 Run Integration Tests
         run: |
           echo "🚀 Exécution des tests d'intégration réels..."
-          npx playwright test integration/real-supabase.spec.ts \
+          npx playwright test tests/integration/real-supabase-simplified.test.ts \
             --project=chromium \
             --reporter=list \
             --max-failures=5

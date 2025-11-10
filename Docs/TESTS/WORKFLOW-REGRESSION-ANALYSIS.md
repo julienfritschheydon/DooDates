@@ -145,10 +145,10 @@ test('Mon test instable', async ({ page, browserName }) => {
 
 ```
 Error: No tests found.
-playwright test tests/integration/real-supabase.spec.ts
+playwright test integration/real-supabase.spec.ts
 ```
 
-**Cause Root**: Path relatif incorrect
+**Cause Root**: Path incomplet
 
 #### **Configuration Playwright**:
 ```typescript
@@ -161,10 +161,13 @@ export default defineConfig({
 
 Quand on exécute:
 ```bash
-playwright test tests/integration/real-supabase.spec.ts
+playwright test integration/real-supabase.spec.ts
 ```
 
-Playwright cherche: `./tests/tests/integration/...` ❌ (double "tests/")
+Playwright cherche: `./integration/real-supabase.spec.ts` ❌ (depuis la racine du projet)  
+Mais le fichier est dans: `./tests/integration/real-supabase.spec.ts` ✅
+
+**Note**: Les chemins dans la CLI Playwright sont relatifs à la racine du projet, pas à `testDir`
 
 ---
 
@@ -173,20 +176,20 @@ Playwright cherche: `./tests/tests/integration/...` ❌ (double "tests/")
 #### **1. package.json** (ligne 41-43):
 
 ```json
-"test:integration": "playwright test integration/real-supabase.spec.ts --project=chromium",
-"test:integration:ui": "playwright test integration/real-supabase.spec.ts --project=chromium --ui",
-"test:integration:debug": "playwright test integration/real-supabase.spec.ts --project=chromium --debug",
+"test:integration": "playwright test tests/integration/real-supabase.spec.ts --project=chromium",
+"test:integration:ui": "playwright test tests/integration/real-supabase.spec.ts --project=chromium --ui",
+"test:integration:debug": "playwright test tests/integration/real-supabase.spec.ts --project=chromium --debug",
 ```
 
-**Avant**: `tests/integration/...` ❌  
-**Après**: `integration/...` ✅ (relatif à testDir)
+**Avant**: `integration/...` ❌  
+**Après**: `tests/integration/...` ✅ (chemin complet depuis la racine du projet)
 
 #### **2. Workflow `6-integration-tests.yml`** (ligne 71):
 
 ```yaml
 - name: 🧪 Run Integration Tests
   run: |
-    npx playwright test integration/real-supabase.spec.ts \
+    npx playwright test tests/integration/real-supabase.spec.ts \
       --project=chromium \
       --reporter=list \
       --max-failures=5
