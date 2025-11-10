@@ -61,8 +61,8 @@ export class DirectGeminiService {
 
       const textToSend = prompt || userInput;
 
-      // Utiliser le même modèle que dans enhanced-gemini.ts
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${this.apiKey}`;
+      // Utiliser le modèle stable Gemini 1.5 Flash
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
 
       const requestBody = {
         contents: [
@@ -92,10 +92,13 @@ export class DirectGeminiService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData?.error?.message || JSON.stringify(errorData);
+        
         logger.error("Erreur HTTP Gemini", "api", {
           status: response.status,
           statusText: response.statusText,
           error: errorData,
+          errorMessage: errorMessage
         });
 
         if (response.status === 429) {
@@ -117,7 +120,7 @@ export class DirectGeminiService {
         return {
           success: false,
           error: "API_ERROR",
-          message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+          message: `Erreur HTTP ${response.status}: ${response.statusText} - ${errorMessage}`,
         };
       }
 
