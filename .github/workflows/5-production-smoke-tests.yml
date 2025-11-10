@@ -50,8 +50,25 @@ jobs:
       - name: 🔧 Install dependencies
         run: npm ci
 
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-chromium-
+            ${{ runner.os }}-playwright-
+
       - name: 🧭 Install Playwright (Chromium only - suffisant pour smoke tests)
-        run: npx playwright install --with-deps chromium
+        run: |
+          if [ "${{ steps.cache-playwright.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Cache trouvé, installation rapide (sans deps)..."
+            npx playwright install chromium
+          else
+            echo "⚠️ Cache vide, installation avec dépendances système..."
+            npx playwright install --with-deps chromium
+          fi
 
       - name: ⏰ Attendre que le déploiement soit effectif
         run: |
