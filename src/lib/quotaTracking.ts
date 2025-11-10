@@ -293,7 +293,7 @@ async function consumeCredits(
         // BLOQUER l'action si la limite est atteinte
         throw ErrorFactory.validation(
           result.error || "Credit limit reached",
-          "Limite de crédits atteinte"
+          "Limite de crédits atteinte",
         );
       }
       return;
@@ -374,25 +374,21 @@ export async function incrementConversationCreated(
 
 /**
  * Incrémenter le compteur de polls créés
+ * BLOQUANT : Throw une erreur si la limite est atteinte
  */
-export function incrementPollCreated(userId: string | null | undefined, pollId?: string): void {
-  // Fire and forget - ne pas bloquer l'exécution
-  consumeCredits(userId, 1, "poll_created", { pollId }).catch((error) => {
-    logger.error("Erreur lors de l'incrémentation poll", error);
-  });
+export async function incrementPollCreated(userId: string | null | undefined, pollId?: string): Promise<void> {
+  await consumeCredits(userId, 1, "poll_created", { pollId });
 }
 
 /**
  * Consommer des crédits pour un message IA
+ * BLOQUANT : Throw une erreur si la limite est atteinte
  */
-export function consumeAiMessageCredits(
+export async function consumeAiMessageCredits(
   userId: string | null | undefined,
   conversationId?: string,
-): void {
-  // Fire and forget - ne pas bloquer l'exécution
-  consumeCredits(userId, 1, "ai_message", { conversationId }).catch((error) => {
-    logger.error("Erreur lors de la consommation message IA", error);
-  });
+): Promise<void> {
+  await consumeCredits(userId, 1, "ai_message", { conversationId });
 }
 
 /**

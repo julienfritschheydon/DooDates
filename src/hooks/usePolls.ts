@@ -183,7 +183,7 @@ export function usePolls() {
           } as StoragePoll;
 
           // Use centralized pollStorage instead of direct localStorage access
-          addPoll(mockPoll);
+          await addPoll(mockPoll);
 
           // Émettre un événement pour notifier les composants de la création
           window.dispatchEvent(
@@ -801,3 +801,4 @@ export function usePolls() {
     deletePoll,
   };
 }
+
