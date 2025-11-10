@@ -294,8 +294,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
         conversationId: poll.conversationId,
       });
 
-      // 🔧 FIX: Sauvegarder le pollId dans les métadonnées de la conversation
-      // pour pouvoir le retrouver après refresh ou dans les tests E2E
+      // 🔧 FIX: Sauvegarder le pollId dans la conversation pour affichage dashboard
       const conversationId = new URLSearchParams(window.location.search).get("conversationId");
       if (conversationId) {
         try {
@@ -306,10 +305,16 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
           if (conversation) {
             updateConversation({
               ...conversation,
-              relatedPollId: poll.id,
+              pollId: poll.id, // ✅ Utiliser 'pollId' (pas 'relatedPollId')
+              pollType: poll.type as "date" | "form",
+              pollStatus: poll.status,
               updatedAt: new Date(),
             });
-            logger.info("PollId sauvegardé dans conversation", "poll", { pollId: poll.id });
+            logger.info("✅ Poll lié à la conversation", "poll", {
+              conversationId,
+              pollId: poll.id,
+              pollType: poll.type,
+            });
           }
         } catch (error) {
           logError(

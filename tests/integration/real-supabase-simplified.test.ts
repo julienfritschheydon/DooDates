@@ -19,6 +19,10 @@ const BASE_URL = process.env.BASE_URL || 'https://julienfritschheydon.github.io/
 const TEST_EMAIL = 'test-integration@doodates.com';
 const TEST_PASSWORD = process.env.INTEGRATION_TEST_PASSWORD || 'TestPassword123!';
 
+// ⚠️ IMPORTANT: Ces tests nécessitent un compte Supabase réel
+// En CI, ils sont automatiquement skippés si INTEGRATION_TEST_PASSWORD n'est pas configuré
+const hasTestPassword = !!process.env.INTEGRATION_TEST_PASSWORD;
+
 // Forcer l'exécution séquentielle (pas de parallélisme) pour éviter les conflits de données
 test.describe.configure({ mode: 'serial' });
 
@@ -29,14 +33,17 @@ let testConversationIds: string[] = [];
 // Vérifier si les credentials Supabase sont configurées
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
-const hasSupabaseCredentials = supabaseUrl && supabaseAnonKey && 
+const hasSupabaseCredentials = supabaseUrl && supabaseAnonKey && hasTestPassword &&
   !supabaseUrl.includes('localhost') && supabaseAnonKey !== 'test-anon-key';
 
 // Configuration Supabase (vrai client, pas de mock)
 test.beforeAll(async () => {
   if (!hasSupabaseCredentials) {
     console.warn('⚠️ Variables Supabase manquantes ou factices - Tests d\'intégration skippés en CI');
-    console.warn('   Pour exécuter ces tests localement, configurez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY dans .env.local');
+    console.warn('   Pour exécuter ces tests localement, configurez :');
+    console.warn('   - VITE_SUPABASE_URL dans .env.local');
+    console.warn('   - VITE_SUPABASE_ANON_KEY dans .env.local');
+    console.warn('   - INTEGRATION_TEST_PASSWORD dans .env.local');
     return;
   }
 
