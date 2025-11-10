@@ -36,7 +36,7 @@ export function useDashboardData(refreshKey: number) {
       let allConversations: Conversation[] = [];
 
       if (user?.id) {
-        // Utilisateur connecté : charger depuis Supabase et merger avec localStorage
+        // Utilisateur connecté : Supabase est la SEULE source de vérité
         try {
           const { getConversations: getSupabaseConversations } = await import(
             "@/lib/storage/ConversationStorageSupabase"
@@ -47,51 +47,15 @@ export function useDashboardData(refreshKey: number) {
             userId: user.id,
           });
 
-          // Charger aussi localStorage pour merge
-          const localConversations = getLocalConversations();
-          logger.info("📦 Dashboard - Conversations depuis localStorage", "dashboard", {
-            count: localConversations.length,
-          });
+          // Utiliser UNIQUEMENT les données de Supabase (pas de merge)
+          allConversations = supabaseConversations;
 
-          // Merge: Supabase est la source de vérité, mais garder localStorage si plus récent
-          const mergedMap = new Map<string, Conversation>();
+          // Mettre à jour le localStorage pour cache (écrase l'ancien cache)
+          const { saveConversations } = await import("@/lib/storage/ConversationStorageSimple");
+          saveConversations(supabaseConversations);
 
-          // Ajouter d'abord les conversations Supabase
-          supabaseConversations.forEach((conv) => {
-            mergedMap.set(conv.id, conv);
-          });
-
-          // Ajouter les conversations locales si plus récentes ou absentes de Supabase
-          localConversations.forEach((localConv) => {
-            if (localConv.userId === user.id) {
-              const existing = mergedMap.get(localConv.id);
-              if (!existing) {
-                // Pas dans Supabase, l'ajouter (sera re-synchronisé plus tard)
-                mergedMap.set(localConv.id, localConv);
-              } else {
-                // Comparer les timestamps, garder le plus récent
-                const localDate = new Date(localConv.updatedAt).getTime();
-                const supabaseDate = new Date(existing.updatedAt).getTime();
-                if (localDate > supabaseDate) {
-                  mergedMap.set(localConv.id, localConv);
-                }
-              }
-            }
-          });
-
-          allConversations = Array.from(mergedMap.values());
-
-          // Sauvegarder le merge dans localStorage pour cache
-          const conversationsToCache = allConversations.filter((c) => c.userId === user.id);
-          if (conversationsToCache.length > 0) {
-            const { saveConversations } = await import("@/lib/storage/ConversationStorageSimple");
-            saveConversations(conversationsToCache);
-          }
-
-          logger.info("🔄 Dashboard - Conversations après merge", "dashboard", {
+          logger.info("✅ Dashboard - Conversations synchronisées depuis Supabase", "dashboard", {
             count: allConversations.length,
-            supabaseOnly: supabaseConversations.length,
-            localOnly: localConversations.length,
           });
         } catch (supabaseError) {
           logger.error(

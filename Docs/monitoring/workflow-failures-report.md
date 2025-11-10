@@ -1,6 +1,6 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 07/11/2025 17:08:01
+**Dernière mise à jour:** 07/11/2025 23:31:19
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -26,33 +26,42 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ❌ failure
 
-**Dernier run:** 07/11/2025 17:02:57
+**Dernier run:** 07/11/2025 23:26:53
 
 **Statistiques:**
-- ❌ Échecs (24h): **11**
-- ❌ Échecs (7 jours): **11**
+- ❌ Échecs (24h): **12**
+- ❌ Échecs (7 jours): **12**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
 
-#### Run #87 - 07/11/2025 17:02:57
+#### Run #93 - 07/11/2025 23:26:53
 
-- **Commit:** `f0a18ea`
+- **Commit:** `9e98677`
 - **Auteur:** julienfritschheydon
 - **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19173881984)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19182918594)
 - **Jobs en échec:**
   - ❌ `tests-unit` (failure)
-    - Steps en échec: `🧪 Tests unitaires`
+    - Steps en échec: `🔗 Tests d'intégration`
     - **Erreurs détectées (10):**
       ```
-File: src/hooks/__tests__/useConversations.favorites.test.ts:74
+File: src/components/polls/PollAnalyticsPanel.tsx:24
 Error: stdout | src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts > titleGeneration + useAutoSave Integration > Error Handling Integration > should handle title generation errors gracefully
 
 stdout | src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts > titleGeneration + useAutoSave Integration > Error Handling Integration > should handle title generation errors gracefully
+at PollAnalyticsPanel (/home/runner/work/DooDates/DooDates/src/components/polls/PollAnalyticsPanel.tsx:24:31)
 ❌ ℹ️ Erreur lors du chargement depuis Supabase, utilisation de localStorage Error: Storage error
-at /home/runner/work/DooDates/DooDates/src/hooks/__tests__/useConversations.favorites.test.ts:74:72
-[] [0773ddc1-8e0a-4e15-b267-6c7b0b798983] ✅ createConversation TERMINÉ { conversationId: 'conv-123', title: 'This should cause an error' }
+❌ ℹ️ Erreur lors du chargement depuis Supabase, utilisation de localStorage Error: Storage error
+```
+      ```
+File: src/lib/error-handling.ts:150
+Error: 🚨 DooDates Error: {
+
+🚨 DooDates Error: {
+name: 'DooDatesError',
+stack: 'DooDatesError: Gemini model not initialized\n' +
+'    at Object.api (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:150:8)\n' +
 ```
       ```
 File: src/lib/error-handling.ts:136
@@ -83,16 +92,41 @@ name: 'DooDatesError',
 stack: 'DooDatesError: API Error\n' +
 '    at handleError (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:103:22)\n' +
 ```
-      ```
-File: src/lib/error-handling.ts:150
-Error: 🚨 DooDates Error: {
-
-🚨 DooDates Error: {
-name: 'DooDatesError',
-stack: 'DooDatesError: Gemini model not initialized\n' +
-'    at Object.api (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:150:8)\n' +
-```
       *... et 5 autre(s) erreur(s)*
+
+#### Run #92 - 07/11/2025 23:19:46
+
+- **Commit:** `a1f63de`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19182773429)
+- **Jobs en échec:**
+  - ❌ `tests-unit` (failure)
+    - Steps en échec: `🔗 Tests d'intégration`
+  - ❌ `tests-e2e` (failure)
+    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
+
+#### Run #91 - 07/11/2025 23:12:53
+
+- **Commit:** `70ed4b7`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19182625773)
+- **Jobs en échec:**
+  - ❌ `tests-unit` (failure)
+    - Steps en échec: `🔗 Tests d'intégration`
+  - ❌ `tests-e2e` (failure)
+    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
+
+#### Run #87 - 07/11/2025 17:02:57
+
+- **Commit:** `f0a18ea`
+- **Auteur:** julienfritschheydon
+- **Branche:** `develop`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19173881984)
+- **Jobs en échec:**
+  - ❌ `tests-unit` (failure)
+    - Steps en échec: `🧪 Tests unitaires`
 
 #### Run #86 - 07/11/2025 16:58:28
 
@@ -108,54 +142,22 @@ stack: 'DooDatesError: Gemini model not initialized\n' +
   - ❌ `build-validation` (failure)
     - Steps en échec: `🏗️ Build production`
 
-#### Run #85 - 07/11/2025 16:49:07
-
-- **Commit:** `12586af`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19173531042)
-- **Jobs en échec:**
-  - ❌ `tests-e2e` (failure)
-    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
-  - ❌ `build-validation` (failure)
-    - Steps en échec: `🏗️ Build production`
-
-#### Run #79 - 07/11/2025 13:42:18
-
-- **Commit:** `a89b0a1`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19168691785)
-- **Jobs en échec:**
-  - ❌ `production-smoke-pre-merge` (failure)
-    - Steps en échec: `🔥 Run production smoke tests`
-
-#### Run #78 - 07/11/2025 13:21:25
-
-- **Commit:** `56e7c8b`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19168202224)
-- **Jobs en échec:**
-  - ❌ `production-smoke-pre-merge` (failure)
-    - Steps en échec: `🔥 Run production smoke tests`
-
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
 **Statut:** ✅ success
 
-**Dernier run:** 07/11/2025 16:06:57
+**Dernier run:** 07/11/2025 18:24:36
 
 **Statistiques:**
 - ❌ Échecs (24h): **0**
-- ❌ Échecs (7 jours): **6**
+- ❌ Échecs (7 jours): **3**
 - 📊 Total runs analysés: **20**
 
 ### ⚠️ Échecs récents (7 jours)
 
-Aucun échec dans les 24 dernières heures, mais **6** échec(s) cette semaine.
+Aucun échec dans les 24 dernières heures, mais **3** échec(s) cette semaine.
 
 ---
 
@@ -366,8 +368,8 @@ Error: "errors": [],
 
 ## 📈 Résumé Global
 
-- ❌ **Total échecs (24h):** 6
-- ❌ **Total échecs (7 jours):** 9
+- ❌ **Total échecs (24h):** 7
+- ❌ **Total échecs (7 jours):** 10
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations

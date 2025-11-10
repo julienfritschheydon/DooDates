@@ -76,12 +76,12 @@ export function logError(error: Error | DooDatesError, context: ErrorContext = {
   };
 
   // Always log to console in development
-  if (import.meta.env.DEV) {
+  if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
     console.error("🚨 DooDates Error:", errorInfo);
   }
 
   // In production, send to monitoring service
-  if (import.meta.env.PROD) {
+  if (typeof import.meta !== "undefined" && import.meta.env?.PROD) {
     // TODO: Send to external monitoring service (Sentry, LogRocket, etc.)
     console.error("Error logged:", errorInfo);
   }

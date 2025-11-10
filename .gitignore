@@ -172,7 +172,7 @@ DooDates/
 templates/
 
 # Test and integration directories
-tests/integration/
+# tests/integration/  # Re-enabled: Integration tests must be tracked for CI
 src/test/integration/
 src/components/modals/__tests__/
 src/components/voting/__tests__/

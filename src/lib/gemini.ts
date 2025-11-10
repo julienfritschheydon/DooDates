@@ -4,10 +4,11 @@ import { logger } from "./logger";
 import { formatDateLocal, getTodayLocal } from "./date-utils";
 import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
+import { getEnv, isDev } from "./env";
 
 // Choisir entre appel direct Gemini ou Edge Function
 // Pour forcer appel direct, définir VITE_USE_DIRECT_GEMINI=true dans .env.local
-const USE_DIRECT_GEMINI = import.meta.env.VITE_USE_DIRECT_GEMINI === "true";
+const USE_DIRECT_GEMINI = getEnv("VITE_USE_DIRECT_GEMINI") === "true";
 const geminiBackend = USE_DIRECT_GEMINI ? directGeminiService : secureGeminiService;
 
 if (USE_DIRECT_GEMINI) {
@@ -106,7 +107,7 @@ export class GeminiService {
 
     const isMarkdown = hasTitle && hasSections && hasQuestions && text.length > 200;
 
-    if (import.meta.env.DEV) {
+    if (isDev()) {
       logger.info(
         `Markdown detection: title=${hasTitle}, sections=${hasSections}, questions=${hasQuestions}, checkboxes=${hasCheckboxes}, length=${text.length}, result=${isMarkdown}`,
         "api",
@@ -323,7 +324,7 @@ export class GeminiService {
 
     const totalFormScore = strongFormScore + formScore;
 
-    if (import.meta.env.DEV) {
+    if (isDev()) {
       logger.info(
         `Poll type detection: strongFormScore=${strongFormScore}, formScore=${formScore}, totalFormScore=${totalFormScore}, dateScore=${dateScore}`,
         "api",
@@ -367,7 +368,7 @@ export class GeminiService {
         if (parsedPrompt) {
           processedInput = parsedPrompt;
           pollType = "form"; // Les questionnaires markdown sont toujours des Form Polls
-          if (import.meta.env.DEV) {
+          if (isDev()) {
             logger.info("Markdown questionnaire détecté et parsé avec succès", "api");
           }
         } else {
@@ -379,7 +380,7 @@ export class GeminiService {
         pollType = this.detectPollType(userInput);
       }
 
-      if (import.meta.env.DEV) {
+      if (isDev()) {
         logger.info(
           `Generating ${pollType === "form" ? "Form Poll" : "Date Poll"} from user input`,
           "api",
@@ -395,7 +396,7 @@ export class GeminiService {
           ? this.buildFormPollPromptCopy(processedInput)
           : this.buildFormPollPromptGenerate(processedInput);
 
-        if (import.meta.env.DEV) {
+        if (isDev()) {
           logger.info(
             `Form Poll mode: ${isStructured ? "COPY (markdown parsé)" : "GENERATE (demande simple)"}`,
             "api",
@@ -454,7 +455,7 @@ export class GeminiService {
 
       const text = secureResponse.data || "";
 
-      if (import.meta.env.DEV) {
+      if (isDev()) {
         logger.info("Raw Gemini response received", "api");
       }
 
@@ -468,7 +469,7 @@ export class GeminiService {
             ? "Questionnaire généré avec succès !"
             : "Sondage généré avec succès !";
 
-        if (import.meta.env.DEV) {
+        if (isDev()) {
           logger.info(
             `${pollType === "form" ? "Form Poll" : "Date Poll"} successfully generated`,
             "api",
@@ -1393,7 +1394,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
             return null;
           }
 
-          if (import.meta.env.DEV) {
+          if (isDev()) {
             logger.info(`Form Poll parsed: ${validQuestions.length} valid questions`, "api");
           }
 

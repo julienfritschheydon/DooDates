@@ -1,16 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
 import { handleError, ErrorFactory, logError } from "./error-handling";
+import { getEnv, getMode } from "./env";
 
 // Configuration Supabase pour bêta
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = getEnv("VITE_SUPABASE_URL");
+const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
 // Debug: Log des variables d'environnement (toujours pour diagnostic production)
 console.log("🔧 DooDates Supabase Config:", {
   url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : "❌ MISSING",
   key: supabaseAnonKey ? "✅ Configured" : "❌ MISSING",
   isLocalDev: !supabaseUrl || !supabaseAnonKey,
-  mode: import.meta.env.MODE,
+  mode: getMode(),
 });
 
 // Déterminer si on est en mode développement local
