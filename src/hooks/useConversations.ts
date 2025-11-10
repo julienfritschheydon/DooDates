@@ -401,6 +401,10 @@ export function useConversations(config: UseConversationsConfig = {}) {
         },
       };
 
+      // VÉRIFIER ET CONSOMMER QUOTA AVANT de créer
+      const { incrementConversationCreated } = await import("../lib/quotaTracking");
+      await incrementConversationCreated(user?.id);
+
       // Create conversation - save to Supabase if logged in, otherwise localStorage
       if (user?.id) {
         try {
@@ -416,10 +420,6 @@ export function useConversations(config: UseConversationsConfig = {}) {
           );
           // Also save to localStorage as cache
           ConversationStorage.addConversation(conversation);
-
-          // Incrémenter le compteur de crédits consommés
-          const { incrementConversationCreated } = await import("../lib/quotaTracking");
-          incrementConversationCreated(user.id);
 
           return conversation;
         } catch (supabaseError) {
@@ -437,10 +437,6 @@ export function useConversations(config: UseConversationsConfig = {}) {
         firstMessage: conversationData.firstMessage,
         userId: user?.id || "guest",
       });
-
-      // Incrémenter le compteur de crédits consommés
-      const { incrementConversationCreated } = await import("../lib/quotaTracking");
-      incrementConversationCreated(user?.id);
 
       return conversation;
     },

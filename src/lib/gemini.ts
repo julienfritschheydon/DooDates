@@ -289,6 +289,7 @@ export class GeminiService {
       "satisfaction",
       "feedback",
       "avis",
+      "sondage",
       "sondage d'opinion",
     ];
 
@@ -393,6 +394,106 @@ export class GeminiService {
         );
       }
 
+      // PRE-PARSING TEMPOREL avec Chrono-node (seulement pour Date Polls)
+      let dateHints = "";
+      if (pollType === "date") {
+        try {
+          const chrono = await import("chrono-node");
+          const parsedDates = chrono.fr.parse(userInput, new Date(), { forwardDate: true });
+
+          if (parsedDates.length > 0) {
+            const targetDate = formatDateLocal(parsedDates[0].start.date());
+            const targetDateObj = parsedDates[0].start.date();
+
+            // Détecter si c'est un contexte professionnel (réunion, travail, équipe, etc.)
+            const isProfessionalContext =
+              /réunion|travail|équipe|meeting|bureau|projet|client|présentation/i.test(userInput);
+
+            // Détecter si c'est une expression de "semaine" (semaine prochaine, dans X semaines)
+            const isWeekExpression = /semaine/i.test(parsedDates[0].text);
+
+            // Calculer la fenêtre de dates
+            const dateWindow: string[] = [];
+
+            if (isProfessionalContext && isWeekExpression) {
+              // Pour "semaine prochaine" en contexte pro : du lundi au vendredi de cette semaine
+              const dayOfWeek = targetDateObj.getDay();
+              const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si dimanche (0), reculer de 6 jours
+
+              const monday = new Date(targetDateObj);
+              monday.setDate(targetDateObj.getDate() + daysToMonday);
+
+              // Ajouter lundi à vendredi
+              for (let i = 0; i < 5; i++) {
+                const workDay = new Date(monday);
+                workDay.setDate(monday.getDate() + i);
+                dateWindow.push(formatDateLocal(workDay));
+              }
+            } else {
+              // Fenêtre normale ±3 jours autour de la date cible
+              for (let offset = -3; offset <= 3; offset++) {
+                const windowDate = new Date(targetDateObj);
+                windowDate.setDate(targetDateObj.getDate() + offset);
+
+                // Si contexte professionnel, exclure samedi (6) et dimanche (0)
+                const dayOfWeek = windowDate.getDay();
+                if (isProfessionalContext && (dayOfWeek === 0 || dayOfWeek === 6)) {
+                  continue; // Skip week-end
+                }
+
+                dateWindow.push(formatDateLocal(windowDate));
+              }
+            }
+
+            dateHints = `
+
+⚠️⚠️⚠️ INSTRUCTION PRIORITAIRE - DATES CALCULÉES PAR LE SYSTÈME ⚠️⚠️⚠️
+
+L'expression temporelle "${parsedDates[0].text}" a été analysée par notre système de parsing temporel.
+Date cible calculée: ${targetDate}
+${isProfessionalContext ? "Contexte professionnel détecté → Week-ends exclus (lundi-vendredi uniquement)" : ""}
+
+RÈGLE ABSOLUE - TU DOIS RESPECTER CES DATES EXACTES:
+Voici les SEULES dates que tu peux proposer${isProfessionalContext ? " (jours ouvrés uniquement)" : " (±3 jours autour du " + targetDate + ")"}}:
+${dateWindow.map((d) => `  - ${d}`).join("\n")}
+
+INTERDICTIONS STRICTES:
+- ❌ NE PAS générer de dates en dehors de cette liste
+- ❌ NE PAS inventer d'autres dates
+- ❌ NE PAS grouper les dates (ex: "Semaine du X au Y")
+- ❌ NE PAS proposer des périodes ou plages
+- ✅ Proposer 5-7 dates INDIVIDUELLES parmi cette liste
+- ✅ Format attendu: une date par ligne dans le JSON (ex: ["2025-11-28", "2025-11-29", ...])
+
+`;
+            if (parsedDates.length > 1) {
+              dateHints += "Autres dates détectées:\n";
+              parsedDates.slice(1).forEach((parsed) => {
+                dateHints += `- "${parsed.text}" → ${formatDateLocal(parsed.start.date())}\n`;
+              });
+              dateHints += "\n";
+            }
+
+            if (isDev()) {
+              logger.info("📅 Dates pré-parsées avec Chrono-node", "api", {
+                count: parsedDates.length,
+                dates: parsedDates.map((p) => ({
+                  text: p.text,
+                  date: formatDateLocal(p.start.date()),
+                })),
+              });
+              console.log("🎯 HINTS ENVOYÉS À GEMINI:", dateHints);
+            }
+          }
+        } catch (error) {
+          logger.warn(
+            "Erreur lors du pré-parsing avec Chrono-node, continuation normale",
+            "api",
+            error,
+          );
+        }
+      }
+
       // Router vers le bon prompt selon le type
       let prompt: string;
       if (pollType === "form") {
@@ -409,7 +510,8 @@ export class GeminiService {
           );
         }
       } else {
-        prompt = this.buildPollGenerationPrompt(processedInput);
+        // Construire le prompt avec les hints de dates en priorité
+        prompt = this.buildPollGenerationPrompt(processedInput, dateHints);
       }
 
       // Appeler Gemini via backend configuré (direct ou Edge Function)
@@ -851,7 +953,7 @@ export class GeminiService {
     return timeRanges[period] || { start: "09:00", end: "17:00" };
   }
 
-  private buildPollGenerationPrompt(userInput: string): string {
+  private buildPollGenerationPrompt(userInput: string, dateHints: string = ""): string {
     // Analyse temporelle préalable
     const temporalAnalysis = this.analyzeTemporalInput(userInput);
     const counterfactualQuestions = this.generateCounterfactualQuestions(userInput);
@@ -861,7 +963,7 @@ export class GeminiService {
     const currentMonth = today.getMonth() + 1; // getMonth() retourne 0-11
 
     return `Tu es l'IA DooDates, expert en planification temporelle avec techniques Counterfactual-Consistency.
-
+${dateHints}
 ANALYSE TEMPORELLE PRÉALABLE:
 - Conflits détectés: ${temporalAnalysis.conflicts.join(", ") || "Aucun"}
 - Suggestions: ${temporalAnalysis.suggestions.join(", ") || "Aucune"}
@@ -883,6 +985,36 @@ INSTRUCTION SPÉCIALE DATES FUTURES UNIQUEMENT:
 - "cette semaine" = semaine actuelle (du ${getTodayLocal()} à 7 jours)
 - "semaine prochaine" = semaine suivante (toujours future)
 - "demain" = ${formatDateLocal(new Date(today.getTime() + 24 * 60 * 60 * 1000))}
+
+EXPRESSIONS TEMPORELLES RELATIVES - CALCUL OBLIGATOIRE:
+Tu DOIS calculer les dates exactes à partir d'aujourd'hui (${getTodayLocal()}) pour ces expressions:
+
+- "dans X jours" → Ajouter X jours à ${getTodayLocal()}
+  Exemple: "dans 3 jours" = ${formatDateLocal(new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000))}
+  
+- "dans X semaines" → Ajouter (X × 7) jours à ${getTodayLocal()}
+  Exemple: "dans 2 semaines" = ${formatDateLocal(new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000))}
+  Exemple: "dans 3 semaines" = ${formatDateLocal(new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000))}
+  Exemple: "dans 4 semaines" = ${formatDateLocal(new Date(today.getTime() + 28 * 24 * 60 * 60 * 1000))}
+  
+- "dans X mois" → Ajouter X mois à la date actuelle
+  Exemple: "dans 1 mois" = ${formatDateLocal(new Date(today.getFullYear(), today.getMonth() + 1, today.getDate()))}
+  Exemple: "dans 2 mois" = ${formatDateLocal(new Date(today.getFullYear(), today.getMonth() + 2, today.getDate()))}
+
+MÉTHODE DE CALCUL POUR "dans X semaines":
+1. Identifier le nombre de semaines demandé (X)
+2. Calculer la date cible = ${getTodayLocal()} + (X × 7 jours)
+3. Identifier le jour de la semaine demandé (ex: "lundi", "mardi", etc.)
+4. Trouver le jour demandé dans la semaine cible
+5. Proposer plusieurs dates autour de cette semaine cible (semaine avant, semaine cible, semaine après)
+
+EXEMPLE CONCRET "réunion d'équipe dans 2 semaines":
+- Aujourd'hui: ${getTodayLocal()}
+- Dans 2 semaines: ${formatDateLocal(new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000))}
+- Proposer des dates autour de cette période (±3-5 jours)
+- NE PAS proposer de dates en novembre/décembre si on est en janvier!
+
+RÈGLE ABSOLUE: Toujours calculer à partir de ${getTodayLocal()}, JAMAIS utiliser des dates fixes!
 
 RÈGLES DE GÉNÉRATION:
 1. **DATES FUTURES OBLIGATOIRES** - Vérifier que chaque date >= ${getTodayLocal()}
@@ -961,6 +1093,9 @@ RÈGLE DURÉE SELON CONTEXTE (SEULEMENT SI HORAIRES DEMANDÉS):
      - "le week-end prochain" = samedi-dimanche de la semaine prochaine (2 dates consécutives)
      - "un des week-ends de décembre" = proposer TOUS les week-ends complets (samedi + dimanche consécutifs) du mois
      - "les week-ends de janvier" = proposer TOUS les week-ends complets (samedi + dimanche consécutifs) du mois
+     - "dans X jours" = CALCULER: ${getTodayLocal()} + X jours (ex: "dans 5 jours" = ${formatDateLocal(new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000))})
+     - "dans X semaines" = CALCULER: ${getTodayLocal()} + (X × 7) jours (ex: "dans 2 semaines" = ${formatDateLocal(new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000))})
+     - "dans X mois" = CALCULER: ajouter X mois à ${getTodayLocal()}
    * IMPORTANT : Distinguer références spécifiques vs récurrentes :
      - "lundi matin" (sans "tous les" ou "chaque") = LE prochain lundi uniquement
      - "mardi après-midi" (sans "tous les" ou "chaque") = LE prochain mardi uniquement

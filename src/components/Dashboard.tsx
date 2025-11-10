@@ -257,7 +257,8 @@ const Dashboard: React.FC = () => {
               <div className="flex-1 cursor-pointer" onClick={() => navigate("/dashboard/journal")}>
                 <p className="text-sm text-gray-300">
                   <span className="font-semibold">
-                    {quotaStatus.conversations.used}/{quotaStatus.conversations.limit}
+                    {quotaStatus.conversations.used + quotaStatus.aiMessages.used}/
+                    {quotaStatus.conversations.limit + quotaStatus.aiMessages.limit}
                   </span>{" "}
                   crédits utilisés
                   {!user && (
@@ -266,12 +267,23 @@ const Dashboard: React.FC = () => {
                     </span>
                   )}
                 </p>
+                {/* Barre de progression unique */}
                 <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full transition-all ${
-                      quotaStatus.conversations.isNearLimit ? "bg-orange-500" : "bg-blue-500"
+                      quotaStatus.conversations.isNearLimit || quotaStatus.aiMessages.isNearLimit
+                        ? "bg-orange-500"
+                        : "bg-blue-500"
                     }`}
-                    style={{ width: `${Math.min(quotaStatus.conversations.percentage, 100)}%` }}
+                    style={{
+                      width: `${Math.min(
+                        Math.max(
+                          quotaStatus.conversations.percentage,
+                          quotaStatus.aiMessages.percentage,
+                        ),
+                        100,
+                      )}%`,
+                    }}
                   />
                 </div>
                 <p className="text-xs text-gray-400 mt-1 hover:text-gray-300 transition-colors">

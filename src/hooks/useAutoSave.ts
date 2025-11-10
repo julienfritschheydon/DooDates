@@ -119,6 +119,12 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             `[${timestamp}] [${requestId}] 🆕 Utilisateur connecté - création Supabase...`,
           );
           try {
+            // VÉRIFIER ET CONSOMMER QUOTA AVANT de créer
+            console.log(`[${timestamp}] [${requestId}] 🆕 Vérification quota AVANT création...`);
+            const { incrementConversationCreated } = await import("../lib/quotaTracking");
+            await incrementConversationCreated(user.id);
+            console.log(`[${timestamp}] [${requestId}] 🆕 Quota vérifié et incrémenté`);
+
             console.log(`[${timestamp}] [${requestId}] 🆕 Import ConversationStorageSupabase...`);
             const { createConversation: createSupabaseConversation } = await import(
               "../lib/storage/ConversationStorageSupabase"
@@ -144,12 +150,6 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             });
             // Also save to localStorage as cache
             ConversationStorage.addConversation(result);
-
-            // Incrémenter le compteur de crédits consommés
-            console.log(`[${timestamp}] [${requestId}] 🆕 Incrémentation quota...`);
-            const { incrementConversationCreated } = await import("../lib/quotaTracking");
-            incrementConversationCreated(user.id);
-            console.log(`[${timestamp}] [${requestId}] 🆕 Quota incrémenté`);
           } catch (supabaseError) {
             logError(
               ErrorFactory.storage(
@@ -167,6 +167,15 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
               supabaseError,
             );
             // Fallback to localStorage
+            console.log(
+              `[${timestamp}] [${requestId}] 🆕 Vérification quota AVANT création (fallback)...`,
+            );
+            const { incrementConversationCreated: incrementFallback } = await import(
+              "../lib/quotaTracking"
+            );
+            await incrementFallback(user.id);
+            console.log(`[${timestamp}] [${requestId}] 🆕 Quota vérifié (fallback)`);
+
             console.log(`[${timestamp}] [${requestId}] 🆕 Création localStorage (fallback)...`);
             result = ConversationStorage.createConversation({
               title:
@@ -174,12 +183,6 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
               firstMessage: firstMessage.content,
               userId: user.id,
             });
-
-            // Incrémenter le compteur de crédits consommés
-            console.log(`[${timestamp}] [${requestId}] 🆕 Incrémentation quota (fallback)...`);
-            const { incrementConversationCreated } = await import("../lib/quotaTracking");
-            incrementConversationCreated(user.id);
-            console.log(`[${timestamp}] [${requestId}] 🆕 Quota incrémenté (fallback)`);
           }
         } else {
           // Guest mode or Supabase disabled: use localStorage only
@@ -190,18 +193,22 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
           } else {
             console.log(`[${timestamp}] [${requestId}] 🆕 Mode invité - création localStorage...`);
           }
+
+          // VÉRIFIER ET CONSOMMER QUOTA AVANT de créer la conversation
+          console.log(
+            `[${timestamp}] [${requestId}] 🆕 Vérification quota guest AVANT création...`,
+          );
+          const { incrementConversationCreated } = await import("../lib/quotaTracking");
+          await incrementConversationCreated("guest");
+          console.log(`[${timestamp}] [${requestId}] 🆕 Quota guest vérifié et incrémenté`);
+
+          // Créer la conversation seulement si quota OK
           result = ConversationStorage.createConversation({
             title:
               firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
             firstMessage: firstMessage.content,
             userId: "guest",
           });
-
-          // Incrémenter le compteur de crédits consommés (BLOQUANT si limite atteinte)
-          console.log(`[${timestamp}] [${requestId}] 🆕 Incrémentation quota guest...`);
-          const { incrementConversationCreated } = await import("../lib/quotaTracking");
-          await incrementConversationCreated("guest");
-          console.log(`[${timestamp}] [${requestId}] 🆕 Quota guest incrémenté`);
         }
 
         console.log(`[${timestamp}] [${requestId}] 🆕 Mise à jour refs...`);
@@ -216,12 +223,15 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
       } catch (error) {
         // Détecter si c'est une erreur de quota
         const errorMessage = error instanceof Error ? error.message : String(error);
-        const isQuotaError = errorMessage.includes("limit reached") || errorMessage.includes("Credit limit");
-        
+        const isQuotaError =
+          errorMessage.includes("limit reached") || errorMessage.includes("Credit limit");
+
         logError(
           ErrorFactory.storage(
             isQuotaError ? "Limite de conversations atteinte" : "Erreur dans createConversation",
-            isQuotaError ? "Vous avez atteint la limite de 5 conversations en mode invité" : "Impossible de créer la conversation",
+            isQuotaError
+              ? "Vous avez atteint la limite de 5 conversations en mode invité"
+              : "Impossible de créer la conversation",
           ),
           {
             operation: "useAutoSave.createConversation",

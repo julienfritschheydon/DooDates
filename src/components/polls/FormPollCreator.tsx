@@ -449,7 +449,7 @@ export default function FormPollCreator({
       // 🔍 Vérifier si le poll existe déjà (créé via "Utiliser")
       const existingPolls = getAllPolls();
       const existingPoll = existingPolls.find(
-        (p) => p.id === initialDraft?.id && p.id.startsWith("local-") && p.type === "form"
+        (p) => p.id === initialDraft?.id && p.id.startsWith("local-") && p.type === "form",
       );
 
       let saved: any;
@@ -457,7 +457,7 @@ export default function FormPollCreator({
       if (existingPoll) {
         // ✅ Poll existe déjà → Mettre à jour au lieu de créer un nouveau
         logger.info("📝 Mise à jour poll existant", "poll", { pollId: existingPoll.id });
-        
+
         const updatedPoll = {
           ...existingPoll,
           title: draft.title,
@@ -467,9 +467,7 @@ export default function FormPollCreator({
         };
 
         // Mettre à jour dans localStorage
-        const updatedPolls = existingPolls.map((p) => 
-          p.id === existingPoll.id ? updatedPoll : p
-        );
+        const updatedPolls = existingPolls.map((p) => (p.id === existingPoll.id ? updatedPoll : p));
         savePolls(updatedPolls);
         saved = updatedPoll;
       } else {

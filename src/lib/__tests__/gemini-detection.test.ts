@@ -23,6 +23,27 @@ describe("GeminiService - Poll Type Detection", () => {
       expect(result).toBe("form");
     });
 
+    it("détecte 'sondage client' comme Form Poll", () => {
+      const input = "sondage client sur nos produits";
+      // @ts-expect-error - Testing private method
+      const result = service.detectPollType(input);
+      expect(result).toBe("form");
+    });
+
+    it("détecte 'sondage qualité' comme Form Poll", () => {
+      const input = "sondage qualité pour nos clients sur nos produits";
+      // @ts-expect-error - Testing private method
+      const result = service.detectPollType(input);
+      expect(result).toBe("form");
+    });
+
+    it("détecte 'sondage' seul comme Form Poll", () => {
+      const input = "Créer un sondage pour évaluer nos services";
+      // @ts-expect-error - Testing private method
+      const result = service.detectPollType(input);
+      expect(result).toBe("form");
+    });
+
     it("détecte 'enquête' comme Form Poll", () => {
       const input = "Enquête de satisfaction employés";
       // @ts-expect-error - Testing private method
@@ -97,11 +118,11 @@ describe("GeminiService - Poll Type Detection", () => {
   });
 
   describe("detectPollType - Cas Ambigus", () => {
-    it("détecte 'date' par défaut si égalité", () => {
+    it("détecte 'form' pour 'sondage' seul (strongFormKeyword)", () => {
       const input = "Créer un sondage";
       // @ts-expect-error - Testing private method
       const result = service.detectPollType(input);
-      expect(result).toBe("date");
+      expect(result).toBe("form");
     });
 
     it("prioritise Form si plus de mots-clés Form", () => {
@@ -112,9 +133,9 @@ describe("GeminiService - Poll Type Detection", () => {
     });
 
     it("prioritise Date si plus de mots-clés Date", () => {
-      // Changé "questionnaire" (strongKeyword) par "sondage" (keyword normal)
-      // pour permettre la comparaison de scores
-      const input = "Organiser une réunion pour discuter du sondage";
+      // Utilise "vote" (formKeyword secondaire) pour permettre la comparaison de scores
+      // "réunion" + "planning" (2 dateKeywords) > "vote" (1 formKeyword)
+      const input = "Organiser une réunion et un planning pour le vote";
       // @ts-expect-error - Testing private method
       const result = service.detectPollType(input);
       expect(result).toBe("date");

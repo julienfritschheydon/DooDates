@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { generateBrowserFingerprint } from '../../lib/browserFingerprint';
-import type { BrowserFingerprint } from '../../lib/browserFingerprint';
-import { logError, ErrorFactory } from '../../lib/error-handling';
+import { useEffect, useState } from "react";
+import { generateBrowserFingerprint } from "../../lib/browserFingerprint";
+import type { BrowserFingerprint } from "../../lib/browserFingerprint";
+import { logError, ErrorFactory } from "../../lib/error-handling";
 
 export function FingerprintTest() {
   const [fingerprint, setFingerprint] = useState<BrowserFingerprint | null>(null);
@@ -12,14 +12,17 @@ export function FingerprintTest() {
       try {
         const fp = await generateBrowserFingerprint();
         setFingerprint(fp);
-        console.log('Fingerprint:', fp.fingerprint);
-        console.log('Confidence:', fp.metadata.confidence);
-        console.log('Components:', fp.components);
+        console.log("Fingerprint:", fp.fingerprint);
+        console.log("Confidence:", fp.metadata.confidence);
+        console.log("Components:", fp.components);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        setError(err instanceof Error ? err.message : "Unknown error");
         logError(
-          ErrorFactory.storage('Failed to generate fingerprint', 'Erreur lors de la génération de l\'empreinte'),
-          { component: 'FingerprintTest' }
+          ErrorFactory.storage(
+            "Failed to generate fingerprint",
+            "Erreur lors de la génération de l'empreinte",
+          ),
+          { component: "FingerprintTest" },
         );
       }
     };
