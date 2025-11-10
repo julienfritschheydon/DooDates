@@ -753,6 +753,27 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                 draftId: draft.id,
                 savedId: savedPoll?.id,
               });
+
+              // 🔗 Lier le poll à la conversation existante
+              if (savedPoll) {
+                try {
+                  const urlParams = new URLSearchParams(location.search);
+                  const conversationId = urlParams.get("conversationId");
+                  
+                  if (conversationId) {
+                    // Poll créé via IA → Lier à la conversation existante
+                    const { linkPollToConversationBidirectional } = require("@/lib/ConversationPollLink");
+                    linkPollToConversationBidirectional(conversationId, savedPoll.id, "form");
+                    logger.info("✅ Poll lié à la conversation", "poll", {
+                      conversationId,
+                      pollId: savedPoll.id,
+                    });
+                  }
+                } catch (error) {
+                  logger.error("❌ Erreur liaison poll-conversation", "poll", { error });
+                }
+              }
+
               toast({
                 title: "🎉 Questionnaire créé !",
                 description: "Votre formulaire est maintenant disponible.",
