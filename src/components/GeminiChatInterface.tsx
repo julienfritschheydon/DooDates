@@ -682,7 +682,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         if (errorMessage.includes("limit reached") || errorMessage.includes("Credit limit")) {
           toast({
             title: "Limite atteinte",
-            description: "Vous avez atteint la limite de 5 conversations en mode invité. Créez un compte pour continuer.",
+            description:
+              "Vous avez atteint la limite de 5 conversations en mode invité. Créez un compte pour continuer.",
             variant: "destructive",
           });
         } else {
@@ -692,10 +693,10 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             variant: "destructive",
           });
         }
-        logError(
-          ErrorFactory.api("Failed to send message", "Erreur lors de l'envoi du message"),
-          { error, component: "GeminiChatInterface" }
-        );
+        logError(ErrorFactory.api("Failed to send message", "Erreur lors de l'envoi du message"), {
+          error,
+          component: "GeminiChatInterface",
+        });
       }
     };
 

@@ -26,6 +26,7 @@ export interface QuotaLimits {
 export interface QuotaUsage {
   conversations: number;
   polls: number;
+  aiMessages: number;
   storageUsed: number; // in MB
 }
 
@@ -38,6 +39,13 @@ export interface QuotaStatus {
     isAtLimit: boolean;
   };
   polls: {
+    used: number;
+    limit: number;
+    percentage: number;
+    isNearLimit: boolean;
+    isAtLimit: boolean;
+  };
+  aiMessages: {
     used: number;
     limit: number;
     percentage: number;
@@ -78,6 +86,7 @@ export const useFreemiumQuota = () => {
   const [quotaUsage, setQuotaUsage] = useState<QuotaUsage>({
     conversations: 0,
     polls: 0,
+    aiMessages: 0,
     storageUsed: 0,
   });
   const [guestQuota, setGuestQuota] = useState<GuestQuotaData | null>(null);
@@ -96,6 +105,7 @@ export const useFreemiumQuota = () => {
           return {
             conversations: quota.conversationsCreated,
             polls: quota.pollsCreated,
+            aiMessages: quota.aiMessages,
             storageUsed: 0, // Pas de limite storage pour guests via Supabase
           };
         }
@@ -130,6 +140,7 @@ export const useFreemiumQuota = () => {
     return {
       conversations: conversationCount,
       polls: pollCount,
+      aiMessages: quotaConsumed.aiMessages || 0,
       storageUsed,
     };
   }, [user?.id, quotaRefreshKey, isAuthenticated]);
@@ -161,9 +172,12 @@ export const useFreemiumQuota = () => {
       };
     };
 
+    const guestLimits = getGuestLimits();
+    
     return {
       conversations: calculateStatus(usage.conversations, limits.conversations),
       polls: calculateStatus(usage.polls, limits.polls),
+      aiMessages: calculateStatus(usage.aiMessages, guestLimits.AI_MESSAGES),
       storage: calculateStatus(usage.storageUsed, limits.storageSize),
     };
   }, [quotaUsage, limits]);

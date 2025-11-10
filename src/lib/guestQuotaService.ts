@@ -12,6 +12,7 @@
 import { supabase } from "./supabase";
 import { getCachedFingerprint, getBrowserMetadata } from "./browserFingerprint";
 import { logger } from "./logger";
+import { logError, ErrorFactory } from "./error-handling";
 import type { CreditActionType } from "./quotaTracking";
 
 // ============================================================================
@@ -60,12 +61,33 @@ const GUEST_LIMITS = {
  */
 function isE2EEnvironment(): boolean {
   // Vérifier si on est dans un environnement de test
-  if (typeof window === 'undefined') return false;
-  
+  if (typeof window === "undefined") return false;
+
+  // Vérifier les flags E2E
+  try {
+    const hasE2EFlag = (window as any).__E2E__ === true;
+    const hasE2ELocalStorage = localStorage.getItem('e2e') === '1';
+    const hasDevLocalMode = localStorage.getItem('dev-local-mode') === '1';
+    
+    console.log('🔍 isE2EEnvironment check:', {
+      hasE2EFlag,
+      hasE2ELocalStorage,
+      hasDevLocalMode,
+      result: hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode
+    });
+    
+    if (hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode) return true;
+  } catch (e) {
+    logError(
+      ErrorFactory.storage('Error checking E2E flags', 'Failed to check E2E environment'),
+      { component: 'guestQuotaService' }
+    );
+  }
+
   // Vérifier si Supabase URL est mockée (pointe vers localhost)
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-  const isMockedSupabase = supabaseUrl.includes('localhost') || supabaseUrl.includes('127.0.0.1');
-  
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+  const isMockedSupabase = supabaseUrl.includes("localhost") || supabaseUrl.includes("127.0.0.1");
+
   // Désactiver seulement si on utilise un mock Supabase
   return isMockedSupabase;
 }
@@ -97,7 +119,7 @@ export async function getOrCreateGuestQuota(): Promise<GuestQuotaData | null> {
       .eq("fingerprint", fingerprint);
 
     if (fetchError) {
-      logger.error("Failed to fetch guest quota", fetchError);
+      logger.debug("Failed to fetch guest quota (non-critical)", "quota", { error: fetchError.message });
       return null;
     }
 
@@ -118,17 +140,14 @@ export async function getOrCreateGuestQuota(): Promise<GuestQuotaData | null> {
 
         if (!cachedError && cachedArray?.[0]) {
           existing = cachedArray[0];
-          
+
           // Mettre à jour le fingerprint dans Supabase pour ce quota
           logger.info("Updating fingerprint for existing quota", "quota", {
             oldFingerprint: existing.fingerprint.substring(0, 16),
             newFingerprint: fingerprint.substring(0, 16),
           });
 
-          await supabase
-            .from("guest_quotas")
-            .update({ fingerprint })
-            .eq("id", cachedQuotaId);
+          await supabase.from("guest_quotas").update({ fingerprint }).eq("id", cachedQuotaId);
 
           existing.fingerprint = fingerprint;
         }
@@ -394,9 +413,7 @@ export async function consumeGuestCredits(
 /**
  * Récupère le journal de consommation
  */
-export async function getGuestQuotaJournal(
-  limit: number = 100,
-): Promise<GuestQuotaJournalEntry[]> {
+export async function getGuestQuotaJournal(limit: number = 100): Promise<GuestQuotaJournalEntry[]> {
   // En environnement E2E, retourner tableau vide
   if (isE2EEnvironment()) {
     return [];

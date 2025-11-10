@@ -34,6 +34,7 @@
 
 import { useCallback, useRef, useEffect } from "react";
 import { logger } from "../lib/logger";
+import { useAuth } from "../contexts/AuthContext";
 
 interface Message {
   id: string;
@@ -93,6 +94,7 @@ interface UseMessageSenderOptions {
  * @returns Objet avec la fonction sendMessage
  */
 export function useMessageSender(options: UseMessageSenderOptions) {
+  const { user } = useAuth();
   const {
     isLoading,
     quota,
@@ -150,18 +152,8 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         return; // Modal will be shown by the quota hook
       }
 
-      // 🎯 NEW: Check AI message quota (Freemium)
-      const { checkAiMessageQuota, handleQuotaError } = await import("../services/AiQuotaService");
-      const quotaCheck = checkAiMessageQuota(aiQuota);
-      console.log(`[${timestamp}] [${requestId}] 📊 Vérification quota AI:`, {
-        canProceed: quotaCheck.canProceed,
-        quotaCheck,
-      });
-      if (!quotaCheck.canProceed) {
-        console.log(`[${timestamp}] [${requestId}] ❌ Arrêt: quota AI dépassé`);
-        handleQuotaError(quotaCheck, quota, toast);
-        return;
-      }
+      // ⚠️ SUPPRIMÉ: Vérification AI quota en cache (non fiable)
+      // La vérification bloquante se fait dans consumeAiMessageCredits() avec Supabase en temps réel
 
       // 🎯 PROTOTYPE: Détecter les intentions de modification
       console.log(`[${timestamp}] [${requestId}] 🔍 Détection d'intentions...`);
@@ -272,6 +264,38 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       });
       console.log(`[${timestamp}] [${requestId}] ✅ Message utilisateur sauvegardé`);
 
+      // VÉRIFIER ET CONSOMMER QUOTA AVANT d'appeler Gemini
+      console.log(`[${timestamp}] [${requestId}] 🔒 Vérification quota message IA AVANT appel Gemini...`);
+      try {
+        const { consumeAiMessageCredits } = await import("../lib/quotaTracking");
+        const conversationId = autoSave.getRealConversationId() || autoSave.conversationId;
+        // Pour les guests, passer null pour utiliser le système Supabase
+        const userId = user?.id || null;
+        await consumeAiMessageCredits(userId, conversationId);
+        console.log(`[${timestamp}] [${requestId}] ✅ Quota message IA vérifié et consommé`);
+      } catch (error: any) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Limite de messages IA atteinte`);
+        setIsLoading(false);
+        
+        // Afficher un toast d'erreur
+        toast({
+          title: "Limite atteinte",
+          description: "Vous avez atteint la limite de messages IA pour les utilisateurs invités. Connectez-vous pour continuer.",
+          variant: "destructive",
+        });
+        
+        // Ajouter un message d'erreur dans le chat
+        const errorMessage: Message = {
+          id: `error-${Date.now()}`,
+          content: "⚠️ Limite de messages IA atteinte. Veuillez vous connecter pour continuer à utiliser l'assistant IA.",
+          isAI: true,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+        
+        return; // Arrêter l'exécution
+      }
+
       // Appel API Gemini via le hook
       console.log(
         `[${timestamp}] [${requestId}] 🟣 useMessageSender: Appel geminiAPI.generatePoll`,
@@ -289,17 +313,6 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
       // 🎯 NEW: Incrémenter le compteur de messages IA
       aiQuota.incrementAiMessages();
-
-      // Consommer les crédits pour le message IA (1 crédit selon la doc)
-      try {
-        const { consumeAiMessageCredits } = await import("../lib/quotaTracking");
-        const conversationId = autoSave.getRealConversationId() || autoSave.conversationId;
-        const { getCurrentUserId } = await import("../lib/pollStorage");
-        const currentUserId = getCurrentUserId();
-        consumeAiMessageCredits(currentUserId, conversationId);
-      } catch (error) {
-        logger.debug("Impossible de consommer les crédits message IA", "quota", { error });
-      }
 
       // Supprimer le message de progression si présent
       if (isLongMarkdown) {

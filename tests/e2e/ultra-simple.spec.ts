@@ -15,6 +15,20 @@ test.describe('DooDates - Test Ultra Simple', () => {
   });
   
   test('Workflow complet : Création DatePoll → Dashboard @smoke @critical', async ({ page }) => {
+    // Capturer TOUS les logs console du navigateur
+    const consoleLogs: string[] = [];
+    page.on('console', msg => {
+      const text = `[${msg.type()}] ${msg.text()}`;
+      consoleLogs.push(text);
+      console.log(`🌐 BROWSER: ${text}`);
+    });
+    
+    // Capturer les erreurs JavaScript
+    page.on('pageerror', error => {
+      console.log(`❌ PAGE ERROR: ${error.message}`);
+      consoleLogs.push(`[ERROR] ${error.message}`);
+    });
+    
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -115,19 +129,99 @@ test.describe('DooDates - Test Ultra Simple', () => {
       expect(slotsSelected, `Au moins 1 créneau requis`).toBeGreaterThanOrEqual(1);
       console.log(`✅ ${slotsSelected} créneau(x) sélectionné(s)`);
 
+      // Screenshot AVANT de cliquer sur Partager
+      await page.screenshot({ path: 'test-results/01-avant-partager.png', fullPage: true });
+      console.log('📸 Screenshot 1: Avant clic Partager');
+      
       // Ouvrir formulaire et saisir titre
-      await robustClick(page.locator('[data-testid="share-poll-button"]').first());
+      const shareButton = page.locator('[data-testid="share-poll-button"]').first();
+      await expect(shareButton).toBeVisible({ timeout: 5000 });
+      
+      // Capturer la position du bouton
+      const shareButtonBox = await shareButton.boundingBox();
+      console.log(`📍 Position bouton Partager: ${JSON.stringify(shareButtonBox)}`);
+      
+      await robustClick(shareButton);
       console.log('✅ Bouton Partager cliqué');
       
-      await page.locator('[data-testid="poll-title"]').waitFor();
-      await page.locator('[data-testid="poll-title"]').fill('Test E2E Ultra Simple');
+      // Screenshot APRÈS le clic sur Partager
+      await page.waitForTimeout(1000); // Laisser le temps au scroll smooth et à l'affichage
+      await page.screenshot({ path: 'test-results/02-apres-partager.png', fullPage: true });
+      console.log('📸 Screenshot 2: Après clic Partager');
+      
+      // Vérifier que le champ titre est visible
+      const titleInput = page.locator('[data-testid="poll-title"]');
+      await expect(titleInput).toBeVisible({ timeout: 10000 });
+      await titleInput.fill('Test E2E Ultra Simple');
       console.log('✅ Titre saisi');
 
-      // Finaliser le sondage (crée le poll + conversation)
+      // Screenshot APRÈS avoir saisi le titre
+      await page.screenshot({ path: 'test-results/03-apres-titre.png', fullPage: true });
+      console.log('📸 Screenshot 3: Après saisie titre');
+
+      // Attendre que le bouton Finaliser soit visible
+      // (il est dans la même section que le champ titre)
       const finalizeBtn = page.getByRole('button', { name: 'Finaliser' });
       await expect(finalizeBtn).toBeVisible({ timeout: 10000 });
+      
+      // Capturer la position du bouton Finaliser
+      const finalizeBtnBox = await finalizeBtn.boundingBox();
+      console.log(`📍 Position bouton Finaliser: ${JSON.stringify(finalizeBtnBox)}`);
+      
+      // Debug: Vérifier si le bouton est enabled
+      const isDisabled = await finalizeBtn.isDisabled();
+      console.log(`DEBUG: Bouton Finaliser disabled = ${isDisabled}`);
+      
+      if (isDisabled) {
+        // Capturer l'état pour comprendre pourquoi
+        const debugState = await page.evaluate(() => {
+          const titleInput = document.querySelector('[data-testid="poll-title"]') as HTMLInputElement;
+          return {
+            title: titleInput?.value || 'NOT FOUND',
+            titleLength: titleInput?.value?.length || 0,
+          };
+        });
+        console.log('DEBUG: État du formulaire:', JSON.stringify(debugState, null, 2));
+      }
+      
+      // Screenshot AVANT de cliquer sur Finaliser
+      await page.screenshot({ path: 'test-results/04-avant-finaliser.png', fullPage: true });
+      console.log('📸 Screenshot 4: Avant clic Finaliser');
+      
       await robustClick(finalizeBtn);
       console.log('✅ Bouton "Finaliser" cliqué');
+
+      // Attendre un peu pour que la création se fasse
+      await page.waitForTimeout(2000);
+      
+      // Screenshot APRÈS le clic sur Finaliser
+      await page.screenshot({ path: 'test-results/05-apres-finaliser.png', fullPage: true });
+      console.log('📸 Screenshot 5: Après clic Finaliser');
+      
+      // Debug: Vérifier l'état de la page après finalisation
+      const debugAfterFinalize = await page.evaluate(() => {
+        try {
+          const polls = localStorage.getItem('dev-polls');
+          const pollsData = polls ? JSON.parse(polls) : [];
+          return {
+            pollsCount: pollsData.length,
+            lastPoll: pollsData.length > 0 ? {
+              id: pollsData[pollsData.length - 1]?.id,
+              title: pollsData[pollsData.length - 1]?.title,
+              slug: pollsData[pollsData.length - 1]?.slug,
+            } : null,
+            currentUrl: window.location.href,
+            bodyText: document.body.innerText.substring(0, 500),
+          };
+        } catch (e) {
+          return { error: String(e) };
+        }
+      });
+      console.log('DEBUG: État après finalisation:', JSON.stringify(debugAfterFinalize, null, 2));
+      
+      // Prendre une photo pour voir ce qui est affiché
+      await page.screenshot({ path: 'test-results/debug-after-finalize.png', fullPage: true });
+      console.log('📸 Photo debug prise: test-results/debug-after-finalize.png');
 
       // Attendre l'écran de succès qui apparaît après la finalisation
       await expect(page.getByText(/Sondage publié !/i)).toBeVisible({ timeout: 15000 });
@@ -222,6 +316,12 @@ test.describe('DooDates - Test Ultra Simple', () => {
       console.log('🎉 WORKFLOW COMPLET RÉUSSI');
       log('Test completed successfully!');
       
+    } catch (error) {
+      // En cas d'erreur, afficher tous les logs console capturés
+      console.log('\n📋 ===== LOGS CONSOLE DU NAVIGATEUR =====');
+      consoleLogs.forEach(log => console.log(log));
+      console.log('📋 ===== FIN DES LOGS =====\n');
+      throw error;
     } finally {
       await guard.assertClean();
       guard.stop();
