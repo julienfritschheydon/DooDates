@@ -3,6 +3,7 @@
 // Utilise fetch directement au lieu du SDK Google pour éviter les problèmes de version
 
 import { logger } from "@/lib/logger";
+import { getEnv } from "@/lib/env";
 
 export interface DirectGeminiResponse {
   success: boolean;
@@ -27,7 +28,7 @@ export class DirectGeminiService {
   }
 
   private initialize() {
-    this.apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    this.apiKey = getEnv("VITE_GEMINI_API_KEY") || null;
 
     if (!this.apiKey) {
       logger.error("VITE_GEMINI_API_KEY manquante", "api");

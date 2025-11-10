@@ -148,6 +148,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
           {/* Toggle Grid/Table */}
           <div className="flex items-center gap-1 bg-[#1e1e1e] border border-gray-700 rounded-lg p-1">
             <button
+              data-testid="view-toggle-grid"
               onClick={() => onViewModeChange("grid")}
               className={`p-2 rounded transition-colors ${
                 viewMode === "grid" ? "bg-blue-500 text-white" : "text-gray-300 hover:bg-[#2a2a2a]"
@@ -158,6 +159,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
+              data-testid="view-toggle-table"
               onClick={() => onViewModeChange("table")}
               className={`hidden md:block p-2 rounded transition-colors ${
                 viewMode === "table" ? "bg-blue-500 text-white" : "text-gray-300 hover:bg-[#2a2a2a]"
