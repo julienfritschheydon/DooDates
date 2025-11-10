@@ -26,21 +26,32 @@ let supabaseClient: SupabaseClient;
 let testUserId: string;
 let testConversationIds: string[] = [];
 
+// Vérifier si les credentials Supabase sont configurées
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+const hasSupabaseCredentials = supabaseUrl && supabaseAnonKey && 
+  !supabaseUrl.includes('localhost') && supabaseAnonKey !== 'test-anon-key';
+
 // Configuration Supabase (vrai client, pas de mock)
 test.beforeAll(async () => {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('❌ Variables Supabase manquantes (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)');
+  if (!hasSupabaseCredentials) {
+    console.warn('⚠️ Variables Supabase manquantes ou factices - Tests d\'intégration skippés en CI');
+    console.warn('   Pour exécuter ces tests localement, configurez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY dans .env.local');
+    return;
   }
 
-  supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+  supabaseClient = createClient(supabaseUrl!, supabaseAnonKey!);
   console.log('✅ Client Supabase créé pour tests d\'intégration');
 });
 
 // Connexion avec compte de test
 test.beforeEach(async ({ page }) => {
+  // Skip si credentials non configurées
+  if (!hasSupabaseCredentials) {
+    test.skip();
+    return;
+  }
+
   // 1. Nettoyer les données précédentes
   if (testUserId) {
     await cleanupTestData(testUserId);
@@ -89,18 +100,18 @@ test.beforeEach(async ({ page }) => {
 
 // Nettoyage après chaque test
 test.afterEach(async () => {
-  if (testUserId) {
-    await cleanupTestData(testUserId);
-    console.log('✅ Données de test nettoyées');
-  }
+  if (!hasSupabaseCredentials || !testUserId) return;
+  
+  await cleanupTestData(testUserId);
+  console.log('✅ Données de test nettoyées');
 });
 
 // Déconnexion finale
 test.afterAll(async () => {
-  if (supabaseClient) {
-    await supabaseClient.auth.signOut();
-    console.log('✅ Déconnexion du compte de test');
-  }
+  if (!hasSupabaseCredentials || !supabaseClient) return;
+  
+  await supabaseClient.auth.signOut();
+  console.log('✅ Déconnexion du compte de test');
 });
 
 /**
@@ -411,6 +422,16 @@ test.describe('🔗 Connexion Supabase', () => {
 // ============================================================================
 
 test.afterAll(() => {
+  if (!hasSupabaseCredentials) {
+    console.log('\n' + '='.repeat(80));
+    console.log('⚠️ TESTS D\'INTÉGRATION SKIPPÉS');
+    console.log('='.repeat(80));
+    console.log('Les credentials Supabase ne sont pas configurées.');
+    console.log('Pour exécuter ces tests, configurez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.');
+    console.log('='.repeat(80) + '\n');
+    return;
+  }
+
   console.log('\n' + '='.repeat(80));
   console.log('📊 RÉSUMÉ DES TESTS D\'INTÉGRATION (SIMPLIFIÉS)');
   console.log('='.repeat(80));
