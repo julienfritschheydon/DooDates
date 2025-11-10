@@ -13,6 +13,12 @@ const geminiBackend = USE_DIRECT_GEMINI ? directGeminiService : secureGeminiServ
 
 if (USE_DIRECT_GEMINI) {
   logger.info("🔵 Mode DIRECT GEMINI API activé (bypass Edge Function)", "api");
+  const apiKey = getEnv("VITE_GEMINI_API_KEY");
+  if (!apiKey) {
+    logger.error("VITE_GEMINI_API_KEY non configurée en mode direct", "api");
+  } else {
+    logger.info(`VITE_GEMINI_API_KEY configurée: ${apiKey.substring(0, 10)}...`, "api");
+  }
 } else {
   logger.info("🟢 Mode Edge Function activé", "api");
 }
@@ -422,6 +428,22 @@ export class GeminiService {
 
       if (!secureResponse.success) {
         // Gérer les erreurs spécifiques
+        if (secureResponse.error === "CONFIG_ERROR") {
+          const apiKey = getEnv("VITE_GEMINI_API_KEY");
+          logger.error("CONFIG_ERROR détectée", "api", {
+            useDirectGemini: USE_DIRECT_GEMINI,
+            hasApiKey: !!apiKey,
+            apiKeyLength: apiKey?.length || 0,
+            errorMessage: secureResponse.message,
+          });
+          
+          return {
+            success: false,
+            message: "Erreur de configuration: clé API Gemini introuvable ou invalide.",
+            error: "CONFIG_ERROR",
+          };
+        }
+
         if (secureResponse.error === "QUOTA_EXCEEDED") {
           return {
             success: false,
