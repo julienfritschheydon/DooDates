@@ -59,34 +59,6 @@ test.beforeEach(async ({ page }) => {
   testUserId = data.user!.id;
   console.log(`✅ Connecté avec compte de test: ${testUserId.substring(0, 8)}...`);
 
-  // 2.5. Vérifier/créer le profile (fix foreign key constraint)
-  const { data: existingProfile } = await supabaseClient
-    .from('profiles')
-    .select('id')
-    .eq('id', testUserId)
-    .single();
-
-  if (!existingProfile) {
-    console.log('⚠️ Profile manquant, création automatique...');
-    const { error: profileError } = await supabaseClient
-      .from('profiles')
-      .insert({
-        id: testUserId,
-        email: TEST_EMAIL,
-        full_name: 'Test Integration User',
-        timezone: 'Europe/Paris',
-        preferences: {},
-        plan_type: 'free',
-      });
-
-    if (profileError) {
-      console.warn('⚠️ Erreur création profile:', profileError.message);
-      // Continue quand même - le profile existe peut-être déjà
-    } else {
-      console.log('✅ Profile créé');
-    }
-  }
-
   // 3. Configurer la session dans le navigateur
   await page.goto(BASE_URL);
   
