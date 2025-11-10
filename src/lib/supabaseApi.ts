@@ -188,7 +188,7 @@ export async function supabaseDelete(
 
 /**
  * Get data from Supabase table
- * 
+ *
  * @example
  * // Get all conversations for a user
  * supabaseSelect("conversations", {

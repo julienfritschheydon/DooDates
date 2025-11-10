@@ -52,7 +52,10 @@ export class ConversationService {
       });
 
       if (!resumeId) {
-        logger.debug("No resume ID found in URL (checked both 'resume' and 'conversationId' params)", "conversation");
+        logger.debug(
+          "No resume ID found in URL (checked both 'resume' and 'conversationId' params)",
+          "conversation",
+        );
         return null;
       }
 
@@ -60,10 +63,10 @@ export class ConversationService {
 
       // First, set the conversation ID in autoSave (loads conversation from Supabase if logged in)
       const conversation = await autoSave.resumeConversation(resumeId);
-      logger.info("Conversation loaded from autoSave", "conversation", { 
+      logger.info("Conversation loaded from autoSave", "conversation", {
         title: conversation?.title || "null",
         userId: conversation?.userId,
-        hasConversation: !!conversation 
+        hasConversation: !!conversation,
       });
 
       if (!conversation) {
@@ -72,26 +75,36 @@ export class ConversationService {
       }
 
       // Get messages: Try Supabase first if user is logged in, then fallback to localStorage
-      logger.info("Starting message loading process", "conversation", { 
+      logger.info("Starting message loading process", "conversation", {
         resumeId,
         userId: conversation.userId,
-        isGuest: conversation.userId === "guest"
+        isGuest: conversation.userId === "guest",
       });
       let messages: ConversationMessage[] = [];
 
       // Check if user is logged in (conversation.userId is set and not "guest")
       if (conversation.userId && conversation.userId !== "guest") {
         try {
-          logger.debug("Loading messages from Supabase", "conversation", { resumeId, userId: conversation.userId });
+          logger.debug("Loading messages from Supabase", "conversation", {
+            resumeId,
+            userId: conversation.userId,
+          });
           const { getMessages: getSupabaseMessages } = await import(
             "../lib/storage/ConversationStorageSupabase"
           );
-          logger.info("Calling getSupabaseMessages...", "conversation", { resumeId, userId: conversation.userId });
+          logger.info("Calling getSupabaseMessages...", "conversation", {
+            resumeId,
+            userId: conversation.userId,
+          });
           messages = await getSupabaseMessages(resumeId, conversation.userId);
           logger.info("✅ Messages loaded from Supabase", "conversation", {
             resumeId,
             messageCount: messages.length,
-            messages: messages.map(m => ({ id: m.id, role: m.role, content: m.content.substring(0, 50) }))
+            messages: messages.map((m) => ({
+              id: m.id,
+              role: m.role,
+              content: m.content.substring(0, 50),
+            })),
           });
 
           // Cache messages in localStorage for offline access
@@ -100,11 +113,16 @@ export class ConversationService {
           );
           saveLocalMessages(resumeId, messages);
         } catch (supabaseError) {
-          logger.error("❌ Failed to load messages from Supabase, trying localStorage", "conversation", {
-            resumeId,
-            error: supabaseError,
-            errorMessage: supabaseError instanceof Error ? supabaseError.message : String(supabaseError),
-          });
+          logger.error(
+            "❌ Failed to load messages from Supabase, trying localStorage",
+            "conversation",
+            {
+              resumeId,
+              error: supabaseError,
+              errorMessage:
+                supabaseError instanceof Error ? supabaseError.message : String(supabaseError),
+            },
+          );
           // Fallback to localStorage if Supabase fails
           const { getMessages: getLocalMessages } = await import(
             "../lib/storage/ConversationStorageSimple"
@@ -116,7 +134,9 @@ export class ConversationService {
         }
       } else {
         // Guest mode: use localStorage only
-        logger.debug("Loading messages from localStorage (guest mode)", "conversation", { resumeId });
+        logger.debug("Loading messages from localStorage (guest mode)", "conversation", {
+          resumeId,
+        });
         const { getMessages: getLocalMessages } = await import(
           "../lib/storage/ConversationStorageSimple"
         );

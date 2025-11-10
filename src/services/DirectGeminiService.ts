@@ -28,7 +28,7 @@ export class DirectGeminiService {
   }
 
   private initialize() {
-    this.apiKey = getEnv('VITE_GEMINI_API_KEY') || null;
+    this.apiKey = getEnv("VITE_GEMINI_API_KEY") || null;
 
     if (!this.apiKey) {
       logger.error("VITE_GEMINI_API_KEY manquante", "api");
