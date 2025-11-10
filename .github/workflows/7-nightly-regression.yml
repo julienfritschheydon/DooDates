@@ -69,6 +69,10 @@ jobs:
 
       - name: 🔍 Run Full Regression Suite (${{ matrix.project }})
         run: npx playwright test --project="${{ matrix.project }}" --reporter=html,json
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       - name: 📊 Upload Playwright report
         if: always()
