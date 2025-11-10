@@ -6,13 +6,15 @@ import { getEnv, getMode } from "./env";
 const supabaseUrl = getEnv("VITE_SUPABASE_URL");
 const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
-// Debug: Log des variables d'environnement (toujours pour diagnostic production)
-console.log("🔧 DooDates Supabase Config:", {
-  url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : "❌ MISSING",
-  key: supabaseAnonKey ? "✅ Configured" : "❌ MISSING",
-  isLocalDev: !supabaseUrl || !supabaseAnonKey,
-  mode: getMode(),
-});
+// Debug: Log des variables d'environnement (développement uniquement)
+if (import.meta.env.DEV) {
+  console.log("🔧 DooDates Supabase Config:", {
+    url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : "❌ MISSING",
+    key: supabaseAnonKey ? "✅ Configured" : "❌ MISSING",
+    isLocalDev: !supabaseUrl || !supabaseAnonKey,
+    mode: getMode(),
+  });
+}
 
 // Déterminer si on est en mode développement local
 const isLocalDev = !supabaseUrl || !supabaseAnonKey;
