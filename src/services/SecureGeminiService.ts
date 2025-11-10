@@ -17,6 +17,8 @@ export interface SecureGeminiResponse {
 export class SecureGeminiService {
   private static instance: SecureGeminiService;
   private supabaseUrl: string;
+  private readonly MAX_RETRIES = 3;
+  private readonly RETRY_DELAY_MS = 1000;
 
   public static getInstance(): SecureGeminiService {
     if (!SecureGeminiService.instance) {
@@ -27,6 +29,32 @@ export class SecureGeminiService {
 
   private constructor() {
     this.supabaseUrl = getEnv("VITE_SUPABASE_URL") || "";
+  }
+
+  /**
+   * Retry helper avec backoff exponentiel
+   */
+  private async retryWithBackoff<T>(
+    fn: () => Promise<T>,
+    retries: number = this.MAX_RETRIES,
+  ): Promise<T> {
+    let lastError: any;
+
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        return await fn();
+      } catch (error) {
+        lastError = error;
+
+        if (attempt < retries - 1) {
+          const delay = this.RETRY_DELAY_MS * Math.pow(2, attempt);
+          logger.warn(`Retry attempt ${attempt + 1}/${retries} after ${delay}ms`, "api", { error });
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
+    }
+
+    throw lastError;
   }
 
   /**
@@ -109,19 +137,6 @@ export class SecureGeminiService {
 
       // Utiliser fetch direct au lieu de supabase.functions.invoke() pour plus de contrôle
       const edgeFunctionUrl = `${this.supabaseUrl}/functions/v1/hyper-task`;
-      const invokeStartTime = Date.now();
-
-      // Timeout de 10 secondes
-      const FETCH_TIMEOUT = 10000;
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(
-          () =>
-            reject(
-              new Error(`Timeout: Edge Function a pris plus de ${FETCH_TIMEOUT / 1000} secondes`),
-            ),
-          FETCH_TIMEOUT,
-        );
-      });
 
       // Ajouter apikey dans les headers (requis par Supabase)
       const fetchHeaders: Record<string, string> = {
@@ -133,46 +148,62 @@ export class SecureGeminiService {
         fetchHeaders["apikey"] = supabaseAnonKey;
       }
 
-      const fetchPromise = fetch(edgeFunctionUrl, {
-        method: "POST",
-        headers: fetchHeaders,
-        body: JSON.stringify({
-          userInput,
-          prompt,
-        }),
-      }).then(async (response) => {
-        const data = await response.json();
+      // Appel avec retry automatique sur erreurs réseau
+      const result = await this.retryWithBackoff(async () => {
+        // Timeout de 10 secondes
+        const FETCH_TIMEOUT = 10000;
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(
+            () =>
+              reject(
+                new Error(`Timeout: Edge Function a pris plus de ${FETCH_TIMEOUT / 1000} secondes`),
+              ),
+            FETCH_TIMEOUT,
+          );
+        });
 
-        if (!response.ok) {
-          // Erreur 401 = authentification requise
-          if (response.status === 401) {
+        const fetchPromise = fetch(edgeFunctionUrl, {
+          method: "POST",
+          headers: fetchHeaders,
+          body: JSON.stringify({
+            userInput,
+            prompt,
+          }),
+        }).then(async (response) => {
+          const data = await response.json();
+
+          if (!response.ok) {
+            // Erreur 401 = authentification requise
+            if (response.status === 401) {
+              return {
+                data: null,
+                error: {
+                  message:
+                    data.message ||
+                    "Authentification requise. Vérifiez que l'apikey est configuré.",
+                  status: response.status,
+                  code: "UNAUTHORIZED",
+                },
+              };
+            }
+
             return {
               data: null,
               error: {
-                message:
-                  data.message || "Authentification requise. Vérifiez que l'apikey est configuré.",
+                message: data.message || `HTTP ${response.status}: ${response.statusText}`,
                 status: response.status,
-                code: "UNAUTHORIZED",
               },
             };
           }
 
           return {
-            data: null,
-            error: {
-              message: data.message || `HTTP ${response.status}: ${response.statusText}`,
-              status: response.status,
-            },
+            data,
+            error: data.error ? { message: data.error } : null,
           };
-        }
+        });
 
-        return {
-          data,
-          error: data.error ? { message: data.error } : null,
-        };
+        return await Promise.race([fetchPromise, timeoutPromise]);
       });
-
-      const result = await Promise.race([fetchPromise, timeoutPromise]);
 
       const { data, error } = result as any;
 

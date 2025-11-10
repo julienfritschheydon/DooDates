@@ -436,7 +436,7 @@ export class GeminiService {
             apiKeyLength: apiKey?.length || 0,
             errorMessage: secureResponse.message,
           });
-          
+
           return {
             success: false,
             message: "Erreur de configuration: clé API Gemini introuvable ou invalide.",
@@ -465,6 +465,36 @@ export class GeminiService {
             success: false,
             message: "Erreur d'authentification. Veuillez vous reconnecter.",
             error: "UNAUTHORIZED",
+          };
+        }
+
+        if (secureResponse.error === "NETWORK_ERROR") {
+          logger.error("NETWORK_ERROR détectée", "api", {
+            mode: USE_DIRECT_GEMINI ? "DIRECT" : "EDGE_FUNCTION",
+            errorMessage: secureResponse.message,
+            hasSupabaseUrl: !!getEnv("VITE_SUPABASE_URL"),
+            hasSupabaseKey: !!getEnv("VITE_SUPABASE_ANON_KEY"),
+          });
+          
+          return {
+            success: false,
+            message: secureResponse.message || "Erreur réseau lors de la communication avec l'IA",
+            error: "NETWORK_ERROR",
+          };
+        }
+
+        if (secureResponse.error === "API_ERROR") {
+          logger.error("API_ERROR détectée", "api", {
+            mode: USE_DIRECT_GEMINI ? "DIRECT" : "EDGE_FUNCTION",
+            errorMessage: secureResponse.message,
+            hasSupabaseUrl: !!getEnv("VITE_SUPABASE_URL"),
+            hasSupabaseKey: !!getEnv("VITE_SUPABASE_ANON_KEY"),
+          });
+          
+          return {
+            success: false,
+            message: secureResponse.message || "Erreur API lors de la communication avec l'IA",
+            error: "API_ERROR",
           };
         }
 

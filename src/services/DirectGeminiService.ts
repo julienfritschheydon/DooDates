@@ -15,6 +15,8 @@ export interface DirectGeminiResponse {
 export class DirectGeminiService {
   private static instance: DirectGeminiService;
   private apiKey: string | null = null;
+  private readonly MAX_RETRIES = 3;
+  private readonly RETRY_DELAY_MS = 1000;
 
   public static getInstance(): DirectGeminiService {
     if (!DirectGeminiService.instance) {
@@ -36,6 +38,32 @@ export class DirectGeminiService {
     }
 
     logger.info("✅ Direct Gemini API initialisée (fetch direct)", "api");
+  }
+
+  /**
+   * Retry helper avec backoff exponentiel
+   */
+  private async retryWithBackoff<T>(
+    fn: () => Promise<T>,
+    retries: number = this.MAX_RETRIES,
+  ): Promise<T> {
+    let lastError: any;
+
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        return await fn();
+      } catch (error) {
+        lastError = error;
+
+        if (attempt < retries - 1) {
+          const delay = this.RETRY_DELAY_MS * Math.pow(2, attempt);
+          logger.warn(`Retry attempt ${attempt + 1}/${retries} after ${delay}ms`, "api", { error });
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
+    }
+
+    throw lastError;
   }
 
   /**
@@ -82,12 +110,15 @@ export class DirectGeminiService {
         },
       };
 
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
+      // Appel avec retry automatique sur erreurs réseau
+      const response = await this.retryWithBackoff(async () => {
+        return await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        });
       });
 
       if (!response.ok) {

@@ -32,6 +32,7 @@ export function attachConsoleGuard(
     /Failed to load resource/i,
     /Erreur lors du test de connexion Gemini/i,
     /generativelanguage\.googleapis\.com/i,
+    /hyper-task due to access control checks/i,
     // WebKit/Safari n'a pas requestIdleCallback (utilisé par certaines libs React)
     /requestIdleCallback/i,
     /Can't find variable: requestIdleCallback/i,
@@ -39,6 +40,10 @@ export function attachConsoleGuard(
     /Importing a module script failed/i,
     /error loading dynamically imported module/i,
     /ErrorBoundary caught an error/i,
+    // Erreurs React transitoires (lazy loading race conditions)
+    /The above error occurred in the <Route\.Provider> component/i,
+    /The above error occurred in one of your React components/i,
+    /JSHandle@object/i, // Firefox log des objets comme "JSHandle@object" au lieu du message réel
   ];
   // Dev-noise (activé seulement si E2E_DEV_NOISE=1): erreurs réseau externes, Vite/React transitoires, etc.
   const devNoiseAllow = [
