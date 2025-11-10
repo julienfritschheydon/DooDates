@@ -6,6 +6,18 @@ import "./index.css";
 import "./pwa-styles.css";
 import "./styles/docs.css";
 import { logger } from "@/lib/logger";
+import { generateBrowserFingerprint } from "@/lib/browserFingerprint";
+
+// DEBUG: Exposer la fonction de fingerprinting sur window pour tests console
+if (import.meta.env.DEV) {
+  (window as any).testFingerprint = async () => {
+    const fp = await generateBrowserFingerprint();
+    console.log('Fingerprint:', fp.fingerprint);
+    console.log('Confidence:', fp.metadata.confidence);
+    console.log('Components:', fp.components);
+    return fp;
+  };
+}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>

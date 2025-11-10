@@ -1,7 +1,7 @@
 /**
  * Browser Fingerprinting Service
  * Génère une empreinte unique du navigateur pour tracking des quotas guests
- * 
+ *
  * Techniques utilisées:
  * - Canvas fingerprinting (rendu graphique unique)
  * - WebGL fingerprinting (GPU/driver)
