@@ -28,6 +28,22 @@ vi.mock("../../lib/storage/ConversationStorageSimple", () => ({
   getConversationWithMessages: vi.fn(),
 }));
 
+// Mock browserFingerprint pour éviter les erreurs Canvas dans JSDOM
+vi.mock("../../lib/browserFingerprint", () => ({
+  getCachedFingerprint: vi.fn(() => "test-fingerprint-123"),
+  getBrowserMetadata: vi.fn(() => ({
+    userAgent: "test-agent",
+    language: "en-US",
+    platform: "test",
+  })),
+}));
+
+// Mock quotaTracking pour éviter les appels Supabase
+vi.mock("../../lib/quotaTracking", () => ({
+  consumeCredits: vi.fn().mockResolvedValue(true),
+  canConsumeCredits: vi.fn().mockResolvedValue(true),
+}));
+
 // Mock title generation
 vi.mock("../../lib/services/titleGeneration", () => ({
   generateConversationTitle: vi.fn(),

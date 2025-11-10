@@ -262,19 +262,19 @@ export function savePolls(polls: Poll[]): void {
 
 export function getPollBySlugOrId(idOrSlug: string | undefined | null): Poll | null {
   if (!idOrSlug) return null;
-  
+
   // 1) Essayer d'abord le cache mémoire (utile si localStorage n'est pas encore synchronisé)
   logger.debug(`🔍 getPollBySlugOrId: Recherche de ${idOrSlug}`, "poll", {
     cacheSize: memoryPollCache.size,
     cacheKeys: Array.from(memoryPollCache.keys()),
   });
-  
+
   const cachedById = memoryPollCache.get(idOrSlug);
   if (cachedById) {
     logger.debug(`✅ Poll trouvé dans cache mémoire: ${idOrSlug}`, "poll");
     return cachedById;
   }
-  
+
   // Vérifier aussi par slug dans le cache
   for (const poll of memoryPollCache.values()) {
     if (poll.slug === idOrSlug) {
@@ -282,19 +282,20 @@ export function getPollBySlugOrId(idOrSlug: string | undefined | null): Poll | n
       return poll;
     }
   }
-  
+
   // 2) Sinon, rechercher dans l'ensemble unifié (date + form)
   logger.debug(`⚠️ Poll non trouvé dans cache, recherche dans localStorage`, "poll");
   const polls = getAllPolls();
-  const found = polls.find((p) => p.slug === idOrSlug) || polls.find((p) => p.id === idOrSlug) || null;
-  
+  const found =
+    polls.find((p) => p.slug === idOrSlug) || polls.find((p) => p.id === idOrSlug) || null;
+
   if (!found) {
     logger.error(`❌ Poll introuvable: ${idOrSlug}`, "poll", {
       totalPolls: polls.length,
-      pollIds: polls.map(p => p.id).slice(0, 5),
+      pollIds: polls.map((p) => p.id).slice(0, 5),
     });
   }
-  
+
   return found;
 }
 
@@ -317,7 +318,7 @@ export async function addPoll(poll: Poll): Promise<void> {
   savePolls(polls);
   // Mettre à jour le cache mémoire IMMÉDIATEMENT pour robustesse (tests/concurrence)
   memoryPollCache.set(poll.id, poll);
-  
+
   logger.debug(`✅ Poll ajouté au cache mémoire: ${poll.id}`, "poll", {
     cacheSize: memoryPollCache.size,
     pollTitle: poll.title,

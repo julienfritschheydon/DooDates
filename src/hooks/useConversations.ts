@@ -409,7 +409,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
       if (user?.id) {
         try {
           const { createConversation: createSupabaseConversation } = await import(
-            "../lib/storage/ConversationStorageSupabase",
+            "../lib/storage/ConversationStorageSupabase"
           );
           const conversation = await createSupabaseConversation(
             {

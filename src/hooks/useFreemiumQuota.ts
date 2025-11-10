@@ -157,6 +157,17 @@ export const useFreemiumQuota = () => {
       });
   }, [calculateUsage, quotaRefreshKey]);
 
+  // Rafraîchir le quota toutes les 5 secondes pour les guests (Supabase)
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const interval = setInterval(() => {
+        setQuotaRefreshKey((prev) => prev + 1);
+      }, 5000); // 5 secondes
+
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
+
   // Calculate quota status
   const getQuotaStatus = useCallback((): QuotaStatus => {
     const usage = quotaUsage;
@@ -173,7 +184,7 @@ export const useFreemiumQuota = () => {
     };
 
     const guestLimits = getGuestLimits();
-    
+
     return {
       conversations: calculateStatus(usage.conversations, limits.conversations),
       polls: calculateStatus(usage.polls, limits.polls),

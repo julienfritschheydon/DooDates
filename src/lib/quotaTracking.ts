@@ -358,6 +358,7 @@ async function consumeCredits(
     });
   } catch (error) {
     logger.error("Erreur lors de la consommation de crédits", error);
+    throw error; // ✅ PROPAGER l'erreur pour que le try-catch de useMessageSender la capte
   }
 }
 
@@ -376,7 +377,10 @@ export async function incrementConversationCreated(
  * Incrémenter le compteur de polls créés
  * BLOQUANT : Throw une erreur si la limite est atteinte
  */
-export async function incrementPollCreated(userId: string | null | undefined, pollId?: string): Promise<void> {
+export async function incrementPollCreated(
+  userId: string | null | undefined,
+  pollId?: string,
+): Promise<void> {
   await consumeCredits(userId, 1, "poll_created", { pollId });
 }
 

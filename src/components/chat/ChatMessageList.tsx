@@ -181,11 +181,13 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                             // Convertir chaque date en "groupe" individuel pour réutiliser le code d'affichage
                             const dateGroups = dates.map((date) => {
                               const dateObj = new Date(date);
-                              const dayName = dateObj.toLocaleDateString("fr-FR", { weekday: "long" });
+                              const dayName = dateObj.toLocaleDateString("fr-FR", {
+                                weekday: "long",
+                              });
                               const day = dateObj.getDate();
                               const month = dateObj.toLocaleDateString("fr-FR", { month: "long" });
                               const year = dateObj.getFullYear();
-                              
+
                               return {
                                 dates: [date],
                                 label: `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${day} ${month} ${year}`,
