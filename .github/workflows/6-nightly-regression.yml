@@ -91,18 +91,35 @@ jobs:
         run: node scripts/generate-regression-summary.js
         continue-on-error: true
 
+      - name: 📊 Generate Detailed Failure Report
+        if: always()
+        run: |
+          echo "🔍 Extraction des tests en échec..."
+          node scripts/extract-failures.js || echo "⚠️ Extraction des failures impossible"
+        continue-on-error: true
+
       - name: 📋 Display Summary
+        if: always()
         run: |
           if [ -f regression-summary.md ]; then
+            echo "📊 Résumé de régression:"
             cat regression-summary.md
           fi
+          if [ -f failure-report.md ]; then
+            echo ""
+            echo "❌ Rapport d'échecs détaillé:"
+            cat failure-report.md
+            cat failure-report.md >> $GITHUB_STEP_SUMMARY
+          fi
 
-      - name: 📤 Upload Summary
+      - name: 📤 Upload Summary & Failure Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: regression-summary
-          path: regression-summary.md
+          path: |
+            regression-summary.md
+            failure-report.md
           retention-days: 30
 
       - name: 📝 Create or Update GitHub Issue on Failure
