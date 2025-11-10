@@ -277,8 +277,11 @@ const Dashboard: React.FC = () => {
                     }`}
                     style={{
                       width: `${Math.min(
-                        Math.max(quotaStatus.conversations.percentage, quotaStatus.aiMessages.percentage),
-                        100
+                        Math.max(
+                          quotaStatus.conversations.percentage,
+                          quotaStatus.aiMessages.percentage,
+                        ),
+                        100,
                       )}%`,
                     }}
                   />

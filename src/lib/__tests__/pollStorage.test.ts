@@ -199,6 +199,8 @@ describe("pollStorage", () => {
       dates: [],
       questions: [],
     } as unknown as Poll;
-    await expect(addPoll(badForm)).rejects.toThrow("Invalid form poll: title must be a non-empty string");
+    await expect(addPoll(badForm)).rejects.toThrow(
+      "Invalid form poll: title must be a non-empty string",
+    );
   });
 });

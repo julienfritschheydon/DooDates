@@ -7,10 +7,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getConsumptionJournal, type CreditJournalEntry } from "@/lib/quotaTracking";
-import {
-  getGuestQuotaJournal,
-  type GuestQuotaJournalEntry,
-} from "@/lib/guestQuotaService";
+import { getGuestQuotaJournal, type GuestQuotaJournalEntry } from "@/lib/guestQuotaService";
 import {
   ArrowLeft,
   Calendar,
