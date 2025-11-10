@@ -475,7 +475,7 @@ export class GeminiService {
             hasSupabaseUrl: !!getEnv("VITE_SUPABASE_URL"),
             hasSupabaseKey: !!getEnv("VITE_SUPABASE_ANON_KEY"),
           });
-          
+
           return {
             success: false,
             message: secureResponse.message || "Erreur réseau lors de la communication avec l'IA",
@@ -490,7 +490,7 @@ export class GeminiService {
             hasSupabaseUrl: !!getEnv("VITE_SUPABASE_URL"),
             hasSupabaseKey: !!getEnv("VITE_SUPABASE_ANON_KEY"),
           });
-          
+
           return {
             success: false,
             message: secureResponse.message || "Erreur API lors de la communication avec l'IA",

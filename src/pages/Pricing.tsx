@@ -231,7 +231,11 @@ export function PricingPage() {
         </div>
 
         {/* FAQ */}
-        <PricingFAQ />
+        <PricingFAQ
+          showAuthModal={showAuthModal}
+          setShowAuthModal={setShowAuthModal}
+          authMode={authMode}
+        />
 
         {/* CTA Final */}
         <div className="max-w-4xl mx-auto text-center bg-blue-600 dark:bg-blue-700 text-white rounded-2xl p-12">
@@ -244,6 +248,9 @@ export function PricingPage() {
           </Button>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} defaultMode={authMode} />
     </div>
   );
 }
@@ -389,7 +396,13 @@ function CreditPackCard({
 // FAQ Component
 // ================================================
 
-function PricingFAQ() {
+interface PricingFAQProps {
+  showAuthModal: boolean;
+  setShowAuthModal: (show: boolean) => void;
+  authMode: "signin" | "signup";
+}
+
+function PricingFAQ({ showAuthModal, setShowAuthModal, authMode }: PricingFAQProps) {
   const faqs = [
     {
       q: "Qu'est-ce qu'un crédit IA ?",
@@ -435,9 +448,6 @@ function PricingFAQ() {
           </details>
         ))}
       </div>
-
-      {/* Auth Modal */}
-      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} defaultMode={authMode} />
     </div>
   );
 }

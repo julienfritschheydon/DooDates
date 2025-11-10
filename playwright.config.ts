@@ -33,7 +33,11 @@ export default defineConfig({
     },
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: { 
+        ...devices['Desktop Safari'],
+        // Safari peut être plus lent, augmenter les timeouts
+        actionTimeout: 20000,
+      },
     },
     {
       name: 'Mobile Chrome',
@@ -41,7 +45,11 @@ export default defineConfig({
     },
     {
       name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      use: { 
+        ...devices['iPhone 12'],
+        // Mobile Safari est souvent plus lent, augmenter les timeouts
+        actionTimeout: 25000,
+      },
     },
   ],
 

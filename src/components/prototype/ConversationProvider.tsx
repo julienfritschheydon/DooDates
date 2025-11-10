@@ -212,7 +212,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     setConversationId(null);
     setMessages([]);
     try {
-      if (typeof localStorage !== 'undefined') {
+      if (typeof localStorage !== "undefined") {
         localStorage.removeItem("prototype_messages");
       }
     } catch (error) {

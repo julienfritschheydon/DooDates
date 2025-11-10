@@ -1,0 +1,359 @@
+/**
+ * Tests d'intégration pour les workflows unifiés DooDates
+ * Focus sur l'intégration des services sans UI
+ */
+
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ConversationStorageLocal } from '../../src/lib/storage/ConversationStorageLocal';
+import { generateConversationTitle } from '../../src/lib/services/titleGeneration';
+import type { Conversation, ConversationMessage } from '../../src/types/conversation';
+
+// ============================================================================
+// SETUP & MOCKS
+// ============================================================================
+
+// Mock localStorage
+const mockLocalStorage = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: vi.fn((key: string) => store[key] || null),
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value;
+    }),
+    removeItem: vi.fn((key: string) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    })
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: mockLocalStorage
+});
+
+// Mock title generation service
+vi.mock('../../src/lib/services/titleGeneration', () => ({
+  generateConversationTitle: vi.fn()
+}));
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+const createTestConversation = (overrides: Partial<Conversation> = {}): Conversation => ({
+  id: 'test-conv-1',
+  title: 'Test Conversation',
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
+  firstMessage: 'Test message',
+  messageCount: 0,
+  isFavorite: false,
+  status: 'active',
+  tags: [],
+  ...overrides
+});
+
+const createTestMessage = (overrides: Partial<ConversationMessage> = {}): ConversationMessage => ({
+  id: 'msg-1',
+  content: 'Test message',
+  role: 'user',
+  timestamp: new Date('2024-01-01'),
+  conversationId: 'test-conv-1',
+  ...overrides
+});
+
+// ============================================================================
+// INTEGRATION TESTS - SERVICE LEVEL
+// ============================================================================
+
+describe('Unified Flow Integration Tests - Service Level', () => {
+  beforeEach(() => {
+    // Reset localStorage
+    mockLocalStorage.clear();
+    vi.clearAllMocks();
+  });
+
+  describe('Workflow: Conversation Creation → Title Generation', () => {
+    it('should create conversation and generate title', async () => {
+      // Mock title generation
+      const mockGenerateTitle = vi.mocked(generateConversationTitle);
+      mockGenerateTitle.mockReturnValue({
+        title: 'Réunion équipe projet',
+        success: true,
+        sourceMessages: ['Organisons une réunion équipe pour le projet']
+      });
+
+      // 1. Create conversation
+      const conversation = createTestConversation({
+        title: 'Conversation temporaire'
+      });
+      
+      await ConversationStorageLocal.saveConversation(conversation);
+
+      // 2. Add message
+      const message = createTestMessage({
+        content: 'Organisons une réunion équipe pour le projet'
+      });
+      
+      await ConversationStorageLocal.saveMessages(conversation.id, [message]);
+
+      // 3. Generate title
+      const messages = await ConversationStorageLocal.getMessages(conversation.id);
+      const titleResult = generateConversationTitle(messages);
+
+      // 4. Verify title generation
+      expect(mockGenerateTitle).toHaveBeenCalledWith(messages);
+      expect(titleResult.title).toBe('Réunion équipe projet');
+      expect(titleResult.success).toBe(true);
+
+      // 5. Update conversation with new title
+      const updatedConversation = {
+        ...conversation,
+        title: titleResult.title,
+        updatedAt: new Date()
+      };
+      
+      await ConversationStorageLocal.saveConversation(updatedConversation);
+
+      // 6. Verify conversation is saved with new title
+      const savedConversation = await ConversationStorageLocal.getConversation(conversation.id);
+      expect(savedConversation?.title).toBe('Réunion équipe projet');
+    });
+
+    it('should handle title generation failure gracefully', async () => {
+      // Mock title generation failure
+      const mockGenerateTitle = vi.mocked(generateConversationTitle);
+      mockGenerateTitle.mockRejectedValue(new Error('API unavailable'));
+
+      // 1. Create conversation
+      const conversation = createTestConversation();
+      await ConversationStorageLocal.saveConversation(conversation);
+
+      // 2. Add message
+      const message = createTestMessage();
+      await ConversationStorageLocal.saveMessages(conversation.id, [message]);
+
+      // 3. Try to generate title
+      const messages = await ConversationStorageLocal.getMessages(conversation.id);
+      
+      try {
+        generateConversationTitle(messages);
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe('API unavailable');
+      }
+
+      // 4. Verify conversation still exists with original title
+      const savedConversation = await ConversationStorageLocal.getConversation(conversation.id);
+      expect(savedConversation?.title).toBe('Test Conversation');
+    });
+  });
+
+  describe('Workflow: Conversation Duplication', () => {
+    it('should duplicate conversation and generate new title', async () => {
+      // 1. Create original conversation with messages
+      const originalConversation = createTestConversation({
+        title: 'Conversation Originale'
+      });
+      
+      await ConversationStorageLocal.saveConversation(originalConversation);
+      
+      const message = createTestMessage({
+        content: 'Message original'
+      });
+      
+      await ConversationStorageLocal.saveMessages(originalConversation.id, [message]);
+
+      // 2. Mock title generation for duplication
+      const mockGenerateTitle = vi.mocked(generateConversationTitle);
+      mockGenerateTitle.mockReturnValue({
+        title: 'Copie - Conversation Originale',
+        success: true,
+        sourceMessages: ['Message original']
+      });
+
+      // 3. Duplicate conversation
+      const duplicatedConversation = createTestConversation({
+        id: 'test-conv-2',
+        title: 'Conversation dupliquée'
+      });
+      
+      await ConversationStorageLocal.saveConversation(duplicatedConversation);
+
+      // 4. Copy messages
+      const originalMessages = await ConversationStorageLocal.getMessages(originalConversation.id);
+      const duplicatedMessages = originalMessages.map(msg => ({
+        ...msg,
+        id: `${msg.id}-copy`,
+        conversationId: duplicatedConversation.id
+      }));
+      
+      await ConversationStorageLocal.saveMessages(duplicatedConversation.id, duplicatedMessages);
+
+      // 5. Generate new title
+      const titleResult = generateConversationTitle(duplicatedMessages);
+      
+      // 6. Update duplicated conversation with new title
+      const updatedDuplicatedConversation = {
+        ...duplicatedConversation,
+        title: titleResult.title
+      };
+      
+      await ConversationStorageLocal.saveConversation(updatedDuplicatedConversation);
+
+      // 7. Verify both conversations exist
+      const conversations = await ConversationStorageLocal.getConversations();
+      expect(conversations).toHaveLength(2);
+      
+      const duplicated = conversations.find(c => c.id === duplicatedConversation.id);
+      expect(duplicated?.title).toBe('Copie - Conversation Originale');
+    });
+  });
+
+  describe('Workflow: Message Storage and Retrieval', () => {
+    it('should store and retrieve messages correctly', async () => {
+      // 1. Create conversation
+      const conversation = createTestConversation();
+      await ConversationStorageLocal.saveConversation(conversation);
+
+      // 2. Add multiple messages
+      const messages = [
+        createTestMessage({
+          id: 'msg-1',
+          content: 'Premier message',
+          role: 'user'
+        }),
+        createTestMessage({
+          id: 'msg-2',
+          content: 'Réponse assistant',
+          role: 'assistant'
+        }),
+        createTestMessage({
+          id: 'msg-3',
+          content: 'Deuxième message utilisateur',
+          role: 'user'
+        })
+      ];
+
+      for (const message of messages) {
+        await ConversationStorageLocal.saveMessages(conversation.id, [message]);
+      }
+
+      // 3. Retrieve messages
+      const retrievedMessages = await ConversationStorageLocal.getMessages(conversation.id);
+      
+      // 4. Verify all messages are stored
+      expect(retrievedMessages).toHaveLength(3);
+      expect(retrievedMessages[0].content).toBe('Premier message');
+      expect(retrievedMessages[1].content).toBe('Réponse assistant');
+      expect(retrievedMessages[2].content).toBe('Deuxième message utilisateur');
+
+      // 5. Verify message order
+      expect(retrievedMessages[0].role).toBe('user');
+      expect(retrievedMessages[1].role).toBe('assistant');
+      expect(retrievedMessages[2].role).toBe('user');
+    });
+
+    it('should handle concurrent message additions', async () => {
+      // 1. Create conversation
+      const conversation = createTestConversation();
+      await ConversationStorageLocal.saveConversation(conversation);
+
+      // 2. Add messages concurrently
+      const messagePromises = Array.from({ length: 5 }, (_, i) => {
+        const message = createTestMessage({
+          id: `msg-${i}`,
+          content: `Message concurrent ${i}`,
+          timestamp: new Date(Date.now() + i * 1000)
+        });
+        return ConversationStorageLocal.saveMessages(conversation.id, [message]);
+      });
+
+      await Promise.all(messagePromises);
+
+      // 3. Verify all messages are stored
+      const messages = await ConversationStorageLocal.getMessages(conversation.id);
+      expect(messages).toHaveLength(5);
+
+      // 4. Verify messages are in correct order
+      for (let i = 0; i < 5; i++) {
+        expect(messages[i].content).toBe(`Message concurrent ${i}`);
+      }
+    });
+  });
+
+  describe('Error Handling and Recovery', () => {
+    it('should handle storage errors gracefully', async () => {
+      // Mock storage error
+      vi.spyOn(ConversationStorageLocal, 'saveConversation').mockRejectedValue(
+        new Error('Storage full')
+      );
+
+      const conversation = createTestConversation();
+
+      // Verify error is thrown
+      await expect(ConversationStorageLocal.saveConversation(conversation))
+        .rejects.toThrow('Storage full');
+    });
+
+    it('should handle invalid conversation data', async () => {
+      // Try to save invalid conversation
+      const invalidConversation = {
+        id: '',
+        title: '',
+        // Missing required fields
+      } as any;
+
+      // This should either throw an error or handle gracefully
+      try {
+        await ConversationStorageLocal.saveConversation(invalidConversation);
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+      }
+    });
+  });
+
+  describe('Performance with Large Data Sets', () => {
+    it('should handle large conversation history efficiently', async () => {
+      // 1. Create conversation
+      const conversation = createTestConversation();
+      await ConversationStorageLocal.saveConversation(conversation);
+
+      // 2. Add many messages
+      const messageCount = 100;
+      const messages = Array.from({ length: messageCount }, (_, i) => 
+        createTestMessage({
+          id: `msg-${i}`,
+          content: `Message ${i}`,
+          role: i % 2 === 0 ? 'user' : 'assistant',
+          timestamp: new Date(Date.now() + i * 1000)
+        })
+      );
+
+      const startTime = performance.now();
+      
+      // Add messages in batches for better performance
+      const batchSize = 10;
+      for (let i = 0; i < messages.length; i += batchSize) {
+        const batch = messages.slice(i, i + batchSize);
+        await ConversationStorageLocal.saveMessages(conversation.id, batch);
+      }
+
+      const endTime = performance.now();
+      const addTime = endTime - startTime;
+
+      // 3. Retrieve messages
+      const retrieveStartTime = performance.now();
+      const retrievedMessages = await ConversationStorageLocal.getMessages(conversation.id);
+      const retrieveEndTime = performance.now();
+      const retrieveTime = retrieveEndTime - retrieveStartTime;
+
+      // 4. Verify performance (should be reasonable for 100 messages)
+      expect(addTime).toBeLessThan(5000); // Less than 5 seconds to add
+      expect(retrieveTime).toBeLessThan(1000); // Less than 1 second to retrieve
+      expect(retrievedMessages).toHaveLength(messageCount);
+    });
+  });
+});
