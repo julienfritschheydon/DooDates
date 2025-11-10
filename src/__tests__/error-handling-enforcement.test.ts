@@ -260,7 +260,7 @@ describe('Centralized Error Handling Enforcement', () => {
 describe('Error Handling Integration Tests', () => {
   it('should have centralized error handling system available', async () => {
     // Test that we can import the centralized system
-    const { DooDatesError, ErrorFactory, logError, handleError } = await import('../src/lib/error-handling');
+    const { DooDatesError, ErrorFactory, logError, handleError } = await import('../lib/error-handling');
     
     expect(DooDatesError).toBeDefined();
     expect(ErrorFactory).toBeDefined();
@@ -269,7 +269,7 @@ describe('Error Handling Integration Tests', () => {
   });
 
   it('should have error factory methods for common scenarios', async () => {
-    const { ErrorFactory } = await import('../src/lib/error-handling');
+    const { ErrorFactory } = await import('../lib/error-handling');
     
     expect(typeof ErrorFactory.network).toBe('function');
     expect(typeof ErrorFactory.validation).toBe('function');
@@ -280,7 +280,7 @@ describe('Error Handling Integration Tests', () => {
   });
 
   it('should properly categorize and handle errors', async () => {
-    const { ErrorFactory, handleError } = await import('../src/lib/error-handling');
+    const { ErrorFactory, handleError } = await import('../lib/error-handling');
     
     const testError = ErrorFactory.validation('Test error', 'Test user message');
     const handledError = handleError(testError, { component: 'test' });
