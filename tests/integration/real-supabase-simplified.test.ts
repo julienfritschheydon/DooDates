@@ -32,7 +32,10 @@ test.beforeAll(async () => {
   const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('❌ Variables Supabase manquantes (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)');
+    console.warn('⚠️ Variables Supabase manquantes - Tests d\'intégration skippés en CI');
+    console.warn('   Pour exécuter ces tests localement, configurez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY');
+    test.skip(true, 'Supabase credentials not configured');
+    return;
   }
 
   supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
