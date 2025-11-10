@@ -304,5 +304,31 @@ failures.forEach(f => {
 
 **Date**: 2025-11-10  
 **Auteur**: Assistant AI  
-**Statut**: ✅ Analysis Complete, Fixes Applied
+**Statut**: ✅ Analysis Complete, Fixes Applied, Failures Identified
+
+---
+
+## 🆕 UPDATE: Tests en Échec Identifiés
+
+**Date analyse**: 2025-11-10 04:00 UTC
+
+### **4 Tests échouent sur Mobile Chrome**:
+
+1. ❌ `supabase-integration.spec.ts:20` - "should have all Supabase tests passing" (812ms)
+2. ❌ `supabase-integration.spec.ts:97` - "should not have timeout errors" (831ms)  
+3. ❌ `supabase-integration.spec.ts:134` - "should display test results in a readable format" (830ms)
+4. ❌ `dashboard-complete.spec.ts:383` - "@functional - Basculer entre vue grille et vue tableau" (50.0s - timeout)
+
+### **Root Causes**:
+- Tests 1-3: Page `/diagnostic/supabase` n'existe pas ou ne se charge pas sur mobile
+- Test 4: Vue tableau probablement non disponible sur mobile (timeout après 50s)
+
+### **Solutions Implémentées**:
+- ✅ Script `scripts/extract-failures.js` créé pour rapport automatique
+- ✅ Workflow mis à jour avec rapport détaillé des failures
+- ✅ Documentation détaillée: `NIGHTLY-FAILURES-ANALYSIS.md`
+
+**Voir**: [NIGHTLY-FAILURES-ANALYSIS.md](./NIGHTLY-FAILURES-ANALYSIS.md) pour l'analyse complète et les solutions proposées.
+
+---
 
