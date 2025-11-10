@@ -13,6 +13,7 @@
 
 import { getCurrentUserId } from "./pollStorage";
 import { logger } from "./logger";
+import { consumeGuestCredits } from "./guestQuotaService";
 
 const STORAGE_KEY = "doodates_quota_consumed";
 const JOURNAL_KEY = "doodates_quota_journal";
@@ -277,9 +278,24 @@ async function consumeCredits(
   metadata?: CreditJournalEntry["metadata"],
 ): Promise<void> {
   try {
+    const currentUserId = userId || getCurrentUserId();
+
+    // Pour les guests, utiliser le service Supabase sécurisé
+    if (!userId || userId === "guest") {
+      const result = await consumeGuestCredits(action, credits, metadata);
+      if (!result.success) {
+        logger.warn("Guest credit consumption failed", "quota", {
+          action,
+          credits,
+          error: result.error,
+        });
+      }
+      return;
+    }
+
+    // Pour les utilisateurs authentifiés, utiliser localStorage
     const storageData = localStorage.getItem(STORAGE_KEY);
     const allData: AllQuotaData = storageData ? JSON.parse(storageData) : {};
-    const currentUserId = userId || getCurrentUserId();
 
     // Obtenir les données actuelles (avec vérification de reset)
     const currentData = await getQuotaConsumed(userId);

@@ -9,6 +9,13 @@ import { logError, ErrorFactory } from "../lib/error-handling";
 import { useConversations } from "./useConversations";
 import { logger } from "../lib/logger";
 import { getQuotaConsumed } from "../lib/quotaTracking";
+import {
+  getOrCreateGuestQuota,
+  canConsumeCredits,
+  consumeGuestCredits,
+  getGuestLimits,
+  type GuestQuotaData,
+} from "../lib/guestQuotaService";
 
 export interface QuotaLimits {
   conversations: number;
@@ -73,19 +80,34 @@ export const useFreemiumQuota = () => {
     polls: 0,
     storageUsed: 0,
   });
+  const [guestQuota, setGuestQuota] = useState<GuestQuotaData | null>(null);
 
   const isAuthenticated = !!user;
   const limits = isAuthenticated ? AUTHENTICATED_LIMITS : GUEST_LIMITS;
 
   // Calculate current usage (async)
   const calculateUsage = useCallback(async (): Promise<QuotaUsage> => {
-    // Utiliser le système de tracking des crédits consommés (créations)
-    // Les crédits consommés ne se remboursent jamais, même si on supprime
+    // Pour les guests, utiliser la validation serveur Supabase
+    if (!isAuthenticated) {
+      try {
+        const quota = await getOrCreateGuestQuota();
+        if (quota) {
+          setGuestQuota(quota);
+          return {
+            conversations: quota.conversationsCreated,
+            polls: quota.pollsCreated,
+            storageUsed: 0, // Pas de limite storage pour guests via Supabase
+          };
+        }
+      } catch (error) {
+        logger.error("Failed to fetch guest quota from Supabase", error);
+        // Fallback vers localStorage si Supabase échoue
+      }
+    }
+
+    // Pour les utilisateurs authentifiés, utiliser le système existant
     const quotaConsumed = await getQuotaConsumed(user?.id);
 
-    // Le quota affiche les créations totales, pas les éléments existants
-    // Pour les conversations, on utilise le total des crédits consommés
-    // car le quota limite le nombre total de crédits, pas juste les conversations
     const conversationCount = quotaConsumed.totalCreditsConsumed || 0;
 
     // Estimate storage usage from localStorage
@@ -103,8 +125,6 @@ export const useFreemiumQuota = () => {
       );
     }
 
-    // Utiliser le système de tracking des crédits consommés (créations)
-    // Les crédits consommés ne se remboursent jamais, même si on supprime
     const pollCount = quotaConsumed.pollsCreated || 0;
 
     return {
@@ -112,7 +132,7 @@ export const useFreemiumQuota = () => {
       polls: pollCount,
       storageUsed,
     };
-  }, [user?.id, quotaRefreshKey]);
+  }, [user?.id, quotaRefreshKey, isAuthenticated]);
 
   // Charger les données de quota de manière asynchrone
   useEffect(() => {
@@ -149,15 +169,29 @@ export const useFreemiumQuota = () => {
   }, [quotaUsage, limits]);
 
   // Check if action is allowed
-  const canCreateConversation = useCallback(() => {
+  const canCreateConversation = useCallback(async () => {
+    // Pour les guests, vérifier avec Supabase
+    if (!isAuthenticated) {
+      const check = await canConsumeCredits("conversation_created", 1);
+      return check.allowed;
+    }
+
+    // Pour les authentifiés, utiliser le système existant
     const status = getQuotaStatus();
     return !status.conversations.isAtLimit;
-  }, [getQuotaStatus]);
+  }, [getQuotaStatus, isAuthenticated]);
 
-  const canCreatePoll = useCallback(() => {
+  const canCreatePoll = useCallback(async () => {
+    // Pour les guests, vérifier avec Supabase
+    if (!isAuthenticated) {
+      const check = await canConsumeCredits("poll_created", 1);
+      return check.allowed;
+    }
+
+    // Pour les authentifiés, utiliser le système existant
     const status = getQuotaStatus();
     return !status.polls.isAtLimit;
-  }, [getQuotaStatus]);
+  }, [getQuotaStatus, isAuthenticated]);
 
   const canUseFeature = useCallback(
     (feature: string) => {
@@ -178,8 +212,9 @@ export const useFreemiumQuota = () => {
   }, []);
 
   // Check and enforce limits
-  const checkConversationLimit = useCallback(() => {
-    if (!canCreateConversation()) {
+  const checkConversationLimit = useCallback(async () => {
+    const canCreate = await canCreateConversation();
+    if (!canCreate) {
       showAuthIncentive("conversation_limit");
       return false;
     }
@@ -196,8 +231,9 @@ export const useFreemiumQuota = () => {
     return true;
   }, [canCreateConversation, showAuthIncentive, getQuotaStatus, isAuthenticated]);
 
-  const checkPollLimit = useCallback(() => {
-    if (!canCreatePoll()) {
+  const checkPollLimit = useCallback(async () => {
+    const canCreate = await canCreatePoll();
+    if (!canCreate) {
       showAuthIncentive("poll_limit");
       return false;
     }
