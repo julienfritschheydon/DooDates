@@ -181,6 +181,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   : "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white border-gray-700"
               }`}
               title={selectedIdsCount > 0 ? "Désélectionner tout" : "Sélectionner tout"}
+              data-testid="selection-toggle-button"
             >
               <CheckSquare className="w-5 h-5" />
               <span className="hidden sm:inline">
