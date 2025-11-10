@@ -125,7 +125,8 @@ export function WorkspaceLayoutPrototype() {
   }, [newChatTimestamp, conversationId, resumeId, closeEditor, setCurrentPoll]);
 
   // Hook legacy pour clearConversation (non migré)
-  const { clearConversation } = useConversation();
+  const conversationContext = useConversation();
+  const clearConversation = conversationContext?.clearConversation || (() => {});
 
   // Hook onboarding
   const { startOnboarding } = useOnboarding();

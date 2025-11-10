@@ -448,10 +448,13 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 export function useConversation() {
   const context = useContext(ConversationContext);
   if (context === undefined) {
-    throw ErrorFactory.validation(
-      "useConversation must be used within ConversationProvider",
-      "Hook utilisé hors contexte",
-    );
+    // Log warning au lieu de throw pour éviter crash dans Firefox/Safari
+    // Le race condition du lazy loading peut causer des appels avant mount complet
+    if (typeof import.meta !== 'undefined' && import.meta.env?.DEV) {
+      console.warn('[useConversation] Called before ConversationProvider mounted (race condition in lazy loading)');
+    }
+    // Retourner null pour que les composants puissent gérer gracieusement
+    return null;
   }
   return context;
 }
