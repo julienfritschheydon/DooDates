@@ -7,7 +7,7 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     include: [
-      'tests/error-handling-enforcement.test.ts',
+      'src/__tests__/error-handling-enforcement.test.ts',
     ],
   },
   resolve: {

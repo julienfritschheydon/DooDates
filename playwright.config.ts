@@ -8,7 +8,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 export default defineConfig({
   testDir: './tests',
   testMatch: ['**/*.spec.ts', '**/*.test.ts', '**/*_test.ts'],
-  testIgnore: ['**/OLD/**', '**/error-handling-enforcement.test.ts', '**/gemini-automated.test.ts'],
+  testIgnore: ['**/OLD/**', '**/gemini-automated.test.ts'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
