@@ -102,9 +102,9 @@ function generateMockPollResponse(prompt: string): any {
 function generateEdgeFunctionResponse(userInput: string, prompt?: string): any {
   // Use userInput directly (it's already the user's message)
   // The prompt is the full system prompt, we don't need to extract from it
-  const userPrompt = userInput || (prompt ? prompt.split('\n').pop() : '');
+  const userPrompt = userInput || (prompt ? prompt.split('\n').pop() : '') || '';
   
-  console.log('🔧 Edge Function mock - Generating response for:', userPrompt.substring(0, 100));
+  // console.log('🔧 Edge Function mock - Generating response for:', userPrompt.substring(0, 100));
   
   // Generate the poll response using the same logic as Gemini mock
   const mockPollResponse = generateMockPollResponse(userPrompt);
@@ -113,13 +113,13 @@ function generateEdgeFunctionResponse(userInput: string, prompt?: string): any {
   // This is the JSON string that Gemini would return
   const pollDataText = mockPollResponse.candidates[0].content.parts[0].text;
   
-  console.log('🔧 Edge Function mock - Generated poll data:', pollDataText.substring(0, 200));
-  console.log('🔧 Edge Function mock - Full poll data:', pollDataText);
+  // console.log('🔧 Edge Function mock - Generated poll data:', pollDataText.substring(0, 200));
+  // console.log('🔧 Edge Function mock - Full poll data:', pollDataText);
   
   // Validate that pollDataText is valid JSON
   try {
     const parsed = JSON.parse(pollDataText);
-    console.log('🔧 Edge Function mock - JSON is valid, type:', parsed.type, 'questions:', parsed.questions?.length);
+    // console.log('🔧 Edge Function mock - JSON is valid, type:', parsed.type, 'questions:', parsed.questions?.length);
   } catch (e) {
     console.error('❌ Edge Function mock - Invalid JSON generated!', e);
     throw e;
@@ -147,11 +147,11 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
     const method = request.method();
     const url = request.url();
     
-    console.log('🔧 Edge Function mock - Intercepted request:', method, url);
+    // console.log('🔧 Edge Function mock - Intercepted request:', method, url);
     
     // Handle OPTIONS preflight requests for CORS
     if (method === 'OPTIONS') {
-      console.log('🔧 Edge Function mock - Handling OPTIONS preflight');
+      // console.log('🔧 Edge Function mock - Handling OPTIONS preflight');
       await route.fulfill({
         status: 200,
         headers: {
@@ -166,7 +166,7 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
     
     // Handle POST requests
     if (method !== 'POST') {
-      console.log('🔧 Edge Function mock - Non-POST request, continuing');
+      // console.log('🔧 Edge Function mock - Non-POST request, continuing');
       await route.continue();
       return;
     }
@@ -176,11 +176,11 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
       const userInput = postData?.userInput || '';
       const prompt = postData?.prompt;
       
-      console.log('🔧 Edge Function mock - User input:', userInput.substring(0, 100) + '...');
+      // console.log('🔧 Edge Function mock - User input:', userInput.substring(0, 100) + '...');
       
       const mockResponse = generateEdgeFunctionResponse(userInput, prompt);
       
-      console.log('🔧 Edge Function mock - Returning response:', JSON.stringify(mockResponse).substring(0, 200));
+      // console.log('🔧 Edge Function mock - Returning response:', JSON.stringify(mockResponse).substring(0, 200));
       
       await route.fulfill({
         status: 200,
@@ -215,7 +215,7 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
     const method = request.method();
     const url = request.url();
     
-    console.log('🔧 Edge Function mock (alt pattern) - Intercepted request:', method, url);
+    // console.log('🔧 Edge Function mock (alt pattern) - Intercepted request:', method, url);
     
     if (method === 'OPTIONS') {
       await route.fulfill({
@@ -240,7 +240,7 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
       const userInput = postData?.userInput || '';
       const prompt = postData?.prompt;
       
-      console.log('🔧 Edge Function mock (alt pattern) - User input:', userInput.substring(0, 100) + '...');
+      // console.log('🔧 Edge Function mock (alt pattern) - User input:', userInput.substring(0, 100) + '...');
       
       const mockResponse = generateEdgeFunctionResponse(userInput, prompt);
       
@@ -292,7 +292,7 @@ export async function setupGeminiMock(page: Page) {
     
     // Si c'est un test de connexion (prompt court comme "Test de connexion"), retourner une réponse simple
     if (userPrompt.toLowerCase().includes('test de connexion') || userPrompt.toLowerCase().includes('ok')) {
-      console.log('🤖 Gemini API mock - Test de connexion');
+      // console.log('🤖 Gemini API mock - Test de connexion');
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -319,7 +319,7 @@ export async function setupGeminiMock(page: Page) {
     
     // Si c'est une demande de modification (détection d'intention)
     if (isModificationRequest && (lowerPrompt.includes('intention') || lowerPrompt.includes('détecte') || lowerPrompt.includes('assistant qui détecte'))) {
-      console.log('🤖 Gemini API mock - Détection intention (modification)');
+      // console.log('🤖 Gemini API mock - Détection intention (modification)');
       let action = null;
       let payload: any = {};
       
@@ -364,7 +364,7 @@ export async function setupGeminiMock(page: Page) {
       return;
     }
     
-    console.log('🤖 Gemini API mock - Prompt:', userPrompt.substring(0, 100) + '...');
+    // console.log('🤖 Gemini API mock - Prompt:', userPrompt.substring(0, 100) + '...');
     
     const mockResponse = generateMockPollResponse(userPrompt);
     

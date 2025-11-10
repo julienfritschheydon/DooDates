@@ -446,38 +446,67 @@ export default function FormPollCreator({
     isFinalizingRef.current = true;
 
     try {
-      // ✅ Utiliser le hook centralisé pour créer le formulaire
-      const { poll: saved, error } = await createFormPoll({
-        title: draft.title,
-        description: undefined,
-        questions: draft.questions.map((q: any) => ({
-          id: q.id,
-          type: q.type,
-          title: q.title,
-          required: q.required,
-          options: q.options,
-          maxChoices: q.maxChoices,
-          placeholder: q.placeholder,
-          maxLength: q.maxLength,
-          matrixRows: q.matrixRows,
-          matrixColumns: q.matrixColumns,
-          matrixType: q.matrixType,
-          matrixColumnsNumeric: q.matrixColumnsNumeric,
-          ratingScale: q.ratingScale,
-          ratingStyle: q.ratingStyle,
-          ratingMinLabel: q.ratingMinLabel,
-          ratingMaxLabel: q.ratingMaxLabel,
-          validationType: q.validationType,
-        })),
-        settings: {
-          allowAnonymousResponses: true,
-          expiresAt: undefined,
-        },
-      });
+      // 🔍 Vérifier si le poll existe déjà (créé via "Utiliser")
+      const existingPolls = getAllPolls();
+      const existingPoll = existingPolls.find(
+        (p) => p.id === initialDraft?.id && p.id.startsWith("local-") && p.type === "form"
+      );
 
-      if (error || !saved) {
-        alert(`Erreur: ${error || "Impossible de créer le formulaire"}`);
-        return;
+      let saved: any;
+
+      if (existingPoll) {
+        // ✅ Poll existe déjà → Mettre à jour au lieu de créer un nouveau
+        logger.info("📝 Mise à jour poll existant", "poll", { pollId: existingPoll.id });
+        
+        const updatedPoll = {
+          ...existingPoll,
+          title: draft.title,
+          questions: draft.questions,
+          status: "active" as const,
+          updated_at: new Date().toISOString(),
+        };
+
+        // Mettre à jour dans localStorage
+        const updatedPolls = existingPolls.map((p) => 
+          p.id === existingPoll.id ? updatedPoll : p
+        );
+        savePolls(updatedPolls);
+        saved = updatedPoll;
+      } else {
+        // ✅ Nouveau poll → Créer via le hook centralisé
+        const { poll, error } = await createFormPoll({
+          title: draft.title,
+          description: undefined,
+          questions: draft.questions.map((q: any) => ({
+            id: q.id,
+            type: q.type,
+            title: q.title,
+            required: q.required,
+            options: q.options,
+            maxChoices: q.maxChoices,
+            placeholder: q.placeholder,
+            maxLength: q.maxLength,
+            matrixRows: q.matrixRows,
+            matrixColumns: q.matrixColumns,
+            matrixType: q.matrixType,
+            matrixColumnsNumeric: q.matrixColumnsNumeric,
+            ratingScale: q.ratingScale,
+            ratingStyle: q.ratingStyle,
+            ratingMinLabel: q.ratingMinLabel,
+            ratingMaxLabel: q.ratingMaxLabel,
+            validationType: q.validationType,
+          })),
+          settings: {
+            allowAnonymousResponses: true,
+            expiresAt: undefined,
+          },
+        });
+
+        if (error || !poll) {
+          alert(`Erreur: ${error || "Impossible de créer le formulaire"}`);
+          return;
+        }
+        saved = poll;
       }
 
       // Supprimer les anciens brouillons avec le même ID

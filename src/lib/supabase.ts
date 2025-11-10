@@ -220,6 +220,66 @@ export type Database = {
           user_agent?: string | null;
         };
       };
+      guest_quotas: {
+        Row: {
+          id: string;
+          fingerprint: string;
+          conversations_created: number;
+          polls_created: number;
+          ai_messages: number;
+          analytics_queries: number;
+          simulations: number;
+          total_credits_consumed: number;
+          first_seen_at: string;
+          last_activity_at: string;
+          user_agent: string | null;
+          timezone: string | null;
+          language: string | null;
+          screen_resolution: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          fingerprint: string;
+          conversations_created?: number;
+          polls_created?: number;
+          ai_messages?: number;
+          analytics_queries?: number;
+          simulations?: number;
+          total_credits_consumed?: number;
+          user_agent?: string | null;
+          timezone?: string | null;
+          language?: string | null;
+          screen_resolution?: string | null;
+        };
+        Update: {
+          conversations_created?: number;
+          polls_created?: number;
+          ai_messages?: number;
+          analytics_queries?: number;
+          simulations?: number;
+          total_credits_consumed?: number;
+          last_activity_at?: string;
+        };
+      };
+      guest_quota_journal: {
+        Row: {
+          id: string;
+          guest_quota_id: string;
+          fingerprint: string;
+          action: string;
+          credits: number;
+          metadata: Record<string, any>;
+          created_at: string;
+        };
+        Insert: {
+          guest_quota_id: string;
+          fingerprint: string;
+          action: string;
+          credits: number;
+          metadata?: Record<string, any>;
+        };
+      };
     };
   };
 };

@@ -197,10 +197,10 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             userId: "guest",
           });
 
-          // Incrémenter le compteur de crédits consommés
+          // Incrémenter le compteur de crédits consommés (BLOQUANT si limite atteinte)
           console.log(`[${timestamp}] [${requestId}] 🆕 Incrémentation quota guest...`);
           const { incrementConversationCreated } = await import("../lib/quotaTracking");
-          incrementConversationCreated("guest");
+          await incrementConversationCreated("guest");
           console.log(`[${timestamp}] [${requestId}] 🆕 Quota guest incrémenté`);
         }
 
@@ -214,17 +214,21 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         log("Conversation created", { id: result.id, title: result.title });
         return result;
       } catch (error) {
+        // Détecter si c'est une erreur de quota
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const isQuotaError = errorMessage.includes("limit reached") || errorMessage.includes("Credit limit");
+        
         logError(
           ErrorFactory.storage(
-            "Erreur dans createConversation",
-            "Impossible de créer la conversation",
+            isQuotaError ? "Limite de conversations atteinte" : "Erreur dans createConversation",
+            isQuotaError ? "Vous avez atteint la limite de 5 conversations en mode invité" : "Impossible de créer la conversation",
           ),
           {
             operation: "useAutoSave.createConversation",
-            metadata: { requestId, userId: user?.id, error },
+            metadata: { requestId, userId: user?.id, error, isQuotaError },
           },
         );
-        log("Error creating conversation", { error });
+        log("Error creating conversation", { error, isQuotaError });
         throw error;
       }
     },

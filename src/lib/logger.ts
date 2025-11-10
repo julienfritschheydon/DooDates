@@ -20,6 +20,7 @@ type LogCategory =
   | "analytics"
   | "quota"
   | "dashboard"
+  | "security"
   | "general";
 
 interface LogEntry {
@@ -170,6 +171,7 @@ class Logger {
       analytics: "📊",
       quota: "💳",
       dashboard: "📊",
+      security: "🔒",
       error: "❌",
       success: "✅",
       general: "ℹ️",
