@@ -21,6 +21,7 @@ const __dirname = path.dirname(__filename);
 // Configuration
 const REPORT_DIR = path.join(process.cwd(), 'Docs', 'monitoring');
 const REPORT_FILE = path.join(REPORT_DIR, 'workflow-failures-report.md');
+const ARTIFACTS_DIR = path.join(process.cwd(), 'temp-artifacts');
 const GITHUB_API_BASE = process.env.GITHUB_API_URL || 'https://api.github.com';
 const REPO = process.env.GITHUB_REPOSITORY || 'owner/repo';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -154,6 +155,67 @@ async function getJobLogs(jobId) {
     console.error(`❌ Erreur lors de la récupération des logs pour job ${jobId}:`, error.message);
     return null;
   }
+}
+
+/**
+ * Analyse les artefacts de test téléchargés pour extraire les échecs détaillés
+ */
+function analyzeTestArtifacts(runId) {
+  const runDir = path.join(ARTIFACTS_DIR, runId.toString());
+  if (!fs.existsSync(runDir)) {
+    return null;
+  }
+
+  const failures = [];
+  
+  // Chercher les fichiers test-results.json dans les artefacts
+  const findJsonFiles = (dir) => {
+    const files = [];
+    if (!fs.existsSync(dir)) return files;
+    
+    const items = fs.readdirSync(dir, { withFileTypes: true });
+    for (const item of items) {
+      const fullPath = path.join(dir, item.name);
+      if (item.isDirectory()) {
+        files.push(...findJsonFiles(fullPath));
+      } else if (item.name === 'test-results.json') {
+        files.push(fullPath);
+      }
+    }
+    return files;
+  };
+
+  const jsonFiles = findJsonFiles(runDir);
+  
+  for (const jsonFile of jsonFiles) {
+    try {
+      const content = JSON.parse(fs.readFileSync(jsonFile, 'utf-8'));
+      
+      // Analyser les résultats Playwright
+      if (content.suites) {
+        for (const suite of content.suites) {
+          for (const spec of suite.specs || []) {
+            for (const test of spec.tests || []) {
+              for (const result of test.results || []) {
+                if (result.status === 'failed' || result.status === 'timedOut') {
+                  failures.push({
+                    file: spec.file,
+                    title: spec.title,
+                    error: result.error?.message || 'Unknown error',
+                    browser: suite.title,
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`⚠️ Erreur lors de l'analyse de ${jsonFile}:`, err.message);
+    }
+  }
+
+  return failures.length > 0 ? failures : null;
 }
 
 /**
@@ -480,27 +542,42 @@ async function generateReport() {
               }
             }
             
-            // Pour le dernier run seulement, récupérer les logs et extraire les erreurs
-            if (failure.id === recentFailures[0].id && GITHUB_TOKEN) {
-              try {
-                console.log(`  📥 Récupération des logs pour job ${job.id}...`);
-                const logs = await getJobLogs(job.id);
-                if (logs) {
-                  const errors = extractErrorsFromLogs(logs);
-                  if (errors.length > 0) {
-                    reportSections.push(`    - **Erreurs détectées (${errors.length}):**\n`);
-                    for (const error of errors.slice(0, 5)) {
-                      reportSections.push(`      \`\`\`\n${error}\n\`\`\`\n`);
-                    }
-                    if (errors.length > 5) {
-                      reportSections.push(`      *... et ${errors.length - 5} autre(s) erreur(s)*\n`);
-                    }
-                  } else {
-                    reportSections.push(`    - ⚠️ Aucune erreur structurée détectée dans les logs\n`);
-                  }
+            // Pour le dernier run seulement, analyser les artefacts ou les logs
+            if (failure.id === recentFailures[0].id) {
+              // D'abord essayer d'analyser les artefacts téléchargés
+              const artifactFailures = analyzeTestArtifacts(failure.id);
+              if (artifactFailures && artifactFailures.length > 0) {
+                reportSections.push(`    - **Tests en échec (${artifactFailures.length}):**\n`);
+                for (const testFailure of artifactFailures.slice(0, 10)) {
+                  reportSections.push(`      - ❌ **[${testFailure.browser}]** \`${testFailure.file}\`\n`);
+                  reportSections.push(`        - Test: ${testFailure.title}\n`);
+                  reportSections.push(`        - Erreur: \`${testFailure.error.substring(0, 200)}${testFailure.error.length > 200 ? '...' : ''}\`\n`);
                 }
-              } catch (err) {
-                reportSections.push(`    - ⚠️ Impossible de récupérer les logs: ${err.message}\n`);
+                if (artifactFailures.length > 10) {
+                  reportSections.push(`      *... et ${artifactFailures.length - 10} autre(s) test(s) en échec*\n`);
+                }
+              } else if (GITHUB_TOKEN) {
+                // Fallback sur les logs si pas d'artefacts
+                try {
+                  console.log(`  📥 Récupération des logs pour job ${job.id}...`);
+                  const logs = await getJobLogs(job.id);
+                  if (logs) {
+                    const errors = extractErrorsFromLogs(logs);
+                    if (errors.length > 0) {
+                      reportSections.push(`    - **Erreurs détectées (${errors.length}):**\n`);
+                      for (const error of errors.slice(0, 5)) {
+                        reportSections.push(`      \`\`\`\n${error}\n\`\`\`\n`);
+                      }
+                      if (errors.length > 5) {
+                        reportSections.push(`      *... et ${errors.length - 5} autre(s) erreur(s)*\n`);
+                      }
+                    } else {
+                      reportSections.push(`    - ⚠️ Aucune erreur structurée détectée\n`);
+                    }
+                  }
+                } catch (err) {
+                  reportSections.push(`    - ⚠️ Impossible de récupérer les détails: ${err.message}\n`);
+                }
               }
             }
           }
