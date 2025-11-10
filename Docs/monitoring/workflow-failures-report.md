@@ -1,18 +1,9 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 10/11/2025 11:44:20
+**Dernière mise à jour:** 10/11/2025 17:59:46
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
-
-<!-- 
-🤖 INSTRUCTION POUR L'IA (Cascade):
-- Lire ce fichier AUTOMATIQUEMENT au début de chaque session
-- Analyser les échecs récents (24h et 7 jours)
-- Signaler PROACTIVEMENT les problèmes détectés
-- Proposer des corrections sans attendre qu'on te le demande
-- Vérifier ce fichier AVANT chaque commit/push
--->
 
 ---
 
@@ -33,35 +24,44 @@ Aucun échec détecté dans les 7 derniers jours.
 
 ## 2️⃣ Develop → Main (Auto-merge)
 
-**Statut:** ⏳ unknown
+**Statut:** ❌ failure
 
-**Dernier run:** 10/11/2025 11:43:06
+**Dernier run:** 10/11/2025 17:56:00
 
 **Statistiques:**
-- ❌ Échecs (24h): **6**
-- ❌ Échecs (7 jours): **8**
+- ❌ Échecs (24h): **2**
+- ❌ Échecs (7 jours): **2**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
 
-#### Run #100 - 10/11/2025 08:37:32
+#### Run #122 - 10/11/2025 17:56:00
 
-- **Commit:** `d61312c`
+- **Commit:** `4b55150`
 - **Auteur:** julienfritschheydon
 - **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19224241152)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19239398123)
 - **Jobs en échec:**
   - ❌ `tests-unit` (failure)
     - Steps en échec: `🔗 Tests d'intégration`
     - **Erreurs détectées (10):**
       ```
-File: 2025-11-10T07:38:35.5228770Z stdout | src/hooks/useAutoSave.ts:204
+File: src/components/polls/PollAnalyticsPanel.tsx:24
 Error: stdout | src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts > titleGeneration + useAutoSave Integration > Error Handling Integration > should handle title generation errors gracefully
 
 stdout | src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts > titleGeneration + useAutoSave Integration > Error Handling Integration > should handle title generation errors gracefully
-stdout | src/hooks/useAutoSave.ts:204:19
-[] [6b2ce14a-788d-4319-9651-f9e32cb3e208] ✅ createConversation TERMINÉ { conversationId: 'conv-123', title: 'This should cause an error' }
+at PollAnalyticsPanel (/home/runner/work/DooDates/DooDates/src/components/polls/PollAnalyticsPanel.tsx:24:31)
 ❌ ℹ️ Erreur lors du chargement depuis Supabase, utilisation de localStorage Error: Storage error
+❌ ℹ️ Erreur lors du chargement depuis Supabase, utilisation de localStorage Error: Storage error
+```
+      ```
+File: src/lib/error-handling.ts:150
+Error: 🚨 DooDates Error: {
+
+🚨 DooDates Error: {
+name: 'DooDatesError',
+stack: 'DooDatesError: Gemini model not initialized\n' +
+'    at Object.api (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:150:8)\n' +
 ```
       ```
 File: src/lib/error-handling.ts:136
@@ -92,56 +92,19 @@ name: 'DooDatesError',
 stack: 'DooDatesError: API Error\n' +
 '    at handleError (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:103:22)\n' +
 ```
-      ```
-File: src/lib/error-handling.ts:150
-Error: 🚨 DooDates Error: {
-
-🚨 DooDates Error: {
-name: 'DooDatesError',
-stack: 'DooDatesError: Gemini model not initialized\n' +
-'    at Object.api (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:150:8)\n' +
-```
       *... et 5 autre(s) erreur(s)*
 
-#### Run #98 - 10/11/2025 08:24:46
+#### Run #121 - 10/11/2025 17:18:19
 
-- **Commit:** `f183bb9`
+- **Commit:** `290d910`
 - **Auteur:** julienfritschheydon
 - **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19223957422)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19238303992)
 - **Jobs en échec:**
   - ❌ `tests-unit` (failure)
     - Steps en échec: `🔗 Tests d'intégration`
-
-#### Run #97 - 10/11/2025 08:10:59
-
-- **Commit:** `4acf4c3`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19223660015)
-- **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🔗 Tests d'intégration`
-
-#### Run #96 - 10/11/2025 07:54:11
-
-- **Commit:** `74bf414`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19223305663)
-- **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🔗 Tests d'intégration`
-
-#### Run #95 - 10/11/2025 07:44:51
-
-- **Commit:** `a42710b`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19223116162)
-- **Jobs en échec:**
-  - ❌ `tests-unit` (failure)
-    - Steps en échec: `🔗 Tests d'intégration`
+  - ❌ `tests-e2e` (failure)
+    - Steps en échec: `Tests E2E Smoke (develop: fast validation)`
 
 ---
 
@@ -149,7 +112,7 @@ stack: 'DooDatesError: Gemini model not initialized\n' +
 
 **Statut:** ✅ success
 
-**Dernier run:** 10/11/2025 11:20:43
+**Dernier run:** 10/11/2025 15:24:50
 
 **Statistiques:**
 - ❌ Échecs (24h): **0**
@@ -162,235 +125,10 @@ Aucun échec détecté dans les 7 derniers jours.
 
 ---
 
-## 6️⃣ Nightly Full Regression
-
-**Statut:** ❌ failure
-
-**Dernier run:** 10/11/2025 11:23:33
-
-**Statistiques:**
-- ❌ Échecs (24h): **7**
-- ❌ Échecs (7 jours): **13**
-- 📊 Total runs analysés: **13**
-
-### 🔴 Échecs récents (24h)
-
-#### Run #13 - 10/11/2025 11:23:33
-
-- **Commit:** `667a104`
-- **Auteur:** julienfritschheydon
-- **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19228389654)
-- **Jobs en échec:**
-  - ❌ `full-regression (firefox)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (firefox)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-```
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
-"**/error-handling-enforcement.test.ts",
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      *... et 5 autre(s) erreur(s)*
-  - ❌ `full-regression (webkit)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-```
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
-"**/error-handling-enforcement.test.ts",
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      *... et 5 autre(s) erreur(s)*
-  - ❌ `full-regression (Mobile Safari)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-"**/error-handling-enforcement.test.ts",
-```
-      ```
-Error: "**/error-handling-enforcement.test.ts",
-
-"**/error-handling-enforcement.test.ts",
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      ```
-Error: "errors": [],
-
-"errors": [],
-"errors": [],
-"errors": [],
-"errors": [],
-```
-      *... et 5 autre(s) erreur(s)*
-
-#### Run #12 - 10/11/2025 10:35:48
-
-- **Commit:** `4c1a83a`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19227115662)
-- **Jobs en échec:**
-  - ❌ `full-regression (firefox)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (firefox)`
-  - ❌ `full-regression (Mobile Chrome)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Chrome)`
-  - ❌ `full-regression (webkit)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
-  - ❌ `full-regression (Mobile Safari)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
-
-#### Run #11 - 10/11/2025 09:31:03
-
-- **Commit:** `5637606`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19225448546)
-- **Jobs en échec:**
-  - ❌ `full-regression (chromium)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (chromium)`
-  - ❌ `full-regression (webkit)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
-  - ❌ `full-regression (firefox)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (firefox)`
-  - ❌ `full-regression (Mobile Safari)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
-  - ❌ `full-regression (Mobile Chrome)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Chrome)`
-
-#### Run #10 - 10/11/2025 09:03:48
-
-- **Commit:** `7e73c7b`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19224798622)
-- **Jobs en échec:**
-  - ❌ `full-regression (webkit)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
-  - ❌ `full-regression (firefox)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (firefox)`
-  - ❌ `full-regression (Mobile Chrome)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Chrome)`
-  - ❌ `full-regression (Mobile Safari)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
-  - ❌ `full-regression (chromium)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (chromium)`
-
-#### Run #9 - 10/11/2025 08:39:31
-
-- **Commit:** `d61312c`
-- **Auteur:** julienfritschheydon
-- **Branche:** `develop`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19224289319)
-- **Jobs en échec:**
-  - ❌ `full-regression (Mobile Safari)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Safari)`
-  - ❌ `full-regression (Mobile Chrome)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (Mobile Chrome)`
-  - ❌ `full-regression (webkit)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (webkit)`
-  - ❌ `full-regression (chromium)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (chromium)`
-  - ❌ `full-regression (firefox)` (failure)
-    - Steps en échec: `🔍 Run Full Regression Suite (firefox)`
-
----
-
 ## 📈 Résumé Global
 
-- ❌ **Total échecs (24h):** 7
-- ❌ **Total échecs (7 jours):** 10
+- ❌ **Total échecs (24h):** 2
+- ❌ **Total échecs (7 jours):** 2
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
