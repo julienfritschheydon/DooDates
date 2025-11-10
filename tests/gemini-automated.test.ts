@@ -311,7 +311,31 @@ describe('Tests Automatisés Gemini', () => {
   beforeAll(async () => {
     geminiService = GeminiService.getInstance();
     console.log('🚀 Initialisation des tests automatisés Gemini');
-  });
+    
+    // Vérifier la configuration
+    const geminiApiKey = process.env.VITE_GEMINI_API_KEY;
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+    const useDirectGemini = process.env.VITE_USE_DIRECT_GEMINI === 'true';
+    
+    console.log('📋 Configuration détectée:');
+    console.log(`  - VITE_GEMINI_API_KEY: ${geminiApiKey ? '✅ Présente' : '❌ Manquante'}`);
+    console.log(`  - VITE_SUPABASE_URL: ${supabaseUrl ? '✅ Présente' : '❌ Manquante'}`);
+    console.log(`  - VITE_SUPABASE_ANON_KEY: ${supabaseAnonKey ? '✅ Présente' : '❌ Manquante'}`);
+    console.log(`  - Mode: ${useDirectGemini ? 'DIRECT API' : 'EDGE FUNCTION'}`);
+    
+    // En mode Edge Function, vérifier que Supabase est configuré
+    if (!useDirectGemini && (!supabaseUrl || !supabaseAnonKey)) {
+      throw new Error('❌ CONFIGURATION MANQUANTE: VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY sont requis en mode Edge Function');
+    }
+    
+    // En mode Direct, vérifier que la clé Gemini est présente
+    if (useDirectGemini && !geminiApiKey) {
+      throw new Error('❌ CONFIGURATION MANQUANTE: VITE_GEMINI_API_KEY est requise en mode Direct');
+    }
+    
+    console.log('✅ Configuration validée');
+  }, 10000);
 
   afterAll(async () => {
     // Générer le rapport final
