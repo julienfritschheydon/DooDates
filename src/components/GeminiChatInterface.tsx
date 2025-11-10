@@ -20,7 +20,7 @@ import {
 } from "../lib/gemini";
 // Lazy load PollCreator - ne se charge que si nécessaire
 const PollCreator = lazy(() => import("./PollCreator"));
-import FormPollCreator from "./polls/FormPollCreator";
+import FormPollCreator, { type FormPollDraft } from "./polls/FormPollCreator";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { useConversationResume } from "../hooks/useConversationResume";
 import { useGeminiAPI } from "../hooks/useGeminiAPI";
@@ -672,9 +672,31 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         return;
       }
 
-      console.log(`[${timestamp}] ✅ handleSendMessage: appel sendMessageWithText`);
-      await sendMessageWithText(inputValue, true);
-      setInputValue("");
+      try {
+        console.log(`[${timestamp}] ✅ handleSendMessage: appel sendMessageWithText`);
+        await sendMessageWithText(inputValue, true);
+        setInputValue("");
+      } catch (error) {
+        // Gérer les erreurs de quota
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (errorMessage.includes("limit reached") || errorMessage.includes("Credit limit")) {
+          toast({
+            title: "Limite atteinte",
+            description: "Vous avez atteint la limite de 5 conversations en mode invité. Créez un compte pour continuer.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Erreur",
+            description: "Une erreur est survenue lors de l'envoi du message.",
+            variant: "destructive",
+          });
+        }
+        logError(
+          ErrorFactory.api("Failed to send message", "Erreur lors de l'envoi du message"),
+          { error, component: "GeminiChatInterface" }
+        );
+      }
     };
 
     const handleUsePollSuggestion = (suggestion: PollSuggestion) => {
@@ -726,12 +748,17 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         window.history.replaceState({}, "", newUrl);
       }
 
-      // Router vers le bon composant selon le type
-      const isFormPoll = pollManagement.isFormPoll;
-
-      if (isFormPoll) {
-        // Convertir FormPollSuggestion en FormPollDraft
-        const formDraft = pollManagement.getFormDraft();
+      // Si c'est un FormPoll, afficher FormPollCreator
+      if (pollManagement.selectedPollData?.type === "form" || currentPoll?.type === "form") {
+        const formDraft: FormPollDraft = currentPoll
+          ? {
+              id: currentPoll.id,
+              type: "form",
+              title: currentPoll.title,
+              questions: (currentPoll.questions || []) as any,
+              conditionalRules: currentPoll.conditionalRules || [],
+            }
+          : pollManagement.getFormDraft();
 
         return (
           <FormPollCreator
@@ -759,10 +786,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                 try {
                   const urlParams = new URLSearchParams(location.search);
                   const conversationId = urlParams.get("conversationId");
-                  
+
                   if (conversationId) {
                     // Poll créé via IA → Lier à la conversation existante
-                    const { linkPollToConversationBidirectional } = require("@/lib/ConversationPollLink");
+                    const {
+                      linkPollToConversationBidirectional,
+                    } = require("@/lib/ConversationPollLink");
                     linkPollToConversationBidirectional(conversationId, savedPoll.id, "form");
                     logger.info("✅ Poll lié à la conversation", "poll", {
                       conversationId,
@@ -791,6 +820,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         );
       }
 
+      // Sinon, afficher PollCreator pour les DatePolls
       return (
         <Suspense
           fallback={

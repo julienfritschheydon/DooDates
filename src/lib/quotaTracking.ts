@@ -14,6 +14,7 @@
 import { getCurrentUserId } from "./pollStorage";
 import { logger } from "./logger";
 import { consumeGuestCredits } from "./guestQuotaService";
+import { ErrorFactory } from "./error-handling";
 
 const STORAGE_KEY = "doodates_quota_consumed";
 const JOURNAL_KEY = "doodates_quota_journal";
@@ -289,6 +290,11 @@ async function consumeCredits(
           credits,
           error: result.error,
         });
+        // BLOQUER l'action si la limite est atteinte
+        throw ErrorFactory.validation(
+          result.error || "Credit limit reached",
+          "Limite de crédits atteinte"
+        );
       }
       return;
     }
@@ -357,15 +363,13 @@ async function consumeCredits(
 
 /**
  * Incrémenter le compteur de conversations créées
+ * BLOQUANT : Throw une erreur si la limite est atteinte
  */
-export function incrementConversationCreated(
+export async function incrementConversationCreated(
   userId: string | null | undefined,
   conversationId?: string,
-): void {
-  // Fire and forget - ne pas bloquer l'exécution
-  consumeCredits(userId, 1, "conversation_created", { conversationId }).catch((error) => {
-    logger.error("Erreur lors de l'incrémentation conversation", error);
-  });
+): Promise<void> {
+  await consumeCredits(userId, 1, "conversation_created", { conversationId });
 }
 
 /**

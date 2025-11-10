@@ -24,22 +24,17 @@ git push
 
 ## 🧪 Tests de sécurité
 
-### Test 1 : Vérification fingerprint
+### Test 2 : Contournement localStorage (DOIT ÉCHOUER) ✅ CORRIGÉ
 
-```typescript
-// Dans la console du navigateur
-import { generateBrowserFingerprint } from './src/lib/browserFingerprint';
+**Bug identifié (10/11/2025) :** Le système détectait la limite mais ne bloquait pas l'action
+- `incrementConversationCreated()` utilisait "fire and forget" (pas bloquant)
+- `consumeCredits()` loggait un warning mais ne throw pas d'erreur
+- Résultat : 12 conversations créées au lieu de 5 max
 
-const fp = await generateBrowserFingerprint();
-console.log('Fingerprint:', fp.fingerprint);
-console.log('Confidence:', fp.metadata.confidence);
-console.log('Components:', fp.components);
-```
-
-**Résultat attendu :**
-- Fingerprint unique (64 caractères hexadécimaux)
-- Confidence >= 80%
-- Au moins 6 composants détectés
+**Correctif appliqué :**
+- `incrementConversationCreated()` → async/await (bloquant)
+- `consumeCredits()` → throw Error si quota atteint
+- `handleSendMessage()` → try/catch + toast utilisateur
 
 ### Test 2 : Contournement localStorage (DOIT ÉCHOUER)
 
