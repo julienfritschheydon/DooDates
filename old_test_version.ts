@@ -6,49 +6,21 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useAnalyticsQuota } from "../useAnalyticsQuota";
-import { ANALYTICS_QUOTAS } from "../../constants/quotas";
+import { ANALYTICS_QUOTAS } from "@/constants/quotas";
 
-// Types
-interface Profile {
-  id: string;
-  email: string;
-  full_name: string | null;
-  avatar_url: string | null;
-  timezone: string;
-  preferences: Record<string, any>;
-  plan_type: "free" | "pro" | "premium";
-  subscription_expires_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
+// Mock useAuth
+const mockUser = { id: "test-user-123", email: "test@example.com" };
+const mockUseAuth = vi.fn(() => ({
+  user: null,
+  loading: false,
+}));
 
-type User = {
-  id: string;
-  email: string;
-  app_metadata: Record<string, any>;
-  user_metadata: Record<string, any>;
-  aud: string;
-  created_at: string;
-  [key: string]: any;
-} | null;
+vi.mock("@/contexts/AuthContext", () => ({
+  useAuth: () => mockUseAuth(),
+}));
 
-// Test data
-const mockUser: User = {
-  id: "test-user-123",
-  email: "test@example.com",
-  app_metadata: {},
-  user_metadata: {},
-  aud: "authenticated",
-  created_at: new Date().toISOString(),
-  // Add any other required properties
-  role: "authenticated",
-  confirmed_at: new Date().toISOString(),
-  last_sign_in_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-};
-
-// Mock modules first - they are hoisted
-vi.mock("../../lib/logger", () => ({
+// Mock logger
+vi.mock("@/lib/logger", () => ({
   logger: {
     debug: vi.fn(),
     info: vi.fn(),
@@ -56,42 +28,6 @@ vi.mock("../../lib/logger", () => ({
     warn: vi.fn(),
   },
 }));
-
-// Mock du contexte d'authentification
-const mockUseAuth = vi.fn();
-vi.mock("../../contexts/AuthContext", () => ({
-  useAuth: () => mockUseAuth,
-}));
-
-import { logger } from "../../lib/logger";
-
-// Mock implementations
-const mockAuthImplementation = () => ({
-  user: null as User,
-  profile: null as Profile | null,
-  session: null,
-  loading: false,
-  error: null,
-
-  // Auth methods
-  signIn: vi.fn(),
-  signOut: vi.fn(),
-  signUp: vi.fn(),
-  resetPassword: vi.fn(),
-  updatePassword: vi.fn(),
-  updateEmail: vi.fn(),
-  updateProfile: vi.fn(),
-  confirmEmail: vi.fn(),
-  resendConfirmationEmail: vi.fn(),
-  sendPasswordResetEmail: vi.fn(),
-  signInWithProvider: vi.fn(),
-  signInWithOtp: vi.fn(),
-  signInWithOAuth: vi.fn(),
-  signInWithEmailAndPassword: vi.fn(),
-  signUpWithEmailAndPassword: vi.fn(),
-  signInWithGoogle: vi.fn(),
-  refreshProfile: vi.fn(),
-});
 
 // Helper pour installer localStorage mock
 function installLocalStorage() {
@@ -119,60 +55,13 @@ function installLocalStorage() {
 }
 
 describe("useAnalyticsQuota", () => {
-  // Setup mocks before each test
-  const createAuthMock = (user: User | null = null) => ({
-    user,
-    profile: user
-      ? {
-          id: user.id,
-          email: user.email,
-          full_name: "Test User",
-          avatar_url: null,
-          timezone: "Europe/Paris",
-          preferences: {},
-          plan_type: "free",
-          subscription_expires_at: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
-      : null,
-    session: user
-      ? {
-          access_token: "test-token",
-          refresh_token: "refresh-token",
-          expires_at: Math.floor(Date.now() / 1000) + 3600,
-          expires_in: 3600,
-          user: user as any,
-          token_type: "bearer",
-          provider_refresh_token: null,
-          provider_token: null,
-        }
-      : null,
-    loading: false,
-    error: null,
-
-    // Authentication methods
-    signIn: vi.fn().mockResolvedValue({ error: null }),
-    signUp: vi.fn().mockResolvedValue({ error: null }),
-    signInWithGoogle: vi.fn().mockResolvedValue({ error: null }),
-    signOut: vi.fn().mockResolvedValue({ error: null }),
-
-    // Profile methods
-    updateProfile: vi.fn().mockResolvedValue({ error: null }),
-    refreshProfile: vi.fn().mockResolvedValue(undefined),
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockUseAuth.mockImplementation(() => createAuthMock(null));
-  });
   let localStorageMock: ReturnType<typeof installLocalStorage>;
   const STORAGE_KEY = "doodates-analytics-quota";
 
   beforeEach(() => {
     vi.clearAllMocks();
     localStorageMock = installLocalStorage();
-
+    
     // Remplacer localStorage global
     Object.defineProperty(window, "localStorage", {
       value: localStorageMock,
@@ -180,39 +69,14 @@ describe("useAnalyticsQuota", () => {
     });
 
     // Reset mock useAuth par défaut (utilisateur anonyme)
-    mockUseAuth.mockImplementation(() => ({
-      ...mockAuthImplementation(),
+    mockUseAuth.mockReturnValue({
       user: null,
-      profile: null,
-      session: null,
-      error: null,
       loading: false,
-      // Add all required methods with vi.fn()
-      signIn: vi.fn(),
-      signOut: vi.fn(),
-      signUp: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-      updateEmail: vi.fn(),
-      updateProfile: vi.fn(),
-      confirmEmail: vi.fn(),
-      resendConfirmationEmail: vi.fn(),
-      sendPasswordResetEmail: vi.fn(),
-      signInWithProvider: vi.fn(),
-      signInWithOtp: vi.fn(),
-      signInWithOAuth: vi.fn(),
-      signInWithEmailAndPassword: vi.fn(),
-      signUpWithEmailAndPassword: vi.fn(),
-      signInWithGoogle: vi.fn(),
-      refreshProfile: vi.fn(),
-    }));
+    });
   });
 
   describe("Initialisation", () => {
-    it(`initialise avec quota anonyme par défaut (${ANALYTICS_QUOTAS.ANONYMOUS} queries)`, () => {
-      // S'assurer que le mock retourne un utilisateur null
-      mockUseAuth.mockImplementation(() => createAuthMock(null));
-
+    it("initialise avec quota anonyme par défaut (5 queries)", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
@@ -222,31 +86,10 @@ describe("useAnalyticsQuota", () => {
     });
 
     it("initialise avec quota authentifié si user présent (50 queries)", () => {
-      // Configurer le mock pour retourner un utilisateur authentifié
-      mockUseAuth.mockImplementation(() => ({
-        ...createAuthMock(mockUser),
-        profile: {
-          id: mockUser?.id || "",
-          email: mockUser?.email || "",
-          full_name: "Test User",
-          avatar_url: null,
-          timezone: "Europe/Paris",
-          preferences: {},
-          plan_type: "free",
-          subscription_expires_at: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        session: {
-          access_token: "test-token",
-          refresh_token: "refresh-token",
-          expires_at: Math.floor(Date.now() / 1000) + 3600,
-          expires_in: 3600,
-          token_type: "bearer",
-          user: mockUser,
-        },
-        error: null,
-      }));
+      mockUseAuth.mockReturnValue({
+        user: mockUser,
+        loading: false,
+      });
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
@@ -258,7 +101,10 @@ describe("useAnalyticsQuota", () => {
 
     it("charge le quota depuis localStorage si présent", () => {
       const today = new Date().toISOString().split("T")[0];
-      localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 3, date: today }));
+      localStorageMock.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ count: 3, date: today }),
+      );
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
@@ -274,14 +120,17 @@ describe("useAnalyticsQuota", () => {
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
-      localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 10, date: yesterdayStr }));
+      localStorageMock.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ count: 10, date: yesterdayStr }),
+      );
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
       waitFor(() => {
         expect(result.current.quota.used).toBe(0);
         expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
-
+        
         // Vérifier que localStorage a été mis à jour avec la date d'aujourd'hui
         const stored = JSON.parse(localStorageMock.getItem(STORAGE_KEY) || "{}");
         expect(stored.date).toBe(new Date().toISOString().split("T")[0]);
@@ -294,7 +143,7 @@ describe("useAnalyticsQuota", () => {
       waitFor(() => {
         expect(result.current.quota.used).toBe(0);
         expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
-
+        
         // Vérifier que localStorage a été initialisé
         const stored = JSON.parse(localStorageMock.getItem(STORAGE_KEY) || "{}");
         expect(stored.count).toBe(0);
@@ -367,7 +216,10 @@ describe("useAnalyticsQuota", () => {
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
-      localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 10, date: yesterdayStr }));
+      localStorageMock.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ count: 10, date: yesterdayStr }),
+      );
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
@@ -390,11 +242,14 @@ describe("useAnalyticsQuota", () => {
 
       // Préparer localStorage avec une valeur existante
       const today = new Date().toISOString().split("T")[0];
-      localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 0, date: today }));
+      localStorageMock.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ count: 0, date: today }),
+      );
 
       // Utiliser vi.spyOn pour intercepter setItem et lancer l'erreur seulement lors de l'incrémentation
       const setItemSpy = vi.spyOn(localStorageMock, "setItem");
-
+      
       // Compter les appels - lancer l'erreur au 2ème appel (après l'init)
       let callCount = 0;
       setItemSpy.mockImplementation((key, value) => {
@@ -448,7 +303,10 @@ describe("useAnalyticsQuota", () => {
       expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
 
       // Changer pour utilisateur authentifié
-      mockUseAuth.mockImplementation(() => createAuthMock(mockUser));
+      mockUseAuth.mockReturnValue({
+        user: mockUser,
+        loading: false,
+      });
 
       rerender();
 
@@ -486,18 +344,12 @@ describe("useAnalyticsQuota", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       act(() => {
-        // Simuler l'utilisation de 1 requête sur 5 (limite anonyme)
-        for (let i = 0; i < 1; i++) {
-          result.current.incrementQuota();
-        }
+        result.current.incrementQuota();
       });
 
       const message = result.current.getQuotaMessage();
-      // Vérifier le format du message qui contient le nombre de requêtes restantes
-      expect(message).toMatch(/\d+ requêtes? restantes?/);
-      // Vérifier que le message contient le bon nombre de requêtes restantes (4 dans ce cas)
-      const remaining = ANALYTICS_QUOTAS.ANONYMOUS - 1; // 5 - 1 = 4
-      expect(message).toContain(remaining.toString());
+      expect(message).toContain("restante");
+      expect(message).toContain("4");
     });
 
     it("retourne message au singulier si 1 restante", () => {
@@ -530,7 +382,10 @@ describe("useAnalyticsQuota", () => {
 
   describe("Quotas utilisateur authentifié", () => {
     beforeEach(() => {
-      mockUseAuth.mockImplementation(() => createAuthMock(mockUser));
+      mockUseAuth.mockReturnValue({
+        user: mockUser,
+        loading: false,
+      });
     });
 
     it("utilise limite authentifiée (50 queries)", () => {
@@ -588,3 +443,4 @@ describe("useAnalyticsQuota", () => {
     });
   });
 });
+

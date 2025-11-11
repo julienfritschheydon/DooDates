@@ -114,6 +114,12 @@ DooDates est une plateforme moderne de création de sondages et de formulaires, 
     - Erreurs courantes
     - Contact support
 
+18. **[Quotas et Crédits IA](./18-Quotas-Credits-IA.md)** ⭐
+    - Système de crédits IA
+    - Quotas par type de compte
+    - Optimiser vos crédits
+    - Questions fréquentes
+
 ---
 
 ## 🎓 Parcours d'Apprentissage Recommandés

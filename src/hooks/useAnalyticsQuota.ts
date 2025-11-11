@@ -41,10 +41,43 @@ export function useAnalyticsQuota() {
     canQuery: true,
   });
 
-  // Charger le quota depuis localStorage
+  // Mettre à jour la limite lorsque l'utilisateur change
   useEffect(() => {
-    loadQuota();
-  }, [user]);
+    setQuota((prev) => ({
+      ...prev,
+      limit,
+      remaining: limit - prev.used,
+      canQuery: limit - prev.used > 0,
+    }));
+
+    // Appeler loadQuota avec la nouvelle valeur de user
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      resetQuota();
+      return;
+    }
+
+    const data: QuotaData = JSON.parse(stored);
+    const today = getTodayString();
+
+    // Si la date est différente, reset le quota
+    if (data.date !== today) {
+      resetQuota();
+      return;
+    }
+
+    const currentLimit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
+    const used = data.count;
+    const remaining = Math.max(0, currentLimit - used);
+
+    setQuota({
+      used,
+      limit: currentLimit,
+      remaining,
+      resetAt: getNextMidnight(),
+      canQuery: remaining > 0,
+    });
+  }, [user, limit]);
 
   const loadQuota = useCallback(() => {
     try {

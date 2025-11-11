@@ -22,7 +22,7 @@ interface Profile {
   updated_at: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   session: Session | null;
