@@ -16,6 +16,7 @@ import {
   getGuestLimits,
   type GuestQuotaData,
 } from "../lib/guestQuotaService";
+import { isE2ETestingEnvironment } from "../lib/e2e-detection";
 
 export interface QuotaLimits {
   conversations: number;
@@ -75,6 +76,10 @@ const AUTHENTICATED_LIMITS: QuotaLimits = {
   storageSize: STORAGE_QUOTAS.AUTHENTICATED, // 1000MB (1GB)
 };
 
+const isE2EMode = () =>
+  typeof window !== "undefined" &&
+  (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true);
+
 export const useFreemiumQuota = () => {
   const { user } = useAuth();
   const conversations = useConversations();
@@ -109,7 +114,9 @@ export const useFreemiumQuota = () => {
             storageUsed: 0, // Pas de limite storage pour guests via Supabase
           };
         }
-        logger.debug("Guest quota unavailable (possibly bypassed)", "quota");
+        if (!isE2EMode()) {
+          logger.debug("Guest quota unavailable (possibly bypassed)", "quota");
+        }
       } catch (error) {
         logger.error("Failed to fetch guest quota from Supabase", error);
         // Fallback vers localStorage si Supabase échoue
