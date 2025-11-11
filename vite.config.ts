@@ -27,10 +27,9 @@ export default defineConfig({
     },
   },
   define: {
-    'process.env': 'import.meta.env',
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-    // Note: Vite charge automatiquement les variables VITE_* dans import.meta.env
-    // Pas besoin de les redéfinir ici, cela peut causer des conflits
+    // Ne pas définir 'process.env' globalement pour éviter les problèmes
+    // Utiliser import.meta.env directement dans le code
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
   },
   build: {
     rollupOptions: {

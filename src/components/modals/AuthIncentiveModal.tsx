@@ -110,16 +110,33 @@ const AuthIncentiveModal: React.FC<AuthIncentiveModalProps> = ({
         <div className="p-6">
           <p className="text-gray-200 mb-6 text-center">{content.description}</p>
 
-          {/* Pricing link */}
-          <div className="mb-6 p-4 bg-[#0a0a0a] rounded-lg border border-gray-700">
-            <Link
-              to="/pricing"
-              className="flex items-center justify-center gap-2 text-purple-400 hover:text-purple-300 transition-colors"
-              onClick={onClose}
-            >
-              <ExternalLink className="w-4 h-4" />
-              <span className="text-sm font-medium">Voir les plans et tarifs</span>
-            </Link>
+          {/* Links */}
+          <div className="mb-6 space-y-3">
+            {/* Pricing link */}
+            <div className="p-4 bg-[#0a0a0a] rounded-lg border border-gray-700">
+              <Link
+                to="/pricing"
+                className="flex items-center justify-center gap-2 text-purple-400 hover:text-purple-300 transition-colors"
+                onClick={onClose}
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span className="text-sm font-medium">Voir les plans et tarifs</span>
+              </Link>
+            </div>
+
+            {/* Help link */}
+            <div className="p-4 bg-[#0a0a0a] rounded-lg border border-gray-700">
+              <a
+                href="/docs/18-Quotas-Credits-IA.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                onClick={onClose}
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span className="text-sm font-medium">Comment fonctionnent les crédits IA ?</span>
+              </a>
+            </div>
           </div>
 
           {/* Action buttons */}

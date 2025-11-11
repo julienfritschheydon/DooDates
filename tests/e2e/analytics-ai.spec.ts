@@ -1,5 +1,11 @@
 import { test as base, expect } from "@playwright/test";
-import { setupAllMocks } from "./global-setup";
+import { setupAllMocks } from './global-setup';
+
+declare global {
+  interface Window {
+    __IS_E2E_TESTING__?: boolean;
+  }
+}
 
 // Créer un test avec contexte partagé pour que localStorage persiste entre les tests
 const test = base.extend<{}, { sharedContext: any }>({
@@ -43,12 +49,8 @@ test.describe("Analytics IA - Suite Complète", () => {
   
   test.beforeEach(async ({ page }) => {
     await setupAllMocks(page);
-    
-    // Si le poll est déjà créé, aller directement aux résultats
-    if (pollCreated && pollSlug) {
-      await page.goto(`/poll/${pollSlug}/results?e2e-test=true`);
-      await page.waitForLoadState("networkidle");
-    }
+    await page.goto('/results?e2e-test=true');
+    await page.waitForLoadState("networkidle");
   });
 
   test("1. Setup: Créer et clôturer un FormPoll avec 5 réponses @smoke @critical", async ({
@@ -57,7 +59,7 @@ test.describe("Analytics IA - Suite Complète", () => {
     test.setTimeout(180000); // 3 minutes - ce test fait 5 votes + création + clôture
     
     // 1. Créer un FormPoll via IA
-    await page.goto("/?e2e-test=true");
+    await page.goto("/?e2e-test=true?e2e-test=true");
     await page.waitForLoadState("networkidle");
 
     // Étape 1 : Demander à l'IA
@@ -420,7 +422,7 @@ test.describe("Analytics IA - Quick Queries", () => {
   });
   test("devrait répondre aux quick queries", async ({ page }) => {
     // Setup : Créer un poll avec réponses
-    await page.goto("/?e2e-test=true");
+    await page.goto("/?e2e-test=true?e2e-test=true");
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: 'test-results/debug-setup-1-home.png', fullPage: true });
 
@@ -626,7 +628,7 @@ test.describe.skip("Analytics IA - Query Personnalisée", () => {
   });
   test("devrait répondre à une query personnalisée", async ({ page }) => {
     // Setup : Créer un poll avec réponses
-    await page.goto("/?e2e-test=true");
+    await page.goto("/?e2e-test=true?e2e-test=true");
     await page.waitForLoadState("networkidle");
 
     const chatInput = page.locator('textarea[placeholder*="Décrivez"]');
@@ -710,7 +712,7 @@ test.describe.skip("Analytics IA - Cache", () => {
     page,
   }) => {
     // Setup : Créer un poll avec réponses
-    await page.goto("/?e2e-test=true");
+    await page.goto("/?e2e-test=true?e2e-test=true");
     await page.waitForLoadState("networkidle");
 
     const chatInput = page.locator('textarea[placeholder*="Décrivez"]');
@@ -804,7 +806,7 @@ test.describe.skip("Analytics IA - Quotas", () => {
     page,
   }) => {
     // Setup : Créer un poll avec réponses
-    await page.goto("/?e2e-test=true");
+    await page.goto("/?e2e-test=true?e2e-test=true");
     await page.waitForLoadState("networkidle");
 
     const chatInput = page.locator('textarea[placeholder*="Décrivez"]');
@@ -895,7 +897,7 @@ test.describe.skip("Analytics IA - Quotas", () => {
 
   test("devrait afficher un message quand quota atteint", async ({ page }) => {
     // Setup : Créer un poll avec réponses
-    await page.goto("/?e2e-test=true");
+    await page.goto("/?e2e-test=true?e2e-test=true");
     await page.waitForLoadState("networkidle");
 
     const chatInput = page.locator('textarea[placeholder*="Décrivez"]');
@@ -986,7 +988,7 @@ test.describe.skip("Analytics IA - Dark Mode", () => {
     page,
   }) => {
     // Setup : Créer un poll avec réponses
-    await page.goto("/?e2e-test=true");
+    await page.goto("/?e2e-test=true?e2e-test=true");
     await page.waitForLoadState("networkidle");
 
     const chatInput = page.locator('textarea[placeholder*="Décrivez"]');
@@ -1142,7 +1144,7 @@ test.describe.skip("Analytics IA - Gestion Erreurs", () => {
   });
   test("devrait afficher un message si poll sans réponses", async ({ page }) => {
     // Créer un poll SANS réponses
-    await page.goto("/?e2e-test=true");
+    await page.goto("/?e2e-test=true?e2e-test=true");
     await page.waitForLoadState("networkidle");
 
     const chatInput = page.locator('textarea[placeholder*="Décrivez"]');
@@ -1183,7 +1185,7 @@ test.describe.skip("Analytics IA - Gestion Erreurs", () => {
     // Pour l'instant, on vérifie juste le comportement graceful
     
     // Setup : Créer un poll avec réponses
-    await page.goto("/?e2e-test=true");
+    await page.goto("/?e2e-test=true?e2e-test=true");
     await page.waitForLoadState("networkidle");
 
     const chatInput = page.locator('textarea[placeholder*="Décrivez"]');
@@ -1262,7 +1264,7 @@ test.describe.skip("Analytics IA - Gestion Erreurs", () => {
 
   test("devrait gérer les queries trop longues", async ({ page }) => {
     // Setup : Créer un poll avec réponses
-    await page.goto("/?e2e-test=true");
+    await page.goto("/?e2e-test=true?e2e-test=true");
     await page.waitForLoadState("networkidle");
 
     const chatInput = page.locator('textarea[placeholder*="Décrivez"]');

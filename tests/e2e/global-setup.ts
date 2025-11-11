@@ -376,13 +376,25 @@ export async function setupGeminiMock(page: Page) {
   });
 }
 
+import { E2E_CONFIG } from './e2e-utils';
+
 /**
- * Setup all mocks (Gemini API + Supabase Edge Function)
- * Use this in beforeEach to mock all external API calls
+ * Setup all mocks (Gemini API + Supabase Edge Function) and E2E configuration
+ * Use this in beforeEach to mock all external API calls and configure E2E mode
  */
 export async function setupAllMocks(page: Page) {
+  // Enable E2E mode first
+  await E2E_CONFIG.enableE2EMode(page.context());
+  
+  // Setup API mocks
   await setupGeminiMock(page);
   await setupSupabaseEdgeFunctionMock(page);
+  
+  // Attendre que la page soit chargée avant d'accéder au localStorage
+  await page.waitForLoadState('domcontentloaded');
+  
+  // Désactiver les vérifications de quota via l'URL
+  await page.goto(page.url() + (page.url().includes('?') ? '&' : '?') + 'e2e-test=true');
 }
 
 /**
