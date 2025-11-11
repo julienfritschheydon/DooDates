@@ -27,6 +27,7 @@ import { useGeminiAPI } from "../hooks/useGeminiAPI";
 import { ConversationService } from "../services/ConversationService";
 import { useQuota } from "../hooks/useQuota";
 import { useAiMessageQuota } from "../hooks/useAiMessageQuota";
+import { isE2ETestingEnvironment } from "../lib/e2e-detection";
 import {
   checkAiMessageQuota,
   checkPollCreationQuota,
@@ -259,7 +260,13 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       debug: true,
     });
     const conversationResume = useConversationResume();
-    const quota = useQuota();
+
+    // Désactiver les modals d'authentification en mode E2E
+    const isE2ETesting = isE2ETestingEnvironment();
+
+    const quota = useQuota({
+      showAuthIncentives: !isE2ETesting, // Désactiver en mode E2E
+    });
     const aiQuota = useAiMessageQuota(autoSave.getRealConversationId() || undefined);
     const loopProtection = useInfiniteLoopProtection("gemini-chat-interface");
     const { toast } = useToast();
@@ -694,8 +701,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           });
         }
         logError(ErrorFactory.api("Failed to send message", "Erreur lors de l'envoi du message"), {
-          error,
           component: "GeminiChatInterface",
+          metadata: { error: error instanceof Error ? error.message : String(error) },
         });
       }
     };

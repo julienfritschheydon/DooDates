@@ -265,8 +265,8 @@ C'est normal et permet des formulaires plus courts et pertinents.
 
 | Plan | Quota |
 |------|-------|
-| **🆓 Invité** | 5 conversations (à vie) |
-| **👤 Gratuit** | 50/mois (reset le 1er) |
+| **🆓 Invité** | 20 conversations (à vie) |
+| **👤 Gratuit** | 1000 conversations (pas de reset mensuel) |
 | **💼 Pro** | Illimité |
 | **🚀 Premium** | Illimité |
 
