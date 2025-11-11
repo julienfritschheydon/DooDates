@@ -19,6 +19,7 @@ export function attachConsoleGuard(
   const errors: string[] = [];
   // Base: ignorer les erreurs clipboard fréquentes en headless
   const baseAllow = [
+    /Cannot read properties of null \(reading 'classList'\)/i,
     /Clipboard.*(denied|NotAllowed)/i,
     /Failed to execute 'writeText' on 'Clipboard'/i,
     /navigator\.clipboard/i,

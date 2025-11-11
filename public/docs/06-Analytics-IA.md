@@ -77,8 +77,8 @@ Analytics IA est un système d'analyse automatique qui :
 ```
 
 **Quotas selon votre plan :**
-- 🆓 **Mode Invité** : 5 conversations
-- 👤 **Compte Gratuit** : 50 conversations/mois
+- 🆓 **Mode Invité** : 20 conversations (à vie)
+- 👤 **Compte Gratuit** : 1000 conversations (pas de reset mensuel)
 - 💼 **Pro** : Illimité
 - 🚀 **Premium** : Illimité + fonctionnalités avancées
 
@@ -347,10 +347,10 @@ Total : 6 crédits consommés
 
 ### Quotas par Plan
 
-| Plan | Quota Mensuel | Coût par Crédit | Détails |
-|------|---------------|-----------------|---------|
-| **🆓 Invité** | 5 | Gratuit | Pas de reset, 5 à vie en mode invité |
-| **👤 Gratuit** | 50 | Gratuit | Reset le 1er du mois |
+| Plan | Quota Total | Coût par Crédit | Détails |
+|------|-------------|-----------------|---------|
+| **🆓 Invité** | 20 | Gratuit | 20 conversations à vie (pas de reset) |
+| **👤 Gratuit** | 1000 | Gratuit | 1000 conversations (pas de reset mensuel) |
 | **💼 Pro** | Illimité | Inclus | Pas de limite |
 | **🚀 Premium** | Illimité | Inclus | + Features avancées |
 
@@ -360,26 +360,25 @@ Total : 6 crédits consommés
 
 #### Mode Invité (crédits épuisés)
 ```
-⚠️ Quota IA épuisé (5/5)
+⚠️ Quota IA épuisé (20/20)
 
-Vous avez utilisé vos crédits IA gratuits.
+Vous avez utilisé vos 20 crédits IA gratuits.
 
 Options :
-  1. Créez un compte gratuit → +50 conversations/mois
+  1. Créez un compte gratuit → +1000 conversations
   2. Passez en mode Pro → Conversations illimitées (voir [Tarifs](/pricing))
   3. Continuez sans IA → Résultats bruts disponibles
 ```
 
-#### Compte Gratuit (50 crédits épuisés)
+#### Compte Gratuit (1000 crédits épuisés)
 ```
-⚠️ Quota mensuel atteint (50/50)
+⚠️ Quota atteint (1000/1000)
 
-Vous avez utilisé vos 50 conversations IA de novembre.
+Vous avez utilisé vos 1000 conversations IA gratuites.
 
 Options :
-  1. Attendez le 1er décembre → Reset automatique
-  2. Passez en Pro → Conversations illimitées (voir [Tarifs](/pricing))
-  3. Utilisez les résultats manuels → Graphiques toujours disponibles
+  1. Passez en Pro → Conversations illimitées (voir [Tarifs](/pricing))
+  2. Utilisez les résultats manuels → Graphiques toujours disponibles
 ```
 
 ---

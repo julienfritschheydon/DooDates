@@ -65,21 +65,25 @@ function isE2EEnvironment(): boolean {
 
   // Vérifier les flags E2E
   try {
-    const hasE2EFlag = (window as any).__E2E__ === true;
+    const hasE2EFlag =
+      (window as any).__E2E__ === true || (window as any).__IS_E2E_TESTING__ === true;
     const hasE2ELocalStorage = localStorage.getItem("e2e") === "1";
     const hasDevLocalMode = localStorage.getItem("dev-local-mode") === "1";
+    const hasE2ESearchParam = window.location.search.includes("e2e-test=true");
 
     console.log("🔍 isE2EEnvironment check:", {
       hasE2EFlag,
       hasE2ELocalStorage,
       hasDevLocalMode,
-      result: hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode,
+      hasE2ESearchParam,
+      result: hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode || hasE2ESearchParam,
     });
 
-    if (hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode) return true;
+    if (hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode || hasE2ESearchParam) return true;
   } catch (e) {
     logError(ErrorFactory.storage("Error checking E2E flags", "Failed to check E2E environment"), {
       component: "guestQuotaService",
+      metadata: { originalError: e },
     });
   }
 
