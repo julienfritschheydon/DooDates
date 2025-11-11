@@ -4,7 +4,7 @@
  * DooDates - Quota Management System
  */
 
-import { isDev } from '../lib/env';
+import { isDev } from "../lib/env";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../contexts/AuthContext";
