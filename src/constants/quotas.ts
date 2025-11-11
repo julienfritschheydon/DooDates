@@ -7,8 +7,18 @@
  * - Anonyme : Limité pour encourager l'inscription
  * - Authentifié : Généreux pour encourager l'adoption
  *
- * Dernière mise à jour : 03 Nov 2025
+ * Environnements :
+ * - Dev : Quotas réduits (tests rapides)
+ * - Prod : Quotas élevés pour les testeurs beta
+ *
+ * Dernière mise à jour : 10 Nov 2025
  */
+
+// ============================================================================
+// DÉTECTION ENVIRONNEMENT
+// ============================================================================
+
+const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
 
 // ============================================================================
 // QUOTAS CONVERSATIONS
@@ -21,8 +31,8 @@
  * Les modifications d'un sondage existant ne comptent pas comme nouvelle conversation
  */
 export const CONVERSATION_QUOTAS = {
-  /** Utilisateurs anonymes : 5 conversations */
-  ANONYMOUS: 5,
+  /** Utilisateurs anonymes : 2 en dev, 20 en prod (testeurs beta) */
+  ANONYMOUS: isDevelopment ? 2 : 20,
 
   /** Utilisateurs authentifiés : 1000 conversations */
   AUTHENTICATED: 1000,
@@ -39,8 +49,8 @@ export const CONVERSATION_QUOTAS = {
  * Réduit pour compenser l'usage facilité par reconnaissance vocale
  */
 export const AI_MESSAGE_QUOTAS = {
-  /** Utilisateurs anonymes : 10 messages par conversation */
-  ANONYMOUS: 10,
+  /** Utilisateurs anonymes : 2 en dev, 20 en prod (testeurs beta) */
+  ANONYMOUS: isDevelopment ? 2 : 20,
 
   /** Utilisateurs authentifiés : 100 messages par mois */
   AUTHENTICATED: 100,
@@ -56,8 +66,8 @@ export const AI_MESSAGE_QUOTAS = {
  * Empêche la création excessive de sondages dans une même conversation
  */
 export const POLL_CREATION_QUOTAS = {
-  /** Utilisateurs anonymes : 2 polls par conversation */
-  ANONYMOUS: 2,
+  /** Utilisateurs anonymes : 2 en dev, 20 en prod */
+  ANONYMOUS: isDevelopment ? 2 : 20,
 
   /** Utilisateurs authentifiés : 5 polls par conversation */
   AUTHENTICATED: 5,
@@ -73,8 +83,8 @@ export const POLL_CREATION_QUOTAS = {
  * Les insights automatiques ne comptent pas (1 seul appel par poll, mis en cache)
  */
 export const ANALYTICS_QUOTAS = {
-  /** Utilisateurs anonymes : 5 queries par jour */
-  ANONYMOUS: 5,
+  /** Utilisateurs anonymes : 2 en dev, 20 en prod */
+  ANONYMOUS: isDevelopment ? 2 : 20,
 
   /** Utilisateurs authentifiés : 50 queries par jour */
   AUTHENTICATED: 50,
