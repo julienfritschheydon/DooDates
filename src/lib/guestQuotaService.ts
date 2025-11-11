@@ -61,8 +61,9 @@ function shouldBypassGuestQuota(): boolean {
     return false;
   }
 
-  if (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true) {
-    logger.debug("E2E environment detected, bypassing guest quota", "quota");
+  const isE2E = isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true;
+
+  if (isE2E) {
     return true;
   }
 
@@ -74,13 +75,10 @@ function shouldBypassGuestQuota(): boolean {
       return true;
     }
   } catch (error) {
-    logError(
-      ErrorFactory.storage("Error checking E2E flags", "Failed to check E2E environment"),
-      {
-        component: "guestQuotaService",
-        metadata: { originalError: error },
-      },
-    );
+    logError(ErrorFactory.storage("Error checking E2E flags", "Failed to check E2E environment"), {
+      component: "guestQuotaService",
+      metadata: { originalError: error },
+    });
   }
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";

@@ -1,5 +1,6 @@
 import { test as base, expect } from "@playwright/test";
 import { setupAllMocks } from './global-setup';
+import { ANALYTICS_QUOTAS } from "../../src/constants/quotas";
 
 declare global {
   interface Window {
@@ -615,13 +616,19 @@ test.describe("Analytics IA - Quick Queries", () => {
     const responseText = page.locator('[data-testid="analytics-response"]');
     await expect(responseText).toBeVisible();
 
-    // Vérifier que le quota a été décrémenté (1 requête utilisée sur 5)
+    const guestAnalyticsLimit = ANALYTICS_QUOTAS.ANONYMOUS;
+
+    // Vérifier que le quota a été décrémenté (1 requête utilisée)
     const quotaIndicator = page.locator('[data-testid="quota-indicator"]');
     if (await quotaIndicator.isVisible()) {
       const quotaText = await quotaIndicator.textContent();
-      // Le format peut être "4 requêtes restantes aujourd'hui1/5 utilisées" ou similaire
-      // On vérifie qu'il indique bien 1/5 utilisées (ou 4 restantes)
-      expect(quotaText).toMatch(/1\/5|4.*requêtes.*restantes/i);
+      if (quotaText) {
+        const pattern = new RegExp(
+          `1\\/${guestAnalyticsLimit}|${guestAnalyticsLimit - 1}.*requêtes.*restantes`,
+          "i",
+        );
+        expect(quotaText).toMatch(pattern);
+      }
     }
   });
 });
