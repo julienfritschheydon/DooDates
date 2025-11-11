@@ -4,6 +4,8 @@
  * DooDates - Quota Management System
  */
 
+import { isDev } from '../lib/env';
+
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { usePolls } from "./usePolls";
@@ -608,7 +610,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     // Since we can't directly delete polls from this hook,
     // we'll just return the count of candidates that would be deleted
     // and log a message in development
-    if (process.env.NODE_ENV === "development") {
+    if (isDev()) {
       console.log(`[useQuota] Would delete ${autoDeletion.candidateCount} old polls`);
     }
 

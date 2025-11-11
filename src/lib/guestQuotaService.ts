@@ -13,6 +13,7 @@ import { supabase } from "./supabase";
 import { getCachedFingerprint, getBrowserMetadata } from "./browserFingerprint";
 import { logger } from "./logger";
 import { logError, ErrorFactory } from "./error-handling";
+import { isE2ETestingEnvironment } from "./e2e-detection";
 import type { CreditActionType } from "./quotaTracking";
 
 // ============================================================================
@@ -55,43 +56,40 @@ const GUEST_LIMITS = {
   TOTAL_CREDITS: 50,
 } as const;
 
-/**
- * Détecte si on est en environnement E2E avec mocks (pas de vraie DB)
- * On désactive seulement si Supabase URL pointe vers localhost (mock)
- */
-function isE2EEnvironment(): boolean {
-  // Vérifier si on est dans un environnement de test
-  if (typeof window === "undefined") return false;
-
-  // Vérifier les flags E2E
-  try {
-    const hasE2EFlag =
-      (window as any).__E2E__ === true || (window as any).__IS_E2E_TESTING__ === true;
-    const hasE2ELocalStorage = localStorage.getItem("e2e") === "1";
-    const hasDevLocalMode = localStorage.getItem("dev-local-mode") === "1";
-    const hasE2ESearchParam = window.location.search.includes("e2e-test=true");
-
-    console.log("🔍 isE2EEnvironment check:", {
-      hasE2EFlag,
-      hasE2ELocalStorage,
-      hasDevLocalMode,
-      hasE2ESearchParam,
-      result: hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode || hasE2ESearchParam,
-    });
-
-    if (hasE2EFlag || hasE2ELocalStorage || hasDevLocalMode || hasE2ESearchParam) return true;
-  } catch (e) {
-    logError(ErrorFactory.storage("Error checking E2E flags", "Failed to check E2E environment"), {
-      component: "guestQuotaService",
-      metadata: { originalError: e },
-    });
+function shouldBypassGuestQuota(): boolean {
+  if (typeof window === "undefined") {
+    return false;
   }
 
-  // Vérifier si Supabase URL est mockée (pointe vers localhost)
+  if (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true) {
+    logger.debug("E2E environment detected, bypassing guest quota", "quota");
+    return true;
+  }
+
+  try {
+    const hasLocalFlag =
+      localStorage.getItem("e2e") === "1" || localStorage.getItem("dev-local-mode") === "1";
+    if (hasLocalFlag) {
+      logger.debug("Local E2E flags detected, bypassing guest quota", "quota");
+      return true;
+    }
+  } catch (error) {
+    logError(
+      ErrorFactory.storage("Error checking E2E flags", "Failed to check E2E environment"),
+      {
+        component: "guestQuotaService",
+        metadata: { originalError: error },
+      },
+    );
+  }
+
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
   const isMockedSupabase = supabaseUrl.includes("localhost") || supabaseUrl.includes("127.0.0.1");
 
-  // Désactiver seulement si on utilise un mock Supabase
+  if (isMockedSupabase) {
+    logger.debug("Mock Supabase URL detected, bypassing guest quota", "quota");
+  }
+
   return isMockedSupabase;
 }
 
@@ -104,8 +102,7 @@ function isE2EEnvironment(): boolean {
  */
 export async function getOrCreateGuestQuota(): Promise<GuestQuotaData | null> {
   // En environnement E2E, retourner null pour désactiver le service
-  if (isE2EEnvironment()) {
-    logger.debug("E2E environment detected, skipping guest quota", "quota");
+  if (shouldBypassGuestQuota()) {
     return null;
   }
 
@@ -230,7 +227,7 @@ export async function canConsumeCredits(
   credits: number,
 ): Promise<{ allowed: boolean; reason?: string; currentQuota?: GuestQuotaData }> {
   // En environnement E2E, toujours autoriser
-  if (isE2EEnvironment()) {
+  if (shouldBypassGuestQuota()) {
     return { allowed: true };
   }
 
@@ -318,7 +315,7 @@ export async function consumeGuestCredits(
   metadata?: Record<string, any>,
 ): Promise<{ success: boolean; quota?: GuestQuotaData; error?: string }> {
   // En environnement E2E, simuler succès sans toucher Supabase
-  if (isE2EEnvironment()) {
+  if (shouldBypassGuestQuota()) {
     logger.debug("E2E environment: simulating credit consumption", "quota", { action, credits });
     return { success: true };
   }
@@ -420,7 +417,7 @@ export async function consumeGuestCredits(
  */
 export async function getGuestQuotaJournal(limit: number = 100): Promise<GuestQuotaJournalEntry[]> {
   // En environnement E2E, retourner tableau vide
-  if (isE2EEnvironment()) {
+  if (shouldBypassGuestQuota()) {
     return [];
   }
 
