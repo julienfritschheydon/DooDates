@@ -21,7 +21,9 @@ export const E2E_CONFIG = {
       (window as any).__IS_E2E_TESTING__ = true;
       
       // Forcer le mode développement pour désactiver certaines fonctionnalités en test
-      process.env.NODE_ENV = 'test';
+      if (typeof process !== 'undefined' && process.env) {
+        process.env.NODE_ENV = 'test';
+      }
     });
   },
   

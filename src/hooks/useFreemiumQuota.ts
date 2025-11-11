@@ -109,6 +109,7 @@ export const useFreemiumQuota = () => {
             storageUsed: 0, // Pas de limite storage pour guests via Supabase
           };
         }
+        logger.debug("Guest quota unavailable (possibly bypassed)", "quota");
       } catch (error) {
         logger.error("Failed to fetch guest quota from Supabase", error);
         // Fallback vers localStorage si Supabase échoue

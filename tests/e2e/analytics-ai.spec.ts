@@ -49,8 +49,12 @@ test.describe("Analytics IA - Suite Complète", () => {
   
   test.beforeEach(async ({ page }) => {
     await setupAllMocks(page);
-    await page.goto('/results?e2e-test=true');
+    const targetUrl = pollSlug
+      ? `/poll/${pollSlug}/results?e2e-test=true`
+      : "/results?e2e-test=true";
+    await page.goto(targetUrl);
     await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
   });
 
   test("1. Setup: Créer et clôturer un FormPoll avec 5 réponses @smoke @critical", async ({
