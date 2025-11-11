@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 // Edge Function pour sécuriser les appels Gemini API
 // Vérifie les quotas et appelle Gemini API côté serveur
