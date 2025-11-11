@@ -48,7 +48,7 @@ const createAuthMock = (user: User | null = null) => ({
 });
 
 // Constantes
-export const STORAGE_KEY = 'doodates-analytics-quota';
+export const STORAGE_KEY = "doodates-analytics-quota";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -112,7 +112,6 @@ const mockUser: User = {
   last_sign_in_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 };
-
 
 // Mock modules first - they are hoisted
 vi.mock("../../lib/logger", () => ({
@@ -194,11 +193,11 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
     vi.clearAllMocks();
     // Réinitialiser le localStorage mock
     localStorageMock = installLocalStorage();
-    Object.defineProperty(window, 'localStorage', {
+    Object.defineProperty(window, "localStorage", {
       value: localStorageMock,
-      writable: true
+      writable: true,
     });
-    
+
     // Par défaut, on utilise un utilisateur non authentifié
     mockUseAuth.mockImplementation(() => createAuthMock(null));
   });
