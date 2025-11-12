@@ -34,6 +34,9 @@ export function attachConsoleGuard(
     /Erreur lors du test de connexion Gemini/i,
     /generativelanguage\.googleapis\.com/i,
     /hyper-task due to access control checks/i,
+    // Erreurs Supabase attendues en environnement de test local (Supabase non disponible)
+    /Erreur chargement Supabase, utilisation localStorage/i,
+    /Unexpected token '<', "<!DOCTYPE "/i,
     // WebKit/Safari n'a pas requestIdleCallback (utilisé par certaines libs React)
     /requestIdleCallback/i,
     /Can't find variable: requestIdleCallback/i,
@@ -378,4 +381,90 @@ export async function assertToast(page: Page, text: string, timeoutMs: number = 
 export async function warmup(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.reload({ waitUntil: 'domcontentloaded' });
+}
+
+/**
+ * Ouvre le dialogue de gestion tags/dossiers depuis une carte de conversation.
+ * Helper réutilisable pour éviter la duplication de code dans les tests tags-folders.
+ * 
+ * @param page - La page Playwright
+ * @param conversationCard - Le locator de la carte de conversation (optionnel, utilise la première si non fourni)
+ * @returns Le locator du dialogue ouvert
+ */
+export async function openTagsFolderDialog(
+  page: Page,
+  conversationCard?: ReturnType<Page['locator']>
+) {
+  // Utiliser la carte fournie ou prendre la première
+  const card = conversationCard || page.locator('[data-testid="poll-item"]').first();
+  
+  // Attendre que la carte soit attachée
+  await card.waitFor({ state: 'attached', timeout: 10000 });
+  
+  // Trouver le bouton menu : chercher le bouton contenant l'icône MoreVertical (SVG)
+  // Le menu est généralement le dernier bouton visible dans la carte
+  const menuButton = card.locator('button').filter({ has: card.locator('svg') }).last();
+  
+  // Fallback : si pas trouvé par SVG, prendre le dernier bouton visible
+  const menuButtonCount = await card.locator('button').count();
+  let finalMenuButton = menuButton;
+  if (menuButtonCount > 0) {
+    const isMenuButtonVisible = await menuButton.isVisible().catch(() => false);
+    if (!isMenuButtonVisible) {
+      // Prendre le dernier bouton visible
+      const buttons = card.locator('button');
+      for (let i = menuButtonCount - 1; i >= 0; i--) {
+        const btn = buttons.nth(i);
+        const isVisible = await btn.isVisible().catch(() => false);
+        if (isVisible) {
+          finalMenuButton = btn;
+          break;
+        }
+      }
+    }
+  }
+  
+  // Attendre et cliquer sur le bouton menu
+  await finalMenuButton.waitFor({ state: 'visible', timeout: 5000 });
+  await finalMenuButton.click();
+  
+  // Attendre que le menu dropdown s'ouvre
+  const manageMenuItem = page.getByText('Gérer les tags/dossier');
+  await expect(manageMenuItem).toBeVisible({ timeout: 5000 });
+  
+  // Cliquer sur "Gérer les tags/dossier"
+  await manageMenuItem.click();
+  
+  // Attendre que le dialogue s'ouvre
+  const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
+  await expect(dialog).toBeVisible({ timeout: 5000 });
+  await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
+  
+  return dialog;
+}
+
+/**
+ * Vérifie que les tags et dossiers sont bien chargés dans localStorage.
+ * Utilisé pour valider l'état initial avant les tests.
+ */
+export async function verifyTagsFoldersLoaded(page: Page) {
+  const tags = await page.evaluate(() => {
+    const stored = localStorage.getItem('doodates_tags');
+    return stored ? JSON.parse(stored) : null;
+  });
+  
+  const folders = await page.evaluate(() => {
+    const stored = localStorage.getItem('doodates_folders');
+    return stored ? JSON.parse(stored) : null;
+  });
+  
+  if (!tags || !Array.isArray(tags) || tags.length === 0) {
+    throw new Error('Tags not loaded in localStorage');
+  }
+  
+  if (!folders || !Array.isArray(folders) || folders.length === 0) {
+    throw new Error('Folders not loaded in localStorage');
+  }
+  
+  return { tags, folders };
 }
