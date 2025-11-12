@@ -7,8 +7,19 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 export default defineConfig({
   testDir: './tests',
-  testMatch: ['**/*.spec.ts', '**/*.test.ts', '**/*_test.ts'],
-  testIgnore: ['**/OLD/**', '**/gemini-automated.test.ts', '**/debug-gemini-edge.test.ts', '**/temporal-prompts-validation.test.ts'],
+  // Match Playwright test files (.spec.ts everywhere, .test.ts in specific directories)
+  // Exclude Vitest test files that import from 'vitest' to avoid expect matcher conflicts
+  testMatch: [
+    '**/*.spec.ts', // All .spec.ts files (Playwright convention)
+    'e2e/**/*.test.ts', // .test.ts files in e2e/
+    'integration/**/*.test.ts', // .test.ts files in integration/
+    'debug-*.test.ts', // Debug test files in root (e.g., debug-gemini-edge.test.ts)
+  ],
+  testIgnore: [
+    '**/OLD/**',
+    // Explicitly exclude Vitest test files that would conflict with Playwright's expect
+    'temporal-prompts-validation.test.ts',
+  ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

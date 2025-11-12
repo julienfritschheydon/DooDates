@@ -119,7 +119,7 @@ export function processMonthlyQuotaReset(
 export function useAiMessageQuota(currentConversationId?: string): AiMessageQuota {
   const { user } = useAuth();
   const isGuest = !user;
-  
+
   // Pour les guests, utiliser useFreemiumQuota pour obtenir les données Supabase
   const freemiumQuota = useFreemiumQuota();
   const guestQuota = isGuest ? freemiumQuota.guestQuota?.data : null;
@@ -139,7 +139,7 @@ export function useAiMessageQuota(currentConversationId?: string): AiMessageQuot
     }
     return { aiMessagesUsed: 0, lastMessageTimestamp: 0 };
   });
-  
+
   // Pour les guests, utiliser les données Supabase si disponibles
   useEffect(() => {
     if (isGuest && guestQuota) {
@@ -229,9 +229,8 @@ export function useAiMessageQuota(currentConversationId?: string): AiMessageQuot
 
   // Calculer valeurs
   // Pour les guests, utiliser les données Supabase si disponibles, sinon fallback localStorage
-  const aiMessagesUsed = isGuest && guestQuota 
-    ? guestQuota.aiMessages || 0 
-    : quotaData.aiMessagesUsed;
+  const aiMessagesUsed =
+    isGuest && guestQuota ? guestQuota.aiMessages || 0 : quotaData.aiMessagesUsed;
   const aiMessagesRemaining = Math.max(0, limits.aiMessages - aiMessagesUsed);
   const canSendMessage = aiMessagesRemaining > 0 && !isInCooldown;
 
