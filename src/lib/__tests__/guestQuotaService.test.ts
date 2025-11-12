@@ -10,7 +10,7 @@ import {
   consumeGuestCredits,
   type GuestQuotaData,
 } from "../guestQuotaService";
-import { setupMockLocalStorage } from "../../__tests__/helpers/testHelpers";
+import { setupMockLocalStorage, setupQuotaTestWindow } from "../../__tests__/helpers/testHelpers";
 import * as browserFingerprint from "../browserFingerprint";
 import * as e2eDetection from "../e2e-detection";
 import { supabase } from "../supabase";
@@ -129,17 +129,8 @@ describe("guestQuotaService", () => {
     });
     vi.mocked(e2eDetection.isE2ETestingEnvironment).mockReturnValue(false);
 
-    // Mock window pour shouldBypassGuestQuota
-    // S'assurer que __IS_E2E_TESTING__ n'est pas défini pour les tests normaux
-    Object.defineProperty(global, "window", {
-      value: {
-        ...global.window,
-        location: { search: "" },
-        __IS_E2E_TESTING__: undefined,
-      },
-      writable: true,
-      configurable: true,
-    });
+    // Setup window pour éviter le bypass E2E dans les tests de quota
+    setupQuotaTestWindow();
 
     // Réinitialiser les mocks Supabase - chaînage correct
     (supabase.from as any).mockImplementation(() => supabase);
@@ -174,32 +165,35 @@ describe("guestQuotaService", () => {
       const mockQuota = createMockQuota();
       const mockRow = createMockSupabaseRow(mockQuota);
 
-      // Première tentative : pas trouvé (fetchQuotaByFingerprint dans ensureGuestQuota)
-      // fetchQuotaByFingerprint fait from().select().eq().maybeSingle()
+      // ensureGuestQuota fait :
+      // 1. fetchQuotaByFingerprint -> from().select().eq().maybeSingle()
       (supabase.maybeSingle as any).mockResolvedValueOnce({
         data: null,
         error: { code: "PGRST116" },
       });
 
-      // Pas de cachedQuotaId dans localStorage, donc création directe
-      // Insertion réussie (create) - supabase.from().insert().select().single()
-      // Le mock doit chaîner : insert() retourne supabase (déjà mocké dans beforeEach),
-      // puis select() retourne supabase (déjà mocké), puis single() retourne le quota
+      // 2. Pas de cachedQuotaId, donc création -> from().insert().select().single()
+      // La chaîne est : from() -> insert() -> select() -> single()
+      // insert() et select() retournent supabase (mocké dans beforeEach)
+      // single() doit retourner mockRow
       (supabase.single as any).mockResolvedValueOnce({
         data: mockRow,
         error: null,
       });
 
+      // 3. Si metadataChanged, update -> from().update().eq().select().single()
+      // Mais dans ce test, metadata ne change pas (même valeurs), donc pas d'update
+
       const result = await getOrCreateGuestQuota();
 
       expect(result).toBeDefined();
       expect(result?.fingerprint).toBe("test-fingerprint");
-      // Vérifier que insert a été appelé via la chaîne from().insert()
-      // from() est appelé plusieurs fois (pour fetch et pour insert), donc on vérifie juste qu'il a été appelé
-      expect(supabase.from).toHaveBeenCalled();
-      // Vérifier que insert a été appelé (peut être appelé avec un objet ou directement)
-      // Le mock dans beforeEach fait que insert() retourne supabase, donc on vérifie juste l'appel
-      expect(supabase.insert).toHaveBeenCalled();
+      // Vérifier que insert a été appelé avec les bonnes données
+      expect(supabase.insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fingerprint: "test-fingerprint",
+        }),
+      );
     });
 
     it("should return null if bypass is active (E2E)", async () => {
@@ -310,25 +304,31 @@ describe("guestQuotaService", () => {
         total_credits_consumed: 11,
       };
 
-      // consumeGuestCredits appelle ensureGuestQuota en premier, qui appelle fetchQuotaByFingerprint
-      // Mock ensureGuestQuota (premier appel dans consumeGuestCredits)
+      // consumeGuestCredits fait :
+      // 1. ensureGuestQuota -> fetchQuotaByFingerprint -> maybeSingle()
+      // mockEnsureGuestQuota mocke maybeSingle() pour retourner mockRow
       mockEnsureGuestQuota(mockRow);
 
-      // Mock update().select().single() - la chaîne update retourne supabase, puis select retourne supabase, puis single retourne updatedRow
+      // 2. ensureGuestQuota peut faire update() si metadataChanged, mais dans ce test metadata ne change pas
+      // Donc pas besoin de mocker l'update de ensureGuestQuota
+
+      // 3. consumeGuestCredits -> update().select().single() pour mettre à jour le quota
+      // La chaîne est : from() -> update() -> eq() -> select() -> single()
+      // update(), eq(), select() retournent supabase (mocké dans beforeEach)
+      // single() doit retourner updatedRow
       (supabase.single as any).mockResolvedValueOnce({
         data: updatedRow,
         error: null,
       });
 
-      // Mock journal insert - consumeGuestCredits fait aussi from().insert() pour le journal
-      // Le mock insert dans beforeEach retourne supabase, donc on n'a pas besoin de mocker ici
-      // Mais si insert est appelé avec des arguments, il faut s'assurer que ça ne casse pas
+      // 4. journal insert -> from().insert() (pas besoin de mocker, retourne supabase)
 
       const result = await consumeGuestCredits("ai_message", 1);
 
       expect(result.success).toBe(true);
       expect(result.quota).toBeDefined();
-      expect(result.quota?.aiMessages).toBe(2); // Vérifier que le quota mis à jour est retourné
+      // Vérifier que mapSupabaseRowToGuestQuota mappe correctement ai_messages -> aiMessages
+      expect(result.quota?.aiMessages).toBe(2);
       expect(result.quota?.totalCreditsConsumed).toBe(11);
       expect(supabase.update).toHaveBeenCalled();
     });
@@ -463,14 +463,14 @@ describe("guestQuotaService", () => {
     });
 
     it("should handle missing quota gracefully", async () => {
-      // Mock fetchQuotaByFingerprint qui retourne null (pas trouvé)
+      // ensureGuestQuota fait :
+      // 1. fetchQuotaByFingerprint -> maybeSingle() retourne null
       (supabase.maybeSingle as any).mockResolvedValueOnce({
         data: null,
         error: { code: "PGRST116" },
       });
 
-      // Mock insert().select().single() qui échoue
-      // La chaîne est from().insert().select().single()
+      // 2. Pas de cachedQuotaId, donc création -> insert().select().single() qui échoue
       // Le code vérifie : if (createError || !createdRow) return null;
       // Donc il faut que single() retourne { data: null, error: {...} }
       (supabase.single as any).mockResolvedValueOnce({
