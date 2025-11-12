@@ -19,8 +19,6 @@ import { useAiMessageQuota, processMonthlyQuotaReset } from "../useAiMessageQuot
 import { setupMockLocalStorage, setupQuotaTestWindow } from "../../__tests__/helpers/testHelpers";
 
 // Mock quotas avec des valeurs de test simplifiées
-// Note: STORAGE_QUOTAS est nécessaire car useAiMessageQuota utilise useFreemiumQuota
-// qui importe STORAGE_QUOTAS pour définir les limites de stockage
 vi.mock("@/constants/quotas", () => ({
   AI_MESSAGE_QUOTAS: {
     ANONYMOUS: 1, // Valeur de test : 1 message pour guest
@@ -30,15 +28,35 @@ vi.mock("@/constants/quotas", () => ({
     ANONYMOUS: 1, // Valeur de test : 1 poll pour guest
     AUTHENTICATED: 1, // Valeur de test : 1 poll pour authenticated
   },
-  CONVERSATION_QUOTAS: {
-    ANONYMOUS: 5, // Valeur de test : 5 conversations pour guest
-    AUTHENTICATED: 1000, // Valeur de test : 1000 conversations pour authenticated
-  },
-  // Nécessaire car useFreemiumQuota (utilisé par useAiMessageQuota) importe STORAGE_QUOTAS
-  STORAGE_QUOTAS: {
-    ANONYMOUS: 50, // Valeur de test : 50MB pour guest
-    AUTHENTICATED: 1000, // Valeur de test : 1000MB pour authenticated
-  },
+}));
+
+// Mock useFreemiumQuota car useAiMessageQuota l'utilise pour obtenir guestQuota.data
+// On mocke directement le hook plutôt que toutes les constantes qu'il utilise (STORAGE_QUOTAS, etc.)
+// car useAiMessageQuota n'utilise que guestQuota.data.aiMessages, pas le storage
+vi.mock("../useFreemiumQuota", () => ({
+  useFreemiumQuota: vi.fn(() => ({
+    guestQuota: {
+      data: null, // Par défaut, pas de quota guest (sera mocké dans les tests spécifiques)
+      pendingSync: false,
+    },
+    // Autres propriétés nécessaires pour éviter les erreurs
+    quotaUsage: { conversations: 0, polls: 0, aiMessages: 0, storageUsed: 0 },
+    limits: { conversations: 5, polls: 5, storageSize: 50 },
+    isAuthenticated: false,
+    canCreateConversation: true,
+    canCreatePoll: true,
+    canUseFeature: true,
+    checkConversationLimit: vi.fn(),
+    checkPollLimit: vi.fn(),
+    checkFeatureAccess: vi.fn(),
+    showAuthModal: false,
+    authModalTrigger: "conversation_limit" as const,
+    showAuthIncentive: false,
+    closeAuthModal: vi.fn(),
+    getRemainingConversations: () => 5,
+    getRemainingPolls: () => 5,
+    getStoragePercentage: () => 0,
+  })),
 }));
 
 // Mock useAuth
@@ -48,6 +66,9 @@ vi.mock("../../contexts/AuthContext", () => ({
 
 const { useAuth } = await import("../../contexts/AuthContext");
 const mockUseAuth = vi.mocked(useAuth);
+
+const { useFreemiumQuota } = await import("../useFreemiumQuota");
+const mockUseFreemiumQuota = vi.mocked(useFreemiumQuota);
 
 describe("useAiMessageQuota", () => {
   beforeEach(() => {
