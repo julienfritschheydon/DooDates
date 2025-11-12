@@ -3,7 +3,6 @@
 > **Document de référence unique** - Novembre 2025  
 > **Dernière mise à jour** : 07 novembre 2025 (Tests Protection Production - Phase 1 implémentée)
 
----
 
 ## 📊 Vue d'Ensemble
 
@@ -69,22 +68,36 @@ Ces critères servent de référence pour classer les suites dans le reste du gu
 | Fichiers `*.disabled` (ConversationStorage, PollCreator, etc.) | Unitaires | Important | Mocks libres | À requalifier : soit moderniser, soit supprimer si obsolètes |
 
 ### Tests primordiaux sans aucun mock: FAIT
+
 - `tests/e2e/production-smoke.spec.ts` — valide la disponibilité réelle (assets, console propre, navigation) sur build de prod, bloque tout déploiement cassé.
     - `Docs\TESTS\follow-up\production-smoke.md`
+
 - `tests/integration/real-supabase-simplified.test.ts` — vérifie authentification, CRUD et RLS sur la base Supabase réelle ; premier filet pour éviter les régressions backend.
     - `Docs\TESTS\follow-up\integration-real-supabase-simplified.md`
 
 ### Tests primordiaux avec isolation locale (mock Gemini ou seed localStorage)
+
 #### FAIT
 - `tests/e2e/ultra-simple.spec.ts` — couvre le parcours DatePoll complet (sélection dates, horaires, partage) cœur de la proposition de valeur.
     - `Docs\TESTS\follow-up\e2e-ultra-simple.md`
+
 - `tests/e2e/dashboard-complete.spec.ts`
     - `Docs\TESTS\follow-up\e2e-dashboard-complete.md`
-#### EN COURS
--  `tests/e2e/tags-folders.spec.ts` — garantissent que la gestion des conversations, tags et dossiers fonctionne (back-office critique).
+
+- `tests/e2e/tags-folders.spec.ts` — garantissent que la gestion des conversations, tags et dossiers fonctionne (back-office critique).
+    - `Docs\TESTS\follow-up\e2e-tags-folders.md`
+
+- `tests/e2e/form-poll-regression.spec.ts` — sécurise création/modification FormPoll IA (création, ajout question, suppression, reprise conversation).
+    - `Docs\TESTS\follow-up\e2e-form-poll-regression.md`
+
+- `tests/e2e/form-poll-results-access.spec.ts` — sécurise politique de visibilité des résultats FormPoll (creator-only, voters, public) et email de confirmation.
+    - `Docs\TESTS\follow-up\e2e-form-poll-results-access.md`
+
+- `tests/e2e/beta-key-activation.spec.ts` — valide le flux d'activation de clés bêta (validation format, activation, gestion erreurs, formatage input).
+    - `Docs\TESTS\follow-up\e2e-beta-key-activation.md`
+    
 #### A FAIRE
-- `tests/e2e/form-poll-regression.spec.ts`, `tests/e2e/form-poll-results-access.spec.ts` — sécurisent création/modification FormPoll IA et politique de visibilité des résultats.
-- `tests/e2e/beta-key-activation.spec.ts`, `tests/e2e/authenticated-workflow.spec.ts` — valident l’expérience utilisateur authentifié (quotas étendus, beta keys, migration invités → comptes).
+- `tests/e2e/authenticated-workflow.spec.ts` — valide l'expérience utilisateur authentifié (quotas étendus, migration invités → comptes).
 - `tests/e2e/poll-actions.spec.ts`, `tests/e2e/security-isolation.spec.ts` — contrôlent les actions dashboard et garde-fous sécurité (tokens, navigation sensible).
 - `tests/e2e/mobile-voting.spec.ts`, `tests/e2e/guest-workflow.spec.ts` — assurent l’accessibilité clé côté votants invités (mobile/desktop).
 - `tests/e2e/analytics-ai.spec.ts` — vérifie que l’analytics IA (insights, queries) reste fonctionnel malgré quotas/mocks.

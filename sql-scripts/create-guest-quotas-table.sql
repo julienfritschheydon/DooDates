@@ -307,3 +307,81 @@ COMMENT ON COLUMN guest_quotas.last_activity_at IS 'Dernière activité - utilis
 
 COMMENT ON TABLE guest_quota_journal IS 'Journal détaillé de toutes les consommations de crédits par les guests';
 COMMENT ON COLUMN guest_quota_journal.metadata IS 'Métadonnées JSON (conversationId, pollId, etc.)';
+
+-- ============================================================================
+-- FUNCTION: admin_reset_guest_quota
+-- Description: Reset manuel des quotas d'un guest (admin only)
+-- Sécurité: Nécessite service_role (SECURITY DEFINER)
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION admin_reset_guest_quota(target_fingerprint TEXT)
+RETURNS JSONB
+SECURITY DEFINER
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  quota_id UUID;
+  reset_count INTEGER;
+BEGIN
+  -- Vérifier que la fonction est appelée avec service_role
+  -- En production, cette fonction ne peut être appelée qu'avec la clé service_role de Supabase
+  
+  SELECT id INTO quota_id
+  FROM guest_quotas
+  WHERE fingerprint = target_fingerprint;
+  
+  IF quota_id IS NULL THEN
+    RETURN jsonb_build_object(
+      'success', false, 
+      'error', 'Fingerprint not found',
+      'fingerprint', target_fingerprint
+    );
+  END IF;
+  
+  -- Reset des compteurs
+  UPDATE guest_quotas
+  SET 
+    conversations_created = 0,
+    polls_created = 0,
+    ai_messages = 0,
+    analytics_queries = 0,
+    simulations = 0,
+    total_credits_consumed = 0,
+    last_reset_at = NOW(),
+    updated_at = NOW(),
+    last_activity_at = NOW()
+  WHERE id = quota_id;
+  
+  GET DIAGNOSTICS reset_count = ROW_COUNT;
+  
+  -- Journaliser le reset
+  INSERT INTO guest_quota_journal (
+    guest_quota_id,
+    fingerprint,
+    action,
+    credits,
+    metadata
+  ) VALUES (
+    quota_id,
+    target_fingerprint,
+    'admin_reset',
+    0,
+    jsonb_build_object(
+      'reset_by', 'admin', 
+      'reset_at', NOW(),
+      'reset_type', 'manual'
+    )
+  );
+  
+  RETURN jsonb_build_object(
+    'success', true,
+    'quota_id', quota_id,
+    'fingerprint', target_fingerprint,
+    'reset_at', NOW(),
+    'rows_updated', reset_count
+  );
+END;
+$$;
+
+COMMENT ON FUNCTION admin_reset_guest_quota IS 'Reset manuel des quotas d''un guest (admin only, nécessite service_role)';

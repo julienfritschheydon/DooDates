@@ -131,7 +131,17 @@ function shouldBypassGuestQuota(): boolean {
 }
 
 interface GuestQuotaSyncOptions {
-  mergeCounters?: Partial<Pick<GuestQuotaData, "conversationsCreated" | "pollsCreated" | "aiMessages" | "analyticsQueries" | "simulations" | "totalCreditsConsumed">>;
+  mergeCounters?: Partial<
+    Pick<
+      GuestQuotaData,
+      | "conversationsCreated"
+      | "pollsCreated"
+      | "aiMessages"
+      | "analyticsQueries"
+      | "simulations"
+      | "totalCreditsConsumed"
+    >
+  >;
 }
 
 interface GuestQuotaSyncResult {
@@ -221,9 +231,7 @@ function evaluateQuotaLimits(
   return { allowed: true };
 }
 
-async function fetchQuotaByFingerprint(
-  fingerprint: string,
-): Promise<GuestQuotaSupabaseRow | null> {
+async function fetchQuotaByFingerprint(fingerprint: string): Promise<GuestQuotaSupabaseRow | null> {
   const { data, error } = await supabase
     .from(GUEST_QUOTA_TABLE)
     .select("*")
@@ -257,7 +265,9 @@ async function fetchQuotaById(id: string): Promise<GuestQuotaSupabaseRow | null>
   return (data as GuestQuotaSupabaseRow | null) ?? null;
 }
 
-async function ensureGuestQuota(options?: GuestQuotaSyncOptions): Promise<GuestQuotaSyncResult | null> {
+async function ensureGuestQuota(
+  options?: GuestQuotaSyncOptions,
+): Promise<GuestQuotaSyncResult | null> {
   if (shouldBypassGuestQuota()) {
     return null;
   }
@@ -273,7 +283,8 @@ async function ensureGuestQuota(options?: GuestQuotaSyncOptions): Promise<GuestQ
     let row = await fetchQuotaByFingerprint(fingerprint);
 
     if (!row) {
-      const cachedQuotaId = typeof window !== "undefined" ? localStorage.getItem(LOCAL_QUOTA_ID_KEY) : null;
+      const cachedQuotaId =
+        typeof window !== "undefined" ? localStorage.getItem(LOCAL_QUOTA_ID_KEY) : null;
       if (cachedQuotaId) {
         logger.debug("Fingerprint not found, trying cached quota ID", "quota", {
           cachedId: cachedQuotaId.substring(0, 16),

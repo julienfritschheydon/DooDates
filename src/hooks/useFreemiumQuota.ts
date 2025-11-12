@@ -109,12 +109,15 @@ export const useFreemiumQuota = () => {
   const isAuthenticated = !!user;
   const limits = isAuthenticated ? AUTHENTICATED_LIMITS : GUEST_LIMITS;
 
-  const extractUsageFromQuota = useCallback((quota: GuestQuotaData): QuotaUsage => ({
-    conversations: quota.conversationsCreated,
-    polls: quota.pollsCreated,
-    aiMessages: quota.aiMessages,
-    storageUsed: 0,
-  }), []);
+  const extractUsageFromQuota = useCallback(
+    (quota: GuestQuotaData): QuotaUsage => ({
+      conversations: quota.conversationsCreated,
+      polls: quota.pollsCreated,
+      aiMessages: quota.aiMessages,
+      storageUsed: 0,
+    }),
+    [],
+  );
 
   // Calculate current usage (async)
   const calculateUsage = useCallback(async (): Promise<QuotaUsage> => {
@@ -184,12 +187,7 @@ export const useFreemiumQuota = () => {
       aiMessages: quotaConsumed.aiMessages || 0,
       storageUsed,
     };
-  }, [
-    user?.id,
-    quotaRefreshKey,
-    isAuthenticated,
-    extractUsageFromQuota,
-  ]);
+  }, [user?.id, quotaRefreshKey, isAuthenticated, extractUsageFromQuota]);
 
   // Charger les données de quota de manière asynchrone
   useEffect(() => {
