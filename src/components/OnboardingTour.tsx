@@ -443,7 +443,7 @@ export function OnboardingTour() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[85vh]">
         {/* Header avec bouton fermer */}
         <div className="absolute top-4 right-4 z-10">
           <button
@@ -455,8 +455,8 @@ export function OnboardingTour() {
           </button>
         </div>
 
-        {/* Contenu de l'étape */}
-        <div className="p-6 sm:p-8 pt-12">
+        {/* Contenu scrollable de l'étape */}
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 pt-12">
           {/* Icône */}
           <div className="flex justify-center mb-6">{step.icon}</div>
 
@@ -490,9 +490,12 @@ export function OnboardingTour() {
               </Link>
             </div>
           )}
+        </div>
 
+        {/* Section fixe en bas avec indicateurs et boutons */}
+        <div className="flex-shrink-0 border-t border-gray-200 bg-white">
           {/* Indicateurs de progression */}
-          <div className="flex justify-center gap-2 mb-8">
+          <div className="flex justify-center gap-2 pt-6 pb-4">
             {ONBOARDING_STEPS.map((_, index) => (
               <div
                 key={index}
@@ -508,7 +511,7 @@ export function OnboardingTour() {
           </div>
 
           {/* Boutons de navigation */}
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-4 px-6 sm:px-8 pb-6">
             {/* Bouton Précédent */}
             <button
               onClick={previousStep}
@@ -540,11 +543,11 @@ export function OnboardingTour() {
               {!isLastStep && <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
           </div>
-        </div>
 
-        {/* Footer avec compteur */}
-        <div className="bg-gray-50 px-8 py-4 text-center text-sm text-gray-500">
-          Étape {currentStep + 1} sur {ONBOARDING_STEPS.length}
+          {/* Footer avec compteur */}
+          <div className="bg-gray-50 px-8 py-3 text-center text-sm text-gray-500">
+            Étape {currentStep + 1} sur {ONBOARDING_STEPS.length}
+          </div>
         </div>
       </div>
     </div>

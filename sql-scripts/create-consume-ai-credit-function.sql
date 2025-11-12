@@ -2,7 +2,9 @@
 -- Utilisée par l'Edge Function pour sécuriser les quotas
 
 CREATE OR REPLACE FUNCTION consume_ai_credit(p_user_id UUID)
-RETURNS JSON AS $$
+RETURNS JSON
+SET search_path = public, auth, extensions
+AS $$
 DECLARE
   v_quota RECORD;
   v_new_remaining INT;
@@ -73,7 +75,9 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Fonction pour rollback un crédit (en cas d'erreur Gemini API)
 CREATE OR REPLACE FUNCTION rollback_ai_credit(p_user_id UUID)
-RETURNS JSON AS $$
+RETURNS JSON
+SET search_path = public, auth, extensions
+AS $$
 DECLARE
   v_quota RECORD;
 BEGIN

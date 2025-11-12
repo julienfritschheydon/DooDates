@@ -31,6 +31,23 @@ export interface GuestQuotaData {
   totalCreditsConsumed: number;
   firstSeenAt: string;
   lastActivityAt: string;
+  lastResetAt: string | null;
+  browserMetadata?: {
+    userAgent?: string | null;
+    timezone?: string | null;
+    language?: string | null;
+    screenResolution?: string | null;
+  };
+}
+
+interface GuestQuotaJournalSupabaseRow {
+  id: string;
+  guest_quota_id: string;
+  fingerprint: string;
+  action: CreditActionType;
+  credits: number;
+  metadata: Record<string, any> | null;
+  created_at: string;
 }
 
 export interface GuestQuotaJournalEntry {
@@ -55,6 +72,28 @@ const GUEST_LIMITS = {
   SIMULATIONS: 2,
   TOTAL_CREDITS: 50,
 } as const;
+
+const GUEST_QUOTA_TABLE = "guest_quotas";
+const GUEST_QUOTA_JOURNAL_TABLE = "guest_quota_journal";
+const LOCAL_QUOTA_ID_KEY = "guest_quota_id";
+
+interface GuestQuotaSupabaseRow {
+  id: string;
+  fingerprint: string;
+  conversations_created: number;
+  polls_created: number;
+  ai_messages: number;
+  analytics_queries: number;
+  simulations: number;
+  total_credits_consumed: number;
+  first_seen_at: string;
+  last_activity_at: string;
+  last_reset_at: string | null;
+  user_agent?: string | null;
+  timezone?: string | null;
+  language?: string | null;
+  screen_resolution?: string | null;
+}
 
 function shouldBypassGuestQuota(): boolean {
   if (typeof window === "undefined") {
@@ -91,15 +130,134 @@ function shouldBypassGuestQuota(): boolean {
   return isMockedSupabase;
 }
 
-// ============================================================================
-// CORE FUNCTIONS
-// ============================================================================
+interface GuestQuotaSyncOptions {
+  mergeCounters?: Partial<Pick<GuestQuotaData, "conversationsCreated" | "pollsCreated" | "aiMessages" | "analyticsQueries" | "simulations" | "totalCreditsConsumed">>;
+}
 
-/**
- * Récupère ou crée le quota guest dans Supabase
- */
-export async function getOrCreateGuestQuota(): Promise<GuestQuotaData | null> {
-  // En environnement E2E, retourner null pour désactiver le service
+interface GuestQuotaSyncResult {
+  quota: GuestQuotaData;
+  fingerprint: string;
+}
+
+function mapSupabaseRowToGuestQuota(row: GuestQuotaSupabaseRow): GuestQuotaData {
+  return {
+    id: row.id,
+    fingerprint: row.fingerprint,
+    conversationsCreated: row.conversations_created,
+    pollsCreated: row.polls_created,
+    aiMessages: row.ai_messages,
+    analyticsQueries: row.analytics_queries,
+    simulations: row.simulations,
+    totalCreditsConsumed: row.total_credits_consumed,
+    firstSeenAt: row.first_seen_at,
+    lastActivityAt: row.last_activity_at,
+    lastResetAt: row.last_reset_at,
+    browserMetadata: {
+      userAgent: row.user_agent,
+      timezone: row.timezone,
+      language: row.language,
+      screenResolution: row.screen_resolution,
+    },
+  };
+}
+
+function evaluateQuotaLimits(
+  quota: GuestQuotaData,
+  action: CreditActionType,
+  credits: number,
+): { allowed: boolean; reason?: string } {
+  if (quota.totalCreditsConsumed + credits > GUEST_LIMITS.TOTAL_CREDITS) {
+    return {
+      allowed: false,
+      reason: `Total credit limit reached (${GUEST_LIMITS.TOTAL_CREDITS})`,
+    };
+  }
+
+  switch (action) {
+    case "conversation_created":
+      if (quota.conversationsCreated >= GUEST_LIMITS.CONVERSATIONS) {
+        return {
+          allowed: false,
+          reason: `Conversation limit reached (${GUEST_LIMITS.CONVERSATIONS})`,
+        };
+      }
+      break;
+    case "poll_created":
+      if (quota.pollsCreated >= GUEST_LIMITS.POLLS) {
+        return {
+          allowed: false,
+          reason: `Poll limit reached (${GUEST_LIMITS.POLLS})`,
+        };
+      }
+      break;
+    case "ai_message":
+      if (quota.aiMessages >= GUEST_LIMITS.AI_MESSAGES) {
+        return {
+          allowed: false,
+          reason: `AI message limit reached (${GUEST_LIMITS.AI_MESSAGES})`,
+        };
+      }
+      break;
+    case "analytics_query":
+      if (quota.analyticsQueries >= GUEST_LIMITS.ANALYTICS_QUERIES) {
+        return {
+          allowed: false,
+          reason: `Analytics query limit reached (${GUEST_LIMITS.ANALYTICS_QUERIES})`,
+        };
+      }
+      break;
+    case "simulation":
+      if (quota.simulations >= GUEST_LIMITS.SIMULATIONS) {
+        return {
+          allowed: false,
+          reason: `Simulation limit reached (${GUEST_LIMITS.SIMULATIONS})`,
+        };
+      }
+      break;
+    default:
+      break;
+  }
+
+  return { allowed: true };
+}
+
+async function fetchQuotaByFingerprint(
+  fingerprint: string,
+): Promise<GuestQuotaSupabaseRow | null> {
+  const { data, error } = await supabase
+    .from(GUEST_QUOTA_TABLE)
+    .select("*")
+    .eq("fingerprint", fingerprint)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") {
+    logger.debug("Failed to fetch guest quota (non-critical)", "quota", {
+      error: error.message,
+    });
+    return null;
+  }
+
+  return (data as GuestQuotaSupabaseRow | null) ?? null;
+}
+
+async function fetchQuotaById(id: string): Promise<GuestQuotaSupabaseRow | null> {
+  const { data, error } = await supabase
+    .from(GUEST_QUOTA_TABLE)
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") {
+    logger.debug("Failed to fetch guest quota by id", "quota", {
+      error: error.message,
+    });
+    return null;
+  }
+
+  return (data as GuestQuotaSupabaseRow | null) ?? null;
+}
+
+async function ensureGuestQuota(options?: GuestQuotaSyncOptions): Promise<GuestQuotaSyncResult | null> {
   if (shouldBypassGuestQuota()) {
     return null;
   }
@@ -108,113 +266,141 @@ export async function getOrCreateGuestQuota(): Promise<GuestQuotaData | null> {
     const fingerprint = await getCachedFingerprint();
     const metadata = getBrowserMetadata();
 
-    logger.debug("Fetching guest quota", "quota", { fingerprint: fingerprint.substring(0, 16) });
+    logger.debug("Synchronizing guest quota", "quota", {
+      fingerprint: fingerprint.substring(0, 16),
+    });
 
-    // Chercher quota existant par fingerprint
-    const { data: existingArray, error: fetchError } = await supabase
-      .from("guest_quotas")
-      .select("*")
-      .eq("fingerprint", fingerprint);
+    let row = await fetchQuotaByFingerprint(fingerprint);
 
-    if (fetchError) {
-      logger.debug("Failed to fetch guest quota (non-critical)", "quota", {
-        error: fetchError.message,
-      });
-      return null;
-    }
-
-    let existing = existingArray?.[0];
-
-    // FALLBACK: Si pas trouvé par fingerprint, chercher par ID en cache localStorage
-    if (!existing) {
-      const cachedQuotaId = localStorage.getItem("guest_quota_id");
+    if (!row) {
+      const cachedQuotaId = typeof window !== "undefined" ? localStorage.getItem(LOCAL_QUOTA_ID_KEY) : null;
       if (cachedQuotaId) {
         logger.debug("Fingerprint not found, trying cached quota ID", "quota", {
           cachedId: cachedQuotaId.substring(0, 16),
         });
-
-        const { data: cachedArray, error: cachedError } = await supabase
-          .from("guest_quotas")
-          .select("*")
-          .eq("id", cachedQuotaId);
-
-        if (!cachedError && cachedArray?.[0]) {
-          existing = cachedArray[0];
-
-          // Mettre à jour le fingerprint dans Supabase pour ce quota
-          logger.info("Updating fingerprint for existing quota", "quota", {
-            oldFingerprint: existing.fingerprint.substring(0, 16),
-            newFingerprint: fingerprint.substring(0, 16),
-          });
-
-          await supabase.from("guest_quotas").update({ fingerprint }).eq("id", cachedQuotaId);
-
-          existing.fingerprint = fingerprint;
+        const cachedRow = await fetchQuotaById(cachedQuotaId);
+        if (cachedRow) {
+          await supabase.from(GUEST_QUOTA_TABLE).update({ fingerprint }).eq("id", cachedRow.id);
+          row = { ...cachedRow, fingerprint };
         }
       }
     }
 
-    if (existing) {
-      logger.debug("Guest quota found", "quota", {
-        totalCredits: existing.total_credits_consumed,
+    if (!row) {
+      logger.info("Creating new guest quota", "quota", {
+        fingerprint: fingerprint.substring(0, 16),
       });
 
-      // Sauvegarder l'ID en cache pour le fallback
-      localStorage.setItem("guest_quota_id", existing.id);
+      const { data: created, error: createError } = await supabase
+        .from(GUEST_QUOTA_TABLE)
+        .insert({
+          fingerprint,
+          user_agent: metadata.userAgent,
+          timezone: metadata.timezone,
+          language: metadata.language,
+          screen_resolution: metadata.screenResolution,
+        })
+        .select("*")
+        .single();
 
-      return {
-        id: existing.id,
-        fingerprint: existing.fingerprint,
-        conversationsCreated: existing.conversations_created,
-        pollsCreated: existing.polls_created,
-        aiMessages: existing.ai_messages,
-        analyticsQueries: existing.analytics_queries,
-        simulations: existing.simulations,
-        totalCreditsConsumed: existing.total_credits_consumed,
-        firstSeenAt: existing.first_seen_at,
-        lastActivityAt: existing.last_activity_at,
-      };
+      const createdRow = (created as GuestQuotaSupabaseRow | null) ?? null;
+
+      if (createError || !createdRow) {
+        logger.error("Failed to create guest quota", createError);
+        return null;
+      }
+
+      row = createdRow;
     }
 
-    // Créer nouveau quota
-    logger.info("Creating new guest quota", "quota", { fingerprint: fingerprint.substring(0, 16) });
+    const updates: Partial<GuestQuotaSupabaseRow> = {};
+    const metadataChanged =
+      row.user_agent !== metadata.userAgent ||
+      row.timezone !== metadata.timezone ||
+      row.language !== metadata.language ||
+      row.screen_resolution !== metadata.screenResolution;
 
-    const { data: created, error: createError } = await supabase
-      .from("guest_quotas")
-      .insert({
-        fingerprint,
-        user_agent: metadata.userAgent,
-        timezone: metadata.timezone,
-        language: metadata.language,
-        screen_resolution: metadata.screenResolution,
-      })
-      .select()
-      .single();
-
-    if (createError) {
-      logger.error("Failed to create guest quota", createError);
-      return null;
+    if (metadataChanged) {
+      updates.user_agent = metadata.userAgent;
+      updates.timezone = metadata.timezone;
+      updates.language = metadata.language;
+      updates.screen_resolution = metadata.screenResolution;
     }
 
-    // Sauvegarder l'ID en cache pour le fallback
-    localStorage.setItem("guest_quota_id", created.id);
+    if (options?.mergeCounters) {
+      const merge = options.mergeCounters;
+      const countersMapping: Array<{
+        key: keyof GuestQuotaSupabaseRow;
+        field: keyof typeof merge;
+      }> = [
+        { key: "conversations_created", field: "conversationsCreated" },
+        { key: "polls_created", field: "pollsCreated" },
+        { key: "ai_messages", field: "aiMessages" },
+        { key: "analytics_queries", field: "analyticsQueries" },
+        { key: "simulations", field: "simulations" },
+      ];
+
+      countersMapping.forEach(({ key, field }) => {
+        const mergeValue = merge[field];
+        if (typeof mergeValue === "number") {
+          const currentValue = (row?.[key] as number | undefined) ?? 0;
+          if (mergeValue > currentValue) {
+            updates[key] = mergeValue as never;
+          }
+        }
+      });
+
+      if (
+        typeof merge.totalCreditsConsumed === "number" &&
+        merge.totalCreditsConsumed > (row?.total_credits_consumed ?? 0)
+      ) {
+        updates.total_credits_consumed = merge.totalCreditsConsumed;
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
+      const { data: updated, error: updateError } = await supabase
+        .from(GUEST_QUOTA_TABLE)
+        .update(updates)
+        .eq("id", row.id)
+        .select("*")
+        .single();
+
+      const updatedRow = (updated as GuestQuotaSupabaseRow | null) ?? null;
+
+      if (!updateError && updatedRow) {
+        row = updatedRow;
+      } else if (updateError) {
+        logger.warn("Failed to refresh guest quota metadata", "quota", {
+          error: updateError.message,
+        });
+      }
+    }
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(LOCAL_QUOTA_ID_KEY, row.id);
+    }
 
     return {
-      id: created.id,
-      fingerprint: created.fingerprint,
-      conversationsCreated: 0,
-      pollsCreated: 0,
-      aiMessages: 0,
-      analyticsQueries: 0,
-      simulations: 0,
-      totalCreditsConsumed: 0,
-      firstSeenAt: created.first_seen_at,
-      lastActivityAt: created.last_activity_at,
+      quota: mapSupabaseRowToGuestQuota(row),
+      fingerprint,
     };
   } catch (error) {
-    logger.error("Failed to get or create guest quota", error);
+    logger.error("Failed to synchronize guest quota", error);
     return null;
   }
+}
+
+// ============================================================================
+// CORE FUNCTIONS
+// ============================================================================
+
+/**
+ * Récupère ou crée le quota guest dans Supabase
+ */
+export async function getOrCreateGuestQuota(): Promise<GuestQuotaData | null> {
+  const result = await ensureGuestQuota();
+  return result?.quota ?? null;
 }
 
 /**
@@ -224,77 +410,21 @@ export async function canConsumeCredits(
   action: CreditActionType,
   credits: number,
 ): Promise<{ allowed: boolean; reason?: string; currentQuota?: GuestQuotaData }> {
-  // En environnement E2E, toujours autoriser
   if (shouldBypassGuestQuota()) {
     return { allowed: true };
   }
 
   try {
-    const quota = await getOrCreateGuestQuota();
+    const result = await ensureGuestQuota();
+    const quota = result?.quota;
+
     if (!quota) {
       return { allowed: false, reason: "Failed to fetch quota" };
     }
 
-    // Vérifier limite totale
-    if (quota.totalCreditsConsumed + credits > GUEST_LIMITS.TOTAL_CREDITS) {
-      return {
-        allowed: false,
-        reason: `Total credit limit reached (${GUEST_LIMITS.TOTAL_CREDITS})`,
-        currentQuota: quota,
-      };
-    }
-
-    // Vérifier limites spécifiques par action
-    switch (action) {
-      case "conversation_created":
-        if (quota.conversationsCreated >= GUEST_LIMITS.CONVERSATIONS) {
-          return {
-            allowed: false,
-            reason: `Conversation limit reached (${GUEST_LIMITS.CONVERSATIONS})`,
-            currentQuota: quota,
-          };
-        }
-        break;
-
-      case "poll_created":
-        if (quota.pollsCreated >= GUEST_LIMITS.POLLS) {
-          return {
-            allowed: false,
-            reason: `Poll limit reached (${GUEST_LIMITS.POLLS})`,
-            currentQuota: quota,
-          };
-        }
-        break;
-
-      case "ai_message":
-        if (quota.aiMessages >= GUEST_LIMITS.AI_MESSAGES) {
-          return {
-            allowed: false,
-            reason: `AI message limit reached (${GUEST_LIMITS.AI_MESSAGES})`,
-            currentQuota: quota,
-          };
-        }
-        break;
-
-      case "analytics_query":
-        if (quota.analyticsQueries >= GUEST_LIMITS.ANALYTICS_QUERIES) {
-          return {
-            allowed: false,
-            reason: `Analytics query limit reached (${GUEST_LIMITS.ANALYTICS_QUERIES})`,
-            currentQuota: quota,
-          };
-        }
-        break;
-
-      case "simulation":
-        if (quota.simulations >= GUEST_LIMITS.SIMULATIONS) {
-          return {
-            allowed: false,
-            reason: `Simulation limit reached (${GUEST_LIMITS.SIMULATIONS})`,
-            currentQuota: quota,
-          };
-        }
-        break;
+    const evaluation = evaluateQuotaLimits(quota, action, credits);
+    if (!evaluation.allowed) {
+      return { ...evaluation, currentQuota: quota };
     }
 
     return { allowed: true, currentQuota: quota };
@@ -312,30 +442,37 @@ export async function consumeGuestCredits(
   credits: number,
   metadata?: Record<string, any>,
 ): Promise<{ success: boolean; quota?: GuestQuotaData; error?: string }> {
-  // En environnement E2E, simuler succès sans toucher Supabase
   if (shouldBypassGuestQuota()) {
     logger.debug("E2E environment: simulating credit consumption", "quota", { action, credits });
     return { success: true };
   }
 
   try {
-    // Vérifier d'abord si autorisé
-    const check = await canConsumeCredits(action, credits);
-    if (!check.allowed) {
+    const syncResult = await ensureGuestQuota();
+    const quota = syncResult?.quota;
+
+    if (!quota) {
+      return { success: false, error: "Failed to fetch quota" };
+    }
+
+    const evaluation = evaluateQuotaLimits(quota, action, credits);
+    if (!evaluation.allowed) {
       logger.warn("Credit consumption denied", "quota", {
         action,
         credits,
-        reason: check.reason,
+        reason: evaluation.reason,
       });
-      return { success: false, error: check.reason };
+      return { success: false, error: evaluation.reason };
     }
 
-    const fingerprint = await getCachedFingerprint();
-    const quota = check.currentQuota!;
+    const metadataSnapshot = getBrowserMetadata();
 
-    // Calculer nouveaux compteurs
-    const updates: any = {
+    const updates: Partial<GuestQuotaSupabaseRow> = {
       total_credits_consumed: quota.totalCreditsConsumed + credits,
+      user_agent: metadataSnapshot.userAgent,
+      timezone: metadataSnapshot.timezone,
+      language: metadataSnapshot.language,
+      screen_resolution: metadataSnapshot.screenResolution,
     };
 
     switch (action) {
@@ -356,22 +493,24 @@ export async function consumeGuestCredits(
         break;
     }
 
-    // Mettre à jour quota
     const { data: updated, error: updateError } = await supabase
-      .from("guest_quotas")
+      .from(GUEST_QUOTA_TABLE)
       .update(updates)
-      .eq("fingerprint", fingerprint)
-      .select()
+      .eq("id", quota.id)
+      .select("*")
       .single();
 
-    if (updateError) {
+    const updatedRow = (updated as GuestQuotaSupabaseRow | null) ?? null;
+
+    if (updateError || !updatedRow) {
       logger.error("Failed to update guest quota", updateError);
       return { success: false, error: "Failed to update quota" };
     }
 
-    // Ajouter entrée au journal
-    const { error: journalError } = await supabase.from("guest_quota_journal").insert({
-      guest_quota_id: quota.id,
+    const fingerprint = updatedRow.fingerprint;
+
+    const { error: journalError } = await supabase.from(GUEST_QUOTA_JOURNAL_TABLE).insert({
+      guest_quota_id: updatedRow.id,
       fingerprint,
       action,
       credits,
@@ -380,29 +519,17 @@ export async function consumeGuestCredits(
 
     if (journalError) {
       logger.error("Failed to add journal entry", journalError);
-      // Ne pas bloquer si le journal échoue
     }
 
     logger.info("Credits consumed", "quota", {
       action,
       credits,
-      totalCredits: updated.total_credits_consumed,
+      totalCredits: updatedRow.total_credits_consumed,
     });
 
     return {
       success: true,
-      quota: {
-        id: updated.id,
-        fingerprint: updated.fingerprint,
-        conversationsCreated: updated.conversations_created,
-        pollsCreated: updated.polls_created,
-        aiMessages: updated.ai_messages,
-        analyticsQueries: updated.analytics_queries,
-        simulations: updated.simulations,
-        totalCreditsConsumed: updated.total_credits_consumed,
-        firstSeenAt: updated.first_seen_at,
-        lastActivityAt: updated.last_activity_at,
-      },
+      quota: mapSupabaseRowToGuestQuota(updatedRow),
     };
   } catch (error) {
     logger.error("Failed to consume credits", error);
@@ -414,7 +541,7 @@ export async function consumeGuestCredits(
  * Récupère le journal de consommation
  */
 export async function getGuestQuotaJournal(limit: number = 100): Promise<GuestQuotaJournalEntry[]> {
-  // En environnement E2E, retourner tableau vide
+  // Environnement E2E -> bypass
   if (shouldBypassGuestQuota()) {
     return [];
   }
@@ -423,7 +550,7 @@ export async function getGuestQuotaJournal(limit: number = 100): Promise<GuestQu
     const fingerprint = await getCachedFingerprint();
 
     const { data, error } = await supabase
-      .from("guest_quota_journal")
+      .from(GUEST_QUOTA_JOURNAL_TABLE)
       .select("*")
       .eq("fingerprint", fingerprint)
       .order("created_at", { ascending: false })
@@ -434,13 +561,15 @@ export async function getGuestQuotaJournal(limit: number = 100): Promise<GuestQu
       return [];
     }
 
-    return (data || []).map((entry) => ({
+    const entries = (data as GuestQuotaJournalSupabaseRow[] | null) ?? [];
+
+    return entries.map((entry) => ({
       id: entry.id,
       guestQuotaId: entry.guest_quota_id,
       fingerprint: entry.fingerprint,
       action: entry.action,
       credits: entry.credits,
-      metadata: entry.metadata,
+      metadata: entry.metadata ?? {},
       createdAt: entry.created_at,
     }));
   } catch (error) {

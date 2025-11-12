@@ -37,13 +37,13 @@ DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 
 CREATE POLICY "Users can view own profile" ON profiles 
-  FOR SELECT USING (auth.uid() = id);
+  FOR SELECT USING ((SELECT auth.uid()) = id);
 
 CREATE POLICY "Users can update own profile" ON profiles 
-  FOR UPDATE USING (auth.uid() = id);
+  FOR UPDATE USING ((SELECT auth.uid()) = id);
 
 CREATE POLICY "Users can insert own profile" ON profiles 
-  FOR INSERT WITH CHECK (auth.uid() = id);
+  FOR INSERT WITH CHECK ((SELECT auth.uid()) = id);
 
 -- ============================================
 -- 2. POLLS TABLE
@@ -64,7 +64,9 @@ CREATE TABLE IF NOT EXISTS polls (
 
 -- Function pour générer un slug unique
 CREATE OR REPLACE FUNCTION generate_poll_slug(poll_title TEXT)
-RETURNS TEXT AS $$
+RETURNS TEXT
+SET search_path = public, extensions
+AS $$
 DECLARE
   base_slug TEXT;
   final_slug TEXT;
@@ -108,25 +110,22 @@ DROP POLICY IF EXISTS "polls_insert_anonymous" ON polls;
 DROP POLICY IF EXISTS "polls_view_active" ON polls;
 DROP POLICY IF EXISTS "polls_update_own" ON polls;
 DROP POLICY IF EXISTS "polls_delete_own" ON polls;
+DROP POLICY IF EXISTS "polls_select_access" ON polls;
 
 -- Allow anyone to create polls (anonymous or authenticated)
 CREATE POLICY "polls_insert_anonymous" ON polls 
   FOR INSERT WITH CHECK (true);
 
--- Allow creators to select their own polls (if authenticated)
-CREATE POLICY "polls_select_own" ON polls 
-  FOR SELECT USING (auth.uid() = creator_id);
-
--- Allow anyone to view active polls (public access)
-CREATE POLICY "polls_view_active" ON polls 
-  FOR SELECT USING (status = 'active');
+-- Allow creators to select their own polls or view active polls
+CREATE POLICY "polls_select_access" ON polls 
+  FOR SELECT USING (((SELECT auth.uid()) = creator_id) OR status = 'active');
 
 -- Allow creators to update/delete their own polls (if authenticated)
 CREATE POLICY "polls_update_own" ON polls 
-  FOR UPDATE USING (auth.uid() = creator_id);
+  FOR UPDATE USING ((SELECT auth.uid()) = creator_id);
 
 CREATE POLICY "polls_delete_own" ON polls 
-  FOR DELETE USING (auth.uid() = creator_id);
+  FOR DELETE USING ((SELECT auth.uid()) = creator_id);
 
 -- ============================================
 -- 3. POLL_OPTIONS TABLE
@@ -156,6 +155,9 @@ DROP POLICY IF EXISTS "poll_options_insert_own" ON poll_options;
 DROP POLICY IF EXISTS "poll_options_insert_anonymous" ON poll_options;
 DROP POLICY IF EXISTS "poll_options_select_public" ON poll_options;
 DROP POLICY IF EXISTS "poll_options_modify_own" ON poll_options;
+DROP POLICY IF EXISTS "poll_options_select_access" ON poll_options;
+DROP POLICY IF EXISTS "poll_options_update_own" ON poll_options;
+DROP POLICY IF EXISTS "poll_options_delete_own" ON poll_options;
 
 -- Allow inserting poll options for any poll (anonymous or authenticated)
 CREATE POLICY "poll_options_insert_anonymous" ON poll_options 
@@ -166,23 +168,39 @@ CREATE POLICY "poll_options_insert_anonymous" ON poll_options
     )
   );
 
--- Anyone can view poll options for active polls
-CREATE POLICY "poll_options_select_public" ON poll_options 
+-- Anyone can view poll options if they own the poll or poll is active
+CREATE POLICY "poll_options_select_access" ON poll_options 
   FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM polls 
       WHERE polls.id = poll_id 
-      AND (polls.creator_id = auth.uid() OR polls.status = 'active')
+      AND (((SELECT auth.uid()) = polls.creator_id) OR polls.status = 'active')
     )
   );
 
 -- Creator can update/delete poll options
-CREATE POLICY "poll_options_modify_own" ON poll_options 
-  FOR ALL USING (
+CREATE POLICY "poll_options_update_own" ON poll_options 
+  FOR UPDATE USING (
     EXISTS (
       SELECT 1 FROM polls 
       WHERE polls.id = poll_id 
-      AND polls.creator_id = auth.uid()
+      AND (SELECT auth.uid()) = polls.creator_id
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM polls 
+      WHERE polls.id = poll_id 
+      AND (SELECT auth.uid()) = polls.creator_id
+    )
+  );
+
+CREATE POLICY "poll_options_delete_own" ON poll_options 
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM polls 
+      WHERE polls.id = poll_id 
+      AND (SELECT auth.uid()) = polls.creator_id
     )
   );
 
@@ -241,15 +259,15 @@ CREATE POLICY "votes_select_public" ON votes
 -- Voters can update their own votes
 CREATE POLICY "votes_update_own" ON votes 
   FOR UPDATE USING (
-    (auth.uid() = voter_id) OR 
-    (voter_email = current_setting('request.jwt.claims', true)::json->>'email')
+    ((SELECT auth.uid()) = voter_id) OR 
+    (voter_email = (SELECT current_setting('request.jwt.claims', true))::json->>'email')
   );
 
 -- Voters can delete their own votes
 CREATE POLICY "votes_delete_own" ON votes 
   FOR DELETE USING (
-    (auth.uid() = voter_id) OR 
-    (voter_email = current_setting('request.jwt.claims', true)::json->>'email')
+    ((SELECT auth.uid()) = voter_id) OR 
+    (voter_email = (SELECT current_setting('request.jwt.claims', true))::json->>'email')
   );
 
 -- ============================================
@@ -285,28 +303,27 @@ ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 
 -- Drop old policies
 DROP POLICY IF EXISTS "Users can view own conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can insert own conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can update own conversations" ON conversations;
-DROP POLICY IF EXISTS "Users can create conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can delete own conversations" ON conversations;
 DROP POLICY IF EXISTS "conversations_select_own" ON conversations;
 DROP POLICY IF EXISTS "conversations_insert_own" ON conversations;
 DROP POLICY IF EXISTS "conversations_update_own" ON conversations;
 DROP POLICY IF EXISTS "conversations_delete_own" ON conversations;
 
--- Allow users to select their own conversations (authenticated)
-CREATE POLICY "conversations_select_own" ON conversations 
-  FOR SELECT USING (auth.uid() = user_id);
+-- Allow users to access only their own conversations
+CREATE POLICY "Users can view own conversations" ON conversations 
+  FOR SELECT USING ((SELECT auth.uid()) = user_id);
 
--- Allow users to insert their own conversations (authenticated)
-CREATE POLICY "conversations_insert_own" ON conversations 
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can insert own conversations" ON conversations 
+  FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
 
--- Allow users to update their own conversations (authenticated)
-CREATE POLICY "conversations_update_own" ON conversations 
-  FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own conversations" ON conversations 
+  FOR UPDATE USING ((SELECT auth.uid()) = user_id)
+  WITH CHECK ((SELECT auth.uid()) = user_id);
 
--- Allow users to delete their own conversations (authenticated)
-CREATE POLICY "conversations_delete_own" ON conversations 
-  FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own conversations" ON conversations 
+  FOR DELETE USING ((SELECT auth.uid()) = user_id);
 
 -- ============================================
 -- 6. ANALYTICS_EVENTS TABLE (Optionnel)
@@ -342,7 +359,7 @@ CREATE POLICY "analytics_insert_all" ON analytics_events
 
 -- Allow users to view their own analytics
 CREATE POLICY "analytics_select_own" ON analytics_events 
-  FOR SELECT USING (auth.uid() = user_id);
+  FOR SELECT USING ((SELECT auth.uid()) = user_id);
 
 -- ============================================
 -- 7. TRIGGERS
@@ -350,7 +367,9 @@ CREATE POLICY "analytics_select_own" ON analytics_events
 
 -- Function pour mettre à jour updated_at automatiquement
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+SET search_path = public
+AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;

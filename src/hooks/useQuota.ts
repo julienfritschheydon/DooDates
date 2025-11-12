@@ -242,14 +242,6 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
   const isAuthenticated = !!user;
   const limits = isAuthenticated ? AUTHENTICATED_LIMITS : GUEST_LIMITS;
 
-  // 🔍 DEBUG: Log limits at initialization
-  console.log("🔍 [useQuota] Limits initialized", {
-    isAuthenticated,
-    limits,
-    GUEST_LIMITS,
-    AUTHENTICATED_LIMITS,
-  });
-
   // Load persisted state
   useEffect(() => {
     try {
@@ -264,6 +256,18 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       logger.error("Failed to load quota state", "quota", { error });
     }
   }, []);
+
+  // 🔍 DEBUG: Log limits only when they actually change (not on every render)
+  useEffect(() => {
+    if (isDev()) {
+      console.log("🔍 [useQuota] Limits initialized", {
+        isAuthenticated,
+        limits,
+        GUEST_LIMITS,
+        AUTHENTICATED_LIMITS,
+      });
+    }
+  }, [isAuthenticated]); // Only log when authentication status changes
 
   // Calculate current usage
   const calculateUsage = useCallback((): QuotaUsage => {
@@ -300,11 +304,8 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
       storageUsed,
     };
 
-    // 🔍 DEBUG: Log usage calculation
-    console.log("🔍 [useQuota] Usage calculated", result);
-
     return result;
-  }, []);
+  }, [polls]);
 
   const usage = useMemo(() => calculateUsage(), [calculateUsage]);
 
@@ -523,15 +524,6 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
 
   // Enforcement functions
   const checkConversationLimit = useCallback(() => {
-    // 🔍 DEBUG: Log quota state
-    console.log("🔍 [useQuota] checkConversationLimit called", {
-      canCreate: canCreateConversation(),
-      used: status.conversations.used,
-      limit: status.conversations.limit,
-      isAuthenticated,
-      showAuthIncentives,
-    });
-
     // 🎯 BYPASS: Si showAuthIncentives est désactivé (mode E2E), toujours autoriser
     if (!showAuthIncentives) {
       console.log("✅ [useQuota] Bypassing quota check (showAuthIncentives=false)");

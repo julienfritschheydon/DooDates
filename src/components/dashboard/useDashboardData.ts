@@ -12,6 +12,7 @@ import { logError, ErrorFactory } from "@/lib/error-handling";
 import { useAuth } from "@/contexts/AuthContext";
 import { logger } from "@/lib/logger";
 import { usePolls } from "@/hooks/usePolls";
+import { isE2ETestingEnvironment } from "@/lib/e2e-detection";
 import type { Conversation } from "@/types/conversation";
 
 export function useDashboardData(refreshKey: number) {
@@ -20,6 +21,10 @@ export function useDashboardData(refreshKey: number) {
   const { user } = useAuth();
   const { getUserPolls } = usePolls();
 
+  const isE2ETestMode =
+    typeof window !== "undefined" &&
+    (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true);
+
   useEffect(() => {
     loadData();
   }, [refreshKey, user?.id]);
@@ -27,15 +32,15 @@ export function useDashboardData(refreshKey: number) {
   const loadData = async () => {
     setLoading(true);
     try {
-      // Charger les polls depuis Supabase (si utilisateur connecté)
-      if (user?.id) {
+      // Charger les polls depuis Supabase (si utilisateur connecté et hors E2E)
+      if (user?.id && !isE2ETestMode) {
         await getUserPolls();
       }
 
       // Récupérer les conversations depuis Supabase + localStorage (avec merge)
       let allConversations: Conversation[] = [];
 
-      if (user?.id) {
+      if (user?.id && !isE2ETestMode) {
         // Utilisateur connecté : Supabase est la SEULE source de vérité
         try {
           const { getConversations: getSupabaseConversations } = await import(
@@ -67,7 +72,7 @@ export function useDashboardData(refreshKey: number) {
           allConversations = getLocalConversations();
         }
       } else {
-        // Mode invité : utiliser seulement localStorage
+        // Mode invité ou E2E : utiliser seulement localStorage
         allConversations = getLocalConversations();
       }
       logger.info("🔍 Dashboard - Conversations brutes", "dashboard", {

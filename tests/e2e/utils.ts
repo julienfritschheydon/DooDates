@@ -104,10 +104,18 @@ export async function enableE2ELocalMode(page: Page) {
   await page.addInitScript(() => {
     try {
       (window as any).__E2E__ = true;
+      (window as any).__IS_E2E_TESTING__ = true;
       localStorage.setItem('e2e', '1');
       localStorage.setItem('dev-local-mode', '1');
     } catch {}
   });
+
+  // S'assurer que l'URL comporte le flag pour les détections basées sur location.search
+  const url = new URL(page.url() || 'http://localhost');
+  if (!url.searchParams.has('e2e-test')) {
+    url.searchParams.set('e2e-test', 'true');
+    await page.goto(url.toString(), { waitUntil: 'domcontentloaded' }).catch(() => {});
+  }
 }
 
 /**

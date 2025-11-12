@@ -161,26 +161,26 @@ ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own conversations" 
 ON public.conversations 
 FOR SELECT 
-USING (auth.uid() = user_id);
+USING ((SELECT auth.uid()) = user_id);
 
 -- Policy pour INSERT : utilisateur peut créer ses propres conversations
 CREATE POLICY "Users can insert own conversations" 
 ON public.conversations 
 FOR INSERT 
-WITH CHECK (auth.uid() = user_id);
+WITH CHECK ((SELECT auth.uid()) = user_id);
 
 -- Policy pour UPDATE : utilisateur peut modifier ses propres conversations
 CREATE POLICY "Users can update own conversations" 
 ON public.conversations 
 FOR UPDATE 
-USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id);
+USING ((SELECT auth.uid()) = user_id)
+WITH CHECK ((SELECT auth.uid()) = user_id);
 
 -- Policy pour DELETE : utilisateur peut supprimer ses propres conversations
 CREATE POLICY "Users can delete own conversations" 
 ON public.conversations 
 FOR DELETE 
-USING (auth.uid() = user_id);
+USING ((SELECT auth.uid()) = user_id);
 
 -- ============================================
 -- CORRECTION 5 : TABLE MESSAGES
@@ -220,26 +220,26 @@ ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own messages" 
 ON public.messages 
 FOR SELECT 
-USING (auth.uid() = user_id);
+USING ((SELECT auth.uid()) = user_id);
 
 -- Policy pour INSERT : utilisateur peut créer ses propres messages
 CREATE POLICY "Users can insert own messages" 
 ON public.messages 
 FOR INSERT 
-WITH CHECK (auth.uid() = user_id);
+WITH CHECK ((SELECT auth.uid()) = user_id);
 
 -- Policy pour UPDATE : utilisateur peut modifier ses propres messages
 CREATE POLICY "Users can update own messages" 
 ON public.messages 
 FOR UPDATE 
-USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id);
+USING ((SELECT auth.uid()) = user_id)
+WITH CHECK ((SELECT auth.uid()) = user_id);
 
 -- Policy pour DELETE : utilisateur peut supprimer ses propres messages
 CREATE POLICY "Users can delete own messages" 
 ON public.messages 
 FOR DELETE 
-USING (auth.uid() = user_id);
+USING ((SELECT auth.uid()) = user_id);
 
 -- ============================================
 -- CORRECTION 7 : TRIGGERS UPDATED_AT

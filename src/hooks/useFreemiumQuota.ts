@@ -3,7 +3,7 @@
  * DooDates - Freemium Quota Management System
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { logError, ErrorFactory } from "../lib/error-handling";
 import { useConversations } from "./useConversations";
@@ -12,7 +12,6 @@ import { getQuotaConsumed } from "../lib/quotaTracking";
 import {
   getOrCreateGuestQuota,
   canConsumeCredits,
-  consumeGuestCredits,
   getGuestLimits,
   type GuestQuotaData,
 } from "../lib/guestQuotaService";
@@ -29,6 +28,13 @@ export interface QuotaUsage {
   polls: number;
   aiMessages: number;
   storageUsed: number; // in MB
+}
+
+interface GuestQuotaSyncState {
+  data: GuestQuotaData | null;
+  pendingSync: boolean;
+  lastSyncedAt?: string;
+  lastError?: string;
 }
 
 export interface QuotaStatus {
@@ -94,10 +100,21 @@ export const useFreemiumQuota = () => {
     aiMessages: 0,
     storageUsed: 0,
   });
-  const [guestQuota, setGuestQuota] = useState<GuestQuotaData | null>(null);
+  const [guestQuotaState, setGuestQuotaState] = useState<GuestQuotaSyncState>({
+    data: null,
+    pendingSync: false,
+  });
+  const guestQuotaRef = useRef<GuestQuotaData | null>(null);
 
   const isAuthenticated = !!user;
   const limits = isAuthenticated ? AUTHENTICATED_LIMITS : GUEST_LIMITS;
+
+  const extractUsageFromQuota = useCallback((quota: GuestQuotaData): QuotaUsage => ({
+    conversations: quota.conversationsCreated,
+    polls: quota.pollsCreated,
+    aiMessages: quota.aiMessages,
+    storageUsed: 0,
+  }), []);
 
   // Calculate current usage (async)
   const calculateUsage = useCallback(async (): Promise<QuotaUsage> => {
@@ -106,20 +123,36 @@ export const useFreemiumQuota = () => {
       try {
         const quota = await getOrCreateGuestQuota();
         if (quota) {
-          setGuestQuota(quota);
-          return {
-            conversations: quota.conversationsCreated,
-            polls: quota.pollsCreated,
-            aiMessages: quota.aiMessages,
-            storageUsed: 0, // Pas de limite storage pour guests via Supabase
-          };
+          guestQuotaRef.current = quota;
+          setGuestQuotaState({
+            data: quota,
+            pendingSync: false,
+            lastSyncedAt: new Date().toISOString(),
+            lastError: undefined,
+          });
+          return extractUsageFromQuota(quota);
         }
         if (!isE2EMode()) {
           logger.debug("Guest quota unavailable (possibly bypassed)", "quota");
         }
+        setGuestQuotaState((prev) => ({
+          ...prev,
+          pendingSync: true,
+          lastError: "Quota unavailable",
+        }));
+        if (guestQuotaRef.current) {
+          return extractUsageFromQuota(guestQuotaRef.current);
+        }
       } catch (error) {
         logger.error("Failed to fetch guest quota from Supabase", error);
-        // Fallback vers localStorage si Supabase échoue
+        setGuestQuotaState((prev) => ({
+          ...prev,
+          pendingSync: true,
+          lastError: error instanceof Error ? error.message : "Unknown error",
+        }));
+        if (guestQuotaRef.current) {
+          return extractUsageFromQuota(guestQuotaRef.current);
+        }
       }
     }
 
@@ -151,7 +184,12 @@ export const useFreemiumQuota = () => {
       aiMessages: quotaConsumed.aiMessages || 0,
       storageUsed,
     };
-  }, [user?.id, quotaRefreshKey, isAuthenticated]);
+  }, [
+    user?.id,
+    quotaRefreshKey,
+    isAuthenticated,
+    extractUsageFromQuota,
+  ]);
 
   // Charger les données de quota de manière asynchrone
   useEffect(() => {
@@ -206,6 +244,15 @@ export const useFreemiumQuota = () => {
     // Pour les guests, vérifier avec Supabase
     if (!isAuthenticated) {
       const check = await canConsumeCredits("conversation_created", 1);
+      if (check.currentQuota) {
+        guestQuotaRef.current = check.currentQuota;
+        setGuestQuotaState({
+          data: check.currentQuota,
+          pendingSync: false,
+          lastSyncedAt: new Date().toISOString(),
+          lastError: undefined,
+        });
+      }
       return check.allowed;
     }
 
@@ -218,6 +265,15 @@ export const useFreemiumQuota = () => {
     // Pour les guests, vérifier avec Supabase
     if (!isAuthenticated) {
       const check = await canConsumeCredits("poll_created", 1);
+      if (check.currentQuota) {
+        guestQuotaRef.current = check.currentQuota;
+        setGuestQuotaState({
+          data: check.currentQuota,
+          pendingSync: false,
+          lastSyncedAt: new Date().toISOString(),
+          lastError: undefined,
+        });
+      }
       return check.allowed;
     }
 
@@ -345,6 +401,7 @@ export const useFreemiumQuota = () => {
     getRemainingConversations: () => Math.max(0, limits.conversations - quotaUsage.conversations),
     getRemainingPolls: () => Math.max(0, limits.polls - quotaUsage.polls),
     getStoragePercentage: () => getQuotaStatus().storage.percentage,
+    guestQuota: guestQuotaState,
   };
 };
 

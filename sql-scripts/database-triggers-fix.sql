@@ -9,7 +9,9 @@
 -- ===============================================
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+SET search_path = public, auth
+AS $$
 BEGIN
   INSERT INTO public.profiles (id, email, full_name, avatar_url, timezone, preferences, plan_type)
   VALUES (
@@ -42,12 +44,15 @@ CREATE TRIGGER on_auth_user_created
 -- =======================================================
 
 CREATE OR REPLACE FUNCTION public.handle_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = pg_catalog, public
+AS $$
 BEGIN
-  NEW.updated_at = NOW();
+  NEW.updated_at = pg_catalog.now();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- 4. TRIGGERS POUR UPDATED_AT SUR TOUTES LES TABLES
 -- =================================================

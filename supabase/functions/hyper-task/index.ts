@@ -6,7 +6,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 interface RateLimitEntry {
   hourlyCount: number;
@@ -77,12 +77,25 @@ serve(async (req) => {
   const requestId = crypto.randomUUID();
   const timestamp = new Date().toISOString();
   
+  // Système de timing détaillé pour diagnostiquer les performances
+  const timings = {
+    start: Date.now(),
+    init: 0,
+    auth: 0,
+    rateLimit: 0,
+    quota: 0,
+    gemini: 0,
+    total: 0,
+  };
+  
   console.log(`[${timestamp}] [${requestId}] ========================================`);
   console.log(`[${timestamp}] [${requestId}] 🚀 EDGE FUNCTION DÉMARRÉE`);
   console.log(`[${timestamp}] [${requestId}] ========================================`);
   
   const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
+  
+  timings.init = Date.now() - timings.start;
 
   console.log(`[${timestamp}] [${requestId}] 📥 Requête reçue:`, {
     method: req.method,
@@ -132,27 +145,32 @@ serve(async (req) => {
     let userId: string | null = null;
     let isAuthenticated = false;
 
+    const authStartTime = Date.now();
     if (authHeader) {
       // Vérifier le JWT si présent
       const token = authHeader.replace("Bearer ", "");
       console.log(`[${timestamp}] [${requestId}] 🔐 Vérification authentification...`);
       const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      timings.auth = Date.now() - authStartTime;
 
       if (!authError && user) {
         userId = user.id;
         isAuthenticated = true;
-        console.log(`[${timestamp}] [${requestId}] ✅ Utilisateur authentifié: ${userId}`);
+        console.log(`[${timestamp}] [${requestId}] ✅ Utilisateur authentifié: ${userId} (${timings.auth}ms)`);
       } else {
         console.log(`[${timestamp}] [${requestId}] ⚠️  Authentification échouée:`, authError?.message || "Token invalide");
       }
     } else {
-      console.log(`[${timestamp}] [${requestId}] 👤 Mode invité (pas d'authentification)`);
+      timings.auth = Date.now() - authStartTime;
+      console.log(`[${timestamp}] [${requestId}] 👤 Mode invité (pas d'authentification) (${timings.auth}ms)`);
     }
 
     // Rate limiting par IP
+    const rateLimitStartTime = Date.now();
     const ipKey = `ip:${clientIp}`;
     const ipLimit = checkRateLimit(ipKey, RATE_LIMITS.ip);
-    console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit IP:`, { allowed: ipLimit.allowed, retryAfter: ipLimit.retryAfter });
+    timings.rateLimit = Date.now() - rateLimitStartTime;
+    console.log(`[${timestamp}] [${requestId}] ⏱️  Rate limit IP:`, { allowed: ipLimit.allowed, retryAfter: ipLimit.retryAfter, duration: timings.rateLimit });
     if (!ipLimit.allowed) {
       console.log(`[${timestamp}] [${requestId}] ❌ Rate limit IP dépassé`);
       return new Response(
@@ -221,13 +239,16 @@ serve(async (req) => {
     }
 
     // Vérifier et consommer le quota (si authentifié)
+    const quotaStartTime = Date.now();
     if (isAuthenticated && userId) {
       console.log(`[${timestamp}] [${requestId}] 💳 Vérification quota utilisateur...`);
       const quotaCheck = await checkAndConsumeQuota(supabase, userId);
+      timings.quota = Date.now() - quotaStartTime;
       console.log(`[${timestamp}] [${requestId}] 💳 Résultat quota:`, { 
         success: quotaCheck.success, 
         creditsRemaining: quotaCheck.creditsRemaining,
-        error: quotaCheck.error 
+        error: quotaCheck.error,
+        duration: timings.quota
       });
       if (!quotaCheck.success) {
         console.log(`[${timestamp}] [${requestId}] ❌ Quota insuffisant:`, quotaCheck.message);
@@ -247,6 +268,8 @@ serve(async (req) => {
           },
         );
       }
+    } else {
+      timings.quota = Date.now() - quotaStartTime;
     }
 
     // Récupérer le body de la requête
@@ -370,6 +393,23 @@ serve(async (req) => {
 
     const geminiData = await geminiResponse.json();
     const responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+    timings.gemini = geminiDuration;
+    
+    // Calculer le total et l'overhead
+    timings.total = Date.now() - timings.start;
+    const overhead = timings.total - timings.gemini;
+    const overheadPercent = Math.round((overhead / timings.total) * 100);
+    
+    // Log des timings détaillés (format lisible)
+    console.log(`[${timestamp}] [${requestId}] ⏱️  TIMINGS DÉTAILLÉS:`);
+    console.log(`[${timestamp}] [${requestId}]   - Init: ${timings.init}ms`);
+    console.log(`[${timestamp}] [${requestId}]   - Auth: ${timings.auth}ms`);
+    console.log(`[${timestamp}] [${requestId}]   - Rate Limit: ${timings.rateLimit}ms`);
+    console.log(`[${timestamp}] [${requestId}]   - Quota: ${timings.quota}ms`);
+    console.log(`[${timestamp}] [${requestId}]   - Gemini API: ${timings.gemini}ms`);
+    console.log(`[${timestamp}] [${requestId}]   - Overhead: ${overhead}ms (${overheadPercent}%)`);
+    console.log(`[${timestamp}] [${requestId}]   - TOTAL: ${timings.total}ms`);
+    
     console.log(`[${timestamp}] [${requestId}] ✅ Gemini API réponse reçue (${geminiDuration}ms)`, { 
       hasResponse: !!responseText,
       responseLength: responseText?.length || 0 
@@ -398,8 +438,8 @@ serve(async (req) => {
       console.log(`[${timestamp}] [${requestId}] [AUDIT] User ${userId} consumed 1 credit`);
     }
 
-    // Retourner la réponse
-    console.log(`[${timestamp}] [${requestId}] ✅ Réponse envoyée avec succès`);
+    // Retourner la réponse avec timings dans les headers (pour debug)
+    console.log(`[${timestamp}] [${requestId}] ✅ Réponse envoyée avec succès (total: ${timings.total}ms)`);
     return new Response(
       JSON.stringify({ 
         success: true, 
