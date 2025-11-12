@@ -28,6 +28,14 @@ vi.mock("@/constants/quotas", () => ({
     ANONYMOUS: 1, // Valeur de test : 1 poll pour guest
     AUTHENTICATED: 1, // Valeur de test : 1 poll pour authenticated
   },
+  CONVERSATION_QUOTAS: {
+    ANONYMOUS: 5, // Valeur de test : 5 conversations pour guest
+    AUTHENTICATED: 1000, // Valeur de test : 1000 conversations pour authenticated
+  },
+  STORAGE_QUOTAS: {
+    ANONYMOUS: 50, // Valeur de test : 50MB pour guest
+    AUTHENTICATED: 1000, // Valeur de test : 1000MB pour authenticated
+  },
 }));
 
 // Mock useAuth

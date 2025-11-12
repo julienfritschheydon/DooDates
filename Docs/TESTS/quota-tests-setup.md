@@ -114,4 +114,21 @@ Pour vérifier si un test a ce problème :
 - **2025-11-12** : Problème identifié dans `guestQuotaService.test.ts`
 - **2025-11-12** : Helper `setupQuotaTestWindow()` créé
 - **2025-11-12** : `guestQuotaService.test.ts` corrigé (14/17 tests passent maintenant)
+- **2025-11-12** : `useAiMessageQuota.test.ts` corrigé (mock `CONVERSATION_QUOTAS` et `STORAGE_QUOTAS` ajoutés)
+- **2025-11-12** : 3 tests restants dans `guestQuotaService.test.ts` nécessitent une investigation approfondie des mocks Supabase :
+  - "should create new quota if not found" : `insert` n'est pas appelé (0 appels)
+  - "should consume credits successfully" : `aiMessages` est 0 au lieu de 2
+  - "should handle missing quota gracefully" : résultat n'est pas `null`
+
+## Problèmes Restants
+
+Les 3 tests qui échouent encore dans `guestQuotaService.test.ts` sont dus à des problèmes de mocks Supabase complexes, pas au bypass E2E. Ces problèmes nécessitent une investigation approfondie de l'ordre des appels Supabase et de la façon dont les mocks sont consommés.
+
+### Tests Concernés
+
+1. **"should create new quota if not found"** : Le mock de `insert` n'est pas appelé (0 appels au lieu d'au moins 1)
+2. **"should consume credits successfully"** : Le mock de `single` ne retourne pas les bonnes valeurs (`aiMessages: 0` au lieu de `2`)
+3. **"should handle missing quota gracefully"** : Le mock d'erreur ne fonctionne pas (résultat n'est pas `null`)
+
+Ces problèmes étaient masqués par le bypass E2E avant la correction. Maintenant que le bypass est corrigé, ils sont visibles et nécessitent une correction des mocks Supabase.
 
