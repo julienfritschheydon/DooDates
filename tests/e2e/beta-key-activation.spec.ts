@@ -12,38 +12,27 @@
 
 import { test, expect } from '@playwright/test';
 import { setupGeminiMock } from './global-setup';
+import { mockSupabaseAuth, waitForPageLoad } from './utils';
 
 test.describe('Beta Key Activation', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, browserName }) => {
     // Setup Gemini API mock to prevent costs
     await setupGeminiMock(page);
     
     // Clear localStorage and start fresh
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
     await page.evaluate(() => localStorage.clear());
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
   });
 
-  test('should show beta key activation option when authenticated', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState("networkidle");
-    
+  test('should show beta key activation option when authenticated', async ({ page, browserName }) => {
+    // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
-    await page.evaluate(() => {
-      const supabaseUrl = (window as any).__VITE_SUPABASE_URL__ || 'test.supabase.co';
-      const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'test';
-      localStorage.setItem(`sb-${projectId}-auth-token`, JSON.stringify({
-        user: { 
-          id: 'test-user-id', 
-          email: 'test@example.com',
-          aud: 'authenticated'
-        },
-        access_token: 'mock-token-12345',
-        expires_at: Date.now() + 3600000,
-      }));
-    });
-    await page.reload();
-    await page.waitForLoadState("networkidle");
+    await mockSupabaseAuth(page);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
     
     // Wait for app to load - check for message input or any interactive element
     const messageInput = page.locator('[data-testid="message-input"]');
@@ -58,24 +47,12 @@ test.describe('Beta Key Activation', () => {
     }
   });
 
-  test('should validate beta key format', async ({ page }) => {
-    await page.goto('/');
-    
+  test('should validate beta key format', async ({ page, browserName }) => {
+    // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
-    await page.evaluate(() => {
-      const supabaseUrl = (window as any).__VITE_SUPABASE_URL__ || 'test.supabase.co';
-      const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'test';
-      localStorage.setItem(`sb-${projectId}-auth-token`, JSON.stringify({
-        user: { 
-          id: 'test-user-id', 
-          email: 'test@example.com',
-          aud: 'authenticated'
-        },
-        access_token: 'mock-token-12345',
-        expires_at: Date.now() + 3600000,
-      }));
-    });
-    await page.reload();
+    await mockSupabaseAuth(page);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
     
     // Try to find beta key input
     // Since UI might not have beta key modal yet, we test the service directly via browser console
@@ -105,25 +82,14 @@ test.describe('Beta Key Activation', () => {
 
   test('should handle beta key activation with mock API', async ({ page, browserName }) => {
     // Skip sur Safari/Webkit car page.route() n'est pas fiable
+    // Limitation connue de Playwright : https://github.com/microsoft/playwright/issues/13038
     test.skip(browserName === 'webkit', 'page.route() non fiable sur Safari/Webkit');
     
-    await page.goto('/');
-    
+    // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
-    await page.evaluate(() => {
-      const supabaseUrl = (window as any).__VITE_SUPABASE_URL__ || 'test.supabase.co';
-      const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'test';
-      localStorage.setItem(`sb-${projectId}-auth-token`, JSON.stringify({
-        user: { 
-          id: 'test-user-id', 
-          email: 'test@example.com',
-          aud: 'authenticated'
-        },
-        access_token: 'mock-token-12345',
-        expires_at: Date.now() + 3600000,
-      }));
-    });
-    await page.reload();
+    await mockSupabaseAuth(page);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
     
     // Mock the beta key redemption API
     await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
@@ -170,25 +136,14 @@ test.describe('Beta Key Activation', () => {
 
   test('should reject invalid beta key with mock API', async ({ page, browserName }) => {
     // Skip sur Safari/Webkit car page.route() n'est pas fiable
+    // Limitation connue de Playwright : https://github.com/microsoft/playwright/issues/13038
     test.skip(browserName === 'webkit', 'page.route() non fiable sur Safari/Webkit');
     
-    await page.goto('/');
-    
+    // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
-    await page.evaluate(() => {
-      const supabaseUrl = (window as any).__VITE_SUPABASE_URL__ || 'test.supabase.co';
-      const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'test';
-      localStorage.setItem(`sb-${projectId}-auth-token`, JSON.stringify({
-        user: { 
-          id: 'test-user-id', 
-          email: 'test@example.com',
-          aud: 'authenticated'
-        },
-        access_token: 'mock-token-12345',
-        expires_at: Date.now() + 3600000,
-      }));
-    });
-    await page.reload();
+    await mockSupabaseAuth(page);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
     
     // Mock the beta key redemption API with error
     await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
@@ -234,25 +189,14 @@ test.describe('Beta Key Activation', () => {
 
   test('should reject already used beta key with mock API', async ({ page, browserName }) => {
     // Skip sur Safari/Webkit car page.route() n'est pas fiable
+    // Limitation connue de Playwright : https://github.com/microsoft/playwright/issues/13038
     test.skip(browserName === 'webkit', 'page.route() non fiable sur Safari/Webkit');
     
-    await page.goto('/');
-    
+    // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
-    await page.evaluate(() => {
-      const supabaseUrl = (window as any).__VITE_SUPABASE_URL__ || 'test.supabase.co';
-      const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'test';
-      localStorage.setItem(`sb-${projectId}-auth-token`, JSON.stringify({
-        user: { 
-          id: 'test-user-id', 
-          email: 'test@example.com',
-          aud: 'authenticated'
-        },
-        access_token: 'mock-token-12345',
-        expires_at: Date.now() + 3600000,
-      }));
-    });
-    await page.reload();
+    await mockSupabaseAuth(page);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
     
     // Mock the beta key redemption API with conflict error
     await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
@@ -298,25 +242,17 @@ test.describe('Beta Key Activation', () => {
 
   test('should handle unauthorized error (401)', async ({ page, browserName }) => {
     // Skip sur Safari/Webkit car page.route() n'est pas fiable
+    // Limitation connue de Playwright : https://github.com/microsoft/playwright/issues/13038
     test.skip(browserName === 'webkit', 'page.route() non fiable sur Safari/Webkit');
     
-    await page.goto('/');
-    
+    // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication with expired token
-    await page.evaluate(() => {
-      const supabaseUrl = (window as any).__VITE_SUPABASE_URL__ || 'test.supabase.co';
-      const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'test';
-      localStorage.setItem(`sb-${projectId}-auth-token`, JSON.stringify({
-        user: { 
-          id: 'test-user-id', 
-          email: 'test@example.com',
-          aud: 'authenticated'
-        },
-        access_token: 'expired-token',
-        expires_at: Date.now() - 3600000, // Expired
-      }));
+    await mockSupabaseAuth(page, {
+      accessToken: 'expired-token',
+      expiresAt: Date.now() - 3600000, // Expired
     });
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
     
     // Mock the beta key redemption API with 401 error
     await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
@@ -358,8 +294,8 @@ test.describe('Beta Key Activation', () => {
     expect(redemptionResult.status).toBe(401);
   });
 
-  test('should format beta key input automatically', async ({ page }) => {
-    await page.goto('/');
+  test('should format beta key input automatically', async ({ page, browserName }) => {
+    // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     
     // Test formatting logic in browser
     const formattingResults = await page.evaluate(() => {
@@ -397,8 +333,8 @@ test.describe('Beta Key Activation', () => {
     expect(allPassed).toBe(true);
   });
 
-  test('should normalize beta key input (trim and uppercase)', async ({ page }) => {
-    await page.goto('/');
+  test('should normalize beta key input (trim and uppercase)', async ({ page, browserName }) => {
+    // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     
     const normalizationResult = await page.evaluate(() => {
       const normalize = (code: string): string => code.trim().toUpperCase();
@@ -423,11 +359,13 @@ test.describe('Beta Key Activation - Integration with Real Supabase', () => {
   test.skip('should activate a valid beta key with real Supabase (requires .env.local)', async ({ page }) => {
     // Ce test nécessite une vraie connexion à Supabase de test
     // Il est skip par défaut et doit être activé manuellement avec une vraie clé de test
+    // Pour l'activer : retirer le .skip et fournir une vraie clé bêta de test
     
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
     
     // Attendre que l'utilisateur se connecte manuellement (ou utiliser un helper)
-    await page.waitForTimeout(5000);
+    // Note: Ce test nécessite une authentification réelle et une clé bêta valide
     
     // Chercher le bouton de clé bêta
     const betaKeyButton = page.locator('button, a').filter({ 

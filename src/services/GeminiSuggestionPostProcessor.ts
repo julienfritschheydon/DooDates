@@ -265,7 +265,10 @@ function buildContextualSlots(
   const filteredDates = filterDatesByDayKeywords(dates, lowerInput);
   const effectiveDates = filteredDates.length > 0 ? filteredDates : dates;
 
-  if (/stand-?up|standup/.test(lowerInput) || (/express|rapide/.test(lowerInput) && /matin/.test(lowerInput))) {
+  if (
+    /stand-?up|standup/.test(lowerInput) ||
+    (/express|rapide/.test(lowerInput) && /matin/.test(lowerInput))
+  ) {
     const targetDate = effectiveDates[0];
     return targetDate
       ? [
@@ -304,7 +307,11 @@ function buildContextualSlots(
     return slots.length > 0 ? slots : undefined;
   }
 
-  if (/chorale|répétition/.test(lowerInput) && /samedi/.test(lowerInput) && /dimanche/.test(lowerInput)) {
+  if (
+    /chorale|répétition/.test(lowerInput) &&
+    /samedi/.test(lowerInput) &&
+    /dimanche/.test(lowerInput)
+  ) {
     const saturday = effectiveDates.find((date) => isDay(date, 6));
     const sunday = effectiveDates.find((date) => isDay(date, 0));
 
@@ -330,30 +337,22 @@ function buildContextualSlots(
 
   if (/soir|soirée|soiree|début de soirée|debut de soiree/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 3);
-    return targets.length > 0
-      ? targets.map((date) => createSlot(date, 18, 30, 120))
-      : undefined;
+    return targets.length > 0 ? targets.map((date) => createSlot(date, 18, 30, 120)) : undefined;
   }
 
   if (/après-midi|apres-midi/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 3);
-    return targets.length > 0
-      ? targets.map((date) => createSlot(date, 15, 0, 120))
-      : undefined;
+    return targets.length > 0 ? targets.map((date) => createSlot(date, 15, 0, 120)) : undefined;
   }
 
   if (/matin/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 3);
-    return targets.length > 0
-      ? targets.map((date) => createSlot(date, 9, 0, 120))
-      : undefined;
+    return targets.length > 0 ? targets.map((date) => createSlot(date, 9, 0, 120)) : undefined;
   }
 
   if (/déjeuner|dejeuner|brunch|midi/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 2);
-    return targets.length > 0
-      ? targets.map((date) => createSlot(date, 11, 30, 90))
-      : undefined;
+    return targets.length > 0 ? targets.map((date) => createSlot(date, 11, 30, 90)) : undefined;
   }
 
   const explicitTimes = extractTimesFromInput(lowerInput);

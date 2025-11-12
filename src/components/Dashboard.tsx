@@ -505,6 +505,6 @@ const Dashboard: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Dashboard;

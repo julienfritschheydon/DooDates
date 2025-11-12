@@ -468,3 +468,67 @@ export async function verifyTagsFoldersLoaded(page: Page) {
   
   return { tags, folders };
 }
+
+/**
+ * Mock l'authentification Supabase dans localStorage pour les tests E2E.
+ * Simule un utilisateur authentifié avec un token valide.
+ * 
+ * @param page - La page Playwright
+ * @param options - Options pour personnaliser l'authentification mockée
+ */
+export async function mockSupabaseAuth(
+  page: Page,
+  options?: {
+    userId?: string;
+    email?: string;
+    accessToken?: string;
+    expiresAt?: number;
+  }
+) {
+  const userId = options?.userId || 'test-user-id';
+  const email = options?.email || 'test@example.com';
+  const accessToken = options?.accessToken || 'mock-token-12345';
+  const expiresAt = options?.expiresAt || Date.now() + 3600000; // 1h dans le futur
+
+  await page.evaluate(
+    ({ userId, email, accessToken, expiresAt }) => {
+      const supabaseUrl = (window as any).__VITE_SUPABASE_URL__ || 'test.supabase.co';
+      const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'test';
+      localStorage.setItem(`sb-${projectId}-auth-token`, JSON.stringify({
+        user: {
+          id: userId,
+          email: email,
+          aud: 'authenticated',
+        },
+        access_token: accessToken,
+        expires_at: expiresAt,
+      }));
+    },
+    { userId, email, accessToken, expiresAt }
+  );
+}
+
+/**
+ * Attend que la page soit complètement chargée, avec gestion spéciale pour Firefox.
+ * Firefox peut avoir des problèmes avec `networkidle` qui ne se produit jamais,
+ * donc on utilise un timeout plus long avec fallback.
+ * 
+ * @param page - La page Playwright
+ * @param browserName - Le nom du navigateur (pour adapter le comportement)
+ * @param timeout - Timeout en ms (défaut: 30000 pour Firefox, pas de timeout pour les autres)
+ */
+export async function waitForPageLoad(page: Page, browserName: string, timeout?: number) {
+  if (browserName === 'firefox') {
+    const firefoxTimeout = timeout || 30000;
+    await page.waitForLoadState('networkidle', { timeout: firefoxTimeout }).catch(async () => {
+      // Fallback: attendre un élément spécifique si networkidle échoue sur Firefox
+      await page.waitForSelector('body', { timeout: 5000 });
+    });
+  } else {
+    if (timeout) {
+      await page.waitForLoadState('networkidle', { timeout });
+    } else {
+      await page.waitForLoadState('networkidle');
+    }
+  }
+}
