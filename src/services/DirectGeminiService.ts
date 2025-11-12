@@ -89,8 +89,8 @@ export class DirectGeminiService {
 
       const textToSend = prompt || userInput;
 
-      // Utiliser le modèle stable Gemini Pro (disponible en v1beta)
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.apiKey}`;
+      // Utiliser le modèle Gemini 2.0 Flash pour rester cohérent avec l'Edge Function
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.apiKey}`;
 
       const requestBody = {
         contents: [

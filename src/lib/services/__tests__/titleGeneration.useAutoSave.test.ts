@@ -29,12 +29,20 @@ vi.mock("../../browserFingerprint", () => ({
   })),
 }));
 
-// Mock quotaTracking pour éviter les appels Supabase
-vi.mock("../../quotaTracking", () => ({
-  consumeCredits: vi.fn().mockResolvedValue(true),
-  canConsumeCredits: vi.fn().mockResolvedValue(true),
-  consumeAiMessageCredits: vi.fn().mockResolvedValue(undefined), // Résout sans erreur
-}));
+// Mock quotaTracking pour éviter les appels Supabase tout en conservant les helpers utilisés
+vi.mock("../../quotaTracking", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../quotaTracking")>();
+
+  return {
+    ...actual,
+    consumeCredits: vi.fn().mockResolvedValue(true),
+    canConsumeCredits: vi.fn().mockResolvedValue(true),
+    consumeAiMessageCredits: vi.fn().mockResolvedValue(undefined),
+    incrementConversationCreated: vi.fn().mockResolvedValue(undefined),
+    incrementPollCreated: vi.fn().mockResolvedValue(undefined),
+    incrementAiMessages: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 // Mock useAuth
 vi.mock("../../../contexts/AuthContext", () => ({

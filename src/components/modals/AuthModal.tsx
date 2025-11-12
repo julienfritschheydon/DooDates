@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { SignInForm } from "../auth/SignInForm";
 import { SignUpForm } from "../auth/SignUpForm";
@@ -17,8 +17,13 @@ export function AuthModal({ open, onOpenChange, defaultMode = "signin" }: AuthMo
   const navigate = useNavigate();
 
   // Fermer automatiquement le modal après connexion réussie
+  const previousUserRef = useRef(user);
+
   useEffect(() => {
-    if (user && !loading && open) {
+    const previousUser = previousUserRef.current;
+    previousUserRef.current = user;
+
+    if (!previousUser && user && !loading && open) {
       // Petit délai pour laisser le temps à l'utilisateur de voir le succès
       const timer = setTimeout(() => {
         onOpenChange(false);

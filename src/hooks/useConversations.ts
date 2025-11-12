@@ -11,6 +11,7 @@ import {
   ConversationSearchResult,
   CONVERSATION_LIMITS,
 } from "../types/conversation";
+import { isE2ETestingEnvironment } from "@/lib/e2e-detection";
 import { ErrorSeverity, ErrorCategory } from "../lib/error-handling";
 import {
   sortConversations,
@@ -126,7 +127,11 @@ export function useConversations(config: UseConversationsConfig = {}) {
         let conversations: Conversation[] = [];
 
         // If user is logged in, load from Supabase
-        if (user?.id) {
+        const isE2ETestMode =
+          typeof window !== "undefined" &&
+          (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true);
+
+        if (user?.id && !isE2ETestMode) {
           try {
             const { getConversations: getSupabaseConversations } = await import(
               "../lib/storage/ConversationStorageSupabase"

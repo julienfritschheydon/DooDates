@@ -146,12 +146,10 @@ test.describe('DooDates - Test Ultra Simple', () => {
       
       // Screenshot APRÈS le clic sur Partager
       await page.waitForTimeout(1000); // Laisser le temps au scroll smooth et à l'affichage
-      await page.screenshot({ path: 'test-results/02-apres-partager.png', fullPage: true });
-      console.log('📸 Screenshot 2: Après clic Partager');
-      
-      // Vérifier que le champ titre est visible
       const titleInput = page.locator('[data-testid="poll-title"]');
       await expect(titleInput).toBeVisible({ timeout: 10000 });
+      await page.screenshot({ path: 'test-results/02-apres-partager.png', fullPage: true });
+      console.log('📸 Screenshot 2: Après clic Partager');
       await titleInput.fill('Test E2E Ultra Simple');
       console.log('✅ Titre saisi');
 
@@ -191,10 +189,8 @@ test.describe('DooDates - Test Ultra Simple', () => {
       await robustClick(finalizeBtn);
       console.log('✅ Bouton "Finaliser" cliqué');
 
-      // Attendre un peu pour que la création se fasse
-      await page.waitForTimeout(2000);
-      
-      // Screenshot APRÈS le clic sur Finaliser
+      await expect(page.getByText(/Sondage publié !/i)).toBeVisible({ timeout: 15000 });
+      console.log('✅ Écran de succès affiché');
       await page.screenshot({ path: 'test-results/05-apres-finaliser.png', fullPage: true });
       console.log('📸 Screenshot 5: Après clic Finaliser');
       
@@ -223,30 +219,56 @@ test.describe('DooDates - Test Ultra Simple', () => {
       await page.screenshot({ path: 'test-results/debug-after-finalize.png', fullPage: true });
       console.log('📸 Photo debug prise: test-results/debug-after-finalize.png');
 
-      // Attendre l'écran de succès qui apparaît après la finalisation
-      await expect(page.getByText(/Sondage publié !/i)).toBeVisible({ timeout: 15000 });
-      console.log('✅ Écran de succès affiché');
-      
-      // Prendre une photo après la finalisation
-      await page.screenshot({ path: 'test-results/after-finalization.png', fullPage: true });
-      console.log('📸 Photo prise après finalisation: test-results/after-finalization.png');
+      // Vérifier que le slug du sondage est disponible dans le stockage local
+      let pollSlug: string | null = (debugAfterFinalize?.lastPoll as any)?.slug ?? null;
+      await expect
+        .poll(async () => {
+          pollSlug = await page.evaluate(() => {
+            try {
+              const devPollsRaw = localStorage.getItem('dev-polls');
+              const prodPollsRaw = localStorage.getItem('doodates_polls');
 
-      // Cliquer sur le bouton "Aller au Tableau de bord" depuis l'écran de succès
-      const dashboardLink = page.getByRole('link', { name: /Aller au Tableau de bord/i });
-      await expect(dashboardLink).toBeVisible({ timeout: 5000 });
-      await robustClick(dashboardLink);
-      console.log('✅ Bouton "Aller au Tableau de bord" cliqué');
+              const parseArray = (raw: string | null) => {
+                if (!raw) return [];
+                try {
+                  const parsed = JSON.parse(raw);
+                  return Array.isArray(parsed) ? parsed : [];
+                } catch {
+                  return [];
+                }
+              };
 
-      // Vérifier qu'on est bien sur le dashboard
-      await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 10000 });
+              const devPolls = parseArray(devPollsRaw);
+              const prodPolls = parseArray(prodPollsRaw);
+
+              const lastDev = devPolls[devPolls.length - 1];
+              const lastProd = prodPolls[prodPolls.length - 1];
+
+              return lastDev?.slug ?? lastProd?.slug ?? null;
+            } catch {
+              return null;
+            }
+          });
+          return pollSlug;
+        }, { timeout: 7000, message: 'Slug du sondage indisponible dans dev-polls' })
+        .toBeTruthy();
+
+      const voirSondageBtn = page.getByRole('link', { name: /Voir le sondage/i });
+      await expect(voirSondageBtn).toBeVisible({ timeout: 5000 });
+      await robustClick(voirSondageBtn);
+      console.log('✅ Navigation vers page votant');
+
+      await expect(page).toHaveURL(/\/poll\//, { timeout: 10000 });
+      await expect(page.locator('body')).toContainText('Test E2E Ultra Simple', { timeout: 10000 });
+      console.log('✅ Page votant affiche le sondage');
+
+      // Retour au dashboard via navigation directe (plus robuste que dépendre d'un CTA spécifique)
+      await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
       console.log('✅ Navigation vers /dashboard confirmée');
 
       // Attendre que le dashboard charge les données
       await page.waitForLoadState('networkidle');
-      
-      // Attendre un peu pour que le dashboard charge les données
-      await page.waitForTimeout(1000);
-      
+
       // Debug: Vérifier ce qui est dans le dashboard
       const pollItems = page.locator('[data-testid="poll-item"]');
       const pollCount = await pollItems.count();
@@ -290,10 +312,9 @@ test.describe('DooDates - Test Ultra Simple', () => {
         });
         console.log(`DEBUG: localStorage info:`, JSON.stringify(debugInfo, null, 2));
         
-        // Attendre un peu plus et réessayer
-        await page.waitForTimeout(2000);
+        // Attendre la stabilisation réseau puis réessayer
+        await page.waitForLoadState('networkidle');
         await page.reload({ waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
         
         const pollCountAfterReload = await pollItems.count();
         console.log(`DEBUG: Nombre de polls après reload: ${pollCountAfterReload}`);

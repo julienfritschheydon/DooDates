@@ -920,6 +920,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           onSetCurrentPoll={setCurrentPoll}
           onFeedbackSent={() => setLastAIProposal(null)}
           messagesEndRef={messagesEndRef}
+          isLoading={isLoading}
         />
 
         {/* Zone de saisie - Fixe en bas de l'écran */}

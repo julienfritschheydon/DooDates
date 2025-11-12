@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { attachConsoleGuard, warmup, enableE2ELocalMode } from './utils';
+import { seedDashboard, type DashboardSeedOptions, type DashboardSeedPayload } from './fixtures/dashboardSeed';
 
 /**
  * Tests E2E complets pour toutes les fonctionnalités du Dashboard
@@ -29,89 +30,47 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     }
   });
 
+  test('@functional - Affichage quotas pour un utilisateur authentifié', async ({ page }) => {
+    const guard = attachConsoleGuard(page, {
+      allowlist: [
+        /GoogleGenerativeAI/i,
+        /API key/i,
+        /Error fetching from/i,
+        /API key not valid/i,
+        /generativelanguage\.googleapis\.com/i,
+      ],
+    });
+    try {
+      await setupTestData(page, { mode: 'authenticated' });
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.goto('/dashboard', { waitUntil: 'networkidle' });
+      await waitForDashboardReady(page);
+
+      await expect(page.getByText(/crédits utilisés/i)).toBeVisible({ timeout: 5000 });
+      await expect(page.getByText(/Créez un compte pour synchroniser vos données/i)).toHaveCount(0);
+    } finally {
+      await guard.assertClean();
+      guard.stop();
+    }
+  });
+
   /**
    * Setup initial : créer des conversations, tags et dossiers de test
    */
-  async function setupTestData(page: Page) {
-    // Créer des tags de test
-    await page.evaluate(() => {
-      const tags = [
-        { id: 'tag-1', name: 'Test Tag 1', color: '#3b82f6', createdAt: new Date().toISOString() },
-        { id: 'tag-2', name: 'Test Tag 2', color: '#ef4444', createdAt: new Date().toISOString() },
-        { id: 'tag-3', name: 'Test Tag 3', color: '#10b981', createdAt: new Date().toISOString() },
-      ];
-      localStorage.setItem('doodates_tags', JSON.stringify(tags));
-    });
+  async function setupTestData(
+    page: Page,
+    options?: DashboardSeedOptions,
+    overridePayload?: Partial<DashboardSeedPayload>,
+  ) {
+    await seedDashboard(page, options, overridePayload);
+  }
 
-    // Créer des dossiers de test
-    await page.evaluate(() => {
-      const folders = [
-        { id: 'folder-1', name: 'Test Folder 1', color: '#3b82f6', icon: '📁', createdAt: new Date().toISOString() },
-        { id: 'folder-2', name: 'Test Folder 2', color: '#ef4444', icon: '📂', createdAt: new Date().toISOString() },
-      ];
-      localStorage.setItem('doodates_folders', JSON.stringify(folders));
+  async function waitForDashboardReady(page: Page) {
+    await page.waitForSelector('[data-testid="dashboard-ready"]', {
+      state: 'visible',
+      timeout: 10000,
     });
-
-    // Créer des conversations de test avec différents statuts
-    await page.evaluate(() => {
-      const conversations = [
-        {
-          id: 'test-conv-1',
-          title: 'Conversation active',
-          status: 'active',
-          createdAt: new Date(Date.now() - 86400000).toISOString(), // Il y a 1 jour
-          updatedAt: new Date().toISOString(),
-          firstMessage: 'Premier message actif',
-          messageCount: 5,
-          isFavorite: false,
-          tags: ['Test Tag 1'],
-          metadata: { folderId: 'folder-1' },
-        },
-        {
-          id: 'test-conv-2',
-          title: 'Conversation brouillon',
-          status: 'active',
-          createdAt: new Date(Date.now() - 172800000).toISOString(), // Il y a 2 jours
-          updatedAt: new Date().toISOString(),
-          firstMessage: 'Premier message brouillon',
-          messageCount: 2,
-          isFavorite: true,
-          tags: ['Test Tag 2'],
-          metadata: {},
-        },
-        {
-          id: 'test-conv-3',
-          title: 'Conversation avec poll',
-          status: 'completed',
-          createdAt: new Date(Date.now() - 259200000).toISOString(), // Il y a 3 jours
-          updatedAt: new Date().toISOString(),
-          firstMessage: 'Premier message avec poll',
-          messageCount: 10,
-          isFavorite: false,
-          tags: ['Test Tag 1', 'Test Tag 3'],
-          metadata: { folderId: 'folder-2', pollId: 'test-poll-1', pollGenerated: true },
-        },
-      ];
-      localStorage.setItem('doodates_conversations', JSON.stringify(conversations));
-    });
-
-    // Créer un poll de test
-    await page.evaluate(() => {
-      const polls = [
-        {
-          id: 'test-poll-1',
-          title: 'Sondage de test',
-          slug: 'sondage-test',
-          type: 'date',
-          status: 'active',
-          created_at: new Date().toISOString(),
-          settings: {
-            selectedDates: ['2025-02-01', '2025-02-02'],
-          },
-        },
-      ];
-      localStorage.setItem('dev-polls', JSON.stringify(polls));
-    });
+    await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
   }
 
   test('@smoke @critical - Charger le dashboard sans erreur', async ({ page }) => {
@@ -127,9 +86,10 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
+      await waitForDashboardReady(page);
 
       // Vérifier que le dashboard se charge
-      await expect(page.getByText('Mes conversations')).toBeVisible({ timeout: 10000 });
+      await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible({ timeout: 10000 });
       await expect(page.locator('[data-testid="poll-item"]').first()).toBeVisible({ timeout: 10000 });
     } finally {
       await guard.assertClean();
@@ -150,6 +110,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
+      await waitForDashboardReady(page);
 
       // Attendre que les cartes se chargent
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
@@ -182,6 +143,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
+      await waitForDashboardReady(page);
 
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
       
@@ -225,6 +187,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
+      await waitForDashboardReady(page);
 
       await page.waitForSelector('[data-testid="poll-item"]', { timeout: 10000 });
 
@@ -303,6 +266,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
+      await waitForDashboardReady(page);
 
       // Ouvrir le menu des tags
       await page.getByRole('button', { name: /Tags/i }).click();
@@ -348,6 +312,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     try {
       await setupTestData(page);
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
+      await waitForDashboardReady(page);
 
       // Ouvrir le menu des dossiers
       await page.getByRole('button', { name: /Tous les dossiers/i }).click();
@@ -527,25 +492,23 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       ],
     });
     try {
-      // Créer plus de conversations pour tester la pagination
-      await page.evaluate(() => {
-        const conversations: any[] = [];
-        for (let i = 1; i <= 25; i++) {
-          conversations.push({
-            id: `test-conv-${i}`,
-            title: `Conversation ${i}`,
-            status: 'active',
-            createdAt: new Date(Date.now() - i * 86400000).toISOString(),
-            updatedAt: new Date().toISOString(),
-            firstMessage: `Premier message ${i}`,
-            messageCount: i,
-            isFavorite: false,
-            tags: [],
-            metadata: {},
-          });
-        }
-        localStorage.setItem('doodates_conversations', JSON.stringify(conversations));
+      const conversations = Array.from({ length: 25 }).map((_, index) => {
+        const i = index + 1;
+        return {
+          id: `test-conv-${i}`,
+          title: `Conversation ${i}`,
+          status: 'active' as const,
+          createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+          updatedAt: new Date().toISOString(),
+          firstMessage: `Premier message ${i}`,
+          messageCount: i,
+          isFavorite: false,
+          tags: [],
+          metadata: {},
+        };
       });
+
+      await setupTestData(page, undefined, { conversations });
 
       await page.goto('/dashboard', { waitUntil: 'networkidle' });
 

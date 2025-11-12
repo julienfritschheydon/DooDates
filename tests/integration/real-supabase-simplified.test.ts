@@ -33,17 +33,65 @@ let testConversationIds: string[] = [];
 // Vérifier si les credentials Supabase sont configurées
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
-const hasSupabaseCredentials = supabaseUrl && supabaseAnonKey && hasTestPassword &&
-  !supabaseUrl.includes('localhost') && supabaseAnonKey !== 'test-anon-key';
+
+const credentialIssues: string[] = [];
+const isSupabaseUrlValid = typeof supabaseUrl === 'string' && supabaseUrl.length > 0 &&
+  !/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(supabaseUrl) &&
+  !supabaseUrl.includes('your-supabase-url');
+if (!isSupabaseUrlValid) {
+  credentialIssues.push('VITE_SUPABASE_URL');
+}
+
+const isSupabaseAnonKeyValid = typeof supabaseAnonKey === 'string' && supabaseAnonKey.length > 0 &&
+  supabaseAnonKey !== 'test-anon-key' &&
+  !supabaseAnonKey.includes('your-supabase-anon-key');
+if (!isSupabaseAnonKeyValid) {
+  credentialIssues.push('VITE_SUPABASE_ANON_KEY');
+}
+
+if (!hasTestPassword) {
+  credentialIssues.push('INTEGRATION_TEST_PASSWORD');
+}
+
+const hasSupabaseCredentials = credentialIssues.length === 0;
+
+const DEFAULT_SUPABASE_PROJECT_REF = 'outmbbisrrdiumlweira';
+const INTEGRATION_TEST_CONTEXT = { integrationTest: true } as const;
+const INTEGRATION_PROFILE_PAYLOAD = {
+  full_name: 'Test Integration User',
+  timezone: 'Europe/Paris',
+  preferences: {},
+  plan_type: 'free',
+} as const;
+
+const supabaseProjectRef = (() => {
+  if (!supabaseUrl) {
+    return DEFAULT_SUPABASE_PROJECT_REF;
+  }
+
+  try {
+    const parsed = new URL(supabaseUrl);
+    const [ref] = parsed.hostname.split('.');
+    return ref || DEFAULT_SUPABASE_PROJECT_REF;
+  } catch (error) {
+    console.warn(`⚠️ Impossible de dériver le projectRef depuis VITE_SUPABASE_URL (${supabaseUrl})`, error);
+    return DEFAULT_SUPABASE_PROJECT_REF;
+  }
+})();
+
+const supabaseAuthStorageKey = `sb-${supabaseProjectRef}-auth-token`;
+
+const skipReason = credentialIssues.length > 0
+  ? `Tests d'intégration réels désactivés (manque: ${credentialIssues.join(', ')})`
+  : undefined;
+
+test.skip(!hasSupabaseCredentials, skipReason);
 
 // Configuration Supabase (vrai client, pas de mock)
 test.beforeAll(async () => {
   if (!hasSupabaseCredentials) {
-    console.warn('⚠️ Variables Supabase manquantes ou factices - Tests d\'intégration skippés en CI');
-    console.warn('   Pour exécuter ces tests localement, configurez :');
-    console.warn('   - VITE_SUPABASE_URL dans .env.local');
-    console.warn('   - VITE_SUPABASE_ANON_KEY dans .env.local');
-    console.warn('   - INTEGRATION_TEST_PASSWORD dans .env.local');
+    console.warn('⚠️ Variables Supabase manquantes ou invalides - Tests d\'intégration désactivés');
+    console.warn(`   Manquants: ${credentialIssues.join(', ') || 'non spécifié'}`);
     return;
   }
 
@@ -85,23 +133,24 @@ test.beforeEach(async ({ page }) => {
     .single();
 
   if (!existingProfile) {
-    console.log('⚠️ Profile manquant, création automatique...');
+    console.log('⚠️ Profile manquant, création automatique (structure minimale requise)...');
     const { error: profileError } = await supabaseClient
       .from('profiles')
       .insert({
         id: testUserId,
         email: TEST_EMAIL,
-        full_name: 'Test Integration User',
-        timezone: 'Europe/Paris',
-        preferences: {},
-        plan_type: 'free',
+        ...INTEGRATION_PROFILE_PAYLOAD,
       });
 
     if (profileError) {
-      console.warn('⚠️ Erreur création profile:', profileError.message);
-      // Continue quand même - le profile existe peut-être déjà
+      const isDuplicate = profileError.code === '23505' || profileError.message?.toLowerCase().includes('duplicate');
+      if (isDuplicate) {
+        console.warn('ℹ️ Profile déjà existant, poursuite des tests.');
+      } else {
+        throw new Error(`❌ Impossible de préparer le profile test: ${profileError.message}`);
+      }
     } else {
-      console.log('✅ Profile créé');
+      console.log('✅ Profile créé avec payload minimal:', INTEGRATION_PROFILE_PAYLOAD);
     }
   }
 
@@ -109,12 +158,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
   
   // Injecter le token d'authentification dans le localStorage du navigateur
-  await page.evaluate((sessionData: any) => {
-    const supabaseUrl = 'https://outmbbisrrdiumlweira.supabase.co';
-    const projectRef = supabaseUrl.split('//')[1]?.split('.')[0];
-    const authKey = `sb-${projectRef}-auth-token`;
-    
-    // Format exact attendu par Supabase
+  await page.evaluate(({ sessionData, authKey }: { sessionData: any; authKey: string }) => {
     const authSession = {
       access_token: sessionData.access_token,
       refresh_token: sessionData.refresh_token,
@@ -123,9 +167,9 @@ test.beforeEach(async ({ page }) => {
       token_type: sessionData.token_type,
       user: sessionData.user,
     };
-    
+
     localStorage.setItem(authKey, JSON.stringify(authSession));
-  }, data.session);
+  }, { sessionData: data.session, authKey: supabaseAuthStorageKey });
 
   // Recharger la page pour que l'application détecte la session
   await page.reload({ waitUntil: 'networkidle' });
@@ -158,7 +202,8 @@ async function cleanupTestData(userId: string) {
     const { error: convError } = await supabaseClient
       .from('conversations')
       .delete()
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .contains('context', INTEGRATION_TEST_CONTEXT);
 
     if (convError) {
       console.warn('⚠️ Erreur nettoyage conversations:', convError.message);
@@ -192,7 +237,9 @@ async function createTestConversation(userId: string, title: string = 'Test Conv
       first_message: 'Test message',
       message_count: 1,
       messages: [],
-      context: {},
+      context: {
+        ...INTEGRATION_TEST_CONTEXT,
+      },
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
@@ -215,11 +262,8 @@ test.describe('🔐 Authentification - Tests Réels', () => {
   test('AUTH-01: Token Supabase valide dans localStorage', async ({ page }) => {
     await page.waitForLoadState('networkidle');
 
-    const tokenValid = await page.evaluate(() => {
+    const tokenValid = await page.evaluate((authKey: string) => {
       try {
-        const supabaseUrl = 'https://outmbbisrrdiumlweira.supabase.co';
-        const projectRef = supabaseUrl.split('//')[1]?.split('.')[0];
-        const authKey = `sb-${projectRef}-auth-token`;
         const authData = localStorage.getItem(authKey);
         
         if (!authData) return false;
@@ -229,7 +273,7 @@ test.describe('🔐 Authentification - Tests Réels', () => {
       } catch {
         return false;
       }
-    });
+    }, supabaseAuthStorageKey);
 
     expect(tokenValid).toBe(true);
     console.log('✅ AUTH-01: Token valide dans localStorage');
@@ -238,17 +282,14 @@ test.describe('🔐 Authentification - Tests Réels', () => {
   test('AUTH-02: User ID correspond au compte de test', async ({ page }) => {
     await page.waitForLoadState('networkidle');
 
-    const userId = await page.evaluate(() => {
-      const supabaseUrl = 'https://outmbbisrrdiumlweira.supabase.co';
-      const projectRef = supabaseUrl.split('//')[1]?.split('.')[0];
-      const authKey = `sb-${projectRef}-auth-token`;
+    const userId = await page.evaluate((authKey: string) => {
       const authData = localStorage.getItem(authKey);
       
       if (!authData) return null;
       
       const parsed = JSON.parse(authData);
       return parsed.user?.id;
-    });
+    }, supabaseAuthStorageKey);
 
     expect(userId).toBe(testUserId);
     console.log(`✅ AUTH-02: User ID = ${userId?.substring(0, 8)}...`);
@@ -415,7 +456,12 @@ test.describe('⚡ Performance - Tests de Vitesse', () => {
     expect(error).toBeNull();
     expect(duration).toBeLessThan(2000);
     
-    console.log(`✅ PERF-01: Lecture en ${duration}ms`);
+    const durationMessage = `PERF-01: Lecture en ${duration}ms`;
+    if (duration >= 1500) {
+      console.warn(`⚠️ ${durationMessage} (proche du seuil 2000ms)`);
+    } else {
+      console.log(`✅ ${durationMessage}`);
+    }
   });
 
   test('PERF-02: Création conversation < 1s', async () => {
@@ -427,7 +473,12 @@ test.describe('⚡ Performance - Tests de Vitesse', () => {
 
     expect(duration).toBeLessThan(1000);
     
-    console.log(`✅ PERF-02: Création en ${duration}ms`);
+    const durationMessage = `PERF-02: Création en ${duration}ms`;
+    if (duration >= 700) {
+      console.warn(`⚠️ ${durationMessage} (proche du seuil 1000ms)`);
+    } else {
+      console.log(`✅ ${durationMessage}`);
+    }
   });
 });
 
