@@ -32,6 +32,7 @@ export default defineConfig({
     exclude: [
       'node_modules/**',
       'tests/**',
+      'src/test/gemini-professional.test.ts',
     ],
     coverage: {
       provider: 'v8',

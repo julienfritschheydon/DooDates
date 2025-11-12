@@ -47,23 +47,72 @@ CREATE INDEX IF NOT EXISTS idx_beta_keys_expires_at ON beta_keys(expires_at);
 -- RLS Policies
 ALTER TABLE beta_keys ENABLE ROW LEVEL SECURITY;
 
--- Admin peut tout voir et modifier
-CREATE POLICY "Admin can manage all beta keys"
+DROP POLICY IF EXISTS "beta_keys_select_access" ON beta_keys;
+DROP POLICY IF EXISTS "beta_keys_insert_admin" ON beta_keys;
+DROP POLICY IF EXISTS "beta_keys_update_admin" ON beta_keys;
+DROP POLICY IF EXISTS "beta_keys_delete_admin" ON beta_keys;
+DROP POLICY IF EXISTS "beta_keys_admin_manage" ON beta_keys;
+
+CREATE POLICY "beta_keys_select_access"
   ON beta_keys
-  FOR ALL
+  FOR SELECT
+  TO authenticated
   USING (
-    EXISTS (
+    assigned_to = (SELECT auth.uid())
+    OR EXISTS (
       SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND auth.users.raw_user_meta_data->>'role' = 'admin'
+      WHERE auth.users.id = (SELECT auth.uid())
+        AND ((auth.users.raw_user_meta_data->>'role') = 'admin'
+          OR (auth.users.raw_app_meta_data->>'role') = 'admin')
     )
   );
 
--- Utilisateur peut voir uniquement ses propres clés
-CREATE POLICY "Users can view their own beta keys"
+CREATE POLICY "beta_keys_admin_insert"
   ON beta_keys
-  FOR SELECT
-  USING (assigned_to = auth.uid());
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM auth.users
+      WHERE auth.users.id = (SELECT auth.uid())
+        AND ((auth.users.raw_user_meta_data->>'role') = 'admin'
+          OR (auth.users.raw_app_meta_data->>'role') = 'admin')
+    )
+  );
+
+CREATE POLICY "beta_keys_admin_update"
+  ON beta_keys
+  FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM auth.users
+      WHERE auth.users.id = (SELECT auth.uid())
+        AND ((auth.users.raw_user_meta_data->>'role') = 'admin'
+          OR (auth.users.raw_app_meta_data->>'role') = 'admin')
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM auth.users
+      WHERE auth.users.id = (SELECT auth.uid())
+        AND ((auth.users.raw_user_meta_data->>'role') = 'admin'
+          OR (auth.users.raw_app_meta_data->>'role') = 'admin')
+    )
+  );
+
+CREATE POLICY "beta_keys_admin_delete"
+  ON beta_keys
+  FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM auth.users
+      WHERE auth.users.id = (SELECT auth.uid())
+        AND ((auth.users.raw_user_meta_data->>'role') = 'admin'
+          OR (auth.users.raw_app_meta_data->>'role') = 'admin')
+    )
+  );
 
 -- ================================================
 -- 2. TABLE: user_quotas
@@ -101,21 +150,21 @@ CREATE INDEX IF NOT EXISTS idx_user_quotas_reset_date ON user_quotas(reset_date)
 -- RLS Policies
 ALTER TABLE user_quotas ENABLE ROW LEVEL SECURITY;
 
--- Utilisateur peut voir uniquement ses propres quotas
-CREATE POLICY "Users can view their own quotas"
-  ON user_quotas
-  FOR SELECT
-  USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "user_quotas_select_access" ON user_quotas;
+DROP POLICY IF EXISTS "Admin can view all quotas" ON user_quotas;
 
--- Admin peut tout voir
-CREATE POLICY "Admin can view all quotas"
+CREATE POLICY "user_quotas_select_access"
   ON user_quotas
   FOR SELECT
   USING (
-    EXISTS (
+    user_id = (SELECT auth.uid())
+    OR EXISTS (
       SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND auth.users.raw_user_meta_data->>'role' = 'admin'
+      WHERE auth.users.id = (SELECT auth.uid())
+        AND (
+          auth.users.raw_user_meta_data->>'role' = 'admin'
+          OR auth.users.raw_app_meta_data->>'role' = 'admin'
+        )
     )
   );
 
@@ -128,7 +177,9 @@ CREATE OR REPLACE FUNCTION generate_beta_key(
   p_notes TEXT DEFAULT NULL,
   p_duration_months INT DEFAULT 3
 )
-RETURNS TABLE (code TEXT, expires_at TIMESTAMPTZ) AS $$
+RETURNS TABLE (code TEXT, expires_at TIMESTAMPTZ)
+SET search_path = public, auth, extensions
+AS $$
 DECLARE
   v_code TEXT;
   v_expires_at TIMESTAMPTZ;
@@ -184,7 +235,9 @@ CREATE OR REPLACE FUNCTION redeem_beta_key(
   p_user_id UUID,
   p_code TEXT
 )
-RETURNS JSON AS $$
+RETURNS JSON
+SET search_path = public, auth, extensions
+AS $$
 DECLARE
   v_key RECORD;
   v_result JSON;
@@ -272,7 +325,9 @@ CREATE OR REPLACE FUNCTION consume_credits(
   p_user_id UUID,
   p_amount INT
 )
-RETURNS JSON AS $$
+RETURNS JSON
+SET search_path = public, auth, extensions
+AS $$
 DECLARE
   v_quota RECORD;
 BEGIN
@@ -319,7 +374,9 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- ================================================
 
 CREATE OR REPLACE FUNCTION reset_monthly_quotas()
-RETURNS INT AS $$
+RETURNS INT
+SET search_path = public, extensions
+AS $$
 DECLARE
   v_count INT;
 BEGIN
@@ -352,7 +409,9 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- ================================================
 
 CREATE OR REPLACE FUNCTION check_and_expire_beta_keys()
-RETURNS INT AS $$
+RETURNS INT
+SET search_path = public, auth, extensions
+AS $$
 DECLARE
   v_count INT;
 BEGIN
@@ -426,6 +485,8 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_user_quotas_updated_at ON user_quotas;
 
 CREATE TRIGGER update_user_quotas_updated_at
   BEFORE UPDATE ON user_quotas

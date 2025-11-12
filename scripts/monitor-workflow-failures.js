@@ -458,8 +458,12 @@ async function generateReport() {
   
   // En-tête du rapport
   const now = new Date();
+  const runNumber = process.env.GITHUB_RUN_NUMBER ?? 'local';
+  const runId = process.env.GITHUB_RUN_ID ?? 'unknown';
+
   reportSections.push(`# 📊 Rapport de Monitoring des Workflows GitHub Actions\n\n`);
   reportSections.push(`**Dernière mise à jour:** ${now.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}\n\n`);
+  reportSections.push(`_Workflow run #${runNumber} (ID ${runId}) — génération UTC ${now.toISOString()}_\n\n`);
   reportSections.push(`> Ce rapport est généré automatiquement pour suivre les échecs de workflows.\n`);
   reportSections.push(`> Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.\n\n`);
   reportSections.push(`---\n\n`);
@@ -647,6 +651,8 @@ async function generateReport() {
   const statusFile = path.join(REPORT_DIR, 'workflow-status.json');
   const statusData = {
     lastUpdate: now.toISOString(),
+    runNumber,
+    runId,
     totalFailures24h,
     totalFailures7d,
     workflowsMonitored: WORKFLOWS_TO_MONITOR.length,

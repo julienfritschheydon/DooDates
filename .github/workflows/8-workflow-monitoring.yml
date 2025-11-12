@@ -132,16 +132,14 @@ jobs:
           
           # Ajouter les fichiers de monitoring
           git add "Docs/monitoring/workflow-failures-report.md" "Docs/monitoring/workflow-status.json" 2>/dev/null || true
-          
-          # Toujours committer pour mettre à jour le timestamp, même si le contenu est identique
+
           if git diff --staged --quiet; then
-            echo "📝 Contenu identique, mais commit du timestamp pour traçabilité"
-            # Forcer un changement en touchant le fichier pour mettre à jour le timestamp
-            touch "Docs/monitoring/workflow-failures-report.md"
-            git add "Docs/monitoring/workflow-failures-report.md"
+            echo "✅ Aucun changement détecté, rien à committer"
+          else
+            COMMIT_MESSAGE="docs: mise à jour du rapport de monitoring des workflows (run #${GITHUB_RUN_NUMBER:-local}) [skip ci]"
+            git commit -m "$COMMIT_MESSAGE"
           fi
-          
-          git commit -m "docs: mise à jour du rapport de monitoring des workflows [skip ci]" || echo "✅ Rien à committer"
+
           git push origin $BRANCH || {
             echo "❌ Erreur lors du push, tentative avec HEAD"
             git push origin HEAD:$BRANCH || echo "❌ Échec du push"

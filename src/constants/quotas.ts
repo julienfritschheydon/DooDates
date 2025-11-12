@@ -10,6 +10,34 @@
  * Note : Les quotas anonymes sont à 20 pour tous les environnements (dev/E2E/prod)
  * afin d'éviter les bugs de détection et faciliter les tests.
  *
+ * Voici pourquoi maintenir des compteurs séparés dans notre système de quotas reste pertinent :
+
+Pourquoi maintenir des compteurs séparés dans notre système de quotas reste pertinent :
+
+1. Équilibre produit & segmentation utilisateur
+
+Invités vs authentifiés : les quotas distincts matérialisent la montée en valeur lorsque l’on crée un compte (ex. 20 crédits invités, 50 authentifiés). Sans séparation, l’on perdrait ce levier de conversion et la visibilité sur la valeur offerte à chaque segment.
+Interfaces IA vs actions manuelles : pouvoir compter séparément les conversations IA, les exports ou les requêtes d’analytics permet d’ajuster finement l’expérience (prioriser un budget IA par rapport aux exports, détecter une consommation déséquilibrée, etc.).
+
+2. Monitoring, alertes et pilotage précis
+Détection anomalies : un pic soudain sur un compteur donné (ex. conversations IA) déclenche une alerte ciblée, évitant de saturer toute la plateforme.
+Rapports & dashboards : suivre le détail par type d’action facilite les post-mortems, la priorisation ou la communication (ex. “les exports explosent, renforçons le cache PDF”).
+Planification capacité : chaque compteur isole une charge serveur spécifique (Supabase, Gemini, stockage), ce qui aide à anticiper l’infrastructure nécessaire.
+
+3. Modèle économique & évolutivité
+Monétisation graduée : proposer des packs “Analytics IA illimités” versus “Exports IA illimités” devient trivial quand les compteurs sont distincts.
+A/B testing tarifaire : on peut tester des quotas différents sans impacter les autres métriques.
+Évolutions futures : ajouter un nouveau type de compteur (ex. “Actions collaboratives”) ne casse pas les métriques historiques.
+
+4. UX & transparence
+Feedback utilisateur clair : un tableau de bord qui montre “Messages IA restants” et “Exports restants” évite la confusion. Un compteur unique donnerait l’impression aléatoire que les crédits fondent.
+Guidage contextuel : si seul le compteur “Analytics” est plein, on peut suggérer de passer à la formule supérieure ciblée plutôt que d’alerter sur un quota global.
+
+5. Sécurité & prévention abus
+Rate limiting ciblé : si un bot abuse des requêtes IA, on bloque ce compteur sans priver l’utilisateur de gérer ses sondages ou ses exports.
+Application des SLA : certains flux peuvent exiger une disponibilité plus stricte (ex. analytics) ; les compteurs séparés rendent cette surveillance possible.
+Risques si on fusionne tout en un quota unique
+
  * Dernière mise à jour : 10 Nov 2025
  */
 

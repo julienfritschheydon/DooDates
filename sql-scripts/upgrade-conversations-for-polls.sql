@@ -113,7 +113,9 @@ COMMENT ON COLUMN conversations.poll_slug IS
 
 -- Fonction pour générer un slug unique
 CREATE OR REPLACE FUNCTION generate_conversation_poll_slug(poll_title TEXT)
-RETURNS TEXT AS $$
+RETURNS TEXT
+SET search_path = public, extensions
+AS $$
 DECLARE
   base_slug TEXT;
   final_slug TEXT;

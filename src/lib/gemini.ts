@@ -2,6 +2,7 @@ import CalendarQuery, { CalendarDay } from "./calendar-generator";
 import { handleError, ErrorFactory, logError } from "./error-handling";
 import { logger } from "./logger";
 import { formatDateLocal, getTodayLocal } from "./date-utils";
+import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
 import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
 import { getEnv, isDev } from "./env";
@@ -396,6 +397,8 @@ export class GeminiService {
 
       // PRE-PARSING TEMPOREL avec Chrono-node (seulement pour Date Polls)
       let dateHints = "";
+      let allowedDates: string[] | undefined;
+
       if (pollType === "date") {
         try {
           const chrono = await import("chrono-node");
@@ -444,6 +447,8 @@ export class GeminiService {
                 dateWindow.push(formatDateLocal(windowDate));
               }
             }
+
+            allowedDates = Array.from(new Set(dateWindow));
 
             dateHints = `
 
@@ -618,6 +623,14 @@ INTERDICTIONS STRICTES:
         pollType === "form" ? this.parseFormPollResponse(text) : this.parseGeminiResponse(text);
 
       if (pollData) {
+        const processedPollData =
+          pollType === "date"
+            ? postProcessSuggestion(pollData as DatePollSuggestion, {
+                userInput,
+                allowedDates,
+              })
+            : pollData;
+
         const successMessage =
           pollType === "form"
             ? "Questionnaire généré avec succès !"
@@ -632,7 +645,7 @@ INTERDICTIONS STRICTES:
 
         return {
           success: true,
-          data: pollData,
+          data: processedPollData,
           message: successMessage,
         };
       } else {

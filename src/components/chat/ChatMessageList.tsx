@@ -1,8 +1,8 @@
-import React from "react";
-import { Sparkles } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Sparkles, Loader2 } from "lucide-react";
 import { groupConsecutiveDates } from "../../lib/date-utils";
 import { AIProposalFeedback } from "../polls/AIProposalFeedback";
-import { getPollBySlugOrId } from "../../lib/pollStorage";
+import { getPollBySlugOrId, getAllPolls } from "../../lib/pollStorage";
 import type { PollSuggestion } from "../../lib/gemini";
 import { logger } from "@/lib/logger";
 
@@ -36,6 +36,7 @@ interface ChatMessageListProps {
   onSetCurrentPoll: (poll: any) => void;
   onFeedbackSent: () => void;
   messagesEndRef: React.RefObject<HTMLDivElement>;
+  isLoading?: boolean;
 }
 
 export const ChatMessageList: React.FC<ChatMessageListProps> = ({
@@ -50,7 +51,60 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   onSetCurrentPoll,
   onFeedbackSent,
   messagesEndRef,
+  isLoading = false,
 }) => {
+  // Vérifier si l'utilisateur a déjà créé au moins un sondage ou formulaire
+  const [hasCreatedPoll, setHasCreatedPoll] = useState(() => {
+    const allPolls = getAllPolls();
+    return allPolls.length > 0;
+  });
+
+  // Scroll automatique vers le bas quand un nouveau message de chargement apparaît
+  useEffect(() => {
+    if (isLoading && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [isLoading, messagesEndRef]);
+
+  useEffect(() => {
+    // Vérifier au montage et quand les messages changent
+    const checkPolls = () => {
+      const allPolls = getAllPolls();
+      setHasCreatedPoll(allPolls.length > 0);
+    };
+
+    checkPolls();
+
+    // Écouter les changements dans le localStorage pour détecter les créations de polls
+    // (se déclenche pour les changements dans d'autres fenêtres/onglets)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "doodates_polls") {
+        checkPolls();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    // Écouter les événements personnalisés pour les changements dans la même fenêtre
+    const handlePollChange = () => {
+      checkPolls();
+    };
+
+    window.addEventListener("pollCreated", handlePollChange);
+    window.addEventListener("pollUpdated", handlePollChange);
+
+    // Vérifier périodiquement (pour les changements dans la même fenêtre)
+    // Intervalle de 2 secondes pour éviter une vérification trop fréquente
+    const interval = setInterval(checkPolls, 2000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("pollCreated", handlePollChange);
+      window.removeEventListener("pollUpdated", handlePollChange);
+      clearInterval(interval);
+    };
+  }, [messages.length]);
+
   return (
     <div
       className={`${
@@ -83,52 +137,55 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 Je suis votre assistant IA pour créer des sondages de dates et des questionnaires.
                 Décrivez-moi ce que vous souhaitez !
               </p>
-              <div className={`text-sm space-y-2 ${darkTheme ? "text-gray-400" : "text-gray-500"}`}>
-                <div>
-                  <p
-                    className={`font-medium mb-1 ${darkTheme ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    📅 Sondages de dates :
-                  </p>
-                  <p>• "Réunion d'équipe la semaine prochaine"</p>
-                  <p>• "Déjeuner mardi ou mercredi"</p>
+              {!hasCreatedPoll && (
+                <div className={`text-sm space-y-2 ${darkTheme ? "text-gray-400" : "text-gray-500"}`}>
+                  <div>
+                    <p
+                      className={`font-medium mb-1 ${darkTheme ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      📅 Sondages de dates :
+                    </p>
+                    <p>• "Réunion d'équipe la semaine prochaine"</p>
+                    <p>• "Déjeuner mardi ou mercredi"</p>
+                  </div>
+                  <div>
+                    <p
+                      className={`font-medium mb-1 ${darkTheme ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      📝 Questionnaires :
+                    </p>
+                    <p>• "Questionnaire de satisfaction client"</p>
+                    <p>• "Sondage d'opinion sur notre produit"</p>
+                  </div>
                 </div>
-                <div>
-                  <p
-                    className={`font-medium mb-1 ${darkTheme ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    📝 Questionnaires :
-                  </p>
-                  <p>• "Questionnaire de satisfaction client"</p>
-                  <p>• "Sondage d'opinion sur notre produit"</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         ) : (
-          messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${message.isAI ? "justify-start" : "justify-end"}`}
-            >
-              {/* Icône IA à gauche pour les messages IA */}
-              {message.isAI && (
-                <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                  </svg>
-                </div>
-              )}
+          <>
+            {messages.map((message) => (
               <div
-                className={`max-w-[80%] ${
-                  message.isAI
-                    ? darkTheme
-                      ? "text-gray-100"
-                      : "text-gray-900"
-                    : "bg-[#3c4043] text-white rounded-[20px] px-5 py-3"
-                } whitespace-pre-wrap break-words`}
+                key={message.id}
+                className={`flex gap-3 ${message.isAI ? "justify-start" : "justify-end"}`}
               >
-                {message.content}
+                {/* Icône IA à gauche pour les messages IA */}
+                {message.isAI && (
+                  <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
+                  </div>
+                )}
+                <div
+                  className={`max-w-[80%] ${
+                    message.isAI
+                      ? darkTheme
+                        ? "text-gray-100"
+                        : "text-gray-900"
+                      : "bg-[#3c4043] text-white rounded-[20px] px-5 py-3"
+                  } whitespace-pre-wrap break-words`}
+                >
+                  {message.content}
                 {message.pollSuggestion && (
                   <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
                     {/* Description si présente */}
@@ -338,7 +395,29 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 )}
               </div>
             </div>
-          ))
+          ))}
+          
+          {/* Message de chargement pendant la génération */}
+          {isLoading && (
+            <div className="flex gap-3 justify-start">
+              <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                </svg>
+              </div>
+              <div
+                className={`max-w-[80%] ${
+                  darkTheme ? "bg-[#1a1a1a] text-gray-200" : "bg-gray-100 text-gray-700"
+                } rounded-[20px] px-5 py-3 flex items-center gap-3`}
+              >
+                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                <span className="text-sm">
+                  Génération en cours...
+                </span>
+              </div>
+            </div>
+          )}
+        </>
         )}
 
         {/* Composant de feedback IA */}

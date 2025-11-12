@@ -43,6 +43,24 @@ test.use({
 });
 
 test.describe('🔥 Production Smoke Tests', () => {
+  test('Configuration BASE_URL valide', async ({ request }) => {
+    const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
+    let parsed: URL;
+    try {
+      parsed = new URL(baseUrl);
+    } catch (error) {
+      throw new Error(`BASE_URL invalide: ${baseUrl} (${String(error)})`);
+    }
+
+    const isLocalhost = ['localhost', '127.0.0.1', '0.0.0.0'].includes(parsed.hostname);
+    if (process.env.CI) {
+      expect(isLocalhost, `BASE_URL (${baseUrl}) ne doit pas pointer vers ${parsed.hostname} en CI`).toBeFalsy();
+    }
+
+    const response = await request.get(baseUrl, { maxRedirects: 3 });
+    expect(response.ok(), `BASE_URL ${baseUrl} inaccessible (status ${response.status()})`).toBeTruthy();
+  });
+  
   
   /**
    * TEST 1: Page d'accueil se charge
@@ -110,7 +128,7 @@ test.describe('🔥 Production Smoke Tests', () => {
    * ⚠️ TEMPORAIREMENT SKIP - Échec en CI (1 erreur console non identifiée)
    * TODO: Identifier et corriger l'erreur console spécifique au CI
    */
-  test.skip('Pas d\'erreurs console critiques', async ({ page }) => {
+  test('Pas d\'erreurs console critiques', async ({ page }) => {
     const consoleErrors: string[] = [];
     const failedRequests: { url: string; status: number; isCritical: boolean }[] = [];
     const all404s: string[] = []; // Logger TOUTES les 404 pour diagnostic
@@ -176,7 +194,8 @@ test.describe('🔥 Production Smoke Tests', () => {
             !text.includes('manifest.json') &&
             !text.includes('third-party') &&
             !text.includes('chrome-extension://') &&  // Extensions Chrome/Edge
-            !text.includes('runtime/sendMessage')) {  // Erreurs extensions
+            !text.includes('runtime/sendMessage') &&  // Erreurs extensions
+            !text.includes('ws://localhost:8080')) { // WebSocket dev inexistant en smoke prod
           console.error(`🚨 Erreur console: ${text}`);
           consoleErrors.push(text);
         }
@@ -194,9 +213,14 @@ test.describe('🔥 Production Smoke Tests', () => {
     // Charger la page
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    
-    // Attendre un peu pour que les erreurs asynchrones apparaissent
-    await page.waitForTimeout(2000);
+
+    // Attendre que le réseau se stabilise (assets, scripts, trackers)
+    await page.waitForLoadState('networkidle');
+
+    // Attendre que les erreurs async apparaissent sans timeout fixe
+    await expect
+      .poll(() => consoleErrors.length + failedRequests.length, { timeout: 4000 })
+      .toBeGreaterThanOrEqual(0);
     
     // Rapport détaillé
     console.log(`\n📊 Rapport d'erreurs:`);
@@ -233,10 +257,15 @@ test.describe('🔥 Production Smoke Tests', () => {
   test('Navigation principale fonctionne', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle', { timeout: 15000 });
-    
-    // Attendre que React se monte (wait for DOM changes)
-    await page.waitForTimeout(2000);
-    
+
+    // Attendre que le DOM affiche du contenu significatif
+    await expect
+      .poll(async () => {
+        const body = await page.locator('body').textContent();
+        return body?.trim().replace(/\s+/g, ' ').length ?? 0;
+      }, { timeout: 5000 })
+      .toBeGreaterThan(50);
+
     // Vérifier que l'application React a du contenu
     // Note: On ne vérifie pas que #root est visible car il peut être caché en CSS
     // mais on vérifie que l'app a rendu du contenu
@@ -267,9 +296,14 @@ test.describe('🔥 Production Smoke Tests', () => {
     
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    
-    // Attendre un peu pour que l'application s'initialise et que toute erreur Supabase apparaisse
-    await page.waitForTimeout(3000);
+
+    // Attendre que la page rende du contenu pour laisser les erreurs éventuelles se manifester
+    await expect
+      .poll(async () => {
+        const body = await page.locator('body').textContent();
+        return body?.trim().length ?? 0;
+      }, { timeout: 5000 })
+      .toBeGreaterThan(0);
     
     const bodyText = await page.textContent('body');
     
@@ -309,9 +343,14 @@ test.describe('🔥 Production Smoke Tests', () => {
       waitUntil: 'domcontentloaded',
       timeout: 30000 
     });
-    
-    // Attendre que l'app se charge
-    await page.waitForTimeout(2000);
+
+    // Attendre que l'app se charge et rende du contenu
+    await expect
+      .poll(async () => {
+        const body = await page.locator('body').textContent();
+        return body?.trim().length ?? 0;
+      }, { timeout: 5000 })
+      .toBeGreaterThan(20);
     
     // La page ne doit pas afficher une vraie 404 GitHub Pages
     const bodyText = await page.textContent('body');
@@ -335,9 +374,13 @@ test.describe('🔥 Production Smoke Tests', () => {
     
     // Attendre que la page soit complètement chargée
     await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
-    
-    // Attendre que React se monte
-    await page.waitForTimeout(2000);
+
+    await expect
+      .poll(async () => {
+        const body = await page.locator('body').textContent();
+        return body?.trim().replace(/\s+/g, ' ').length ?? 0;
+      }, { timeout: 5000 })
+      .toBeGreaterThan(50);
     
     // Vérifier que l'app a du contenu dans le body (pas juste un écran blanc)
     const bodyText = await page.locator('body').textContent();
@@ -365,24 +408,23 @@ test.describe('🔥 Production Smoke Tests', () => {
    * FIXME: Test à exécuter uniquement sur GitHub Pages en production
    * Le serveur Vite dev ne sert pas sw.js de la même manière
    */
-  test.fixme('Service Worker est disponible', async ({ page }) => {
-    
-    const basePath = getBasePath();
-    
+  test('Service Worker est disponible', async ({ page }) => {
+    const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
+    const isProd = !/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(baseUrl);
+    test.skip(!isProd, 'Test exécuté uniquement en production GitHub Pages');
+
+    const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    
-    // Vérifier que sw.js est accessible (avec base path si nécessaire)
-    const swUrl = `${basePath}/sw.js`;
-    const swResponse = await page.goto(swUrl);
-    expect(swResponse?.status()).toBe(200);
-    
-    // Vérifier que le contenu du SW n'est pas vide
-    const swContent = await swResponse?.text();
+
+    const swUrl = new URL('sw.js', normalizedBaseUrl).toString();
+    const swResponse = await page.request.get(swUrl);
+    expect(swResponse.status()).toBe(200);
+
+    const swContent = await swResponse.text();
     expect(swContent).toBeTruthy();
-    expect(swContent!.length).toBeGreaterThan(100);
-    
-    // Vérifier que le SW contient le message de désactivation
+    expect(swContent.length).toBeGreaterThan(100);
     expect(swContent).toContain('Service Worker désactivé');
   });
 });
@@ -401,9 +443,13 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
   test('Mode invité est accessible', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    
-    // Attendre que la page soit prête
-    await page.waitForTimeout(2000);
+
+    await expect
+      .poll(async () => {
+        const body = await page.locator('body').textContent();
+        return body?.trim().length ?? 0;
+      }, { timeout: 5000 })
+      .toBeGreaterThan(0);
     
     // Chercher des signes que l'app fonctionne en mode invité
     // (boutons, formulaires, etc.)
@@ -433,23 +479,21 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
    * FIXME: Test à exécuter uniquement sur GitHub Pages en production
    * Le serveur Vite dev retourne text/html pour toutes les routes inexistantes
    */
-  test.fixme('Assets statiques sont accessibles', async ({ page }) => {
-    
-    const basePath = getBasePath();
-    
-    // Vérifier le logo (avec base path si nécessaire)
-    const logoUrl = `${basePath}/logo-doodates.svg`;
-    const logoResponse = await page.goto(logoUrl);
-    expect(logoResponse?.status()).toBe(200);
-    
-    // Vérifier que c'est bien un SVG
-    const contentType = logoResponse?.headers()['content-type'];
-    expect(contentType).toContain('svg');
-    
-    // Vérifier le robots.txt (avec base path si nécessaire)
-    const robotsUrl = `${basePath}/robots.txt`;
-    const robotsResponse = await page.goto(robotsUrl);
-    expect(robotsResponse?.status()).toBe(200);
+  test('Assets statiques sont accessibles', async ({ page }) => {
+    const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
+    const isProd = !/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(baseUrl);
+    test.skip(!isProd, 'Test exécuté uniquement en production GitHub Pages');
+
+    const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+
+    const logoUrl = new URL('logo-doodates.svg', normalizedBaseUrl).toString();
+    const logoResponse = await page.request.get(logoUrl);
+    expect(logoResponse.status()).toBe(200);
+    expect(logoResponse.headers()['content-type']).toContain('svg');
+
+    const robotsUrl = new URL('robots.txt', normalizedBaseUrl).toString();
+    const robotsResponse = await page.request.get(robotsUrl);
+    expect(robotsResponse.status()).toBe(200);
   });
 });
 

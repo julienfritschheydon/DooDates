@@ -10,150 +10,51 @@
 -- ============================================================================
 
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE conversation_messages ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================================
 -- CONVERSATIONS TABLE POLICIES
 -- ============================================================================
 
--- Policy: Users can view their own conversations
-CREATE POLICY "Users can view own conversations" ON conversations
-    FOR SELECT
-    USING (
-        auth.uid() = user_id OR 
-        (user_id IS NULL AND guest_session_id = current_setting('app.guest_session_id', true))
-    );
-
--- Policy: Users can insert their own conversations
-CREATE POLICY "Users can insert own conversations" ON conversations
-    FOR INSERT
-    WITH CHECK (
-        auth.uid() = user_id OR 
-        (user_id IS NULL AND guest_session_id = current_setting('app.guest_session_id', true))
-    );
-
--- Policy: Users can update their own conversations
-CREATE POLICY "Users can update own conversations" ON conversations
-    FOR UPDATE
-    USING (
-        auth.uid() = user_id OR 
-        (user_id IS NULL AND guest_session_id = current_setting('app.guest_session_id', true))
-    )
-    WITH CHECK (
-        auth.uid() = user_id OR 
-        (user_id IS NULL AND guest_session_id = current_setting('app.guest_session_id', true))
-    );
-
--- Policy: Users can delete their own conversations
-CREATE POLICY "Users can delete own conversations" ON conversations
-    FOR DELETE
-    USING (
-        auth.uid() = user_id OR 
-        (user_id IS NULL AND guest_session_id = current_setting('app.guest_session_id', true))
-    );
-
--- ============================================================================
--- CONVERSATION_MESSAGES TABLE POLICIES
--- ============================================================================
-
--- Policy: Users can view messages from their conversations
-CREATE POLICY "Users can view own conversation messages" ON conversation_messages
-    FOR SELECT
-    USING (
-        EXISTS (
-            SELECT 1 FROM conversations c 
-            WHERE c.id = conversation_messages.conversation_id 
-            AND (
-                auth.uid() = c.user_id OR 
-                (c.user_id IS NULL AND c.guest_session_id = current_setting('app.guest_session_id', true))
-            )
-        )
-    );
-
--- Policy: Users can insert messages to their conversations
-CREATE POLICY "Users can insert messages to own conversations" ON conversation_messages
-    FOR INSERT
-    WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM conversations c 
-            WHERE c.id = conversation_messages.conversation_id 
-            AND (
-                auth.uid() = c.user_id OR 
-                (c.user_id IS NULL AND c.guest_session_id = current_setting('app.guest_session_id', true))
-            )
-        )
-    );
-
--- Policy: Users can update messages in their conversations
-CREATE POLICY "Users can update own conversation messages" ON conversation_messages
-    FOR UPDATE
-    USING (
-        EXISTS (
-            SELECT 1 FROM conversations c 
-            WHERE c.id = conversation_messages.conversation_id 
-            AND (
-                auth.uid() = c.user_id OR 
-                (c.user_id IS NULL AND c.guest_session_id = current_setting('app.guest_session_id', true))
-            )
-        )
-    )
-    WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM conversations c 
-            WHERE c.id = conversation_messages.conversation_id 
-            AND (
-                auth.uid() = c.user_id OR 
-                (c.user_id IS NULL AND c.guest_session_id = current_setting('app.guest_session_id', true))
-            )
-        )
-    );
-
--- Policy: Users can delete messages from their conversations
-CREATE POLICY "Users can delete own conversation messages" ON conversation_messages
-    FOR DELETE
-    USING (
-        EXISTS (
-            SELECT 1 FROM conversations c 
-            WHERE c.id = conversation_messages.conversation_id 
-            AND (
-                auth.uid() = c.user_id OR 
-                (c.user_id IS NULL AND c.guest_session_id = current_setting('app.guest_session_id', true))
-            )
-        )
-    );
-
--- ============================================================================
--- HELPER FUNCTIONS FOR GUEST SESSION MANAGEMENT
--- ============================================================================
-
--- Function to set guest session ID for current session
-CREATE OR REPLACE FUNCTION set_guest_session_id(session_id TEXT)
-RETURNS VOID AS $$
+DO $$
+DECLARE
+    base_condition TEXT := '(SELECT auth.uid()) = user_id';
 BEGIN
-    PERFORM set_config('app.guest_session_id', session_id, true);
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to get current guest session ID
-CREATE OR REPLACE FUNCTION get_guest_session_id()
-RETURNS TEXT AS $$
-BEGIN
-    RETURN current_setting('app.guest_session_id', true);
+    EXECUTE 'DROP POLICY IF EXISTS "Users can view own conversations" ON conversations';
+    EXECUTE 'DROP POLICY IF EXISTS "Users can insert own conversations" ON conversations';
+    EXECUTE 'DROP POLICY IF EXISTS "Users can update own conversations" ON conversations';
+    EXECUTE 'DROP POLICY IF EXISTS "Users can delete own conversations" ON conversations';
+
+    EXECUTE format(
+        'CREATE POLICY "Users can view own conversations" ON conversations FOR SELECT USING (%s);',
+        base_condition
+    );
+
+    EXECUTE format(
+        'CREATE POLICY "Users can insert own conversations" ON conversations FOR INSERT WITH CHECK (%s);',
+        base_condition
+    );
+
+    EXECUTE format(
+        'CREATE POLICY "Users can update own conversations" ON conversations FOR UPDATE USING (%s) WITH CHECK (%s);',
+        base_condition,
+        base_condition
+    );
+
+    EXECUTE format(
+        'CREATE POLICY "Users can delete own conversations" ON conversations FOR DELETE USING (%s);',
+        base_condition
+    );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- ============================================================================
 -- ADMIN POLICIES (for system maintenance)
 -- ============================================================================
 
 -- Policy: Service role can access all data for maintenance
+DROP POLICY IF EXISTS "Service role full access conversations" ON conversations;
 CREATE POLICY "Service role full access conversations" ON conversations
-    FOR ALL
-    TO service_role
-    USING (true)
-    WITH CHECK (true);
-
-CREATE POLICY "Service role full access messages" ON conversation_messages
     FOR ALL
     TO service_role
     USING (true)
