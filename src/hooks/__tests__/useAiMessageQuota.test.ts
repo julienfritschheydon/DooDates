@@ -16,7 +16,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useAiMessageQuota, processMonthlyQuotaReset } from "../useAiMessageQuota";
-import { setupMockLocalStorage } from "../../__tests__/helpers/testHelpers";
+import { setupMockLocalStorage, setupQuotaTestWindow } from "../../__tests__/helpers/testHelpers";
 
 // Mock quotas avec des valeurs de test simplifiées
 vi.mock("@/constants/quotas", () => ({
@@ -42,6 +42,8 @@ describe("useAiMessageQuota", () => {
   beforeEach(() => {
     // Setup mock localStorage (comme dans les autres tests du projet)
     setupMockLocalStorage();
+    // Setup window pour éviter le bypass E2E dans les tests de quota
+    setupQuotaTestWindow();
 
     // Reset timers
     vi.useFakeTimers();
