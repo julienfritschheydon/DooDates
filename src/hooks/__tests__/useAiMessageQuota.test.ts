@@ -19,6 +19,8 @@ import { useAiMessageQuota, processMonthlyQuotaReset } from "../useAiMessageQuot
 import { setupMockLocalStorage, setupQuotaTestWindow } from "../../__tests__/helpers/testHelpers";
 
 // Mock quotas avec des valeurs de test simplifiées
+// Note: STORAGE_QUOTAS est nécessaire car useAiMessageQuota utilise useFreemiumQuota
+// qui importe STORAGE_QUOTAS pour définir les limites de stockage
 vi.mock("@/constants/quotas", () => ({
   AI_MESSAGE_QUOTAS: {
     ANONYMOUS: 1, // Valeur de test : 1 message pour guest
@@ -32,6 +34,7 @@ vi.mock("@/constants/quotas", () => ({
     ANONYMOUS: 5, // Valeur de test : 5 conversations pour guest
     AUTHENTICATED: 1000, // Valeur de test : 1000 conversations pour authenticated
   },
+  // Nécessaire car useFreemiumQuota (utilisé par useAiMessageQuota) importe STORAGE_QUOTAS
   STORAGE_QUOTAS: {
     ANONYMOUS: 50, // Valeur de test : 50MB pour guest
     AUTHENTICATED: 1000, // Valeur de test : 1000MB pour authenticated
@@ -39,11 +42,11 @@ vi.mock("@/constants/quotas", () => ({
 }));
 
 // Mock useAuth
-vi.mock("@/contexts/AuthContext", () => ({
+vi.mock("../../contexts/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
 
-const { useAuth } = await import("@/contexts/AuthContext");
+const { useAuth } = await import("../../contexts/AuthContext");
 const mockUseAuth = vi.mocked(useAuth);
 
 describe("useAiMessageQuota", () => {
@@ -387,7 +390,7 @@ describe("useAiMessageQuota", () => {
       expect(result?.aiMessagesUsed).toBe(0);
       expect(result?.lastMessageTimestamp).toBe(0);
       expect(result?.resetDate).toBeTruthy();
-      expect(new Date(result!.resetDate).getTime()).toBeGreaterThan(Date.now());
+      expect(new Date(result!.resetDate!).getTime()).toBeGreaterThan(Date.now());
     });
 
     it("should return null when resetDate is in the future", () => {
