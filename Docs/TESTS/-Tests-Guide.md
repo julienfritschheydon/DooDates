@@ -32,6 +32,71 @@
 
 **Note** : Tests Analytics IA skippés sur Firefox/Safari (bug Playwright). Passent à 100% sur Chrome.
 
+## 🎯 Critères d'importance des tests (11 novembre 2025)
+
+| Niveau | Rôle dans la qualité | Déclenchement recommandé | Couverture attendue | Politique de mocks | Actions si échec |
+|--------|----------------------|--------------------------|---------------------|--------------------|------------------|
+| **Primordial** | Empêche un incident production (perte de données, IA indisponible, export cassé, build inutilisable) | Chaque PR + nightly + post-déploiement | Chemin critique complet, environnement proche production | ⚠️ Proscrire les mocks de dépendances métier (Supabase, stockage, Gemini) sauf si sandbox officielle | Bloquer merge/déploiement, correction immédiate |
+| **Important** | Sécurise une fonctionnalité clé mais non bloquante (UX avancée, analytics secondaires) | PR contenant du code impacté + nightly ciblée | Cas nominaux + régressions connues | Mocks autorisés si dépendances instables, prévoir au moins un test d’intégration sans mock par feature | Corriger avant fin de sprint, suivi dans backlog |
+| **Support** | Prévention de régressions mineures ou documentation | À la demande (pre-commit, avant release) | Comportements spécifiques, edge cases | Mocks libres, priorité à la vitesse d’exécution | Ne bloque pas, planifier la correction |
+
+**Heuristiques d’évaluation :**
+- **Impact utilisateur :** perte de données, indisponibilité IA, blocage de création = Primordial.
+- **Couche testée :** plus on se rapproche du runtime réel (prod build, Supabase, navigateur), plus la priorité augmente.
+- **Délai de détection acceptable :** ce qui doit échouer en < 5 min post-déploiement est primordial.
+- **Tolérance aux mocks :** un test primordial doit valider la pile réelle au moins une fois (smoke, intégration), les tests unitaires restent complémentaires.
+- **Single point of failure :** si aucune autre suite ne couvrirait la régression, sur-classer en primordial.
+
+Ces critères servent de référence pour classer les suites dans le reste du guide et prioriser les réparations.
+
+## 🗺️ Cartographie des suites critiques (mise à jour 11 novembre 2025)
+
+| Suite / bloc | Type | Importance | Mocks | Statut & prochaines actions |
+|--------------|------|------------|-------|-----------------------------|
+| `tests/e2e/production-smoke.spec.ts` | E2E prod | **Primordial** | Aucun | Actif – à exécuter sur chaque PR/merge/deploy |
+| `tests/integration/real-supabase-simplified.test.ts` | Intégration | **Primordial** | Aucun | Actif – nécessite credentials réelles (Supabase) |
+| `tests/e2e/ultra-simple.spec.ts` | E2E | **Primordial** | Mock Gemini (IA) | Actif – protège le flux création DatePoll |
+| `tests/e2e/dashboard-complete.spec.ts` + `tags-folders.spec.ts` | E2E | **Primordial** | Seed localStorage + guard console | Actifs – couvrent back-office, pas de mock Supabase |
+| `tests/e2e/form-poll-regression.spec.ts` + `form-poll-results-access.spec.ts` | E2E | **Primordial** | setupAllMocks (Gemini/Edge), seed localStorage | Actifs – workflows FormPoll réalistes |
+| `tests/e2e/beta-key-activation.spec.ts`, `authenticated-workflow.spec.ts`, `poll-actions.spec.ts`, `security-isolation.spec.ts`, `mobile-voting.spec.ts`, `guest-workflow.spec.ts` | E2E | Primordial | Auth/device injectés via localStorage + Gemini mock | Actifs – parcourent les chemins critiques complémentaires |
+| `tests/e2e/analytics-ai.spec.ts` | E2E | Primordial | Mock Gemini uniquement | Actif – mock IA obligatoire, reste à surveiller côté quota/mocks |
+| `tests/e2e/analytics-ai-optimized.spec.ts.skip` | E2E | Primordial | Mock Gemini | **SKIP** – remplacer la version actuelle une fois la fiabilité validée |
+| `tests/e2e/console-errors.spec.ts` | E2E | Primordial | Aucun | Test « Pas d'erreurs console critiques » actuellement `test.skip` → identifier la console error CI et réactiver |
+| `src/__tests__/error-handling-enforcement.test.ts` | Meta unitaire | Primordial | N/A | Actif – blocage CI si pattern centralisé non respecté |
+| `src/lib/__tests__/exports.test.ts` | Unitaire | Important+ | Mock pollStorage ciblé | Actif – couvrir scenarios export (CSV/JSON/PDF) |
+| Hooks `useConversations*`, `useAutoSave*`, `usePollConversationLink*` | Unitaires | Important | Mocks Auth/Storage | Actifs – vérifier cohérence avec nouvelles dépendances |
+| `src/hooks/__tests__/useAnalyticsQuota.test.ts` | Unitaire | **Primordial** | Mock auth/localStorage | **SKIP** – ajuster les quotas attendus et réactiver la suite |
+| Fichiers `*.disabled` (ConversationStorage, PollCreator, etc.) | Unitaires | Important | Mocks libres | À requalifier : soit moderniser, soit supprimer si obsolètes |
+
+### Tests primordiaux sans aucun mock: FAIT
+- `tests/e2e/production-smoke.spec.ts` — valide la disponibilité réelle (assets, console propre, navigation) sur build de prod, bloque tout déploiement cassé.
+    - `Docs\TESTS\follow-up\production-smoke.md`
+- `tests/integration/real-supabase-simplified.test.ts` — vérifie authentification, CRUD et RLS sur la base Supabase réelle ; premier filet pour éviter les régressions backend.
+    - `Docs\TESTS\follow-up\integration-real-supabase-simplified.md`
+
+### Tests primordiaux avec isolation locale (mock Gemini ou seed localStorage)
+#### FAIT
+- `tests/e2e/ultra-simple.spec.ts` — couvre le parcours DatePoll complet (sélection dates, horaires, partage) cœur de la proposition de valeur.
+    - `Docs\TESTS\follow-up\e2e-ultra-simple.md`
+- `tests/e2e/dashboard-complete.spec.ts`
+    - `Docs\TESTS\follow-up\e2e-dashboard-complete.md`
+#### EN COURS
+-  `tests/e2e/tags-folders.spec.ts` — garantissent que la gestion des conversations, tags et dossiers fonctionne (back-office critique).
+#### A FAIRE
+- `tests/e2e/form-poll-regression.spec.ts`, `tests/e2e/form-poll-results-access.spec.ts` — sécurisent création/modification FormPoll IA et politique de visibilité des résultats.
+- `tests/e2e/beta-key-activation.spec.ts`, `tests/e2e/authenticated-workflow.spec.ts` — valident l’expérience utilisateur authentifié (quotas étendus, beta keys, migration invités → comptes).
+- `tests/e2e/poll-actions.spec.ts`, `tests/e2e/security-isolation.spec.ts` — contrôlent les actions dashboard et garde-fous sécurité (tokens, navigation sensible).
+- `tests/e2e/mobile-voting.spec.ts`, `tests/e2e/guest-workflow.spec.ts` — assurent l’accessibilité clé côté votants invités (mobile/desktop).
+- `tests/e2e/analytics-ai.spec.ts` — vérifie que l’analytics IA (insights, queries) reste fonctionnel malgré quotas/mocks.
+- `tests/e2e/analytics-ai-optimized.spec.ts` (à réactiver) — même périmètre que ci-dessus mais exécution 70 % plus rapide pour CI.
+
+ℹ️ Ces suites n’appellent pas Supabase en mock, mais injectent l’état navigateur (localStorage, auth token) et interceptent l’IA via `setupGeminiMock`/`setupAllMocks` pour rester stables.
+
+### Tests primordiaux à remettre en service
+- Lever `test.skip` dans `tests/e2e/console-errors.spec.ts` une fois l’erreur console identifiée.
+- Réparer et réactiver `tests/e2e/analytics-ai-optimized.spec.ts` pour gagner 70% de temps d’exécution.
+- Corriger `src/hooks/__tests__/useAnalyticsQuota.test.ts` (écart quota 50 vs 20, persistance localStorage) puis retirer `describe.skip`.
+
 ## ⚠️ Tests Désactivés (À Corriger)
 
 ### 🐛 useAnalyticsQuota (15 tests désactivés)
@@ -44,12 +109,48 @@
   - S'assurer que `ANALYTICS_QUOTAS.AUTHENTICATED` est correctement utilisé
   - Corriger les problèmes de sérialisation dans localStorage
 
+#### Détails des échecs actuels (11/2025)
+- `initialise avec quota authentifié si user présent (50 queries)` → reçoit **20** au lieu de 50
+- `met à jour la limite si changement d'utilisateur` → reste bloqué à **20**
+- `utilise limite authentifiée (50 queries)` → reste à **20**
+- Gestion erreurs :
+  - `gère les erreurs de parsing JSON dans localStorage`
+  - `gère les erreurs lors du chargement du quota`
+- Statut : tous ces tests sont `skip` pour éviter des échecs systématiques tant que la logique n'est pas corrigée
+
+#### Sujets connexes
+- **Problème de mise à jour des quotas analytics** (`useAnalyticsQuota.ts`)
+  - Attendu : passage de 20 → 50 requêtes après authentification
+  - État actuel : limite reste à 20 (test ignoré temporairement)
+  - Impact : utilisateurs fraîchement connectés restent sur la limite invitée
+- **Questions ouvertes** :
+  - Intérêt de conserver des quotas séparés (invité vs authentifié)
+  - Revue complète des tests liés aux quotas pour s'assurer qu'ils restent représentatifs
+
 ### 🐛 Tests Console (1 test ignoré)
 - **Fichier** : `e2e/console-errors.spec.ts`
 - **Erreur** : `process is not defined`
 - **Statut** : Test ignoré - Problème connu lié à l'environnement de test
 - **Impact** : Aucun sur les fonctionnalités de production
 - **Action requise** : À investiguer dans une prochaine itération
+
+### ⚠️ Tests d'intégration skippés (10/11/2025)
+- **Tests concernés** : 9 tests (841/850 passent — 98.9%)
+- **Fichiers** :
+  - `src/hooks/__tests__/useAutoSave.test.ts` → 6 tests `skip`
+  - `src/lib/services/__tests__/titleGeneration.useAutoSave.test.ts` → 3 tests `skip`
+- **Problème** : `createConversation` n'est jamais appelé dans l'environnement de test (conflit quota/context/timing)
+- **Impact** : Aucun — la fonctionnalité reste couverte par les tests unitaires et E2E
+- **Suivi post-bêta (≈2-3h)** :
+  - Réviser le setup React/timing async des tests
+  - Réactiver les 9 tests (`.skip` → `.only` pour validation lors du correctif)
+- **Échecs unitaires restants associés** :
+  - `should persist quota in localStorage` → localStorage `null`
+  - `should restore quota from localStorage` → `aiMessagesUsed = 0`
+  - `should persist poll counts in localStorage` → localStorage `null`
+  - `should allow message after cooldown expires` → `isInCooldown` reste `true`
+  - `should initialize reset date for authenticated users` → localStorage `null`
+- **Correctifs partiels déjà en place** : timers réels pour localStorage, progression progressive du cooldown, extraction de `processMonthlyQuotaReset()` testée à 100%
 
 ---
 

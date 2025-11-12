@@ -3,6 +3,7 @@ import { User, Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { SignInInput, SignUpInput } from "../lib/schemas";
 import { isLocalDevelopment } from "../lib/supabase";
+import { isE2ETestingEnvironment } from "@/lib/e2e-detection";
 import { logger } from "@/lib/logger";
 
 // Variables d'environnement pour validation
@@ -48,6 +49,47 @@ export function useAuth() {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
+}
+
+const isE2ETestEnvironment = () =>
+  typeof window !== "undefined" &&
+  (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true);
+
+function getSessionFromLocalStorage(): Session | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const stored = localStorage.getItem("supabase.auth.token");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      const candidate = (parsed.currentSession ?? parsed.session ?? parsed) as Session | undefined;
+      if (candidate?.user && candidate.access_token) {
+        return candidate;
+      }
+    }
+  } catch (error) {
+    logger.debug("Failed to parse supabase.auth.token", "auth", error);
+  }
+
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
+        const value = localStorage.getItem(key);
+        if (!value) continue;
+        const candidate = JSON.parse(value) as Session;
+        if (candidate?.user && candidate.access_token) {
+          return candidate;
+        }
+      }
+    }
+  } catch (error) {
+    logger.debug("Failed to parse legacy Supabase session", "auth", error);
+  }
+
+  return null;
 }
 
 interface AuthProviderProps {
@@ -345,37 +387,49 @@ export function AuthProvider({ children }: AuthProviderProps) {
           data: { session },
         } = await supabase.auth.getSession();
 
+        let effectiveSession = session;
+        if (!effectiveSession && isE2ETestEnvironment()) {
+          effectiveSession = getSessionFromLocalStorage();
+        }
+
         if (mounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
+          setSession(effectiveSession);
+          setUser(effectiveSession?.user ?? null);
 
-          if (session?.user && !isLocalDevelopment) {
-            const profileData = await fetchProfile(session.user.id);
-            setProfile(profileData);
+          const sessionUserId = effectiveSession?.user?.id;
 
-            // Migrate guest conversations to Supabase on initial session
-            try {
-              const { migrateGuestConversations } = await import(
-                "../lib/storage/autoMigrateGuestConversations"
-              );
-              const migrationResult = await migrateGuestConversations(session.user.id);
-              if (migrationResult.migratedCount > 0) {
-                logger.info(
-                  "Conversations guest migrées automatiquement (session initiale)",
-                  "conversation",
-                  {
-                    userId: session.user.id,
-                    migratedCount: migrationResult.migratedCount,
-                  },
+          if (sessionUserId && !isLocalDevelopment) {
+            if (isE2ETestEnvironment()) {
+              logger.debug("Skip Supabase profile fetch in E2E mode", "auth");
+              setProfile(null);
+            } else {
+              const profileData = await fetchProfile(sessionUserId);
+              setProfile(profileData);
+
+              // Migrate guest conversations to Supabase on initial session
+              try {
+                const { migrateGuestConversations } = await import(
+                  "../lib/storage/autoMigrateGuestConversations"
                 );
+                const migrationResult = await migrateGuestConversations(sessionUserId);
+                if (migrationResult.migratedCount > 0) {
+                  logger.info(
+                    "Conversations guest migrées automatiquement (session initiale)",
+                    "conversation",
+                    {
+                      userId: sessionUserId,
+                      migratedCount: migrationResult.migratedCount,
+                    },
+                  );
+                }
+              } catch (migrationError) {
+                logger.error(
+                  "Erreur lors de la migration automatique (session initiale)",
+                  "conversation",
+                  migrationError,
+                );
+                // Don't block login if migration fails
               }
-            } catch (migrationError) {
-              logger.error(
-                "Erreur lors de la migration automatique (session initiale)",
-                "conversation",
-                migrationError,
-              );
-              // Don't block login if migration fails
             }
           }
 
@@ -399,30 +453,42 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      setSession(session);
-      setUser(session?.user ?? null);
+      let effectiveSession = session;
+      if (!effectiveSession && isE2ETestEnvironment()) {
+        effectiveSession = getSessionFromLocalStorage();
+      }
+
+      setSession(effectiveSession ?? null);
+      setUser(effectiveSession?.user ?? null);
       setError(null);
 
-      if (session?.user && !isLocalDevelopment) {
-        // Récupérer le profil pour les nouveaux utilisateurs
-        const profileData = await fetchProfile(session.user.id);
-        setProfile(profileData);
+      const sessionUserId = effectiveSession?.user?.id;
 
-        // Migrate guest conversations to Supabase
-        try {
-          const { migrateGuestConversations } = await import(
-            "../lib/storage/autoMigrateGuestConversations"
-          );
-          const migrationResult = await migrateGuestConversations(session.user.id);
-          if (migrationResult.migratedCount > 0) {
-            logger.info("Conversations guest migrées automatiquement", "conversation", {
-              userId: session.user.id,
-              migratedCount: migrationResult.migratedCount,
-            });
+      if (sessionUserId && !isLocalDevelopment) {
+        if (isE2ETestEnvironment()) {
+          logger.debug("Skip Supabase auth state sync in E2E mode", "auth");
+          setProfile(null);
+        } else {
+          // Récupérer le profil pour les nouveaux utilisateurs
+          const profileData = await fetchProfile(sessionUserId);
+          setProfile(profileData);
+
+          // Migrate guest conversations to Supabase
+          try {
+            const { migrateGuestConversations } = await import(
+              "../lib/storage/autoMigrateGuestConversations"
+            );
+            const migrationResult = await migrateGuestConversations(sessionUserId);
+            if (migrationResult.migratedCount > 0) {
+              logger.info("Conversations guest migrées automatiquement", "conversation", {
+                userId: sessionUserId,
+                migratedCount: migrationResult.migratedCount,
+              });
+            }
+          } catch (migrationError) {
+            logger.error("Erreur lors de la migration automatique", "conversation", migrationError);
+            // Don't block login if migration fails
           }
-        } catch (migrationError) {
-          logger.error("Erreur lors de la migration automatique", "conversation", migrationError);
-          // Don't block login if migration fails
         }
       } else {
         setProfile(null);

@@ -1,5 +1,5 @@
 import React from "react";
-import { Send, Mic, MicOff } from "lucide-react";
+import { Send, Mic, MicOff, Loader2 } from "lucide-react";
 
 interface ChatInputProps {
   value: string;
@@ -59,9 +59,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               if (typeof onUserMessage === "function") onUserMessage();
             }}
             onKeyDown={onKeyPress}
-            placeholder="Décrivez votre sondage..."
+            placeholder={isLoading ? "Génération en cours..." : "Décrivez votre sondage..."}
+            disabled={isLoading}
             className={`flex-1 min-w-0 resize-none border-0 px-2 md:px-4 py-3 focus:outline-none min-h-[44px] max-h-32 text-sm md:text-base bg-transparent ${
-              darkTheme ? "text-white placeholder-gray-400" : "text-gray-900 placeholder-gray-500"
+              darkTheme 
+                ? "text-white placeholder-gray-400" 
+                : "text-gray-900 placeholder-gray-500"
+            } ${
+              isLoading ? "opacity-60 cursor-not-allowed" : ""
             }`}
             rows={1}
           />
@@ -117,8 +122,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                     : "bg-transparent text-gray-600 hover:bg-gray-100"
               }
             `}
+            title={isLoading ? "Génération en cours..." : "Envoyer"}
           >
-            <Send className="w-4 h-4 md:w-5 md:h-5" />
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4 md:w-5 md:h-5" />
+            )}
           </button>
         </div>
       </div>

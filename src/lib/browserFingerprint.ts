@@ -143,11 +143,28 @@ function getFontsFingerprint(): string | undefined {
  * Hash une chaîne avec SHA-256
  */
 async function hashString(str: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(str);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  try {
+    const hasSubtle = typeof crypto !== "undefined" && typeof crypto.subtle?.digest === "function";
+    if (hasSubtle) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(str);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+  } catch (error) {
+    logger.warn("Native SHA-256 digest failed", "security", { error });
+  }
+
+  // Fallback FNV-1a inspired hash (deterministic, 64 hex chars)
+  let hash = 2166136261 >>> 0;
+  for (let i = 0; i < str.length; i += 1) {
+    hash ^= str.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  const result = hash.toString(16).padStart(8, "0");
+  return result.repeat(8).slice(0, 64);
 }
 
 /**
@@ -216,28 +233,44 @@ export async function generateBrowserFingerprint(): Promise<BrowserFingerprint> 
  * Récupère le fingerprint depuis le cache localStorage ou le génère
  */
 export async function getCachedFingerprint(): Promise<string> {
-  const CACHE_KEY = "doodates_browser_fingerprint";
+  const CACHE_KEY = "__dd_fingerprint";
+  const LEGACY_CACHE_KEYS = ["doodates_browser_fingerprint"];
   const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
   try {
-    // Vérifier le cache
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
-      const data = JSON.parse(cached);
-      const age = Date.now() - new Date(data.timestamp).getTime();
+    const readCache = (): { fingerprint: string; timestamp: string; confidence?: number } | null => {
+      const keys = [CACHE_KEY, ...LEGACY_CACHE_KEYS];
+      for (const key of keys) {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        try {
+          const parsed = JSON.parse(raw);
+          if (typeof parsed?.fingerprint === "string" && typeof parsed?.timestamp === "string") {
+            return parsed;
+          }
+        } catch (error) {
+          logger.warn("Invalid fingerprint cache", "security", { key, error });
+        }
+      }
+      return null;
+    };
 
-      if (age < CACHE_DURATION) {
+    const cached = readCache();
+    if (cached) {
+      const age = Date.now() - new Date(cached.timestamp).getTime();
+      if (Number.isFinite(age) && age >= 0 && age < CACHE_DURATION) {
         logger.debug("Using cached fingerprint", "security", {
-          age: Math.round(age / 1000 / 60 / 60) + "h",
+          ageHours: Math.round(age / 1000 / 60 / 60),
+          confidence: cached.confidence,
         });
-        return data.fingerprint;
+        if (!localStorage.getItem(CACHE_KEY)) {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
+        }
+        return cached.fingerprint;
       }
     }
 
-    // Générer nouveau fingerprint
     const result = await generateBrowserFingerprint();
-
-    // Mettre en cache
     localStorage.setItem(
       CACHE_KEY,
       JSON.stringify({
@@ -249,10 +282,9 @@ export async function getCachedFingerprint(): Promise<string> {
 
     return result.fingerprint;
   } catch (error) {
-    logger.error("Failed to get fingerprint", error);
-    // Fallback: générer un ID aléatoire (moins fiable mais mieux que rien)
+    logger.error("Failed to get fingerprint", "security", { error });
     const fallback = `fallback_${Date.now()}_${Math.random().toString(36).substring(2)}`;
-    return await hashString(fallback);
+    return hashString(fallback);
   }
 }
 

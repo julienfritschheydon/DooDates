@@ -60,16 +60,16 @@ ALTER TABLE poll_options ENABLE ROW LEVEL SECURITY;
 
 -- POLLS TABLE POLICIES
 CREATE POLICY "polls_insert_own" ON polls 
-  FOR INSERT WITH CHECK (auth.uid() = creator_id);
+  FOR INSERT WITH CHECK ((SELECT auth.uid()) = creator_id);
 
 CREATE POLICY "polls_select_own" ON polls 
-  FOR SELECT USING (auth.uid() = creator_id);
+  FOR SELECT USING ((SELECT auth.uid()) = creator_id);
 
 CREATE POLICY "polls_update_own" ON polls 
-  FOR UPDATE USING (auth.uid() = creator_id);
+  FOR UPDATE USING ((SELECT auth.uid()) = creator_id);
 
 CREATE POLICY "polls_delete_own" ON polls 
-  FOR DELETE USING (auth.uid() = creator_id);
+  FOR DELETE USING ((SELECT auth.uid()) = creator_id);
 
 CREATE POLICY "polls_view_active" ON polls 
   FOR SELECT USING (status = 'active');
@@ -80,7 +80,7 @@ CREATE POLICY "poll_options_insert_own" ON poll_options
     EXISTS (
       SELECT 1 FROM polls 
       WHERE polls.id = poll_id 
-      AND polls.creator_id = auth.uid()
+      AND polls.creator_id = (SELECT auth.uid())
     )
   );
 
@@ -89,7 +89,7 @@ CREATE POLICY "poll_options_select" ON poll_options
     EXISTS (
       SELECT 1 FROM polls 
       WHERE polls.id = poll_id 
-      AND (polls.creator_id = auth.uid() OR polls.status = 'active')
+      AND ((SELECT auth.uid()) = polls.creator_id OR polls.status = 'active')
     )
   );
 
@@ -98,7 +98,7 @@ CREATE POLICY "poll_options_update_own" ON poll_options
     EXISTS (
       SELECT 1 FROM polls 
       WHERE polls.id = poll_id 
-      AND polls.creator_id = auth.uid()
+      AND polls.creator_id = (SELECT auth.uid())
     )
   );
 
@@ -107,7 +107,7 @@ CREATE POLICY "poll_options_delete_own" ON poll_options
     EXISTS (
       SELECT 1 FROM polls 
       WHERE polls.id = poll_id 
-      AND polls.creator_id = auth.uid()
+      AND polls.creator_id = (SELECT auth.uid())
     )
   );
 
@@ -116,6 +116,10 @@ DO $$
 BEGIN
     IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'votes') THEN
         ALTER TABLE votes ENABLE ROW LEVEL SECURITY;
+        EXECUTE 'DROP POLICY IF EXISTS "votes_insert_active" ON votes';
+        EXECUTE 'DROP POLICY IF EXISTS "votes_select" ON votes';
+        EXECUTE 'DROP POLICY IF EXISTS "votes_update_own" ON votes';
+        EXECUTE 'DROP POLICY IF EXISTS "votes_delete_own" ON votes';
         
         CREATE POLICY "votes_insert_active" ON votes 
           FOR INSERT WITH CHECK (
@@ -131,15 +135,15 @@ BEGIN
             EXISTS (
               SELECT 1 FROM polls 
               WHERE polls.id = poll_id 
-              AND (polls.creator_id = auth.uid() OR polls.status = 'active')
+              AND ((SELECT auth.uid()) = polls.creator_id OR polls.status = 'active')
             )
           );
 
         CREATE POLICY "votes_update_own" ON votes 
-          FOR UPDATE USING (voter_id = auth.uid());
+          FOR UPDATE USING (voter_id = (SELECT auth.uid()));
 
         CREATE POLICY "votes_delete_own" ON votes 
-          FOR DELETE USING (voter_id = auth.uid());
+          FOR DELETE USING (voter_id = (SELECT auth.uid()));
     END IF;
 END $$;
 

@@ -151,7 +151,7 @@ export class SecureGeminiService {
       // Appel avec retry automatique sur erreurs réseau
       const result = await this.retryWithBackoff(async () => {
         // Timeout de 10 secondes
-        const FETCH_TIMEOUT = 10000;
+        const FETCH_TIMEOUT = 20000;
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(
             () =>
@@ -162,13 +162,22 @@ export class SecureGeminiService {
           );
         });
 
+        const requestBody = {
+          userInput,
+          prompt,
+        };
+        const serializedBody = JSON.stringify(requestBody);
+
+        logger.info("SecureGeminiService payload", "api", {
+          userInputLength: userInput?.length ?? 0,
+          promptLength: prompt?.length ?? 0,
+          bodyLength: serializedBody.length,
+        });
+
         const fetchPromise = fetch(edgeFunctionUrl, {
           method: "POST",
           headers: fetchHeaders,
-          body: JSON.stringify({
-            userInput,
-            prompt,
-          }),
+          body: serializedBody,
         }).then(async (response) => {
           const data = await response.json();
 

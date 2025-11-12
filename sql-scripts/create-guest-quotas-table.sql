@@ -1,4 +1,93 @@
 -- ============================================================================
+-- HELPERS: request header utilities (fingerprint + cached quota id)
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION get_request_header(header_name text)
+RETURNS TEXT
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  headers_text text;
+  headers jsonb;
+  value text;
+BEGIN
+  headers_text := current_setting('request.headers', true);
+
+  IF coalesce(headers_text, '') = '' THEN
+    RETURN NULL;
+  END IF;
+
+  headers := headers_text::jsonb;
+
+  value := headers ->> lower(header_name);
+  IF value IS NULL THEN
+    value := headers ->> header_name;
+  END IF;
+
+  IF value IS NULL THEN
+    RETURN NULL;
+  END IF;
+
+  value := btrim(value);
+  IF value = '' THEN
+    RETURN NULL;
+  END IF;
+
+  RETURN value;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION get_request_fingerprint()
+RETURNS TEXT
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  header_fp text;
+  jwt_fp text;
+BEGIN
+  header_fp := get_request_header('x-dd-fingerprint');
+
+  IF header_fp IS NOT NULL THEN
+    RETURN header_fp;
+  END IF;
+
+  jwt_fp := NULLIF(current_setting('request.jwt.claim.fingerprint', true), '');
+  IF jwt_fp IS NOT NULL THEN
+    RETURN jwt_fp;
+  END IF;
+
+  RETURN NULL;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION get_request_guest_quota_id()
+RETURNS UUID
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  raw_id text;
+  quota_id uuid;
+BEGIN
+  raw_id := get_request_header('x-dd-guest-quota-id');
+
+  IF raw_id IS NULL THEN
+    RETURN NULL;
+  END IF;
+
+  BEGIN
+    quota_id := raw_id::uuid;
+  EXCEPTION WHEN others THEN
+    RETURN NULL;
+  END;
+
+  RETURN quota_id;
+END;
+$$;
+
+-- ============================================================================
 -- TABLE: guest_quotas
 -- Description: Tracking des quotas pour utilisateurs guests avec fingerprinting
 -- ============================================================================
@@ -17,6 +106,7 @@ CREATE TABLE IF NOT EXISTS guest_quotas (
   analytics_queries INTEGER DEFAULT 0 NOT NULL,
   simulations INTEGER DEFAULT 0 NOT NULL,
   total_credits_consumed INTEGER DEFAULT 0 NOT NULL,
+  last_reset_at TIMESTAMPTZ,
   
   -- Métadonnées
   first_seen_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
@@ -48,25 +138,44 @@ CREATE INDEX IF NOT EXISTS idx_guest_quotas_last_activity
 -- Activer RLS
 ALTER TABLE guest_quotas ENABLE ROW LEVEL SECURITY;
 
--- Policy: Tout le monde peut lire (pour vérifier quotas)
+-- Policy helpers
+DROP POLICY IF EXISTS "Allow public read access" ON guest_quotas;
 CREATE POLICY "Allow public read access"
   ON guest_quotas
   FOR SELECT
-  TO public
-  USING (true);
+  TO anon
+  USING (
+    fingerprint = get_request_fingerprint()
+    OR id = get_request_guest_quota_id()
+  );
 
--- Policy: Tout le monde peut insérer (nouveau guest)
+DROP POLICY IF EXISTS "Allow public insert" ON guest_quotas;
 CREATE POLICY "Allow public insert"
   ON guest_quotas
   FOR INSERT
-  TO public
-  WITH CHECK (true);
+  TO anon
+  WITH CHECK (
+    fingerprint = get_request_fingerprint()
+  );
 
--- Policy: Tout le monde peut mettre à jour (consommer crédits)
+DROP POLICY IF EXISTS "Allow public update" ON guest_quotas;
 CREATE POLICY "Allow public update"
   ON guest_quotas
   FOR UPDATE
-  TO public
+  TO anon
+  USING (
+    fingerprint = get_request_fingerprint()
+    OR id = get_request_guest_quota_id()
+  )
+  WITH CHECK (
+    fingerprint = get_request_fingerprint()
+  );
+
+DROP POLICY IF EXISTS "Service role full access guest_quotas" ON guest_quotas;
+CREATE POLICY "Service role full access guest_quotas"
+  ON guest_quotas
+  FOR ALL
+  TO service_role
   USING (true)
   WITH CHECK (true);
 
@@ -76,7 +185,9 @@ CREATE POLICY "Allow public update"
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION update_guest_quota_timestamp()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+SET search_path = public
+AS $$
 BEGIN
   NEW.updated_at = NOW();
   NEW.last_activity_at = NOW();
@@ -97,7 +208,9 @@ CREATE TRIGGER update_guest_quotas_timestamp
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION cleanup_old_guest_quotas()
-RETURNS INTEGER AS $$
+RETURNS INTEGER
+SET search_path = public
+AS $$
 DECLARE
   deleted_count INTEGER;
 BEGIN
@@ -154,16 +267,32 @@ CREATE INDEX IF NOT EXISTS idx_guest_journal_created_at
 -- RLS pour journal
 ALTER TABLE guest_quota_journal ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow public read journal" ON guest_quota_journal;
 CREATE POLICY "Allow public read journal"
   ON guest_quota_journal
   FOR SELECT
-  TO public
-  USING (true);
+  TO anon
+  USING (
+    fingerprint = get_request_fingerprint()
+    OR guest_quota_id = get_request_guest_quota_id()
+  );
 
+DROP POLICY IF EXISTS "Allow public insert journal" ON guest_quota_journal;
 CREATE POLICY "Allow public insert journal"
   ON guest_quota_journal
   FOR INSERT
-  TO public
+  TO anon
+  WITH CHECK (
+    fingerprint = get_request_fingerprint()
+    OR guest_quota_id = get_request_guest_quota_id()
+  );
+
+DROP POLICY IF EXISTS "Service role full access guest_quota_journal" ON guest_quota_journal;
+CREATE POLICY "Service role full access guest_quota_journal"
+  ON guest_quota_journal
+  FOR ALL
+  TO service_role
+  USING (true)
   WITH CHECK (true);
 
 -- ============================================================================
@@ -173,6 +302,7 @@ CREATE POLICY "Allow public insert journal"
 COMMENT ON TABLE guest_quotas IS 'Tracking des quotas pour utilisateurs guests avec fingerprinting navigateur';
 COMMENT ON COLUMN guest_quotas.fingerprint IS 'Empreinte unique du navigateur (canvas + fonts + timezone + screen)';
 COMMENT ON COLUMN guest_quotas.total_credits_consumed IS 'Total de tous les crédits consommés (ne se remet jamais à zéro)';
+COMMENT ON COLUMN guest_quotas.last_reset_at IS 'Date du dernier reset manuel (admin)';
 COMMENT ON COLUMN guest_quotas.last_activity_at IS 'Dernière activité - utilisé pour cleanup automatique après 90 jours';
 
 COMMENT ON TABLE guest_quota_journal IS 'Journal détaillé de toutes les consommations de crédits par les guests';
