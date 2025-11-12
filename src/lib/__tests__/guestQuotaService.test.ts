@@ -130,10 +130,12 @@ describe("guestQuotaService", () => {
     vi.mocked(e2eDetection.isE2ETestingEnvironment).mockReturnValue(false);
 
     // Mock window pour shouldBypassGuestQuota
+    // S'assurer que __IS_E2E_TESTING__ n'est pas défini pour les tests normaux
     Object.defineProperty(global, "window", {
       value: {
         ...global.window,
         location: { search: "" },
+        __IS_E2E_TESTING__: undefined,
       },
       writable: true,
       configurable: true,
@@ -172,7 +174,8 @@ describe("guestQuotaService", () => {
       const mockQuota = createMockQuota();
       const mockRow = createMockSupabaseRow(mockQuota);
 
-      // Première tentative : pas trouvé (fetchQuotaByFingerprint)
+      // Première tentative : pas trouvé (fetchQuotaByFingerprint dans ensureGuestQuota)
+      // fetchQuotaByFingerprint fait from().select().eq().maybeSingle()
       (supabase.maybeSingle as any).mockResolvedValueOnce({
         data: null,
         error: { code: "PGRST116" },
@@ -180,6 +183,8 @@ describe("guestQuotaService", () => {
 
       // Pas de cachedQuotaId dans localStorage, donc création directe
       // Insertion réussie (create) - supabase.from().insert().select().single()
+      // Le mock doit chaîner : insert() retourne supabase (déjà mocké dans beforeEach), 
+      // puis select() retourne supabase (déjà mocké), puis single() retourne le quota
       (supabase.single as any).mockResolvedValueOnce({
         data: mockRow,
         error: null,
@@ -189,7 +194,15 @@ describe("guestQuotaService", () => {
 
       expect(result).toBeDefined();
       expect(result?.fingerprint).toBe("test-fingerprint");
-      expect(supabase.insert).toHaveBeenCalled();
+      // Vérifier que insert a été appelé via la chaîne from().insert()
+      // from() est appelé plusieurs fois (pour fetch et pour insert), donc on vérifie juste qu'il a été appelé
+      expect(supabase.from).toHaveBeenCalled();
+      // Vérifier que insert a été appelé avec les bonnes données
+      expect(supabase.insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fingerprint: "test-fingerprint",
+        })
+      );
     });
 
     it("should return null if bypass is active (E2E)", async () => {
@@ -454,18 +467,22 @@ describe("guestQuotaService", () => {
     });
 
     it("should handle missing quota gracefully", async () => {
-      (supabase.maybeSingle as any).mockResolvedValue({
+      // Mock fetchQuotaByFingerprint qui retourne null
+      (supabase.maybeSingle as any).mockResolvedValueOnce({
         data: null,
         error: { code: "PGRST116" },
       });
 
-      (supabase.single as any).mockResolvedValue({
+      // Mock insert().select().single() qui échoue
+      // La chaîne est from().insert().select().single()
+      (supabase.single as any).mockResolvedValueOnce({
         data: null,
         error: new Error("Insert failed"),
       });
 
       const result = await getOrCreateGuestQuota();
 
+      // Si la création échoue, ensureGuestQuota retourne null (ligne 321 de guestQuotaService.ts)
       expect(result).toBeNull();
     });
 
