@@ -4,7 +4,11 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { generateBrowserFingerprint, getCachedFingerprint, getBrowserMetadata } from "../browserFingerprint";
+import {
+  generateBrowserFingerprint,
+  getCachedFingerprint,
+  getBrowserMetadata,
+} from "../browserFingerprint";
 import { setupMockLocalStorage } from "../../__tests__/helpers/testHelpers";
 
 // Mock crypto.subtle pour les tests
@@ -58,7 +62,7 @@ const mockWebGLContext = {
 
 function installMocks() {
   setupMockLocalStorage();
-  
+
   // Mock crypto
   Object.defineProperty(global, "crypto", {
     value: mockCrypto,
@@ -110,9 +114,12 @@ function installMocks() {
   });
 
   // Mock Intl.DateTimeFormat
-  vi.spyOn(Intl, "DateTimeFormat").mockImplementation(() => ({
-    resolvedOptions: () => ({ timeZone: "Europe/Paris" }),
-  } as any));
+  vi.spyOn(Intl, "DateTimeFormat").mockImplementation(
+    () =>
+      ({
+        resolvedOptions: () => ({ timeZone: "Europe/Paris" }),
+      }) as any,
+  );
 }
 
 describe("browserFingerprint", () => {
@@ -150,7 +157,7 @@ describe("browserFingerprint", () => {
 
       expect(result.metadata.confidence).toBeGreaterThanOrEqual(0);
       expect(result.metadata.confidence).toBeLessThanOrEqual(100);
-      
+
       // Avec tous les composants disponibles, confidence devrait être élevé
       if (result.components.canvas && result.components.webgl && result.components.fonts) {
         expect(result.metadata.confidence).toBeGreaterThanOrEqual(80);
@@ -201,10 +208,10 @@ describe("browserFingerprint", () => {
       const fingerprint2 = await getCachedFingerprint();
 
       expect(fingerprint1).toBe(fingerprint2);
-      
+
       const cached = localStorage.getItem("__dd_fingerprint");
       expect(cached).toBeTruthy();
-      
+
       const parsed = JSON.parse(cached!);
       expect(parsed.fingerprint).toBe(fingerprint1);
       expect(parsed.timestamp).toBeDefined();
@@ -279,7 +286,7 @@ describe("browserFingerprint", () => {
       expect(metadata).toHaveProperty("timezone");
       expect(metadata).toHaveProperty("language");
       expect(metadata).toHaveProperty("screenResolution");
-      
+
       expect(metadata.userAgent).toContain("Mozilla");
       expect(metadata.timezone).toBe("Europe/Paris");
       expect(metadata.language).toBe("fr-FR");
@@ -320,10 +327,9 @@ describe("browserFingerprint", () => {
       // mais devrait toujours être une string définie
       expect(typeof result.fingerprint).toBe("string");
       expect(result.fingerprint.length).toBeGreaterThan(0);
-      
+
       // Restaurer crypto pour autres tests
       installMocks();
     });
   });
 });
-

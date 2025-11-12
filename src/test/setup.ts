@@ -55,7 +55,7 @@ loadEnv({ path: path.resolve(process.cwd(), ".env.local"), override: false });
 vi.mock("import.meta", () => {
   // Créer un objet env qui lit depuis process.env (chargé depuis .env.local ci-dessus)
   const env: Record<string, any> = {};
-  
+
   // Copier toutes les variables VITE_* depuis process.env
   if (typeof process !== "undefined" && process.env) {
     Object.keys(process.env).forEach((key) => {
@@ -64,7 +64,7 @@ vi.mock("import.meta", () => {
       }
     });
   }
-  
+
   // Valeurs par défaut seulement si pas déjà définies
   if (!env.VITE_SUPABASE_URL) {
     env.VITE_SUPABASE_URL = "https://test.supabase.co";
@@ -72,7 +72,7 @@ vi.mock("import.meta", () => {
   if (!env.VITE_SUPABASE_ANON_KEY) {
     env.VITE_SUPABASE_ANON_KEY = "test-anon-key";
   }
-  
+
   return {
     env,
   };

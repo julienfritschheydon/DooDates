@@ -1,7 +1,7 @@
 /**
  * Tests de validation des prompts temporels PARTIEL/NOK
  * Rejoue les prompts problématiques du dataset pour vérifier les améliorations
- * 
+ *
  * Teste avec un seul prompt pour valider l'appel réel à Gemini via Supabase
  */
 
@@ -62,23 +62,29 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
   beforeAll(async () => {
     geminiService = GeminiService.getInstance();
     calendarQuery = new CalendarQuery();
-    
+
     const apiKey = process.env.VITE_GEMINI_API_KEY;
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
     const useDirectGemini = process.env.VITE_USE_DIRECT_GEMINI === "true";
-    
+
     console.log("\n📋 Configuration détectée:");
     console.log(`  - VITE_GEMINI_API_KEY: ${apiKey ? "✅ Présente" : "❌ Manquante"}`);
-    console.log(`  - VITE_SUPABASE_URL: ${supabaseUrl ? `✅ ${supabaseUrl.substring(0, 30)}...` : "❌ Manquante"}`);
-    console.log(`  - Mode: ${useDirectGemini ? "DIRECT API (Gemini)" : "EDGE FUNCTION (Supabase)"}`);
-    
+    console.log(
+      `  - VITE_SUPABASE_URL: ${supabaseUrl ? `✅ ${supabaseUrl.substring(0, 30)}...` : "❌ Manquante"}`,
+    );
+    console.log(
+      `  - Mode: ${useDirectGemini ? "DIRECT API (Gemini)" : "EDGE FUNCTION (Supabase)"}`,
+    );
+
     // Vérifier que les valeurs sont bien chargées depuis .env.local
     if (!supabaseUrl || supabaseUrl.includes("test.supabase.co")) {
       console.warn("⚠️  VITE_SUPABASE_URL semble être une valeur par défaut. Vérifiez .env.local");
     }
-    
+
     if (!apiKey && !supabaseUrl) {
-      throw new Error("VITE_GEMINI_API_KEY ou VITE_SUPABASE_URL manquante. Configurez-les dans .env.local pour tester");
+      throw new Error(
+        "VITE_GEMINI_API_KEY ou VITE_SUPABASE_URL manquante. Configurez-les dans .env.local pour tester",
+      );
     }
   });
 
@@ -94,11 +100,13 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         maxTimeSlots: 3,
         days: ["mardi", "mercredi"],
       },
-      originalAnalysis: "PARTIEL – bonnes dates dans la fenêtre, mais absence totale d'horaires précis pour la démo.",
+      originalAnalysis:
+        "PARTIEL – bonnes dates dans la fenêtre, mais absence totale d'horaires précis pour la démo.",
     },
     {
       id: "seance-photo-decembre",
-      input: "Planifie une séance photo familiale un dimanche matin en décembre (avant fin décembre).",
+      input:
+        "Planifie une séance photo familiale un dimanche matin en décembre (avant fin décembre).",
       expectedStatus: "NOK",
       expectedCriteria: {
         hasTimeSlots: true,
@@ -107,7 +115,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         days: ["dimanche"],
         timeRange: { start: "09:00", end: "12:00" },
       },
-      originalAnalysis: "NOK – Gemini reste bloqué sur novembre et n'ajoute pas les créneaux matinaux attendus.",
+      originalAnalysis:
+        "NOK – Gemini reste bloqué sur novembre et n'ajoute pas les créneaux matinaux attendus.",
     },
     {
       id: "reunion-parents-profs",
@@ -120,7 +129,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         days: ["mardi", "jeudi"],
         timeRange: { start: "18:00", end: "20:00" },
       },
-      originalAnalysis: "PARTIEL – dates correctes dans la fenêtre cible, mais absence des créneaux soirée attendus.",
+      originalAnalysis:
+        "PARTIEL – dates correctes dans la fenêtre cible, mais absence des créneaux soirée attendus.",
     },
     {
       id: "kermesse-samedi-10h",
@@ -157,7 +167,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         maxTimeSlots: 2,
         days: ["samedi", "dimanche"],
       },
-      originalAnalysis: "PARTIEL – jours pertinents mais absence des créneaux matin/après-midi attendus.",
+      originalAnalysis:
+        "PARTIEL – jours pertinents mais absence des créneaux matin/après-midi attendus.",
     },
     {
       id: "dejeuner-partenariats-mercredi",
@@ -170,7 +181,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         days: ["mercredi"],
         timeRange: { start: "11:00", end: "13:00" },
       },
-      originalAnalysis: "PARTIEL – nombreux créneaux conformes, mais Gemini propose aussi jeudi/vendredi/samedi (hors mercredi).",
+      originalAnalysis:
+        "PARTIEL – nombreux créneaux conformes, mais Gemini propose aussi jeudi/vendredi/samedi (hors mercredi).",
     },
     {
       id: "brunch-samedi-23-dimanche-24",
@@ -183,7 +195,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         days: ["samedi", "dimanche"],
         timeRange: { start: "11:30", end: "13:00" },
       },
-      originalAnalysis: "PARTIEL – deux créneaux conformes mais positionnés mi-novembre au lieu du week-end 23/24 visé.",
+      originalAnalysis:
+        "PARTIEL – deux créneaux conformes mais positionnés mi-novembre au lieu du week-end 23/24 visé.",
     },
     {
       id: "escape-game-fin-mars",
@@ -195,7 +208,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         maxTimeSlots: 3,
         timeRange: { start: "19:00", end: "21:00" },
       },
-      originalAnalysis: "PARTIEL – horaires cohérents, mais positionnés sur mi-novembre au lieu de la fin mars demandée.",
+      originalAnalysis:
+        "PARTIEL – horaires cohérents, mais positionnés sur mi-novembre au lieu de la fin mars demandée.",
     },
     {
       id: "diner-cousins-avril",
@@ -207,7 +221,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         maxTimeSlots: 4,
         days: ["samedi", "dimanche"],
       },
-      originalAnalysis: "PARTIEL – bon mois et cadence week-end, mais Gemini bascule sur avril 2026 et ne varie pas les horaires.",
+      originalAnalysis:
+        "PARTIEL – bon mois et cadence week-end, mais Gemini bascule sur avril 2026 et ne varie pas les horaires.",
     },
     {
       id: "anniversaire-lea-15-mai",
@@ -219,7 +234,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         maxTimeSlots: 3,
         days: ["samedi", "dimanche"],
       },
-      originalAnalysis: "PARTIEL – couvre bien la fenêtre autour du 15 mai mais ne se limite pas aux week-ends et oublie les horaires festifs.",
+      originalAnalysis:
+        "PARTIEL – couvre bien la fenêtre autour du 15 mai mais ne se limite pas aux week-ends et oublie les horaires festifs.",
     },
     {
       id: "apero-amis-trois-semaines",
@@ -231,7 +247,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         maxTimeSlots: 5,
         timeRange: { start: "18:30", end: "20:00" },
       },
-      originalAnalysis: "PARTIEL – bonnes plages horaires, mais Gemini se limite à quatre dates consécutives au lieu de suggérer des options dispersées sur trois semaines.",
+      originalAnalysis:
+        "PARTIEL – bonnes plages horaires, mais Gemini se limite à quatre dates consécutives au lieu de suggérer des options dispersées sur trois semaines.",
     },
     {
       id: "visite-musee-semaine-prochaine",
@@ -243,7 +260,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         maxTimeSlots: 3,
         timeRange: { start: "14:00", end: "17:00" },
       },
-      originalAnalysis: "PARTIEL – bonnes dates et couverture complète de l'après-midi, mais Gemini ajoute des créneaux dépassant 17h et répète trop de variantes.",
+      originalAnalysis:
+        "PARTIEL – bonnes dates et couverture complète de l'après-midi, mais Gemini ajoute des créneaux dépassant 17h et répète trop de variantes.",
     },
     {
       id: "footing-vendredi-samedi",
@@ -255,7 +273,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         maxTimeSlots: 3,
         days: ["vendredi", "samedi"],
       },
-      originalAnalysis: "PARTIEL – couvre les bonnes journées et plages globales, mais ajoute trop de créneaux étendus.",
+      originalAnalysis:
+        "PARTIEL – couvre les bonnes journées et plages globales, mais ajoute trop de créneaux étendus.",
     },
     {
       id: "visio-tresorerie-apres-18h",
@@ -280,7 +299,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         maxTimeSlots: 2,
         timeRange: { start: "18:00", end: "21:00" },
       },
-      originalAnalysis: "PARTIEL – bonnes plages horaires mais trop d'options au lieu de deux soirées ciblées.",
+      originalAnalysis:
+        "PARTIEL – bonnes plages horaires mais trop d'options au lieu de deux soirées ciblées.",
     },
     {
       id: "distribution-flyers-fin-avril",
@@ -305,7 +325,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         timeRange: { start: "09:00", end: "12:00" },
         duration: { min: 60 },
       },
-      originalAnalysis: "PARTIEL – respect des matinées avec plusieurs options cohérentes, mais slots de 30 minutes un peu courts (1h préférable).",
+      originalAnalysis:
+        "PARTIEL – respect des matinées avec plusieurs options cohérentes, mais slots de 30 minutes un peu courts (1h préférable).",
     },
     {
       id: "comite-quartier-quinze-jours",
@@ -317,7 +338,8 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         maxTimeSlots: 2,
         timeRange: { start: "18:30", end: "20:00" },
       },
-      originalAnalysis: "PARTIEL – bonnes plages mais trois soirées consécutives au lieu de deux options ciblées.",
+      originalAnalysis:
+        "PARTIEL – bonnes plages mais trois soirées consécutives au lieu de deux options ciblées.",
     },
   ];
 
@@ -326,7 +348,7 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
     it(`[${testCase.expectedStatus}] ${testCase.input.substring(0, 60)}...`, async () => {
       console.log(`\n🧪 Test du prompt: "${testCase.input}"`);
       console.log(`📋 Critères attendus:`, testCase.expectedCriteria);
-      
+
       const result = await runPromptTest(testCase);
       testResults.push(result);
 
@@ -335,15 +357,17 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
       console.log(`  - Status: ${result.passed ? "✅ RÉUSSI" : "❌ ÉCHEC"}`);
       console.log(`  - Dates générées: ${result.details.datesCount}`);
       console.log(`  - Créneaux générés: ${result.details.timeSlotsCount}`);
-      
+
       if (result.details.timeSlots && result.details.timeSlots.length > 0) {
         console.log(`  - Créneaux détaillés:`);
         result.details.timeSlots.forEach((slot, idx) => {
           const duration = calculateDuration(slot.start, slot.end);
-          console.log(`    ${idx + 1}. ${slot.start}-${slot.end} (${duration}min) sur ${slot.dates?.join(", ") || "dates"}`);
+          console.log(
+            `    ${idx + 1}. ${slot.start}-${slot.end} (${duration}min) sur ${slot.dates?.join(", ") || "dates"}`,
+          );
         });
       }
-      
+
       if (result.details.violations.length > 0) {
         console.log(`  - Violations:`);
         result.details.violations.forEach((v) => {
@@ -364,8 +388,10 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
       const passed = testResults.filter((r) => r.passed).length;
       const total = testResults.length;
       console.log(`  Tests réussis: ${passed}/${total} (${Math.round((passed / total) * 100)}%)`);
-      console.log(`  Score moyen: ${(testResults.reduce((sum, r) => sum + r.score, 0) / total).toFixed(2)}/1.0`);
-      
+      console.log(
+        `  Score moyen: ${(testResults.reduce((sum, r) => sum + r.score, 0) / total).toFixed(2)}/1.0`,
+      );
+
       // Générer le rapport markdown pour documentation
       await generateMarkdownReport(testResults);
     }
@@ -374,27 +400,27 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
   async function generateMarkdownReport(results: TestResult[]): Promise<void> {
     const fs = await import("fs");
     const fsp = fs.promises;
-    
+
     const reportPath = "Docs/TESTS/datasets/temporal-prompts-test-results.md";
     const timestamp = new Date().toISOString().split("T")[0];
-    
+
     let report = `# Résultats des tests réels - Prompts temporels PARTIEL/NOK\n\n`;
     report += `**Date** : ${timestamp}\n`;
     report += `**Tests exécutés** : ${results.length}\n`;
     report += `**Tests réussis** : ${results.filter((r) => r.passed).length}/${results.length}\n\n`;
-    
+
     report += `## Résultats détaillés\n\n`;
-    
+
     results.forEach((result) => {
       const testCase = testCases.find((tc) => tc.id === result.promptId);
       report += `### ${testCase?.input || result.input}\n\n`;
       report += `**ID** : ${result.promptId}\n`;
       report += `**Score** : ${result.score.toFixed(2)}/1.0 - ${result.passed ? "✅ RÉUSSI" : "❌ ÉCHEC"}\n\n`;
-      
+
       report += `**Résultat** :\n`;
       report += `- Dates générées : ${result.details.datesCount}\n`;
       report += `- Créneaux générés : ${result.details.timeSlotsCount}\n`;
-      
+
       if (result.details.timeSlots && result.details.timeSlots.length > 0) {
         report += `\n**Créneaux détaillés** :\n`;
         result.details.timeSlots.forEach((slot, idx) => {
@@ -402,14 +428,14 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
           report += `${idx + 1}. ${slot.start}-${slot.end} (${duration}min) sur ${slot.dates?.join(", ") || "dates"}\n`;
         });
       }
-      
+
       if (result.details.violations.length > 0) {
         report += `\n**Violations** :\n`;
         result.details.violations.forEach((v) => {
           report += `- ❌ ${v}\n`;
         });
       }
-      
+
       // Analyse et avis
       report += `\n**💡 Avis** :\n`;
       if (result.passed) {
@@ -424,16 +450,16 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
           report += `Violations détectées : ${result.details.violations.join(", ")}.\n`;
         }
       }
-      
+
       report += `\n---\n\n`;
     });
-    
+
     try {
       await fsp.mkdir("Docs/TESTS/datasets", { recursive: true });
     } catch (error) {
       // Le dossier existe déjà
     }
-    
+
     await fsp.writeFile(reportPath, report, "utf8");
     console.log(`\n📄 Rapport détaillé généré: ${reportPath}`);
   }
@@ -442,12 +468,12 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
     try {
       console.log(`\n🔄 Appel à GeminiService.generatePollFromText...`);
       const startTime = Date.now();
-      
+
       const response = await geminiService.generatePollFromText(testCase.input);
-      
+
       const duration = Date.now() - startTime;
       console.log(`⏱️  Temps de réponse: ${duration}ms`);
-      
+
       if (!response.success || !response.data) {
         console.error(`❌ Échec génération: ${response.message}`);
         return {
@@ -466,7 +492,7 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
 
       console.log(`✅ Réponse reçue avec succès`);
       const poll = response.data as DatePollSuggestion;
-      
+
       console.log(`  - Type: ${poll.type}`);
       console.log(`  - Dates: ${poll.dates?.length || 0}`);
       console.log(`  - Créneaux: ${poll.timeSlots?.length || 0}`);
@@ -483,12 +509,22 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
 
       // Vérifier nombre de créneaux
       const timeSlotsCount = poll.timeSlots?.length || 0;
-      if (testCase.expectedCriteria.minTimeSlots && timeSlotsCount < testCase.expectedCriteria.minTimeSlots) {
-        violations.push(`Trop peu de créneaux: ${timeSlotsCount} < ${testCase.expectedCriteria.minTimeSlots}`);
+      if (
+        testCase.expectedCriteria.minTimeSlots &&
+        timeSlotsCount < testCase.expectedCriteria.minTimeSlots
+      ) {
+        violations.push(
+          `Trop peu de créneaux: ${timeSlotsCount} < ${testCase.expectedCriteria.minTimeSlots}`,
+        );
         score -= 0.2;
       }
-      if (testCase.expectedCriteria.maxTimeSlots && timeSlotsCount > testCase.expectedCriteria.maxTimeSlots) {
-        violations.push(`Trop de créneaux: ${timeSlotsCount} > ${testCase.expectedCriteria.maxTimeSlots}`);
+      if (
+        testCase.expectedCriteria.maxTimeSlots &&
+        timeSlotsCount > testCase.expectedCriteria.maxTimeSlots
+      ) {
+        violations.push(
+          `Trop de créneaux: ${timeSlotsCount} > ${testCase.expectedCriteria.maxTimeSlots}`,
+        );
         score -= 0.1;
       }
 
@@ -496,7 +532,10 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
       if (testCase.expectedCriteria.timeRange && poll.timeSlots) {
         const validSlots = poll.timeSlots.filter((slot) => {
           const startHour = parseInt(slot.start.split(":")[0], 10);
-          const expectedStart = parseInt(testCase.expectedCriteria.timeRange!.start.split(":")[0], 10);
+          const expectedStart = parseInt(
+            testCase.expectedCriteria.timeRange!.start.split(":")[0],
+            10,
+          );
           const expectedEnd = parseInt(testCase.expectedCriteria.timeRange!.end.split(":")[0], 10);
           return startHour >= expectedStart && startHour < expectedEnd;
         });
@@ -512,12 +551,22 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
       if (testCase.expectedCriteria.duration && poll.timeSlots) {
         poll.timeSlots.forEach((slot) => {
           const duration = calculateDuration(slot.start, slot.end);
-          if (testCase.expectedCriteria.duration!.min && duration < testCase.expectedCriteria.duration!.min) {
-            violations.push(`Durée trop courte: ${duration}min < ${testCase.expectedCriteria.duration!.min}min`);
+          if (
+            testCase.expectedCriteria.duration!.min &&
+            duration < testCase.expectedCriteria.duration!.min
+          ) {
+            violations.push(
+              `Durée trop courte: ${duration}min < ${testCase.expectedCriteria.duration!.min}min`,
+            );
             score -= 0.1;
           }
-          if (testCase.expectedCriteria.duration!.max && duration > testCase.expectedCriteria.duration!.max) {
-            violations.push(`Durée trop longue: ${duration}min > ${testCase.expectedCriteria.duration!.max}min`);
+          if (
+            testCase.expectedCriteria.duration!.max &&
+            duration > testCase.expectedCriteria.duration!.max
+          ) {
+            violations.push(
+              `Durée trop longue: ${duration}min > ${testCase.expectedCriteria.duration!.max}min`,
+            );
             score -= 0.1;
           }
         });
@@ -568,4 +617,3 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
     return (endHour - startHour) * 60 + (endMin - startMin);
   }
 });
-

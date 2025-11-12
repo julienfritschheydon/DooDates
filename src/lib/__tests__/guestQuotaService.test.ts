@@ -109,7 +109,7 @@ function mockEnsureGuestQuota(mockRow: ReturnType<typeof createMockSupabaseRow>)
     data: mockRow,
     error: null,
   });
-  
+
   // Si metadataChanged, il fait aussi update().select().single()
   // Mais on ne le mocke que si nécessaire dans les tests spécifiques
 }
@@ -118,7 +118,7 @@ describe("guestQuotaService", () => {
   beforeEach(() => {
     setupMockLocalStorage();
     vi.clearAllMocks();
-    
+
     // Mock par défaut
     vi.mocked(browserFingerprint.getCachedFingerprint).mockResolvedValue("test-fingerprint");
     vi.mocked(browserFingerprint.getBrowserMetadata).mockReturnValue({
@@ -128,7 +128,7 @@ describe("guestQuotaService", () => {
       screenResolution: "1920x1080x24",
     });
     vi.mocked(e2eDetection.isE2ETestingEnvironment).mockReturnValue(false);
-    
+
     // Mock window pour shouldBypassGuestQuota
     Object.defineProperty(global, "window", {
       value: {
@@ -138,14 +138,14 @@ describe("guestQuotaService", () => {
       writable: true,
       configurable: true,
     });
-    
+
     // Réinitialiser les mocks Supabase - chaînage correct
     (supabase.from as any).mockImplementation(() => supabase);
     (supabase.select as any).mockImplementation(() => supabase);
     (supabase.insert as any).mockImplementation(() => supabase);
     (supabase.update as any).mockImplementation(() => supabase);
     (supabase.eq as any).mockImplementation(() => supabase);
-    
+
     // Ne pas mettre de mock par défaut pour maybeSingle et single
     // Chaque test doit définir ses propres mocks avec mockResolvedValueOnce
   });
@@ -397,8 +397,8 @@ describe("guestQuotaService", () => {
 
       // Trouver l'appel update qui contient les métadonnées
       const updateCalls = (supabase.update as any).mock.calls;
-      const metadataCall = updateCalls.find((call: any[]) => 
-        call && call[0] && typeof call[0] === 'object' && 'user_agent' in call[0]
+      const metadataCall = updateCalls.find(
+        (call: any[]) => call && call[0] && typeof call[0] === "object" && "user_agent" in call[0],
       );
       expect(metadataCall).toBeDefined();
       expect(metadataCall[0]).toHaveProperty("user_agent");
@@ -483,13 +483,9 @@ describe("guestQuotaService", () => {
         error: null,
       });
 
-      const actions: Array<"conversation_created" | "poll_created" | "ai_message" | "analytics_query" | "simulation"> = [
-        "conversation_created",
-        "poll_created",
-        "ai_message",
-        "analytics_query",
-        "simulation",
-      ];
+      const actions: Array<
+        "conversation_created" | "poll_created" | "ai_message" | "analytics_query" | "simulation"
+      > = ["conversation_created", "poll_created", "ai_message", "analytics_query", "simulation"];
 
       for (const action of actions) {
         const result = await canConsumeCredits(action, 1);
@@ -498,4 +494,3 @@ describe("guestQuotaService", () => {
     });
   });
 });
-

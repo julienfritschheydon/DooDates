@@ -49,7 +49,8 @@ describe("GeminiSuggestionPostProcessor", () => {
       };
 
       const result = postProcessSuggestion(suggestion, {
-        userInput: "Planifie une séance photo familiale un dimanche matin en décembre (avant fin décembre).",
+        userInput:
+          "Planifie une séance photo familiale un dimanche matin en décembre (avant fin décembre).",
         allowedDates: ["2025-12-07", "2025-12-14", "2025-12-21"],
       });
 
@@ -150,7 +151,11 @@ describe("GeminiSuggestionPostProcessor", () => {
         allowedDates: ["2025-11-18", "2025-11-19", "2025-11-20", "2025-11-21"],
       });
 
-      expect(result.dates.every((date) => ["2025-11-18", "2025-11-19", "2025-11-20", "2025-11-21"].includes(date))).toBe(true);
+      expect(
+        result.dates.every((date) =>
+          ["2025-11-18", "2025-11-19", "2025-11-20", "2025-11-21"].includes(date),
+        ),
+      ).toBe(true);
       expect(result.dates).not.toContain("2025-11-12");
       expect(result.dates).not.toContain("2025-11-15");
       expect(result.dates).not.toContain("2025-12-01");
@@ -203,7 +208,8 @@ describe("GeminiSuggestionPostProcessor", () => {
       };
 
       const result = postProcessSuggestion(suggestion, {
-        userInput: "Planifie une réunion d'équipe éducative avant les vacances, matinée uniquement.",
+        userInput:
+          "Planifie une réunion d'équipe éducative avant les vacances, matinée uniquement.",
       });
 
       expect(result.timeSlots).toBeDefined();
@@ -319,7 +325,9 @@ describe("GeminiSuggestionPostProcessor", () => {
       });
 
       expect(result.timeSlots).toBeDefined();
-      const slotWith930 = result.timeSlots?.find((slot) => slot.start.startsWith("09:3") || slot.start === "09:30");
+      const slotWith930 = result.timeSlots?.find(
+        (slot) => slot.start.startsWith("09:3") || slot.start === "09:30",
+      );
       expect(slotWith930).toBeDefined();
     });
 
@@ -332,7 +340,8 @@ describe("GeminiSuggestionPostProcessor", () => {
       };
 
       const result = postProcessSuggestion(suggestion, {
-        userInput: "Planifie la réunion de lancement la semaine prochaine, idéalement mardi 14h ou jeudi 10h.",
+        userInput:
+          "Planifie la réunion de lancement la semaine prochaine, idéalement mardi 14h ou jeudi 10h.",
       });
 
       expect(result.timeSlots).toBeDefined();
@@ -368,4 +377,3 @@ function calculateDuration(start: string, end: string): number {
   const [endHour, endMin] = end.split(":").map(Number);
   return (endHour - startHour) * 60 + (endMin - startMin);
 }
-
