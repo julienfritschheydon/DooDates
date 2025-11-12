@@ -165,6 +165,27 @@ Ces critères servent de référence pour classer les suites dans le reste du gu
   - `should initialize reset date for authenticated users` → localStorage `null`
 - **Correctifs partiels déjà en place** : timers réels pour localStorage, progression progressive du cooldown, extraction de `processMonthlyQuotaReset()` testée à 100%
 
+### 🐛 Tests guestQuotaService (3 tests échouent — 14/17 passent)
+- **Fichier** : `src/lib/__tests__/guestQuotaService.test.ts`
+- **Problème** : Problèmes de mocks Supabase complexes, pas liés au bypass E2E
+- **Impact** : Tests de création et consommation de quotas invités ne passent pas
+- **Statut** : 3 tests échouent après correction du bypass E2E (problèmes maintenant visibles)
+- **Action requise** : Investigation approfondie de l'ordre des appels Supabase et de la façon dont les mocks sont consommés
+
+#### Détails des échecs actuels (11/2025)
+- `should create new quota if not found` : `insert` n'est pas appelé (0 appels au lieu d'au moins 1)
+- `should consume credits successfully` : `aiMessages` est 0 au lieu de 2 (mock de `single` ne retourne pas les bonnes valeurs)
+- `should handle missing quota gracefully` : résultat n'est pas `null` (mock d'erreur ne fonctionne pas)
+
+#### Contexte
+Ces problèmes étaient masqués par le bypass E2E avant la correction. Maintenant que le bypass est corrigé (via `setupQuotaTestWindow()`), ils sont visibles et nécessitent une correction des mocks Supabase. Le problème principal semble être lié à l'ordre des appels Supabase et à la façon dont les mocks `maybeSingle` et `single` sont consommés dans les chaînes `from().insert().select().single()` et `from().update().select().single()`.
+
+#### Suivi
+- **2025-11-12** : Problème identifié dans `guestQuotaService.test.ts`
+- **2025-11-12** : Helper `setupQuotaTestWindow()` créé et appliqué
+- **2025-11-12** : `guestQuotaService.test.ts` corrigé (14/17 tests passent maintenant)
+- **2025-11-12** : 3 tests restants nécessitent une investigation approfondie des mocks Supabase
+
 ---
 
 ## 🚀 Quick Start
