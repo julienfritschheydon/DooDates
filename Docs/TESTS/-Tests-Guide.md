@@ -1,7 +1,7 @@
 # DooDates - Guide des Tests
 
 > **Document de référence unique** - Novembre 2025  
-> **Dernière mise à jour** : 12 novembre 2025 (console-errors réactivé, useAnalyticsQuota partiellement réactivé - 18/21 tests passent)
+> **Dernière mise à jour** : 12 novembre 2025 (console-errors et useAnalyticsQuota complètement réactivés - 21/21 tests passent)
 
 
 ## 📊 Vue d'Ensemble
@@ -9,11 +9,11 @@
 ### Résultats Actuels
 
 ```
-🎯 Tests Unitaires (Vitest)    : 794/803 passent (99%)
+🎯 Tests Unitaires (Vitest)    : 797/803 passent (99%)
    - Dashboard                 : ~68 tests
    - BetaKeyService            : 25/25 passent (100%) ✅ NOUVEAU
    - useAiMessageQuota         : 17/22 passent (77%)
-   - useAnalyticsQuota         : 18/21 passent (86%) ✅ RÉACTIVÉ
+   - useAnalyticsQuota         : 21/21 passent (100%) ✅ RÉACTIVÉ
    - FormPoll Results Access   : 14/14 passent (100%) 
 🤖 Tests IA (Gemini/Jest)      : 23/25 passent (92%)
    - Date Polls                : 15/15 passent (100%)
@@ -67,11 +67,11 @@ Ces critères servent de référence pour classer les suites dans le reste du gu
 | `tests/e2e/beta-key-activation.spec.ts`, `authenticated-workflow.spec.ts`, `poll-actions.spec.ts`, `security-isolation.spec.ts`, `mobile-voting.spec.ts`, `guest-workflow.spec.ts` | E2E | Primordial | Auth/device injectés via localStorage + Gemini mock | Actifs – parcourent les chemins critiques complémentaires |
 | `tests/e2e/analytics-ai.spec.ts` | E2E | Primordial | Mock Gemini uniquement | Actif – améliorations partielles (waitForPageLoad ajouté, quelques waitForTimeout remplacés) |
 | `tests/e2e/analytics-ai-optimized.spec.ts` | E2E | Primordial | Mock Gemini | ✅ Actif – version optimisée pour CI (3 tests, ~52s, gain 70%) |
-| `tests/e2e/console-errors.spec.ts` | E2E | Primordial | Aucun | Test « Pas d'erreurs console critiques » actuellement `test.skip` → identifier la console error CI et réactiver |
+| `tests/e2e/console-errors.spec.ts` | E2E | Primordial | Aucun | ✅ Actif – 2/2 tests passent (pas d'erreurs console critiques détectées) |
 | `src/__tests__/error-handling-enforcement.test.ts` | Meta unitaire | Primordial | N/A | Actif – blocage CI si pattern centralisé non respecté |
 | `src/lib/__tests__/exports.test.ts` | Unitaire | Important+ | Mock pollStorage ciblé | Actif – couvrir scenarios export (CSV/JSON/PDF) |
 | Hooks `useConversations*`, `useAutoSave*`, `usePollConversationLink*` | Unitaires | Important | Mocks Auth/Storage | Actifs – vérifier cohérence avec nouvelles dépendances |
-| `src/hooks/__tests__/useAnalyticsQuota.test.ts` | Unitaire | **Primordial** | Mock auth/localStorage | **SKIP** – ajuster les quotas attendus et réactiver la suite |
+| `src/hooks/__tests__/useAnalyticsQuota.test.ts` | Unitaire | **Primordial** | Mock auth/localStorage | ✅ Réactivé – 21/21 tests passent (100%) |
 | Fichiers `*.disabled` (ConversationStorage, PollCreator, etc.) | Unitaires | Important | Mocks libres | À requalifier : soit moderniser, soit supprimer si obsolètes |
 
 ### Tests primordiaux sans aucun mock: FAIT
@@ -125,53 +125,21 @@ Ces critères servent de référence pour classer les suites dans le reste du gu
     - `Docs\TESTS\follow-up\e2e-analytics-ai-optimized.md`
     - **Statut** : ✅ Réactivé et fonctionnel (3/3 tests passent en ~52s)
 
-#### A FAIRE
+- `tests/e2e/console-errors.spec.ts` — réactivé (2/2 tests passent)
+- `src/hooks/__tests__/useAnalyticsQuota.test.ts` — réactivé (21/21 tests passent, 100%)
+  - Tests d'erreurs corrigés (try-catch ajouté dans le hook)
+  - Détection utilisateur authentifié corrigée (problème de mock résolu)
 
-ℹ️ Ces suites n’appellent pas Supabase en mock, mais injectent l’état navigateur (localStorage, auth token) et interceptent l’IA via `setupGeminiMock`/`setupAllMocks` pour rester stables.
-
-### Tests primordiaux à remettre en service
-- ✅ `tests/e2e/console-errors.spec.ts` — réactivé (2/2 tests passent)
-- 🔄 `src/hooks/__tests__/useAnalyticsQuota.test.ts` — partiellement réactivé (18/21 tests passent, 86%)
-  - ✅ Tests d'erreurs corrigés (try-catch ajouté dans le hook)
-  - ⏳ 3 tests restent à corriger : détection utilisateur authentifié (reçoit 20 au lieu de 50)
-
-## ⚠️ Tests Désactivés (À Corriger)
-
-### 🔄 useAnalyticsQuota (18/21 tests passent - 86%)
-- **Fichier** : `src/hooks/__tests__/useAnalyticsQuota.test.ts`
-- **Statut** : ✅ Partiellement réactivé (18/21 tests passent)
-- **Progrès** :
-  - ✅ Tests d'erreurs corrigés (try-catch ajouté dans le hook pour gérer les erreurs de parsing JSON)
-  - ✅ 18 tests passent maintenant (initialisation anonyme, localStorage, incrémentation, reset, checkQuota, etc.)
-  - ⏳ 3 tests restent à corriger : détection utilisateur authentifié
-
-#### Tests restants à corriger (12/2025)
-- `initialise avec quota authentifié si user présent (50 queries)` → reçoit **20** au lieu de 50
-- `met à jour la limite si changement d'utilisateur` → reste bloqué à **20**
-- `utilise limite authentifiée (50 queries)` → reste à **20**
-
-**Problème identifié** : Le hook ne détecte pas correctement l'utilisateur authentifié dans les tests. Le mock `createAuthMock(mockUser)` retourne bien `user: mockUser`, mais le hook reçoit toujours `limit: 20` (ANONYMOUS) au lieu de `limit: 50` (AUTHENTICATED).
-
-**Action requise** :
-  - Vérifier que le mock `useAuth` est correctement configuré avant le rendu du hook
-  - S'assurer que le `useEffect` se déclenche correctement quand `user` change
-  - Possible problème de timing : le hook initialise le state avec `limit` calculé à l'initialisation
+- `src/hooks/__tests__/useAnalyticsQuota.test.ts` - réactivé (21/21 tests passent)
 
 #### Sujets connexes
-- **Problème de mise à jour des quotas analytics** (`useAnalyticsQuota.ts`)
+- **Problème de mise à jour des quotas analytics** (`useAnalyticsQuota.ts`) ✅ **RÉSOLU**
   - Attendu : passage de 20 → 50 requêtes après authentification
-  - État actuel : limite reste à 20 (test ignoré temporairement)
-  - Impact : utilisateurs fraîchement connectés restent sur la limite invitée
+  - État actuel : ✅ Fonctionne correctement (tous les tests passent)
+  - Solution : Correction du mock `useAuth` dans les tests
 - **Questions ouvertes** :
   - Intérêt de conserver des quotas séparés (invité vs authentifié)
   - Revue complète des tests liés aux quotas pour s'assurer qu'ils restent représentatifs
-
-### 🐛 Tests Console (1 test ignoré)
-- **Fichier** : `e2e/console-errors.spec.ts`
-- **Erreur** : `process is not defined`
-- **Statut** : Test ignoré - Problème connu lié à l'environnement de test
-- **Impact** : Aucun sur les fonctionnalités de production
-- **Action requise** : À investiguer dans une prochaine itération
 
 ### ⚠️ Tests d'intégration skippés (10/11/2025)
 - **Tests concernés** : 10 tests (841/850 passent — 98.9%)
@@ -574,7 +542,7 @@ npm run test:ci                # Suite CI complète
 **Couverture** : 45 fichiers actifs
 
 **Principales zones couvertes** :
-- **Hooks** : useAutoSave, useConversations, usePollDeletionCascade, useAnalyticsQuota (18/21 tests) ✅ RÉACTIVÉ, useAiMessageQuota (17/22 tests)
+- **Hooks** : useAutoSave, useConversations, usePollDeletionCascade, useAnalyticsQuota (21/21 tests) ✅ RÉACTIVÉ, useAiMessageQuota (17/22 tests)
 - **Services** : BetaKeyService (25/25 tests) ✅ NOUVEAU, PollAnalyticsService, FormPollIntent, IntentDetection, EmailService
 - **Components** : DashboardFilters, ManageTagsFolderDialog, PollAnalyticsPanel, MultiStepFormVote
 - **Lib** : conditionalEvaluator, exports, SimulationComparison, pollStorage (resultsVisibility)
