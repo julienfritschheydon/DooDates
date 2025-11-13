@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { postProcessSuggestion } from "../GeminiSuggestionPostProcessor";
-import { DatePollSuggestion } from "@/lib/gemini";
+import { DatePollSuggestion } from "../../lib/gemini";
 
 describe("GeminiSuggestionPostProcessor", () => {
   describe("Dates sans horaires - Génération automatique", () => {
@@ -465,7 +465,8 @@ describe("GeminiSuggestionPostProcessor", () => {
       };
 
       const result = postProcessSuggestion(suggestion, {
-        userInput: "Planifie une réunion d'équipe éducative avant les vacances, matinée uniquement.",
+        userInput:
+          "Planifie une réunion d'équipe éducative avant les vacances, matinée uniquement.",
       });
 
       expect(result.timeSlots).toBeDefined();
@@ -489,7 +490,7 @@ describe("GeminiSuggestionPostProcessor", () => {
       expect(result.timeSlots).toBeDefined();
       expect(result.timeSlots?.length).toBeGreaterThanOrEqual(2);
       expect(result.timeSlots?.length).toBeLessThanOrEqual(3);
-      
+
       // Vérifier que les créneaux sont dans la plage 11h30-13h30
       result.timeSlots?.forEach((slot) => {
         const startHour = parseInt(slot.start.split(":")[0], 10);
@@ -514,16 +515,64 @@ describe("GeminiSuggestionPostProcessor", () => {
 
       expect(result.timeSlots).toBeDefined();
       expect(result.timeSlots?.length).toBeGreaterThan(0);
-      
+
       // Vérifier que les créneaux sont dans la plage brunch (11h30-13h00)
       result.timeSlots?.forEach((slot) => {
         const startHour = parseInt(slot.start.split(":")[0], 10);
         const startMinute = parseInt(slot.start.split(":")[1], 10);
         const startTime = startHour * 60 + startMinute;
-        
+
         // 11h30 = 690 minutes, 13h00 = 780 minutes
         expect(startTime).toBeGreaterThanOrEqual(690);
         expect(startTime).toBeLessThanOrEqual(780);
+      });
+    });
+  });
+
+  describe("Filtrage des dates par contraintes explicites", () => {
+    it("filtre pour ne garder que décembre", () => {
+      const suggestion: DatePollSuggestion = {
+        title: "Séance photo",
+        type: "date",
+        dates: ["2025-11-16", "2025-12-01", "2025-12-08", "2026-01-05"],
+        timeSlots: undefined,
+      };
+
+      const result = postProcessSuggestion(suggestion, {
+        userInput:
+          "Planifie une séance photo familiale un dimanche matin en décembre (avant fin décembre).",
+      });
+
+      // Vérifier que seules les dates de décembre sont conservées
+      result.dates?.forEach((date) => {
+        const dateObj = new Date(date);
+        expect(dateObj.getMonth()).toBe(11); // 11 = décembre (0-indexed)
+      });
+
+      // Vérifier qu'il n'y a pas de dates de novembre
+      const hasNovember = result.dates?.some((date) => {
+        const dateObj = new Date(date);
+        return dateObj.getMonth() === 10; // 10 = novembre
+      });
+      expect(hasNovember).toBeFalsy();
+    });
+
+    it("filtre pour 'fin mars' (dernière quinzaine)", () => {
+      const suggestion: DatePollSuggestion = {
+        title: "Escape game",
+        type: "date",
+        dates: ["2025-03-10", "2025-03-15", "2025-03-20", "2025-03-25", "2025-03-30"],
+        timeSlots: undefined,
+      };
+
+      const result = postProcessSuggestion(suggestion, {
+        userInput: "Propose trois soirées pour un escape game fin mars.",
+      });
+
+      // Vérifier que seules les dates de la dernière quinzaine sont conservées (jour >= 15)
+      result.dates?.forEach((date) => {
+        const dateObj = new Date(date);
+        expect(dateObj.getDate()).toBeGreaterThanOrEqual(15);
       });
     });
   });

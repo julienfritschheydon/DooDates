@@ -51,32 +51,37 @@ export function useAnalyticsQuota() {
     }));
 
     // Appeler loadQuota avec la nouvelle valeur de user
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        resetQuota();
+        return;
+      }
+
+      const data: QuotaData = JSON.parse(stored);
+      const today = getTodayString();
+
+      // Si la date est différente, reset le quota
+      if (data.date !== today) {
+        resetQuota();
+        return;
+      }
+
+      const currentLimit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
+      const used = data.count;
+      const remaining = Math.max(0, currentLimit - used);
+
+      setQuota({
+        used,
+        limit: currentLimit,
+        remaining,
+        resetAt: getNextMidnight(),
+        canQuery: remaining > 0,
+      });
+    } catch (error) {
+      logger.error("Failed to load analytics quota", "analytics", { error });
       resetQuota();
-      return;
     }
-
-    const data: QuotaData = JSON.parse(stored);
-    const today = getTodayString();
-
-    // Si la date est différente, reset le quota
-    if (data.date !== today) {
-      resetQuota();
-      return;
-    }
-
-    const currentLimit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
-    const used = data.count;
-    const remaining = Math.max(0, currentLimit - used);
-
-    setQuota({
-      used,
-      limit: currentLimit,
-      remaining,
-      resetAt: getNextMidnight(),
-      canQuery: remaining > 0,
-    });
   }, [user, limit]);
 
   const loadQuota = useCallback(() => {
