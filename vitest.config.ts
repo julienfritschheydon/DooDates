@@ -41,6 +41,7 @@ export default defineConfig({
       'node_modules/**',
       'tests/**',
       'src/test/gemini-professional.test.ts',
+      'src/test/temporal-prompts-validation.test.ts', // Tests de validation prompts temporels (appels réels à Gemini, exclus de CI)
     ],
     coverage: {
       provider: 'v8',
