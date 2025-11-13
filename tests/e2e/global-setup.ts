@@ -398,6 +398,21 @@ export async function setupAllMocks(page: Page) {
 }
 
 /**
+ * Setup all mocks WITHOUT navigation (for use in helper functions that do their own navigation)
+ * This ensures routes persist after page.goto() calls
+ */
+export async function setupAllMocksWithoutNavigation(page: Page) {
+  // Enable E2E mode first
+  await E2E_CONFIG.enableE2EMode(page.context());
+  
+  // Setup API mocks
+  await setupGeminiMock(page);
+  await setupSupabaseEdgeFunctionMock(page);
+  
+  // Note: No page.goto() here - caller is responsible for navigation
+}
+
+/**
  * Setup mocks at context level (more performant for multiple pages)
  */
 export async function setupAllMocksContext(context: BrowserContext) {
