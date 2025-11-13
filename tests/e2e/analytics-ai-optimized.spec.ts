@@ -11,7 +11,8 @@
  */
 
 import { test as base, expect } from "@playwright/test";
-import { setupAllMocks, setupAllMocksWithoutNavigation } from './global-setup';
+import { setupAllMocks, setupAllMocksWithoutNavigation, setupAllMocksContext } from './global-setup';
+import { E2E_CONFIG } from './e2e-utils';
 import { ANALYTICS_QUOTAS } from "../../src/constants/quotas";
 import { waitForPageLoad } from './utils';
 
@@ -48,9 +49,11 @@ async function createPollWithVotesAndClose(
   browserName: string,
   numVotes: number = 3
 ): Promise<string> {
-  // S'assurer que les mocks sont configurés avant la navigation
-  // Utiliser setupAllMocksWithoutNavigation() pour éviter le page.goto() qui perturbe les routes
-  await setupAllMocksWithoutNavigation(page);
+  // S'assurer que les mocks sont configurés au niveau du contexte (plus persistant)
+  // Les routes au niveau du contexte survivent aux page.goto()
+  const context = page.context();
+  await E2E_CONFIG.enableE2EMode(context);
+  await setupAllMocksContext(context);
   
   // 1. Créer un FormPoll via IA
   await page.goto("/?e2e-test=true", { waitUntil: 'domcontentloaded' });
