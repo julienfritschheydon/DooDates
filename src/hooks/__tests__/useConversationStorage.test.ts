@@ -178,7 +178,7 @@ describe("useConversationStorage", () => {
           expect(result.current.storageMode.isAuthenticated).toBe(false);
           expect(result.current.storageMode.provider).toBe("localStorage");
         },
-        { timeout: 3000 }
+        { timeout: 3000 },
       );
     });
 
@@ -214,7 +214,7 @@ describe("useConversationStorage", () => {
           expect(result.current.storageMode.isGuest).toBe(false);
           expect(result.current.storageMode.provider).toBe("localStorage"); // Currently uses localStorage since Supabase storage isn't implemented yet
         },
-        { timeout: 3000 }
+        { timeout: 3000 },
       );
     });
   });

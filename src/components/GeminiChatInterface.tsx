@@ -48,6 +48,7 @@ import { useInfiniteLoopProtection } from "../services/InfiniteLoopProtection";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "../lib/logger";
 import { useToast } from "@/hooks/use-toast";
+import { linkPollToConversationBidirectional } from "@/lib/ConversationPollLink";
 import {
   useConversationMessages,
   useConversationActions,
@@ -337,61 +338,11 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     // Poll management hook
     const pollManagement = usePollManagement();
 
-    // Define handleNewChat early for use in useMessageSender
-    const handleNewChat = useCallback(async () => {
-      try {
-        // Reset all state
-        setMessages([]);
-        setInputValue("");
-        setIsLoading(false);
-        pollManagement.closePollCreator();
-
-        // Initialize new conversation with auto-save
-        await initializeNewConversation();
-
-        // Call onNewChat callback if provided
-        if (onNewChat) {
-          onNewChat();
-        }
-      } catch (error) {
-        const processedError = handleError(
-          error,
-          {
-            component: "GeminiChatInterface",
-            operation: "handleNewChat",
-          },
-          "Erreur lors de la création d'un nouveau chat",
-        );
-
-        logError(processedError, {
-          component: "GeminiChatInterface",
-          operation: "handleNewChat",
-        });
-      }
-    }, [pollManagement, onNewChat]);
-
-    // Message sender hook
-    const messageSender = useMessageSender({
-      isLoading,
-      quota,
-      aiQuota,
-      toast,
-      intentDetection,
-      geminiAPI,
-      autoSave,
-      onUserMessage,
-      setMessages,
-      setIsLoading,
-      setLastAIProposal,
-      setModifiedQuestion,
-      onStartNewChat: handleNewChat,
-    });
-
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const hasInitialized = useRef(false);
     const hasResumedConversation = useRef(false);
 
-    // Initialize new conversation
+    // Initialize new conversation (défini AVANT handleNewChat car utilisé dedans)
     const initializeNewConversation = useCallback(async () => {
       // Don't initialize if messages already exist (restored from localStorage)
       if (messages.length > 0) {
@@ -493,6 +444,56 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       await initializationPromise;
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [autoSave, loopProtection, messages]); // Intentionnel : setMessages est stable, pas besoin de le tracker
+
+    // Define handleNewChat early for use in useMessageSender (APRÈS initializeNewConversation)
+    const handleNewChat = useCallback(async () => {
+      try {
+        // Reset all state
+        setMessages([]);
+        setInputValue("");
+        setIsLoading(false);
+        pollManagement.closePollCreator();
+
+        // Initialize new conversation with auto-save
+        await initializeNewConversation();
+
+        // Call onNewChat callback if provided
+        if (onNewChat) {
+          onNewChat();
+        }
+      } catch (error) {
+        const processedError = handleError(
+          error,
+          {
+            component: "GeminiChatInterface",
+            operation: "handleNewChat",
+          },
+          "Erreur lors de la création d'un nouveau chat",
+        );
+
+        logError(processedError, {
+          component: "GeminiChatInterface",
+          operation: "handleNewChat",
+        });
+      }
+    }, [pollManagement, onNewChat, initializeNewConversation, setMessages]);
+
+    // Message sender hook
+    const messageSender = useMessageSender({
+      isLoading,
+      quota,
+      aiQuota,
+      toast,
+      intentDetection,
+      geminiAPI,
+      autoSave,
+      onUserMessage,
+      setMessages,
+      setIsLoading,
+      setLastAIProposal,
+      setModifiedQuestion,
+      onStartNewChat: handleNewChat,
+    });
 
     useEffect(() => {
       // Prevent multiple initialization attempts
@@ -797,9 +798,6 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
                   if (conversationId) {
                     // Poll créé via IA → Lier à la conversation existante
-                    const {
-                      linkPollToConversationBidirectional,
-                    } = require("@/lib/ConversationPollLink");
                     linkPollToConversationBidirectional(conversationId, savedPoll.id, "form");
                     logger.info("✅ Poll lié à la conversation", "poll", {
                       conversationId,
@@ -820,7 +818,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                 try {
                   setCurrentPoll(savedPoll as any);
                   openEditor();
-                } catch {}
+                } catch (error) {
+                  logger.error("Erreur lors de l'ouverture de l'éditeur", "poll", { error });
+                }
               }
               pollManagement.closePollCreator();
             }}
@@ -854,59 +854,6 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
     return (
       <div className="flex flex-col w-full">
-        {/* Barre d'état compacte */}
-        {false && (
-          <div
-            className={`sticky top-[80px] z-40 p-2 md:p-3 ${
-              darkTheme ? "bg-gray-900" : "bg-white"
-            }`}
-          >
-            <div className="max-w-4xl mx-auto flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      connectionStatusHook.status === "connected"
-                        ? "bg-blue-500"
-                        : connectionStatusHook.status === "error"
-                          ? "bg-red-500"
-                          : "bg-yellow-500"
-                    }`}
-                  ></div>
-                  <span className="text-sm text-gray-600">
-                    {connectionStatusHook.status === "connected"
-                      ? "IA connectée"
-                      : connectionStatusHook.status === "error"
-                        ? "IA déconnectée"
-                        : "Connexion..."}
-                  </span>
-                </div>
-
-                {/* Quota indicator for guest users */}
-                {!quota.isAuthenticated && (
-                  <QuotaIndicator
-                    used={quota.status.conversations.used}
-                    limit={quota.status.conversations.limit}
-                    type="conversations"
-                    size="sm"
-                    onClick={() => quota.showAuthIncentive("conversation_limit")}
-                  />
-                )}
-              </div>
-
-              <button
-                onClick={handleNewChat}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Suspense fallback={<span className="w-4 h-4" />}>
-                  <PlusLazy className="w-4 h-4" />
-                </Suspense>
-                <span className="hidden sm:inline">Nouveau chat</span>
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Zone de conversation */}
         <ChatMessageList
           messages={messages}

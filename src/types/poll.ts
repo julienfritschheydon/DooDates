@@ -1,10 +1,12 @@
+import type { PollSettings, FormQuestionShape } from "../lib/pollStorage";
+
 export interface Poll {
   id: string;
   creator_id: string;
   title: string;
   description?: string;
   slug: string;
-  settings: any;
+  settings: PollSettings | Record<string, unknown>;
   status: "draft" | "active" | "closed" | "archived";
   expires_at?: string;
   created_at: string;
@@ -13,7 +15,7 @@ export interface Poll {
   dates?: string[]; // Dates sélectionnées pour le sondage (uniquement pour type: "date")
   // Support des formulaires
   type?: "date" | "form";
-  questions?: any[]; // Questions du formulaire
+  questions?: FormQuestionShape[]; // Questions du formulaire
   conversationId?: string; // Lien avec conversation
 }
 
@@ -36,7 +38,7 @@ export interface PollOption {
   id: string;
   poll_id: string;
   option_date: string;
-  time_slots: any;
+  time_slots: Array<{ hour: number; minute: number; enabled: boolean }> | Record<string, unknown>;
   display_order: number;
   created_at: string;
 }

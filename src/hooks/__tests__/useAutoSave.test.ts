@@ -39,11 +39,18 @@ vi.mock("../../lib/browserFingerprint", () => ({
 }));
 
 // Mock quotaTracking pour éviter les appels Supabase
-vi.mock("../../lib/quotaTracking", () => ({
-  consumeCredits: vi.fn().mockResolvedValue(true),
-  canConsumeCredits: vi.fn().mockResolvedValue(true),
-  consumeAiMessageCredits: vi.fn().mockResolvedValue(undefined), // Résout sans erreur
-}));
+vi.mock("../../lib/quotaTracking", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../lib/quotaTracking")>();
+  return {
+    ...actual,
+    consumeCredits: vi.fn().mockResolvedValue(true),
+    canConsumeCredits: vi.fn().mockResolvedValue(true),
+    consumeAiMessageCredits: vi.fn().mockResolvedValue(undefined),
+    incrementConversationCreated: vi.fn().mockResolvedValue(undefined),
+    incrementPollCreated: vi.fn().mockResolvedValue(undefined),
+    incrementAiMessages: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 // Mock title generation
 vi.mock("../../lib/services/titleGeneration", () => ({
@@ -162,10 +169,18 @@ describe("useAutoSave", () => {
   });
 
   describe("addMessage", () => {
-    // TODO: Fix integration tests - createConversation not called (quota/context issue)
-    it.skip("should create conversation on first message", async () => {
+    it("should create conversation on first message", async () => {
       const { result } = renderHook(() => useAutoSave());
       const message = createMockMessage();
+      const createdConversation = createMockConversation({ id: "conv-1" });
+
+      // Mock getConversation to return the created conversation
+      mockGetConversation.mockImplementation((id: string) => {
+        if (id === "conv-1" || id.startsWith("temp-")) {
+          return createdConversation;
+        }
+        return null;
+      });
 
       await act(async () => {
         await result.current.startNewConversation();
@@ -179,9 +194,17 @@ describe("useAutoSave", () => {
       });
     });
 
-    it.skip("should convert AI messages correctly", async () => {
+    it("should convert AI messages correctly", async () => {
       const { result } = renderHook(() => useAutoSave());
       const aiMessage = createMockMessage({ isAI: true });
+      const createdConversation = createMockConversation({ id: "conv-1" });
+
+      mockGetConversation.mockImplementation((id: string) => {
+        if (id === "conv-1" || id.startsWith("temp-")) {
+          return createdConversation;
+        }
+        return null;
+      });
 
       await act(async () => {
         await result.current.startNewConversation();
@@ -198,13 +221,21 @@ describe("useAutoSave", () => {
       );
     });
 
-    it.skip("should handle poll suggestions in metadata", async () => {
+    it("should handle poll suggestions in metadata", async () => {
       const { result } = renderHook(() => useAutoSave());
       const messageWithPoll = createMockMessage({
         pollSuggestion: {
           type: "date-poll",
           options: ["Option 1", "Option 2"],
         },
+      });
+      const createdConversation = createMockConversation({ id: "conv-1" });
+
+      mockGetConversation.mockImplementation((id: string) => {
+        if (id === "conv-1" || id.startsWith("temp-")) {
+          return createdConversation;
+        }
+        return null;
       });
 
       await act(async () => {
@@ -273,13 +304,18 @@ describe("useAutoSave", () => {
       expect(result.current.getRealConversationId()).toBeNull();
     });
 
-    it.skip("should return real ID after message is added to temp conversation", async () => {
+    it("should return real ID after message is added to temp conversation", async () => {
       const { result } = renderHook(() => useAutoSave());
       const conversation = createMockConversation({ id: "conv-1" });
 
       mockCreateConversation.mockReturnValue(conversation);
       mockGetMessages.mockReturnValue([]); // Pas de messages au début
-      mockGetConversation.mockReturnValue(conversation); // Retourner la conversation après création
+      mockGetConversation.mockImplementation((id: string) => {
+        if (id === "conv-1" || id.startsWith("temp-")) {
+          return conversation;
+        }
+        return null;
+      });
 
       await act(async () => {
         await result.current.startNewConversation();
@@ -293,7 +329,7 @@ describe("useAutoSave", () => {
   });
 
   describe("Error Handling", () => {
-    it.skip("should handle message save errors", async () => {
+    it("should handle message save errors", async () => {
       const { result } = renderHook(() => useAutoSave());
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
@@ -340,10 +376,18 @@ describe("useAutoSave", () => {
   });
 
   describe("Edge Cases", () => {
-    it.skip("should handle very long message content", async () => {
+    it("should handle very long message content", async () => {
       const { result } = renderHook(() => useAutoSave());
       const longMessage = createMockMessage({
         content: "A".repeat(1000), // Very long message
+      });
+      const createdConversation = createMockConversation({ id: "conv-1" });
+
+      mockGetConversation.mockImplementation((id: string) => {
+        if (id === "conv-1" || id.startsWith("temp-")) {
+          return createdConversation;
+        }
+        return null;
       });
 
       await act(async () => {

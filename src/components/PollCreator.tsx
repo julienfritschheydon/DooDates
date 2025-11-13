@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Calendar from "./Calendar";
 import { usePolls, type PollData } from "../hooks/usePolls";
+import type { Poll } from "../lib/pollStorage";
 import { PollCreatorService } from "../services/PollCreatorService";
 import { logger } from "../lib/logger";
 import { createConversationForPoll } from "../lib/ConversationPollLink";
@@ -47,7 +48,7 @@ const VoteGrid = lazy(() =>
 import { groupConsecutiveDates } from "../lib/date-utils";
 
 interface PollCreatorProps {
-  onBack?: (createdPoll?: any) => void;
+  onBack?: (createdPoll?: Poll) => void;
   onOpenMenu?: () => void;
   initialData?: DatePollSuggestion;
   withBackground?: boolean;
@@ -67,7 +68,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const urlParams = new URLSearchParams(window.location.search);
   const editPollId = urlParams.get("edit");
   const [createdPollSlug, setCreatedPollSlug] = useState<string | null>(null);
-  const [createdPoll, setCreatedPoll] = useState<any>(null);
+  const [createdPoll, setCreatedPoll] = useState<Poll | null>(null);
   const { toast } = useToast();
   const shareRef = useRef<HTMLDivElement>(null);
   const timeSlotsRef = useRef<HTMLDivElement>(null);
@@ -564,7 +565,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     const firstSlot = sortedSlots[0];
     hasAutoScrolled.current = true;
     scrollToTime(firstSlot.hour, firstSlot.minute);
-  }, [state.selectedDates, timeSlotsByDate]);
+  }, [state.selectedDates, state.timeSlots, timeSlotsByDate, scrollToTime]);
 
   const copyPollLink = async () => {
     try {

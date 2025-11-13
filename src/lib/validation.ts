@@ -16,7 +16,7 @@ export const VALIDATION_PATTERNS = {
   },
   url: {
     pattern:
-      /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
+      /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/,
     message: "URL invalide (doit commencer par http:// ou https://)",
     placeholder: "https://exemple.com",
   },
