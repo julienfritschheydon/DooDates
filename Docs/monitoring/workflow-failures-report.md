@@ -1,8 +1,8 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 13/11/2025 14:44:18
+**Dernière mise à jour:** 13/11/2025 14:59:39
 
-_Workflow run #276 (ID 19333585142) — génération UTC 2025-11-13T13:44:18.557Z_
+_Workflow run #281 (ID 19334023357) — génération UTC 2025-11-13T13:59:39.777Z_
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -28,7 +28,7 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ✅ success
 
-**Dernier run:** 13/11/2025 14:38:39
+**Dernier run:** 13/11/2025 14:54:44
 
 **Statistiques:**
 - ❌ Échecs (24h): **9**
@@ -145,32 +145,32 @@ stack: 'DooDatesError: Gemini model not initialized\n' +
 
 **Statut:** ⏳ unknown
 
-**Dernier run:** 13/11/2025 14:43:02
+**Dernier run:** 13/11/2025 14:58:43
 
 **Statistiques:**
-- ❌ Échecs (24h): **9**
-- ❌ Échecs (7 jours): **11**
+- ❌ Échecs (24h): **10**
+- ❌ Échecs (7 jours): **12**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
 
-#### Run #75 - 13/11/2025 14:33:22
+#### Run #76 - 13/11/2025 14:43:02
 
-- **Commit:** `2935311`
+- **Commit:** `85377e4`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19333314624)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19333583885)
 - **Jobs en échec:**
   - ❌ `⚡ E2E Functional Tests (1)` (failure)
     - Steps en échec: `⚡ Run Functional Tests (Shard 1/2)`
     - **Erreurs détectées (10):**
       ```
-File: tests/e2e/analytics-ai-optimized.spec.ts:372
+File: tests/e2e/analytics-ai-optimized.spec.ts:421
 Error: "error": {
 
 "error": {
 "message": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?",
-"stack": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?\n    at createPollWithVotesAndClose (/home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:76:11)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:372:25",
+"stack": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?\n    at createPollWithVotesAndClose (/home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:76:11)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:421:25",
 "snippet": "\u001b[0m \u001b 74 |\u001b   \u001b[36mif\u001b (hasError) {\n \u001b 75 |\u001b     \u001b[36mconst\u001b errorContent \u001b[33m=\u001b \u001b[36mawait\u001b errorText\u001b[33m.\u001btextContent()\u001b[33m;\u001b\n\u001b[31m\u001b[1m>\u001b\u001b\u001b 76 |\u001b     \u001b[36mthrow\u001b \u001
 ... (truncated)
 ```
@@ -178,19 +178,19 @@ Error: "error": {
 Error: "errors": [
 
 "errors": [
-"message": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?\n\n  74 |   if (hasError) {\n  75 |     const errorContent = await errorText.textContent();\n> 76 |     throw new Error(`L'IA a retourné une erreur: ${errorContent}`);\n     |           ^\n  77 |   }\n  78 |   \n  79 |   await expect(successText).toBeVisible({ timeout: 5000 });\n    at createPollWithVotesAndClose (/home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:76:11)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:372:25"
+"message": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?\n\n  74 |   if (hasError) {\n  75 |     const errorContent = await errorText.textContent();\n> 76 |     throw new Error(`L'IA a retourné une erreur: ${errorContent}`);\n     |           ^\n  77 |   }\n  78 |   \n  79 |   await expect(successText).toBeVisible({ timeout: 5000 });\n    at createPollWithVotesAndClose (/home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:76:11)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:421:25"
 "name": "error-context",
-"path": "/home/runner/work/DooDates/DooDates/test-results/analytics-ai-optimized-Ana-36fae-ée-combiné-smoke-functional-chromium/error-conte
+"path": "/home/runner/work/DooDates/DooDates/test-results/analytics-ai-optimized-Ana-8af5d-et-Cache-combiné-functional-chromium/error-conte
 ... (truncated)
 ```
       ```
-File: tests/e2e/analytics-ai-optimized.spec.ts:372
+File: tests/e2e/analytics-ai-optimized.spec.ts:421
 Error: "errorLocation": {
 
 "errorLocation": {
 "error": {
 "message": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?",
-"stack": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?\n    at createPollWithVotesAndClose (/home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:76:11)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:372:25",
+"stack": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?\n    at createPollWithVotesAndClose (/home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:76:11)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:421:25",
 ```
       ```
 Error: "snippet": "\u001b[0m \u001b 74 |\u001b   \u001b[36mif\u001b (hasError) {\n \u001b 75 |\u001b     \u001b[36mconst\u001b errorContent \u001b[33m=\u001b \u001b[36mawait\u001b errorText\u001b[33m.\u001btextContent()\u001b[33m;\u001b\n\u001b[31m\u001b[1m>\u001b\u001b\u001b 76 |\u001b     \u001b[36mthrow\u001b \u001b[36mnew\u001b \u001b[33mError\u001b(\u001b[32m`L'IA a retourné une erreur: ${errorContent}`\u001b)\u001b[33m;\u001b\n \u001b    |\u001b           \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 77 |\u001b   }\n \u001b 78 |\u001b   \n \u001b 79 |\u001b   \u001b[36mawait\u001b expect(successText)\u001b[33m.\u001btoBeVisible({ timeout\u001b[33m:\u001b \u001b[35m5000\u001b })\u001b[33m;\u001b\u001b[0m"
@@ -201,16 +201,26 @@ Error: "snippet": "\u001b[0m \u001b 74 |\u001b   \u001b[36mif\u001b (hasError) {
 ... (truncated)
 ```
       ```
-File: tests/e2e/analytics-ai-optimized.spec.ts:372
-Error: "path": "/home/runner/work/DooDates/DooDates/test-results/analytics-ai-optimized-Ana-36fae-ée-combiné-smoke-functional-chromium-retry1/error-context.md"
+File: tests/e2e/analytics-ai-optimized.spec.ts:421
+Error: "path": "/home/runner/work/DooDates/DooDates/test-results/analytics-ai-optimized-Ana-8af5d-et-Cache-combiné-functional-chromium-retry1/error-context.md"
 
-"path": "/home/runner/work/DooDates/DooDates/test-results/analytics-ai-optimized-Ana-36fae-ée-combiné-smoke-functional-chromium-retry1/error-context.md"
+"path": "/home/runner/work/DooDates/DooDates/test-results/analytics-ai-optimized-Ana-8af5d-et-Cache-combiné-functional-chromium-retry1/error-context.md"
 "errorLocation": {
 "error": {
 "message": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?",
-"stack": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?\n    at createPollWithVotesAndClose (/home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:76:11)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:372:25",
+"stack": "Error: L'IA a retourné une erreur: Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler ou réessayer ?\n    at createPollWithVotesAndClose (/home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:76:11)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/analytics-ai-optimized.spec.ts:421:25",
 ```
       *... et 5 autre(s) erreur(s)*
+
+#### Run #75 - 13/11/2025 14:33:22
+
+- **Commit:** `2935311`
+- **Auteur:** julienfritschheydon
+- **Branche:** `main`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19333314624)
+- **Jobs en échec:**
+  - ❌ `⚡ E2E Functional Tests (1)` (failure)
+    - Steps en échec: `⚡ Run Functional Tests (Shard 1/2)`
 
 #### Run #74 - 13/11/2025 12:36:58
 
@@ -242,22 +252,12 @@ Error: "path": "/home/runner/work/DooDates/DooDates/test-results/analytics-ai-op
   - ❌ `⚡ E2E Functional Tests (1)` (failure)
     - Steps en échec: `⚡ Run Functional Tests (Shard 1/2)`
 
-#### Run #71 - 13/11/2025 11:25:40
-
-- **Commit:** `8c157d2`
-- **Auteur:** julienfritschheydon
-- **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19328366213)
-- **Jobs en échec:**
-  - ❌ `⚡ E2E Functional Tests (1)` (failure)
-    - Steps en échec: `⚡ Run Functional Tests (Shard 1/2)`
-
 ---
 
 ## 📈 Résumé Global
 
-- ❌ **Total échecs (24h):** 9
-- ❌ **Total échecs (7 jours):** 9
+- ❌ **Total échecs (24h):** 10
+- ❌ **Total échecs (7 jours):** 10
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
