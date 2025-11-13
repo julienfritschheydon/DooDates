@@ -251,6 +251,111 @@ function parseTime(time: string): { hour: number; minute: number } {
   };
 }
 
+// Détecte le nombre explicite de créneaux/dates attendu dans le prompt.
+// Retourne null si aucun nombre explicite n'est détecté.
+function detectExpectedSlotCount(userInput: string): number | null {
+  const lowerInput = userInput.toLowerCase();
+
+  // Détection de nombres explicites (priorité aux nombres plus élevés)
+  const explicitCounts = [
+    { pattern: /\bcinq\s+(créneaux?|dates?)\b/, count: 5 },
+    { pattern: /\bquatre\s+(créneaux?|dates?)\b/, count: 4 },
+    { pattern: /\btrois\s+(créneaux?|dates?|soirées?)\b/, count: 3 },
+    { pattern: /\bdeux\s+(créneaux?|dates?|soirées?|slots?)\b/, count: 2 },
+    // "un créneau" seulement si pas dans un contexte nécessitant plusieurs créneaux (déjeuner, etc.)
+    { pattern: /\bun\s+(créneau|slot|horaire)\b/, count: 1, skipIf: /déjeuner|dejeuner|partenariats/ },
+  ];
+
+  for (const { pattern, count, skipIf } of explicitCounts) {
+    if (pattern.test(lowerInput)) {
+      // Ignorer si le contexte nécessite plusieurs créneaux
+      if (skipIf && skipIf.test(lowerInput)) {
+        continue;
+      }
+      return count;
+    }
+  }
+
+  // Détection de quantités implicites
+  if (/\bun\s+(après-midi|matin|soirée)\b/.test(lowerInput)) {
+    return 1;
+  }
+
+  return null;
+}
+
+// Retourne le nombre maximum de créneaux recommandé selon le contexte détecté dans le prompt.
+function getMaxSlotsForContext(userInput: string): number {
+  const lowerInput = userInput.toLowerCase();
+
+  // Contextes nécessitant peu de créneaux
+  if (/visite|musée|exposition|footing|course|sport/.test(lowerInput)) {
+    return 2;
+  }
+
+  // Contextes nécessitant quelques créneaux
+  // "comité" → généralement 2 créneaux (réunions de quartier sont courtes)
+  if (/comité/.test(lowerInput)) {
+    return 2;
+  }
+  
+  if (/réunion|atelier|déjeuner|brunch/.test(lowerInput)) {
+    return 3;
+  }
+
+  // Contextes nécessitant plusieurs créneaux
+  if (/apéro|soirée|événement/.test(lowerInput)) {
+    return 5;
+  }
+
+  // Par défaut : 3 créneaux max
+  return 3;
+}
+
+// Limite intelligemment le nombre de créneaux selon le contexte et les attentes explicites.
+function limitSlotsCount(
+  slots: DatePollSuggestion["timeSlots"] | undefined,
+  userInput: string,
+): DatePollSuggestion["timeSlots"] | undefined {
+  if (!slots || slots.length === 0) {
+    return slots;
+  }
+
+  const explicitCount = detectExpectedSlotCount(userInput);
+  const maxSlots = explicitCount || getMaxSlotsForContext(userInput);
+
+  if (slots.length <= maxSlots) {
+    return slots;
+  }
+
+  // Stratégie 1 : Si plusieurs dates, prendre 1 créneau par date
+  const slotsByDate = new Map<string, DatePollSuggestion["timeSlots"][number]>();
+
+  slots.forEach((slot) => {
+    const dates = slot.dates || [];
+    dates.forEach((date) => {
+      if (!slotsByDate.has(date)) {
+        slotsByDate.set(date, slot);
+      }
+    });
+  });
+
+  if (slotsByDate.size <= maxSlots && slotsByDate.size > 0) {
+    return Array.from(slotsByDate.values()).slice(0, maxSlots);
+  }
+
+  // Stratégie 2 : Sélectionner les créneaux les plus représentatifs (début, milieu, fin)
+  const step = Math.floor(slots.length / maxSlots);
+  const selected: DatePollSuggestion["timeSlots"][number][] = [];
+
+  for (let i = 0; i < maxSlots; i++) {
+    const index = Math.min(i * step, slots.length - 1);
+    selected.push(slots[index]);
+  }
+
+  return selected;
+}
+
 // Génère des créneaux horaires "intelligents" en fonction des indices détectés dans le prompt.
 // Chaque bloc gère un scénario métier identifié dans la documentation (stand-up, chorale, etc.).
 function buildContextualSlots(
@@ -350,9 +455,39 @@ function buildContextualSlots(
     return targets.length > 0 ? targets.map((date) => createSlot(date, 9, 0, 120)) : undefined;
   }
 
-  if (/déjeuner|dejeuner|brunch|midi/.test(lowerInput)) {
+  // Détection "brunch" AVANT "matin" pour appliquer la bonne plage horaire
+  if (/brunch/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 2);
-    return targets.length > 0 ? targets.map((date) => createSlot(date, 11, 30, 90)) : undefined;
+    if (targets.length === 0) {
+      return undefined;
+    }
+    // Brunch : 11h30-13h00
+    return targets.map((date) => createSlot(date, 11, 30, 90));
+  }
+
+  // Détection "déjeuner" ou "partenariats" : générer 2-3 créneaux
+  if (/déjeuner|dejeuner|partenariats|midi/.test(lowerInput)) {
+    const targets = effectiveDates.slice(0, 2);
+    if (targets.length === 0) {
+      return undefined;
+    }
+
+    // Pour les déjeuners/partenariats, générer 2-3 créneaux dans la plage 11h30-13h30
+    const slots: DatePollSuggestion["timeSlots"] = [];
+
+    targets.forEach((date) => {
+      // Créneau 1 : 11h30-12h30
+      slots.push(createSlot(date, 11, 30, 60));
+      // Créneau 2 : 12h00-13h00
+      slots.push(createSlot(date, 12, 0, 60));
+    });
+
+    // Créneau 3 : 12h30-13h30 (seulement si plusieurs dates)
+    if (targets.length > 1 && targets[1]) {
+      slots.push(createSlot(targets[1], 12, 30, 60));
+    }
+
+    return slots.slice(0, 3); // Max 3 créneaux
   }
 
   const explicitTimes = extractTimesFromInput(lowerInput);
@@ -407,6 +542,9 @@ export function postProcessSuggestion(
   if (!processedSlots || processedSlots.length === 0) {
     processedSlots = buildDefaultSlots(finalDates);
   }
+
+  // Limiter le nombre de créneaux selon le contexte et les attentes explicites
+  processedSlots = limitSlotsCount(processedSlots, options.userInput);
 
   const type = finalizeType(suggestion, processedSlots);
 

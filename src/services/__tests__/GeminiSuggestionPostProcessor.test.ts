@@ -370,6 +370,163 @@ describe("GeminiSuggestionPostProcessor", () => {
       expect(result.type).toBe("datetime");
     });
   });
+
+  describe("Limitation du nombre de créneaux", () => {
+    it("limite à 2 créneaux quand 'deux dates' est mentionné", () => {
+      const suggestion: DatePollSuggestion = {
+        title: "Atelier bénévoles",
+        type: "datetime",
+        dates: ["2025-11-12", "2025-11-13", "2025-11-14", "2025-11-15", "2025-11-16"],
+        timeSlots: Array.from({ length: 25 }, (_, i) => ({
+          start: "18:00",
+          end: "19:00",
+          dates: [`2025-11-${12 + Math.floor(i / 5)}`],
+        })),
+      };
+
+      const result = postProcessSuggestion(suggestion, {
+        userInput: "Organise deux dates en soirée pour l'atelier bénévoles, semaine du 12.",
+      });
+
+      expect(result.timeSlots).toBeDefined();
+      expect(result.timeSlots?.length).toBeLessThanOrEqual(2);
+    });
+
+    it("limite à 2-3 créneaux pour une visite au musée", () => {
+      const suggestion: DatePollSuggestion = {
+        title: "Visite au musée",
+        type: "datetime",
+        dates: ["2025-11-13", "2025-11-14", "2025-11-15", "2025-11-16"],
+        timeSlots: Array.from({ length: 11 }, (_, i) => ({
+          start: `${12 + i}:00`,
+          end: `${13 + i}:00`,
+          dates: ["2025-11-13", "2025-11-14", "2025-11-15", "2025-11-16"],
+        })),
+      };
+
+      const result = postProcessSuggestion(suggestion, {
+        userInput: "Trouve un après-midi libre la semaine prochaine pour la visite au musée.",
+      });
+
+      expect(result.timeSlots).toBeDefined();
+      expect(result.timeSlots?.length).toBeLessThanOrEqual(3);
+    });
+
+    it("limite à 2 créneaux pour un footing", () => {
+      const suggestion: DatePollSuggestion = {
+        title: "Footing",
+        type: "datetime",
+        dates: ["2025-11-14", "2025-11-15"],
+        timeSlots: Array.from({ length: 13 }, (_, i) => ({
+          start: i < 5 ? `${18 + i * 0.5}:00` : `${8 + (i - 5) * 0.5}:00`,
+          end: i < 5 ? `${19 + i * 0.5}:00` : `${9 + (i - 5) * 0.5}:00`,
+          dates: [i < 5 ? "2025-11-14" : "2025-11-15"],
+        })),
+      };
+
+      const result = postProcessSuggestion(suggestion, {
+        userInput: "Bloque un créneau vendredi soir ou samedi matin pour un footing.",
+      });
+
+      expect(result.timeSlots).toBeDefined();
+      expect(result.timeSlots?.length).toBeLessThanOrEqual(2);
+    });
+
+    it("limite à 2 créneaux pour le comité de quartier", () => {
+      const suggestion: DatePollSuggestion = {
+        title: "Comité de quartier",
+        type: "datetime",
+        dates: ["2025-11-13", "2025-11-14", "2025-11-15", "2025-11-16"],
+        timeSlots: Array.from({ length: 20 }, (_, i) => ({
+          start: `${18 + Math.floor(i / 4)}:00`,
+          end: `${19 + Math.floor(i / 4)}:00`,
+          dates: [`2025-11-${13 + (i % 4)}`],
+        })),
+      };
+
+      const result = postProcessSuggestion(suggestion, {
+        userInput: "Prévois le comité de quartier dans quinze jours, plutôt en début de soirée.",
+      });
+
+      expect(result.timeSlots).toBeDefined();
+      expect(result.timeSlots?.length).toBeLessThanOrEqual(2);
+    });
+
+    it("limite à 2-3 créneaux pour une réunion d'équipe", () => {
+      const suggestion: DatePollSuggestion = {
+        title: "Réunion d'équipe éducative",
+        type: "datetime",
+        dates: ["2025-11-12", "2025-11-13", "2025-11-14"],
+        timeSlots: Array.from({ length: 24 }, (_, i) => ({
+          start: `${8 + Math.floor(i / 8) * 0.5}:00`,
+          end: `${9 + Math.floor(i / 8) * 0.5}:00`,
+          dates: [`2025-11-${12 + (i % 3)}`],
+        })),
+      };
+
+      const result = postProcessSuggestion(suggestion, {
+        userInput: "Planifie une réunion d'équipe éducative avant les vacances, matinée uniquement.",
+      });
+
+      expect(result.timeSlots).toBeDefined();
+      expect(result.timeSlots?.length).toBeLessThanOrEqual(3);
+    });
+  });
+
+  describe("Génération multiple pour déjeuners", () => {
+    it("génère 2-3 créneaux pour un déjeuner partenariats", () => {
+      const suggestion: DatePollSuggestion = {
+        title: "Déjeuner partenariats",
+        type: "date",
+        dates: ["2025-11-13"],
+        timeSlots: undefined,
+      };
+
+      const result = postProcessSuggestion(suggestion, {
+        userInput: "Cherche un créneau entre 11h et 13h mercredi pour un déjeuner partenariats.",
+      });
+
+      expect(result.timeSlots).toBeDefined();
+      expect(result.timeSlots?.length).toBeGreaterThanOrEqual(2);
+      expect(result.timeSlots?.length).toBeLessThanOrEqual(3);
+      
+      // Vérifier que les créneaux sont dans la plage 11h30-13h30
+      result.timeSlots?.forEach((slot) => {
+        const startHour = parseInt(slot.start.split(":")[0], 10);
+        expect(startHour).toBeGreaterThanOrEqual(11);
+        expect(startHour).toBeLessThanOrEqual(13);
+      });
+    });
+  });
+
+  describe("Détection du contexte brunch", () => {
+    it("génère des créneaux brunch (11h30-13h00) au lieu de matin", () => {
+      const suggestion: DatePollSuggestion = {
+        title: "Brunch",
+        type: "date",
+        dates: ["2025-11-15", "2025-11-16"],
+        timeSlots: undefined,
+      };
+
+      const result = postProcessSuggestion(suggestion, {
+        userInput: "Calcule un brunch samedi 23 ou dimanche 24.",
+      });
+
+      expect(result.timeSlots).toBeDefined();
+      expect(result.timeSlots?.length).toBeGreaterThan(0);
+      
+      // Vérifier que les créneaux sont dans la plage brunch (11h30-13h00)
+      result.timeSlots?.forEach((slot) => {
+        const startHour = parseInt(slot.start.split(":")[0], 10);
+        const startMinute = parseInt(slot.start.split(":")[1], 10);
+        const startTime = startHour * 60 + startMinute;
+        
+        // 11h30 = 690 minutes, 13h00 = 780 minutes
+        expect(startTime).toBeGreaterThanOrEqual(690);
+        expect(startTime).toBeLessThanOrEqual(780);
+      });
+    });
+  });
 });
 
 function calculateDuration(start: string, end: string): number {

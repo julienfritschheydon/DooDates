@@ -207,7 +207,7 @@ Ton recherché : requêtes brèves, naturelles, 1 à 2 contraintes max. Mélange
 
 ## Améliorations proposées pour les prompts PARTIEL/NOK
 
-### Problème 1 : Trop de variantes générées (6 prompts - 32%)
+### ✅ Problème 1 : Trop de variantes générées (6 prompts - 32%) - IMPLÉMENTÉ
 
 **Symptôme** : Le post-processor génère 11-25 créneaux au lieu de 2-3 attendus.
 
@@ -235,10 +235,11 @@ Ton recherché : requêtes brèves, naturelles, 1 à 2 contraintes max. Mélange
    - Si plusieurs dates : prendre 1 créneau par date
    - Sinon : sélectionner les créneaux les plus représentatifs (début, milieu, fin de plage)
 
-**Fichier à modifier** : `src/services/GeminiSuggestionPostProcessor.ts`
-- Ajouter `detectExpectedSlotCount(userInput: string): number | null`
-- Ajouter `getMaxSlotsForContext(userInput: string): number`
-- Ajouter `limitSlotsCount(slots, userInput)` et l'appeler dans `postProcessSuggestion()`
+**Fichier modifié** : `src/services/GeminiSuggestionPostProcessor.ts`
+- ✅ Ajouté `detectExpectedSlotCount(userInput: string): number | null`
+- ✅ Ajouté `getMaxSlotsForContext(userInput: string): number`
+- ✅ Ajouté `limitSlotsCount(slots, userInput)` et intégré dans `postProcessSuggestion()`
+- ✅ Ajouté tests unitaires (6 nouveaux tests)
 
 **Impact attendu** : Résout 6 prompts (32% des problèmes)
 
@@ -272,41 +273,43 @@ Ton recherché : requêtes brèves, naturelles, 1 à 2 contraintes max. Mélange
 
 ---
 
-### Problème 3 : Nombre de créneaux insuffisant (1 prompt - 5%)
+### ✅ Problème 3 : Nombre de créneaux insuffisant (1 prompt - 5%) - IMPLÉMENTÉ
 
 **Symptôme** : Seulement 1 créneau généré au lieu de 2-3 attendus.
 
 **Prompts affectés** :
 - "Cherche un créneau entre 11h et 13h mercredi pour un déjeuner partenariats" → 1 créneau (attendu: 2-3)
 
-**Solutions proposées** :
+**Solutions implémentées** :
 
 1. **Génération multiple pour déjeuners/partenariats**
    - Pour les contextes "déjeuner" ou "partenariats", générer systématiquement 2-3 créneaux
    - Espacer les créneaux de 30-60 min dans la plage 11h30-13h30
 
-**Fichier à modifier** : `src/services/GeminiSuggestionPostProcessor.ts`
-- Modifier `buildContextualSlots()` pour générer 2-3 créneaux pour les déjeuners
+**Fichier modifié** : `src/services/GeminiSuggestionPostProcessor.ts`
+- ✅ Modifié `buildContextualSlots()` pour générer 2-3 créneaux pour les déjeuners
+- ✅ Ajouté test unitaire
 
 **Impact attendu** : Résout 1 prompt (5% des problèmes)
 
 ---
 
-### Problème 4 : Plage horaire incorrecte pour certains contextes (1 prompt - 5%)
+### ✅ Problème 4 : Plage horaire incorrecte pour certains contextes (1 prompt - 5%) - IMPLÉMENTÉ
 
 **Symptôme** : Plage horaire incorrecte pour certains contextes spécifiques.
 
 **Prompts affectés** :
 - "Calcule un brunch samedi 23 ou dimanche 24" → 10h-11h au lieu de 11h30-13h
 
-**Solutions proposées** :
+**Solutions implémentées** :
 
 1. **Détection du contexte "brunch"**
    - Détecter "brunch" AVANT "matin" dans `buildContextualSlots()`
    - Appliquer la plage horaire spécifique (11h30-13h00) pour les brunchs
 
-**Fichier à modifier** : `src/services/GeminiSuggestionPostProcessor.ts`
-- Modifier `buildContextualSlots()` pour détecter "brunch" avant "matin"
+**Fichier modifié** : `src/services/GeminiSuggestionPostProcessor.ts`
+- ✅ Modifié `buildContextualSlots()` pour détecter "brunch" avant "matin"
+- ✅ Ajouté test unitaire
 
 **Impact attendu** : Résout 1 prompt (5% des problèmes)
 
