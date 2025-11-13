@@ -65,8 +65,8 @@ Ces critères servent de référence pour classer les suites dans le reste du gu
 | `tests/e2e/dashboard-complete.spec.ts` + `tags-folders.spec.ts` | E2E | **Primordial** | Seed localStorage + guard console | Actifs – couvrent back-office, pas de mock Supabase |
 | `tests/e2e/form-poll-regression.spec.ts` + `form-poll-results-access.spec.ts` | E2E | **Primordial** | setupAllMocks (Gemini/Edge), seed localStorage | Actifs – workflows FormPoll réalistes - ✅ form-poll-regression: corrigé sharding (13/11/2025) |
 | `tests/e2e/beta-key-activation.spec.ts`, `authenticated-workflow.spec.ts`, `poll-actions.spec.ts`, `security-isolation.spec.ts`, `mobile-voting.spec.ts`, `guest-workflow.spec.ts` | E2E | Primordial | Auth/device injectés via localStorage + Gemini mock | Actifs – parcourent les chemins critiques complémentaires |
-| `tests/e2e/analytics-ai.spec.ts` | E2E | Primordial | Mock Gemini uniquement | Actif – améliorations partielles (waitForPageLoad ajouté, quelques waitForTimeout remplacés) - ✅ Corrigé sharding (13/11/2025) |
-| `tests/e2e/analytics-ai-optimized.spec.ts` | E2E | Primordial | Mock Gemini | ✅ Actif – version optimisée pour CI (3 tests, ~52s, gain 70%) - ✅ Corrigé sharding (13/11/2025) |
+| `tests/e2e/analytics-ai.spec.ts` | E2E | Primordial | Mock Gemini uniquement | Actif – améliorations partielles (waitForPageLoad ajouté, quelques waitForTimeout remplacés) - ✅ Corrigé sharding + persistance mocks (13/11/2025) |
+| `tests/e2e/analytics-ai-optimized.spec.ts` | E2E | Primordial | Mock Gemini | ✅ Actif – version optimisée pour CI (3 tests, ~52s, gain 70%) - ✅ Corrigé sharding + persistance mocks (13/11/2025) |
 | `tests/e2e/console-errors.spec.ts` | E2E | Primordial | Aucun | ✅ Actif – 2/2 tests passent (pas d'erreurs console critiques détectées) |
 | `src/__tests__/error-handling-enforcement.test.ts` | Meta unitaire | Primordial | N/A | Actif – blocage CI si pattern centralisé non respecté |
 | `src/lib/__tests__/exports.test.ts` | Unitaire | Important+ | Mock pollStorage ciblé | Actif – couvrir scenarios export (CSV/JSON/PDF) |
@@ -96,6 +96,7 @@ Ces critères servent de référence pour classer les suites dans le reste du gu
 - `tests/e2e/form-poll-regression.spec.ts` — sécurise création/modification FormPoll IA (création, ajout question, suppression, reprise conversation).
     - `Docs\TESTS\follow-up\e2e-form-poll-regression.md`
     - **Correction sharding** : ✅ Tests rendus indépendants avec fonction helper `createFormPoll()` (13/11/2025)
+    - **Correction persistance mocks** : ✅ Ajout de `setupAllMocks()` avant `page.goto()` dans `createFormPoll()` (13/11/2025)
 
 - `tests/e2e/form-poll-results-access.spec.ts` — sécurise politique de visibilité des résultats FormPoll (creator-only, voters, public) et email de confirmation.
     - `Docs\TESTS\follow-up\e2e-form-poll-results-access.md`
@@ -122,11 +123,13 @@ Ces critères servent de référence pour classer les suites dans le reste du gu
     - `Docs\TESTS\follow-up\e2e-analytics-ai.md`
     - **Note** : Améliorations partielles (waitForPageLoad ajouté, quelques waitForTimeout remplacés). Fichier très long (1351 lignes), améliorations complètes nécessiteraient plus de temps.
     - **Correction sharding** : ✅ Tests rendus indépendants avec fonction helper `createPollWithVotesAndClose()` (13/11/2025)
+    - **Correction persistance mocks** : ✅ Ajout de `setupAllMocks()` avant `page.goto()` dans `createPollWithVotesAndClose()` (13/11/2025)
 
 - `tests/e2e/analytics-ai-optimized.spec.ts` — version optimisée pour CI (70% plus rapide, 3 tests vs 18, ~52s vs ~3-4 min).
     - `Docs\TESTS\follow-up\e2e-analytics-ai-optimized.md`
     - **Statut** : ✅ Réactivé et fonctionnel (3/3 tests passent en ~52s)
     - **Correction sharding** : ✅ Tests rendus indépendants avec fonction helper `createPollWithVotesAndClose()` (13/11/2025)
+    - **Correction persistance mocks** : ✅ Ajout de `setupAllMocks()` avant `page.goto()` dans `createPollWithVotesAndClose()` (13/11/2025)
 
 - `tests/e2e/console-errors.spec.ts` — réactivé (2/2 tests passent)
 - `src/hooks/__tests__/useAnalyticsQuota.test.ts` — réactivé (21/21 tests passent, 100%)
@@ -1227,7 +1230,7 @@ Approche alternative gratuite :
 ---
 
 **Document maintenu par** : Équipe DooDates  
-**Dernière révision** : 13 novembre 2025 (Correction problème sharding E2E - 3 fichiers rendus indépendants)
+**Dernière révision** : 13 novembre 2025 (Correction problème persistance mocks E2E après navigation - 3 fichiers corrigés)
 
 ---
 
@@ -1494,5 +1497,83 @@ grep -n "mode.*serial" tests/e2e/*.spec.ts
 - Tests fonctionnent indépendamment du sharding
 - Chaque test peut créer ses propres données si nécessaire
 - Compatible avec exécution parallèle et sharding
+
+---
+
+## 🔄 Tests E2E - Problème de Persistance des Mocks Après Navigation
+
+**Date d'identification** : 13 novembre 2025  
+**Statut** : ✅ **RÉSOLU** (3/3 fichiers corrigés)
+
+### 📊 Contexte
+
+Lors de l'exécution des tests E2E avec sharding, les fonctions helper (`createPollWithVotesAndClose()`, `createFormPoll()`) qui font un `page.goto()` après que les mocks aient été configurés dans le `beforeEach` peuvent échouer avec l'erreur "Désolé, je n'ai pas pu traiter votre demande".
+
+**Problème** : Les routes Playwright configurées via `page.route()` peuvent ne pas persister après un nouveau `page.goto()`, surtout si les mocks sont configurés dans un `beforeEach` et qu'une fonction helper fait un nouveau `goto()`.
+
+**Symptôme** : L'appel à l'IA échoue car les mocks ne sont pas actifs au moment de la requête réseau.
+
+### ✅ Solution Appliquée
+
+**Approche** : Appeler `setupAllMocks(page)` au début de chaque fonction helper qui fait un `page.goto()`.
+
+**Raison** : Selon la documentation Playwright et les bonnes pratiques, il est recommandé de configurer les mocks avant chaque navigation pour garantir qu'ils sont actifs au moment de la requête réseau.
+
+**Code ajouté** :
+```typescript
+async function createPollWithVotesAndClose(
+  page: any,
+  browserName: string,
+  numVotes: number = 3
+): Promise<string> {
+  // S'assurer que les mocks sont configurés avant la navigation
+  // (nécessaire car les routes peuvent ne pas persister après un nouveau goto())
+  await setupAllMocks(page);
+  
+  // 1. Créer un FormPoll via IA
+  await page.goto("/?e2e-test=true", { waitUntil: 'domcontentloaded' });
+  // ...
+}
+```
+
+### ✅ Fichiers Corrigés
+
+#### 1. `tests/e2e/analytics-ai-optimized.spec.ts` ✅
+- **Problème** : `createPollWithVotesAndClose()` appelée sans mocks actifs
+- **Solution appliquée** : Ajout de `await setupAllMocks(page);` avant `page.goto()`
+- **Statut** : ✅ Corrigé (13/11/2025)
+
+#### 2. `tests/e2e/analytics-ai.spec.ts` ✅
+- **Problème** : `createPollWithVotesAndClose()` appelée sans mocks actifs
+- **Solution appliquée** : Ajout de `await setupAllMocks(page);` avant `page.goto()`
+- **Statut** : ✅ Corrigé (13/11/2025)
+
+#### 3. `tests/e2e/form-poll-regression.spec.ts` ✅
+- **Problème** : `createFormPoll()` appelée sans mocks actifs
+- **Solution appliquée** : Ajout de `await setupAllMocks(page);` avant `page.goto()`
+- **Statut** : ✅ Corrigé (13/11/2025)
+
+### 💡 Bonnes Pratiques
+
+**À éviter** :
+- ❌ Supposer que les routes configurées dans `beforeEach` persistent après un nouveau `goto()`
+- ❌ Faire un `page.goto()` dans une fonction helper sans réinitialiser les mocks
+
+**À privilégier** :
+- ✅ Appeler `setupAllMocks(page)` avant chaque `page.goto()` dans les fonctions helper
+- ✅ Configurer les mocks avant chaque navigation pour garantir leur activation
+- ✅ Documenter pourquoi les mocks sont réinitialisés (commentaire explicatif)
+
+### 📊 Impact
+
+**Avant correction** :
+- Tests échouent en CI avec sharding : "Désolé, je n'ai pas pu traiter votre demande"
+- Les mocks ne sont pas actifs au moment de l'appel à l'IA
+- Erreur difficile à reproduire localement (dépend de l'ordre d'exécution)
+
+**Après correction** :
+- Tests fonctionnent correctement même avec sharding
+- Les mocks sont garantis actifs avant chaque appel à l'IA
+- Solution conforme aux bonnes pratiques Playwright
 
 ---
