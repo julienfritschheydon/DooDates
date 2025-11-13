@@ -238,7 +238,11 @@ export async function getCachedFingerprint(): Promise<string> {
   const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
   try {
-    const readCache = (): { fingerprint: string; timestamp: string; confidence?: number } | null => {
+    const readCache = (): {
+      fingerprint: string;
+      timestamp: string;
+      confidence?: number;
+    } | null => {
       const keys = [CACHE_KEY, ...LEGACY_CACHE_KEYS];
       for (const key of keys) {
         const raw = localStorage.getItem(key);

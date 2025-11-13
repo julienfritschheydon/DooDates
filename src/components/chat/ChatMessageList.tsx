@@ -138,7 +138,9 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 Décrivez-moi ce que vous souhaitez !
               </p>
               {!hasCreatedPoll && (
-                <div className={`text-sm space-y-2 ${darkTheme ? "text-gray-400" : "text-gray-500"}`}>
+                <div
+                  className={`text-sm space-y-2 ${darkTheme ? "text-gray-400" : "text-gray-500"}`}
+                >
                   <div>
                     <p
                       className={`font-medium mb-1 ${darkTheme ? "text-gray-300" : "text-gray-700"}`}
@@ -186,238 +188,241 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                   } whitespace-pre-wrap break-words`}
                 >
                   {message.content}
-                {message.pollSuggestion && (
-                  <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
-                    {/* Description si présente */}
-                    {message.pollSuggestion.description && (
-                      <p className="text-sm text-gray-600 mb-3">
-                        {message.pollSuggestion.description}
-                      </p>
-                    )}
+                  {message.pollSuggestion && (
+                    <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
+                      {/* Description si présente */}
+                      {message.pollSuggestion.description && (
+                        <p className="text-sm text-gray-600 mb-3">
+                          {message.pollSuggestion.description}
+                        </p>
+                      )}
 
-                    <div className="space-y-3">
-                      {/* Affichage conditionnel selon le type */}
-                      {(message.pollSuggestion as any).type === "form" ? (
-                        /* Affichage Form Poll (questionnaire) - MÊME DESIGN QUE DATE POLL */
-                        <div className="space-y-2 md:space-y-3">
-                          {(message.pollSuggestion as any).questions?.map(
-                            (question: any, idx: number) => (
-                              <div key={idx} className="bg-[#3c4043] rounded-lg p-3 md:p-4">
-                                <div className="flex items-start gap-2 md:gap-3">
-                                  <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-white text-sm md:text-base leading-tight">
-                                      {idx + 1}. {question.title}
-                                    </div>
-                                    <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
-                                      <span className="inline-block">
-                                        {question.type === "single"
-                                          ? "Choix unique"
-                                          : question.type === "multiple"
-                                            ? "Choix multiples"
-                                            : "Texte libre"}
-                                      </span>
-                                      {question.required && (
-                                        <span className="text-red-400 ml-2">• Obligatoire</span>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ),
-                          )}
-                        </div>
-                      ) : (
-                        /* Affichage Date Poll (dates/horaires) - avec groupement intelligent */
-                        <div className="space-y-2 md:space-y-3">
-                          {(() => {
-                            const datePollSuggestion =
-                              message.pollSuggestion as import("../../lib/gemini").DatePollSuggestion;
-                            const dates = datePollSuggestion.dates || [];
-
-                            // NE PAS grouper les dates - afficher individuellement
-                            // Convertir chaque date en "groupe" individuel pour réutiliser le code d'affichage
-                            const dateGroups = dates.map((date) => {
-                              const dateObj = new Date(date);
-                              const dayName = dateObj.toLocaleDateString("fr-FR", {
-                                weekday: "long",
-                              });
-                              const day = dateObj.getDate();
-                              const month = dateObj.toLocaleDateString("fr-FR", { month: "long" });
-                              const year = dateObj.getFullYear();
-
-                              return {
-                                dates: [date],
-                                label: `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${day} ${month} ${year}`,
-                                type: "custom" as const,
-                              };
-                            });
-
-                            return dateGroups.map((group, groupIndex) => {
-                              // Pour les groupes, afficher le label groupé
-                              // Pour les dates individuelles, afficher normalement
-                              const isGroup = group.dates.length > 1;
-
-                              // Trouver les créneaux horaires pour ce groupe
-                              const groupTimeSlots =
-                                datePollSuggestion.timeSlots?.filter((slot) => {
-                                  if (!slot.dates || slot.dates.length === 0) return true;
-                                  return group.dates.some((date) => slot.dates?.includes(date));
-                                }) || [];
-
-                              return (
-                                <div
-                                  key={`group-${groupIndex}`}
-                                  className="bg-[#3c4043] rounded-lg p-3 md:p-4"
-                                >
+                      <div className="space-y-3">
+                        {/* Affichage conditionnel selon le type */}
+                        {(message.pollSuggestion as any).type === "form" ? (
+                          /* Affichage Form Poll (questionnaire) - MÊME DESIGN QUE DATE POLL */
+                          <div className="space-y-2 md:space-y-3">
+                            {(message.pollSuggestion as any).questions?.map(
+                              (question: any, idx: number) => (
+                                <div key={idx} className="bg-[#3c4043] rounded-lg p-3 md:p-4">
                                   <div className="flex items-start gap-2 md:gap-3">
                                     <div className="flex-1 min-w-0">
                                       <div className="font-medium text-white text-sm md:text-base leading-tight">
-                                        {isGroup
-                                          ? // Afficher le label groupé
-                                            group.label
-                                          : // Afficher la date normale
-                                            new Date(group.dates[0]).toLocaleDateString("fr-FR", {
-                                              weekday: "long",
-                                              day: "numeric",
-                                              month: "long",
-                                              year: "numeric",
-                                            })}
+                                        {idx + 1}. {question.title}
                                       </div>
-                                      {groupTimeSlots.length > 0 && !isGroup && (
-                                        <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
-                                          <span className="block">
-                                            {groupTimeSlots
-                                              .map((slot) => `${slot.start} - ${slot.end}`)
-                                              .join(", ")}
-                                          </span>
-                                        </div>
-                                      )}
+                                      <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
+                                        <span className="inline-block">
+                                          {question.type === "single"
+                                            ? "Choix unique"
+                                            : question.type === "multiple"
+                                              ? "Choix multiples"
+                                              : "Texte libre"}
+                                        </span>
+                                        {question.required && (
+                                          <span className="text-red-400 ml-2">• Obligatoire</span>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              );
-                            });
-                          })()}
-                        </div>
-                      )}
-                    </div>
+                              ),
+                            )}
+                          </div>
+                        ) : (
+                          /* Affichage Date Poll (dates/horaires) - avec groupement intelligent */
+                          <div className="space-y-2 md:space-y-3">
+                            {(() => {
+                              const datePollSuggestion =
+                                message.pollSuggestion as import("../../lib/gemini").DatePollSuggestion;
+                              const dates = datePollSuggestion.dates || [];
 
-                    {/* Bouton Créer */}
-                    {hasLinkedPoll ? (
-                      <button
-                        data-testid={
-                          (message.pollSuggestion as any).type === "form"
-                            ? "view-form-button"
-                            : "view-poll-button"
-                        }
-                        onClick={() => {
-                          logger.debug("Bouton Voir cliqué", "poll", { currentPoll, linkedPollId });
-                          // Ouvrir la dernière version du sondage lié
-                          try {
-                            if (currentPoll) {
-                              logger.debug("Ouverture via currentPoll", "poll");
-                              onOpenEditor();
-                              return;
-                            }
-                            if (linkedPollId && linkedPollId !== "generated") {
-                              logger.debug("Recherche poll par ID", "poll", { linkedPollId });
-                              const p = getPollBySlugOrId(linkedPollId);
-                              logger.debug("Poll trouvé", "poll", { poll: p });
-                              if (p) {
-                                logger.debug("Ouverture via linkedPollId", "poll");
-                                onSetCurrentPoll(p as any);
+                              // NE PAS grouper les dates - afficher individuellement
+                              // Convertir chaque date en "groupe" individuel pour réutiliser le code d'affichage
+                              const dateGroups = dates.map((date) => {
+                                const dateObj = new Date(date);
+                                const dayName = dateObj.toLocaleDateString("fr-FR", {
+                                  weekday: "long",
+                                });
+                                const day = dateObj.getDate();
+                                const month = dateObj.toLocaleDateString("fr-FR", {
+                                  month: "long",
+                                });
+                                const year = dateObj.getFullYear();
+
+                                return {
+                                  dates: [date],
+                                  label: `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${day} ${month} ${year}`,
+                                  type: "custom" as const,
+                                };
+                              });
+
+                              return dateGroups.map((group, groupIndex) => {
+                                // Pour les groupes, afficher le label groupé
+                                // Pour les dates individuelles, afficher normalement
+                                const isGroup = group.dates.length > 1;
+
+                                // Trouver les créneaux horaires pour ce groupe
+                                const groupTimeSlots =
+                                  datePollSuggestion.timeSlots?.filter((slot) => {
+                                    if (!slot.dates || slot.dates.length === 0) return true;
+                                    return group.dates.some((date) => slot.dates?.includes(date));
+                                  }) || [];
+
+                                return (
+                                  <div
+                                    key={`group-${groupIndex}`}
+                                    className="bg-[#3c4043] rounded-lg p-3 md:p-4"
+                                  >
+                                    <div className="flex items-start gap-2 md:gap-3">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-white text-sm md:text-base leading-tight">
+                                          {isGroup
+                                            ? // Afficher le label groupé
+                                              group.label
+                                            : // Afficher la date normale
+                                              new Date(group.dates[0]).toLocaleDateString("fr-FR", {
+                                                weekday: "long",
+                                                day: "numeric",
+                                                month: "long",
+                                                year: "numeric",
+                                              })}
+                                        </div>
+                                        {groupTimeSlots.length > 0 && !isGroup && (
+                                          <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
+                                            <span className="block">
+                                              {groupTimeSlots
+                                                .map((slot) => `${slot.start} - ${slot.end}`)
+                                                .join(", ")}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              });
+                            })()}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bouton Créer */}
+                      {hasLinkedPoll ? (
+                        <button
+                          data-testid={
+                            (message.pollSuggestion as any).type === "form"
+                              ? "view-form-button"
+                              : "view-poll-button"
+                          }
+                          onClick={() => {
+                            logger.debug("Bouton Voir cliqué", "poll", {
+                              currentPoll,
+                              linkedPollId,
+                            });
+                            // Ouvrir la dernière version du sondage lié
+                            try {
+                              if (currentPoll) {
+                                logger.debug("Ouverture via currentPoll", "poll");
                                 onOpenEditor();
                                 return;
                               }
+                              if (linkedPollId && linkedPollId !== "generated") {
+                                logger.debug("Recherche poll par ID", "poll", { linkedPollId });
+                                const p = getPollBySlugOrId(linkedPollId);
+                                logger.debug("Poll trouvé", "poll", { poll: p });
+                                if (p) {
+                                  logger.debug("Ouverture via linkedPollId", "poll");
+                                  onSetCurrentPoll(p as any);
+                                  onOpenEditor();
+                                  return;
+                                }
+                              }
+                              // Aucun poll résolu: tenter d'afficher le créateur si suggestion présente
+                              logger.warn("Aucun poll trouvé, fallback au créateur", "poll");
+                              onUsePollSuggestion(message.pollSuggestion!);
+                            } catch (e) {
+                              logger.warn(
+                                "Impossible d'ouvrir la preview, fallback au créateur",
+                                "poll",
+                                { error: e },
+                              );
+                              onUsePollSuggestion(message.pollSuggestion!);
                             }
-                            // Aucun poll résolu: tenter d'afficher le créateur si suggestion présente
-                            logger.warn("Aucun poll trouvé, fallback au créateur", "poll");
-                            onUsePollSuggestion(message.pollSuggestion!);
-                          } catch (e) {
-                            logger.warn(
-                              "Impossible d'ouvrir la preview, fallback au créateur",
-                              "poll",
-                              { error: e },
-                            );
-                            onUsePollSuggestion(message.pollSuggestion!);
+                          }}
+                          className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-indigo-500 hover:bg-indigo-600"
+                        >
+                          <span>
+                            {(message.pollSuggestion as any).type === "form"
+                              ? "Voir le formulaire"
+                              : "Voir le sondage"}
+                          </span>
+                        </button>
+                      ) : (
+                        <button
+                          data-testid={
+                            (message.pollSuggestion as any).type === "form"
+                              ? "create-form-button"
+                              : "create-poll-button"
                           }
-                        }}
-                        className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-indigo-500 hover:bg-indigo-600"
-                      >
-                        <span>
-                          {(message.pollSuggestion as any).type === "form"
-                            ? "Voir le formulaire"
-                            : "Voir le sondage"}
-                        </span>
-                      </button>
-                    ) : (
-                      <button
-                        data-testid={
-                          (message.pollSuggestion as any).type === "form"
-                            ? "create-form-button"
-                            : "create-poll-button"
-                        }
-                        onClick={() => {
-                          logger.debug("Bouton Utiliser cliqué", "poll", {
-                            pollSuggestion: message.pollSuggestion,
-                          });
-                          onUsePollSuggestion(message.pollSuggestion!);
-                        }}
-                        className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-blue-500 hover:bg-blue-600"
-                      >
-                        <span>
-                          {(message.pollSuggestion as any).type === "form"
-                            ? "Créer ce formulaire"
-                            : "Créer ce sondage"}
-                        </span>
-                      </button>
-                    )}
+                          onClick={() => {
+                            logger.debug("Bouton Utiliser cliqué", "poll", {
+                              pollSuggestion: message.pollSuggestion,
+                            });
+                            onUsePollSuggestion(message.pollSuggestion!);
+                          }}
+                          className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-blue-500 hover:bg-blue-600"
+                        >
+                          <span>
+                            {(message.pollSuggestion as any).type === "form"
+                              ? "Créer ce formulaire"
+                              : "Créer ce sondage"}
+                          </span>
+                        </button>
+                      )}
 
-                    {/* Feedback thumbs up/down pour les propositions de création */}
-                    <div className="mt-2">
-                      <AIProposalFeedback
-                        proposal={{
-                          userRequest:
-                            messages.find((m) => !m.isAI && m.timestamp < message.timestamp)
-                              ?.content || "Demande de création",
-                          generatedContent: message.pollSuggestion,
-                          pollContext: {
-                            pollType: (message.pollSuggestion as any).type || "date",
-                            action: "create",
-                          } as { pollType?: string; action?: string },
-                        }}
-                        onFeedbackSent={() => {
-                          // Feedback envoyé
-                        }}
-                      />
+                      {/* Feedback thumbs up/down pour les propositions de création */}
+                      <div className="mt-2">
+                        <AIProposalFeedback
+                          proposal={{
+                            userRequest:
+                              messages.find((m) => !m.isAI && m.timestamp < message.timestamp)
+                                ?.content || "Demande de création",
+                            generatedContent: message.pollSuggestion,
+                            pollContext: {
+                              pollType: (message.pollSuggestion as any).type || "date",
+                              action: "create",
+                            } as { pollType?: string; action?: string },
+                          }}
+                          onFeedbackSent={() => {
+                            // Feedback envoyé
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-          
-          {/* Message de chargement pendant la génération */}
-          {isLoading && (
-            <div className="flex gap-3 justify-start">
-              <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                </svg>
+            ))}
+
+            {/* Message de chargement pendant la génération */}
+            {isLoading && (
+              <div className="flex gap-3 justify-start">
+                <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                  </svg>
+                </div>
+                <div
+                  className={`max-w-[80%] ${
+                    darkTheme ? "bg-[#1a1a1a] text-gray-200" : "bg-gray-100 text-gray-700"
+                  } rounded-[20px] px-5 py-3 flex items-center gap-3`}
+                >
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                  <span className="text-sm">Génération en cours...</span>
+                </div>
               </div>
-              <div
-                className={`max-w-[80%] ${
-                  darkTheme ? "bg-[#1a1a1a] text-gray-200" : "bg-gray-100 text-gray-700"
-                } rounded-[20px] px-5 py-3 flex items-center gap-3`}
-              >
-                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                <span className="text-sm">
-                  Génération en cours...
-                </span>
-              </div>
-            </div>
-          )}
-        </>
+            )}
+          </>
         )}
 
         {/* Composant de feedback IA */}

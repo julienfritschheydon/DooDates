@@ -187,6 +187,30 @@ export const setupMockLocalStorage = () => {
   return mockStorage;
 };
 
+/**
+ * Configure window pour les tests de quota
+ * S'assure que __IS_E2E_TESTING__ n'est pas défini pour éviter le bypass E2E
+ * dans les tests normaux (sauf si explicitement activé dans un test spécifique)
+ *
+ * ⚠️ IMPORTANT : À appeler dans beforeEach() pour tous les tests qui utilisent :
+ * - guestQuotaService
+ * - useQuota
+ * - useFreemiumQuota
+ * - useAiMessageQuota
+ * - ou tout autre service qui vérifie isE2ETestingEnvironment() ou __IS_E2E_TESTING__
+ */
+export const setupQuotaTestWindow = () => {
+  Object.defineProperty(global, "window", {
+    value: {
+      ...global.window,
+      location: { search: "" },
+      __IS_E2E_TESTING__: undefined, // Explicitement undefined pour les tests normaux
+    },
+    writable: true,
+    configurable: true,
+  });
+};
+
 // ============================================================================
 // AUTH MOCKS
 // ============================================================================

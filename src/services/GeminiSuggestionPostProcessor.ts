@@ -142,6 +142,79 @@ function clampDatesToWindow(
   return dates.filter((date) => allowed.has(date));
 }
 
+// Filtre les dates générées selon les contraintes explicites de mois mentionnées dans le prompt.
+function filterDatesByExplicitConstraints(dates: string[], userInput: string): string[] {
+  const lowerInput = userInput.toLowerCase();
+
+  // Détection de mois explicites
+  const currentYear = new Date().getFullYear();
+  const monthPatterns = [
+    { pattern: /\bdécembre\b/i, month: 11 },
+    { pattern: /\bnovembre\b/i, month: 10 },
+    { pattern: /\boctobre\b/i, month: 9 },
+    { pattern: /\bseptembre\b/i, month: 8 },
+    { pattern: /\baoût\b/i, month: 7 },
+    { pattern: /\bjuillet\b/i, month: 6 },
+    { pattern: /\bjuin\b/i, month: 5 },
+    { pattern: /\bmai\b/i, month: 4 },
+    { pattern: /\bavril\b/i, month: 3 },
+    { pattern: /\bmars\b/i, month: 2 },
+    { pattern: /\bfévrier\b/i, month: 1 },
+    { pattern: /\bjanvier\b/i, month: 0 },
+  ];
+
+  const targetMonths: number[] = [];
+  monthPatterns.forEach(({ pattern, month }) => {
+    if (pattern.test(lowerInput)) {
+      targetMonths.push(month);
+    }
+  });
+
+  if (targetMonths.length === 0) {
+    return dates;
+  }
+
+  // Filtrer pour ne garder que les dates dans les mois cibles
+  return dates.filter((date) => {
+    const dateObj = new Date(date);
+    const month = dateObj.getMonth();
+    return targetMonths.includes(month);
+  });
+}
+
+// Filtre les dates selon les périodes mentionnées ("fin [mois]", "début [mois]").
+function filterDatesByPeriod(dates: string[], userInput: string): string[] {
+  const lowerInput = userInput.toLowerCase();
+
+  if (
+    /\bfin\s+(décembre|novembre|mars|avril|mai|juin|juillet|août|septembre|octobre)/i.test(
+      lowerInput,
+    )
+  ) {
+    // Pour "fin [mois]", ne garder que les dates de la dernière quinzaine (jour >= 15)
+    return dates.filter((date) => {
+      const dateObj = new Date(date);
+      const day = dateObj.getDate();
+      return day >= 15;
+    });
+  }
+
+  if (
+    /\bdébut\s+(décembre|novembre|mars|avril|mai|juin|juillet|août|septembre|octobre)/i.test(
+      lowerInput,
+    )
+  ) {
+    // Pour "début [mois]", ne garder que les dates de la première quinzaine (jour <= 15)
+    return dates.filter((date) => {
+      const dateObj = new Date(date);
+      const day = dateObj.getDate();
+      return day <= 15;
+    });
+  }
+
+  return dates;
+}
+
 // Pour les requêtes mentionnant explicitement le week-end, on force la présence
 // d'un samedi et d'un dimanche (si disponibles) afin de respecter la règle métier.
 function ensureWeekendCoverage(
@@ -251,6 +324,115 @@ function parseTime(time: string): { hour: number; minute: number } {
   };
 }
 
+// Détecte le nombre explicite de créneaux/dates attendu dans le prompt.
+// Retourne null si aucun nombre explicite n'est détecté.
+function detectExpectedSlotCount(userInput: string): number | null {
+  const lowerInput = userInput.toLowerCase();
+
+  // Détection de nombres explicites (priorité aux nombres plus élevés)
+  const explicitCounts = [
+    { pattern: /\bcinq\s+(créneaux?|dates?)\b/, count: 5 },
+    { pattern: /\bquatre\s+(créneaux?|dates?)\b/, count: 4 },
+    { pattern: /\btrois\s+(créneaux?|dates?|soirées?)\b/, count: 3 },
+    { pattern: /\bdeux\s+(créneaux?|dates?|soirées?|slots?)\b/, count: 2 },
+    // "un créneau" seulement si pas dans un contexte nécessitant plusieurs créneaux (déjeuner, etc.)
+    {
+      pattern: /\bun\s+(créneau|slot|horaire)\b/,
+      count: 1,
+      skipIf: /déjeuner|dejeuner|partenariats/,
+    },
+  ];
+
+  for (const { pattern, count, skipIf } of explicitCounts) {
+    if (pattern.test(lowerInput)) {
+      // Ignorer si le contexte nécessite plusieurs créneaux
+      if (skipIf && skipIf.test(lowerInput)) {
+        continue;
+      }
+      return count;
+    }
+  }
+
+  // Détection de quantités implicites
+  if (/\bun\s+(après-midi|matin|soirée)\b/.test(lowerInput)) {
+    return 1;
+  }
+
+  return null;
+}
+
+// Retourne le nombre maximum de créneaux recommandé selon le contexte détecté dans le prompt.
+function getMaxSlotsForContext(userInput: string): number {
+  const lowerInput = userInput.toLowerCase();
+
+  // Contextes nécessitant peu de créneaux
+  if (/visite|musée|exposition|footing|course|sport/.test(lowerInput)) {
+    return 2;
+  }
+
+  // Contextes nécessitant quelques créneaux
+  // "comité" → généralement 2 créneaux (réunions de quartier sont courtes)
+  if (/comité/.test(lowerInput)) {
+    return 2;
+  }
+
+  if (/réunion|atelier|déjeuner|brunch/.test(lowerInput)) {
+    return 3;
+  }
+
+  // Contextes nécessitant plusieurs créneaux
+  if (/apéro|soirée|événement/.test(lowerInput)) {
+    return 5;
+  }
+
+  // Par défaut : 3 créneaux max
+  return 3;
+}
+
+// Limite intelligemment le nombre de créneaux selon le contexte et les attentes explicites.
+function limitSlotsCount(
+  slots: DatePollSuggestion["timeSlots"] | undefined,
+  userInput: string,
+): DatePollSuggestion["timeSlots"] | undefined {
+  if (!slots || slots.length === 0) {
+    return slots;
+  }
+
+  const explicitCount = detectExpectedSlotCount(userInput);
+  const maxSlots = explicitCount || getMaxSlotsForContext(userInput);
+
+  if (slots.length <= maxSlots) {
+    return slots;
+  }
+
+  // Stratégie 1 : Si plusieurs dates, prendre 1 créneau par date
+  const slotsByDate = new Map<string, DatePollSuggestion["timeSlots"][number]>();
+
+  slots.forEach((slot) => {
+    const dates = slot.dates || [];
+    dates.forEach((date) => {
+      if (!slotsByDate.has(date)) {
+        slotsByDate.set(date, slot);
+      }
+    });
+  });
+
+  if (slotsByDate.size <= maxSlots && slotsByDate.size > 0) {
+    return Array.from(slotsByDate.values()).slice(0, maxSlots);
+  }
+
+  // Stratégie 2 : Sélectionner les créneaux les plus représentatifs (début, milieu, fin)
+  const step = Math.floor(slots.length / maxSlots);
+  const selected: DatePollSuggestion["timeSlots"][number][] = [];
+
+  for (let i = 0; i < maxSlots; i++) {
+    const index = Math.min(i * step, slots.length - 1);
+    selected.push(slots[index]);
+  }
+
+  return selected;
+}
+
 // Génère des créneaux horaires "intelligents" en fonction des indices détectés dans le prompt.
 // Chaque bloc gère un scénario métier identifié dans la documentation (stand-up, chorale, etc.).
 function buildContextualSlots(
@@ -265,7 +447,10 @@ function buildContextualSlots(
   const filteredDates = filterDatesByDayKeywords(dates, lowerInput);
   const effectiveDates = filteredDates.length > 0 ? filteredDates : dates;
 
-  if (/stand-?up|standup/.test(lowerInput) || (/express|rapide/.test(lowerInput) && /matin/.test(lowerInput))) {
+  if (
+    /stand-?up|standup/.test(lowerInput) ||
+    (/express|rapide/.test(lowerInput) && /matin/.test(lowerInput))
+  ) {
     const targetDate = effectiveDates[0];
     return targetDate
       ? [
@@ -304,7 +489,11 @@ function buildContextualSlots(
     return slots.length > 0 ? slots : undefined;
   }
 
-  if (/chorale|répétition/.test(lowerInput) && /samedi/.test(lowerInput) && /dimanche/.test(lowerInput)) {
+  if (
+    /chorale|répétition/.test(lowerInput) &&
+    /samedi/.test(lowerInput) &&
+    /dimanche/.test(lowerInput)
+  ) {
     const saturday = effectiveDates.find((date) => isDay(date, 6));
     const sunday = effectiveDates.find((date) => isDay(date, 0));
 
@@ -330,30 +519,52 @@ function buildContextualSlots(
 
   if (/soir|soirée|soiree|début de soirée|debut de soiree/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 3);
-    return targets.length > 0
-      ? targets.map((date) => createSlot(date, 18, 30, 120))
-      : undefined;
+    return targets.length > 0 ? targets.map((date) => createSlot(date, 18, 30, 120)) : undefined;
   }
 
   if (/après-midi|apres-midi/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 3);
-    return targets.length > 0
-      ? targets.map((date) => createSlot(date, 15, 0, 120))
-      : undefined;
+    return targets.length > 0 ? targets.map((date) => createSlot(date, 15, 0, 120)) : undefined;
   }
 
   if (/matin/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 3);
-    return targets.length > 0
-      ? targets.map((date) => createSlot(date, 9, 0, 120))
-      : undefined;
+    return targets.length > 0 ? targets.map((date) => createSlot(date, 9, 0, 120)) : undefined;
   }
 
-  if (/déjeuner|dejeuner|brunch|midi/.test(lowerInput)) {
+  // Détection "brunch" AVANT "matin" pour appliquer la bonne plage horaire
+  if (/brunch/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 2);
-    return targets.length > 0
-      ? targets.map((date) => createSlot(date, 11, 30, 90))
-      : undefined;
+    if (targets.length === 0) {
+      return undefined;
+    }
+    // Brunch : 11h30-13h00
+    return targets.map((date) => createSlot(date, 11, 30, 90));
+  }
+
+  // Détection "déjeuner" ou "partenariats" : générer 2-3 créneaux
+  if (/déjeuner|dejeuner|partenariats|midi/.test(lowerInput)) {
+    const targets = effectiveDates.slice(0, 2);
+    if (targets.length === 0) {
+      return undefined;
+    }
+
+    // Pour les déjeuners/partenariats, générer 2-3 créneaux dans la plage 11h30-13h30
+    const slots: DatePollSuggestion["timeSlots"] = [];
+
+    targets.forEach((date) => {
+      // Créneau 1 : 11h30-12h30
+      slots.push(createSlot(date, 11, 30, 60));
+      // Créneau 2 : 12h00-13h00
+      slots.push(createSlot(date, 12, 0, 60));
+    });
+
+    // Créneau 3 : 12h30-13h30 (seulement si plusieurs dates)
+    if (targets.length > 1 && targets[1]) {
+      slots.push(createSlot(targets[1], 12, 30, 60));
+    }
+
+    return slots.slice(0, 3); // Max 3 créneaux
   }
 
   const explicitTimes = extractTimesFromInput(lowerInput);
@@ -390,7 +601,12 @@ export function postProcessSuggestion(
   suggestion: DatePollSuggestion,
   options: PostProcessingOptions,
 ): DatePollSuggestion {
-  const dates = clampDatesToWindow(suggestion.dates, options.allowedDates) || [];
+  let dates = clampDatesToWindow(suggestion.dates, options.allowedDates) || [];
+
+  // Filtrer par contraintes explicites (mois, périodes)
+  dates = filterDatesByExplicitConstraints(dates, options.userInput);
+  dates = filterDatesByPeriod(dates, options.userInput);
+
   const ensuredWeekend = ensureWeekendCoverage(dates, options.userInput);
   const contextualDatesPreClamp = ensuredWeekend || dates;
   const contextualDates = options.allowedDates
@@ -401,13 +617,52 @@ export function postProcessSuggestion(
 
   let processedSlots = enforceDurationRules(suggestion, options.userInput);
 
-  if (!processedSlots || processedSlots.length === 0) {
-    processedSlots = buildContextualSlots(finalDates, options.userInput);
+  // Si pas de créneaux ou nombre insuffisant, générer des créneaux contextualisés
+  const expectedCount = detectExpectedSlotCount(options.userInput);
+  const maxSlotsForContext = getMaxSlotsForContext(options.userInput);
+  // Pour certains contextes (déjeuner, visite), ignorer "un créneau" et utiliser le contexte
+  const lowerInput = options.userInput.toLowerCase();
+  const shouldIgnoreSingleSlot = /déjeuner|dejeuner|partenariats|visite|musée/.test(lowerInput);
+  const effectiveExpectedCount =
+    shouldIgnoreSingleSlot && expectedCount === 1 ? null : expectedCount;
+  const targetCount = effectiveExpectedCount || maxSlotsForContext;
+
+  const hasInsufficientSlots =
+    !processedSlots ||
+    processedSlots.length === 0 ||
+    processedSlots.length < Math.min(2, targetCount);
+
+  if (hasInsufficientSlots) {
+    const contextualSlots = buildContextualSlots(finalDates, options.userInput);
+    if (contextualSlots && contextualSlots.length > 0) {
+      // Fusionner les créneaux existants avec les nouveaux (éviter les doublons)
+      const existingSlots = processedSlots || [];
+      const mergedSlots = [...existingSlots];
+
+      contextualSlots.forEach((newSlot) => {
+        // Vérifier si le créneau existe déjà (même start/end sur mêmes dates)
+        const exists = existingSlots.some((existing) => {
+          const sameTime = existing.start === newSlot.start && existing.end === newSlot.end;
+          const sameDates =
+            JSON.stringify(existing.dates?.sort()) === JSON.stringify(newSlot.dates?.sort());
+          return sameTime && sameDates;
+        });
+
+        if (!exists) {
+          mergedSlots.push(newSlot);
+        }
+      });
+
+      processedSlots = mergedSlots;
+    }
   }
 
   if (!processedSlots || processedSlots.length === 0) {
     processedSlots = buildDefaultSlots(finalDates);
   }
+
+  // Limiter le nombre de créneaux selon le contexte et les attentes explicites
+  processedSlots = limitSlotsCount(processedSlots, options.userInput);
 
   const type = finalizeType(suggestion, processedSlots);
 
