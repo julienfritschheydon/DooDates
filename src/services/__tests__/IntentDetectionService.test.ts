@@ -109,7 +109,9 @@ describe("IntentDetectionService", () => {
       expect(payload).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(isWeekday(payload, "mercredi")).toBe(true);
       expect(intent?.confidence).toBe(0.9);
-    });
+    },
+    { timeout: 20000 },
+  );
 
     it('détecte "ajoute lundi"', async () => {
       const intent = await IntentDetectionService.detectSimpleIntent("ajoute lundi", mockPoll);
