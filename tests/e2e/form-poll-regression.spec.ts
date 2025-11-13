@@ -12,7 +12,7 @@
 
 import { test as base, expect } from '@playwright/test';
 import { attachConsoleGuard, robustFill } from './utils';
-import { setupAllMocks } from './global-setup';
+import { setupAllMocks, setupAllMocksWithoutNavigation } from './global-setup';
 
 // Créer un test avec contexte partagé pour que localStorage persiste entre les tests
 const test = base.extend<{}, { sharedContext: any }>({
@@ -61,8 +61,8 @@ test.describe('Form Poll - Tests de non-régression', () => {
    */
   async function createFormPoll(page: any): Promise<string> {
     // S'assurer que les mocks sont configurés avant la navigation
-    // (nécessaire car les routes peuvent ne pas persister après un nouveau goto())
-    await setupAllMocks(page);
+    // Utiliser setupAllMocksWithoutNavigation() pour éviter le page.goto() qui perturbe les routes
+    await setupAllMocksWithoutNavigation(page);
     
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle');
