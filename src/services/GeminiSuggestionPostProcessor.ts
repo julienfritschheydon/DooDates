@@ -623,10 +623,13 @@ export function postProcessSuggestion(
   // Pour certains contextes (déjeuner, visite), ignorer "un créneau" et utiliser le contexte
   const lowerInput = options.userInput.toLowerCase();
   const shouldIgnoreSingleSlot = /déjeuner|dejeuner|partenariats|visite|musée/.test(lowerInput);
-  const effectiveExpectedCount = shouldIgnoreSingleSlot && expectedCount === 1 ? null : expectedCount;
+  const effectiveExpectedCount =
+    shouldIgnoreSingleSlot && expectedCount === 1 ? null : expectedCount;
   const targetCount = effectiveExpectedCount || maxSlotsForContext;
-  
-  const hasInsufficientSlots = !processedSlots || processedSlots.length === 0 || 
+
+  const hasInsufficientSlots =
+    !processedSlots ||
+    processedSlots.length === 0 ||
     processedSlots.length < Math.min(2, targetCount);
 
   if (hasInsufficientSlots) {
@@ -635,20 +638,21 @@ export function postProcessSuggestion(
       // Fusionner les créneaux existants avec les nouveaux (éviter les doublons)
       const existingSlots = processedSlots || [];
       const mergedSlots = [...existingSlots];
-      
+
       contextualSlots.forEach((newSlot) => {
         // Vérifier si le créneau existe déjà (même start/end sur mêmes dates)
         const exists = existingSlots.some((existing) => {
           const sameTime = existing.start === newSlot.start && existing.end === newSlot.end;
-          const sameDates = JSON.stringify(existing.dates?.sort()) === JSON.stringify(newSlot.dates?.sort());
+          const sameDates =
+            JSON.stringify(existing.dates?.sort()) === JSON.stringify(newSlot.dates?.sort());
           return sameTime && sameDates;
         });
-        
+
         if (!exists) {
           mergedSlots.push(newSlot);
         }
       });
-      
+
       processedSlots = mergedSlots;
     }
   }

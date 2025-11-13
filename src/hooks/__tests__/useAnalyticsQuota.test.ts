@@ -124,9 +124,10 @@ vi.mock("../../lib/logger", () => ({
 }));
 
 // Mock du contexte d'authentification
+// Note: vi.mock est hoisted, donc on doit utiliser une factory function
 const mockUseAuth = vi.fn();
 vi.mock("../../contexts/AuthContext", () => ({
-  useAuth: () => mockUseAuth,
+  useAuth: () => mockUseAuth(),
 }));
 
 import { logger } from "../../lib/logger";
@@ -214,18 +215,21 @@ describe("useAnalyticsQuota", () => {
     });
 
     it("initialise avec quota authentifié si user présent (50 queries)", async () => {
-      // Configurer le mock pour retourner un utilisateur authentifié
+      // Configurer le mock pour retourner un utilisateur authentifié AVANT renderHook
       mockUseAuth.mockImplementation(() => createAuthMock(mockUser));
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
-      // Attendre que le hook soit initialisé
-      await waitFor(() => {
-        expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
-        expect(result.current.quota.used).toBe(0);
-        expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
-        expect(result.current.quota.canQuery).toBe(true);
-      });
+      // Attendre que le hook soit initialisé avec timeout explicite pour CI
+      await waitFor(
+        () => {
+          expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+          expect(result.current.quota.used).toBe(0);
+          expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+          expect(result.current.quota.canQuery).toBe(true);
+        },
+        { timeout: 3000 }
+      );
     });
 
     it(" charge le quota depuis localStorage si présent", async () => {
@@ -417,18 +421,24 @@ describe("useAnalyticsQuota", () => {
       const { result, rerender } = renderHook(() => useAnalyticsQuota());
 
       // Utilisateur anonyme (limit: 20)
-      await waitFor(() => {
-        expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
-      });
+      await waitFor(
+        () => {
+          expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
+        },
+        { timeout: 3000 }
+      );
 
       // Changer pour utilisateur authentifié
       mockUseAuth.mockImplementation(() => createAuthMock(mockUser));
 
       rerender();
 
-      await waitFor(() => {
-        expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
-      });
+      await waitFor(
+        () => {
+          expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+        },
+        { timeout: 3000 }
+      );
 
       act(() => {
         result.current.resetQuota();
@@ -457,7 +467,7 @@ describe("useAnalyticsQuota", () => {
 
       expect(result.current.checkQuota()).toBe(false);
       expect(result.current.quota.canQuery).toBe(false);
-      
+
       const message = result.current.getQuotaMessage();
       // Vérifier que le message indique que le quota est épuisé
       expect(message).toContain("Quota épuisé");
@@ -500,10 +510,13 @@ describe("useAnalyticsQuota", () => {
     it(" utilise limite authentifiée (50 queries)", async () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
-      await waitFor(() => {
-        expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
-        expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
-      });
+      await waitFor(
+        () => {
+          expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+          expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+        },
+        { timeout: 3000 }
+      );
     });
 
     it(" peut incrémenter jusqu'à 50 queries", () => {

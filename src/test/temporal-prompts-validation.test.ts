@@ -376,10 +376,10 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
       }
 
       // Pour les prompts PARTIEL/NOK, on attend maintenant OK après améliorations
-      // Mais on accepte un score ≥ 0.7 (certains prompts peuvent avoir des contraintes difficiles)
+      // Seuil augmenté à 0.85 pour être plus strict et aligné avec les tests manuels
       // Exception : "visite-musee-semaine-prochaine" est intrinsèquement difficile (prompt vague "après-midi libre")
       // et obtient régulièrement 0.6, ce qui reste acceptable pour un prompt PARTIEL
-      const minScore = testCase.id === "visite-musee-semaine-prochaine" ? 0.6 : 0.7;
+      const minScore = testCase.id === "visite-musee-semaine-prochaine" ? 0.75 : 0.85;
       expect(result.score).toBeGreaterThanOrEqual(minScore);
       expect(result.details.hasTimeSlots).toBe(true);
     }, 60000);
@@ -576,7 +576,9 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
       }
 
       score = Math.max(0, score);
-      const passed = score >= 0.7 && violations.length === 0;
+      // Seuil augmenté à 0.85 pour être plus strict et aligné avec les tests manuels
+      const minScoreForPass = testCase.id === "visite-musee-semaine-prochaine" ? 0.75 : 0.85;
+      const passed = score >= minScoreForPass && violations.length === 0;
 
       return {
         promptId: testCase.id,
