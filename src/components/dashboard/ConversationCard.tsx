@@ -139,8 +139,8 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
         clearTimeout(preloadTimeoutRef.current);
       }
       preloadTimeoutRef.current = setTimeout(() => {
-        if (typeof (window as any).preloadPollCreator === "function") {
-          (window as any).preloadPollCreator();
+        if (typeof window.preloadPollCreator === "function") {
+          window.preloadPollCreator();
         }
       }, 300);
     }

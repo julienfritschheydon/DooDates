@@ -381,7 +381,7 @@ export const useVoting = (pollSlug: string) => {
 
       pollVotes.forEach((vote: any) => {
         const selection = vote.vote_data?.[optionId];
-        if (selection && counts.hasOwnProperty(selection)) {
+        if (selection && Object.hasOwn(counts, selection)) {
           counts[selection]++;
           if (selection === "yes") {
             voterNames.push(vote.voter_name);

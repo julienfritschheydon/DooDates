@@ -966,10 +966,127 @@ INTERDICTIONS STRICTES:
     return timeRanges[period] || { start: "09:00", end: "17:00" };
   }
 
+  /**
+   * Génère des hints contextuels spécifiques pour améliorer la génération de créneaux par Gemini.
+   * Détecte les contextes spécifiques (visite musée, footing, visio, brunch, etc.) et génère des instructions précises.
+   */
+  private buildContextualHints(userInput: string): string {
+    const lowerInput = userInput.toLowerCase();
+    const hints: string[] = [];
+
+    // Détection des contextes spécifiques (par ordre de priorité)
+
+    // Visite musée/exposition
+    if (/visite.*musée|musée.*visite|visite.*exposition|exposition.*visite/.test(lowerInput)) {
+      hints.push(
+        "CONTEXTE: Visite au musée/exposition → Générer 2-3 créneaux entre 14h00 et 17h00 (durée 2-3h)",
+      );
+    }
+
+    // Footing/course/jogging
+    if (/footing|course|jogging|running/.test(lowerInput)) {
+      hints.push("CONTEXTE: Activité sportive → Générer 1-2 créneaux courts (1h max)");
+      if (/vendredi.*soir|soir.*vendredi/.test(lowerInput)) {
+        hints.push("  - Vendredi soir: 18h00-19h00");
+      }
+      if (/samedi.*matin|matin.*samedi/.test(lowerInput)) {
+        hints.push("  - Samedi matin: 08h00-09h00");
+      }
+    }
+
+    // Visio/visioconférence
+    if (/visio|visioconférence|visioconference/.test(lowerInput)) {
+      hints.push(
+        "CONTEXTE: Visioconférence → Générer maximum 2 créneaux entre 18h00 et 20h00 (durée 1h)",
+      );
+    }
+
+    // Brunch
+    if (/brunch/.test(lowerInput)) {
+      hints.push("CONTEXTE: Brunch → Générer créneaux entre 11h30 et 13h00 (durée 90min)");
+    }
+
+    // Déjeuner/partenariats
+    if (/déjeuner|dejeuner|partenariats/.test(lowerInput)) {
+      hints.push(
+        "CONTEXTE: Déjeuner/partenariats → Générer 2-3 créneaux entre 11h30 et 13h30 (durée 1h)",
+      );
+    }
+
+    // Escape game
+    if (/escape.*game|escape game/.test(lowerInput)) {
+      hints.push(
+        "CONTEXTE: Escape game → Générer créneaux en soirée entre 19h00 et 21h00 (durée 2h)",
+      );
+    }
+
+    // Séance photo
+    if (
+      /photo|séance photo/.test(lowerInput) &&
+      /dimanche/.test(lowerInput) &&
+      /matin/.test(lowerInput)
+    ) {
+      hints.push(
+        "CONTEXTE: Séance photo dimanche matin → Générer 2-3 créneaux entre 09h00 et 12h00 (durée 3h)",
+      );
+    }
+
+    // Répétition chorale
+    if (
+      /chorale|répétition/.test(lowerInput) &&
+      /samedi/.test(lowerInput) &&
+      /dimanche/.test(lowerInput)
+    ) {
+      hints.push(
+        "CONTEXTE: Répétition chorale → Générer 1 créneau samedi matin (10h-12h) et 1 créneau dimanche après-midi (15h-17h)",
+      );
+    }
+
+    // Réunion parents-profs
+    if (/parents?-?profs?/.test(lowerInput)) {
+      hints.push(
+        "CONTEXTE: Réunion parents-profs → Générer 2 créneaux en début de soirée (18h30-20h00, durée 90min)",
+      );
+    }
+
+    // Aide aux devoirs
+    if (/aide aux devoirs|devoirs/.test(lowerInput)) {
+      hints.push(
+        "CONTEXTE: Aide aux devoirs → Générer créneaux mercredi après-midi (17h-18h) ou vendredi soir (18h-19h)",
+      );
+    }
+
+    // Distribution flyers
+    if (/distribution.*flyers|flyers/.test(lowerInput)) {
+      hints.push(
+        "CONTEXTE: Distribution de flyers → Générer 2 créneaux (samedi matin 9h-11h + dimanche après-midi 14h-16h)",
+      );
+    }
+
+    // Améliorer les plages horaires génériques
+    if (/matin/.test(lowerInput) && !/brunch/.test(lowerInput)) {
+      hints.push("CONTEXTE: Matin → Générer créneaux entre 09h00 et 12h00 (pas 8h-11h)");
+    }
+
+    if (/après-midi|apres-midi/.test(lowerInput)) {
+      hints.push("CONTEXTE: Après-midi → Générer créneaux entre 14h00 et 17h00 (pas 15h-17h)");
+    }
+
+    // Soirée générique
+    if (/soir|soirée|soiree/.test(lowerInput) && !/escape/.test(lowerInput)) {
+      hints.push("CONTEXTE: Soirée → Générer créneaux entre 18h30 et 21h00");
+    }
+
+    return hints.length > 0
+      ? `\n⚠️⚠️⚠️ HINTS CONTEXTUELS DÉTECTÉS ⚠️⚠️⚠️\n${hints.join("\n")}\n`
+      : "";
+  }
+
   private buildPollGenerationPrompt(userInput: string, dateHints: string = ""): string {
     // Analyse temporelle préalable
     const temporalAnalysis = this.analyzeTemporalInput(userInput);
     const counterfactualQuestions = this.generateCounterfactualQuestions(userInput);
+    const contextualHints = this.buildContextualHints(userInput);
 
     const today = new Date();
     const currentYear = today.getFullYear();
@@ -977,6 +1094,7 @@ INTERDICTIONS STRICTES:
 
     return `Tu es l'IA DooDates, expert en planification temporelle avec techniques Counterfactual-Consistency.
 ${dateHints}
+${contextualHints}
 ANALYSE TEMPORELLE PRÉALABLE:
 - Conflits détectés: ${temporalAnalysis.conflicts.join(", ") || "Aucun"}
 - Suggestions: ${temporalAnalysis.suggestions.join(", ") || "Aucune"}
@@ -1032,9 +1150,17 @@ RÈGLE ABSOLUE: Toujours calculer à partir de ${getTodayLocal()}, JAMAIS utilis
 RÈGLES DE GÉNÉRATION:
 1. **DATES FUTURES OBLIGATOIRES** - Vérifier que chaque date >= ${getTodayLocal()}
 2. **COHÉRENCE JOURS/DATES** - Si "lundi" demandé, vérifier que la date tombe un lundi
-3. **CRÉNEAUX MULTIPLES** - Générer 4-8 créneaux par plage horaire (ex: si "matin" → 8h-9h, 9h-10h, 10h-11h, 11h-12h)
+3. **CRÉNEAUX MULTIPLES** - Générer 2-3 créneaux par défaut (sauf si contexte spécifique indique autrement)
+   - Pour visites/musées : 2-3 créneaux
+   - Pour activités sportives : 1-2 créneaux
+   - Pour déjeuners/partenariats : 2-3 créneaux
+   - Pour visio : maximum 2 créneaux
+   - Pour événements/soirées : 3-5 créneaux
 4. **RÉCURRENCE INTELLIGENTE** - "tous les jeudis pendant 2 mois" = 8-9 jeudis consécutifs
-5. **CONTRAINTES TEMPORELLES** - "matin"=8h-12h, "après-midi"=12h-18h, "soir"=18h-21h
+5. **CONTRAINTES TEMPORELLES GÉNÉRIQUES** (utiliser seulement si aucun hint contextuel spécifique) :
+   - "matin" = 09h00-12h00 (pas 8h-11h)
+   - "après-midi" = 14h00-17h00 (pas 15h-17h)
+   - "soir" = 18h30-21h00 (pas 17h-19h)
 
 FORMATS STRICTS:
 - Date: "YYYY-MM-DD" (>= ${getTodayLocal()})

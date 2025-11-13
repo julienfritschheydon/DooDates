@@ -435,6 +435,29 @@ function limitSlotsCount(
 
 // Génère des créneaux horaires "intelligents" en fonction des indices détectés dans le prompt.
 // Chaque bloc gère un scénario métier identifié dans la documentation (stand-up, chorale, etc.).
+/**
+ * Génère des créneaux contextualisés comme FALLBACK uniquement si Gemini n'a pas généré de créneaux.
+ *
+ * STRATÉGIE :
+ * - Les contextes spécifiques (visite musée, footing, visio, brunch, déjeuner, etc.) sont PRINCIPALEMENT
+ *   gérés par Gemini via les hints contextuels dans `buildContextualHints()`.
+ * - Cette fonction sert de FALLBACK de sécurité pour garantir qu'on génère toujours des créneaux
+ *   même si Gemini n'a pas respecté les hints (cas rares).
+ *
+ * RÈGLES MÉTIER STRICTES (gardées comme fallback) :
+ * - Stand-up express : 3 créneaux de 30min le matin
+ * - Réunion parents-profs : 2 créneaux début de soirée (18h30-20h00)
+ * - Séance photo dimanche matin : 2-3 créneaux (09h00-12h00)
+ * - Répétition chorale : samedi matin + dimanche après-midi
+ * - Aide aux devoirs : mercredi/vendredi
+ * - Kermesse : samedi 10h
+ * - Brunch : 11h30-13h00
+ * - Déjeuner/partenariats : 2-3 créneaux 11h30-13h30
+ * - Plages génériques : matin (09h-12h), après-midi (14h-17h), soirée (18h30-21h)
+ *
+ * NOTE : Ces fallbacks ne devraient normalement pas être utilisés car Gemini génère directement
+ * les bons créneaux grâce aux hints contextuels. Ils servent de sécurité pour les cas limites.
+ */
 function buildContextualSlots(
   dates: string[],
   userInput: string,
@@ -447,6 +470,7 @@ function buildContextualSlots(
   const filteredDates = filterDatesByDayKeywords(dates, lowerInput);
   const effectiveDates = filteredDates.length > 0 ? filteredDates : dates;
 
+  // RÈGLE MÉTIER STRICTE : Stand-up express (30min, matin)
   if (
     /stand-?up|standup/.test(lowerInput) ||
     (/express|rapide/.test(lowerInput) && /matin/.test(lowerInput))
@@ -461,6 +485,7 @@ function buildContextualSlots(
       : undefined;
   }
 
+  // FALLBACK : Réunion parents-profs (gardé pour compatibilité tests)
   if (/parents?-?profs?/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 2);
     if (targets.length === 0) {
@@ -469,11 +494,13 @@ function buildContextualSlots(
     return targets.map((date) => createSlot(date, 18, 30, 90));
   }
 
+  // FALLBACK : Kermesse samedi 10h (gardé pour compatibilité tests)
   if (/kermesse/.test(lowerInput) || (/samedi/.test(lowerInput) && /10h/.test(lowerInput))) {
     const saturday = effectiveDates.find((date) => isDay(date, 6)) || effectiveDates[0];
     return saturday ? [createSlot(saturday, 10, 0, 60)] : undefined;
   }
 
+  // FALLBACK : Aide aux devoirs (gardé pour compatibilité tests)
   if (/aide aux devoirs|devoirs/.test(lowerInput)) {
     const slots: DatePollSuggestion["timeSlots"] = [];
     const wednesday = effectiveDates.find((date) => isDay(date, 3));
@@ -489,6 +516,7 @@ function buildContextualSlots(
     return slots.length > 0 ? slots : undefined;
   }
 
+  // FALLBACK : Répétition chorale (gardé pour compatibilité tests)
   if (
     /chorale|répétition/.test(lowerInput) &&
     /samedi/.test(lowerInput) &&
@@ -508,6 +536,7 @@ function buildContextualSlots(
     return slots.length > 0 ? slots : undefined;
   }
 
+  // FALLBACK : Séance photo dimanche matin (gardé pour compatibilité tests)
   if (/photo/.test(lowerInput) && /dimanche/.test(lowerInput) && /matin/.test(lowerInput)) {
     const slots = effectiveDates
       .filter((date) => isDay(date, 0))
@@ -517,58 +546,56 @@ function buildContextualSlots(
     return slots.length > 0 ? slots : undefined;
   }
 
+  // FALLBACK : Soirée générique (gardé pour compatibilité tests)
   if (/soir|soirée|soiree|début de soirée|debut de soiree/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 3);
     return targets.length > 0 ? targets.map((date) => createSlot(date, 18, 30, 120)) : undefined;
   }
 
+  // FALLBACK : Après-midi générique (gardé pour compatibilité tests)
   if (/après-midi|apres-midi/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 3);
-    return targets.length > 0 ? targets.map((date) => createSlot(date, 15, 0, 120)) : undefined;
+    return targets.length > 0 ? targets.map((date) => createSlot(date, 14, 0, 180)) : undefined; // 14h-17h (corrigé)
   }
 
+  // FALLBACK : Matin générique (gardé pour compatibilité tests)
   if (/matin/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 3);
-    return targets.length > 0 ? targets.map((date) => createSlot(date, 9, 0, 120)) : undefined;
+    return targets.length > 0 ? targets.map((date) => createSlot(date, 9, 0, 180)) : undefined; // 9h-12h (corrigé)
   }
 
-  // Détection "brunch" AVANT "matin" pour appliquer la bonne plage horaire
+  // FALLBACK : Brunch (gardé pour compatibilité tests)
   if (/brunch/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 2);
     if (targets.length === 0) {
       return undefined;
     }
-    // Brunch : 11h30-13h00
     return targets.map((date) => createSlot(date, 11, 30, 90));
   }
 
-  // Détection "déjeuner" ou "partenariats" : générer 2-3 créneaux
+  // FALLBACK : Déjeuner/partenariats (gardé pour compatibilité tests)
   if (/déjeuner|dejeuner|partenariats|midi/.test(lowerInput)) {
     const targets = effectiveDates.slice(0, 2);
     if (targets.length === 0) {
       return undefined;
     }
 
-    // Pour les déjeuners/partenariats, générer 2-3 créneaux dans la plage 11h30-13h30
     const slots: DatePollSuggestion["timeSlots"] = [];
-
     targets.forEach((date) => {
-      // Créneau 1 : 11h30-12h30
       slots.push(createSlot(date, 11, 30, 60));
-      // Créneau 2 : 12h00-13h00
       slots.push(createSlot(date, 12, 0, 60));
     });
 
-    // Créneau 3 : 12h30-13h30 (seulement si plusieurs dates)
     if (targets.length > 1 && targets[1]) {
       slots.push(createSlot(targets[1], 12, 30, 60));
     }
 
-    return slots.slice(0, 3); // Max 3 créneaux
+    return slots.slice(0, 3);
   }
 
+  // Extraction d'horaires explicites depuis le prompt (ex: "10h", "14h30")
+  // Gardé car extraction précise nécessaire même avec hints Gemini
   const explicitTimes = extractTimesFromInput(lowerInput);
-
   if (explicitTimes.length > 0) {
     const targets = effectiveDates.slice(0, explicitTimes.length || 1);
     if (targets.length === 0) {

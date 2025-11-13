@@ -61,5 +61,5 @@ export interface Message {
   role: "user" | "assistant" | "system";
   content: string;
   createdAt: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }

@@ -3,7 +3,8 @@ import { Sparkles, Loader2 } from "lucide-react";
 import { groupConsecutiveDates } from "../../lib/date-utils";
 import { AIProposalFeedback } from "../polls/AIProposalFeedback";
 import { getPollBySlugOrId, getAllPolls } from "../../lib/pollStorage";
-import type { PollSuggestion } from "../../lib/gemini";
+import type { PollSuggestion, FormPollSuggestion, DatePollSuggestion } from "../../lib/gemini";
+import type { Poll } from "../../lib/pollStorage";
 import { logger } from "@/lib/logger";
 
 interface Message {
@@ -20,10 +21,10 @@ interface ChatMessageListProps {
   darkTheme: boolean;
   hasLinkedPoll: boolean;
   linkedPollId: string | null;
-  currentPoll: any;
+  currentPoll: Poll | null;
   lastAIProposal: {
     userRequest: string;
-    generatedContent: any;
+    generatedContent: unknown;
     pollContext?: {
       pollId?: string;
       pollTitle?: string;
@@ -33,7 +34,7 @@ interface ChatMessageListProps {
   } | null;
   onUsePollSuggestion: (suggestion: PollSuggestion) => void;
   onOpenEditor: () => void;
-  onSetCurrentPoll: (poll: any) => void;
+  onSetCurrentPoll: (poll: Poll) => void;
   onFeedbackSent: () => void;
   messagesEndRef: React.RefObject<HTMLDivElement>;
   isLoading?: boolean;
@@ -199,11 +200,11 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
 
                       <div className="space-y-3">
                         {/* Affichage conditionnel selon le type */}
-                        {(message.pollSuggestion as any).type === "form" ? (
+                        {(message.pollSuggestion as FormPollSuggestion).type === "form" ? (
                           /* Affichage Form Poll (questionnaire) - MÊME DESIGN QUE DATE POLL */
                           <div className="space-y-2 md:space-y-3">
-                            {(message.pollSuggestion as any).questions?.map(
-                              (question: any, idx: number) => (
+                            {(message.pollSuggestion as FormPollSuggestion).questions?.map(
+                              (question, idx: number) => (
                                 <div key={idx} className="bg-[#3c4043] rounded-lg p-3 md:p-4">
                                   <div className="flex items-start gap-2 md:gap-3">
                                     <div className="flex-1 min-w-0">
@@ -310,7 +311,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                       {hasLinkedPoll ? (
                         <button
                           data-testid={
-                            (message.pollSuggestion as any).type === "form"
+                            (message.pollSuggestion as FormPollSuggestion).type === "form"
                               ? "view-form-button"
                               : "view-poll-button"
                           }
@@ -332,7 +333,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                                 logger.debug("Poll trouvé", "poll", { poll: p });
                                 if (p) {
                                   logger.debug("Ouverture via linkedPollId", "poll");
-                                  onSetCurrentPoll(p as any);
+                                  onSetCurrentPoll(p);
                                   onOpenEditor();
                                   return;
                                 }
@@ -352,7 +353,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                           className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-indigo-500 hover:bg-indigo-600"
                         >
                           <span>
-                            {(message.pollSuggestion as any).type === "form"
+                            {(message.pollSuggestion as FormPollSuggestion).type === "form"
                               ? "Voir le formulaire"
                               : "Voir le sondage"}
                           </span>
@@ -360,7 +361,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                       ) : (
                         <button
                           data-testid={
-                            (message.pollSuggestion as any).type === "form"
+                            (message.pollSuggestion as FormPollSuggestion).type === "form"
                               ? "create-form-button"
                               : "create-poll-button"
                           }
@@ -373,7 +374,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                           className="w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors bg-blue-500 hover:bg-blue-600"
                         >
                           <span>
-                            {(message.pollSuggestion as any).type === "form"
+                            {(message.pollSuggestion as FormPollSuggestion).type === "form"
                               ? "Créer ce formulaire"
                               : "Créer ce sondage"}
                           </span>
@@ -389,7 +390,8 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                                 ?.content || "Demande de création",
                             generatedContent: message.pollSuggestion,
                             pollContext: {
-                              pollType: (message.pollSuggestion as any).type || "date",
+                              pollType:
+                                (message.pollSuggestion as FormPollSuggestion).type || "date",
                               action: "create",
                             } as { pollType?: string; action?: string },
                           }}
