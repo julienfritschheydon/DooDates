@@ -1,8 +1,8 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 13/11/2025 12:23:31
+**Dernière mise à jour:** 13/11/2025 12:38:08
 
-_Workflow run #256 (ID 19329861665) — génération UTC 2025-11-13T11:23:31.803Z_
+_Workflow run #262 (ID 19330235547) — génération UTC 2025-11-13T11:38:08.032Z_
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -28,7 +28,7 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ✅ success
 
-**Dernier run:** 13/11/2025 12:18:21
+**Dernier run:** 13/11/2025 12:32:03
 
 **Statistiques:**
 - ❌ Échecs (24h): **10**
@@ -145,21 +145,21 @@ stack: 'DooDatesError: Gemini model not initialized\n' +
 
 **Statut:** ⏳ unknown
 
-**Dernier run:** 13/11/2025 12:22:35
+**Dernier run:** 13/11/2025 12:36:58
 
 **Statistiques:**
-- ❌ Échecs (24h): **6**
-- ❌ Échecs (7 jours): **8**
+- ❌ Échecs (24h): **7**
+- ❌ Échecs (7 jours): **9**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
 
-#### Run #72 - 13/11/2025 11:57:55
+#### Run #73 - 13/11/2025 12:22:35
 
-- **Commit:** `ac9fd04`
+- **Commit:** `79619e8`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19329212933)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19329860428)
 - **Jobs en échec:**
   - ❌ `⚡ E2E Functional Tests (1)` (failure)
     - Steps en échec: `⚡ Run Functional Tests (Shard 1/2)`
@@ -212,6 +212,16 @@ Error: "path": "/home/runner/work/DooDates/DooDates/test-results/analytics-ai-op
 ```
       *... et 5 autre(s) erreur(s)*
 
+#### Run #72 - 13/11/2025 11:57:55
+
+- **Commit:** `ac9fd04`
+- **Auteur:** julienfritschheydon
+- **Branche:** `main`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19329212933)
+- **Jobs en échec:**
+  - ❌ `⚡ E2E Functional Tests (1)` (failure)
+    - Steps en échec: `⚡ Run Functional Tests (Shard 1/2)`
+
 #### Run #71 - 13/11/2025 11:25:40
 
 - **Commit:** `8c157d2`
@@ -238,16 +248,6 @@ Error: "path": "/home/runner/work/DooDates/DooDates/test-results/analytics-ai-op
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
 - **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19326906981)
-- **Jobs en échec:**
-  - ❌ `⚡ E2E Functional Tests (1)` (failure)
-    - Steps en échec: `⚡ Run Functional Tests (Shard 1/2)`
-
-#### Run #68 - 13/11/2025 09:56:15
-
-- **Commit:** `eab47d1`
-- **Auteur:** julienfritschheydon
-- **Branche:** `main`
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19325930430)
 - **Jobs en échec:**
   - ❌ `⚡ E2E Functional Tests (1)` (failure)
     - Steps en échec: `⚡ Run Functional Tests (Shard 1/2)`
