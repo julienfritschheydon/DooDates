@@ -48,6 +48,10 @@ async function createPollWithVotesAndClose(
   browserName: string,
   numVotes: number = 3
 ): Promise<string> {
+  // S'assurer que les mocks sont configurés avant la navigation
+  // (nécessaire car les routes peuvent ne pas persister après un nouveau goto())
+  await setupAllMocks(page);
+  
   // 1. Créer un FormPoll via IA
   await page.goto("/?e2e-test=true", { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
