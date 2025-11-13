@@ -49,11 +49,8 @@ async function createPollWithVotesAndClose(
   browserName: string,
   numVotes: number = 3
 ): Promise<string> {
-  // S'assurer que les mocks sont configurés au niveau du contexte (plus persistant)
-  // Les routes au niveau du contexte survivent aux page.goto()
-  const context = page.context();
-  await E2E_CONFIG.enableE2EMode(context);
-  await setupAllMocksContext(context);
+  // Les routes sont déjà configurées dans beforeEach au niveau du contexte
+  // Pas besoin de les reconfigurer ici - elles sont déjà actives
   
   // 1. Créer un FormPoll via IA
   await page.goto("/?e2e-test=true", { waitUntil: 'domcontentloaded' });
@@ -198,7 +195,12 @@ test.describe("Analytics IA - Suite Optimisée", () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'Shared context non supporté sur Firefox/Safari');
   
   test.beforeEach(async ({ page, browserName }) => {
-    await setupAllMocks(page);
+    // Configurer les routes au niveau du contexte AVANT toute navigation
+    // Cela garantit que les routes sont actives même si createPollWithVotesAndClose() est appelé
+    const context = page.context();
+    await E2E_CONFIG.enableE2EMode(context);
+    await setupAllMocksContext(context);
+    
     const targetUrl = pollSlug
       ? `/poll/${pollSlug}/results?e2e-test=true`
       : "/results?e2e-test=true";
