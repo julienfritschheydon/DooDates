@@ -52,6 +52,8 @@ const SupabaseDiagnostic = lazy(() =>
     default: m.SupabaseDiagnostic,
   })),
 );
+const CalendarPrototype = lazy(() => import("./pages/CalendarPrototype"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Docs = lazy(() => import("./pages/Docs").then((m) => ({ default: m.Docs })));
 const Pricing = lazy(() => import("./pages/Pricing").then((m) => ({ default: m.PricingPage })));
 
@@ -60,10 +62,7 @@ const CACHE_KEY = "doodates-pollcreator-loaded";
 const TIMESLOT_CACHE_KEY = "doodates-timeslot-loaded";
 
 type PollCreatorModule = typeof import("./pages/PollCreator");
-type TimeSlotFunctionsModule = {
-  convertGeminiSlotsToTimeSlotsByDate?: unknown;
-  calculateOptimalGranularity?: unknown;
-};
+type TimeSlotFunctionsModule = typeof import("./lib/timeSlotFunctions");
 
 let pollCreatorModule: PollCreatorModule | null = null;
 let pollCreatorLoadingPromise: Promise<PollCreatorModule> | null = null;
@@ -431,6 +430,8 @@ const App = () => {
                                   path="/diagnostic/supabase"
                                   element={<SupabaseDiagnostic />}
                                 />
+                                <Route path="/calendar-prototype" element={<CalendarPrototype />} />
+                                <Route path="/auth/callback" element={<AuthCallback />} />
 
                                 <Route path="/poll/:slug" element={<Vote />} />
                                 <Route path="/poll/:slug/results" element={<Results />} />
