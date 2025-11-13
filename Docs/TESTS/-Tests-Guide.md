@@ -124,6 +124,7 @@ Ces critères servent de référence pour classer les suites dans le reste du gu
     - **Note** : Améliorations partielles (waitForPageLoad ajouté, quelques waitForTimeout remplacés). Fichier très long (1351 lignes), améliorations complètes nécessiteraient plus de temps.
     - **Correction sharding** : ✅ Tests rendus indépendants avec fonction helper `createPollWithVotesAndClose()` (13/11/2025)
     - **Correction persistance mocks** : ✅ Ajout de `setupAllMocks()` avant `page.goto()` dans `createPollWithVotesAndClose()` (13/11/2025)
+    - **Test skipé** : "2. Quick Queries" — même problème que `analytics-ai-optimized.spec.ts` (13/11/2025)
 
 - `tests/e2e/analytics-ai-optimized.spec.ts` — version optimisée pour CI (70% plus rapide, 3 tests vs 18, ~52s vs ~3-4 min).
     - `Docs\TESTS\follow-up\e2e-analytics-ai-optimized.md`
@@ -179,11 +180,13 @@ Ces critères servent de référence pour classer les suites dans le reste du gu
 - **Suivi** : Voir `Docs/TESTS/follow-up/useautosave-integration-tests.md`
 
 ### ⚠️ Tests E2E skippés (13/11/2025)
-- **Tests concernés** : 2 tests E2E skipés avec tag `@flaky`
-- **Fichier** :
+- **Tests concernés** : 3 tests E2E skipés avec tag `@flaky`
+- **Fichiers** :
   - `tests/e2e/analytics-ai-optimized.spec.ts` → 2 tests `skip` :
     1. "2. Quick Queries et Query Personnalisée (combiné)" (ligne 367)
     2. "3. Quotas et Cache (combiné)" (ligne 420)
+  - `tests/e2e/analytics-ai.spec.ts` → 1 test `skip` :
+    1. "2. Quick Queries: Tester les requêtes rapides" (ligne 438)
 - **Problème** : Routes Playwright non actives en CI lors de l'appel API dans `createPollWithVotesAndClose()`
 - **Symptôme** : Erreur "L'IA a retourné une erreur" — les tests passent localement mais échouent systématiquement en CI
 - **Tentatives de correction** :
