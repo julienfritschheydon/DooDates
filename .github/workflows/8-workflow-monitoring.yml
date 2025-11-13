@@ -2,7 +2,7 @@ name: 8️⃣ Workflow Monitoring & Health Report
 
 on:
   # 🔥 Monitoring hybride intelligent:
-  # 1️⃣ Déclenché immédiatement après workflows CRITIQUES
+  # 1️⃣ Déclenché immédiatement après TOUS les workflows CRITIQUES
   workflow_run:
     workflows:
       - "1️⃣ PR Complete Validation"           # PR validation (+ production-smoke)
@@ -10,13 +10,13 @@ on:
       - "3️⃣ Main Post-Merge E2E"              # Tests post-merge
       - "4️⃣ Main Deploy to GitHub Pages"      # Déploiement production
       - "5️⃣ Production Smoke Tests"           # Tests production réelle
-      - "7️⃣ Nightly Full Regression"          # Tests nocturnes
+      - "5️⃣ YAML Workflows Validation"        # Validation YAML workflows
+      - "6. Integration Tests (Real Supabase)" # Tests d'intégration réels
     types: [completed]
   
   # 2️⃣ Backup périodique (détecte workflows bloqués/jamais terminés)
+  # ⚠️ Pas toutes les heures - exécution toutes les 6h (4x/jour)
   schedule:
-    # Toutes les 6 heures au lieu de 1h (4x/jour au lieu de 24x/jour)
-    # = 83% moins d'exécutions inutiles
     - cron: '0 */6 * * *'
   
   # 3️⃣ Manuel (toujours pratique pour debug)
@@ -35,13 +35,12 @@ jobs:
   generate-health-report:
     runs-on: ubuntu-latest
     
-    # 🎯 Condition intelligente: Ne s'exécute que si pertinent
+    # 🎯 S'exécute après tous les workflows critiques (succès ou échec)
+    # Permet de générer le rapport de santé après chaque workflow surveillé
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
-      (github.event_name == 'workflow_run' && 
-       (github.event.workflow_run.conclusion != 'success' || 
-        contains(fromJSON('["4️⃣ Main Deploy to GitHub Pages", "5️⃣ Production Smoke Tests"]'), github.event.workflow_run.name)))
+      github.event_name == 'workflow_run'
     
     steps:
       - name: 📊 Contexte de déclenchement
@@ -86,19 +85,6 @@ jobs:
         run: |
           echo "📦 Installation de chromium avec dépendances système..."
           npx playwright install --with-deps chromium
-
-      - name: 📥 Download test artifacts from failed workflows
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Télécharger les artefacts de test des workflows récents
-          gh run list --workflow="7-nightly-regression.yml" --limit 3 --json databaseId,conclusion | \
-          jq -r '.[] | select(.conclusion == "failure") | .databaseId' | \
-          while read run_id; do
-            echo "📥 Téléchargement artefacts du run $run_id"
-            gh run download $run_id --pattern "test-results-*" --dir "temp-artifacts/$run_id" 2>/dev/null || true
-          done
 
       - name: 📊 Generate Workflow Health Report
         env:

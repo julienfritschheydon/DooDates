@@ -441,7 +441,7 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
     const counts = { yes: 0, no: 0, maybe: 0 };
     votes.forEach((vote) => {
       const selection = vote.selections[optionId];
-      if (selection && counts.hasOwnProperty(selection)) {
+      if (selection && Object.hasOwn(counts, selection)) {
         counts[selection]++;
       }
     });

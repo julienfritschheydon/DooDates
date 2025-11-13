@@ -9,8 +9,13 @@ import { logger } from "@/lib/logger";
 import { generateBrowserFingerprint } from "@/lib/browserFingerprint";
 
 // DEBUG: Exposer la fonction de fingerprinting sur window pour tests console
+declare global {
+  interface Window {
+    testFingerprint?: () => Promise<Awaited<ReturnType<typeof generateBrowserFingerprint>>>;
+  }
+}
 if (import.meta.env.DEV) {
-  (window as any).testFingerprint = async () => {
+  window.testFingerprint = async () => {
     const fp = await generateBrowserFingerprint();
     console.log("Fingerprint:", fp.fingerprint);
     console.log("Confidence:", fp.metadata.confidence);
@@ -43,9 +48,13 @@ function forceFullscreenOnAndroid() {
     }
 
     // Masquer la barre de statut Android
-    if ("screen" in window && "orientation" in window.screen) {
+    if (
+      "screen" in window &&
+      "orientation" in window.screen &&
+      "lock" in window.screen.orientation
+    ) {
       try {
-        (window.screen.orientation as any).lock("portrait-primary");
+        window.screen.orientation.lock("portrait-primary");
       } catch (e) {
         logger.debug("Orientation lock non supporté", "general");
       }

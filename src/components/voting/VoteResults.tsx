@@ -83,7 +83,7 @@ const OptionResult: React.FC<{
 
   votes.forEach((vote) => {
     const selection = vote.selections[option.id];
-    if (selection && voteCounts.hasOwnProperty(selection)) {
+    if (selection && Object.hasOwn(voteCounts, selection)) {
       voteCounts[selection]++;
       if (selection === "yes") {
         voterNames.push(vote.voter_name);
@@ -235,7 +235,7 @@ export const VoteResults: React.FC<VoteResultsProps> = ({ poll, options, votes, 
     const voteCounts = { yes: 0, no: 0, maybe: 0 };
     votes.forEach((vote) => {
       const selection = vote.selections[option.id];
-      if (selection && voteCounts.hasOwnProperty(selection)) {
+      if (selection && Object.hasOwn(voteCounts, selection)) {
         voteCounts[selection]++;
       }
     });

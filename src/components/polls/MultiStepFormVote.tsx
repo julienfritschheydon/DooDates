@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import type { Poll, FormQuestionShape } from "../../lib/pollStorage";
 import { addFormResponse } from "../../lib/pollStorage";
@@ -101,6 +101,18 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
     return true; // Non requis = toujours OK
   }, [currentQuestion, answers]);
 
+  const goNext = useCallback(() => {
+    if (currentStep < visibleQuestions.length) {
+      setCurrentStep((prev) => prev + 1);
+    }
+  }, [currentStep, visibleQuestions.length]);
+
+  const goBack = useCallback(() => {
+    if (currentStep > 0) {
+      setCurrentStep((prev) => prev - 1);
+    }
+  }, [currentStep]);
+
   // Navigation clavier
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -117,19 +129,7 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [currentStep, isCurrentQuestionAnswered, isLastQuestion]);
-
-  const goNext = () => {
-    if (currentStep < visibleQuestions.length) {
-      setCurrentStep((prev) => prev + 1);
-    }
-  };
-
-  const goBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  };
+  }, [currentStep, isCurrentQuestionAnswered, isLastQuestion, goNext, goBack]);
 
   const handleAnswer = (value: AnswerValue) => {
     setAnswers((prev) => ({

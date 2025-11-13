@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DashboardPoll, ConversationItem } from "./types";
 import {
   getAllPolls,
@@ -25,11 +25,7 @@ export function useDashboardData(refreshKey: number) {
     typeof window !== "undefined" &&
     (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true);
 
-  useEffect(() => {
-    loadData();
-  }, [refreshKey, user?.id]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       // Charger les polls depuis Supabase (si utilisateur connecté et hors E2E)
@@ -309,7 +305,11 @@ export function useDashboardData(refreshKey: number) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getUserPolls, user?.id, isE2ETestMode]);
+
+  useEffect(() => {
+    loadData();
+  }, [refreshKey, user?.id, loadData]);
 
   return { conversationItems, loading, reload: loadData };
 }

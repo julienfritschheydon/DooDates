@@ -68,7 +68,7 @@ export class QuotaService {
     try {
       let totalSize = 0;
       for (const key in localStorage) {
-        if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
+        if (Object.hasOwn(localStorage, key)) {
           const value = localStorage.getItem(key) || "";
           totalSize += key.length + value.length;
         }
