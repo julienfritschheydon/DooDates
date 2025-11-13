@@ -60,6 +60,10 @@ test.describe('Form Poll - Tests de non-régression', () => {
    * Utilisé pour rendre les tests indépendants en cas de sharding
    */
   async function createFormPoll(page: any): Promise<string> {
+    // S'assurer que les mocks sont configurés avant la navigation
+    // (nécessaire car les routes peuvent ne pas persister après un nouveau goto())
+    await setupAllMocks(page);
+    
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle');
     
