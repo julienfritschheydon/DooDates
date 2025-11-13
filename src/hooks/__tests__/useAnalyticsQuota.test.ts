@@ -228,7 +228,7 @@ describe("useAnalyticsQuota", () => {
           expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
           expect(result.current.quota.canQuery).toBe(true);
         },
-        { timeout: 3000 }
+        { timeout: 3000 },
       );
     });
 
@@ -425,7 +425,7 @@ describe("useAnalyticsQuota", () => {
         () => {
           expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
         },
-        { timeout: 3000 }
+        { timeout: 3000 },
       );
 
       // Changer pour utilisateur authentifié
@@ -437,7 +437,7 @@ describe("useAnalyticsQuota", () => {
         () => {
           expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
         },
-        { timeout: 3000 }
+        { timeout: 3000 },
       );
 
       act(() => {
@@ -515,7 +515,7 @@ describe("useAnalyticsQuota", () => {
           expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
           expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
         },
-        { timeout: 3000 }
+        { timeout: 3000 },
       );
     });
 

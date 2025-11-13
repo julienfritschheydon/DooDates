@@ -58,9 +58,16 @@ const Pricing = lazy(() => import("./pages/Pricing").then((m) => ({ default: m.P
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
 const TIMESLOT_CACHE_KEY = "doodates-timeslot-loaded";
-let pollCreatorModule: any = null;
-let pollCreatorLoadingPromise: Promise<any> | null = null;
-let timeSlotFunctionsModule: any = null;
+
+type PollCreatorModule = typeof import("./pages/PollCreator");
+type TimeSlotFunctionsModule = {
+  convertGeminiSlotsToTimeSlotsByDate?: unknown;
+  calculateOptimalGranularity?: unknown;
+};
+
+let pollCreatorModule: PollCreatorModule | null = null;
+let pollCreatorLoadingPromise: Promise<PollCreatorModule> | null = null;
+let timeSlotFunctionsModule: TimeSlotFunctionsModule | null = null;
 
 // Vérifier si le module a déjà été chargé dans cette session
 const isModulePreloaded = () => {
@@ -73,7 +80,7 @@ const markModuleAsLoaded = () => {
 };
 
 // Préchargement intelligent du PollCreator (fonction simple)
-const preloadPollCreator = async () => {
+const preloadPollCreator = async (): Promise<PollCreatorModule> => {
   if (pollCreatorModule) {
     return pollCreatorModule;
   }
@@ -233,7 +240,13 @@ setTimeout(() => {
 }, 3000); // Augmenté de 1s à 3s pour laisser plus de temps au chargement initial
 
 // Exposer globalement pour utilisation dans PollCreator
-(window as any).getTimeSlotFunctions = () => timeSlotFunctionsModule;
+declare global {
+  interface Window {
+    getTimeSlotFunctions?: () => TimeSlotFunctionsModule | null;
+    preloadPollCreator?: () => Promise<PollCreatorModule>;
+  }
+}
+window.getTimeSlotFunctions = () => timeSlotFunctionsModule;
 
 const PollCreator = lazy(() => {
   if (pollCreatorModule) {
@@ -279,7 +292,7 @@ const queryClient = new QueryClient({
 });
 
 // Exposer fonction de préchargement pour utilisation sur hover/click
-(window as any).preloadPollCreator = () => {
+window.preloadPollCreator = () => {
   if (pollCreatorModule) {
     return Promise.resolve(pollCreatorModule);
   }

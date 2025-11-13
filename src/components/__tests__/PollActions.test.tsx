@@ -39,7 +39,7 @@ vi.mock("@/hooks/usePollDeletionCascade", () => ({
 
 // Mock pollStorage functions used internally by PollActions (defined inside factory to avoid hoisting issues)
 vi.mock("@/lib/pollStorage", async (importOriginal) => {
-  const mod = await importOriginal<any>();
+  const mod = await importOriginal<typeof import("@/lib/pollStorage")>();
   return {
     ...mod,
     duplicatePoll: vi.fn(
@@ -65,7 +65,7 @@ import { duplicatePoll, deletePollById, copyToClipboard, buildPublicLink } from 
 // Mock react-router navigate to avoid actual navigation
 const navigateMock = vi.fn();
 vi.mock("react-router-dom", async (importOriginal) => {
-  const mod = await importOriginal<any>();
+  const mod = await importOriginal<typeof import("react-router-dom")>();
   return { ...mod, useNavigate: () => navigateMock };
 });
 

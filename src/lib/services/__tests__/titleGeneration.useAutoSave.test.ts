@@ -66,14 +66,22 @@ describe("titleGeneration + useAutoSave Integration", () => {
 
   beforeEach(() => {
     // Setup default mocks using helper
-    mockConversationStorage.createConversation.mockReturnValue(
-      createMockConversation({
-        id: "conv-123",
-        title: "Test Conversation",
-        firstMessage: "Hello",
-        messageCount: 1,
-      }),
-    );
+    const defaultConversation = createMockConversation({
+      id: "conv-123",
+      title: "Test Conversation",
+      firstMessage: "Hello",
+      messageCount: 1,
+    });
+
+    mockConversationStorage.createConversation.mockReturnValue(defaultConversation);
+
+    // Mock getConversation to return conversation for any ID (will be overridden in specific tests)
+    mockConversationStorage.getConversation.mockImplementation((id: string) => {
+      if (id === "conv-123" || id.startsWith("temp-")) {
+        return defaultConversation;
+      }
+      return null;
+    });
 
     mockConversationStorage.getMessages.mockReturnValue([]);
     // Reset addMessages mock to ensure it's tracked
@@ -282,8 +290,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
       expect(titleResult.title).toMatch(/réunion|projet/i);
     });
 
-    // TODO: Fix integration tests - createConversation not called (quota/context issue)
-    it.skip("should integrate with conversation storage updates", async () => {
+    it("should integrate with conversation storage updates", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       // Mock conversation that will be created
@@ -309,9 +316,14 @@ describe("titleGeneration + useAutoSave Integration", () => {
         return createdConversation;
       });
 
-      // Mock getConversation to return null initially, then conversation after creation
+      // Mock getConversation to return null for temp IDs initially, then conversation after creation
       mockConversationStorage.getConversation.mockImplementation((id: string) => {
-        if (conversationExists) {
+        // Return null for temp IDs until conversation is created
+        if (id.startsWith("temp-") && !conversationExists) {
+          return null;
+        }
+        // Return conversation after creation or for real IDs
+        if (conversationExists || id === "conv-123") {
           return createdConversation;
         }
         return null;

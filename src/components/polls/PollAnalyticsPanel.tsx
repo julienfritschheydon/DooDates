@@ -5,7 +5,7 @@
  * et affiche les insights automatiques générés par l'IA.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Send,
   Sparkles,
@@ -50,12 +50,7 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
   const { toast } = useToast();
   const { quota, incrementQuota, checkQuota, getQuotaMessage } = useAnalyticsQuota();
 
-  // Charger les insights automatiques au montage
-  useEffect(() => {
-    loadAutoInsights();
-  }, [pollId]);
-
-  const loadAutoInsights = async () => {
+  const loadAutoInsights = useCallback(async () => {
     setLoadingInsights(true);
     try {
       const autoInsights = await pollAnalyticsService.generateAutoInsights(pollId);
@@ -67,7 +62,12 @@ export default function PollAnalyticsPanel({ pollId, pollTitle }: Props) {
     } finally {
       setLoadingInsights(false);
     }
-  };
+  }, [pollId]);
+
+  // Charger les insights automatiques au montage
+  useEffect(() => {
+    loadAutoInsights();
+  }, [loadAutoInsights]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

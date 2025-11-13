@@ -7,7 +7,7 @@ import { logger } from "@/lib/logger";
 interface AIProposalFeedbackProps {
   proposal: {
     userRequest: string;
-    generatedContent: any;
+    generatedContent: unknown;
     pollContext?: {
       pollId?: string;
       pollTitle?: string;

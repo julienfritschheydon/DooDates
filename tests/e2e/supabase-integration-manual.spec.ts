@@ -34,6 +34,42 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
   let testPassword: string = 'TestPassword123!';
   let testConversationIds: string[] = [];
 
+  /**
+   * Helper: Récupérer l'ID de la conversation la plus récente depuis localStorage
+   * Les conversations sont stockées dans 'doodates_conversations' comme un tableau
+   */
+  async function getLatestConversationId(page: Page): Promise<string | null> {
+    return await page.evaluate(() => {
+      // Méthode 1: Chercher dans doodates_conversations (format principal)
+      const conversationsData = localStorage.getItem('doodates_conversations');
+      if (conversationsData) {
+        try {
+          const conversations = JSON.parse(conversationsData);
+          if (Array.isArray(conversations) && conversations.length > 0) {
+            // Retourner l'ID de la conversation la plus récente
+            const sorted = conversations.sort((a: any, b: any) => {
+              const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+              const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+              return dateB - dateA;
+            });
+            return sorted[0].id || null;
+          }
+        } catch (e) {
+          // Ignorer erreur de parsing
+        }
+      }
+      
+      // Méthode 2: Chercher des clés conversation_* (format legacy)
+      const keys = Object.keys(localStorage);
+      const convKey = keys.find(k => k.startsWith('conversation_'));
+      if (convKey) {
+        return convKey.replace('conversation_', '');
+      }
+      
+      return null;
+    });
+  }
+
   test.beforeAll(async () => {
     supabase = getTestSupabaseClient();
     testEmail = generateTestEmail('supabase-test');
@@ -440,18 +476,27 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await expect(messageInputA).toBeVisible({ timeout: 10000 });
       await messageInputA.fill('Message depuis appareil A');
       await messageInputA.press('Enter');
-      await pageA.waitForTimeout(2000);
+      await pageA.waitForTimeout(3000);
 
       // Récupérer l'ID de la conversation
-      const conversationId = await pageA.evaluate(() => {
-        const keys = Object.keys(localStorage);
-        const convKey = keys.find(k => k.startsWith('conversation_'));
-        return convKey ? convKey.replace('conversation_', '') : null;
-      });
+      let conversationId = await getLatestConversationId(pageA);
 
       if (!conversationId) {
-        test.skip();
-        return;
+        // Essayer de récupérer depuis Supabase
+        await pageA.waitForTimeout(2000);
+        const { data: recentConversations } = await supabase
+          .from('conversations')
+          .select('id')
+          .eq('user_id', testUserId)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (recentConversations && recentConversations.length > 0) {
+          conversationId = recentConversations[0].id;
+        } else {
+          test.skip();
+          return;
+        }
       }
 
       testConversationIds.push(conversationId);
@@ -603,18 +648,27 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
       await messageInputA.fill('Deuxième message appareil A');
       await messageInputA.press('Enter');
-      await pageA.waitForTimeout(2000);
+      await pageA.waitForTimeout(3000);
 
       // Récupérer l'ID de la conversation
-      const conversationId = await pageA.evaluate(() => {
-        const keys = Object.keys(localStorage);
-        const convKey = keys.find(k => k.startsWith('conversation_'));
-        return convKey ? convKey.replace('conversation_', '') : null;
-      });
+      let conversationId = await getLatestConversationId(pageA);
 
       if (!conversationId) {
-        test.skip();
-        return;
+        // Essayer de récupérer depuis Supabase
+        await pageA.waitForTimeout(2000);
+        const { data: recentConversations } = await supabase
+          .from('conversations')
+          .select('id')
+          .eq('user_id', testUserId)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (recentConversations && recentConversations.length > 0) {
+          conversationId = recentConversations[0].id;
+        } else {
+          test.skip();
+          return;
+        }
       }
 
       testConversationIds.push(conversationId);
@@ -676,15 +730,27 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     await messageInput.press('Enter');
     await page.waitForTimeout(2000);
 
-    const conversationId = await page.evaluate(() => {
-      const keys = Object.keys(localStorage);
-      const convKey = keys.find(k => k.startsWith('conversation_'));
-      return convKey ? convKey.replace('conversation_', '') : null;
-    });
+    // Attendre que la conversation soit créée
+    await page.waitForTimeout(3000);
+    
+    let conversationId = await getLatestConversationId(page);
 
     if (!conversationId) {
-      test.skip();
-      return;
+      // Essayer de récupérer depuis Supabase
+      await page.waitForTimeout(2000);
+      const { data: recentConversations } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('user_id', testUserId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (recentConversations && recentConversations.length > 0) {
+        conversationId = recentConversations[0].id;
+      } else {
+        test.skip();
+        return;
+      }
     }
 
     testConversationIds.push(conversationId);
@@ -753,15 +819,27 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     await messageInput.press('Enter');
     await page.waitForTimeout(2000);
 
-    const conversationId = await page.evaluate(() => {
-      const keys = Object.keys(localStorage);
-      const convKey = keys.find(k => k.startsWith('conversation_'));
-      return convKey ? convKey.replace('conversation_', '') : null;
-    });
+    // Attendre que la conversation soit créée
+    await page.waitForTimeout(3000);
+    
+    let conversationId = await getLatestConversationId(page);
 
     if (!conversationId) {
-      test.skip();
-      return;
+      // Essayer de récupérer depuis Supabase
+      await page.waitForTimeout(2000);
+      const { data: recentConversations } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('user_id', testUserId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (recentConversations && recentConversations.length > 0) {
+        conversationId = recentConversations[0].id;
+      } else {
+        test.skip();
+        return;
+      }
     }
 
     // Vérifier que la conversation existe dans Supabase
@@ -828,15 +906,27 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     await messageInput.press('Enter');
     await page.waitForTimeout(2000);
 
-    const conversationId = await page.evaluate(() => {
-      const keys = Object.keys(localStorage);
-      const convKey = keys.find(k => k.startsWith('conversation_'));
-      return convKey ? convKey.replace('conversation_', '') : null;
-    });
+    // Attendre que la conversation soit créée
+    await page.waitForTimeout(3000);
+    
+    let conversationId = await getLatestConversationId(page);
 
     if (!conversationId) {
-      test.skip();
-      return;
+      // Essayer de récupérer depuis Supabase
+      await page.waitForTimeout(2000);
+      const { data: recentConversations } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('user_id', testUserId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (recentConversations && recentConversations.length > 0) {
+        conversationId = recentConversations[0].id;
+      } else {
+        test.skip();
+        return;
+      }
     }
 
     testConversationIds.push(conversationId);
