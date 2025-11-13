@@ -54,6 +54,86 @@ test.describe('Form Poll - Tests de non-régression', () => {
   // Variables partagées entre les tests
   let pollCreated = false;
   let pollUrl = '';
+
+  /**
+   * Helper pour créer un FormPoll via IA
+   * Utilisé pour rendre les tests indépendants en cas de sharding
+   */
+  async function createFormPoll(page: any): Promise<string> {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
+    
+    // Attendre que le chat input soit visible
+    await expect(page.locator('[data-testid="message-input"]')).toBeVisible({ timeout: 10000 });
+    
+    const chatInput = page.locator('[data-testid="message-input"]');
+    
+    // Utiliser robustFill() pour gérer race conditions et overlays
+    await robustFill(chatInput, 'Crée un questionnaire avec 1 seule question', { debug: process.env.DEBUG_E2E === '1' });
+    
+    await chatInput.press('Enter');
+    
+    // Attendre que l'IA réponde
+    const successText = page.getByText(/Voici votre (questionnaire|sondage)/i);
+    const errorText = page.getByText(/désolé|quota.*dépassé|erreur/i);
+    
+    await expect(successText).toBeVisible({ timeout: 30000 });
+    
+    const hasError = await errorText.isVisible({ timeout: 1000 }).catch(() => false);
+    if (hasError) {
+      const errorContent = await errorText.textContent();
+      throw new Error(
+        `L'IA a retourné une erreur au lieu de générer un formulaire. ` +
+        `Vérifiez que l'Edge Function Supabase est configurée avec CORS. ` +
+        `Erreur: ${errorContent}`
+      );
+    }
+    
+    // Cliquer sur "Créer ce formulaire"
+    const createButton = page.locator('[data-testid="create-form-button"]');
+    await expect(createButton).toBeVisible({ timeout: 10000 });
+    await createButton.click();
+    
+    // Attendre la prévisualisation
+    const previewCard = page.locator('[data-poll-preview]');
+    await expect(previewCard).toBeVisible({ timeout: 15000 });
+    
+    // Cliquer sur "Voir" si visible (desktop)
+    const viewFormButton = page.getByRole('button', { name: /voir/i }).first();
+    const isButtonVisible = await viewFormButton.isVisible({ timeout: 2000 }).catch(() => false);
+    
+    if (isButtonVisible) {
+      await viewFormButton.click();
+    }
+    
+    // Attendre que l'éditeur soit ouvert
+    await expect(previewCard.getByRole('button', { name: /^Q\d+$/ })).toBeVisible({ timeout: 5000 });
+    
+    // Retourner l'URL du poll créé
+    const url = page.url();
+    
+    // Créer manuellement la conversation dans localStorage si nécessaire
+    const conversationId = url.split('conversationId=')[1];
+    if (conversationId) {
+      await page.evaluate((convId) => {
+        const conversation = {
+          id: convId,
+          title: 'Test Form Poll Conversation',
+          status: 'active',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          firstMessage: 'Crée un questionnaire avec 1 seule question',
+          messageCount: 2,
+          isFavorite: false,
+          tags: [],
+          metadata: {}
+        };
+        localStorage.setItem(`conversation_${convId}`, JSON.stringify(conversation));
+      }, conversationId);
+    }
+    
+    return url;
+  }
   
   test.beforeAll(async ({ browser }) => {
     // Clear localStorage au début de la suite de tests
@@ -75,21 +155,26 @@ test.describe('Form Poll - Tests de non-régression', () => {
       await expect(page.locator('[data-testid="message-input"]')).toBeVisible({ timeout: 10000 });
     } else {
       // Pour les tests suivants, naviguer vers le poll créé
-      if (pollUrl) {
-        await page.goto(pollUrl, { waitUntil: 'networkidle' });
-        await page.waitForLoadState('networkidle');
-        // Attendre que l'éditeur soit visible ou présent
-        const editor = page.locator('[data-poll-preview]');
-        await expect(editor).toBeAttached({ timeout: 10000 });
-        // Attendre que l'éditeur soit visible (attente explicite au lieu de timeout fixe)
-        await expect(editor).toBeVisible({ timeout: 5000 }).catch(async () => {
-          // Si l'éditeur n'est pas visible, attendre qu'il apparaisse après chargement complet
-          await page.waitForLoadState('networkidle');
-          await expect(editor).toBeVisible({ timeout: 5000 });
-        });
-      } else {
-        throw new Error('pollUrl non défini - le test #1 doit avoir été exécuté avant');
+      // Si pollUrl n'est pas défini (sharding), créer un poll indépendant
+      let currentPollUrl = pollUrl;
+      if (!currentPollUrl) {
+        currentPollUrl = await createFormPoll(page);
+        // Mettre à jour les variables partagées pour les tests suivants dans le même shard
+        pollUrl = currentPollUrl;
+        pollCreated = true;
       }
+      
+      await page.goto(currentPollUrl, { waitUntil: 'networkidle' });
+      await page.waitForLoadState('networkidle');
+      // Attendre que l'éditeur soit visible ou présent
+      const editor = page.locator('[data-poll-preview]');
+      await expect(editor).toBeAttached({ timeout: 10000 });
+      // Attendre que l'éditeur soit visible (attente explicite au lieu de timeout fixe)
+      await expect(editor).toBeVisible({ timeout: 5000 }).catch(async () => {
+        // Si l'éditeur n'est pas visible, attendre qu'il apparaisse après chargement complet
+        await page.waitForLoadState('networkidle');
+        await expect(editor).toBeVisible({ timeout: 5000 });
+      });
     }
   });
 

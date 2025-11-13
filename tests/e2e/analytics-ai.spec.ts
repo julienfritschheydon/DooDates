@@ -41,6 +41,151 @@ const test = base.extend<{}, { sharedContext: any }>({
 let pollSlug = '';
 let pollCreated = false;
 
+/**
+ * Helper pour créer un poll avec votes et le clôturer
+ * Utilisé pour rendre les tests indépendants en cas de sharding
+ */
+async function createPollWithVotesAndClose(
+  page: any,
+  browserName: string,
+  numVotes: number = 5
+): Promise<string> {
+  // 1. Créer un FormPoll via IA
+  await page.goto("/?e2e-test=true", { waitUntil: 'domcontentloaded' });
+  await waitForPageLoad(page, browserName);
+
+  // Demander à l'IA
+  const chatInput = page.locator('[data-testid="message-input"]');
+  await chatInput.fill("Crée un questionnaire avec 1 seule question");
+  await chatInput.press("Enter");
+  
+  // Attendre que l'IA réponde
+  const successText = page.getByText(/Voici votre (questionnaire|sondage)/i);
+  const errorText = page.getByText(/désolé|quota.*dépassé|erreur/i);
+  
+  await Promise.race([
+    successText.waitFor({ state: 'visible', timeout: 30000 }).catch(() => null),
+    errorText.waitFor({ state: 'visible', timeout: 30000 }).catch(() => null),
+  ]);
+  
+  const hasError = await errorText.isVisible({ timeout: 2000 }).catch(() => false);
+  if (hasError) {
+    const errorContent = await errorText.textContent();
+    throw new Error(`L'IA a retourné une erreur: ${errorContent}`);
+  }
+  
+  await expect(successText).toBeVisible({ timeout: 5000 });
+
+  // Cliquer sur "Créer ce formulaire"
+  const createButton = page.locator('[data-testid="create-form-button"]');
+  await expect(createButton).toBeVisible({ timeout: 10000 });
+  await createButton.click();
+
+  // Attendre la prévisualisation
+  const previewCard = page.locator('[data-poll-preview]');
+  await expect(previewCard).toBeVisible({ timeout: 5000 });
+
+  // Cliquer sur "Voir" si visible
+  const viewFormButton = page.getByRole('button', { name: /voir/i }).first();
+  const isButtonVisible = await viewFormButton.isVisible({ timeout: 2000 }).catch(() => false);
+  
+  if (isButtonVisible) {
+    await viewFormButton.click();
+    await expect(page.locator('input[placeholder*="titre" i], input[type="text"]').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
+  }
+
+  // Saisir un titre
+  const titleInput = page.locator('input[placeholder*="titre" i], input[type="text"]').first();
+  if (await titleInput.isVisible()) {
+    const currentTitle = await titleInput.inputValue();
+    if (!currentTitle || currentTitle.trim() === '') {
+      await titleInput.fill("Questionnaire Test E2E");
+    }
+  }
+
+  // Finaliser
+  const finalizeButton = page.locator('button:has-text("Finaliser")');
+  await expect(finalizeButton).toBeVisible({ timeout: 10000 });
+  await finalizeButton.click();
+  
+  // Attendre navigation
+  const urlChanged = await expect(page).toHaveURL(/\/poll\/[^\/]+/, { timeout: 10000 }).catch(() => false);
+  if (!urlChanged) {
+    await expect(page.locator('[data-testid="poll-item"], [data-poll-preview], body').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
+  }
+
+  // Récupérer le slug
+  let currentUrl = page.url();
+  let slug = currentUrl.split('/poll/')[1]?.split('/')[0] || currentUrl.split('/poll/')[1]?.split('?')[0];
+  
+  if (!slug) {
+    slug = await page.evaluate(() => {
+      const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
+      const lastPoll = polls[polls.length - 1];
+      return lastPoll?.slug;
+    });
+  }
+
+  if (!slug || slug.trim() === '') {
+    throw new Error('Impossible de récupérer le slug du poll créé');
+  }
+
+  // Voter plusieurs fois
+  for (let i = 1; i <= numVotes; i++) {
+    await page.goto(`/poll/${slug}?e2e-test=true`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await waitForPageLoad(page, browserName);
+
+    const nameInput = page.locator('input[placeholder*="nom" i]').first();
+    await expect(nameInput).toBeVisible({ timeout: 10000 });
+    await nameInput.fill(`Votant ${i}`);
+
+    const textInput = page.locator('input[placeholder*="réponse" i], input[placeholder*="Votre réponse" i]').first();
+    await expect(textInput).toBeVisible({ timeout: 10000 });
+    await textInput.fill(`Réponse ${i} du votant`);
+
+    const submitButton = page.locator('[data-testid="form-submit"]');
+    await expect(submitButton).toBeVisible({ timeout: 10000 });
+    await submitButton.click();
+    
+    // Attendre confirmation
+    await expect(page.locator('text=/merci|réponses.*enregistrées|envoyées/i').first()).toBeVisible({ timeout: 5000 }).catch(() => {
+      return expect(page.locator('[data-testid="form-submit"]')).not.toBeVisible({ timeout: 2000 }).catch(() => {});
+    });
+  }
+
+  // Clôturer le poll
+  await page.goto(`/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+  await waitForPageLoad(page, browserName);
+
+  await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
+
+  page.once('dialog', async (dialog: any) => {
+    await dialog.accept();
+  });
+
+  const closeButton = page.locator('[data-testid="poll-action-close"]');
+  await expect(closeButton).toBeVisible({ timeout: 10000 });
+  await closeButton.click();
+
+  // Attendre que le statut soit mis à jour
+  await page.waitForFunction(
+    (slugParam: string) => {
+      try {
+        const storedPolls = localStorage.getItem('doodates_polls');
+        const allPolls = storedPolls ? JSON.parse(storedPolls) : [];
+        const foundPoll = allPolls.find((p: any) => p.slug === slugParam);
+        return foundPoll?.status === 'closed';
+      } catch {
+        return false;
+      }
+    },
+    slug,
+    { timeout: 5000 }
+  );
+
+  return slug;
+}
+
 test.describe("Analytics IA - Suite Complète", () => {
   test.describe.configure({ mode: 'serial' });
   
@@ -286,15 +431,16 @@ test.describe("Analytics IA - Suite Complète", () => {
     pollCreated = true;
   });
 
-  test("2. Quick Queries: Tester les requêtes rapides @smoke @functional", async ({ page }) => {
-    // Le poll est déjà créé et clôturé dans le test 1
-    // Vérifier que pollSlug est défini
-    if (!pollSlug) {
-      throw new Error('pollSlug non défini - le test 1 (Setup) doit avoir été exécuté avant');
+  test("2. Quick Queries: Tester les requêtes rapides @smoke @functional", async ({ page, browserName }) => {
+    // Si pollSlug n'est pas défini (sharding), créer un poll indépendant
+    let currentPollSlug = pollSlug;
+    if (!currentPollSlug) {
+      test.setTimeout(180000); // 3 minutes si création nécessaire
+      currentPollSlug = await createPollWithVotesAndClose(page, browserName, 5);
     }
     
     // Naviguer vers la page résultats du poll
-    await page.goto(`/poll/${pollSlug}/results?e2e-test=true`);
+    await page.goto(`/poll/${currentPollSlug}/results?e2e-test=true`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
     
