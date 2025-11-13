@@ -1,6 +1,7 @@
 import { test as base, expect } from "@playwright/test";
 import { setupAllMocks } from './global-setup';
 import { ANALYTICS_QUOTAS } from "../../src/constants/quotas";
+import { waitForPageLoad } from './utils';
 
 declare global {
   interface Window {
@@ -48,24 +49,24 @@ test.describe("Analytics IA - Suite Complète", () => {
   // https://github.com/microsoft/playwright/issues/22832
   test.skip(({ browserName }) => browserName !== 'chromium', 'Shared context non supporté sur Firefox/Safari');
   
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, browserName }) => {
     await setupAllMocks(page);
     const targetUrl = pollSlug
       ? `/poll/${pollSlug}/results?e2e-test=true`
       : "/results?e2e-test=true";
-    await page.goto(targetUrl);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(500);
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
   });
 
   test("1. Setup: Créer et clôturer un FormPoll avec 5 réponses @smoke @critical", async ({
     page,
+    browserName,
   }) => {
     test.setTimeout(180000); // 3 minutes - ce test fait 5 votes + création + clôture
     
     // 1. Créer un FormPoll via IA
-    await page.goto("/?e2e-test=true?e2e-test=true");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/?e2e-test=true?e2e-test=true", { waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
 
     // Étape 1 : Demander à l'IA
     const chatInput = page.locator('[data-testid="message-input"]');
@@ -111,15 +112,17 @@ test.describe("Analytics IA - Suite Complète", () => {
     // Attendre la prévisualisation
     const previewCard = page.locator('[data-poll-preview]');
     await expect(previewCard).toBeVisible({ timeout: 5000 });
-    await page.waitForTimeout(1000);
+    // Attendre que la prévisualisation soit stable
+    await expect(previewCard).toBeVisible();
 
     // Étape 4 : Cliquer sur "Voir" (desktop)
     const viewFormButton = page.getByRole('button', { name: /voir/i }).first();
-    const isButtonVisible = await viewFormButton.isVisible().catch(() => false);
+    const isButtonVisible = await viewFormButton.isVisible({ timeout: 2000 }).catch(() => false);
     
     if (isButtonVisible) {
       await viewFormButton.click();
-      await page.waitForTimeout(1000);
+      // Attendre que le formulaire soit visible après le clic
+      await expect(page.locator('input[placeholder*="titre" i], input[type="text"]').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
     }
 
     // Étape 5 : Saisir un titre
@@ -135,7 +138,12 @@ test.describe("Analytics IA - Suite Complète", () => {
     const finalizeButton = page.locator('button:has-text("Finaliser")');
     await expect(finalizeButton).toBeVisible({ timeout: 10000 });
     await finalizeButton.click();
-    await page.waitForTimeout(2000);
+    // Attendre que la navigation soit complète (URL change)
+    const urlChanged = await expect(page).toHaveURL(/\/poll\/[^\/]+/, { timeout: 10000 }).catch(() => false);
+    if (!urlChanged) {
+      // Fallback: attendre qu'un élément du poll soit visible (optionnel, ne pas faire échouer)
+      await expect(page.locator('[data-testid="poll-item"], [data-poll-preview], body').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
+    }
 
     // Récupérer le slug depuis l'URL ou depuis le localStorage
     let currentUrl = page.url();
@@ -150,12 +158,30 @@ test.describe("Analytics IA - Suite Complète", () => {
       });
     }
 
+    // Valider que le slug existe
+    if (!slug || slug.trim() === '') {
+      // Prendre une capture pour debug
+      await page.screenshot({ path: 'test-results/debug-no-slug.png', fullPage: true });
+      const currentUrl = page.url();
+      const localStorageContent = await page.evaluate(() => {
+        return localStorage.getItem('doodates_polls');
+      });
+      throw new Error(
+        `Slug non trouvé après création du FormPoll. ` +
+        `URL actuelle: ${currentUrl}, ` +
+        `localStorage polls: ${localStorageContent?.substring(0, 200)}...`
+      );
+    }
+
+    console.log(`✅ Slug récupéré: ${slug}`);
+
     // 2. Voter 5 fois (questionnaire avec 1 question text)
     for (let i = 1; i <= 5; i++) {
       // Pour les FormPolls, l'URL est /poll/{slug} pas /poll/{slug}/vote
-      await page.goto(`/poll/${slug}?e2e-test=true`);
-      await page.waitForLoadState("networkidle");
-      await page.waitForTimeout(1000);
+      const pollUrl = `/poll/${slug}?e2e-test=true`;
+      console.log(`🔄 Navigation vers: ${pollUrl}`);
+      await page.goto(pollUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await waitForPageLoad(page, browserName);
 
       // Remplir le nom
       const nameInput = page.locator('input[placeholder*="nom" i]').first();
@@ -172,13 +198,16 @@ test.describe("Analytics IA - Suite Complète", () => {
       const submitButton = page.locator('[data-testid="form-submit"]');
       await expect(submitButton).toBeVisible({ timeout: 10000 });
       await submitButton.click();
-      await page.waitForTimeout(1000);
+      // Attendre confirmation de soumission (message de succès ou redirection)
+      await expect(page.locator('text=/merci|réponses.*enregistrées|envoyées/i').first()).toBeVisible({ timeout: 5000 }).catch(() => {
+        // Fallback: vérifier que le formulaire n'est plus visible
+        return expect(page.locator('[data-testid="form-submit"]')).not.toBeVisible({ timeout: 2000 }).catch(() => {});
+      });
     }
 
     // 3. Clôturer le poll
-    await page.goto(`/poll/${slug}/results?e2e-test=true`);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
+    await page.goto(`/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+    await waitForPageLoad(page, browserName);
 
     // Attendre que les actions du poll soient chargées
     await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
@@ -220,8 +249,10 @@ test.describe("Analytics IA - Suite Complète", () => {
     const analyticsPanel = page.locator('[data-testid="analytics-panel"]');
     await expect(analyticsPanel).toBeAttached({ timeout: 10000 });
 
-    // Attendre génération insights (max 5 secondes)
-    await page.waitForTimeout(5000);
+    // Attendre génération insights (vérifier que les insights sont générés)
+    await expect(page.locator('[data-testid="insight-card"]').first()).toBeVisible({ timeout: 10000 }).catch(() => {
+      // Si pas d'insights après 10s, continuer quand même (peut être généré en arrière-plan)
+    });
 
     // Capture pour debug (accessible à Cascade)
     await page.screenshot({ path: 'Docs/screenshots/analytics-insights.png', fullPage: true });
@@ -232,11 +263,10 @@ test.describe("Analytics IA - Suite Complète", () => {
     await expect(insightsAccordion).toBeVisible({ timeout: 5000 });
     await insightsAccordion.click();
 
-    // Attendre que les insights soient visibles
-    await page.waitForTimeout(500);
-
     // Vérifier présence d'au moins 1 insight
     const insightCards = page.locator('[data-testid="insight-card"]');
+    // Attendre que les insights soient visibles
+    await expect(insightCards.first()).toBeVisible({ timeout: 2000 }).catch(() => {});
     const count = await insightCards.count();
     expect(count).toBeGreaterThanOrEqual(1);
 

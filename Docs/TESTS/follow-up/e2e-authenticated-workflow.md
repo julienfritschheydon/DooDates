@@ -39,5 +39,5 @@
   - Amélioration des attentes fragiles (vérifications conditionnelles explicites au lieu de `.catch()`)
   - Ajout `waitUntil: 'domcontentloaded'` à tous les `goto` et `reload`
   - Correction format auth token dans test "should access premium features" (vérifie format Supabase réel)
-  - **Résultat** : 6/6 tests passent sur Chromium
+  - **Résultat** : 30/30 tests passent sur tous les navigateurs (Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari)
 

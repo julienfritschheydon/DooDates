@@ -184,9 +184,7 @@ function installLocalStorage() {
   };
 }
 
-// TODO: Tous les tests sont désactivés en raison d'une incohérence entre les quotas attendus (50) et réels (20)
-// Voir la tâche dans le planning pour la correction
-describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
+describe("useAnalyticsQuota", () => {
   let localStorageMock: ReturnType<typeof installLocalStorage>;
 
   beforeEach(() => {
@@ -203,7 +201,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
   });
 
   describe("Initialisation", () => {
-    it.skip(`[A RÉPARER] initialise avec quota anonyme par défaut (${ANALYTICS_QUOTAS.ANONYMOUS} queries)`, () => {
+    it(`initialise avec quota anonyme par défaut (${ANALYTICS_QUOTAS.ANONYMOUS} queries)`, () => {
       // S'assurer que le mock retourne un utilisateur null
       mockUseAuth.mockImplementation(() => createAuthMock(null));
 
@@ -215,55 +213,35 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
       expect(result.current.quota.canQuery).toBe(true);
     });
 
-    it.skip("[A RÉPARER] initialise avec quota authentifié si user présent (50 queries)", () => {
+    it("initialise avec quota authentifié si user présent (50 queries)", async () => {
       // Configurer le mock pour retourner un utilisateur authentifié
-      mockUseAuth.mockImplementation(() => ({
-        ...createAuthMock(mockUser),
-        profile: {
-          id: mockUser?.id || "",
-          email: mockUser?.email || "",
-          full_name: "Test User",
-          avatar_url: null,
-          timezone: "Europe/Paris",
-          preferences: {},
-          plan_type: "free",
-          subscription_expires_at: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        session: {
-          access_token: "test-token",
-          refresh_token: "refresh-token",
-          expires_at: Math.floor(Date.now() / 1000) + 3600,
-          expires_in: 3600,
-          token_type: "bearer",
-          user: mockUser,
-        },
-        error: null,
-      }));
+      mockUseAuth.mockImplementation(() => createAuthMock(mockUser));
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
-      expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
-      expect(result.current.quota.used).toBe(0);
-      expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
-      expect(result.current.quota.canQuery).toBe(true);
+      // Attendre que le hook soit initialisé
+      await waitFor(() => {
+        expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+        expect(result.current.quota.used).toBe(0);
+        expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+        expect(result.current.quota.canQuery).toBe(true);
+      });
     });
 
-    it.skip("[A RÉPARER] charge le quota depuis localStorage si présent", () => {
+    it(" charge le quota depuis localStorage si présent", async () => {
       const today = new Date().toISOString().split("T")[0];
       localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 3, date: today }));
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
-      waitFor(() => {
+      await waitFor(() => {
         expect(result.current.quota.used).toBe(3);
         expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.ANONYMOUS - 3);
         expect(result.current.quota.canQuery).toBe(true);
       });
     });
 
-    it.skip("[A RÉPARER] reset le quota si date différente dans localStorage", () => {
+    it(" reset le quota si date différente dans localStorage", async () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
@@ -272,7 +250,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
-      waitFor(() => {
+      await waitFor(() => {
         expect(result.current.quota.used).toBe(0);
         expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
 
@@ -282,10 +260,10 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
       });
     });
 
-    it.skip("[A RÉPARER] reset le quota si localStorage vide", () => {
+    it(" reset le quota si localStorage vide", async () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
-      waitFor(() => {
+      await waitFor(() => {
         expect(result.current.quota.used).toBe(0);
         expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
 
@@ -298,7 +276,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
   });
 
   describe("incrementQuota", () => {
-    it.skip("[A RÉPARER] incrémente le quota et met à jour localStorage", () => {
+    it(" incrémente le quota et met à jour localStorage", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       act(() => {
@@ -313,7 +291,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
       expect(stored.count).toBe(1);
     });
 
-    it.skip("[A RÉPARER] retourne true si quota restant > 0", () => {
+    it(" retourne true si quota restant > 0", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       act(() => {
@@ -322,7 +300,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
       });
     });
 
-    it.skip("[A RÉPARER] retourne false si quota atteint", () => {
+    it(" retourne false si quota atteint", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       // Incrémenter jusqu'à la limite
@@ -342,7 +320,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
       });
     });
 
-    it.skip("[A RÉPARER] bloque les queries quand quota atteint", () => {
+    it(" bloque les queries quand quota atteint", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       // Incrémenter jusqu'à la limite
@@ -356,7 +334,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
       expect(result.current.quota.canQuery).toBe(false);
     });
 
-    it.skip("[A RÉPARER] reset automatiquement si changement de jour lors de l'incrémentation", () => {
+    it(" reset automatiquement si changement de jour lors de l'incrémentation", () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
@@ -374,7 +352,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
       expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.ANONYMOUS - 1);
     });
 
-    it.skip("[A RÉPARER] gère les erreurs localStorage gracieusement", async () => {
+    it(" gère les erreurs localStorage gracieusement", async () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       // Attendre que le hook soit complètement initialisé
@@ -411,7 +389,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
   });
 
   describe("resetQuota", () => {
-    it.skip("[A RÉPARER] reset le quota à zéro", () => {
+    it(" reset le quota à zéro", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       // Incrémenter d'abord
@@ -435,16 +413,22 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
       expect(stored.count).toBe(0);
     });
 
-    it.skip("[A RÉPARER] met à jour la limite si changement d'utilisateur", () => {
+    it(" met à jour la limite si changement d'utilisateur", async () => {
       const { result, rerender } = renderHook(() => useAnalyticsQuota());
 
-      // Utilisateur anonyme (limit: 5)
-      expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
+      // Utilisateur anonyme (limit: 20)
+      await waitFor(() => {
+        expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
+      });
 
       // Changer pour utilisateur authentifié
       mockUseAuth.mockImplementation(() => createAuthMock(mockUser));
 
       rerender();
+
+      await waitFor(() => {
+        expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+      });
 
       act(() => {
         result.current.resetQuota();
@@ -456,13 +440,13 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
   });
 
   describe("checkQuota", () => {
-    it.skip("[A RÉPARER] retourne true si quota disponible", () => {
+    it(" retourne true si quota disponible", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       expect(result.current.checkQuota()).toBe(true);
     });
 
-    it.skip("[A RÉPARER] retourne false si quota épuisé", () => {
+    it(" retourne false si quota épuisé", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       act(() => {
@@ -471,15 +455,16 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
         }
       });
 
+      expect(result.current.checkQuota()).toBe(false);
+      expect(result.current.quota.canQuery).toBe(false);
+      
       const message = result.current.getQuotaMessage();
-      // Vérifier le format du message qui contient le nombre de requêtes restantes
-      expect(message).toMatch(/\d+ requêtes? restantes?/);
-      // Vérifier que le message contient le bon nombre de requêtes restantes (4 dans ce cas)
-      const remaining = ANALYTICS_QUOTAS.ANONYMOUS - 1; // 5 - 1 = 4
-      expect(message).toContain(remaining.toString());
+      // Vérifier que le message indique que le quota est épuisé
+      expect(message).toContain("Quota épuisé");
+      expect(message).toContain("Réinitialisation");
     });
 
-    it.skip("[A RÉPARER] retourne message au singulier si 1 restante", () => {
+    it(" retourne message au singulier si 1 restante", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       act(() => {
@@ -492,7 +477,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
       expect(message).toContain("1 requête restante");
     });
 
-    it.skip("[A RÉPARER] retourne message de quota épuisé si limit atteint", () => {
+    it(" retourne message de quota épuisé si limit atteint", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       act(() => {
@@ -512,14 +497,16 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
       mockUseAuth.mockImplementation(() => createAuthMock(mockUser));
     });
 
-    it.skip("[A RÉPARER] utilise limite authentifiée (50 queries)", () => {
+    it(" utilise limite authentifiée (50 queries)", async () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
-      expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
-      expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+      await waitFor(() => {
+        expect(result.current.quota.limit).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+        expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.AUTHENTICATED);
+      });
     });
 
-    it.skip("[A RÉPARER] peut incrémenter jusqu'à 50 queries", () => {
+    it(" peut incrémenter jusqu'à 50 queries", () => {
       const { result } = renderHook(() => useAnalyticsQuota());
 
       act(() => {
@@ -535,19 +522,19 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
   });
 
   describe("Gestion des erreurs", () => {
-    it.skip("[A RÉPARER] gère les erreurs de parsing JSON dans localStorage", () => {
+    it(" gère les erreurs de parsing JSON dans localStorage", async () => {
       localStorageMock.setItem(STORAGE_KEY, "invalid-json");
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
-      waitFor(() => {
+      await waitFor(() => {
         // Devrait reset en cas d'erreur
         expect(result.current.quota.used).toBe(0);
         expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.ANONYMOUS);
       });
     });
 
-    it.skip("[A RÉPARER] gère les erreurs lors du chargement du quota", () => {
+    it(" gère les erreurs lors du chargement du quota", async () => {
       // Simuler une erreur lors du getItem
       const originalGetItem = localStorageMock.getItem;
       localStorageMock.getItem = vi.fn(() => {
@@ -556,7 +543,7 @@ describe.skip("[A RÉPARER] useAnalyticsQuota", () => {
 
       const { result } = renderHook(() => useAnalyticsQuota());
 
-      waitFor(() => {
+      await waitFor(() => {
         // Devrait reset en cas d'erreur
         expect(result.current.quota.used).toBe(0);
         expect(result.current.quota.remaining).toBe(ANALYTICS_QUOTAS.ANONYMOUS);

@@ -142,6 +142,79 @@ function clampDatesToWindow(
   return dates.filter((date) => allowed.has(date));
 }
 
+// Filtre les dates générées selon les contraintes explicites de mois mentionnées dans le prompt.
+function filterDatesByExplicitConstraints(dates: string[], userInput: string): string[] {
+  const lowerInput = userInput.toLowerCase();
+
+  // Détection de mois explicites
+  const currentYear = new Date().getFullYear();
+  const monthPatterns = [
+    { pattern: /\bdécembre\b/i, month: 11 },
+    { pattern: /\bnovembre\b/i, month: 10 },
+    { pattern: /\boctobre\b/i, month: 9 },
+    { pattern: /\bseptembre\b/i, month: 8 },
+    { pattern: /\baoût\b/i, month: 7 },
+    { pattern: /\bjuillet\b/i, month: 6 },
+    { pattern: /\bjuin\b/i, month: 5 },
+    { pattern: /\bmai\b/i, month: 4 },
+    { pattern: /\bavril\b/i, month: 3 },
+    { pattern: /\bmars\b/i, month: 2 },
+    { pattern: /\bfévrier\b/i, month: 1 },
+    { pattern: /\bjanvier\b/i, month: 0 },
+  ];
+
+  const targetMonths: number[] = [];
+  monthPatterns.forEach(({ pattern, month }) => {
+    if (pattern.test(lowerInput)) {
+      targetMonths.push(month);
+    }
+  });
+
+  if (targetMonths.length === 0) {
+    return dates;
+  }
+
+  // Filtrer pour ne garder que les dates dans les mois cibles
+  return dates.filter((date) => {
+    const dateObj = new Date(date);
+    const month = dateObj.getMonth();
+    return targetMonths.includes(month);
+  });
+}
+
+// Filtre les dates selon les périodes mentionnées ("fin [mois]", "début [mois]").
+function filterDatesByPeriod(dates: string[], userInput: string): string[] {
+  const lowerInput = userInput.toLowerCase();
+
+  if (
+    /\bfin\s+(décembre|novembre|mars|avril|mai|juin|juillet|août|septembre|octobre)/i.test(
+      lowerInput,
+    )
+  ) {
+    // Pour "fin [mois]", ne garder que les dates de la dernière quinzaine (jour >= 15)
+    return dates.filter((date) => {
+      const dateObj = new Date(date);
+      const day = dateObj.getDate();
+      return day >= 15;
+    });
+  }
+
+  if (
+    /\bdébut\s+(décembre|novembre|mars|avril|mai|juin|juillet|août|septembre|octobre)/i.test(
+      lowerInput,
+    )
+  ) {
+    // Pour "début [mois]", ne garder que les dates de la première quinzaine (jour <= 15)
+    return dates.filter((date) => {
+      const dateObj = new Date(date);
+      const day = dateObj.getDate();
+      return day <= 15;
+    });
+  }
+
+  return dates;
+}
+
 // Pour les requêtes mentionnant explicitement le week-end, on force la présence
 // d'un samedi et d'un dimanche (si disponibles) afin de respecter la règle métier.
 function ensureWeekendCoverage(
@@ -263,7 +336,11 @@ function detectExpectedSlotCount(userInput: string): number | null {
     { pattern: /\btrois\s+(créneaux?|dates?|soirées?)\b/, count: 3 },
     { pattern: /\bdeux\s+(créneaux?|dates?|soirées?|slots?)\b/, count: 2 },
     // "un créneau" seulement si pas dans un contexte nécessitant plusieurs créneaux (déjeuner, etc.)
-    { pattern: /\bun\s+(créneau|slot|horaire)\b/, count: 1, skipIf: /déjeuner|dejeuner|partenariats/ },
+    {
+      pattern: /\bun\s+(créneau|slot|horaire)\b/,
+      count: 1,
+      skipIf: /déjeuner|dejeuner|partenariats/,
+    },
   ];
 
   for (const { pattern, count, skipIf } of explicitCounts) {
@@ -298,7 +375,7 @@ function getMaxSlotsForContext(userInput: string): number {
   if (/comité/.test(lowerInput)) {
     return 2;
   }
-  
+
   if (/réunion|atelier|déjeuner|brunch/.test(lowerInput)) {
     return 3;
   }
@@ -524,7 +601,12 @@ export function postProcessSuggestion(
   suggestion: DatePollSuggestion,
   options: PostProcessingOptions,
 ): DatePollSuggestion {
-  const dates = clampDatesToWindow(suggestion.dates, options.allowedDates) || [];
+  let dates = clampDatesToWindow(suggestion.dates, options.allowedDates) || [];
+
+  // Filtrer par contraintes explicites (mois, périodes)
+  dates = filterDatesByExplicitConstraints(dates, options.userInput);
+  dates = filterDatesByPeriod(dates, options.userInput);
+
   const ensuredWeekend = ensureWeekendCoverage(dates, options.userInput);
   const contextualDatesPreClamp = ensuredWeekend || dates;
   const contextualDates = options.allowedDates
@@ -535,8 +617,40 @@ export function postProcessSuggestion(
 
   let processedSlots = enforceDurationRules(suggestion, options.userInput);
 
-  if (!processedSlots || processedSlots.length === 0) {
-    processedSlots = buildContextualSlots(finalDates, options.userInput);
+  // Si pas de créneaux ou nombre insuffisant, générer des créneaux contextualisés
+  const expectedCount = detectExpectedSlotCount(options.userInput);
+  const maxSlotsForContext = getMaxSlotsForContext(options.userInput);
+  // Pour certains contextes (déjeuner, visite), ignorer "un créneau" et utiliser le contexte
+  const lowerInput = options.userInput.toLowerCase();
+  const shouldIgnoreSingleSlot = /déjeuner|dejeuner|partenariats|visite|musée/.test(lowerInput);
+  const effectiveExpectedCount = shouldIgnoreSingleSlot && expectedCount === 1 ? null : expectedCount;
+  const targetCount = effectiveExpectedCount || maxSlotsForContext;
+  
+  const hasInsufficientSlots = !processedSlots || processedSlots.length === 0 || 
+    processedSlots.length < Math.min(2, targetCount);
+
+  if (hasInsufficientSlots) {
+    const contextualSlots = buildContextualSlots(finalDates, options.userInput);
+    if (contextualSlots && contextualSlots.length > 0) {
+      // Fusionner les créneaux existants avec les nouveaux (éviter les doublons)
+      const existingSlots = processedSlots || [];
+      const mergedSlots = [...existingSlots];
+      
+      contextualSlots.forEach((newSlot) => {
+        // Vérifier si le créneau existe déjà (même start/end sur mêmes dates)
+        const exists = existingSlots.some((existing) => {
+          const sameTime = existing.start === newSlot.start && existing.end === newSlot.end;
+          const sameDates = JSON.stringify(existing.dates?.sort()) === JSON.stringify(newSlot.dates?.sort());
+          return sameTime && sameDates;
+        });
+        
+        if (!exists) {
+          mergedSlots.push(newSlot);
+        }
+      });
+      
+      processedSlots = mergedSlots;
+    }
   }
 
   if (!processedSlots || processedSlots.length === 0) {
