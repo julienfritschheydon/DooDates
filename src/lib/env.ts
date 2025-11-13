@@ -13,6 +13,18 @@ const isBrowser = typeof window !== "undefined" && typeof window.document !== "u
  * @returns The environment variable value or defaultValue
  */
 export function getEnv(key: string, defaultValue?: string): string | undefined {
+  // En environnement de test Node.js, prioriser process.env (qui contient .env.local)
+  // Cela permet aux tests d'utiliser les vraies valeurs depuis .env.local
+  const isTestEnv =
+    !isBrowser &&
+    typeof process !== "undefined" &&
+    process?.env &&
+    (process.env.NODE_ENV === "test" || process.env.VITEST === "true");
+
+  if (isTestEnv && process.env[key]) {
+    return process.env[key];
+  }
+
   // Try import.meta.env first (Vite/browser context)
   if (typeof import.meta !== "undefined" && import.meta.env) {
     const value = import.meta.env[key];

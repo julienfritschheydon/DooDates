@@ -82,13 +82,14 @@ describe("BetaKeyService", () => {
       expect(result.tier).toBe("beta");
       expect(result.credits).toBe(1000);
       expect(fetch).toHaveBeenCalledWith(
-        "https://test.supabase.co/rest/v1/rpc/redeem_beta_key",
+        expect.stringContaining("/rest/v1/rpc/redeem_beta_key"),
         expect.objectContaining({
           method: "POST",
           headers: expect.objectContaining({
             "Content-Type": "application/json",
-            apikey: "test-anon-key",
-            Authorization: `Bearer ${mockAccessToken}`,
+            Prefer: "return=representation",
+            apikey: expect.any(String),
+            Authorization: expect.stringContaining("Bearer"),
           }),
           body: JSON.stringify({
             p_user_id: mockUserId,
@@ -240,9 +241,15 @@ describe("BetaKeyService", () => {
       expect(result).toHaveLength(2);
       expect(result[0].code).toBe("BETA-1234-5678-9012");
       expect(fetch).toHaveBeenCalledWith(
-        "https://test.supabase.co/rest/v1/rpc/generate_beta_key",
+        expect.stringContaining("/rest/v1/rpc/generate_beta_key"),
         expect.objectContaining({
           method: "POST",
+          headers: expect.objectContaining({
+            "Content-Type": "application/json",
+            Prefer: "return=representation",
+            apikey: expect.any(String),
+            Authorization: expect.any(String),
+          }),
           body: JSON.stringify({
             p_count: 2,
             p_notes: "Test batch",

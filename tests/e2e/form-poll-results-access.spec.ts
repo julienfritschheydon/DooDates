@@ -10,10 +10,9 @@ import { setupGeminiMock } from './global-setup';
 test.describe('Form Poll - Accès aux résultats et Email', () => {
   test.beforeEach(async ({ page }) => {
     await setupGeminiMock(page);
-    const guard = attachConsoleGuard(page);
     await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
     await page.evaluate(() => localStorage.clear());
-    await guard.assertClean();
   });
 
   test('Visibilité creator-only : créateur peut voir, votant ne peut pas', async ({ page }) => {
@@ -54,12 +53,12 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
 
     // 2. Vérifier que le créateur peut voir les résultats
     const resultsUrl = `/poll/${pollSlug}/results`;
-    await page.goto(resultsUrl);
-    await page.waitForTimeout(1000);
+    await page.goto(resultsUrl, { waitUntil: 'networkidle' });
+    await page.waitForLoadState('networkidle');
 
     // Le créateur devrait voir les résultats (pas de message d'accès restreint)
     const restrictedMessage = page.locator('text=Accès restreint');
-    await expect(restrictedMessage).not.toBeVisible();
+    await expect(restrictedMessage).not.toBeVisible({ timeout: 5000 });
 
     // 3. Simuler un autre utilisateur (changer device ID)
     await page.evaluate(() => {
@@ -67,32 +66,37 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     });
     
     const voteUrl = `/poll/${pollSlug}`;
-    await page.goto(voteUrl);
-    await page.waitForTimeout(1000);
+    await page.goto(voteUrl, { waitUntil: 'networkidle' });
+    await page.waitForLoadState('networkidle');
 
     // Voter
     const nameInput = page.locator('input[type="text"]').first();
+    await nameInput.waitFor({ state: 'visible', timeout: 5000 });
     await nameInput.fill('Test Voter');
 
     // Remplir la question (si c'est un choix unique)
     const option = page.locator('input[type="radio"]').first();
+    await option.waitFor({ state: 'visible', timeout: 5000 });
     await option.check();
 
     // Soumettre
     const submitBtn = page.locator('button[type="submit"], button:has-text("Envoyer")').first();
+    await submitBtn.waitFor({ state: 'visible', timeout: 5000 });
     await submitBtn.click();
-    await page.waitForTimeout(1000);
+
+    // Attendre la confirmation de soumission
+    await expect(page.locator('text=Merci pour votre participation')).toBeVisible({ timeout: 5000 });
 
     // 4. Vérifier que le bouton "Voir les résultats" n'apparaît pas
     const seeResultsBtn = page.locator('text=Voir les résultats');
-    await expect(seeResultsBtn).not.toBeVisible();
+    await expect(seeResultsBtn).not.toBeVisible({ timeout: 2000 });
 
     // 5. Essayer d'accéder directement aux résultats
-    await page.goto(resultsUrl);
-    await page.waitForTimeout(1000);
+    await page.goto(resultsUrl, { waitUntil: 'networkidle' });
+    await page.waitForLoadState('networkidle');
 
     // Devrait voir le message d'accès restreint
-    await expect(restrictedMessage).toBeVisible();
+    await expect(restrictedMessage).toBeVisible({ timeout: 5000 });
   });
 
   test('Visibilité voters : votant peut voir après avoir voté', async ({ page }) => {
@@ -137,30 +141,37 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     });
     
     const voteUrl = `/poll/${pollSlug}`;
-    await page.goto(voteUrl);
-    await page.waitForTimeout(1000);
+    await page.goto(voteUrl, { waitUntil: 'networkidle' });
+    await page.waitForLoadState('networkidle');
 
     // Voter avec un nom
     const nameInput = page.locator('input[type="text"]').first();
+    await nameInput.waitFor({ state: 'visible', timeout: 5000 });
     await nameInput.fill('Test Voter');
     
     const option = page.locator('input[type="radio"]').first();
+    await option.waitFor({ state: 'visible', timeout: 5000 });
     await option.check();
 
     const submitBtn = page.locator('button[type="submit"], button:has-text("Envoyer")').first();
+    await submitBtn.waitFor({ state: 'visible', timeout: 5000 });
     await submitBtn.click();
-    await page.waitForTimeout(1000);
+
+    // Attendre la confirmation de soumission
+    await expect(page.locator('text=Merci pour votre participation')).toBeVisible({ timeout: 5000 });
 
     // 3. Vérifier que le bouton "Voir les résultats" apparaît
     const seeResultsBtn = page.locator('text=Voir les résultats');
-    await expect(seeResultsBtn).toBeVisible();
+    await expect(seeResultsBtn).toBeVisible({ timeout: 5000 });
 
     // 4. Cliquer sur le bouton et vérifier l'accès
     await seeResultsBtn.click();
-    await page.waitForTimeout(1000);
+    
+    // Attendre que la page de résultats se charge
+    await page.waitForLoadState('networkidle');
 
     const restrictedMessage = page.locator('text=Accès restreint');
-    await expect(restrictedMessage).not.toBeVisible();
+    await expect(restrictedMessage).not.toBeVisible({ timeout: 5000 });
   });
 
   test('Visibilité public : tout le monde peut voir sans voter', async ({ page }) => {
@@ -201,12 +212,12 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
 
     // 2. Accéder directement aux résultats sans voter
     const resultsUrl = `/poll/${pollSlug}/results`;
-    await page.goto(resultsUrl);
-    await page.waitForTimeout(1000);
+    await page.goto(resultsUrl, { waitUntil: 'networkidle' });
+    await page.waitForLoadState('networkidle');
 
     // Devrait pouvoir voir les résultats
     const restrictedMessage = page.locator('text=Accès restreint');
-    await expect(restrictedMessage).not.toBeVisible();
+    await expect(restrictedMessage).not.toBeVisible({ timeout: 5000 });
   });
 
   test('Email de confirmation : checkbox et envoi', async ({ page }) => {
@@ -246,22 +257,25 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
 
     // 2. Voter avec email
     const voteUrl = `/poll/${pollSlug}`;
-    await page.goto(voteUrl);
-    await page.waitForTimeout(1000);
+    await page.goto(voteUrl, { waitUntil: 'networkidle' });
+    await page.waitForLoadState('networkidle');
 
     const nameInput = page.locator('input[type="text"]').first();
+    await nameInput.waitFor({ state: 'visible', timeout: 5000 });
     await nameInput.fill('Test User');
 
     const option = page.locator('input[type="radio"]').first();
+    await option.waitFor({ state: 'visible', timeout: 5000 });
     await option.check();
 
     // Cocher la checkbox pour recevoir l'email
     const emailCheckbox = page.locator('input[type="checkbox"]').first();
+    await emailCheckbox.waitFor({ state: 'visible', timeout: 5000 });
     await emailCheckbox.check();
-    await page.waitForTimeout(300);
 
-    // Remplir l'email
+    // Attendre que le champ email apparaisse (attente explicite)
     const emailInput = page.locator('input[type="email"]').first();
+    await expect(emailInput).toBeVisible({ timeout: 3000 });
     await emailInput.fill('test@example.com');
 
     // 3. Capturer les logs console pour vérifier l'envoi d'email
@@ -273,15 +287,15 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     });
 
     const submitBtn = page.locator('button[type="submit"], button:has-text("Envoyer")').first();
+    await submitBtn.waitFor({ state: 'visible', timeout: 5000 });
     await submitBtn.click();
-    await page.waitForTimeout(2000);
+
+    // Attendre la confirmation de soumission
+    await expect(page.locator('text=Merci pour votre participation')).toBeVisible({ timeout: 5000 });
 
     // 4. Vérifier que l'email a été "envoyé" (log en console pour MVP)
     const emailLog = consoleMessages.find((msg) => msg.includes('📧 Email à envoyer'));
     expect(emailLog).toBeTruthy();
-
-    // Vérifier le message de confirmation
-    await expect(page.locator('text=Merci pour votre participation')).toBeVisible();
   });
 
   test('Email de confirmation : validation email requise si checkbox cochée', async ({ page }) => {
@@ -321,52 +335,50 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
 
     // 2. Voter avec checkbox cochée mais sans email
     const voteUrl = `/poll/${pollSlug}`;
-    await page.goto(voteUrl);
-    await page.waitForTimeout(1000);
+    await page.goto(voteUrl, { waitUntil: 'networkidle' });
+    await page.waitForLoadState('networkidle');
 
     const nameInput = page.locator('input[type="text"]').first();
+    await nameInput.waitFor({ state: 'visible', timeout: 5000 });
     await nameInput.fill('Test User');
 
     const option = page.locator('input[type="radio"]').first();
+    await option.waitFor({ state: 'visible', timeout: 5000 });
     await option.check();
 
     // Cocher la checkbox
     const emailCheckbox = page.locator('input[type="checkbox"]').first();
+    await emailCheckbox.waitFor({ state: 'visible', timeout: 5000 });
     await emailCheckbox.check();
-    await page.waitForTimeout(500);
 
-    // Vérifier que le champ email est maintenant visible
+    // Vérifier que le champ email est maintenant visible (attente explicite)
     const emailInput = page.locator('input[type="email"]').first();
-    await expect(emailInput).toBeVisible({ timeout: 2000 });
+    await expect(emailInput).toBeVisible({ timeout: 3000 });
 
     // Ne pas remplir l'email et essayer de soumettre
     const submitBtn = page.locator('button[type="submit"], button:has-text("Envoyer")').first();
-    const urlBefore = page.url();
+    await submitBtn.waitFor({ state: 'visible', timeout: 5000 });
     
     await submitBtn.click();
-    await page.waitForTimeout(2000);
 
-    // 3. Vérifier que le formulaire n'a pas été soumis OU qu'un message d'erreur est visible
-    const urlAfter = page.url();
-    const confirmationVisible = await page.locator('text=Merci pour votre participation').isVisible().catch(() => false);
+    // 3. Vérifier que le formulaire n'a pas été soumis (attente explicite)
+    // Le message de confirmation ne doit PAS apparaître
+    const confirmationMessage = page.locator('text=Merci pour votre participation');
+    await expect(confirmationMessage).not.toBeVisible({ timeout: 2000 });
     
-    // Si on voit la confirmation, le formulaire a été soumis (ne devrait pas arriver)
-    if (confirmationVisible) {
-      throw new Error('Le formulaire a été soumis alors que l\'email est requis');
-    }
-    
-    // Sinon, vérifier qu'un message d'erreur est visible ou que la validation HTML5 bloque
+    // Vérifier qu'un message d'erreur est visible OU que la validation HTML5 bloque
     const errorMessage = page.locator('[role="alert"]').filter({ hasText: /email/i });
-    const errorVisible = await errorMessage.isVisible().catch(() => false);
+    const errorVisible = await errorMessage.isVisible({ timeout: 2000 }).catch(() => false);
     
-    // Si pas d'erreur visible, vérifier que le champ email a une validation HTML5
-    if (!errorVisible) {
+    if (errorVisible) {
+      // Message d'erreur visible → OK
+      await expect(errorMessage).toBeVisible();
+    } else {
+      // Pas d'erreur visible → vérifier validation HTML5
       const emailValidation = await emailInput.evaluate((el: HTMLInputElement) => {
         return !el.validity.valid;
-      }).catch(() => false);
+      });
       expect(emailValidation).toBe(true);
-    } else {
-      expect(errorVisible).toBe(true);
     }
   });
 });

@@ -17,6 +17,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useFreemiumQuota } from "./useFreemiumQuota";
 
 import { AI_MESSAGE_QUOTAS, POLL_CREATION_QUOTAS } from "@/constants/quotas";
 
@@ -119,10 +120,14 @@ export function useAiMessageQuota(currentConversationId?: string): AiMessageQuot
   const { user } = useAuth();
   const isGuest = !user;
 
+  // Pour les guests, utiliser useFreemiumQuota pour obtenir les données Supabase
+  const freemiumQuota = useFreemiumQuota();
+  const guestQuota = isGuest ? freemiumQuota.guestQuota?.data : null;
+
   // Limites selon type utilisateur
   const limits = isGuest ? QUOTA_LIMITS.guest : QUOTA_LIMITS.authenticated;
 
-  // État quota messages
+  // État quota messages (localStorage pour auth users, fallback pour guests si Supabase indisponible)
   const [quotaData, setQuotaData] = useState<AiMessageQuotaData>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -134,6 +139,18 @@ export function useAiMessageQuota(currentConversationId?: string): AiMessageQuot
     }
     return { aiMessagesUsed: 0, lastMessageTimestamp: 0 };
   });
+
+  // Pour les guests, utiliser les données Supabase si disponibles
+  useEffect(() => {
+    if (isGuest && guestQuota) {
+      // Synchroniser avec les données Supabase
+      setQuotaData((prev) => ({
+        ...prev,
+        aiMessagesUsed: guestQuota.aiMessages || 0,
+        // Garder lastMessageTimestamp en localStorage pour le cooldown
+      }));
+    }
+  }, [isGuest, guestQuota?.aiMessages]);
 
   // État compteur polls par conversation
   const [pollCounts, setPollCounts] = useState<PollCountData>(() => {
@@ -161,10 +178,18 @@ export function useAiMessageQuota(currentConversationId?: string): AiMessageQuot
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGuest, quotaData.resetDate, quotaData.aiMessagesUsed]);
 
-  // Sauvegarder dans localStorage
+  // Sauvegarder dans localStorage (uniquement pour auth users, ou comme fallback pour guests)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(quotaData));
-  }, [quotaData]);
+    if (!isGuest) {
+      // Pour les auth users, toujours sauvegarder dans localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(quotaData));
+    } else {
+      // Pour les guests, sauvegarder uniquement si Supabase est indisponible (fallback)
+      if (!guestQuota && quotaData.aiMessagesUsed > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(quotaData));
+      }
+    }
+  }, [quotaData, isGuest, guestQuota]);
 
   useEffect(() => {
     localStorage.setItem(POLL_COUNT_KEY, JSON.stringify(pollCounts));
@@ -203,20 +228,28 @@ export function useAiMessageQuota(currentConversationId?: string): AiMessageQuot
   }, [quotaData.lastMessageTimestamp]);
 
   // Calculer valeurs
-  const aiMessagesRemaining = Math.max(0, limits.aiMessages - quotaData.aiMessagesUsed);
+  // Pour les guests, utiliser les données Supabase si disponibles, sinon fallback localStorage
+  const aiMessagesUsed =
+    isGuest && guestQuota ? guestQuota.aiMessages || 0 : quotaData.aiMessagesUsed;
+  const aiMessagesRemaining = Math.max(0, limits.aiMessages - aiMessagesUsed);
   const canSendMessage = aiMessagesRemaining > 0 && !isInCooldown;
 
   const pollsInConversation = currentConversationId ? pollCounts[currentConversationId] || 0 : 0;
   const canCreatePoll = pollsInConversation < limits.pollsPerConversation;
 
   // Incrémenter compteur messages IA
+  // Note: Pour les guests, l'incrémentation réelle se fait via consumeGuestCredits() dans quotaTracking
+  // Cette fonction met juste à jour le timestamp pour le cooldown
   const incrementAiMessages = useCallback(() => {
     setQuotaData((prev) => ({
       ...prev,
-      aiMessagesUsed: prev.aiMessagesUsed + 1,
+      // Ne pas incrémenter aiMessagesUsed pour les guests (géré par Supabase)
+      // Seulement mettre à jour le timestamp pour le cooldown
       lastMessageTimestamp: Date.now(),
+      // Pour les auth users, incrémenter aussi le compteur local
+      ...(isGuest ? {} : { aiMessagesUsed: prev.aiMessagesUsed + 1 }),
     }));
-  }, []);
+  }, [isGuest]);
 
   // Incrémenter compteur polls
   const incrementPollCount = useCallback((conversationId: string) => {
@@ -233,7 +266,7 @@ export function useAiMessageQuota(currentConversationId?: string): AiMessageQuot
   }, []);
 
   return {
-    aiMessagesUsed: quotaData.aiMessagesUsed,
+    aiMessagesUsed, // Utilise Supabase pour guests, localStorage pour auth
     aiMessagesLimit: limits.aiMessages,
     aiMessagesRemaining,
     canSendMessage,

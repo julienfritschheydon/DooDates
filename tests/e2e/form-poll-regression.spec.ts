@@ -28,8 +28,19 @@ const test = base.extend<{}, { sharedContext: any }>({
   },
 });
 
+// Helper pour logs conditionnels (seulement si DEBUG_E2E=1)
 function mkLogger(scope: string) {
-  return (...parts: any[]) => console.log(`[${scope}]`, ...parts);
+  const debug = process.env.DEBUG_E2E === '1';
+  return (...parts: any[]) => {
+    if (debug) console.log(`[${scope}]`, ...parts);
+  };
+}
+
+// Helper pour screenshots conditionnels (seulement si DEBUG_E2E=1)
+async function debugScreenshot(page: any, name: string) {
+  if (process.env.DEBUG_E2E === '1') {
+    await page.screenshot({ path: `test-results/DEBUG-${name}.png`, fullPage: true });
+  }
 }
 
 test.describe('Form Poll - Tests de non-régression', () => {
@@ -59,22 +70,23 @@ test.describe('Form Poll - Tests de non-régression', () => {
     // Clear localStorage SEULEMENT pour le premier test
     if (!pollCreated) {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle');
       // Attendre que le chat input soit visible (indicateur que la page est prête)
       await expect(page.locator('[data-testid="message-input"]')).toBeVisible({ timeout: 10000 });
     } else {
       // Pour les tests suivants, naviguer vers le poll créé
       if (pollUrl) {
         await page.goto(pollUrl, { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000); // Attendre que l'UI se stabilise
+        await page.waitForLoadState('networkidle');
         // Attendre que l'éditeur soit visible ou présent
         const editor = page.locator('[data-poll-preview]');
         await expect(editor).toBeAttached({ timeout: 10000 });
-        // Si l'éditeur est replié/caché, essayer de l'ouvrir
-        const isVisible = await editor.isVisible().catch(() => false);
-        if (!isVisible) {
-          // Attendre un peu plus ou vérifier qu'on est sur la bonne page
-          await page.waitForTimeout(2000);
-        }
+        // Attendre que l'éditeur soit visible (attente explicite au lieu de timeout fixe)
+        await expect(editor).toBeVisible({ timeout: 5000 }).catch(async () => {
+          // Si l'éditeur n'est pas visible, attendre qu'il apparaisse après chargement complet
+          await page.waitForLoadState('networkidle');
+          await expect(editor).toBeVisible({ timeout: 5000 });
+        });
       } else {
         throw new Error('pollUrl non défini - le test #1 doit avoir été exécuté avant');
       }
@@ -108,15 +120,13 @@ test.describe('Form Poll - Tests de non-régression', () => {
       log(`📝 Valeur AVANT fill : "${valueBefore}"`);
 
       // Utiliser robustFill() pour gérer race conditions et overlays
-      await robustFill(chatInput, 'Crée un questionnaire avec 1 seule question', { debug: true });
+      await robustFill(chatInput, 'Crée un questionnaire avec 1 seule question', { debug: process.env.DEBUG_E2E === '1' });
       log('✅ robustFill() terminé');
       
       const valueAfter = await chatInput.inputValue();
       log(`📝 Valeur APRÈS fill : "${valueAfter}"`);
       
-      // 📸 CAPTURE AVANT ENTER (Test #1)
-      await page.screenshot({ path: 'test-results/TEST1-BEFORE-ENTER.png', fullPage: true });
-      log('📸 TEST #1 - Capture AVANT Enter');
+      await debugScreenshot(page, 'TEST1-BEFORE-ENTER');
       
       await chatInput.press('Enter');
       
@@ -125,20 +135,15 @@ test.describe('Form Poll - Tests de non-régression', () => {
       const successText = page.getByText(/Voici votre (questionnaire|sondage)/i);
       const errorText = page.getByText(/désolé|quota.*dépassé|erreur/i);
       
-      // Attendre que l'un ou l'autre apparaisse
-      await Promise.race([
-        successText.waitFor({ state: 'visible', timeout: 30000 }).catch(() => null),
-        errorText.waitFor({ state: 'visible', timeout: 30000 }).catch(() => null),
-      ]);
+      // Attendre que le message de succès apparaisse (attente explicite)
+      await expect(successText).toBeVisible({ timeout: 30000 });
+      log('✅ Réponse IA visible');
       
-      // Vérifier qu'il n'y a pas de message d'erreur
-      const hasError = await errorText.isVisible({ timeout: 2000 }).catch(() => false);
+      // Vérifier qu'il n'y a pas de message d'erreur (assertion explicite)
+      const hasError = await errorText.isVisible({ timeout: 1000 }).catch(() => false);
       if (hasError) {
-        await page.screenshot({ path: 'test-results/TEST1-ERROR-IA.png', fullPage: true });
+        await debugScreenshot(page, 'TEST1-ERROR-IA');
         const errorContent = await errorText.textContent();
-        log(`❌ L'IA a retourné une erreur: ${errorContent}`);
-        log('💡 Cause probable: Edge Function Supabase "hyper-task" bloquée par CORS ou quota dépassé');
-        log('💡 Solution: Configurer CORS dans l\'Edge Function ou utiliser un mock pour les tests E2E');
         throw new Error(
           `L'IA a retourné une erreur au lieu de générer un formulaire. ` +
           `Vérifiez que l'Edge Function Supabase est configurée avec CORS. ` +
@@ -146,19 +151,13 @@ test.describe('Form Poll - Tests de non-régression', () => {
         );
       }
       
-      // Vérifier que le message de succès est visible
-      await expect(successText).toBeVisible({ timeout: 5000 });
-      log('✅ Réponse IA visible');
-      
       // Attendre que le bouton de création soit visible (utiliser data-testid pour plus de fiabilité)
       // Le bouton apparaît après que pollSuggestion soit ajouté au message
       const createButton = page.locator('[data-testid="create-form-button"]');
       await expect(createButton).toBeVisible({ timeout: 10000 });
-      log('✅ Enter pressé et bouton trouvé');
+      log('✅ Bouton création visible');
       
-      // 📸 CAPTURE APRÈS ENTER (Test #1)
-      await page.screenshot({ path: 'test-results/TEST1-AFTER-ENTER.png', fullPage: true });
-      log('📸 TEST #1 - Capture APRÈS Enter');
+      await debugScreenshot(page, 'TEST1-AFTER-ENTER');
 
       // 2. Cliquer sur "Créer ce formulaire" (le bouton est déjà trouvé et visible ci-dessus)
       await createButton.click();
@@ -168,22 +167,21 @@ test.describe('Form Poll - Tests de non-régression', () => {
       const previewCard = page.locator('[data-poll-preview]');
       await expect(previewCard).toBeVisible({ timeout: 15000 });
       log('✅ Carte de prévisualisation visible');
-
+      
       // 4. Sur desktop, cliquer sur "Voir" pour ouvrir l'éditeur
       // Sur mobile, l'éditeur s'ouvre automatiquement en overlay
       const viewFormButton = page.getByRole('button', { name: /voir/i }).first();
-      const isButtonVisible = await viewFormButton.isVisible().catch(() => false);
+      const isButtonVisible = await viewFormButton.isVisible({ timeout: 2000 }).catch(() => false);
       
       if (isButtonVisible) {
         await viewFormButton.click();
         log('✅ Bouton "Voir" cliqué (desktop)');
-        // Attendre que l'éditeur soit ouvert
-        await expect(page.locator('[data-poll-preview]').getByRole('button', { name: /^Q\d+$/ })).toBeVisible({ timeout: 5000 });
       } else {
         log('✅ Preview s\'ouvre automatiquement (mobile)');
-        // Attendre que l'éditeur soit visible même sur mobile
-        await expect(page.locator('[data-poll-preview]').getByRole('button', { name: /^Q\d+$/ })).toBeVisible({ timeout: 5000 });
       }
+      
+      // Attendre que l'éditeur soit ouvert avec les onglets de questions (attente explicite)
+      await expect(previewCard.getByRole('button', { name: /^Q\d+$/ })).toBeVisible({ timeout: 5000 });
 
       // 5. Vérifier que les onglets de questions sont présents dans l'éditeur
       const editor = page.locator('[data-poll-preview]');
@@ -273,30 +271,21 @@ test.describe('Form Poll - Tests de non-régression', () => {
       const countBefore = await questionTabsBefore.count();
       log(`✅ Nombre d'onglets avant : ${countBefore}`);
 
-      // 📸 CAPTURE DEBUG AVANT robustFill (pour voir l'état de la page)
-      await page.screenshot({ path: 'test-results/TEST2-DEBUG-BEFORE-FILL.png', fullPage: true });
-      log('📸 TEST #2 - Capture DEBUG avant robustFill');
+      await debugScreenshot(page, 'TEST2-DEBUG-BEFORE-FILL');
 
       // 2. Demander l'ajout d'une question avec robustFill()
       const textToFill = 'Ajoute une question sur l\'âge';
       
       // robustFill() gère automatiquement les cas mobile et les inputs cachés
-      await robustFill(chatInput, textToFill, { debug: true });
+      await robustFill(chatInput, textToFill, { debug: process.env.DEBUG_E2E === '1' });
       log('✅ robustFill() terminé');
       
-      const valueAfter = await chatInput.inputValue();
-      log(`📝 Valeur APRÈS robustFill : "${valueAfter}"`);
-      
-      // 📸 CAPTURE AVANT ENTER (Test #2)
-      await page.screenshot({ path: 'test-results/TEST2-BEFORE-ENTER.png', fullPage: true });
-      log('📸 TEST #2 - Capture AVANT Enter');
+      await debugScreenshot(page, 'TEST2-BEFORE-ENTER');
       
       await chatInput.press('Enter');
       log('✅ Enter pressé');
       
-      // 📸 CAPTURE APRÈS ENTER (Test #2)
-      await page.screenshot({ path: 'test-results/TEST2-AFTER-ENTER.png', fullPage: true });
-      log('📸 TEST #2 - Capture APRÈS Enter');
+      await debugScreenshot(page, 'TEST2-AFTER-ENTER');
       
       // 3. Attendre que l'IA traite la demande et ajoute la question
       // Sur mobile, on ne peut pas voir les messages IA (cachés par le Preview)
@@ -304,18 +293,16 @@ test.describe('Form Poll - Tests de non-régression', () => {
       log('⏱️ Attente que l\'IA ajoute la question...');
       
       // 4. Vérifier qu'un nouvel onglet a été ajouté (attendre que le count augmente)
-      const questionTabsAfter = page.locator('button').filter({ hasText: /^Q\d+$/ });
-      // Attendre que le nombre d'onglets augmente (indique qu'une question a été ajoutée)
-      await expect(async () => {
+      const questionTabsAfter = editor.getByRole('button', { name: /^Q\d+$/ });
+      // Attendre que le nombre d'onglets augmente (attente explicite avec expect.poll)
+      await expect.poll(async () => {
         const countAfter = await questionTabsAfter.count();
-        expect(countAfter).toBeGreaterThan(countBefore);
-      }).toPass({ timeout: 10000 });
+        return countAfter;
+      }, { timeout: 15000 }).toBeGreaterThan(countBefore);
+      
       const countAfter = await questionTabsAfter.count();
-      
-      log(`📊 Onglets avant: ${countBefore}, après: ${countAfter}`);
-      
       expect(countAfter).toBe(countBefore + 1);
-      log(`✅ Nombre d'onglets après : ${countAfter}`);
+      log(`✅ Question ajoutée (${countBefore} → ${countAfter} onglets)`);
 
       log('🎉 TEST RÉUSSI : Ajout de question');
 
@@ -341,25 +328,12 @@ test.describe('Form Poll - Tests de non-régression', () => {
     try {
       test.slow();
       
-      // 📸 CAPTURE INITIALE - Voir ce qui s'affiche
-      await page.screenshot({ path: 'test-results/TEST3-INITIAL-STATE.png', fullPage: true });
-      log('📸 TEST #3 - Capture état initial');
+      await debugScreenshot(page, 'TEST3-INITIAL-STATE');
       
       // Le poll est déjà créé, on vérifie qu'il est là
       const editor = page.locator('[data-poll-preview]');
-      const isEditorVisible = await editor.isVisible().catch(() => false);
-      log(`🔍 Éditeur visible ? ${isEditorVisible}`);
-      
-      if (!isEditorVisible) {
-        // Capturer l'état actuel pour debug
-        const bodyText = await page.locator('body').textContent();
-        log(`📄 Contenu de la page : ${bodyText?.substring(0, 200)}...`);
-        await page.screenshot({ path: 'test-results/TEST3-NO-EDITOR.png', fullPage: true });
-        log('📸 TEST #3 - Éditeur non trouvé');
-      }
-      
-      await expect(editor).toBeVisible({ timeout: 5000 });
-      log('✅ Éditeur déjà présent');
+      await expect(editor).toBeVisible({ timeout: 10000 });
+      log('✅ Éditeur présent');
       
       const chatInput = page.locator('[data-testid="message-input"]');
       // Sur mobile, essayer de scroller vers le chat (optionnel)
@@ -377,27 +351,24 @@ test.describe('Form Poll - Tests de non-régression', () => {
       log(`✅ ${initialCount} onglets de questions présents`);
 
       // 2. Demander la suppression de la question 2 avec robustFill()
-      await robustFill(chatInput, 'Supprime la question 2', { debug: true });
+      await robustFill(chatInput, 'Supprime la question 2', { debug: process.env.DEBUG_E2E === '1' });
       log('✅ robustFill() terminé');
       
-      // 📸 CAPTURE AVANT ENTER (Test #3)
-      await page.screenshot({ path: 'test-results/TEST3-BEFORE-ENTER.png', fullPage: true });
-      log('📸 TEST #3 - Capture AVANT Enter');
+      await debugScreenshot(page, 'TEST3-BEFORE-ENTER');
       
       await chatInput.press('Enter');
       log('✅ Enter pressé');
       
-      // 📸 CAPTURE APRÈS ENTER (Test #3)
-      await page.screenshot({ path: 'test-results/TEST3-AFTER-ENTER.png', fullPage: true });
-      log('📸 TEST #3 - Capture APRÈS Enter');
+      await debugScreenshot(page, 'TEST3-AFTER-ENTER');
       
-      // 3. Vérifier que le nombre d'onglets a diminué (attendre que le count diminue)
-      await expect(async () => {
+      // 3. Vérifier que le nombre d'onglets a diminué (attente explicite avec expect.poll)
+      await expect.poll(async () => {
         const finalCount = await questionTabs.count();
-        expect(finalCount).toBe(initialCount - 1);
-      }).toPass({ timeout: 10000 });
+        return finalCount;
+      }, { timeout: 15000 }).toBe(initialCount - 1);
+      
       const finalCount = await questionTabs.count();
-      log(`✅ Question supprimée (${initialCount} onglets → ${finalCount} onglets)`);
+      log(`✅ Question supprimée (${initialCount} → ${finalCount} onglets)`);
 
       log('🎉 TEST RÉUSSI : Suppression de question');
 

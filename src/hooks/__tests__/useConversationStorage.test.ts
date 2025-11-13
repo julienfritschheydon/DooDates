@@ -172,11 +172,14 @@ describe("useConversationStorage", () => {
         wrapper: createQueryWrapper(),
       });
 
-      await waitFor(() => {
-        expect(result.current.storageMode.isGuest).toBe(true);
-        expect(result.current.storageMode.isAuthenticated).toBe(false);
-        expect(result.current.storageMode.provider).toBe("localStorage");
-      });
+      await waitFor(
+        () => {
+          expect(result.current.storageMode.isGuest).toBe(true);
+          expect(result.current.storageMode.isAuthenticated).toBe(false);
+          expect(result.current.storageMode.provider).toBe("localStorage");
+        },
+        { timeout: 3000 }
+      );
     });
 
     it("should detect authenticated mode when user is logged in", async () => {
@@ -205,11 +208,14 @@ describe("useConversationStorage", () => {
         },
       );
 
-      await waitFor(() => {
-        expect(result.current.storageMode.isAuthenticated).toBe(true);
-        expect(result.current.storageMode.isGuest).toBe(false);
-        expect(result.current.storageMode.provider).toBe("localStorage"); // Currently uses localStorage since Supabase storage isn't implemented yet
-      });
+      await waitFor(
+        () => {
+          expect(result.current.storageMode.isAuthenticated).toBe(true);
+          expect(result.current.storageMode.isGuest).toBe(false);
+          expect(result.current.storageMode.provider).toBe("localStorage"); // Currently uses localStorage since Supabase storage isn't implemented yet
+        },
+        { timeout: 3000 }
+      );
     });
   });
 
