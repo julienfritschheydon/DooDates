@@ -329,7 +329,14 @@ export function ConversationCard({
                   Reprendre
                 </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={handleRenameStart}>
+                <DropdownMenuItem
+                  onClick={() => {
+                    // Small delay to ensure menu closes before state update
+                    requestAnimationFrame(() => {
+                      handleRenameStart();
+                    });
+                  }}
+                >
                   <Edit2 className="h-4 w-4 mr-2" />
                   Renommer
                 </DropdownMenuItem>
