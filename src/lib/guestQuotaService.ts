@@ -67,7 +67,7 @@ export interface GuestQuotaJournalEntry {
 const GUEST_LIMITS = {
   CONVERSATIONS: 5,
   POLLS: 5,
-  AI_MESSAGES: 2, // ⚠️ TEMPORAIRE POUR TESTS - Remettre à 20 après
+  AI_MESSAGES: 20,
   ANALYTICS_QUERIES: 10,
   SIMULATIONS: 2,
   TOTAL_CREDITS: 50,
@@ -236,6 +236,11 @@ function evaluateQuotaLimits(
 // Cache pour éviter les appels répétés
 const quotaCache = new Map<string, { data: GuestQuotaSupabaseRow | null; timestamp: number }>();
 const CACHE_TTL = 5000; // 5 secondes
+
+// Fonction pour vider le cache (utilisée dans les tests)
+export function clearQuotaCache(): void {
+  quotaCache.clear();
+}
 
 async function fetchQuotaByFingerprint(fingerprint: string): Promise<GuestQuotaSupabaseRow | null> {
   try {
