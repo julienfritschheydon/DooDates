@@ -41,48 +41,26 @@ export function useAnalyticsQuota() {
     canQuery: true,
   });
 
-  // Mettre à jour la limite lorsque l'utilisateur change
-  useEffect(() => {
-    setQuota((prev) => ({
-      ...prev,
-      limit,
-      remaining: limit - prev.used,
-      canQuery: limit - prev.used > 0,
-    }));
+  // Définir resetQuota avant son utilisation dans useEffect
+  const resetQuota = useCallback(() => {
+    const currentLimit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
+    const data: QuotaData = {
+      count: 0,
+      date: getTodayString(),
+    };
 
-    // Appeler loadQuota avec la nouvelle valeur de user
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
-        resetQuota();
-        return;
-      }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-      const data: QuotaData = JSON.parse(stored);
-      const today = getTodayString();
+    setQuota({
+      used: 0,
+      limit: currentLimit,
+      remaining: currentLimit,
+      resetAt: getNextMidnight(),
+      canQuery: true,
+    });
 
-      // Si la date est différente, reset le quota
-      if (data.date !== today) {
-        resetQuota();
-        return;
-      }
-
-      const currentLimit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
-      const used = data.count;
-      const remaining = Math.max(0, currentLimit - used);
-
-      setQuota({
-        used,
-        limit: currentLimit,
-        remaining,
-        resetAt: getNextMidnight(),
-        canQuery: remaining > 0,
-      });
-    } catch (error) {
-      logger.error("Failed to load analytics quota", "analytics", { error });
-      resetQuota();
-    }
-  }, [user, limit, resetQuota]);
+    logger.info("Analytics quota reset", "analytics", { limit: currentLimit });
+  }, [user]);
 
   const loadQuota = useCallback(() => {
     try {
@@ -120,25 +98,18 @@ export function useAnalyticsQuota() {
     }
   }, [user, resetQuota]);
 
-  const resetQuota = useCallback(() => {
-    const currentLimit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;
-    const data: QuotaData = {
-      count: 0,
-      date: getTodayString(),
-    };
+  // Mettre à jour la limite lorsque l'utilisateur change
+  useEffect(() => {
+    setQuota((prev) => ({
+      ...prev,
+      limit,
+      remaining: limit - prev.used,
+      canQuery: limit - prev.used > 0,
+    }));
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-
-    setQuota({
-      used: 0,
-      limit: currentLimit,
-      remaining: currentLimit,
-      resetAt: getNextMidnight(),
-      canQuery: true,
-    });
-
-    logger.info("Analytics quota reset", "analytics", { limit: currentLimit });
-  }, [user]);
+    // Charger le quota avec la nouvelle valeur de user
+    loadQuota();
+  }, [user, limit, loadQuota]);
 
   const incrementQuota = useCallback(() => {
     try {
