@@ -1,8 +1,8 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 14/11/2025 15:19:07
+**Dernière mise à jour:** 14/11/2025 15:36:46
 
-_Workflow run #303 (ID 19367325401) — génération UTC 2025-11-14T14:19:07.127Z_
+_Workflow run #309 (ID 19367826821) — génération UTC 2025-11-14T14:36:46.112Z_
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -28,7 +28,7 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ✅ success
 
-**Dernier run:** 14/11/2025 15:13:51
+**Dernier run:** 14/11/2025 15:31:21
 
 **Statistiques:**
 - ❌ Échecs (24h): **6**
@@ -150,22 +150,84 @@ error: Error: Supabase not available in tests
 
 **Statut:** ⏳ unknown
 
-**Dernier run:** 14/11/2025 15:17:51
+**Dernier run:** 14/11/2025 15:36:01
 
 **Statistiques:**
-- ❌ Échecs (24h): **0**
-- ❌ Échecs (7 jours): **12**
+- ❌ Échecs (24h): **1**
+- ❌ Échecs (7 jours): **13**
 - 📊 Total runs analysés: **20**
 
-### ⚠️ Échecs récents (7 jours)
+### 🔴 Échecs récents (24h)
 
-Aucun échec dans les 24 dernières heures, mais **12** échec(s) cette semaine.
+#### Run #79 - 14/11/2025 15:17:51
+
+- **Commit:** `cceff68`
+- **Auteur:** julienfritschheydon
+- **Branche:** `main`
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19367324184)
+- **Jobs en échec:**
+  - ❌ `📋 Form Poll Regression - Suite Complète (Serial)` (failure)
+    - Steps en échec: `📋 Run Form Poll Regression Suite (Serial - No Sharding)`
+    - **Erreurs détectées (9):**
+      ```
+Error: "error": {
+Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
+Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
+Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-regression.spec.ts:199:31",
+Expected: 31",
+
+"error": {
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n    at /ho
+... (truncated)
+```
+      ```
+Error: "message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n\n  197 |       log(`📊 Nombre d'inputs trouvés : ${inputCount}`);\n  198 |       \n> 199 |       await expect(chatInput).toBeVisible({ timeout: 10000 });\n      |                               ^\n  200 |       log('✅ Chat input visible');\n  201 |       \n  202 |       const isDisabled = await chatInput.isDisabled();\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-regression.spec.ts:199:31"
+Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n\n  197 |       log(`📊 Nombre d'inputs trouvés : ${inputCount}`);\n  198 |       \n> 199 |       await expect(chatInput).toBeVisible({ timeout: 10000 });\n      |                               ^\n  200 |       log('✅ Chat input visible');\n  201 |       \n  202 |       const isDisabled = await chatInput.isDisabled();\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-regression.spec.ts:199:31"
+Expected: 31"
+
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n\n  197 |       log(`📊 Nombre d'inputs trouvés : ${inputCount}`);\n  198 |       \n> 199 |       await expect(chatInput).toBeVisible({ timeout: 10000 });\n      |                               ^\n  200 |       log('✅ Chat input visible');\n  201 |       \n  202 |       const isDisabled = await chatInput.isDisabled();\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-regression.spec.ts:199:31"
+... (truncated)
+```
+      ```
+Error: "error": {
+Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
+Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
+Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-regression.spec.ts:199:31",
+Expected: 31",
+
+"error": {
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n    at /ho
+... (truncated)
+```
+      ```
+Error: "message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n\n  197 |       log(`📊 Nombre d'inputs trouvés : ${inputCount}`);\n  198 |       \n> 199 |       await expect(chatInput).toBeVisible({ timeout: 10000 });\n      |                               ^\n  200 |       log('✅ Chat input visible');\n  201 |       \n  202 |       const isDisabled = await chatInput.isDisabled();\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-regression.spec.ts:199:31"
+Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n\n  197 |       log(`📊 Nombre d'inputs trouvés : ${inputCount}`);\n  198 |       \n> 199 |       await expect(chatInput).toBeVisible({ timeout: 10000 });\n      |                               ^\n  200 |       log('✅ Chat input visible');\n  201 |       \n  202 |       const isDisabled = await chatInput.isDisabled();\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-regression.spec.ts:199:31"
+Expected: 31"
+
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n\n  197 |       log(`📊 Nombre d'inputs trouvés : ${inputCount}`);\n  198 |       \n> 199 |       await expect(chatInput).toBeVisible({ timeout: 10000 });\n      |                               ^\n  200 |       log('✅ Chat input visible');\n  201 |       \n  202 |       const isDisabled = await chatInput.isDisabled();\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-regression.spec.ts:199:31"
+... (truncated)
+```
+      ```
+Error: "error": {
+Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
+Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
+Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-regression.spec.ts:199:31",
+Expected: 31",
+
+"error": {
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n    at /ho
+... (truncated)
+```
+      *... et 4 autre(s) erreur(s)*
 
 ---
 
 ## 📈 Résumé Global
 
-- ❌ **Total échecs (24h):** 6
+- ❌ **Total échecs (24h):** 7
 - ❌ **Total échecs (7 jours):** 13
 - 📊 **Workflows monitorés:** 6
 
