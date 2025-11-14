@@ -488,12 +488,11 @@ const AvailabilityPollResults = () => {
             </CardContent>
           </Card>
 
-          {/* Note MVP */}
+          {/* Note Version actuelle */}
           <Alert className="mt-6">
-            <AlertDescription className="text-sm text-blue-300">
-              💡 <strong>Note MVP v0.5</strong> : Dans cette version, vous devez proposer
-              manuellement les créneaux optimaux. L'optimisation automatique avec intégration
-              calendrier sera disponible dans la version v1.0.
+            <AlertDescription className="text-sm text-green-300">
+              ✅ <strong>Optimisation automatique active</strong> : Si votre calendrier Google Calendar est connecté, 
+              le système propose automatiquement les créneaux optimaux. Sinon, vous pouvez proposer manuellement les créneaux.
             </AlertDescription>
           </Alert>
         </div>
