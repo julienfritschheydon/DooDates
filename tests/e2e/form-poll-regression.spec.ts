@@ -188,8 +188,13 @@ test.describe('Form Poll - Tests de non-régression', () => {
     try {
       test.slow();
       
+      // Configurer les mocks avant la navigation
+      await setupAllMocksWithoutNavigation(page);
+      
       // 1. Créer un questionnaire avec 1 seule question via IA (mock)
-      await page.goto('/');
+      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle');
+      
       const chatInput = page.locator('[data-testid="message-input"]');
       
       // 🔍 DIAGNOSTIC COMPLET (Test #1)
