@@ -177,16 +177,14 @@ const AvailabilityPollCreator = () => {
                   </Button>
                 </div>
 
-                {/* Note MVP v0.5 */}
-                <div className="p-4 bg-blue-500/10 border border-blue-600/30 rounded-lg">
+                {/* Note Version actuelle */}
+                <div className="p-4 bg-green-500/10 border border-green-600/30 rounded-lg">
                   <div className="flex items-start gap-2">
-                    <Calendar className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <Calendar className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-blue-400 mb-1">Version MVP v0.5</p>
-                      <p className="text-sm text-blue-300">
-                        Pour l'instant, vos clients peuvent indiquer leurs disponibilités en texte
-                        libre. L'optimisation automatique avec intégration calendrier sera
-                        disponible dans la version v1.0.
+                      <p className="text-sm font-medium text-green-400 mb-1">Version v1.0 - Optimisation automatique activée</p>
+                      <p className="text-sm text-green-300">
+                        Vos clients indiquent leurs disponibilités en texte libre. Le système propose automatiquement les créneaux optimaux depuis votre calendrier Google Calendar, selon les règles configurées.
                       </p>
                     </div>
                   </div>
@@ -261,17 +259,15 @@ const AvailabilityPollCreator = () => {
               {/* Règles intelligentes d'optimisation */}
               <SchedulingRulesForm rules={schedulingRules} onChange={setSchedulingRules} />
 
-              {/* Informations MVP v0.5 */}
-              <div className="p-4 bg-blue-500/10 border border-blue-600/30 rounded-lg">
+              {/* Informations Version actuelle */}
+              <div className="p-4 bg-green-500/10 border border-green-600/30 rounded-lg">
                 <div className="flex items-start gap-2">
-                  <Calendar className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <Calendar className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-blue-400 mb-1">Version MVP v0.5</p>
-                    <p className="text-sm text-blue-300">
-                      Dans cette version, vos clients peuvent indiquer leurs disponibilités en texte
-                      libre. Vous pourrez ensuite proposer manuellement les créneaux optimaux.{" "}
-                      <strong>L'optimisation automatique avec intégration calendrier</strong> sera
-                      disponible dans la version v1.0 et utilisera les règles configurées ci-dessus.
+                    <p className="text-sm font-medium text-green-400 mb-1">Version v1.0 - Optimisation automatique activée</p>
+                    <p className="text-sm text-green-300">
+                      Vos clients indiquent leurs disponibilités en texte libre.{" "}
+                      <strong>L'optimisation automatique avec intégration calendrier</strong> est maintenant active et utilise les règles configurées ci-dessus pour proposer les créneaux optimaux.
                     </p>
                   </div>
                 </div>

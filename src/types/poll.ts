@@ -35,6 +35,14 @@ export interface Poll {
     end: string;
   }; // Créneau validé par le client (MVP v1.0)
   conversationId?: string; // Lien avec conversation
+  schedulingRules?: {
+    minLatencyMinutes?: number;
+    maxLatencyMinutes?: number;
+    preferNearTerm?: boolean;
+    preferHalfDays?: boolean;
+    preferredTimes?: Array<{ day: string; start: string; end: string }>;
+    slotDurationMinutes?: number;
+  }; // Règles intelligentes d'optimisation (Phase 3)
 }
 
 export interface PollData {
