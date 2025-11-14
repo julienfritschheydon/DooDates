@@ -1,8 +1,8 @@
 {
-  "lastUpdate": "2025-11-14T14:19:07.127Z",
-  "runNumber": "303",
-  "runId": "19367325401",
-  "totalFailures24h": 6,
+  "lastUpdate": "2025-11-14T14:36:46.112Z",
+  "runNumber": "309",
+  "runId": "19367826821",
+  "totalFailures24h": 7,
   "totalFailures7d": 13,
   "workflowsMonitored": 6,
   "hasFailures": true,
