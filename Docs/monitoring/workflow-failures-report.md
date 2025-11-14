@@ -1,8 +1,8 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 14/11/2025 15:36:46
+**Dernière mise à jour:** 14/11/2025 17:45:30
 
-_Workflow run #309 (ID 19367826821) — génération UTC 2025-11-14T14:36:46.112Z_
+_Workflow run #315 (ID 19371327260) — génération UTC 2025-11-14T16:45:30.260Z_
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -28,7 +28,7 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ✅ success
 
-**Dernier run:** 14/11/2025 15:31:21
+**Dernier run:** 14/11/2025 17:40:00
 
 **Statistiques:**
 - ❌ Échecs (24h): **6**
@@ -150,11 +150,11 @@ error: Error: Supabase not available in tests
 
 **Statut:** ⏳ unknown
 
-**Dernier run:** 14/11/2025 15:36:01
+**Dernier run:** 14/11/2025 17:44:44
 
 **Statistiques:**
 - ❌ Échecs (24h): **1**
-- ❌ Échecs (7 jours): **13**
+- ❌ Échecs (7 jours): **12**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
@@ -228,7 +228,7 @@ Expected: 31",
 ## 📈 Résumé Global
 
 - ❌ **Total échecs (24h):** 7
-- ❌ **Total échecs (7 jours):** 13
+- ❌ **Total échecs (7 jours):** 12
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
