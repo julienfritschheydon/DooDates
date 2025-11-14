@@ -168,6 +168,15 @@ export interface Poll {
   conversationId?: string; // ID de la conversation parente
   // Visibilité des résultats
   resultsVisibility?: "creator-only" | "voters" | "public";
+  // Règles intelligentes d'optimisation (Phase 3)
+  schedulingRules?: {
+    minLatencyMinutes?: number;
+    maxLatencyMinutes?: number;
+    preferNearTerm?: boolean;
+    preferHalfDays?: boolean;
+    preferredTimes?: Array<{ day: string; start: string; end: string }>;
+    slotDurationMinutes?: number;
+  };
 }
 
 const STORAGE_KEY = "doodates_polls";

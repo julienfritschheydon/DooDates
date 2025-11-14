@@ -324,12 +324,11 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
               />
             </div>
 
-            {/* Note MVP */}
-            <div className="p-3 bg-purple-500/10 border border-purple-600/30 rounded-lg">
-              <p className="text-xs text-purple-300">
-                💡 <strong>Note MVP v0.5</strong> : Ces règles seront utilisées pour l'optimisation
-                automatique dans la version v1.0. Pour l'instant, vous pouvez les configurer pour
-                référence future.
+            {/* Note Version actuelle */}
+            <div className="p-3 bg-green-500/10 border border-green-600/30 rounded-lg">
+              <p className="text-xs text-green-300">
+                ✅ <strong>Optimisation automatique active</strong> : Ces règles sont utilisées pour l'optimisation
+                automatique des créneaux proposés à vos clients. Connectez votre calendrier Google Calendar pour activer l'optimisation complète.
               </p>
             </div>
           </CardContent>
