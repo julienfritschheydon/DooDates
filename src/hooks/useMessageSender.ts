@@ -35,6 +35,7 @@
 import { useCallback, useRef, useEffect } from "react";
 import { logger } from "../lib/logger";
 import { useAuth } from "../contexts/AuthContext";
+import { logError, ErrorFactory } from "../lib/error-handling";
 import type { UseQuotaReturn } from "./useQuota";
 import type { AiMessageQuota } from "./useAiMessageQuota";
 import type { UseGeminiAPIReturn } from "./useGeminiAPI";
@@ -69,9 +70,7 @@ interface UseMessageSenderOptions {
   };
   /** Hook de détection d'intentions */
   intentDetection: {
-    detectIntent: (
-      text: string,
-    ) => Promise<{
+    detectIntent: (text: string) => Promise<{
       handled: boolean;
       userMessage?: Message;
       confirmMessage?: Message;
@@ -99,7 +98,7 @@ interface UseMessageSenderOptions {
   /** Fonction pour mettre à jour l'état de chargement */
   setIsLoading: (loading: boolean) => void;
   /** Fonction pour stocker la dernière proposition IA */
-  setLastAIProposal: (proposal: import("../../lib/gemini").PollSuggestion | null) => void;
+  setLastAIProposal: (proposal: import("../lib/gemini").PollSuggestion | null) => void;
   /** Fonction pour marquer une question comme modifiée */
   setModifiedQuestion: (
     questionId: string,
@@ -232,7 +231,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
         // Stocker la proposition IA pour le feedback si présente
         if (intentResult.aiProposal) {
-          setLastAIProposal(intentResult.aiProposal);
+          setLastAIProposal(intentResult.aiProposal.generatedContent);
         }
 
         // Déclencher le feedback visuel si une question a été modifiée
@@ -301,7 +300,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
               "Erreur sauvegarde message auth",
               "Une erreur est survenue lors de la sauvegarde du message",
             ),
-            { error, requestId, timestamp },
+            { metadata: { originalError: error, requestId, timestamp } },
           );
         });
         console.log(
@@ -315,7 +314,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
               "Erreur sauvegarde message guest",
               "Une erreur est survenue lors de la sauvegarde du message",
             ),
-            { error, requestId, timestamp },
+            { metadata: { originalError: error, requestId, timestamp } },
           );
         });
         console.log(
@@ -369,11 +368,11 @@ export function useMessageSender(options: UseMessageSenderOptions) {
           // Si erreur de quota (limite atteinte), on ne peut rien faire car Gemini est déjà appelé
           // Mais on log pour debug
           logError(
-            ErrorFactory.quota(
+            ErrorFactory.storage(
               "Erreur consommation quota guest",
               "Une erreur est survenue lors de la consommation des crédits",
             ),
-            { error, requestId, timestamp, userId, conversationId },
+            { metadata: { originalError: error, requestId, timestamp, userId, conversationId } },
           );
         });
         console.log(
@@ -389,11 +388,11 @@ export function useMessageSender(options: UseMessageSenderOptions) {
           // Si erreur de quota (limite atteinte), on ne peut rien faire car Gemini est déjà appelé
           // Mais on log pour debug et on affichera l'erreur dans la réponse Gemini si nécessaire
           logError(
-            ErrorFactory.quota(
+            ErrorFactory.storage(
               "Erreur consommation quota auth",
               "Une erreur est survenue lors de la consommation des crédits",
             ),
-            { error, requestId, timestamp, userId, conversationId },
+            { metadata: { originalError: error, requestId, timestamp, userId, conversationId } },
           );
           // Note: La limite sera détectée lors du prochain message grâce au cache
         });
@@ -432,7 +431,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
             "Erreur lors de l'appel Gemini",
             "Une erreur est survenue lors de l'appel à l'API Gemini",
           ),
-          { error: geminiError, requestId },
+          { metadata: { originalError: geminiError, requestId } },
         );
         throw geminiError;
       }
@@ -494,7 +493,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
                   "Erreur sauvegarde message AI guest",
                   "Une erreur est survenue lors de la sauvegarde du message AI",
                 ),
-                { error, requestId, timestamp },
+                { metadata: { originalError: error, requestId, timestamp } },
               );
             });
         }
@@ -530,7 +529,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
                   "Erreur sauvegarde message erreur guest",
                   "Une erreur est survenue lors de la sauvegarde du message d'erreur",
                 ),
-                { error, requestId, timestamp },
+                { metadata: { originalError: error, requestId, timestamp } },
               );
             });
         }

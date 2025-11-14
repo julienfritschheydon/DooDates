@@ -35,7 +35,7 @@ export interface UseAutoSaveReturn {
   conversationId: string | null;
   isAutoSaving: boolean;
   lastSaved: Date | null;
-  addMessage: (message: AutoSaveMessage) => void;
+  addMessage: (message: AutoSaveMessage) => Promise<void>;
   startNewConversation: (title?: string) => Promise<string>;
   resumeConversation: (id: string) => Promise<Conversation | null>;
   getCurrentConversation: () => Promise<{
@@ -145,11 +145,11 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
           const { incrementConversationCreated } = await import("../lib/quotaTracking");
           incrementConversationCreated(user.id).catch((quotaError: Error) => {
             logError(
-              ErrorFactory.quota(
+              ErrorFactory.storage(
                 "Erreur consommation quota (non-bloquant)",
                 "Une erreur est survenue lors de la consommation des crédits",
               ),
-              { error: quotaError, requestId, timestamp },
+              { metadata: { originalError: quotaError, requestId, timestamp } },
             );
           });
 
@@ -213,7 +213,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
                   "Erreur synchronisation Supabase (non-bloquant)",
                   "Une erreur est survenue lors de la synchronisation avec Supabase",
                 ),
-                { error: syncError, requestId, timestamp },
+                { metadata: { originalError: syncError, requestId, timestamp } },
               );
               // La conversation reste en localStorage, c'est OK
             }
@@ -404,7 +404,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
                 "Échec création conversation",
                 "La création de conversation a échoué",
               ),
-              { conversation, requestId, timestamp },
+              { metadata: { conversation, requestId, timestamp } },
             );
             throw ErrorFactory.storage(
               "Failed to create conversation: conversation is null or missing id",
@@ -541,7 +541,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
                     `Erreur lors de la recherche de conversation Supabase (tentative ${attempt})`,
                     "Une erreur est survenue lors de la recherche de conversation",
                   ),
-                  { error: lookupError, requestId, timestamp, attempt },
+                  { metadata: { originalError: lookupError, requestId, timestamp, attempt } },
                 );
                 if (attempt < maxRetries) {
                   await new Promise((resolve) => setTimeout(resolve, retryDelay));
@@ -621,7 +621,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
                 "Erreur Supabase",
                 "Une erreur est survenue lors de la sauvegarde dans Supabase",
               ),
-              { error: supabaseError, requestId, timestamp },
+              { metadata: { originalError: supabaseError, requestId, timestamp } },
             );
 
             logError(

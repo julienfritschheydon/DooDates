@@ -53,7 +53,7 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
           "Erreur lors de la soumission",
           "Une erreur inattendue s'est produite lors de la connexion",
         ),
-        { error: err },
+        { metadata: { originalError: err } },
       );
       setError("root", {
         message: "Une erreur inattendue s'est produite",
