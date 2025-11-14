@@ -969,6 +969,14 @@ export function postProcessSuggestion(
           })());
 
       const shouldSeparateSharedSlots = sharedSlots.length > 0 && hasExplicitDifferentTimes;
+      
+      // ⚠️ CAS SPÉCIAL : Si pas de créneaux partagés mais plusieurs dates avec horaires différents
+      // et pas assez de créneaux → générer des créneaux adaptés selon le jour
+      const shouldGenerateSlotsForMissingDates =
+        sharedSlots.length === 0 &&
+        singleDateSlots.length > 0 &&
+        finalDates.length > singleDateSlots.length &&
+        hasExplicitDifferentTimes;
 
       if (shouldSeparateSharedSlots) {
         const separatedSlots: DatePollSuggestion["timeSlots"] = [];
@@ -1020,6 +1028,31 @@ export function postProcessSuggestion(
 
         // Remplacer les créneaux partagés par les créneaux séparés
         processedSlots = [...singleDateSlots, ...separatedSlots];
+      } else if (shouldGenerateSlotsForMissingDates) {
+        // Générer des créneaux pour les dates manquantes avec horaires adaptés selon le jour
+        const datesWithSlots = new Set<string>();
+        singleDateSlots.forEach((slot) => {
+          (slot.dates || []).forEach((date) => datesWithSlots.add(date));
+        });
+
+        const datesWithoutSlots = finalDates.filter((date) => !datesWithSlots.has(date));
+        datesWithoutSlots.forEach((date) => {
+          const dateObj = new Date(date);
+          const dayOfWeek = dateObj.getDay(); // 0 = dimanche, 5 = vendredi, 6 = samedi
+          const isEvening = /soir|soirée/i.test(options.userInput);
+          const isMorning = /matin|matinée/i.test(options.userInput);
+
+          if (isEvening && isMorning) {
+            // Les deux contextes sont mentionnés → adapter selon la date
+            if (dayOfWeek === 5) {
+              // Vendredi → soir
+              processedSlots.push(createSlot(date, 18, 0, 60)); // 18h-19h
+            } else if (dayOfWeek === 6) {
+              // Samedi → matin
+              processedSlots.push(createSlot(date, 9, 0, 60)); // 9h-10h
+            }
+          }
+        });
       } else if (processedSlots.length < finalDates.length) {
         // Pas de créneaux partagés mais pas assez de créneaux → générer pour les dates manquantes
         const datesWithSlots = new Set<string>();
@@ -1036,11 +1069,30 @@ export function postProcessSuggestion(
           } else {
             // Fallback : générer 1 créneau par date avec horaires appropriés
             datesWithoutSlots.forEach((date) => {
-              // Détecter le contexte (soir/matin) depuis le prompt
+              // Détecter le contexte (soir/matin) depuis le prompt ET le jour de la semaine
               const isEvening = /soir|soirée/i.test(options.userInput);
               const isMorning = /matin|matinée/i.test(options.userInput);
+              const dateObj = new Date(date);
+              const dayOfWeek = dateObj.getDay(); // 0 = dimanche, 5 = vendredi, 6 = samedi
 
-              if (isEvening) {
+              // Si les deux contextes sont mentionnés (soir ET matin), adapter selon le jour
+              if (isEvening && isMorning) {
+                // Les deux contextes sont mentionnés → adapter selon la date
+                if (dayOfWeek === 5) {
+                  // Vendredi → soir
+                  processedSlots.push(createSlot(date, 18, 0, 60)); // 18h-19h
+                } else if (dayOfWeek === 6) {
+                  // Samedi → matin
+                  processedSlots.push(createSlot(date, 9, 0, 60)); // 9h-10h
+                } else {
+                  // Par défaut selon le contexte principal
+                  if (isEvening) {
+                    processedSlots.push(createSlot(date, 18, 0, 60)); // 18h-19h
+                  } else {
+                    processedSlots.push(createSlot(date, 9, 0, 60)); // 9h-10h
+                  }
+                }
+              } else if (isEvening) {
                 processedSlots.push(createSlot(date, 18, 0, 60)); // 18h-19h
               } else if (isMorning) {
                 processedSlots.push(createSlot(date, 9, 0, 60)); // 9h-10h
