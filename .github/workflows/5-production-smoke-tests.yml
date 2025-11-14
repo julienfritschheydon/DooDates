@@ -115,7 +115,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-production-smoke
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 30
 
       - name: 📸 Upload screenshots (si échec)

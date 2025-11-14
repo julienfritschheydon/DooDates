@@ -95,6 +95,7 @@ jobs:
           path: |
             playwright-report/
             test-results/
+            test-results.json
           retention-days: 7
 
       - name: 📈 Test Summary

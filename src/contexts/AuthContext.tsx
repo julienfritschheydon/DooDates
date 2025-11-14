@@ -55,7 +55,9 @@ export function useAuth() {
 
 const isE2ETestEnvironment = () =>
   typeof window !== "undefined" &&
-  (isE2ETestingEnvironment() || ("__IS_E2E_TESTING__" in window && (window as { __IS_E2E_TESTING__?: boolean }).__IS_E2E_TESTING__ === true));
+  (isE2ETestingEnvironment() ||
+    ("__IS_E2E_TESTING__" in window &&
+      (window as { __IS_E2E_TESTING__?: boolean }).__IS_E2E_TESTING__ === true));
 
 // Use centralized function from supabaseApi
 const getSessionFromLocalStorage = getSupabaseSessionFromLocalStorage;

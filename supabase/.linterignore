@@ -1,0 +1,40 @@
+# Supabase Database Linter Ignore List
+# 
+# This file documents indexes that should be ignored by the linter
+# even though they may appear unused. These indexes are required for
+# foreign key constraint checks and cascading operations.
+#
+# Note: Supabase may not currently support .linterignore files, but
+# this file documents the indexes that should be ignored if/when
+# support is added.
+
+# Foreign Key Indexes - Keep Even If Unused
+# These indexes are used internally by PostgreSQL for FK constraint checks
+
+# Analytics Events
+idx_analytics_events_user_id_fkey
+
+# Beta Keys  
+idx_beta_keys_created_by_fkey
+
+# Conversations
+idx_conversations_poll_id_fkey
+idx_conversations_related_poll_id_fkey
+
+# Messages
+idx_messages_user_id_fkey
+
+# Poll Options
+idx_poll_options_poll_id_fkey
+
+# Quota Tracking Journal
+idx_quota_tracking_journal_quota_tracking_id_fkey
+
+# Votes
+idx_votes_poll_id_fkey
+idx_votes_voter_id_fkey
+
+# Pattern-based ignore (if supported)
+# Pattern: *_fkey
+# Rule: unused_index
+
