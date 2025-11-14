@@ -405,7 +405,10 @@ Réponds SEULEMENT avec le JSON validé.`;
   /**
    * Validation counterfactual des résultats
    */
-  private validateCounterfactual(parsed: any, analysis: SimpleTemporalAnalysis): string[] {
+  private validateCounterfactual(
+    parsed: Record<string, unknown>,
+    analysis: SimpleTemporalAnalysis,
+  ): string[] {
     const errors: string[] = [];
 
     // Test counterfactual 1: Cohérence des jours

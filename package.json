@@ -38,6 +38,8 @@
     "test:integration": "playwright test tests/integration/real-supabase-simplified.test.ts --project=chromium",
     "test:integration:ui": "playwright test tests/integration/real-supabase-simplified.test.ts --project=chromium --ui",
     "test:integration:debug": "playwright test tests/integration/real-supabase-simplified.test.ts --project=chromium --debug",
+    "test:load": "k6 run tests/load/quota-tracking-load-test.js",
+    "test:load:help": "echo 'Usage: npm run test:load -- --env JWT_TOKEN=\"votre_token\" --env SUPABASE_URL=\"https://xxx.supabase.co\"'",
     "type-check": "tsc --noEmit",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write src/ --ignore-unknown",
@@ -48,7 +50,15 @@
     "validate:e2e": "node scripts/validation/validate-e2e.cjs",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
-    "e2e:debug": "playwright test --debug"
+    "e2e:debug": "playwright test --debug",
+    "supabase": "npx supabase",
+    "supabase:login": "npx supabase login",
+    "supabase:link": "npx supabase link",
+    "supabase:lint": "npx supabase db lint --linked",
+    "supabase:lint:check": "npx supabase db lint --linked --level error",
+    "supabase:lint:local": "npx supabase db lint",
+    "supabase:lint:local:check": "npx supabase db lint --level error",
+    "supabase:apply-fixes": "pwsh scripts/apply-sql-fixes.ps1"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -149,6 +159,7 @@
     "jsdom": "^26.1.0",
     "postcss": "^8.4.47",
     "prettier": "^3.6.1",
+    "supabase": "^2.58.5",
     "tailwindcss": "^3.4.11",
     "terser": "^5.43.1",
     "ts-jest": "^29.4.0",

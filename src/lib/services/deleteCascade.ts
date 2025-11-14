@@ -48,9 +48,11 @@ export interface DeleteCascadeContext {
   };
   /** Storage functions for polls */
   pollStorage: {
-    getPoll: (id: string) => Promise<any | null>;
+    getPoll: (id: string) => Promise<import("../pollStorage").Poll | null>;
     deletePoll: (id: string) => Promise<void>;
-    findPollByConversationId: (conversationId: string) => Promise<any | null>;
+    findPollByConversationId: (
+      conversationId: string,
+    ) => Promise<import("../pollStorage").Poll | null>;
   };
 }
 
@@ -169,7 +171,7 @@ export async function executeCascadeDelete(
   const backupData: {
     conversation?: Conversation;
     messages?: ConversationMessage[];
-    poll?: any;
+    poll?: import("../pollStorage").Poll;
   } = {};
 
   const rollbackOperations: Array<() => Promise<void>> = [];
@@ -305,7 +307,7 @@ export async function executeCascadeDelete(
  */
 function generateConfirmationMessages(
   conversation: Conversation,
-  relatedPoll: any | null,
+  relatedPoll: import("../pollStorage").Poll | null,
   messageCount: number,
   language: "fr" | "en",
 ): DeleteCascadeResult["confirmationMessages"] {

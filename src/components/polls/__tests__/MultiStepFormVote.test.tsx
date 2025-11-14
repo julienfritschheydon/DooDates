@@ -1,5 +1,7 @@
+import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
 import { BrowserRouter } from "react-router-dom";
 import MultiStepFormVote from "../MultiStepFormVote";
 import type { Poll } from "../../../lib/pollStorage";
@@ -190,7 +192,7 @@ describe("MultiStepFormVote", () => {
     expect(screen.getByText("Dernière question ! 🎉")).toBeInTheDocument();
   });
 
-  it.skip("affiche le bouton Soumettre sur l'étape coordonnées", async () => {
+  it("affiche le bouton Soumettre sur l'étape coordonnées", async () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
@@ -216,7 +218,7 @@ describe("MultiStepFormVote", () => {
     });
   });
 
-  it.skip("soumet le formulaire avec toutes les réponses", async () => {
+  it("soumet le formulaire avec toutes les réponses", async () => {
     const { addFormResponse } = await import("../../../lib/pollStorage");
 
     render(
@@ -363,7 +365,7 @@ describe("MultiStepFormVote", () => {
     expect(screen.getByText("Aucune question disponible")).toBeInTheDocument();
   });
 
-  it.skip("permet de saisir le nom du répondant sur l'étape coordonnées", async () => {
+  it("permet de saisir le nom du répondant sur l'étape coordonnées", async () => {
     render(
       <BrowserRouter>
         <MultiStepFormVote poll={mockPoll} />
@@ -388,7 +390,7 @@ describe("MultiStepFormVote", () => {
     });
   });
 
-  it.skip("gère les questions de type multiple choice", async () => {
+  it("gère les questions de type multiple choice", async () => {
     const pollWithMultiple: Poll = {
       ...mockPoll,
       questions: [
@@ -429,7 +431,7 @@ describe("MultiStepFormVote", () => {
     });
   });
 
-  it.skip("gère les questions de type NPS", async () => {
+  it("gère les questions de type NPS", async () => {
     const pollWithNPS: Poll = {
       ...mockPoll,
       questions: [

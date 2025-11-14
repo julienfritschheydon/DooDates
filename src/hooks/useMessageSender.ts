@@ -35,13 +35,18 @@
 import { useCallback, useRef, useEffect } from "react";
 import { logger } from "../lib/logger";
 import { useAuth } from "../contexts/AuthContext";
+import { logError, ErrorFactory } from "../lib/error-handling";
+import type { UseQuotaReturn } from "./useQuota";
+import type { AiMessageQuota } from "./useAiMessageQuota";
+import type { UseGeminiAPIReturn } from "./useGeminiAPI";
+import type { UseAutoSaveReturn } from "./useAutoSave";
 
 interface Message {
   id: string;
   content: string;
   isAI: boolean;
   timestamp: Date;
-  pollSuggestion?: any;
+  pollSuggestion?: import("../lib/gemini").PollSuggestion;
   isGenerating?: boolean;
 }
 
@@ -52,17 +57,40 @@ interface UseMessageSenderOptions {
   /** Indique si un envoi est en cours */
   isLoading: boolean;
   /** Hook de gestion des quotas conversation */
-  quota: any;
+  quota: UseQuotaReturn;
   /** Hook de gestion des quotas AI messages */
-  aiQuota: any;
+  aiQuota: AiMessageQuota;
   /** Fonction toast pour afficher les notifications */
-  toast: any;
+  toast: {
+    toast: (props: {
+      title?: string;
+      description?: string;
+      variant?: "default" | "destructive";
+    }) => void;
+  };
   /** Hook de détection d'intentions */
-  intentDetection: any;
+  intentDetection: {
+    detectIntent: (text: string) => Promise<{
+      handled: boolean;
+      userMessage?: Message;
+      confirmMessage?: Message;
+      aiProposal?: {
+        userRequest: string;
+        generatedContent: import("../lib/gemini").PollSuggestion;
+        pollContext?: { pollId?: string; pollTitle?: string; pollType?: string; action?: string };
+      };
+      action?: { type: string; payload: Record<string, unknown> };
+      modifiedQuestionId?: string;
+      modifiedField?: "title" | "type" | "options" | "required";
+      isTypeSwitch?: boolean;
+      originalMessage?: string;
+      requestedType?: "date" | "form";
+    }>;
+  };
   /** Hook API Gemini */
-  geminiAPI: any;
+  geminiAPI: UseGeminiAPIReturn;
   /** Hook auto-save des messages */
-  autoSave: any;
+  autoSave: UseAutoSaveReturn;
   /** Callback appelé quand l'utilisateur envoie un message */
   onUserMessage?: () => void;
   /** Fonction pour mettre à jour la liste des messages */
@@ -70,7 +98,7 @@ interface UseMessageSenderOptions {
   /** Fonction pour mettre à jour l'état de chargement */
   setIsLoading: (loading: boolean) => void;
   /** Fonction pour stocker la dernière proposition IA */
-  setLastAIProposal: (proposal: any) => void;
+  setLastAIProposal: (proposal: import("../lib/gemini").PollSuggestion | null) => void;
   /** Fonction pour marquer une question comme modifiée */
   setModifiedQuestion: (
     questionId: string,
@@ -203,7 +231,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
         // Stocker la proposition IA pour le feedback si présente
         if (intentResult.aiProposal) {
-          setLastAIProposal(intentResult.aiProposal);
+          setLastAIProposal(intentResult.aiProposal.generatedContent);
         }
 
         // Déclencher le feedback visuel si une question a été modifiée
@@ -254,29 +282,52 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         setMessages((prev) => [...prev, progressMessage]);
       }
 
-      // Save user message to Supabase
+      // Save user message (non-bloquant pour accélérer l'appel Gemini)
       console.log(`[${timestamp}] [${requestId}] 💾 Sauvegarde message utilisateur...`);
-      await autoSave.addMessage({
+      // OPTIMISATION: Rendre non-bloquant même pour auth users pour accélérer l'appel Gemini
+      const saveMessagePromise = autoSave.addMessage({
         id: userMessage.id,
         content: isLongMarkdown ? trimmedInput : userMessage.content,
         isAI: userMessage.isAI,
         timestamp: userMessage.timestamp,
       });
-      console.log(`[${timestamp}] [${requestId}] ✅ Message utilisateur sauvegardé`);
 
-      // VÉRIFIER ET CONSOMMER QUOTA AVANT d'appeler Gemini
+      if (user?.id) {
+        // Auth user: sauvegarde en arrière-plan (non-bloquant pour accélérer)
+        saveMessagePromise.catch((error) => {
+          logError(
+            ErrorFactory.storage(
+              "Erreur sauvegarde message auth",
+              "Une erreur est survenue lors de la sauvegarde du message",
+            ),
+            { metadata: { originalError: error, requestId, timestamp } },
+          );
+        });
+        console.log(
+          `[${timestamp}] [${requestId}] ✅ Message utilisateur sauvegarde lancée (auth, non-bloquant)`,
+        );
+      } else {
+        // Guest: sauvegarde non-bloquante (localStorage rapide, Supabase en arrière-plan si nécessaire)
+        saveMessagePromise.catch((error) => {
+          logError(
+            ErrorFactory.storage(
+              "Erreur sauvegarde message guest",
+              "Une erreur est survenue lors de la sauvegarde du message",
+            ),
+            { metadata: { originalError: error, requestId, timestamp } },
+          );
+        });
+        console.log(
+          `[${timestamp}] [${requestId}] ✅ Message utilisateur sauvegardé (guest, non-bloquant)`,
+        );
+      }
+
+      // VÉRIFIER QUOTA EN CACHE D'ABORD (rapide, non-bloquant)
       console.log(
-        `[${timestamp}] [${requestId}] 🔒 Vérification quota message IA AVANT appel Gemini...`,
+        `[${timestamp}] [${requestId}] 🔒 Vérification quota message IA (cache) AVANT appel Gemini...`,
       );
-      try {
-        const { consumeAiMessageCredits } = await import("../lib/quotaTracking");
-        const conversationId = autoSave.getRealConversationId() || autoSave.conversationId;
-        // Pour les guests, passer null pour utiliser le système Supabase
-        const userId = user?.id || null;
-        await consumeAiMessageCredits(userId, conversationId);
-        console.log(`[${timestamp}] [${requestId}] ✅ Quota message IA vérifié et consommé`);
-      } catch (error: any) {
-        console.log(`[${timestamp}] [${requestId}] ❌ Limite de messages IA atteinte`);
+      if (!aiQuota.canSendMessage) {
+        console.log(`[${timestamp}] [${requestId}] ❌ Limite de messages IA atteinte (cache)`);
         setIsLoading(false);
 
         // Afficher le modal d'authentification au lieu du toast
@@ -297,6 +348,63 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         return; // Arrêter l'exécution
       }
 
+      // Consommer le quota en arrière-plan (non-bloquant pour guests si Supabase est lent)
+      console.log(`[${timestamp}] [${requestId}] 💾 Consommation quota en arrière-plan...`);
+      const { consumeAiMessageCredits } = await import("../lib/quotaTracking");
+      const conversationId = autoSave.getRealConversationId() || autoSave.conversationId;
+      const userId = user?.id || null;
+
+      console.log(`[${timestamp}] [${requestId}] 💾 Paramètres consommation quota:`, {
+        userId,
+        conversationId,
+        hasUser: !!userId,
+      });
+
+      // Pour les guests, rendre non-bloquant (fire and forget si timeout)
+      if (!userId) {
+        console.log(`[${timestamp}] [${requestId}] 💾 Mode guest - consommation non-bloquante...`);
+        // Guest: consommer en arrière-plan, ne pas bloquer l'appel Gemini
+        consumeAiMessageCredits(userId, conversationId).catch((error: Error) => {
+          // Si erreur de quota (limite atteinte), on ne peut rien faire car Gemini est déjà appelé
+          // Mais on log pour debug
+          logError(
+            ErrorFactory.storage(
+              "Erreur consommation quota guest",
+              "Une erreur est survenue lors de la consommation des crédits",
+            ),
+            { metadata: { originalError: error, requestId, timestamp, userId, conversationId } },
+          );
+        });
+        console.log(
+          `[${timestamp}] [${requestId}] 💾 Consommation quota guest lancée (non-bloquant)`,
+        );
+      } else {
+        console.log(
+          `[${timestamp}] [${requestId}] 💾 Mode auth - consommation non-bloquante (optimisation)...`,
+        );
+        // OPTIMISATION: Rendre non-bloquant même pour auth users pour accélérer l'appel Gemini
+        // La vérification de quota en cache (ligne 289) a déjà été faite, donc on peut consommer en arrière-plan
+        consumeAiMessageCredits(userId, conversationId).catch((error: Error) => {
+          // Si erreur de quota (limite atteinte), on ne peut rien faire car Gemini est déjà appelé
+          // Mais on log pour debug et on affichera l'erreur dans la réponse Gemini si nécessaire
+          logError(
+            ErrorFactory.storage(
+              "Erreur consommation quota auth",
+              "Une erreur est survenue lors de la consommation des crédits",
+            ),
+            { metadata: { originalError: error, requestId, timestamp, userId, conversationId } },
+          );
+          // Note: La limite sera détectée lors du prochain message grâce au cache
+        });
+        console.log(
+          `[${timestamp}] [${requestId}] 💾 Consommation quota auth lancée (non-bloquant)`,
+        );
+      }
+
+      console.log(
+        `[${timestamp}] [${requestId}] ✅ Après consommation quota - continuation vers Gemini...`,
+      );
+
       // Appel API Gemini via le hook
       console.log(
         `[${timestamp}] [${requestId}] 🟣 useMessageSender: Appel geminiAPI.generatePoll`,
@@ -305,7 +413,28 @@ export function useMessageSender(options: UseMessageSenderOptions) {
           messagePreview: trimmedInput.substring(0, 50),
         },
       );
-      const pollResponse = await geminiAPI.generatePoll(trimmedInput);
+
+      let pollResponse;
+      try {
+        pollResponse = await geminiAPI.generatePoll(trimmedInput);
+        console.log(
+          `[${new Date().toISOString()}] [${requestId}] 🟣 useMessageSender: Réponse reçue`,
+          {
+            success: pollResponse.success,
+            hasData: !!pollResponse.data,
+            error: pollResponse.error,
+          },
+        );
+      } catch (geminiError) {
+        logError(
+          ErrorFactory.api(
+            "Erreur lors de l'appel Gemini",
+            "Une erreur est survenue lors de l'appel à l'API Gemini",
+          ),
+          { metadata: { originalError: geminiError, requestId } },
+        );
+        throw geminiError;
+      }
       console.log(`[${new Date().toISOString()}] 🟣 useMessageSender: Réponse reçue`, {
         success: pollResponse.success,
         hasData: !!pollResponse.data,
@@ -334,17 +463,40 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
         setMessages((prev) => [...prev, aiResponse]);
 
-        // Auto-save AI response with poll suggestion
-        await autoSave.addMessage({
-          id: aiResponse.id,
-          content: aiResponse.content,
-          isAI: aiResponse.isAI,
-          timestamp: aiResponse.timestamp,
-          metadata: {
-            pollGenerated: true,
-            pollSuggestion: aiResponse.pollSuggestion,
-          },
-        });
+        // Auto-save AI response with poll suggestion (non-bloquant pour guests)
+        if (user?.id) {
+          await autoSave.addMessage({
+            id: aiResponse.id,
+            content: aiResponse.content,
+            isAI: aiResponse.isAI,
+            timestamp: aiResponse.timestamp,
+            metadata: {
+              pollGenerated: true,
+              pollSuggestion: aiResponse.pollSuggestion,
+            },
+          });
+        } else {
+          autoSave
+            .addMessage({
+              id: aiResponse.id,
+              content: aiResponse.content,
+              isAI: aiResponse.isAI,
+              timestamp: aiResponse.timestamp,
+              metadata: {
+                pollGenerated: true,
+                pollSuggestion: aiResponse.pollSuggestion,
+              },
+            })
+            .catch((error) => {
+              logError(
+                ErrorFactory.storage(
+                  "Erreur sauvegarde message AI guest",
+                  "Une erreur est survenue lors de la sauvegarde du message AI",
+                ),
+                { metadata: { originalError: error, requestId, timestamp } },
+              );
+            });
+        }
       } else {
         // Poll generation failed - le hook gère déjà les types d'erreurs
         const errorMessage: Message = {
@@ -355,13 +507,32 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         };
         setMessages((prev) => [...prev, errorMessage]);
 
-        // Auto-save error message
-        await autoSave.addMessage({
-          id: errorMessage.id,
-          content: errorMessage.content,
-          isAI: errorMessage.isAI,
-          timestamp: errorMessage.timestamp,
-        });
+        // Auto-save error message (non-bloquant pour guests)
+        if (user?.id) {
+          await autoSave.addMessage({
+            id: errorMessage.id,
+            content: errorMessage.content,
+            isAI: errorMessage.isAI,
+            timestamp: errorMessage.timestamp,
+          });
+        } else {
+          autoSave
+            .addMessage({
+              id: errorMessage.id,
+              content: errorMessage.content,
+              isAI: errorMessage.isAI,
+              timestamp: errorMessage.timestamp,
+            })
+            .catch((error) => {
+              logError(
+                ErrorFactory.storage(
+                  "Erreur sauvegarde message erreur guest",
+                  "Une erreur est survenue lors de la sauvegarde du message d'erreur",
+                ),
+                { metadata: { originalError: error, requestId, timestamp } },
+              );
+            });
+        }
       }
 
       setIsLoading(false);
@@ -370,10 +541,10 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       isLoading,
       quota,
       aiQuota,
-      toast,
       intentDetection,
       geminiAPI,
       autoSave,
+      user?.id,
       setMessages,
       setIsLoading,
       setLastAIProposal,

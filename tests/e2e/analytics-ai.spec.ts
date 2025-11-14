@@ -55,7 +55,7 @@ async function createPollWithVotesAndClose(
   await setupAllMocksWithoutNavigation(page);
   
   // 1. Créer un FormPoll via IA
-  await page.goto("/?e2e-test=true", { waitUntil: 'domcontentloaded' });
+  await page.goto("/workspace?e2e-test=true", { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
 
   // Demander à l'IA
@@ -214,7 +214,7 @@ test.describe("Analytics IA - Suite Complète", () => {
     test.setTimeout(180000); // 3 minutes - ce test fait 5 votes + création + clôture
     
     // 1. Créer un FormPoll via IA
-    await page.goto("/?e2e-test=true?e2e-test=true", { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace?e2e-test=true", { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
 
     // Étape 1 : Demander à l'IA
@@ -357,6 +357,9 @@ test.describe("Analytics IA - Suite Complète", () => {
     // 3. Clôturer le poll
     await page.goto(`/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
+
+    // Attendre que la page de résultats soit complètement chargée (le titre "Résultats" apparaît)
+    await expect(page.getByText(/Résultats/i).first()).toBeVisible({ timeout: 15000 });
 
     // Attendre que les actions du poll soient chargées
     await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });

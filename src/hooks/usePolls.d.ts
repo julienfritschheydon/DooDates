@@ -26,7 +26,13 @@ export interface FormPollData {
   type: "form";
   title: string;
   description?: string | null;
-  questions: any[];
+  questions: Array<{
+    id: string;
+    type: string;
+    title: string;
+    required?: boolean;
+    options?: Array<{ id: string; label: string }>;
+  }>;
   settings?: {
     allowAnonymousResponses?: boolean;
     expiresAt?: string;
@@ -61,7 +67,7 @@ export declare function usePolls(): {
         error?: undefined;
       }
     | {
-        error: any;
+        error: string;
       }
   >;
 };

@@ -10,8 +10,8 @@ export const infiniteLoopProtection = {
 };
 
 export function protectFromInfiniteLoop(operationKey: string) {
-  return function <T extends (...args: any[]) => any>(
-    target: any,
+  return function <T extends (...args: unknown[]) => unknown>(
+    target: unknown,
     propertyName: string,
     descriptor: TypedPropertyDescriptor<T>,
   ) {

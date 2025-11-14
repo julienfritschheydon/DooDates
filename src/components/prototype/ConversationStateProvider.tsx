@@ -56,9 +56,14 @@ export function ConversationStateProvider({ children }: ConversationStateProvide
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const parsed = JSON.parse(stored);
+        const parsed = JSON.parse(stored) as Array<{
+          id: string;
+          content: string;
+          isAI: boolean;
+          timestamp: string | Date;
+        }>;
         setMessages(
-          parsed.map((msg: any) => ({
+          parsed.map((msg) => ({
             ...msg,
             timestamp: new Date(msg.timestamp),
           })),

@@ -1,9 +1,9 @@
 {
-  "lastUpdate": "2025-11-13T13:59:39.777Z",
-  "runNumber": "281",
-  "runId": "19334023357",
-  "totalFailures24h": 10,
-  "totalFailures7d": 10,
+  "lastUpdate": "2025-11-13T16:14:59.328Z",
+  "runNumber": "291",
+  "runId": "19338054404",
+  "totalFailures24h": 9,
+  "totalFailures7d": 9,
   "workflowsMonitored": 6,
   "hasFailures": true,
   "reportPath": "Docs/monitoring/workflow-failures-report.md"

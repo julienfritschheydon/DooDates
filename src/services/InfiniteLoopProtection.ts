@@ -108,14 +108,14 @@ export const infiniteLoopProtection = new InfiniteLoopProtectionService();
  * Decorator to protect functions from infinite loops
  */
 export function protectFromInfiniteLoop(operationKey: string) {
-  return function <T extends (...args: any[]) => any>(
-    target: any,
+  return function <T extends (...args: unknown[]) => unknown>(
+    target: unknown,
     propertyName: string,
     descriptor: TypedPropertyDescriptor<T>,
   ) {
     const method = descriptor.value!;
 
-    descriptor.value = ((...args: any[]) => {
+    descriptor.value = ((...args: unknown[]) => {
       if (!infiniteLoopProtection.canExecute(operationKey)) {
         logError(
           ErrorFactory.rateLimit(

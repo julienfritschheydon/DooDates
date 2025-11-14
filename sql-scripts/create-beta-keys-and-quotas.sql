@@ -240,7 +240,6 @@ SET search_path = public, auth, extensions
 AS $$
 DECLARE
   v_key RECORD;
-  v_result JSON;
 BEGIN
   -- 1. Vérifier que la clé existe et est active
   SELECT * INTO v_key

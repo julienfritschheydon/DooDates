@@ -252,7 +252,7 @@ class PerformanceAnalyzer {
   /**
    * Identifier les opportunités d'optimisation
    */
-  identifyOptimizations(report: any) {
+  identifyOptimizations(report: import("./performance-measurement").PerformanceReport) {
     const optimizations: Array<{
       type: string;
       suggestion: string;
@@ -262,7 +262,7 @@ class PerformanceAnalyzer {
 
     // Analyser les fichiers JS les plus lourds (>50 KB)
     if (report?.jsAnalysis?.largest) {
-      report.jsAnalysis.largest.forEach((file: any) => {
+      report.jsAnalysis.largest.forEach((file: { name: string; size: string }) => {
         const sizeKB = parseFloat(file.size);
         if (sizeKB > 50) {
           const impact = sizeKB > 200 ? "Élevé" : sizeKB > 100 ? "Moyen" : "Faible";
@@ -278,7 +278,7 @@ class PerformanceAnalyzer {
 
     // Analyser les fichiers JS les plus lents (>150 ms)
     if (report?.jsAnalysis?.slowest) {
-      report.jsAnalysis.slowest.forEach((file: any) => {
+      report.jsAnalysis.slowest.forEach((file: { name: string; time: string; size?: string }) => {
         const timeMs = parseFloat(file.time);
         if (timeMs > 150) {
           optimizations.push({
@@ -303,7 +303,7 @@ class PerformanceAnalyzer {
 
     // Vérifier les imports synchrones
     if (report?.imports) {
-      report.imports.forEach((imp: any) => {
+      report.imports.forEach((imp: { name: string; note: string }) => {
         if (imp.note.includes("peut être lazy loaded")) {
           optimizations.push({
             type: "Lazy Loading",
@@ -317,12 +317,14 @@ class PerformanceAnalyzer {
 
     // Analyser les composants chargés
     if (report?.components?.pages?.length > 0) {
-      const largeComponents = report.components.pages.filter((comp: any) => {
-        const sizeKB = parseFloat(comp.size?.replace(" KB", "") || "0");
-        return sizeKB > 100;
-      });
+      const largeComponents = report.components.pages.filter(
+        (comp: { name: string; size?: string; loadTime?: string }) => {
+          const sizeKB = parseFloat(comp.size?.replace(" KB", "") || "0");
+          return sizeKB > 100;
+        },
+      );
 
-      largeComponents.forEach((comp: any) => {
+      largeComponents.forEach((comp: { name: string; size?: string; loadTime?: string }) => {
         optimizations.push({
           type: "Component Size",
           suggestion: `Code split ${comp.name}`,
@@ -351,7 +353,14 @@ export const performanceAnalyzer = new PerformanceAnalyzer();
 
 // Exposer dans la console pour utilisation manuelle
 if (typeof window !== "undefined") {
-  (window as any).analyzePerformance = () => {
+  (
+    window as Window & {
+      analyzePerformance?: () => Promise<{
+        report: unknown;
+        optimizations: Array<{ type: string; suggestion: string; impact: string; details: string }>;
+      }>;
+    }
+  ).analyzePerformance = () => {
     return performanceAnalyzer.generateReport().then((report) => {
       const optimizations = performanceAnalyzer.identifyOptimizations(report);
       return { report, optimizations };

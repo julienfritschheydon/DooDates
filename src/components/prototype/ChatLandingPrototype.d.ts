@@ -5,7 +5,7 @@
  * Remplace le dashboard quand feature flag AI_FIRST_UX est activé
  */
 interface ChatLandingPrototypeProps {
-  onPollCreated?: (poll: any) => void;
+  onPollCreated?: (poll: import("../../lib/pollStorage").Poll) => void;
 }
 export declare function ChatLandingPrototype({
   onPollCreated,

@@ -18,11 +18,11 @@ export interface AutoSaveMessage {
   content: string;
   isAI: boolean;
   timestamp: Date;
-  pollSuggestion?: any; // Deprecated - use metadata.pollSuggestion instead
+  pollSuggestion?: import("../lib/gemini").PollSuggestion; // Deprecated - use metadata.pollSuggestion instead
   metadata?: {
     pollGenerated?: boolean;
-    pollSuggestion?: any;
-    [key: string]: any;
+    pollSuggestion?: import("../lib/gemini").PollSuggestion;
+    [key: string]: unknown;
   };
 }
 
@@ -35,7 +35,7 @@ export interface UseAutoSaveReturn {
   conversationId: string | null;
   isAutoSaving: boolean;
   lastSaved: Date | null;
-  addMessage: (message: AutoSaveMessage) => void;
+  addMessage: (message: AutoSaveMessage) => Promise<void>;
   startNewConversation: (title?: string) => Promise<string>;
   resumeConversation: (id: string) => Promise<Conversation | null>;
   getCurrentConversation: () => Promise<{
@@ -64,7 +64,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
 
   // Debug logging (reduced for production)
   const log = useCallback(
-    (message: string, data?: any) => {
+    (message: string, data?: Record<string, unknown>) => {
       if (debug && message.includes("Error")) {
         logger.debug(`AutoSave: ${message}`, "conversation", data || {});
       }
@@ -108,7 +108,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
 
       try {
         // Create conversation - save to Supabase if logged in, otherwise localStorage
-        let result: Conversation;
+        let result: Conversation | null = null;
 
         // TEMPORAIRE: Désactiver Supabase si timeout fréquent
         const DISABLE_SUPABASE_CONVERSATIONS =
@@ -116,74 +116,108 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
 
         if (!DISABLE_SUPABASE_CONVERSATIONS && user?.id) {
           console.log(
-            `[${timestamp}] [${requestId}] 🆕 Utilisateur connecté - création Supabase...`,
+            `[${timestamp}] [${requestId}] 🆕 Utilisateur connecté - création conversation...`,
           );
-          try {
-            // VÉRIFIER ET CONSOMMER QUOTA AVANT de créer
-            console.log(`[${timestamp}] [${requestId}] 🆕 Vérification quota AVANT création...`);
-            const { incrementConversationCreated } = await import("../lib/quotaTracking");
-            await incrementConversationCreated(user.id);
-            console.log(`[${timestamp}] [${requestId}] 🆕 Quota vérifié et incrémenté`);
 
-            console.log(`[${timestamp}] [${requestId}] 🆕 Import ConversationStorageSupabase...`);
-            const { createConversation: createSupabaseConversation } = await import(
-              "../lib/storage/ConversationStorageSupabase"
+          // CRÉER IMMÉDIATEMENT EN LOCALSTORAGE (rapide, non-bloquant)
+          const conversationData = {
+            title:
+              firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
+            firstMessage: firstMessage.content,
+            userId: user.id,
+          };
+
+          result = ConversationStorage.createConversation(conversationData);
+          if (!result || !result.id) {
+            throw ErrorFactory.storage(
+              "Failed to create conversation: ConversationStorage.createConversation returned null or missing id",
+              "La création de conversation a échoué",
             );
-            console.log(`[${timestamp}] [${requestId}] 🆕 Appel createSupabaseConversation...`);
-            result = await createSupabaseConversation(
-              {
-                title:
-                  firstMessage.content.slice(0, 50) +
-                  (firstMessage.content.length > 50 ? "..." : ""),
-                status: "active",
-                firstMessage: firstMessage.content,
-                messageCount: 0,
-                isFavorite: false,
-                tags: [],
-                metadata: {},
-                userId: user.id,
-              },
-              user.id,
-            );
-            console.log(`[${timestamp}] [${requestId}] 🆕 Conversation Supabase créée:`, {
+          }
+          console.log(
+            `[${timestamp}] [${requestId}] ✅ Conversation créée en localStorage (immédiat):`,
+            {
               id: result.id,
-            });
-            // Also save to localStorage as cache
-            ConversationStorage.addConversation(result);
-          } catch (supabaseError) {
+            },
+          );
+
+          // Consommer quota en arrière-plan (non-bloquant)
+          const { incrementConversationCreated } = await import("../lib/quotaTracking");
+          incrementConversationCreated(user.id).catch((quotaError: Error) => {
             logError(
               ErrorFactory.storage(
-                "Erreur Supabase, fallback localStorage",
-                "La conversation sera sauvegardée localement",
+                "Erreur consommation quota (non-bloquant)",
+                "Une erreur est survenue lors de la consommation des crédits",
               ),
-              {
-                operation: "useAutoSave.createConversation",
-                metadata: { requestId, userId: user.id, error: supabaseError },
-              },
+              { metadata: { originalError: quotaError, requestId, timestamp } },
             );
-            logger.error(
-              "Erreur lors de la création dans Supabase, utilisation de localStorage",
-              "conversation",
-              supabaseError,
-            );
-            // Fallback to localStorage
-            console.log(
-              `[${timestamp}] [${requestId}] 🆕 Vérification quota AVANT création (fallback)...`,
-            );
-            const { incrementConversationCreated: incrementFallback } = await import(
-              "../lib/quotaTracking"
-            );
-            await incrementFallback(user.id);
-            console.log(`[${timestamp}] [${requestId}] 🆕 Quota vérifié (fallback)`);
+          });
 
-            console.log(`[${timestamp}] [${requestId}] 🆕 Création localStorage (fallback)...`);
-            result = ConversationStorage.createConversation({
-              title:
-                firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
-              firstMessage: firstMessage.content,
-              userId: user.id,
-            });
-          }
+          // Synchroniser avec Supabase en arrière-plan (non-bloquant)
+          (async () => {
+            try {
+              console.log(
+                `[${timestamp}] [${requestId}] 🔄 Synchronisation Supabase en arrière-plan...`,
+              );
+              const { createConversation: createSupabaseConversation } = await import(
+                "../lib/storage/ConversationStorageSupabase"
+              );
+
+              // Timeout de 5 secondes pour la synchronisation
+              const syncTimeoutPromise = new Promise<never>((_, reject) => {
+                setTimeout(
+                  () => reject(new Error("Timeout: Supabase sync took more than 5 seconds")),
+                  5000,
+                );
+              });
+
+              const syncPromise = createSupabaseConversation(
+                {
+                  title: conversationData.title,
+                  status: "active",
+                  firstMessage: conversationData.firstMessage,
+                  messageCount: 0,
+                  isFavorite: false,
+                  tags: [],
+                  metadata: {},
+                  userId: user.id,
+                },
+                user.id,
+              );
+
+              const supabaseResult = await Promise.race([syncPromise, syncTimeoutPromise]);
+              console.log(
+                `[${timestamp}] [${requestId}] ✅ Conversation synchronisée avec Supabase:`,
+                {
+                  id: supabaseResult.id,
+                  oldId: result.id,
+                },
+              );
+
+              // Mettre à jour l'ID Supabase dans localStorage et refs
+              result.id = supabaseResult.id;
+              ConversationStorage.addConversation(result);
+              // Mettre à jour la ref pour que addMessage puisse trouver l'UUID
+              currentConversationRef.current = result;
+              setConversationId(supabaseResult.id);
+              console.log(
+                `[${timestamp}] [${requestId}] 🔄 Refs mises à jour avec UUID Supabase:`,
+                {
+                  refId: currentConversationRef.current?.id,
+                  conversationId: supabaseResult.id,
+                },
+              );
+            } catch (syncError) {
+              logError(
+                ErrorFactory.storage(
+                  "Erreur synchronisation Supabase (non-bloquant)",
+                  "Une erreur est survenue lors de la synchronisation avec Supabase",
+                ),
+                { metadata: { originalError: syncError, requestId, timestamp } },
+              );
+              // La conversation reste en localStorage, c'est OK
+            }
+          })();
         } else {
           // Guest mode or Supabase disabled: use localStorage only
           if (DISABLE_SUPABASE_CONVERSATIONS) {
@@ -209,6 +243,22 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             firstMessage: firstMessage.content,
             userId: "guest",
           });
+
+          if (!result || !result.id) {
+            throw ErrorFactory.storage(
+              "Failed to create conversation: ConversationStorage.createConversation returned null or missing id",
+              "La création de conversation a échoué",
+            );
+          }
+        }
+
+        // Vérification finale que result est valide
+        if (!result || !result.id) {
+          const errorMsg =
+            result === null
+              ? "Failed to create conversation: result is null"
+              : "Failed to create conversation: result is missing id";
+          throw ErrorFactory.storage(errorMsg, "La création de conversation a échoué");
         }
 
         console.log(`[${timestamp}] [${requestId}] 🆕 Mise à jour refs...`);
@@ -348,55 +398,232 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         if (!activeConversationId || activeConversationId.startsWith("temp-")) {
           console.log(`[${timestamp}] [${requestId}] 💾 Création conversation nécessaire...`);
           const conversation = await createConversation(message);
+          if (!conversation || !conversation.id) {
+            logError(
+              ErrorFactory.storage(
+                "Échec création conversation",
+                "La création de conversation a échoué",
+              ),
+              { metadata: { conversation, requestId, timestamp } },
+            );
+            throw ErrorFactory.storage(
+              "Failed to create conversation: conversation is null or missing id",
+              "La création de conversation a échoué",
+            );
+          }
           activeConversationId = conversation.id;
           console.log(`[${timestamp}] [${requestId}] 💾 Conversation créée:`, {
             conversationId: activeConversationId,
           });
         }
 
-        // Convert and save this single message immediately
+        // Get conversation to check ownership first
+        console.log(`[${timestamp}] [${requestId}] 💾 Récupération conversation...`);
+        let conversation = ConversationStorage.getConversation(activeConversationId);
+        console.log(`[${timestamp}] [${requestId}] 💾 Conversation récupérée:`, {
+          id: conversation?.id,
+          userId: conversation?.userId,
+          title: conversation?.title,
+          firstMessage: conversation?.firstMessage,
+        });
+
+        // If conversation ID is in conv_ format and we're saving to Supabase,
+        // check if the conversation has been updated with a UUID from Supabase sync
+        let supabaseConversationId = activeConversationId;
+        if (activeConversationId.startsWith("conv_") && user?.id) {
+          console.log(
+            `[${timestamp}] [${requestId}] 🔍 Détection ID conv_ - recherche UUID Supabase...`,
+          );
+
+          // Check if conversation was updated with UUID from Supabase sync
+          const updatedConversation = currentConversationRef.current;
+          console.log(`[${timestamp}] [${requestId}] 🔍 Vérification currentConversationRef:`, {
+            refId: updatedConversation?.id,
+            refUserId: updatedConversation?.userId,
+            refFirstMessage: updatedConversation?.firstMessage,
+            activeId: activeConversationId,
+            idsMatch: updatedConversation?.id === activeConversationId,
+            isUUID: updatedConversation?.id && !updatedConversation.id.startsWith("conv_"),
+          });
+
+          if (
+            updatedConversation &&
+            updatedConversation.id !== activeConversationId &&
+            !updatedConversation.id.startsWith("conv_")
+          ) {
+            console.log(
+              `[${timestamp}] [${requestId}] 🔄 Conversation ID mis à jour avec UUID Supabase (via ref):`,
+              {
+                oldId: activeConversationId,
+                newId: updatedConversation.id,
+              },
+            );
+            supabaseConversationId = updatedConversation.id;
+            conversation = updatedConversation;
+            activeConversationId = updatedConversation.id;
+          } else {
+            // Try to find the Supabase conversation by first_message
+            // La synchronisation Supabase peut être en cours, donc on essaie plusieurs fois
+            // OPTIMISATION: Réduire le délai et le nombre de tentatives pour accélérer
+            console.log(
+              `[${timestamp}] [${requestId}] 🔍 Recherche dans Supabase par firstMessage...`,
+            );
+            let matchingConversation = null;
+            const maxRetries = 2; // Réduit de 3 à 2 tentatives
+            const retryDelay = 100; // Réduit de 200ms à 100ms pour accélérer
+
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+              try {
+                const { getConversations } = await import(
+                  "../lib/storage/ConversationStorageSupabase"
+                );
+                const supabaseConversations = await getConversations(user.id);
+                console.log(
+                  `[${timestamp}] [${requestId}] 🔍 Tentative ${attempt}/${maxRetries} - Conversations Supabase trouvées:`,
+                  {
+                    count: supabaseConversations.length,
+                    ids: supabaseConversations.map((c) => ({
+                      id: c.id,
+                      firstMessage: c.firstMessage?.substring(0, 50),
+                    })),
+                  },
+                );
+
+                matchingConversation = supabaseConversations.find(
+                  (c) => c.firstMessage === conversation?.firstMessage && c.userId === user.id,
+                );
+
+                console.log(
+                  `[${timestamp}] [${requestId}] 🔍 Tentative ${attempt}/${maxRetries} - Conversation correspondante:`,
+                  {
+                    found: !!matchingConversation,
+                    id: matchingConversation?.id,
+                    firstMessage: matchingConversation?.firstMessage?.substring(0, 50),
+                    localFirstMessage: conversation?.firstMessage?.substring(0, 50),
+                    messagesMatch:
+                      matchingConversation?.firstMessage === conversation?.firstMessage,
+                  },
+                );
+
+                if (matchingConversation && !matchingConversation.id.startsWith("conv_")) {
+                  console.log(
+                    `[${timestamp}] [${requestId}] 🔍 Conversation Supabase trouvée par firstMessage (tentative ${attempt}):`,
+                    {
+                      oldId: activeConversationId,
+                      newId: matchingConversation.id,
+                    },
+                  );
+                  supabaseConversationId = matchingConversation.id;
+                  // Update local conversation with UUID
+                  if (conversation) {
+                    conversation.id = matchingConversation.id;
+                    ConversationStorage.updateConversation(conversation);
+                    currentConversationRef.current = conversation;
+                    setConversationId(matchingConversation.id);
+                  }
+                  activeConversationId = matchingConversation.id;
+                  break; // Sortir de la boucle si trouvé
+                } else if (attempt < maxRetries) {
+                  console.log(
+                    `[${timestamp}] [${requestId}] ⏳ Attente ${retryDelay}ms avant nouvelle tentative...`,
+                  );
+                  await new Promise((resolve) => setTimeout(resolve, retryDelay));
+                } else {
+                  console.log(
+                    `[${timestamp}] [${requestId}] ⚠️ Aucune conversation Supabase correspondante trouvée après ${maxRetries} tentatives - utilisation ID temporaire`,
+                  );
+                  // Si pas trouvé après les tentatives, utiliser l'ID temporaire
+                  // La synchronisation Supabase mettra à jour l'ID plus tard
+                }
+              } catch (lookupError) {
+                logError(
+                  ErrorFactory.storage(
+                    `Erreur lors de la recherche de conversation Supabase (tentative ${attempt})`,
+                    "Une erreur est survenue lors de la recherche de conversation",
+                  ),
+                  { metadata: { originalError: lookupError, requestId, timestamp, attempt } },
+                );
+                if (attempt < maxRetries) {
+                  await new Promise((resolve) => setTimeout(resolve, retryDelay));
+                }
+              }
+            }
+          }
+        } else {
+          console.log(`[${timestamp}] [${requestId}] 💾 Pas de résolution UUID nécessaire:`, {
+            startsWithConv: activeConversationId.startsWith("conv_"),
+            hasUser: !!user?.id,
+          });
+        }
+
+        // Convert and save this single message immediately (use resolved conversation ID)
         console.log(`[${timestamp}] [${requestId}] 💾 Conversion message...`);
         const convertedMessage = convertMessage(message, activeConversationId);
-
-        // Get conversation to check ownership
-        console.log(`[${timestamp}] [${requestId}] 💾 Récupération conversation...`);
-        const conversation = ConversationStorage.getConversation(activeConversationId);
 
         // Save to Supabase if logged in and owned by user
         // TEMPORAIRE: Désactiver Supabase si timeout fréquent (à réactiver une fois Supabase configuré)
         const DISABLE_SUPABASE_CONVERSATIONS =
           import.meta.env.VITE_DISABLE_SUPABASE_CONVERSATIONS === "true";
 
+        const shouldSaveToSupabase =
+          !DISABLE_SUPABASE_CONVERSATIONS &&
+          user?.id &&
+          conversation?.userId === user.id &&
+          !supabaseConversationId.startsWith("conv_"); // Only save if we have a valid UUID
+
         console.log(`[${timestamp}] [${requestId}] 💾 Vérification conditions Supabase:`, {
           DISABLE_SUPABASE_CONVERSATIONS,
           hasUser: !!user?.id,
           userId: user?.id,
+          conversationId: activeConversationId,
+          supabaseConversationId,
+          conversationExists: !!conversation,
           conversationUserId: conversation?.userId,
           userIdMatch: conversation?.userId === user?.id,
+          hasValidUUID: !supabaseConversationId.startsWith("conv_"),
+          condition1_disabled: DISABLE_SUPABASE_CONVERSATIONS,
+          condition2_hasUser: !!user?.id,
+          condition3_userIdMatch: conversation?.userId === user?.id,
+          condition4_validUUID: !supabaseConversationId.startsWith("conv_"),
+          shouldSaveToSupabase,
         });
 
-        if (!DISABLE_SUPABASE_CONVERSATIONS && user?.id && conversation?.userId === user.id) {
+        if (shouldSaveToSupabase) {
           console.log(`[${timestamp}] [${requestId}] 💾 Sauvegarde Supabase...`);
           try {
             const { addMessages: addSupabaseMessages } = await import(
               "../lib/storage/ConversationStorageSupabase"
             );
-            // Ajouter un timeout pour éviter les blocages
-            const timeoutPromise = new Promise((_, reject) => {
+            // Augmenter le timeout à 10 secondes pour Supabase
+            const timeoutPromise = new Promise<never>((_, reject) => {
               setTimeout(
-                () => reject(new Error("Timeout: Supabase addMessages a pris plus de 3 secondes")),
-                3000,
+                () => reject(new Error("Timeout: Supabase addMessages a pris plus de 10 secondes")),
+                10000,
               );
             });
 
             const addPromise = addSupabaseMessages(
-              activeConversationId,
+              supabaseConversationId,
               [convertedMessage],
               user.id,
             );
+
+            console.log(`[${timestamp}] [${requestId}] 💾 Attente réponse Supabase...`);
             await Promise.race([addPromise, timeoutPromise]);
-            console.log(`[${timestamp}] [${requestId}] 💾 Sauvegarde Supabase terminée`);
+            console.log(
+              `[${timestamp}] [${requestId}] ✅ Sauvegarde Supabase terminée avec succès`,
+            );
           } catch (supabaseError) {
+            const errorMessage =
+              supabaseError instanceof Error ? supabaseError.message : String(supabaseError);
+            logError(
+              ErrorFactory.storage(
+                "Erreur Supabase",
+                "Une erreur est survenue lors de la sauvegarde dans Supabase",
+              ),
+              { metadata: { originalError: supabaseError, requestId, timestamp } },
+            );
+
             logError(
               ErrorFactory.storage(
                 "Erreur Supabase lors de l'ajout du message",
@@ -405,13 +632,13 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
               {
                 operation: "useAutoSave.addMessage",
                 conversationId: activeConversationId,
-                metadata: { requestId, userId: user.id, error: supabaseError },
+                metadata: { requestId, userId: user.id, error: supabaseError, errorMessage },
               },
             );
             logger.error(
               "Erreur lors de l'ajout du message dans Supabase, utilisation de localStorage",
               "conversation",
-              supabaseError,
+              { error: supabaseError, errorMessage },
             );
             // Continue with localStorage
           }
@@ -458,7 +685,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         log("Error saving message", { error, messageId: message.id });
       }
     },
-    [log, conversationId, createConversation, convertMessage, triggerTitleGeneration],
+    [log, conversationId, createConversation, convertMessage, triggerTitleGeneration, user?.id],
   );
 
   // Resume conversation by ID
@@ -513,7 +740,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         throw error;
       }
     },
-    [conversationId, log, user?.id],
+    [log, user?.id],
   );
 
   // Get current conversation with messages
@@ -550,7 +777,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
 
     log("New conversation session ready", { tempId });
     return tempId;
-  }, [log, conversationId]);
+  }, [log]);
 
   // Get real conversation ID (non-temporary)
   const getRealConversationId = useCallback((): string | null => {

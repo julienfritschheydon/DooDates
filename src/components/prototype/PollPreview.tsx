@@ -9,21 +9,28 @@ const Check = createLazyIcon("Check");
 const ExternalLink = createLazyIcon("ExternalLink");
 
 // Wrapper pour icônes lazy
-const LazyIconWrapper = ({ Icon, ...props }: { Icon: any; [key: string]: any }) => (
-  <Suspense fallback={<span className={props.className || "w-5 h-5"} />}>
-    <Icon {...props} />
+const LazyIconWrapper = ({
+  Icon,
+  className,
+  ...props
+}: {
+  Icon: React.LazyExoticComponent<React.ComponentType<React.SVGProps<SVGSVGElement>>>;
+  className?: string;
+} & Omit<React.SVGProps<SVGSVGElement>, "ref">) => (
+  <Suspense fallback={<span className={className || "w-5 h-5"} />}>
+    <Icon className={className} {...props} />
   </Suspense>
 );
 import { Link } from "react-router-dom";
 import PollCreator from "../PollCreator";
-import FormPollCreator from "../polls/FormPollCreator";
+import FormPollCreator, { type FormPollDraft } from "../polls/FormPollCreator";
 import { useEditorActions } from "./EditorStateProvider";
 import { useToast } from "@/hooks/use-toast";
-import { addPoll } from "@/lib/pollStorage";
+import { addPoll, type Poll, type PollSettings } from "@/lib/pollStorage";
 import { logger } from "@/lib/logger";
 
 interface PollPreviewProps {
-  poll: any;
+  poll: Poll;
 }
 
 /**
@@ -34,7 +41,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
   const { setCurrentPoll } = useEditorActions();
   const { toast } = useToast();
   const [published, setPublished] = useState(false);
-  const [publishedPoll, setPublishedPoll] = useState<any>(null);
+  const [publishedPoll, setPublishedPoll] = useState<Poll | null>(null);
 
   // Écran de succès après publication (Session 2)
   if (published && publishedPoll) {
@@ -115,7 +122,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
     );
   }
 
-  const handleSave = (draft: any) => {
+  const handleSave = (draft: FormPollDraft | Partial<Poll>) => {
     try {
       // Mettre à jour le poll avec les nouvelles données
       const updatedPoll = {
@@ -125,10 +132,10 @@ export function PollPreview({ poll }: PollPreviewProps) {
       };
 
       // Sauvegarder dans localStorage
-      addPoll(updatedPoll);
+      addPoll(updatedPoll as Poll);
 
       // Mettre à jour le contexte
-      setCurrentPoll(updatedPoll);
+      setCurrentPoll(updatedPoll as Poll);
 
       toast({
         title: "✅ Brouillon enregistré",
@@ -144,7 +151,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
     }
   };
 
-  const handleFinalize = (draft: any, savedPoll?: any) => {
+  const handleFinalize = (draft: FormPollDraft | Partial<Poll>, savedPoll?: Poll) => {
     try {
       // Utiliser le poll sauvegardé s'il est fourni (FormPollCreator), sinon créer
       const finalizedPoll = savedPoll || {
@@ -156,14 +163,14 @@ export function PollPreview({ poll }: PollPreviewProps) {
 
       // Sauvegarder dans localStorage si pas déjà fait
       if (!savedPoll) {
-        addPoll(finalizedPoll);
+        addPoll(finalizedPoll as Poll);
       }
 
       // Mettre à jour le contexte
-      setCurrentPoll(finalizedPoll);
+      setCurrentPoll(finalizedPoll as Poll);
 
       // Afficher l'écran de succès (Session 2)
-      setPublishedPoll(finalizedPoll);
+      setPublishedPoll(finalizedPoll as Poll);
       setPublished(true);
     } catch (error) {
       logger.error("Erreur finalisation", error);
@@ -176,27 +183,33 @@ export function PollPreview({ poll }: PollPreviewProps) {
   };
 
   // Preview pour sondage de dates - UTILISER L'EXPÉRIENCE EXISTANTE
-  if (poll.type === "date" || poll.type === "datetime") {
+  if (poll.type === "date") {
     // Convertir le format StoragePoll vers le format attendu par PollCreator
     const initialData = {
       title: poll.title,
       type: poll.type,
       dates: poll.dates || poll.settings?.selectedDates || [],
       timeSlots: poll.settings?.timeSlotsByDate
-        ? Object.entries(poll.settings.timeSlotsByDate).flatMap(([date, slots]: [string, any]) =>
-            slots.map((slot: any) => {
-              // Calculer l'heure de fin en fonction de la durée si disponible
-              // Sinon, par défaut 1 heure
-              const duration = slot.duration || 60; // durée en minutes
-              const endHour = slot.hour + Math.floor(duration / 60);
-              const endMinute = slot.minute + (duration % 60);
+        ? Object.entries(poll.settings.timeSlotsByDate).flatMap(
+            ([date, slots]: [
+              string,
+              Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>,
+            ]) =>
+              slots.map(
+                (slot: { hour: number; minute: number; enabled: boolean; duration?: number }) => {
+                  // Calculer l'heure de fin en fonction de la durée si disponible
+                  // Sinon, par défaut 1 heure
+                  const duration = slot.duration || 60; // durée en minutes
+                  const endHour = slot.hour + Math.floor(duration / 60);
+                  const endMinute = slot.minute + (duration % 60);
 
-              return {
-                start: `${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}`,
-                end: `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`,
-                dates: [date],
-              };
-            }),
+                  return {
+                    start: `${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}`,
+                    end: `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`,
+                    dates: [date],
+                  };
+                },
+              ),
           )
         : [],
     };
@@ -236,7 +249,7 @@ export function PollPreview({ poll }: PollPreviewProps) {
         {/* Utiliser le FormPollCreator existant */}
         <FormPollCreator
           key={`form-${poll.id}-${poll.questions?.length || 0}-${poll.updated_at}-${Date.now()}`}
-          initialDraft={poll}
+          initialDraft={poll.type === "form" ? (poll as FormPollDraft) : undefined}
           onSave={handleSave}
           onFinalize={handleFinalize}
         />

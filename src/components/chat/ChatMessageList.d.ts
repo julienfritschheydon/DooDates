@@ -13,10 +13,10 @@ interface ChatMessageListProps {
   darkTheme: boolean;
   hasLinkedPoll: boolean;
   linkedPollId: string | null;
-  currentPoll: any;
+  currentPoll: import("../../lib/pollStorage").Poll | null;
   lastAIProposal: {
     userRequest: string;
-    generatedContent: any;
+    generatedContent: import("../../lib/gemini").PollSuggestion;
     pollContext?: {
       pollId?: string;
       pollTitle?: string;
@@ -26,7 +26,7 @@ interface ChatMessageListProps {
   } | null;
   onUsePollSuggestion: (suggestion: PollSuggestion) => void;
   onOpenEditor: () => void;
-  onSetCurrentPoll: (poll: any) => void;
+  onSetCurrentPoll: (poll: import("../../lib/pollStorage").Poll) => void;
   onFeedbackSent: () => void;
   messagesEndRef: React.RefObject<HTMLDivElement>;
 }

@@ -106,15 +106,21 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
     };
   }, [messages.length]);
 
+  /* 
+    NOTE: Centrage vertical du message de bienvenue
+    - flex-1 min-h-0: Prend toute la hauteur disponible dans le conteneur flex parent
+    - Quand messages.length === 0: flex items-center justify-center centre le contenu verticalement et horizontalement
+    - overflow-y-auto seulement quand il y a des messages pour ne pas interférer avec le centrage
+  */
   return (
     <div
-      className={`${
+      className={`flex-1 min-h-0 w-full ${messages.length > 0 ? "overflow-y-auto" : ""} ${
         darkTheme ? "bg-[#0a0a0a]" : "bg-gradient-to-br from-blue-50 to-indigo-50"
-      } ${messages.length === 0 ? "flex items-center justify-center min-h-[60vh]" : ""}`}
+      } ${messages.length === 0 ? "flex items-center justify-center" : ""}`}
     >
       <div
-        className={`max-w-4xl mx-auto p-2 md:p-4 ${
-          messages.length > 0 ? "space-y-3 md:space-y-4" : ""
+        className={`w-full max-w-4xl mx-auto ${
+          messages.length > 0 ? "p-2 md:p-4 space-y-3 md:space-y-4" : ""
         }`}
       >
         {messages.length === 0 ? (

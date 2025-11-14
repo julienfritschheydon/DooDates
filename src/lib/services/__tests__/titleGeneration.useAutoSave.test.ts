@@ -313,7 +313,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
       // Reset mocks to ensure clean state
       mockConversationStorage.createConversation.mockReset();
       mockConversationStorage.getConversation.mockReset();
-      
+
       // Mock createConversation to mark conversation as existing
       mockConversationStorage.createConversation.mockImplementation(() => {
         conversationExists = true;
@@ -363,9 +363,9 @@ describe("titleGeneration + useAutoSave Integration", () => {
       // Verify it was called with correct parameters
       // Find the call that matches our expected message (there may be multiple calls)
       const matchingCall = mockConversationStorage.createConversation.mock.calls.find(
-        (call: any[]) => call[0]?.firstMessage === "Je veux planifier une réunion d'équipe"
+        (call: any[]) => call[0]?.firstMessage === "Je veux planifier une réunion d'équipe",
       );
-      
+
       expect(matchingCall).toBeDefined();
       expect(matchingCall[0]).toMatchObject({
         title: "Je veux planifier une réunion d'équipe",
@@ -379,7 +379,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
       expect(result.current.lastSaved).toBeTruthy();
     });
 
-    it.skip("should handle edge cases gracefully", async () => {
+    it("should handle edge cases gracefully", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       // Mock conversation that will be created
@@ -399,15 +399,22 @@ describe("titleGeneration + useAutoSave Integration", () => {
       // Track conversation creation state
       let conversationExists = false;
 
+      // Reset mocks to ensure clean state
+      mockConversationStorage.createConversation.mockReset();
+      mockConversationStorage.getConversation.mockReset();
+
       // Mock createConversation
       mockConversationStorage.createConversation.mockImplementation(() => {
         conversationExists = true;
         return createdConversation;
       });
 
-      // Mock getConversation
+      // Mock getConversation to return null for temp IDs initially, then conversation after creation
       mockConversationStorage.getConversation.mockImplementation((id: string) => {
-        if (conversationExists) {
+        if (id.startsWith("temp-") && !conversationExists) {
+          return null;
+        }
+        if (conversationExists || id === "conv-123") {
           return createdConversation;
         }
         return null;
@@ -432,7 +439,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
       };
 
       await act(async () => {
-        result.current.addMessage(shortMessage);
+        await result.current.addMessage(shortMessage);
       });
 
       // Verify conversation was created
@@ -484,7 +491,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
   });
 
   describe("Error Handling Integration", () => {
-    it.skip("should handle title generation errors gracefully", async () => {
+    it("should handle title generation errors gracefully", async () => {
       const { result } = renderHook(() => useAutoSave({ debug: false }));
 
       // Mock conversation that will be created
@@ -504,21 +511,24 @@ describe("titleGeneration + useAutoSave Integration", () => {
       // Track conversation creation state
       let conversationExists = false;
 
+      // Reset mocks to ensure clean state
+      mockConversationStorage.createConversation.mockReset();
+      mockConversationStorage.getConversation.mockReset();
+
       // Mock createConversation to mark conversation as existing
       mockConversationStorage.createConversation.mockImplementation(() => {
         conversationExists = true;
         return createdConversation;
       });
 
-      // Mock getConversation to return null initially, then conversation after creation
-      // Important: getConversation is called with the conversation ID, which could be temp-xxx or conv-123
-      // After conversation is created, getConversation should return it for conv-123
+      // Mock getConversation to return null for temp IDs initially, then conversation after creation
       mockConversationStorage.getConversation.mockImplementation((id: string) => {
-        // If conversation was created, return it for both temp ID and real ID
-        if (conversationExists) {
+        if (id.startsWith("temp-") && !conversationExists) {
+          return null;
+        }
+        if (conversationExists || id === "conv-123") {
           return createdConversation;
         }
-        // Otherwise return null (conversation doesn't exist yet)
         return null;
       });
 
@@ -556,7 +566,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
 
       // Should not throw error - error should be caught and handled
       await act(async () => {
-        result.current.addMessage(message);
+        await result.current.addMessage(message);
       });
 
       // Verify conversation was created (proves code executed)

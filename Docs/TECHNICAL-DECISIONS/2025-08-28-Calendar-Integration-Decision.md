@@ -94,4 +94,21 @@
 - __Time-to-market critique ?__ Oui → Buy/Hybrid.
 
 ## Recommandation
-- Adopter l’option __Hybrid__: Google direct dès le MVP (marge et contrôle), Outlook/iCloud via agrégateur (fiabilité/vitesse). Garder l’abstraction `CalendarProvider` pour pouvoir évoluer sans refonte.
+- Adopter l'option __Hybrid__: Google direct dès le MVP (marge et contrôle), Outlook/iCloud via agrégateur (fiabilité/vitesse). Garder l'abstraction `CalendarProvider` pour pouvoir évoluer sans refonte.
+
+## Statut d'implémentation
+
+### ✅ Prototype Google Calendar terminé (Nov 2025)
+- **Page de test** : `/calendar-prototype`
+- **Service** : `src/lib/google-calendar.ts` - `GoogleCalendarService`
+- **Fonctionnalités validées** :
+  - ✅ OAuth Google avec Supabase (scopes `calendar.readonly` + `calendar`)
+  - ✅ Lecture événements (`getEvents`)
+  - ✅ Lecture créneaux libres/occupés (`getFreeBusy`)
+  - ✅ Création événements (`createEvent`)
+  - ✅ Callback OAuth (`/auth/callback`)
+- **Configuration requise** :
+  - Google Cloud Console : Client ID + Client Secret configurés dans Supabase
+  - API Google Calendar activée dans Google Cloud Console
+  - Utilisateurs test ajoutés dans OAuth consent screen (mode Test)
+- **Prochaines étapes** : Intégration dans feature "Agenda Intelligent" (Sondage Inversé)

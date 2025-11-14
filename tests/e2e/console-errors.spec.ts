@@ -151,7 +151,7 @@ test.describe('Console Errors & React Warnings', () => {
     });
 
     // Aller sur la page d'accueil
-    await page.goto('/?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
 
     // Filtrer les erreurs connues/acceptables
     const filteredErrors = consoleErrors.filter(error => {
@@ -318,7 +318,7 @@ test.describe('Console Errors & React Warnings', () => {
     }
 
     // Créer un poll via IA
-    await page.goto('/?e2e-test=true?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
     
     // 📸 Capture 1 : Page chargée
     await page.screenshot({ path: 'test-results/debug-1-page-loaded.png', fullPage: true });

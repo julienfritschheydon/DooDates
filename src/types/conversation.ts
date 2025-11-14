@@ -63,7 +63,7 @@ export interface MessageMetadata {
   type?: "date" | "datetime" | "custom";
   participants?: string[];
   // NOUVEAU : Sauvegarder la suggestion complète (Date Poll ou Form Poll)
-  pollSuggestion?: any; // PollSuggestion type (DatePollSuggestion | FormPollSuggestion)
+  pollSuggestion?: import("../lib/gemini").PollSuggestion;
 }
 
 // ============================================================================
@@ -310,7 +310,7 @@ export function isValidMessageRole(role: string): role is MessageRole {
   return Object.values(MESSAGE_ROLE).includes(role as MessageRole);
 }
 
-export function isConversation(obj: any): obj is Conversation {
+export function isConversation(obj: unknown): obj is Conversation {
   if (!obj || typeof obj !== "object") {
     return false;
   }
@@ -328,7 +328,7 @@ export function isConversation(obj: any): obj is Conversation {
   );
 }
 
-export function isConversationMessage(obj: any): obj is ConversationMessage {
+export function isConversationMessage(obj: unknown): obj is ConversationMessage {
   if (!obj || typeof obj !== "object") {
     return false;
   }

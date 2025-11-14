@@ -20,14 +20,17 @@ const docCategories = [
       { id: "03-Sondages-Dates", name: "Sondages de Dates" },
       { id: "04-Formulaires-Questionnaires", name: "Formulaires et Questionnaires" },
       { id: "05-Assistant-IA", name: "Assistant IA Conversationnel" },
-      { id: "06-Gestion-Resultats", name: "Gestion des Résultats" },
-      { id: "07-Tableau-Bord", name: "Tableau de Bord" },
+      { id: "08-Gestion-Resultats", name: "Gestion des Résultats" },
+      { id: "10-Tableau-Bord", name: "Tableau de Bord" },
     ],
   },
   {
     title: "Support",
     icon: HelpCircle,
-    docs: [{ id: "08-FAQ", name: "FAQ" }],
+    docs: [
+      { id: "14-FAQ", name: "FAQ" },
+      { id: "17-Resolution-Problemes", name: "Résolution de Problèmes" },
+    ],
   },
 ];
 
@@ -68,7 +71,7 @@ const DocsHome: React.FC = () => {
         </Link>
 
         <Link
-          to="/docs/08-FAQ"
+          to="/docs/14-FAQ"
           className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
         >
           <div className="flex items-center gap-3 mb-2">

@@ -8,6 +8,7 @@ import {
   getOrCreateGuestQuota,
   canConsumeCredits,
   consumeGuestCredits,
+  clearQuotaCache,
   type GuestQuotaData,
 } from "../guestQuotaService";
 import { setupMockLocalStorage, setupQuotaTestWindow } from "../../__tests__/helpers/testHelpers";
@@ -117,6 +118,7 @@ function mockEnsureGuestQuota(mockRow: ReturnType<typeof createMockSupabaseRow>)
 describe("guestQuotaService", () => {
   beforeEach(() => {
     setupMockLocalStorage();
+    clearQuotaCache(); // Vider le cache entre les tests
     vi.clearAllMocks();
 
     // Mock par défaut
@@ -180,7 +182,8 @@ describe("guestQuotaService", () => {
       // IMPORTANT: insert() doit retourner supabase pour permettre le chaînage
       // select() retourne supabase (mocké dans beforeEach)
       // single() doit retourner mockRow
-      (supabase.insert as any).mockReturnValueOnce(supabase);
+      // Note: insert() doit retourner supabase de manière persistante, pas juste une fois
+      (supabase.insert as any).mockReturnValue(supabase);
       (supabase.single as any).mockResolvedValueOnce({
         data: mockRow,
         error: null,
@@ -262,8 +265,8 @@ describe("guestQuotaService", () => {
     });
 
     it("should deny consumption when AI message limit reached", async () => {
-      // 2 messages IA = limite atteinte (GUEST_LIMITS.AI_MESSAGES = 2)
-      const mockQuota = createMockQuota({ aiMessages: 2 });
+      // 20 messages IA = limite atteinte (GUEST_LIMITS.AI_MESSAGES = 20)
+      const mockQuota = createMockQuota({ aiMessages: 20 });
       const mockRow = createMockSupabaseRow(mockQuota);
 
       mockEnsureGuestQuota(mockRow);
@@ -273,7 +276,7 @@ describe("guestQuotaService", () => {
       expect(result.allowed).toBe(false);
       expect(result.reason).toContain("AI message limit");
       expect(result.currentQuota).toBeDefined();
-      expect(result.currentQuota?.aiMessages).toBe(2);
+      expect(result.currentQuota?.aiMessages).toBe(20);
     });
 
     it("should allow bypass in E2E environment", async () => {
@@ -338,7 +341,8 @@ describe("guestQuotaService", () => {
     });
 
     it("should deny consumption when limit reached", async () => {
-      const mockQuota = createMockQuota({ aiMessages: 2 });
+      // 20 messages IA = limite atteinte (GUEST_LIMITS.AI_MESSAGES = 20)
+      const mockQuota = createMockQuota({ aiMessages: 20 });
       const mockRow = createMockSupabaseRow(mockQuota);
 
       mockEnsureGuestQuota(mockRow);

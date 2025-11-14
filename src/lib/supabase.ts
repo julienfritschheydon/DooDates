@@ -64,7 +64,7 @@ export type Database = {
           full_name: string | null;
           avatar_url: string | null;
           timezone: string;
-          preferences: Record<string, any>;
+          preferences: Record<string, unknown>;
           plan_type: "free" | "pro" | "premium";
           subscription_expires_at: string | null;
           created_at: string;
@@ -76,7 +76,7 @@ export type Database = {
           full_name?: string | null;
           avatar_url?: string | null;
           timezone?: string;
-          preferences?: Record<string, any>;
+          preferences?: Record<string, unknown>;
           plan_type?: "free" | "pro" | "premium";
           subscription_expires_at?: string | null;
         };
@@ -84,7 +84,7 @@ export type Database = {
           full_name?: string | null;
           avatar_url?: string | null;
           timezone?: string;
-          preferences?: Record<string, any>;
+          preferences?: Record<string, unknown>;
           plan_type?: "free" | "pro" | "premium";
           subscription_expires_at?: string | null;
         };
@@ -96,7 +96,7 @@ export type Database = {
           title: string;
           description: string | null;
           slug: string;
-          settings: Record<string, any>;
+          settings: Record<string, unknown>;
           status: "draft" | "active" | "closed" | "archived";
           expires_at: string | null;
           created_at: string;
@@ -107,14 +107,14 @@ export type Database = {
           title: string;
           description?: string | null;
           slug: string;
-          settings?: Record<string, any>;
+          settings?: Record<string, unknown>;
           status?: "draft" | "active" | "closed" | "archived";
           expires_at?: string | null;
         };
         Update: {
           title?: string;
           description?: string | null;
-          settings?: Record<string, any>;
+          settings?: Record<string, unknown>;
           status?: "draft" | "active" | "closed" | "archived";
           expires_at?: string | null;
         };
@@ -124,19 +124,19 @@ export type Database = {
           id: string;
           poll_id: string;
           option_date: string;
-          time_slots: Record<string, any>[];
+          time_slots: Array<Record<string, unknown>>;
           display_order: number;
           created_at: string;
         };
         Insert: {
           poll_id: string;
           option_date: string;
-          time_slots?: Record<string, any>[];
+          time_slots?: Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>;
           display_order?: number;
         };
         Update: {
           option_date?: string;
-          time_slots?: Record<string, any>[];
+          time_slots?: Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>;
           display_order?: number;
         };
       };
@@ -147,7 +147,7 @@ export type Database = {
           voter_email: string;
           voter_name: string;
           voter_id: string | null;
-          selections: Record<string, any>;
+          selections: Record<string, unknown>;
           comment: string | null;
           ip_address: string | null;
           user_agent: string | null;
@@ -159,14 +159,14 @@ export type Database = {
           voter_email: string;
           voter_name: string;
           voter_id?: string | null;
-          selections: Record<string, any>;
+          selections: Record<string, unknown>;
           comment?: string | null;
           ip_address?: string | null;
           user_agent?: string | null;
         };
         Update: {
           voter_name?: string;
-          selections?: Record<string, any>;
+          selections?: Record<string, unknown>;
           comment?: string | null;
         };
       };
@@ -176,8 +176,8 @@ export type Database = {
           user_id: string | null;
           session_id: string;
           title: string | null;
-          messages: Record<string, any>[];
-          context: Record<string, any>;
+          messages: Array<Record<string, unknown>>;
+          context: Record<string, unknown>;
           poll_id: string | null;
           status: "active" | "completed" | "abandoned";
           created_at: string;
@@ -187,15 +187,15 @@ export type Database = {
           user_id?: string | null;
           session_id: string;
           title?: string | null;
-          messages?: Record<string, any>[];
-          context?: Record<string, any>;
+          messages?: Array<{ id: string; role: string; content: string; timestamp: string }>;
+          context?: Record<string, unknown>;
           poll_id?: string | null;
           status?: "active" | "completed" | "abandoned";
         };
         Update: {
           title?: string | null;
-          messages?: Record<string, any>[];
-          context?: Record<string, any>;
+          messages?: Array<{ id: string; role: string; content: string; timestamp: string }>;
+          context?: Record<string, unknown>;
           poll_id?: string | null;
           status?: "active" | "completed" | "abandoned";
         };
@@ -204,7 +204,7 @@ export type Database = {
         Row: {
           id: string;
           event_type: string;
-          event_data: Record<string, any>;
+          event_data: Record<string, unknown>;
           user_id: string | null;
           session_id: string | null;
           ip_address: string | null;
@@ -213,7 +213,7 @@ export type Database = {
         };
         Insert: {
           event_type: string;
-          event_data: Record<string, any>;
+          event_data: Record<string, unknown>;
           user_id?: string | null;
           session_id?: string | null;
           ip_address?: string | null;
@@ -269,7 +269,7 @@ export type Database = {
           fingerprint: string;
           action: string;
           credits: number;
-          metadata: Record<string, any>;
+          metadata: Record<string, unknown>;
           created_at: string;
         };
         Insert: {
@@ -277,7 +277,7 @@ export type Database = {
           fingerprint: string;
           action: string;
           credits: number;
-          metadata?: Record<string, any>;
+          metadata?: Record<string, unknown>;
         };
       };
     };
@@ -285,7 +285,7 @@ export type Database = {
 };
 
 // Helper pour les erreurs Supabase
-export function handleSupabaseError(error: any) {
+export function handleSupabaseError(error: unknown) {
   const processedError = handleError(
     error,
     {

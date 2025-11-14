@@ -11,6 +11,7 @@ import type {
   ConversationMessage,
   ConversationMetadata,
 } from "../../types/conversation";
+import type { PollData } from "../../hooks/usePolls";
 
 // ============================================================================
 // MOCK DATA FACTORIES
@@ -69,7 +70,18 @@ export const createMockMessage = (
 /**
  * Crée un message pour useAutoSave (format simplifié)
  */
-export const createMockAutoSaveMessage = (overrides: any = {}) => ({
+type AutoSaveMessage = {
+  id: string;
+  content: string;
+  isAI: boolean;
+  timestamp: Date;
+  pollSuggestion?: unknown;
+  isGenerating?: boolean;
+};
+
+export const createMockAutoSaveMessage = (
+  overrides: Partial<AutoSaveMessage> = {},
+): AutoSaveMessage => ({
   id: "msg-1",
   content: "Test message content",
   isAI: false,
@@ -258,32 +270,35 @@ export const createTestDateString = (offset: number = 0): string => {
 // ============================================================================
 
 /**
- * Crée des données de poll mockées
+ * Crée des données de poll mockées (type date par défaut)
  */
-export const createMockPollData = (overrides: any = {}) => ({
-  title: "Réunion produit",
-  description: "Discussion sur le nouveau produit",
-  selectedDates: ["2025-09-01", "2025-09-02"],
-  timeSlotsByDate: {
-    "2025-09-01": [
-      { hour: 9, minute: 0, enabled: true },
-      { hour: 10, minute: 0, enabled: true },
-    ],
-    "2025-09-02": [
-      { hour: 14, minute: 0, enabled: true },
-      { hour: 15, minute: 0, enabled: true },
-    ],
-  },
-  participantEmails: [],
-  settings: {
-    timeGranularity: 30,
-    allowAnonymousVotes: true,
-    allowMaybeVotes: true,
-    sendNotifications: false,
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  ...overrides,
-});
+export const createMockPollData = (overrides: Partial<PollData> = {}): PollData => {
+  const baseData: PollData = {
+    type: "date",
+    title: "Réunion produit",
+    description: "Discussion sur le nouveau produit",
+    selectedDates: ["2025-09-01", "2025-09-02"],
+    timeSlotsByDate: {
+      "2025-09-01": [
+        { hour: 9, minute: 0, enabled: true },
+        { hour: 10, minute: 0, enabled: true },
+      ],
+      "2025-09-02": [
+        { hour: 14, minute: 0, enabled: true },
+        { hour: 15, minute: 0, enabled: true },
+      ],
+    },
+    participantEmails: [],
+    settings: {
+      timeGranularity: 30,
+      allowAnonymousVotes: true,
+      allowMaybeVotes: true,
+      sendNotifications: false,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  };
+  return { ...baseData, ...overrides } as PollData;
+};
 
 // ============================================================================
 // UTILITIES
@@ -312,9 +327,9 @@ export const createConsoleMock = () => {
   const warnings: string[] = [];
 
   return {
-    log: (...args: any[]) => logs.push(args.join(" ")),
-    error: (...args: any[]) => errors.push(args.join(" ")),
-    warn: (...args: any[]) => warnings.push(args.join(" ")),
+    log: (...args: unknown[]) => logs.push(args.map(String).join(" ")),
+    error: (...args: unknown[]) => errors.push(args.map(String).join(" ")),
+    warn: (...args: unknown[]) => warnings.push(args.map(String).join(" ")),
     getLogs: () => logs,
     getErrors: () => errors,
     getWarnings: () => warnings,

@@ -20,7 +20,13 @@ const DollarSign = createLazyIcon("DollarSign");
 const Key = createLazyIcon("Key");
 
 // Wrapper pour icônes lazy avec Suspense
-const LazyIconWrapper = ({ Icon, ...props }: { Icon: any; [key: string]: any }) => (
+const LazyIconWrapper = ({
+  Icon,
+  ...props
+}: {
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  [key: string]: unknown;
+}) => (
   <Suspense fallback={<span className={props.className || "w-5 h-5"} />}>
     <Icon {...props} />
   </Suspense>
@@ -41,6 +47,7 @@ import { ChatInput } from "../chat/ChatInput";
 import { VOICE_RECOGNITION_CONFIG } from "../../config/voiceRecognition.config";
 import { logger } from "../../lib/logger";
 import { getConversations } from "../../lib/storage/ConversationStorageSimple";
+import type { ConversationMetadata } from "../../types/conversation";
 import { useOnboarding } from "../../hooks/useOnboarding";
 import { useAuth } from "../../contexts/AuthContext";
 import { AuthModal } from "../modals/AuthModal";
@@ -65,7 +72,7 @@ function findRelatedConversation(poll: Poll): string | undefined {
   try {
     const conversations = getConversations();
     const match = conversations.find((conv) => {
-      const metadata = conv.metadata as any;
+      const metadata = conv.metadata as ConversationMetadata | undefined;
       return (
         metadata?.pollGenerated && metadata?.pollTitle?.toLowerCase() === poll.title.toLowerCase()
       );
@@ -283,7 +290,7 @@ export function WorkspaceLayoutPrototype() {
   return (
     <>
       <div
-        className={`flex h-full bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : "overflow-y-auto"}`}
+        className={`flex h-screen bg-[#1e1e1e] ${isMobile ? "flex-col overflow-y-auto" : "overflow-y-auto"}`}
       >
         {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur */}
         {isSidebarOpen && (
@@ -312,8 +319,8 @@ export function WorkspaceLayoutPrototype() {
               > */}
               {/* <Book className="w-5 h-5 text-gray-300" /> */}
               {/* </button> */}
-              {/* Bouton Aide */}
-              <button
+              {/* Bouton Aide - Onboarding désactivé temporairement */}
+              {/* <button
                 onClick={() => {
                   startOnboarding();
                   if (isMobile) setIsSidebarOpen(false);
@@ -335,7 +342,7 @@ export function WorkspaceLayoutPrototype() {
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-              </button>
+              </button> */}
               {/* Bouton Fermer */}
               <button
                 onClick={() => setIsSidebarOpen(false)}
@@ -353,26 +360,25 @@ export function WorkspaceLayoutPrototype() {
               <div className="px-4 pb-4 space-y-2">
                 <button
                   onClick={() => {
-                    // Ajouter un timestamp pour forcer le remontage du composant GeminiChatInterface
-                    navigate(`/?new=${Date.now()}`);
-                    // Fermer la sidebar sur mobile
+                    navigate("/create");
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg transition-colors font-medium"
                 >
-                  <LazyIconWrapper Icon={Sparkles} className="w-5 h-5" />
-                  <span>Créer avec IA</span>
+                  <LazyIconWrapper Icon={Plus} className="w-5 h-5" />
+                  <span>Créer un sondage</span>
                 </button>
 
                 <button
                   onClick={() => {
-                    navigate("/create");
+                    // Nouveau chat avec IA
+                    navigate(`/workspace?new=${Date.now()}`);
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
-                  <LazyIconWrapper Icon={Plus} className="w-5 h-5" />
-                  <span>Créer sans IA</span>
+                  <LazyIconWrapper Icon={Sparkles} className="w-5 h-5" />
+                  <span>Nouveau chat IA</span>
                 </button>
 
                 <button
@@ -440,7 +446,9 @@ export function WorkspaceLayoutPrototype() {
                       Mes conversations
                     </h3>
                     {conversations.slice(0, 10).map((conv) => {
-                      const metadata = conv.metadata as any;
+                      const metadata = conv.metadata as
+                        | import("../../types/conversation").ConversationMetadata
+                        | undefined;
                       const hasPoll = metadata?.pollGenerated;
 
                       // Trouver le poll associé
@@ -455,7 +463,7 @@ export function WorkspaceLayoutPrototype() {
                           onClick={() => {
                             // Si la conversation a un poll associé, l'ouvrir aussi
                             if (relatedPoll) {
-                              setCurrentPoll(relatedPoll as any);
+                              setCurrentPoll(relatedPoll);
                               openEditor();
                             }
 
@@ -640,10 +648,21 @@ export function WorkspaceLayoutPrototype() {
           </div>
 
           {/* Toggle Chat/Preview sur mobile */}
-          <div className="flex-1 min-h-0 pt-14">
+          {/* 
+            NOTE: Structure flex pour permettre le centrage vertical du chat
+            - flex flex-col: Crée un contexte flex vertical pour les enfants
+            - flex-1 min-h-0: Prend toute la hauteur disponible
+            - pt-14: Espace pour le header fixe en haut
+          */}
+          <div className="flex-1 min-h-0 pt-14 bg-[#0a0a0a] flex flex-col">
             {/* Chat toujours rendu (masqué en Preview) pour que chatRef soit accessible */}
+            {/* 
+              NOTE: Conteneur pour GeminiChatInterface
+              - flex-1 min-h-0: Prend toute la hauteur disponible dans le flex parent
+              - pb-32: Espace pour l'input fixe en bas
+            */}
             <div
-              className={`w-full pb-32 ${isMobile && showPreviewOnMobile && isEditorOpen && currentPoll ? "hidden" : ""}`}
+              className={`flex-1 min-h-0 w-full pb-32 ${isMobile && showPreviewOnMobile && isEditorOpen && currentPoll ? "hidden" : ""}`}
             >
               <GeminiChatInterface
                 ref={chatRef}

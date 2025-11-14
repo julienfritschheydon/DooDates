@@ -35,7 +35,7 @@ test.describe('Mobile Voting UX', () => {
   test('DatePoll: page loads without crashing', async ({ page, browserName }) => {
     try {
       // Test that create pages load successfully
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
       await waitForPageLoad(page, browserName);
       await expect(page).toHaveTitle(/DooDates/);
       
@@ -66,7 +66,7 @@ test.describe('Mobile Voting UX', () => {
       ).toBeVisible({ timeout: 10000 });
       
       // Test navigation back home
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
       await waitForPageLoad(page, browserName);
       
       // Wait for home page content (title or main heading)
@@ -80,7 +80,7 @@ test.describe('Mobile Voting UX', () => {
   test('FormPoll: page loads without crashing', async ({ page, browserName }) => {
     try {
       // Test that form poll creator loads
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
       await waitForPageLoad(page, browserName);
       await expect(page).toHaveTitle(/DooDates/);
       
@@ -102,7 +102,7 @@ test.describe('Mobile Voting UX', () => {
       ).toBeVisible({ timeout: 10000 });
       
       // Test navigation back
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
       await waitForPageLoad(page, browserName);
       
       // Wait for home page content (title or main heading)

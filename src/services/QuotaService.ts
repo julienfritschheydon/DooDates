@@ -206,11 +206,13 @@ export class QuotaService {
           }
         });
       } else {
-        Object.entries(conversations).forEach(([id, conv]: [string, any]) => {
-          if (conv.lastModified && new Date(conv.lastModified) < cutoffDate) {
-            oldConversationIds.push(id);
-          }
-        });
+        Object.entries(conversations).forEach(
+          ([id, conv]: [string, import("../types/conversation").Conversation]) => {
+            if (conv.lastModified && new Date(conv.lastModified) < cutoffDate) {
+              oldConversationIds.push(id);
+            }
+          },
+        );
       }
 
       return oldConversationIds;

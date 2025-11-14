@@ -150,7 +150,7 @@ export function useAiMessageQuota(currentConversationId?: string): AiMessageQuot
         // Garder lastMessageTimestamp en localStorage pour le cooldown
       }));
     }
-  }, [isGuest, guestQuota?.aiMessages]);
+  }, [isGuest, guestQuota]);
 
   // État compteur polls par conversation
   const [pollCounts, setPollCounts] = useState<PollCountData>(() => {

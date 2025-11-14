@@ -10,7 +10,7 @@ interface Message {
   content: string;
   isAI: boolean;
   timestamp: Date;
-  pollSuggestion?: any;
+  pollSuggestion?: import("../../lib/gemini").PollSuggestion;
 }
 type Poll = StoragePoll;
 interface ConversationContextType {
@@ -36,7 +36,11 @@ interface ConversationContextType {
   openEditor: (poll: Poll) => void;
   closeEditor: () => void;
   updatePoll: (poll: Poll) => void;
-  createPollFromChat: (pollData: any) => void;
+  createPollFromChat: (
+    pollData:
+      | import("../../lib/gemini").PollSuggestion
+      | Partial<import("../../lib/pollStorage").Poll>,
+  ) => void;
   dispatchPollAction: (action: PollAction | FormPollAction) => void;
 }
 /**

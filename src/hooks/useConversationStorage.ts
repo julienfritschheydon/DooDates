@@ -130,7 +130,7 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
         isAtLimit,
       },
     };
-  }, [user, authLoading, supabaseStorage, localStorage]);
+  }, [user, authLoading, supabaseStorage]);
 
   // Get active storage instance
   const activeStorage = useMemo(() => {
@@ -205,14 +205,17 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
   }, [storageMode.provider, supabaseStorage]);
 
   // Query keys
-  const queryKeys = {
-    conversations: ["conversations", storageMode.provider, user?.id || "guest"] as const,
-    conversation: (id: string) =>
-      ["conversation", storageMode.provider, user?.id || "guest", id] as const,
-    messages: (conversationId: string) =>
-      ["messages", storageMode.provider, user?.id || "guest", conversationId] as const,
-    quota: ["quota", storageMode.provider, user?.id || "guest"] as const,
-  };
+  const queryKeys = useMemo(
+    () => ({
+      conversations: ["conversations", storageMode.provider, user?.id || "guest"] as const,
+      conversation: (id: string) =>
+        ["conversation", storageMode.provider, user?.id || "guest", id] as const,
+      messages: (conversationId: string) =>
+        ["messages", storageMode.provider, user?.id || "guest", conversationId] as const,
+      quota: ["quota", storageMode.provider, user?.id || "guest"] as const,
+    }),
+    [storageMode.provider, user?.id],
+  );
 
   // Auto-migration effect
   useEffect(() => {
@@ -282,36 +285,36 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
     retryDelay: (attemptIndex) => Math.min(retryDelay * Math.pow(2, attemptIndex), 10000),
   });
 
-  // Single conversation query
-  const useConversation = useCallback(
-    (conversationId: string) => {
-      return useQuery({
-        queryKey: queryKeys.conversation(conversationId),
-        queryFn: async () => {
-          try {
-            return await activeStorage.getConversation(conversationId);
-          } catch (error) {
-            throw new ConversationError(
-              `Failed to fetch conversation ${conversationId}`,
-              "FETCH_ERROR",
-              ErrorSeverity.MEDIUM,
-              ErrorCategory.STORAGE,
-              {
-                conversationId,
-                metadata: {
-                  originalError: error,
-                  provider: storageMode.provider,
-                },
+  // Single conversation query factory
+  // Note: This returns a function that creates query options, not a hook
+  // Components should use useConversationById hook directly instead
+  const getConversationQueryOptions = useCallback(
+    (conversationId: string) => ({
+      queryKey: queryKeys.conversation(conversationId),
+      queryFn: async () => {
+        try {
+          return await activeStorage.getConversation(conversationId);
+        } catch (error) {
+          throw new ConversationError(
+            `Failed to fetch conversation ${conversationId}`,
+            "FETCH_ERROR",
+            ErrorSeverity.MEDIUM,
+            ErrorCategory.STORAGE,
+            {
+              conversationId,
+              metadata: {
+                originalError: error,
+                provider: storageMode.provider,
               },
-            );
-          }
-        },
-        enabled: enableCache && !!conversationId && !authLoading,
-        staleTime,
-        gcTime: cacheTime,
-        retry: retryAttempts,
-      });
-    },
+            },
+          );
+        }
+      },
+      enabled: enableCache && !!conversationId && !authLoading,
+      staleTime,
+      gcTime: cacheTime,
+      retry: retryAttempts,
+    }),
     [
       activeStorage,
       storageMode.provider,
@@ -320,39 +323,40 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
       staleTime,
       cacheTime,
       retryAttempts,
+      queryKeys,
     ],
   );
 
-  // Messages query
-  const useMessages = useCallback(
-    (conversationId: string) => {
-      return useQuery({
-        queryKey: queryKeys.messages(conversationId),
-        queryFn: async () => {
-          try {
-            return await activeStorage.getMessages(conversationId);
-          } catch (error) {
-            throw new ConversationError(
-              `Failed to fetch messages for conversation ${conversationId}`,
-              "FETCH_ERROR",
-              ErrorSeverity.MEDIUM,
-              ErrorCategory.STORAGE,
-              {
-                conversationId,
-                metadata: {
-                  originalError: error,
-                  provider: storageMode.provider,
-                },
+  // Messages query factory
+  // Note: This returns a function that creates query options, not a hook
+  // Components should use useMessagesByConversationId hook directly instead
+  const getMessagesQueryOptions = useCallback(
+    (conversationId: string) => ({
+      queryKey: queryKeys.messages(conversationId),
+      queryFn: async () => {
+        try {
+          return await activeStorage.getMessages(conversationId);
+        } catch (error) {
+          throw new ConversationError(
+            `Failed to fetch messages for conversation ${conversationId}`,
+            "FETCH_ERROR",
+            ErrorSeverity.MEDIUM,
+            ErrorCategory.STORAGE,
+            {
+              conversationId,
+              metadata: {
+                originalError: error,
+                provider: storageMode.provider,
               },
-            );
-          }
-        },
-        enabled: enableCache && !!conversationId && !authLoading,
-        staleTime,
-        gcTime: cacheTime,
-        retry: retryAttempts,
-      });
-    },
+            },
+          );
+        }
+      },
+      enabled: enableCache && !!conversationId && !authLoading,
+      staleTime,
+      gcTime: cacheTime,
+      retry: retryAttempts,
+    }),
     [
       activeStorage,
       storageMode.provider,
@@ -361,7 +365,26 @@ export function useConversationStorage(config: UseConversationStorageConfig = {}
       staleTime,
       cacheTime,
       retryAttempts,
+      queryKeys,
     ],
+  );
+
+  // Legacy API: useConversation - DEPRECATED, use useConversationById hook instead
+  const useConversation = useCallback(
+    (conversationId: string) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return useQuery(getConversationQueryOptions(conversationId));
+    },
+    [getConversationQueryOptions],
+  );
+
+  // Legacy API: useMessages - DEPRECATED, use useMessagesByConversationId hook instead
+  const useMessages = useCallback(
+    (conversationId: string) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return useQuery(getMessagesQueryOptions(conversationId));
+    },
+    [getMessagesQueryOptions],
   );
 
   // Create conversation mutation

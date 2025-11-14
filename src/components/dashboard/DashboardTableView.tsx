@@ -18,7 +18,7 @@ import {
   Lock,
   Archive,
 } from "lucide-react";
-import { ConversationItem } from "./types";
+import { ConversationItem, DashboardPoll } from "./types";
 import { getStatusColor, getStatusLabel } from "./utils";
 import { useConversations } from "@/hooks/useConversations";
 import { useToast } from "@/hooks/use-toast";
@@ -103,7 +103,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
   };
 
   // Handlers pour les actions de poll (extraits de PollActions)
-  const handleCopyLink = async (poll: any) => {
+  const handleCopyLink = async (poll: DashboardPoll) => {
     try {
       const url = buildPublicLink(poll.slug);
       await copyToClipboard(url);
@@ -128,7 +128,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
     }
   };
 
-  const handlePreloadEdit = (poll: any) => {
+  const handlePreloadEdit = (poll: DashboardPoll) => {
     // Précharger PollCreator si c'est un sondage de dates (pas formulaire)
     if (poll.type !== "form") {
       const timeoutRef = preloadTimeoutRefs.current.get(poll.id);
@@ -136,15 +136,15 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
         clearTimeout(timeoutRef);
       }
       const newTimeout = setTimeout(() => {
-        if (typeof (window as any).preloadPollCreator === "function") {
-          (window as any).preloadPollCreator();
+        if (typeof window.preloadPollCreator === "function") {
+          window.preloadPollCreator();
         }
       }, 300);
       preloadTimeoutRefs.current.set(poll.id, newTimeout);
     }
   };
 
-  const handleMouseLeaveEdit = (poll: any) => {
+  const handleMouseLeaveEdit = (poll: Poll) => {
     const timeoutRef = preloadTimeoutRefs.current.get(poll.id);
     if (timeoutRef) {
       clearTimeout(timeoutRef);
@@ -152,7 +152,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
     }
   };
 
-  const handleEdit = (poll: any) => {
+  const handleEdit = (poll: Poll) => {
     if (poll.type === "form") {
       navigate(`/create/form?edit=${poll.id}`);
     } else {
@@ -160,7 +160,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
     }
   };
 
-  const handleDuplicate = (poll: any) => {
+  const handleDuplicate = (poll: Poll) => {
     try {
       const dup = duplicatePoll(poll);
       addPoll(dup);
@@ -180,7 +180,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
     }
   };
 
-  const handleArchive = (poll: any) => {
+  const handleArchive = (poll: DashboardPoll) => {
     try {
       const updatedPoll = {
         ...poll,
@@ -202,7 +202,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
     }
   };
 
-  const handleClose = (poll: any) => {
+  const handleClose = (poll: import("../../lib/pollStorage").Poll) => {
     if (
       !window.confirm(
         "Êtes-vous sûr de vouloir terminer ce questionnaire ? Il ne sera plus possible de recevoir de nouvelles réponses.",
@@ -230,7 +230,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
     }
   };
 
-  const handleDeletePoll = async (poll: any, itemId: string) => {
+  const handleDeletePoll = async (poll: DashboardPoll, itemId: string) => {
     const confirmMessage =
       "Êtes-vous sûr de vouloir supprimer ce sondage ?\n\n" +
       "Note: Les conversations liées seront également supprimées.";
@@ -262,7 +262,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
     }
   };
 
-  const handleExport = (poll: any, format: "csv" | "pdf" | "json" | "markdown") => {
+  const handleExport = (poll: DashboardPoll, format: "csv" | "pdf" | "json" | "markdown") => {
     if (poll.type !== "form") {
       toast({
         title: "Non supporté",

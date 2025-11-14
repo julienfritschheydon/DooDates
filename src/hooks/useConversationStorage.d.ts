@@ -50,29 +50,29 @@ export interface UseConversationStorageConfig {
 export declare function useConversationStorage(config?: UseConversationStorageConfig): {
   storageMode: StorageMode;
   conversations: {
-    data: any;
+    data: Conversation[];
     isLoading: boolean;
     isError: boolean;
     error: ConversationError | undefined;
     refetch: (
       options?: import("@tanstack/query-core").RefetchOptions,
-    ) => Promise<import("@tanstack/query-core").QueryObserverResult<any, Error>>;
+    ) => Promise<import("@tanstack/query-core").QueryObserverResult<Conversation[], Error>>;
   };
   useConversation: (
     conversationId: string,
-  ) => import("@tanstack/react-query").UseQueryResult<any, Error>;
+  ) => import("@tanstack/react-query").UseQueryResult<Conversation, Error>;
   useMessages: (
     conversationId: string,
-  ) => import("@tanstack/react-query").UseQueryResult<any, Error>;
+  ) => import("@tanstack/react-query").UseQueryResult<ConversationMessage[], Error>;
   createConversation: {
     mutate: import("@tanstack/react-query").UseMutateFunction<
-      any,
+      Conversation,
       Error,
       Omit<Conversation, "id" | "createdAt" | "updatedAt">,
       unknown
     >;
     mutateAsync: import("@tanstack/react-query").UseMutateAsyncFunction<
-      any,
+      Conversation,
       Error,
       Omit<Conversation, "id" | "createdAt" | "updatedAt">,
       unknown
@@ -85,7 +85,7 @@ export declare function useConversationStorage(config?: UseConversationStorageCo
   };
   updateConversation: {
     mutate: import("@tanstack/react-query").UseMutateFunction<
-      any,
+      Conversation,
       Error,
       {
         id: string;
@@ -94,7 +94,7 @@ export declare function useConversationStorage(config?: UseConversationStorageCo
       unknown
     >;
     mutateAsync: import("@tanstack/react-query").UseMutateAsyncFunction<
-      any,
+      Conversation,
       Error,
       {
         id: string;

@@ -4,7 +4,7 @@ export interface Poll {
   title: string;
   description?: string;
   slug: string;
-  settings: any;
+  settings: Record<string, unknown>;
   status: "draft" | "active" | "closed" | "archived";
   expires_at?: string;
   created_at: string;
@@ -12,7 +12,13 @@ export interface Poll {
   creatorEmail?: string;
   dates?: string[];
   type?: "date" | "form";
-  questions?: any[];
+  questions?: Array<{
+    id: string;
+    type: string;
+    title: string;
+    required?: boolean;
+    options?: Array<{ id: string; label: string }>;
+  }>;
   conversationId?: string;
 }
 export interface PollData {
@@ -40,7 +46,7 @@ export interface PollOption {
   id: string;
   poll_id: string;
   option_date: string;
-  time_slots: any;
+  time_slots: Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>;
   display_order: number;
   created_at: string;
 }

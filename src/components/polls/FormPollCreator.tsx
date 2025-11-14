@@ -3,7 +3,13 @@ import { Undo2, Save, Check, X, List, ArrowRight, Lightbulb } from "lucide-react
 import CloseButton from "@/components/ui/CloseButton";
 import FormEditor from "./FormEditor";
 import type { Question as EditorQuestion } from "./QuestionCard";
-import { getAllPolls, savePolls, type Poll, getCurrentUserId } from "../../lib/pollStorage";
+import {
+  getAllPolls,
+  savePolls,
+  type Poll,
+  getCurrentUserId,
+  type FormQuestionShape,
+} from "../../lib/pollStorage";
 import { useAuth } from "../../contexts/AuthContext";
 import { logger } from "@/lib/logger";
 import type { ConditionalRule } from "../../types/conditionalRules";
@@ -104,7 +110,7 @@ interface FormPollCreatorProps {
   initialDraft?: FormPollDraft;
   onCancel?: () => void;
   onSave?: (draft: FormPollDraft) => void; // pour le spike: retour du draft, stockage géré ailleurs
-  onFinalize?: (draft: FormPollDraft, savedPoll?: any) => void; // finaliser le brouillon
+  onFinalize?: (draft: FormPollDraft, savedPoll?: Poll) => void; // finaliser le brouillon
 }
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -195,12 +201,12 @@ export default function FormPollCreator({
       matrixColumns: (q as MatrixQuestion).matrixColumns,
       matrixType: (q as MatrixQuestion).matrixType,
       matrixColumnsNumeric: (q as MatrixQuestion).matrixColumnsNumeric,
-      ratingScale: (q as any).ratingScale,
-      ratingStyle: (q as any).ratingStyle,
-      ratingMinLabel: (q as any).ratingMinLabel,
-      ratingMaxLabel: (q as any).ratingMaxLabel,
-      validationType: (q as any).validationType,
-      placeholder: (q as any).placeholder,
+      ratingScale: (q as FormQuestionShape).ratingScale,
+      ratingStyle: (q as FormQuestionShape).ratingStyle,
+      ratingMinLabel: (q as FormQuestionShape).ratingMinLabel,
+      ratingMaxLabel: (q as FormQuestionShape).ratingMaxLabel,
+      validationType: (q as FormQuestionShape).validationType,
+      placeholder: (q as FormQuestionShape).placeholder,
     }));
 
   const fromEditorQuestions = (qs: EditorQuestion[]): AnyFormQuestion[] =>
@@ -312,7 +318,7 @@ export default function FormPollCreator({
       creator_id: getCurrentUserId(user?.id),
       dates: [],
       questions: draft.questions.map((q) => {
-        const base: any = { ...q, kind: q.type };
+        const base: FormQuestionShape = { ...q, kind: q.type };
         // Assurer que tous les champs spécifiques sont présents
         if (q.type === "matrix") {
           const mq = q as MatrixQuestion;
@@ -452,7 +458,7 @@ export default function FormPollCreator({
         (p) => p.id === initialDraft?.id && p.id.startsWith("local-") && p.type === "form",
       );
 
-      let saved: any;
+      let saved: Poll | undefined;
 
       if (existingPoll) {
         // ✅ Poll existe déjà → Mettre à jour au lieu de créer un nouveau
@@ -475,9 +481,9 @@ export default function FormPollCreator({
         const { poll, error } = await createFormPoll({
           title: draft.title,
           description: undefined,
-          questions: draft.questions.map((q: any) => ({
+          questions: draft.questions.map((q: FormQuestionShape) => ({
             id: q.id,
-            type: q.type,
+            kind: q.kind || q.type,
             title: q.title,
             required: q.required,
             options: q.options,

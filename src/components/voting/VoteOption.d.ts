@@ -9,7 +9,7 @@ interface VoteOptionProps {
   currentSwipe: VoteType | null;
   handleVote: (optionId: string, voteType: VoteType) => void;
   handleSwipe: (optionId: string, direction: number) => void;
-  handleOptionDragEnd: (event: any, info: PanInfo, optionId: string) => void;
+  handleOptionDragEnd: (event: unknown, info: PanInfo, optionId: string) => void;
   getStatsWithUser: (optionId: string) => {
     yes: number;
     maybe: number;

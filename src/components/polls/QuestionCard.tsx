@@ -727,7 +727,12 @@ export default function QuestionCard({
             <select
               className="rounded-md border border-gray-700 bg-[#3c4043] text-white px-2 py-1 text-sm"
               value={question.validationType ?? ""}
-              onChange={(e) => onChange({ validationType: (e.target.value as any) || undefined })}
+              onChange={(e) =>
+                onChange({
+                  validationType:
+                    (e.target.value as FormQuestionShape["validationType"]) || undefined,
+                })
+              }
             >
               <option value="">Aucune validation</option>
               <option value="email">Email</option>

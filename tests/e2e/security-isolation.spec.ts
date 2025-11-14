@@ -17,7 +17,7 @@ test.describe('Security and Data Isolation', () => {
     // Setup Gemini API mock to prevent costs
     await setupGeminiMock(page);
     
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: 'domcontentloaded' });
@@ -26,7 +26,7 @@ test.describe('Security and Data Isolation', () => {
 
   test('Basic navigation security - no crashes @smoke @critical', async ({ page, browserName }) => {
     // Verify basic navigation doesn't crash on security-sensitive pages
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
     await expect(page).toHaveTitle(/DooDates/);
     
@@ -38,7 +38,7 @@ test.describe('Security and Data Isolation', () => {
     await waitForPageLoad(page, browserName);
     await expect(page.locator('body')).toBeVisible();
     
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
     await expect(page.locator('body')).toBeVisible();
   });
@@ -46,7 +46,7 @@ test.describe('Security and Data Isolation', () => {
 
 
   test('should handle authentication token security @smoke @critical', async ({ page, browserName }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
     
     // Mock authentication with secure tokens

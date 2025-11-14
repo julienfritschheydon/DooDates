@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Session localStorage</title>
+</head>
+<body>
+    <h1>Test récupération session depuis localStorage</h1>
+    <button onclick="testSession()">Tester récupération session</button>
+    <pre id="output"></pre>
+
+    <script>
+        function testSession() {
+            const output = document.getElementById('output');
+            output.textContent = 'Test en cours...\n\n';
+            
+            let session = null;
+            const results = [];
+            
+            // Méthode 1: supabase.auth.token
+            try {
+                const stored = localStorage.getItem('supabase.auth.token');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    const candidate = parsed.currentSession ?? parsed.session ?? parsed;
+                    if (candidate?.user && candidate.access_token) {
+                        session = candidate;
+                        results.push('✅ Session trouvée dans supabase.auth.token');
+                        results.push(`   Token: ${candidate.access_token.substring(0, 50)}...`);
+                        results.push(`   User ID: ${candidate.user?.id}`);
+                    } else {
+                        results.push('⚠️ supabase.auth.token existe mais format invalide');
+                        results.push(`   Keys: ${Object.keys(parsed).join(', ')}`);
+                    }
+                } else {
+                    results.push('❌ supabase.auth.token non trouvé');
+                }
+            } catch (error) {
+                results.push(`❌ Erreur parsing supabase.auth.token: ${error.message}`);
+            }
+            
+            // Méthode 2: Clés legacy sb-*-auth-token
+            if (!session) {
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+                            const value = localStorage.getItem(key);
+                            if (!value) continue;
+                            const candidate = JSON.parse(value);
+                            if (candidate?.user && candidate.access_token) {
+                                session = candidate;
+                                results.push(`✅ Session trouvée dans ${key}`);
+                                results.push(`   Token: ${candidate.access_token.substring(0, 50)}...`);
+                                results.push(`   User ID: ${candidate.user?.id}`);
+                                break;
+                            }
+                        }
+                    }
+                    if (!session) {
+                        results.push('❌ Aucune clé sb-*-auth-token trouvée');
+                    }
+                } catch (error) {
+                    results.push(`❌ Erreur parsing legacy session: ${error.message}`);
+                }
+            }
+            
+            // Test appel Edge Function si session trouvée
+            if (session?.access_token) {
+                results.push('\n🧪 Test appel Edge Function...');
+                const supabaseUrl = 'https://outmbbisrrdiumlweira.supabase.co';
+                const anonKey = 'sb_publishable_q17OiSDadRwo8L9Jsc_-Yg_2D6IGDEH';
+                
+                const body = JSON.stringify({
+                    endpoint: 'checkQuota',
+                    action: 'ai_message',
+                    credits: 1
+                });
+                
+                fetch(`${supabaseUrl}/functions/v1/quota-tracking`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`,
+                        'apikey': anonKey
+                    },
+                    body: body
+                })
+                .then(res => res.json())
+                .then(data => {
+                    results.push('✅ Appel Edge Function réussi!');
+                    results.push(`   Réponse: ${JSON.stringify(data, null, 2)}`);
+                    output.textContent = results.join('\n');
+                })
+                .catch(error => {
+                    results.push(`❌ Erreur appel Edge Function: ${error.message}`);
+                    output.textContent = results.join('\n');
+                });
+            } else {
+                results.push('\n❌ Pas de session disponible pour tester l\'Edge Function');
+                output.textContent = results.join('\n');
+            }
+        }
+        
+        // Afficher toutes les clés localStorage qui contiennent "auth" ou "supabase"
+        window.onload = function() {
+            const output = document.getElementById('output');
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.includes('auth') || key.includes('supabase'))) {
+                    keys.push(key);
+                }
+            }
+            output.textContent = `Clés localStorage contenant 'auth' ou 'supabase':\n${keys.join('\n')}\n\nCliquez sur le bouton pour tester la récupération de session.`;
+        };
+    </script>
+</body>
+</html>
+

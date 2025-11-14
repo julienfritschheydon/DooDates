@@ -150,7 +150,7 @@ export class PollAnalyticsService {
 
       context += `QUESTIONS ET RÉSULTATS:\n`;
       poll.questions?.forEach((q, idx) => {
-        const question = q as any;
+        const question = q;
         context += `\nQuestion ${idx + 1}: ${question.title}\n`;
         context += `- Type: ${question.kind || question.type}\n`;
         context += `- Obligatoire: ${question.required ? "Oui" : "Non"}\n`;
@@ -185,7 +185,7 @@ export class PollAnalyticsService {
           const total = Object.values(counts).reduce((sum, c) => sum + c, 0);
 
           context += `- Réponses:\n`;
-          question.options?.forEach((opt: any) => {
+          question.options?.forEach((opt: import("../lib/pollStorage").FormQuestionOption) => {
             const count = counts[opt.id] || 0;
             const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : "0.0";
             context += `  • ${opt.label}: ${count} (${percentage}%)\n`;
@@ -193,13 +193,15 @@ export class PollAnalyticsService {
         } else if (kind === "matrix") {
           const counts = results.countsByQuestion[question.id] || {};
           context += `- Matrice de réponses:\n`;
-          question.matrixRows?.forEach((row: any) => {
+          question.matrixRows?.forEach((row: import("../lib/pollStorage").FormQuestionOption) => {
             context += `  ${row.label}:\n`;
-            question.matrixColumns?.forEach((col: any) => {
-              const cellKey = `${row.id}_${col.id}`;
-              const count = counts[cellKey] || 0;
-              context += `    - ${col.label}: ${count}\n`;
-            });
+            question.matrixColumns?.forEach(
+              (col: import("../lib/pollStorage").FormQuestionOption) => {
+                const cellKey = `${row.id}_${col.id}`;
+                const count = counts[cellKey] || 0;
+                context += `    - ${col.label}: ${count}\n`;
+              },
+            );
           });
         }
       });
@@ -209,9 +211,12 @@ export class PollAnalyticsService {
         responses.slice(0, 3).forEach((resp, idx) => {
           context += `\nRépondant ${idx + 1} (${resp.respondentName || "Anonyme"}):\n`;
           resp.items.forEach((item) => {
-            const q = poll.questions?.find((q: any) => q.id === item.questionId);
+            const q = poll.questions?.find(
+              (question: import("../../lib/pollStorage").FormQuestionShape) =>
+                question.id === item.questionId,
+            );
             if (q) {
-              context += `- ${(q as any).title}: ${JSON.stringify(item.value)}\n`;
+              context += `- ${q.title}: ${JSON.stringify(item.value)}\n`;
             }
           });
         });
