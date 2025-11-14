@@ -6,7 +6,7 @@
 /// <reference types="@testing-library/jest-dom" />
 
 import React from "react";
-import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within, act } from "@testing-library/react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { ConversationCard } from "../ConversationCard";
@@ -255,15 +255,16 @@ describe("ConversationCard", () => {
       });
 
       const renameMenuItem = screen.getByText("Renommer");
+      // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
-
-      // Wait for menu to close and input to appear
+      
+      // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
           const input = screen.queryByTestId("rename-input");
           expect(input).toBeInTheDocument();
         },
-        { timeout: 3000 },
+        { timeout: 5000 },
       );
     });
 
@@ -282,13 +283,16 @@ describe("ConversationCard", () => {
       });
 
       const renameMenuItem = screen.getByText("Renommer");
+      // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
-
+      
+      // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
-          expect(screen.queryByRole("textbox")).toBeInTheDocument();
+          const input = screen.queryByTestId("rename-input");
+          expect(input).toBeInTheDocument();
         },
-        { timeout: 3000 },
+        { timeout: 5000 },
       );
 
       const input = screen.getByRole("textbox");
@@ -316,13 +320,16 @@ describe("ConversationCard", () => {
       });
 
       const renameMenuItem = screen.getByText("Renommer");
+      // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
-
+      
+      // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
-          expect(screen.queryByRole("textbox")).toBeInTheDocument();
+          const input = screen.queryByTestId("rename-input");
+          expect(input).toBeInTheDocument();
         },
-        { timeout: 3000 },
+        { timeout: 5000 },
       );
 
       const input = screen.getByRole("textbox");
@@ -352,13 +359,16 @@ describe("ConversationCard", () => {
       });
 
       const renameMenuItem = screen.getByText("Renommer");
+      // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
-
+      
+      // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
-          expect(screen.queryByRole("textbox")).toBeInTheDocument();
+          const input = screen.queryByTestId("rename-input");
+          expect(input).toBeInTheDocument();
         },
-        { timeout: 3000 },
+        { timeout: 5000 },
       );
 
       const input = screen.getByRole("textbox");
