@@ -429,6 +429,11 @@ function getMaxSlotsForContext(
   }
 
   // Contextes nécessitant peu de créneaux
+  // "visio" → max 2 créneaux (visioconférences sont courtes et flexibles)
+  if (/visio|visioconférence|visioconference/.test(lowerInput)) {
+    return 2;
+  }
+
   if (/visite|musée|exposition|footing|course|sport/.test(lowerInput)) {
     return 3; // Augmenté de 2 à 3 pour visite musée
   }
@@ -948,7 +953,7 @@ export function postProcessSuggestion(
         // Détecter des heures explicites différentes (ex: "14h" et "10h")
         (/\d+h.*ou.*\d+h/i.test(options.userInput) &&
           (() => {
-            const timeMatches = options.userInput.matchAll(/\d+h/i);
+            const timeMatches = options.userInput.matchAll(/\d+h/gi);
             const times = Array.from(timeMatches).map((m) => m[0]);
             return times.length >= 2 && new Set(times).size > 1;
           })());
@@ -1046,8 +1051,17 @@ export function postProcessSuggestion(
     // Limiter le nombre de créneaux selon le contexte et les attentes explicites
     // ⚠️ IMPORTANT : Si plusieurs dates et "un créneau" détecté, ignorer la limitation
     // car "un créneau" signifie "un créneau par jour", pas "un seul créneau total"
+    // MAIS : Pour certains contextes spécifiques (visio, footing, comité, visite), toujours limiter
     if (!isMealWithSpecificDate) {
-      const shouldLimit = !(hasMultipleDays || hasMultipleDates) || effectiveExpectedCount !== null;
+      // Détecter les contextes qui nécessitent toujours une limitation même avec plusieurs dates
+      // Note: "réunion d'équipe" est inclus car c'est un contexte spécifique nécessitant peu de créneaux
+      const hasSpecificContextRequiringLimit = /visio|visioconférence|visioconference|footing|comité|visite|musée|exposition|course|sport|réunion d'équipe|reunion d'equipe|équipe éducative|equipe educative/.test(lowerInput);
+      
+      const shouldLimit = 
+        hasSpecificContextRequiringLimit || // Toujours limiter pour ces contextes
+        !(hasMultipleDays || hasMultipleDates) || // Limiter si pas plusieurs dates/jours
+        effectiveExpectedCount !== null; // Limiter si un nombre explicite est demandé
+      
       if (shouldLimit) {
         processedSlots = limitSlotsCount(
           processedSlots,
