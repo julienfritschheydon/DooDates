@@ -13,9 +13,27 @@ export interface Poll {
   updated_at: string;
   creatorEmail?: string; // Email du créateur pour les notifications
   dates?: string[]; // Dates sélectionnées pour le sondage (uniquement pour type: "date")
-  // Support des formulaires
-  type?: "date" | "form";
+  // Support des formulaires et sondages disponibilités
+  type?: "date" | "form" | "availability";
   questions?: FormQuestionShape[]; // Questions du formulaire
+  // Champs spécifiques aux sondages disponibilités
+  clientAvailabilities?: string; // Texte libre des disponibilités client (pour parsing IA)
+  parsedAvailabilities?: Array<{
+    date: string;
+    timeRanges: Array<{ start: string; end: string }>;
+  }>; // Disponibilités parsées par l'IA
+  proposedSlots?: Array<{
+    date: string;
+    start: string;
+    end: string;
+    score?: number; // Score d'optimisation (pour MVP v1.0)
+    reasons?: string[]; // Raisons de la recommandation (MVP v1.0)
+  }>; // Créneaux proposés par le professionnel (MVP v0.5) ou système (MVP v1.0)
+  validatedSlot?: {
+    date: string;
+    start: string;
+    end: string;
+  }; // Créneau validé par le client (MVP v1.0)
   conversationId?: string; // Lien avec conversation
 }
 

@@ -23,16 +23,58 @@ export default function AuthCallback() {
         const error = hashParams.get("error") || queryParams.get("error");
         const errorDescription =
           hashParams.get("error_description") || queryParams.get("error_description");
+        const errorCode = queryParams.get("error_code");
 
         if (error) {
-          logger.error("Erreur OAuth callback", "auth", { error, errorDescription });
+          logger.error("Erreur OAuth callback", "auth", { error, errorDescription, errorCode });
+
+          // Décoder l'erreur si elle est encodée
+          let decodedError = errorDescription;
+          try {
+            decodedError = decodeURIComponent(errorDescription || error);
+          } catch {
+            decodedError = errorDescription || error;
+          }
+
           setStatus("error");
-          setErrorMessage(errorDescription || error || "Erreur lors de la connexion");
+
+          // Message d'erreur spécifique pour "Unable to exchange external code"
+          if (
+            decodedError.includes("Unable to exchange external code") ||
+            errorCode === "unexpected_failure"
+          ) {
+            setErrorMessage(
+              "Erreur lors de l'échange du code OAuth. Vérifiez que le Client Secret dans Supabase correspond au Client ID utilisé.",
+            );
+          } else {
+            setErrorMessage(decodedError || error || "Erreur lors de la connexion");
+          }
           return;
         }
 
-        // Supabase gère automatiquement l'échange du code via getSession()
-        // On attend un peu pour que Supabase traite le callback
+        // Écouter les changements d'authentification avec onAuthStateChange
+        // Cela permet de capturer l'échange du code automatiquement
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (event, session) => {
+          logger.info("Changement d'état auth détecté", "auth", { event });
+
+          if (event === "SIGNED_IN" && session) {
+            logger.info("Session OAuth récupérée avec succès", "auth", { userId: session.user.id });
+            setStatus("success");
+
+            // Rediriger vers le dashboard après un court délai
+            setTimeout(() => {
+              navigate("/dashboard", { replace: true });
+            }, 1500);
+          } else if (event === "SIGNED_OUT") {
+            logger.warn("Utilisateur déconnecté pendant le callback", "auth");
+            setStatus("error");
+            setErrorMessage("La connexion a échoué. Veuillez réessayer.");
+          }
+        });
+
+        // Essayer aussi getSession() immédiatement au cas où la session serait déjà disponible
         const {
           data: { session },
           error: sessionError,
@@ -40,24 +82,57 @@ export default function AuthCallback() {
 
         if (sessionError) {
           logger.error("Erreur lors de la récupération de la session", "auth", sessionError);
-          setStatus("error");
-          setErrorMessage(sessionError.message || "Erreur lors de la récupération de la session");
+
+          // Si l'erreur contient "exchange", c'est un problème de configuration Supabase
+          if (
+            sessionError.message?.includes("exchange") ||
+            sessionError.message?.includes("code")
+          ) {
+            setStatus("error");
+            setErrorMessage(
+              "Erreur lors de l'échange du code OAuth. Vérifiez que le Client Secret dans Supabase correspond au Client ID utilisé.",
+            );
+          } else {
+            // Attendre un peu pour voir si onAuthStateChange déclenche
+            setTimeout(() => {
+              if (status === "loading") {
+                setStatus("error");
+                setErrorMessage(
+                  sessionError.message || "Erreur lors de la récupération de la session",
+                );
+              }
+            }, 2000);
+          }
           return;
         }
 
         if (session) {
-          logger.info("Session OAuth récupérée avec succès", "auth", { userId: session.user.id });
+          logger.info("Session OAuth récupérée immédiatement", "auth", { userId: session.user.id });
           setStatus("success");
 
-          // Rediriger vers la page de prototype calendrier après un court délai
           setTimeout(() => {
-            navigate("/calendar-prototype", { replace: true });
+            navigate("/dashboard", { replace: true });
           }, 1500);
         } else {
-          logger.warn("Aucune session trouvée après le callback OAuth", "auth");
-          setStatus("error");
-          setErrorMessage("Aucune session trouvée. Veuillez réessayer.");
+          // Attendre que onAuthStateChange se déclenche
+          logger.info("Aucune session immédiate, attente du callback Supabase...", "auth");
+
+          // Timeout de sécurité après 5 secondes
+          setTimeout(() => {
+            if (status === "loading") {
+              logger.warn("Timeout: aucune session après 5 secondes", "auth");
+              setStatus("error");
+              setErrorMessage(
+                "La connexion prend trop de temps. Vérifiez votre configuration Supabase (Client Secret).",
+              );
+            }
+          }, 5000);
         }
+
+        // Nettoyer l'abonnement au démontage
+        return () => {
+          subscription.unsubscribe();
+        };
       } catch (err) {
         logger.error("Exception lors du traitement du callback", "auth", err);
         setStatus("error");
@@ -66,7 +141,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [navigate]);
+  }, [navigate, status]);
 
   return (
     <div className="container mx-auto p-8 flex items-center justify-center min-h-screen">
@@ -104,10 +179,10 @@ export default function AuthCallback() {
               </Alert>
               <div className="flex gap-2">
                 <button
-                  onClick={() => navigate("/calendar-prototype")}
+                  onClick={() => navigate("/dashboard")}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
-                  Retour au prototype
+                  Aller au dashboard
                 </button>
                 <button
                   onClick={() => window.location.reload()}

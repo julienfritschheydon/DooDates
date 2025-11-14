@@ -122,7 +122,9 @@ export class PollCreatorService {
   /**
    * Analyze calendar availability (placeholder)
    */
-  static async analyzeCalendarAvailability(dates: string[]): Promise<any[]> {
+  static async analyzeCalendarAvailability(
+    dates: string[],
+  ): Promise<Array<{ date: string; available: boolean }>> {
     try {
       // Placeholder for calendar integration
       logError(new Error("Calendar integration not implemented"), {

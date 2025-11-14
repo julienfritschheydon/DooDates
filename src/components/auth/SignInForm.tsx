@@ -9,6 +9,7 @@ import { Label } from "../ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Loader2, Mail, Lock } from "lucide-react";
+import { logError, ErrorFactory } from "../../lib/error-handling";
 
 interface SignInFormProps {
   onSuccess?: () => void;
@@ -29,10 +30,13 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
   });
 
   const onSubmit = async (data: SignInInput) => {
+    console.log("SignInForm: onSubmit appelé", { email: data.email });
     setIsSubmitting(true);
 
     try {
+      console.log("SignInForm: Appel signIn...");
       const { error } = await signIn(data);
+      console.log("SignInForm: signIn terminé", { error });
 
       if (error) {
         // Le message d'erreur est déjà formaté dans AuthContext
@@ -40,9 +44,17 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
           message: error.message || "Erreur de connexion",
         });
       } else {
+        console.log("SignInForm: Connexion réussie, appel onSuccess");
         onSuccess?.();
       }
     } catch (err) {
+      logError(
+        ErrorFactory.validation(
+          "Erreur lors de la soumission",
+          "Une erreur inattendue s'est produite lors de la connexion",
+        ),
+        { metadata: { originalError: err } },
+      );
       setError("root", {
         message: "Une erreur inattendue s'est produite",
       });
@@ -104,7 +116,19 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
             </Alert>
           )}
 
-          <Button type="submit" className="w-full" disabled={isSubmitting || loading}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting}
+            onClick={(e) => {
+              console.log("SignInForm: Bouton cliqué", {
+                isSubmitting,
+                loading,
+                disabled: isSubmitting,
+              });
+              // Ne pas empêcher la soumission du formulaire
+            }}
+          >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Se connecter
           </Button>

@@ -14,7 +14,10 @@ export class EmailService {
   /**
    * Appel générique à la fonction serverless
    */
-  private static async sendEmail(type: string, data: any): Promise<any> {
+  private static async sendEmail(
+    type: string,
+    data: Record<string, unknown>,
+  ): Promise<{ success: boolean; messageId?: string }> {
     try {
       // Sending email of type: ${type}
 
@@ -38,9 +41,9 @@ export class EmailService {
       // Email sent successfully
 
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw handleError(
-        error,
+        error instanceof Error ? error : new Error(String(error)),
         {
           component: "EmailService",
           operation: "sendEmail",
@@ -208,7 +211,7 @@ export class EmailService {
       });
 
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError(
         ErrorFactory.api(
           "Failed to send poll created email",
@@ -245,7 +248,7 @@ export class EmailService {
       });
 
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError(
         ErrorFactory.api(
           "Failed to send vote notification email",

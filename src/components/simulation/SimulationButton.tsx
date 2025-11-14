@@ -31,6 +31,7 @@ export function SimulationButton({
     <button
       onClick={onClick}
       disabled={disabled || remainingSimulations === 0}
+      data-testid="simulation-button"
       className={`
         flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors
         ${

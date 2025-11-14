@@ -9,7 +9,7 @@ import { useConversation } from "./ConversationProvider";
  * Remplace le dashboard quand feature flag AI_FIRST_UX est activé
  */
 interface ChatLandingPrototypeProps {
-  onPollCreated?: (poll: any) => void;
+  onPollCreated?: (poll: import("../lib/pollStorage").Poll) => void;
 }
 
 export function ChatLandingPrototype({ onPollCreated }: ChatLandingPrototypeProps) {
@@ -17,7 +17,7 @@ export function ChatLandingPrototype({ onPollCreated }: ChatLandingPrototypeProp
   const { createPollFromChat } = useConversation();
 
   // Quand un sondage est créé, créer dans le Context et naviguer vers /workspace
-  const handlePollCreated = (poll: any) => {
+  const handlePollCreated = (poll: import("../lib/pollStorage").Poll) => {
     // Créer le sondage dans le Context (ouvre l'éditeur)
     createPollFromChat(poll);
 

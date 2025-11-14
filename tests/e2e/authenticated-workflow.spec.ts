@@ -24,7 +24,7 @@ test.describe('Authenticated User Workflow', () => {
     await setupGeminiMock(page);
     
     // Clear localStorage and start fresh
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: 'domcontentloaded' });

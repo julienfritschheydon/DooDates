@@ -97,7 +97,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
   test.beforeEach(async ({ page, browserName }) => {
     await setupGeminiMock(page);
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
     
     // Nettoyer localStorage
@@ -965,7 +965,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    */
   test('11. Test mode guest', async ({ page, browserName }) => {
     // Ne pas se connecter - rester en mode guest
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
 
     const messageInput = page.locator('[data-testid="message-input"]');

@@ -1,4 +1,4 @@
-import { DashboardPoll, ConversationItem, FilterType } from "./types";
+import { DashboardPoll, ConversationItem, FilterType, ContentTypeFilter } from "./types";
 import { getConversations } from "@/lib/storage/ConversationStorageSimple";
 
 // Trouver la conversation liée à un sondage
@@ -17,7 +17,7 @@ export function findRelatedConversation(
       : allConversations;
 
     const match = conversations.find((conv) => {
-      const metadata = conv.metadata as any;
+      const metadata = conv.metadata || {};
       return metadata?.pollGenerated && metadata?.pollId === poll.id;
     });
     return match?.id;
@@ -65,12 +65,22 @@ export function filterConversationItems(
   searchQuery: string,
   selectedTags?: string[],
   selectedFolderId?: string | null,
+  contentTypeFilter?: ContentTypeFilter,
 ): ConversationItem[] {
   return items.filter((item) => {
     // Filtre par statut (appliqué au poll si existe)
     // Pour "all", on affiche tout
     // Pour les autres filtres (draft, active, closed, archived), on n'affiche que les items avec un poll ayant le statut correspondant
     const matchesFilter = filter === "all" || (item.poll && item.poll.status === filter);
+
+    // Filtre par type de contenu
+    const matchesContentType =
+      !contentTypeFilter ||
+      contentTypeFilter === "all" ||
+      (contentTypeFilter === "conversations" && !item.poll) ||
+      (contentTypeFilter === "date" && item.poll?.type === "date") ||
+      (contentTypeFilter === "availability" && item.poll?.type === "availability") ||
+      (contentTypeFilter === "form" && item.poll?.type === "form");
 
     // Recherche dans le titre de la conversation et du poll
     const searchLower = searchQuery.toLowerCase();
@@ -94,6 +104,6 @@ export function filterConversationItems(
       selectedFolderId === undefined ||
       (selectedFolderId === null ? !item.folderId : item.folderId === selectedFolderId);
 
-    return matchesFilter && matchesSearch && matchesTags && matchesFolder;
+    return matchesFilter && matchesContentType && matchesSearch && matchesTags && matchesFolder;
   });
 }

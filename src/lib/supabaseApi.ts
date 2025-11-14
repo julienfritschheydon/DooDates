@@ -5,40 +5,95 @@
 
 import { logger } from "./logger";
 import { ErrorFactory } from "./error-handling";
+import type { Session } from "@supabase/supabase-js";
+
+/**
+ * Get Supabase session from localStorage
+ * Checks both modern and legacy storage formats
+ * @returns Session object or null if not found
+ */
+export function getSupabaseSessionFromLocalStorage(): Session | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    // Try modern Supabase auth storage
+    const stored = localStorage.getItem("supabase.auth.token");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      const candidate = (parsed.currentSession ?? parsed.session ?? parsed) as Session | undefined;
+      if (candidate?.user && candidate.access_token) {
+        return candidate;
+      }
+    }
+  } catch (error) {
+    logger.debug("Failed to parse supabase.auth.token", "api", error);
+  }
+
+  try {
+    // Try legacy storage format (all sb-*-auth-token keys)
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
+        const value = localStorage.getItem(key);
+        if (!value) continue;
+        const candidate = JSON.parse(value) as Session;
+        if (candidate?.user && candidate.access_token) {
+          return candidate;
+        }
+      }
+    }
+  } catch (error) {
+    logger.debug("Failed to parse legacy Supabase session", "api", error);
+  }
+
+  return null;
+}
 
 /**
  * Get JWT token from localStorage
  * Compatible with Supabase auth storage
+ * @returns JWT token string or null if not found
  */
 export function getSupabaseToken(): string | null {
-  // Try modern Supabase auth storage
-  const supabaseSession = localStorage.getItem("supabase.auth.token");
-  if (supabaseSession) {
-    try {
-      const sessionData = JSON.parse(supabaseSession);
-      const token = sessionData?.access_token || sessionData?.currentSession?.access_token;
-      if (token) return token;
-    } catch (e) {
-      logger.warn("Failed to parse supabase.auth.token", "api");
-    }
+  const session = getSupabaseSessionFromLocalStorage();
+  return session?.access_token ?? null;
+}
+
+/**
+ * Get Supabase session with timeout fallback
+ * First tries localStorage (fast, non-blocking), then falls back to getSession() with timeout
+ * @param timeoutMs - Timeout for getSession() call (default: 500ms)
+ * @returns Session object or null if not found
+ */
+export async function getSupabaseSessionWithTimeout(
+  timeoutMs: number = 500,
+): Promise<Session | null> {
+  // First try localStorage (fast, non-blocking)
+  const localSession = getSupabaseSessionFromLocalStorage();
+  if (localSession) {
+    return localSession;
   }
 
-  // Try legacy storage format
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  if (supabaseUrl) {
-    const projectRef = supabaseUrl.split("//")[1]?.split(".")[0];
-    const authData = localStorage.getItem(`sb-${projectRef}-auth-token`);
-    if (authData) {
-      try {
-        const parsed = JSON.parse(authData);
-        if (parsed?.access_token) return parsed.access_token;
-      } catch (e) {
-        logger.warn("Failed to parse legacy auth token", "api");
-      }
-    }
-  }
+  // Fallback to getSession() with timeout
+  try {
+    const { supabase } = await import("./supabase");
 
-  return null;
+    const sessionTimeoutPromise = new Promise<{ data: { session: null } }>((resolve) => {
+      setTimeout(() => {
+        logger.debug(`getSession() timeout after ${timeoutMs}ms`, "api");
+        resolve({ data: { session: null } });
+      }, timeoutMs);
+    });
+
+    const sessionPromise = supabase.auth.getSession();
+    const sessionResult = await Promise.race([sessionPromise, sessionTimeoutPromise]);
+    return sessionResult.data?.session ?? null;
+  } catch (error) {
+    logger.warn("Error getting Supabase session", "api", error);
+    return null;
+  }
 }
 
 /**
@@ -50,11 +105,11 @@ export function getSupabaseToken(): string | null {
  * @param options - Request options
  * @returns Response data or throws error
  */
-export async function supabaseRestApi<T = any>(
+export async function supabaseRestApi<T = Record<string, unknown>>(
   table: string,
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
   options: {
-    body?: any;
+    body?: unknown;
     query?: Record<string, string>;
     timeout?: number;
     requireAuth?: boolean;
@@ -140,9 +195,9 @@ export async function supabaseRestApi<T = any>(
 /**
  * Insert data into Supabase table
  */
-export async function supabaseInsert<T = any>(
+export async function supabaseInsert<T = Record<string, unknown>>(
   table: string,
-  data: any,
+  data: unknown,
   options: { timeout?: number } = {},
 ): Promise<T> {
   const result = await supabaseRestApi<T[]>(table, "POST", {
@@ -157,9 +212,9 @@ export async function supabaseInsert<T = any>(
 /**
  * Update data in Supabase table
  */
-export async function supabaseUpdate<T = any>(
+export async function supabaseUpdate<T = Record<string, unknown>>(
   table: string,
-  data: any,
+  data: unknown,
   query: Record<string, string>,
   options: { timeout?: number } = {},
 ): Promise<T> {
@@ -197,7 +252,7 @@ export async function supabaseDelete(
  *   select: "*"
  * })
  */
-export async function supabaseSelect<T = any>(
+export async function supabaseSelect<T = Record<string, unknown>>(
   table: string,
   query: Record<string, string>,
   options: { timeout?: number } = {},
@@ -206,4 +261,95 @@ export async function supabaseSelect<T = any>(
     query,
     timeout: options.timeout,
   });
+}
+
+/**
+ * Call Supabase Edge Function
+ * Uses session from localStorage or getSession() with timeout
+ *
+ * @param functionName - Name of the Edge Function (e.g., "quota-tracking")
+ * @param body - Request body to send to the Edge Function
+ * @param options - Request options
+ * @returns Response data from Edge Function
+ */
+export async function callSupabaseEdgeFunction<T = Record<string, unknown>>(
+  functionName: string,
+  body: unknown,
+  options: {
+    timeout?: number;
+    requireAuth?: boolean;
+  } = {},
+): Promise<T> {
+  const { timeout = 2000, requireAuth = true } = options;
+
+  // Get session (with timeout fallback)
+  const session = await getSupabaseSessionWithTimeout(500);
+  if (requireAuth && !session?.access_token) {
+    throw ErrorFactory.auth("No authentication token found", "Please sign in to continue");
+  }
+
+  // Build URL
+  const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!baseUrl || !anonKey) {
+    throw ErrorFactory.validation("Supabase configuration missing", "System configuration error");
+  }
+
+  const edgeFunctionUrl = `${baseUrl}/functions/v1/${functionName}`;
+
+  // Build headers
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    apikey: anonKey,
+  };
+
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
+
+  // Create fetch promise
+  const fetchPromise = fetch(edgeFunctionUrl, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  }).then(async (res) => {
+    let data: T;
+    try {
+      const text = await res.text();
+      data = JSON.parse(text) as T;
+    } catch (parseError) {
+      logger.error("Failed to parse Edge Function response", "api", parseError);
+      throw ErrorFactory.validation(
+        "Invalid response from Edge Function",
+        "Réponse invalide de l'Edge Function",
+      );
+    }
+
+    if (!res.ok) {
+      logger.error(`Edge Function error (${functionName})`, "api", {
+        status: res.status,
+        statusText: res.statusText,
+        error: data,
+      });
+
+      const errorMessage = (data as { error?: string })?.error || res.statusText;
+      throw ErrorFactory.network(
+        `Edge Function error: ${res.status} ${errorMessage}`,
+        errorMessage || "Unable to complete the operation. Please try again.",
+      );
+    }
+
+    return data;
+  });
+
+  // Add timeout
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`Edge Function timeout after ${timeout}ms`));
+    }, timeout);
+  });
+
+  // Execute with timeout
+  return await Promise.race([fetchPromise, timeoutPromise]);
 }

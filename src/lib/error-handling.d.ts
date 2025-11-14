@@ -25,10 +25,10 @@ export interface ErrorContext {
   pollId?: string;
   slug?: string;
   status?: number;
-  pollData?: any;
+  pollData?: unknown;
   questionId?: string;
   maxChoices?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 export declare class DooDatesError extends Error {
   readonly severity: ErrorSeverity;
@@ -64,11 +64,11 @@ export declare const ErrorFactory: {
   validation: (
     message: string,
     userMessage?: string,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ) => DooDatesError;
   storage: (message: string, userMessage?: string) => DooDatesError;
   auth: (message: string, userMessage?: string) => DooDatesError;
-  api: (message: string, userMessage?: string, metadata?: Record<string, any>) => DooDatesError;
+  api: (message: string, userMessage?: string, metadata?: Record<string, unknown>) => DooDatesError;
   rateLimit: (message: string, userMessage?: string) => DooDatesError;
   critical: (message: string, userMessage?: string) => DooDatesError;
 };

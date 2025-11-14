@@ -84,7 +84,8 @@ const AUTHENTICATED_LIMITS: QuotaLimits = {
 
 const isE2EMode = () =>
   typeof window !== "undefined" &&
-  (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true);
+  (isE2ETestingEnvironment() ||
+    (window as Window & { __IS_E2E_TESTING__?: boolean }).__IS_E2E_TESTING__ === true);
 
 export const useFreemiumQuota = () => {
   const { user } = useAuth();
@@ -105,6 +106,7 @@ export const useFreemiumQuota = () => {
     pendingSync: false,
   });
   const guestQuotaRef = useRef<GuestQuotaData | null>(null);
+  const lastSyncRef = useRef<number>(0); // Ref pour éviter les dépendances dans useCallback
 
   const isAuthenticated = !!user;
   const limits = isAuthenticated ? AUTHENTICATED_LIMITS : GUEST_LIMITS;
@@ -123,10 +125,27 @@ export const useFreemiumQuota = () => {
   const calculateUsage = useCallback(async (): Promise<QuotaUsage> => {
     // Pour les guests, utiliser la validation serveur Supabase
     if (!isAuthenticated) {
+      // Utiliser le cache si disponible pour éviter les appels répétés
+      if (guestQuotaRef.current) {
+        const cachedUsage = extractUsageFromQuota(guestQuotaRef.current);
+        // Ne rafraîchir que si le cache a plus de 10 secondes
+        if (Date.now() - lastSyncRef.current < 10000) {
+          return cachedUsage;
+        }
+      }
+
       try {
-        const quota = await getOrCreateGuestQuota();
+        // Timeout rapide pour éviter les blocages
+        const timeoutPromise = new Promise<null>((resolve) => {
+          setTimeout(() => resolve(null), 2000);
+        });
+
+        const quotaPromise = getOrCreateGuestQuota();
+        const quota = await Promise.race([quotaPromise, timeoutPromise]);
+
         if (quota) {
           guestQuotaRef.current = quota;
+          lastSyncRef.current = Date.now();
           setGuestQuotaState({
             data: quota,
             pendingSync: false,
@@ -135,6 +154,12 @@ export const useFreemiumQuota = () => {
           });
           return extractUsageFromQuota(quota);
         }
+
+        // Si timeout ou quota null, utiliser le cache
+        if (guestQuotaRef.current) {
+          return extractUsageFromQuota(guestQuotaRef.current);
+        }
+
         if (!isE2EMode()) {
           logger.debug("Guest quota unavailable (possibly bypassed)", "quota");
         }
@@ -143,19 +168,17 @@ export const useFreemiumQuota = () => {
           pendingSync: true,
           lastError: "Quota unavailable",
         }));
+      } catch (error) {
+        // En cas d'erreur, utiliser le cache
         if (guestQuotaRef.current) {
           return extractUsageFromQuota(guestQuotaRef.current);
         }
-      } catch (error) {
         logger.error("Failed to fetch guest quota from Supabase", error);
         setGuestQuotaState((prev) => ({
           ...prev,
           pendingSync: true,
           lastError: error instanceof Error ? error.message : "Unknown error",
         }));
-        if (guestQuotaRef.current) {
-          return extractUsageFromQuota(guestQuotaRef.current);
-        }
       }
     }
 
@@ -187,7 +210,7 @@ export const useFreemiumQuota = () => {
       aiMessages: quotaConsumed.aiMessages || 0,
       storageUsed,
     };
-  }, [user?.id, quotaRefreshKey, isAuthenticated, extractUsageFromQuota]);
+  }, [user?.id, isAuthenticated, extractUsageFromQuota]);
 
   // Charger les données de quota de manière asynchrone
   useEffect(() => {
@@ -201,12 +224,13 @@ export const useFreemiumQuota = () => {
       });
   }, [calculateUsage, quotaRefreshKey]);
 
-  // Rafraîchir le quota toutes les 5 secondes pour les guests (Supabase)
+  // Rafraîchir le quota toutes les 30 secondes pour les guests (Supabase)
+  // Intervalle augmenté pour éviter les appels répétés si Supabase est lent
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !isE2EMode()) {
       const interval = setInterval(() => {
         setQuotaRefreshKey((prev) => prev + 1);
-      }, 5000); // 5 secondes
+      }, 30000); // 30 secondes au lieu de 5
 
       return () => clearInterval(interval);
     }

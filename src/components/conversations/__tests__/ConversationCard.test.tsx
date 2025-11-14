@@ -3,8 +3,10 @@
  * DooDates - Conversation History System
  */
 
+/// <reference types="@testing-library/jest-dom" />
+
 import React from "react";
-import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within, act } from "@testing-library/react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { ConversationCard } from "../ConversationCard";
@@ -236,30 +238,37 @@ describe("ConversationCard", () => {
   });
 
   describe("Rename Functionality", () => {
-    it.skip("should enter rename mode when rename menu item is clicked", async () => {
+    it("should enter rename mode when rename menu item is clicked", async () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
 
+      // Hover to make menu visible (same approach as working test)
       const card = screen.getByTestId("conversation-card");
       await userEvent.hover(card);
 
       const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
+      // Wait for menu to open
+      await waitFor(() => {
+        expect(screen.getByText("Renommer")).toBeInTheDocument();
+      });
+
       const renameMenuItem = screen.getByText("Renommer");
+      // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
 
-      // Wait for menu to close and input to appear
+      // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
           const input = screen.queryByTestId("rename-input");
           expect(input).toBeInTheDocument();
         },
-        { timeout: 3000 },
+        { timeout: 5000 },
       );
     });
 
-    it.skip("should call onRename when Enter is pressed in rename input", async () => {
+    it("should call onRename when Enter is pressed in rename input", async () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
 
@@ -269,14 +278,21 @@ describe("ConversationCard", () => {
       const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
+      await waitFor(() => {
+        expect(screen.getByText("Renommer")).toBeInTheDocument();
+      });
+
       const renameMenuItem = screen.getByText("Renommer");
+      // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
 
+      // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
-          expect(screen.queryByRole("textbox")).toBeInTheDocument();
+          const input = screen.queryByTestId("rename-input");
+          expect(input).toBeInTheDocument();
         },
-        { timeout: 3000 },
+        { timeout: 5000 },
       );
 
       const input = screen.getByRole("textbox");
@@ -284,10 +300,12 @@ describe("ConversationCard", () => {
       await userEvent.type(input, "Nouveau titre");
       await userEvent.keyboard("{Enter}");
 
-      expect(mockCallbacks.onRename).toHaveBeenCalledWith("conv-1", "Nouveau titre");
+      await waitFor(() => {
+        expect(mockCallbacks.onRename).toHaveBeenCalledWith("conv-1", "Nouveau titre");
+      });
     });
 
-    it.skip("should cancel rename when Escape is pressed", async () => {
+    it("should cancel rename when Escape is pressed", async () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
 
@@ -297,14 +315,21 @@ describe("ConversationCard", () => {
       const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
+      await waitFor(() => {
+        expect(screen.getByText("Renommer")).toBeInTheDocument();
+      });
+
       const renameMenuItem = screen.getByText("Renommer");
+      // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
 
+      // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
-          expect(screen.queryByRole("textbox")).toBeInTheDocument();
+          const input = screen.queryByTestId("rename-input");
+          expect(input).toBeInTheDocument();
         },
-        { timeout: 3000 },
+        { timeout: 5000 },
       );
 
       const input = screen.getByRole("textbox");
@@ -319,7 +344,7 @@ describe("ConversationCard", () => {
       expect(mockCallbacks.onRename).not.toHaveBeenCalled();
     });
 
-    it.skip("should not call onRename if title is unchanged", async () => {
+    it("should not call onRename if title is unchanged", async () => {
       const conversation = createMockConversation();
       render(<ConversationCard conversation={conversation} {...mockCallbacks} />);
 
@@ -329,20 +354,33 @@ describe("ConversationCard", () => {
       const moreButton = screen.getByRole("button", { name: /actions/i });
       await userEvent.click(moreButton);
 
+      await waitFor(() => {
+        expect(screen.getByText("Renommer")).toBeInTheDocument();
+      });
+
       const renameMenuItem = screen.getByText("Renommer");
+      // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
 
+      // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
-          expect(screen.queryByRole("textbox")).toBeInTheDocument();
+          const input = screen.queryByTestId("rename-input");
+          expect(input).toBeInTheDocument();
         },
-        { timeout: 3000 },
+        { timeout: 5000 },
       );
 
       const input = screen.getByRole("textbox");
       await userEvent.keyboard("{Enter}");
 
-      expect(mockCallbacks.onRename).not.toHaveBeenCalled();
+      // Attendre un peu pour s'assurer que le callback n'est pas appelé
+      await waitFor(
+        () => {
+          expect(mockCallbacks.onRename).not.toHaveBeenCalled();
+        },
+        { timeout: 1000 },
+      );
     });
   });
 

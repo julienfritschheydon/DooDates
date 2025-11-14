@@ -29,7 +29,7 @@ export function useConversationSearch(
   /** Get highlighted text for a conversation field */
   getHighlightedText: (conversationId: string, field: string) => string;
   /** Get cache statistics for debugging */
-  getCacheStats: () => any;
+  getCacheStats: () => { hits: number; misses: number; size: number; hitRate: number };
 } {
   const { debounceMs = 300, minQueryLength = 1 } = options;
 

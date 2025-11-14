@@ -6,6 +6,7 @@ import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor"
 import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
 import { getEnv, isDev } from "./env";
+import type { ParsedTemporalInput } from "./temporalParser";
 
 // Choisir entre appel direct Gemini ou Edge Function
 // Pour forcer appel direct, définir VITE_USE_DIRECT_GEMINI=true dans .env.local
@@ -25,7 +26,7 @@ if (USE_DIRECT_GEMINI) {
 }
 
 // Constantes pour la gestion des quotas
-const RATE_LIMIT = {
+const RATE_LIMIT: { REQUESTS_PER_SECOND: number; REQUESTS_PER_DAY: number } = {
   REQUESTS_PER_SECOND: 2,
   REQUESTS_PER_DAY: 960, // Quota pour le chat
 };
@@ -144,7 +145,9 @@ export class GeminiService {
 
       // Extraire sections avec split() (méthode robuste testée)
       const parts = cleaned.split(/(?=^##\s+)/gm);
-      const sections = parts.filter((part) => part.startsWith("##") && !part.startsWith("###"));
+      const sections = parts.filter(
+        (part: string) => part.startsWith("##") && !part.startsWith("###"),
+      );
 
       let questionNumber = 0;
       const conditionalPatterns: Array<{
@@ -158,7 +161,9 @@ export class GeminiService {
 
         // Extraire questions avec split() (plus robuste que regex)
         const questionParts = sectionContent.split(/(?=^###\s)/gm);
-        const questionBlocks = questionParts.filter((part) => part.trim().startsWith("###"));
+        const questionBlocks = questionParts.filter((part: string) =>
+          part.trim().startsWith("###"),
+        );
 
         for (const questionBlock of questionBlocks) {
           questionNumber++;
@@ -166,7 +171,7 @@ export class GeminiService {
           // Extraire le titre de la question (première ligne sans les ###)
           const firstLine = questionBlock.split("\n")[0];
           const questionTitle = firstLine
-            .replace(/^###\s*(?:Q\d+[a-z]*\.|Q\d+[a-z]*|Question\s*\d+:?|\d+[\).]\s*)\s*/, "")
+            .replace(/^###\s*(?:Q\d+[a-z]*\.|Q\d+[a-z]*|Question\s*\d+:?|\d+[).]\s*)\s*/, "")
             .trim();
 
           // Détecter si la question est conditionnelle (Si NON, Si OUI, etc.)
@@ -241,7 +246,7 @@ export class GeminiService {
 
             if (options.length > 0) {
               // Format simple : une ligne par option
-              options.forEach((opt) => {
+              options.forEach((opt: string) => {
                 prompt += `- ${opt}\n`;
               });
             }
@@ -283,6 +288,7 @@ export class GeminiService {
     const inputLower = userInput.toLowerCase();
 
     // Mots-clés explicites pour Form Polls (haute priorité)
+    // ⚠️ "sondage" retiré car ambigu (peut être date ou form selon contexte)
     const strongFormKeywords = [
       "questionnaire",
       "enquête",
@@ -290,8 +296,8 @@ export class GeminiService {
       "satisfaction",
       "feedback",
       "avis",
-      "sondage",
       "sondage d'opinion",
+      "sondage de satisfaction",
     ];
 
     // Mots-clés secondaires pour Form Polls
@@ -310,37 +316,87 @@ export class GeminiService {
     // Mots-clés pour Date Polls (sondages de dates)
     const dateKeywords = [
       "date",
+      "dates",
       "rendez-vous",
       "réunion",
       "disponibilité",
       "planning",
       "horaire",
+      "horaires",
       "créneau",
+      "créneaux",
       "semaine",
       "jour",
+      "jours",
       "mois",
       "calendrier",
       "rdv",
       "rencontre",
       "meeting",
+      "déjeuner",
+      "diner",
+      "dîner",
+      "petit-déjeuner",
+      "petit déjeuner",
+      "midi",
+      "soir",
+      "matin",
+      "après-midi",
+      "après midi",
+      "demain",
+      "aujourd'hui",
+      "aujourd hui",
+      "semaine prochaine",
+      "semaine pro",
+      "lundi",
+      "mardi",
+      "mercredi",
+      "jeudi",
+      "vendredi",
+      "samedi",
+      "dimanche",
     ];
 
     // Compter les occurrences de chaque type de mot-clé
-    const strongFormScore = strongFormKeywords.filter((kw) => inputLower.includes(kw)).length;
-    const formScore = formKeywords.filter((kw) => inputLower.includes(kw)).length;
-    const dateScore = dateKeywords.filter((kw) => inputLower.includes(kw)).length;
+    const strongFormScore = strongFormKeywords.filter((kw: string) =>
+      inputLower.includes(kw),
+    ).length;
+    const formScore = formKeywords.filter((kw: string) => inputLower.includes(kw)).length;
+    const dateScore = dateKeywords.filter((kw: string) => inputLower.includes(kw)).length;
+
+    // Cas spécial : "sondage" seul est ambigu, mais avec contexte de dates → date poll
+    const hasSondage = inputLower.includes("sondage");
+    const hasDateContext =
+      dateScore > 0 ||
+      inputLower.includes("demain") ||
+      inputLower.includes("déjeuner") ||
+      inputLower.includes("diner") ||
+      inputLower.includes("dîner") ||
+      inputLower.includes("midi") ||
+      inputLower.includes("soir") ||
+      inputLower.includes("matin");
 
     const totalFormScore = strongFormScore + formScore;
 
     if (isDev()) {
       logger.info(
-        `Poll type detection: strongFormScore=${strongFormScore}, formScore=${formScore}, totalFormScore=${totalFormScore}, dateScore=${dateScore}`,
+        `Poll type detection: strongFormScore=${strongFormScore}, formScore=${formScore}, totalFormScore=${totalFormScore}, dateScore=${dateScore}, hasSondage=${hasSondage}, hasDateContext=${hasDateContext}`,
         "api",
       );
     }
 
+    // Si "sondage" + contexte de dates → Date Poll (priorité)
+    if (hasSondage && hasDateContext) {
+      return "date";
+    }
+
     // Si des mots-clés explicites de formulaire sont présents, priorité au form
     if (strongFormScore > 0) {
+      return "form";
+    }
+
+    // Si "sondage" seul sans contexte de dates → Form Poll (par défaut)
+    if (hasSondage && !hasDateContext) {
       return "form";
     }
 
@@ -355,12 +411,14 @@ export class GeminiService {
 
   async generatePollFromText(userInput: string): Promise<GeminiResponse> {
     const requestId = crypto.randomUUID();
-    const timestamp = new Date().toISOString();
 
-    console.log(`[${timestamp}] [${requestId}] 🟡 GeminiService.generatePollFromText appelé`, {
-      userInputLength: userInput?.length || 0,
-      userInputPreview: userInput?.substring(0, 50) || "",
-    });
+    if (isDev()) {
+      logger.info("🟡 GeminiService.generatePollFromText appelé", "api", {
+        requestId,
+        userInputLength: userInput?.length || 0,
+        userInputPreview: userInput?.substring(0, 50) || "",
+      });
+    }
 
     try {
       // NOUVEAU : Détecter si c'est du markdown
@@ -368,7 +426,9 @@ export class GeminiService {
       let processedInput = userInput;
       let pollType: "date" | "form";
 
-      console.log(`[${timestamp}] [${requestId}] 📋 Détection type:`, { isMarkdown });
+      if (isDev()) {
+        logger.info("📋 Détection type", "api", { requestId, isMarkdown });
+      }
 
       if (isMarkdown) {
         // Parser le markdown et convertir en prompt structuré
@@ -395,107 +455,49 @@ export class GeminiService {
         );
       }
 
-      // PRE-PARSING TEMPOREL avec Chrono-node (seulement pour Date Polls)
+      // PRE-PARSING TEMPOREL avec le nouveau parser robuste (seulement pour Date Polls)
       let dateHints = "";
       let allowedDates: string[] | undefined;
+      let parsedTemporal: ParsedTemporalInput | undefined;
 
       if (pollType === "date") {
         try {
-          const chrono = await import("chrono-node");
-          const parsedDates = chrono.fr.parse(userInput, new Date(), { forwardDate: true });
+          // Utiliser le nouveau parser temporel robuste
+          const { parseTemporalInput } = await import("./temporalParser");
+          const { validateParsedInput, autoFixParsedInput } = await import("./temporalValidator");
 
-          if (parsedDates.length > 0) {
-            const targetDate = formatDateLocal(parsedDates[0].start.date());
-            const targetDateObj = parsedDates[0].start.date();
+          const parsed = await parseTemporalInput(userInput);
 
-            // Détecter si c'est un contexte professionnel (réunion, travail, équipe, etc.)
-            const isProfessionalContext =
-              /réunion|travail|équipe|meeting|bureau|projet|client|présentation/i.test(userInput);
+          // Valider le parsing
+          const validation = validateParsedInput(parsed);
 
-            // Détecter si c'est une expression de "semaine" (semaine prochaine, dans X semaines)
-            const isWeekExpression = /semaine/i.test(parsedDates[0].text);
+          // Auto-corriger si nécessaire
+          const fixedParsed = validation.isValid ? parsed : autoFixParsedInput(parsed, validation);
 
-            // Calculer la fenêtre de dates
-            const dateWindow: string[] = [];
+          // Stocker pour le post-processor
+          parsedTemporal = fixedParsed;
 
-            if (isProfessionalContext && isWeekExpression) {
-              // Pour "semaine prochaine" en contexte pro : du lundi au vendredi de cette semaine
-              const dayOfWeek = targetDateObj.getDay();
-              const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si dimanche (0), reculer de 6 jours
+          // Utiliser les dates corrigées
+          allowedDates = fixedParsed.allowedDates.length > 0 ? fixedParsed.allowedDates : undefined;
 
-              const monday = new Date(targetDateObj);
-              monday.setDate(targetDateObj.getDate() + daysToMonday);
+          // Générer les hints Gemini basés sur le parsing
+          dateHints = this.buildDateHintsFromParsed(fixedParsed, userInput);
 
-              // Ajouter lundi à vendredi
-              for (let i = 0; i < 5; i++) {
-                const workDay = new Date(monday);
-                workDay.setDate(monday.getDate() + i);
-                dateWindow.push(formatDateLocal(workDay));
-              }
-            } else {
-              // Fenêtre normale ±3 jours autour de la date cible
-              for (let offset = -3; offset <= 3; offset++) {
-                const windowDate = new Date(targetDateObj);
-                windowDate.setDate(targetDateObj.getDate() + offset);
-
-                // Si contexte professionnel, exclure samedi (6) et dimanche (0)
-                const dayOfWeek = windowDate.getDay();
-                if (isProfessionalContext && (dayOfWeek === 0 || dayOfWeek === 6)) {
-                  continue; // Skip week-end
-                }
-
-                dateWindow.push(formatDateLocal(windowDate));
-              }
-            }
-
-            allowedDates = Array.from(new Set(dateWindow));
-
-            dateHints = `
-
-⚠️⚠️⚠️ INSTRUCTION PRIORITAIRE - DATES CALCULÉES PAR LE SYSTÈME ⚠️⚠️⚠️
-
-L'expression temporelle "${parsedDates[0].text}" a été analysée par notre système de parsing temporel.
-Date cible calculée: ${targetDate}
-${isProfessionalContext ? "Contexte professionnel détecté → Week-ends exclus (lundi-vendredi uniquement)" : ""}
-
-RÈGLE ABSOLUE - TU DOIS RESPECTER CES DATES EXACTES:
-Voici les SEULES dates que tu peux proposer${isProfessionalContext ? " (jours ouvrés uniquement)" : " (±3 jours autour du " + targetDate + ")"}}:
-${dateWindow.map((d) => `  - ${d}`).join("\n")}
-
-INTERDICTIONS STRICTES:
-- ❌ NE PAS générer de dates en dehors de cette liste
-- ❌ NE PAS inventer d'autres dates
-- ❌ NE PAS grouper les dates (ex: "Semaine du X au Y")
-- ❌ NE PAS proposer des périodes ou plages
-- ✅ Proposer 5-7 dates INDIVIDUELLES parmi cette liste
-- ✅ Format attendu: une date par ligne dans le JSON (ex: ["2025-11-28", "2025-11-29", ...])
-
-`;
-            if (parsedDates.length > 1) {
-              dateHints += "Autres dates détectées:\n";
-              parsedDates.slice(1).forEach((parsed) => {
-                dateHints += `- "${parsed.text}" → ${formatDateLocal(parsed.start.date())}\n`;
-              });
-              dateHints += "\n";
-            }
-
-            if (isDev()) {
-              logger.info("📅 Dates pré-parsées avec Chrono-node", "api", {
-                count: parsedDates.length,
-                dates: parsedDates.map((p) => ({
-                  text: p.text,
-                  date: formatDateLocal(p.start.date()),
-                })),
-              });
-              console.log("🎯 HINTS ENVOYÉS À GEMINI:", dateHints);
-            }
+          if (isDev()) {
+            logger.info("📅 Dates pré-parsées avec temporalParser", "api", {
+              type: fixedParsed.type,
+              allowedDatesCount: fixedParsed.allowedDates.length,
+              detectedKeywords: fixedParsed.detectedKeywords,
+              validationErrors: validation.errors.length,
+              validationWarnings: validation.warnings.length,
+            });
+            logger.debug("🎯 Hints envoyés à Gemini", "api", {
+              requestId,
+              hintsLength: dateHints.length,
+            });
           }
         } catch (error) {
-          logger.warn(
-            "Erreur lors du pré-parsing avec Chrono-node, continuation normale",
-            "api",
-            error,
-          );
+          logger.warn("Erreur lors du pré-parsing temporel, continuation normale", "api", error);
         }
       }
 
@@ -520,18 +522,24 @@ INTERDICTIONS STRICTES:
       }
 
       // Appeler Gemini via backend configuré (direct ou Edge Function)
-      console.log(`[${timestamp}] [${requestId}] 🔵 Appel geminiBackend.generateContent...`, {
-        mode: USE_DIRECT_GEMINI ? "DIRECT" : "EDGE_FUNCTION",
-        hasUserInput: !!userInput,
-        hasPrompt: !!prompt,
-        promptLength: prompt?.length || 0,
-      });
+      if (isDev()) {
+        logger.info("🔵 Appel geminiBackend.generateContent", "api", {
+          requestId,
+          mode: USE_DIRECT_GEMINI ? "DIRECT" : "EDGE_FUNCTION",
+          hasUserInput: !!userInput,
+          hasPrompt: !!prompt,
+          promptLength: prompt?.length || 0,
+        });
+      }
       const secureResponse = await geminiBackend.generateContent(userInput, prompt);
-      console.log(`[${timestamp}] [${requestId}] 🟢 Réponse geminiBackend reçue`, {
-        success: secureResponse.success,
-        hasData: !!secureResponse.data,
-        error: secureResponse.error,
-      });
+      if (isDev()) {
+        logger.info("🟢 Réponse geminiBackend reçue", "api", {
+          requestId,
+          success: secureResponse.success,
+          hasData: !!secureResponse.data,
+          error: secureResponse.error,
+        });
+      }
 
       if (!secureResponse.success) {
         // Gérer les erreurs spécifiques
@@ -628,6 +636,7 @@ INTERDICTIONS STRICTES:
             ? postProcessSuggestion(pollData as DatePollSuggestion, {
                 userInput,
                 allowedDates,
+                parsedTemporal: parsedTemporal, // Passer le parsing au post-processor
               })
             : pollData;
 
@@ -804,7 +813,11 @@ INTERDICTIONS STRICTES:
     return dates;
   }
 
-  private parseTimeRange(start: string, end: string, dates: string[]): any {
+  private parseTimeRange(
+    start: string,
+    end: string,
+    dates: string[],
+  ): { start: string; end: string; dates: string[] } {
     return {
       start,
       end,
@@ -820,15 +833,15 @@ INTERDICTIONS STRICTES:
     // Obtenir directement N occurrences du jour de la semaine
     const dayOccurrences = this.calendarQuery.getNextNDaysOfWeek(dayOfWeek, count, fromDate);
 
-    return dayOccurrences.map((day) => day.date);
+    return dayOccurrences.map((day: { date: string }) => day.date);
   }
 
   private convertGeminiTimeSlots(
-    timeSlots: any[],
+    timeSlots: Array<{ start: string; end: string; dates: string[] }>,
   ): Record<string, Array<{ hour: number; minute: number; enabled: boolean }>> {
     const result: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>> = {};
 
-    timeSlots.forEach((slot) => {
+    timeSlots.forEach((slot: { start: string; end: string; dates: string[] }) => {
       slot.dates.forEach((date: string) => {
         if (!result[date]) {
           // Initialiser avec toutes les heures désactivées
@@ -858,7 +871,7 @@ INTERDICTIONS STRICTES:
     date: string,
     mainStartTime: string,
     durations: { brief?: number; main: number; debrief?: number },
-  ): any[] {
+  ): Array<{ start: string; end: string; dates: string[]; description?: string }> {
     const timeSlots = [];
     const currentTime = new Date(`${date}T${mainStartTime}`);
 
@@ -970,6 +983,221 @@ INTERDICTIONS STRICTES:
    * Génère des hints contextuels spécifiques pour améliorer la génération de créneaux par Gemini.
    * Détecte les contextes spécifiques (visite musée, footing, visio, brunch, etc.) et génère des instructions précises.
    */
+  /**
+   * Génère les hints Gemini basés sur le parsing temporel robuste.
+   */
+  private buildDateHintsFromParsed(parsed: ParsedTemporalInput, userInput: string): string {
+    const dayNames = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+    const monthNames = [
+      "janvier",
+      "février",
+      "mars",
+      "avril",
+      "mai",
+      "juin",
+      "juillet",
+      "août",
+      "septembre",
+      "octobre",
+      "novembre",
+      "décembre",
+    ];
+
+    // Cas 1: Jour de la semaine + période ("lundi dans 2 semaines")
+    if (parsed.type === "day_of_week" && parsed.relativeWeeks && parsed.dayOfWeek) {
+      // ⚠️ CAS SPÉCIAL : Plusieurs jours de la semaine avec période ("lundi ou mardi dans 2 semaines")
+      const hasMultipleDays = parsed.dayOfWeek.length > 1;
+      const jourName = hasMultipleDays
+        ? parsed.dayOfWeek.map((d) => dayNames[d]).join(" ET ")
+        : dayNames[parsed.dayOfWeek[0]];
+      const targetDate = parsed.targetDates[0] ? formatDateLocal(parsed.targetDates[0]) : "N/A";
+
+      const multipleDaysHint = hasMultipleDays
+        ? `
+
+⚠️⚠️⚠️ PLUSIEURS JOURS DE LA SEMAINE DÉTECTÉS ⚠️⚠️⚠️
+
+Le prompt mentionne "${jourName}" → L'utilisateur veut des options pour CHAQUE jour mentionné !
+
+RÈGLE ABSOLUE - PLUSIEURS JOURS + PÉRIODE:
+→ OBLIGATOIRE : Générer EXACTEMENT ${parsed.dayOfWeek.length} DATES (une pour chaque jour mentionné)
+→ OBLIGATOIRE : Chaque date doit correspondre au bon jour de la semaine
+→ INTERDIT : Ne générer qu'une seule date (l'utilisateur veut voir les options pour tous les jours)
+
+Dates autorisées (OBLIGATOIRE de générer TOUTES ces dates):
+${parsed.allowedDates
+  .map((d: string) => {
+    const dateObj = new Date(d + "T00:00:00");
+    const dayName = dayNames[dateObj.getDay()];
+    return `  - ${d} (${dayName})`;
+  })
+  .join("\n")}
+
+⚠️⚠️ CRITIQUE : Ne pas générer seulement 1 date ! L'utilisateur veut voir les options pour TOUS les jours mentionnés !`
+        : "";
+
+      return `
+
+⚠️⚠️⚠️ INSTRUCTION PRIORITAIRE - JOUR SPÉCIFIQUE + PÉRIODE ⚠️⚠️⚠️
+
+Jour demandé: ${jourName}
+Période: dans ${parsed.relativeWeeks} semaines
+Date de référence: ${targetDate}
+${multipleDaysHint}
+${
+  !hasMultipleDays
+    ? `RÈGLE ABSOLUE - JOUR SPÉCIFIQUE + PÉRIODE:
+- Proposer UNIQUEMENT les ${jourName}s autour de la période (1-2 dates MAXIMUM)
+- Filtrer pour ne garder QUE les ${jourName}s
+- Générer 2-3 créneaux par date
+
+Dates autorisées (filtrer pour ne garder que les ${jourName}s):
+${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
+
+⚠️ CRITIQUE : Ne proposer QUE des ${jourName}s, pas d'autres jours !`
+    : ""
+}
+`;
+    }
+
+    // Cas 2: Date spécifique OU jour(s) de la semaine
+    if (parsed.type === "specific_date" || parsed.type === "day_of_week") {
+      // ⚠️ CAS SPÉCIAL : Plusieurs jours de la semaine détectés ("samedi ou dimanche", "lundi ou mardi")
+      const hasMultipleDays = parsed.dayOfWeek && parsed.dayOfWeek.length > 1;
+      // ⚠️ CAS SPÉCIAL : Plusieurs dates numériques détectées ("samedi 23 ou dimanche 24")
+      // Le parser stocke plusieurs dates numériques dans allowedDates mais pas dans dateNumeric (qui est seulement la première)
+      const hasMultipleNumericDates =
+        parsed.allowedDates.length > 1 &&
+        parsed.type === "day_of_week" &&
+        parsed.dayOfWeek &&
+        parsed.dayOfWeek.length > 1 &&
+        /(\d{1,2})\s+ou\s+(\d{1,2})/.test(userInput); // Vérifier qu'il y a bien "X ou Y" dans le prompt
+
+      const targetDate = parsed.targetDates[0] ? formatDateLocal(parsed.targetDates[0]) : "N/A";
+
+      // Générer le hint pour plusieurs jours
+      let multipleDaysHint = "";
+      if (hasMultipleDays || hasMultipleNumericDates) {
+        const joursNames =
+          parsed.dayOfWeek && parsed.dayOfWeek.length > 0
+            ? parsed.dayOfWeek.map((d) => dayNames[d]).join(" ET ")
+            : "jours multiples";
+        const expectedDatesCount = parsed.allowedDates.length;
+        multipleDaysHint = `
+
+⚠️⚠️⚠️ PLUSIEURS JOURS DE LA SEMAINE DÉTECTÉS ⚠️⚠️⚠️
+
+Le prompt mentionne "${joursNames}" → L'utilisateur veut des options pour CHAQUE jour mentionné !
+
+RÈGLE ABSOLUE - PLUSIEURS JOURS:
+→ OBLIGATOIRE : Générer EXACTEMENT ${expectedDatesCount} DATES (une pour chaque jour mentionné)
+→ OBLIGATOIRE : Chaque date doit correspondre au bon jour de la semaine
+→ INTERDIT : Ne générer qu'une seule date (l'utilisateur veut voir les options pour tous les jours)
+${parsed.isMealContext ? `→ OBLIGATOIRE : 1 CRÉNEAU UNIQUEMENT (partagé entre toutes les dates ou 1 par date selon le contexte)` : ""}
+
+Dates autorisées (OBLIGATOIRE de générer TOUTES ces dates):
+${parsed.allowedDates
+  .map((d: string, idx: number) => {
+    const dateObj = new Date(d + "T00:00:00");
+    const dayName = dayNames[dateObj.getDay()];
+    return `  - ${d} (${dayName})`;
+  })
+  .join("\n")}
+
+⚠️⚠️ CRITIQUE : Ne pas générer seulement 1 date ! L'utilisateur veut voir les options pour TOUS les jours mentionnés !`;
+      }
+
+      const jourHint =
+        parsed.dayOfWeek && parsed.dayOfWeek.length === 1
+          ? `\n⚠️⚠️⚠️ JOUR DE LA SEMAINE DÉTECTÉ ⚠️⚠️⚠️\nLe prompt mentionne "${dayNames[parsed.dayOfWeek[0]]}" → Générer UNIQUEMENT le ${dayNames[parsed.dayOfWeek[0]]} correspondant (1 date uniquement)\n`
+          : "";
+
+      const partenariatsHint =
+        /partenariats/.test(userInput) && parsed.isMealContext
+          ? `\n⚠️⚠️⚠️ EXCEPTION PARTENARIATS ⚠️⚠️⚠️\nPour "déjeuner partenariats" avec date spécifique :\n→ OBLIGATOIRE : 1 DATE UNIQUEMENT\n→ OBLIGATOIRE : 2-3 CRÉNEAUX (exception à la règle générale repas + date spécifique)\n→ Créneaux entre 11h30 et 13h30\n`
+          : "";
+
+      // Si plusieurs jours, ne pas appliquer la règle "1 date uniquement" pour les repas
+      const isMealWithMultipleDays =
+        parsed.isMealContext && (hasMultipleDays || hasMultipleNumericDates);
+
+      return `
+
+⚠️⚠️⚠️ INSTRUCTION PRIORITAIRE - DATE SPÉCIFIQUE DÉTECTÉE ⚠️⚠️⚠️
+
+Date cible calculée: ${targetDate}
+${parsed.isProfessionalContext ? "Contexte professionnel détecté → Week-ends exclus (lundi-vendredi uniquement)" : ""}
+${multipleDaysHint}
+${jourHint}
+${partenariatsHint}
+${
+  !hasMultipleDays && !hasMultipleNumericDates
+    ? `RÈGLE ABSOLUE - DATE SPÉCIFIQUE:
+- Proposer CETTE DATE UNIQUEMENT (${targetDate})
+- Ajouter MAXIMUM 1-2 alternatives très proches (±1 jour) SEULEMENT si vraiment nécessaire`
+    : ""
+}
+${
+  parsed.isMealContext && !/partenariats/.test(userInput) && !isMealWithMultipleDays
+    ? `
+⚠️⚠️⚠️ CAS SPÉCIAL REPAS + DATE SPÉCIFIQUE ⚠️⚠️⚠️
+Pour "${userInput}" :
+→ OBLIGATOIRE : 1 DATE UNIQUEMENT (${targetDate})
+→ OBLIGATOIRE : 1 CRÉNEAU UNIQUEMENT (12h30-13h30 pour déjeuner/midi, 19h00-20h00 pour dîner)
+→ INTERDIT : Générer plusieurs créneaux (pas 2, pas 3, UNIQUEMENT 1)
+→ INTERDIT : Générer plusieurs dates
+Cette règle PRIME sur toutes les autres !`
+    : ""
+}
+
+Dates autorisées${hasMultipleDays || hasMultipleNumericDates ? " (OBLIGATOIRE de générer TOUTES ces dates)" : " (pour alternatives seulement si vraiment nécessaire ET pas repas)"}:
+${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
+
+⚠️ IMPORTANT : ${hasMultipleDays || hasMultipleNumericDates ? "Générer TOUTES les dates mentionnées, pas seulement une !" : "Si l'utilisateur demande une date spécifique, ne pas surcharger avec trop d'options !"}
+${parsed.isMealContext && !/partenariats/.test(userInput) && !isMealWithMultipleDays ? `⚠️⚠️ CRITIQUE : Pour un repas, générer EXACTEMENT 1 créneau, pas plusieurs !` : ""}
+`;
+    }
+
+    // Cas 3: Mois explicite
+    if (parsed.type === "month" && parsed.month !== undefined) {
+      const monthName = monthNames[parsed.month];
+      const periodHint = parsed.period
+        ? `Période: ${parsed.period === "end" ? "fin" : "début"} ${monthName}\n`
+        : `Mois: ${monthName}\n`;
+      return `
+
+⚠️⚠️⚠️ INSTRUCTION PRIORITAIRE - MOIS EXPLICITE DÉTECTÉ ⚠️⚠️⚠️
+
+${periodHint}
+Dates autorisées (filtrer pour ne garder que les dates en ${monthName}${parsed.period === "end" ? " (jour >= 15)" : parsed.period === "start" ? " (jour <= 15)" : ""}):
+${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
+
+⚠️ CRITIQUE : Ne proposer QUE des dates en ${monthName}${parsed.period === "end" ? " (fin du mois)" : parsed.period === "start" ? " (début du mois)" : ""} !
+`;
+    }
+
+    // Cas 4: Période relative ou vague
+    const expectedDatesCount =
+      typeof parsed.expectedDatesCount === "string"
+        ? parsed.expectedDatesCount
+        : parsed.expectedDatesCount.toString();
+    return `
+
+⚠️⚠️⚠️ INSTRUCTION PRIORITAIRE - PÉRIODE DÉTECTÉE ⚠️⚠️⚠️
+
+Type: ${parsed.type}
+${parsed.chronoParsedText ? `Expression temporelle: "${parsed.chronoParsedText}"` : ""}
+${parsed.isProfessionalContext ? "Contexte professionnel détecté → Week-ends exclus (lundi-vendredi uniquement)" : ""}
+
+RÈGLE ABSOLUE - PÉRIODE:
+- Proposer ${expectedDatesCount} dates INDIVIDUELLES parmi la liste ci-dessous
+- Répartir uniformément sur la période
+
+Dates autorisées:
+${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
+`;
+  }
+
   private buildContextualHints(userInput: string): string {
     const lowerInput = userInput.toLowerCase();
     const hints: string[] = [];
@@ -1083,272 +1311,105 @@ INTERDICTIONS STRICTES:
   }
 
   private buildPollGenerationPrompt(userInput: string, dateHints: string = ""): string {
-    // Analyse temporelle préalable
-    const temporalAnalysis = this.analyzeTemporalInput(userInput);
-    const counterfactualQuestions = this.generateCounterfactualQuestions(userInput);
     const contextualHints = this.buildContextualHints(userInput);
-
     const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth() + 1; // getMonth() retourne 0-11
 
-    return `Tu es l'IA DooDates, expert en planification temporelle avec techniques Counterfactual-Consistency.
+    // Détecter contexte repas + date spécifique
+    const isMealContext = /(déjeuner|dîner|brunch|lunch|repas)/i.test(userInput);
+    const isSpecificDateInInput =
+      /(demain|aujourd'hui|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|dans \d+ jours?)/i.test(
+        userInput,
+      );
+
+    return `Tu es l'IA DooDates, expert en planification temporelle.
 ${dateHints}
 ${contextualHints}
-ANALYSE TEMPORELLE PRÉALABLE:
-- Conflits détectés: ${temporalAnalysis.conflicts.join(", ") || "Aucun"}
-- Suggestions: ${temporalAnalysis.suggestions.join(", ") || "Aucune"}
-- Type temporel: ${temporalAnalysis.temporalType}
-- Confiance: ${Math.round(temporalAnalysis.confidence * 100)}%
-
-QUESTIONS COUNTERFACTUAL POUR VALIDATION:
-${counterfactualQuestions.map((q) => `- ${q}`).join("\n")}
-
-RÈGLE ABSOLUE - DATES PASSÉES INTERDITES:
-- Aujourd'hui: ${getTodayLocal()}
-- Ne JAMAIS proposer de dates antérieures à aujourd'hui
-- Toutes les dates doivent être >= ${getTodayLocal()}
-- Si "cette semaine" inclut des jours passés, commencer à partir d'aujourd'hui
 
 Demande: "${userInput}"
 
-INSTRUCTION SPÉCIALE DATES FUTURES UNIQUEMENT:
+RÈGLES FONDAMENTALES:
+1. Dates futures uniquement (>= ${getTodayLocal()})
+2. Respecter les jours demandés (si "lundi" → uniquement lundis)
+3. Calculer à partir d'aujourd'hui (${getTodayLocal()})
+
+PRIORITÉ #1 - SPÉCIFICITÉ DE LA DEMANDE:
+- Date très spécifique ("demain", "lundi", "vendredi 15") → 1 DATE PRINCIPALE, max 1-2 alternatives
+- Période vague ("cette semaine", "semaine prochaine") → 5-7 dates
+
+PRIORITÉ #2 - CRÉNEAUX HORAIRES:
+Générer timeSlots UNIQUEMENT si mentionné :
+- Heures précises ("9h", "14h30")
+- Plages horaires ("matin", "après-midi", "soir", "midi")
+- Mots-clés repas ("déjeuner", "dîner", "brunch")
+- Durées ("1h", "30 minutes")
+
+⚠️⚠️⚠️ RÈGLE ABSOLUE - REPAS + DATE SPÉCIFIQUE ⚠️⚠️⚠️
+Si la demande contient un mot-clé de REPAS ("déjeuner", "dîner", "brunch", "lunch", "repas")
+ET une DATE SPÉCIFIQUE ("demain", "lundi", "vendredi", "dans X jours") :
+→ OBLIGATOIRE : 1 DATE UNIQUEMENT (la date spécifique)
+→ OBLIGATOIRE : 1 CRÉNEAU UNIQUEMENT autour de l'heure du repas
+→ INTERDIT : Générer plusieurs créneaux
+→ INTERDIT : Générer plusieurs dates
+
+Cette règle PRIME sur toutes les autres règles de génération de créneaux !
+
+Exemples OBLIGATOIRES :
+- "déjeuner demain midi" → 1 date (demain), 1 créneau (12h30-13h30) - PAS 3 créneaux !
+- "dîner vendredi soir" → 1 date (vendredi), 1 créneau (19h00-20h00) - PAS plusieurs créneaux !
+- "brunch dimanche" → 1 date (dimanche), 1 créneau (10h00-11h00) - PAS plusieurs créneaux !
+- "repas lundi midi" → 1 date (lundi), 1 créneau (12h30-13h30) - PAS plusieurs créneaux !
+
+CRÉNEAUX PAR TYPE D'ÉVÉNEMENT:
+⚠️ IMPORTANT : Si REPAS + DATE SPÉCIFIQUE → Voir règle absolue ci-dessus (1 créneau uniquement)
+
+Pour les autres cas :
+- Déjeuners ("déjeuner", "midi") : 1 créneau (12h30-13h30) par date
+- Dîners : 1 créneau (19h00-20h00) par date
+- Matin : Plusieurs créneaux (8h-12h, toutes les 30min) - SEULEMENT si pas repas + date spécifique
+- Après-midi : Plusieurs créneaux (14h-17h, toutes les 30min) - SEULEMENT si pas repas + date spécifique
+- Soir : Plusieurs créneaux (18h30-21h00) - SEULEMENT si pas repas + date spécifique
+
+EXPRESSIONS TEMPORELLES:
 - "cette semaine" = semaine actuelle (du ${getTodayLocal()} à 7 jours)
-- "semaine prochaine" = semaine suivante (toujours future)
+- "semaine prochaine" = semaine suivante
 - "demain" = ${formatDateLocal(new Date(today.getTime() + 24 * 60 * 60 * 1000))}
+- "dans X jours" = ${getTodayLocal()} + X jours
+- "dans X semaines" = ${getTodayLocal()} + (X × 7) jours
 
-EXPRESSIONS TEMPORELLES RELATIVES - CALCUL OBLIGATOIRE:
-Tu DOIS calculer les dates exactes à partir d'aujourd'hui (${getTodayLocal()}) pour ces expressions:
+EXEMPLES:
+- "réunion lundi ou mardi" → type: "date", timeSlots: []
+- "réunion lundi matin" → 1 date (lundi), plusieurs créneaux matin
+- "déjeuner demain midi" → 1 date (demain), 1 créneau (12h00-13h00)
+- "disponibilité cette semaine" → 5-7 dates, pas de créneaux
 
-- "dans X jours" → Ajouter X jours à ${getTodayLocal()}
-  Exemple: "dans 3 jours" = ${formatDateLocal(new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000))}
-  
-- "dans X semaines" → Ajouter (X × 7) jours à ${getTodayLocal()}
-  Exemple: "dans 2 semaines" = ${formatDateLocal(new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000))}
-  Exemple: "dans 3 semaines" = ${formatDateLocal(new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000))}
-  Exemple: "dans 4 semaines" = ${formatDateLocal(new Date(today.getTime() + 28 * 24 * 60 * 60 * 1000))}
-  
-- "dans X mois" → Ajouter X mois à la date actuelle
-  Exemple: "dans 1 mois" = ${formatDateLocal(new Date(today.getFullYear(), today.getMonth() + 1, today.getDate()))}
-  Exemple: "dans 2 mois" = ${formatDateLocal(new Date(today.getFullYear(), today.getMonth() + 2, today.getDate()))}
-
-MÉTHODE DE CALCUL POUR "dans X semaines":
-1. Identifier le nombre de semaines demandé (X)
-2. Calculer la date cible = ${getTodayLocal()} + (X × 7 jours)
-3. Identifier le jour de la semaine demandé (ex: "lundi", "mardi", etc.)
-4. Trouver le jour demandé dans la semaine cible
-5. Proposer plusieurs dates autour de cette semaine cible (semaine avant, semaine cible, semaine après)
-
-EXEMPLE CONCRET "réunion d'équipe dans 2 semaines":
-- Aujourd'hui: ${getTodayLocal()}
-- Dans 2 semaines: ${formatDateLocal(new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000))}
-- Proposer des dates autour de cette période (±3-5 jours)
-- NE PAS proposer de dates en novembre/décembre si on est en janvier!
-
-RÈGLE ABSOLUE: Toujours calculer à partir de ${getTodayLocal()}, JAMAIS utiliser des dates fixes!
-
-RÈGLES DE GÉNÉRATION:
-1. **DATES FUTURES OBLIGATOIRES** - Vérifier que chaque date >= ${getTodayLocal()}
-2. **COHÉRENCE JOURS/DATES** - Si "lundi" demandé, vérifier que la date tombe un lundi
-3. **CRÉNEAUX MULTIPLES** - Générer 2-3 créneaux par défaut (sauf si contexte spécifique indique autrement)
-   - Pour visites/musées : 2-3 créneaux
-   - Pour activités sportives : 1-2 créneaux
-   - Pour déjeuners/partenariats : 2-3 créneaux
-   - Pour visio : maximum 2 créneaux
-   - Pour événements/soirées : 3-5 créneaux
-4. **RÉCURRENCE INTELLIGENTE** - "tous les jeudis pendant 2 mois" = 8-9 jeudis consécutifs
-5. **CONTRAINTES TEMPORELLES GÉNÉRIQUES** (utiliser seulement si aucun hint contextuel spécifique) :
-   - "matin" = 09h00-12h00 (pas 8h-11h)
-   - "après-midi" = 14h00-17h00 (pas 15h-17h)
-   - "soir" = 18h30-21h00 (pas 17h-19h)
-
-FORMATS STRICTS:
-- Date: "YYYY-MM-DD" (>= ${getTodayLocal()})
-- Heure: "HH:MM" format 24h
-- Type: "date" ou "datetime" selon les créneaux
-
-CRÉNEAUX DÉTAILLÉS (si demandés):
-Si des heures sont mentionnées, générer TOUS les créneaux dans la plage:
-
-RÈGLE CRITIQUE - CRÉNEAUX HORAIRES UNIQUEMENT SI EXPLICITEMENT DEMANDÉS:
-
-**RÈGLE ABSOLUE** : Ne générer des timeSlots QUE si l'utilisateur mentionne explicitement :
-- Des heures précises ("9h", "14h30", "en fin de matinée")
-- Des plages horaires ("matin", "après-midi", "soir")
-- Des durées ("1h", "30 minutes", "toute la journée")
-
-**Si AUCUNE mention d'heure/durée** → type: "date" avec timeSlots: []
-
-EXEMPLES SANS HORAIRES (type: "date", timeSlots: []):
-- "Je veux organiser une réunion lundi ou mardi" → PAS de timeSlots
-- "Rendez-vous mercredi ou jeudi" → PAS de timeSlots
-- "Disponibilité cette semaine" → PAS de timeSlots
-- "Meeting vendredi" → PAS de timeSlots
-
-EXEMPLES AVEC HORAIRES (type: "datetime", timeSlots: [...]):
-- "Réunion lundi MATIN" → timeSlots 8h-12h
-- "RDV mardi À 14H" → timeSlots autour de 14h
-- "Déjeuner mercredi" → timeSlots 12h30-13h30
-- "Disponibilité jeudi APRÈS-MIDI" → timeSlots 14h-17h
-
-RÈGLE DURÉE SELON CONTEXTE (SEULEMENT SI HORAIRES DEMANDÉS):
-
-- **Déjeuners (déjeuner, repas midi, lunch)** : Créneau unique 12h30-13h30
-  [
-    { "start": "12:30", "end": "13:30", "dates": ["2025-XX-XX"], "description": "12h30-13h30" }
-  ]
-  
-- **Dîners (dîner, repas soir, souper)** : Créneau unique 19h00-20h00
-  [
-    { "start": "19:00", "end": "20:00", "dates": ["2025-XX-XX"], "description": "à partir de 19h" }
-  ]
-  
-- **Petit-déjeuner, brunch** : Créneau unique 10h00-11h00
-  
-- **Réunions avec plage horaire** : Créneaux de 1h toutes les 30min
-  Exemple "matin" (8h-12h):
-  [
-    { "start": "08:00", "end": "09:00", "dates": ["2025-XX-XX"], "description": "8h-9h" },
-    { "start": "08:30", "end": "09:30", "dates": ["2025-XX-XX"], "description": "8h30-9h30" },
-    { "start": "09:00", "end": "10:00", "dates": ["2025-XX-XX"], "description": "9h-10h" },
-    { "start": "09:30", "end": "10:30", "dates": ["2025-XX-XX"], "description": "9h30-10h30" },
-    { "start": "10:00", "end": "11:00", "dates": ["2025-XX-XX"], "description": "10h-11h" },
-    { "start": "10:30", "end": "11:30", "dates": ["2025-XX-XX"], "description": "10h30-11h30" }
-  ]
-  
-- **Ateliers, formations** : Créneaux de 2-3h
-- **Événements sociaux (apéro, soirée)** : Créneaux de 2-3h
-
-2. Analyse du texte renforcée :
-   * IMPORTANT : Respecter STRICTEMENT les jours demandés :
-     - Si "lundi" est demandé, générer UNIQUEMENT des lundis
-     - Si "mercredi" est demandé, générer UNIQUEMENT des mercredis
-     - Si "week-end" ou "weekend" est demandé, générer UNIQUEMENT des samedis et dimanches (JAMAIS de vendredi)
-     - Ne JAMAIS changer le jour de la semaine
-   * IMPORTANT : Comprendre les expressions temporelles :
-     - "cette semaine" = semaine actuelle (du ${getTodayLocal()} à 7 jours)
-     - "la semaine prochaine" = semaine suivante (les 7 jours après dimanche de cette semaine)
-     - "ce week-end" = samedi-dimanche de cette semaine (2 dates consécutives)
-     - "le week-end prochain" = samedi-dimanche de la semaine prochaine (2 dates consécutives)
-     - "un des week-ends de décembre" = proposer TOUS les week-ends complets (samedi + dimanche consécutifs) du mois
-     - "les week-ends de janvier" = proposer TOUS les week-ends complets (samedi + dimanche consécutifs) du mois
-     - "dans X jours" = CALCULER: ${getTodayLocal()} + X jours (ex: "dans 5 jours" = ${formatDateLocal(new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000))})
-     - "dans X semaines" = CALCULER: ${getTodayLocal()} + (X × 7) jours (ex: "dans 2 semaines" = ${formatDateLocal(new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000))})
-     - "dans X mois" = CALCULER: ajouter X mois à ${getTodayLocal()}
-   * IMPORTANT : Distinguer références spécifiques vs récurrentes :
-     - "lundi matin" (sans "tous les" ou "chaque") = LE prochain lundi uniquement
-     - "mardi après-midi" (sans "tous les" ou "chaque") = LE prochain mardi uniquement
-     - "mercredi ou jeudi" = LE prochain mercredi ET LE prochain jeudi uniquement
-     - "tous les lundis" ou "chaque lundi" = plusieurs lundis consécutifs
-     - "les mardis" = plusieurs mardis consécutifs
-     - c'est vrai aussi pour les autres jours de la semaine
-   * IMPORTANT : Déterminer le type d'événement selon ce qui est EXPLICITEMENT DEMANDÉ :
-     - **RÈGLE ABSOLUE** : Générer des timeSlots UNIQUEMENT si l'utilisateur mentionne :
-       * Des heures précises ("9h", "14h30", "en fin de matinée")
-       * Des plages horaires ("matin", "après-midi", "soir")
-       * Des durées ("1h", "30 minutes", "toute la journée")
-       * Des mots-clés de repas ("déjeuner", "dîner", "brunch")
-     - **Si AUCUNE mention d'heure/durée** → type: "date" avec timeSlots: []
-     - **Exemples SANS horaires** : "réunion lundi ou mardi", "rendez-vous cette semaine", "meeting vendredi"
-     - **Exemples AVEC horaires** : "réunion lundi matin", "RDV mardi à 14h", "déjeuner mercredi"
-     - En cas de doute, privilégier les sondages de dates simples (type: "date")
-   * IMPORTANT : Proposer le plus d'options possible en respectant les contraintes
-   * Identifier les patterns de sessions :
-     - Nombre de sessions
-     - Type (présentiel/ligne/hybride)
-     - Période (matin/midi/après-midi)
-     - Mois
-   * Identifier les durées :
-     - Session principale
-     - Brief (si mentionné)
-     - Débrief (si mentionné)
-
-2. Génération des créneaux :
-   * IMPORTANT : Nous sommes actuellement en ${currentMonth}/${currentYear}
-   * IMPORTANT : Proposer PLUSIEURS créneaux par jour en explorant TOUTES les plages horaires :
-     - MATIN (8h-12h) : générer créneaux toutes les 30min selon la durée demandée
-     - APRÈS-MIDI (14h-17h) : générer créneaux toutes les 30min selon la durée demandée  
-     - JOURNÉE COMPLÈTE (9h-17h) : combiner matin + après-midi
-     - Adapter l'espacement selon la durée : 45min → créneaux toutes les 30min, 1h30 → créneaux toutes les 30min ou 1h
-   * Pour chaque type de session :
-     - Si le mois demandé est antérieur au mois actuel (${currentMonth}), utiliser l'année ${currentYear + 1}
-     - Si le mois demandé est postérieur ou égal au mois actuel, utiliser l'année ${currentYear}
-     - VÉRIFIER que chaque date correspond au bon jour de la semaine
-     - IMPORTANT : Pour les activités journée complète → NE PAS générer de timeSlots, utiliser type: "date"
-     - Pour les événements avec horaires spécifiques → Adapter les horaires selon la période ET générer TOUS les créneaux possibles dans la plage
-     - Ajouter brief/débrief si nécessaire
-   * EXEMPLES concrets de génération de créneaux AVEC CHEVAUCHEMENT (30min de gap) :
-     - "Tests 1h30 lundi matin" → 8h-9h30, 8h30-10h, 9h-10h30, 9h30-11h, 10h-11h30, 10h30-12h (6 créneaux)
-     - "Entretiens 45min mardi après-midi" → 14h-14h45, 14h30-15h15, 15h-15h45, 15h30-16h15, 16h-16h45, 16h30-17h15 (6 créneaux)
-     - "RDV 1h mercredi" → 9h-10h, 9h30-10h30, 10h-11h, 10h30-11h30, 11h-12h, 14h-15h, 14h30-15h30, 15h-16h, 15h30-16h30, 16h-17h (10 créneaux)
-     - "Repas midi" ou "déjeuner" → 12h30-13h30 (1 créneau unique)
-     - "Dîner" ou "repas demain soir" → 19h-20h avec description "à partir de 19h" (1 créneau unique)
-   * IMPORTANT : Répartition temporelle intelligente :
-     - Événements urgents : concentrer sur les 5-7 prochains jours
-     - Événements flexibles : répartir uniformément sur la période
-   * Respecter les contraintes :
-     - Horaires de bureau (8h-19h)
-     - Pauses déjeuner (12h-14h)
-     - Durées cohérentes
-
-3. Format des dates et heures :
-   * Dates : YYYY-MM-DD (toujours dans le futur par rapport à ${currentMonth}/${currentYear})
-   * IMPORTANT : Vérifier que chaque date YYYY-MM-DD correspond au jour de la semaine demandé
-   * Heures : HH:MM (24h)
-   * Zéros initiaux obligatoires
-
-4. Structure de la réponse :
-   * Titre descriptif
-   * Dates uniques (même si plusieurs créneaux par date)
-   * Créneaux horaires avec :
-     - Heure début/fin
-     - Dates concernées
-     - Description incluant le jour de la semaine
-
-Format JSON requis :
-
-Pour événements SANS horaires spécifiques (flexible, journée complète) :
+FORMAT JSON:
 {
-  "title": "Description de l'événement",
-  "dates": ["YYYY-MM-DD"],
-  "timeSlots": [],
-  "type": "date"
-}
-
-Pour événements AVEC horaires spécifiques (coordination précise nécessaire) :
-FORMAT JSON EXACT:
-{
-  "title": "Titre du sondage",
+  "title": "Titre",
   "description": "Description optionnelle",
-  "dates": ["YYYY-MM-DD", "YYYY-MM-DD"],
+  "dates": ["YYYY-MM-DD"],
   "timeSlots": [
     {
       "start": "HH:MM",
       "end": "HH:MM",
       "dates": ["YYYY-MM-DD"],
-      "description": "Description du créneau (préciser le jour)"
+      "description": "Description"
     }
   ],
-  "type": "datetime"
+  "type": "date" ou "datetime"
 }
 
-AVANT DE RÉPONDRE :
-1. **CRITIQUE** : Vérifier si l'utilisateur a mentionné des heures/plages horaires/durées
-   - Si NON → type: "date", timeSlots: []
-   - Si OUI → type: "datetime", timeSlots: [...]
-2. Vérifier que TOUTES les dates correspondent aux jours demandés 
-3. **CRITIQUE** : Vérifier que TOUTES les dates sont >= ${getTodayLocal()}
-4. IMPORTANT : Vérifier que TOUS les créneaux possibles sont générés dans chaque plage horaire (voir exemples ci-dessus)
-5. Si "week-end" est demandé, vérifier qu'il n'y a QUE des samedis et dimanches (PAS de vendredi) 
-6. Vérifier que TOUS les créneaux sont sur les bons jours
-7. Ne pas changer les jours de la semaine, même si cela nécessite d'ajouter ou retirer des dates
-8. IMPORTANT : Éliminer les créneaux horaires dupliqués (même heure sur même date)
-9. Si "cette semaine" ou "la semaine prochaine", utiliser les vraies dates de la semaine concernée
-10. IMPORTANT : Respecter les références temporelles spécifiques vs récurrentes (voir règles ci-dessus)
-11. IMPORTANT : Compter les créneaux générés - il doit y en avoir 5-6 minimum par plage horaire demandée
-12. **CRITIQUE** : Éliminer immédiatement toute date < ${getTodayLocal()}
+VÉRIFICATIONS AVANT RÉPONSE:
+1. Toutes dates >= ${getTodayLocal()}
+2. Dates correspondent aux jours demandés
+3. ⚠️ CRITIQUE : Si repas + date spécifique → VÉRIFIER qu'il n'y a qu'1 DATE et qu'1 CRÉNEAU (pas 3 créneaux !)
+4. Si date spécifique (sans repas) → max 1-2 dates
+5. Si période vague → 5-7 dates
 
-RESPECTE SCRUPULEUSEMENT ces règles et ce format.
+⚠️⚠️⚠️ RAPPEL FINAL - REPAS + DATE SPÉCIFIQUE ⚠️⚠️⚠️
+Si tu détectes "repas" + "date spécifique" dans la demande :
+→ GÉNÉRER EXACTEMENT 1 DATE et 1 CRÉNEAU
+→ NE PAS générer 2 ou 3 créneaux même si "midi" est mentionné
+→ Exemple "déjeuner demain midi" = 1 date, 1 créneau (12h30-13h30) - PAS 3 créneaux différents !
 
 Réponds SEULEMENT avec le JSON, aucun texte supplémentaire.`;
   }

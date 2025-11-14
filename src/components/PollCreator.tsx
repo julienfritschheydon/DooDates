@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, lazy, Suspense } from "react";
+import React, { useState, useEffect, useRef, lazy, Suspense, useCallback } from "react";
 import {
   X,
   ChevronLeft,
@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Calendar from "./Calendar";
 import { usePolls, type PollData } from "../hooks/usePolls";
-import type { Poll } from "../lib/pollStorage";
+import type { Poll, PollOption } from "../lib/pollStorage";
 import { PollCreatorService } from "../services/PollCreatorService";
 import { logger } from "../lib/logger";
 import { createConversationForPoll } from "../lib/ConversationPollLink";
@@ -333,8 +333,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         // Nettoyer le draft avant de charger les données
         localStorage.removeItem("doodates-draft");
 
-        const existingPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]");
-        const pollToEdit = existingPolls.find((poll: any) => poll.id === editPollId);
+        const existingPolls = JSON.parse(localStorage.getItem("dev-polls") || "[]") as Poll[];
+        const pollToEdit = existingPolls.find((poll) => poll.id === editPollId);
 
         if (!pollToEdit || !isMounted) return;
 
@@ -348,7 +348,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
         // Méthode 2: Depuis les options du sondage (mapping ID -> date)
         if (pollDates.length === 0 && pollToEdit.options) {
-          pollToEdit.options.forEach((option: any) => {
+          (pollToEdit.options as PollOption[]).forEach((option) => {
             if (option.option_date && !pollDates.includes(option.option_date)) {
               pollDates.push(option.option_date);
             }
@@ -397,8 +397,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
             setTimeSlotsByDate(pollToEdit.settings.timeSlotsByDate);
 
             // Activer l'affichage des créneaux horaires si des créneaux existent
-            const hasTimeSlots = Object.values(pollToEdit.settings.timeSlotsByDate).some(
-              (slots: any) => slots && slots.length > 0,
+            const hasTimeSlots = Object.values(pollToEdit.settings.timeSlotsByDate || {}).some(
+              (slots) => slots && Array.isArray(slots) && slots.length > 0,
             );
             if (hasTimeSlots) {
               newState.showTimeSlots = true;
@@ -498,7 +498,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   }, [initialData]);
 
   // Fonction helper pour scroller vers une heure spécifique
-  const scrollToTime = (hour: number, minute: number) => {
+  const scrollToTime = useCallback((hour: number, minute: number) => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setTimeout(() => {
@@ -533,7 +533,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         }, 1000);
       });
     });
-  };
+  }, []);
 
   // Scroller automatiquement vers la première heure sélectionnée
   useEffect(() => {

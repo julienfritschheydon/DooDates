@@ -5,13 +5,14 @@ import { useToast } from "@/hooks/use-toast";
 import FormPollCreator, { type FormPollDraft } from "@/components/polls/FormPollCreator";
 import { getAllPolls } from "@/lib/pollStorage";
 import { ErrorFactory, logError } from "@/lib/error-handling";
+import { CreatePageLayout } from "@/components/layout/CreatePageLayout";
 
 export default function FormCreator() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const editId = params.get("edit");
   const [published, setPublished] = useState(false);
-  const [publishedPoll, setPublishedPoll] = useState<any>(null);
+  const [publishedPoll, setPublishedPoll] = useState<import("../types/poll").Poll | null>(null);
   const { toast } = useToast();
 
   const initialDraft = useMemo<FormPollDraft | undefined>(() => {
@@ -22,8 +23,8 @@ export default function FormCreator() {
       id: existing.id,
       type: "form",
       title: existing.title || "",
-      questions: (existing as any).questions || [],
-      conditionalRules: (existing as any).conditionalRules || [], // Récupérer les règles conditionnelles
+      questions: existing.questions || [],
+      conditionalRules: existing.conditionalRules || [], // Récupérer les règles conditionnelles
     } as FormPollDraft;
   }, [editId]);
 
@@ -31,7 +32,7 @@ export default function FormCreator() {
   const handleSave = (_draft: FormPollDraft) => {
     // Saved as draft via FormPollCreator; stay on page
   };
-  const handleFinalize = (draft: FormPollDraft, savedPoll?: any) => {
+  const handleFinalize = (draft: FormPollDraft, savedPoll?: import("../types/poll").Poll) => {
     // Protection contre les finalisations multiples
     if (published) {
       console.warn("⚠️ Formulaire déjà publié, finalisation ignorée");
@@ -150,11 +151,13 @@ export default function FormCreator() {
   }
 
   return (
-    <FormPollCreator
-      initialDraft={initialDraft}
-      onCancel={handleCancel}
-      onSave={handleSave}
-      onFinalize={handleFinalize}
-    />
+    <CreatePageLayout>
+      <FormPollCreator
+        initialDraft={initialDraft}
+        onCancel={handleCancel}
+        onSave={handleSave}
+        onFinalize={handleFinalize}
+      />
+    </CreatePageLayout>
   );
 }

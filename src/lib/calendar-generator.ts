@@ -193,7 +193,7 @@ export function getPreGeneratedCalendar(): PreGeneratedCalendar {
       const generator = new CalendarGenerator();
       const currentYear = new Date().getFullYear();
       return generator.generateCalendar(currentYear, 2);
-    }) as any;
+    }) as Array<{ date: string; events: unknown[] }>;
 }
 
 // Cache global pour le calendrier progressif

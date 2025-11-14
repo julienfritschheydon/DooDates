@@ -21,3 +21,6 @@ export interface ConversationItem {
 
 // Type pour les filtres
 export type FilterType = "all" | "draft" | "active" | "closed" | "archived";
+
+// Type pour les filtres par type de contenu
+export type ContentTypeFilter = "all" | "conversations" | "date" | "availability" | "form";

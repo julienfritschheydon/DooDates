@@ -16,8 +16,8 @@ export interface FormQuestion {
   maxChoices?: number;
   placeholder?: string;
   maxLength?: number;
-  matrixRows?: any[];
-  matrixColumns?: any[];
+  matrixRows?: Array<{ id: string; label: string }>;
+  matrixColumns?: Array<{ id: string; label: string }>;
   matrixType?: "single" | "multiple";
   matrixColumnsNumeric?: boolean;
   ratingScale?: number;

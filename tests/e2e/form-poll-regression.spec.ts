@@ -64,7 +64,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
     // Utiliser setupAllMocksWithoutNavigation() pour éviter le page.goto() qui perturbe les routes
     await setupAllMocksWithoutNavigation(page);
     
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle');
     
     // Attendre que le chat input soit visible
@@ -153,7 +153,7 @@ test.describe('Form Poll - Tests de non-régression', () => {
     
     // Clear localStorage SEULEMENT pour le premier test
     if (!pollCreated) {
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle');
       // Attendre que le chat input soit visible (indicateur que la page est prête)
       await expect(page.locator('[data-testid="message-input"]')).toBeVisible({ timeout: 10000 });

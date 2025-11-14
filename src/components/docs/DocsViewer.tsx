@@ -183,7 +183,12 @@ export const DocsViewer: React.FC<DocsViewerProps> = ({ docPath }) => {
           },
 
           // Code blocks
-          code: ({ node, className, children, ...props }: any) => {
+          code: ({
+            node,
+            className,
+            children,
+            ...props
+          }: React.ComponentPropsWithoutRef<"code"> & { node?: unknown }) => {
             const inline = !className || !className.includes("language-");
             if (inline) {
               return (

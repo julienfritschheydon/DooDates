@@ -72,8 +72,11 @@ class PerformanceMeasurement {
       // Mesure manuelle si pas de temps fourni
       const startTime = performance.now();
 
-      if (typeof (window as any).preloadPollCreator === "function") {
-        (window as any)
+      if (
+        typeof (window as Window & { preloadPollCreator?: () => Promise<void> })
+          .preloadPollCreator === "function"
+      ) {
+        (window as Window & { preloadPollCreator: () => Promise<void> })
           .preloadPollCreator()
           .then(() => {
             const measuredTime = performance.now() - startTime;
@@ -91,7 +94,7 @@ class PerformanceMeasurement {
               status,
             });
           })
-          .catch((error: any) => {
+          .catch((error: unknown) => {
             logger.error("Erreur mesure PollCreator", "performance", error);
           });
       }
@@ -102,8 +105,13 @@ class PerformanceMeasurement {
    * Mesure la taille du bundle (approximative)
    */
   measureBundleSize() {
-    if (window.performance && (window.performance as any).memory) {
-      const memory = (window.performance as any).memory;
+    if (
+      window.performance &&
+      "memory" in window.performance &&
+      (window.performance as Performance & { memory?: { usedJSHeapSize: number } }).memory
+    ) {
+      const memory = (window.performance as Performance & { memory: { usedJSHeapSize: number } })
+        .memory;
       const usedJSHeapSize = memory.usedJSHeapSize / 1024 / 1024; // MB
       this.metrics.bundleSize = usedJSHeapSize;
 

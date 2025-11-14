@@ -47,7 +47,7 @@ export interface EditorStateContextType {
   clearCurrentPoll: () => void;
 
   // Actions combinées
-  createPollFromChat: (pollData: any) => void;
+  createPollFromChat: (pollData: Partial<Poll> | Poll) => void;
 }
 
 const EditorStateContext = createContext<EditorStateContextType | undefined>(undefined);
@@ -117,7 +117,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(currentPoll));
 
         // 🔧 FIX: Sauvegarder aussi dans pollStorage pour que les modifications soient visibles
-        addPoll(currentPoll as any);
+        addPoll(currentPoll);
       } else {
         localStorage.removeItem(STORAGE_KEY);
       }
@@ -160,7 +160,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
   }, []);
 
   // Action combinée : créer un sondage depuis les données Gemini
-  const createPollFromChat = useCallback(async (pollData: any) => {
+  const createPollFromChat = useCallback(async (pollData: Partial<Poll> | Poll) => {
     logger.debug("createPollFromChat appelé", "poll", { pollData });
 
     const now = new Date().toISOString();
@@ -168,37 +168,54 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
     const uid = () => Math.random().toString(36).slice(2, 10);
 
     // Convertir timeSlots si présents
-    let timeSlotsByDate = {};
-    if (pollData.timeSlots && pollData.timeSlots.length > 0) {
-      timeSlotsByDate = pollData.timeSlots.reduce((acc: any, slot: any) => {
-        const targetDates = slot.dates && slot.dates.length > 0 ? slot.dates : pollData.dates || [];
+    let timeSlotsByDate: Record<
+      string,
+      Array<{ hour: number; minute: number; duration: number; enabled: boolean }>
+    > = {};
+    if (pollData.timeSlots && Array.isArray(pollData.timeSlots) && pollData.timeSlots.length > 0) {
+      timeSlotsByDate = pollData.timeSlots.reduce(
+        (
+          acc: Record<
+            string,
+            Array<{ hour: number; minute: number; duration: number; enabled: boolean }>
+          >,
+          slot: { start: string; end: string; dates?: string[] },
+        ) => {
+          const targetDates =
+            slot.dates && slot.dates.length > 0
+              ? slot.dates
+              : pollData.dates && Array.isArray(pollData.dates)
+                ? pollData.dates
+                : [];
 
-        targetDates.forEach((date: string) => {
-          if (!acc[date]) acc[date] = [];
+          targetDates.forEach((date: string) => {
+            if (!acc[date]) acc[date] = [];
 
-          const startHour = parseInt(slot.start.split(":")[0]);
-          const startMinute = parseInt(slot.start.split(":")[1]);
-          const endHour = parseInt(slot.end.split(":")[0]);
-          const endMinute = parseInt(slot.end.split(":")[1]);
+            const startHour = parseInt(slot.start.split(":")[0]);
+            const startMinute = parseInt(slot.start.split(":")[1]);
+            const endHour = parseInt(slot.end.split(":")[0]);
+            const endMinute = parseInt(slot.end.split(":")[1]);
 
-          const durationMinutes = endHour * 60 + endMinute - (startHour * 60 + startMinute);
+            const durationMinutes = endHour * 60 + endMinute - (startHour * 60 + startMinute);
 
-          acc[date].push({
-            hour: startHour,
-            minute: startMinute,
-            duration: durationMinutes,
-            enabled: true,
+            acc[date].push({
+              hour: startHour,
+              minute: startMinute,
+              duration: durationMinutes,
+              enabled: true,
+            });
           });
-        });
-        return acc;
-      }, {});
+          return acc;
+        },
+        {},
+      );
     }
 
     // Convertir les questions Gemini en format FormPollCreator
     let convertedQuestions = pollData.questions || [];
     if (pollData.type === "form" && pollData.questions) {
       logger.debug("Conversion questions Gemini", "poll", { questions: pollData.questions });
-      convertedQuestions = pollData.questions.map((q: any) => {
+      convertedQuestions = pollData.questions.map((q: import("../../lib/gemini").FormQuestion) => {
         const baseQuestion = {
           id: uid(),
           title: q.title,
@@ -208,7 +225,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
 
         if (q.type === "single" || q.type === "multiple") {
           const options = (q.options || [])
-            .filter((opt: any) => opt && typeof opt === "string" && opt.trim())
+            .filter((opt: string | unknown) => opt && typeof opt === "string" && opt.trim())
             .map((opt: string) => ({
               id: uid(),
               label: opt.trim(),
@@ -240,16 +257,18 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
         pollResult = await createFormPoll({
           title: pollData.title || "Nouveau formulaire",
           description: undefined,
-          questions: convertedQuestions.map((q: any) => ({
-            id: q.id,
-            type: q.type,
-            title: q.title,
-            required: q.required || false,
-            options: q.options,
-            maxChoices: q.maxChoices,
-            placeholder: q.placeholder,
-            maxLength: q.maxLength,
-          })),
+          questions: convertedQuestions.map(
+            (q: import("../../lib/pollStorage").FormQuestionShape) => ({
+              id: q.id,
+              type: q.type,
+              title: q.title,
+              required: q.required || false,
+              options: q.options,
+              maxChoices: q.maxChoices,
+              placeholder: q.placeholder,
+              maxLength: q.maxLength,
+            }),
+          ),
           settings: {
             allowAnonymousResponses: true,
             expiresAt: undefined,
@@ -286,7 +305,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
 
       // Utiliser le poll créé
       const poll = pollResult.poll;
-      setCurrentPoll(poll as any);
+      setCurrentPoll(poll);
       setIsEditorOpen(true);
 
       logger.info("✅ Poll créé via IA et sauvegardé dans Supabase", "poll", {

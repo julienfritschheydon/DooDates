@@ -144,7 +144,11 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
     // 🎯 NOUVEAU: Envoyer automatiquement un message initial depuis location.state
     useEffect(() => {
-      const state = location.state as any;
+      const state = location.state as {
+        initialMessage?: string;
+        pollId?: string;
+        context?: unknown;
+      } | null;
       if (state?.initialMessage && !initialMessageSentRef.current) {
         initialMessageSentRef.current = true;
 
@@ -170,8 +174,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
     // Wrapper pour éviter les erreurs de type PollSuggestion (conflit gemini.ts vs ConversationService.ts)
     const setMessages = useCallback(
-      (updater: any) => {
-        setMessagesRaw(updater as any);
+      (updater: Parameters<typeof setMessagesRaw>[0]) => {
+        setMessagesRaw(updater);
       },
       [setMessagesRaw],
     );
@@ -182,7 +186,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     // État pour le feedback IA
     const [lastAIProposal, setLastAIProposal] = useState<{
       userRequest: string;
-      generatedContent: any;
+      generatedContent: unknown;
       pollContext?: {
         pollId?: string;
         pollTitle?: string;
@@ -193,12 +197,18 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
     // Surveiller _highlightedId pour déclencher le feedback visuel (ADD_QUESTION)
     useEffect(() => {
+      const pollWithHighlight = currentPoll as
+        | (typeof currentPoll & {
+            _highlightedId?: string;
+            _highlightType?: "add" | "remove" | "modify";
+          })
+        | null;
       if (
-        currentPoll &&
-        (currentPoll as any)._highlightedId &&
-        (currentPoll as any)._highlightType === "add"
+        pollWithHighlight &&
+        pollWithHighlight._highlightedId &&
+        pollWithHighlight._highlightType === "add"
       ) {
-        const highlightedId = (currentPoll as any)._highlightedId;
+        const highlightedId = pollWithHighlight._highlightedId;
         // Pour ADD_QUESTION, on considère que c'est le titre qui a été ajouté
         setModifiedQuestion(highlightedId, "title");
       }
@@ -214,11 +224,11 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         if (!conv) return null;
 
         // Lire pollId depuis conversation.pollId (Session 2 - Bug 3)
-        const pollId = (conv as any).pollId;
+        const pollId = conv.pollId;
         if (pollId) return pollId;
 
         // Fallback: metadata (ancien format)
-        const meta = (conv as any).metadata || {};
+        const meta = conv.metadata || {};
         const metaPollId: string | undefined = meta.pollId || undefined;
         const generated: boolean = !!meta.pollGenerated;
 
@@ -245,7 +255,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
               pollId: linkedPollId,
               pollTitle: poll.title,
             });
-            setCurrentPoll(poll as any);
+            setCurrentPoll(poll);
             openEditor();
           }
         } catch (error) {
@@ -561,7 +571,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                 // Si pas de relatedPollId, chercher dans les messages
                 if (!pollId) {
                   for (const msg of chatMessages) {
-                    const suggestion = msg.pollSuggestion as any;
+                    const suggestion = msg.pollSuggestion as PollSuggestion & {
+                      linkedPollId?: string;
+                    };
                     if (suggestion?.linkedPollId) {
                       pollId = suggestion.linkedPollId;
                       break;
@@ -573,7 +585,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                   try {
                     const poll = getPollBySlugOrId(pollId);
                     if (poll) {
-                      setCurrentPoll(poll as any);
+                      setCurrentPoll(poll);
                       openEditor();
                     }
                   } catch (error) {
@@ -764,7 +776,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
               id: currentPoll.id,
               type: "form",
               title: currentPoll.title,
-              questions: (currentPoll.questions || []) as any,
+              questions: currentPoll.questions || [],
               conditionalRules: currentPoll.conditionalRules || [],
             }
           : pollManagement.getFormDraft();
@@ -816,7 +828,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
               // Auto-ouvrir la preview du formulaire créé si disponible
               if (savedPoll) {
                 try {
-                  setCurrentPoll(savedPoll as any);
+                  setCurrentPoll(savedPoll);
                   openEditor();
                 } catch (error) {
                   logger.error("Erreur lors de l'ouverture de l'éditeur", "poll", { error });
@@ -852,8 +864,14 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       );
     }
 
+    /* 
+      NOTE: Structure flex pour permettre le centrage vertical du message de bienvenue
+      - flex flex-col: Crée un contexte flex vertical
+      - h-full min-h-0: Prend toute la hauteur disponible, min-h-0 permet au flex de rétrécir si nécessaire
+      - ChatMessageList utilise flex-1 pour prendre toute la hauteur et centrer le contenu quand messages.length === 0
+    */
     return (
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full h-full min-h-0">
         {/* Zone de conversation */}
         <ChatMessageList
           messages={messages}
@@ -902,8 +920,8 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           }}
         />
 
-        {/* Onboarding Tour */}
-        <OnboardingTour />
+        {/* Onboarding Tour - Désactivé temporairement */}
+        {/* <OnboardingTour /> */}
       </div>
     );
   },

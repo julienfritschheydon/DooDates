@@ -42,35 +42,39 @@ const AnimatePresenceComponent = lazy(() =>
 );
 
 // Wrappers avec Suspense pour un fallback transparent
+// eslint-disable-next-line react-refresh/only-export-components
 export const motion = {
-  div: (props: any) => (
+  div: (props: React.ComponentProps<typeof MotionDiv>) => (
     <Suspense fallback={<div {...props} />}>
       <MotionDiv {...props} />
     </Suspense>
   ),
-  span: (props: any) => (
+  span: (props: React.ComponentProps<typeof MotionSpan>) => (
     <Suspense fallback={<span {...props} />}>
       <MotionSpan {...props} />
     </Suspense>
   ),
-  button: (props: any) => (
+  button: (props: React.ComponentProps<typeof MotionButton>) => (
     <Suspense fallback={<button {...props} />}>
       <MotionButton {...props} />
     </Suspense>
   ),
 };
 
-export const AnimatePresence = (props: any) => (
+export const AnimatePresence = (props: React.ComponentProps<typeof AnimatePresenceComponent>) => (
   <Suspense fallback={props.children}>
     <AnimatePresenceComponent {...props} />
   </Suspense>
 );
 
 // Export des autres utilitaires framer-motion (chargés quand nécessaire)
+// eslint-disable-next-line react-refresh/only-export-components
 export const useMotionValue = lazy(() => loadMotion().then((m) => ({ default: m.useMotionValue })));
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTransform = lazy(() => loadMotion().then((m) => ({ default: m.useTransform })));
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAnimation = lazy(() => loadMotion().then((m) => ({ default: m.useAnimation })));
 
 // Type pour PanInfo

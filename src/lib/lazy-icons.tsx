@@ -31,18 +31,21 @@ const loadLucide = async (): Promise<typeof import("lucide-react")> => {
 /**
  * Crée un composant lazy pour une icône spécifique
  */
-export function createLazyIcon<T extends ComponentType<any>>(
+// eslint-disable-next-line react-refresh/only-export-components
+export function createLazyIcon<T extends ComponentType<React.SVGProps<SVGSVGElement>>>(
   iconName: string,
 ): React.LazyExoticComponent<T> {
   return lazy(() =>
     loadLucide().then((module) => {
-      const Icon = (module as any)[iconName];
+      const Icon = (module as Record<string, ComponentType<React.SVGProps<SVGSVGElement>>>)[
+        iconName
+      ];
       if (!Icon) {
         console.warn(`Icon ${iconName} not found in lucide-react`);
         // Fallback: retourner un composant vide
-        return { default: () => null } as any;
+        return { default: () => null } as { default: T };
       }
-      return { default: Icon } as any;
+      return { default: Icon } as { default: T };
     }),
   );
 }
@@ -57,7 +60,7 @@ export function LazyIcon({
 }: {
   name: string;
   fallback?: React.ReactNode;
-  [key: string]: any;
+  [key: string]: unknown;
 }) {
   const LazyIconComponent = createLazyIcon(name);
 
@@ -71,6 +74,7 @@ export function LazyIcon({
 /**
  * Précharger lucide-react (pour les icônes critiques)
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function preloadLucideReact(): Promise<typeof import("lucide-react")> {
   return loadLucide();
 }

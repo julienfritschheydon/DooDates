@@ -34,8 +34,12 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
 
   // Utiliser directement localStorage comme le Dashboard
   const localVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
-  const pollVotes = localVotes.filter((vote: any) => vote.poll_id === poll?.id);
-  const uniqueVoters = new Set(pollVotes.map((vote: any) => vote.voter_email)).size;
+  const pollVotes = localVotes.filter(
+    (vote: { poll_id: string; voter_email: string }) => vote.poll_id === poll?.id,
+  );
+  const uniqueVoters = new Set(
+    pollVotes.map((vote: { poll_id: string; voter_email: string }) => vote.voter_email),
+  ).size;
   const totalParticipants = uniqueVoters;
 
   return (

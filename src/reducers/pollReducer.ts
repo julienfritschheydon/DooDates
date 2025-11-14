@@ -53,7 +53,7 @@ export function pollReducer(state: Poll | null, action: PollAction): Poll | null
         updated_at: new Date().toISOString(),
         _highlightedId: newDate,
         _highlightType: "add",
-      } as any;
+      } as import("../lib/pollStorage").Poll;
     }
 
     case "REMOVE_DATE": {
@@ -74,7 +74,7 @@ export function pollReducer(state: Poll | null, action: PollAction): Poll | null
         updated_at: new Date().toISOString(),
         _highlightedId: dateToRemove,
         _highlightType: "remove",
-      } as any;
+      } as import("../lib/pollStorage").Poll;
     }
 
     case "UPDATE_TITLE": {
@@ -106,7 +106,7 @@ export function pollReducer(state: Poll | null, action: PollAction): Poll | null
 
       // Récupérer ou initialiser settings.timeSlotsByDate
       const currentSettings = state.settings || {};
-      const currentTimeSlots = (currentSettings as any).timeSlotsByDate || {};
+      const currentTimeSlots = currentSettings.timeSlotsByDate || {};
       const dateSlots = currentTimeSlots[date] || [];
 
       // Récupérer la granularité actuelle (défaut: 60 min)

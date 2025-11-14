@@ -16,8 +16,8 @@ export interface FormQuestion {
   maxChoices?: number;
   placeholder?: string;
   maxLength?: number;
-  matrixRows?: any[];
-  matrixColumns?: any[];
+  matrixRows?: FormQuestionShape["matrixRows"];
+  matrixColumns?: FormQuestionShape["matrixColumns"];
   matrixType?: "single" | "multiple";
   matrixColumnsNumeric?: boolean;
   ratingScale?: number;
@@ -55,12 +55,12 @@ export function useFormPollCreation() {
         description: params.description,
         questions: params.questions.map((q) => ({
           id: q.id,
-          kind: q.type as any,
+          kind: q.type as FormQuestionShape["kind"],
           title: q.title,
           required: q.required || false,
           options: q.options,
           maxChoices: q.maxChoices,
-          type: q.type as any, // Legacy compatibility
+          type: q.type as FormQuestionShape["kind"], // Legacy compatibility
           placeholder: q.placeholder,
           maxLength: q.maxLength,
           matrixRows: q.matrixRows,
@@ -94,9 +94,9 @@ export function useFormPollCreation() {
       });
 
       return { poll: result.poll };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error("❌ Exception création formulaire", "poll", { error });
-      return { error: error.message || "Erreur inconnue" };
+      return { error: error instanceof Error ? error.message : "Erreur inconnue" };
     }
   };
 

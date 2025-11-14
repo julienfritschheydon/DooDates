@@ -261,8 +261,8 @@ export function createValidationError(
 ): Error {
   const error = new Error(message);
   error.name = "ConversationValidationError";
-  (error as any).code = code;
-  (error as any).zodError = zodError;
+  (error as Error & { code?: string; zodError?: unknown }).code = code;
+  (error as Error & { code?: string; zodError?: unknown }).zodError = zodError;
   return error;
 }
 

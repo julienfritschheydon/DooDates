@@ -34,7 +34,7 @@ interface TestFixtures {
  * Optimisé pour la vitesse (pas de waits inutiles)
  */
 async function createPollQuick(page: any): Promise<Poll> {
-  await page.goto('/?e2e-test=true', { waitUntil: 'domcontentloaded' });
+  await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
   
   // Demander à l'IA
   const chatInput = page.locator('[data-testid="message-input"]');

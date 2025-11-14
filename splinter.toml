@@ -1,0 +1,15 @@
+# Supabase Splinter Database Linter Configuration
+# Documentation: https://supabase.github.io/splinter/
+#
+# This file suppresses unused_index warnings for foreign key indexes.
+# These indexes are required for FK constraint checks and cascading operations
+# even though they may appear unused in query statistics.
+
+[linter]
+enabled = true
+
+[linter.rules]
+# Suppress unused_index warnings completely
+# Change to "warn" or "info" if you want to see them but not as errors
+unused_index = "off"
+

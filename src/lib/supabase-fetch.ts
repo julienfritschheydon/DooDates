@@ -9,7 +9,7 @@ const IS_LOCAL_MODE =
   Boolean(import.meta.env.VITEST) ||
   // Runtime E2E flags (set by Playwright before bundle runs)
   (typeof window !== "undefined" &&
-    ((window as any).__E2E__ === true ||
+    ((window as Window & { __E2E__?: boolean }).__E2E__ === true ||
       (() => {
         try {
           return (
@@ -164,11 +164,20 @@ export const pollsApi = IS_LOCAL_MODE
 export const pollOptionsApi = IS_LOCAL_MODE
   ? {
       async getByPollId(pollId: string): Promise<PollOption[]> {
-        const polls: any[] = JSON.parse(localStorage.getItem("dev-polls") || "[]");
+        const polls: import("./supabase").Database["public"]["Tables"]["polls"]["Row"][] =
+          JSON.parse(localStorage.getItem("dev-polls") || "[]");
         const poll = polls.find((p) => p.id === pollId);
         if (!poll) return [];
         const dates: string[] = poll.settings?.selectedDates || [];
-        const map: Record<string, any[]> = poll.settings?.timeSlotsByDate || {};
+        const map: Record<
+          string,
+          Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>
+        > = (poll.settings?.timeSlotsByDate as
+          | Record<
+              string,
+              Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>
+            >
+          | undefined) || {};
         return dates.map((d, i) => ({
           id: `option-${i}`,
           poll_id: pollId,
@@ -222,7 +231,7 @@ export const votesApi = IS_LOCAL_MODE
       },
       async create(vote: Omit<Vote, "id" | "created_at">): Promise<Vote> {
         const newVote: Vote = {
-          ...(vote as any),
+          ...(vote as Omit<Vote, "id" | "created_at">),
           id: `vote-${Date.now()}`,
           created_at: new Date().toISOString(),
         } as Vote;

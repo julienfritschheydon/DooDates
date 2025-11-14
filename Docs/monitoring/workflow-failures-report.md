@@ -1,8 +1,8 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 13/11/2025 14:59:39
+**Dernière mise à jour:** 13/11/2025 17:14:59
 
-_Workflow run #281 (ID 19334023357) — génération UTC 2025-11-13T13:59:39.777Z_
+_Workflow run #291 (ID 19338054404) — génération UTC 2025-11-13T16:14:59.328Z_
 
 > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
 > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
@@ -28,11 +28,11 @@ Aucun échec détecté dans les 7 derniers jours.
 
 **Statut:** ✅ success
 
-**Dernier run:** 13/11/2025 14:54:44
+**Dernier run:** 13/11/2025 17:13:34
 
 **Statistiques:**
-- ❌ Échecs (24h): **9**
-- ❌ Échecs (7 jours): **9**
+- ❌ Échecs (24h): **7**
+- ❌ Échecs (7 jours): **7**
 - 📊 Total runs analysés: **20**
 
 ### 🔴 Échecs récents (24h)
@@ -143,9 +143,9 @@ stack: 'DooDatesError: Gemini model not initialized\n' +
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ⏳ unknown
+**Statut:** ✅ success
 
-**Dernier run:** 13/11/2025 14:58:43
+**Dernier run:** 13/11/2025 16:57:48
 
 **Statistiques:**
 - ❌ Échecs (24h): **10**
@@ -256,8 +256,8 @@ Error: "path": "/home/runner/work/DooDates/DooDates/test-results/analytics-ai-op
 
 ## 📈 Résumé Global
 
-- ❌ **Total échecs (24h):** 10
-- ❌ **Total échecs (7 jours):** 10
+- ❌ **Total échecs (24h):** 9
+- ❌ **Total échecs (7 jours):** 9
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations

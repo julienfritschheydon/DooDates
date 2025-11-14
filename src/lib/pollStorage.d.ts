@@ -115,7 +115,7 @@ export interface Vote {
   voter_email?: string;
   voter_name?: string;
   created_at?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 export declare function getVoterId(vote: {
   voter_email?: string;
