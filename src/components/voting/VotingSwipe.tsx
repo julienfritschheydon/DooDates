@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { motion, useMotionValue, useTransform, PanInfo, useAnimation } from "framer-motion";
+import { motion, useMotionValue, useTransform, type PanInfo, useAnimation } from "framer-motion";
 import {
   ChevronLeft,
   TrendingUp,
@@ -252,7 +252,11 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({ pollId, onBack, onVoteSubmitt
                 const voteType = direction > 0 ? "yes" : direction < 0 ? "no" : "maybe";
                 handleSwipe(optionId, voteType);
               }}
-              handleOptionDragEnd={(event: any, info: any, optionId: string) => {
+              handleOptionDragEnd={(
+                event: MouseEvent | TouchEvent | PointerEvent,
+                info: PanInfo,
+                optionId: string,
+              ) => {
                 // SWIPE LOGIC - DOCUMENTATION
                 // offset.x > 0 = swipe vers la DROITE
                 // offset.x < 0 = swipe vers la GAUCHE

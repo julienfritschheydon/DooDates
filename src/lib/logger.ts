@@ -93,19 +93,19 @@ class Logger {
   }
 
   // Méthodes principales pour remplacer console.log
-  debug(message: string, category: LogCategory = "general", data?: any): void {
+  debug(message: string, category: LogCategory = "general", data?: unknown): void {
     this.logWithLevel("debug", message, category, data);
   }
 
-  info(message: string, category: LogCategory = "general", data?: any): void {
+  info(message: string, category: LogCategory = "general", data?: unknown): void {
     this.logWithLevel("info", message, category, data);
   }
 
-  warn(message: string, category: LogCategory = "general", data?: any): void {
+  warn(message: string, category: LogCategory = "general", data?: unknown): void {
     this.logWithLevel("warn", message, category, data);
   }
 
-  error(message: string, category: LogCategory = "general", error?: any): void {
+  error(message: string, category: LogCategory = "general", error?: unknown): void {
     this.logWithLevel("error", message, category, error);
 
     // En production, envoyer au service de monitoring
@@ -115,11 +115,16 @@ class Logger {
   }
 
   // Méthode legacy pour compatibilité
-  log(message: string, category: LogCategory = "general", data?: any): void {
+  log(message: string, category: LogCategory = "general", data?: unknown): void {
     this.info(message, category, data);
   }
 
-  private logWithLevel(level: LogLevel, message: string, category: LogCategory, data?: any): void {
+  private logWithLevel(
+    level: LogLevel,
+    message: string,
+    category: LogCategory,
+    data?: unknown,
+  ): void {
     // En production, ne logger que si explicitement activé
     if (!this.isDev && !this.config.enableProduction) return;
 
@@ -194,7 +199,12 @@ class Logger {
   }
 
   // Envoyer les erreurs critiques au service de monitoring (production)
-  private sendToMonitoring(level: LogLevel, message: string, category: string, data?: any): void {
+  private sendToMonitoring(
+    level: LogLevel,
+    message: string,
+    category: string,
+    data?: unknown,
+  ): void {
     // TODO: Intégrer avec Sentry, LogRocket, ou autre service
     // Exemple: Sentry.captureException(new Error(message));
 
@@ -225,7 +235,7 @@ class Logger {
   }
 
   // Récupérer les logs pour debug
-  getStoredLogs(): any[] {
+  getStoredLogs(): unknown[] {
     try {
       return JSON.parse(localStorage.getItem("doodates-error-logs") || "[]");
     } catch {
@@ -248,5 +258,5 @@ export const logger = new Logger();
 
 // Exposition globale pour débogage
 if (typeof window !== "undefined") {
-  (window as any).dooLogger = logger;
+  (window as Window & { dooLogger?: typeof logger }).dooLogger = logger;
 }

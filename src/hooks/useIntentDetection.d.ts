@@ -31,7 +31,7 @@ interface IntentResult {
   confirmMessage?: Message;
   aiProposal?: {
     userRequest: string;
-    generatedContent: any;
+    generatedContent: import("../lib/gemini").PollSuggestion;
     pollContext?: {
       pollId?: string;
       pollTitle?: string;
@@ -41,7 +41,7 @@ interface IntentResult {
   };
   action?: {
     type: string;
-    payload: any;
+    payload: unknown;
   };
   modifiedQuestionId?: string;
   modifiedField?: "title" | "type" | "options" | "required";
@@ -57,9 +57,9 @@ interface IntentResult {
  */
 interface UseIntentDetectionOptions {
   /** Poll actuellement édité (Date ou Form) */
-  currentPoll: any;
+  currentPoll: import("../lib/pollStorage").Poll | null;
   /** Callback pour dispatcher les actions de modification du poll */
-  onDispatchAction: (action: { type: string; payload: any }) => void;
+  onDispatchAction: (action: { type: string; payload: unknown }) => void;
 }
 /**
  * Hook de détection d'intentions pour modifications de polls.

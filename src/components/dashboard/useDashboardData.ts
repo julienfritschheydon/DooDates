@@ -14,6 +14,12 @@ import { logger } from "@/lib/logger";
 import { usePolls } from "@/hooks/usePolls";
 import { isE2ETestingEnvironment } from "@/lib/e2e-detection";
 import type { Conversation } from "@/types/conversation";
+import type { Vote } from "@/lib/pollStorage";
+
+type VoteWithData = Vote & {
+  vote_data?: Record<string, "yes" | "no" | "maybe">;
+  selections?: Record<string, "yes" | "no" | "maybe">;
+};
 
 export function useDashboardData(refreshKey: number) {
   const [conversationItems, setConversationItems] = useState<ConversationItem[]>([]);
@@ -23,7 +29,8 @@ export function useDashboardData(refreshKey: number) {
 
   const isE2ETestMode =
     typeof window !== "undefined" &&
-    (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true);
+    (isE2ETestingEnvironment() ||
+      (window as Window & { __IS_E2E_TESTING__?: boolean }).__IS_E2E_TESTING__ === true);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -77,7 +84,7 @@ export function useDashboardData(refreshKey: number) {
           id: c.id,
           title: c.title,
           userId: c.userId,
-          pollId: (c as any).pollId || (c as any).metadata?.pollId,
+          pollId: c.pollId || c.metadata?.pollId,
         })),
       });
 
@@ -154,16 +161,16 @@ export function useDashboardData(refreshKey: number) {
           id: c.id,
           title: c.title,
           userId: c.userId,
-          pollId: (c as any).pollId || (c as any).metadata?.pollId,
+          pollId: c.pollId || c.metadata?.pollId,
         })),
       });
 
       // Parser les votes une seule fois et créer un index par poll_id pour éviter les filtres répétés
       const votesRaw = localStorage.getItem("dev-votes");
-      const localVotes: any[] = votesRaw ? JSON.parse(votesRaw) : [];
+      const localVotes: Vote[] = votesRaw ? JSON.parse(votesRaw) : [];
 
       // Indexer les votes par poll_id pour accès O(1) au lieu de O(n)
-      const votesByPollId = new Map<string, any[]>();
+      const votesByPollId = new Map<string, Vote[]>();
       for (const vote of localVotes) {
         const pollId = vote.poll_id;
         if (pollId) {
@@ -175,7 +182,7 @@ export function useDashboardData(refreshKey: number) {
       }
 
       // Calculer les statistiques pour chaque sondage (optimisé)
-      const pollsWithStats: DashboardPoll[] = localPolls.map((poll: any) => {
+      const pollsWithStats: DashboardPoll[] = localPolls.map((poll) => {
         if (poll?.type === "form") {
           const resps = getFormResponses(poll.id);
           const unique = new Set(resps.map((r) => getRespondentId(r))).size;
@@ -188,17 +195,17 @@ export function useDashboardData(refreshKey: number) {
 
         // Utiliser l'index au lieu de filter pour éviter O(n) par poll
         const pollVotes = votesByPollId.get(poll.id) || [];
-        const uniqueVoters = new Set(pollVotes.map((vote: any) => getVoterId(vote))).size;
+        const uniqueVoters = new Set(pollVotes.map((vote) => getVoterId(vote))).size;
 
         // Calculer les meilleures dates (optimisé)
         let topDates: { date: string; score: number }[] = [];
-        const selectedDates = poll.settings?.selectedDates || poll.options;
+        const selectedDates = poll.settings?.selectedDates || poll.dates;
 
         if (
           selectedDates &&
           Array.isArray(selectedDates) &&
           pollVotes.length > 0 &&
-          poll.type !== "form"
+          poll.type === "date"
         ) {
           // Pré-calculer les scores dans une seule passe
           const dateScoresMap = new Map<string, number>();
@@ -206,13 +213,23 @@ export function useDashboardData(refreshKey: number) {
           for (let index = 0; index < selectedDates.length; index++) {
             const dateStr = selectedDates[index];
             const dateLabel =
-              typeof dateStr === "string" ? dateStr : dateStr.label || dateStr.title;
+              typeof dateStr === "string"
+                ? dateStr
+                : typeof dateStr === "object" &&
+                    dateStr !== null &&
+                    ("label" in dateStr || "title" in dateStr)
+                  ? (dateStr as { label?: string; title?: string }).label ||
+                    (dateStr as { label?: string; title?: string }).title ||
+                    String(dateStr)
+                  : String(dateStr);
             const optionId = `option-${index}`;
 
             let score = 0;
             // Parcourir les votes une seule fois
             for (const vote of pollVotes) {
-              const selection = vote.vote_data?.[optionId] || vote.selections?.[optionId];
+              const voteData =
+                (vote as VoteWithData).vote_data || (vote as VoteWithData).selections;
+              const selection = voteData?.[optionId];
               if (selection === "yes") score += 3;
               else if (selection === "maybe") score += 1;
             }
@@ -241,10 +258,10 @@ export function useDashboardData(refreshKey: number) {
       // Filtrer aussi les conversations liées à des polls qui ne sont pas du créateur actuel
       const items: ConversationItem[] = conversations
         .map((conv) => {
-          const metadata = conv.metadata as any;
+          const metadata = conv.metadata;
 
           // Chercher le poll associé via pollId (directement sur conv ou dans metadata)
-          const pollId = (conv as any).pollId || metadata?.pollId;
+          const pollId = conv.pollId || metadata?.pollId;
           const relatedPoll = pollId ? pollsWithStats.find((p) => p.id === pollId) : undefined;
 
           logger.debug("🔍 Dashboard - Mapping conversation", "dashboard", {
@@ -279,21 +296,55 @@ export function useDashboardData(refreshKey: number) {
         })
         .filter((item): item is ConversationItem => item !== null); // Filtrer les null
 
+      // Ajouter les polls sans conversation associée (notamment les sondages disponibilités créés directement)
+      const pollIdsWithConversation = new Set(
+        conversations
+          .map((conv) => conv.pollId || conv.metadata?.pollId)
+          .filter((id): id is string => !!id),
+      );
+
+      const orphanPolls = pollsWithStats.filter((poll) => !pollIdsWithConversation.has(poll.id));
+
+      logger.info("🔍 Dashboard - Polls orphelins (sans conversation)", "dashboard", {
+        count: orphanPolls.length,
+        polls: orphanPolls.map((p) => ({
+          id: p.id,
+          title: p.title,
+          type: p.type,
+        })),
+      });
+
+      // Créer des items pour les polls orphelins
+      const orphanItems: ConversationItem[] = orphanPolls.map((poll) => ({
+        id: `poll-${poll.id}`, // ID unique pour l'item dashboard
+        conversationTitle: poll.title || "Sondage sans titre",
+        conversationDate: new Date(poll.updated_at || poll.created_at),
+        poll: poll,
+        hasAI: false,
+        tags: [],
+      }));
+
+      // Combiner les items de conversations et les polls orphelins
+      const allItems = [...items, ...orphanItems];
+
       logger.info("🔍 Dashboard - Items finaux", "dashboard", {
-        count: items.length,
-        items: items.map((i) => ({
+        count: allItems.length,
+        itemsFromConversations: items.length,
+        itemsFromOrphanPolls: orphanItems.length,
+        items: allItems.map((i) => ({
           id: i.id,
           title: i.conversationTitle,
           hasPoll: !!i.poll,
           pollId: i.poll?.id,
           pollTitle: i.poll?.title,
+          pollType: i.poll?.type,
         })),
       });
 
       // Trier par date (plus récent en premier)
-      items.sort((a, b) => b.conversationDate.getTime() - a.conversationDate.getTime());
+      allItems.sort((a, b) => b.conversationDate.getTime() - a.conversationDate.getTime());
 
-      setConversationItems(items);
+      setConversationItems(allItems);
     } catch (error) {
       logError(
         ErrorFactory.storage(

@@ -66,22 +66,24 @@ export function formPollToCSV(poll: Poll): string {
 
   // Metadata header
   lines.push(
-    ["poll_id", "poll_slug", "poll_title", "type", "created_at", "exported_at"]
-      .map(escapeCSV)
+    (["poll_id", "poll_slug", "poll_title", "type", "created_at", "exported_at"] as Array<string>)
+      .map((val: string) => escapeCSV(val))
       .join(","),
   );
 
   // Metadata values
   lines.push(
-    [
-      poll.id,
-      poll.slug,
-      poll.title,
-      poll.type,
-      formatTimestamp(poll.created_at),
-      formatTimestamp(new Date()),
-    ]
-      .map(escapeCSV)
+    (
+      [
+        poll.id,
+        poll.slug,
+        poll.title,
+        poll.type,
+        formatTimestamp(poll.created_at),
+        formatTimestamp(new Date()),
+      ] as Array<string | number | undefined>
+    )
+      .map((val: string | number | undefined) => escapeCSV(val))
       .join(","),
   );
 
@@ -90,32 +92,36 @@ export function formPollToCSV(poll: Poll): string {
 
   // Data header
   lines.push(
-    [
-      "respondent_display",
-      "respondent_hash",
-      "submitted_at",
-      "source",
-      "question_id",
-      "question_title",
-      "question_type",
-      "value",
-      "selected_count",
-    ]
-      .map(escapeCSV)
+    (
+      [
+        "respondent_display",
+        "respondent_hash",
+        "submitted_at",
+        "source",
+        "question_id",
+        "question_title",
+        "question_type",
+        "value",
+        "selected_count",
+      ] as Array<string>
+    )
+      .map((val: string) => escapeCSV(val))
       .join(","),
   );
 
   // Data rows
   const responses = getFormResponses(poll.id);
 
-  responses.forEach((response) => {
+  responses.forEach((response: import("./pollStorage").FormResponse) => {
     const respondentDisplay = response.respondentName || "Anonymous";
     const respondentHash = response.id || "unknown";
     const submittedAt = formatTimestamp(response.created_at || new Date());
     const source = "link"; // MVP: default to "link" (can be extended later)
 
-    response.items.forEach((item) => {
-      const question = poll.questions?.find((q) => q.id === item.questionId);
+    response.items.forEach((item: { questionId: string; value: unknown }) => {
+      const question = poll.questions?.find(
+        (q: import("./pollStorage").FormQuestionShape) => q.id === item.questionId,
+      );
       const questionTitle = question?.title || "Unknown question";
       const questionType = question?.type || "unknown";
 
@@ -129,21 +135,23 @@ export function formPollToCSV(poll: Poll): string {
       } else if (typeof item.value === "object" && item.value !== null) {
         // Matrix: format as "Row1: Col1 | Row2: Col2"
         const matrixVal = item.value as Record<string, string | string[]>;
-        const matrixRows = (question as any)?.matrixRows || [];
-        const matrixCols = (question as any)?.matrixColumns || [];
+        const matrixRows = question.matrixRows || [];
+        const matrixCols = question.matrixColumns || [];
 
-        const formatted = Object.entries(matrixVal).map(([rowId, colValue]) => {
-          const row = matrixRows.find((r: any) => r.id === rowId);
-          const rowLabel = row?.label || rowId;
+        const formatted = Object.entries(matrixVal).map(
+          ([rowId, colValue]: [string, string | string[]]) => {
+            const row = matrixRows.find((r: { id: string; label: string }) => r.id === rowId);
+            const rowLabel = row?.label || rowId;
 
-          const colIds = Array.isArray(colValue) ? colValue : [colValue];
-          const colLabels = colIds.map((cid: string) => {
-            const col = matrixCols.find((c: any) => c.id === cid);
-            return col?.label || cid;
-          });
+            const colIds = Array.isArray(colValue) ? colValue : [colValue];
+            const colLabels = colIds.map((cid: string) => {
+              const col = matrixCols.find((c: { id: string; label: string }) => c.id === cid);
+              return col?.label || cid;
+            });
 
-          return `${rowLabel}: ${colLabels.join(", ")}`;
-        });
+            return `${rowLabel}: ${colLabels.join(", ")}`;
+          },
+        );
 
         value = formatted.join(" | ");
         selectedCount = Object.keys(matrixVal).length;
@@ -154,18 +162,20 @@ export function formPollToCSV(poll: Poll): string {
       }
 
       lines.push(
-        [
-          respondentDisplay,
-          respondentHash,
-          submittedAt,
-          source,
-          item.questionId,
-          questionTitle,
-          questionType,
-          value,
-          selectedCount,
-        ]
-          .map(escapeCSV)
+        (
+          [
+            respondentDisplay,
+            respondentHash,
+            submittedAt,
+            source,
+            item.questionId,
+            questionTitle,
+            questionType,
+            value,
+            selectedCount,
+          ] as Array<string | number>
+        )
+          .map((val: string | number) => escapeCSV(val))
           .join(","),
       );
     });
@@ -247,7 +257,7 @@ function formPollToHTML(poll: Poll): string {
 
   // Build questions summary
   let questionsHTML = "";
-  poll.questions?.forEach((question, idx) => {
+  poll.questions?.forEach((question: import("./pollStorage").FormQuestionShape, idx: number) => {
     questionsHTML += `
       <div class="question-block">
         <h3 class="question-title">Question ${idx + 1}: ${escapeHTML(question.title)}</h3>
@@ -255,22 +265,22 @@ function formPollToHTML(poll: Poll): string {
     `;
 
     // Count responses per question
-    const questionResponses = responses.flatMap((r) =>
-      r.items.filter((item) => item.questionId === question.id),
+    const questionResponses = responses.flatMap((r: import("./pollStorage").FormResponse) =>
+      r.items.filter((item: { questionId: string }) => item.questionId === question.id),
     );
 
     if (question.type === "text") {
       questionsHTML += `<div class="responses">`;
-      questionResponses.forEach((item, i) => {
+      questionResponses.forEach((item: { value: unknown }, i: number) => {
         questionsHTML += `<p class="text-response"><strong>Réponse ${i + 1}:</strong> ${escapeHTML(String(item.value))}</p>`;
       });
       questionsHTML += `</div>`;
     } else {
       // Count options for single/multiple choice
       const optionCounts: Record<string, number> = {};
-      questionResponses.forEach((item) => {
+      questionResponses.forEach((item: { value: unknown }) => {
         if (Array.isArray(item.value)) {
-          item.value.forEach((v) => {
+          (item.value as Array<string>).forEach((v: string) => {
             optionCounts[v] = (optionCounts[v] || 0) + 1;
           });
         } else {
@@ -288,7 +298,7 @@ function formPollToHTML(poll: Poll): string {
         </thead>
         <tbody>`;
 
-      Object.entries(optionCounts).forEach(([option, count]) => {
+      Object.entries(optionCounts).forEach(([option, count]: [string, number]) => {
         const percentage =
           responses.length > 0 ? ((count / responses.length) * 100).toFixed(1) : "0.0";
         questionsHTML += `
@@ -515,7 +525,7 @@ export function exportFormPollToJSON(poll: Poll): void {
       total_responses: responses.length,
     },
     questions: poll.questions,
-    responses: responses.map((r) => ({
+    responses: responses.map((r: import("./pollStorage").FormResponse) => ({
       id: r.id,
       respondent_name: r.respondentName || "Anonymous",
       created_at: r.created_at,
@@ -570,33 +580,33 @@ export function exportFormPollToMarkdown(poll: Poll): void {
   markdown += `---\n\n`;
 
   // Questions
-  poll.questions?.forEach((question, idx) => {
+  poll.questions?.forEach((question: import("./pollStorage").FormQuestionShape, idx: number) => {
     markdown += `## Question ${idx + 1}: ${question.title}\n\n`;
     markdown += `**Type:** ${question.type}`;
     if (question.required) markdown += ` • **Obligatoire**`;
     markdown += `\n\n`;
 
-    const questionResponses = responses.flatMap((r) =>
-      r.items.filter((item) => item.questionId === question.id),
+    const questionResponses = responses.flatMap((r: import("./pollStorage").FormResponse) =>
+      r.items.filter((item: { questionId: string }) => item.questionId === question.id),
     );
 
     if (question.type === "text") {
       markdown += `### Réponses texte\n\n`;
-      questionResponses.forEach((item, i) => {
+      questionResponses.forEach((item: { value: unknown }, i: number) => {
         markdown += `${i + 1}. ${String(item.value)}\n`;
       });
       markdown += `\n`;
     } else if (question.type === "matrix") {
       // Matrix: display as table
-      const matrixRows = (question as any)?.matrixRows || [];
-      const matrixCols = (question as any)?.matrixColumns || [];
+      const matrixRows = question.matrixRows || [];
+      const matrixCols = question.matrixColumns || [];
 
       // Count responses per cell (rowId_colId)
       const cellCounts: Record<string, number> = {};
-      questionResponses.forEach((item) => {
+      questionResponses.forEach((item: { value: unknown }) => {
         if (typeof item.value === "object" && item.value !== null && !Array.isArray(item.value)) {
           const matrixVal = item.value as Record<string, string | string[]>;
-          Object.entries(matrixVal).forEach(([rowId, colValue]) => {
+          Object.entries(matrixVal).forEach(([rowId, colValue]: [string, string | string[]]) => {
             const colIds = Array.isArray(colValue) ? colValue : [colValue];
             colIds.forEach((colId: string) => {
               const key = `${rowId}_${colId}`;
@@ -607,12 +617,12 @@ export function exportFormPollToMarkdown(poll: Poll): void {
       });
 
       markdown += `### Résultats (${responses.length} réponse${responses.length > 1 ? "s" : ""})\n\n`;
-      markdown += `| | ${matrixCols.map((c: any) => c.label).join(" | ")} |\n`;
-      markdown += `|${matrixCols.map(() => "---").join("|")}---|\n`;
+      markdown += `| | ${matrixCols.map((c: { label: string }) => c.label).join(" | ")} |\n`;
+      markdown += `|${matrixCols.map((_col: { id: string; label: string }) => "---").join("|")}---|\n`;
 
-      matrixRows.forEach((row: any) => {
+      matrixRows.forEach((row: { id: string; label: string }) => {
         const rowLabel = row.label;
-        const counts = matrixCols.map((col: any) => {
+        const counts = matrixCols.map((col: { id: string }) => {
           const key = `${row.id}_${col.id}`;
           const count = cellCounts[key] || 0;
           const pct = responses.length > 0 ? ((count / responses.length) * 100).toFixed(1) : "0.0";
@@ -624,9 +634,9 @@ export function exportFormPollToMarkdown(poll: Poll): void {
     } else {
       // Count options
       const optionCounts: Record<string, number> = {};
-      questionResponses.forEach((item) => {
+      questionResponses.forEach((item: { value: unknown }) => {
         if (Array.isArray(item.value)) {
-          item.value.forEach((v) => {
+          (item.value as Array<string>).forEach((v: string) => {
             optionCounts[v] = (optionCounts[v] || 0) + 1;
           });
         } else {
@@ -638,7 +648,7 @@ export function exportFormPollToMarkdown(poll: Poll): void {
       markdown += `| Option | Réponses | Pourcentage |\n`;
       markdown += `|--------|----------|-------------|\n`;
 
-      Object.entries(optionCounts).forEach(([option, count]) => {
+      Object.entries(optionCounts).forEach(([option, count]: [string, number]) => {
         const percentage =
           responses.length > 0 ? ((count / responses.length) * 100).toFixed(1) : "0.0";
         markdown += `| ${option} | ${count} | ${percentage}% |\n`;

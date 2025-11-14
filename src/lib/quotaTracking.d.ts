@@ -28,7 +28,7 @@ export interface CreditJournalEntry {
     pollId?: string;
     simulationId?: string;
     analyticsQuery?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 interface QuotaConsumedData {
@@ -54,7 +54,7 @@ export declare function getQuotaConsumed(
 export declare function getConsumptionJournal(
   userId: string | null | undefined,
   limit?: number,
-): CreditJournalEntry[];
+): Promise<CreditJournalEntry[]>;
 /**
  * Incrémenter le compteur de conversations créées
  */

@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import { logger } from "@/lib/logger";
 import * as ConversationStorage from "../lib/storage/ConversationStorageSimple";
 import { useAuth } from "../contexts/AuthContext";
@@ -129,7 +135,8 @@ export function useConversations(config: UseConversationsConfig = {}) {
         // If user is logged in, load from Supabase
         const isE2ETestMode =
           typeof window !== "undefined" &&
-          (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true);
+          (isE2ETestingEnvironment() ||
+            (window as Window & { __IS_E2E_TESTING__?: boolean }).__IS_E2E_TESTING__ === true);
 
         if (user?.id && !isE2ETestMode) {
           try {
@@ -312,65 +319,83 @@ export function useConversations(config: UseConversationsConfig = {}) {
     };
   }, [conversationsQuery]);
 
-  // Single conversation hook
+  // Single conversation hook factory
+  // Note: This returns a function that creates query options, not a hook
+  // Components should use useConversationById hook directly instead
+  const getConversationQueryOptions = useCallback(
+    (conversationId: string) => ({
+      queryKey: queryKeys.conversation(conversationId),
+      queryFn: async () => {
+        if (user?.id) {
+          try {
+            const { getConversation: getSupabaseConversation } = await import(
+              "../lib/storage/ConversationStorageSupabase"
+            );
+            const supabaseConv = await getSupabaseConversation(conversationId, user.id);
+            if (supabaseConv) {
+              // Also cache in localStorage
+              ConversationStorage.updateConversation(supabaseConv);
+              return supabaseConv;
+            }
+          } catch (supabaseError) {
+            logger.error(
+              "Erreur lors du chargement depuis Supabase, utilisation de localStorage",
+              "conversation",
+              supabaseError,
+            );
+          }
+        }
+        // Fallback to localStorage
+        return ConversationStorage.getConversation(conversationId);
+      },
+      staleTime: 1000 * 60 * 2,
+    }),
+    [queryKeys, user?.id],
+  );
+
+  const getMessagesQueryOptions = useCallback(
+    (conversationId: string) => ({
+      queryKey: queryKeys.messages(conversationId),
+      queryFn: async () => {
+        if (user?.id) {
+          try {
+            const { getMessages: getSupabaseMessages } = await import(
+              "../lib/storage/ConversationStorageSupabase"
+            );
+            const supabaseMessages = await getSupabaseMessages(conversationId, user.id);
+            if (supabaseMessages.length > 0) {
+              // Also cache in localStorage
+              ConversationStorage.saveMessages(conversationId, supabaseMessages);
+              return supabaseMessages;
+            }
+          } catch (supabaseError) {
+            logger.error(
+              "Erreur lors du chargement des messages depuis Supabase, utilisation de localStorage",
+              "conversation",
+              supabaseError,
+            );
+          }
+        }
+        // Fallback to localStorage
+        return ConversationStorage.getMessages(conversationId);
+      },
+      staleTime: 1000 * 60 * 2,
+    }),
+    [queryKeys, user?.id],
+  );
+
+  // Legacy API: useConversation - DEPRECATED
+  // WARNING: This violates React hooks rules but is kept for backward compatibility
+  // New code should use a separate hook that takes conversationId as a parameter
   const useConversation = useCallback(
     (conversationId: string) => {
-      const conversationQuery = useQuery({
-        queryKey: queryKeys.conversation(conversationId),
-        queryFn: async () => {
-          if (user?.id) {
-            try {
-              const { getConversation: getSupabaseConversation } = await import(
-                "../lib/storage/ConversationStorageSupabase"
-              );
-              const supabaseConv = await getSupabaseConversation(conversationId, user.id);
-              if (supabaseConv) {
-                // Also cache in localStorage
-                ConversationStorage.updateConversation(supabaseConv);
-                return supabaseConv;
-              }
-            } catch (supabaseError) {
-              logger.error(
-                "Erreur lors du chargement depuis Supabase, utilisation de localStorage",
-                "conversation",
-                supabaseError,
-              );
-            }
-          }
-          // Fallback to localStorage
-          return ConversationStorage.getConversation(conversationId);
-        },
-        staleTime: 1000 * 60 * 2,
-      });
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const conversationQuery = useQuery(getConversationQueryOptions(conversationId));
 
-      const messagesQuery = useQuery({
-        queryKey: queryKeys.messages(conversationId),
-        queryFn: async () => {
-          if (user?.id) {
-            try {
-              const { getMessages: getSupabaseMessages } = await import(
-                "../lib/storage/ConversationStorageSupabase"
-              );
-              const supabaseMessages = await getSupabaseMessages(conversationId, user.id);
-              if (supabaseMessages.length > 0) {
-                // Also cache in localStorage
-                ConversationStorage.saveMessages(conversationId, supabaseMessages);
-                return supabaseMessages;
-              }
-            } catch (supabaseError) {
-              logger.error(
-                "Erreur lors du chargement des messages depuis Supabase, utilisation de localStorage",
-                "conversation",
-                supabaseError,
-              );
-            }
-          }
-          // Fallback to localStorage
-          return ConversationStorage.getMessages(conversationId);
-        },
-        staleTime: 1000 * 60 * 2,
-      });
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const messagesQuery = useQuery(getMessagesQueryOptions(conversationId));
 
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       return useMemo(
         (): ConversationState => ({
           conversation: conversationQuery.data || undefined,
@@ -384,7 +409,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
         [conversationQuery, messagesQuery],
       );
     },
-    [queryKeys],
+    [getConversationQueryOptions, getMessagesQueryOptions],
   );
 
   // Create conversation mutation
@@ -474,22 +499,26 @@ export function useConversations(config: UseConversationsConfig = {}) {
         },
       };
 
-      queryClient.setQueryData(queryKeys.infinite, (old: any) => {
-        if (!old) return old;
+      queryClient.setQueryData(
+        queryKeys.infinite,
+        (old: InfiniteData<{ conversations: Conversation[]; totalCount?: number }> | undefined) => {
+          if (!old) return old;
 
-        return {
-          ...old,
-          pages: old.pages.map((page: any, index: number) =>
-            index === 0
-              ? {
-                  ...page,
-                  conversations: [optimisticConversation, ...page.conversations],
-                  totalCount: page.totalCount + 1,
-                }
-              : page,
-          ),
-        };
-      });
+          return {
+            ...old,
+            pages: old.pages.map(
+              (page: { conversations: Conversation[]; totalCount?: number }, index: number) =>
+                index === 0
+                  ? {
+                      ...page,
+                      conversations: [optimisticConversation, ...page.conversations],
+                      totalCount: (page.totalCount || 0) + 1,
+                    }
+                  : page,
+            ),
+          };
+        },
+      );
 
       return { previousConversations };
     },
@@ -583,19 +612,22 @@ export function useConversations(config: UseConversationsConfig = {}) {
       const previousConversation = queryClient.getQueryData(queryKeys.conversation(id));
 
       // Optimistically update conversations list
-      queryClient.setQueryData(queryKeys.infinite, (old: any) => {
-        if (!old) return old;
+      queryClient.setQueryData(
+        queryKeys.infinite,
+        (old: InfiniteData<{ conversations: Conversation[] }> | undefined) => {
+          if (!old) return old;
 
-        return {
-          ...old,
-          pages: old.pages.map((page: any) => ({
-            ...page,
-            conversations: page.conversations.map((conv: Conversation) =>
-              conv.id === id ? { ...conv, ...updates, updatedAt: new Date() } : conv,
-            ),
-          })),
-        };
-      });
+          return {
+            ...old,
+            pages: old.pages.map((page: { conversations: Conversation[] }) => ({
+              ...page,
+              conversations: page.conversations.map((conv: Conversation) =>
+                conv.id === id ? { ...conv, ...updates, updatedAt: new Date() } : conv,
+              ),
+            })),
+          };
+        },
+      );
 
       // Optimistically update single conversation
       queryClient.setQueryData(queryKeys.conversation(id), (old: Conversation | undefined) => {
@@ -656,20 +688,25 @@ export function useConversations(config: UseConversationsConfig = {}) {
       const previousConversations = queryClient.getQueryData(queryKeys.infinite);
 
       // Optimistically remove conversation
-      queryClient.setQueryData(queryKeys.infinite, (old: any) => {
-        if (!old) return old;
+      queryClient.setQueryData(
+        queryKeys.infinite,
+        (old: InfiniteData<{ conversations: Conversation[]; totalCount?: number }> | undefined) => {
+          if (!old) return old;
 
-        return {
-          ...old,
-          pages: old.pages.map((page: any) => ({
-            ...page,
-            conversations: page.conversations.filter(
-              (conv: Conversation) => conv.id !== conversationId,
+          return {
+            ...old,
+            pages: old.pages.map(
+              (page: { conversations: Conversation[]; totalCount?: number }) => ({
+                ...page,
+                conversations: page.conversations.filter(
+                  (conv: Conversation) => conv.id !== conversationId,
+                ),
+                totalCount: (page.totalCount || 0) - 1,
+              }),
             ),
-            totalCount: page.totalCount - 1,
-          })),
-        };
-      });
+          };
+        },
+      );
 
       return { previousConversations };
     },
@@ -844,7 +881,11 @@ export function useConversations(config: UseConversationsConfig = {}) {
     // This would listen for INSERT, UPDATE, DELETE events on conversations and messages tables
     // and automatically update the query cache
 
-    const handleRealtimeUpdate = (payload: any) => {
+    const handleRealtimeUpdate = (payload: {
+      eventType: "INSERT" | "UPDATE" | "DELETE";
+      new?: Conversation;
+      old?: Conversation;
+    }) => {
       const { eventType, new: newRecord, old: oldRecord } = payload;
 
       switch (eventType) {

@@ -103,7 +103,7 @@ export async function migrateGuestConversations(userId: string): Promise<{
             metadata: {
               ...conversation.metadata,
               originalLocalId: conversation.id, // Keep reference to original ID
-            } as any, // Allow additional metadata fields
+            } as Record<string, unknown>, // Allow additional metadata fields
           },
           userId,
         );
@@ -129,7 +129,7 @@ export async function migrateGuestConversations(userId: string): Promise<{
           metadata: {
             ...conversation.metadata,
             supabaseId: migratedConversation.id, // Link to Supabase version
-          } as any, // Allow additional metadata fields
+          } as import("../../types/conversation").ConversationMetadata & { supabaseId?: string }, // Allow additional metadata fields
         });
 
         migratedCount++;

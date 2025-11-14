@@ -44,6 +44,21 @@ const Vote = () => {
     return <FormPollVote idOrSlug={actualPollId} />;
   }
 
+  if (p?.type === "availability") {
+    const AvailabilityPollVote = React.lazy(() => import("./AvailabilityPollVote"));
+    return (
+      <React.Suspense
+        fallback={
+          <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+            <div className="text-white">Chargement...</div>
+          </div>
+        }
+      >
+        <AvailabilityPollVote />
+      </React.Suspense>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-8">
       {/* Bouton retour en haut à droite */}

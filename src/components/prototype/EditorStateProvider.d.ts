@@ -24,7 +24,11 @@ export interface EditorStateContextType {
   dispatchPollAction: (action: PollAction) => void;
   setCurrentPoll: (poll: Poll | null) => void;
   clearCurrentPoll: () => void;
-  createPollFromChat: (pollData: any) => void;
+  createPollFromChat: (
+    pollData:
+      | import("../../lib/gemini").PollSuggestion
+      | Partial<import("../../lib/pollStorage").Poll>,
+  ) => void;
 }
 interface EditorStateProviderProps {
   children: ReactNode;
@@ -62,6 +66,10 @@ export declare function useEditorActions(): {
   dispatchPollAction: (action: PollAction) => void;
   setCurrentPoll: (poll: Poll | null) => void;
   clearCurrentPoll: () => void;
-  createPollFromChat: (pollData: any) => void;
+  createPollFromChat: (
+    pollData:
+      | import("../../lib/gemini").PollSuggestion
+      | Partial<import("../../lib/pollStorage").Poll>,
+  ) => void;
 };
 export {};

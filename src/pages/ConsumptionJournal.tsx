@@ -81,8 +81,8 @@ export default function ConsumptionJournal() {
             metadata: entry.metadata,
           }));
         } else {
-          // Authenticated: Utiliser localStorage
-          entries = getConsumptionJournal(user.id, 500);
+          // Authenticated: Utiliser Edge Function (ou localStorage en fallback)
+          entries = await getConsumptionJournal(user.id, 500);
         }
 
         setJournal(entries);

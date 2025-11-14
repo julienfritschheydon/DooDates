@@ -38,7 +38,7 @@ export class SecureGeminiService {
     fn: () => Promise<T>,
     retries: number = this.MAX_RETRIES,
   ): Promise<T> {
-    let lastError: any;
+    let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < retries; attempt++) {
       try {
@@ -116,7 +116,9 @@ export class SecureGeminiService {
         try {
           const sessionPromise = supabase.auth.getSession();
           const sessionResult = await Promise.race([sessionPromise, sessionTimeoutPromise]);
-          session = (sessionResult as any)?.data?.session || null;
+          session =
+            (sessionResult as { data: { session: import("@supabase/supabase-js").Session | null } })
+              ?.data?.session || null;
         } catch {
           session = null;
         }
@@ -214,7 +216,7 @@ export class SecureGeminiService {
         return await Promise.race([fetchPromise, timeoutPromise]);
       });
 
-      const { data, error } = result as any;
+      const { data, error } = result as { data: string | null; error: Error | null };
 
       if (error) {
         logger.error("Edge Function error", "api", error);

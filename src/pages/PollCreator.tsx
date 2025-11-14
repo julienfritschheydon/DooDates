@@ -35,10 +35,10 @@ const PollCreator = () => {
       kind: q.type, // Map 'type' to 'kind'
       title: q.title,
       required: q.required,
-      options: (q as any).options,
-      maxChoices: (q as any).maxChoices,
-      placeholder: (q as any).placeholder,
-      maxLength: (q as any).maxLength,
+      options: q.options,
+      maxChoices: q.maxChoices,
+      placeholder: q.placeholder,
+      maxLength: q.maxLength,
     }));
   };
 
@@ -97,7 +97,7 @@ const PollCreator = () => {
             id: found.id,
             type: "form",
             title: found.title || "",
-            questions: (found as any)?.questions || [],
+            questions: found.questions || [],
           } as FormPollDraft;
       }
       const last = forms[forms.length - 1];
@@ -105,12 +105,12 @@ const PollCreator = () => {
         id: last.id,
         type: "form",
         title: last.title || "",
-        questions: (last as any)?.questions || [],
+        questions: last.questions || [],
       } as FormPollDraft;
     } catch {
       return undefined;
     }
-  }, [location.key, draftIdParam]);
+  }, [draftIdParam]);
 
   // Écran de succès après publication
   if (published && publishedPoll) {
@@ -231,7 +231,7 @@ const PollCreator = () => {
         />
       ) : (
         <PollCreatorComponent
-          onBack={(createdPoll?: any) => {
+          onBack={(createdPoll?: import("../lib/pollStorage").StoragePoll) => {
             if (createdPoll) {
               setPublishedPoll(createdPoll);
               setPublished(true);

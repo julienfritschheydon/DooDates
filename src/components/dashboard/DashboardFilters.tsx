@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Search, LayoutGrid, Table, Tag, Folder, X, Plus, CheckSquare } from "lucide-react";
-import { FilterType } from "./types";
+import { FilterType, DashboardPoll } from "./types";
 import { getStatusLabel } from "./utils";
 import { getAllTags, createTag, Tag as TagType } from "@/lib/storage/TagStorage";
 import { getAllFolders, createFolder, Folder as FolderType } from "@/lib/storage/FolderStorage";
@@ -86,10 +86,11 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         title: "Tag créé",
         description: `Le tag "${newTag.name}" a été créé.`,
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Impossible de créer le tag.";
       toast({
         title: "Erreur",
-        description: error.message || "Impossible de créer le tag.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -106,10 +107,12 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         title: "Dossier créé",
         description: `Le dossier "${newFolder.name}" a été créé.`,
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Impossible de créer le dossier.";
       toast({
         title: "Erreur",
-        description: error.message || "Impossible de créer le dossier.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -206,7 +209,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700"
               }`}
             >
-              {f === "all" ? "Tous" : getStatusLabel(f as any)}
+              {f === "all" ? "Tous" : getStatusLabel(f as DashboardPoll["status"])}
             </button>
           ))}
         </div>

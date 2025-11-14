@@ -215,7 +215,7 @@ export class IntentService {
             }
 
             // Logger le gap pour améliorer les regex
-            GeminiIntentService.logMissingPattern(message, result as any);
+            GeminiIntentService.logMissingPattern(message, result);
 
             return result;
           }

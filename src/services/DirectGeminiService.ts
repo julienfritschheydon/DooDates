@@ -47,7 +47,7 @@ export class DirectGeminiService {
     fn: () => Promise<T>,
     retries: number = this.MAX_RETRIES,
   ): Promise<T> {
-    let lastError: any;
+    let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < retries; attempt++) {
       try {
@@ -177,7 +177,7 @@ export class DirectGeminiService {
         success: true,
         data: text,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error("Erreur appel direct Gemini", "api", error);
 
       // Gérer les erreurs réseau

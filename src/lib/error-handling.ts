@@ -28,10 +28,10 @@ export interface ErrorContext {
   pollId?: string;
   slug?: string;
   status?: number;
-  pollData?: any;
+  pollData?: unknown;
   questionId?: string;
   maxChoices?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export class DooDatesError extends Error {
@@ -131,7 +131,7 @@ export const ErrorFactory = {
   validation: (
     message: string,
     userMessage: string = "Données invalides",
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ) =>
     new DooDatesError(message, userMessage, ErrorSeverity.MEDIUM, ErrorCategory.VALIDATION, {
       metadata,
@@ -146,7 +146,7 @@ export const ErrorFactory = {
   api: (
     message: string,
     userMessage: string = "Erreur du service",
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ) => new DooDatesError(message, userMessage, ErrorSeverity.HIGH, ErrorCategory.API, { metadata }),
 
   rateLimit: (message: string, userMessage: string = "Trop de tentatives") =>

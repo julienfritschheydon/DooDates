@@ -46,7 +46,7 @@ interface SimulationReportProps {
 const SEVERITY_CONFIG: Record<
   IssueSeverity,
   {
-    icon: any;
+    icon: React.ComponentType<{ className?: string; size?: number }>;
     color: string;
     bgColor: string;
     borderColor: string;

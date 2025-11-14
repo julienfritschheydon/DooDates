@@ -474,7 +474,7 @@ serve(async (req) => {
 
 // Fonction pour vérifier et consommer le quota
 async function checkAndConsumeQuota(
-  supabase: any,
+  supabase: import("@supabase/supabase-js").SupabaseClient,
   userId: string,
 ): Promise<{ success: boolean; error?: string; message?: string; creditsRemaining?: number }> {
   try {
@@ -516,7 +516,7 @@ async function checkAndConsumeQuota(
 }
 
 // Fonction pour rollback le quota en cas d'erreur Gemini
-async function rollbackQuota(supabase: any, userId: string): Promise<void> {
+async function rollbackQuota(supabase: import("@supabase/supabase-js").SupabaseClient, userId: string): Promise<void> {
   try {
     await supabase.rpc("rollback_ai_credit", {
       p_user_id: userId,

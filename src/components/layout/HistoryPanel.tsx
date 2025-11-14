@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { getAllPolls, type Poll, getCurrentUserId } from "../../lib/pollStorage";
 import { useAuth } from "../../contexts/AuthContext";
 import { logger } from "../../lib/logger";
+import type { Conversation } from "../../types/conversation";
 
 interface HistoryPanelProps {
   onClose: () => void;
@@ -126,7 +127,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
   }, [refetchConversations]);
 
   // Grouper par période
-  const groupConversationsByPeriod = (conversations: any[]) => {
+  const groupConversationsByPeriod = (conversations: Conversation[]) => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
@@ -308,11 +309,15 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
  * Composant pour afficher une conversation dans l'historique
  */
 interface ConversationItemProps {
-  conversation: any;
+  conversation: Conversation;
   onClick: () => void;
 }
 
 function ConversationItem({ conversation, onClick }: ConversationItemProps) {
+  // Hooks must be called at the top level
+  const { user } = useAuth();
+  const currentUserId = getCurrentUserId(user?.id);
+
   // Déterminer l'icône selon le contenu de la conversation
   const getIcon = () => {
     if (conversation.relatedPollId) {
@@ -329,8 +334,6 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
       const pollId = conversation.relatedPollId || conversation.pollId;
       try {
         // Filtrer les polls pour ne garder que ceux du créateur actuel (sécurité)
-        const { user } = useAuth();
-        const currentUserId = getCurrentUserId(user?.id);
         const allPolls = getAllPolls();
         const filteredPolls = allPolls.filter((poll) => {
           if (user?.id) {
@@ -352,7 +355,7 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
     }
 
     // 3. Extraire le premier message utilisateur
-    const firstUserMessage = conversation.messages?.find((msg: any) => msg.role === "user");
+    const firstUserMessage = conversation.messages?.find((msg) => msg.role === "user");
     if (firstUserMessage) {
       return (
         firstUserMessage.content.slice(0, 50) + (firstUserMessage.content.length > 50 ? "..." : "")

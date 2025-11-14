@@ -267,7 +267,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
         AUTHENTICATED_LIMITS,
       });
     }
-  }, [isAuthenticated]); // Only log when authentication status changes
+  }, [isAuthenticated, limits]); // Only log when authentication status changes
 
   // Calculate current usage
   const calculateUsage = useCallback((): QuotaUsage => {
@@ -509,7 +509,7 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
   const canUseFeature = useCallback(
     (feature: string) => {
       if (!isAuthenticated) {
-        return !LOCKED_FEATURES.includes(feature as any);
+        return !(LOCKED_FEATURES as readonly string[]).includes(feature);
       }
       return true;
     },

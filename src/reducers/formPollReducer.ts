@@ -141,7 +141,7 @@ export function formPollReducer(state: Poll | null, action: FormPollAction): Pol
         updated_at: new Date().toISOString(),
         _highlightedId: newQuestion.id, // Pour animation
         _highlightType: "add",
-      } as any;
+      } as import("../lib/pollStorage").Poll;
     }
 
     case "REMOVE_QUESTION": {
@@ -186,7 +186,7 @@ export function formPollReducer(state: Poll | null, action: FormPollAction): Pol
         updated_at: new Date().toISOString(),
         _highlightedId: state.questions[questionIndex].id,
         _highlightType: "modify",
-      } as any;
+      } as import("../lib/pollStorage").Poll;
     }
 
     case "ADD_OPTION": {
@@ -232,7 +232,7 @@ export function formPollReducer(state: Poll | null, action: FormPollAction): Pol
         updated_at: new Date().toISOString(),
         _highlightedId: state.questions[questionIndex].id,
         _highlightType: "modify",
-      } as any;
+      } as import("../lib/pollStorage").Poll;
     }
 
     case "REMOVE_OPTION": {
@@ -268,7 +268,7 @@ export function formPollReducer(state: Poll | null, action: FormPollAction): Pol
         updated_at: new Date().toISOString(),
         _highlightedId: state.questions[questionIndex].id,
         _highlightType: "modify",
-      } as any;
+      } as import("../lib/pollStorage").Poll;
     }
 
     case "SET_REQUIRED": {
@@ -297,7 +297,7 @@ export function formPollReducer(state: Poll | null, action: FormPollAction): Pol
         updated_at: new Date().toISOString(),
         _highlightedId: state.questions[questionIndex].id,
         _highlightType: "modify",
-      } as any;
+      } as import("../lib/pollStorage").Poll;
     }
 
     case "RENAME_QUESTION": {
@@ -333,7 +333,7 @@ export function formPollReducer(state: Poll | null, action: FormPollAction): Pol
         updated_at: new Date().toISOString(),
         _highlightedId: state.questions[questionIndex].id,
         _highlightType: "modify",
-      } as any;
+      } as import("../lib/pollStorage").Poll;
     }
 
     default:

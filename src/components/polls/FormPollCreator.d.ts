@@ -73,7 +73,7 @@ interface FormPollCreatorProps {
   initialDraft?: FormPollDraft;
   onCancel?: () => void;
   onSave?: (draft: FormPollDraft) => void;
-  onFinalize?: (draft: FormPollDraft, savedPoll?: any) => void;
+  onFinalize?: (draft: FormPollDraft, savedPoll?: import("../../lib/pollStorage").Poll) => void;
 }
 export default function FormPollCreator({
   initialDraft,

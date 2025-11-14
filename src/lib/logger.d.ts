@@ -31,18 +31,25 @@ declare class Logger {
   private generateUniqueId;
   time(message: string, category?: string): string;
   timeEnd(timerId: string, message?: string): number;
-  debug(message: string, category?: LogCategory, data?: any): void;
-  info(message: string, category?: LogCategory, data?: any): void;
-  warn(message: string, category?: LogCategory, data?: any): void;
-  error(message: string, category?: LogCategory, error?: any): void;
-  log(message: string, category?: LogCategory, data?: any): void;
+  debug(message: string, category?: LogCategory, data?: unknown): void;
+  info(message: string, category?: LogCategory, data?: unknown): void;
+  warn(message: string, category?: LogCategory, data?: unknown): void;
+  error(message: string, category?: LogCategory, error?: unknown): void;
+  log(message: string, category?: LogCategory, data?: unknown): void;
   private logWithLevel;
   private getLevelEmoji;
   private getCategoryEmoji;
   configure(config: Partial<LogConfig>): void;
   silenceCategory(category: LogCategory, silent?: boolean): void;
   private sendToMonitoring;
-  getStoredLogs(): any[];
+  getStoredLogs(): Array<{
+    id: string;
+    message: string;
+    category: string;
+    level: LogLevel;
+    timestamp: string;
+    data?: unknown;
+  }>;
   cleanup(): void;
   clearStoredLogs(): void;
 }

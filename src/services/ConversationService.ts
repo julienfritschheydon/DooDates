@@ -88,6 +88,7 @@ export class ConversationService {
           logger.debug("Loading messages from Supabase", "conversation", {
             resumeId,
             userId: conversation.userId,
+            conversationMessageCount: conversation.messageCount,
           });
           const { getMessages: getSupabaseMessages } = await import(
             "../lib/storage/ConversationStorageSupabase"
@@ -95,11 +96,14 @@ export class ConversationService {
           logger.info("Calling getSupabaseMessages...", "conversation", {
             resumeId,
             userId: conversation.userId,
+            expectedMessageCount: conversation.messageCount,
           });
           messages = await getSupabaseMessages(resumeId, conversation.userId);
           logger.info("✅ Messages loaded from Supabase", "conversation", {
             resumeId,
             messageCount: messages.length,
+            expectedCount: conversation.messageCount,
+            messagesMatch: messages.length === conversation.messageCount,
             messages: messages.map((m) => ({
               id: m.id,
               role: m.role,
@@ -107,11 +111,31 @@ export class ConversationService {
             })),
           });
 
+          // Vérifier incohérence entre messageCount et nombre réel de messages
+          if (conversation.messageCount > 0 && messages.length !== conversation.messageCount) {
+            logger.error(
+              "⚠️ INCOHÉRENCE DÉTECTÉE: Nombre de messages ne correspond pas",
+              "conversation",
+              {
+                resumeId,
+                userId: conversation.userId,
+                messagesLoaded: messages.length,
+                messageCountInConversation: conversation.messageCount,
+                difference: conversation.messageCount - messages.length,
+                messageIds: messages.map((m) => m.id),
+              },
+            );
+          }
+
           // Cache messages in localStorage for offline access
           const { saveMessages: saveLocalMessages } = await import(
             "../lib/storage/ConversationStorageSimple"
           );
           saveLocalMessages(resumeId, messages);
+          logger.debug("Messages mis en cache localStorage", "conversation", {
+            resumeId,
+            cachedMessageCount: messages.length,
+          });
         } catch (supabaseError) {
           logger.error(
             "❌ Failed to load messages from Supabase, trying localStorage",
@@ -127,10 +151,15 @@ export class ConversationService {
           const { getMessages: getLocalMessages } = await import(
             "../lib/storage/ConversationStorageSimple"
           );
-          messages = getLocalMessages(resumeId);
-          logger.info("Loaded messages from localStorage (fallback)", "conversation", {
-            messageCount: messages.length,
+          const localMessages = getLocalMessages(resumeId);
+          logger.warn("⚠️ Utilisation cache localStorage (fallback)", "conversation", {
+            resumeId,
+            messageCount: localMessages.length,
+            expectedCount: conversation.messageCount,
+            warning:
+              "Les messages peuvent être obsolètes si la conversation a été modifiée dans un autre navigateur",
           });
+          messages = localMessages;
         }
       } else {
         // Guest mode: use localStorage only

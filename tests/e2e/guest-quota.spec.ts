@@ -17,7 +17,7 @@ test.describe('Guest Quota System', () => {
   test.beforeEach(async ({ page, context }) => {
     // Nettoyer localStorage avant chaque test
     await context.clearCookies();
-    await page.goto('/');
+    await page.goto('/workspace');
     
     // Attendre que l'app se charge
     await page.waitForLoadState('networkidle');
@@ -64,7 +64,7 @@ test.describe('Guest Quota System', () => {
 
   test('Consommation crédits message IA bloque si limite atteinte', async ({ page }) => {
     // Bypass E2E pour ce test (sinon les limites ne s'appliquent pas)
-    await page.goto('/?e2e-test=false');
+    await page.goto('/workspace?e2e-test=false');
     await page.waitForLoadState('networkidle');
 
     // Simuler plusieurs messages IA jusqu'à atteindre la limite
@@ -102,7 +102,7 @@ test.describe('Guest Quota System', () => {
   });
 
   test('Bypass E2E fonctionne avec ?e2e-test=true', async ({ page }) => {
-    await page.goto('/?e2e-test=true');
+    await page.goto('/workspace?e2e-test=true');
     await page.waitForLoadState('networkidle');
     
     // Vérifier que le flag E2E est détecté
@@ -165,7 +165,7 @@ test.describe('Guest Quota System', () => {
     });
     
     // Naviguer vers l'app
-    await page.goto('/');
+    await page.goto('/workspace');
     await page.waitForLoadState('networkidle');
     
     // Attendre sync
@@ -200,7 +200,7 @@ test.describe('Guest Quota System', () => {
 
   test('Fingerprint stable entre sessions', async ({ page, context }) => {
     // Générer fingerprint première session
-    await page.goto('/');
+    await page.goto('/workspace');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
     
@@ -230,7 +230,7 @@ test.describe('Guest Quota System', () => {
   });
 
   test('Limites guest affichées correctement', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/workspace');
     await page.waitForLoadState('networkidle');
     
     // Vérifier que les limites sont accessibles

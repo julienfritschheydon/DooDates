@@ -9,11 +9,11 @@ export interface AutoSaveMessage {
   content: string;
   isAI: boolean;
   timestamp: Date;
-  pollSuggestion?: any;
+  pollSuggestion?: import("../lib/gemini").PollSuggestion;
   metadata?: {
     pollGenerated?: boolean;
-    pollSuggestion?: any;
-    [key: string]: any;
+    pollSuggestion?: import("../lib/gemini").PollSuggestion;
+    [key: string]: unknown;
   };
 }
 export interface UseAutoSaveOptions {

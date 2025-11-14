@@ -379,7 +379,8 @@ export async function assertToast(page: Page, text: string, timeoutMs: number = 
 
 // Warmup helper: prime Vite/route chunks to avoid transient dynamic import errors on first render
 export async function warmup(page: Page) {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  // Warmup workspace (route principale pour les tests)
+  await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
   await page.reload({ waitUntil: 'domcontentloaded' });
 }
 

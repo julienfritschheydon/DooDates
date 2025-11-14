@@ -131,19 +131,28 @@ export const useVoting = (pollSlug: string) => {
 
       // Charger les votes existants depuis localStorage (mode dev)
       const localVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
-      const pollVotes = localVotes.filter((v: any) => v.poll_id === pollData.id);
-      const mappedVotes = pollVotes.map((v: any) => ({
-        id: v.id,
-        poll_id: v.poll_id,
-        voter_email: v.voter_email,
-        voter_name: v.voter_name,
-        selections: v.vote_data || {},
-        created_at: v.created_at,
-      }));
+      const pollVotes = localVotes.filter((v: { poll_id: string }) => v.poll_id === pollData.id);
+      const mappedVotes = pollVotes.map(
+        (v: {
+          id: string;
+          poll_id: string;
+          voter_email: string;
+          voter_name: string;
+          vote_data?: Record<string, unknown>;
+          created_at: string;
+        }) => ({
+          id: v.id,
+          poll_id: v.poll_id,
+          voter_email: v.voter_email,
+          voter_name: v.voter_name,
+          selections: v.vote_data || {},
+          created_at: v.created_at,
+        }),
+      );
       setVotes(mappedVotes);
-    } catch (err: any) {
+    } catch (err: unknown) {
       const processedError = handleError(
-        err,
+        err instanceof Error ? err : new Error(String(err)),
         {
           component: "useVoting",
           operation: "loadPoll",
@@ -297,7 +306,7 @@ export const useVoting = (pollSlug: string) => {
       let existingVoteIndex = -1;
       if (currentVoterEmail) {
         existingVoteIndex = existingVotes.findIndex(
-          (vote: any) =>
+          (vote: { poll_id: string; voter_email: string }) =>
             vote.poll_id === realPollId && vote.voter_email.toLowerCase() === currentVoterEmail,
         );
       }
@@ -305,7 +314,7 @@ export const useVoting = (pollSlug: string) => {
       // Si pas trouvé par email, chercher par nom pour les votes anonymes
       if (existingVoteIndex === -1) {
         existingVoteIndex = existingVotes.findIndex(
-          (vote: any) =>
+          (vote: { poll_id: string; voter_email: string }) =>
             vote.poll_id === realPollId &&
             vote.voter_name === voterInfo.name.trim() &&
             vote.voter_email.includes("anonymous"),
@@ -333,15 +342,26 @@ export const useVoting = (pollSlug: string) => {
       localStorage.setItem("dev-votes", JSON.stringify(existingVotes));
 
       // Recharger l'état votes depuis localStorage pour mettre à jour l'UI
-      const updatedPollVotes = existingVotes.filter((v: any) => v.poll_id === realPollId);
-      const updatedMapped = updatedPollVotes.map((v: any) => ({
-        id: v.id,
-        poll_id: v.poll_id,
-        voter_email: v.voter_email,
-        voter_name: v.voter_name,
-        selections: v.vote_data || {},
-        created_at: v.created_at,
-      }));
+      const updatedPollVotes = existingVotes.filter(
+        (v: { poll_id: string }) => v.poll_id === realPollId,
+      );
+      const updatedMapped = updatedPollVotes.map(
+        (v: {
+          id: string;
+          poll_id: string;
+          voter_email: string;
+          voter_name: string;
+          vote_data?: Record<string, unknown>;
+          created_at: string;
+        }) => ({
+          id: v.id,
+          poll_id: v.poll_id,
+          voter_email: v.voter_email,
+          voter_name: v.voter_name,
+          selections: v.vote_data || {},
+          created_at: v.created_at,
+        }),
+      );
       setVotes(updatedMapped);
 
       // Réinitialiser après succès
@@ -377,17 +397,28 @@ export const useVoting = (pollSlug: string) => {
 
       // Charger les votes depuis localStorage pour avoir les données à jour
       const localVotes = JSON.parse(localStorage.getItem("dev-votes") || "[]");
-      const pollVotes = localVotes.filter((vote: any) => vote.poll_id === realPollId);
+      const pollVotes = localVotes.filter(
+        (vote: { poll_id: string }) => vote.poll_id === realPollId,
+      );
 
-      pollVotes.forEach((vote: any) => {
-        const selection = vote.vote_data?.[optionId];
-        if (selection && Object.hasOwn(counts, selection)) {
-          counts[selection]++;
-          if (selection === "yes") {
-            voterNames.push(vote.voter_name);
+      pollVotes.forEach(
+        (vote: {
+          id: string;
+          poll_id: string;
+          voter_email: string;
+          voter_name: string;
+          vote_data?: Record<string, unknown>;
+          created_at: string;
+        }) => {
+          const selection = vote.vote_data?.[optionId];
+          if (selection && Object.hasOwn(counts, selection)) {
+            counts[selection]++;
+            if (selection === "yes") {
+              voterNames.push(vote.voter_name);
+            }
           }
-        }
-      });
+        },
+      );
 
       return {
         counts,

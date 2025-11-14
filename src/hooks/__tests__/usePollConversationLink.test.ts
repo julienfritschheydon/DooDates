@@ -26,14 +26,26 @@ Object.defineProperty(window, "localStorage", {
   writable: true,
 });
 
-// Mock window.location
+// Mock window.location with a mutable href
+let mockHref = "http://localhost:3000";
 const mockLocation = {
-  href: "http://localhost:3000",
-  toString: () => "http://localhost:3000",
+  get href() {
+    return mockHref;
+  },
+  set href(value: string) {
+    // Convert relative URLs to absolute
+    if (value.startsWith("/")) {
+      mockHref = `http://localhost:3000${value}`;
+    } else {
+      mockHref = value;
+    }
+  },
+  toString: () => mockHref,
 };
 Object.defineProperty(window, "location", {
   value: mockLocation,
   writable: true,
+  configurable: true,
 });
 
 describe("usePollConversationLink", () => {
@@ -47,6 +59,8 @@ describe("usePollConversationLink", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset location href
+    mockHref = "http://localhost:3000";
     mockUseConversations.mockReturnValue({
       updateConversation: mockUpdateConversation,
       useConversation: mockUseConversation,
@@ -143,7 +157,7 @@ describe("usePollConversationLink", () => {
         result.current.navigateToPoll("poll-1");
       });
 
-      expect(window.location.href).toBe("/poll/poll-1?source=conversation");
+      expect(window.location.href).toBe("http://localhost:3000/poll/poll-1?source=conversation");
     });
   });
 
@@ -257,17 +271,17 @@ describe("usePollConversationLink", () => {
       expect(linkedPoll?.pollId).toBe("poll-1");
     });
 
-    it.skip("should handle navigation between poll and conversation", () => {
+    it("should handle navigation between poll and conversation", () => {
       const { result } = renderHook(() => usePollConversationLink());
 
-      // Navigate from conversation to poll - just verify the function exists and can be called
-      expect(() => {
-        act(() => {
-          result.current.navigateToPoll("poll-1");
-        });
-      }).not.toThrow();
+      // Navigate from conversation to poll - verify window.location.href is set
+      act(() => {
+        result.current.navigateToPoll("poll-1");
+      });
 
-      // Navigate from poll back to conversation
+      expect(window.location.href).toBe("http://localhost:3000/poll/poll-1?source=conversation");
+
+      // Navigate from poll back to conversation - verify localStorage is called
       act(() => {
         result.current.navigateToConversation("conv-1");
       });
@@ -277,6 +291,10 @@ describe("usePollConversationLink", () => {
         "resumeConversation",
         expect.stringContaining("conv-1"),
       );
+
+      // Verify window.location.href was updated
+      expect(window.location.href).toContain("conversation=conv-1");
+      expect(window.location.href).toContain("source=poll");
     });
   });
 });

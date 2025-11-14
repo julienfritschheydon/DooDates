@@ -1,7 +1,7 @@
 import React from "react";
 import type { DatePollSuggestion } from "../lib/gemini";
 interface PollCreatorProps {
-  onBack?: (createdPoll?: any) => void;
+  onBack?: (createdPoll?: import("../lib/pollStorage").Poll) => void;
   onOpenMenu?: () => void;
   initialData?: DatePollSuggestion;
   withBackground?: boolean;

@@ -2,7 +2,7 @@ import { supabase } from "./supabase";
 import { handleError, ErrorFactory, logError } from "./error-handling";
 import { logger } from "./logger";
 
-interface GoogleCalendarEvent {
+export interface GoogleCalendarEvent {
   id: string;
   summary: string;
   start: {
@@ -41,10 +41,52 @@ export class GoogleCalendarService {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      if (session?.provider_token) {
-        this.accessToken = session.provider_token;
-        logger.info("Token Google Calendar récupéré", "auth");
+
+      if (!session) {
+        logger.warn("Aucune session Supabase trouvée", "auth");
+        return;
       }
+
+      // Debug: logger les informations de session
+      logger.info("Initialisation token Google Calendar", "auth", {
+        hasProviderToken: !!session.provider_token,
+        hasProviderRefreshToken: !!session.provider_refresh_token,
+        hasAccessToken: !!session.access_token,
+        provider: session.user?.app_metadata?.provider,
+      });
+
+      // Pour Google OAuth avec Supabase, le token peut être dans provider_token
+      if (session.provider_token) {
+        this.accessToken = session.provider_token;
+        logger.info("Token Google Calendar récupéré (provider_token)", "auth", {
+          tokenLength: session.provider_token.length,
+          tokenPreview: session.provider_token.substring(0, 20) + "...",
+        });
+        return;
+      }
+
+      // Note: Supabase ne stocke pas automatiquement provider_token pour Google OAuth
+      // Il faut utiliser une fonctionnalité spécifique de Supabase ou une approche différente
+      // Pour l'instant, on log les informations disponibles pour debug
+      if (session.provider_refresh_token && session.user?.app_metadata?.provider === "google") {
+        logger.info("provider_refresh_token disponible mais provider_token manquant", "auth", {
+          note: "Supabase ne stocke pas automatiquement le token Google. Il faut peut-être utiliser une approche différente.",
+        });
+      }
+
+      // Dernière tentative : vérifier si le token est dans les métadonnées utilisateur
+      const userMetadata = session.user?.user_metadata;
+      if (userMetadata?.provider_token) {
+        this.accessToken = userMetadata.provider_token;
+        logger.info("Token Google Calendar récupéré (user_metadata)", "auth");
+        return;
+      }
+
+      logger.warn("Aucun token Google Calendar trouvé dans la session", "auth", {
+        hasProviderToken: !!session.provider_token,
+        hasProviderRefreshToken: !!session.provider_refresh_token,
+        provider: session.user?.app_metadata?.provider,
+      });
     } catch (error) {
       const tokenError = handleError(
         error,
@@ -63,9 +105,24 @@ export class GoogleCalendarService {
   }
 
   private async refreshTokenIfNeeded() {
+    // Toujours réinitialiser le token pour s'assurer qu'on a le dernier token de la session
+    await this.initializeToken();
+
     if (!this.accessToken) {
-      await this.initializeToken();
+      const authError = ErrorFactory.auth(
+        "Pas de token Google Calendar disponible",
+        "Connexion Google Calendar requise",
+      );
+      throw authError;
     }
+  }
+
+  /**
+   * Forcer la réinitialisation du token (utile après une nouvelle connexion)
+   */
+  async refreshToken() {
+    this.accessToken = null;
+    await this.initializeToken();
   }
 
   /**
@@ -104,16 +161,28 @@ export class GoogleCalendarService {
       );
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        let errorMessage = `Erreur API Google Calendar: ${response.status}`;
+
+        if (response.status === 403) {
+          errorMessage +=
+            ". Vérifiez que :\n" +
+            "1. L'API Google Calendar est activée dans Google Cloud Console\n" +
+            "2. Vous avez les permissions nécessaires (scopes calendar.readonly et calendar)\n" +
+            "3. Vous vous êtes reconnecté après avoir ajouté les scopes";
+        }
+
         const apiError = ErrorFactory.api(
-          `Erreur API Google Calendar: ${response.status}`,
+          errorMessage,
           "Erreur lors de la récupération des événements du calendrier",
-          { status: response.status },
+          { status: response.status, details: errorData },
         );
 
         logError(apiError, {
           component: "GoogleCalendarService",
           operation: "getEvents",
           status: response.status,
+          metadata: { errorDetails: errorData },
         });
 
         throw apiError;
@@ -223,7 +292,13 @@ export class GoogleCalendarService {
       suggested: Array<{ start: string; end: string }>;
     };
   }> {
-    const result: { [date: string]: any } = {};
+    const result: Record<
+      string,
+      {
+        busy: Array<{ start: string; end: string }>;
+        suggested: Array<{ start: string; end: string }>;
+      }
+    > = {};
 
     for (const date of dates) {
       try {
@@ -304,6 +379,103 @@ export class GoogleCalendarService {
     const end2 = new Date(slot2.end);
 
     return start1 < end2 && start2 < end1;
+  }
+
+  /**
+   * Créer un événement dans le calendrier principal
+   */
+  async createEvent(event: {
+    summary: string;
+    description?: string;
+    start: { dateTime: string; timeZone?: string };
+    end: { dateTime: string; timeZone?: string };
+    attendees?: Array<{ email: string }>;
+  }): Promise<GoogleCalendarEvent> {
+    await this.refreshTokenIfNeeded();
+
+    if (!this.accessToken) {
+      const authError = ErrorFactory.auth(
+        "Pas de token Google Calendar disponible",
+        "Connexion Google Calendar requise",
+      );
+
+      logError(authError, {
+        component: "GoogleCalendarService",
+        operation: "createEvent",
+      });
+
+      throw authError;
+    }
+
+    try {
+      const timeZone = event.start.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      const eventPayload = {
+        summary: event.summary,
+        description: event.description || "",
+        start: {
+          dateTime: event.start.dateTime,
+          timeZone: timeZone,
+        },
+        end: {
+          dateTime: event.end.dateTime,
+          timeZone: timeZone,
+        },
+        ...(event.attendees && event.attendees.length > 0 ? { attendees: event.attendees } : {}),
+      };
+
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(eventPayload),
+        },
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const apiError = ErrorFactory.api(
+          `Erreur API Google Calendar: ${response.status}`,
+          "Erreur lors de la création de l'événement",
+          { status: response.status, details: errorData },
+        );
+
+        logError(apiError, {
+          component: "GoogleCalendarService",
+          operation: "createEvent",
+          status: response.status,
+        });
+
+        throw apiError;
+      }
+
+      const data = await response.json();
+      logger.info("Événement créé dans Google Calendar", "calendar", {
+        eventId: data.id,
+        summary: data.summary,
+      });
+      return data;
+    } catch (error) {
+      const processedError = handleError(
+        error,
+        {
+          component: "GoogleCalendarService",
+          operation: "createEvent",
+        },
+        "Erreur lors de la création de l'événement",
+      );
+
+      logError(processedError, {
+        component: "GoogleCalendarService",
+        operation: "createEvent",
+      });
+
+      throw processedError;
+    }
   }
 
   /**

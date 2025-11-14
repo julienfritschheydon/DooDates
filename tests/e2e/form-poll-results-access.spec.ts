@@ -10,7 +10,7 @@ import { setupGeminiMock } from './global-setup';
 test.describe('Form Poll - Accès aux résultats et Email', () => {
   test.beforeEach(async ({ page }) => {
     await setupGeminiMock(page);
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle');
     await page.evaluate(() => localStorage.clear());
   });

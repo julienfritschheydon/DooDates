@@ -53,7 +53,7 @@ async function createPollWithVotesAndClose(
   // Pas besoin de les reconfigurer ici - elles sont déjà actives
   
   // 1. Créer un FormPoll via IA
-  await page.goto("/?e2e-test=true", { waitUntil: 'domcontentloaded' });
+  await page.goto("/workspace?e2e-test=true", { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
 
   // Demander à l'IA
@@ -215,7 +215,7 @@ test.describe("Analytics IA - Suite Optimisée", () => {
     test.setTimeout(120000); // 2 minutes (réduit de 3 minutes)
     
     // 1. Créer un FormPoll via IA
-    await page.goto("/?e2e-test=true?e2e-test=true", { waitUntil: 'domcontentloaded' });
+    await page.goto("/workspace?e2e-test=true", { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
 
     // Étape 1 : Demander à l'IA

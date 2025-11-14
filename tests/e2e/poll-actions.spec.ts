@@ -26,7 +26,7 @@ test.describe('Dashboard - Poll Actions', () => {
   test('Dashboard loads without crashing', async ({ page, browserName }) => {
     try {
       // Test that dashboard page loads
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
       await waitForPageLoad(page, browserName);
       await expect(page.locator('body')).toBeVisible();
       
@@ -46,7 +46,7 @@ test.describe('Dashboard - Poll Actions', () => {
       await expect(page.locator('body')).toBeVisible();
       
       // Navigate back home
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
       await waitForPageLoad(page, browserName);
       await expect(page.locator('body')).toBeVisible();
     } catch (error) {

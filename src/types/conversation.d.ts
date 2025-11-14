@@ -47,7 +47,7 @@ export interface MessageMetadata {
   }>;
   type?: "date" | "datetime" | "custom";
   participants?: string[];
-  pollSuggestion?: any;
+  pollSuggestion?: import("../lib/gemini").PollSuggestion;
 }
 export interface Conversation {
   /** Identifiant unique de la conversation */
@@ -193,5 +193,5 @@ export interface ConversationListItem extends Omit<Conversation, "metadata"> {
 }
 export declare function isValidConversationStatus(status: string): status is ConversationStatus;
 export declare function isValidMessageRole(role: string): role is MessageRole;
-export declare function isConversation(obj: any): obj is Conversation;
-export declare function isConversationMessage(obj: any): obj is ConversationMessage;
+export declare function isConversation(obj: unknown): obj is Conversation;
+export declare function isConversationMessage(obj: unknown): obj is ConversationMessage;

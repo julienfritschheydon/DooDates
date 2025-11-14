@@ -8,7 +8,7 @@
  * 4. Vérifier titre généré
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useAutoSave } from "../useAutoSave";
 import * as ConversationStorage from "../../lib/storage/ConversationStorageSimple";
@@ -44,6 +44,7 @@ vi.mock("../../contexts/AuthContext", () => ({
 const mockCreateConversation = ConversationStorage.createConversation as any;
 const mockGetConversation = ConversationStorage.getConversation as any;
 const mockGetConversations = ConversationStorage.getConversations as any;
+const mockGetMessages = ConversationStorage.getMessages as any;
 const mockSaveConversations = ConversationStorage.saveConversations as any;
 const mockGenerateTitle = generateConversationTitle as any;
 
@@ -81,12 +82,14 @@ const createMockMessage = (content: string, isAI = false) => ({
 describe("useAutoSave - Génération de Titre (Scénario Réel)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers(); // Use real timers for debounce
 
     // Setup mocks
-    const conversation = createMockConversation();
+    const conversation = createMockConversation("Conversation du 15/10/2024"); // Auto-generated title
     mockCreateConversation.mockReturnValue(conversation);
     mockGetConversation.mockReturnValue(conversation);
     mockGetConversations.mockReturnValue([conversation]);
+    mockGetMessages.mockReturnValue([]); // Start with empty messages
 
     mockGenerateTitle.mockReturnValue({
       success: true,
@@ -95,10 +98,26 @@ describe("useAutoSave - Génération de Titre (Scénario Réel)", () => {
     });
   });
 
-  it.skip("devrait générer un titre après création de sondage", async () => {
-    // Test désactivé temporairement : generateTitle n'est pas appelé dans l'environnement de test
-    // Problème de timing/debounce ou de mock - à investiguer
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("devrait générer un titre après création de sondage", async () => {
     const { result } = renderHook(() => useAutoSave());
+    const conversation = createMockConversation("Conversation du 15/10/2024");
+    const createdConversation = { ...conversation, id: "conv-123" };
+
+    // Mock getConversation to return conversation
+    mockGetConversation.mockImplementation((id: string) => {
+      if (id === "conv-123" || id.startsWith("temp-")) {
+        return createdConversation;
+      }
+      return null;
+    });
+
+    // Track messages as they're added
+    const messages: any[] = [];
+    mockGetMessages.mockImplementation(() => [...messages]);
 
     // 1. Créer conversation
     await act(async () => {
@@ -106,21 +125,37 @@ describe("useAutoSave - Génération de Titre (Scénario Réel)", () => {
     });
 
     // 2. Envoyer 1er message utilisateur
+    const message1 = createMockMessage("Crée un sondage pour une réunion");
     await act(async () => {
-      result.current.addMessage(createMockMessage("Crée un sondage pour une réunion"));
+      await result.current.addMessage(message1);
+      messages.push({
+        id: message1.id,
+        conversationId: "conv-123",
+        role: "user",
+        content: message1.content,
+        timestamp: message1.timestamp,
+      });
     });
 
     // 3. Envoyer 2e message (réponse IA avec sondage)
+    const message2 = createMockMessage("Voici le sondage pour la réunion", true);
     await act(async () => {
-      result.current.addMessage(createMockMessage("Voici le sondage pour la réunion", true));
+      await result.current.addMessage(message2);
+      messages.push({
+        id: message2.id,
+        conversationId: "conv-123",
+        role: "assistant",
+        content: message2.content,
+        timestamp: message2.timestamp,
+      });
     });
 
-    // 4. Attendre que la génération de titre soit appelée (debounce 1.5s)
+    // 4. Attendre que la génération de titre soit appelée (debounce 1.5s + marge)
     await waitFor(
       () => {
         expect(mockGenerateTitle).toHaveBeenCalled();
       },
-      { timeout: 3000 },
+      { timeout: 2000 }, // 1.5s debounce + marge
     );
 
     // 5. Vérifier que saveConversations a été appelé avec le nouveau titre
@@ -134,7 +169,7 @@ describe("useAutoSave - Génération de Titre (Scénario Réel)", () => {
           ]),
         );
       },
-      { timeout: 3000 },
+      { timeout: 1000 },
     );
   }, 10000); // Timeout de 10s pour ce test
 });

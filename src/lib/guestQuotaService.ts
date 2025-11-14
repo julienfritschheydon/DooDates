@@ -46,7 +46,7 @@ interface GuestQuotaJournalSupabaseRow {
   fingerprint: string;
   action: CreditActionType;
   credits: number;
-  metadata: Record<string, any> | null;
+  metadata: Record<string, unknown> | null;
   created_at: string;
 }
 
@@ -56,7 +56,7 @@ export interface GuestQuotaJournalEntry {
   fingerprint: string;
   action: CreditActionType;
   credits: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
 }
 
@@ -100,7 +100,9 @@ function shouldBypassGuestQuota(): boolean {
     return false;
   }
 
-  const isE2E = isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true;
+  const isE2E =
+    isE2ETestingEnvironment() ||
+    (window as Window & { __IS_E2E_TESTING__?: boolean }).__IS_E2E_TESTING__ === true;
 
   if (isE2E) {
     return true;
@@ -231,38 +233,90 @@ function evaluateQuotaLimits(
   return { allowed: true };
 }
 
-async function fetchQuotaByFingerprint(fingerprint: string): Promise<GuestQuotaSupabaseRow | null> {
-  const { data, error } = await supabase
-    .from(GUEST_QUOTA_TABLE)
-    .select("*")
-    .eq("fingerprint", fingerprint)
-    .maybeSingle();
+// Cache pour éviter les appels répétés
+const quotaCache = new Map<string, { data: GuestQuotaSupabaseRow | null; timestamp: number }>();
+const CACHE_TTL = 5000; // 5 secondes
 
-  if (error && error.code !== "PGRST116") {
-    logger.debug("Failed to fetch guest quota (non-critical)", "quota", {
-      error: error.message,
+async function fetchQuotaByFingerprint(fingerprint: string): Promise<GuestQuotaSupabaseRow | null> {
+  try {
+    // Vérifier le cache d'abord
+    const cached = quotaCache.get(fingerprint);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data;
+    }
+
+    // Timeout réduit à 1 seconde pour éviter les blocages
+    const timeoutPromise = new Promise<null>((resolve) => {
+      setTimeout(() => resolve(null), 1000);
     });
+
+    const fetchPromise = supabase
+      .from(GUEST_QUOTA_TABLE)
+      .select("*")
+      .eq("fingerprint", fingerprint)
+      .maybeSingle();
+
+    const { data, error } = await Promise.race([
+      fetchPromise,
+      timeoutPromise.then(() => ({ data: null, error: { code: "TIMEOUT", message: "Timeout" } })),
+    ]);
+
+    if (error && error.code !== "PGRST116") {
+      if (error.code === "TIMEOUT") {
+        // En cas de timeout, retourner null immédiatement sans logger (trop verbeux)
+        return null;
+      } else {
+        logger.debug("Failed to fetch guest quota (non-critical)", "quota", {
+          error: error.message,
+        });
+      }
+      quotaCache.set(fingerprint, { data: null, timestamp: Date.now() });
+      return null;
+    }
+
+    // Mettre en cache
+    quotaCache.set(fingerprint, {
+      data: data as GuestQuotaSupabaseRow | null,
+      timestamp: Date.now(),
+    });
+    return (data as GuestQuotaSupabaseRow | null) ?? null;
+  } catch (error) {
+    logger.error("Error fetching quota by fingerprint", error);
     return null;
   }
-
-  return (data as GuestQuotaSupabaseRow | null) ?? null;
 }
 
 async function fetchQuotaById(id: string): Promise<GuestQuotaSupabaseRow | null> {
-  const { data, error } = await supabase
-    .from(GUEST_QUOTA_TABLE)
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (error && error.code !== "PGRST116") {
-    logger.debug("Failed to fetch guest quota by id", "quota", {
-      error: error.message,
+  try {
+    // Timeout réduit à 1 seconde
+    const timeoutPromise = new Promise<null>((resolve) => {
+      setTimeout(() => resolve(null), 1000);
     });
+
+    const fetchPromise = supabase.from(GUEST_QUOTA_TABLE).select("*").eq("id", id).maybeSingle();
+
+    const { data, error } = await Promise.race([
+      fetchPromise,
+      timeoutPromise.then(() => ({ data: null, error: { code: "TIMEOUT", message: "Timeout" } })),
+    ]);
+
+    if (error && error.code !== "PGRST116") {
+      if (error.code === "TIMEOUT") {
+        // En cas de timeout, retourner null immédiatement sans logger
+        return null;
+      } else {
+        logger.debug("Failed to fetch guest quota by id", "quota", {
+          error: error.message,
+        });
+      }
+      return null;
+    }
+
+    return (data as GuestQuotaSupabaseRow | null) ?? null;
+  } catch (error) {
+    logger.error("Error fetching quota by id", error);
     return null;
   }
-
-  return (data as GuestQuotaSupabaseRow | null) ?? null;
 }
 
 async function ensureGuestQuota(
@@ -291,8 +345,37 @@ async function ensureGuestQuota(
         });
         const cachedRow = await fetchQuotaById(cachedQuotaId);
         if (cachedRow) {
-          await supabase.from(GUEST_QUOTA_TABLE).update({ fingerprint }).eq("id", cachedRow.id);
-          row = { ...cachedRow, fingerprint };
+          try {
+            // Timeout réduit à 1 seconde
+            const updateTimeoutPromise = new Promise<{ error: { code: string; message: string } }>(
+              (resolve) => {
+                setTimeout(() => resolve({ error: { code: "TIMEOUT", message: "Timeout" } }), 1000);
+              },
+            );
+
+            const updatePromise = supabase
+              .from(GUEST_QUOTA_TABLE)
+              .update({ fingerprint })
+              .eq("id", cachedRow.id);
+            const { error: updateError } = await Promise.race([
+              updatePromise,
+              updateTimeoutPromise,
+            ]);
+
+            // Ne logger que les erreurs non-timeout
+            if (updateError && updateError.code !== "TIMEOUT") {
+              logger.warn("Failed to update fingerprint for cached quota", "quota", {
+                error: updateError.message,
+              });
+            }
+
+            row = { ...cachedRow, fingerprint };
+            // Mettre en cache
+            quotaCache.set(fingerprint, { data: row, timestamp: Date.now() });
+          } catch (error) {
+            logger.error("Error updating fingerprint for cached quota", error);
+            row = { ...cachedRow, fingerprint };
+          }
         }
       }
     }
@@ -302,26 +385,54 @@ async function ensureGuestQuota(
         fingerprint: fingerprint.substring(0, 16),
       });
 
-      const { data: created, error: createError } = await supabase
-        .from(GUEST_QUOTA_TABLE)
-        .insert({
-          fingerprint,
-          user_agent: metadata.userAgent,
-          timezone: metadata.timezone,
-          language: metadata.language,
-          screen_resolution: metadata.screenResolution,
-        })
-        .select("*")
-        .single();
+      try {
+        // Timeout réduit à 1 seconde
+        const timeoutPromise = new Promise<{
+          data: null;
+          error: { code: string; message: string };
+        }>((resolve) => {
+          setTimeout(
+            () => resolve({ data: null, error: { code: "TIMEOUT", message: "Timeout" } }),
+            1000,
+          );
+        });
 
-      const createdRow = (created as GuestQuotaSupabaseRow | null) ?? null;
+        const createPromise = supabase
+          .from(GUEST_QUOTA_TABLE)
+          .insert({
+            fingerprint,
+            user_agent: metadata.userAgent,
+            timezone: metadata.timezone,
+            language: metadata.language,
+            screen_resolution: metadata.screenResolution,
+          })
+          .select("*")
+          .single();
 
-      if (createError || !createdRow) {
-        logger.error("Failed to create guest quota", createError);
+        const { data: created, error: createError } = await Promise.race([
+          createPromise,
+          timeoutPromise,
+        ]);
+
+        const createdRow = (created as GuestQuotaSupabaseRow | null) ?? null;
+
+        if (createError || !createdRow) {
+          if (createError?.code === "TIMEOUT") {
+            // En cas de timeout, retourner null immédiatement (Supabase est trop lent)
+            return null;
+          } else {
+            logger.error("Failed to create guest quota", createError);
+          }
+          return null;
+        }
+
+        // Mettre en cache
+        quotaCache.set(fingerprint, { data: createdRow, timestamp: Date.now() });
+        row = createdRow;
+      } catch (error) {
+        logger.error("Error creating guest quota", error);
         return null;
       }
-
-      row = createdRow;
     }
 
     const updates: Partial<GuestQuotaSupabaseRow> = {};
@@ -370,21 +481,44 @@ async function ensureGuestQuota(
     }
 
     if (Object.keys(updates).length > 0) {
-      const { data: updated, error: updateError } = await supabase
-        .from(GUEST_QUOTA_TABLE)
-        .update(updates)
-        .eq("id", row.id)
-        .select("*")
-        .single();
-
-      const updatedRow = (updated as GuestQuotaSupabaseRow | null) ?? null;
-
-      if (!updateError && updatedRow) {
-        row = updatedRow;
-      } else if (updateError) {
-        logger.warn("Failed to refresh guest quota metadata", "quota", {
-          error: updateError.message,
+      try {
+        // Timeout réduit à 1 seconde
+        const timeoutPromise = new Promise<{
+          data: null;
+          error: { code: string; message: string };
+        }>((resolve) => {
+          setTimeout(
+            () => resolve({ data: null, error: { code: "TIMEOUT", message: "Timeout" } }),
+            1000,
+          );
         });
+
+        const updatePromise = supabase
+          .from(GUEST_QUOTA_TABLE)
+          .update(updates)
+          .eq("id", row.id)
+          .select("*")
+          .single();
+
+        const { data: updated, error: updateError } = await Promise.race([
+          updatePromise,
+          timeoutPromise,
+        ]);
+
+        const updatedRow = (updated as GuestQuotaSupabaseRow | null) ?? null;
+
+        if (!updateError && updatedRow) {
+          // Mettre à jour le cache
+          quotaCache.set(row.fingerprint, { data: updatedRow, timestamp: Date.now() });
+          row = updatedRow;
+        } else if (updateError && updateError.code !== "TIMEOUT") {
+          // Ne logger que les erreurs non-timeout
+          logger.warn("Failed to refresh guest quota metadata", "quota", {
+            error: updateError.message,
+          });
+        }
+      } catch (error) {
+        logger.error("Error updating guest quota metadata", error);
       }
     }
 
@@ -451,7 +585,7 @@ export async function canConsumeCredits(
 export async function consumeGuestCredits(
   action: CreditActionType,
   credits: number,
-  metadata?: Record<string, any>,
+  metadata?: Record<string, unknown>,
 ): Promise<{ success: boolean; quota?: GuestQuotaData; error?: string }> {
   if (shouldBypassGuestQuota()) {
     logger.debug("E2E environment: simulating credit consumption", "quota", { action, credits });
@@ -504,32 +638,67 @@ export async function consumeGuestCredits(
         break;
     }
 
-    const { data: updated, error: updateError } = await supabase
+    // Timeout réduit à 1 seconde
+    const timeoutPromise = new Promise<{ data: null; error: { code: string; message: string } }>(
+      (resolve) => {
+        setTimeout(
+          () => resolve({ data: null, error: { code: "TIMEOUT", message: "Timeout" } }),
+          1000,
+        );
+      },
+    );
+
+    const updatePromise = supabase
       .from(GUEST_QUOTA_TABLE)
       .update(updates)
       .eq("id", quota.id)
       .select("*")
       .single();
 
+    const { data: updated, error: updateError } = await Promise.race([
+      updatePromise,
+      timeoutPromise,
+    ]);
+
     const updatedRow = (updated as GuestQuotaSupabaseRow | null) ?? null;
 
     if (updateError || !updatedRow) {
+      if (updateError?.code === "TIMEOUT") {
+        // En cas de timeout, retourner immédiatement sans logger (trop verbeux)
+        return { success: false, error: "Timeout: Supabase is slow or unavailable" };
+      }
       logger.error("Failed to update guest quota", updateError);
       return { success: false, error: "Failed to update quota" };
     }
 
+    // Mettre à jour le cache
+    quotaCache.set(quota.fingerprint, { data: updatedRow, timestamp: Date.now() });
     const fingerprint = updatedRow.fingerprint;
 
-    const { error: journalError } = await supabase.from(GUEST_QUOTA_JOURNAL_TABLE).insert({
-      guest_quota_id: updatedRow.id,
-      fingerprint,
-      action,
-      credits,
-      metadata: metadata || {},
-    });
+    // Journal entry avec timeout réduit (non-bloquant, fire-and-forget)
+    try {
+      const journalTimeoutPromise = new Promise<{ error: { code: string; message: string } }>(
+        (resolve) => {
+          setTimeout(() => resolve({ error: { code: "TIMEOUT", message: "Timeout" } }), 1000);
+        },
+      );
 
-    if (journalError) {
-      logger.error("Failed to add journal entry", journalError);
+      const journalPromise = supabase.from(GUEST_QUOTA_JOURNAL_TABLE).insert({
+        guest_quota_id: updatedRow.id,
+        fingerprint,
+        action,
+        credits,
+        metadata: metadata || {},
+      });
+
+      const { error: journalError } = await Promise.race([journalPromise, journalTimeoutPromise]);
+
+      // Ne logger que les erreurs non-timeout
+      if (journalError && journalError.code !== "TIMEOUT") {
+        logger.error("Failed to add journal entry", journalError);
+      }
+    } catch (journalError) {
+      // Ignorer les erreurs de journal (non-critique)
     }
 
     logger.info("Credits consumed", "quota", {

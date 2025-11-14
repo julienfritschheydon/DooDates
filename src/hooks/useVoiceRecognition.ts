@@ -26,10 +26,10 @@ interface SpeechRecognition extends EventTarget {
   start(): void;
   stop(): void;
   abort(): void;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => void) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null;
 }
 
 interface SpeechRecognitionConstructor {
@@ -249,9 +249,9 @@ export function useVoiceRecognition(
 
     try {
       recognition.start();
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Ignorer l'erreur si déjà démarré
-      if (err.message?.includes("already started")) {
+      if (err instanceof Error && err.message?.includes("already started")) {
         logger.debug("Reconnaissance déjà active", "general");
         return;
       }

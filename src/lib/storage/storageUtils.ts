@@ -32,7 +32,7 @@ export function readFromStorage<T>(
     if (Array.isArray(items)) {
       items.forEach((item) => {
         if (item && typeof item === "object" && "id" in item) {
-          cache.set((item as any).id, item);
+          cache.set((item as { id: string }).id, item);
         }
       });
     }
@@ -59,7 +59,7 @@ export function writeToStorage<T>(key: string, items: T[], cache: Map<string, T>
     cache.clear();
     items.forEach((item) => {
       if (item && typeof item === "object" && "id" in item) {
-        cache.set((item as any).id, item);
+        cache.set((item as { id: string }).id, item);
       }
     });
 
@@ -93,7 +93,7 @@ export function findById<T>(id: string, key: string, cache: Map<string, T>): T |
 
   // Search in all items
   const items = readFromStorage(key, cache);
-  return items.find((item: any) => item.id === id) || null;
+  return items.find((item: { id: string }) => item.id === id) || null;
 }
 
 /**
@@ -101,7 +101,9 @@ export function findById<T>(id: string, key: string, cache: Map<string, T>): T |
  */
 export function updateInStorage<T>(key: string, updatedItem: T, cache: Map<string, T>): void {
   const items = readFromStorage(key, cache);
-  const index = items.findIndex((item: any) => item.id === (updatedItem as any).id);
+  const index = items.findIndex(
+    (item: { id: string }) => item.id === (updatedItem as { id: string }).id,
+  );
 
   if (index >= 0) {
     items[index] = updatedItem;
@@ -114,7 +116,7 @@ export function updateInStorage<T>(key: string, updatedItem: T, cache: Map<strin
  */
 export function deleteFromStorage<T>(key: string, id: string, cache: Map<string, T>): void {
   const items = readFromStorage(key, cache);
-  const filtered = items.filter((item: any) => item.id !== id);
+  const filtered = items.filter((item: { id: string }) => item.id !== id);
   writeToStorage(key, filtered, cache);
   cache.delete(id);
 }
@@ -122,7 +124,7 @@ export function deleteFromStorage<T>(key: string, id: string, cache: Map<string,
 /**
  * Generic clear all data
  */
-export function clearStorage(keys: string[], caches: Map<string, any>[]): void {
+export function clearStorage(keys: string[], caches: Map<string, unknown>[]): void {
   if (!hasWindow()) return;
 
   try {

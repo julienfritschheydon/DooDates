@@ -1,7 +1,7 @@
 interface AIProposalFeedbackProps {
   proposal: {
     userRequest: string;
-    generatedContent: any;
+    generatedContent: import("../../lib/gemini").PollSuggestion;
     pollContext?: {
       pollId?: string;
       pollTitle?: string;

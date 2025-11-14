@@ -5,13 +5,14 @@ import { getAllPolls } from "@/lib/pollStorage";
 import type { DatePollSuggestion } from "@/lib/gemini";
 import { X, Check, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CreatePageLayout } from "@/components/layout/CreatePageLayout";
 
 export default function DateCreator() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const editId = params.get("edit");
   const [published, setPublished] = useState(false);
-  const [publishedPoll, setPublishedPoll] = useState<any>(null);
+  const [publishedPoll, setPublishedPoll] = useState<import("../types/poll").Poll | null>(null);
   const { toast } = useToast();
 
   // Charger les données du sondage à éditer
@@ -26,13 +27,13 @@ export default function DateCreator() {
     const dates: string[] = [];
 
     // Méthode 1: Depuis settings.selectedDates
-    if ((existing as any).settings?.selectedDates?.length > 0) {
-      dates.push(...(existing as any).settings.selectedDates);
+    if (existing.settings?.selectedDates?.length > 0) {
+      dates.push(...existing.settings.selectedDates);
     }
 
     // Méthode 2: Depuis les options du sondage
-    if (dates.length === 0 && (existing as any).options) {
-      (existing as any).options.forEach((option: any) => {
+    if (dates.length === 0 && existing.options) {
+      existing.options.forEach((option: import("../types/poll").PollOption) => {
         if (option.option_date && !dates.includes(option.option_date)) {
           dates.push(option.option_date);
         }
@@ -48,7 +49,9 @@ export default function DateCreator() {
       title: existing.title || "",
       dates: dates,
       type: "date",
-      timeSlotsByDate: (existing as any).settings?.timeSlotsByDate || {},
+      timeSlotsByDate:
+        (existing.settings as import("../../lib/pollStorage").PollSettings | undefined)
+          ?.timeSlotsByDate || {},
     } as DatePollSuggestion;
   }, [editId]);
 
@@ -123,33 +126,21 @@ export default function DateCreator() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pb-8">
-      {/* Bouton retour */}
-      <div className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex justify-end">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
-            title="Retour"
-            aria-label="Retour"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+    <CreatePageLayout>
+      <div className="pb-8">
+        {/* Calendar creator component */}
+        <PollCreatorComponent
+          onBack={(createdPoll?: import("../../lib/pollStorage").Poll) => {
+            if (createdPoll) {
+              setPublishedPoll(createdPoll);
+              setPublished(true);
+            } else {
+              navigate(-1);
+            }
+          }}
+          initialData={initialData}
+        />
       </div>
-
-      {/* Calendar creator component */}
-      <PollCreatorComponent
-        onBack={(createdPoll?: any) => {
-          if (createdPoll) {
-            setPublishedPoll(createdPoll);
-            setPublished(true);
-          } else {
-            navigate(-1);
-          }
-        }}
-        initialData={initialData}
-      />
-    </div>
+    </CreatePageLayout>
   );
 }

@@ -5,13 +5,13 @@ import React from "react";
 
 // Configuration globale pour les tests Vitest
 global.ResizeObserver = class ResizeObserver {
-  constructor(cb: any) {
+  constructor(cb: (entries: ResizeObserverEntry[], observer: ResizeObserver) => void) {
     this.cb = cb;
   }
   observe() {}
   unobserve() {}
   disconnect() {}
-  cb: any;
+  cb: (entries: ResizeObserverEntry[], observer: ResizeObserver) => void;
 };
 
 // Mock pour window.matchMedia
@@ -54,7 +54,7 @@ loadEnv({ path: path.resolve(process.cwd(), ".env.local"), override: false });
 // Le mock lit process.env au moment de la création pour avoir les valeurs de .env.local
 vi.mock("import.meta", () => {
   // Créer un objet env qui lit depuis process.env (chargé depuis .env.local ci-dessus)
-  const env: Record<string, any> = {};
+  const env: Record<string, string | undefined> = {};
 
   // Copier toutes les variables VITE_* depuis process.env
   if (typeof process !== "undefined" && process.env) {
