@@ -57,7 +57,8 @@
     "supabase:lint": "npx supabase db lint --linked",
     "supabase:lint:check": "npx supabase db lint --linked --level error",
     "supabase:lint:local": "npx supabase db lint",
-    "supabase:lint:local:check": "npx supabase db lint --level error"
+    "supabase:lint:local:check": "npx supabase db lint --level error",
+    "supabase:apply-fixes": "pwsh scripts/apply-sql-fixes.ps1"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

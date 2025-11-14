@@ -200,7 +200,7 @@ BEGIN
   END IF;
   
   -- Récupérer date d'abonnement depuis profiles
-  SELECT subscription_expires_at, created_at INTO subscription_start
+  SELECT subscription_expires_at INTO subscription_start
   FROM profiles
   WHERE id = p_user_id
   LIMIT 1;
