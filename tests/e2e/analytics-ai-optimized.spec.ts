@@ -317,6 +317,10 @@ test.describe("Analytics IA - Suite Optimisée", () => {
     await page.goto(`/poll/${slug}/results?e2e-test=true`, { waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
 
+    // Attendre que la page de résultats soit complètement chargée (le titre "Résultats" apparaît)
+    await expect(page.getByText(/Résultats/i).first()).toBeVisible({ timeout: 15000 });
+
+    // Attendre que les actions du poll soient chargées
     await page.waitForSelector('[data-testid="poll-action-close"], [data-testid="poll-action-edit"]', { timeout: 10000 });
 
     page.once('dialog', async dialog => {
