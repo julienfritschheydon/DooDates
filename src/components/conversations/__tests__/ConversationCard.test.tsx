@@ -257,7 +257,7 @@ describe("ConversationCard", () => {
       const renameMenuItem = screen.getByText("Renommer");
       // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
-      
+
       // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
@@ -285,7 +285,7 @@ describe("ConversationCard", () => {
       const renameMenuItem = screen.getByText("Renommer");
       // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
-      
+
       // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
@@ -322,7 +322,7 @@ describe("ConversationCard", () => {
       const renameMenuItem = screen.getByText("Renommer");
       // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
-      
+
       // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {
@@ -361,7 +361,7 @@ describe("ConversationCard", () => {
       const renameMenuItem = screen.getByText("Renommer");
       // Radix UI DropdownMenuItem uses onSelect, which is triggered by click
       await userEvent.click(renameMenuItem);
-      
+
       // Wait for input to appear (using testid is more reliable)
       await waitFor(
         () => {

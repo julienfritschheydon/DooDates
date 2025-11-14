@@ -77,7 +77,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-production-smoke
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 7
 
   # Job 1: Tests Rapides (Parallèle)
@@ -255,7 +257,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-smoke
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 7
 
   # Job 5b: E2E Functional (Chromium only - Tests fonctionnels complets)
@@ -296,7 +300,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-functional
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 7
 
   # Job 5c: E2E Matrix (Desktop + Mobile - Tests multi-navigateurs)
@@ -375,7 +381,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.project }}
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 7
 
   # Job 6: Summary

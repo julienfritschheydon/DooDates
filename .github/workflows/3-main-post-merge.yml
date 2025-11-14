@@ -87,7 +87,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-smoke-${{ matrix.shard }}
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 7
 
   # ========================================
@@ -148,7 +150,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-analytics-suite
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 7
 
   # ========================================
@@ -209,7 +213,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-form-poll-regression
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 7
 
   e2e-functional:
@@ -275,7 +281,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-functional-${{ matrix.shard }}
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 7
 
   # ========================================

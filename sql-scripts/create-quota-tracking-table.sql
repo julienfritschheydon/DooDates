@@ -96,7 +96,7 @@ CREATE POLICY "Users can view own quotas"
   ON quota_tracking
   FOR SELECT
   TO authenticated
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- Policy: Les utilisateurs peuvent créer leur propre quota
 DROP POLICY IF EXISTS "Users can create own quota" ON quota_tracking;
@@ -104,7 +104,7 @@ CREATE POLICY "Users can create own quota"
   ON quota_tracking
   FOR INSERT
   TO authenticated
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK ((select auth.uid()) = user_id);
 
 -- Policy: Les utilisateurs peuvent mettre à jour leur propre quota
 DROP POLICY IF EXISTS "Users can update own quota" ON quota_tracking;
@@ -112,8 +112,8 @@ CREATE POLICY "Users can update own quota"
   ON quota_tracking
   FOR UPDATE
   TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id)
+  WITH CHECK ((select auth.uid()) = user_id);
 
 -- Policy: Service role a accès complet (pour Edge Functions et monitoring)
 DROP POLICY IF EXISTS "Service role full access quota_tracking" ON quota_tracking;
@@ -133,7 +133,7 @@ CREATE POLICY "Users can view own journal"
   ON quota_tracking_journal
   FOR SELECT
   TO authenticated
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- Policy: Les utilisateurs peuvent insérer dans leur propre journal
 DROP POLICY IF EXISTS "Users can insert own journal" ON quota_tracking_journal;
@@ -141,7 +141,7 @@ CREATE POLICY "Users can insert own journal"
   ON quota_tracking_journal
   FOR INSERT
   TO authenticated
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK ((select auth.uid()) = user_id);
 
 -- Policy: Service role a accès complet
 DROP POLICY IF EXISTS "Service role full access quota_tracking_journal" ON quota_tracking_journal;

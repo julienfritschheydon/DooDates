@@ -52,6 +52,21 @@ function findJsonFilesRecursive(dir, maxDepth = 3, currentDepth = 0) {
  * Playwright génère test-results.json à la racine ou dans test-results/
  */
 function parsePlaywrightResults(projectName) {
+  // Chercher test-results.json à la racine du projet (où Playwright le génère avec --reporter=json)
+  const projectRootJsonFile = path.join(process.cwd(), 'test-results.json');
+  if (fs.existsSync(projectRootJsonFile)) {
+    try {
+      const content = fs.readFileSync(projectRootJsonFile, 'utf-8');
+      const parsed = JSON.parse(content);
+      if (parsed && (parsed.stats || parsed.suites)) {
+        console.log(`  ✅ Résultats trouvés à la racine: ${projectRootJsonFile}`);
+        return parsed;
+      }
+    } catch (error) {
+      console.error(`Erreur lors de la lecture de ${projectRootJsonFile}:`, error.message);
+    }
+  }
+
   // Chercher test-results.json à la racine du dossier téléchargé
   const rootJsonFile = path.join(TEST_RESULTS_DIR, 'test-results.json');
   if (fs.existsSync(rootJsonFile)) {

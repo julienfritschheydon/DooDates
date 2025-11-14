@@ -377,7 +377,12 @@ function getMaxSlotsForContextFromParsed(parsed: ParsedTemporalInput, lowerInput
   }
 
   // Contextes nécessitant peu de créneaux
-  if (/visite|musée|exposition|footing|course|sport/.test(lowerInput)) {
+  // "footing" → max 2 créneaux (un footing est généralement un créneau unique par jour)
+  if (/footing/.test(lowerInput)) {
+    return 2;
+  }
+
+  if (/visite|musée|exposition|course|sport/.test(lowerInput)) {
     return 3;
   }
 
@@ -434,7 +439,12 @@ function getMaxSlotsForContext(
     return 2;
   }
 
-  if (/visite|musée|exposition|footing|course|sport/.test(lowerInput)) {
+  // "footing" → max 2 créneaux (un footing est généralement un créneau unique par jour)
+  if (/footing/.test(lowerInput)) {
+    return 2;
+  }
+
+  if (/visite|musée|exposition|course|sport/.test(lowerInput)) {
     return 3; // Augmenté de 2 à 3 pour visite musée
   }
 
@@ -1055,13 +1065,16 @@ export function postProcessSuggestion(
     if (!isMealWithSpecificDate) {
       // Détecter les contextes qui nécessitent toujours une limitation même avec plusieurs dates
       // Note: "réunion d'équipe" est inclus car c'est un contexte spécifique nécessitant peu de créneaux
-      const hasSpecificContextRequiringLimit = /visio|visioconférence|visioconference|footing|comité|visite|musée|exposition|course|sport|réunion d'équipe|reunion d'equipe|équipe éducative|equipe educative/.test(lowerInput);
-      
-      const shouldLimit = 
+      const hasSpecificContextRequiringLimit =
+        /visio|visioconférence|visioconference|footing|comité|visite|musée|exposition|course|sport|réunion d'équipe|reunion d'equipe|équipe éducative|equipe educative/.test(
+          lowerInput,
+        );
+
+      const shouldLimit =
         hasSpecificContextRequiringLimit || // Toujours limiter pour ces contextes
         !(hasMultipleDays || hasMultipleDates) || // Limiter si pas plusieurs dates/jours
         effectiveExpectedCount !== null; // Limiter si un nombre explicite est demandé
-      
+
       if (shouldLimit) {
         processedSlots = limitSlotsCount(
           processedSlots,

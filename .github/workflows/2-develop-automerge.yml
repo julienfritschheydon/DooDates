@@ -20,10 +20,10 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      code: ${{ steps.changes.outputs.code }}
-      src: ${{ steps.changes.outputs.src }}
-      tests-only: ${{ steps.changes.outputs.tests-only }}
-      e2e-required: ${{ steps.changes.outputs.e2e-required }}
+      code: ${{ steps.changes.outputs.code || 'false' }}
+      src: ${{ steps.changes.outputs.src || 'false' }}
+      tests-only: ${{ steps.changes.outputs.tests-only || 'false' }}
+      e2e-required: ${{ steps.changes.outputs.e2e-required || 'false' }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -220,7 +220,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-develop-smoke
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 7
 
   # ========================================
@@ -390,7 +392,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-production-smoke-pre-merge
-          path: test-results
+          path: |
+            test-results
+            test-results.json
           retention-days: 7
 
   # ========================================
@@ -461,11 +465,31 @@ jobs:
           merge-multiple: true
           path: test-results
 
+      - name: 📥 Download production smoke test results (if failed)
+        if: needs.production-smoke-pre-merge.result == 'failure'
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: test-results-production-smoke-pre-merge
+          merge-multiple: true
+          path: test-results
+
       - name: 📊 Generate E2E Summary (if E2E failed)
         id: e2e-summary
         if: needs.tests-e2e.result == 'failure'
         run: |
-          if [ -d test-results ]; then
+          if [ -d test-results ] || [ -f test-results.json ]; then
+            node scripts/generate-regression-summary.js develop || echo "Summary generation failed"
+          else
+            echo "No test results available"
+          fi
+        continue-on-error: true
+
+      - name: 📊 Generate Production Smoke Summary (if failed)
+        id: prod-smoke-summary
+        if: needs.production-smoke-pre-merge.result == 'failure'
+        run: |
+          if [ -d test-results ] || [ -f test-results.json ]; then
             node scripts/generate-regression-summary.js develop || echo "Summary generation failed"
           else
             echo "No test results available"
@@ -512,6 +536,17 @@ jobs:
                 issueBody += `---\n\n## 🔍 Détails des Erreurs E2E\n\n${e2eSummary}\n`;
               } else {
                 issueBody += `---\n\n📋 **Rapports E2E détaillés disponibles dans les artefacts GitHub Actions**\n`;
+              }
+            }
+            
+            // Ajouter le résumé Production Smoke détaillé si disponible
+            if (prodSmokeStatus === 'failure') {
+              const summaryPath = path.join(process.cwd(), 'regression-summary.md');
+              if (fs.existsSync(summaryPath)) {
+                const prodSmokeSummary = fs.readFileSync(summaryPath, 'utf-8');
+                issueBody += `---\n\n## 🔥 Détails des Erreurs Production Smoke (Pre-Merge)\n\n${prodSmokeSummary}\n`;
+              } else {
+                issueBody += `---\n\n📋 **Rapports Production Smoke détaillés disponibles dans les artefacts GitHub Actions**\n`;
               }
             }
             
