@@ -20,9 +20,11 @@ Réactiver les 10 tests skippés dans les suites d'intégration `useAutoSave` :
 
 ## Historique
 
-### 13/11/2025 - Correction des tests `useAutoSave.test.ts`
-- ✅ Ajout de `incrementConversationCreated` au mock `quotaTracking`
-- ✅ Correction du mock `getConversation` pour retourner la conversation créée
+### 13/11/2025 - Correction complète de tous les tests useAutoSave
+
+#### Phase 1 : `useAutoSave.test.ts` (13/13 tests passent - 100%)
+- ✅ Ajout de `incrementConversationCreated`, `incrementPollCreated`, `incrementAiMessages` au mock `quotaTracking`
+- ✅ Correction du mock `getConversation` pour retourner la conversation créée selon l'ID
 - ✅ Réactivation de 6 tests skippés :
   - `should create conversation on first message` ✅
   - `should convert AI messages correctly` ✅
@@ -30,23 +32,22 @@ Réactiver les 10 tests skippés dans les suites d'intégration `useAutoSave` :
   - `should return real ID after message is added to temp conversation` ✅
   - `should handle message save errors` ✅
   - `should handle very long message content` ✅
-- **Résultat** : 13/13 tests passent (100%)
 
-### Prochaines étapes
-- ⏳ Réactiver les 3 tests dans `titleGeneration.useAutoSave.test.ts`
-- ⏳ Réactiver le test dans `useAutoSave.titleGeneration.test.ts` (problème de timing/debounce)
+#### Phase 2 : `titleGeneration.useAutoSave.test.ts` (9/9 tests passent - 100%)
+- ✅ Correction du mock `getConversation` pour retourner `null` pour les IDs temporaires avant création
+- ✅ Ajout de `mockReset()` pour nettoyer les mocks entre les tests
+- ✅ Utilisation de `await` pour `addMessage` dans les tests
+- ✅ Réactivation de 3 tests skippés :
+  - `should integrate with conversation storage updates` ✅
+  - `should handle edge cases gracefully` ✅
+  - `should handle title generation errors gracefully` ✅
 
-## Tests Restants
+#### Phase 3 : `useAutoSave.titleGeneration.test.ts` (1/1 test passe - 100%)
+- ✅ Utilisation de `vi.useRealTimers()` pour gérer le debounce de 1.5s
+- ✅ Correction du mock `getMessages` pour retourner les messages ajoutés dynamiquement
+- ✅ Correction du mock `getConversation` pour retourner la conversation créée
+- ✅ Réactivation du test :
+  - `devrait générer un titre après création de sondage` ✅
 
-### `titleGeneration.useAutoSave.test.ts` (3 tests)
-1. `should integrate with conversation storage updates` - `createConversation` non appelé
-2. `should handle edge cases gracefully` - `createConversation` non appelé
-3. `should handle title generation errors gracefully` - `createConversation` non appelé
-
-**Problème** : Même problème que `useAutoSave.test.ts` - mock `quotaTracking` et `getConversation` à corriger
-
-### `useAutoSave.titleGeneration.test.ts` (1 test)
-1. `devrait générer un titre après création de sondage` - `generateTitle` n'est pas appelé
-
-**Problème** : Problème de timing/debounce - le debounce de 1.5s n'est pas déclenché correctement dans les tests avec fake timers
+**Résultat final** : ✅ **Tous les tests passent** (23/23 tests - 100%)
 

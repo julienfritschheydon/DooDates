@@ -33,26 +33,18 @@ const LoadingSpinner = () => (
 // Pages avec preload hint pour les pages critiques
 const Vote = lazy(() => import("./pages/Vote"));
 const Results = lazy(() => import("./pages/Results"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 const CreateChooser = lazy(() => import("./pages/CreateChooser"));
 const DateCreator = lazy(() => import("./pages/DateCreator"));
 const FormCreator = lazy(() => import("./pages/FormCreator"));
+const AvailabilityPollCreator = lazy(() => import("./pages/AvailabilityPollCreator"));
+const AICreator = lazy(() => import("./pages/AICreator"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Prototype pages (UX IA-First)
-const ChatLandingPrototype = lazy(() =>
-  import("./components/prototype/ChatLandingPrototype").then((m) => ({
-    default: m.ChatLandingPrototype,
-  })),
-);
 const WorkspacePage = lazy(() => import("./app/workspace/page"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const ConsumptionJournal = lazy(() => import("./pages/ConsumptionJournal"));
-const SupabaseDiagnostic = lazy(() =>
-  import("./pages/SupabaseDiagnostic").then((m) => ({
-    default: m.SupabaseDiagnostic,
-  })),
-);
-const CalendarPrototype = lazy(() => import("./pages/CalendarPrototype"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Docs = lazy(() => import("./pages/Docs").then((m) => ({ default: m.Docs })));
 const Pricing = lazy(() => import("./pages/Pricing").then((m) => ({ default: m.PricingPage })));
@@ -343,9 +335,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   usePreloadOnNavigation();
 
   // Pages qui ne doivent pas afficher la Sidebar (garde TopNav)
+  // Exclure /create/ai car il utilise WorkspaceLayoutPrototype qui nécessite h-screen
   const useClassicLayout =
     location.pathname.startsWith("/poll/") ||
-    location.pathname.startsWith("/create/") ||
+    (location.pathname.startsWith("/create/") && !location.pathname.startsWith("/create/ai")) ||
     location.pathname.startsWith("/vote/") ||
     location.pathname.startsWith("/docs") ||
     location.pathname.startsWith("/pricing") ||
@@ -418,27 +411,32 @@ const App = () => {
                             {/* ConversationProvider LEGACY - À migrer progressivement */}
                             <ConversationProvider>
                               <Routes>
-                                {/* Route / vers WorkspacePage (AI-First UX) */}
-                                <Route path="/" element={<WorkspacePage />} />
+                                {/* Route / vers LandingPage (Marketing) */}
+                                <Route path="/" element={<LandingPage />} />
 
-                                {/* Redirections vers / */}
+                                {/* Workspace IA */}
                                 <Route path="/workspace" element={<WorkspacePage />} />
                                 <Route path="/chat" element={<WorkspacePage />} />
+
+                                {/* Dashboard */}
                                 <Route path="/dashboard" element={<Dashboard />} />
                                 <Route path="/dashboard/journal" element={<ConsumptionJournal />} />
-                                <Route
-                                  path="/diagnostic/supabase"
-                                  element={<SupabaseDiagnostic />}
-                                />
-                                <Route path="/calendar-prototype" element={<CalendarPrototype />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />
 
+                                {/* Sondages */}
                                 <Route path="/poll/:slug" element={<Vote />} />
                                 <Route path="/poll/:slug/results" element={<Results />} />
                                 <Route path="/vote/:pollId" element={<Vote />} />
+
+                                {/* Création */}
                                 <Route path="/create" element={<CreateChooser />} />
                                 <Route path="/create/date" element={<DateCreator />} />
                                 <Route path="/create/form" element={<FormCreator />} />
+                                <Route
+                                  path="/create/availability"
+                                  element={<AvailabilityPollCreator />}
+                                />
+                                <Route path="/create/ai" element={<AICreator />} />
                                 <Route
                                   path="/poll/:pollSlug/results/:adminToken"
                                   element={<Vote />}

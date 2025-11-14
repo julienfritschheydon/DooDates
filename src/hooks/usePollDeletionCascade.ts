@@ -33,7 +33,7 @@ export const usePollDeletionCascade = () => {
           conversations.conversations?.conversations?.filter(
             (conv) =>
               conv.tags?.some((tag) => tag === `poll:${pollId}`) ||
-              (conv as any).pollId === pollId ||
+              conv.pollId === pollId ||
               conv.relatedPollId === pollId,
           ) || [];
 
@@ -105,7 +105,7 @@ export const usePollDeletionCascade = () => {
           conversations.conversations?.conversations?.filter(
             (conv) =>
               conv.tags?.some((tag) => tag === `poll:${pollId}`) ||
-              (conv as any).pollId === pollId ||
+              conv.pollId === pollId ||
               conv.relatedPollId === pollId,
           ) || [];
 
@@ -217,7 +217,7 @@ export const usePollDeletionCascade = () => {
   const getOrphanedLinks = useCallback((): string[] => {
     try {
       const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
-      const existingPollIds = new Set(polls.map((poll: any) => poll.id));
+      const existingPollIds = new Set(polls.map((poll: { id: string }) => poll.id));
 
       const orphanedConversations: string[] = [];
 
@@ -261,7 +261,7 @@ export const usePollDeletionCascade = () => {
 
     try {
       const polls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
-      const existingPollIds = new Set(polls.map((poll: any) => poll.id));
+      const existingPollIds = new Set(polls.map((poll: { id: string }) => poll.id));
 
       for (const conversationId of orphanedConversationIds) {
         const conversation = conversations.conversations?.conversations?.find(

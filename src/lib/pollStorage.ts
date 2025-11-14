@@ -137,7 +137,26 @@ export interface Poll {
   creatorEmail?: string; // Email du créateur pour les notifications
   dates?: string[]; // Dates sélectionnées pour le sondage (uniquement pour type: "date")
   // Unification des types de sondages
-  type?: "date" | "form";
+  type?: "date" | "form" | "availability";
+  // Champs spécifiques aux sondages disponibilités
+  clientAvailabilities?: string; // Texte libre des disponibilités client (pour parsing IA)
+  parsedAvailabilities?: Array<{
+    date: string;
+    timeRanges: Array<{ start: string; end: string }>;
+  }>; // Disponibilités parsées par l'IA
+  proposedSlots?: Array<{
+    date: string;
+    start: string;
+    end: string;
+    score?: number; // Score d'optimisation (pour MVP v1.0)
+    reasons?: string[]; // Raisons de la recommandation (MVP v1.0)
+    proposedBy?: "professional" | "system"; // Qui a proposé ce créneau
+  }>; // Créneaux proposés par le professionnel (MVP v0.5) ou système (MVP v1.0)
+  validatedSlot?: {
+    date: string;
+    start: string;
+    end: string;
+  }; // Créneau validé par le client (MVP v1.0)
   // Champs spécifiques aux formulaires - properly typed now
   questions?: FormQuestionShape[];
   conditionalRules?: ConditionalRule[]; // Règles pour questions conditionnelles
@@ -457,6 +476,23 @@ function validatePoll(poll: Poll): void {
     }
     return;
   }
+  // Pour les sondages de type "availability", valider minimalement le titre
+  if (poll.type === "availability") {
+    if (!poll?.title || typeof poll.title !== "string" || !poll.title.trim()) {
+      const validationError = ErrorFactory.validation(
+        "Invalid availability poll: title must be a non-empty string",
+        "Le titre du sondage disponibilités est obligatoire",
+      );
+
+      logError(validationError, {
+        component: "pollStorage",
+        operation: "validateAvailabilityPoll",
+      });
+
+      throw validationError;
+    }
+    return;
+  }
 }
 
 // Déterminer si un poll est un sondage "date"
@@ -629,7 +665,7 @@ function migrateFormDraftsIntoUnified(): void {
         slug: (f?.slug as string) || `form-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         created_at: (f?.created_at as string) || new Date().toISOString(),
         description: (f?.description as string) || undefined,
-        status: (f?.status as any) || "draft",
+        status: (f?.status as Poll["status"]) || "draft",
         updated_at: new Date().toISOString(),
         dates: [], // Form polls don't have dates
         type: "form",
@@ -884,7 +920,7 @@ export function getFormResults(pollId: string): FormResults {
   const qIndex = new Map<string, FormQuestionShape>();
   for (const q of (poll.questions || []) as FormQuestionShape[]) {
     qIndex.set(q.id, q);
-    const kind = (q as any)?.kind || (q as any)?.type || "single";
+    const kind = q.kind || q.type || "single";
     if (kind !== "text") countsByQuestion[q.id] = {};
     if (kind === "text") textAnswers[q.id] = [];
   }
@@ -893,7 +929,7 @@ export function getFormResults(pollId: string): FormResults {
     for (const it of r.items) {
       const q = qIndex.get(it.questionId);
       if (!q) continue;
-      const kind = (q as any)?.kind || (q as any)?.type || "single";
+      const kind = q.kind || q.type || "single";
       if (kind === "text") {
         if (typeof it.value === "string" && it.value.trim()) {
           textAnswers[q.id].push(it.value);
@@ -971,7 +1007,7 @@ export interface Vote {
   voter_email?: string;
   voter_name?: string;
   created_at?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // For date-poll votes stored in doodates_votes

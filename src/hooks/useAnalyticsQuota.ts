@@ -82,7 +82,7 @@ export function useAnalyticsQuota() {
       logger.error("Failed to load analytics quota", "analytics", { error });
       resetQuota();
     }
-  }, [user, limit]);
+  }, [user, limit, resetQuota]);
 
   const loadQuota = useCallback(() => {
     try {
@@ -113,12 +113,12 @@ export function useAnalyticsQuota() {
         canQuery: remaining > 0,
       });
 
-      logger.debug("Analytics quota loaded", "analytics", { used, limit, remaining });
+      logger.debug("Analytics quota loaded", "analytics", { used, limit: currentLimit, remaining });
     } catch (error) {
       logger.error("Failed to load analytics quota", "analytics", { error });
       resetQuota();
     }
-  }, [user]);
+  }, [user, resetQuota]);
 
   const resetQuota = useCallback(() => {
     const currentLimit = user ? ANALYTICS_QUOTAS.AUTHENTICATED : ANALYTICS_QUOTAS.ANONYMOUS;

@@ -26,7 +26,7 @@ interface Message {
   content: string;
   isAI: boolean;
   timestamp: Date;
-  pollSuggestion?: any;
+  pollSuggestion?: Poll;
 }
 
 // Utiliser directement le type StoragePoll pour éviter les conflits
@@ -70,7 +70,7 @@ interface ConversationContextType {
   updatePoll: (poll: Poll) => void;
 
   // Actions combinées
-  createPollFromChat: (pollData: any) => void;
+  createPollFromChat: (pollData: Partial<Poll> | Poll) => void;
 
   // Reducer actions (nouveau)
   dispatchPollAction: (action: PollAction | FormPollAction) => void;
@@ -172,7 +172,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       if (!Array.isArray(polls) || polls.length === 0) return;
 
       // Trouver le poll le plus récemment modifié
-      const sortedPolls = polls.sort((a: any, b: any) => {
+      const sortedPolls = polls.sort((a: Poll, b: Poll) => {
         const dateA = new Date(a.updated_at || a.created_at).getTime();
         const dateB = new Date(b.updated_at || b.created_at).getTime();
         return dateB - dateA;
@@ -220,14 +220,14 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       logger.error("Erreur suppression messages", error);
     }
     setIsEditorOpen(false);
-    dispatchPoll({ type: "REPLACE_POLL", payload: null as any });
+    dispatchPoll({ type: "REPLACE_POLL", payload: null as Poll });
     // Note: On ne supprime PAS doodates_polls car il contient tous les polls sauvegardés
     // On vide juste currentPoll pour ne pas le restaurer au prochain refresh
   }, []);
 
   // Actions éditeur
   const openEditor = useCallback((poll: Poll) => {
-    dispatchPoll({ type: "REPLACE_POLL", payload: poll as any });
+    dispatchPoll({ type: "REPLACE_POLL", payload: poll });
     setIsEditorOpen(true);
   }, []);
 
@@ -238,7 +238,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
   const updatePoll = useCallback((poll: Poll) => {
     // Remplacer complètement le poll (utilisé pour l'ouverture initiale)
-    dispatchPoll({ type: "REPLACE_POLL", payload: poll as any });
+    dispatchPoll({ type: "REPLACE_POLL", payload: poll });
   }, []);
 
   // Action pour dispatcher des modifications via le reducer
@@ -248,15 +248,17 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       if (!currentPoll) return;
 
       // Déterminer quel reducer utiliser selon le type de poll
-      const pollType = (currentPoll as any).type;
+      const pollType = currentPoll?.type;
 
       // Si c'est un Form Poll, utiliser formPollReducer
       if (pollType === "form") {
-        const updatedPoll = formPollReducer(currentPoll as any, action as FormPollAction);
+        const updatedPoll = formPollReducer(currentPoll, action as FormPollAction);
         if (updatedPoll) {
           // Extraire highlightedId pour l'animation
-          const highlightId = (updatedPoll as any)._highlightedId;
-          const highlightTypeValue = (updatedPoll as any)._highlightType;
+          const highlightId = (updatedPoll as Poll & { _highlightedId?: string })._highlightedId;
+          const highlightTypeValue = (
+            updatedPoll as Poll & { _highlightType?: "add" | "remove" | "modify" }
+          )._highlightType;
 
           if (highlightId) {
             setHighlightedId(highlightId);
@@ -264,15 +266,17 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
             // Garder le highlight en permanence (pas de timeout)
           }
 
-          dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll as any });
+          dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll });
         }
       } else {
         // Sinon, utiliser pollReducer pour les Date Polls (type "date" ou undefined)
         const updatedPoll = pollReducer(currentPoll, action as PollAction);
         if (updatedPoll) {
           // Extraire highlightedId pour l'animation (même logique que Form Poll)
-          const highlightId = (updatedPoll as any)._highlightedId;
-          const highlightTypeValue = (updatedPoll as any)._highlightType;
+          const highlightId = (updatedPoll as Poll & { _highlightedId?: string })._highlightedId;
+          const highlightTypeValue = (
+            updatedPoll as Poll & { _highlightType?: "add" | "remove" | "modify" }
+          )._highlightType;
 
           if (highlightId) {
             setHighlightedId(highlightId);
@@ -316,7 +320,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
   // Action combinée : créer ou modifier sondage depuis le chat
   const createPollFromChat = useCallback(
-    (pollData: any) => {
+    (pollData: import("../../lib/gemini").PollSuggestion | Partial<Poll>) => {
       logger.debug("createPollFromChat appelé", "poll", { pollData });
 
       // Créer un nouveau sondage complet avec tous les champs requis
@@ -327,37 +331,50 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       // Convertir timeSlots si présents
       let timeSlotsByDate = {};
       if (pollData.timeSlots && pollData.timeSlots.length > 0) {
-        timeSlotsByDate = pollData.timeSlots.reduce((acc: any, slot: any) => {
-          const targetDates =
-            slot.dates && slot.dates.length > 0 ? slot.dates : pollData.dates || [];
+        timeSlotsByDate = (
+          pollData as import("../../lib/gemini").DatePollSuggestion
+        ).timeSlots.reduce(
+          (
+            acc: Record<
+              string,
+              Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>
+            >,
+            slot: { start: string; end: string; dates?: string[] },
+          ) => {
+            const targetDates =
+              slot.dates && slot.dates.length > 0 ? slot.dates : pollData.dates || [];
 
-          targetDates.forEach((date: string) => {
-            if (!acc[date]) acc[date] = [];
+            targetDates.forEach((date: string) => {
+              if (!acc[date]) acc[date] = [];
 
-            // Calculer la durée en minutes entre start et end
-            const startHour = parseInt(slot.start.split(":")[0]);
-            const startMinute = parseInt(slot.start.split(":")[1]);
-            const endHour = parseInt(slot.end.split(":")[0]);
-            const endMinute = parseInt(slot.end.split(":")[1]);
+              // Calculer la durée en minutes entre start et end
+              const startHour = parseInt(slot.start.split(":")[0]);
+              const startMinute = parseInt(slot.start.split(":")[1]);
+              const endHour = parseInt(slot.end.split(":")[0]);
+              const endMinute = parseInt(slot.end.split(":")[1]);
 
-            const durationMinutes = endHour * 60 + endMinute - (startHour * 60 + startMinute);
+              const durationMinutes = endHour * 60 + endMinute - (startHour * 60 + startMinute);
 
-            acc[date].push({
-              hour: startHour,
-              minute: startMinute,
-              duration: durationMinutes,
-              enabled: true,
+              acc[date].push({
+                hour: startHour,
+                minute: startMinute,
+                duration: durationMinutes,
+                enabled: true,
+              });
             });
-          });
-          return acc;
-        }, {});
+            return acc;
+          },
+          {},
+        );
       }
 
       // Convertir les questions Gemini en format FormPollCreator
       let convertedQuestions = pollData.questions || [];
       if (pollData.type === "form" && pollData.questions) {
         logger.debug("Conversion questions Gemini", "poll", { questions: pollData.questions });
-        convertedQuestions = pollData.questions.map((q: any) => {
+        convertedQuestions = (
+          pollData as import("../../lib/gemini").FormPollSuggestion
+        ).questions.map((q: import("../../lib/gemini").FormQuestion) => {
           const baseQuestion = {
             id: uid(),
             title: q.title,
@@ -367,7 +384,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
           if (q.type === "single" || q.type === "multiple") {
             const options = (q.options || [])
-              .filter((opt: any) => opt && typeof opt === "string" && opt.trim())
+              .filter((opt: string | unknown) => opt && typeof opt === "string" && opt.trim())
               .map((opt: string) => ({
                 id: uid(),
                 label: opt.trim(),
@@ -417,7 +434,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
         }
 
         // Ouvrir l'éditeur dans le panneau de droite
-        openEditor(poll as any);
+        openEditor(poll);
       } catch (error) {
         logger.error("Erreur lors de la sauvegarde", error);
       }

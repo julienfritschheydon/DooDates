@@ -1,4 +1,4 @@
-export declare const supabase: any;
+export declare const supabase: import("@supabase/supabase-js").SupabaseClient;
 export declare const isLocalDevelopment: boolean;
 export type Database = {
   public: {
@@ -10,7 +10,7 @@ export type Database = {
           full_name: string | null;
           avatar_url: string | null;
           timezone: string;
-          preferences: Record<string, any>;
+          preferences: Record<string, unknown>;
           plan_type: "free" | "pro" | "premium";
           subscription_expires_at: string | null;
           created_at: string;
@@ -42,7 +42,7 @@ export type Database = {
           title: string;
           description: string | null;
           slug: string;
-          settings: Record<string, any>;
+          settings: Record<string, unknown>;
           status: "draft" | "active" | "closed" | "archived";
           expires_at: string | null;
           created_at: string;
@@ -70,7 +70,7 @@ export type Database = {
           id: string;
           poll_id: string;
           option_date: string;
-          time_slots: Record<string, any>[];
+          time_slots: Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>;
           display_order: number;
           created_at: string;
         };
@@ -93,7 +93,7 @@ export type Database = {
           voter_email: string;
           voter_name: string;
           voter_id: string | null;
-          selections: Record<string, any>;
+          selections: Record<string, "yes" | "no" | "maybe">;
           comment: string | null;
           ip_address: string | null;
           user_agent: string | null;
@@ -105,7 +105,7 @@ export type Database = {
           voter_email: string;
           voter_name: string;
           voter_id?: string | null;
-          selections: Record<string, any>;
+          selections: Record<string, "yes" | "no" | "maybe">;
           comment?: string | null;
           ip_address?: string | null;
           user_agent?: string | null;
@@ -122,8 +122,8 @@ export type Database = {
           user_id: string | null;
           session_id: string;
           title: string | null;
-          messages: Record<string, any>[];
-          context: Record<string, any>;
+          messages: Array<{ id: string; role: string; content: string; timestamp: string }>;
+          context: Record<string, unknown>;
           poll_id: string | null;
           status: "active" | "completed" | "abandoned";
           created_at: string;
@@ -150,7 +150,7 @@ export type Database = {
         Row: {
           id: string;
           event_type: string;
-          event_data: Record<string, any>;
+          event_data: Record<string, unknown>;
           user_id: string | null;
           session_id: string | null;
           ip_address: string | null;
@@ -159,7 +159,7 @@ export type Database = {
         };
         Insert: {
           event_type: string;
-          event_data: Record<string, any>;
+          event_data: Record<string, unknown>;
           user_id?: string | null;
           session_id?: string | null;
           ip_address?: string | null;
@@ -169,4 +169,4 @@ export type Database = {
     };
   };
 };
-export declare function handleSupabaseError(error: any): string;
+export declare function handleSupabaseError(error: unknown): string;

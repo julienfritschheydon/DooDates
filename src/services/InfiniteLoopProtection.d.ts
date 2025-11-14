@@ -35,8 +35,8 @@ export declare const infiniteLoopProtection: InfiniteLoopProtectionService;
  */
 export declare function protectFromInfiniteLoop(
   operationKey: string,
-): <T extends (...args: any[]) => any>(
-  target: any,
+): <T extends (...args: unknown[]) => unknown>(
+  target: unknown,
   propertyName: string,
   descriptor: TypedPropertyDescriptor<T>,
 ) => void;

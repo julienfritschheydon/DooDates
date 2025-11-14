@@ -79,7 +79,7 @@ export const PollActions: React.FC<PollActionsProps> = ({
 
   const handleEdit = () => {
     if (onEdit) return onEdit(poll.id);
-    if ((poll as any)?.type === "form") {
+    if (poll.type === "form") {
       navigate(`/create/form?edit=${poll.id}`);
     } else {
       navigate(`/create/date?edit=${poll.id}`);
@@ -88,13 +88,15 @@ export const PollActions: React.FC<PollActionsProps> = ({
 
   const handlePreloadEdit = () => {
     // Précharger PollCreator si c'est un sondage de dates (pas formulaire)
-    if ((poll as any)?.type !== "form") {
+    if (poll.type !== "form") {
       if (preloadTimeoutRef.current) {
         clearTimeout(preloadTimeoutRef.current);
       }
       preloadTimeoutRef.current = setTimeout(() => {
-        if (typeof (window as any).preloadPollCreator === "function") {
-          (window as any).preloadPollCreator();
+        const preloadFn = (window as Window & { preloadPollCreator?: () => void })
+          .preloadPollCreator;
+        if (typeof preloadFn === "function") {
+          preloadFn();
         }
       }, 300);
     }
@@ -115,7 +117,8 @@ export const PollActions: React.FC<PollActionsProps> = ({
       addPoll(dup);
 
       // Create a conversation for the duplicated poll
-      createConversationForPoll(dup.id, dup.title, dup.type || "date");
+      const pollType = dup.type === "availability" ? "date" : dup.type || "date";
+      createConversationForPoll(dup.id, dup.title, pollType);
 
       toast({
         title: "Sondage copié",

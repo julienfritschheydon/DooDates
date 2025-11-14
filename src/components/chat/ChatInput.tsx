@@ -34,15 +34,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   return (
     <div
       className={`p-4 md:p-6 fixed bottom-0 left-0 right-0 z-40 ${
-        darkTheme ? "bg-[#0a0a0a]" : "bg-white"
+        darkTheme ? "bg-[#0a0a0a]" : "bg-white border-t border-gray-200"
       }`}
     >
       <div className="max-w-2xl mx-auto">
         <div
           className={`flex items-center gap-2 md:gap-3 rounded-full p-2 border ${
-            darkTheme
-              ? "bg-[#0a0a0a] border-gray-700 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
-              : "bg-white border-gray-200 shadow-lg"
+            darkTheme ? "bg-[#0a0a0a] border-gray-800" : "bg-white border-gray-200 shadow-lg"
           }`}
         >
           <textarea

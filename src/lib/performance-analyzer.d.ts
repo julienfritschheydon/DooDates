@@ -52,9 +52,9 @@ declare class PerformanceAnalyzer {
    * Note: Ne charge pas explicitement les composants pour éviter de fausser les mesures
    */
   analyzeReactComponents(): Promise<{
-    providers: any[];
-    pages: any[];
-    components: any[];
+    providers: Array<{ name: string; size?: string; loadTime?: string }>;
+    pages: Array<{ name: string; size?: string; loadTime?: string }>;
+    components: Array<{ name: string; size?: string; loadTime?: string }>;
     note: string;
   }>;
   /**
@@ -94,9 +94,9 @@ declare class PerformanceAnalyzer {
       }[];
     };
     "Composants analys\u00E9s": {
-      providers: any[];
-      pages: any[];
-      components: any[];
+      providers: Array<{ name: string; size?: string; loadTime?: string }>;
+      pages: Array<{ name: string; size?: string; loadTime?: string }>;
+      components: Array<{ name: string; size?: string; loadTime?: string }>;
       note: string;
     };
     "Imports synchrones": {
@@ -107,7 +107,28 @@ declare class PerformanceAnalyzer {
   /**
    * Identifier les opportunités d'optimisation
    */
-  identifyOptimizations(report: any): {
+  identifyOptimizations(report: {
+    "Temps total d'analyse": string;
+    phases: Record<string, number>;
+    "Ressources charg\u00E9es": Record<
+      string,
+      { count: number; totalSize: number; totalTime: number }
+    >;
+    jsAnalysis: {
+      total: number;
+      totalSize: number;
+      totalTime: number;
+      largest: Array<{ name: string; size: string; time: string }>;
+      slowest: Array<{ name: string; time: string; size: string }>;
+    };
+    "Composants analys\u00E9s": {
+      providers: Array<{ name: string; size?: string; loadTime?: string }>;
+      pages: Array<{ name: string; size?: string; loadTime?: string }>;
+      components: Array<{ name: string; size?: string; loadTime?: string }>;
+      note: string;
+    };
+    "Imports synchrones": Array<{ name: string; note: string }>;
+  }): {
     type: string;
     suggestion: string;
     impact: string;

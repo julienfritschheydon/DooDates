@@ -281,7 +281,7 @@ export class PollTypeSwitchDetector {
       };
     }
 
-    const currentType = (currentPoll as any).type || "date";
+    const currentType = currentPoll?.type || "date";
 
     // 1. Vérifier les phrases explicites de changement
     const explicitSwitch = this.hasExplicitSwitchPhrase(message);
@@ -371,7 +371,7 @@ export class PollTypeSwitchDetector {
         return null;
       }
 
-      const currentType = (currentPoll as any).type || "date";
+      const currentType = currentPoll?.type || "date";
       const pollTitle = currentPoll.title || "Sans titre";
 
       const prompt = `Tu es un assistant qui détecte si un utilisateur veut changer le type de sondage en cours d'édition.

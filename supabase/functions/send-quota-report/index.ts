@@ -217,7 +217,7 @@ async function sendWebhookReport(
   const alerts = reportData.alerts;
 
   // Format Slack avec blocks pour un meilleur rendu
-  const blocks: any[] = [
+  const blocks: Array<{ type: string; text?: { type: string; text: string }; fields?: Array<{ type: string; text: string }> }> = [
     {
       type: "header",
       text: {
@@ -375,7 +375,7 @@ async function sendWebhookReport(
 /**
  * Log le rapport dans Supabase (optionnel)
  */
-async function logReport(supabase: any, reportData: ReportData): Promise<void> {
+async function logReport(supabase: import("@supabase/supabase-js").SupabaseClient, reportData: ReportData): Promise<void> {
   // Créer une table de logs si nécessaire
   // CREATE TABLE IF NOT EXISTS quota_report_logs (
   //   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

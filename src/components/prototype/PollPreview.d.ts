@@ -1,5 +1,5 @@
 interface PollPreviewProps {
-  poll: any;
+  poll: import("../../lib/pollStorage").Poll;
 }
 /**
  * Composant Preview pour afficher l'interface d'édition du sondage

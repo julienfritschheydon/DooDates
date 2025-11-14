@@ -6,7 +6,7 @@ import { DashboardFilters, ViewMode } from "./dashboard/DashboardFilters";
 import { ConversationCard } from "./dashboard/ConversationCard";
 import { DashboardTableView } from "./dashboard/DashboardTableView";
 import { filterConversationItems } from "./dashboard/utils";
-import { FilterType } from "./dashboard/types";
+import { FilterType, ContentTypeFilter } from "./dashboard/types";
 import { logger } from "@/lib/logger";
 import { useFreemiumQuota } from "@/hooks/useFreemiumQuota";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,6 +28,7 @@ import { AlertTriangle } from "lucide-react";
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterType>("all");
+  const [contentTypeFilter, setContentTypeFilter] = useState<ContentTypeFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -100,14 +101,15 @@ const Dashboard: React.FC = () => {
         searchQuery,
         selectedTags.length > 0 ? selectedTags : undefined,
         selectedFolderId,
+        contentTypeFilter,
       ),
-    [conversationItems, filter, searchQuery, selectedTags, selectedFolderId],
+    [conversationItems, filter, searchQuery, selectedTags, selectedFolderId, contentTypeFilter],
   );
 
   // Reset page à 1 lors changement filtres/recherche ou vue
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter, searchQuery, viewMode]);
+  }, [filter, contentTypeFilter, searchQuery, viewMode]);
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
@@ -323,6 +325,8 @@ const Dashboard: React.FC = () => {
             onSearchChange={setSearchQuery}
             filter={filter}
             onFilterChange={setFilter}
+            contentTypeFilter={contentTypeFilter}
+            onContentTypeFilterChange={setContentTypeFilter}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             selectedTags={selectedTags}

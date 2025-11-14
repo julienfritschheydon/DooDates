@@ -36,7 +36,7 @@ interface Message {
   content: string;
   isAI: boolean;
   timestamp: Date;
-  pollSuggestion?: any;
+  pollSuggestion?: import("../lib/gemini").PollSuggestion;
   isGenerating?: boolean;
 }
 /**
@@ -46,17 +46,32 @@ interface UseMessageSenderOptions {
   /** Indique si un envoi est en cours */
   isLoading: boolean;
   /** Hook de gestion des quotas conversation */
-  quota: any;
+  quota: {
+    canUseFeature: (feature: string) => boolean;
+    incrementConversationCreated: () => Promise<void>;
+  };
   /** Hook de gestion des quotas AI messages */
-  aiQuota: any;
+  aiQuota: { canSendMessage: () => boolean; incrementMessageSent: () => Promise<void> };
   /** Fonction toast pour afficher les notifications */
-  toast: any;
+  toast: {
+    toast: (props: {
+      title?: string;
+      description?: string;
+      variant?: "default" | "destructive";
+    }) => void;
+  };
   /** Hook de détection d'intentions */
-  intentDetection: any;
+  intentDetection: { detectIntent: (text: string) => Promise<{ handled: boolean }> };
   /** Hook API Gemini */
-  geminiAPI: any;
+  geminiAPI: {
+    sendMessage: (
+      text: string,
+    ) => Promise<{ content: string; pollSuggestion?: import("../lib/gemini").PollSuggestion }>;
+  };
   /** Hook auto-save des messages */
-  autoSave: any;
+  autoSave: {
+    addMessage: (message: { id: string; content: string; isAI: boolean; timestamp: Date }) => void;
+  };
   /** Callback appelé quand l'utilisateur envoie un message */
   onUserMessage?: () => void;
   /** Fonction pour mettre à jour la liste des messages */
@@ -64,7 +79,7 @@ interface UseMessageSenderOptions {
   /** Fonction pour mettre à jour l'état de chargement */
   setIsLoading: (loading: boolean) => void;
   /** Fonction pour stocker la dernière proposition IA */
-  setLastAIProposal: (proposal: any) => void;
+  setLastAIProposal: (proposal: import("../lib/gemini").PollSuggestion | null) => void;
   /** Fonction pour marquer une question comme modifiée */
   setModifiedQuestion: (
     questionId: string,

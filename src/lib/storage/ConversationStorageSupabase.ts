@@ -25,7 +25,7 @@ const messageCache = new Map<string, ConversationMessage[]>();
 /**
  * Convert Supabase conversation row to Conversation type
  */
-function fromSupabaseConversation(row: any): Conversation {
+function fromSupabaseConversation(row: Record<string, unknown>): Conversation {
   return {
     id: row.id,
     title: row.title,
@@ -49,7 +49,7 @@ function fromSupabaseConversation(row: any): Conversation {
 /**
  * Convert Conversation to Supabase insert/update format
  */
-function toSupabaseConversation(conversation: Conversation): any {
+function toSupabaseConversation(conversation: Conversation): Record<string, unknown> {
   return {
     id: conversation.id,
     user_id: conversation.userId || null,
@@ -69,7 +69,7 @@ function toSupabaseConversation(conversation: Conversation): any {
 /**
  * Convert Supabase message row to ConversationMessage type
  */
-function fromSupabaseMessage(row: any): ConversationMessage {
+function fromSupabaseMessage(row: Record<string, unknown>): ConversationMessage {
   return {
     id: row.id,
     conversationId: row.conversation_id,
@@ -83,7 +83,7 @@ function fromSupabaseMessage(row: any): ConversationMessage {
 /**
  * Convert ConversationMessage to Supabase insert format
  */
-function toSupabaseMessage(message: ConversationMessage): any {
+function toSupabaseMessage(message: ConversationMessage): Record<string, unknown> {
   return {
     id: message.id,
     conversation_id: message.conversationId,
@@ -98,7 +98,7 @@ function toSupabaseMessage(message: ConversationMessage): any {
  */
 export async function getConversations(userId: string): Promise<Conversation[]> {
   try {
-    const data = await supabaseSelect<any>(
+    const data = await supabaseSelect<Record<string, unknown>>(
       "conversations",
       {
         user_id: `eq.${userId}`,
@@ -144,14 +144,33 @@ export async function getConversations(userId: string): Promise<Conversation[]> 
  * Get a single conversation by ID
  */
 export async function getConversation(id: string, userId: string): Promise<Conversation | null> {
+  const requestId = crypto.randomUUID();
+  const timestamp = new Date().toISOString();
+  console.log(
+    `[${timestamp}] [${requestId}] 🗄️ ConversationStorageSupabase.getConversation DÉBUT`,
+    {
+      id,
+      userId,
+    },
+  );
+
   // Check cache first
   const cached = conversationCache.get(id);
+  console.log(`[${timestamp}] [${requestId}] 🗄️ Cache vérifié:`, {
+    found: !!cached,
+    cachedId: cached?.id,
+    cachedUserId: cached?.userId,
+    userIdMatch: cached?.userId === userId,
+  });
+
   if (cached && cached.userId === userId) {
+    console.log(`[${timestamp}] [${requestId}] ✅ Conversation trouvée dans cache`);
     return cached;
   }
 
   try {
-    const data = await supabaseSelect<any>(
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Requête Supabase...`);
+    const data = await supabaseSelect<Record<string, unknown>>(
       "conversations",
       {
         id: `eq.${id}`,
@@ -161,6 +180,11 @@ export async function getConversation(id: string, userId: string): Promise<Conve
       { timeout: 5000 },
     );
 
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Réponse Supabase:`, {
+      found: !!data && data.length > 0,
+      count: data?.length || 0,
+    });
+
     if (!data || data.length === 0) {
       return null;
     }
@@ -169,9 +193,12 @@ export async function getConversation(id: string, userId: string): Promise<Conve
     conversationCache.set(conversation.id, conversation);
 
     return conversation;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If not found, return null
-    if (error.message?.includes("404") || error.message?.includes("not found")) {
+    if (
+      error instanceof Error &&
+      (error.message?.includes("404") || error.message?.includes("not found"))
+    ) {
       return null;
     }
 
@@ -255,7 +282,7 @@ export async function createConversation(
     let data;
     try {
       data = await supabaseInsert("conversations", supabaseData, { timeout: 5000 });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const insertDuration = Date.now() - insertStartTime;
 
       const detailedError = ErrorFactory.storage(
@@ -352,7 +379,7 @@ export async function updateConversation(
       updatedAt: new Date(),
     });
 
-    const data = await supabaseUpdate<any>(
+    const data = await supabaseUpdate<Record<string, unknown>>(
       "conversations",
       supabaseData,
       {
@@ -445,6 +472,11 @@ export async function getMessages(
   // Check cache first
   const cached = messageCache.get(conversationId);
   if (cached) {
+    logger.debug("Messages chargés depuis cache mémoire", "conversation", {
+      conversationId,
+      messageCount: cached.length,
+      userId,
+    });
     return cached;
   }
 
@@ -452,11 +484,21 @@ export async function getMessages(
     // Verify conversation ownership and get messages from JSONB column
     const conversation = await getConversation(conversationId, userId);
     if (!conversation) {
+      logger.warn("Conversation non trouvée pour getMessages", "conversation", {
+        conversationId,
+        userId,
+      });
       return [];
     }
 
+    logger.debug("Chargement messages depuis Supabase", "conversation", {
+      conversationId,
+      userId,
+      conversationMessageCount: conversation.messageCount,
+    });
+
     // Messages are stored in the conversations.messages JSONB column
-    const data = await supabaseSelect<any>(
+    const data = await supabaseSelect<Record<string, unknown>>(
       "conversations",
       {
         id: `eq.${conversationId}`,
@@ -466,11 +508,41 @@ export async function getMessages(
     );
 
     if (!data || data.length === 0) {
+      logger.warn("Aucune donnée retournée par Supabase pour getMessages", "conversation", {
+        conversationId,
+        userId,
+      });
       return [];
     }
 
     // Parse messages from JSONB (already in correct format)
-    const messages = (data[0]?.messages || []) as ConversationMessage[];
+    const rawMessages = data[0]?.messages;
+    const messages = (rawMessages || []) as ConversationMessage[];
+
+    logger.info("✅ Messages chargés depuis Supabase", "conversation", {
+      conversationId,
+      userId,
+      messageCount: messages.length,
+      expectedCount: conversation.messageCount,
+      messagesMatch: messages.length === conversation.messageCount,
+      messageIds: messages.map((m) => ({
+        id: m.id,
+        role: m.role,
+        contentLength: m.content?.length || 0,
+      })),
+    });
+
+    // Vérifier si le nombre de messages correspond au messageCount de la conversation
+    if (conversation.messageCount > 0 && messages.length !== conversation.messageCount) {
+      logger.error("⚠️ INCOHÉRENCE: Nombre de messages ne correspond pas", "conversation", {
+        conversationId,
+        userId,
+        messagesInDB: messages.length,
+        messageCountInConversation: conversation.messageCount,
+        difference: conversation.messageCount - messages.length,
+      });
+    }
+
     messageCache.set(conversationId, messages);
 
     return messages;
@@ -502,10 +574,34 @@ export async function saveMessages(
   messages: ConversationMessage[],
   userId: string,
 ): Promise<void> {
+  const requestId = crypto.randomUUID();
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] [${requestId}] 🗄️ ConversationStorageSupabase.saveMessages DÉBUT`, {
+    conversationId,
+    userId,
+    messageCount: messages.length,
+  });
+
   try {
     // Verify conversation ownership
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Vérification propriété conversation...`);
     const conversation = await getConversation(conversationId, userId);
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Conversation récupérée:`, {
+      found: !!conversation,
+      id: conversation?.id,
+      userId: conversation?.userId,
+      expectedUserId: userId,
+      userIdMatch: conversation?.userId === userId,
+    });
+
     if (!conversation) {
+      logError(
+        ErrorFactory.storage(
+          "Conversation non trouvée",
+          "La conversation demandée n'a pas été trouvée",
+        ),
+        { conversationId, requestId, timestamp },
+      );
       throw ConversationErrorFactory.notFound(conversationId);
     }
 
@@ -559,13 +655,32 @@ export async function addMessages(
   newMessages: ConversationMessage[],
   userId: string,
 ): Promise<void> {
+  const requestId = crypto.randomUUID();
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] [${requestId}] 🗄️ ConversationStorageSupabase.addMessages DÉBUT`, {
+    conversationId,
+    userId,
+    messageCount: newMessages.length,
+    messageIds: newMessages.map((m) => ({ id: m.id, role: m.role })),
+  });
+
   try {
     // Get existing messages
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Récupération messages existants...`);
     const existingMessages = await getMessages(conversationId, userId);
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Messages existants:`, {
+      count: existingMessages.length,
+    });
+
     const allMessages = [...existingMessages, ...newMessages];
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Total messages après ajout:`, {
+      count: allMessages.length,
+    });
 
     // Save all messages
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Sauvegarde de tous les messages...`);
     await saveMessages(conversationId, allMessages, userId);
+    console.log(`[${timestamp}] [${requestId}] ✅ ConversationStorageSupabase.addMessages TERMINÉ`);
   } catch (error) {
     const processedError = handleError(
       error,

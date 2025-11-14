@@ -39,7 +39,7 @@ export interface FormPollData {
   type: "form";
   title: string;
   description?: string | null;
-  questions: any[]; // Questions du formulaire
+  questions: import("../lib/pollStorage").FormQuestionShape[]; // Questions du formulaire
   settings?: {
     allowAnonymousResponses?: boolean;
     expiresAt?: string;
@@ -110,7 +110,7 @@ export function usePolls() {
         const slug = generateSlug(pollData.title);
 
         // Préparer les settings selon le type
-        let mergedSettings: any;
+        let mergedSettings: import("../lib/pollStorage").PollSettings;
         if (pollData.type === "date") {
           // Toujours embarquer les dates et créneaux dans settings pour cohérence UI
           mergedSettings = {
@@ -137,7 +137,7 @@ export function usePolls() {
             (() => {
               try {
                 return (
-                  (window as any).__E2E__ === true ||
+                  (window as Window & { __E2E__?: boolean }).__E2E__ === true ||
                   localStorage.getItem("e2e") === "1" ||
                   localStorage.getItem("dev-local-mode") === "1"
                 );
@@ -197,7 +197,7 @@ export function usePolls() {
 
         // 🆕 ARCHITECTURE V2 : Créer dans table conversations (pas polls)
         // Préparer poll_data avec toutes les infos selon le type
-        let pollData_json: any;
+        let pollData_json: Record<string, unknown>;
         let firstMessage: string;
 
         if (pollData.type === "date") {
@@ -255,7 +255,7 @@ export function usePolls() {
           },
         };
 
-        let conversation: any;
+        let conversation: import("../types/conversation").Conversation;
         try {
           if (!user) {
             // Utilisateur non connecté - utiliser localStorage pour l'instant
@@ -344,9 +344,9 @@ export function usePolls() {
             conversation = await supabaseInsert("conversations", conversationData, {
               timeout: 10000,
             });
-          } catch (error: any) {
+          } catch (error: unknown) {
             logger.error("Erreur création conversation", "poll", {
-              error: error.message,
+              error: error instanceof Error ? error.message : String(error),
             });
 
             // Fallback sur localStorage
@@ -462,9 +462,9 @@ export function usePolls() {
         // Les dates et créneaux sont maintenant dans conversations.poll_data.timeSlots
 
         logger.info("✅ Sondage créé avec succès", "poll");
-      } catch (error: any) {
+      } catch (error: unknown) {
         const processedError = handleError(
-          error,
+          error instanceof Error ? error : new Error(String(error)),
           {
             component: "usePolls",
             operation: "createPoll",
@@ -559,7 +559,7 @@ export function usePolls() {
               });
 
               // Convertir conversations → polls
-              userPolls = conversations.map((c: any) => ({
+              userPolls = conversations.map((c: import("../types/conversation").Conversation) => ({
                 id: c.id,
                 conversationId: c.id,
                 title: c.title || c.poll_data?.title,
@@ -581,7 +581,7 @@ export function usePolls() {
               const { addConversation, getConversation } = await import(
                 "../lib/storage/ConversationStorageSimple"
               );
-              conversations.forEach((c: any) => {
+              conversations.forEach((c: import("../types/conversation").Conversation) => {
                 // Vérifier si la conversation existe déjà
                 const existingConv = getConversation(c.id);
                 if (!existingConv) {
@@ -655,8 +655,9 @@ export function usePolls() {
 
       setPolls(userPolls);
       return { polls: userPolls };
-    } catch (err: any) {
-      const errorMessage = err.message || "Erreur lors de la récupération des sondages";
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Erreur lors de la récupération des sondages";
       setError(errorMessage);
       return { error: errorMessage };
     } finally {
@@ -707,8 +708,8 @@ export function usePolls() {
           })) || [];
 
         return { poll: poll as StoragePoll, options: mockOptions };
-      } catch (err: any) {
-        const errorMessage = err.message || "Sondage non trouvé";
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Sondage non trouvé";
         setError(errorMessage);
         return { error: errorMessage };
       } finally {
@@ -739,8 +740,9 @@ export function usePolls() {
         }
 
         return {};
-      } catch (err: any) {
-        const errorMessage = err.message || "Erreur lors de la mise à jour du sondage";
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erreur lors de la mise à jour du sondage";
         setError(errorMessage);
         return { error: errorMessage };
       } finally {
@@ -773,9 +775,10 @@ export function usePolls() {
         logger.info("Poll deleted and list refreshed", "poll", { pollId });
 
         return {};
-      } catch (err: any) {
+      } catch (err: unknown) {
         logger.error(`usePolls.deletePoll: Error during deletion`, err);
-        const errorMessage = err.message || "Erreur lors de la suppression du sondage";
+        const errorMessage =
+          err instanceof Error ? err.message : "Erreur lors de la suppression du sondage";
         setError(errorMessage);
         return { error: errorMessage };
       } finally {

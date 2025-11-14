@@ -101,17 +101,22 @@ describe("IntentDetectionService", () => {
   });
 
   describe("ADD_DATE (Jours de la semaine)", () => {
-    it('détecte "ajouter mercredi" (prochain mercredi)', async () => {
-      const intent = await IntentDetectionService.detectSimpleIntent("ajouter mercredi", mockPoll);
+    it(
+      'détecte "ajouter mercredi" (prochain mercredi)',
+      async () => {
+        const intent = await IntentDetectionService.detectSimpleIntent(
+          "ajouter mercredi",
+          mockPoll,
+        );
 
-      expect(intent?.action).toBe("ADD_DATE");
-      const payload = intent?.payload as string;
-      expect(payload).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(isWeekday(payload, "mercredi")).toBe(true);
-      expect(intent?.confidence).toBe(0.9);
-    },
-    { timeout: 20000 },
-  );
+        expect(intent?.action).toBe("ADD_DATE");
+        const payload = intent?.payload as string;
+        expect(payload).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        expect(isWeekday(payload, "mercredi")).toBe(true);
+        expect(intent?.confidence).toBe(0.9);
+      },
+      { timeout: 20000 },
+    );
 
     it('détecte "ajoute lundi"', async () => {
       const intent = await IntentDetectionService.detectSimpleIntent("ajoute lundi", mockPoll);

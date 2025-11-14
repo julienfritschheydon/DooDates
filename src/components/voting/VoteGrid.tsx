@@ -261,7 +261,7 @@ const OptionCard: React.FC<{
   };
 
   // Gestion des gestes de swipe
-  const handlePan = (event: any, info: PanInfo) => {
+  const handlePan = (_event: unknown, info: PanInfo) => {
     const { offset } = info;
     const threshold = 50;
 

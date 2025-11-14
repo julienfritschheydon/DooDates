@@ -2,19 +2,19 @@
  * Mock for ConversationProtection service
  */
 export declare const conversationProtection: {
-  canCreateConversation: jest.Mock<boolean, [], any>;
-  startCreation: jest.Mock<any, any, any>;
-  completeCreation: jest.Mock<any, any, any>;
-  failCreation: jest.Mock<any, any, any>;
-  reset: jest.Mock<any, any, any>;
+  canCreateConversation: jest.Mock<boolean, [], unknown>;
+  startCreation: jest.Mock<void, [], unknown>;
+  completeCreation: jest.Mock<void, [string], unknown>;
+  failCreation: jest.Mock<void, [Error], unknown>;
+  reset: jest.Mock<void, [], unknown>;
   getStatus: jest.Mock<
     {
       initializationInProgress: boolean;
-      lastConversationCreated: any;
+      lastConversationCreated: string | null;
       creationAttempts: number;
       canCreate: boolean;
     },
     [],
-    any
+    unknown
   >;
 };

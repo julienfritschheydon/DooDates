@@ -17,7 +17,7 @@ declare const InputOTP: React.ForwardRefExoticComponent<
           onChange?: (newValue: string) => unknown;
           maxLength: number;
           textAlign?: "left" | "center" | "right";
-          onComplete?: (...args: any[]) => unknown;
+          onComplete?: (value: string) => unknown;
           pushPasswordManagerStrategy?: "increase-width" | "none";
           containerClassName?: string;
           noScriptCSSFallback?: string | null;
@@ -43,7 +43,7 @@ declare const InputOTP: React.ForwardRefExoticComponent<
           onChange?: (newValue: string) => unknown;
           maxLength: number;
           textAlign?: "left" | "center" | "right";
-          onComplete?: (...args: any[]) => unknown;
+          onComplete?: (value: string) => unknown;
           pushPasswordManagerStrategy?: "increase-width" | "none";
           containerClassName?: string;
           noScriptCSSFallback?: string | null;

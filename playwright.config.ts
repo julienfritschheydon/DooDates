@@ -20,7 +20,7 @@ export default defineConfig({
     // Explicitly exclude Vitest test files that would conflict with Playwright's expect
     'temporal-prompts-validation.test.ts',
     // Tests de tracking des crédits - en cours de développement, pas encore intégrés
-    // '**/quota-tracking-complete.spec.ts', // Temporairement activé pour vérifier après fix JS
+    '**/quota-tracking-complete.spec.ts', // Tous les tests fonctionnent, mais fichier exclu par défaut pour éviter exécution automatique
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

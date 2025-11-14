@@ -38,6 +38,8 @@
     "test:integration": "playwright test tests/integration/real-supabase-simplified.test.ts --project=chromium",
     "test:integration:ui": "playwright test tests/integration/real-supabase-simplified.test.ts --project=chromium --ui",
     "test:integration:debug": "playwright test tests/integration/real-supabase-simplified.test.ts --project=chromium --debug",
+    "test:load": "k6 run tests/load/quota-tracking-load-test.js",
+    "test:load:help": "echo 'Usage: npm run test:load -- --env JWT_TOKEN=\"votre_token\" --env SUPABASE_URL=\"https://xxx.supabase.co\"'",
     "type-check": "tsc --noEmit",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write src/ --ignore-unknown",

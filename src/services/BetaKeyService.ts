@@ -144,7 +144,7 @@ export class BetaKeyService {
 
       logger.info(`Generated ${data.length} beta keys`, "api", { count, notes, keys: data });
       return data as BetaKeyGeneration[];
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error("Exception generating beta keys", "api", { error });
       // Re-throw avec le message d'erreur original pour affichage dans le toast
       throw error;
@@ -275,9 +275,9 @@ export class BetaKeyService {
       }
 
       return result as RedemptionResult;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const processedError = handleError(
-        error,
+        error instanceof Error ? error : new Error(String(error)),
         {
           component: "BetaKeyService",
           operation: "redeemBetaKey",
@@ -291,7 +291,7 @@ export class BetaKeyService {
       logger.error("Exception redeeming beta key", "api", { error, userId });
       return {
         success: false,
-        error: error?.message || "Erreur lors de l'activation de la clé",
+        error: error instanceof Error ? error.message : "Erreur lors de l'activation de la clé",
       };
     }
   }

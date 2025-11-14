@@ -7,7 +7,7 @@ interface Profile {
   full_name: string | null;
   avatar_url: string | null;
   timezone: string;
-  preferences: Record<string, any>;
+  preferences: Record<string, unknown>;
   plan_type: "free" | "pro" | "premium";
   subscription_expires_at: string | null;
   created_at: string;
@@ -32,7 +32,7 @@ interface AuthContextType {
     error?: AuthError;
   }>;
   updateProfile: (updates: Partial<Profile>) => Promise<{
-    error?: any;
+    error?: Error;
   }>;
   refreshProfile: () => Promise<void>;
 }

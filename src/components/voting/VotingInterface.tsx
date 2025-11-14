@@ -128,7 +128,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({ pollId, onBack
         {showResults ? (
           <VoteResults
             key="results"
-            poll={poll as any}
+            poll={poll}
             options={options}
             votes={votes}
             onBack={() => setShowResults(false)}

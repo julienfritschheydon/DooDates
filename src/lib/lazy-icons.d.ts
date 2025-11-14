@@ -8,7 +8,7 @@ import React, { ComponentType } from "react";
 /**
  * Crée un composant lazy pour une icône spécifique
  */
-export declare function createLazyIcon<T extends ComponentType<any>>(
+export declare function createLazyIcon<T extends ComponentType<React.SVGProps<SVGSVGElement>>>(
   iconName: string,
 ): React.LazyExoticComponent<T>;
 /**
@@ -21,7 +21,7 @@ export declare function LazyIcon({
 }: {
   name: string;
   fallback?: React.ReactNode;
-  [key: string]: any;
+  [key: string]: unknown;
 }): import("react/jsx-runtime").JSX.Element;
 /**
  * Précharger lucide-react (pour les icônes critiques)

@@ -5,6 +5,7 @@ import { SignInInput, SignUpInput } from "../lib/schemas";
 import { isLocalDevelopment } from "../lib/supabase";
 import { isE2ETestingEnvironment } from "@/lib/e2e-detection";
 import { logger } from "@/lib/logger";
+import { getSupabaseSessionFromLocalStorage } from "../lib/supabaseApi";
 
 // Variables d'environnement pour validation
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -16,7 +17,7 @@ interface Profile {
   full_name: string | null;
   avatar_url: string | null;
   timezone: string;
-  preferences: Record<string, any>;
+  preferences: Record<string, unknown>;
   plan_type: "free" | "pro" | "premium";
   subscription_expires_at: string | null;
   created_at: string;
@@ -37,12 +38,13 @@ export interface AuthContextType {
   signOut: () => Promise<{ error?: AuthError }>;
 
   // Méthodes de profil
-  updateProfile: (updates: Partial<Profile>) => Promise<{ error?: any }>;
+  updateProfile: (updates: Partial<Profile>) => Promise<{ error?: Error | null }>;
   refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -53,44 +55,10 @@ export function useAuth() {
 
 const isE2ETestEnvironment = () =>
   typeof window !== "undefined" &&
-  (isE2ETestingEnvironment() || (window as any).__IS_E2E_TESTING__ === true);
+  (isE2ETestingEnvironment() || ("__IS_E2E_TESTING__" in window && (window as { __IS_E2E_TESTING__?: boolean }).__IS_E2E_TESTING__ === true));
 
-function getSessionFromLocalStorage(): Session | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    const stored = localStorage.getItem("supabase.auth.token");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      const candidate = (parsed.currentSession ?? parsed.session ?? parsed) as Session | undefined;
-      if (candidate?.user && candidate.access_token) {
-        return candidate;
-      }
-    }
-  } catch (error) {
-    logger.debug("Failed to parse supabase.auth.token", "auth", error);
-  }
-
-  try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
-        const value = localStorage.getItem(key);
-        if (!value) continue;
-        const candidate = JSON.parse(value) as Session;
-        if (candidate?.user && candidate.access_token) {
-          return candidate;
-        }
-      }
-    }
-  } catch (error) {
-    logger.debug("Failed to parse legacy Supabase session", "auth", error);
-  }
-
-  return null;
-}
+// Use centralized function from supabaseApi
+const getSessionFromLocalStorage = getSupabaseSessionFromLocalStorage;
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -278,7 +246,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             access_type: "offline",
             prompt: "consent",
           },
-          scopes: "email profile https://www.googleapis.com/auth/calendar.readonly",
+          scopes:
+            "email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar",
         },
       });
 

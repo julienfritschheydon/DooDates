@@ -33,7 +33,7 @@ function generateMockPollResponse(prompt: string): any {
     }
     
     // Generate questions
-    const questions = [];
+    const questions: any[] = [];
     for (let i = 1; i <= numQuestions; i++) {
       if (simpleTextOnly) {
         // Pour les tests E2E : questions texte simples uniquement
@@ -308,8 +308,95 @@ export async function setupGeminiMock(page: Page) {
       return;
     }
     
-    // Détecter les demandes de modification de poll (ajout/suppression de questions)
+    // Détecter les demandes de parsing de disponibilités
     const lowerPrompt = userPrompt.toLowerCase();
+    const isAvailabilityParsing = 
+      (lowerPrompt.includes('disponibilités') || 
+       lowerPrompt.includes('disponible') ||
+       lowerPrompt.includes('mardi') || lowerPrompt.includes('jeudi') ||
+       lowerPrompt.includes('lundi') || lowerPrompt.includes('mercredi') ||
+       lowerPrompt.includes('vendredi') || lowerPrompt.includes('samedi') ||
+       lowerPrompt.includes('dimanche') ||
+       lowerPrompt.includes('après-midi') || lowerPrompt.includes('matin') ||
+       lowerPrompt.includes('semaine prochaine')) &&
+      (lowerPrompt.includes('analyse') || lowerPrompt.includes('extrait') || 
+       lowerPrompt.includes('parse') || lowerPrompt.includes('assistant spécialisé'));
+    
+    if (isAvailabilityParsing) {
+      // Détecter les jours mentionnés dans le prompt pour générer une réponse adaptée
+      const hasTuesday = lowerPrompt.includes('mardi') || lowerPrompt.includes('tuesday');
+      const hasThursday = lowerPrompt.includes('jeudi') || lowerPrompt.includes('thursday');
+      const hasMonday = lowerPrompt.includes('lundi') || lowerPrompt.includes('monday');
+      const hasWednesday = lowerPrompt.includes('mercredi') || lowerPrompt.includes('wednesday');
+      const isAfternoon = lowerPrompt.includes('après-midi') || lowerPrompt.includes('afternoon');
+      const isMorning = lowerPrompt.includes('matin') || lowerPrompt.includes('morning');
+      
+      const availabilities: any[] = [];
+      
+      if (hasTuesday) {
+        availabilities.push({
+          day: 'tuesday',
+          timeRange: { start: isMorning ? '09:00' : (isAfternoon ? '14:00' : '09:00'), end: isMorning ? '12:00' : (isAfternoon ? '18:00' : '17:00') },
+          confidence: 0.9,
+          originalText: 'mardi ' + (isAfternoon ? 'après-midi' : isMorning ? 'matin' : '')
+        });
+      }
+      if (hasThursday) {
+        availabilities.push({
+          day: 'thursday',
+          timeRange: { start: isMorning ? '09:00' : (isAfternoon ? '14:00' : '09:00'), end: isMorning ? '12:00' : (isAfternoon ? '18:00' : '17:00') },
+          confidence: 0.9,
+          originalText: 'jeudi ' + (isAfternoon ? 'après-midi' : isMorning ? 'matin' : '')
+        });
+      }
+      if (hasMonday && availabilities.length === 0) {
+        availabilities.push({
+          day: 'monday',
+          timeRange: { start: isMorning ? '09:00' : (isAfternoon ? '14:00' : '09:00'), end: isMorning ? '12:00' : (isAfternoon ? '18:00' : '17:00') },
+          confidence: 0.9,
+          originalText: 'lundi ' + (isAfternoon ? 'après-midi' : isMorning ? 'matin' : '')
+        });
+      }
+      if (hasWednesday && availabilities.length === 0) {
+        availabilities.push({
+          day: 'wednesday',
+          timeRange: { start: isMorning ? '09:00' : (isAfternoon ? '14:00' : '09:00'), end: isMorning ? '12:00' : (isAfternoon ? '18:00' : '17:00') },
+          confidence: 0.9,
+          originalText: 'mercredi ' + (isAfternoon ? 'après-midi' : isMorning ? 'matin' : '')
+        });
+      }
+      
+      // Si aucun jour spécifique détecté, retourner une réponse par défaut
+      if (availabilities.length === 0) {
+        availabilities.push({
+          day: 'tuesday',
+          timeRange: { start: '14:00', end: '18:00' },
+          confidence: 0.9,
+          originalText: 'mardi après-midi'
+        });
+      }
+      
+      const mockAvailabilityResponse = {
+        availabilities,
+        confidence: 0.9
+      };
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          candidates: [{
+            content: {
+              parts: [{ text: JSON.stringify(mockAvailabilityResponse) }]
+            },
+            finishReason: 'STOP'
+          }]
+        })
+      });
+      return;
+    }
+    
+    // Détecter les demandes de modification de poll (ajout/suppression de questions)
     const isModificationRequest = 
       lowerPrompt.includes('ajoute') || lowerPrompt.includes('ajouter') ||
       lowerPrompt.includes('supprime') || lowerPrompt.includes('supprimer') ||
@@ -320,7 +407,7 @@ export async function setupGeminiMock(page: Page) {
     // Si c'est une demande de modification (détection d'intention)
     if (isModificationRequest && (lowerPrompt.includes('intention') || lowerPrompt.includes('détecte') || lowerPrompt.includes('assistant qui détecte'))) {
       // console.log('🤖 Gemini API mock - Détection intention (modification)');
-      let action = null;
+      let action: string | null = null;
       let payload: any = {};
       
       if (lowerPrompt.includes('ajoute') || lowerPrompt.includes('ajouter')) {
@@ -376,10 +463,192 @@ export async function setupGeminiMock(page: Page) {
   });
 }
 
+/**
+ * Setup Supabase Beta Key RPC mocks to prevent database calls during E2E tests
+ */
+export async function setupBetaKeyMocks(page: Page) {
+  // Mock generate_beta_key RPC (admin only)
+  await page.route(/.*\/rest\/v1\/rpc\/generate_beta_key.*/, async (route: Route) => {
+    const request = route.request();
+    const method = request.method();
+    
+    if (method === 'OPTIONS') {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+        },
+        body: ''
+      });
+      return;
+    }
+    
+    if (method !== 'POST') {
+      await route.continue();
+      return;
+    }
+    
+    try {
+      const postData = request.postDataJSON();
+      const count = postData?.p_count || 1;
+      const durationMonths = postData?.p_duration_months || 3;
+      
+      // Generate mock beta keys
+      const keys: Array<{ code: string; expires_at: string }> = [];
+      for (let i = 0; i < count; i++) {
+        // Generate 12 alphanumeric characters (4 groups of 4)
+        const generateSegment = () => {
+          return Math.random().toString(36).substring(2, 6).toUpperCase().padEnd(4, '0');
+        };
+        const segment1 = generateSegment();
+        const segment2 = generateSegment();
+        const segment3 = generateSegment();
+        
+        const expiresAt = new Date();
+        expiresAt.setMonth(expiresAt.getMonth() + durationMonths);
+        
+        keys.push({
+          code: `BETA-${segment1}-${segment2}-${segment3}`,
+          expires_at: expiresAt.toISOString()
+        });
+      }
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+        },
+        body: JSON.stringify(keys)
+      });
+    } catch (error) {
+      console.error('❌ Beta Key generate mock error:', error);
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          error: 'MOCK_ERROR',
+          message: 'Erreur dans le mock de generate_beta_key'
+        })
+      });
+    }
+  });
+  
+  // Mock redeem_beta_key RPC (user redemption)
+  await page.route(/.*\/rest\/v1\/rpc\/redeem_beta_key.*/, async (route: Route) => {
+    const request = route.request();
+    const method = request.method();
+    
+    if (method === 'OPTIONS') {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+        },
+        body: ''
+      });
+      return;
+    }
+    
+    if (method !== 'POST') {
+      await route.continue();
+      return;
+    }
+    
+    try {
+      const postData = request.postDataJSON();
+      const code = (postData?.p_code || '').trim().toUpperCase();
+      const userId = postData?.p_user_id;
+      
+      // Check for invalid/used key patterns (for testing error scenarios)
+      if (code.includes('INVALID') || code.includes('ERROR')) {
+        await route.fulfill({
+          status: 400,
+          contentType: 'text/plain',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: 'Clé bêta invalide ou déjà utilisée'
+        });
+        return;
+      }
+      
+      if (code.includes('USED') || code.includes('CONFLICT')) {
+        await route.fulfill({
+          status: 409,
+          contentType: 'text/plain',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: 'Clé déjà utilisée'
+        });
+        return;
+      }
+      
+      // Check authorization header for 401 scenarios
+      const authHeader = request.headers()['authorization'];
+      if (!authHeader || authHeader.includes('expired') || authHeader === 'Bearer expired-token') {
+        await route.fulfill({
+          status: 401,
+          contentType: 'text/plain',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: 'Unauthorized'
+        });
+        return;
+      }
+      
+      // Success response
+      const expiresAt = new Date();
+      expiresAt.setMonth(expiresAt.getMonth() + 3);
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+        },
+        body: JSON.stringify({
+          success: true,
+          tier: 'beta',
+          credits: 1000,
+          expires_at: expiresAt.toISOString()
+        })
+      });
+    } catch (error) {
+      console.error('❌ Beta Key redeem mock error:', error);
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          success: false,
+          error: 'MOCK_ERROR',
+          message: 'Erreur dans le mock de redeem_beta_key'
+        })
+      });
+    }
+  });
+}
+
 import { E2E_CONFIG } from './e2e-utils';
 
 /**
- * Setup all mocks (Gemini API + Supabase Edge Function) and E2E configuration
+ * Setup all mocks (Gemini API + Supabase Edge Function + Beta Key RPC) and E2E configuration
  * Use this in beforeEach to mock all external API calls and configure E2E mode
  */
 export async function setupAllMocks(page: Page) {
@@ -389,6 +658,7 @@ export async function setupAllMocks(page: Page) {
   // Setup API mocks
   await setupGeminiMock(page);
   await setupSupabaseEdgeFunctionMock(page);
+  await setupBetaKeyMocks(page);
   
   // Attendre que la page soit chargée avant d'accéder au localStorage
   await page.waitForLoadState('domcontentloaded');
@@ -408,6 +678,7 @@ export async function setupAllMocksWithoutNavigation(page: Page) {
   // Setup API mocks
   await setupGeminiMock(page);
   await setupSupabaseEdgeFunctionMock(page);
+  await setupBetaKeyMocks(page);
   
   // Note: No page.goto() here - caller is responsible for navigation
 }
@@ -436,6 +707,173 @@ export async function setupAllMocksContext(context: BrowserContext) {
       contentType: 'application/json',
       body: JSON.stringify(mockResponse)
     });
+  });
+  
+  // Mock Beta Key RPC endpoints
+  await context.route(/.*\/rest\/v1\/rpc\/generate_beta_key.*/, async (route: Route) => {
+    const request = route.request();
+    
+    if (request.method() === 'OPTIONS') {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+        },
+        body: ''
+      });
+      return;
+    }
+    
+    if (request.method() !== 'POST') {
+      await route.continue();
+      return;
+    }
+    
+    try {
+      const postData = request.postDataJSON();
+      const count = postData?.p_count || 1;
+      const durationMonths = postData?.p_duration_months || 3;
+      
+      const keys: Array<{ code: string; expires_at: string }> = [];
+      for (let i = 0; i < count; i++) {
+        // Generate 12 alphanumeric characters (4 groups of 4)
+        const generateSegment = () => {
+          return Math.random().toString(36).substring(2, 6).toUpperCase().padEnd(4, '0');
+        };
+        const segment1 = generateSegment();
+        const segment2 = generateSegment();
+        const segment3 = generateSegment();
+        
+        const expiresAt = new Date();
+        expiresAt.setMonth(expiresAt.getMonth() + durationMonths);
+        
+        keys.push({
+          code: `BETA-${segment1}-${segment2}-${segment3}`,
+          expires_at: expiresAt.toISOString()
+        });
+      }
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+        },
+        body: JSON.stringify(keys)
+      });
+    } catch (error) {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          error: 'MOCK_ERROR',
+          message: 'Erreur dans le mock de generate_beta_key'
+        })
+      });
+    }
+  });
+  
+  await context.route(/.*\/rest\/v1\/rpc\/redeem_beta_key.*/, async (route: Route) => {
+    const request = route.request();
+    
+    if (request.method() === 'OPTIONS') {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+        },
+        body: ''
+      });
+      return;
+    }
+    
+    if (request.method() !== 'POST') {
+      await route.continue();
+      return;
+    }
+    
+    try {
+      const postData = request.postDataJSON();
+      const code = (postData?.p_code || '').trim().toUpperCase();
+      
+      if (code.includes('INVALID') || code.includes('ERROR')) {
+        await route.fulfill({
+          status: 400,
+          contentType: 'text/plain',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: 'Clé bêta invalide ou déjà utilisée'
+        });
+        return;
+      }
+      
+      if (code.includes('USED') || code.includes('CONFLICT')) {
+        await route.fulfill({
+          status: 409,
+          contentType: 'text/plain',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: 'Clé déjà utilisée'
+        });
+        return;
+      }
+      
+      const authHeader = request.headers()['authorization'];
+      if (!authHeader || authHeader.includes('expired')) {
+        await route.fulfill({
+          status: 401,
+          contentType: 'text/plain',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: 'Unauthorized'
+        });
+        return;
+      }
+      
+      const expiresAt = new Date();
+      expiresAt.setMonth(expiresAt.getMonth() + 3);
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+        },
+        body: JSON.stringify({
+          success: true,
+          tier: 'beta',
+          credits: 1000,
+          expires_at: expiresAt.toISOString()
+        })
+      });
+    } catch (error) {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          success: false,
+          error: 'MOCK_ERROR',
+          message: 'Erreur dans le mock de redeem_beta_key'
+        })
+      });
+    }
   });
   
   // Mock Supabase Edge Function

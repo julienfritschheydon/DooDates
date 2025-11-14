@@ -31,6 +31,7 @@ const Results: React.FC = () => {
   // Vérifier le type de poll pour le routing
   const pollForTypeCheck = slug ? getPollBySlugOrId(slug) : null;
   const isFormPoll = pollForTypeCheck?.type === "form";
+  const isAvailabilityPoll = pollForTypeCheck?.type === "availability";
 
   // Enforcer: un sondage doit avoir des dates. Pas de fallback synthétique ici.
 
@@ -72,6 +73,22 @@ const Results: React.FC = () => {
   // Router vers résultats FormPoll si nécessaire (après tous les hooks)
   if (isFormPoll && slug) {
     return <FormPollResults idOrSlug={slug} />;
+  }
+
+  // Router vers résultats AvailabilityPoll si nécessaire
+  if (isAvailabilityPoll && slug) {
+    const AvailabilityPollResults = React.lazy(() => import("./AvailabilityPollResults"));
+    return (
+      <React.Suspense
+        fallback={
+          <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+            <div className="text-white">Chargement...</div>
+          </div>
+        }
+      >
+        <AvailabilityPollResults />
+      </React.Suspense>
+    );
   }
 
   if (loading) {
@@ -132,7 +149,7 @@ const Results: React.FC = () => {
     const dateVotes = votes
       .map((vote) => {
         // Supporter les deux structures: vote_data (localStorage brut) et selections (mappé)
-        const voteValue = vote.vote_data?.[optionId] || (vote as any).selections?.[optionId];
+        const voteValue = vote.vote_data?.[optionId] || vote.selections?.[optionId];
         logger.debug("Vote detail", "vote", { voter: vote.voter_name, optionId, voteValue });
         return voteValue;
       })

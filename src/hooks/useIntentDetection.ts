@@ -40,7 +40,7 @@ interface IntentResult {
   confirmMessage?: Message;
   aiProposal?: {
     userRequest: string;
-    generatedContent: any;
+    generatedContent: import("../lib/gemini").PollSuggestion;
     pollContext?: {
       pollId?: string;
       pollTitle?: string;
@@ -50,7 +50,7 @@ interface IntentResult {
   };
   action?: {
     type: string;
-    payload: any;
+    payload: Record<string, unknown>;
   };
   modifiedQuestionId?: string;
   modifiedField?: "title" | "type" | "options" | "required";
@@ -67,9 +67,9 @@ interface IntentResult {
  */
 interface UseIntentDetectionOptions {
   /** Poll actuellement édité (Date ou Form) */
-  currentPoll: any;
+  currentPoll: import("../lib/pollStorage").Poll | null;
   /** Callback pour dispatcher les actions de modification du poll */
-  onDispatchAction: (action: { type: string; payload: any }) => void;
+  onDispatchAction: (action: { type: string; payload: Record<string, unknown> }) => void;
 }
 
 /**
@@ -207,7 +207,7 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
 
           // Dispatcher l'action
           onDispatchActionRef.current({
-            type: intent.action as any,
+            type: intent.action as string,
             payload: intent.payload,
           });
 
@@ -268,7 +268,8 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
         if (aiIntent && aiIntent.isModification && aiIntent.confidence > 0.8) {
           // Log le gap pour améliorer les regex plus tard
           GeminiIntentService.logMissingPattern(trimmedText, aiIntent);
-          formIntent = aiIntent as any; // Convertir au format FormModificationIntent
+          formIntent =
+            aiIntent as import("../services/FormPollIntentService").FormModificationIntent; // Convertir au format FormModificationIntent
         } else {
           // Ni regex ni IA n'ont réussi - proposer à l'utilisateur de signaler
           logger.warn("❌ Modification non reconnue par regex ET IA", "poll", {
@@ -315,9 +316,14 @@ Exemples de modifications supportées :
         let payload = formIntent.payload;
 
         // Convertir title → subject pour ADD_QUESTION (compatibilité reducer)
-        if (formIntent.action === "ADD_QUESTION" && (payload as any).title) {
+        if (
+          formIntent.action === "ADD_QUESTION" &&
+          typeof payload === "object" &&
+          payload !== null &&
+          "title" in payload
+        ) {
           payload = {
-            subject: (payload as any).title, // Le reducer attend "subject"
+            subject: String(payload.title), // Le reducer attend "subject"
           };
         }
 
@@ -327,7 +333,15 @@ Exemples de modifications supportées :
         });
 
         onDispatchActionRef.current({
-          type: formIntent.action as any,
+          type: formIntent.action as
+            | "ADD_QUESTION"
+            | "REMOVE_QUESTION"
+            | "CHANGE_QUESTION_TYPE"
+            | "ADD_OPTION"
+            | "REMOVE_OPTION"
+            | "SET_REQUIRED"
+            | "RENAME_QUESTION"
+            | "REPLACE_POLL",
           payload: payload,
         });
 

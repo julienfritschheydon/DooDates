@@ -174,7 +174,7 @@ export function useConversationQuota(
       isNearLimit: storageQuota.isNearLimit,
       isInWarningZone,
     };
-  }, [storage.storageMode.quotaInfo]);
+  }, [storage.storageMode]);
 
   // Auto-deletion logic
   const autoDeletion = useMemo((): AutoDeletionInfo => {

@@ -2,10 +2,10 @@
  * Mock for PerformanceMonitor service
  */
 export declare const performanceMonitor: {
-  trackApiCall: jest.Mock<any, any, any>;
-  trackConversationCreation: jest.Mock<any, any, any>;
-  trackError: jest.Mock<any, any, any>;
-  isHealthy: jest.Mock<boolean, [], any>;
+  trackApiCall: jest.Mock<void, [string, number], unknown>;
+  trackConversationCreation: jest.Mock<void, [string], unknown>;
+  trackError: jest.Mock<void, [Error], unknown>;
+  isHealthy: jest.Mock<boolean, [], unknown>;
   getMetrics: jest.Mock<
     {
       apiCalls: number;
@@ -13,11 +13,11 @@ export declare const performanceMonitor: {
       memoryUsage: number;
       errorRate: number;
       lastReset: number;
-      alerts: any[];
+      alerts: Array<{ type: string; message: string; timestamp: number }>;
       isHealthy: boolean;
     },
     [],
-    any
+    unknown
   >;
-  emergencyShutdown: jest.Mock<any, any, any>;
+  emergencyShutdown: jest.Mock<void, [], unknown>;
 };
