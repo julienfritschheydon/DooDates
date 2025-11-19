@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ThemeProvider } from "next-themes";
+import "@/lib/zodConfig";
 import App from "./App.tsx";
 import "./index.css";
 import "./pwa-styles.css";
