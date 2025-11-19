@@ -39,6 +39,7 @@ import {
   duplicatePoll,
   addPoll,
   deleteVotesByPollId,
+  Poll, // Add missing Poll import
 } from "@/lib/pollStorage";
 import {
   exportFormPollToCSV,
@@ -328,7 +329,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" data-testid="dashboard-table-view">
       <table className="w-full border-collapse">
         <colgroup>
           <col style={{ width: "48px", minWidth: "48px" }} />

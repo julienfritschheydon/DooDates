@@ -41,7 +41,7 @@ describe("usePollManagement", () => {
         title: "Réunion équipe",
         dates: ["2025-12-01", "2025-12-02"],
         participants: ["alice@example.com", "bob@example.com"],
-        timeSlots: true,
+        timeSlots: [],
       };
 
       act(() => {
@@ -64,11 +64,13 @@ describe("usePollManagement", () => {
           {
             type: "text",
             text: "Comment s'est passée votre journée ?",
+            title: "Comment s'est passée votre journée ?",
             required: true,
           },
           {
             type: "single",
             text: "Quelle est votre satisfaction globale ?",
+            title: "Quelle est votre satisfaction globale ?",
             required: false,
             options: ["Très satisfait", "Satisfait", "Neutre", "Insatisfait"],
           },
@@ -187,17 +189,20 @@ describe("usePollManagement", () => {
           {
             type: "text",
             text: "Votre nom",
+            title: "Votre nom",
             required: true,
           },
           {
             type: "single",
             text: "Votre âge",
+            title: "Votre âge",
             required: false,
             options: ["18-25", "26-35", "36-50", "50+"],
           },
           {
             type: "multiple",
             text: "Vos centres d'intérêt",
+            title: "Vos centres d'intérêt",
             required: false,
             options: ["Sport", "Musique", "Cinéma", "Lecture"],
           },
@@ -247,11 +252,15 @@ describe("usePollManagement", () => {
           {
             type: "single",
             text: "Question 1",
+            title: "Question 1",
+            required: false,
             options: ["A", "B"],
           },
           {
             type: "single",
             text: "Question 2",
+            title: "Question 2",
+            required: false,
             options: ["C", "D"],
           },
         ],
@@ -292,11 +301,15 @@ describe("usePollManagement", () => {
           {
             type: "single",
             text: "Question without options",
+            title: "Question without options",
+            required: false,
             // No options provided
           },
           {
             type: "text",
             text: "Text question",
+            title: "Text question",
+            required: false,
             // Text questions don't need options
           },
         ],
@@ -317,11 +330,13 @@ describe("usePollManagement", () => {
 
       const formPollData: FormPollSuggestion = {
         type: "form",
-        // No title provided
+        title: "Test form", // Add missing title property
         questions: [
           {
             type: "text",
             text: "Test question",
+            title: "Test question",
+            required: false,
           },
         ],
       };
@@ -345,6 +360,8 @@ describe("usePollManagement", () => {
           {
             type: "unknown" as any, // Invalid type
             text: "Unknown question",
+            title: "Unknown question",
+            required: false,
           },
         ],
       };
