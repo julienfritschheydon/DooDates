@@ -57,7 +57,8 @@ vi.mock("../../storage/ConversationStorageSupabase", () => ({
 }));
 
 // Set environment variable to disable Supabase conversations
-(import.meta as any).env = { VITE_DISABLE_SUPABASE_CONVERSATIONS: "true" };
+// (import.meta as any).env = { VITE_DISABLE_SUPABASE_CONVERSATIONS: "true" };
+vi.stubEnv('VITE_DISABLE_SUPABASE_CONVERSATIONS', 'true');
 
 import { createMockConversation } from "../../../__tests__/helpers/testHelpers";
 
@@ -91,6 +92,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   describe("Title Generation Integration", () => {
