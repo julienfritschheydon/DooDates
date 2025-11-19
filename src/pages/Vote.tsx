@@ -4,6 +4,7 @@ import React from "react";
 import { getPollBySlugOrId } from "@/lib/pollStorage";
 import { X } from "lucide-react";
 import FormPollVote from "@/components/polls/FormPollVote";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Vote = () => {
   const { pollId, pollSlug, adminToken, slug } = useParams<{
@@ -61,15 +62,23 @@ const Vote = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-8">
-      {/* Bouton retour en haut à droite */}
-      <button
-        onClick={() => window.history.back()}
-        className="fixed top-24 right-4 z-50 p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
-        title="Retour"
-        aria-label="Retour"
-      >
-        <X className="w-6 h-6" />
-      </button>
+      {/* Bouton retour en haut à droite - discret */}
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => window.history.back()}
+              className="fixed top-20 right-4 z-50 p-2 bg-[#1e1e1e]/80 hover:bg-[#2a2a2a] text-gray-400 hover:text-white rounded-lg transition-colors border border-gray-700/50 backdrop-blur-sm"
+              aria-label="Retour"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Retour</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <div className="pt-20">
         {/* VotingInterface gère l'affichage pour admin en interne */}

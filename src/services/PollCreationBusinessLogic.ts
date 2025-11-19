@@ -34,6 +34,7 @@ export interface PollCreationState {
   pollLinkCopied: boolean;
   expirationDays: number;
   showExpirationSettings: boolean;
+  showSettingsPanel: boolean;
 }
 
 export interface PollEditData {
@@ -77,6 +78,7 @@ export class PollCreationBusinessLogic {
       pollLinkCopied: false,
       expirationDays: 30,
       showExpirationSettings: false,
+      showSettingsPanel: false,
     };
   }
 

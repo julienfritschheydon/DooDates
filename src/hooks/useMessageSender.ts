@@ -40,6 +40,7 @@ import type { UseQuotaReturn } from "./useQuota";
 import type { AiMessageQuota } from "./useAiMessageQuota";
 import type { UseGeminiAPIReturn } from "./useGeminiAPI";
 import type { UseAutoSaveReturn } from "./useAutoSave";
+import { SurveyRequestAggregator } from "../services/SurveyRequestAggregator";
 
 interface Message {
   id: string;
@@ -87,6 +88,8 @@ interface UseMessageSenderOptions {
       requestedType?: "date" | "form";
     }>;
   };
+  /** Indique si un poll existe actuellement */
+  hasCurrentPoll: boolean;
   /** Hook API Gemini */
   geminiAPI: UseGeminiAPIReturn;
   /** Hook auto-save des messages */
@@ -137,6 +140,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
     setLastAIProposal,
     setModifiedQuestion,
     onStartNewChat,
+    hasCurrentPoll,
   } = options;
 
   // Stocker les callbacks dans des refs pour éviter les re-créations
@@ -249,12 +253,24 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
       console.log(`[${timestamp}] [${requestId}] ✅ Intent non géré - continuation vers Gemini`);
 
-      // Détecter si c'est un markdown questionnaire long
-      const trimmedInput = trimmedText;
+      // 🎯 NOUVEAU: Agréger les demandes de modification avant création du sondage
+      const processedMessage = SurveyRequestAggregator.processMessage(trimmedText, hasCurrentPoll);
+      const finalMessage = processedMessage.text; // Message à envoyer à Gemini (peut être aggloméré)
+
+      if (processedMessage.isAggregated) {
+        logger.info("🔄 Demande agglomérée détectée", "conversation", {
+          original: trimmedText.substring(0, 100),
+          aggregated: finalMessage.substring(0, 150),
+        });
+      }
+
+      // Détecter si c'est un markdown questionnaire long (utiliser le message original pour l'affichage)
+      const trimmedInput = finalMessage; // Utiliser le message aggloméré pour Gemini
       const isLongMarkdown = trimmedInput.length > 500 && /^#\s+.+$/m.test(trimmedInput);
+      // Afficher le message original de l'utilisateur dans le chat, pas le message aggloméré
       const displayContent = isLongMarkdown
-        ? `📋 Questionnaire détecté (${trimmedInput.length} caractères)\n\nAnalyse en cours...`
-        : trimmedInput;
+        ? `📋 Questionnaire détecté (${trimmedText.length} caractères)\n\nAnalyse en cours...`
+        : trimmedText; // Utiliser trimmedText (message original) pour l'affichage
 
       const userMessage: Message = {
         id: `user-${Date.now()}`,
@@ -282,17 +298,36 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         setMessages((prev) => [...prev, progressMessage]);
       }
 
+      // Déterminer l'identité utilisateur effective (auth normale ou override E2E)
+      let effectiveUserId: string | null = user?.id || null;
+      if (typeof window !== "undefined") {
+        const w = window as Window & { __E2E_USER_ID__?: string };
+        if (w.__E2E_USER_ID__) {
+          effectiveUserId = w.__E2E_USER_ID__;
+        } else {
+          try {
+            const forcedFromLocalStorage = localStorage.getItem("e2e-user-id");
+            if (forcedFromLocalStorage) {
+              effectiveUserId = forcedFromLocalStorage;
+            }
+          } catch {
+            // ignore
+          }
+        }
+      }
+
       // Save user message (non-bloquant pour accélérer l'appel Gemini)
       console.log(`[${timestamp}] [${requestId}] 💾 Sauvegarde message utilisateur...`);
       // OPTIMISATION: Rendre non-bloquant même pour auth users pour accélérer l'appel Gemini
+      // Sauvegarder le message original de l'utilisateur, pas le message aggloméré
       const saveMessagePromise = autoSave.addMessage({
         id: userMessage.id,
-        content: isLongMarkdown ? trimmedInput : userMessage.content,
+        content: isLongMarkdown ? trimmedText : userMessage.content, // Utiliser trimmedText (message original)
         isAI: userMessage.isAI,
         timestamp: userMessage.timestamp,
       });
 
-      if (user?.id) {
+      if (effectiveUserId) {
         // Auth user: sauvegarde en arrière-plan (non-bloquant pour accélérer)
         saveMessagePromise.catch((error) => {
           logError(
@@ -352,7 +387,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       console.log(`[${timestamp}] [${requestId}] 💾 Consommation quota en arrière-plan...`);
       const { consumeAiMessageCredits } = await import("../lib/quotaTracking");
       const conversationId = autoSave.getRealConversationId() || autoSave.conversationId;
-      const userId = user?.id || null;
+      const userId = effectiveUserId;
 
       console.log(`[${timestamp}] [${requestId}] 💾 Paramètres consommation quota:`, {
         userId,
@@ -451,6 +486,9 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
       if (pollResponse.success && pollResponse.data) {
         // Gemini response received successfully
+        // Note: On ne efface PAS la demande en attente ici car le sondage n'est pas encore créé
+        // La demande sera effacée uniquement quand l'utilisateur clique sur "Créer ce sondage"
+
         const pollType =
           pollResponse.data.type === "form" ? "questionnaire" : "sondage de disponibilité";
         const aiResponse: Message = {
@@ -549,6 +587,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       setIsLoading,
       setLastAIProposal,
       setModifiedQuestion,
+      hasCurrentPoll,
     ],
   ); // onUserMessage est dans une ref
 

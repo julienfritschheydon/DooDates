@@ -27,16 +27,49 @@ export function useDashboardData(refreshKey: number) {
   const { user } = useAuth();
   const { getUserPolls } = usePolls();
 
+  // Log détaillé pour comprendre pourquoi user n'est pas disponible
+  logger.debug("🔍 Dashboard - useDashboardData - user depuis useAuth()", "dashboard", {
+    hasUser: !!user,
+    userId: user?.id || null,
+    userEmail: user?.email || null,
+    userObject: user ? { id: user.id, email: user.email } : null,
+  });
+
+  // Vérifier si la détection E2E est désactivée explicitement
+  const isE2EDetectionDisabled =
+    typeof window !== "undefined" &&
+    (window as Window & { __DISABLE_E2E_DETECTION__?: boolean }).__DISABLE_E2E_DETECTION__ === true;
+
   const isE2ETestMode =
     typeof window !== "undefined" &&
+    !isE2EDetectionDisabled && // Si désactivé explicitement, ne pas considérer comme E2E
     (isE2ETestingEnvironment() ||
       (window as Window & { __IS_E2E_TESTING__?: boolean }).__IS_E2E_TESTING__ === true);
 
+  logger.debug("🔍 Dashboard - isE2ETestMode calculé", "dashboard", {
+    isE2ETestMode,
+    isE2EDetectionDisabled,
+    isE2ETestingEnvironment: isE2ETestingEnvironment(),
+    hasUser: !!user,
+    userId: user?.id || null,
+  });
+
   const loadData = useCallback(async () => {
     setLoading(true);
+
+    logger.debug("🔍 Dashboard - loadData DÉBUT", "dashboard", {
+      hasUser: !!user,
+      userId: user?.id || null,
+      isE2ETestMode,
+      willLoadFromSupabase: !!(user?.id && !isE2ETestMode),
+    });
+
     try {
       // Charger les polls depuis Supabase (si utilisateur connecté et hors E2E)
       if (user?.id && !isE2ETestMode) {
+        logger.debug("🔍 Dashboard - Chargement polls depuis Supabase", "dashboard", {
+          userId: user.id,
+        });
         await getUserPolls();
       }
 
@@ -44,7 +77,11 @@ export function useDashboardData(refreshKey: number) {
       let allConversations: Conversation[] = [];
 
       if (user?.id && !isE2ETestMode) {
-        // Utilisateur connecté : Supabase est la SEULE source de vérité
+        logger.debug("🔍 Dashboard - Chargement conversations depuis Supabase", "dashboard", {
+          userId: user.id,
+        });
+        // Utilisateur connecté : charger depuis Supabase et merger avec localStorage
+        // pour inclure les conversations incomplètes pas encore synchronisées
         try {
           const { getConversations: getSupabaseConversations } = await import(
             "@/lib/storage/ConversationStorageSupabase"
@@ -55,16 +92,68 @@ export function useDashboardData(refreshKey: number) {
             userId: user.id,
           });
 
-          // Utiliser UNIQUEMENT les données de Supabase (pas de merge)
-          allConversations = supabaseConversations;
+          // Charger aussi les conversations depuis localStorage pour merger
+          const localConversations = getLocalConversations();
+          logger.info("📥 Dashboard - Conversations depuis localStorage", "dashboard", {
+            count: localConversations.length,
+          });
+
+          // Merger : Supabase est la source de vérité, mais inclure les conversations locales
+          // qui ne sont pas encore dans Supabase (conversations incomplètes en cours de synchronisation)
+          const mergedMap = new Map<string, Conversation>();
+
+          // Ajouter d'abord les conversations de Supabase
+          supabaseConversations.forEach((conv) => {
+            if (conv.userId === user.id) {
+              mergedMap.set(conv.id, conv);
+            }
+          });
+
+          // Ajouter les conversations locales qui ne sont pas encore dans Supabase
+          localConversations.forEach((localConv) => {
+            if (localConv.userId === user.id && !mergedMap.has(localConv.id)) {
+              // Conversation locale pas encore synchronisée avec Supabase
+              logger.info(
+                "📥 Dashboard - Conversation locale ajoutée (pas encore dans Supabase)",
+                "dashboard",
+                {
+                  convId: localConv.id,
+                  convTitle: localConv.title,
+                  userId: localConv.userId,
+                  hasPoll: !!(localConv.pollId || localConv.metadata?.pollId),
+                  messageCount: localConv.messageCount,
+                },
+              );
+              mergedMap.set(localConv.id, localConv);
+            } else if (localConv.userId !== user.id) {
+              logger.debug(
+                "📥 Dashboard - Conversation locale exclue (userId différent)",
+                "dashboard",
+                {
+                  convId: localConv.id,
+                  convUserId: localConv.userId,
+                  currentUserId: user.id,
+                },
+              );
+            }
+          });
+
+          allConversations = Array.from(mergedMap.values());
 
           // Mettre à jour le localStorage pour cache (écrase l'ancien cache)
           const { saveConversations } = await import("@/lib/storage/ConversationStorageSimple");
-          saveConversations(supabaseConversations);
+          saveConversations(allConversations);
 
-          logger.info("✅ Dashboard - Conversations synchronisées depuis Supabase", "dashboard", {
-            count: allConversations.length,
-          });
+          logger.info(
+            "✅ Dashboard - Conversations synchronisées (Supabase + localStorage)",
+            "dashboard",
+            {
+              count: allConversations.length,
+              fromSupabase: supabaseConversations.length,
+              fromLocal: localConversations.length,
+              merged: allConversations.length,
+            },
+          );
         } catch (supabaseError) {
           logger.error(
             "❌ Dashboard - Erreur Supabase, fallback sur localStorage",
@@ -130,6 +219,17 @@ export function useDashboardData(refreshKey: number) {
       // Filtrer les conversations pour ne garder que celles du créateur actuel
       // Si connecté : garder celles avec userId === user.id
       // Si invité : garder celles avec userId === "guest" ou undefined (rétrocompatibilité)
+      logger.debug("🔍 Dashboard - Filtrage conversations", "dashboard", {
+        totalConversations: allConversations.length,
+        userAuthId: user?.id || null,
+        hasUser: !!user?.id,
+        conversationsPreview: allConversations.slice(0, 3).map((c) => ({
+          id: c.id,
+          userId: c.userId,
+          title: c.title?.substring(0, 50),
+        })),
+      });
+
       const conversations = allConversations.filter((conv) => {
         if (user?.id) {
           // Mode connecté : garder seulement les conversations de l'utilisateur
@@ -139,6 +239,7 @@ export function useDashboardData(refreshKey: number) {
               convId: conv.id,
               convUserId: conv.userId,
               userAuthId: user.id,
+              match: matches,
             });
           }
           return matches;
@@ -149,6 +250,7 @@ export function useDashboardData(refreshKey: number) {
             logger.debug("🔍 Dashboard - Conversation exclue (mode invité)", "dashboard", {
               convId: conv.id,
               convUserId: conv.userId,
+              match: matches,
             });
           }
           return matches;

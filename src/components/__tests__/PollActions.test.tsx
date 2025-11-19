@@ -139,7 +139,7 @@ describe("PollActions", () => {
 
     fireEvent.click(screen.getByTestId("poll-action-edit"));
 
-    expect(navigateMock).toHaveBeenCalledWith(`/create/date?edit=${basePoll.id}`);
+    expect(navigateMock).toHaveBeenCalledWith(`/workspace/date?edit=${basePoll.id}`);
   });
 
   it("uses custom onEdit when provided", async () => {

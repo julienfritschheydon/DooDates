@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { pollsApi, pollOptionsApi, votesApi, Poll, PollOption, Vote } from "@/lib/supabase-fetch";
+import { pollsApi, pollOptionsApi, votesApi, PollOption, Vote } from "@/lib/supabase-fetch";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "@/lib/logger";
 import { groupConsecutiveDates, type DateGroup } from "@/lib/date-utils";
+import { getPollBySlugOrId, type Poll } from "@/lib/pollStorage";
 
 interface VoterInfo {
   name: string;
@@ -47,11 +48,9 @@ export const useVoting = (pollSlug: string) => {
     setError(null);
 
     try {
-      // Mode développement local - récupération depuis localStorage
+      // Mode développement local - utiliser getPollBySlugOrId pour bénéficier de la priorisation des polls actifs
       logger.debug("Recherche du sondage", "vote", { pollSlug });
-      const localPolls = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
-
-      const pollData = localPolls.find((p: Poll) => p.slug === pollSlug);
+      const pollData = getPollBySlugOrId(pollSlug);
 
       if (!pollData) {
         const notFoundError = ErrorFactory.validation(`Sondage avec slug "${pollSlug}" non trouvé`);
@@ -306,7 +305,7 @@ export const useVoting = (pollSlug: string) => {
       let existingVoteIndex = -1;
       if (currentVoterEmail) {
         existingVoteIndex = existingVotes.findIndex(
-          (vote: { poll_id: string; voter_email: string }) =>
+          (vote: { poll_id: string; voter_email: string; voter_name?: string }) =>
             vote.poll_id === realPollId && vote.voter_email.toLowerCase() === currentVoterEmail,
         );
       }
@@ -314,7 +313,7 @@ export const useVoting = (pollSlug: string) => {
       // Si pas trouvé par email, chercher par nom pour les votes anonymes
       if (existingVoteIndex === -1) {
         existingVoteIndex = existingVotes.findIndex(
-          (vote: { poll_id: string; voter_email: string }) =>
+          (vote: { poll_id: string; voter_email: string; voter_name?: string }) =>
             vote.poll_id === realPollId &&
             vote.voter_name === voterInfo.name.trim() &&
             vote.voter_email.includes("anonymous"),
@@ -411,8 +410,8 @@ export const useVoting = (pollSlug: string) => {
           created_at: string;
         }) => {
           const selection = vote.vote_data?.[optionId];
-          if (selection && Object.hasOwn(counts, selection)) {
-            counts[selection]++;
+          if (selection && typeof selection === "string" && selection in counts) {
+            counts[selection as keyof typeof counts]++;
             if (selection === "yes") {
               voterNames.push(vote.voter_name);
             }

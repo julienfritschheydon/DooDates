@@ -1,9 +1,12 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { attachConsoleGuard, robustClick, waitForCopySuccess, warmup, enableE2ELocalMode, waitForPageLoad } from './utils';
+import { robustClick, waitForCopySuccess, warmup, enableE2ELocalMode, waitForPageLoad } from './utils';
+import { waitForNetworkIdle, waitForElementReady } from './helpers/wait-helpers';
+import { getTimeouts } from './config/timeouts';
 
 // Helper: navigate month carousel until a given date is visible (used on mobile views)
-async function openMonthContaining(page: Page, dateStr: string) {
+async function openMonthContaining(page: Page, dateStr: string, browserName: string) {
+  const timeouts = getTimeouts(browserName);
   const target = page.locator(`[data-date="${dateStr}"]`).first();
   for (let i = 0; i < 6; i++) {
     if (await target.isVisible()) return;
@@ -11,12 +14,12 @@ async function openMonthContaining(page: Page, dateStr: string) {
     if (await nextBtn.count()) {
       await robustClick(nextBtn);
       // Wait for the calendar to update after clicking next month
-      await expect(page.locator('[data-date]').first()).toBeVisible({ timeout: 2000 });
+      await waitForElementReady(page, '[data-date]', { browserName, timeout: timeouts.element });
     } else {
       break;
     }
   }
-  await expect(target, `Date ${dateStr} should be visible after month navigation`).toBeVisible();
+  await expect(target, `Date ${dateStr} should be visible after month navigation`).toBeVisible({ timeout: getTimeouts(browserName).element });
 }
 
 // NOTE: These tests rely on mobile projects configured in playwright.config (e.g., Mobile Chrome/Safari)
@@ -33,83 +36,61 @@ test.describe('Mobile Voting UX', () => {
     'Mobile tests optimized for Chrome. Firefox/WebKit have timing issues with serial mode.');
 
   test('DatePoll: page loads without crashing', async ({ page, browserName }) => {
-    try {
-      // Test that create pages load successfully
-      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
-      await waitForPageLoad(page, browserName);
-      await expect(page).toHaveTitle(/DooDates/);
-      
-      // Navigate to create page
-      await page.goto('/create', { waitUntil: 'domcontentloaded' });
-      await waitForPageLoad(page, browserName);
-      
-      // Verify create chooser loads (replace waitForTimeout with explicit wait)
-      const dateLink = page.getByRole('link', { name: /Sondage Dates/i });
-      await expect(dateLink).toBeVisible({ timeout: 10000 });
-      
-      // Navigate to date creator
-      await page.goto('/create/date', { waitUntil: 'domcontentloaded' });
-      await waitForPageLoad(page, browserName);
-      
-      // Wait for date creator to load (title input with data-testid)
-      await expect(
-        page.locator('[data-testid="poll-title"]')
-      ).toBeVisible({ timeout: 10000 });
+    const timeouts = getTimeouts(browserName, true); // true pour mobile
+    
+    // Test that create pages load successfully
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    await expect(page).toHaveTitle(/DooDates/);
+    
+    // Navigate to create date page (redirige vers /create/ai?type=date)
+    await page.goto('/create/date', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    
+    // Wait for redirect to /create/ai?type=date and verify AICreationWorkspace loads
+    await expect(page).toHaveURL(/\/create\/ai.*type=date/, { timeout: timeouts.navigation });
+    
+    // Verify AICreationWorkspace loads (chat interface or workspace content)
+    await waitForElementReady(page, 'textarea, input, button, [role="textbox"]', { browserName, timeout: timeouts.element });
 
-      // Test dashboard navigation
-      await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-      await waitForPageLoad(page, browserName);
-      
-      // Wait for dashboard content to load (any visible dashboard element)
-      await expect(
-        page.locator('h1, [role="heading"], button, [data-testid]').first()
-      ).toBeVisible({ timeout: 10000 });
-      
-      // Test navigation back home
-      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
-      await waitForPageLoad(page, browserName);
-      
-      // Wait for home page content (title or main heading)
-      await expect(page.locator('h1, [role="heading"]').first()).toBeVisible({ timeout: 10000 });
-    } catch (error) {
-      console.log('Test error:', error);
-      throw error;
-    }
+    // Test dashboard navigation
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    
+    // Wait for dashboard content to load (any visible dashboard element)
+    await waitForElementReady(page, 'h1, [role="heading"], button, [data-testid]', { browserName, timeout: timeouts.element });
+    
+    // Test navigation back home
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    
+    // Wait for home page content (title or main heading)
+    await waitForElementReady(page, 'h1, [role="heading"]', { browserName, timeout: timeouts.element });
   });
 
   test('FormPoll: page loads without crashing', async ({ page, browserName }) => {
-    try {
-      // Test that form poll creator loads
-      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
-      await waitForPageLoad(page, browserName);
-      await expect(page).toHaveTitle(/DooDates/);
-      
-      // Navigate to create page
-      await page.goto('/create', { waitUntil: 'domcontentloaded' });
-      await waitForPageLoad(page, browserName);
-      
-      // Verify form link is visible (replace waitForTimeout with explicit wait)
-      const formLink = page.getByRole('link', { name: /Sondage Formulaire/i });
-      await expect(formLink).toBeVisible({ timeout: 10000 });
-      
-      // Navigate to form creator
-      await page.goto('/create/form', { waitUntil: 'domcontentloaded' });
-      await waitForPageLoad(page, browserName);
-      
-      // Wait for form creator to load (wait for any form input or button to be visible)
-      await expect(
-        page.locator('input, textarea, button:not([aria-hidden="true"])').first()
-      ).toBeVisible({ timeout: 10000 });
-      
-      // Test navigation back
-      await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
-      await waitForPageLoad(page, browserName);
-      
-      // Wait for home page content (title or main heading)
-      await expect(page.locator('h1, [role="heading"]').first()).toBeVisible({ timeout: 10000 });
-    } catch (error) {
-      console.log('Test error:', error);
-      throw error;
-    }
+    const timeouts = getTimeouts(browserName, true); // true pour mobile
+    
+    // Test that form poll creator loads
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    await expect(page).toHaveTitle(/DooDates/);
+    
+    // Navigate to form creator (redirige vers /create/ai?type=form)
+    await page.goto('/create/form', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    
+    // Wait for redirect to /create/ai?type=form and verify AICreationWorkspace loads
+    await expect(page).toHaveURL(/\/create\/ai.*type=form/, { timeout: timeouts.navigation });
+    
+    // Verify AICreationWorkspace loads (chat interface or workspace content)
+    await waitForElementReady(page, 'textarea, input, button, [role="textbox"]', { browserName, timeout: timeouts.element });
+    
+    // Test navigation back
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    
+    // Wait for home page content (title or main heading)
+    await waitForElementReady(page, 'h1, [role="heading"]', { browserName, timeout: timeouts.element });
   });
 });

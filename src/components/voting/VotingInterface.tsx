@@ -137,6 +137,7 @@ export const VotingInterface: React.FC<VotingInterfaceProps> = ({ pollId, onBack
           <VotingSwipe
             pollId={pollId}
             onBack={() => (isAdmin ? setShowResults(true) : onBack && onBack())}
+            onViewResults={() => setShowResults(true)}
             onVoteSubmitted={() => {
               // Optionnel: action à effectuer après soumission du vote
               logger.info("Vote soumis", "vote");

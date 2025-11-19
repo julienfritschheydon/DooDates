@@ -82,6 +82,41 @@ jobs:
             test-results.json
           retention-days: 7
 
+  # Job 5d: Supabase Health Check (APIs critiques uniquement)
+  supabase-health:
+    needs: [production-smoke]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🧭 Install Playwright (Chromium only)
+        run: npx playwright install --with-deps chromium
+
+      - name: 🧪 Run Supabase Health Check (APIs critiques)
+        run: npx playwright test tests/integration/api-security-performance.spec.ts --project=chromium --reporter=html,json
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          INTEGRATION_TEST_PASSWORD: ${{ secrets.INTEGRATION_TEST_PASSWORD }}
+
+      - name: 📊 Upload Playwright report (Supabase Health)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-supabase-health
+          path: playwright-report
+          retention-days: 7
+
   # Job 1: Tests Rapides (Parallèle)
   quick-tests:
     needs: [production-smoke]  # ⚠️ Bloqué si production-smoke échoue
@@ -388,7 +423,7 @@ jobs:
 
   # Job 6: Summary
   validation-summary:
-    needs: [production-smoke, quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix]
+    needs: [production-smoke, quick-tests, ai-validation, build-validation, code-quality, e2e-smoke, e2e-functional, e2e-matrix, supabase-health]
     runs-on: ubuntu-latest
     if: always() && github.event_name == 'pull_request'
 
@@ -439,7 +474,8 @@ jobs:
               { name: 'Code Quality', status: '${{ needs.code-quality.result }}' },
               { name: 'E2E Smoke (Critical)', status: '${{ needs.e2e-smoke.result }}' },
               { name: 'E2E Functional (Complete)', status: '${{ needs.e2e-functional.result }}' },
-              { name: 'E2E Matrix (All Browsers)', status: '${{ needs.e2e-matrix.result }}' }
+              { name: 'E2E Matrix (All Browsers)', status: '${{ needs.e2e-matrix.result }}' },
+              { name: 'Supabase Health Check (APIs critiques)', status: '${{ needs.supabase-health.result }}' }
             ];
             
             const passed = jobs.filter(j => j.status === 'success').length;

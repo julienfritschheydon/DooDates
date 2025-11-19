@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, PanInfo } from "framer-motion";
-import { Check, X, HelpCircle, Calendar, Clock } from "lucide-react";
+import { Check, X, HelpCircle, Calendar, Clock, ChevronDown, ChevronUp } from "lucide-react";
 
 interface PollOption {
   id: string;
@@ -90,17 +90,20 @@ const VoteButton: React.FC<{
       whileHover={{ scale: 1.05 }}
       onClick={handleSelect}
       className={`
-        flex-1 min-h-[44px] rounded-xl flex items-center justify-center gap-2 font-medium text-sm
+        flex-1 min-h-[44px] min-w-[80px] rounded-xl flex items-center justify-center gap-1.5 font-medium text-sm
         transition-all duration-200 border-2 active:scale-95
         ${
           isColored
-            ? `bg-[#3c4043] ${borderColor} shadow-lg scale-105`
-            : `bg-[#3c4043] ${textColor} ${hoverColor} border-gray-700`
+            ? `bg-white ${borderColor} shadow-lg scale-105`
+            : `bg-white ${textColor} ${hoverColor} border-gray-200`
         }
       `}
     >
-      <Icon className={`h-4 w-4 ${textColor}`} />
-      <span className={`hidden sm:inline ${textColor}`}>{label}</span>
+      {type === "maybe" ? (
+        <span className={`${textColor} text-2xl font-bold`}>?</span>
+      ) : (
+        <Icon className={`h-6 w-6 ${textColor}`} />
+      )}
     </motion.button>
   );
 };
@@ -164,11 +167,21 @@ const OptionCard: React.FC<{
   onVoteChange: (value: "yes" | "no" | "maybe") => void;
   onHaptic: (type: "light" | "medium" | "heavy") => void;
   rank?: number;
-}> = ({ option, currentVote, userHasVoted, voteCounts, onVoteChange, onHaptic, rank }) => {
+  showDate?: boolean;
+}> = ({
+  option,
+  currentVote,
+  userHasVoted,
+  voteCounts,
+  onVoteChange,
+  onHaptic,
+  rank,
+  showDate = true,
+}) => {
   const [isDragging, setIsDragging] = useState(false);
 
   // Format de la date (éviter les décalages timezone)
-  const formatDate = (dateString: string) => {
+  const formatDateLocal = (dateString: string) => {
     // Parser la date en mode local pour éviter les décalages timezone
     const [year, month, day] = dateString.split("-").map(Number);
     const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
@@ -180,84 +193,27 @@ const OptionCard: React.FC<{
     });
   };
 
-  // Format des créneaux horaires
-  const formatTimeSlots = (
-    timeSlots: Array<{ hour: number; minute: number; duration?: number }>,
-  ) => {
-    if (!timeSlots || timeSlots.length === 0) return "Toute la journée";
-
-    // Trier les créneaux par heure et minute pour un affichage cohérent
-    const sortedSlots = [...timeSlots].sort((a, b) => {
-      if (a.hour !== b.hour) return a.hour - b.hour;
-      return a.minute - b.minute;
-    });
-
-    // Grouper les créneaux consécutifs pour créer des plages
-    const groupedSlots: Array<{ start: string; end: string }> = [];
-    let currentGroup: {
-      startHour: number;
-      startMinute: number;
-      endHour: number;
-      endMinute: number;
-    } | null = null;
-
-    sortedSlots.forEach((slot) => {
-      // Validation des données avant utilisation
-      if (typeof slot.hour !== "number" || typeof slot.minute !== "number") {
-        return;
-      }
-
-      const slotDuration = slot.duration || 30; // Durée par défaut de 30 minutes
-      const endHour = Math.floor((slot.hour * 60 + slot.minute + slotDuration) / 60);
-      const endMinute = (slot.hour * 60 + slot.minute + slotDuration) % 60;
-
-      if (!currentGroup) {
-        // Premier créneau
-        currentGroup = {
-          startHour: slot.hour,
-          startMinute: slot.minute,
-          endHour: endHour,
-          endMinute: endMinute,
-        };
-      } else {
-        // Vérifier si ce créneau est consécutif au précédent
-        const currentEndTime = currentGroup.endHour * 60 + currentGroup.endMinute;
-        const slotStartTime = slot.hour * 60 + slot.minute;
-
-        if (slotStartTime <= currentEndTime + 15) {
-          // Tolérance de 15 minutes
-          // Étendre le groupe actuel
-          currentGroup.endHour = Math.max(currentGroup.endHour, endHour);
-          currentGroup.endMinute =
-            currentGroup.endHour === endHour
-              ? Math.max(currentGroup.endMinute, endMinute)
-              : endMinute;
-        } else {
-          // Finaliser le groupe précédent et commencer un nouveau
-          groupedSlots.push({
-            start: `${currentGroup.startHour.toString().padStart(2, "0")}:${currentGroup.startMinute.toString().padStart(2, "0")}`,
-            end: `${currentGroup.endHour.toString().padStart(2, "0")}:${currentGroup.endMinute.toString().padStart(2, "0")}`,
-          });
-
-          currentGroup = {
-            startHour: slot.hour,
-            startMinute: slot.minute,
-            endHour: endHour,
-            endMinute: endMinute,
-          };
-        }
-      }
-    });
-
-    // Ajouter le dernier groupe
-    if (currentGroup) {
-      groupedSlots.push({
-        start: `${currentGroup.startHour.toString().padStart(2, "0")}:${currentGroup.startMinute.toString().padStart(2, "0")}`,
-        end: `${currentGroup.endHour.toString().padStart(2, "0")}:${currentGroup.endMinute.toString().padStart(2, "0")}`,
-      });
+  // Format d'un créneau horaire unique (une ligne = un créneau)
+  const formatTimeSlot = (timeSlot: {
+    hour: number;
+    minute: number;
+    duration?: number;
+  }): string => {
+    if (!timeSlot || typeof timeSlot.hour !== "number" || typeof timeSlot.minute !== "number") {
+      return "Toute la journée";
     }
 
-    return groupedSlots.map((group) => `${group.start} - ${group.end}`).join(", ");
+    const startHour = timeSlot.hour.toString().padStart(2, "0");
+    const startMinute = timeSlot.minute.toString().padStart(2, "0");
+    const duration = timeSlot.duration || 30; // Durée par défaut de 30 minutes
+
+    const endTime = timeSlot.hour * 60 + timeSlot.minute + duration;
+    const endHour = Math.floor(endTime / 60);
+    const endMinute = endTime % 60;
+    const endHourStr = endHour.toString().padStart(2, "0");
+    const endMinuteStr = endMinute.toString().padStart(2, "0");
+
+    return `${startHour}:${startMinute} - ${endHourStr}:${endMinuteStr}`;
   };
 
   // Gestion des gestes de swipe
@@ -287,6 +243,7 @@ const OptionCard: React.FC<{
   };
 
   const totalVotes = voteCounts.yes + voteCounts.no + voteCounts.maybe;
+  const hasExistingVotes = totalVotes > 0;
 
   // Extraire la première heure pour le scroll automatique
   const firstHour = option.time_slots?.[0]?.hour ?? 0;
@@ -298,14 +255,14 @@ const OptionCard: React.FC<{
       animate={{ opacity: 1, y: 0 }}
       data-hour={firstHour}
       className={`
-        bg-[#1e1e1e] rounded-2xl shadow-sm border border-gray-700 overflow-hidden relative
+        bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative
         ${isDragging ? "shadow-lg scale-[1.02]" : ""}
         ${currentVote && userHasVoted ? "ring-2 ring-blue-200" : ""}
-        ${rank === 1 ? "border-2 border-blue-500" : ""}
+        ${rank === 1 && hasExistingVotes ? "border-2 border-blue-500" : ""}
       `}
     >
-      {/* Badge 1er */}
-      {rank === 1 && (
+      {/* Badge 1er - seulement si des votes existent */}
+      {rank === 1 && hasExistingVotes && (
         <div className="absolute -top-2 -left-2 z-30 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
           1er
         </div>
@@ -317,99 +274,114 @@ const OptionCard: React.FC<{
         onPanStart={handlePanStart}
         onPan={handlePan}
         onPanEnd={handlePanEnd}
-        className="p-4 cursor-grab active:cursor-grabbing"
+        className="p-3 cursor-grab active:cursor-grabbing"
       >
-        {/* En-tête de l'option */}
-        <div className="flex items-start gap-3 mb-4">
-          <div className="flex-shrink-0 w-12 h-12 bg-blue-900/30 rounded-xl flex items-center justify-center">
-            <Calendar className="h-6 w-6 text-blue-600" />
-          </div>
+        {/* Contenu sur une seule ligne */}
+        <div className="flex items-center gap-3">
+          {/* Icône calendrier - seulement si on affiche la date */}
+          {showDate && (
+            <div className="flex-shrink-0 w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+              <Calendar className="h-5 w-5 text-blue-600" />
+            </div>
+          )}
+
+          {/* Date et horaires */}
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-white capitalize">
-              {formatDate(option.option_date)}
-            </h3>
-            <div className="flex items-center gap-1 text-sm text-gray-300 mt-1">
-              <Clock className="h-3 w-3" />
-              <span>{formatTimeSlots(option.time_slots)}</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              {showDate && (
+                <h3 className="font-semibold text-gray-900 capitalize text-sm">
+                  {formatDateLocal(option.option_date)}
+                </h3>
+              )}
+              <div className="flex items-center gap-1 text-xs text-gray-600">
+                <Clock className="h-3 w-3" />
+                <span>
+                  {option.time_slots.length > 0
+                    ? formatTimeSlot(option.time_slots[0])
+                    : "Toute la journée"}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Système de barres de progression à double couche */}
-        <div className="mb-4">
-          <div className="flex justify-between text-xs text-gray-300 mb-2">
-            <span>
-              {totalVotes} vote{totalVotes !== 1 ? "s" : ""}
-            </span>
-            <span className="flex gap-2">
-              <span className="text-blue-600 flex items-center gap-1">
-                <Check className="h-3 w-3" />
-                {voteCounts.yes}
-              </span>
-              <span className="text-orange-600 flex items-center gap-1">
-                <HelpCircle className="h-3 w-3" />
-                {voteCounts.maybe}
-              </span>
-              <span className="text-red-600 flex items-center gap-1">
-                <X className="h-3 w-3" />
-                {voteCounts.no}
-              </span>
-            </span>
-          </div>
-
-          {/* Barres de progression pour chaque type de vote */}
-          <div className="space-y-1">
-            <ProgressBar
+          {/* Boutons de vote */}
+          <div className="flex gap-2 flex-shrink-0">
+            <VoteButton
               type="yes"
-              existingCount={voteCounts.yes}
-              totalExisting={totalVotes}
-              userVote={currentVote}
-              userHasVoted={userHasVoted}
+              isSelected={currentVote === "yes"}
+              isColored={currentVote === "yes" && userHasVoted}
+              onSelect={() => onVoteChange("yes")}
+              onHaptic={onHaptic}
             />
-            <ProgressBar
+            <VoteButton
               type="maybe"
-              existingCount={voteCounts.maybe}
-              totalExisting={totalVotes}
-              userVote={currentVote}
-              userHasVoted={userHasVoted}
+              isSelected={currentVote === "maybe"}
+              isColored={
+                (currentVote === "maybe" && userHasVoted) ||
+                (!userHasVoted && currentVote === "maybe")
+              }
+              onSelect={() => onVoteChange("maybe")}
+              onHaptic={onHaptic}
             />
-            <ProgressBar
+            <VoteButton
               type="no"
-              existingCount={voteCounts.no}
-              totalExisting={totalVotes}
-              userVote={currentVote}
-              userHasVoted={userHasVoted}
+              isSelected={currentVote === "no"}
+              isColored={currentVote === "no" && userHasVoted}
+              onSelect={() => onVoteChange("no")}
+              onHaptic={onHaptic}
             />
           </div>
         </div>
 
-        {/* Boutons de vote */}
-        <div className="flex gap-2">
-          <VoteButton
-            type="yes"
-            isSelected={currentVote === "yes"}
-            isColored={currentVote === "yes" && userHasVoted}
-            onSelect={() => onVoteChange("yes")}
-            onHaptic={onHaptic}
-          />
-          <VoteButton
-            type="maybe"
-            isSelected={currentVote === "maybe"}
-            isColored={
-              (currentVote === "maybe" && userHasVoted) ||
-              (!userHasVoted && currentVote === "maybe")
-            }
-            onSelect={() => onVoteChange("maybe")}
-            onHaptic={onHaptic}
-          />
-          <VoteButton
-            type="no"
-            isSelected={currentVote === "no"}
-            isColored={currentVote === "no" && userHasVoted}
-            onSelect={() => onVoteChange("no")}
-            onHaptic={onHaptic}
-          />
-        </div>
+        {/* Système de barres de progression à double couche - seulement si des votes existent */}
+        {hasExistingVotes && (
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <div className="flex justify-between text-xs text-gray-600 mb-2">
+              <span>
+                {totalVotes} vote{totalVotes !== 1 ? "s" : ""}
+              </span>
+              <span className="flex gap-2">
+                <span className="text-blue-600 flex items-center gap-1">
+                  <Check className="h-3 w-3" />
+                  {voteCounts.yes}
+                </span>
+                <span className="text-orange-600 flex items-center gap-1">
+                  <HelpCircle className="h-3 w-3" />
+                  {voteCounts.maybe}
+                </span>
+                <span className="text-red-600 flex items-center gap-1">
+                  <X className="h-3 w-3" />
+                  {voteCounts.no}
+                </span>
+              </span>
+            </div>
+
+            {/* Barres de progression pour chaque type de vote */}
+            <div className="space-y-1">
+              <ProgressBar
+                type="yes"
+                existingCount={voteCounts.yes}
+                totalExisting={totalVotes}
+                userVote={currentVote}
+                userHasVoted={userHasVoted}
+              />
+              <ProgressBar
+                type="maybe"
+                existingCount={voteCounts.maybe}
+                totalExisting={totalVotes}
+                userVote={currentVote}
+                userHasVoted={userHasVoted}
+              />
+              <ProgressBar
+                type="no"
+                existingCount={voteCounts.no}
+                totalExisting={totalVotes}
+                userVote={currentVote}
+                userHasVoted={userHasVoted}
+              />
+            </div>
+          </div>
+        )}
       </motion.div>
 
       {/* Indicateur de swipe */}
@@ -419,7 +391,7 @@ const OptionCard: React.FC<{
           animate={{ opacity: 1 }}
           className="absolute inset-0 bg-blue-500/10 flex items-center justify-center pointer-events-none"
         >
-          <div className="bg-[#1e1e1e]/90 rounded-lg px-3 py-1 text-sm font-medium text-gray-300">
+          <div className="bg-white/90 rounded-lg px-3 py-1 text-sm font-medium text-gray-700">
             ← Oui | Non →
           </div>
         </motion.div>
@@ -436,12 +408,14 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
   onVoteChange,
   onHaptic,
 }) => {
+  const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
+
   // Calculer les statistiques de vote par option
   const getVoteCounts = (optionId: string) => {
     const counts = { yes: 0, no: 0, maybe: 0 };
     votes.forEach((vote) => {
       const selection = vote.selections[optionId];
-      if (selection && Object.hasOwn(counts, selection)) {
+      if (selection && selection in counts) {
         counts[selection]++;
       }
     });
@@ -451,11 +425,24 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
   if (options.length === 0) {
     return (
       <div className="text-center py-12">
-        <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500">Aucune option disponible pour ce sondage.</p>
+        <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <p className="text-gray-600">Aucune option disponible pour ce sondage.</p>
       </div>
     );
   }
+
+  // Grouper les options par date
+  const optionsByDate = new Map<string, PollOption[]>();
+  options.forEach((option) => {
+    const date = option.option_date;
+    if (!optionsByDate.has(date)) {
+      optionsByDate.set(date, []);
+    }
+    optionsByDate.get(date)!.push(option);
+  });
+
+  // Trier les dates
+  const sortedDates = Array.from(optionsByDate.keys()).sort();
 
   // Calculer les rangs basés sur le nombre de votes "oui"
   const optionsWithScores = options.map((option) => ({
@@ -477,32 +464,102 @@ export const VoteGrid: React.FC<VoteGridProps> = ({
     }
   });
 
+  const toggleDate = (date: string) => {
+    setExpandedDates((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(date)) {
+        newSet.delete(date);
+      } else {
+        newSet.add(date);
+      }
+      return newSet;
+    });
+  };
+
+  // Formater une date pour l'affichage
+  const formatDate = (dateString: string) => {
+    const [year, month, day] = dateString.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-white">Options disponibles</h2>
-        <div className="text-sm text-gray-400">Swipez pour voter</div>
+        <h2 className="text-lg font-semibold text-gray-900">Options disponibles</h2>
+        <div className="text-sm text-gray-600">
+          {typeof window !== "undefined" && window.innerWidth >= 768
+            ? "Cliquez sur les boutons pour voter"
+            : "Swipez pour voter"}
+        </div>
       </div>
 
-      <div className="space-y-3">
-        {options.map((option, index) => (
-          <motion.div
-            key={option.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <OptionCard
-              option={option}
-              currentVote={currentVote[option.id]}
-              userHasVoted={userHasVoted[option.id] || false}
-              voteCounts={getVoteCounts(option.id)}
-              onVoteChange={(value) => onVoteChange(option.id, value)}
-              onHaptic={onHaptic}
-              rank={rankMap.get(option.id)}
-            />
-          </motion.div>
-        ))}
+      <div className="space-y-2">
+        {sortedDates.map((date, dateIndex) => {
+          const dateOptions = optionsByDate.get(date)!;
+          const isExpanded = expandedDates.has(date);
+          const hasMultipleSlots = dateOptions.length > 1;
+
+          return (
+            <motion.div
+              key={date}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: dateIndex * 0.05 }}
+              className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"
+            >
+              {/* En-tête de date avec bouton d'expansion */}
+              {hasMultipleSlots && (
+                <button
+                  onClick={() => toggleDate(date)}
+                  className="w-full p-3 flex items-center gap-3 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex-shrink-0 w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                    <Calendar className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-gray-900 capitalize text-sm">
+                      {formatDate(date)}
+                    </h3>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {dateOptions.length} créneau{dateOptions.length > 1 ? "x" : ""}
+                    </div>
+                  </div>
+                  {isExpanded ? (
+                    <ChevronUp className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+              )}
+
+              {/* Liste des créneaux */}
+              <div className={hasMultipleSlots && !isExpanded ? "hidden" : ""}>
+                {dateOptions.map((option, slotIndex) => (
+                  <div
+                    key={option.id}
+                    className={hasMultipleSlots ? "border-t border-gray-100" : ""}
+                  >
+                    <OptionCard
+                      option={option}
+                      currentVote={currentVote[option.id]}
+                      userHasVoted={userHasVoted[option.id] || false}
+                      voteCounts={getVoteCounts(option.id)}
+                      onVoteChange={(value) => onVoteChange(option.id, value)}
+                      onHaptic={onHaptic}
+                      rank={rankMap.get(option.id)}
+                      showDate={!hasMultipleSlots}
+                    />
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Aide pour les gestes */}

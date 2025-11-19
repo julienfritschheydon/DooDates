@@ -35,7 +35,7 @@ const RATE_LIMIT: { REQUESTS_PER_SECOND: number; REQUESTS_PER_DAY: number } = {
 export interface FormQuestion {
   text: string;
   title: string;
-  type: "single" | "multiple" | "text" | "long-text" | "rating" | "nps" | "matrix";
+  type: "single" | "multiple" | "text" | "long-text" | "rating" | "nps" | "matrix" | "date";
   required: boolean;
   options?: string[]; // Pour single/multiple
   maxChoices?: number; // Pour multiple
@@ -53,6 +53,12 @@ export interface FormQuestion {
   matrixColumns?: Array<{ id: string; label: string }>; // Colonnes (échelle de réponse)
   matrixType?: "single" | "multiple"; // Une seule réponse par ligne ou plusieurs
   matrixColumnsNumeric?: boolean; // Colonnes numériques (1-5) au lieu de texte
+  // Date-specific fields
+  selectedDates?: string[]; // Dates au format ISO string (YYYY-MM-DD)
+  timeSlotsByDate?: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>; // Créneaux horaires par date
+  timeGranularity?: "15min" | "30min" | "1h"; // Granularité des créneaux horaires
+  allowMaybeVotes?: boolean; // Permettre les votes "peut-être"
+  allowAnonymousVotes?: boolean; // Permettre les votes anonymes
 }
 
 export interface FormPollSuggestion {
@@ -1486,7 +1492,7 @@ FORMAT JSON ATTENDU:
   "questions": [
     {
       "title": "Question exacte copiée telle quelle",
-      "type": "single" | "multiple" | "text" | "rating" | "nps" | "matrix",
+      "type": "single" | "multiple" | "text" | "rating" | "nps" | "matrix" | "date",
       "required": true,
       "options": ["Option 1 exacte", "Option 2 exacte"],  // Pour single/multiple
       "maxChoices": X,  // si [max=X] dans le type (pour multiple)
@@ -1494,7 +1500,14 @@ FORMAT JSON ATTENDU:
       "ratingStyle": "numbers" | "stars" | "emojis",  // Pour rating (par défaut numbers)
       "ratingMinLabel": "Label min",  // Pour rating (optionnel)
       "ratingMaxLabel": "Label max",  // Pour rating (optionnel)
-      "validationType": "email" | "phone" | "url" | "number" | "date"  // Pour text (optionnel)
+      "validationType": "email" | "phone" | "url" | "number" | "date",  // Pour text (optionnel)
+      "selectedDates": ["${getTodayLocal()}", "${formatDateLocal(new Date(Date.now() + 24 * 60 * 60 * 1000))}"],  // Pour date (optionnel - dates au format YYYY-MM-DD, année ${new Date().getFullYear()})
+      "timeSlotsByDate": {  // Pour date (optionnel - créneaux horaires par date)
+        "${getTodayLocal()}": [{"hour": 10, "minute": 0, "enabled": true}, {"hour": 14, "minute": 0, "enabled": true}]
+      },
+      "timeGranularity": "15min" | "30min" | "1h",  // Pour date (optionnel - par défaut "30min")
+      "allowMaybeVotes": true | false,  // Pour date (optionnel - par défaut false)
+      "allowAnonymousVotes": true | false  // Pour date (optionnel - par défaut false)
     }
   ],
   "conditionalRules": [  // OPTIONNEL - seulement si règles détectées
@@ -1538,6 +1551,7 @@ RÈGLES DE GÉNÉRATION (MODE CRÉATIF):
    - "rating" : Échelle de notation (1-5 ou 1-10) - pour évaluer satisfaction/qualité
    - "nps" : Net Promoter Score (0-10) - pour mesurer probabilité de recommandation
    - "matrix" : Matrice (lignes × colonnes) - pour évaluer plusieurs aspects sur une même échelle
+   - "date" : Sélection de dates et horaires - pour planifier réunions, événements, rendez-vous
 4. **OPTIONS** - Pour single/multiple : 2 à 8 options claires par question
 5. **COHÉRENCE** - Questions logiques, ordonnées et sans redondance
 6. **PERTINENCE** - Adapter précisément au contexte de la demande
@@ -1598,6 +1612,37 @@ EXEMPLES DE QUESTIONS PAR TYPE:
   "placeholder": "exemple@email.com"
 }
 
+**Date (sélection de dates et horaires):**
+{
+  "title": "Quelles dates vous conviennent pour la réunion ?",
+  "type": "date",
+  "required": true,
+      "selectedDates": ["${getTodayLocal()}", "${formatDateLocal(new Date(Date.now() + 24 * 60 * 60 * 1000))}", "${formatDateLocal(new Date(Date.now() + 2 * 24 * 60 * 60 * 1000))}"],  // Dates au format YYYY-MM-DD (année ${new Date().getFullYear()})
+      "timeSlotsByDate": {  // Créneaux horaires par date (optionnel)
+        "${getTodayLocal()}": [
+      {"hour": 10, "minute": 0, "enabled": true},
+      {"hour": 14, "minute": 0, "enabled": true},
+      {"hour": 16, "minute": 0, "enabled": true}
+    ],
+        "${formatDateLocal(new Date(Date.now() + 24 * 60 * 60 * 1000))}": [
+          {"hour": 9, "minute": 0, "enabled": true},
+          {"hour": 13, "minute": 0, "enabled": true}
+        ]
+  },
+  "timeGranularity": "30min",  // "15min", "30min" ou "1h" (par défaut "30min")
+  "allowMaybeVotes": false,  // Permettre les votes "peut-être" (optionnel, par défaut false)
+  "allowAnonymousVotes": false  // Permettre les votes anonymes (optionnel, par défaut false)
+}
+
+IMPORTANT pour les questions de type "date":
+- Si la demande mentionne des dates/horaires/réunions/événements, utiliser le type "date"
+- Toujours inclure au moins 2-3 dates dans "selectedDates"
+- Les dates doivent être au format ISO (YYYY-MM-DD)
+- ⚠️ CRITIQUE : Utiliser UNIQUEMENT l'année ${new Date().getFullYear()} (année actuelle)
+- ⚠️ CRITIQUE : Les dates doivent être futures ou aujourd'hui (>= ${getTodayLocal()})
+- Les horaires sont optionnels mais recommandés pour les réunions
+- Si pas d'horaires spécifiques, omettre "timeSlotsByDate" (l'utilisateur pourra les configurer manuellement)
+
 FORMAT JSON REQUIS:
 {
   "title": "Titre du questionnaire",
@@ -1605,7 +1650,7 @@ FORMAT JSON REQUIS:
   "questions": [
     {
       "title": "Texte de la question",
-      "type": "single" | "multiple" | "text" | "rating" | "nps" | "matrix",
+      "type": "single" | "multiple" | "text" | "rating" | "nps" | "matrix" | "date",
       "required": true | false,
       "options": ["Option 1", "Option 2", "..."], // SEULEMENT pour single/multiple
       "maxChoices": 3, // SEULEMENT pour multiple (optionnel)
@@ -1615,7 +1660,14 @@ FORMAT JSON REQUIS:
       "ratingScale": 5 | 10, // SEULEMENT pour rating (par défaut 5)
       "ratingStyle": "numbers" | "stars" | "emojis", // SEULEMENT pour rating (par défaut "numbers")
       "ratingMinLabel": "Label min", // SEULEMENT pour rating (optionnel)
-      "ratingMaxLabel": "Label max" // SEULEMENT pour rating (optionnel)
+      "ratingMaxLabel": "Label max", // SEULEMENT pour rating (optionnel)
+      "selectedDates": ["${getTodayLocal()}", "${formatDateLocal(new Date(Date.now() + 24 * 60 * 60 * 1000))}"], // SEULEMENT pour date (requis - dates au format YYYY-MM-DD, utiliser l'année ${new Date().getFullYear()})
+      "timeSlotsByDate": {  // SEULEMENT pour date (optionnel - créneaux horaires par date)
+        "${getTodayLocal()}": [{"hour": 10, "minute": 0, "enabled": true}]
+      },
+      "timeGranularity": "15min" | "30min" | "1h", // SEULEMENT pour date (optionnel - par défaut "30min")
+      "allowMaybeVotes": true | false, // SEULEMENT pour date (optionnel - par défaut false)
+      "allowAnonymousVotes": true | false // SEULEMENT pour date (optionnel - par défaut false)
     }
   ],
   "type": "form"
@@ -1748,7 +1800,17 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
             }
 
             // Vérifier que le type est valide
-            if (!["single", "multiple", "text"].includes(q.type)) {
+            const validTypes = [
+              "single",
+              "multiple",
+              "text",
+              "long-text",
+              "rating",
+              "nps",
+              "matrix",
+              "date",
+            ];
+            if (!validTypes.includes(q.type)) {
               return false;
             }
 
@@ -1760,6 +1822,63 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
                   "api",
                 );
                 return false;
+              }
+            }
+
+            // Questions de type "date" DOIVENT avoir des dates sélectionnées
+            if (q.type === "date") {
+              if (!Array.isArray(q.selectedDates) || q.selectedDates.length === 0) {
+                logger.warn(
+                  `Question "${q.title}" de type date ignorée : aucune date sélectionnée`,
+                  "api",
+                );
+                return false;
+              }
+              // Valider le format des dates (YYYY-MM-DD)
+              const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+              if (!q.selectedDates.every((date: string) => dateRegex.test(date))) {
+                logger.warn(
+                  `Question "${q.title}" de type date ignorée : format de dates invalide`,
+                  "api",
+                );
+                return false;
+              }
+              // Valider et corriger les années des dates
+              const currentYear = new Date().getFullYear();
+              const hasInvalidYear = q.selectedDates.some((date: string) => {
+                const year = parseInt(date.split("-")[0], 10);
+                // Vérifier si l'année est dans le passé ou trop loin dans le futur (> currentYear + 1)
+                return year < currentYear || year > currentYear + 1;
+              });
+              if (hasInvalidYear) {
+                logger.warn(
+                  `Question "${q.title}" de type date : dates avec année invalide détectées, correction automatique vers ${currentYear}`,
+                  "api",
+                );
+                // Corriger automatiquement : remplacer l'année par l'année actuelle
+                q.selectedDates = q.selectedDates.map((date: string) => {
+                  const [year, month, day] = date.split("-");
+                  const dateYear = parseInt(year, 10);
+                  // Si l'année est dans le passé ou trop loin dans le futur, utiliser l'année actuelle
+                  if (dateYear < currentYear || dateYear > currentYear + 1) {
+                    return `${currentYear}-${month}-${day}`;
+                  }
+                  return date;
+                });
+                // Mettre à jour aussi timeSlotsByDate si présent
+                if (q.timeSlotsByDate) {
+                  const correctedTimeSlots: Record<string, any> = {};
+                  Object.entries(q.timeSlotsByDate).forEach(([date, slots]) => {
+                    const [year, month, day] = date.split("-");
+                    const dateYear = parseInt(year, 10);
+                    const correctedDate =
+                      dateYear < currentYear || dateYear > currentYear + 1
+                        ? `${currentYear}-${month}-${day}`
+                        : date;
+                    correctedTimeSlots[correctedDate] = slots;
+                  });
+                  q.timeSlotsByDate = correctedTimeSlots;
+                }
               }
             }
 
@@ -1796,6 +1915,24 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
               maxChoices: q.maxChoices,
               placeholder: q.placeholder,
               maxLength: q.maxLength,
+              // Rating-specific fields
+              ratingScale: q.ratingScale,
+              ratingStyle: q.ratingStyle,
+              ratingMinLabel: q.ratingMinLabel,
+              ratingMaxLabel: q.ratingMaxLabel,
+              // Matrix-specific fields
+              matrixRows: q.matrixRows,
+              matrixColumns: q.matrixColumns,
+              matrixType: q.matrixType,
+              matrixColumnsNumeric: q.matrixColumnsNumeric,
+              // Text validation fields
+              validationType: q.validationType,
+              // Date-specific fields
+              selectedDates: q.selectedDates,
+              timeSlotsByDate: q.timeSlotsByDate,
+              timeGranularity: q.timeGranularity,
+              allowMaybeVotes: q.allowMaybeVotes,
+              allowAnonymousVotes: q.allowAnonymousVotes,
             })),
             type: "form" as const,
             ...(parsed.conditionalRules && {

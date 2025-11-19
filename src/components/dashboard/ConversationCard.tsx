@@ -83,7 +83,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
 
   const handleCardClick = () => {
     // Ouvrir le workspace avec la conversation
-    navigate(`/workspace?resume=${item.id}`);
+    navigate(`/workspace?conversationId=${item.id}`);
   };
 
   const handleDeleteConversation = async () => {
@@ -156,9 +156,9 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
   const handleEdit = () => {
     if (!item.poll) return;
     if (item.poll.type === "form") {
-      navigate(`/create/form?edit=${item.poll.id}`);
+      navigate(`/workspace/form?edit=${item.poll.id}`);
     } else {
-      navigate(`/create/date?edit=${item.poll.id}`);
+      navigate(`/workspace/date?edit=${item.poll.id}`);
     }
   };
 
@@ -470,7 +470,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/workspace?resume=${item.id}`);
+                navigate(`/workspace?conversationId=${item.id}`);
               }}
               className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
             >
@@ -693,7 +693,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/workspace?resume=${item.id}`);
+                  navigate(`/workspace?conversationId=${item.id}`);
                 }}
                 className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-2"
               >

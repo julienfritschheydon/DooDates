@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Archive, Check, Copy, Download, Edit, Lock, Share2, Trash2, Vote } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Poll,
   buildPublicLink,
@@ -80,9 +81,9 @@ export const PollActions: React.FC<PollActionsProps> = ({
   const handleEdit = () => {
     if (onEdit) return onEdit(poll.id);
     if (poll.type === "form") {
-      navigate(`/create/form?edit=${poll.id}`);
+      navigate(`/workspace/form?edit=${poll.id}`);
     } else {
-      navigate(`/create/date?edit=${poll.id}`);
+      navigate(`/workspace/date?edit=${poll.id}`);
     }
   };
 
@@ -313,154 +314,211 @@ export const PollActions: React.FC<PollActionsProps> = ({
   };
 
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${className ?? ""}`}>
-      {showVoteButton && (
-        <button
-          onClick={() => navigate(`/poll/${poll.slug}`)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          data-testid="results-action-vote"
-        >
-          <Vote className="w-4 h-4" />
-          Participer au vote
-        </button>
-      )}
-
-      <button
-        onClick={handleCopyLink}
-        className={`p-2 rounded-md transition-all duration-300 flex items-center gap-1 ${
-          isCopied
-            ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-            : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
-        }`}
-        title={isCopied ? "Lien copié !" : "Copier le lien"}
-        data-testid="poll-action-copy-link"
-        disabled={isCopied}
-      >
-        {isCopied ? (
-          <>
-            <Check className="w-4 h-4 animate-in zoom-in duration-200" />
-            {variant === "full" && <span className="hidden sm:inline font-medium">Copié !</span>}
-          </>
-        ) : (
-          <>
-            <Share2 className="w-4 h-4" />
-            {variant === "full" && <span className="hidden sm:inline">Lien</span>}
-          </>
+    <TooltipProvider>
+      <div className={`flex flex-wrap items-center gap-2 ${className ?? ""}`}>
+        {showVoteButton && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => navigate(`/poll/${poll.slug}`)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                data-testid="results-action-vote"
+              >
+                <Vote className="w-4 h-4" />
+                Participer au vote
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Accéder à la page de vote</p>
+            </TooltipContent>
+          </Tooltip>
         )}
-      </button>
 
-      {poll.type === "form" && hasExportableData(poll) && (
-        <div className="relative">
-          <button
-            onClick={() => setShowExportMenu(!showExportMenu)}
-            className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-3 py-2 rounded-md text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors flex items-center gap-1"
-            title="Exporter"
-            data-testid="poll-action-export"
-          >
-            <Download className="w-4 h-4" />
-            {variant === "full" && <span>Exporter</span>}
-          </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-block">
+              <button
+                onClick={handleCopyLink}
+                className={`p-2 rounded-md transition-all duration-300 flex items-center gap-1 ${
+                  isCopied
+                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                    : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                }`}
+                data-testid="poll-action-copy-link"
+                disabled={isCopied}
+              >
+                {isCopied ? (
+                  <>
+                    <Check className="w-4 h-4 animate-in zoom-in duration-200" />
+                    {variant === "full" && (
+                      <span className="hidden sm:inline font-medium">Copié !</span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4" />
+                    {variant === "full" && <span className="hidden sm:inline">Lien</span>}
+                  </>
+                )}
+              </button>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{isCopied ? "Lien copié !" : "Copier le lien du sondage"}</p>
+          </TooltipContent>
+        </Tooltip>
 
-          {showExportMenu && (
-            <>
-              <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
-              <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+        {poll.type === "form" && hasExportableData(poll) && (
+          <div className="relative">
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <button
-                  onClick={() => {
-                    handleExport("csv");
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-t-md"
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                  className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-3 py-2 rounded-md text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors flex items-center gap-1"
+                  data-testid="poll-action-export"
                 >
-                  📊 CSV
+                  <Download className="w-4 h-4" />
+                  {variant === "full" && <span>Exporter</span>}
                 </button>
-                <button
-                  onClick={() => {
-                    handleExport("pdf");
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  📄 PDF
-                </button>
-                <button
-                  onClick={() => {
-                    handleExport("json");
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  🔧 JSON
-                </button>
-                <button
-                  onClick={() => {
-                    handleExport("markdown");
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-b-md"
-                >
-                  📝 Markdown
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Exporter les résultats (CSV, PDF, JSON, Markdown)</p>
+              </TooltipContent>
+            </Tooltip>
 
-      <button
-        onClick={handleEdit}
-        onMouseEnter={handlePreloadEdit}
-        onMouseLeave={handleMouseLeaveEdit}
-        className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
-        data-testid="poll-action-edit"
-      >
-        <Edit className="w-4 h-4" />
-        {variant === "full" && <span>Modifier</span>}
-      </button>
+            {showExportMenu && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
+                <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+                  <button
+                    onClick={() => {
+                      handleExport("csv");
+                      setShowExportMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-t-md"
+                  >
+                    📊 CSV
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleExport("pdf");
+                      setShowExportMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    📄 PDF
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleExport("json");
+                      setShowExportMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    🔧 JSON
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleExport("markdown");
+                      setShowExportMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-b-md"
+                  >
+                    📝 Markdown
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
-      <button
-        onClick={handleDuplicate}
-        className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
-        data-testid="poll-action-duplicate"
-      >
-        <Copy className="w-4 h-4" />
-        {variant === "full" && <span>Copier</span>}
-      </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={handleEdit}
+              onMouseEnter={handlePreloadEdit}
+              onMouseLeave={handleMouseLeaveEdit}
+              className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
+              data-testid="poll-action-edit"
+            >
+              <Edit className="w-4 h-4" />
+              {variant === "full" && <span>Modifier</span>}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Modifier le sondage</p>
+          </TooltipContent>
+        </Tooltip>
 
-      {poll.status === "active" && (
-        <button
-          onClick={handleClose}
-          className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
-          title="Terminer"
-          data-testid="poll-action-close"
-        >
-          <Lock className="w-4 h-4" />
-          {variant === "full" && <span className="hidden sm:inline">Terminer</span>}
-        </button>
-      )}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={handleDuplicate}
+              className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
+              data-testid="poll-action-duplicate"
+            >
+              <Copy className="w-4 h-4" />
+              {variant === "full" && <span>Copier</span>}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Dupliquer le sondage</p>
+          </TooltipContent>
+        </Tooltip>
 
-      {poll.status !== "archived" && (
-        <button
-          onClick={handleArchive}
-          className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
-          title="Archiver"
-          data-testid="poll-action-archive"
-        >
-          <Archive className="w-4 h-4" />
-          {variant === "full" && <span className="hidden sm:inline">Archiver</span>}
-        </button>
-      )}
+        {poll.status === "active" && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={handleClose}
+                className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
+                data-testid="poll-action-close"
+              >
+                <Lock className="w-4 h-4" />
+                {variant === "full" && <span className="hidden sm:inline">Terminer</span>}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Terminer le sondage (fermer aux nouveaux votes)</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
 
-      <button
-        onClick={handleDelete}
-        className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
-        title="Supprimer"
-        data-testid="poll-action-delete"
-      >
-        <Trash2 className="w-4 h-4" />
-        {variant === "full" && <span className="hidden sm:inline">Supprimer</span>}
-      </button>
-    </div>
+        {poll.status !== "archived" && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={handleArchive}
+                className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
+                data-testid="poll-action-archive"
+              >
+                <Archive className="w-4 h-4" />
+                {variant === "full" && <span className="hidden sm:inline">Archiver</span>}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Archiver le sondage</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={handleDelete}
+              className="bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1"
+              data-testid="poll-action-delete"
+            >
+              <Trash2 className="w-4 h-4" />
+              {variant === "full" && <span className="hidden sm:inline">Supprimer</span>}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Supprimer le sondage définitivement</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
   );
 };
 

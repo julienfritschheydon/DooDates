@@ -1,19 +1,20 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
-import type { Poll, FormQuestionShape } from "../../lib/pollStorage";
+import type { Poll, FormQuestionShape, DateVoteValue } from "../../lib/pollStorage";
 import { addFormResponse } from "../../lib/pollStorage";
 import { sendVoteConfirmationEmail } from "../../services/EmailService";
 import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
 import { useToast } from "../../hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { logError, ErrorFactory } from "../../lib/error-handling";
+import DateQuestionVote from "./DateQuestionVote";
 import "./multi-step-animations.css";
 
 interface MultiStepFormVoteProps {
   poll: Poll;
 }
 
-type AnswerValue = string | string[] | Record<string, string | string[]> | number;
+type AnswerValue = string | string[] | Record<string, string | string[]> | number | DateVoteValue;
 
 export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
   const { toast } = useToast();
@@ -94,6 +95,14 @@ export default function MultiStepFormVote({ poll }: MultiStepFormVoteProps) {
         typeof answer === "number"
       ) {
         return true;
+      }
+      if (currentQuestion.kind === "date") {
+        // Vérifier que c'est un DateVoteValue valide avec au moins un vote
+        if (!Array.isArray(answer) || answer.length === 0) {
+          return false;
+        }
+        const dateValue = answer as DateVoteValue;
+        return dateValue.some((vote) => vote.vote && vote.date);
       }
       return Boolean(answer);
     }
@@ -696,6 +705,18 @@ function QuestionRenderer({
           </tbody>
         </table>
       </div>
+    );
+  }
+
+  // Date
+  if (kind === "date") {
+    return (
+      <DateQuestionVote
+        question={question}
+        value={Array.isArray(value) ? (value as DateVoteValue) : undefined}
+        onChange={(newVal) => onChange(newVal)}
+        required={question.required}
+      />
     );
   }
 

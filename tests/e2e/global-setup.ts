@@ -60,6 +60,7 @@ function generateMockPollResponse(prompt: string): any {
     const pollData = {
       type: 'form',
       title: 'Questionnaire Mock E2E',
+      slug: 'questionnaire-mock-e2e',
       description: 'Questionnaire généré automatiquement pour les tests',
       questions
     };
@@ -74,11 +75,26 @@ function generateMockPollResponse(prompt: string): any {
     };
   } else {
     // Date poll mock
+    // Extraire le titre depuis le prompt si présent (chercher "titre" ou "title" suivi de guillemets)
+    let title = 'Sondage de dates Mock E2E';
+    const titleMatch = prompt.match(/titre\s+["']([^"']+)["']|title\s+["']([^"']+)["']|"([^"]+)"|'([^']+)'/i);
+    if (titleMatch) {
+      title = titleMatch[1] || titleMatch[2] || titleMatch[3] || titleMatch[4];
+    }
+    
+    // Extraire les dates depuis le prompt si présentes (format YYYY-MM-DD)
+    let dates = ['2025-11-01', '2025-11-02', '2025-11-03'];
+    const dateMatches = prompt.matchAll(/\b(\d{4}-\d{2}-\d{2})\b/g);
+    const extractedDates = Array.from(dateMatches).map(m => m[1]);
+    if (extractedDates.length > 0) {
+      dates = extractedDates;
+    }
+    
     const pollData = {
       type: 'date',
-      title: 'Sondage de dates Mock E2E',
+      title: title,
       description: 'Sondage généré automatiquement pour les tests',
-      dates: ['2025-11-01', '2025-11-02', '2025-11-03']
+      dates: dates
     };
     
     return {

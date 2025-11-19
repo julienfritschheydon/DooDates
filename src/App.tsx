@@ -34,11 +34,10 @@ const LoadingSpinner = () => (
 const Vote = lazy(() => import("./pages/Vote"));
 const Results = lazy(() => import("./pages/Results"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
-const CreateChooser = lazy(() => import("./pages/CreateChooser"));
 const DateCreator = lazy(() => import("./pages/DateCreator"));
 const FormCreator = lazy(() => import("./pages/FormCreator"));
-const AvailabilityPollCreator = lazy(() => import("./pages/AvailabilityPollCreator"));
 const AICreator = lazy(() => import("./pages/AICreator"));
+const AvailabilityPollCreator = lazy(() => import("./pages/AvailabilityPollCreator"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Prototype pages (UX IA-First)
@@ -48,6 +47,14 @@ const ConsumptionJournal = lazy(() => import("./pages/ConsumptionJournal"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Docs = lazy(() => import("./pages/Docs").then((m) => ({ default: m.Docs })));
 const Pricing = lazy(() => import("./pages/Pricing").then((m) => ({ default: m.PricingPage })));
+const VoteDesktopTest = lazy(() => import("./pages/VoteDesktopTest"));
+
+// Pages de navigation et paramètres
+const Settings = lazy(() => import("./pages/Settings"));
+const Recent = lazy(() => import("./pages/Recent"));
+const ResultsPage = lazy(() => import("./pages/ResultsPage"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Theme = lazy(() => import("./pages/Theme"));
 
 // Cache persistant pour résister au HMR de Vite
 const CACHE_KEY = "doodates-pollcreator-loaded";
@@ -213,14 +220,19 @@ performanceAnalyzer.mark("Preload-TimeSlot-End", "preload");
 // Préchargement minimal différé (après 3s) - seulement modules critiques
 setTimeout(() => {
   // Précharger seulement Supabase (nécessaire pour l'auth)
-  requestIdleCallback(
-    () => {
-      Promise.all([import("@supabase/supabase-js")]).catch((error) => {
-        logger.warn("Erreur préchargement gros modules", "performance", error);
-      });
-    },
-    { timeout: 5000 },
-  ); // Timeout pour éviter d'attendre trop longtemps
+  const preloadSupabase = () => {
+    Promise.all([import("@supabase/supabase-js")]).catch((error) => {
+      logger.warn("Erreur préchargement gros modules", "performance", error);
+    });
+  };
+
+  // Utiliser requestIdleCallback avec fallback pour navigateurs qui ne le supportent pas
+  if (typeof requestIdleCallback !== "undefined") {
+    requestIdleCallback(preloadSupabase, { timeout: 5000 });
+  } else {
+    // Fallback pour navigateurs sans requestIdleCallback (ex: Mobile Safari)
+    setTimeout(preloadSupabase, 10);
+  }
 
   // ❌ RETIRÉ: Préchargement idle automatique
   // PollCreator ne se charge maintenant QUE sur :
@@ -311,11 +323,11 @@ const usePreloadOnNavigation = () => {
   const location = useLocation();
 
   React.useEffect(() => {
-    // Précharger PollCreator si navigation vers /create ou /create/date
+    // Précharger PollCreator si navigation vers workspace avec type date ou form
     if (
-      location.pathname === "/create" ||
-      location.pathname.startsWith("/create/date") ||
-      location.pathname.startsWith("/create/form")
+      location.pathname.startsWith("/workspace/date") ||
+      location.pathname.startsWith("/workspace/form") ||
+      location.pathname.startsWith("/create/availability")
     ) {
       // Précharger immédiatement car l'utilisateur va probablement l'utiliser
       preloadPollCreator().catch(() => {
@@ -335,10 +347,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   usePreloadOnNavigation();
 
   // Pages qui ne doivent pas afficher la Sidebar (garde TopNav)
-  // Exclure /create/ai car il utilise WorkspaceLayoutPrototype qui nécessite h-screen
   const useClassicLayout =
     location.pathname.startsWith("/poll/") ||
-    (location.pathname.startsWith("/create/") && !location.pathname.startsWith("/create/ai")) ||
+    location.pathname.startsWith("/create/availability") ||
     location.pathname.startsWith("/vote/") ||
     location.pathname.startsWith("/docs") ||
     location.pathname.startsWith("/pricing") ||
@@ -416,31 +427,44 @@ const App = () => {
 
                                 {/* Workspace IA */}
                                 <Route path="/workspace" element={<WorkspacePage />} />
-                                <Route path="/chat" element={<WorkspacePage />} />
+                                <Route path="/workspace/date" element={<WorkspacePage />} />
+                                <Route path="/workspace/form" element={<WorkspacePage />} />
+                                <Route path="/workspace/availability" element={<WorkspacePage />} />
 
                                 {/* Dashboard */}
                                 <Route path="/dashboard" element={<Dashboard />} />
                                 <Route path="/dashboard/journal" element={<ConsumptionJournal />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />
 
+                                {/* Navigation */}
+                                <Route path="/settings" element={<Settings />} />
+                                <Route path="/recent" element={<Recent />} />
+                                <Route path="/results" element={<ResultsPage />} />
+                                <Route path="/profile" element={<Profile />} />
+                                <Route path="/theme" element={<Theme />} />
+
                                 {/* Sondages */}
                                 <Route path="/poll/:slug" element={<Vote />} />
                                 <Route path="/poll/:slug/results" element={<Results />} />
                                 <Route path="/vote/:pollId" element={<Vote />} />
-
-                                {/* Création */}
-                                <Route path="/create" element={<CreateChooser />} />
-                                <Route path="/create/date" element={<DateCreator />} />
-                                <Route path="/create/form" element={<FormCreator />} />
-                                <Route
-                                  path="/create/availability"
-                                  element={<AvailabilityPollCreator />}
-                                />
-                                <Route path="/create/ai" element={<AICreator />} />
                                 <Route
                                   path="/poll/:pollSlug/results/:adminToken"
                                   element={<Vote />}
                                 />
+
+                                {/* Pages de test */}
+                                <Route path="/vote-desktop-test" element={<VoteDesktopTest />} />
+
+                                {/* Création */}
+                                <Route path="/create/date" element={<DateCreator />} />
+                                <Route path="/create/form" element={<FormCreator />} />
+                                <Route path="/create/ai" element={<AICreator />} />
+                                <Route
+                                  path="/create/availability"
+                                  element={<AvailabilityPollCreator />}
+                                />
+
+                                {/* Autres */}
                                 <Route path="/pricing" element={<Pricing />} />
                                 <Route path="/docs/*" element={<Docs />} />
                                 <Route path="*" element={<NotFound />} />

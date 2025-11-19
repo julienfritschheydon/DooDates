@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { attachConsoleGuard } from './utils';
+import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
+import { getTimeouts } from './config/timeouts';
 
 /**
  * Tests E2E pour la documentation en mode PRODUCTION (avec base path /DooDates/)
@@ -19,7 +21,7 @@ test.describe('Documentation - Production Build Tests', () => {
   // Ils sont skippés par défaut et doivent être exécutés manuellement
   // avec: npx playwright test docs-production.spec.ts --project=chromium
   
-  test.skip('Documentation works with production base path /DooDates/ @production', async ({ page }) => {
+  test.skip('Documentation works with production base path /DooDates/ @production', async ({ page, browserName }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -31,19 +33,20 @@ test.describe('Documentation - Production Build Tests', () => {
       // Simuler l'environnement GitHub Pages avec base path
       const basePath = '/DooDates';
       
+      const timeouts = getTimeouts(browserName);
       // Naviguer vers la documentation avec le base path
       await page.goto(`${basePath}/docs`, { waitUntil: 'domcontentloaded' });
       
       // Attendre que la page soit complètement chargée
-      await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
+      await waitForReactStable(page, { browserName });
       
       // Vérifier que l'URL contient le base path
       await expect(page).toHaveURL(new RegExp(`.*${basePath}/docs`));
       
       // Vérifier que le contenu est visible
-      await expect(
-        page.getByText(/Documentation DooDates/i).or(page.getByText(/Bienvenue dans la documentation/i))
-      ).toBeVisible({ timeout: 5000 });
+      const content = page.getByText(/Documentation DooDates/i).or(page.getByText(/Bienvenue dans la documentation/i));
+      await waitForElementReady(content, undefined, { browserName, timeout: timeouts.element });
       
       // Vérifier qu'il n'y a pas d'erreurs 404 pour les assets
       const failedRequests: string[] = [];
@@ -54,7 +57,8 @@ test.describe('Documentation - Production Build Tests', () => {
       });
       
       // Naviguer vers un document spécifique
-      await page.goto(`${basePath}/docs/01-Guide-Demarrage-Rapide`, { waitUntil: 'networkidle' });
+      await page.goto(`${basePath}/docs/01-Guide-Demarrage-Rapide`, { waitUntil: 'domcontentloaded' });
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
       
       // Vérifier qu'il n'y a pas d'erreurs 404 pour les assets JS/CSS
       const asset404s = failedRequests.filter(req => 
@@ -68,10 +72,10 @@ test.describe('Documentation - Production Build Tests', () => {
       
       // Vérifier que le document se charge
       const loader = page.locator('[class*="animate-spin"]');
-      await loader.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+      await loader.waitFor({ state: 'hidden', timeout: timeouts.element }).catch(() => {});
       
-      const content = page.locator('.docs-content, .prose, [class*="prose"]');
-      await expect(content.first()).toBeVisible({ timeout: 5000 });
+      const docContent = await waitForElementReady(page, '.docs-content, .prose, [class*="prose"]', { browserName, timeout: timeouts.element });
+      await expect(docContent.first()).toBeVisible();
       
       await guard.assertClean();
     } finally {

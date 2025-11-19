@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar as CalendarIcon,
+  Calendar as CalendarIconLucide,
   Mail,
   Clock,
   Plus,
@@ -17,7 +18,8 @@ import {
 } from "lucide-react";
 import Calendar from "./Calendar";
 import { usePolls, type PollData } from "../hooks/usePolls";
-import type { Poll, PollOption } from "../lib/pollStorage";
+import type { Poll } from "../lib/pollStorage";
+import type { PollOption } from "../types/poll";
 import { PollCreatorService } from "../services/PollCreatorService";
 import { logger } from "../lib/logger";
 import { createConversationForPoll } from "../lib/ConversationPollLink";
@@ -46,6 +48,8 @@ const VoteGrid = lazy(() =>
   import("@/components/voting/VoteGrid").then((m) => ({ default: m.VoteGrid })),
 );
 import { groupConsecutiveDates } from "../lib/date-utils";
+import { SettingsPanel, type SettingsTab } from "./ui/SettingsPanel";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface PollCreatorProps {
   onBack?: (createdPoll?: Poll) => void;
@@ -60,16 +64,16 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   initialData,
   withBackground = false,
 }) => {
-  const { user } = useAuth();
+  const { user, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const { createPoll, loading: pollLoading, error: pollError } = usePolls();
+  const { toast } = useToast();
 
   // Récupérer l'ID du sondage à éditer depuis l'URL
   const urlParams = new URLSearchParams(window.location.search);
   const editPollId = urlParams.get("edit");
   const [createdPollSlug, setCreatedPollSlug] = useState<string | null>(null);
   const [createdPoll, setCreatedPoll] = useState<Poll | null>(null);
-  const { toast } = useToast();
   const shareRef = useRef<HTMLDivElement>(null);
   const timeSlotsRef = useRef<HTMLDivElement>(null);
   const timeGridRefMobile = useRef<HTMLDivElement>(null); // Grille mobile
@@ -212,84 +216,23 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   };
 
   const handleTimeSlotToggle = (dateStr: string, hour: number, minute: number) => {
-    setTimeSlotsByDate((prev) => {
-      const currentSlots = prev[dateStr] || [];
-      const clickedMinutes = hour * 60 + minute;
-
-      const existingSlotIndex = currentSlots.findIndex(
-        (s) => s.hour === hour && s.minute === minute,
-      );
-
-      if (existingSlotIndex >= 0) {
-        // Slot existe → Toggle enabled
-        const newSlots = [...currentSlots];
-        newSlots[existingSlotIndex] = {
-          ...newSlots[existingSlotIndex],
-          enabled: !newSlots[existingSlotIndex].enabled,
-        };
-
-        return {
-          ...prev,
-          [dateStr]: newSlots,
-        };
-      } else {
-        // Slot n'existe pas → Vérifier si adjacent à un bloc existant
-        // adjacentAfter : Y a-t-il un slot juste APRÈS le clic ? (clic avant le bloc)
-        const adjacentAfter = currentSlots.find(
-          (s) => s.hour * 60 + s.minute === clickedMinutes + state.timeGranularity && s.enabled,
-        );
-        // adjacentBefore : Y a-t-il un slot juste AVANT le clic ? (clic après le bloc)
-        const adjacentBefore = currentSlots.find(
-          (s) => s.hour * 60 + s.minute === clickedMinutes - state.timeGranularity && s.enabled,
-        );
-
-        if (adjacentBefore || adjacentAfter) {
-          // Adjacent à un bloc → Étendre le bloc
-          const newSlot = {
-            hour,
-            minute,
-            duration: state.timeGranularity,
-            enabled: true,
-          };
-
-          return {
-            ...prev,
-            [dateStr]: [...currentSlots, newSlot],
-          };
-        } else {
-          // Isolé → Créer nouveau slot
-          const newSlot = {
-            hour,
-            minute,
-            duration: state.timeGranularity,
-            enabled: true,
-          };
-
-          return {
-            ...prev,
-            [dateStr]: [...currentSlots, newSlot],
-          };
-        }
-      }
-    });
+    setTimeSlotsByDate((prev) =>
+      PollCreatorService.handleTimeSlotToggle(
+        dateStr,
+        hour,
+        minute,
+        prev,
+        state.timeGranularity,
+        true, // includeDuration pour PollCreator
+      ),
+    );
   };
 
   const getVisibleTimeSlots = () => {
-    const slots = [];
-    const startHour = 8;
-    const endHour = state.showExtendedHours ? 23 : 20;
-
-    for (let hour = startHour; hour <= endHour; hour++) {
-      for (let minute = 0; minute < 60; minute += state.timeGranularity) {
-        slots.push({
-          hour,
-          minute,
-          label: `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`,
-        });
-      }
-    }
-
-    return slots;
+    return PollCreatorService.generateVisibleTimeSlots(
+      state.timeGranularity,
+      state.showExtendedHours,
+    );
   };
 
   const getTimeSlotBlocks = (dateStr: string) => {
@@ -317,11 +260,53 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     setCreatedPollSlug(null);
   };
 
-  // Charger les données du sondage à éditer
+  // Charger les données du sondage à éditer ou restaurer le brouillon
   useEffect(() => {
     if (!editPollId) {
+      // Si pas de sondage à éditer, vérifier s'il y a un brouillon à restaurer
       if (!initialData) {
-        localStorage.removeItem("doodates-draft");
+        try {
+          const draftJson = localStorage.getItem("doodates-draft");
+          if (draftJson) {
+            const draftData = JSON.parse(draftJson);
+
+            // Restaurer l'état du sondage
+            if (draftData.selectedDates && draftData.selectedDates.length > 0) {
+              setState((prev) => ({
+                ...prev,
+                pollTitle: draftData.title || prev.pollTitle,
+                selectedDates: draftData.selectedDates,
+                participantEmails: draftData.participantEmails || prev.participantEmails,
+                timeGranularity: draftData.settings?.timeGranularity || prev.timeGranularity,
+                notificationsEnabled:
+                  draftData.settings?.sendNotifications || prev.notificationsEnabled,
+                expirationDays: draftData.settings?.expiresAt
+                  ? Math.ceil(
+                      (new Date(draftData.settings.expiresAt).getTime() - Date.now()) /
+                        (24 * 60 * 60 * 1000),
+                    )
+                  : prev.expirationDays,
+                showTimeSlots: true,
+              }));
+
+              // Restaurer les créneaux horaires
+              if (draftData.timeSlotsByDate) {
+                setTimeSlotsByDate(draftData.timeSlotsByDate);
+              }
+
+              // Nettoyer le brouillon après restauration pour éviter qu'il soit restauré plusieurs fois
+              localStorage.removeItem("doodates-draft");
+
+              toast({
+                title: "Brouillon restauré",
+                description: "Votre sondage en cours a été restauré.",
+              });
+            }
+          }
+        } catch (error) {
+          logger.error("Erreur lors de la restauration du brouillon", "poll", error);
+          localStorage.removeItem("doodates-draft");
+        }
       }
       return;
     }
@@ -346,13 +331,16 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           pollDates.push(...pollToEdit.settings.selectedDates);
         }
 
-        // Méthode 2: Depuis les options du sondage (mapping ID -> date)
-        if (pollDates.length === 0 && pollToEdit.options) {
-          (pollToEdit.options as PollOption[]).forEach((option) => {
-            if (option.option_date && !pollDates.includes(option.option_date)) {
-              pollDates.push(option.option_date);
-            }
-          });
+        // Méthode 2: Depuis les options du sondage (mapping ID -> date) - Legacy support
+        if (pollDates.length === 0) {
+          const pollWithOptions = pollToEdit as Poll & { options?: PollOption[] };
+          if (pollWithOptions.options) {
+            pollWithOptions.options.forEach((option) => {
+              if (option.option_date && !pollDates.includes(option.option_date)) {
+                pollDates.push(option.option_date);
+              }
+            });
+          }
         }
 
         // Méthode 3: Fallback - générer des dates par défaut
@@ -370,14 +358,15 @@ const PollCreator: React.FC<PollCreatorProps> = ({
           pollTitle: pollToEdit.title || "",
           selectedDates: pollDates,
           currentMonth: pollDates[0] ? new Date(pollDates[0]) : new Date(),
-          showTimeSlots: pollToEdit.settings?.showTimeSlots || false,
-          participantEmails: pollToEdit.settings?.participantEmails || "",
+          showTimeSlots: false,
+          participantEmails: "",
           calendarConnected: false,
           timeSlots: [],
           notificationsEnabled: false,
           userEmail: "",
           showCalendarConnect: false,
           showShare: false,
+          showSettingsPanel: false,
           showDescription: false,
           emailErrors: [],
           showExtendedHours: false,
@@ -427,31 +416,36 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const [state, setState] = useState<PollCreationState>(
     PollCreatorService.initializeWithGeminiData(initialData) as PollCreationState,
   );
-  const [visibleMonths, setVisibleMonths] = useState<Date[]>([]);
+  // Initialiser visibleMonths directement dans useState pour éviter le délai sur Firefox/WebKit
+  // Cela garantit que le calendrier est visible immédiatement au premier rendu
+  const [visibleMonths, setVisibleMonths] = useState<Date[]>(() => {
+    // Calculer les mois initiaux directement (synchronisé)
+    const now = new Date();
+    const months: Date[] = [];
+    for (let i = 0; i < 6; i++) {
+      const month = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      months.push(month);
+    }
+    return months;
+  });
   const [timeSlotsByDate, setTimeSlotsByDate] = useState<Record<string, TimeSlot[]>>({});
 
-  // Initialize visible months on mount
+  // Ajuster les mois visibles si initialData contient des dates
+  // Ce useEffect s'exécute après le premier rendu mais le calendrier est déjà visible
   useEffect(() => {
-    if (visibleMonths.length === 0) {
-      // Si on a des dates initiales, commencer par le mois de la première date
-      let startDate = new Date();
-
-      if (initialData?.dates && initialData.dates.length > 0) {
-        const firstDate = new Date(initialData.dates[0]);
-        if (!isNaN(firstDate.getTime())) {
-          startDate = firstDate;
+    if (initialData?.dates && initialData.dates.length > 0) {
+      const firstDate = new Date(initialData.dates[0]);
+      if (!isNaN(firstDate.getTime())) {
+        // Recalculer les mois à partir de la première date
+        const months: Date[] = [];
+        for (let i = 0; i < 6; i++) {
+          const month = new Date(firstDate.getFullYear(), firstDate.getMonth() + i, 1);
+          months.push(month);
         }
+        setVisibleMonths(months);
       }
-
-      const months: Date[] = [];
-      for (let i = 0; i < 6; i++) {
-        const month = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
-        months.push(month);
-      }
-      setVisibleMonths(months);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialData]); // Intentionnel : visibleMonths.length changerait à chaque render, on veut seulement initialData
+  }, [initialData]);
 
   // Effet pour s'assurer que les dates sont bien initialisées
   useEffect(() => {
@@ -640,7 +634,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#0a0a0a] p-4 md:p-6">
             <div className="space-y-6">
-              {/* Titre du sondage - En haut */}
+              {/* Titre du sondage */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Titre du sondage <span className="text-red-400 text-sm">*</span>
@@ -950,7 +944,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 ? targetTimeSlotRefMobile
                                 : null
                             }
-                            className="flex border-b border-gray-100"
+                            className="flex"
                           >
                             <div className="w-16 p-2 text-xs text-gray-300 flex items-center justify-center border-r border-gray-700 bg-[#0a0a0a]">
                               {timeSlot.label}
@@ -1069,7 +1063,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 ? targetTimeSlotRefDesktop
                                 : null
                             }
-                            className="flex border-b border-gray-100"
+                            className="flex"
                           >
                             <div className="w-16 p-2 text-xs text-gray-300 flex items-center justify-center border-r border-gray-700 bg-[#0a0a0a]">
                               {timeSlot.label}
@@ -1151,7 +1145,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   </div>
 
                   {/* Bouton Afficher plus d'horaires */}
-                  <div className="p-3 bg-[#0a0a0a] border-t border-gray-700">
+                  <div className="p-3 bg-[#0a0a0a]">
                     <button
                       onClick={() =>
                         setState((prev) => ({
@@ -1173,229 +1167,207 @@ const PollCreator: React.FC<PollCreatorProps> = ({
               ) : null;
             })()}
 
-            {/* Aperçu en direct du sondage (lecture seule) - MASQUÉ 
-            {state.selectedDates.length > 0 && (
-              <div className="mt-8">
-                <div className="bg-[#1e1e1e] border border-gray-700 rounded-2xl shadow-sm">
-                  <div className="px-4 py-3 border-b border-gray-700 bg-[#0a0a0a] rounded-t-2xl">
-                    <h3 className="text-sm font-semibold text-gray-800">Aperçu (lecture seule)</h3>
-                    <p className="text-xs text-gray-500">
-                      Cet aperçu utilise l'interface de vote, mais les interactions sont
-                      désactivées.
-                    </p>
-                  </div>
-                  <div className="p-4 pointer-events-none select-none">
-                    {(() => {
-                      // Construire les options à partir des dates sélectionnées et créneaux activés
-                      const previewOptions = state.selectedDates.map((dateStr, idx) => ({
-                        id: `opt-${idx}`,
-                        poll_id: "preview",
-                        option_date: dateStr,
-                        time_slots: (timeSlotsByDate[dateStr] || [])
-                          .filter((s) => s.enabled)
-                          .map((s) => ({ hour: s.hour, minute: s.minute })),
-                        display_order: idx,
-                      }));
+            {/* Panneau de configuration avec onglets */}
+            <div className="mt-8" ref={shareRef}>
+              <SettingsPanel
+                tabs={[
+                  {
+                    id: "settings",
+                    label: "Paramètres",
+                    icon: <Settings className="w-4 h-4" />,
+                    content: (
+                      <div className="space-y-6">
+                        {/* Paramètres d'expiration */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <Clock className="h-5 w-5 text-orange-600" />
+                            <h3 className="font-semibold text-white">Expiration du sondage</h3>
+                          </div>
+                          <div className="p-4 bg-orange-900/20 rounded-lg">
+                            <p className="text-sm text-gray-300 mb-3">
+                              Le sondage expirera après :
+                            </p>
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="number"
+                                min="1"
+                                max="365"
+                                value={state.expirationDays}
+                                onChange={(e) =>
+                                  setState((prev) => ({
+                                    ...prev,
+                                    expirationDays: parseInt(e.target.value) || 30,
+                                  }))
+                                }
+                                className="w-16 px-2 py-1 border border-orange-700 bg-[#1e1e1e] text-white rounded text-center"
+                              />
+                              <span className="text-sm text-gray-300">jours</span>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-2">Par défaut: 30 jours</p>
+                          </div>
+                        </div>
 
-                      const emptyVotes: Array<{
-                        id: string;
-                        poll_id: string;
-                        voter_email: string;
-                        voter_name: string;
-                        selections: Record<string, "yes" | "no" | "maybe">;
-                        created_at: string;
-                      }> = [];
+                        {/* Suggestion de connexion pour utilisateur non connecté */}
+                        {!user && (
+                          <div className="p-4 bg-blue-500/5 border border-blue-600 rounded-lg">
+                            <div className="flex items-center gap-2 text-blue-400 mb-2">
+                              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                              <span className="text-sm font-medium">Connexion recommandée</span>
+                            </div>
+                            <p className="text-sm text-gray-300 mb-3">
+                              Connectez-vous pour gérer vos sondages et accéder à plus de
+                              fonctionnalités. Connectez votre calendrier Google Calendar pour une
+                              meilleure gestion des créneaux.
+                            </p>
+                            <button
+                              onClick={async () => {
+                                // Sauvegarder le brouillon avant la redirection OAuth
+                                try {
+                                  const draftData = {
+                                    title: state.pollTitle,
+                                    selectedDates: state.selectedDates,
+                                    timeSlotsByDate: timeSlotsByDate,
+                                    participantEmails: state.participantEmails,
+                                    settings: {
+                                      timeGranularity: state.timeGranularity,
+                                      allowAnonymousVotes: true,
+                                      allowMaybeVotes: true,
+                                      sendNotifications: state.notificationsEnabled,
+                                      expiresAt: state.expirationDays
+                                        ? new Date(
+                                            Date.now() + state.expirationDays * 24 * 60 * 60 * 1000,
+                                          ).toISOString()
+                                        : undefined,
+                                    },
+                                  };
+                                  localStorage.setItem("doodates-draft", JSON.stringify(draftData));
+                                } catch (error) {
+                                  logger.error(
+                                    "Erreur lors de la sauvegarde du brouillon",
+                                    "poll",
+                                    error,
+                                  );
+                                }
 
-                      const currentVote: Record<string, "yes" | "no" | "maybe"> = {};
-                      const userHasVoted: Record<string, boolean> = {};
+                                const result = await signInWithGoogle();
+                                if (result.error) {
+                                  toast({
+                                    title: "Erreur de connexion",
+                                    description:
+                                      result.error.message ||
+                                      "Impossible de se connecter à Google Calendar.",
+                                    variant: "destructive",
+                                  });
+                                } else {
+                                  toast({
+                                    title: "Connexion en cours",
+                                    description:
+                                      "Redirection vers Google pour autoriser l'accès à votre calendrier...",
+                                  });
+                                }
+                              }}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                            >
+                              <CalendarIconLucide className="w-4 h-4" />
+                              Connecter Google Calendar
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ),
+                  },
+                  {
+                    id: "share",
+                    label: "Partage",
+                    icon: <Share2 className="w-4 h-4" />,
+                    content: (
+                      <div className="space-y-6">
+                        {/* Affichage utilisateur connecté */}
+                        <UserMenu />
 
-                      return (
-                        <VoteGrid
-                          options={previewOptions}
-                          votes={emptyVotes}
-                          currentVote={currentVote}
-                          userHasVoted={userHasVoted}
-                          onVoteChange={() => {}}
-                          onHaptic={() => {}}
-                        />
-                      );
-                    })()}
-                  </div>
-                </div>
-              </div>
-            )}
-            */}
-
-            {/* Bouton Partager - Toujours visible */}
-            <div className="mt-8">
-              <button
-                onClick={() => {
-                  setState((prev) => ({ ...prev, showShare: true }));
-                  // Scroll vers la section partage après un délai pour permettre le rendu
-                  setTimeout(() => {
-                    shareRef.current?.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    });
-                  }, 100);
-                }}
-                className="w-full py-4 px-6 rounded-2xl font-semibold text-lg text-white flex items-center justify-center transition-all duration-200 bg-blue-500 hover:bg-blue-600 shadow-lg"
-                data-testid="share-poll-button"
-              >
-                <span>Partager</span>
-              </button>
+                        {/* Emails des participants */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">
+                            Emails des participants (séparés par des virgules)
+                          </label>
+                          <textarea
+                            value={state.participantEmails}
+                            onChange={(e) => handleEmailInput(e.target.value)}
+                            rows={3}
+                            className="w-full px-4 py-3 border border-gray-700 bg-[#1e1e1e] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base resize-none"
+                            placeholder="email1@exemple.com, email2@exemple.com"
+                          />
+                        </div>
+                      </div>
+                    ),
+                  },
+                ]}
+                defaultTab="settings"
+                isOpen={state.showSettingsPanel}
+                onOpenChange={(open) => setState((prev) => ({ ...prev, showSettingsPanel: open }))}
+                title="Paramètres et Partage"
+              />
             </div>
 
-            {/* Section partage accessible depuis le bouton principal */}
-            {state.showShare && (
-              <div ref={shareRef} className="p-6 bg-[#0a0a0a] rounded-lg">
-                <div className="space-y-6">
-                  {/* Affichage utilisateur connecté */}
-                  <UserMenu />
-
-                  {/* Paramètres d'expiration */}
-                  <div className="mb-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-orange-600" />
-                        <h3 className="font-semibold text-white">Expiration du sondage</h3>
-                      </div>
+            {/* Boutons d'action - Toujours visibles, désactivés si aucune date sélectionnée */}
+            <TooltipProvider>
+              <div className="mt-8 flex flex-wrap gap-3 justify-end pt-4">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block">
                       <button
-                        onClick={() =>
-                          setState((prev) => ({
-                            ...prev,
-                            showExpirationSettings: !prev.showExpirationSettings,
-                          }))
+                        type="button"
+                        onClick={handleSaveDraft}
+                        disabled={
+                          !state.pollTitle.trim() || state.selectedDates.length === 0 || pollLoading
                         }
-                        className="text-sm text-orange-600 hover:text-orange-800 font-medium"
+                        className="px-6 py-3 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {state.showExpirationSettings ? "Masquer" : "Modifier"}
+                        Enregistrer le brouillon
                       </button>
-                    </div>
-
-                    {state.showExpirationSettings && (
-                      <div className="p-4 bg-orange-900/20 rounded-lg">
-                        <p className="text-sm text-gray-300 mb-3">Le sondage expirera après :</p>
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="number"
-                            min="1"
-                            max="365"
-                            value={state.expirationDays}
-                            onChange={(e) =>
-                              setState((prev) => ({
-                                ...prev,
-                                expirationDays: parseInt(e.target.value) || 30,
-                              }))
-                            }
-                            className="w-16 px-2 py-1 border border-orange-700 bg-[#1e1e1e] text-white rounded text-center"
-                          />
-                          <span className="text-sm text-gray-300">jours</span>
-                        </div>
-                        <p className="text-xs text-gray-400 mt-2">Par défaut: 30 jours</p>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Emails des participants (séparés par des virgules)
-                      </label>
-                      <textarea
-                        value={state.participantEmails}
-                        onChange={(e) => handleEmailInput(e.target.value)}
-                        rows={3}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base resize-none"
-                        placeholder="email1@exemple.com, email2@exemple.com"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Suggestion de connexion pour utilisateur non connecté */}
-                  {!user && (
-                    <div className="p-4 bg-blue-500/5 border border-blue-600 rounded-lg">
-                      <div className="flex items-center gap-2 text-blue-400">
-                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                        <span className="text-sm font-medium">Connexion recommandée</span>
-                      </div>
-                      <p className="text-sm text-gray-300 mt-1">
-                        Connectez-vous pour gérer vos sondages et accéder à plus de fonctionnalités.
+                    </span>
+                  </TooltipTrigger>
+                  {(!state.pollTitle.trim() || state.selectedDates.length === 0 || pollLoading) && (
+                    <TooltipContent>
+                      <p>
+                        {!state.pollTitle.trim()
+                          ? "Veuillez saisir un titre pour le sondage"
+                          : state.selectedDates.length === 0
+                            ? "Veuillez sélectionner au moins une date"
+                            : "Enregistrement en cours..."}
                       </p>
-                      {/* TODO: Implémenter AuthModal ici */}
-                    </div>
+                    </TooltipContent>
                   )}
-
-                  {/* Affichage des erreurs */}
-                  {pollError && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="flex items-center gap-2 text-red-800">
-                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                        <span className="text-sm font-medium">Erreur</span>
-                      </div>
-                      <p className="text-sm text-red-700 mt-1 break-words">{pollError}</p>
-                    </div>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block">
+                      <button
+                        type="button"
+                        onClick={handleFinalize}
+                        disabled={!canFinalize() || pollLoading}
+                        className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {pollLoading ? "Création en cours..." : "Publier le sondage"}
+                      </button>
+                    </span>
+                  </TooltipTrigger>
+                  {(!canFinalize() || pollLoading) && (
+                    <TooltipContent>
+                      <p>
+                        {pollLoading
+                          ? "Publication en cours..."
+                          : !state.pollTitle.trim()
+                            ? "Veuillez saisir un titre pour le sondage"
+                            : state.selectedDates.length === 0
+                              ? "Veuillez sélectionner au moins une date"
+                              : "Veuillez remplir tous les champs requis"}
+                      </p>
+                    </TooltipContent>
                   )}
-
-                  {/* Affichage des erreurs d'email */}
-                  {state.emailErrors.length > 0 && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="flex items-center gap-2 text-red-800">
-                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                        <span className="text-sm font-medium">Emails invalides</span>
-                      </div>
-                      <ul className="text-sm text-red-700 mt-1 list-disc list-inside break-words">
-                        {state.emailErrors.map((error, index) => (
-                          <li key={index}>{error}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Aide pour les exigences */}
-                  {!canFinalize() && !pollLoading && !createdPollSlug && (
-                    <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                      <p className="font-medium mb-1">Pour créer le sondage :</p>
-                      <ul className="space-y-1">
-                        {state.emailErrors.length > 0 && (
-                          <li className="flex items-center gap-2">
-                            <span className="w-2 h-2 bg-red-400 rounded-full flex-shrink-0"></span>
-                            <span>Corrigez les emails invalides</span>
-                          </li>
-                        )}
-                        {state.selectedDates.length === 0 && (
-                          <li className="flex items-center gap-2">
-                            <span className="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0"></span>
-                            <span>Sélectionnez au moins une date</span>
-                          </li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Boutons d'action - Style cohérent avec FormEditor */}
-                  <div className="flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-700">
-                    <button
-                      type="button"
-                      onClick={handleSaveDraft}
-                      disabled={
-                        !state.pollTitle.trim() || state.selectedDates.length === 0 || pollLoading
-                      }
-                      className="px-6 py-3 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Enregistrer
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleFinalize}
-                      disabled={!canFinalize() || pollLoading}
-                      className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {pollLoading ? "Création en cours..." : "Finaliser"}
-                    </button>
-                  </div>
-                </div>
+                </Tooltip>
               </div>
-            )}
+            </TooltipProvider>
           </div>
         </div>
       </div>

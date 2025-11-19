@@ -38,6 +38,7 @@ interface ChatMessageListProps {
   onFeedbackSent: () => void;
   messagesEndRef: React.RefObject<HTMLDivElement>;
   isLoading?: boolean;
+  pollType?: "date" | "form";
 }
 
 export const ChatMessageList: React.FC<ChatMessageListProps> = ({
@@ -53,6 +54,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   onFeedbackSent,
   messagesEndRef,
   isLoading = false,
+  pollType = "date",
 }) => {
   // Vérifier si l'utilisateur a déjà créé au moins un sondage ou formulaire
   const [hasCreatedPoll, setHasCreatedPoll] = useState(() => {
@@ -141,8 +143,9 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 Bonjour ! 👋
               </h3>
               <p className={`mb-4 ${darkTheme ? "text-gray-300" : "text-gray-600"}`}>
-                Je suis votre assistant IA pour créer des sondages de dates et des questionnaires.
-                Décrivez-moi ce que vous souhaitez !
+                {pollType === "form"
+                  ? "Je suis votre assistant IA pour créer des formulaires et des questionnaires. Décrivez-moi ce que vous souhaitez !"
+                  : "Je suis votre assistant IA pour créer des sondages de dates et des questionnaires. Décrivez-moi ce que vous souhaitez !"}
               </p>
               {!hasCreatedPoll && (
                 <div
@@ -186,6 +189,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                   </div>
                 )}
                 <div
+                  data-testid="chat-message"
                   className={`max-w-[80%] ${
                     message.isAI
                       ? darkTheme
@@ -223,7 +227,18 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                                             ? "Choix unique"
                                             : question.type === "multiple"
                                               ? "Choix multiples"
-                                              : "Texte libre"}
+                                              : question.type === "text" ||
+                                                  question.type === "long-text"
+                                                ? "Texte libre"
+                                                : question.type === "date"
+                                                  ? "Date"
+                                                  : question.type === "matrix"
+                                                    ? "Matrice"
+                                                    : question.type === "rating"
+                                                      ? "Échelle de notation"
+                                                      : question.type === "nps"
+                                                        ? "Net Promoter Score"
+                                                        : "Question"}
                                         </span>
                                         {question.required && (
                                           <span className="text-red-400 ml-2">• Obligatoire</span>

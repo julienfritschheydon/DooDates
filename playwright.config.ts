@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import * as os from 'os';
 
 // Charger les variables d'environnement depuis .env.local
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
@@ -19,13 +20,14 @@ export default defineConfig({
     '**/OLD/**',
     // Explicitly exclude Vitest test files that would conflict with Playwright's expect
     'temporal-prompts-validation.test.ts',
-    // Tests de tracking des crédits - en cours de développement, pas encore intégrés
-    '**/quota-tracking-complete.spec.ts', // Tous les tests fonctionnent, mais fichier exclu par défaut pour éviter exécution automatique
+    // Tests de tracking des crédits - maintenant migrés et prêts pour tests
+    // '**/quota-tracking-complete.spec.ts', // Retiré de l'exclusion après migration
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 3 : undefined,
+  // Utiliser plus de workers pour accélérer l'exécution (75% des CPU disponibles en local, 3 en CI)
+  workers: process.env.CI ? 3 : Math.floor(os.cpus().length * 0.75),
   reporter: 'html',
   timeout: 60000,
   use: {
@@ -69,8 +71,11 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev:e2e',
     url: 'http://localhost:8080',
-    reuseExistingServer: !process.env.CI,
+    // Temporairement activé pour utiliser le serveur existant
+    reuseExistingServer: true,
     timeout: 120 * 1000,
+    stdout: 'pipe',
+    stderr: 'pipe',
     env: {
       // Injecter les variables d'environnement de test dans le serveur de dev
       // Utiliser localhost:8080 comme URL factice pour que les mocks puissent intercepter

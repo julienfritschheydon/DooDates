@@ -47,7 +47,7 @@ export const PollHeader: React.FC<PollHeaderProps> = ({
       {/* Titre et description */}
       <div className="text-center">
         <h1 className="text-lg sm:text-xl font-bold text-white leading-tight">{poll?.title}</h1>
-        <p className="text-gray-400 text-sm mt-1">{poll?.description}</p>
+        {poll?.description && <p className="text-gray-400 text-sm mt-1">{poll?.description}</p>}
 
         {/* Info simple sous le titre */}
         <div className="flex justify-center gap-4 mt-3 text-sm text-gray-400">

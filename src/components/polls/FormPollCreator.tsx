@@ -1,6 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Undo2, Save, Check, X, List, ArrowRight, Lightbulb } from "lucide-react";
-import CloseButton from "@/components/ui/CloseButton";
+import {
+  Undo2,
+  Save,
+  Check,
+  X,
+  List,
+  ArrowRight,
+  Lightbulb,
+  ChevronDown,
+  ChevronUp,
+  Settings,
+} from "lucide-react";
 import FormEditor from "./FormEditor";
 import type { Question as EditorQuestion } from "./QuestionCard";
 import {
@@ -23,6 +33,7 @@ import { ThemeSelector } from "./ThemeSelector";
 import { DEFAULT_THEME } from "../../lib/themes";
 import { FormSimulationIntegration } from "../simulation/FormSimulationIntegration";
 import { useFormPollCreation } from "../../hooks/useFormPollCreation";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 // Types locaux au spike (pas encore partagés avec un modèle global)
 export type FormQuestionType =
@@ -32,7 +43,8 @@ export type FormQuestionType =
   | "long-text"
   | "matrix"
   | "rating"
-  | "nps";
+  | "nps"
+  | "date";
 
 export interface FormOption {
   id: string;
@@ -87,13 +99,23 @@ export interface NPSQuestion extends FormQuestionBase {
   type: "nps";
 }
 
+export interface DateQuestion extends FormQuestionBase {
+  type: "date";
+  selectedDates: string[]; // Dates au format ISO string (YYYY-MM-DD)
+  timeSlotsByDate?: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>; // Créneaux horaires par date
+  timeGranularity?: "15min" | "30min" | "1h"; // Granularité des créneaux horaires
+  allowMaybeVotes?: boolean; // Permettre les votes "peut-être"
+  allowAnonymousVotes?: boolean; // Permettre les votes anonymes
+}
+
 export type AnyFormQuestion =
   | SingleOrMultipleQuestion
   | TextQuestion
   | LongTextQuestion
   | MatrixQuestion
   | RatingQuestion
-  | NPSQuestion;
+  | NPSQuestion
+  | DateQuestion;
 
 export interface FormPollDraft {
   id: string; // draft id (temporaire pour le spike)
@@ -131,7 +153,19 @@ export default function FormPollCreator({
   const { modifiedQuestionId, modifiedField } = useUIState();
 
   const [title, setTitle] = useState(initialDraft?.title || "");
-  const [questions, setQuestions] = useState<AnyFormQuestion[]>(initialDraft?.questions || []);
+  const [questions, setQuestions] = useState<AnyFormQuestion[]>(
+    initialDraft?.questions?.length > 0
+      ? initialDraft.questions
+      : [
+          {
+            id: uid(),
+            type: "single",
+            title: "Nouvelle question",
+            required: false,
+            options: defaultOptions(),
+          } as SingleOrMultipleQuestion,
+        ],
+  );
   const [conditionalRules, setConditionalRules] = useState<ConditionalRule[]>(
     initialDraft?.conditionalRules || [],
   );
@@ -159,6 +193,9 @@ export default function FormPollCreator({
   const [resultsVisibility, setResultsVisibility] = useState<"creator-only" | "voters" | "public">(
     initialDraft?.resultsVisibility || "creator-only",
   );
+
+  // État pour contrôler l'ouverture du panneau de configuration (fermé par défaut)
+  const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
 
   // Si le brouillon change (montée en props), synchroniser l'état
   useEffect(() => {
@@ -207,6 +244,11 @@ export default function FormPollCreator({
       ratingMaxLabel: (q as FormQuestionShape).ratingMaxLabel,
       validationType: (q as FormQuestionShape).validationType,
       placeholder: (q as FormQuestionShape).placeholder,
+      selectedDates: (q as DateQuestion).selectedDates,
+      timeSlotsByDate: (q as DateQuestion).timeSlotsByDate,
+      timeGranularity: (q as DateQuestion).timeGranularity,
+      allowMaybeVotes: (q as DateQuestion).allowMaybeVotes,
+      allowAnonymousVotes: (q as DateQuestion).allowAnonymousVotes,
     }));
 
   const fromEditorQuestions = (qs: EditorQuestion[]): AnyFormQuestion[] =>
@@ -270,6 +312,20 @@ export default function FormPollCreator({
         };
         return base;
       }
+      if (q.kind === "date") {
+        const base: DateQuestion = {
+          id: q.id,
+          type: "date",
+          title: q.title,
+          required: !!q.required,
+          selectedDates: q.selectedDates ?? [],
+          timeSlotsByDate: q.timeSlotsByDate ?? {},
+          timeGranularity: q.timeGranularity ?? "30min",
+          allowMaybeVotes: q.allowMaybeVotes ?? false,
+          allowAnonymousVotes: q.allowAnonymousVotes ?? false,
+        };
+        return base;
+      }
       const base: SingleOrMultipleQuestion = {
         id: q.id,
         type: q.kind === "multiple" ? "multiple" : "single",
@@ -326,6 +382,13 @@ export default function FormPollCreator({
           base.matrixColumns = mq.matrixColumns;
           base.matrixType = mq.matrixType;
           base.matrixColumnsNumeric = mq.matrixColumnsNumeric;
+        } else if (q.type === "date") {
+          const dq = q as DateQuestion;
+          base.selectedDates = dq.selectedDates;
+          base.timeSlotsByDate = dq.timeSlotsByDate;
+          base.timeGranularity = dq.timeGranularity;
+          base.allowMaybeVotes = dq.allowMaybeVotes;
+          base.allowAnonymousVotes = dq.allowAnonymousVotes;
         }
         return base;
       }),
@@ -404,6 +467,21 @@ export default function FormPollCreator({
       setQuestions((prev) => [...prev, q]);
       return;
     }
+    if (type === "date") {
+      const q: DateQuestion = {
+        id: uid(),
+        type: "date",
+        title: "Nouvelle question de date",
+        required: false,
+        selectedDates: [],
+        timeSlotsByDate: {},
+        timeGranularity: "30min",
+        allowMaybeVotes: false,
+        allowAnonymousVotes: false,
+      };
+      setQuestions((prev) => [...prev, q]);
+      return;
+    }
     const q: SingleOrMultipleQuestion = {
       id: uid(),
       type: type === "multiple" ? "multiple" : "single",
@@ -464,10 +542,19 @@ export default function FormPollCreator({
         // ✅ Poll existe déjà → Mettre à jour au lieu de créer un nouveau
         logger.info("📝 Mise à jour poll existant", "poll", { pollId: existingPoll.id });
 
-        const updatedPoll = {
+        const updatedPoll: Poll = {
           ...existingPoll,
           title: draft.title,
-          questions: draft.questions,
+          questions: draft.questions.map((q) => ({
+            ...q,
+            kind: q.type,
+            // S'assurer que tous les champs de date sont bien copiés
+            selectedDates: (q as DateQuestion).selectedDates,
+            timeSlotsByDate: (q as DateQuestion).timeSlotsByDate,
+            timeGranularity: (q as DateQuestion).timeGranularity,
+            allowMaybeVotes: (q as DateQuestion).allowMaybeVotes,
+            allowAnonymousVotes: (q as DateQuestion).allowAnonymousVotes,
+          })) as FormQuestionShape[],
           status: "active" as const,
           updated_at: new Date().toISOString(),
         };
@@ -478,32 +565,48 @@ export default function FormPollCreator({
         saved = updatedPoll;
       } else {
         // ✅ Nouveau poll → Créer via le hook centralisé
+        // Récupérer le slug du draft sauvegardé pour le conserver lors de la publication
+        const draftPoll = getAllPolls().find((p) => p.id === draft.id);
+        const draftSlug = draftPoll?.slug;
+
+        const mappedQuestions = draft.questions.map((q) => {
+          const mapped = {
+            id: q.id,
+            type: q.type,
+            title: q.title,
+            required: q.required,
+            options: (q as SingleOrMultipleQuestion).options,
+            maxChoices: (q as SingleOrMultipleQuestion).maxChoices,
+            placeholder: (q as TextQuestion | LongTextQuestion).placeholder,
+            maxLength: (q as TextQuestion | LongTextQuestion).maxLength,
+            matrixRows: (q as MatrixQuestion).matrixRows,
+            matrixColumns: (q as MatrixQuestion).matrixColumns,
+            matrixType: (q as MatrixQuestion).matrixType,
+            matrixColumnsNumeric: (q as MatrixQuestion).matrixColumnsNumeric,
+            ratingScale: (q as RatingQuestion).ratingScale,
+            ratingStyle: (q as RatingQuestion).ratingStyle,
+            ratingMinLabel: (q as RatingQuestion).ratingMinLabel,
+            ratingMaxLabel: (q as RatingQuestion).ratingMaxLabel,
+            validationType: (q as TextQuestion | LongTextQuestion).validationType,
+            selectedDates: (q as DateQuestion).selectedDates,
+            timeSlotsByDate: (q as DateQuestion).timeSlotsByDate,
+            timeGranularity: (q as DateQuestion).timeGranularity,
+            allowMaybeVotes: (q as DateQuestion).allowMaybeVotes,
+            allowAnonymousVotes: (q as DateQuestion).allowAnonymousVotes,
+          };
+
+          return mapped;
+        });
+
         const { poll, error } = await createFormPoll({
           title: draft.title,
           description: undefined,
-          questions: draft.questions.map((q: FormQuestionShape) => ({
-            id: q.id,
-            kind: q.kind || q.type,
-            title: q.title,
-            required: q.required,
-            options: q.options,
-            maxChoices: q.maxChoices,
-            placeholder: q.placeholder,
-            maxLength: q.maxLength,
-            matrixRows: q.matrixRows,
-            matrixColumns: q.matrixColumns,
-            matrixType: q.matrixType,
-            matrixColumnsNumeric: q.matrixColumnsNumeric,
-            ratingScale: q.ratingScale,
-            ratingStyle: q.ratingStyle,
-            ratingMinLabel: q.ratingMinLabel,
-            ratingMaxLabel: q.ratingMaxLabel,
-            validationType: q.validationType,
-          })),
+          questions: mappedQuestions,
           settings: {
             allowAnonymousResponses: true,
             expiresAt: undefined,
           },
+          slug: draftSlug, // Conserver le slug du draft lors de la publication
         });
 
         if (error || !poll) {
@@ -513,9 +616,16 @@ export default function FormPollCreator({
         saved = poll;
       }
 
-      // Supprimer les anciens brouillons avec le même ID
+      // Supprimer les anciens brouillons avec le même ID (même s'ils ont été mis à jour avec status "active")
       const all = getAllPolls();
-      const withoutOldDrafts = all.filter((p) => !(p.id === draft.id && p.status === "draft"));
+      const withoutOldDrafts = all.filter((p) => {
+        // Supprimer le draft s'il a le même ID que le draft actuel
+        // Même s'il a été mis à jour avec status "active" (cas où le draft a été publié mais n'a pas été remplacé)
+        if (p.id === draft.id && p.id.startsWith("draft-")) {
+          return false; // Supprimer ce poll
+        }
+        return true; // Garder ce poll
+      });
       savePolls(withoutOldDrafts);
 
       // Passer le poll sauvegardé complet (avec slug) au callback
@@ -531,145 +641,9 @@ export default function FormPollCreator({
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]" data-form-container>
-      {/* Header sticky avec bouton fermer - Style identique aux sondages */}
-      {onCancel && (
-        <div className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-gray-800">
-          <div className="max-w-6xl mx-auto px-4 py-3 flex justify-end">
-            <CloseButton onClick={onCancel} ariaLabel="Fermer" iconSize={6} />
-          </div>
-        </div>
-      )}
-
       <div className="px-4 md:px-6 pt-6 pb-40">
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#0a0a0a]">
-            {/* Toggle Mode d'affichage */}
-            <div className="mb-6 p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
-              <label className="block text-sm font-medium text-gray-300 mb-3">
-                Mode d'affichage du formulaire
-              </label>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Option 1 : Classique */}
-                <button
-                  onClick={() => setDisplayMode("all-at-once")}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
-                    displayMode === "all-at-once"
-                      ? "border-purple-500 bg-purple-900/20"
-                      : "border-gray-700 hover:border-gray-600"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <List className="w-5 h-5 text-purple-400" />
-                    <span className="font-medium text-white">Classique</span>
-                    {displayMode === "all-at-once" && (
-                      <Check className="w-4 h-4 text-purple-400 ml-auto" />
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-400 mb-2">
-                    Toutes les questions visibles en même temps
-                  </p>
-                  <div className="text-xs text-gray-500 space-y-1">
-                    <p>✓ Rapide à remplir</p>
-                    <p>✓ Vue d'ensemble</p>
-                    <p>⚠ Peut intimider si &gt;5 questions</p>
-                  </div>
-                </button>
-
-                {/* Option 2 : Multi-step */}
-                <button
-                  onClick={() => setDisplayMode("multi-step")}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
-                    displayMode === "multi-step"
-                      ? "border-purple-500 bg-purple-900/20"
-                      : "border-gray-700 hover:border-gray-600"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <ArrowRight className="w-5 h-5 text-purple-400" />
-                    <span className="font-medium text-white">Une par une</span>
-                    <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded">
-                      Style Typeform
-                    </span>
-                    {displayMode === "multi-step" && (
-                      <Check className="w-4 h-4 text-purple-400 ml-auto" />
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-400 mb-2">Une question à la fois, plein écran</p>
-                  <div className="text-xs text-gray-500 space-y-1">
-                    <p>✓ +25% taux complétion</p>
-                    <p>✓ Moins intimidant</p>
-                    <p>✓ Parfait mobile</p>
-                  </div>
-                </button>
-              </div>
-
-              {/* Suggestion IA */}
-              {suggestedDisplayMode !== displayMode && (
-                <div className="mt-3 p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-lg flex items-start gap-2">
-                  <Lightbulb className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
-                  <div className="text-xs text-yellow-200">
-                    <p className="font-medium mb-1">💡 Suggestion IA</p>
-                    <p>
-                      {suggestedDisplayMode === "multi-step"
-                        ? `Votre formulaire a ${questions.length} questions. Nous recommandons le mode "Une par une" pour maximiser le taux de complétion (+25%).`
-                        : "Le mode Classique est recommandé pour les formulaires courts."}
-                    </p>
-                    <button
-                      onClick={() => setDisplayMode(suggestedDisplayMode)}
-                      className="mt-2 text-yellow-400 hover:text-yellow-300 underline"
-                    >
-                      Utiliser la suggestion
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Paramètres de visibilité des résultats */}
-            <div className="mb-6 p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
-              <label className="block text-sm font-medium text-gray-300 mb-3">
-                Visibilité des résultats
-              </label>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="resultsVisibility"
-                    value="creator-only"
-                    checked={resultsVisibility === "creator-only"}
-                    onChange={(e) => setResultsVisibility(e.target.value as "creator-only")}
-                    className="cursor-pointer"
-                  />
-                  <span className="text-white">Moi uniquement</span>
-                  <span className="text-xs text-gray-500">(par défaut)</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="resultsVisibility"
-                    value="voters"
-                    checked={resultsVisibility === "voters"}
-                    onChange={(e) => setResultsVisibility(e.target.value as "voters")}
-                    className="cursor-pointer"
-                  />
-                  <span className="text-white">Personnes ayant voté</span>
-                  <span className="text-xs text-gray-500">(recommandé)</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="resultsVisibility"
-                    value="public"
-                    checked={resultsVisibility === "public"}
-                    onChange={(e) => setResultsVisibility(e.target.value as "public")}
-                    className="cursor-pointer"
-                  />
-                  <span className="text-white">Public (tout le monde)</span>
-                </label>
-              </div>
-            </div>
-
             <div className="space-y-4">
               <FormEditor
                 value={{
@@ -714,7 +688,10 @@ export default function FormPollCreator({
                       questions={questions.map((q) => ({
                         id: q.id,
                         title: q.title,
-                        type: q.type === "rating" || q.type === "nps" ? "single" : q.type,
+                        type:
+                          q.type === "rating" || q.type === "nps" || q.type === "date"
+                            ? "single"
+                            : q.type,
                         required: q.required,
                         options:
                           q.type === "single" || q.type === "multiple"
@@ -731,6 +708,160 @@ export default function FormPollCreator({
                       buttonVariant="secondary"
                     />
                   ) : undefined
+                }
+                configPanel={
+                  <Collapsible open={isConfigPanelOpen} onOpenChange={setIsConfigPanelOpen}>
+                    <CollapsibleTrigger className="w-full flex items-center justify-between p-4 bg-[#1e1e1e] rounded-lg border border-gray-800 hover:bg-[#2a2a2a] transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Settings className="w-5 h-5 text-gray-300" />
+                        <span className="text-sm font-medium text-gray-300">
+                          Paramètres de configuration
+                        </span>
+                      </div>
+                      {isConfigPanelOpen ? (
+                        <ChevronUp className="w-5 h-5 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                      )}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-2 space-y-4">
+                      {/* Toggle Mode d'affichage */}
+                      <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
+                        <label className="block text-sm font-medium text-gray-300 mb-3">
+                          Mode d'affichage du formulaire
+                        </label>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Option 1 : Classique */}
+                          <button
+                            onClick={() => setDisplayMode("all-at-once")}
+                            className={`p-4 rounded-lg border-2 text-left transition-all ${
+                              displayMode === "all-at-once"
+                                ? "border-purple-500 bg-purple-900/20"
+                                : "border-gray-700 hover:border-gray-600"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 mb-2">
+                              <List className="w-5 h-5 text-purple-400" />
+                              <span className="font-medium text-white">Classique</span>
+                              {displayMode === "all-at-once" && (
+                                <Check className="w-4 h-4 text-purple-400 ml-auto" />
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-400 mb-2">
+                              Toutes les questions visibles en même temps
+                            </p>
+                            <div className="text-xs text-gray-500 space-y-1">
+                              <p>✓ Rapide à remplir</p>
+                              <p>✓ Vue d'ensemble</p>
+                              <p>⚠ Peut intimider si &gt;5 questions</p>
+                            </div>
+                          </button>
+
+                          {/* Option 2 : Multi-step */}
+                          <button
+                            onClick={() => setDisplayMode("multi-step")}
+                            className={`p-4 rounded-lg border-2 text-left transition-all ${
+                              displayMode === "multi-step"
+                                ? "border-purple-500 bg-purple-900/20"
+                                : "border-gray-700 hover:border-gray-600"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 mb-2">
+                              <ArrowRight className="w-5 h-5 text-purple-400" />
+                              <span className="font-medium text-white">Une par une</span>
+                              <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded">
+                                Style Typeform
+                              </span>
+                              {displayMode === "multi-step" && (
+                                <Check className="w-4 h-4 text-purple-400 ml-auto" />
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-400 mb-2">
+                              Une question à la fois, plein écran
+                            </p>
+                            <div className="text-xs text-gray-500 space-y-1">
+                              <p>✓ +25% taux complétion</p>
+                              <p>✓ Moins intimidant</p>
+                              <p>✓ Parfait mobile</p>
+                            </div>
+                          </button>
+                        </div>
+
+                        {/* Suggestion IA */}
+                        {suggestedDisplayMode !== displayMode && (
+                          <div className="mt-3 p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-lg flex items-start gap-2">
+                            <Lightbulb className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+                            <div className="text-xs text-yellow-200">
+                              <p className="font-medium mb-1">💡 Suggestion IA</p>
+                              <p>
+                                {suggestedDisplayMode === "multi-step"
+                                  ? `Votre formulaire a ${questions.length} questions. Nous recommandons le mode "Une par une" pour maximiser le taux de complétion (+25%).`
+                                  : "Le mode Classique est recommandé pour les formulaires courts."}
+                              </p>
+                              <button
+                                onClick={() => setDisplayMode(suggestedDisplayMode)}
+                                className="mt-2 text-yellow-400 hover:text-yellow-300 underline"
+                              >
+                                Utiliser la suggestion
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Paramètres de visibilité des résultats */}
+                      <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
+                        <label className="block text-sm font-medium text-gray-300 mb-3">
+                          Visibilité des résultats
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="resultsVisibility"
+                              value="creator-only"
+                              checked={resultsVisibility === "creator-only"}
+                              onChange={(e) =>
+                                setResultsVisibility(e.target.value as "creator-only")
+                              }
+                              className="cursor-pointer"
+                            />
+                            <span className="text-white">Moi uniquement</span>
+                            <span className="text-xs text-gray-500">(par défaut)</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="resultsVisibility"
+                              value="voters"
+                              checked={resultsVisibility === "voters"}
+                              onChange={(e) => setResultsVisibility(e.target.value as "voters")}
+                              className="cursor-pointer"
+                            />
+                            <span className="text-white">Personnes ayant voté</span>
+                            <span className="text-xs text-gray-500">(recommandé)</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="resultsVisibility"
+                              value="public"
+                              checked={resultsVisibility === "public"}
+                              onChange={(e) => setResultsVisibility(e.target.value as "public")}
+                              className="cursor-pointer"
+                            />
+                            <span className="text-white">Public (tout le monde)</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Sélecteur de thème */}
+                      <div className="p-4 bg-[#1e1e1e] rounded-lg border border-gray-800">
+                        <ThemeSelector selectedThemeId={themeId} onThemeChange={setThemeId} />
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 }
               />
             </div>
@@ -792,6 +923,29 @@ function validateDraft(draft: FormPollDraft): {
       }
       if (rq.ratingStyle && !["numbers", "stars", "emojis"].includes(rq.ratingStyle)) {
         errors.push(`Question ${idx + 1}: style invalide`);
+      }
+    } else if (q.type === "date") {
+      const dq = q as DateQuestion;
+      if (!dq.selectedDates || dq.selectedDates.length === 0) {
+        errors.push(`Question ${idx + 1}: au moins une date doit être sélectionnée`);
+      }
+      if (dq.timeGranularity && !["15min", "30min", "1h"].includes(dq.timeGranularity)) {
+        errors.push(`Question ${idx + 1}: granularité doit être 15min, 30min ou 1h`);
+      }
+      // Valider que les horaires sont valides pour chaque date
+      if (dq.timeSlotsByDate) {
+        for (const [dateStr, slots] of Object.entries(dq.timeSlotsByDate)) {
+          if (!dq.selectedDates.includes(dateStr)) {
+            errors.push(
+              `Question ${idx + 1}: horaires configurés pour une date non sélectionnée (${dateStr})`,
+            );
+          }
+          for (const slot of slots) {
+            if (slot.hour < 0 || slot.hour > 23 || slot.minute < 0 || slot.minute > 59) {
+              errors.push(`Question ${idx + 1}: horaire invalide (${slot.hour}:${slot.minute})`);
+            }
+          }
+        }
       }
     }
     // NPS n'a pas de validation spécifique

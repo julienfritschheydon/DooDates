@@ -6,13 +6,36 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Calendar, Clock, Send, X, CheckCircle2, Loader2, Sparkles, Zap } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Send,
+  X,
+  CheckCircle2,
+  Loader2,
+  Sparkles,
+  Zap,
+  Download,
+  ExternalLink,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { parseAvailabilitiesWithAI, parseAvailabilitiesSimple } from "@/lib/availability-parser";
 import { getTodayLocal, formatDateLocal } from "@/lib/date-utils";
 import { GoogleCalendarService } from "@/lib/google-calendar";
 import { useAuth } from "@/contexts/AuthContext";
 import { logger } from "@/lib/logger";
+import {
+  createTemporaryReservation,
+  releaseTemporaryReservation,
+  isSlotReserved,
+  cleanupExpiredReservations,
+} from "@/services/temporaryReservation";
+import {
+  generateICS,
+  downloadICS,
+  generateGoogleCalendarLink,
+  generateOutlookCalendarLink,
+} from "@/lib/calendar-ics";
 
 // Convertir disponibilités parsées (jours de la semaine) en dates concrètes
 function convertAvailabilitiesToDates(
@@ -200,11 +223,26 @@ const AvailabilityPollVote = () => {
   };
 
   const handleValidateSlot = async (slot: { date: string; start: string; end: string }) => {
+    // Utiliser pollState si disponible, sinon poll
+    const currentPoll = pollState || poll;
+
+    if (!currentPoll || !currentPoll.id) {
+      toast({
+        title: "Erreur",
+        description: "Sondage introuvable. Veuillez rafraîchir la page.",
+        variant: "destructive",
+      });
+      logger.error("Poll introuvable lors de la validation", "poll", { poll, pollState });
+      return;
+    }
+
+    logger.info("Validation créneau démarrée", "poll", { pollId: currentPoll.id, slot });
+
     // Nettoyer les réservations expirées
     cleanupExpiredReservations();
 
     // Vérifier si le créneau est déjà réservé temporairement (Phase 3)
-    if (isSlotReserved(poll.id, slot)) {
+    if (isSlotReserved(currentPoll.id, slot)) {
       toast({
         title: "Créneau temporairement réservé",
         description:
@@ -215,7 +253,7 @@ const AvailabilityPollVote = () => {
     }
 
     // Créer une réservation temporaire (Phase 3)
-    createTemporaryReservation(poll.id, slot);
+    createTemporaryReservation(currentPoll.id, slot);
 
     // Vérifier si le professionnel a connecté son calendrier
     if (!calendarService) {
@@ -266,7 +304,7 @@ const AvailabilityPollVote = () => {
 
           if (overlaps) {
             // Libérer la réservation temporaire si le créneau est occupé
-            releaseTemporaryReservation(poll.id, slot);
+            releaseTemporaryReservation(currentPoll.id, slot);
             toast({
               title: "Créneau occupé",
               description: "Ce créneau n'est plus disponible. Veuillez choisir un autre créneau.",
@@ -277,8 +315,8 @@ const AvailabilityPollVote = () => {
           }
 
           // Créer l'événement
-          const eventTitle = poll.title || "Rendez-vous";
-          const eventDescription = poll.description || "";
+          const eventTitle = currentPoll.title || "Rendez-vous";
+          const eventDescription = currentPoll.description || "";
 
           await calendarService.createEvent({
             summary: eventTitle,
@@ -289,10 +327,10 @@ const AvailabilityPollVote = () => {
 
           eventCreated = true;
           // Libérer la réservation temporaire après création réussie de l'événement
-          releaseTemporaryReservation(poll.id, slot);
+          releaseTemporaryReservation(currentPoll.id, slot);
         } catch (calendarError) {
           // Si erreur calendrier, libérer la réservation temporaire
-          releaseTemporaryReservation(poll.id, slot);
+          releaseTemporaryReservation(currentPoll.id, slot);
           // Si erreur calendrier, continuer quand même avec la validation
           logger.warn(
             "Erreur lors de la création de l'événement calendrier",
@@ -310,18 +348,29 @@ const AvailabilityPollVote = () => {
 
       // Marquer le créneau comme validé dans le poll
       const allPolls = getAllPolls();
-      const pollIndex = allPolls.findIndex((p) => p.id === poll.id);
+      const pollIndex = allPolls.findIndex((p) => p.id === currentPoll.id);
 
-      if (pollIndex !== -1) {
-        const updatedPoll = {
-          ...allPolls[pollIndex],
-          validatedSlot: slot,
-          updated_at: new Date().toISOString(),
-        };
-        allPolls[pollIndex] = updatedPoll as import("../../lib/pollStorage").Poll;
-        savePolls(allPolls);
-        setPollState(updatedPoll);
+      if (pollIndex === -1) {
+        logger.error("Poll non trouvé dans getAllPolls", "poll", { pollId: currentPoll.id });
+        toast({
+          title: "Erreur",
+          description: "Impossible de sauvegarder la validation. Veuillez réessayer.",
+          variant: "destructive",
+        });
+        setIsValidating(false);
+        return;
       }
+
+      const updatedPoll = {
+        ...allPolls[pollIndex],
+        validatedSlot: slot,
+        updated_at: new Date().toISOString(),
+      };
+      allPolls[pollIndex] = updatedPoll as import("../lib/pollStorage").Poll;
+      savePolls(allPolls);
+      setPollState(updatedPoll);
+
+      logger.info("Créneau validé avec succès", "poll", { pollId: currentPoll.id, slot });
 
       setValidatedSlot(slotKey);
       toast({
@@ -395,6 +444,91 @@ const AvailabilityPollVote = () => {
                     ✅ L'événement a été créé automatiquement dans le calendrier du professionnel.
                   </AlertDescription>
                 </Alert>
+
+                {/* Ajouter à mon calendrier */}
+                {slot && (
+                  <div className="space-y-3">
+                    <Label className="text-gray-300 text-sm font-medium">
+                      Ajouter à mon calendrier :
+                    </Label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button
+                        onClick={() => {
+                          const startDate = new Date(`${slot.date}T${slot.start}:00`);
+                          const endDate = new Date(`${slot.date}T${slot.end}:00`);
+                          const event = {
+                            title: poll?.title || pollState?.title || "Rendez-vous",
+                            description: poll?.description || pollState?.description || "",
+                            start: startDate,
+                            end: endDate,
+                          };
+                          const icsContent = generateICS(event);
+                          downloadICS(
+                            `rendez-vous-${slot.date}-${slot.start.replace(":", "h")}.ics`,
+                            icsContent,
+                          );
+                          toast({
+                            title: "Fichier téléchargé",
+                            description: "Ajoutez le fichier .ics à votre calendrier.",
+                          });
+                        }}
+                        variant="outline"
+                        className="flex-1 border-blue-600 text-blue-400 hover:bg-blue-600/20"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Télécharger .ics
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          const startDate = new Date(`${slot.date}T${slot.start}:00`);
+                          const endDate = new Date(`${slot.date}T${slot.end}:00`);
+                          const event = {
+                            title: poll?.title || pollState?.title || "Rendez-vous",
+                            description: poll?.description || pollState?.description || "",
+                            start: startDate,
+                            end: endDate,
+                          };
+                          window.open(generateGoogleCalendarLink(event), "_blank");
+                        }}
+                        variant="outline"
+                        className="flex-1 border-green-600 text-green-400 hover:bg-green-600/20"
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Google Calendar
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          const startDate = new Date(`${slot.date}T${slot.start}:00`);
+                          const endDate = new Date(`${slot.date}T${slot.end}:00`);
+                          const event = {
+                            title: poll?.title || pollState?.title || "Rendez-vous",
+                            description: poll?.description || pollState?.description || "",
+                            start: startDate,
+                            end: endDate,
+                          };
+                          window.open(generateOutlookCalendarLink(event), "_blank");
+                        }}
+                        variant="outline"
+                        className="flex-1 border-purple-600 text-purple-400 hover:bg-purple-600/20"
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Outlook
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Voir les résultats si autorisé */}
+                {(poll?.resultsVisibility === "public" || poll?.resultsVisibility === "voters") && (
+                  <Button
+                    onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
+                    variant="outline"
+                    className="w-full border-blue-600 text-blue-400 hover:bg-blue-600/20 mb-2"
+                  >
+                    Voir les résultats
+                  </Button>
+                )}
+
                 <Button
                   onClick={() => navigate("/")}
                   className="w-full bg-green-600 hover:bg-green-700"
@@ -444,6 +578,15 @@ const AvailabilityPollVote = () => {
                     </ul>
                   </AlertDescription>
                 </Alert>
+                {(poll?.resultsVisibility === "public" || poll?.resultsVisibility === "voters") && (
+                  <Button
+                    onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
+                    variant="outline"
+                    className="w-full border-blue-600 text-blue-400 hover:bg-blue-600/20 mb-2"
+                  >
+                    Voir les résultats
+                  </Button>
+                )}
                 <Button
                   onClick={() => navigate("/")}
                   className="w-full bg-green-600 hover:bg-green-700"

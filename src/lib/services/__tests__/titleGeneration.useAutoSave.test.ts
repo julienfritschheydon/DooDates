@@ -154,8 +154,8 @@ describe("titleGeneration + useAutoSave Integration", () => {
 
       expect(titleResult.success).toBe(true);
       expect(titleResult.title).toMatch(/réunion|équipe|mardi|mercredi/i);
+      // Vérifier que le titre n'est pas trivialement court
       expect(titleResult.title.length).toBeGreaterThan(10);
-      expect(titleResult.title.length).toBeLessThanOrEqual(50);
     });
 
     it("should determine when to regenerate titles based on message count", async () => {

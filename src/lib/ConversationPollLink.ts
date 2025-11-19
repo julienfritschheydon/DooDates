@@ -33,12 +33,12 @@ import type { Conversation } from "../types/conversation";
  *
  * @param conversationId - ID de la conversation
  * @param pollId - ID du poll
- * @param pollType - Type du poll ("date" ou "form")
+ * @param pollType - Type du poll ("date", "form" ou "availability")
  */
 export function linkPollToConversationBidirectional(
   conversationId: string,
   pollId: string,
-  pollType: "date" | "form",
+  pollType: "date" | "form" | "availability",
 ): void {
   try {
     logger.info("🔗 Liaison bidirectionnelle conversation ↔ poll", "conversation", {
@@ -180,13 +180,13 @@ export function unlinkPollFromConversation(conversationId: string): void {
  *
  * @param pollId - ID du poll
  * @param pollTitle - Titre du poll
- * @param pollType - Type du poll ("date" ou "form")
+ * @param pollType - Type du poll ("date", "form" ou "availability")
  * @returns ID de la conversation créée ou existante
  */
 export function createConversationForPoll(
   pollId: string,
   pollTitle: string,
-  pollType: "date" | "form",
+  pollType: "date" | "form" | "availability",
 ): string {
   try {
     logger.info("🆕 Création conversation vide pour poll manuel", "conversation", {
@@ -222,7 +222,11 @@ export function createConversationForPoll(
     const conversation = createConversation({
       title: pollTitle,
       firstMessage:
-        pollType === "date" ? "Sondage de dates créé manuellement" : "Formulaire créé manuellement",
+        pollType === "date"
+          ? "Sondage de dates créé manuellement"
+          : pollType === "availability"
+            ? "Sondage de disponibilités créé manuellement"
+            : "Formulaire créé manuellement",
       userId: userId, // undefined sera converti en "guest" par createConversation
     });
 

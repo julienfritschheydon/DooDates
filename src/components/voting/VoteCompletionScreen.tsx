@@ -5,11 +5,17 @@ import { Check } from "lucide-react";
 interface VoteCompletionScreenProps {
   voterName?: string;
   onBack: () => void;
+  onViewResults?: () => void;
+  title?: string;
+  subtitle?: string;
 }
 
 const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
   voterName = "Participant",
   onBack,
+  onViewResults,
+  title = "Vote enregistré !",
+  subtitle,
 }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-400 to-emerald-600">
@@ -27,9 +33,10 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
           >
             <Check className="w-10 h-10 text-green-500" />
           </motion.div>
-          <h2 className="text-2xl font-bold mb-2">Vote enregistré !</h2>
+          <h2 className="text-2xl font-bold mb-2">{title}</h2>
           <p className="opacity-90 mb-6">
-            Merci {voterName} pour votre participation. Votre vote a bien été pris en compte.
+            {subtitle ||
+              `Merci ${voterName} pour votre participation. Votre vote a bien été pris en compte.`}
           </p>
 
           {/* Message d'information pour la bêta */}
@@ -49,13 +56,29 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
               créer un compte.
             </p>
           </div>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={onBack}
-            className="bg-white text-green-600 font-medium py-3 px-6 rounded-full shadow-lg"
-          >
-            Terminer
-          </motion.button>
+
+          <div className="flex flex-col gap-3 items-center">
+            {onViewResults && (
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={onViewResults}
+                className="bg-white text-green-600 font-medium py-3 px-6 rounded-full shadow-lg w-full max-w-xs hover:bg-green-50 transition-colors"
+              >
+                Voir les résultats
+              </motion.button>
+            )}
+
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={onBack}
+              className={`${onViewResults
+                ? "bg-green-700/30 text-white hover:bg-green-700/40"
+                : "bg-white text-green-600 hover:bg-green-50"
+                } font-medium py-3 px-6 rounded-full shadow-lg w-full max-w-xs transition-colors`}
+            >
+              Retour à l'accueil
+            </motion.button>
+          </div>
         </motion.div>
       </div>
     </div>
