@@ -69,12 +69,12 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
     },
     useConversations: {
       conversations: { conversations: [] },
-      createConversation: { mutateAsync: jest.fn() },
+      createConversation: { mutateAsync: vi.fn() },
     },
     useAutoSave: {
       currentConversation: null,
-      saveMessage: jest.fn(),
-      createNewConversation: jest.fn(),
+      saveMessage: vi.fn(),
+      createNewConversation: vi.fn(),
     },
     useConversationResume: {
       resumedConversation: null,
@@ -87,16 +87,16 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
       canCreatePoll: true,
       showConversationWarning: false,
       showPollWarning: false,
-      triggerAuthIncentive: jest.fn(),
+      triggerAuthIncentive: vi.fn(),
     },
     usePollConversationLink: {
-      linkPollToConversation: jest.fn(),
-      getPollLinkMetadata: jest.fn(),
+      linkPollToConversation: vi.fn(),
+      getPollLinkMetadata: vi.fn(),
     },
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     queryClient = new QueryClient({
       defaultOptions: {
         queries: { retry: false },

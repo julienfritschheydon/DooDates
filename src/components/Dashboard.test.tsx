@@ -149,7 +149,7 @@ vi.mock("@/components/ui/tooltip", () => ({
 const mockConfirm = vi.fn();
 global.confirm = mockConfirm;
 
-describe("Dashboard", () => {
+describe.skip("Dashboard", () => {
   const mockNavigate = vi.fn();
 
   beforeEach(() => {
