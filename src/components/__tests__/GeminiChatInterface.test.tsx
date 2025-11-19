@@ -85,12 +85,22 @@ vi.mock("../hooks/useFreemiumQuota", () => ({
 
 vi.mock("../hooks/useAiMessageQuota", () => ({
   useAiMessageQuota: () => ({
-    incrementMessageCount: vi.fn(),
+    aiMessagesUsed: 0,
+    aiMessagesLimit: 50,
+    aiMessagesRemaining: 50,
+    canSendMessage: true,
+    pollsInConversation: 0,
+    pollsLimit: 5,
+    canCreatePoll: true,
+    incrementAiMessages: vi.fn(),
     incrementPollCount: vi.fn(),
+    resetQuota: vi.fn(),
+    isInCooldown: false,
+    cooldownRemaining: 0,
     quota: {
       conversationsCreated: 0,
       pollsCreated: 0,
-      aiMessages: 0,
+      aiMessages: 45, // Proche de la limite
       analyticsQueries: 0,
       simulations: 0,
       totalCreditsConsumed: 0,
@@ -102,7 +112,6 @@ vi.mock("../hooks/useAiMessageQuota", () => ({
 vi.mock("../hooks/useMessageSender", () => ({
   useMessageSender: () => ({
     sendMessage: vi.fn().mockResolvedValue(undefined),
-    isLoading: false,
   }),
 }));
 
@@ -128,22 +137,6 @@ vi.mock("../hooks/useQuota", () => ({
   }),
 }));
 
-vi.mock("../hooks/useAiMessageQuota", () => ({
-  useAiMessageQuota: () => ({
-    incrementMessageCount: vi.fn(),
-    incrementPollCount: vi.fn(),
-    quota: {
-      conversationsCreated: 0,
-      pollsCreated: 0,
-      aiMessages: 0,
-      analyticsQueries: 0,
-      simulations: 0,
-      totalCreditsConsumed: 0,
-      userId: "guest",
-    },
-  }),
-}));
-
 vi.mock("../services/ConversationService", () => ({
   ConversationService: {
     resumeFromUrl: vi.fn(),
@@ -155,6 +148,8 @@ vi.mock("../services/ConversationService", () => ({
 vi.mock("../hooks/useToast", () => ({
   useToast: () => ({
     toast: vi.fn(),
+    dismiss: vi.fn(),
+    toasts: [],
   }),
 }));
 
@@ -179,23 +174,6 @@ vi.mock("../hooks/useConnectionStatus", () => ({
 vi.mock("../hooks/useIntentDetection", () => ({
   useIntentDetection: () => ({
     detectIntent: vi.fn(),
-  }),
-}));
-
-vi.mock("../hooks/usePollManagement", () => ({
-  usePollManagement: () => ({
-    showPollCreator: false,
-    selectedPollData: null,
-    openPollCreator: vi.fn(),
-    closePollCreator: vi.fn(),
-    getFormDraft: vi.fn(),
-  }),
-}));
-
-vi.mock("../hooks/useMessageSender", () => ({
-  useMessageSender: () => ({
-    sendMessage: vi.fn().mockResolvedValue(undefined),
-    isLoading: false,
   }),
 }));
 
@@ -375,7 +353,6 @@ describe("GeminiChatInterface", () => {
     const mockSendMessage = vi.fn().mockRejectedValue(new Error("Credit limit exceeded"));
     vi.mocked(useMessageSender).mockReturnValue({
       sendMessage: mockSendMessage,
-      isLoading: false,
     });
 
     renderGeminiChat();
@@ -392,7 +369,9 @@ describe("GeminiChatInterface", () => {
   });
 
   it("désactive l'input et le bouton pendant l'envoi", async () => {
-    let resolveSendMessage: (value: void) => void;
+    let resolveSendMessage: ((value: void) => void) | undefined;
+
+    // Create the promise with a resolve function that gets assigned immediately
     const sendMessagePromise = new Promise<void>((resolve) => {
       resolveSendMessage = resolve;
     });
@@ -401,7 +380,6 @@ describe("GeminiChatInterface", () => {
 
     vi.mocked(useMessageSender).mockReturnValue({
       sendMessage: mockSendMessage,
-      isLoading: false,
     });
 
     renderGeminiChat();
@@ -437,6 +415,7 @@ describe("GeminiChatInterface", () => {
       isListening: false,
       interimTranscript: "test interim",
       finalTranscript: "test final",
+      error: null,
       startListening: vi.fn(),
       stopListening: vi.fn(),
       resetTranscript: vi.fn(),
@@ -516,12 +495,13 @@ describe("GeminiChatInterface", () => {
 
     vi.mocked(useMessageSender).mockReturnValue({
       sendMessage: mockSendMessage,
-      isLoading: false,
     });
 
     const mockToast = vi.fn();
     vi.mocked(useToast).mockReturnValue({
       toast: mockToast,
+      dismiss: vi.fn(),
+      toasts: [],
     });
 
     renderGeminiChat();
@@ -541,40 +521,18 @@ describe("GeminiChatInterface", () => {
     });
   });
 
-  it("respecte les limites de quota de messages IA", () => {
-    const mockAiQuota = {
-      incrementMessageCount: vi.fn(),
-      incrementPollCount: vi.fn(),
-      quota: {
-        conversationsCreated: 0,
-        pollsCreated: 0,
-        aiMessages: 45, // Proche de la limite
-        analyticsQueries: 0,
-        simulations: 0,
-        totalCreditsConsumed: 0,
-        userId: "guest",
-      },
-    };
-
-    vi.mocked(useAiMessageQuota).mockReturnValue(mockAiQuota);
-
-    renderGeminiChat();
-
-    // Le composant devrait gérer les quotas via les hooks
-    expect(screen.getByTestId("message-input")).toBeInTheDocument();
-  });
-
   it("affiche les messages d'erreur utilisateur-friendly", async () => {
     const mockSendMessage = vi.fn().mockRejectedValue(new Error("Unknown error"));
 
     vi.mocked(useMessageSender).mockReturnValue({
       sendMessage: mockSendMessage,
-      isLoading: false,
     });
 
     const mockToast = vi.fn();
     vi.mocked(useToast).mockReturnValue({
       toast: mockToast,
+      dismiss: vi.fn(),
+      toasts: [],
     });
 
     renderGeminiChat();
@@ -592,5 +550,12 @@ describe("GeminiChatInterface", () => {
         variant: "destructive",
       });
     });
+  });
+
+  it("respecte les limites de quota de messages IA", () => {
+    renderGeminiChat();
+
+    // Le composant devrait gérer les quotas via les hooks
+    expect(screen.getByTestId("message-input")).toBeInTheDocument();
   });
 });
