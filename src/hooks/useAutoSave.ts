@@ -99,9 +99,28 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
     async (firstMessage: AutoSaveMessage): Promise<Conversation> => {
       const requestId = crypto.randomUUID();
       const timestamp = new Date().toISOString();
+      
+      // Obtenir userId : utiliser user?.id si disponible, sinon chercher dans localStorage
+      let effectiveUserId = user?.id;
+      if (!effectiveUserId) {
+        try {
+          const { getSupabaseSessionFromLocalStorage } = await import("../lib/supabaseApi");
+          const session = getSupabaseSessionFromLocalStorage();
+          effectiveUserId = session?.user?.id || undefined;
+          if (effectiveUserId) {
+            logger.debug("UserId récupéré depuis localStorage (user?.id non disponible)", "conversation", {
+              userId: effectiveUserId,
+            });
+          }
+        } catch (error) {
+          logger.debug("Impossible de récupérer userId depuis localStorage", "conversation", error);
+        }
+      }
+      
       console.log(`[${timestamp}] [${requestId}] 🆕 createConversation DÉBUT`, {
         hasUser: !!user?.id,
         userId: user?.id || "guest",
+        effectiveUserId: effectiveUserId || "guest",
         messageLength: firstMessage.content?.length || 0,
       });
       log("Creating new conversation");
@@ -114,7 +133,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
         const DISABLE_SUPABASE_CONVERSATIONS =
           import.meta.env.VITE_DISABLE_SUPABASE_CONVERSATIONS === "true";
 
-        if (!DISABLE_SUPABASE_CONVERSATIONS && user?.id) {
+        if (!DISABLE_SUPABASE_CONVERSATIONS && effectiveUserId) {
           console.log(
             `[${timestamp}] [${requestId}] 🆕 Utilisateur connecté - création conversation...`,
           );
@@ -124,7 +143,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
             title:
               firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? "..." : ""),
             firstMessage: firstMessage.content,
-            userId: user.id,
+            userId: effectiveUserId,
           };
 
           result = ConversationStorage.createConversation(conversationData);
@@ -143,7 +162,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
 
           // Consommer quota en arrière-plan (non-bloquant)
           const { incrementConversationCreated } = await import("../lib/quotaTracking");
-          incrementConversationCreated(user.id).catch((quotaError: Error) => {
+          incrementConversationCreated(effectiveUserId).catch((quotaError: Error) => {
             logError(
               ErrorFactory.storage(
                 "Erreur consommation quota (non-bloquant)",
