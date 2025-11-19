@@ -962,19 +962,6 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 1. Tester les hooks séparément (déjà en cours pour certains)
 2. Tester les fonctions utilitaires isolables
 3. Tests d'intégration avec mocks complets
-
-**Fichier de test** : `src/components/__tests__/GeminiChatInterface.test.tsx`  
-**État actuel** : fichier créé, premiers scénarios définis (rendu de base, envoi message, ref), tests encore bloqués par la nécessité d'un wrapper de tests standard (`TestProviders` avec QueryClientProvider/AuthProvider).  
-**Durée estimée** : 8-12 heures (dont 1-2h pour mettre en place `TestProviders`).
-
-#### 2. Services Critiques 🟠
-
-- **ConversationService** (`src/services/ConversationService.ts`) - CRUD conversations, tags/folders, recherche
-  - Tests : `src/services/__tests__/ConversationService.test.ts` (3-4h) ✅
-- **QuotaService** (`src/services/QuotaService.ts`) - Vérification/incrémentation/reset quotas
-  - Tests : `src/services/__tests__/QuotaService.test.ts` (2-3h)
-- **PollCreatorService** (`src/services/PollCreatorService.ts`) - Création/validation/transformation polls
-  - Tests : `src/services/__tests__/PollCreatorService.test.ts` (3-4h)
 - **PollCreationBusinessLogic** (`src/services/PollCreationBusinessLogic.ts`) - Logique métier création polls
   - Tests : `src/services/__tests__/PollCreationBusinessLogic.test.ts` (2-3h)
 
@@ -1005,9 +992,9 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 - [ ] GeminiChatInterface - Implémentation tests (via `TestProviders` partagé)
 - [x] ConversationService - Tests unitaires de base (9 tests) ✅
 - [x] QuotaService - Tests quotas ✅ TERMINÉ (19/11/2025)
-- [ ] PollCreatorService - Tests création
-- [ ] PollCreationBusinessLogic - Tests logique métier
-- [ ] useGeminiAPI - Tests API
+- [x] PollCreatorService - Tests création ✅ TERMINÉ (19/11/2025)
+- [x] PollCreationBusinessLogic - Tests logique métier ✅ TERMINÉ (19/11/2025)
+- [x] useGeminiAPI - Tests API ✅ TERMINÉ (19/11/2025)
 - [ ] useIntentDetection - Tests détection
 - [ ] usePollManagement - Tests gestion polls
 - [ ] error-handling.ts - Tests erreurs
@@ -1022,8 +1009,8 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 ### Objectifs
 
 **Court terme (1 mois)** :
-- Priorité 2 : 70% complété
-- Couverture code : 68%
+- Priorité 2 : 85% complété
+- Couverture code : 75%
 
 **Moyen terme (3 mois)** :
 - Priorité 2 : 100% complété
@@ -1093,11 +1080,15 @@ Approche alternative gratuite :
 - **FormPoll Results Access** : 14/14 tests unitaires + 5/5 tests E2E
 - **Authentification & Clés Bêta** : BetaKeyService (25/25), authenticated-workflow (6 tests), beta-key-activation (9 tests)
 - **Supabase Integration** : 11 tests E2E automatisés (anciennement manuels)
-- **Ultra Simple** : 1/1 test passe sur Firefox (16.8s) et WebKit (19.2s) ✅ AMÉLIORÉ (17/11/2025)
+- **Tests unitaires services** : +140 tests (ConversationService: 9, QuotaService: 38, PollCreatorService: 32, PollCreationBusinessLogic: 23, useGeminiAPI: 38)
+- **Ultra Simple** : 1/1 test passe sur Firefox (16.8s) et WebKit (19.2s) 
 
 ### Corrections E2E
-- ✅ **Sharding** : Tests rendus indépendants avec fonctions helper (3 fichiers corrigés)
-- ✅ **Persistance mocks** : `setupAllMocks()` ajouté avant chaque `page.goto()` dans helpers
+- **Sharding** : Tests rendus indépendants avec fonctions helper (3 fichiers corrigés)
+- **Persistance mocks** : `setupAllMocks()` ajouté avant chaque `page.goto()` dans helpers
+- **Calendrier Firefox/WebKit** : Initialisation directe dans `useState` au lieu de `useEffect` - Amélioration de ~200-500ms pour l'affichage du calendrier (17/11/2025)
+- **waitForPageLoad Firefox** : Utilisation de `load` au lieu de `networkidle`, timeout réduit à 20s, attente d'éléments spécifiques de l'app - Réduction significative des timeouts (17/11/2025)
+- **Factorisation** : Création de `setupTestEnvironment()`, helpers d'attente conditionnelle, factories de test data, configuration centralisée des timeouts (17/11/2025)
 - ✅ **Calendrier Firefox/WebKit** : Initialisation directe dans `useState` au lieu de `useEffect` - Amélioration de ~200-500ms pour l'affichage du calendrier (17/11/2025)
 - ✅ **waitForPageLoad Firefox** : Utilisation de `load` au lieu de `networkidle`, timeout réduit à 20s, attente d'éléments spécifiques de l'app - Réduction significative des timeouts (17/11/2025)
 - ✅ **Factorisation** : Création de `setupTestEnvironment()`, helpers d'attente conditionnelle, factories de test data, configuration centralisée des timeouts (17/11/2025)
@@ -1458,10 +1449,11 @@ await waitForElementReady(page, selector); // Continue dès que prêt
 - **Timeouts fixes** : 0 (remplacés par helpers conditionnels)
 - **Erreurs silencieuses** : 0 (remplacées par helpers avec logging)
 - **Temps d'exécution** : ~10-14 minutes (réduction de 30%)
+- **Tests unitaires services** : +140 tests (ConversationService: 9, QuotaService: 38, PollCreatorService: 32, PollCreationBusinessLogic: 23, useGeminiAPI: 38)
 
 ---
 
 **Document maintenu par** : Équipe DooDates  
-**Dernière révision** : 17 novembre 2025 (Ajout règles et bonnes pratiques E2E, helpers d'attente conditionnelle, factories test data, configuration timeouts centralisée)
+**Dernière révision** : 19 novembre 2025 (Ajout tests unitaires useGeminiAPI (38 tests) - Services critiques: 85% Priority 2 terminé)
 
 ---
