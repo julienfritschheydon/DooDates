@@ -47,12 +47,12 @@ vi.mock("../../lib/logger", () => ({
   },
 }));
 
-// Import des services mockés
-const { IntentDetectionService } = await import("../../services/IntentDetectionService");
-const { FormPollIntentService } = await import("../../services/FormPollIntentService");
-const { GeminiIntentService } = await import("../../services/GeminiIntentService");
-const { PollTypeSwitchDetector } = await import("../../services/PollTypeSwitchDetector");
-const { logger } = await import("../../lib/logger");
+// Import des services pour les mocks
+import { IntentDetectionService } from "../../services/IntentDetectionService";
+import { FormPollIntentService } from "../../services/FormPollIntentService";
+import { GeminiIntentService } from "../../services/GeminiIntentService";
+import { PollTypeSwitchDetector } from "../../services/PollTypeSwitchDetector";
+import { logger } from "../../lib/logger";
 
 // Helpers pour créer des données de test
 const createMockDatePoll = (overrides: Partial<Poll> = {}): Poll => ({
