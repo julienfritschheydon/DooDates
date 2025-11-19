@@ -3,6 +3,8 @@
  * DooDates - Freemium Quota Management Tests
  */
 
+/// <reference types="@testing-library/jest-dom" />
+
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useFreemiumQuota } from '../useFreemiumQuota';
@@ -54,9 +56,9 @@ describe('useFreemiumQuota', () => {
       const { result } = renderHook(() => useFreemiumQuota());
 
       expect(result.current.limits).toEqual({
-        conversations: 3,
+        conversations: 5, // Updated to match CONVERSATION_QUOTAS.ANONYMOUS
         polls: 5,
-        storageKB: 100,
+        storageSize: 50, // Updated to match STORAGE_QUOTAS.ANONYMOUS
       });
     });
 
@@ -69,9 +71,9 @@ describe('useFreemiumQuota', () => {
       const { result } = renderHook(() => useFreemiumQuota());
 
       expect(result.current.limits).toEqual({
-        conversations: 50,
+        conversations: 1000, // Updated to match CONVERSATION_QUOTAS.AUTHENTICATED
         polls: 100,
-        storageKB: 10000,
+        storageSize: 1000, // Updated to match STORAGE_QUOTAS.AUTHENTICATED
       });
     });
   });
@@ -210,6 +212,8 @@ describe('useFreemiumQuota', () => {
           return JSON.stringify([
             { id: 'conv-1' },
             { id: 'conv-2' },
+            { id: 'conv-3' },
+            { id: 'conv-4' }, // 4/5 = 80% - near limit
           ]);
         }
         return null;
@@ -217,8 +221,8 @@ describe('useFreemiumQuota', () => {
 
       const { result } = renderHook(() => useFreemiumQuota());
 
-      expect(result.current.status.conversations).toBe('warning');
-      expect(result.current.status.polls).toBe('normal');
+      expect(result.current.status.conversations.isNearLimit).toBe(true); // 4/5 = 80% - near limit
+      expect(result.current.status.polls.isNearLimit).toBe(false);
     });
 
     it('should not show warnings for authenticated users', () => {
@@ -243,7 +247,7 @@ describe('useFreemiumQuota', () => {
 
       const { result } = renderHook(() => useFreemiumQuota());
 
-      expect(result.current.status.conversations.isNearLimit).toBe(false);
+      expect(result.current.status.conversations.isNearLimit).toBe(false); // 3/1000 = 0.3% - not near limit
     });
 
     it('should trigger auth incentive modal for guests', () => {
@@ -320,6 +324,8 @@ describe('useFreemiumQuota', () => {
             { id: 'conv-1' },
             { id: 'conv-2' },
             { id: 'conv-3' },
+            { id: 'conv-4' },
+            { id: 'conv-5' }, // Reach the limit: 5/5 = 100%
           ]);
         }
         return null;
@@ -328,8 +334,8 @@ describe('useFreemiumQuota', () => {
       rerender();
 
       // Should block creation
-      expect(result.current.status.conversations).toBe('normal');
-      expect(result.current.status.polls).toBe('normal');
+      expect(result.current.status.conversations.isAtLimit).toBe(true); // 5/5 = 100% - at limit
+      expect(result.current.status.polls.isAtLimit).toBe(false);
     });
 
     it('should handle user authentication upgrade', () => {
