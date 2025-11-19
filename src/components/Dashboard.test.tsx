@@ -159,8 +159,36 @@ describe("Dashboard", () => {
   const mockConversationItems = [
     {
       id: "conv-1",
+      conversationTitle: "Test Conversation 1",
+      conversationDate: new Date("2024-01-15T10:00:00Z"),
+      poll: undefined,  // Changed from null to undefined
+      hasAI: true,
+      tags: [],
+      folderId: undefined,  // Changed from null to undefined
+    },
+    {
+      id: "conv-2",
+      conversationTitle: "Test Conversation 2",
+      conversationDate: new Date("2024-01-14T10:00:00Z"),
+      poll: {
+        id: "poll-1",
+        title: "Test Poll",
+        type: "date",
+        votes_count: 5,
+        participants_count: 3,
+        relatedConversationId: "conv-2",
+      },
+      hasAI: false,
+      tags: ["tag1"],
+      folderId: "folder1",
+    },
+  ];
+
+  const mockConversations = [
+    {
+      id: "conv-1",
       title: "Test Conversation 1",
-      status: "active",
+      status: "active" as const,
       createdAt: new Date("2024-01-15T10:00:00Z"),
       updatedAt: new Date("2024-01-15T10:00:00Z"),
       firstMessage: "Hello AI",
@@ -172,15 +200,15 @@ describe("Dashboard", () => {
     {
       id: "conv-2",
       title: "Test Conversation 2",
-      status: "completed",
+      status: "completed" as const,
       createdAt: new Date("2024-01-14T10:00:00Z"),
       updatedAt: new Date("2024-01-14T10:00:00Z"),
       firstMessage: "Create a poll",
       messageCount: 3,
       relatedPollId: "poll-1",
       pollId: "poll-1",
-      pollType: "date",
-      pollStatus: "active",
+      pollType: "date" as const,
+      pollStatus: "active" as const,
       isFavorite: true,
       favorite_rank: 1,
       tags: ["tag1"],
@@ -232,11 +260,7 @@ describe("Dashboard", () => {
     mockConfirm.mockReturnValue(true);
 
     // Mock all hooks
-    vi.mocked(useDashboardData).mockReturnValue({
-      conversationItems: mockConversationItems,
-      loading: false,
-      reload: vi.fn(),
-    });
+    vi.mocked(useViewportItems).mockReturnValue(12);
 
     vi.mocked(useAuth).mockReturnValue({
       user: {
@@ -370,7 +394,11 @@ describe("Dashboard", () => {
       toasts: [],
     });
 
-    vi.mocked(useViewportItems).mockReturnValue(12);
+    vi.mocked(useDashboardData).mockReturnValue({
+      conversationItems: mockConversationItems,
+      loading: false,
+      reload: vi.fn(),
+    });
 
     // Mock localStorage
     vi.spyOn(Storage.prototype, "getItem").mockImplementation((key) => {
@@ -621,8 +649,8 @@ describe("Dashboard", () => {
 
       vi.mocked(useConversations).mockReturnValue({
         conversations: {
-          conversations: mockConversationItems,
-          totalCount: mockConversationItems.length,
+          conversations: mockConversations,
+          totalCount: mockConversations.length,
           hasMore: false,
           isEmpty: false,
           isLoading: false,
@@ -818,13 +846,50 @@ describe("Dashboard", () => {
     it("should handle quota navigation clicks", async () => {
       const user = userEvent.setup();
 
-      vi.mock("react-router-dom", () => ({
-        useNavigate: () => mockNavigate,
-      }));
+      vi.mocked(useDashboardData).mockReturnValue({
+        conversationItems: mockConversationItems,
+        loading: false,
+        reload: vi.fn(),
+      });
+
+      vi.mocked(useFreemiumQuota).mockReturnValue({
+        limits: {
+          conversations: 10,
+          polls: 20,
+          storageSize: 1000,
+        },
+        usage: {
+          conversations: 5,
+          polls: 2,
+          aiMessages: 25,
+          storageUsed: 100,
+        },
+        status: mockQuotaStatus,
+        isAuthenticated: false,
+        canCreateConversation: vi.fn().mockResolvedValue(true),
+        canCreatePoll: vi.fn().mockResolvedValue(true),
+        canUseFeature: vi.fn().mockResolvedValue(true),
+        checkConversationLimit: vi.fn().mockReturnValue(true),
+        checkPollLimit: vi.fn().mockReturnValue(true),
+        checkFeatureAccess: vi.fn().mockResolvedValue(true),
+        showAuthModal: false,
+        authModalTrigger: "conversation_limit",
+        showAuthIncentive: vi.fn(),
+        closeAuthModal: vi.fn(),
+        getRemainingConversations: vi.fn().mockReturnValue(5),
+        getRemainingPolls: vi.fn().mockReturnValue(18),
+        getStoragePercentage: vi.fn().mockReturnValue(10),
+        guestQuota: {
+          conversations: { used: 0, limit: 3, percentage: 0, isNearLimit: false, isAtLimit: false },
+          polls: { used: 0, limit: 1, percentage: 0, isNearLimit: false, isAtLimit: false },
+          storage: { used: 0, limit: 100, percentage: 0, isNearLimit: false, isAtLimit: false },
+          aiMessages: { used: 0, limit: 10, percentage: 0, isNearLimit: false, isAtLimit: false },
+        },
+      });
 
       render(<Dashboard />);
 
-      const journalLink = screen.getByText("Journal");
+      const journalLink = screen.getByText("→ Voir le journal");
       await user.click(journalLink);
 
       expect(mockNavigate).toHaveBeenCalledWith("/dashboard/journal");
@@ -838,8 +903,8 @@ describe("Dashboard", () => {
 
       vi.mocked(useConversations).mockReturnValue({
         conversations: {
-          conversations: mockConversationItems,
-          totalCount: mockConversationItems.length,
+          conversations: mockConversations,
+          totalCount: mockConversations.length,
           hasMore: false,
           isEmpty: false,
           isLoading: false,
