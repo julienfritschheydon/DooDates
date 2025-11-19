@@ -13,7 +13,7 @@ import { useVoiceRecognition } from "../../hooks/useVoiceRecognition";
 import { useQuota } from "../../hooks/useQuota";
 import { useAiMessageQuota } from "../../hooks/useAiMessageQuota";
 import { ConversationService } from "../../services/ConversationService";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "../../hooks/use-toast";
 import { usePollManagement } from "../../hooks/usePollManagement";
 
 // Helpers pour wrapper avec Router et React Query
