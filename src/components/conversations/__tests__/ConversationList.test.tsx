@@ -3,6 +3,8 @@
  * DooDates - Conversation History System
  */
 
+/// <reference types="@testing-library/jest-dom" />
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -10,7 +12,7 @@ import { ConversationList } from '../ConversationList';
 import type { Conversation } from '../../../types/conversation';
 
 // Mock react-window for virtualization
-jest.mock('react-window', () => ({
+vi.mock('react-window', () => ({
   FixedSizeList: ({ children, itemCount, itemData }: any) => (
     <div data-testid="virtualized-list">
       {Array.from({ length: itemCount }).map((_, index) => 
@@ -25,12 +27,12 @@ jest.mock('react-window', () => ({
 }));
 
 // Mock the search hook
-jest.mock('../../../hooks/useConversationSearch', () => ({
-  useConversationSearch: jest.fn(() => ({
+vi.mock('../../../hooks/useConversationSearch', () => ({
+  useConversationSearch: vi.fn(() => ({
     conversations: [],
-    setQuery: jest.fn(),
-    setFilters: jest.fn(),
-    clearSearch: jest.fn(),
+    setQuery: vi.fn(),
+    setFilters: vi.fn(),
+    clearSearch: vi.fn(),
     query: '',
     totalCount: 0,
     isLoading: false
@@ -38,7 +40,7 @@ jest.mock('../../../hooks/useConversationSearch', () => ({
 }));
 
 // Mock ConversationCard component
-jest.mock('../ConversationCard', () => ({
+vi.mock('../ConversationCard', () => ({
   ConversationCard: ({ conversation, onResume }: any) => (
     <div data-testid={`conversation-card-${conversation.id}`}>
       <h3>{conversation.title}</h3>
@@ -86,16 +88,16 @@ describe('ConversationList', () => {
 
   // Mock callbacks
   const mockCallbacks = {
-    onResume: jest.fn(),
-    onRename: jest.fn(),
-    onDelete: jest.fn(),
-    onToggleFavorite: jest.fn(),
-    onViewPoll: jest.fn(),
-    onCreateNew: jest.fn()
+    onResume: vi.fn(),
+    onRename: vi.fn(),
+    onDelete: vi.fn(),
+    onToggleFavorite: vi.fn(),
+    onViewPoll: vi.fn(),
+    onCreateNew: vi.fn()
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Basic Rendering', () => {
