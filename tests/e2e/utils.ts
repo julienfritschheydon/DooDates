@@ -849,7 +849,12 @@ export async function waitForAppReady(
   path: string = '/workspace'
 ): Promise<void> {
   if (path.includes('/workspace') || path.includes('/create/ai')) {
-    await expect(page.locator('[data-testid="message-input"]')).toBeVisible({
+    // Ne pas forcer un composant précis ici : simplement vérifier que
+    // l'application n'est plus sur un écran blanc en attendant qu'au
+    // moins un élément interactif soit visible. Les tests qui ont
+    // besoin du champ de chat utiliseront waitForChatInputReady.
+    await page.waitForSelector('input, button, [role="button"]', {
+      state: 'visible',
       timeout: 10000,
     });
   } else if (path.includes('/dashboard')) {

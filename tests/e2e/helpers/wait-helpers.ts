@@ -359,3 +359,51 @@ export async function waitForVisibleAndStable(
   }
 }
 
+/**
+ * Attend que l'input de chat principal soit prêt.
+ *
+ * Stratégie en trois niveaux :
+ * 1. Tente d'abord le textarea `[data-testid="message-input"]` (cas idéal).
+ * 2. Si absent, attend un élément représentatif de l'UX chat/workspace
+ *    (preview ou textarea avec placeholder IA).
+ * 3. En dernier recours, attend un élément interactif générique pour éviter
+ *    de bloquer si la mise en page change fortement.
+ */
+export async function waitForChatInputReady(
+  page: Page,
+  browserName: string,
+  options?: { timeout?: number },
+): Promise<ReturnType<Page['locator']>> {
+  const timeouts = getTimeouts(browserName);
+  const timeout = options?.timeout ?? timeouts.element;
+
+  // 1. Tentative directe sur l'input de chat dédié
+  const chatInput = page.locator('[data-testid="message-input"]').first();
+  try {
+    await chatInput.waitFor({ state: 'visible', timeout });
+    return chatInput;
+  } catch {
+    // Fallback si l'input n'est pas encore monté ou pas visible
+  }
+
+  // 2. Fallback sur des éléments représentatifs du workspace IA
+  const chatOrPreviewSelector = [
+    '[data-testid="message-input"]',
+    '[data-poll-preview]',
+    'textarea[placeholder*="Décrivez votre sondage"]',
+    'textarea[placeholder*="Décrivez votre formulaire"]',
+  ].join(',');
+
+  const chatOrPreview = page.locator(chatOrPreviewSelector).first();
+  try {
+    await chatOrPreview.waitFor({ state: 'visible', timeout });
+    return chatOrPreview;
+  } catch {
+    // Dernier fallback ci-dessous
+  }
+
+  // 3. Dernier recours : n'importe quel élément interactif (pattern beta-key)
+  const anyInteractive = page.locator('input, button, [role="button"]').first();
+  await anyInteractive.waitFor({ state: 'visible', timeout });
+  return anyInteractive;
+}

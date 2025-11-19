@@ -736,21 +736,11 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           <Check className="w-4 h-4" />
                           <span className="text-sm font-medium">Calendrier Google connecté</span>
                         </div>
-                        {state.selectedDates.length > 0 && (
-                          <button
-                            onClick={() =>
-                              PollCreatorService.analyzeCalendarAvailability(state.selectedDates)
-                            }
-                            className="text-xs bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors"
-                          >
-                            📊 Analyser disponibilités
-                          </button>
-                        )}
                       </div>
                       <p className="text-xs text-blue-600 mt-1">
                         {state.selectedDates.length > 0
-                          ? 'Cliquez sur "Analyser disponibilités" pour suggérer des créneaux libres basés sur votre agenda.'
-                          : "Sélectionnez des dates pour analyser vos disponibilités."}
+                          ? "Vos dates sélectionnées seront synchronisées avec votre calendrier connecté."
+                          : "Sélectionnez des dates pour les synchroniser avec votre calendrier."}
                       </p>
                     </div>
                   )}
