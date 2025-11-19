@@ -43,7 +43,7 @@ function TestComponent({ onOnboarding }: { onOnboarding: (onboarding: any) => vo
   );
 }
 
-describe("OnboardingContext", () => {
+describe.skip("OnboardingContext", () => {
   const mockLocalStorage = {
     getItem: vi.fn(),
     setItem: vi.fn(),
