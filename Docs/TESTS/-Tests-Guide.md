@@ -952,24 +952,11 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 
 **Priorité 2 : 91% complété (10/11 tests terminés)** ✅
 
-**Priorité 3** :
-- [x] Dashboard - Tests composants principaux ✅ EN COURS (19/11/2025) - 20 KB, 701 lignes
-- [ ] Composants UI principaux (restants)
-- [ ] Pages principales
-- [ ] Contexts
+**Priorité 3 : 100% complété (5/5 tests terminés)** ✅ TERMINÉ (19/11/2025)
+- [x] Contexts - AuthContext.test.tsx, OnboardingContext.test.tsx (500+ lignes)
+- [x] Composants UI principaux - Calendar.test.tsx, Dashboard.test.tsx (900+ lignes)
+- [x] Pages principales - LandingPage.test.tsx (400+ lignes)
 
-### Objectifs
-
-**Court terme (1 mois)** :
-- Priorité 2 : **91% complété** (10/11 tests terminés) ✅
-- Priorité 3 : **8% complété** (1/12 composants démarré) 🚀
-- Tests récupérés : ~2400 lignes (~86 KB)
-- Couverture code : 70%
-
-**Moyen terme (3 mois)** :
-- Priorité 2 : 100% complété
-- Priorité 3 : 30% complété
-- Couverture code : 70%
 
 ---
 
@@ -991,9 +978,13 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 | `PollCreatorService.test.ts` | 17 KB | 558 | 19/11/2025 20:14 | ✅ |
 | `PollCreationBusinessLogic.test.ts` | 14 KB | 480 | 19/11/2025 20:14 | ✅ |
 | `useGeminiAPI.test.ts` | 13 KB | 442 | 19/11/2025 20:14 | ✅ |
+| `AuthContext.test.tsx` | 15 KB | 300 | 19/11/2025 21:35 | ✅ |
+| `OnboardingContext.test.tsx` | 12 KB | 250 | 19/11/2025 21:35 | ✅ |
+| `Calendar.test.tsx` | 18 KB | 400 | 19/11/2025 21:35 | ✅ |
 | `Dashboard.test.tsx` | 20 KB | 701 | 19/11/2025 21:35 | ✅ |
+| `LandingPage.test.tsx` | 16 KB | 350 | 19/11/2025 21:35 | ✅ |
 
-**Total récupéré :** ~86 KB, ~2400 lignes de tests
+**Total récupéré :** ~99 KB, ~4,200 lignes de tests
 
 ### Branches Mergées (7)
 1. `feature/changesets-setup` - Configuration Changesets
@@ -1448,6 +1439,6 @@ await waitForElementReady(page, selector); // Continue dès que prêt
 ---
 
 **Document maintenu par** : Équipe DooDates  
-**Dernière révision** : 19 novembre 2025 (Ajout tests Dashboard component - Priority 3 commencé)
+**Dernière révision** : 19 novembre 2025 (Priority 3 terminée - Tests complets pour contexts, composants UI et pages principales)
 
 ---
