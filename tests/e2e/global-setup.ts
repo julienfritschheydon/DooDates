@@ -10,11 +10,15 @@ import { Page, Route, BrowserContext } from '@playwright/test';
 function generateMockPollResponse(prompt: string): any {
   const lowerPrompt = prompt.toLowerCase();
   
+  console.log('🤖 generateMockPollResponse - Prompt:', lowerPrompt.substring(0, 100) + '...');
+  
   // Detect if it's a form poll or date poll request
   const isFormPoll = lowerPrompt.includes('questionnaire') || 
                      lowerPrompt.includes('formulaire') || 
                      lowerPrompt.includes('form') ||
                      lowerPrompt.includes('question');
+  
+  console.log('🤖 generateMockPollResponse - isFormPoll:', isFormPoll);
   
   if (isFormPoll) {
     // 🎯 Détection de mots-clés spéciaux pour les tests E2E
@@ -64,6 +68,8 @@ function generateMockPollResponse(prompt: string): any {
       description: 'Questionnaire généré automatiquement pour les tests',
       questions
     };
+    
+    console.log('🤖 generateMockPollResponse - pollData généré:', JSON.stringify(pollData));
     
     return {
       candidates: [{
@@ -306,9 +312,11 @@ export async function setupGeminiMock(page: Page) {
       }
     }
     
+    console.log('🤖 Gemini API mock - Prompt reçu:', userPrompt.substring(0, 100) + '...');
+    
     // Si c'est un test de connexion (prompt court comme "Test de connexion"), retourner une réponse simple
     if (userPrompt.toLowerCase().includes('test de connexion') || userPrompt.toLowerCase().includes('ok')) {
-      // console.log('🤖 Gemini API mock - Test de connexion');
+      console.log('🤖 Gemini API mock - Test de connexion détecté');
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -323,6 +331,8 @@ export async function setupGeminiMock(page: Page) {
       });
       return;
     }
+    
+    // console.log('🤖 Gemini API mock - Prompt reçu:', userPrompt.substring(0, 100) + '...');
     
     // Détecter les demandes de parsing de disponibilités
     const lowerPrompt = userPrompt.toLowerCase();
@@ -339,6 +349,7 @@ export async function setupGeminiMock(page: Page) {
        lowerPrompt.includes('parse') || lowerPrompt.includes('assistant spécialisé'));
     
     if (isAvailabilityParsing) {
+      console.log('🤖 Gemini API mock - Parsing disponibilités détecté');
       // Détecter les jours mentionnés dans le prompt pour générer une réponse adaptée
       const hasTuesday = lowerPrompt.includes('mardi') || lowerPrompt.includes('tuesday');
       const hasThursday = lowerPrompt.includes('jeudi') || lowerPrompt.includes('thursday');
@@ -469,7 +480,9 @@ export async function setupGeminiMock(page: Page) {
     
     // console.log('🤖 Gemini API mock - Prompt:', userPrompt.substring(0, 100) + '...');
     
+    console.log('🤖 Gemini API mock - Génération réponse pour prompt:', userPrompt.substring(0, 100) + '...');
     const mockResponse = generateMockPollResponse(userPrompt);
+    console.log('🤖 Gemini API mock - Réponse générée:', JSON.stringify(mockResponse).substring(0, 200) + '...');
     
     await route.fulfill({
       status: 200,

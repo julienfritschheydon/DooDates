@@ -70,12 +70,12 @@ export class PollCreatorService {
       selectedDates: state.selectedDates,
       timeSlotsByDate: state.showTimeSlots
         ? state.selectedDates.reduce(
-            (acc, date) => {
-              acc[date] = state.timeSlots;
-              return acc;
-            },
-            {} as Record<string, typeof state.timeSlots>,
-          )
+          (acc, date) => {
+            acc[date] = state.timeSlots;
+            return acc;
+          },
+          {} as Record<string, typeof state.timeSlots>,
+        )
         : {},
       participantEmails: state.participantEmails
         .split(",")
@@ -121,18 +121,20 @@ export class PollCreatorService {
   }
 
   /**
-   * Analyze calendar availability (placeholder)
+   * Analyze calendar availability with conflict detection
    */
   static async analyzeCalendarAvailability(
     dates: string[],
-  ): Promise<Array<{ date: string; available: boolean }>> {
+    timeSlotsByDate: Record<string, TimeSlot[]>,
+    calendarService: import("../lib/google-calendar").GoogleCalendarService,
+  ): Promise<import("./calendarConflictDetection").TimeSlotConflict[]> {
     try {
-      // Placeholder for calendar integration
-      logError(new Error("Calendar integration not implemented"), {
-        component: "PollCreatorService",
-        operation: "analyzeCalendarAvailability",
-      });
-      return [];
+      const { CalendarConflictDetector } = await import("./calendarConflictDetection");
+      const detector = new CalendarConflictDetector(calendarService);
+
+      const conflicts = await detector.detectConflicts(dates, timeSlotsByDate);
+
+      return conflicts;
     } catch (error) {
       throw handleError(
         error,

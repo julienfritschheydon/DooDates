@@ -27,7 +27,7 @@ import { test, expect } from '@playwright/test';
 import { setupGeminiMock, setupAllMocksWithoutNavigation } from './global-setup';
 import { mockSupabaseAuth } from './utils';
 import { voteOnPollComplete } from './helpers/poll-helpers';
-import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
+import { waitForNetworkIdle, waitForReactStable, waitForElementReady, waitForChatInputReady } from './helpers/wait-helpers';
 import { getTimeouts } from './config/timeouts';
 import { safeIsVisible } from './helpers/safe-helpers';
 import { clearTestData } from './helpers/test-data';
@@ -160,7 +160,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     }
     
     // Attendre que l'input soit visible
-    const chatInput = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element * 1.5 });
+    const chatInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element * 1.5 });
     
     await chatInput.fill('Crée un questionnaire avec 1 seule question');
     await chatInput.press('Enter');
@@ -303,10 +303,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await waitForReactStable(page, { browserName });
 
     // Créer une conversation d'abord
-    const messageInput = await waitForElementReady(page, '[data-testid="message-input"]', {
-      browserName,
-      timeout: timeouts.element,
-    });
+    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
     
     await messageInput.fill('Premier message');
     await messageInput.press('Enter');
@@ -610,7 +607,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
   test('Test 7: Journal de consommation affiche toutes les entrées', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     // Créer quelques actions pour avoir des entrées dans le journal
-    const messageInput = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element });
+    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
     
     await messageInput.fill('Message 1');
     await messageInput.press('Enter');
@@ -690,7 +687,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
   test('Test 8: Séparation crédits guest vs auth', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     // Créer des crédits en mode guest
-    const messageInput = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element });
+    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
     
     // Premier message (crée conversation + message = 2 crédits)
     await messageInput.fill('Message guest 1');
@@ -761,7 +758,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(authQuotaData.totalCreditsConsumed).toBe(0);
     
     // Créer des crédits en étant connecté
-    const messageInput2 = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element });
+    const messageInput2 = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
     
     // Premier message (crée conversation + message = 2 crédits)
     await messageInput2.fill('Message auth 1');
@@ -946,7 +943,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
   test('Test 10: Barre de progression affiche crédits utilisés', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     // Consommer quelques crédits
-    const messageInput = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element });
+    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
     
     await messageInput.fill('Test crédits');
     await messageInput.press('Enter');
@@ -1072,7 +1069,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
   test('Test 12: Performance journal avec 100+ entrées', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     // Créer beaucoup d'entrées dans le journal (100+)
-    const messageInput = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element });
+    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
     
     // Créer 50 conversations (chacune = 1 crédit conversation + 1 message = 2 crédits)
     // Pour atteindre 100+ entrées rapidement, on peut créer des entrées directement dans le journal
@@ -1382,7 +1379,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
   test('Test 18: Cohérence UI vs localStorage (ou serveur en production)', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     // Consommer des crédits via l'interface
-    const messageInput = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element });
+    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
     
     await messageInput.fill('Test cohérence');
     await messageInput.press('Enter');
