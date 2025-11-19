@@ -1,10 +1,16 @@
-name: 6. Integration Tests (Real Supabase)
+name: 6. Production Integration Tests (Real Supabase)
+
+# RÔLE UNIQUE : Tests réels sur Supabase production
+# DIFFÉRENCE avec 2-develop-automerge.yml :
+# - 2-develop-automerge : Tests locaux/mockés (rapide, pré-merge)
+# - 6-integration-tests : Tests réels Supabase (lent, post-merge)
+# Évite la duplication en ayant des objectifs distincts
 
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
+  # push:
+  #   branches: [main]  # TEMPORAIREMENT DÉSACTIVÉ - test manquant
   workflow_dispatch:
 
 # Exécution séquentielle pour éviter conflits sur compte de test
@@ -80,7 +86,7 @@ jobs:
       - name: 🧪 Run Integration Tests
         run: |
           echo "🚀 Exécution des tests d'intégration réels..."
-          npx playwright test tests/integration/real-supabase-simplified.test.ts \
+          npx playwright test tests/integration/api-security-performance.spec.ts \
             --project=chromium \
             --reporter=list \
             --max-failures=5

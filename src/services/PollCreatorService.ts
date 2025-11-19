@@ -65,6 +65,7 @@ export class PollCreatorService {
     }
 
     const pollData: PollData = {
+      type: "date",
       title: state.pollTitle,
       description: null,
       selectedDates: state.selectedDates,
@@ -118,31 +119,6 @@ export class PollCreatorService {
         ? prev.selectedDates.filter((d) => d !== dateString)
         : [...prev.selectedDates, dateString],
     }));
-  }
-
-  /**
-   * Analyze calendar availability (placeholder)
-   */
-  static async analyzeCalendarAvailability(
-    dates: string[],
-  ): Promise<Array<{ date: string; available: boolean }>> {
-    try {
-      // Placeholder for calendar integration
-      logError(new Error("Calendar integration not implemented"), {
-        component: "PollCreatorService",
-        operation: "analyzeCalendarAvailability",
-      });
-      return [];
-    } catch (error) {
-      throw handleError(
-        error,
-        {
-          component: "PollCreatorService",
-          operation: "analyzeCalendarAvailability",
-        },
-        "Erreur lors de l'analyse du calendrier",
-      );
-    }
   }
 
   /**

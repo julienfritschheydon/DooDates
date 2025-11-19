@@ -13,7 +13,7 @@
 import { test, expect } from '@playwright/test';
 import { setupGeminiMock } from './global-setup';
 import { mockSupabaseAuth } from './utils';
-import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
+import { waitForNetworkIdle, waitForReactStable, waitForElementReady, waitForChatInputReady } from './helpers/wait-helpers';
 import { getTimeouts } from './config/timeouts';
 import { clearTestData } from './helpers/test-data';
 import { safeIsVisible } from './helpers/safe-helpers';
@@ -44,13 +44,8 @@ test.describe('Beta Key Activation', () => {
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
-    // Wait for app to load - check for message input or any interactive element
-    const messageInput = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element }).catch(async () => {
-      // If message input not found, check for any button or input as fallback
-      const anyInteractive = await waitForElementReady(page, 'input, button, [role="button"]', { browserName, timeout: timeouts.element });
-      return anyInteractive;
-    });
-    
+    // Wait for app to load via chat input helper (résilient à la vue / device)
+    const messageInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
     await expect(messageInput).toBeVisible({ timeout: timeouts.element });
   });
 
