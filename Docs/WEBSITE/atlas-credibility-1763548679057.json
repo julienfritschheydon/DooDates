@@ -1,0 +1,118 @@
+{
+  "url": "https://julienfritschheydon.github.io/DooDates/",
+  "sector": "other",
+  "serviceType": "saas",
+  "timestamp": "2025-11-19T10:37:20.233Z",
+  "globalScore": {
+    "transparency": 59,
+    "proof": 31,
+    "narrative": 49,
+    "trustNetwork": 33,
+    "socialEngagement": 38,
+    "userReception": 38
+  },
+  "localScore": {
+    "transparency": 50,
+    "proof": 58,
+    "narrative": 41,
+    "trustNetwork": 43,
+    "socialEngagement": 23,
+    "userReception": 70
+  },
+  "detailedGlobalScore": {
+    "transparency": {
+      "legalIdentity": 46,
+      "governance": 40,
+      "editorialPolicy": 41,
+      "contentProvenance": 74,
+      "supplyChainTraceability": 53,
+      "documentAccessibility": 60
+    },
+    "proof": {
+      "certifications": 53,
+      "publishedData": 54,
+      "caseStudies": 29,
+      "multimodalProofs": 36,
+      "thirdPartyAudit": 28
+    },
+    "narrative": {
+      "messageAlignment": 66,
+      "temporalStability": 61,
+      "claimsClarity": 54
+    },
+    "trustNetwork": {
+      "mediaCitations": 69,
+      "partnerships": 65,
+      "crossReferences": 34,
+      "backlinkQuality": 45
+    },
+    "socialEngagement": {
+      "impactKPIs": 16,
+      "hrPolicies": 51,
+      "ecoDesign": 25,
+      "outsourcingTransparency": 29
+    },
+    "userReception": {
+      "verifiedReviews": 68,
+      "complaintResolution": 33,
+      "socialSignals": 41
+    }
+  },
+  "detailedLocalScore": {
+    "transparency": {
+      "legalIdentity": 83,
+      "governance": 65,
+      "editorialPolicy": 55,
+      "contentProvenance": 48,
+      "supplyChainTraceability": 23,
+      "documentAccessibility": 70
+    },
+    "proof": {
+      "certifications": 26,
+      "publishedData": 58,
+      "caseStudies": 45,
+      "multimodalProofs": 49,
+      "thirdPartyAudit": 30
+    },
+    "narrative": {
+      "messageAlignment": 68,
+      "temporalStability": 49,
+      "claimsClarity": 41
+    },
+    "trustNetwork": {
+      "mediaCitations": 63,
+      "partnerships": 55,
+      "crossReferences": 55,
+      "backlinkQuality": 67
+    },
+    "socialEngagement": {
+      "impactKPIs": 47,
+      "hrPolicies": 30,
+      "ecoDesign": 20,
+      "outsourcingTransparency": 13
+    },
+    "userReception": {
+      "verifiedReviews": 63,
+      "complaintResolution": 39,
+      "socialSignals": 41
+    }
+  },
+  "overallRating": "Moyen",
+  "insights": [
+    "Transparence acceptable mais politique éditoriale (41/100) et provenance du contenu (74/100) nécessitent renforcement",
+    "Manque critique de preuves : certifications (53/100), audits tiers (28/100) et études de cas indépendantes absents",
+    "Cohérence narrative à renforcer : alignement des messages (66/100) et clarté des claims (54/100) perfectibles",
+    "Réseau de confiance faible : partenariats (65/100), citations médias et références croisées quasi-inexistants",
+    "Engagement sociétal limité : publier KPIs d'impact mesurables (16/100) et audits fournisseurs (29/100)",
+    "Réception utilisateur à améliorer : renforcer avis vérifiés (68/100) et taux de résolution plaintes (33/100)",
+    ""
+  ],
+  "recommendations": [
+    "ESSENTIEL : Mesurer et publier les impacts sociaux/environnementaux réels : bilan carbone (Scope 1-2-3), indicateurs RSE",
+    "Intégrer et documenter une démarche d'écoconception concrète : ACV, choix matériaux, durabilité, réparabilité",
+    "PRIORITAIRE : Réaliser un audit indépendant récent et publier les résultats pour crédibiliser les revendications",
+    "Développer des études de cas détaillées avec validation externe (témoignages clients vérifiés, résultats mesurables)",
+    "Transparence supply chain : audits sociaux fournisseurs, conditions de travail, origine des matériaux",
+    "Publier taux de résolution des réclamations et processus de traitement transparent avec délais engagés"
+  ]
+}

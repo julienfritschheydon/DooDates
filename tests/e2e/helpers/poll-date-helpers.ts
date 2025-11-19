@@ -1,5 +1,5 @@
 import { Page, expect } from '@playwright/test';
-import { waitForElementReady, waitForReactStable, waitForNetworkIdle } from '../helpers/wait-helpers';
+import { waitForElementReady, waitForReactStable, waitForNetworkIdle, waitForChatInputReady } from '../helpers/wait-helpers';
 import { robustClick } from '../utils';
 import { safeIsVisible } from './safe-helpers';
 import { type BrowserName, getTimeouts } from './poll-core-helpers';
@@ -315,10 +315,7 @@ export async function createDatePollWithTimeSlots(
     options.aiPrompt ||
     `Crée un sondage "${options.title}" avec les dates ${dates.join(', ')} et propose quelques créneaux.`;
 
-  const input = await waitForElementReady(page, '[data-testid="message-input"]', {
-    browserName,
-    timeout: timeouts.element,
-  });
+  const input = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
 
   await input.fill(promptMessage);
   console.log(`✉️ Prompt IA saisi (${promptMessage.length} caractères)`);

@@ -10,7 +10,7 @@
 
 import { test, expect } from '@playwright/test';
 import { setupAllMocks } from './global-setup';
-import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
+import { waitForNetworkIdle, waitForReactStable, waitForElementReady, waitForChatInputReady } from './helpers/wait-helpers';
 import { getTimeouts } from './config/timeouts';
 import { safeIsVisible } from './helpers/safe-helpers';
 
@@ -331,7 +331,7 @@ test.describe('Console Errors & React Warnings', () => {
     // 📸 Capture 1 : Page chargée
     await page.screenshot({ path: 'test-results/debug-1-page-loaded.png', fullPage: true });
 
-    const chatInput = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element });
+    const chatInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
     await chatInput.fill('Crée un questionnaire avec 1 question');
     
     // 📸 Capture 2 : Message rempli avant Enter

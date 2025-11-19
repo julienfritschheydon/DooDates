@@ -6,7 +6,8 @@
 import { Page, expect, Locator } from '@playwright/test';
 import { setupAllMocksWithoutNavigation } from '../global-setup';
 import { robustFill, waitForPageLoad, robustClick } from '../utils';
-import { waitForElementReady, waitForReactStable, waitForNetworkIdle } from '../helpers/wait-helpers';
+import { waitForElementReady, waitForReactStable, waitForNetworkIdle, waitForChatInputReady } from '../helpers/wait-helpers';
+
 import { fillFormTitle } from './form-helpers';
 import { safeIsVisible } from './safe-helpers';
 import { getPollSlugFromPage } from './poll-navigation-helpers';
@@ -853,8 +854,8 @@ export async function setupTestWithWorkspace(
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
   
-  // Attendre que le chat input soit visible (page prête)
-  await waitForElementReady(page, '[data-testid="message-input"]', { browserName });
+  // Attendre que le chat input soit prêt via le helper résilient
+  await waitForChatInputReady(page, browserName);
 
   console.log('[SETUP] ✅ Page workspace prête pour les tests');
 }
