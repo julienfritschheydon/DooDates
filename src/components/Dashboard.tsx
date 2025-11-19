@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageSquare, X, Info, Trash2, ExternalLink, FileText } from "lucide-react";
+import { MessageSquare, Info, Trash2, ExternalLink, FileText } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDashboardData } from "./dashboard/useDashboardData";
 import { DashboardFilters, ViewMode } from "./dashboard/DashboardFilters";
 import { ConversationCard } from "./dashboard/ConversationCard";
@@ -24,6 +25,7 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { AlertTriangle } from "lucide-react";
+import { CreatePageLayout } from "./layout/CreatePageLayout";
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -210,25 +212,10 @@ const Dashboard: React.FC = () => {
   const renderHeader = () => (
     <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Tableau de bord</h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600">
+        <h1 className="text-3xl font-bold tracking-tight text-white">Tableau de bord</h1>
+        <p className="mt-2 max-w-2xl text-sm text-gray-400">
           Pilotez vos conversations, sondages et analyses IA en un clin d'œil.
         </p>
-      </div>
-      <div className="flex items-center gap-2">
-        {/* Bouton fermer */}
-        <button
-          onClick={() => {
-            // Nettoyer l'état du poll en cours avant de retourner à l'accueil
-            localStorage.removeItem("editor_poll");
-            navigate("/", { replace: true });
-          }}
-          className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
-          title="Retour à l'accueil"
-          data-testid="close-dashboard"
-        >
-          <X className="w-6 h-6" />
-        </button>
       </div>
     </div>
   );
@@ -245,269 +232,289 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pb-8" data-testid="dashboard-ready">
-      <div className="pt-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <div className="flex flex-col gap-4 mb-8">{renderHeader()}</div>
+    <CreatePageLayout>
+      <div className="min-h-screen bg-[#0a0a0a] pb-8" data-testid="dashboard-ready">
+        <div className="pt-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Header */}
+            <div className="flex flex-col gap-4 mb-8">{renderHeader()}</div>
 
-          {/* Quota indicator */}
-          <div
-            className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${
-              quotaStatus.conversations.isNearLimit
-                ? "bg-orange-900/20 border-orange-500/50"
-                : "bg-blue-900/20 border-blue-500/50"
-            }`}
-          >
-            <Info
-              className={`w-5 h-5 ${
-                quotaStatus.conversations.isNearLimit ? "text-orange-400" : "text-blue-400"
+            {/* Quota indicator */}
+            <div
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${
+                quotaStatus.conversations.isNearLimit
+                  ? "bg-orange-900/20 border-orange-500/50"
+                  : "bg-blue-900/20 border-blue-500/50"
               }`}
-            />
-            <div className="flex-1 cursor-pointer" onClick={() => navigate("/dashboard/journal")}>
-              <p className="text-sm text-gray-300">
-                <span className="font-semibold">
-                  {quotaStatus.conversations.used + quotaStatus.aiMessages.used}/
-                  {quotaStatus.conversations.limit + quotaStatus.aiMessages.limit}
-                </span>{" "}
-                crédits utilisés
-                {!user && (
-                  <span className="ml-2 text-blue-400">
-                    • Créez un compte pour synchroniser vos données
-                  </span>
-                )}
-              </p>
-              <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
-                <div
-                  className={`h-2 rounded-full transition-all ${
-                    quotaStatus.conversations.isNearLimit || quotaStatus.aiMessages.isNearLimit
-                      ? "bg-orange-500"
-                      : "bg-blue-500"
-                  }`}
-                  style={{
-                    width: `${Math.min(
-                      Math.max(
-                        quotaStatus.conversations.percentage,
-                        quotaStatus.aiMessages.percentage,
-                      ),
-                      100,
-                    )}%`,
-                  }}
-                />
+            >
+              <Info
+                className={`w-5 h-5 ${
+                  quotaStatus.conversations.isNearLimit ? "text-orange-400" : "text-blue-400"
+                }`}
+              />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="flex-1 cursor-pointer hover:opacity-80 transition-opacity group"
+                      onClick={() => navigate("/dashboard/journal")}
+                    >
+                      <p className="text-sm text-gray-300 group-hover:text-gray-200 transition-colors">
+                        <span className="font-semibold">
+                          {quotaStatus.conversations.used + quotaStatus.aiMessages.used}/
+                          {quotaStatus.conversations.limit + quotaStatus.aiMessages.limit}
+                        </span>{" "}
+                        crédits utilisés
+                        <span className="ml-2 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                          → Voir le journal
+                        </span>
+                        {!user && (
+                          <span className="ml-2 text-blue-400">
+                            • Créez un compte pour synchroniser vos données
+                          </span>
+                        )}
+                      </p>
+                      <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full transition-all ${
+                            quotaStatus.conversations.isNearLimit ||
+                            quotaStatus.aiMessages.isNearLimit
+                              ? "bg-orange-500"
+                              : "bg-blue-500"
+                          }`}
+                          style={{
+                            width: `${Math.min(
+                              Math.max(
+                                quotaStatus.conversations.percentage,
+                                quotaStatus.aiMessages.percentage,
+                              ),
+                              100,
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Cliquez pour voir le journal de consommation des crédits</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate("/dashboard/journal")}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                  title="Voir le journal de consommation"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span className="hidden sm:inline">Journal</span>
+                </button>
+
+                <button
+                  onClick={() => navigate("/pricing")}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                  title="Voir les quotas et tarifs"
+                >
+                  <Info className="w-4 h-4" />
+                  <span className="hidden sm:inline">En savoir plus</span>
+                  <ExternalLink className="w-3 h-3" />
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate("/dashboard/journal")}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
-                title="Voir le journal de consommation"
-              >
-                <FileText className="w-4 h-4" />
-                <span className="hidden sm:inline">Journal</span>
-              </button>
-
-              <button
-                onClick={() => navigate("/pricing")}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
-                title="Voir les quotas et tarifs"
-              >
-                <Info className="w-4 h-4" />
-                <span className="hidden sm:inline">En savoir plus</span>
-                <ExternalLink className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-
-          {/* Filtres */}
-          <DashboardFilters
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            filter={filter}
-            onFilterChange={setFilter}
-            contentTypeFilter={contentTypeFilter}
-            onContentTypeFilterChange={setContentTypeFilter}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            selectedTags={selectedTags}
-            onTagsChange={setSelectedTags}
-            selectedFolderId={selectedFolderId}
-            onFolderChange={setSelectedFolderId}
-            selectedIdsCount={selectedIds.size}
-            onSelectAll={selectAll}
-            onClearSelection={clearSelection}
-            hasItems={filteredItems.length > 0}
-          />
-
-          {/* Contenu selon vue */}
-          {filteredItems.length === 0 ? (
-            <div className="text-center py-12">
-              <MessageSquare className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-medium text-gray-400 mb-2">
-                {searchQuery || filter !== "all" ? "Aucun résultat" : "Aucune conversation"}
-              </h3>
-              <p className="text-gray-500">
-                {searchQuery || filter !== "all"
-                  ? "Essayez avec d'autres critères"
-                  : "Commencez une conversation avec l'IA pour créer des sondages"}
-              </p>
-            </div>
-          ) : viewMode === "table" ? (
-            <DashboardTableView
-              items={paginatedItems}
-              selectedIds={selectedIds}
-              onToggleSelection={toggleSelection}
-              onRefresh={() => setRefreshKey((prev) => prev + 1)}
+            {/* Filtres */}
+            <DashboardFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              filter={filter}
+              onFilterChange={setFilter}
+              contentTypeFilter={contentTypeFilter}
+              onContentTypeFilterChange={setContentTypeFilter}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
+              selectedFolderId={selectedFolderId}
+              onFolderChange={setSelectedFolderId}
+              selectedIdsCount={selectedIds.size}
+              onSelectAll={selectAll}
+              onClearSelection={clearSelection}
+              hasItems={filteredItems.length > 0}
             />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedItems.map((item) => (
-                <ConversationCard
-                  key={item.id}
-                  item={item}
-                  isSelected={selectedIds.has(item.id)}
-                  onToggleSelection={() => toggleSelection(item.id)}
-                  onRefresh={() => setRefreshKey((prev) => prev + 1)}
-                />
-              ))}
-            </div>
-          )}
 
-          {/* Pagination */}
-          {filteredItems.length > 0 && totalPages > 1 && (
-            <div className="mt-8 mb-8" id="dashboard-pagination">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage > 1) {
-                          setCurrentPage(currentPage - 1);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
+            {/* Contenu selon vue */}
+            {filteredItems.length === 0 ? (
+              <div className="text-center py-12">
+                <MessageSquare className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                <h3 className="text-xl font-medium text-gray-400 mb-2">
+                  {searchQuery || filter !== "all" ? "Aucun résultat" : "Aucune conversation"}
+                </h3>
+                <p className="text-gray-500">
+                  {searchQuery || filter !== "all"
+                    ? "Essayez avec d'autres critères"
+                    : "Commencez une conversation avec l'IA pour créer des sondages"}
+                </p>
+              </div>
+            ) : viewMode === "table" ? (
+              <DashboardTableView
+                items={paginatedItems}
+                selectedIds={selectedIds}
+                onToggleSelection={toggleSelection}
+                onRefresh={() => setRefreshKey((prev) => prev + 1)}
+              />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedItems.map((item) => (
+                  <ConversationCard
+                    key={item.id}
+                    item={item}
+                    isSelected={selectedIds.has(item.id)}
+                    onToggleSelection={() => toggleSelection(item.id)}
+                    onRefresh={() => setRefreshKey((prev) => prev + 1)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {filteredItems.length > 0 && totalPages > 1 && (
+              <div className="mt-8 mb-8" id="dashboard-pagination">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (currentPage > 1) {
+                            setCurrentPage(currentPage - 1);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }
+                        }}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                      />
+                    </PaginationItem>
+
+                    {(() => {
+                      const pages: (number | "ellipsis")[] = [];
+                      const maxVisible = 7;
+
+                      if (totalPages <= maxVisible) {
+                        for (let i = 1; i <= totalPages; i++) {
+                          pages.push(i);
                         }
-                      }}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                    />
-                  </PaginationItem>
+                      } else {
+                        pages.push(1);
 
-                  {(() => {
-                    const pages: (number | "ellipsis")[] = [];
-                    const maxVisible = 7;
+                        let start = Math.max(2, currentPage - 1);
+                        let end = Math.min(totalPages - 1, currentPage + 1);
 
-                    if (totalPages <= maxVisible) {
-                      for (let i = 1; i <= totalPages; i++) {
-                        pages.push(i);
-                      }
-                    } else {
-                      pages.push(1);
+                        if (currentPage <= 3) {
+                          start = 2;
+                          end = 4;
+                        }
 
-                      let start = Math.max(2, currentPage - 1);
-                      let end = Math.min(totalPages - 1, currentPage + 1);
+                        if (currentPage >= totalPages - 2) {
+                          start = totalPages - 3;
+                          end = totalPages - 1;
+                        }
 
-                      if (currentPage <= 3) {
-                        start = 2;
-                        end = 4;
-                      }
+                        if (start > 2) {
+                          pages.push("ellipsis");
+                        }
 
-                      if (currentPage >= totalPages - 2) {
-                        start = totalPages - 3;
-                        end = totalPages - 1;
-                      }
+                        for (let i = start; i <= end; i++) {
+                          pages.push(i);
+                        }
 
-                      if (start > 2) {
-                        pages.push("ellipsis");
+                        if (end < totalPages - 1) {
+                          pages.push("ellipsis");
+                        }
+
+                        pages.push(totalPages);
                       }
 
-                      for (let i = start; i <= end; i++) {
-                        pages.push(i);
-                      }
+                      return pages.map((page, index) => {
+                        if (page === "ellipsis") {
+                          return (
+                            <PaginationItem key={`ellipsis-${index}`}>
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                          );
+                        }
 
-                      if (end < totalPages - 1) {
-                        pages.push("ellipsis");
-                      }
-
-                      pages.push(totalPages);
-                    }
-
-                    return pages.map((page, index) => {
-                      if (page === "ellipsis") {
                         return (
-                          <PaginationItem key={`ellipsis-${index}`}>
-                            <PaginationEllipsis />
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentPage(page);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              isActive={currentPage === page}
+                            >
+                              {page}
+                            </PaginationLink>
                           </PaginationItem>
                         );
-                      }
+                      });
+                    })()}
 
-                      return (
-                        <PaginationItem key={page}>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setCurrentPage(page);
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
-                            isActive={currentPage === page}
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    });
-                  })()}
-
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage < totalPages) {
-                          setCurrentPage(currentPage + 1);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
+                    <PaginationItem>
+                      <PaginationNext
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (currentPage < totalPages) {
+                            setCurrentPage(currentPage + 1);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }
+                        }}
+                        className={
+                          currentPage === totalPages ? "pointer-events-none opacity-50" : ""
                         }
-                      }}
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
 
-              <div className="text-center mt-4 text-sm text-gray-400">
-                Page {currentPage} sur {totalPages} ({filteredItems.length} élément
-                {filteredItems.length > 1 ? "s" : ""})
+                <div className="text-center mt-4 text-sm text-gray-400">
+                  Page {currentPage} sur {totalPages} ({filteredItems.length} élément
+                  {filteredItems.length > 1 ? "s" : ""})
+                </div>
+              </div>
+            )}
+          </div>
+
+          {selectedIds.size > 0 && (
+            <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+              <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-2xl px-6 py-4 flex items-center gap-4">
+                <span className="text-white font-medium">
+                  {selectedIds.size} élément(s) sélectionné(s)
+                </span>
+                <button
+                  onClick={handleBulkDelete}
+                  disabled={isDeleting}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {isDeleting ? "Suppression..." : "Supprimer"}
+                </button>
+                <button
+                  onClick={clearSelection}
+                  disabled={isDeleting}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Annuler
+                </button>
               </div>
             </div>
           )}
         </div>
-
-        {selectedIds.size > 0 && (
-          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
-            <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-2xl px-6 py-4 flex items-center gap-4">
-              <span className="text-white font-medium">
-                {selectedIds.size} élément(s) sélectionné(s)
-              </span>
-              <button
-                onClick={handleBulkDelete}
-                disabled={isDeleting}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Trash2 className="w-4 h-4" />
-                {isDeleting ? "Suppression..." : "Supprimer"}
-              </button>
-              <button
-                onClick={clearSelection}
-                disabled={isDeleting}
-                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Annuler
-              </button>
-            </div>
-          </div>
-        )}
       </div>
-    </div>
+    </CreatePageLayout>
   );
 };
 

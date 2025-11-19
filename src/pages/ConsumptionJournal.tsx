@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { logError, ErrorFactory } from "@/lib/error-handling";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ACTION_LABELS: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   conversation_created: {
@@ -161,34 +162,43 @@ export default function ConsumptionJournal() {
     <div className="min-h-screen bg-[#0a0a0a] pb-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/dashboard")}
-            className="mb-4 text-gray-400 hover:text-white"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour au dashboard
-          </Button>
+        <TooltipProvider>
+          <div className="mb-8">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate("/dashboard")}
+                  className="mb-4 text-gray-400 hover:text-white"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Retour au dashboard
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Retourner au tableau de bord</p>
+              </TooltipContent>
+            </Tooltip>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white flex items-center gap-3 mb-2">
-                <CreditCard className="w-8 h-8" />
-                Journal de consommation
-              </h1>
-              <p className="text-gray-400">
-                Historique détaillé de toutes vos consommations de crédits
-              </p>
-            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-white flex items-center gap-3 mb-2">
+                  <CreditCard className="w-8 h-8" />
+                  Journal de consommation
+                </h1>
+                <p className="text-gray-400">
+                  Historique détaillé de toutes vos consommations de crédits
+                </p>
+              </div>
 
-            {/* Statistiques globales */}
-            <div className="text-right">
-              <div className="text-2xl font-bold text-white">{totalCredits}</div>
-              <div className="text-sm text-gray-400">Crédits totaux consommés</div>
+              {/* Statistiques globales */}
+              <div className="text-right">
+                <div className="text-2xl font-bold text-white">{totalCredits}</div>
+                <div className="text-sm text-gray-400">Crédits totaux consommés</div>
+              </div>
             </div>
           </div>
-        </div>
+        </TooltipProvider>
 
         {/* Barre de recherche */}
         <div className="mb-6">

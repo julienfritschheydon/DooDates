@@ -37,6 +37,8 @@ import { useEditorState, useEditorActions } from "./EditorStateProvider";
 import { useUIState } from "./UIStateProvider";
 import GeminiChatInterface, { type GeminiChatHandle } from "../GeminiChatInterface";
 import { PollPreview } from "./PollPreview";
+import PollCreatorComponent from "../PollCreator";
+import FormPollCreator, { type FormPollDraft } from "../polls/FormPollCreator";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getAllPolls, type Poll } from "../../lib/pollStorage";
 import { formatDistanceToNow } from "date-fns";
@@ -84,13 +86,14 @@ function findRelatedConversation(poll: Poll): string | undefined {
 }
 
 /**
- * Workspace Layout Prototype - Architecture Context-based
+ * AI Creation Workspace - Espace de création avec IA
  *
- * Chat principal (toujours visible) + Éditeur conditionnel (sidebar droite)
- * - Chat : Fenêtre principale, contrôle l'éditeur
- * - Éditeur : S'ouvre/ferme selon l'état, interaction bidirectionnelle
+ * Layout avec :
+ * - Messages à gauche (chat IA)
+ * - Créateur de sondage/formulaire à droite (par défaut)
+ * - Input en bas
  */
-export function WorkspaceLayoutPrototype() {
+export function AICreationWorkspace() {
   const navigate = useNavigate();
   const location = useLocation();
   // Sur mobile : true = afficher preview, false = afficher chat
@@ -104,6 +107,7 @@ export function WorkspaceLayoutPrototype() {
   const resumeId = searchParams.get("resume");
   const conversationId = searchParams.get("conversationId");
   const newChatTimestamp = searchParams.get("new");
+  const pollTypeFromUrl = (searchParams.get("type") || "date") as "date" | "form";
 
   // Convertir "resume" en "conversationId" si nécessaire (Session 2 - Bug 3)
   useEffect(() => {
@@ -360,7 +364,7 @@ export function WorkspaceLayoutPrototype() {
               <div className="px-4 pb-4 space-y-2">
                 <button
                   onClick={() => {
-                    navigate("/create");
+                    navigate("/workspace/date");
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg transition-colors font-medium"
@@ -467,7 +471,7 @@ export function WorkspaceLayoutPrototype() {
                               openEditor();
                             }
 
-                            navigate(`/?resume=${conv.id}`);
+                            navigate(`/workspace?conversationId=${conv.id}`);
                             // Fermer la sidebar sur mobile
                             if (isMobile) setIsSidebarOpen(false);
                           }}
@@ -606,34 +610,27 @@ export function WorkspaceLayoutPrototype() {
             )}
 
             {/* Statut système */}
-            <div className="px-2 py-2 bg-gray-800/30 rounded-lg border border-gray-700/30 space-y-2">
+            <div className="px-2 py-2 bg-gray-800/30 rounded-lg border border-gray-700/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-gray-300">
                   <div className="w-2 h-2 bg-blue-400 rounded-full shadow-sm shadow-blue-400/50"></div>
                   <span className="text-xs font-medium">IA connectée</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-gray-400">
-                <div className="flex items-center gap-2">
-                  <LazyIconWrapper Icon={MessageSquare} className="w-3.5 h-3.5" />
-                  <span className="text-xs">
-                    {conversations.length} conversation
-                    {conversations.length > 1 ? "s" : ""}
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Chat principal - Zone centrale avec header DooDates */}
+        {/* Chat principal - Zone gauche avec header DooDates */}
         <div
           className={`flex flex-col bg-[#0a0a0a] transition-all duration-300 flex-1 flex-shrink-0 ${
-            isMobile ? "w-full" : "min-w-[500px]"
-          } ${isEditorOpen ? "" : ""}`}
+            isMobile ? "w-full" : "w-1/2 border-r border-gray-800"
+          }`}
         >
           {/* Header DooDates en haut de la zone de chat */}
-          <div className="h-14 fixed top-0 left-0 right-0 z-40 bg-[#0a0a0a] flex items-center justify-between px-4">
+          <div
+            className={`h-14 ${isMobile ? "fixed top-0 left-0 right-0" : "relative"} z-40 bg-[#0a0a0a] flex items-center justify-between px-4 border-b border-gray-800`}
+          >
             <div className="flex items-center gap-3">
               {/* Bouton hamburger (mobile + desktop pour replier sidebar) */}
               <button
@@ -645,6 +642,14 @@ export function WorkspaceLayoutPrototype() {
               </button>
               <h1 className="text-xl font-medium text-white">DooDates</h1>
             </div>
+            <button
+              onClick={() => navigate("/create/date")}
+              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              aria-label="Fermer"
+              title="Fermer"
+            >
+              <LazyIconWrapper Icon={X} className="w-5 h-5 text-gray-300" />
+            </button>
           </div>
 
           {/* Toggle Chat/Preview sur mobile */}
@@ -680,6 +685,7 @@ export function WorkspaceLayoutPrototype() {
                 hideStatusBar={true}
                 darkTheme={true}
                 voiceRecognition={sharedVoiceRecognition}
+                pollType={pollTypeFromUrl}
               />
             </div>
 
@@ -720,6 +726,7 @@ export function WorkspaceLayoutPrototype() {
                     darkTheme={true}
                     voiceRecognition={sharedVoiceRecognition}
                     textareaRef={previewTextareaRef}
+                    pollType={pollTypeFromUrl}
                   />
                 </div>
               </div>
@@ -727,20 +734,33 @@ export function WorkspaceLayoutPrototype() {
           </div>
         </div>
 
-        {/* Éditeur conditionnel - Sidebar droite sur desktop uniquement */}
-        {!isMobile && isEditorOpen && currentPoll && (
-          <div className="w-1/2 bg-[#0a0a0a] flex flex-col">
-            {/* Contenu éditeur avec bouton fermer intégré */}
+        {/* Créateur de sondage/formulaire - Sidebar droite sur desktop, toujours visible */}
+        {!isMobile && (
+          <div className="w-1/2 bg-[#0a0a0a] flex flex-col border-l border-gray-800">
             <div className="flex-1 overflow-y-auto relative pt-4">
-              <button
-                onClick={closeEditor}
-                className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
-                aria-label="Fermer l'éditeur"
-                title="Fermer"
-              >
-                <LazyIconWrapper Icon={X} className="w-5 h-5" />
-              </button>
-              <PollPreview poll={currentPoll} />
+              {currentPoll ? (
+                <>
+                  <button
+                    onClick={closeEditor}
+                    className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                    aria-label="Fermer l'éditeur"
+                    title="Fermer"
+                  >
+                    <LazyIconWrapper Icon={X} className="w-5 h-5" />
+                  </button>
+                  <PollPreview poll={currentPoll} />
+                </>
+              ) : // Afficher le créateur vide par défaut selon le type
+              pollTypeFromUrl === "form" ? (
+                <FormPollCreator
+                  initialDraft={undefined}
+                  onCancel={() => {}}
+                  onSave={() => {}}
+                  onFinalize={() => {}}
+                />
+              ) : (
+                <PollCreatorComponent onBack={() => {}} initialData={undefined} />
+              )}
             </div>
           </div>
         )}

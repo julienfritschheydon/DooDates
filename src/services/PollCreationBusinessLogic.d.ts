@@ -29,6 +29,7 @@ export interface PollCreationState {
   pollLinkCopied: boolean;
   expirationDays: number;
   showExpirationSettings: boolean;
+  showSettingsPanel: boolean;
 }
 export interface PollEditData {
   id: string;

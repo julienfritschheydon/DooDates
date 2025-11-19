@@ -3,6 +3,7 @@ import { ArrowUp, ArrowDown, Copy, Trash2, Edit2, Plus, GitBranch } from "lucide
 import type { ConditionalRule } from "../../types/conditionalRules";
 import ConditionalRuleEditor from "./ConditionalRuleEditor";
 import { useUIState } from "../prototype/UIStateProvider";
+import DateQuestionEditor from "./DateQuestionEditor";
 
 export type QuestionKind =
   | "single"
@@ -11,7 +12,8 @@ export type QuestionKind =
   | "long-text"
   | "matrix"
   | "rating"
-  | "nps";
+  | "nps"
+  | "date";
 
 export type QuestionOption = {
   id: string;
@@ -39,6 +41,12 @@ export type Question = {
   // Text validation fields
   validationType?: "email" | "phone" | "url" | "number" | "date"; // Type de validation pour champs text
   placeholder?: string; // Placeholder personnalisé
+  // Date-specific fields
+  selectedDates?: string[]; // Dates au format ISO string (YYYY-MM-DD)
+  timeSlotsByDate?: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>; // Créneaux horaires par date
+  timeGranularity?: "15min" | "30min" | "1h"; // Granularité des créneaux horaires
+  allowMaybeVotes?: boolean; // Permettre les votes "peut-être"
+  allowAnonymousVotes?: boolean; // Permettre les votes anonymes
 };
 
 export type QuestionCardProps = {
@@ -169,6 +177,24 @@ export default function QuestionCard({
           ratingMinLabel: undefined,
           ratingMaxLabel: undefined,
         });
+      } else if (kind === "date") {
+        onChange({
+          kind,
+          options: undefined,
+          maxChoices: undefined,
+          matrixRows: undefined,
+          matrixColumns: undefined,
+          matrixType: undefined,
+          ratingScale: undefined,
+          ratingStyle: undefined,
+          ratingMinLabel: undefined,
+          ratingMaxLabel: undefined,
+          selectedDates: question.selectedDates ?? [],
+          timeSlotsByDate: question.timeSlotsByDate ?? {},
+          timeGranularity: question.timeGranularity ?? "30min",
+          allowMaybeVotes: question.allowMaybeVotes ?? false,
+          allowAnonymousVotes: question.allowAnonymousVotes ?? false,
+        });
       }
     },
     [
@@ -183,6 +209,11 @@ export default function QuestionCard({
       question.ratingStyle,
       question.ratingMinLabel,
       question.ratingMaxLabel,
+      question.selectedDates,
+      question.timeSlotsByDate,
+      question.timeGranularity,
+      question.allowMaybeVotes,
+      question.allowAnonymousVotes,
       savedOptions,
     ],
   );
@@ -379,6 +410,23 @@ export default function QuestionCard({
             ))}
           </div>
         )}
+        {question.kind === "date" && (
+          <div className="text-sm text-gray-400">
+            {question.selectedDates && question.selectedDates.length > 0 ? (
+              <>
+                {question.selectedDates.length} date{question.selectedDates.length > 1 ? "s" : ""}{" "}
+                sélectionnée{question.selectedDates.length > 1 ? "s" : ""}
+                {question.timeSlotsByDate &&
+                Object.keys(question.timeSlotsByDate).length > 0 &&
+                Object.values(question.timeSlotsByDate).some((slots) => slots.length > 0) ? (
+                  <span className="ml-2">• Horaires configurés</span>
+                ) : null}
+              </>
+            ) : (
+              "Aucune date sélectionnée"
+            )}
+          </div>
+        )}
       </div>
     );
   }
@@ -403,6 +451,7 @@ export default function QuestionCard({
             <option value="matrix">Matrice</option>
             <option value="rating">Échelle de notation</option>
             <option value="nps">Net Promoter Score (NPS)</option>
+            <option value="date">Date</option>
           </select>
         </div>
         <div className="flex flex-wrap items-center gap-1 sm:gap-2">
@@ -719,6 +768,9 @@ export default function QuestionCard({
         </div>
       )}
 
+      {/* Date editor */}
+      {question.kind === "date" && <DateQuestionEditor question={question} onChange={onChange} />}
+
       {/* Text editor - Validation type */}
       {(question.kind === "text" || question.kind === "long-text") && (
         <div className="flex flex-col gap-3">
@@ -729,8 +781,7 @@ export default function QuestionCard({
               value={question.validationType ?? ""}
               onChange={(e) =>
                 onChange({
-                  validationType:
-                    (e.target.value as FormQuestionShape["validationType"]) || undefined,
+                  validationType: (e.target.value as Question["validationType"]) || undefined,
                 })
               }
             >

@@ -22,6 +22,9 @@ import {
 const conversationCache = new Map<string, Conversation>();
 const messageCache = new Map<string, ConversationMessage[]>();
 
+// Export messageCache for cache invalidation when inconsistencies are detected
+export { messageCache };
+
 /**
  * Convert Supabase conversation row to Conversation type
  */
@@ -622,6 +625,9 @@ export async function saveMessages(
 
     messageCache.set(conversationId, messages);
 
+    // Invalidate conversation cache to ensure messageCount is updated
+    conversationCache.delete(conversationId);
+
     logger.debug("Messages sauvegardés dans Supabase", "conversation", {
       conversationId,
       messageCount: messages.length,
@@ -665,12 +671,36 @@ export async function addMessages(
   });
 
   try {
-    // Get existing messages
+    // Invalidate cache to force reload from Supabase (avoid stale cache from other browsers)
+    messageCache.delete(conversationId);
+    console.log(`[${timestamp}] [${requestId}] 🗄️ Cache invalidé, rechargement depuis Supabase...`);
+
+    // Get existing messages (will reload from Supabase since cache is cleared)
     console.log(`[${timestamp}] [${requestId}] 🗄️ Récupération messages existants...`);
     const existingMessages = await getMessages(conversationId, userId);
     console.log(`[${timestamp}] [${requestId}] 🗄️ Messages existants:`, {
       count: existingMessages.length,
     });
+
+    // Verify message count matches conversation.messageCount to detect inconsistencies
+    const conversation = await getConversation(conversationId, userId);
+    if (
+      conversation &&
+      conversation.messageCount > 0 &&
+      existingMessages.length !== conversation.messageCount
+    ) {
+      logger.warn(
+        "⚠️ Incohérence détectée dans addMessages, messages peuvent être incomplets",
+        "conversation",
+        {
+          conversationId,
+          userId,
+          existingMessagesCount: existingMessages.length,
+          expectedCount: conversation.messageCount,
+          difference: conversation.messageCount - existingMessages.length,
+        },
+      );
+    }
 
     const allMessages = [...existingMessages, ...newMessages];
     console.log(`[${timestamp}] [${requestId}] 🗄️ Total messages après ajout:`, {
@@ -680,6 +710,10 @@ export async function addMessages(
     // Save all messages
     console.log(`[${timestamp}] [${requestId}] 🗄️ Sauvegarde de tous les messages...`);
     await saveMessages(conversationId, allMessages, userId);
+
+    // Invalidate conversation cache to ensure messageCount is updated
+    conversationCache.delete(conversationId);
+
     console.log(`[${timestamp}] [${requestId}] ✅ ConversationStorageSupabase.addMessages TERMINÉ`);
   } catch (error) {
     const processedError = handleError(

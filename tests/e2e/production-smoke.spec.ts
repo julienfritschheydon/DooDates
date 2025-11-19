@@ -15,6 +15,8 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { waitForNetworkIdle, waitForReactStable } from './helpers/wait-helpers';
+import { getTimeouts } from './config/timeouts';
 
 /**
  * Helper: Extraire le base path de l'URL de base
@@ -72,9 +74,11 @@ test.describe('🔥 Production Smoke Tests', () => {
    * TEST 1: Page d'accueil se charge
    * Vérifie que le déploiement de base fonctionne
    */
-  test('Page d\'accueil charge correctement', async ({ page }) => {
+  test('Page d\'accueil charge correctement', async ({ page, browserName }) => {
     // Aller à la page d'accueil
     await page.goto('/');
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
     
     // Vérifier que la page se charge (pas de 404/500)
     expect(page.url()).toContain('/');
@@ -93,7 +97,7 @@ test.describe('🔥 Production Smoke Tests', () => {
    * TEST 2: Assets critiques sont chargés
    * Vérifie que les fichiers JS/CSS sont bien déployés
    */
-  test('Assets critiques sont chargés sans erreur', async ({ page }) => {
+  test('Assets critiques sont chargés sans erreur', async ({ page, browserName }) => {
     const errors: string[] = [];
     
     // Écouter les erreurs de chargement
@@ -107,11 +111,12 @@ test.describe('🔥 Production Smoke Tests', () => {
       }
     });
     
+    const timeouts = getTimeouts(browserName);
     // Charger la page
     await page.goto('/');
     
     // Attendre que la page soit complètement chargée
-    await page.waitForLoadState('networkidle', { timeout: 30000 });
+    await waitForNetworkIdle(page, { browserName, timeout: timeouts.network * 2 });
     
     // Vérifier qu'il n'y a pas d'erreurs critiques
     const criticalErrors = errors.filter(error => 
@@ -134,7 +139,7 @@ test.describe('🔥 Production Smoke Tests', () => {
    * ⚠️ TEMPORAIREMENT SKIP - Échec en CI (1 erreur console non identifiée)
    * TODO: Identifier et corriger l'erreur console spécifique au CI
    */
-  test('Pas d\'erreurs console critiques', async ({ page }) => {
+  test('Pas d\'erreurs console critiques', async ({ page, browserName }) => {
     const consoleErrors: string[] = [];
     const failedRequests: { url: string; status: number; isCritical: boolean }[] = [];
     const all404s: string[] = []; // Logger TOUTES les 404 pour diagnostic
@@ -241,12 +246,11 @@ test.describe('🔥 Production Smoke Tests', () => {
       }
     });
     
+    const timeouts = getTimeouts(browserName);
     // Charger la page
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-
-    // Attendre que le réseau se stabilise (assets, scripts, trackers)
-    await page.waitForLoadState('networkidle');
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
 
     // Attendre que les erreurs async apparaissent sans timeout fixe
     await expect
@@ -285,9 +289,10 @@ test.describe('🔥 Production Smoke Tests', () => {
    * TEST 4: Navigation principale fonctionne
    * Vérifie que le routing de l'app fonctionne
    */
-  test('Navigation principale fonctionne', async ({ page }) => {
+  test('Navigation principale fonctionne', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
     await page.goto('/');
-    await page.waitForLoadState('networkidle', { timeout: 15000 });
+    await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
 
     // Attendre que le DOM affiche du contenu significatif
     await expect
@@ -316,7 +321,7 @@ test.describe('🔥 Production Smoke Tests', () => {
    * TEST 5: Configuration Supabase est valide
    * Vérifie qu'il n'y a pas d'erreurs Supabase visibles en production
    */
-  test('Configuration Supabase est présente', async ({ page }) => {
+  test('Configuration Supabase est présente', async ({ page, browserName }) => {
     // Capturer les erreurs console dès le début
     const consoleErrors: string[] = [];
     page.on('console', msg => {
@@ -326,7 +331,8 @@ test.describe('🔥 Production Smoke Tests', () => {
     });
     
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
 
     // Attendre que la page rende du contenu pour laisser les erreurs éventuelles se manifester
     await expect
@@ -363,7 +369,7 @@ test.describe('🔥 Production Smoke Tests', () => {
    * TEST 6: L'app peut gérer les routes de base
    * Vérifie que le système de routing SPA fonctionne (404.html fallback)
    */
-  test('Routing SPA fonctionne (404 fallback)', async ({ page }) => {
+  test('Routing SPA fonctionne (404 fallback)', async ({ page, browserName }) => {
     const basePath = getBasePath();
     
     // Tester une route qui n'existe pas physiquement
@@ -400,11 +406,13 @@ test.describe('🔥 Production Smoke Tests', () => {
    * TEST 7: Les fonctionnalités de base sont accessibles
    * Vérifie que les éléments principaux de l'UI sont rendus
    */
-  test('UI principale est rendue', async ({ page }) => {
+  test('UI principale est rendue', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
     await page.goto('/');
     
     // Attendre que la page soit complètement chargée
-    await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+    await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
+    await waitForReactStable(page, { browserName });
 
     await expect
       .poll(async () => {
@@ -439,7 +447,7 @@ test.describe('🔥 Production Smoke Tests', () => {
    * FIXME: Test à exécuter uniquement sur GitHub Pages en production
    * Le serveur Vite dev ne sert pas sw.js de la même manière
    */
-  test('Service Worker est disponible', async ({ page }) => {
+  test('Service Worker est disponible', async ({ page, browserName }) => {
     const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
     const isProd = !/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(baseUrl);
     test.skip(!isProd, 'Test exécuté uniquement en production GitHub Pages');
@@ -447,7 +455,8 @@ test.describe('🔥 Production Smoke Tests', () => {
     const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
 
     const swUrl = new URL('sw.js', normalizedBaseUrl).toString();
     const swResponse = await page.request.get(swUrl);
@@ -471,9 +480,10 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
    * TEST 9: Peut accéder au mode invité
    * Fonctionnalité de base: utiliser l'app sans compte
    */
-  test('Mode invité est accessible', async ({ page }) => {
+  test('Mode invité est accessible', async ({ page, browserName }) => {
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
 
     await expect
       .poll(async () => {
@@ -510,7 +520,7 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
    * FIXME: Test à exécuter uniquement sur GitHub Pages en production
    * Le serveur Vite dev retourne text/html pour toutes les routes inexistantes
    */
-  test('Assets statiques sont accessibles', async ({ page }) => {
+  test('Assets statiques sont accessibles', async ({ page, browserName }) => {
     const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
     const isProd = !/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(baseUrl);
     test.skip(!isProd, 'Test exécuté uniquement en production GitHub Pages');

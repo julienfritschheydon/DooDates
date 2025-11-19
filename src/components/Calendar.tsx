@@ -2,6 +2,7 @@ import React, { useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { logger } from "../lib/logger";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CalendarProps {
   visibleMonths: Date[];
@@ -209,41 +210,59 @@ const Calendar: React.FC<CalendarProps> = ({
         {visibleMonths.length > 0 && (
           <div className="border border-gray-700 rounded-lg p-3 bg-[#1e1e1e] overflow-hidden">
             {/* Navigation mobile */}
-            <div className="flex items-center justify-between mb-3">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => onMonthChange("prev")}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5 text-gray-300" />
-              </motion.button>
+            <TooltipProvider>
+              <div className="flex items-center justify-between mb-3">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => onMonthChange("prev")}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      aria-label="Mois précédent"
+                    >
+                      <ChevronLeft className="w-5 h-5 text-gray-300" />
+                    </motion.button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Mois précédent</p>
+                  </TooltipContent>
+                </Tooltip>
 
-              <AnimatePresence mode="wait">
-                <motion.h3
-                  key={visibleMonths[0]?.getTime()}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-lg font-semibold text-white"
-                >
-                  {visibleMonths[0]?.toLocaleDateString("fr-FR", {
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </motion.h3>
-              </AnimatePresence>
+                <AnimatePresence mode="wait">
+                  <motion.h3
+                    key={visibleMonths[0]?.getTime()}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-lg font-semibold text-white"
+                  >
+                    {visibleMonths[0]?.toLocaleDateString("fr-FR", {
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </motion.h3>
+                </AnimatePresence>
 
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => onMonthChange("next")}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-300" />
-              </motion.button>
-            </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => onMonthChange("next")}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      aria-label="Mois suivant"
+                    >
+                      <ChevronRight className="w-5 h-5 text-gray-300" />
+                    </motion.button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Mois suivant</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
 
             {/* Calendrier avec swipe - SOLUTION CRITIQUE */}
             <div className="relative">
@@ -300,62 +319,78 @@ const Calendar: React.FC<CalendarProps> = ({
       </div>
 
       {/* Desktop: Scroll avec navigation par flèches */}
-      <div className="hidden md:block relative">
-        {/* Flèche gauche - positionnée au niveau des titres des mois */}
-        <button
-          onClick={() => onMonthChange("prev")}
-          className="absolute left-2 top-6 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-2 transition-all border border-gray-700 hover:shadow-xl"
-          aria-label="Mois précédent"
-        >
-          <ChevronLeft className="w-5 h-5 text-gray-300" />
-        </button>
-
-        {/* Flèche droite - positionnée au niveau des titres des mois */}
-        <button
-          onClick={() => onMonthChange("next")}
-          className="absolute right-2 top-6 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-2 transition-all border border-gray-700 hover:shadow-xl"
-          aria-label="Mois suivant"
-        >
-          <ChevronRight className="w-5 h-5 text-gray-300" />
-        </button>
-
-        <div
-          ref={calendarRef}
-          onScroll={handleScroll}
-          className="overflow-x-auto border border-gray-700 rounded-lg bg-[#1e1e1e]"
-          style={{
-            scrollSnapType: "x mandatory",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            WebkitOverflowScrolling: "touch",
-          }}
-        >
-          <div className="flex gap-4 min-w-max px-16 py-3">
-            {visibleMonths.map((month, index) => (
-              <motion.div
-                key={`${month.getFullYear()}-${month.getMonth()}`}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="flex-none w-80"
-                style={{ scrollSnapAlign: "start" }}
+      <TooltipProvider>
+        <div className="hidden md:block relative">
+          {/* Flèche gauche - positionnée au niveau des titres des mois */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onMonthChange("prev")}
+                className="absolute left-2 top-6 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-2 transition-all border border-gray-700 hover:shadow-xl"
+                aria-label="Mois précédent"
               >
-                {/* Titre du mois */}
-                <div className="mb-3 text-center">
-                  <h3 className="text-lg font-semibold text-white">
-                    {month.toLocaleDateString("fr-FR", {
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </h3>
-                </div>
+                <ChevronLeft className="w-5 h-5 text-gray-300" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Mois précédent</p>
+            </TooltipContent>
+          </Tooltip>
 
-                {renderCalendarGrid(month, false)}
-              </motion.div>
-            ))}
+          {/* Flèche droite - positionnée au niveau des titres des mois */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onMonthChange("next")}
+                className="absolute right-2 top-6 z-20 bg-[#1e1e1e]/90 backdrop-blur-sm hover:bg-[#2a2a2a] shadow-lg rounded-full p-2 transition-all border border-gray-700 hover:shadow-xl"
+                aria-label="Mois suivant"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-300" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Mois suivant</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <div
+            ref={calendarRef}
+            onScroll={handleScroll}
+            className="overflow-x-auto border border-gray-700 rounded-lg bg-[#1e1e1e]"
+            style={{
+              scrollSnapType: "x mandatory",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
+            <div className="flex gap-4 min-w-max px-16 py-3">
+              {visibleMonths.map((month, index) => (
+                <motion.div
+                  key={`${month.getFullYear()}-${month.getMonth()}`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex-none w-80"
+                  style={{ scrollSnapAlign: "start" }}
+                >
+                  {/* Titre du mois */}
+                  <div className="mb-3 text-center">
+                    <h3 className="text-lg font-semibold text-white">
+                      {month.toLocaleDateString("fr-FR", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </h3>
+                  </div>
+
+                  {renderCalendarGrid(month, false)}
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </TooltipProvider>
     </div>
   );
 };

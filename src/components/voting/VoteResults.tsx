@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { triggerHaptic } from "./utils/voteUtils";
 import { logger } from "@/lib/logger";
 import { ArrowLeft, Users, Calendar, Clock, Trophy, Share2 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Poll {
   id: string;
@@ -274,106 +275,124 @@ export const VoteResults: React.FC<VoteResultsProps> = ({ poll, options, votes, 
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="min-h-screen bg-[#0a0a0a] p-4 pb-8 space-y-6"
-    >
-      {/* En-tête des résultats */}
+    <TooltipProvider>
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-[#1e1e1e]/95 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-700 p-4"
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="min-h-screen bg-[#0a0a0a] p-4 pb-8 space-y-6"
       >
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={onBack}
-            className="p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
-          >
-            <ArrowLeft className="h-6 w-6 text-gray-300" />
-          </button>
+        {/* En-tête des résultats */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#1e1e1e]/95 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-700 p-4"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onBack}
+                  className="p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
+                >
+                  <ArrowLeft className="h-6 w-6 text-gray-300" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Retour au vote</p>
+              </TooltipContent>
+            </Tooltip>
 
-          <h1 className="text-lg font-bold text-white text-center flex-1">Résultats</h1>
+            <h1 className="text-lg font-bold text-white text-center flex-1">Résultats</h1>
 
-          <button
-            onClick={handleShare}
-            className="p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
-          >
-            <Share2 className="h-6 w-6 text-gray-300" />
-          </button>
-        </div>
-
-        {/* Statistiques générales */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{totalVotes}</div>
-            <div className="text-xs text-gray-400">Participant{totalVotes !== 1 ? "s" : ""}</div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleShare}
+                  className="p-2 hover:bg-[#2a2a2a] rounded-full transition-colors"
+                >
+                  <Share2 className="h-6 w-6 text-gray-300" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Partager les résultats</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">
-              {bestOption?.voteCounts.yes || 0}
+
+          {/* Statistiques générales */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{totalVotes}</div>
+              <div className="text-xs text-gray-400">Participant{totalVotes !== 1 ? "s" : ""}</div>
             </div>
-            <div className="text-xs text-gray-400">Meilleur score</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {bestOption?.voteCounts.yes || 0}
+              </div>
+              <div className="text-xs text-gray-400">Meilleur score</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">{options.length}</div>
+              <div className="text-xs text-gray-400">Option{options.length !== 1 ? "s" : ""}</div>
+            </div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{options.length}</div>
-            <div className="text-xs text-gray-400">Option{options.length !== 1 ? "s" : ""}</div>
-          </div>
+
+          {/* Meilleure option */}
+          {bestOption && bestOption.voteCounts.yes > 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="mt-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-3 text-center"
+            >
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Trophy className="h-5 w-5" />
+                <span className="font-semibold">Créneau gagnant</span>
+              </div>
+              <div className="text-sm opacity-90">
+                {(() => {
+                  // Parser la date en mode local pour éviter les décalages timezone
+                  const [year, month, day] = bestOption.option_date.split("-").map(Number);
+                  const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
+
+                  return date.toLocaleDateString("fr-FR", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                  });
+                })()}
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
+
+        {/* Liste des résultats */}
+        <div className="space-y-3" data-testid="results-table">
+          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Classement des options
+          </h2>
+
+          {sortedOptions.map((option, index) => (
+            <OptionResult key={option.id} option={option} votes={votes} rank={index + 1} />
+          ))}
         </div>
 
-        {/* Meilleure option */}
-        {bestOption && bestOption.voteCounts.yes > 0 && (
+        {/* Message si aucun vote */}
+        {totalVotes === 0 && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mt-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-3 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-12"
           >
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <Trophy className="h-5 w-5" />
-              <span className="font-semibold">Créneau gagnant</span>
-            </div>
-            <div className="text-sm opacity-90">
-              {(() => {
-                // Parser la date en mode local pour éviter les décalages timezone
-                const [year, month, day] = bestOption.option_date.split("-").map(Number);
-                const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
-
-                return date.toLocaleDateString("fr-FR", {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                });
-              })()}
-            </div>
+            <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-300 mb-2">Aucun vote pour le moment</h3>
+            <p className="text-gray-400">
+              Partagez le lien du sondage pour collecter des réponses !
+            </p>
           </motion.div>
         )}
       </motion.div>
-
-      {/* Liste des résultats */}
-      <div className="space-y-3" data-testid="results-table">
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-          <Users className="h-5 w-5" />
-          Classement des options
-        </h2>
-
-        {sortedOptions.map((option, index) => (
-          <OptionResult key={option.id} option={option} votes={votes} rank={index + 1} />
-        ))}
-      </div>
-
-      {/* Message si aucun vote */}
-      {totalVotes === 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center py-12"
-        >
-          <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-300 mb-2">Aucun vote pour le moment</h3>
-          <p className="text-gray-400">Partagez le lien du sondage pour collecter des réponses !</p>
-        </motion.div>
-      )}
-    </motion.div>
+    </TooltipProvider>
   );
 };

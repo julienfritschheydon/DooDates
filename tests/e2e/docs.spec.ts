@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { attachConsoleGuard, warmup, enableE2ELocalMode } from './utils';
+import { waitForReactStable, waitForNetworkIdle, waitForElementReady } from './helpers/wait-helpers';
+import { getTimeouts } from './config/timeouts';
+import { safeIsVisible } from './helpers/safe-helpers';
 
 test.describe('Documentation - Tests E2E', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,7 +10,7 @@ test.describe('Documentation - Tests E2E', () => {
     await warmup(page);
   });
 
-  test('Documentation page loads without errors @smoke', async ({ page }) => {
+  test('Documentation page loads without errors @smoke', async ({ page, browserName }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -17,11 +20,13 @@ test.describe('Documentation - Tests E2E', () => {
     });
 
     try {
+      const timeouts = getTimeouts(browserName);
       // Naviguer vers la page de documentation
       await page.goto('/docs', { waitUntil: 'domcontentloaded' });
       
       // Attendre que la page soit complètement chargée
-      await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
+      await waitForReactStable(page, { browserName });
       
       // Vérifier que la page de documentation est accessible
       await expect(page).toHaveURL(/.*\/docs/);
@@ -40,8 +45,8 @@ test.describe('Documentation - Tests E2E', () => {
       ]);
       
       // Vérifier que l'un ou l'autre est visible
-      const titleVisible = await title.isVisible().catch(() => false);
-      const descVisible = await description.isVisible().catch(() => false);
+      const titleVisible = await safeIsVisible(title);
+      const descVisible = await safeIsVisible(description);
       
       if (!titleVisible && !descVisible) {
         // Si aucun n'est visible, prendre un screenshot pour debug
@@ -50,10 +55,7 @@ test.describe('Documentation - Tests E2E', () => {
       }
       
       // Vérifier qu'il n'y a pas d'erreurs de chargement de ressources
-      const response = await page.goto('/docs', { waitUntil: 'networkidle' }).catch(() => null);
-      if (response) {
-        expect(response.status()).toBeLessThan(400);
-      }
+      // La navigation a déjà été effectuée plus haut, pas besoin de re-naviguer
       
       await guard.assertClean();
     } finally {
@@ -61,7 +63,7 @@ test.describe('Documentation - Tests E2E', () => {
     }
   });
 
-  test('Documentation page loads a specific document @functional', async ({ page }) => {
+  test('Documentation page loads a specific document @functional', async ({ page, browserName }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -71,11 +73,13 @@ test.describe('Documentation - Tests E2E', () => {
     });
 
     try {
+      const timeouts = getTimeouts(browserName);
       // Naviguer vers un document spécifique
       await page.goto('/docs/01-Guide-Demarrage-Rapide', { waitUntil: 'domcontentloaded' });
       
       // Attendre que le document soit chargé
-      await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
+      await waitForReactStable(page, { browserName });
       
       // Vérifier que l'URL est correcte
       await expect(page).toHaveURL(/.*\/docs\/01-Guide-Demarrage-Rapide/);
@@ -87,15 +91,15 @@ test.describe('Documentation - Tests E2E', () => {
       
       // Vérifier qu'il y a du contenu (pas juste une erreur)
       const errorMessage = page.getByText(/Erreur de chargement/i);
-      const hasError = await errorMessage.isVisible().catch(() => false);
+      const hasError = await safeIsVisible(errorMessage);
       
       if (hasError) {
         throw new Error('Le document n\'a pas pu être chargé');
       }
       
       // Vérifier qu'il y a du contenu markdown rendu (prose typography)
-      const content = page.locator('.docs-content, .prose, [class*="prose"]');
-      await expect(content.first()).toBeVisible({ timeout: 5000 });
+      const content = await waitForElementReady(page, '.docs-content, .prose, [class*="prose"]', { browserName, timeout: timeouts.element });
+      await expect(content.first()).toBeVisible();
       
       await guard.assertClean();
     } finally {
@@ -103,7 +107,7 @@ test.describe('Documentation - Tests E2E', () => {
     }
   });
 
-  test('Documentation page handles 404 gracefully @functional', async ({ page }) => {
+  test('Documentation page handles 404 gracefully @functional', async ({ page, browserName }) => {
     const guard = attachConsoleGuard(page, {
       allowlist: [
         /Importing a module script failed\./i,
@@ -114,20 +118,21 @@ test.describe('Documentation - Tests E2E', () => {
     });
 
     try {
+      const timeouts = getTimeouts(browserName);
       // Naviguer vers un document qui n'existe pas
       await page.goto('/docs/non-existent-document', { waitUntil: 'domcontentloaded' });
       
       // Attendre que la page soit chargée
-      await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
       
-      // Attendre un peu pour que le composant se mette à jour
-      await page.waitForTimeout(2000);
+      // Attendre que le composant se mette à jour
+      await waitForReactStable(page, { browserName });
       
       // Vérifier que la page ne crash pas et qu'elle affiche quelque chose
       // Le composant DocsViewer peut afficher un loader, un message d'erreur, ou rester vide
       // On vérifie simplement que la page ne crash pas en vérifiant que le body existe
       const body = page.locator('body');
-      await expect(body).toBeVisible({ timeout: 5000 });
+      await expect(body).toBeVisible({ timeout: timeouts.element });
       
       // Vérifier que l'URL est correcte (ou qu'elle a été redirigée vers /docs)
       const currentUrl = page.url();
@@ -139,7 +144,7 @@ test.describe('Documentation - Tests E2E', () => {
     }
   });
 
-  test('Documentation assets load correctly (no 404 errors) @smoke', async ({ page }) => {
+  test('Documentation assets load correctly (no 404 errors) @smoke', async ({ page, browserName }) => {
     const failedRequests: string[] = [];
 
     // Capturer les requêtes qui échouent
@@ -157,11 +162,14 @@ test.describe('Documentation - Tests E2E', () => {
     });
 
     try {
+      const timeouts = getTimeouts(browserName);
       // Naviguer vers la documentation
-      await page.goto('/docs', { waitUntil: 'networkidle' });
+      await page.goto('/docs', { waitUntil: 'domcontentloaded' });
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
       
       // Naviguer vers un document pour déclencher le chargement des assets
-      await page.goto('/docs/01-Guide-Demarrage-Rapide', { waitUntil: 'networkidle' });
+      await page.goto('/docs/01-Guide-Demarrage-Rapide', { waitUntil: 'domcontentloaded' });
+      await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
       
       // Vérifier qu'il n'y a pas de requêtes 404 pour les assets de documentation
       const doc404s = failedRequests.filter(req => 

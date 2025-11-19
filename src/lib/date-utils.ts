@@ -9,6 +9,29 @@
  */
 
 /**
+ * Formate une date au format complet uniforme : "Samedi 15 novembre 2025"
+ * Format standardisé pour l'affichage des dates dans toute l'application
+ *
+ * @param dateString - Date au format YYYY-MM-DD
+ * @returns String formatée "JourSemaine Jour Mois Année" (ex: "Samedi 15 novembre 2025")
+ *
+ * @example
+ * formatDateFull("2025-11-15"); // "Samedi 15 novembre 2025"
+ */
+export function formatDateFull(dateString: string): string {
+  // Parser la date en mode local pour éviter les décalages timezone
+  const [year, month, day] = dateString.split("-").map(Number);
+  const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
+
+  return date.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+/**
  * Convertit une Date en string YYYY-MM-DD en utilisant l'heure locale
  * (pas UTC comme toISOString)
  *

@@ -31,6 +31,13 @@ export interface PollSettings {
     Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>
   >;
   timeGranularity?: number; // Granularité des créneaux horaires en minutes (30, 60, etc.)
+  // Form poll settings
+  allowAnonymousResponses?: boolean;
+  expiresAt?: string;
+  // Date poll settings
+  allowAnonymousVotes?: boolean;
+  allowMaybeVotes?: boolean;
+  sendNotifications?: boolean;
 }
 
 // --- Types FormPoll (réponses & résultats) ---
@@ -41,7 +48,8 @@ export type FormQuestionKind =
   | "long-text"
   | "matrix"
   | "rating"
-  | "nps";
+  | "nps"
+  | "date";
 
 export interface FormQuestionOption {
   id: string;
@@ -74,17 +82,31 @@ export interface FormQuestionShape {
   // NPS-specific fields (toujours 0-10, pas de configuration)
   // Text validation fields
   validationType?: "email" | "phone" | "url" | "number" | "date"; // Type de validation pour champs text
+  // Date-specific fields
+  selectedDates?: string[]; // Dates au format ISO string (YYYY-MM-DD)
+  timeSlotsByDate?: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>; // Créneaux horaires par date
+  timeGranularity?: "15min" | "30min" | "1h"; // Granularité des créneaux horaires
+  allowMaybeVotes?: boolean; // Permettre les votes "peut-être"
+  allowAnonymousVotes?: boolean; // Permettre les votes anonymes
 }
 
 // Import ConditionalRule type
 import type { ConditionalRule } from "../types/conditionalRules";
+
+// Type pour les votes sur questions de type "date"
+export type DateVoteValue = Array<{
+  date: string; // Date au format YYYY-MM-DD
+  timeSlots: Array<{ hour: number; minute: number }>; // Créneaux horaires votés
+  vote: "yes" | "no" | "maybe"; // Type de vote
+}>;
 
 export interface FormResponseItem {
   questionId: string;
   // single => string (optionId), multiple => string[] (optionIds), text => string
   // matrix => Record<rowId, columnId | columnId[]>
   // rating/nps => number
-  value: string | string[] | Record<string, string | string[]> | number;
+  // date => DateVoteValue
+  value: string | string[] | Record<string, string | string[]> | number | DateVoteValue;
 }
 
 export interface FormResponse {
@@ -97,10 +119,36 @@ export interface FormResponse {
   items: FormResponseItem[];
 }
 
+// Résultats agrégés pour une question de type "date"
+export interface DateQuestionResults {
+  // Pour chaque date, compter les votes yes/no/maybe
+  votesByDate: Record<
+    string,
+    {
+      yes: number;
+      no: number;
+      maybe: number;
+      total: number;
+    }
+  >;
+  // Pour chaque créneau horaire (date + hour:minute), compter les votes
+  votesByTimeSlot: Record<
+    string, // Format: "date-hour-minute" (ex: "2025-03-11-09-00")
+    {
+      yes: number;
+      no: number;
+      maybe: number;
+      total: number;
+    }
+  >;
+  totalResponses: number; // Nombre total de réponses pour cette question
+}
+
 export interface FormResults {
   pollId: string;
   countsByQuestion: Record<string, Record<string, number>>; // questionId -> optionId -> count
   textAnswers: Record<string, string[]>; // questionId -> answers
+  dateResults: Record<string, DateQuestionResults>; // questionId -> DateQuestionResults
   totalResponses: number;
 }
 
@@ -290,41 +338,9 @@ export function savePolls(polls: Poll[]): void {
 
 export function getPollBySlugOrId(idOrSlug: string | undefined | null): Poll | null {
   if (!idOrSlug) return null;
-
-  // 1) Essayer d'abord le cache mémoire (utile si localStorage n'est pas encore synchronisé)
-  logger.debug(`🔍 getPollBySlugOrId: Recherche de ${idOrSlug}`, "poll", {
-    cacheSize: memoryPollCache.size,
-    cacheKeys: Array.from(memoryPollCache.keys()),
-  });
-
-  const cachedById = memoryPollCache.get(idOrSlug);
-  if (cachedById) {
-    logger.debug(`✅ Poll trouvé dans cache mémoire: ${idOrSlug}`, "poll");
-    return cachedById;
-  }
-
-  // Vérifier aussi par slug dans le cache
-  for (const poll of memoryPollCache.values()) {
-    if (poll.slug === idOrSlug) {
-      logger.debug(`✅ Poll trouvé par slug dans cache: ${idOrSlug}`, "poll");
-      return poll;
-    }
-  }
-
-  // 2) Sinon, rechercher dans l'ensemble unifié (date + form)
-  logger.debug(`⚠️ Poll non trouvé dans cache, recherche dans localStorage`, "poll");
+  // Rechercher dans l'ensemble unifié (date + form)
   const polls = getAllPolls();
-  const found =
-    polls.find((p) => p.slug === idOrSlug) || polls.find((p) => p.id === idOrSlug) || null;
-
-  if (!found) {
-    logger.error(`❌ Poll introuvable: ${idOrSlug}`, "poll", {
-      totalPolls: polls.length,
-      pollIds: polls.map((p) => p.id).slice(0, 5),
-    });
-  }
-
-  return found;
+  return polls.find((p) => p.slug === idOrSlug) || polls.find((p) => p.id === idOrSlug) || null;
 }
 
 export async function addPoll(poll: Poll): Promise<void> {
@@ -827,6 +843,47 @@ function assertValidFormAnswer(poll: Poll, items: FormResponseItem[]): void {
           throw validationError;
         }
       }
+      if (q.kind === "date") {
+        // Vérifier que c'est bien un DateVoteValue (tableau d'objets avec date, timeSlots, vote)
+        if (!Array.isArray(it.value) || it.value.length === 0) {
+          const validationError = ErrorFactory.validation(
+            "Date vote required",
+            "Vote sur dates obligatoire",
+          );
+
+          logError(validationError, {
+            component: "pollStorage",
+            operation: "assertValidFormAnswer",
+            questionId: q.id,
+          });
+
+          throw validationError;
+        }
+        // Vérifier que chaque entrée a la structure attendue
+        const dateValue = it.value as DateVoteValue;
+        const isValid = dateValue.every(
+          (vote) =>
+            typeof vote === "object" &&
+            vote !== null &&
+            typeof vote.date === "string" &&
+            Array.isArray(vote.timeSlots) &&
+            (vote.vote === "yes" || vote.vote === "no" || vote.vote === "maybe"),
+        );
+        if (!isValid) {
+          const validationError = ErrorFactory.validation(
+            "Invalid date vote format",
+            "Format de vote sur dates invalide",
+          );
+
+          logError(validationError, {
+            component: "pollStorage",
+            operation: "assertValidFormAnswer",
+            questionId: q.id,
+          });
+
+          throw validationError;
+        }
+      }
     }
     // Max choices
     if (q.kind === "multiple" && q.maxChoices && q.maxChoices > 0) {
@@ -856,53 +913,84 @@ export function addFormResponse(params: {
   respondentEmail?: string;
   items: FormResponseItem[];
 }): FormResponse {
-  const poll = getFormPollById(params.pollId);
-  if (!poll) {
-    const notFoundError = ErrorFactory.validation(
-      "Form poll not found",
-      "Sondage de formulaire introuvable",
-    );
+  const { pollId, respondentName, respondentEmail, items } = params;
 
-    logError(notFoundError, {
-      component: "pollStorage",
-      operation: "addFormResponse",
-      pollId: params.pollId,
-    });
-
-    throw notFoundError;
+  // Valider les entrées
+  if (!pollId) {
+    throw ErrorFactory.validation("pollId is required", "ID du sondage requis");
   }
-  // Validation (required + maxChoices)
-  assertValidFormAnswer(poll, params.items);
+  if (!Array.isArray(items) || items.length === 0) {
+    throw ErrorFactory.validation(
+      "At least one response item is required",
+      "Au moins une réponse est requise",
+    );
+  }
 
-  const all = readAllResponses();
-  // déduplication légère: même navigateur + même nom => remplace
-  const normalizedName = (params.respondentName || "").trim();
-  const targetKey = (normalizedName || "").toLowerCase();
-  const existingIdx = all.findIndex(
-    (r) =>
-      r.pollId === params.pollId && (r.respondentName || "").trim().toLowerCase() === targetKey,
-  );
+  // Log pour déboguer les réponses de type date
+  const dateItems = items.filter((item) => {
+    const question = getFormPollById(pollId)?.questions?.find((q) => q.id === item.questionId);
+    return question && (question.kind === "date" || question.type === "date");
+  });
+
+  if (dateItems.length > 0) {
+    console.log("📅 Adding date question responses:", {
+      pollId,
+      dateQuestions: dateItems.map((item) => ({
+        questionId: item.questionId,
+        value: item.value,
+        question: getFormPollById(pollId)?.questions?.find((q) => q.id === item.questionId)?.title,
+      })),
+    });
+  }
+
+  // Récupérer toutes les réponses existantes
+  const allResponses = readAllResponses();
   const now = new Date().toISOString();
-  const resp: FormResponse = {
+
+  // Normaliser le nom du répondant pour la détection des doublons
+  const normalizedName = respondentName?.trim();
+
+  // Vérifier si une réponse existe déjà pour ce répondant (même nom et même sondage)
+  const existingResponseIndex = allResponses.findIndex(
+    (r) => r.pollId === pollId && r.respondentName?.toLowerCase() === normalizedName?.toLowerCase(),
+  );
+
+  // Créer la nouvelle réponse
+  const response: FormResponse = {
     id:
-      existingIdx >= 0
-        ? all[existingIdx].id
+      existingResponseIndex >= 0
+        ? allResponses[existingResponseIndex].id
         : `resp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-    pollId: params.pollId,
-    respondentName: normalizedName ? normalizedName : undefined,
-    respondentEmail: params.respondentEmail,
+    pollId,
+    respondentName: normalizedName || undefined,
+    respondentEmail: respondentEmail?.trim(),
     deviceId: getDeviceId(), // Stocker deviceId pour vérification de vote
     created_at: now,
-    items: params.items,
+    items: items,
   };
-  if (existingIdx >= 0) {
-    all[existingIdx] = resp;
-  } else {
-    all.push(resp);
-  }
-  writeAllResponses(all);
 
-  return resp;
+  // Mettre à jour ou ajouter la réponse
+  if (existingResponseIndex >= 0) {
+    allResponses[existingResponseIndex] = response;
+  } else {
+    allResponses.push(response);
+  }
+
+  // Sauvegarder les réponses mises à jour
+  writeAllResponses(allResponses);
+
+  // Log pour vérifier ce qui est enregistré
+  if (dateItems.length > 0) {
+    console.log("✅ Saved date question responses to localStorage:", {
+      responseId: response.id,
+      dateItems: dateItems.map((item) => ({
+        questionId: item.questionId,
+        value: item.value,
+      })),
+    });
+  }
+
+  return response;
 }
 
 export function getFormResults(pollId: string): FormResults {
@@ -925,13 +1013,21 @@ export function getFormResults(pollId: string): FormResults {
 
   const countsByQuestion: Record<string, Record<string, number>> = {};
   const textAnswers: Record<string, string[]> = {};
+  const dateResults: Record<string, DateQuestionResults> = {};
 
   const qIndex = new Map<string, FormQuestionShape>();
   for (const q of (poll.questions || []) as FormQuestionShape[]) {
     qIndex.set(q.id, q);
     const kind = q.kind || q.type || "single";
-    if (kind !== "text") countsByQuestion[q.id] = {};
+    if (kind !== "text" && kind !== "date") countsByQuestion[q.id] = {};
     if (kind === "text") textAnswers[q.id] = [];
+    if (kind === "date") {
+      dateResults[q.id] = {
+        votesByDate: {},
+        votesByTimeSlot: {},
+        totalResponses: 0,
+      };
+    }
   }
 
   for (const r of all) {
@@ -945,6 +1041,77 @@ export function getFormResults(pollId: string): FormResults {
         }
         continue;
       }
+      if (kind === "date") {
+        // Debug log for date question processing
+        console.log(`Processing date question ${q.id} with value:`, JSON.stringify(it.value));
+
+        try {
+          const dateValue = it.value as DateVoteValue | undefined;
+          if (!dateValue || !Array.isArray(dateValue)) {
+            console.warn(`Invalid date value for question ${q.id}:`, it.value);
+            continue;
+          }
+
+          const questionResults = dateResults[q.id];
+          if (!questionResults) {
+            console.warn(`No question results found for date question ${q.id}`);
+            continue;
+          }
+
+          // Compter les votes par date et par créneau horaire
+          dateValue.forEach((voteEntry) => {
+            const { date, timeSlots, vote } = voteEntry;
+
+            if (!date) {
+              console.warn("Missing date in vote entry:", voteEntry);
+              return;
+            }
+
+            // Agréger par date
+            if (!questionResults.votesByDate[date]) {
+              questionResults.votesByDate[date] = { yes: 0, no: 0, maybe: 0, total: 0 };
+            }
+            questionResults.votesByDate[date][vote]++;
+            questionResults.votesByDate[date].total++;
+
+            // Agréger par créneau horaire
+            timeSlots.forEach((slot) => {
+              const timeSlotKey = `${date}-${slot.hour.toString().padStart(2, "0")}-${slot.minute.toString().padStart(2, "0")}`;
+              if (!questionResults.votesByTimeSlot[timeSlotKey]) {
+                questionResults.votesByTimeSlot[timeSlotKey] = {
+                  yes: 0,
+                  no: 0,
+                  maybe: 0,
+                  total: 0,
+                };
+              }
+              questionResults.votesByTimeSlot[timeSlotKey][vote]++;
+              questionResults.votesByTimeSlot[timeSlotKey].total++;
+            });
+          });
+
+          questionResults.totalResponses++;
+          console.log(`Processed date question ${q.id} results:`, {
+            votesByDate: questionResults.votesByDate,
+            votesByTimeSlot: questionResults.votesByTimeSlot,
+            totalResponses: questionResults.totalResponses,
+          });
+        } catch (error) {
+          logError(
+            handleError(
+              error,
+              {
+                component: "pollStorage",
+                operation: "getFormResults",
+                questionId: q.id,
+              },
+              "Erreur lors du traitement de la question date",
+            ),
+          );
+          continue;
+        }
+        continue;
+      }
       if (kind === "single") {
         const optId = typeof it.value === "string" ? it.value : undefined;
         if (!optId) continue;
@@ -952,7 +1119,11 @@ export function getFormResults(pollId: string): FormResults {
         continue;
       }
       if (kind === "multiple") {
-        const arr = Array.isArray(it.value) ? it.value : [];
+        // Vérifier que c'est bien un tableau de strings (pas un DateVoteValue)
+        if (!Array.isArray(it.value)) continue;
+        // Exclure DateVoteValue en vérifiant que ce n'est pas un tableau d'objets avec 'date'
+        if (it.value.length > 0 && typeof it.value[0] !== "string") continue;
+        const arr = it.value as string[];
         for (const optId of arr) {
           countsByQuestion[q.id][optId] = (countsByQuestion[q.id][optId] || 0) + 1;
         }
@@ -980,6 +1151,7 @@ export function getFormResults(pollId: string): FormResults {
     pollId,
     countsByQuestion,
     textAnswers,
+    dateResults,
     totalResponses: all.length,
   };
 }

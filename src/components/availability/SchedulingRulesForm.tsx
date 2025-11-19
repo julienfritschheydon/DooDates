@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 // Note: Select non utilisé pour l'instant, mais peut être ajouté plus tard si besoin
-import { Settings, Clock, Sparkles } from "lucide-react";
+import { Settings, Clock, Sparkles, Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { WeeklyTimeSlotsGrid, type WeeklyTimeSlots } from "./WeeklyTimeSlotsGrid";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 export interface SchedulingRules {
   minLatencyMinutes?: number;
@@ -25,6 +27,8 @@ interface SchedulingRulesFormProps {
 
 export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signInWithGoogle } = useAuth();
+  const { toast } = useToast();
 
   const updateRule = <K extends keyof SchedulingRules>(key: K, value: SchedulingRules[K]) => {
     onChange({ ...rules, [key]: value });
@@ -179,14 +183,14 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <Card className="bg-[#2a2a2a] border-gray-700">
         <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-[#333] transition-colors">
+          <CardHeader className="cursor-pointer hover:bg-[#333] transition-all duration-200 group border-b border-gray-700">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
                   <Sparkles className="w-5 h-5 text-purple-400" />
                 </div>
                 <div className="text-left">
-                  <CardTitle className="text-lg text-white flex items-center gap-2">
+                  <CardTitle className="text-lg text-white flex items-center gap-2 group-hover:text-purple-300 transition-colors">
                     Règles Intelligentes d'Optimisation
                   </CardTitle>
                   <p className="text-sm text-gray-400 mt-1">
@@ -194,9 +198,16 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
                   </p>
                 </div>
               </div>
-              <Settings
-                className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? "rotate-90" : ""}`}
-              />
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors hidden sm:inline">
+                  {isOpen ? "Réduire" : "Développer"}
+                </span>
+                {isOpen ? (
+                  <ChevronUp className="w-6 h-6 text-purple-400 transition-transform duration-200 group-hover:scale-110" />
+                ) : (
+                  <ChevronDown className="w-6 h-6 text-gray-400 transition-transform duration-200 group-hover:text-purple-400 group-hover:scale-110" />
+                )}
+              </div>
             </div>
           </CardHeader>
         </CollapsibleTrigger>
@@ -326,10 +337,52 @@ export function SchedulingRulesForm({ rules, onChange }: SchedulingRulesFormProp
 
             {/* Note Version actuelle */}
             <div className="p-3 bg-green-500/10 border border-green-600/30 rounded-lg">
-              <p className="text-xs text-green-300">
-                ✅ <strong>Optimisation automatique active</strong> : Ces règles sont utilisées pour l'optimisation
-                automatique des créneaux proposés à vos clients. Connectez votre calendrier Google Calendar pour activer l'optimisation complète.
-              </p>
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <p className="text-xs text-green-300 mb-2">
+                    ✅ <strong>Optimisation automatique active</strong> : Ces règles sont utilisées
+                    pour l'optimisation automatique des créneaux proposés à vos clients.
+                  </p>
+                  {!user && (
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-green-300">
+                        <strong>Connexion recommandée</strong> : Connectez votre calendrier Google
+                        Calendar pour activer l'optimisation complète.
+                      </p>
+                      <Button
+                        onClick={async () => {
+                          const result = await signInWithGoogle();
+                          if (result.error) {
+                            toast({
+                              title: "Erreur de connexion",
+                              description:
+                                result.error.message ||
+                                "Impossible de se connecter à Google Calendar.",
+                              variant: "destructive",
+                            });
+                          } else {
+                            toast({
+                              title: "Connexion en cours",
+                              description:
+                                "Redirection vers Google pour autoriser l'accès à votre calendrier...",
+                            });
+                          }
+                        }}
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700 text-white text-xs h-7 px-3"
+                      >
+                        <Calendar className="w-3 h-3 mr-1.5" />
+                        Connecter Google Calendar
+                      </Button>
+                    </div>
+                  )}
+                  {user && (
+                    <p className="text-xs text-green-300">
+                      ✅ Calendrier Google Calendar connecté - Optimisation complète activée.
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           </CardContent>
         </CollapsibleContent>

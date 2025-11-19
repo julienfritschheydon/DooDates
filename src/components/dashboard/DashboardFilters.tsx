@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Search, LayoutGrid, Table, Tag, Folder, X, Plus, CheckSquare } from "lucide-react";
-import { FilterType, DashboardPoll } from "./types";
+import {
+  Search,
+  LayoutGrid,
+  Table,
+  Tag,
+  Folder,
+  X,
+  Plus,
+  CheckSquare,
+  Calendar,
+  ClipboardList,
+  MessageSquare,
+} from "lucide-react";
+import { FilterType, DashboardPoll, ContentTypeFilter } from "./types";
 import { getStatusLabel } from "./utils";
 import { getAllTags, createTag, Tag as TagType } from "@/lib/storage/TagStorage";
 import { getAllFolders, createFolder, Folder as FolderType } from "@/lib/storage/FolderStorage";
@@ -13,6 +25,8 @@ interface DashboardFiltersProps {
   onSearchChange: (query: string) => void;
   filter: FilterType;
   onFilterChange: (filter: FilterType) => void;
+  contentTypeFilter: ContentTypeFilter;
+  onContentTypeFilterChange: (filter: ContentTypeFilter) => void;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   selectedTags: string[];
@@ -30,6 +44,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   onSearchChange,
   filter,
   onFilterChange,
+  contentTypeFilter,
+  onContentTypeFilterChange,
   viewMode,
   onViewModeChange,
   selectedTags,
@@ -42,6 +58,13 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   hasItems,
 }) => {
   const filters: FilterType[] = ["all", "draft", "active", "closed", "archived"];
+  const contentTypeFilters: { value: ContentTypeFilter; label: string; icon: React.ReactNode }[] = [
+    { value: "all", label: "Tous", icon: null },
+    { value: "conversations", label: "Conversations", icon: <MessageSquare className="w-4 h-4" /> },
+    { value: "date", label: "Sondages dates", icon: <Calendar className="w-4 h-4" /> },
+    { value: "availability", label: "Disponibilités", icon: <Calendar className="w-4 h-4" /> },
+    { value: "form", label: "Formulaires", icon: <ClipboardList className="w-4 h-4" /> },
+  ];
   const [tags, setTags] = useState<TagType[]>(getAllTags());
   const [folders, setFolders] = useState<FolderType[]>(getAllFolders());
   const [showTagMenu, setShowTagMenu] = useState(false);
@@ -195,18 +218,41 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         </div>
       </div>
 
-      {/* Ligne 2: Filtres statut + Tags + Dossiers */}
+      {/* Ligne 2: Filtres type de contenu */}
+      <div className="flex flex-wrap gap-3 items-center">
+        {/* Filtres par type de contenu */}
+        <div className="flex gap-2 flex-wrap">
+          {contentTypeFilters.map(({ value, label, icon }) => (
+            <button
+              key={value}
+              data-testid={`content-type-filter-${value}`}
+              onClick={() => onContentTypeFilterChange(value)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                contentTypeFilter === value
+                  ? "bg-blue-500 text-white border-2 border-blue-400 shadow-lg shadow-blue-500/30 scale-105 font-semibold"
+                  : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700 hover:border-gray-600"
+              }`}
+            >
+              {icon}
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Ligne 3: Filtres statut + Tags + Dossiers */}
       <div className="flex flex-wrap gap-3 items-center">
         {/* Filtres par statut */}
         <div className="flex gap-2 flex-wrap">
           {filters.map((f) => (
             <button
               key={f}
+              data-testid={`status-filter-${f}`}
               onClick={() => onFilterChange(f)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 filter === f
-                  ? "bg-blue-500 text-white"
-                  : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700"
+                  ? "bg-blue-500 text-white border-2 border-blue-400 shadow-lg shadow-blue-500/30 scale-105 font-semibold"
+                  : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700 hover:border-gray-600"
               }`}
             >
               {f === "all" ? "Tous" : getStatusLabel(f as DashboardPoll["status"])}

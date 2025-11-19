@@ -154,9 +154,9 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
 
   const handleEdit = (poll: Poll) => {
     if (poll.type === "form") {
-      navigate(`/create/form?edit=${poll.id}`);
+      navigate(`/workspace/form?edit=${poll.id}`);
     } else {
-      navigate(`/create/date?edit=${poll.id}`);
+      navigate(`/workspace/date?edit=${poll.id}`);
     }
   };
 
@@ -371,7 +371,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                 className={`border-b border-gray-800 hover:bg-[#2a2a2a] transition-colors cursor-pointer ${
                   isSelected ? "bg-blue-900/20" : ""
                 } ${index % 2 === 0 ? "bg-[#1e1e1e]" : "bg-[#252525]"}`}
-                onClick={() => navigate(`/workspace?resume=${item.id}`)}
+                onClick={() => navigate(`/workspace?conversationId=${item.id}`)}
               >
                 {/* Checkbox */}
                 <td className="py-3 px-2 md:px-3 lg:px-4" onClick={(e) => e.stopPropagation()}>
@@ -645,7 +645,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/workspace?resume=${item.id}`);
+                            navigate(`/workspace?conversationId=${item.id}`);
                           }}
                           className="px-3 py-2 md:px-3 md:py-2 lg:px-2 lg:py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors touch-manipulation"
                         >

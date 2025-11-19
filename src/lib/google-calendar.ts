@@ -1,6 +1,6 @@
-import { supabase } from "./supabase";
 import { handleError, ErrorFactory, logError } from "./error-handling";
 import { logger } from "./logger";
+import { getSupabaseSessionWithTimeout } from "./supabaseApi";
 
 export interface GoogleCalendarEvent {
   id: string;
@@ -38,9 +38,7 @@ export class GoogleCalendarService {
 
   private async initializeToken() {
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const session = await getSupabaseSessionWithTimeout(2000);
 
       if (!session) {
         logger.warn("Aucune session Supabase trouvée", "auth");

@@ -75,19 +75,72 @@ export class ConversationService {
       }
 
       // Get messages: Try Supabase first if user is logged in, then fallback to localStorage
+      // Determine userId: use conversation.userId if available
+      // If conversation.userId is undefined but conversation exists and comes from Supabase,
+      // we need to get the userId from Supabase directly
+      let effectiveUserId = conversation.userId;
+
+      // If userId is undefined but conversation exists, try to get it from Supabase
+      // This happens when conversation.userId is not set in the Conversation object
+      // but the conversation exists in Supabase with a user_id
+      if (!effectiveUserId || effectiveUserId === "guest") {
+        try {
+          const { getConversation: getSupabaseConversation } = await import(
+            "../lib/storage/ConversationStorageSupabase"
+          );
+          // Try to get the conversation from Supabase to extract userId
+          // We need to query Supabase directly since we don't have access to user context here
+          // Check if conversation ID is a UUID (Supabase format) vs conv_ (localStorage format)
+          const isSupabaseId =
+            resumeId && !resumeId.startsWith("conv_") && !resumeId.startsWith("temp-");
+
+          if (isSupabaseId) {
+            // Query Supabase directly to get user_id
+            const { supabaseSelect } = await import("../lib/supabaseApi");
+            const data = await supabaseSelect<Record<string, unknown>>(
+              "conversations",
+              {
+                id: `eq.${resumeId}`,
+                select: "user_id",
+              },
+              { timeout: 5000 },
+            );
+
+            if (data && data.length > 0 && data[0].user_id) {
+              effectiveUserId = data[0].user_id as string;
+              logger.debug("UserId récupéré depuis Supabase (requête directe)", "conversation", {
+                resumeId,
+                userId: effectiveUserId,
+              });
+            }
+          }
+        } catch (error) {
+          logger.debug(
+            "Impossible de récupérer userId depuis Supabase, utilisation fallback",
+            "conversation",
+            {
+              resumeId,
+              error,
+            },
+          );
+          // Ignore error, will fallback to localStorage
+        }
+      }
+
       logger.info("Starting message loading process", "conversation", {
         resumeId,
-        userId: conversation.userId,
-        isGuest: conversation.userId === "guest",
+        conversationUserId: conversation.userId,
+        effectiveUserId,
+        isGuest: effectiveUserId === "guest" || !effectiveUserId,
       });
       let messages: ConversationMessage[] = [];
 
-      // Check if user is logged in (conversation.userId is set and not "guest")
-      if (conversation.userId && conversation.userId !== "guest") {
+      // Check if user is logged in (effectiveUserId is set and not "guest")
+      if (effectiveUserId && effectiveUserId !== "guest") {
         try {
           logger.debug("Loading messages from Supabase", "conversation", {
             resumeId,
-            userId: conversation.userId,
+            userId: effectiveUserId,
             conversationMessageCount: conversation.messageCount,
           });
           const { getMessages: getSupabaseMessages } = await import(
@@ -95,10 +148,10 @@ export class ConversationService {
           );
           logger.info("Calling getSupabaseMessages...", "conversation", {
             resumeId,
-            userId: conversation.userId,
+            userId: effectiveUserId,
             expectedMessageCount: conversation.messageCount,
           });
-          messages = await getSupabaseMessages(resumeId, conversation.userId);
+          messages = await getSupabaseMessages(resumeId, effectiveUserId);
           logger.info("✅ Messages loaded from Supabase", "conversation", {
             resumeId,
             messageCount: messages.length,
@@ -125,6 +178,43 @@ export class ConversationService {
                 messageIds: messages.map((m) => m.id),
               },
             );
+
+            // Invalidate cache and retry loading from Supabase
+            logger.info(
+              "Tentative de rechargement depuis Supabase après détection d'incohérence",
+              "conversation",
+              {
+                resumeId,
+                userId: effectiveUserId,
+              },
+            );
+
+            // Clear memory cache to force reload from Supabase
+            const { messageCache } = await import("../lib/storage/ConversationStorageSupabase");
+            messageCache.delete(resumeId);
+
+            // Retry loading from Supabase
+            try {
+              const retryMessages = await getSupabaseMessages(resumeId, effectiveUserId);
+              if (retryMessages.length === conversation.messageCount) {
+                logger.info("✅ Rechargement réussi, incohérence corrigée", "conversation", {
+                  resumeId,
+                  messageCount: retryMessages.length,
+                });
+                messages = retryMessages;
+              } else {
+                logger.warn("⚠️ Rechargement n'a pas résolu l'incohérence", "conversation", {
+                  resumeId,
+                  retryMessageCount: retryMessages.length,
+                  expectedCount: conversation.messageCount,
+                });
+              }
+            } catch (retryError) {
+              logger.error("❌ Échec du rechargement depuis Supabase", "conversation", {
+                resumeId,
+                error: retryError,
+              });
+            }
           }
 
           // Cache messages in localStorage for offline access

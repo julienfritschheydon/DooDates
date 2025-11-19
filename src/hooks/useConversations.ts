@@ -133,8 +133,15 @@ export function useConversations(config: UseConversationsConfig = {}) {
         let conversations: Conversation[] = [];
 
         // If user is logged in, load from Supabase
+        // Vérifier si le mode E2E est désactivé explicitement
+        const isE2EDetectionDisabled =
+          typeof window !== "undefined" &&
+          (window as Window & { __DISABLE_E2E_DETECTION__?: boolean }).__DISABLE_E2E_DETECTION__ ===
+            true;
+
         const isE2ETestMode =
           typeof window !== "undefined" &&
+          !isE2EDetectionDisabled &&
           (isE2ETestingEnvironment() ||
             (window as Window & { __IS_E2E_TESTING__?: boolean }).__IS_E2E_TESTING__ === true);
 

@@ -10,6 +10,9 @@
 
 import { test, expect } from '@playwright/test';
 import { setupAllMocks } from './global-setup';
+import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
+import { getTimeouts } from './config/timeouts';
+import { safeIsVisible } from './helpers/safe-helpers';
 
 test.describe('Console Errors & React Warnings', () => {
   test.beforeEach(async ({ page, context, browserName }) => {
@@ -132,7 +135,7 @@ test.describe('Console Errors & React Warnings', () => {
     }
   });
 
-  test('devrait ne pas avoir d\'erreurs console sur la page d\'accueil @smoke', async ({ page }) => {
+  test('devrait ne pas avoir d\'erreurs console sur la page d\'accueil @smoke', async ({ page, browserName }) => {
     const consoleErrors: string[] = [];
     const consoleWarnings: string[] = [];
 
@@ -152,6 +155,8 @@ test.describe('Console Errors & React Warnings', () => {
 
     // Aller sur la page d'accueil
     await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
 
     // Filtrer les erreurs connues/acceptables
     const filteredErrors = consoleErrors.filter(error => {
@@ -317,13 +322,16 @@ test.describe('Console Errors & React Warnings', () => {
       console.log('✅ Routes webkit configurés au niveau de la page (avant navigation)');
     }
 
+    const timeouts = getTimeouts(browserName);
     // Créer un poll via IA
     await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
     
     // 📸 Capture 1 : Page chargée
     await page.screenshot({ path: 'test-results/debug-1-page-loaded.png', fullPage: true });
 
-    const chatInput = page.locator('[data-testid="message-input"]');
+    const chatInput = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element });
     await chatInput.fill('Crée un questionnaire avec 1 question');
     
     // 📸 Capture 2 : Message rempli avant Enter
@@ -406,7 +414,7 @@ test.describe('Console Errors & React Warnings', () => {
     
     // Vérifier qu'il n'y a pas de message d'erreur de l'IA
     const errorMessage = page.getByText(/désolé.*je n'ai pas pu traiter/i);
-    const hasError = await errorMessage.isVisible({ timeout: 2000 }).catch(() => false);
+    const hasError = await safeIsVisible(errorMessage);
     if (hasError) {
       // Prendre une capture pour debug
       await page.screenshot({ path: 'test-results/debug-console-errors-ia-error.png', fullPage: true });
@@ -422,7 +430,7 @@ test.describe('Console Errors & React Warnings', () => {
     }
     
     try {
-      await expect(createButton).toBeVisible({ timeout: 20000 });
+      await waitForElementReady(page, '[data-testid="create-form-button"]', { browserName, timeout: timeouts.element * 2 });
       // 📸 Capture 5 : Bouton trouvé et visible
       await page.screenshot({ path: 'test-results/debug-5-button-found.png', fullPage: true });
     } catch (error) {
@@ -448,19 +456,23 @@ test.describe('Console Errors & React Warnings', () => {
     await createButton.click();
     
     // Attendre la prévisualisation
-    await expect(page.locator('[data-poll-preview]')).toBeVisible({ timeout: 5000 });
+    await waitForElementReady(page, '[data-poll-preview]', { browserName, timeout: timeouts.element });
 
-    // Finaliser
-    const finalizeButton = page.locator('button:has-text("Finaliser")');
-    if (await finalizeButton.isVisible()) {
+    // Finaliser (le bouton s'appelle "Publier le formulaire" dans FormEditor)
+    const finalizeButton = page.getByRole('button', { name: /publier le formulaire/i });
+    if (await safeIsVisible(finalizeButton)) {
       await finalizeButton.click();
+      await waitForNetworkIdle(page, { browserName });
+      await waitForReactStable(page, { browserName });
       // Attendre que la navigation soit terminée
-      await page.waitForURL(/\/poll\/|\/dashboard/, { timeout: 10000 }).catch(() => {});
+      await page.waitForURL(/\/poll\/|\/dashboard/, { timeout: timeouts.navigation }).catch(() => {});
     }
 
     // Rafraîchir la page plusieurs fois pour détecter les memory leaks
     for (let i = 0; i < 3; i++) {
       await page.reload({ waitUntil: 'domcontentloaded' });
+      await waitForNetworkIdle(page, { browserName });
+      await waitForReactStable(page, { browserName });
     }
 
     // Vérifier qu'il n'y a pas de warnings React

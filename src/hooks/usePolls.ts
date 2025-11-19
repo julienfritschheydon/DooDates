@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
 import { Poll as TypesPoll, PollOption, PollData as TypesPollData } from "../types/poll";
-import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import { EmailService } from "../lib/email-service";
 import { v4 as uuidv4 } from "uuid";
@@ -15,7 +14,68 @@ import {
 } from "../lib/pollStorage";
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
 import { logger } from "@/lib/logger";
-import { supabaseInsert, getSupabaseToken } from "../lib/supabaseApi";
+import { supabaseInsert, getSupabaseToken, supabaseUpdate } from "../lib/supabaseApi";
+import type { Conversation } from "../types/conversation";
+
+// Type for Supabase conversation response (snake_case)
+interface SupabaseConversation {
+  id: string;
+  user_id: string | null;
+  session_id: string;
+  title: string;
+  first_message: string;
+  message_count: number;
+  messages: unknown[];
+  context: Record<string, unknown>;
+  poll_data: {
+    type?: "date" | "form";
+    title?: string;
+    description?: string | null;
+    dates?: string[];
+    timeSlots?: Record<string, unknown>;
+    questions?: unknown[];
+    settings?: {
+      timeGranularity?: number;
+      allowAnonymousVotes?: boolean;
+      allowMaybeVotes?: boolean;
+      sendNotifications?: boolean;
+      allowAnonymousResponses?: boolean;
+      expiresAt?: string;
+    };
+    creatorEmail?: string;
+  } | null;
+  poll_type: "date" | "form" | null;
+  poll_status: "draft" | "active" | "closed" | "archived" | null;
+  poll_slug: string | null;
+  status: "active" | "completed" | "archived";
+  is_favorite: boolean;
+  tags: string[];
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+// Convert Supabase conversation (snake_case) to Conversation type (camelCase)
+function convertSupabaseConversationToConversation(
+  supabaseConv: SupabaseConversation,
+): Conversation {
+  return {
+    id: supabaseConv.id,
+    userId: supabaseConv.user_id || undefined,
+    title: supabaseConv.title,
+    status: supabaseConv.status,
+    createdAt: new Date(supabaseConv.created_at),
+    updatedAt: new Date(supabaseConv.updated_at),
+    firstMessage: supabaseConv.first_message,
+    messageCount: supabaseConv.message_count,
+    pollId: supabaseConv.id,
+    pollType: supabaseConv.poll_type || undefined,
+    pollStatus: supabaseConv.poll_status || undefined,
+    isFavorite: supabaseConv.is_favorite,
+    tags: supabaseConv.tags,
+    metadata: supabaseConv.metadata as Conversation["metadata"],
+  };
+}
 
 // Interface pour les sondages de dates
 export interface DatePollData {
@@ -44,6 +104,7 @@ export interface FormPollData {
     allowAnonymousResponses?: boolean;
     expiresAt?: string;
   };
+  slug?: string; // Slug optionnel pour conserver le slug du draft lors de la publication
 }
 
 // Union type pour supporter les deux
@@ -107,7 +168,8 @@ export function usePolls() {
           }
         }
 
-        const slug = generateSlug(pollData.title);
+        // Utiliser le slug fourni si disponible, sinon générer un nouveau slug
+        const slug = (pollData.type === "form" && pollData.slug) || generateSlug(pollData.title);
 
         // Préparer les settings selon le type
         let mergedSettings: import("../lib/pollStorage").PollSettings;
@@ -255,7 +317,7 @@ export function usePolls() {
           },
         };
 
-        let conversation: import("../types/conversation").Conversation;
+        let conversation: SupabaseConversation;
         try {
           if (!user) {
             // Utilisateur non connecté - utiliser localStorage pour l'instant
@@ -390,12 +452,12 @@ export function usePolls() {
           // Convertir conversation → poll pour compatibilité
           const basePollFromConversation = {
             id: conversation.id,
-            creator_id: conversation.user_id,
+            creator_id: conversation.user_id || undefined,
             title: conversation.title,
-            description: conversation.poll_data?.description,
-            slug: conversation.poll_slug,
+            description: conversation.poll_data?.description || undefined,
+            slug: conversation.poll_slug || undefined,
             settings: conversation.poll_data?.settings || {},
-            status: conversation.poll_status,
+            status: conversation.poll_status || "active",
             expires_at: conversation.poll_data?.settings?.expiresAt,
             created_at: conversation.created_at,
             updated_at: conversation.updated_at,
@@ -415,7 +477,7 @@ export function usePolls() {
                   dates: conversation.poll_data?.dates || [],
                 }
               : {
-                  questions: conversation.poll_data?.questions || [],
+                  questions: (conversation.poll_data?.questions as StoragePoll["questions"]) || [],
                 }),
           } as StoragePoll;
 
@@ -480,18 +542,20 @@ export function usePolls() {
         // Améliorer les messages d'erreur pour l'utilisateur
         let userFriendlyMessage = "Erreur lors de la création du sondage";
 
-        if (error instanceof TypeError && error.message.includes("fetch")) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        if (error instanceof TypeError && errorMessage.includes("fetch")) {
           userFriendlyMessage =
             "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
-        } else if (error.message.includes("Failed to fetch")) {
+        } else if (errorMessage.includes("Failed to fetch")) {
           userFriendlyMessage =
             "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
-        } else if (error.message.includes("NetworkError")) {
+        } else if (errorMessage.includes("NetworkError")) {
           userFriendlyMessage = "Erreur réseau. Vérifiez votre connexion internet.";
-        } else if (error.message.includes("CORS")) {
+        } else if (errorMessage.includes("CORS")) {
           userFriendlyMessage = "Erreur de configuration serveur. Contactez le support.";
-        } else if (error.message) {
-          userFriendlyMessage = error.message;
+        } else if (errorMessage) {
+          userFriendlyMessage = errorMessage;
         }
 
         setError(userFriendlyMessage);
@@ -552,24 +616,24 @@ export function usePolls() {
             );
 
             if (response.ok) {
-              const conversations = await response.json();
+              const conversations: SupabaseConversation[] = await response.json();
               logger.info("✅ Conversations chargées depuis Supabase", "poll", {
                 count: conversations.length,
                 userId: user.id,
               });
 
               // Convertir conversations → polls
-              userPolls = conversations.map((c: import("../types/conversation").Conversation) => ({
+              userPolls = conversations.map((c) => ({
                 id: c.id,
                 conversationId: c.id,
-                title: c.title || c.poll_data?.title,
-                slug: c.poll_slug,
-                description: c.poll_data?.description,
+                title: c.title || c.poll_data?.title || "",
+                slug: c.poll_slug || undefined,
+                description: c.poll_data?.description || undefined,
                 type: c.poll_type || "date",
                 status: c.poll_status || "active",
                 created_at: c.created_at,
                 updated_at: c.updated_at,
-                creator_id: c.user_id,
+                creator_id: c.user_id || undefined,
                 dates: c.poll_data?.dates || [],
                 settings: {
                   ...c.poll_data?.settings,
@@ -581,7 +645,7 @@ export function usePolls() {
               const { addConversation, getConversation } = await import(
                 "../lib/storage/ConversationStorageSimple"
               );
-              conversations.forEach((c: import("../types/conversation").Conversation) => {
+              conversations.forEach((c) => {
                 // Vérifier si la conversation existe déjà
                 const existingConv = getConversation(c.id);
                 if (!existingConv) {
@@ -589,17 +653,17 @@ export function usePolls() {
                   addConversation({
                     id: c.id,
                     title: c.title || c.poll_data?.title || "Sondage sans titre",
-                    status: c.status || "completed",
+                    status: c.status,
                     createdAt: new Date(c.created_at),
                     updatedAt: new Date(c.updated_at),
                     firstMessage: c.first_message || "Sondage créé",
                     messageCount: 0,
                     isFavorite: c.is_favorite || false,
                     tags: c.tags || [],
-                    userId: c.user_id,
+                    userId: c.user_id || undefined,
                     pollId: c.id,
-                    pollType: c.poll_type,
-                    pollStatus: c.poll_status,
+                    pollType: c.poll_type || undefined,
+                    pollStatus: c.poll_status || undefined,
                   });
                 }
               });
@@ -729,15 +793,15 @@ export function usePolls() {
       setError(null);
 
       try {
-        const { error: updateError } = await supabase
-          .from("polls")
-          .update({ status, updated_at: new Date().toISOString() })
-          .eq("id", pollId)
-          .eq("creator_id", user.id); // Sécurité : seul le créateur peut modifier
-
-        if (updateError) {
-          throw updateError;
-        }
+        await supabaseUpdate(
+          "polls",
+          { status, updated_at: new Date().toISOString() },
+          {
+            id: `eq.${pollId}`,
+            creator_id: `eq.${user.id}`, // Sécurité : seul le créateur peut modifier
+          },
+          { timeout: 10000 },
+        );
 
         return {};
       } catch (err: unknown) {
@@ -776,7 +840,7 @@ export function usePolls() {
 
         return {};
       } catch (err: unknown) {
-        logger.error(`usePolls.deletePoll: Error during deletion`, err);
+        logger.error(`usePolls.deletePoll: Error during deletion`, "poll", err);
         const errorMessage =
           err instanceof Error ? err.message : "Erreur lors de la suppression du sondage";
         setError(errorMessage);

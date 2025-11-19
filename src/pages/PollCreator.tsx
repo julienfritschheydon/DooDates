@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   getAllPolls,
   savePolls,
-  type Poll as StoragePoll,
+  type Poll,
   type FormQuestionShape,
   getCurrentUserId,
 } from "@/lib/pollStorage";
@@ -26,23 +26,49 @@ const PollCreator = () => {
   const draftIdParam = params.get("draftId") || undefined;
 
   const [published, setPublished] = useState(false);
-  const [publishedPoll, setPublishedPoll] = useState<StoragePoll | null>(null);
+  const [publishedPoll, setPublishedPoll] = useState<Poll | null>(null);
 
   // Helper to convert AnyFormQuestion to FormQuestionShape
   const convertToFormQuestionShape = (questions: AnyFormQuestion[]): FormQuestionShape[] => {
-    return questions.map((q) => ({
-      id: q.id,
-      kind: q.type, // Map 'type' to 'kind'
-      title: q.title,
-      required: q.required,
-      options: q.options,
-      maxChoices: q.maxChoices,
-      placeholder: q.placeholder,
-      maxLength: q.maxLength,
-    }));
+    return questions.map((q) => {
+      const baseShape: FormQuestionShape = {
+        id: q.id,
+        kind: q.type, // Map 'type' to 'kind'
+        title: q.title,
+        required: q.required,
+      };
+
+      // Add optional properties if they exist
+      if ("options" in q && q.options) {
+        baseShape.options = q.options;
+      }
+      if ("maxChoices" in q) {
+        baseShape.maxChoices = q.maxChoices;
+      }
+      if ("placeholder" in q) {
+        baseShape.placeholder = q.placeholder;
+      }
+      if ("maxLength" in q) {
+        baseShape.maxLength = q.maxLength;
+      }
+      if ("matrixRows" in q) {
+        baseShape.matrixRows = q.matrixRows;
+      }
+      if ("matrixColumns" in q) {
+        baseShape.matrixColumns = q.matrixColumns;
+      }
+      if ("matrixType" in q) {
+        baseShape.matrixType = q.matrixType;
+      }
+      if ("matrixColumnsNumeric" in q) {
+        baseShape.matrixColumnsNumeric = q.matrixColumnsNumeric;
+      }
+
+      return baseShape;
+    });
   };
 
-  const upsertFormPollFromDraft = (draft: FormPollDraft, targetStatus: StoragePoll["status"]) => {
+  const upsertFormPollFromDraft = (draft: FormPollDraft, targetStatus: Poll["status"]) => {
     const all = getAllPolls();
     const existingIndex = all.findIndex((p) => p.id === draft.id);
 
@@ -54,7 +80,7 @@ const PollCreator = () => {
 
     if (existingIndex >= 0) {
       const existing = all[existingIndex];
-      const updated: StoragePoll = {
+      const updated: Poll = {
         ...existing,
         title: draft.title.trim(),
         type: "form",
@@ -67,7 +93,7 @@ const PollCreator = () => {
       return updated;
     }
 
-    const created: StoragePoll = {
+    const created: Poll = {
       id: draft.id, // réutiliser l'id du brouillon comme id local
       creator_id: getCurrentUserId(user?.id),
       title: draft.title.trim() || "Sans titre",
@@ -88,7 +114,7 @@ const PollCreator = () => {
   const latestFormDraft: FormPollDraft | undefined = useMemo(() => {
     try {
       const all = getAllPolls();
-      const forms = all.filter((p) => (p as StoragePoll).type === "form");
+      const forms = all.filter((p) => (p as Poll).type === "form");
       if (forms.length === 0) return undefined;
       if (draftIdParam) {
         const found = forms.find((p) => p.id === draftIdParam);
@@ -162,6 +188,7 @@ const PollCreator = () => {
                 <Link
                   to="/dashboard"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold transition-all shadow-lg"
+                  data-testid="go-to-dashboard-button"
                 >
                   <Check className="w-5 h-5" />
                   Aller au Tableau de bord
@@ -169,6 +196,7 @@ const PollCreator = () => {
                 <Link
                   to={`/poll/${publishedPoll.slug || publishedPoll.id}`}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent text-gray-300 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                  data-testid="view-poll-button"
                 >
                   <ExternalLink className="w-5 h-5" />
                   {publishedPoll.type === "form" ? "Voir le formulaire" : "Voir le sondage"}
@@ -192,6 +220,7 @@ const PollCreator = () => {
                       });
                     }}
                     className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
+                    data-testid="copy-link-button"
                   >
                     Copier
                   </button>
@@ -231,7 +260,7 @@ const PollCreator = () => {
         />
       ) : (
         <PollCreatorComponent
-          onBack={(createdPoll?: import("../lib/pollStorage").StoragePoll) => {
+          onBack={(createdPoll?: Poll) => {
             if (createdPoll) {
               setPublishedPoll(createdPoll);
               setPublished(true);

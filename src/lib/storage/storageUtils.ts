@@ -21,12 +21,49 @@ export function readFromStorage<T>(
   try {
     // Try memory cache first
     if (cache.size > 0) {
-      return Array.from(cache.values());
+      const cachedItems = Array.from(cache.values());
+      // Debug: vérifier les questions de type date dans le cache
+      if (key === "doodates_polls") {
+        cachedItems.forEach((item: any) => {
+          if (item?.type === "form" && item?.questions) {
+            item.questions.forEach((q: any) => {
+              if (q?.kind === "date" || q?.type === "date") {
+                console.log("🔍 readFromStorage (cache) - Question date:", {
+                  pollId: item.id,
+                  questionId: q.id,
+                  selectedDates: q.selectedDates,
+                  timeSlotsByDate: q.timeSlotsByDate,
+                });
+              }
+            });
+          }
+        });
+      }
+      return cachedItems;
     }
 
     // Read from localStorage
     const raw = hasWindow() ? window.localStorage.getItem(key) : null;
     const items = raw ? (JSON.parse(raw) as T[]) : defaultValue;
+
+    // Debug: vérifier les questions de type date dans localStorage
+    if (key === "doodates_polls" && Array.isArray(items)) {
+      items.forEach((item: any) => {
+        if (item?.type === "form" && item?.questions) {
+          item.questions.forEach((q: any) => {
+            if (q?.kind === "date" || q?.type === "date") {
+              console.log("🔍 readFromStorage (localStorage) - Question date:", {
+                pollId: item.id,
+                questionId: q.id,
+                selectedDates: q.selectedDates,
+                timeSlotsByDate: q.timeSlotsByDate,
+                rawQuestion: q,
+              });
+            }
+          });
+        }
+      });
+    }
 
     // Update memory cache if items have id property
     if (Array.isArray(items)) {
@@ -86,24 +123,30 @@ export function addToStorage<T>(key: string, item: T, cache: Map<string, T>): vo
 /**
  * Generic find item by ID
  */
-export function findById<T>(id: string, key: string, cache: Map<string, T>): T | null {
+export function findById<T extends { id: string }>(
+  id: string,
+  key: string,
+  cache: Map<string, T>,
+): T | null {
   // Try memory cache first
   const cached = cache.get(id);
   if (cached) return cached;
 
   // Search in all items
   const items = readFromStorage(key, cache);
-  return items.find((item: { id: string }) => item.id === id) || null;
+  return items.find((item) => item.id === id) || null;
 }
 
 /**
  * Generic update item in storage
  */
-export function updateInStorage<T>(key: string, updatedItem: T, cache: Map<string, T>): void {
+export function updateInStorage<T extends { id: string }>(
+  key: string,
+  updatedItem: T,
+  cache: Map<string, T>,
+): void {
   const items = readFromStorage(key, cache);
-  const index = items.findIndex(
-    (item: { id: string }) => item.id === (updatedItem as { id: string }).id,
-  );
+  const index = items.findIndex((item) => item.id === updatedItem.id);
 
   if (index >= 0) {
     items[index] = updatedItem;
@@ -114,9 +157,13 @@ export function updateInStorage<T>(key: string, updatedItem: T, cache: Map<strin
 /**
  * Generic delete item from storage
  */
-export function deleteFromStorage<T>(key: string, id: string, cache: Map<string, T>): void {
+export function deleteFromStorage<T extends { id: string }>(
+  key: string,
+  id: string,
+  cache: Map<string, T>,
+): void {
   const items = readFromStorage(key, cache);
-  const filtered = items.filter((item: { id: string }) => item.id !== id);
+  const filtered = items.filter((item) => item.id !== id);
   writeToStorage(key, filtered, cache);
   cache.delete(id);
 }

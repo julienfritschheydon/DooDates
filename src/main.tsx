@@ -6,21 +6,30 @@ import "./index.css";
 import "./pwa-styles.css";
 import "./styles/docs.css";
 import { logger } from "@/lib/logger";
-import { generateBrowserFingerprint } from "@/lib/browserFingerprint";
+import { generateBrowserFingerprint, getCachedFingerprint } from "@/lib/browserFingerprint";
+import { isE2ETestingEnvironment } from "@/lib/e2e-detection";
 
 // DEBUG: Exposer la fonction de fingerprinting sur window pour tests console
 declare global {
   interface Window {
     testFingerprint?: () => Promise<Awaited<ReturnType<typeof generateBrowserFingerprint>>>;
+    getCachedFingerprint?: () => Promise<string>;
   }
 }
-if (import.meta.env.DEV) {
-  window.testFingerprint = async () => {
-    const fp = await generateBrowserFingerprint();
-    console.log("Fingerprint:", fp.fingerprint);
-    console.log("Confidence:", fp.metadata.confidence);
-    console.log("Components:", fp.components);
-    return fp;
+// Exposer getCachedFingerprint pour les tests E2E (DEV ou E2E)
+if (import.meta.env.DEV || isE2ETestingEnvironment()) {
+  if (import.meta.env.DEV) {
+    window.testFingerprint = async () => {
+      const fp = await generateBrowserFingerprint();
+      console.log("Fingerprint:", fp.fingerprint);
+      console.log("Confidence:", fp.metadata.confidence);
+      console.log("Components:", fp.components);
+      return fp;
+    };
+  }
+  // Exposer getCachedFingerprint pour les tests E2E
+  window.getCachedFingerprint = async () => {
+    return await getCachedFingerprint();
   };
 }
 
@@ -51,7 +60,8 @@ function forceFullscreenOnAndroid() {
     if (
       "screen" in window &&
       "orientation" in window.screen &&
-      "lock" in window.screen.orientation
+      "lock" in window.screen.orientation &&
+      typeof window.screen.orientation.lock === "function"
     ) {
       try {
         window.screen.orientation.lock("portrait-primary");

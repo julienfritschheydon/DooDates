@@ -18,6 +18,7 @@ interface ChatInputProps {
     resetTranscript: () => void;
   };
   textareaRef: React.RefObject<HTMLTextAreaElement>;
+  pollType?: "date" | "form";
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
@@ -30,6 +31,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   darkTheme,
   voiceRecognition,
   textareaRef,
+  pollType = "date",
 }) => {
   return (
     <div
@@ -57,7 +59,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               if (typeof onUserMessage === "function") onUserMessage();
             }}
             onKeyDown={onKeyPress}
-            placeholder={isLoading ? "Génération en cours..." : "Décrivez votre sondage..."}
+            placeholder={
+              isLoading
+                ? "Génération en cours..."
+                : pollType === "form"
+                  ? "Décrivez votre formulaire..."
+                  : "Décrivez votre sondage..."
+            }
             disabled={isLoading}
             className={`flex-1 min-w-0 resize-none border-0 px-2 md:px-4 py-3 focus:outline-none min-h-[44px] max-h-32 text-sm md:text-base bg-transparent ${
               darkTheme ? "text-white placeholder-gray-400" : "text-gray-900 placeholder-gray-500"
