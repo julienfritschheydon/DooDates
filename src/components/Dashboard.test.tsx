@@ -12,8 +12,10 @@ import { useViewportItems } from "../hooks/useViewportItems";
 import { logger } from "../lib/logger";
 
 // Mock all dependencies
+const mockNavigate = vi.fn();
+
 vi.mock("react-router-dom", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => mockNavigate,
 }));
 
 vi.mock("./dashboard/useDashboardData", () => ({
@@ -150,24 +152,39 @@ global.confirm = mockConfirm;
 describe("Dashboard", () => {
   const mockNavigate = vi.fn();
 
+  beforeEach(() => {
+    mockNavigate.mockClear();
+  });
+
   const mockConversationItems = [
     {
       id: "conv-1",
-      conversationTitle: "Test Conversation 1",
-      conversationDate: new Date("2024-01-15T10:00:00Z"),
-      poll: undefined,  // Changed from null to undefined
-      hasAI: true,
+      title: "Test Conversation 1",
+      status: "active",
+      createdAt: new Date("2024-01-15T10:00:00Z"),
+      updatedAt: new Date("2024-01-15T10:00:00Z"),
+      firstMessage: "Hello AI",
+      messageCount: 5,
+      isFavorite: false,
       tags: [],
-      folderId: undefined,  // Changed from null to undefined
+      userId: "user-1",
     },
     {
       id: "conv-2",
-      conversationTitle: "Test Conversation 2",
-      conversationDate: new Date("2024-01-14T10:00:00Z"),
-      poll: { id: "poll-1", title: "Test Poll", type: "date" },
-      hasAI: false,
+      title: "Test Conversation 2",
+      status: "completed",
+      createdAt: new Date("2024-01-14T10:00:00Z"),
+      updatedAt: new Date("2024-01-14T10:00:00Z"),
+      firstMessage: "Create a poll",
+      messageCount: 3,
+      relatedPollId: "poll-1",
+      pollId: "poll-1",
+      pollType: "date",
+      pollStatus: "active",
+      isFavorite: true,
+      favorite_rank: 1,
       tags: ["tag1"],
-      folderId: "folder1",
+      userId: "user-1",
     },
   ];
 
@@ -243,20 +260,97 @@ describe("Dashboard", () => {
     });
 
     vi.mocked(useFreemiumQuota).mockReturnValue({
+      limits: {
+        conversations: 10,
+        polls: 20,
+        storageSize: 1000,
+      },
+      usage: {
+        conversations: 5,
+        polls: 2,
+        aiMessages: 25,
+        storageUsed: 100,
+      },
       status: mockQuotaStatus,
+      isAuthenticated: false,
+      canCreateConversation: vi.fn().mockResolvedValue(true),
+      canCreatePoll: vi.fn().mockResolvedValue(true),
+      canUseFeature: vi.fn().mockResolvedValue(true),
+      checkConversationLimit: vi.fn().mockReturnValue(true),
+      checkPollLimit: vi.fn().mockReturnValue(true),
+      checkFeatureAccess: vi.fn().mockResolvedValue(true),
+      showAuthModal: false,
+      authModalTrigger: "conversation_limit",
+      showAuthIncentive: vi.fn(),
+      closeAuthModal: vi.fn(),
+      getRemainingConversations: vi.fn().mockReturnValue(5),
+      getRemainingPolls: vi.fn().mockReturnValue(18),
+      getStoragePercentage: vi.fn().mockReturnValue(10),
       guestQuota: mockGuestQuotaSyncState,
     });
 
     vi.mocked(useConversations).mockReturnValue({
+      conversations: {
+        conversations: [],
+        totalCount: 0,
+        hasMore: false,
+        isEmpty: true,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        error: undefined,
+      },
+      useConversation: vi.fn(),
+      createConversation: {
+        mutate: vi.fn(),
+        mutateAsync: vi.fn(),
+        isLoading: false,
+        isError: false,
+        isSuccess: false,
+        error: undefined,
+        reset: vi.fn(),
+      },
+      updateConversation: {
+        mutate: vi.fn(),
+        mutateAsync: vi.fn(),
+        isLoading: false,
+        isError: false,
+        isSuccess: false,
+        error: undefined,
+        reset: vi.fn(),
+      },
       deleteConversation: {
         mutate: vi.fn(),
         mutateAsync: vi.fn(),
         isLoading: false,
         isError: false,
         isSuccess: false,
-        error: undefined,                        // Changed null to undefined
-        data: undefined,                        // Changed null to undefined
+        error: undefined,
         reset: vi.fn(),
+      },
+      addMessage: {
+        mutate: vi.fn(),
+        mutateAsync: vi.fn(),
+        isLoading: false,
+        isError: false,
+        isSuccess: false,
+        error: undefined,
+        reset: vi.fn(),
+      },
+      loadMore: vi.fn(),
+      refresh: vi.fn(),
+      searchConversations: vi.fn(),
+      reorderFavorite: vi.fn(),
+      isLoadingMore: false,
+      canLoadMore: false,
+      isRefreshing: false,
+      config: {
+        pageSize: 20,
+        enableRealtime: true,
+        enableOptimisticUpdates: true,
+        filters: {},
+        sortBy: "updatedAt",
+        sortOrder: "desc",
       },
     });
 
@@ -266,9 +360,8 @@ describe("Dashboard", () => {
       checkPollLinks: vi.fn(),
       getOrphanedLinks: vi.fn(),
       cleanupOrphanedLinks: vi.fn(),
-      isLoading: false,
-      error: null,
-      deleteError: null,
+      isDeleting: false,
+      deleteError: undefined,
     });
 
     vi.mocked(useToast).mockReturnValue({
@@ -345,10 +438,36 @@ describe("Dashboard", () => {
       const nearLimitQuota = {
         ...mockQuotaStatus,
         conversations: { ...mockQuotaStatus.conversations, isNearLimit: true },
+        aiMessages: mockQuotaStatus.aiMessages, // Add missing aiMessages
       };
 
       vi.mocked(useFreemiumQuota).mockReturnValue({
+        limits: {
+          conversations: 10,
+          polls: 20,
+          storageSize: 1000,
+        },
+        usage: {
+          conversations: 5,
+          polls: 2,
+          aiMessages: 25,  // Add missing aiMessages
+          storageUsed: 100,
+        },
         status: nearLimitQuota,
+        isAuthenticated: false,
+        canCreateConversation: vi.fn().mockResolvedValue(true),
+        canCreatePoll: vi.fn().mockResolvedValue(true),
+        canUseFeature: vi.fn().mockResolvedValue(true),
+        checkConversationLimit: vi.fn().mockReturnValue(true),
+        checkPollLimit: vi.fn().mockReturnValue(true),
+        checkFeatureAccess: vi.fn().mockResolvedValue(true),
+        showAuthModal: false,
+        authModalTrigger: "conversation_limit",
+        showAuthIncentive: vi.fn(),
+        closeAuthModal: vi.fn(),
+        getRemainingConversations: vi.fn().mockReturnValue(5),
+        getRemainingPolls: vi.fn().mockReturnValue(18),
+        getStoragePercentage: vi.fn().mockReturnValue(10),
         guestQuota: mockGuestQuotaSyncState,
       });
 
@@ -501,6 +620,35 @@ describe("Dashboard", () => {
       const mockToast = vi.fn();
 
       vi.mocked(useConversations).mockReturnValue({
+        conversations: {
+          conversations: mockConversationItems,
+          totalCount: mockConversationItems.length,
+          hasMore: false,
+          isEmpty: false,
+          isLoading: false,
+          isError: false,
+          isSuccess: true,
+          error: undefined,
+        },
+        useConversation: vi.fn(),
+        createConversation: {
+          mutate: vi.fn(),
+          mutateAsync: vi.fn(),
+          isLoading: false,
+          isError: false,
+          isSuccess: false,
+          error: undefined,
+          reset: vi.fn(),
+        },
+        updateConversation: {
+          mutate: vi.fn(),
+          mutateAsync: vi.fn(),
+          isLoading: false,
+          isError: false,
+          isSuccess: false,
+          error: undefined,
+          reset: vi.fn(),
+        },
         deleteConversation: {
           mutate: vi.fn(),
           mutateAsync: mockDeleteConversation,
@@ -508,8 +656,31 @@ describe("Dashboard", () => {
           isError: false,
           isSuccess: false,
           error: undefined,
-          data: undefined,
           reset: vi.fn(),
+        },
+        addMessage: {
+          mutate: vi.fn(),
+          mutateAsync: vi.fn(),
+          isLoading: false,
+          isError: false,
+          isSuccess: false,
+          error: undefined,
+          reset: vi.fn(),
+        },
+        loadMore: vi.fn(),
+        refresh: vi.fn(),
+        searchConversations: vi.fn(),
+        reorderFavorite: vi.fn(),
+        isLoadingMore: false,
+        canLoadMore: false,
+        isRefreshing: false,
+        config: {
+          pageSize: 20,
+          enableRealtime: true,
+          enableOptimisticUpdates: true,
+          filters: {},
+          sortBy: "updatedAt",
+          sortOrder: "desc",
         },
       });
 
@@ -646,7 +817,6 @@ describe("Dashboard", () => {
   describe("Navigation", () => {
     it("should handle quota navigation clicks", async () => {
       const user = userEvent.setup();
-      const mockNavigate = vi.fn();
 
       vi.mock("react-router-dom", () => ({
         useNavigate: () => mockNavigate,
@@ -667,6 +837,35 @@ describe("Dashboard", () => {
       const mockToast = vi.fn();
 
       vi.mocked(useConversations).mockReturnValue({
+        conversations: {
+          conversations: mockConversationItems,
+          totalCount: mockConversationItems.length,
+          hasMore: false,
+          isEmpty: false,
+          isLoading: false,
+          isError: false,
+          isSuccess: true,
+          error: undefined,
+        },
+        useConversation: vi.fn(),
+        createConversation: {
+          mutate: vi.fn(),
+          mutateAsync: vi.fn(),
+          isLoading: false,
+          isError: false,
+          isSuccess: false,
+          error: undefined,
+          reset: vi.fn(),
+        },
+        updateConversation: {
+          mutate: vi.fn(),
+          mutateAsync: vi.fn(),
+          isLoading: false,
+          isError: false,
+          isSuccess: false,
+          error: undefined,
+          reset: vi.fn(),
+        },
         deleteConversation: {
           mutate: vi.fn(),
           mutateAsync: mockDeleteConversation,
@@ -674,8 +873,31 @@ describe("Dashboard", () => {
           isError: false,
           isSuccess: false,
           error: undefined,
-          data: undefined,
           reset: vi.fn(),
+        },
+        addMessage: {
+          mutate: vi.fn(),
+          mutateAsync: vi.fn(),
+          isLoading: false,
+          isError: false,
+          isSuccess: false,
+          error: undefined,
+          reset: vi.fn(),
+        },
+        loadMore: vi.fn(),
+        refresh: vi.fn(),
+        searchConversations: vi.fn(),
+        reorderFavorite: vi.fn(),
+        isLoadingMore: false,
+        canLoadMore: false,
+        isRefreshing: false,
+        config: {
+          pageSize: 20,
+          enableRealtime: true,
+          enableOptimisticUpdates: true,
+          filters: {},
+          sortBy: "updatedAt",
+          sortOrder: "desc",
         },
       });
 
