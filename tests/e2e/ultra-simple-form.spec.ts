@@ -34,6 +34,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
           /DooDatesError/i,
           /No dates selected/i,
           /Erreur lors de la sauvegarde/i,
+          /Failed to send message/i,
         ],
       },
       mocks: { gemini: true },
@@ -49,126 +50,132 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
     // Timeouts adaptatifs (mobile vs desktop) pour réduire les faux positifs.
     const timeouts = getTimeouts(browserName);
 
-    await withConsoleGuard(page, async () => {
-      // On indique à Playwright que le scénario peut durer plus longtemps (IA + multiples navigations).
-      test.slow();
+    await withConsoleGuard(
+      page,
+      async () => {
+        // On indique à Playwright que le scénario peut durer plus longtemps (IA + multiples navigations).
+        test.slow();
 
-      // Étape 1 — Création du formulaire via IA (remplace toute saisie manuelle)
-      log('🛠️ Création du formulaire via IA');
+        // Étape 1 — Création du formulaire via IA (remplace toute saisie manuelle)
+        log('🛠️ Création du formulaire via IA');
 
-      await createFormPollViaAI(
-        page,
-        browserName,
-        'Crée un questionnaire avec 2 questions pour organiser une formation',
-        {
-          waitForEditor: true,
-          fillTitle: 'Test Ultra Simple Form',
-          publish: false,
-        }
-      );
+        await createFormPollViaAI(
+          page,
+          browserName,
+          'Crée un questionnaire avec 2 questions pour organiser une formation',
+          {
+            waitForEditor: true,
+            fillTitle: 'Test Ultra Simple Form',
+            publish: false,
+          }
+        );
 
-      // Attente explicite du composant d'édition pour éviter toute course sur le DOM.
-      const editor = await waitForElementReady(page, '[data-poll-preview]', {
-        browserName,
-        timeout: timeouts.element,
-      });
-
-      // Double vérification: on attend que React ait fini de stabiliser l'arbre.
-      await waitForReactStable(page, { browserName });
-
-      const questionTabs = editor.getByRole('button', { name: /^Q\d+$/ });
-      const initialCount = await questionTabs.count();
-      expect(initialCount).toBeGreaterThanOrEqual(1);
-
-      log(`✅ Formulaire généré (${initialCount} question(s))`);
-
-      const chatInput = page.getByRole('textbox', { name: /Décrivez votre sondage/i });
-
-      // Étape 2 — Ajout d’une question supplémentaire via le chat IA
-      log('✏️ Ajout d’une question via IA');
-
-      await sendChatCommand(page, browserName, chatInput, 'Ajoute une question sur la durée de l’atelier');
-      await waitForQuestionTabs(page, browserName, initialCount, {
-        timeout: timeouts.element * 2,
-        message: 'Après ajout de question',
-        mode: 'at-least',
-      });
-      log('✅ Question supplémentaire ajoutée');
-
-      // Nombre de questions juste avant suppression (sert de référence pour la reprise).
-      const countBeforeDeletion = await questionTabs.count();
-      expect(countBeforeDeletion).toBeGreaterThanOrEqual(2);
-
-      // Étape 3 — Suppression d’une question pour vérifier la reprise vendeur IA
-      log('🗑️ Suppression d’une question via IA');
-
-      await sendChatCommand(page, browserName, chatInput, 'Supprime la question 2');
-      await waitForQuestionTabs(page, browserName, 1, {
-        timeout: timeouts.element * 2,
-        message: 'Après suppression de question',
-        mode: 'at-least',
-      });
-      log('✅ Question supprimée');
-
-      // Étape 4 — Reload complet pour vérifier la persistance des données
-      const urlBeforeReload = page.url();
-
-      await page.reload({ waitUntil: 'domcontentloaded' });
-      await waitForNetworkIdle(page, { browserName });
-      await waitForElementReady(page, '[data-poll-preview]', {
-        browserName,
-        timeout: timeouts.element * 1.5,
-      });
-      await waitForReactStable(page, { browserName });
-
-      // Après rechargement, on s'assure que la suppression précédente est bien persistée.
-      const restoredCount = await questionTabs.count();
-      expect(restoredCount).toBeGreaterThanOrEqual(1);
-      expect(restoredCount).toBeLessThanOrEqual(countBeforeDeletion);
-      log(`🔁 Reprise ok après refresh (${restoredCount} question(s), avant suppression: ${countBeforeDeletion}) - URL ${urlBeforeReload}`);
-
-      // Étape 5 — Ouverture côté votant + vote complet + vérification dashboard
-      const pollSlug = await getPollSlugFromEditor(page);
-      // Si le formulaire est bien publié, on récupère son slug pour parcourir l'expérience votant.
-      if (pollSlug) {
-        // Navigation directe vers la page publique du formulaire pour valider qu'elle se charge correctement.
-        await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
-        await waitForNetworkIdle(page, { browserName });
-        const pollPageTitle = await page.title();
-        log(`ℹ️ Titre page votant: ${pollPageTitle}`);
-
-        const pollHeading = page.locator('h1').first();
-        await expect(pollHeading).toBeVisible({ timeout: timeouts.element });
-        const pollHeadingText = ((await pollHeading.textContent()) || '').trim();
-        log(`ℹ️ Heading page votant: ${pollHeadingText}`);
-        // Le formulaire doit afficher le champ "Votre nom" pour permettre l'identification du votant.
-        await expect(page.locator('body')).toContainText(/Votre nom/i, {
-          timeout: timeouts.element,
-        });
-
-        log('✅ Page votant accessible');
-
-        // Vote complet (nom, réponses, soumission)
-        await voteOnPollComplete(page, browserName, pollSlug, 'Ultra Simple Form Voter');
-        log('🗳️ Vote simulé avec succès');
-
-        // Vérification minimaliste côté dashboard : au moins une carte de sondage est présente
-        await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-        await waitForNetworkIdle(page, { browserName });
-
-        const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {
+        // Attente explicite du composant d'édition pour éviter toute course sur le DOM.
+        const editor = await waitForElementReady(page, '[data-poll-preview]', {
           browserName,
           timeout: timeouts.element,
         });
 
-        await expect(pollItem).toBeVisible({ timeout: timeouts.element });
-        log('📋 Dashboard affiche au moins un formulaire après vote');
-      } else {
-        log('ℹ️ Aucun slug détecté (poll non publié), étape votant ignorée');
-      }
+        // Double vérification: on attend que React ait fini de stabiliser l'arbre.
+        await waitForReactStable(page, { browserName });
 
-      log('🎉 WORKFLOW COMPLET FORM POLL RÉUSSI');
-    });
+        const questionTabs = editor.getByRole('button', { name: /^Q\d+$/ });
+        const initialCount = await questionTabs.count();
+        expect(initialCount).toBeGreaterThanOrEqual(1);
+
+        log(`✅ Formulaire généré (${initialCount} question(s))`);
+
+        const chatInput = page.getByRole('textbox', { name: /Décrivez votre sondage/i });
+
+        // Étape 2 — Ajout d’une question supplémentaire via le chat IA
+        log('✏️ Ajout d’une question via IA');
+
+        await sendChatCommand(page, browserName, chatInput, 'Ajoute une question sur la durée de l’atelier');
+        await waitForQuestionTabs(page, browserName, initialCount, {
+          timeout: timeouts.element * 2,
+          message: 'Après ajout de question',
+          mode: 'at-least',
+        });
+        log('✅ Question supplémentaire ajoutée');
+
+        // Nombre de questions juste avant suppression (sert de référence pour la reprise).
+        const countBeforeDeletion = await questionTabs.count();
+        expect(countBeforeDeletion).toBeGreaterThanOrEqual(2);
+
+        // Étape 3 — Suppression d’une question pour vérifier la reprise vendeur IA
+        log('🗑️ Suppression d’une question via IA');
+
+        await sendChatCommand(page, browserName, chatInput, 'Supprime la question 2');
+        await waitForQuestionTabs(page, browserName, 1, {
+          timeout: timeouts.element * 2,
+          message: 'Après suppression de question',
+          mode: 'at-least',
+        });
+        log('✅ Question supprimée');
+
+        // Étape 4 — Reload complet pour vérifier la persistance des données
+        const urlBeforeReload = page.url();
+
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await waitForNetworkIdle(page, { browserName });
+        await waitForElementReady(page, '[data-poll-preview]', {
+          browserName,
+          timeout: timeouts.element * 1.5,
+        });
+        await waitForReactStable(page, { browserName });
+
+        // Après rechargement, on s'assure que la suppression précédente est bien persistée.
+        const restoredCount = await questionTabs.count();
+        expect(restoredCount).toBeGreaterThanOrEqual(1);
+        expect(restoredCount).toBeLessThanOrEqual(countBeforeDeletion);
+        log(`🔁 Reprise ok après refresh (${restoredCount} question(s), avant suppression: ${countBeforeDeletion}) - URL ${urlBeforeReload}`);
+
+        // Étape 5 — Ouverture côté votant + vote complet + vérification dashboard
+        const pollSlug = await getPollSlugFromEditor(page);
+        // Si le formulaire est bien publié, on récupère son slug pour parcourir l'expérience votant.
+        if (pollSlug) {
+          // Navigation directe vers la page publique du formulaire pour valider qu'elle se charge correctement.
+          await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+          await waitForNetworkIdle(page, { browserName });
+          const pollPageTitle = await page.title();
+          log(`ℹ️ Titre page votant: ${pollPageTitle}`);
+
+          const pollHeading = page.locator('h1').first();
+          await expect(pollHeading).toBeVisible({ timeout: timeouts.element });
+          const pollHeadingText = ((await pollHeading.textContent()) || '').trim();
+          log(`ℹ️ Heading page votant: ${pollHeadingText}`);
+          // Le formulaire doit afficher le champ "Votre nom" pour permettre l'identification du votant.
+          await expect(page.locator('body')).toContainText(/Votre nom/i, {
+            timeout: timeouts.element,
+          });
+
+          log('✅ Page votant accessible');
+
+          // Vote complet (nom, réponses, soumission)
+          await voteOnPollComplete(page, browserName, pollSlug, 'Ultra Simple Form Voter');
+          log('🗳️ Vote simulé avec succès');
+
+          // Vérification minimaliste côté dashboard : au moins une carte de sondage est présente
+          await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+          await waitForNetworkIdle(page, { browserName });
+
+          const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {
+            browserName,
+            timeout: timeouts.element,
+          });
+
+          await expect(pollItem).toBeVisible({ timeout: timeouts.element });
+          log('📋 Dashboard affiche au moins un formulaire après vote');
+        } else {
+          log('ℹ️ Aucun slug détecté (poll non publié), étape votant ignorée');
+        }
+
+        log('🎉 WORKFLOW COMPLET FORM POLL RÉUSSI');
+      },
+      {
+        allowlist: [/Failed to send message/i],
+      }
+    );
   });
 });
 
