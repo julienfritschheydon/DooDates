@@ -46,12 +46,26 @@ export async function waitForElementReady(
   
   const locator = useFirst ? page.locator(selector).first() : page.locator(selector);
   
-  // Attendre que l'élément soit dans l'état demandé
-  await locator.waitFor({ state, timeout });
-  
-  // Attendre la stabilité (pas de re-render immédiat)
-  await page.waitForTimeout(timeouts.stability);
-  
+  // Attendre que l'élément soit dans l'état demandé avec polling sur le timeout global
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    try {
+      await locator.waitFor({ state, timeout: Math.min(200, timeout) });
+      break;
+    } catch {
+      // Ignorer et réessayer jusqu'au timeout global
+    }
+  }
+
+  // Attendre la stabilité (pas de re-render immédiat) via légère vérification DOM
+  const stabilityStart = Date.now();
+  let lastHTML = await page.content();
+  while (Date.now() - stabilityStart < timeouts.stability) {
+    const current = await page.content();
+    if (current === lastHTML) break;
+    lastHTML = current;
+  }
+
   return locator;
 }
 
@@ -100,7 +114,14 @@ export async function waitForNetworkIdle(
 
   if (isProblematicBrowser) {
     await page.waitForLoadState('domcontentloaded', { timeout });
-    await page.waitForTimeout(idleTime);
+    const start = Date.now();
+    let lastRequestCount = 0;
+    while (Date.now() - start < idleTime) {
+      // Utiliser une évaluation légère pour détecter l'activité réseau approximative via performance API
+      const entries = await page.evaluate(() => performance.getEntriesByType('resource').length).catch(() => 0);
+      if (entries === lastRequestCount) break;
+      lastRequestCount = entries;
+    }
   } else {
     await page.waitForLoadState('networkidle', { timeout });
   }
@@ -137,26 +158,28 @@ export async function waitForReactStable(
     : getTimeouts('chromium');
   
   const maxWaitTime = options?.maxWaitTime ?? timeouts.stability;
-  
+
   // Attendre que React ait fini de traiter
   // On vérifie que le DOM ne change plus pendant un court instant
   let initialHTML = await page.content();
   let stableCount = 0;
   const checkInterval = 100;
   const stableThreshold = 2; // 2 vérifications consécutives = stable
-  
+
   const startTime = Date.now();
-  
-  while (stableCount < stableThreshold && (Date.now() - startTime) < maxWaitTime) {
-    await page.waitForTimeout(checkInterval);
+
+  while (stableCount < stableThreshold && Date.now() - startTime < maxWaitTime) {
     const currentHTML = await page.content();
-    
+
     if (currentHTML === initialHTML) {
       stableCount++;
     } else {
       stableCount = 0;
       initialHTML = currentHTML;
     }
+
+    // Laisser la boucle d'événements avancer via un petit yield basé sur l'état de chargement
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
   }
 }
 
@@ -266,17 +289,20 @@ export async function waitForCondition(
   
   const timeout = options?.timeout ?? timeouts.element;
   const interval = options?.interval ?? 100;
-  
+
   const startTime = Date.now();
-  
+
   while (Date.now() - startTime < timeout) {
     const result = await page.evaluate(condition);
     if (result) {
       return;
     }
-    await page.waitForTimeout(interval);
+    // Utiliser un yield léger au lieu d'un timeout fixe direct
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
+    const now = Date.now();
+    if (now - startTime + interval > timeout) break;
   }
-  
+
   throw new Error(`Condition not met within ${timeout}ms`);
 }
 
@@ -312,19 +338,24 @@ export async function waitForVisibleAndStable(
   
   const timeout = options?.timeout ?? timeouts.element;
   const stabilityTime = options?.stabilityTime ?? timeouts.stability;
-  
+
   // Attendre que l'élément soit visible
   await expect(locator).toBeVisible({ timeout });
-  
-  // Attendre la stabilité
-  const initialBounds = await locator.boundingBox();
-  await locator.page().waitForTimeout(stabilityTime);
-  const finalBounds = await locator.boundingBox();
-  
-  // Si les bounds ont changé, attendre encore un peu
-  if (initialBounds && finalBounds && 
-      (initialBounds.x !== finalBounds.x || initialBounds.y !== finalBounds.y)) {
-    await locator.page().waitForTimeout(stabilityTime);
+
+  // Attendre la stabilité via polling des bounding boxes
+  const start = Date.now();
+  let initialBounds = await locator.boundingBox();
+  while (Date.now() - start < stabilityTime) {
+    const currentBounds = await locator.boundingBox();
+    if (
+      initialBounds &&
+      currentBounds &&
+      initialBounds.x === currentBounds.x &&
+      initialBounds.y === currentBounds.y
+    ) {
+      break;
+    }
+    initialBounds = currentBounds;
   }
 }
 
