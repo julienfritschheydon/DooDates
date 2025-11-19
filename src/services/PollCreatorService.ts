@@ -34,6 +34,7 @@ export interface PollCreationState {
   pollLinkCopied: boolean;
   expirationDays: number;
   showExpirationSettings: boolean;
+  showSettingsPanel: boolean;
 }
 
 export class PollCreatorService {
@@ -187,6 +188,7 @@ export class PollCreatorService {
 
   /**
    * Format selected date header
+   * Utilise formatDateFull pour le format complet uniforme
    */
   static formatSelectedDateHeader(dateString: string): {
     dayName: string;
@@ -194,10 +196,14 @@ export class PollCreatorService {
     month: string;
     fullFormat: string;
   } {
-    const date = new Date(dateString);
+    // Parser la date en mode local pour éviter les décalages timezone
+    const [year, month, day] = dateString.split("-").map(Number);
+    const date = new Date(year, month - 1, day); // month - 1 car JS commence à 0
+
     const dayName = date.toLocaleDateString("fr-FR", { weekday: "long" });
     const dayNumber = date.getDate().toString();
-    const month = date.toLocaleDateString("fr-FR", { month: "short" });
+    const monthShort = date.toLocaleDateString("fr-FR", { month: "short" });
+    // Utiliser le format uniforme pour fullFormat
     const fullFormat = date.toLocaleDateString("fr-FR", {
       weekday: "long",
       year: "numeric",
@@ -205,7 +211,7 @@ export class PollCreatorService {
       day: "numeric",
     });
 
-    return { dayName, dayNumber, month, fullFormat };
+    return { dayName, dayNumber, month: monthShort, fullFormat };
   }
 
   /**
@@ -301,6 +307,87 @@ export class PollCreatorService {
   }
 
   /**
+   * Handle time slot toggle for a specific date
+   * Returns the new timeSlotsByDate object
+   */
+  static handleTimeSlotToggle(
+    dateStr: string,
+    hour: number,
+    minute: number,
+    timeSlotsByDate: Record<string, TimeSlot[]>,
+    granularity: number,
+    includeDuration: boolean = true,
+  ): Record<string, TimeSlot[]> {
+    const currentSlots = timeSlotsByDate[dateStr] || [];
+    const clickedMinutes = hour * 60 + minute;
+
+    const existingSlotIndex = currentSlots.findIndex((s) => s.hour === hour && s.minute === minute);
+
+    if (existingSlotIndex >= 0) {
+      // Slot existe → Toggle enabled
+      const newSlots = [...currentSlots];
+      newSlots[existingSlotIndex] = {
+        ...newSlots[existingSlotIndex],
+        enabled: !newSlots[existingSlotIndex].enabled,
+      };
+
+      return {
+        ...timeSlotsByDate,
+        [dateStr]: newSlots,
+      };
+    } else {
+      // Slot n'existe pas → Vérifier si adjacent à un bloc existant
+      const adjacentAfter = currentSlots.find(
+        (s) => s.hour * 60 + s.minute === clickedMinutes + granularity && s.enabled,
+      );
+      const adjacentBefore = currentSlots.find(
+        (s) => s.hour * 60 + s.minute === clickedMinutes - granularity && s.enabled,
+      );
+
+      const newSlot: TimeSlot = {
+        hour,
+        minute,
+        enabled: true,
+      };
+
+      // Ajouter duration si demandé (pour PollCreator)
+      if (includeDuration) {
+        newSlot.duration = granularity;
+      }
+
+      return {
+        ...timeSlotsByDate,
+        [dateStr]: [...currentSlots, newSlot],
+      };
+    }
+  }
+
+  /**
+   * Generate visible time slots for display
+   * Returns an array of time slot objects with labels
+   */
+  static generateVisibleTimeSlots(
+    granularity: number,
+    showExtendedHours: boolean = false,
+  ): Array<{ hour: number; minute: number; label: string }> {
+    const slots = [];
+    const startHour = 8;
+    const endHour = showExtendedHours ? 23 : 20;
+
+    for (let hour = startHour; hour <= endHour; hour++) {
+      for (let minute = 0; minute < 60; minute += granularity) {
+        slots.push({
+          hour,
+          minute,
+          label: `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`,
+        });
+      }
+    }
+
+    return slots;
+  }
+
+  /**
    * Toggle time slot for a specific date
    */
   static toggleTimeSlotForDate(
@@ -386,6 +473,7 @@ export class PollCreatorService {
       pollLinkCopied: false,
       expirationDays: 30,
       showExpirationSettings: false,
+      showSettingsPanel: false,
     };
 
     if (initialData) {

@@ -7,9 +7,15 @@
  * - Suivi des clés (statut, usage)
  */
 
-import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { ErrorFactory, logError, handleError } from "@/lib/error-handling";
+import {
+  getSupabaseSessionWithTimeout,
+  supabaseRpc,
+  supabaseSelect,
+  supabaseSelectSingle,
+  supabaseUpdate,
+} from "@/lib/supabaseApi";
 
 // ================================================
 // TYPES
@@ -69,81 +75,36 @@ export class BetaKeyService {
 
       // Vérifier la session AVANT tout
       console.log("🔑 [BetaKeyService] Récupération de la session...");
-      const session = await supabase.auth.getSession();
+      const session = await getSupabaseSessionWithTimeout(2000);
       console.log("🔑 [BetaKeyService] Session récupérée:", session);
 
-      if (!session.data.session) {
+      if (!session) {
         throw ErrorFactory.auth(
           "Aucune session active. Veuillez vous reconnecter.",
           "Aucune session active. Veuillez vous reconnecter.",
         );
       }
 
-      // Récupérer l'URL et la clé depuis les variables d'env
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-      console.log("🔑 [BetaKeyService] Configuration:", {
-        supabaseUrl,
-        hasAnonKey: !!supabaseAnonKey,
-        hasAccessToken: !!session.data.session.access_token,
-      });
-
-      if (!supabaseUrl || !supabaseAnonKey) {
-        throw ErrorFactory.critical(
-          "Configuration Supabase manquante. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.",
-          "Configuration Supabase manquante. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.",
-        );
-      }
-
-      // Utiliser fetch directement car supabase.rpc() ne semble pas fonctionner
-      console.log("🔑 [BetaKeyService] Appel direct via fetch...");
-      const response = await fetch(`${supabaseUrl}/rest/v1/rpc/generate_beta_key`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: supabaseAnonKey,
-          Authorization: `Bearer ${session.data.session.access_token}`,
-          Prefer: "return=representation",
-        },
-        body: JSON.stringify({
+      console.log("🔑 [BetaKeyService] Appel RPC via supabaseApi...");
+      const data = await supabaseRpc<BetaKeyGeneration[]>(
+        "generate_beta_key",
+        {
           p_count: count,
           p_notes: notes || null,
           p_duration_months: durationMonths,
-        }),
-      });
+        },
+        { timeout: 10000 },
+      );
 
-      console.log("🔑 [BetaKeyService] Réponse reçue:", {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-
-        let errorMessage = `Erreur HTTP ${response.status}: ${errorText}`;
-        if (response.status === 401) {
-          errorMessage = "Non autorisé. Vérifiez votre session.";
-        } else if (response.status === 403) {
-          errorMessage = "Accès refusé. Vérifiez les permissions.";
-        } else if (response.status === 404) {
-          errorMessage =
-            "Fonction RPC introuvable. Vérifiez que generate_beta_key existe dans Supabase.";
-        }
-
-        throw ErrorFactory.storage(errorMessage, errorMessage);
-      }
-
-      const data = await response.json();
       console.log("🔑 [BetaKeyService] Données reçues:", data);
 
-      if (!data || data.length === 0) {
+      if (!data || (Array.isArray(data) && data.length === 0)) {
         throw ErrorFactory.storage("Aucune clé générée", "La fonction a retourné un résultat vide");
       }
 
-      logger.info(`Generated ${data.length} beta keys`, "api", { count, notes, keys: data });
-      return data as BetaKeyGeneration[];
+      const keys = Array.isArray(data) ? data : [data];
+      logger.info(`Generated ${keys.length} beta keys`, "api", { count, notes, keys });
+      return keys;
     } catch (error: unknown) {
       logger.error("Exception generating beta keys", "api", { error });
       // Re-throw avec le message d'erreur original pour affichage dans le toast
@@ -167,30 +128,11 @@ export class BetaKeyService {
       // Récupérer le token d'accès (depuis paramètre ou session)
       let token = accessToken;
       if (!token) {
-        // Essayer de récupérer depuis la session avec timeout
         try {
-          const sessionPromise = supabase.auth.getSession();
-          const timeoutPromise = new Promise<{ data: { session: null } }>((resolve) => {
-            setTimeout(() => resolve({ data: { session: null } }), 2000);
-          });
-          const session = await Promise.race([sessionPromise, timeoutPromise]);
-          token = session.data.session?.access_token;
+          const session = await getSupabaseSessionWithTimeout(2000);
+          token = session?.access_token;
         } catch (err) {
-          console.warn(
-            "⚠️ [BetaKeyService] Impossible de récupérer la session, utilisation du token depuis localStorage",
-          );
-          // Fallback : essayer de récupérer depuis localStorage
-          const sessionStr = localStorage.getItem(
-            `sb-${import.meta.env.VITE_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`,
-          );
-          if (sessionStr) {
-            try {
-              const sessionData = JSON.parse(sessionStr);
-              token = sessionData?.access_token;
-            } catch (e) {
-              // Ignore
-            }
-          }
+          console.warn("⚠️ [BetaKeyService] Impossible de récupérer la session", err);
         }
       }
 
@@ -201,63 +143,17 @@ export class BetaKeyService {
         };
       }
 
-      // Récupérer l'URL et la clé depuis les variables d'env
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-      if (!supabaseUrl || !supabaseAnonKey) {
-        return {
-          success: false,
-          error: "Configuration Supabase manquante.",
-        };
-      }
-
-      // Utiliser fetch directement (comme pour generateKeys)
-      console.log("🔑 [BetaKeyService] Appel RPC redeem_beta_key via fetch...");
-      const response = await fetch(`${supabaseUrl}/rest/v1/rpc/redeem_beta_key`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: supabaseAnonKey,
-          Authorization: `Bearer ${token}`,
-          Prefer: "return=representation",
-        },
-        body: JSON.stringify({
+      // Utiliser supabaseRpc
+      console.log("🔑 [BetaKeyService] Appel RPC redeem_beta_key via supabaseApi...");
+      const result = await supabaseRpc<RedemptionResult>(
+        "redeem_beta_key",
+        {
           p_user_id: userId,
           p_code: normalizedCode,
-        }),
-      });
+        },
+        { timeout: 10000 },
+      );
 
-      console.log("🔑 [BetaKeyService] Réponse redeem:", {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-
-        let errorMessage = `Erreur HTTP ${response.status}: ${errorText}`;
-        if (response.status === 401) {
-          errorMessage = "Non autorisé. Vérifiez votre session.";
-        } else if (response.status === 403) {
-          errorMessage = "Accès refusé. Vérifiez les permissions.";
-        } else if (response.status === 404) {
-          errorMessage = "Fonction RPC introuvable.";
-        }
-
-        logger.error("Failed to redeem beta key", "api", {
-          error: errorMessage,
-          userId,
-          status: response.status,
-        });
-        return {
-          success: false,
-          error: errorMessage,
-        };
-      }
-
-      const result = await response.json();
       console.log("🔑 [BetaKeyService] Résultat redeem:", result);
 
       if (result.success) {
@@ -301,25 +197,16 @@ export class BetaKeyService {
    */
   static async getAllKeys(): Promise<BetaKey[]> {
     try {
-      const { data, error } = await supabase
-        .from("beta_keys")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const data = await supabaseSelect<BetaKey>(
+        "beta_keys",
+        {
+          order: "created_at.desc",
+          select: "*",
+        },
+        { timeout: 10000 },
+      );
 
-      if (error) {
-        const err = ErrorFactory.storage(
-          `Failed to fetch beta keys: ${error.message}`,
-          "Erreur lors de la récupération des clés beta",
-        );
-        logError(err, {
-          component: "BetaKeyService",
-          operation: "getAllKeys",
-          metadata: { error },
-        });
-        throw err;
-      }
-
-      return data as BetaKey[];
+      return data;
     } catch (error) {
       logger.error("Exception fetching beta keys", "api", { error });
       throw error;
@@ -331,26 +218,17 @@ export class BetaKeyService {
    */
   static async getActiveKeys(): Promise<BetaKey[]> {
     try {
-      const { data, error } = await supabase
-        .from("beta_keys")
-        .select("*")
-        .eq("status", "active")
-        .order("created_at", { ascending: false });
+      const data = await supabaseSelect<BetaKey>(
+        "beta_keys",
+        {
+          status: `eq.active`,
+          order: "created_at.desc",
+          select: "*",
+        },
+        { timeout: 10000 },
+      );
 
-      if (error) {
-        const err = ErrorFactory.storage(
-          `Failed to fetch active beta keys: ${error.message}`,
-          "Erreur lors de la récupération des clés actives",
-        );
-        logError(err, {
-          component: "BetaKeyService",
-          operation: "getActiveKeys",
-          metadata: { error },
-        });
-        throw err;
-      }
-
-      return data as BetaKey[];
+      return data;
     } catch (error) {
       logger.error("Exception fetching active beta keys", "api", { error });
       throw error;
@@ -418,26 +296,15 @@ export class BetaKeyService {
    */
   static async revokeKey(keyId: string, reason?: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from("beta_keys")
-        .update({
+      await supabaseUpdate(
+        "beta_keys",
+        {
           status: "revoked",
           notes: reason ? `Révoquée: ${reason}` : "Révoquée",
-        })
-        .eq("id", keyId);
-
-      if (error) {
-        const err = ErrorFactory.storage(
-          `Failed to revoke beta key: ${error.message}`,
-          "Erreur lors de la révocation de la clé",
-        );
-        logError(err, {
-          component: "BetaKeyService",
-          operation: "revokeKey",
-          metadata: { error, keyId },
-        });
-        throw err;
-      }
+        },
+        { id: `eq.${keyId}` },
+        { timeout: 10000 },
+      );
 
       logger.info("Beta key revoked", "api", { keyId, reason });
     } catch (error) {
@@ -451,13 +318,13 @@ export class BetaKeyService {
    */
   static async recordBugReport(userId: string): Promise<void> {
     try {
-      const { error } = await supabase.rpc("increment_bug_count", {
-        p_user_id: userId,
-      });
-
-      if (error) {
-        logger.error("Failed to record bug report", "api", { error, userId });
-      }
+      await supabaseRpc(
+        "increment_bug_count",
+        {
+          p_user_id: userId,
+        },
+        { timeout: 10000 },
+      );
 
       logger.info("Bug report recorded", "api", { userId });
     } catch (error) {
@@ -477,26 +344,15 @@ export class BetaKeyService {
         );
       }
 
-      const { error } = await supabase
-        .from("beta_keys")
-        .update({
+      await supabaseUpdate(
+        "beta_keys",
+        {
           feedback_score: score,
           last_feedback_at: new Date().toISOString(),
-        })
-        .eq("assigned_to", userId);
-
-      if (error) {
-        const err = ErrorFactory.storage(
-          `Failed to record feedback: ${error.message}`,
-          "Erreur lors de l'enregistrement du feedback",
-        );
-        logError(err, {
-          component: "BetaKeyService",
-          operation: "recordFeedback",
-          metadata: { error, userId },
-        });
-        throw err;
-      }
+        },
+        { assigned_to: `eq.${userId}` },
+        { timeout: 10000 },
+      );
 
       logger.info("Feedback recorded", "api", { userId, score });
     } catch (error) {

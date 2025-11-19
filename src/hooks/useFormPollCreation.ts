@@ -5,7 +5,7 @@
 
 import { usePolls, type FormPollData } from "./usePolls";
 import { logger } from "@/lib/logger";
-import type { Poll } from "@/lib/pollStorage";
+import type { Poll, FormQuestionShape } from "@/lib/pollStorage";
 
 export interface FormQuestion {
   id: string;
@@ -25,6 +25,12 @@ export interface FormQuestion {
   ratingMinLabel?: string;
   ratingMaxLabel?: string;
   validationType?: "email" | "phone" | "url" | "number" | "date";
+  // Date-specific fields
+  selectedDates?: string[];
+  timeSlotsByDate?: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>;
+  timeGranularity?: "15min" | "30min" | "1h";
+  allowMaybeVotes?: boolean;
+  allowAnonymousVotes?: boolean;
 }
 
 export interface CreateFormPollParams {
@@ -35,6 +41,7 @@ export interface CreateFormPollParams {
     allowAnonymousResponses?: boolean;
     expiresAt?: string;
   };
+  slug?: string; // Slug optionnel pour conserver le slug du draft lors de la publication
 }
 
 export function useFormPollCreation() {
@@ -49,11 +56,8 @@ export function useFormPollCreation() {
       });
 
       // Mapper les questions au format attendu par createPoll
-      const formPollData: FormPollData = {
-        type: "form",
-        title: params.title,
-        description: params.description,
-        questions: params.questions.map((q) => ({
+      const mappedQuestions = params.questions.map((q) => {
+        const mapped = {
           id: q.id,
           kind: q.type as FormQuestionShape["kind"],
           title: q.title,
@@ -72,11 +76,27 @@ export function useFormPollCreation() {
           ratingMinLabel: q.ratingMinLabel,
           ratingMaxLabel: q.ratingMaxLabel,
           validationType: q.validationType,
-        })),
+          // Date-specific fields
+          selectedDates: q.selectedDates,
+          timeSlotsByDate: q.timeSlotsByDate,
+          timeGranularity: q.timeGranularity,
+          allowMaybeVotes: q.allowMaybeVotes,
+          allowAnonymousVotes: q.allowAnonymousVotes,
+        };
+
+        return mapped;
+      });
+
+      const formPollData: FormPollData = {
+        type: "form",
+        title: params.title,
+        description: params.description,
+        questions: mappedQuestions,
         settings: params.settings || {
           allowAnonymousResponses: true,
           expiresAt: undefined,
         },
+        slug: params.slug, // Conserver le slug du draft si fourni
       };
 
       const result = await createPoll(formPollData);

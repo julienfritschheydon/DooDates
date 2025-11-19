@@ -181,7 +181,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
         <div className="p-4 border-b border-gray-700 flex-shrink-0">
           <button
             onClick={() => {
-              navigate("/create");
+              navigate("/workspace/date");
               onClose();
             }}
             className="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition-colors"
@@ -208,11 +208,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
                       poll={poll}
                       onClick={() => {
                         const slug = poll.slug || poll.id;
-                        if (poll.type === "form") {
-                          navigate(`/poll/${slug}/vote`);
-                        } else {
-                          navigate(`/poll/${slug}`);
-                        }
+                        navigate(`/poll/${slug}`);
                         onClose();
                       }}
                     />

@@ -39,7 +39,9 @@ import { useConnectionStatus } from "../hooks/useConnectionStatus";
 import { useIntentDetection } from "../hooks/useIntentDetection";
 import { usePollManagement } from "../hooks/usePollManagement";
 import { useMessageSender } from "../hooks/useMessageSender";
+import { SurveyRequestAggregator } from "../services/SurveyRequestAggregator";
 import AuthIncentiveModal from "./modals/AuthIncentiveModal";
+import { AuthModal } from "./modals/AuthModal";
 import QuotaIndicator from "./ui/QuotaIndicator";
 import { useNavigate, useLocation } from "react-router-dom";
 import { conversationProtection } from "../services/ConversationProtection";
@@ -80,6 +82,7 @@ interface GeminiChatInterfaceProps {
   hideStatusBar?: boolean;
   darkTheme?: boolean;
   voiceRecognition?: ReturnType<typeof import("../hooks/useVoiceRecognition").useVoiceRecognition>;
+  pollType?: "date" | "form";
 }
 
 export type GeminiChatHandle = {
@@ -96,6 +99,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       resumeLastConversation = true,
       hideStatusBar = false,
       darkTheme = false,
+      pollType: pollTypeProp,
     },
     ref,
   ) => {
@@ -111,6 +115,10 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     const location = useLocation();
     const lastConversationIdRef = useRef<string | null>(null);
     const initialMessageSentRef = useRef(false);
+
+    // Récupérer le type depuis l'URL pour adapter les textes (priorité à la prop, sinon URL, sinon "date")
+    const urlParams = new URLSearchParams(location.search);
+    const pollTypeFromUrl = (pollTypeProp || urlParams.get("type") || "date") as "date" | "form";
 
     // 🎯 FIX E2E: Auto-focus sur le textarea après ouverture de l'éditeur (mobile)
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -274,6 +282,10 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
     // Désactiver les modals d'authentification en mode E2E
     const isE2ETesting = isE2ETestingEnvironment();
+
+    // État pour gérer le modal d'authentification
+    const [authModalOpen, setAuthModalOpen] = useState(false);
+    const [authModalMode, setAuthModalMode] = useState<"signin" | "signup">("signin");
 
     const quota = useQuota({
       showAuthIncentives: !isE2ETesting, // Désactiver en mode E2E
@@ -464,6 +476,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         setIsLoading(false);
         pollManagement.closePollCreator();
 
+        // 🎯 NOUVEAU: Réinitialiser l'agrégateur lors d'un nouveau chat
+        SurveyRequestAggregator.reset();
+
         // Initialize new conversation with auto-save
         await initializeNewConversation();
 
@@ -503,6 +518,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       setLastAIProposal,
       setModifiedQuestion,
       onStartNewChat: handleNewChat,
+      hasCurrentPoll: !!currentPoll,
     });
 
     useEffect(() => {
@@ -734,6 +750,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         aiQuota.incrementPollCount(conversationId);
       }
 
+      // 🎯 NOUVEAU: Réinitialiser l'agrégateur quand un sondage est utilisé/créé
+      SurveyRequestAggregator.clearPendingRequest();
+
       // Si on a un callback onPollCreated, l'utiliser au lieu d'afficher le créateur
       if (onPollCreated) {
         // Mettre à jour l'URL avec conversationId AVANT d'appeler onPollCreated
@@ -886,6 +905,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           onFeedbackSent={() => setLastAIProposal(null)}
           messagesEndRef={messagesEndRef}
           isLoading={isLoading}
+          pollType={pollTypeFromUrl}
         />
 
         {/* Zone de saisie - Fixe en bas de l'écran */}
@@ -899,6 +919,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           darkTheme={darkTheme}
           voiceRecognition={voiceRecognition}
           textareaRef={textareaRef}
+          pollType={pollTypeFromUrl}
         />
 
         {/* Authentication Incentive Modal */}
@@ -906,18 +927,27 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           isOpen={quota.showAuthModal}
           onClose={quota.closeAuthModal}
           onSignUp={() => {
-            // Navigate to sign up
-            window.location.href = "/auth/signup";
+            setAuthModalMode("signup");
+            setAuthModalOpen(true);
+            quota.closeAuthModal();
           }}
           onSignIn={() => {
-            // Navigate to sign in
-            window.location.href = "/auth/signin";
+            setAuthModalMode("signin");
+            setAuthModalOpen(true);
+            quota.closeAuthModal();
           }}
           trigger={quota.authModalTrigger}
           currentUsage={{
             conversations: quota.status.conversations.used,
             maxConversations: quota.status.conversations.limit,
           }}
+        />
+
+        {/* Modal d'authentification */}
+        <AuthModal
+          open={authModalOpen}
+          onOpenChange={setAuthModalOpen}
+          defaultMode={authModalMode}
         />
 
         {/* Onboarding Tour - Désactivé temporairement */}

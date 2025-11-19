@@ -1,10 +1,10 @@
 // Service sécurisé pour appeler Gemini via Edge Function
 // Remplace les appels directs à Gemini API côté client
 
-import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { handleError, ErrorFactory, logError } from "@/lib/error-handling";
 import { getEnv } from "@/lib/env";
+import { getSupabaseSessionWithTimeout } from "@/lib/supabaseApi";
 
 export interface SecureGeminiResponse {
   success: boolean;
@@ -102,23 +102,8 @@ export class SecureGeminiService {
 
       if (hasStoredSession) {
         // Seulement essayer getSession si on pense avoir une session
-        const SESSION_TIMEOUT = 1000; // Timeout réduit à 1 seconde
-        const sessionTimeoutPromise = new Promise((_, reject) => {
-          setTimeout(
-            () =>
-              reject(
-                new Error(`Timeout: getSession a pris plus de ${SESSION_TIMEOUT / 1000} secondes`),
-              ),
-            SESSION_TIMEOUT,
-          );
-        });
-
         try {
-          const sessionPromise = supabase.auth.getSession();
-          const sessionResult = await Promise.race([sessionPromise, sessionTimeoutPromise]);
-          session =
-            (sessionResult as { data: { session: import("@supabase/supabase-js").Session | null } })
-              ?.data?.session || null;
+          session = await getSupabaseSessionWithTimeout(1000);
         } catch {
           session = null;
         }
@@ -288,9 +273,7 @@ export class SecureGeminiService {
    */
   async testConnection(): Promise<boolean> {
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const session = await getSupabaseSessionWithTimeout(1000);
 
       const headers: Record<string, string> = {
         "Content-Type": "application/json",

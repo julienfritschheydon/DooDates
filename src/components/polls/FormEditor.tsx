@@ -4,8 +4,6 @@ import QuestionCard from "./QuestionCard";
 import type { Question } from "./QuestionCard";
 import QuestionListNav from "./QuestionListNav";
 import type { ConditionalRule } from "../../types/conditionalRules";
-import { ThemeSelector } from "./ThemeSelector";
-import { DEFAULT_THEME } from "../../lib/themes";
 
 // Types for a minimal Form Poll draft used by the editor
 export type FormPollDraft = {
@@ -34,6 +32,8 @@ export type FormEditorProps = {
   onThemeChange?: (themeId: string) => void;
   // Simulation button
   simulationButton?: React.ReactNode;
+  // Configuration panel props
+  configPanel?: React.ReactNode;
 };
 
 /**
@@ -54,6 +54,7 @@ export default function FormEditor({
   themeId,
   onThemeChange,
   simulationButton,
+  configPanel,
 }: FormEditorProps) {
   const [activeId, setActiveId] = useState<string | null>(value.questions[0]?.id ?? null);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -168,7 +169,7 @@ export default function FormEditor({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Section titre - MÊME STYLE QUE POLLCREATOR */}
+      {/* Section titre */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
           Titre du formulaire <span className="text-red-400 text-sm">*</span>
@@ -179,19 +180,10 @@ export default function FormEditor({
           onChange={(e) => setTitle(e.target.value)}
           className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-white placeholder-gray-500"
           placeholder="Ex: Questionnaire de satisfaction client"
+          data-testid="poll-title"
           required
         />
       </div>
-
-      {/* Sélecteur de thème */}
-      {onThemeChange && (
-        <div className="mt-4">
-          <ThemeSelector
-            selectedThemeId={themeId || DEFAULT_THEME.id}
-            onThemeChange={onThemeChange}
-          />
-        </div>
-      )}
 
       {/* Navigation des questions */}
       <QuestionListNav
@@ -235,25 +227,32 @@ export default function FormEditor({
         </button>
       </div>
 
+      {/* Panneau de configuration - Après "Ajouter une question", avant les boutons */}
+      {configPanel && <div className="pt-4">{configPanel}</div>}
+
       {/* Boutons d'action - MÊME STYLE QUE POLLCREATOR */}
-      <div className="flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-700">
+      <div className="flex flex-wrap gap-3 justify-end pt-4">
         {simulationButton}
         {onSaveDraft && (
           <button
             type="button"
             onClick={onSaveDraft}
-            className="px-6 py-3 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors"
+            disabled={!value.title.trim() || value.questions.length === 0}
+            className="px-6 py-3 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            data-testid="save-draft-button"
           >
-            Enregistrer
+            Enregistrer le brouillon
           </button>
         )}
         {onFinalize && (
           <button
             type="button"
             onClick={onFinalize}
-            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+            disabled={!value.title.trim() || value.questions.length === 0}
+            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            data-testid="publish-button"
           >
-            Finaliser
+            Publier le formulaire
           </button>
         )}
       </div>

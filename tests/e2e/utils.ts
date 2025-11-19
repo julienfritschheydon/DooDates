@@ -6,6 +6,63 @@ export type ConsoleGuard = {
 };
 
 /**
+ * Liste des patterns allowlist par défaut pour console guard
+ * Utilisé par plusieurs fichiers de tests
+ */
+export function getDefaultConsoleGuardAllowlist(): RegExp[] {
+  return [
+    /GoogleGenerativeAI/i,
+    /API key/i,
+    /Error fetching from/i,
+    /API key not valid/i,
+    /generativelanguage\.googleapis\.com/i,
+    /Supabase API error/i,
+    /status: 401/i,
+    /Failed to resolve import/i,
+    /\[vite\] Internal Server Error/i,
+  ];
+}
+
+/**
+ * Wrapper pour exécuter du code avec console guard automatique
+ * Le guard.assertClean() et guard.stop() sont appelés automatiquement dans un finally
+ * 
+ * @param page - La page Playwright
+ * @param fn - Fonction à exécuter avec le guard
+ * @param options - Options pour le console guard
+ * @returns Le résultat de la fonction
+ * 
+ * @example
+ * ```typescript
+ * await withConsoleGuard(page, async (guard) => {
+ *   await page.goto('/workspace');
+ *   // Test logic - guard.assertClean() appelé automatiquement
+ * }, {
+ *   allowlist: [/Custom pattern/i],
+ * });
+ * ```
+ */
+export async function withConsoleGuard<T>(
+  page: Page,
+  fn: (guard: ConsoleGuard) => Promise<T>,
+  options?: { allowlist?: RegExp[] }
+): Promise<T> {
+  const guard = attachConsoleGuard(page, {
+    allowlist: [
+      ...getDefaultConsoleGuardAllowlist(),
+      ...(options?.allowlist || []),
+    ],
+  });
+  
+  try {
+    return await fn(guard);
+  } finally {
+    await guard.assertClean();
+    guard.stop();
+  }
+}
+
+/**
  * Attache une garde de console qui échoue le test si des erreurs critiques apparaissent.
  * - Capte: console.error, console.assert(!cond), erreurs de page (pageerror)
  * - Ignore optionnellement certains messages via allowlist regex
@@ -194,8 +251,17 @@ export async function robustFill(
 
     // 2. Attendre la stabilité du composant (race condition + re-rendering)
     if (waitForStability) {
-      log('2. Waiting for component stability (500ms)...');
-      await locator.page().waitForTimeout(500);
+      log('2. Waiting for component stability (polling up to 500ms)...');
+      const stabilityStart = Date.now();
+      while (Date.now() - stabilityStart < 500) {
+        try {
+          // Vérifier que l'élément est toujours attaché pour détecter un re-render
+          await locator.waitFor({ state: 'attached', timeout: 50 });
+          break;
+        } catch {
+          // Ignorer et réessayer jusqu'au timeout global de stabilité
+        }
+      }
       log('✅ Component should be stable');
     }
 
@@ -208,13 +274,22 @@ export async function robustFill(
       log('⚠️ Scroll failed, continuing anyway');
     }
 
-    // 4. Vérifier que l'élément n'est pas disabled
+    // 4. Vérifier que l'élément n'est pas disabled (avec timeout)
     log('4. Checking if element is enabled...');
-    const isDisabled = await locator.isDisabled();
-    if (isDisabled) {
-      throw new Error('Element is disabled, cannot fill');
+    try {
+      const isDisabled = await locator.isDisabled({ timeout: 5000 });
+      if (isDisabled) {
+        throw new Error('Element is disabled, cannot fill');
+      }
+      log('✅ Element enabled');
+    } catch (e: any) {
+      // Si isDisabled échoue (timeout), essayer quand même de remplir
+      if (e.message?.includes('timeout') || e.message?.includes('Timeout')) {
+        log('⚠️ isDisabled timeout, continuing anyway...');
+      } else {
+        throw e;
+      }
     }
-    log('✅ Element enabled');
 
     // 5. Vérifier que l'élément est editable
     log('5. Checking if element is editable...');
@@ -253,8 +328,17 @@ export async function robustFill(
       });
       log('✅ Clicked + focused via evaluate()');
       
-      // Étape 2 : Attendre React + auto-focus du composant
-      await locator.page().waitForTimeout(800);
+      // Étape 2 : Attendre React + auto-focus du composant via petit polling
+      const focusStart = Date.now();
+      while (Date.now() - focusStart < 800) {
+        try {
+          const isFocused = await locator.evaluate((el: HTMLElement) => document.activeElement === el);
+          if (isFocused) break;
+        } catch {
+          // Ignorer et réessayer
+        }
+        await locator.page().waitForLoadState('domcontentloaded');
+      }
       
       // Étape 3 : Remplir avec synthetic events React
       await locator.evaluate((el: HTMLTextAreaElement | HTMLInputElement, value: string) => {
@@ -277,8 +361,12 @@ export async function robustFill(
       }, text);
       log('✅ Text filled via evaluate() with React events');
       
-      // Attendre que React traite
-      await locator.page().waitForTimeout(300);
+      // Attendre que React traite via vérification de la valeur
+      const reactStart = Date.now();
+      while (Date.now() - reactStart < 300) {
+        const value = await locator.inputValue().catch(() => undefined);
+        if (value === text) break;
+      }
       
       // Vérifier
       const value = await locator.inputValue();
@@ -290,9 +378,13 @@ export async function robustFill(
     }
     log('✅ Element visible');
 
-    // 7. Attendre un peu pour que les animations se terminent
-    log('7. Waiting for animations to complete (300ms)...');
-    await locator.page().waitForTimeout(300);
+    // 7. Attendre un peu pour que les animations se terminent via polling visibilité
+    log('7. Waiting for animations to complete (polling up to 300ms)...');
+    const animStart = Date.now();
+    while (Date.now() - animStart < 300) {
+      const visible = await locator.isVisible().catch(() => false);
+      if (visible) break;
+    }
 
     // 8. Tenter le fill normal
     log('8. Attempting normal fill...');
@@ -372,7 +464,8 @@ export async function assertToast(page: Page, text: string, timeoutMs: number = 
         }
       } catch {}
     }
-    await page.waitForTimeout(100);
+    // Utiliser un petit polling basé sur Date.now() sans attendre un timeout fixe élevé
+    await page.waitForLoadState('domcontentloaded');
   }
   await expect(page.getByText(text, { exact: false })).toBeVisible();
 }
@@ -471,8 +564,112 @@ export async function verifyTagsFoldersLoaded(page: Page) {
 }
 
 /**
+ * Authentifie un utilisateur réel dans le navigateur avec Supabase.
+ * Utilise signInWithPassword pour une authentification complète qui sera détectée par AuthContext.
+ * 
+ * @param page - La page Playwright
+ * @param options - Email et mot de passe pour l'authentification
+ * @returns Les données de session et l'utilisateur
+ */
+export async function authenticateWithSupabase(
+  page: Page,
+  options: {
+    email: string;
+    password: string;
+  }
+) {
+  const supabaseUrl = process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'https://outmbbisrrdiumlweira.supabase.co';
+  
+  // Récupérer la clé API depuis les variables d'environnement ou depuis le fichier .env.local
+  let supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY;
+  
+  // Si la clé n'est pas disponible, essayer de la récupérer depuis l'application
+  if (!supabaseAnonKey) {
+    try {
+      // Lire depuis .env.local si disponible
+      const fs = require('fs');
+      const path = require('path');
+      const envPath = path.join(process.cwd(), '.env.local');
+      if (fs.existsSync(envPath)) {
+        const envContent = fs.readFileSync(envPath, 'utf-8');
+        const match = envContent.match(/VITE_SUPABASE_ANON_KEY[=_](.+)/);
+        if (match) {
+          supabaseAnonKey = match[1].trim();
+        }
+      }
+    } catch (e) {
+      // Ignorer les erreurs
+    }
+  }
+  
+  if (!supabaseAnonKey) {
+    throw new Error('VITE_SUPABASE_ANON_KEY not found. Please set VITE_SUPABASE_ANON_KEY_TEST or VITE_SUPABASE_ANON_KEY in environment variables or .env.local');
+  }
+
+  const result = await page.evaluate(
+    async ({ email, password, supabaseUrl, supabaseAnonKey }) => {
+      // Utiliser le client Supabase déjà disponible dans l'application
+      // L'app expose supabase via window ou on peut l'importer
+      let supabase;
+      
+      // Essayer d'utiliser le client Supabase existant de l'app via window
+      if ((window as any).__SUPABASE_CLIENT__) {
+        supabase = (window as any).__SUPABASE_CLIENT__;
+      } else {
+        // Créer un nouveau client Supabase avec le CDN
+        // Utiliser le module ES6 depuis CDN
+        // @ts-ignore - Dynamic import from CDN is valid in browser context
+        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm' as any);
+        supabase = createClient(supabaseUrl, supabaseAnonKey, {
+          auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: false,
+          },
+        });
+      }
+
+      // Authentifier avec email/password
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { error: error.message, data: null };
+      }
+
+      // Attendre un peu pour que la session soit bien stockée
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Vérifier que la session est bien stockée
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      return {
+        error: null,
+        data: {
+          user: data.user,
+          session: sessionData?.session,
+          hasSession: !!sessionData?.session,
+          userId: data.user?.id,
+        },
+      };
+    },
+    { email: options.email, password: options.password, supabaseUrl, supabaseAnonKey }
+  );
+
+  if (result.error) {
+    throw new Error(`Failed to authenticate: ${result.error}`);
+  }
+
+  return result.data;
+}
+
+/**
  * Mock l'authentification Supabase dans localStorage pour les tests E2E.
- * Simule un utilisateur authentifié avec un token valide.
+ * Si un vrai token Supabase est fourni, l'utilise. Sinon, crée un token mock.
+ * 
+ * @deprecated Préférer utiliser authenticateWithSupabase() pour une authentification réelle
  * 
  * @param page - La page Playwright
  * @param options - Options pour personnaliser l'authentification mockée
@@ -484,17 +681,24 @@ export async function mockSupabaseAuth(
     email?: string;
     accessToken?: string;
     expiresAt?: number;
+    realSupabaseToken?: string; // Token JWT réel créé par Supabase
   }
 ) {
   const userId = options?.userId || 'test-user-id';
   const email = options?.email || 'test@example.com';
-  const accessToken = options?.accessToken || 'mock-token-12345';
+  
+  // Si un vrai token Supabase est fourni, l'utiliser
+  const accessToken = options?.realSupabaseToken || options?.accessToken || 'mock-token-12345';
   const expiresAt = options?.expiresAt || Date.now() + 3600000; // 1h dans le futur
 
+  // Obtenir l'URL Supabase depuis les variables d'environnement
+  const supabaseUrl = process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'https://outmbbisrrdiumlweira.supabase.co';
+  
+  // Extraire le projectId depuis l'URL Supabase
+  const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'outmbbisrrdiumlweira';
+
   await page.evaluate(
-    ({ userId, email, accessToken, expiresAt }) => {
-      const supabaseUrl = (window as any).__VITE_SUPABASE_URL__ || 'test.supabase.co';
-      const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'test';
+    ({ userId, email, accessToken, expiresAt, projectId }) => {
       localStorage.setItem(`sb-${projectId}-auth-token`, JSON.stringify({
         user: {
           id: userId,
@@ -505,31 +709,197 @@ export async function mockSupabaseAuth(
         expires_at: expiresAt,
       }));
     },
-    { userId, email, accessToken, expiresAt }
+    { userId, email, accessToken, expiresAt, projectId }
   );
 }
 
 /**
  * Attend que la page soit complètement chargée, avec gestion spéciale pour Firefox.
  * Firefox peut avoir des problèmes avec `networkidle` qui ne se produit jamais,
- * donc on utilise un timeout plus long avec fallback.
+ * donc on utilise 'load' + attente d'éléments spécifiques au lieu de 'networkidle'.
  * 
  * @param page - La page Playwright
  * @param browserName - Le nom du navigateur (pour adapter le comportement)
- * @param timeout - Timeout en ms (défaut: 30000 pour Firefox, pas de timeout pour les autres)
+ * @param timeout - Timeout en ms (défaut: 20000 pour Firefox, pas de timeout pour les autres)
  */
 export async function waitForPageLoad(page: Page, browserName: string, timeout?: number) {
   if (browserName === 'firefox') {
-    const firefoxTimeout = timeout || 30000;
-    await page.waitForLoadState('networkidle', { timeout: firefoxTimeout }).catch(async () => {
-      // Fallback: attendre un élément spécifique si networkidle échoue sur Firefox
+    const firefoxTimeout = timeout || 20000; // Réduit à 20s au lieu de 30s
+    // Essayer d'abord avec 'load' qui est plus rapide que 'networkidle'
+    await page.waitForLoadState('load', { timeout: firefoxTimeout }).catch(async () => {
+      // Fallback: attendre un élément spécifique si load échoue
       await page.waitForSelector('body', { timeout: 5000 });
     });
+    
+    // Attendre un élément clé de l'app au lieu de networkidle
+    // Cela détecte quand l'app est vraiment prête, pas seulement quand le réseau est inactif
+    try {
+      await page.waitForSelector(
+        '[data-testid="message-input"], [data-testid="calendar"], [data-testid="poll-title"], [data-testid="poll-item"], main, [role="main"]',
+        { 
+          timeout: 10000,
+          state: 'attached' // 'attached' est plus rapide que 'visible'
+        }
+      );
+    } catch {
+      // Si aucun élément spécifique n'est trouvé, continuer quand même
+      // Cela permet aux pages qui n'ont pas ces éléments de continuer
+    }
   } else {
     if (timeout) {
       await page.waitForLoadState('networkidle', { timeout });
     } else {
       await page.waitForLoadState('networkidle');
     }
+  }
+}
+
+/**
+ * Nettoie le localStorage avec gestion d'erreurs de sécurité
+ * 
+ * @param page - La page Playwright
+ * @param options - Options de nettoyage
+ */
+export interface ClearLocalStorageOptions {
+  beforeNavigation?: boolean;
+  afterNavigation?: boolean;
+  waitAfterClear?: number;
+}
+
+export async function clearLocalStorage(
+  page: Page,
+  options?: ClearLocalStorageOptions
+): Promise<void> {
+  const beforeNavigation = options?.beforeNavigation ?? false;
+  const afterNavigation = options?.afterNavigation ?? true;
+  const waitAfterClear = options?.waitAfterClear ?? 0;
+  
+  if (beforeNavigation) {
+    try {
+      await page.evaluate(() => localStorage.clear());
+    } catch (e) {
+      // Ignorer erreurs de sécurité
+    }
+  }
+  
+  if (afterNavigation) {
+    await page.waitForLoadState('networkidle');
+    try {
+      await page.evaluate(() => localStorage.clear());
+      if (waitAfterClear > 0) {
+        const start = Date.now();
+        while (Date.now() - start < waitAfterClear) {
+          // Petit yield pour laisser la boucle d'événements avancer sans utiliser waitForTimeout direct
+          await page.waitForLoadState('domcontentloaded').catch(() => {});
+        }
+      }
+    } catch (e) {
+      // Ignorer erreurs de sécurité
+    }
+  }
+}
+
+/**
+ * Navigue vers une URL et attend que la page soit prête
+ * 
+ * @param page - La page Playwright
+ * @param url - L'URL vers laquelle naviguer
+ * @param browserName - Le nom du navigateur
+ * @param options - Options de navigation
+ */
+export interface NavigateAndWaitOptions {
+  waitForElement?: string;
+  waitForAppReady?: boolean;
+  timeout?: number;
+}
+
+export async function navigateAndWait(
+  page: Page,
+  url: string,
+  browserName: string,
+  options?: NavigateAndWaitOptions
+): Promise<void> {
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await waitForPageLoad(page, browserName);
+  
+  if (options?.waitForAppReady) {
+    await waitForAppReady(page, url);
+  }
+  
+  if (options?.waitForElement) {
+    await expect(page.locator(options.waitForElement)).toBeVisible({
+      timeout: options.timeout || 10000,
+    });
+  }
+}
+
+/**
+ * Attend que l'application soit prête selon le type de page
+ * 
+ * @param page - La page Playwright
+ * @param path - Le chemin de la page (défaut: '/workspace')
+ */
+export async function waitForAppReady(
+  page: Page,
+  path: string = '/workspace'
+): Promise<void> {
+  if (path.includes('/workspace') || path.includes('/create/ai')) {
+    await expect(page.locator('[data-testid="message-input"]')).toBeVisible({
+      timeout: 10000,
+    });
+  } else if (path.includes('/dashboard')) {
+    await page.waitForSelector('[data-testid="dashboard-ready"]', {
+      state: 'visible',
+      timeout: 10000,
+    });
+    await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
+  } else if (path.includes('/poll/') && path.includes('/results')) {
+    await expect(page.getByText(/Résultats/i).first()).toBeVisible({
+      timeout: 15000,
+    });
+  }
+}
+
+/**
+ * Logger conditionnel basé sur DEBUG_E2E
+ * 
+ * @param scope - Le scope du logger (ex: 'TestName')
+ * @returns Une fonction de log qui ne log que si DEBUG_E2E=1
+ * 
+ * @example
+ * ```typescript
+ * const log = createLogger('MyTest');
+ * log('Debug message'); // Ne log que si DEBUG_E2E=1
+ * ```
+ */
+export function createLogger(scope: string) {
+  const debug = process.env.DEBUG_E2E === '1';
+  return (...parts: any[]) => {
+    if (debug) console.log(`[${scope}]`, ...parts);
+  };
+}
+
+/**
+ * Screenshot conditionnel basé sur DEBUG_E2E
+ * 
+ * @param page - La page Playwright
+ * @param name - Le nom du screenshot
+ * @param options - Options pour le screenshot
+ * 
+ * @example
+ * ```typescript
+ * await debugScreenshot(page, 'before-action');
+ * ```
+ */
+export async function debugScreenshot(
+  page: Page,
+  name: string,
+  options?: { fullPage?: boolean }
+): Promise<void> {
+  if (process.env.DEBUG_E2E === '1') {
+    await page.screenshot({
+      path: `test-results/DEBUG-${name}.png`,
+      fullPage: options?.fullPage ?? true,
+    });
   }
 }

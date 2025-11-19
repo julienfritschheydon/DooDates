@@ -84,10 +84,7 @@ export interface FormQuestionShape {
   validationType?: "email" | "phone" | "url" | "number" | "date"; // Type de validation pour champs text
   // Date-specific fields
   selectedDates?: string[]; // Dates au format ISO string (YYYY-MM-DD)
-  timeSlotsByDate?: Record<
-    string,
-    Array<{ hour: number; minute: number; enabled: boolean }>
-  >; // Créneaux horaires par date
+  timeSlotsByDate?: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>; // Créneaux horaires par date
   timeGranularity?: "15min" | "30min" | "1h"; // Granularité des créneaux horaires
   allowMaybeVotes?: boolean; // Permettre les votes "peut-être"
   allowAnonymousVotes?: boolean; // Permettre les votes anonymes
@@ -930,19 +927,19 @@ export function addFormResponse(params: {
   }
 
   // Log pour déboguer les réponses de type date
-  const dateItems = items.filter(item => {
-    const question = getFormPollById(pollId)?.questions?.find(q => q.id === item.questionId);
-    return question && (question.kind === 'date' || question.type === 'date');
+  const dateItems = items.filter((item) => {
+    const question = getFormPollById(pollId)?.questions?.find((q) => q.id === item.questionId);
+    return question && (question.kind === "date" || question.type === "date");
   });
 
   if (dateItems.length > 0) {
-    console.log('📅 Adding date question responses:', {
+    console.log("📅 Adding date question responses:", {
       pollId,
-      dateQuestions: dateItems.map(item => ({
+      dateQuestions: dateItems.map((item) => ({
         questionId: item.questionId,
         value: item.value,
-        question: getFormPollById(pollId)?.questions?.find(q => q.id === item.questionId)?.title
-      }))
+        question: getFormPollById(pollId)?.questions?.find((q) => q.id === item.questionId)?.title,
+      })),
     });
   }
 
@@ -955,15 +952,15 @@ export function addFormResponse(params: {
 
   // Vérifier si une réponse existe déjà pour ce répondant (même nom et même sondage)
   const existingResponseIndex = allResponses.findIndex(
-    r => r.pollId === pollId &&
-      r.respondentName?.toLowerCase() === normalizedName?.toLowerCase()
+    (r) => r.pollId === pollId && r.respondentName?.toLowerCase() === normalizedName?.toLowerCase(),
   );
 
   // Créer la nouvelle réponse
   const response: FormResponse = {
-    id: existingResponseIndex >= 0
-      ? allResponses[existingResponseIndex].id
-      : `resp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    id:
+      existingResponseIndex >= 0
+        ? allResponses[existingResponseIndex].id
+        : `resp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     pollId,
     respondentName: normalizedName || undefined,
     respondentEmail: respondentEmail?.trim(),
@@ -984,12 +981,12 @@ export function addFormResponse(params: {
 
   // Log pour vérifier ce qui est enregistré
   if (dateItems.length > 0) {
-    console.log('✅ Saved date question responses to localStorage:', {
+    console.log("✅ Saved date question responses to localStorage:", {
       responseId: response.id,
-      dateItems: dateItems.map(item => ({
+      dateItems: dateItems.map((item) => ({
         questionId: item.questionId,
-        value: item.value
-      }))
+        value: item.value,
+      })),
     });
   }
 
@@ -1066,7 +1063,7 @@ export function getFormResults(pollId: string): FormResults {
             const { date, timeSlots, vote } = voteEntry;
 
             if (!date) {
-              console.warn('Missing date in vote entry:', voteEntry);
+              console.warn("Missing date in vote entry:", voteEntry);
               return;
             }
 
@@ -1097,7 +1094,7 @@ export function getFormResults(pollId: string): FormResults {
           console.log(`Processed date question ${q.id} results:`, {
             votesByDate: questionResults.votesByDate,
             votesByTimeSlot: questionResults.votesByTimeSlot,
-            totalResponses: questionResults.totalResponses
+            totalResponses: questionResults.totalResponses,
           });
         } catch (error) {
           logError(

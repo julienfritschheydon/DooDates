@@ -166,7 +166,26 @@ Vendre à l'international = responsabilité fiscale dans CHAQUE juridiction :
 - Sales Tax US : 50 états, règles différentes
 - GST Inde : Conformité locale complexe
 
-**Solution recommandée : Lemon Squeezy (MoR) ✅**
+**Solution recommandée : Merchant of Record (MoR)**
+
+**Comparaison des options MoR disponibles :**
+
+| Critère | Lemon Squeezy | Paddle | Nexway |
+|---------|---------------|--------|--------|
+| **MoR complet** | ✅ Oui | ✅ Oui | ✅ Oui |
+| **Pays supportés** | 135+ | 200+ | Worldwide |
+| **TVA UE** | ✅ Automatique | ✅ Automatique | ✅ Automatique |
+| **Sales Tax US** | ✅ Automatique | ✅ Automatique | ✅ Automatique |
+| **GST Inde** | ✅ Automatique | ✅ Automatique | ✅ Automatique |
+| **Paiements in-app** | ✅ Oui | ✅ Oui | ✅ Oui (spécialisé) |
+| **Fees** | ~5-7% + Stripe | ~5-7% + Stripe | À vérifier |
+| **Maturité** | Récent, moderne | Plus mature | Très mature (ex: Avast) |
+| **Origine** | US | UK | 🇫🇷 France |
+| **Support français** | Anglais | Anglais | ✅ Français natif |
+| **Documentation** | Excellente | Excellente | À vérifier |
+| **Setup développeur** | Rapide | Rapide | À vérifier |
+
+**Recommandation initiale : Lemon Squeezy ✅**
 
 **Pourquoi Lemon Squeezy ?**
 - ✅ MoR = Ils assument 100% responsabilité fiscale mondiale
@@ -175,10 +194,45 @@ Vendre à l'international = responsabilité fiscale dans CHAQUE juridiction :
 - ✅ Fees : ~5-7% (vs 2.9% Stripe + coûts légaux/comptables énormes)
 - ✅ Paiements locaux : UPI (Inde), iDEAL (EU), etc.
 - ✅ Setup rapide pour développeur solo
+- ✅ Documentation moderne et complète
+- ✅ SDK officiel bien maintenu
 
-**Alternative :** Paddle (même avantages, fees légèrement plus élevés, plus mature)
+**Alternative 1 : Paddle**
+- ✅ Même avantages que Lemon Squeezy
+- ✅ Plus mature (plus d'années sur le marché)
+- ✅ Fees légèrement plus élevés
+- ✅ Support excellent
 
-**Estimation :** 1 semaine
+**Alternative 2 : Nexway 🇫🇷**
+- ✅ **Avantage majeur :** Entreprise française (support natif français)
+- ✅ **Spécialisé in-app :** Expérience confirmée avec clients majeurs (ex: Avast)
+- ✅ **Worldwide :** Support mondial
+- ✅ **MoR complet :** Gestion fiscale internationale
+- ⚠️ **À investiguer :**
+  - Structure de fees exacte
+  - Documentation technique
+  - Intégration développeur (API/SDK)
+  - Exemples de clients similaires à DooDates
+  - Support technique réactif
+
+**Action immédiate :**
+- [ ] Contacter Nexway pour obtenir :
+  - Documentation technique complète
+  - Structure de pricing détaillée
+  - Exemples d'intégration in-app
+  - Références clients similaires
+  - Délai de setup estimé
+- [ ] Comparer avec Lemon Squeezy sur :
+  - Coût total (fees + setup)
+  - Facilité d'intégration
+  - Support technique
+  - Roadmap produit
+- [ ] Décision finale basée sur :
+  - Critères techniques (API, webhooks, documentation)
+  - Critères business (fees, support, maturité)
+  - Critères stratégiques (support français vs international)
+
+**Estimation :** 1 semaine (incluant investigation Nexway)
 
 #### 3. Boucle Virale - PRIORITÉ P0 🔴
 
@@ -226,7 +280,7 @@ Frontend:
   Timezone: date-fns + date-fns-tz
   
 Paiements:
-  Provider: Lemon Squeezy (MoR)
+  Provider: MoR (Lemon Squeezy / Paddle / Nexway - décision en cours)
   Plans: Gratuit / Starter 9.99€ / Premium 7.99€/mois
   
 Conformité:
@@ -306,14 +360,18 @@ const { t } = useTranslation('polls');
 <Button>{t('create_poll')}</Button>
 ```
 
-### Intégration Lemon Squeezy
+### Intégration Merchant of Record
 
-#### Installation
+**Note :** L'exemple ci-dessous utilise Lemon Squeezy, mais l'architecture sera similaire pour Paddle ou Nexway. La solution finale sera déterminée après investigation complète (voir section "Paiements Internationaux").
+
+#### Exemple avec Lemon Squeezy
+
+**Installation**
 ```bash
 npm install @lemonsqueezy/lemonsqueezy.js
 ```
 
-#### Service paiement
+**Service paiement**
 ```typescript
 // lib/payments/lemonsqueezy.ts
 import { lemonSqueezySetup } from '@lemonsqueezy/lemonsqueezy.js';
@@ -333,7 +391,7 @@ export async function createCheckout(variantId: string, userId: string) {
 }
 ```
 
-#### Webhook handler (Supabase Edge Function)
+**Webhook handler (Supabase Edge Function)**
 ```typescript
 export async function handleWebhook(payload: LemonSqueezyWebhook) {
   if (payload.meta.event_name === 'order_created') {
@@ -348,6 +406,8 @@ export async function handleWebhook(payload: LemonSqueezyWebhook) {
   }
 }
 ```
+
+**Note pour Nexway/Paddle :** L'architecture sera similaire (SDK, webhooks, activation plans), mais les détails d'implémentation varieront selon la solution choisie.
 
 ### Gestion Timezones
 
@@ -408,10 +468,10 @@ if (poll.timezone !== userTimezone) {
 
 **Livrable :** Application 100% bilingue EN/FR
 
-#### Semaine 2-3 : Intégration Lemon Squeezy
+#### Semaine 2-3 : Intégration Merchant of Record
 
 **Actions :**
-1. Création compte Lemon Squeezy
+1. Création compte MoR (Lemon Squeezy / Paddle / Nexway selon décision)
 2. Configuration produits/plans
 3. Intégration SDK frontend
 4. Création Edge Function webhook
@@ -419,6 +479,8 @@ if (poll.timezone !== userTimezone) {
 6. Tests webhooks (activation plans)
 
 **Livrable :** Paiements internationaux fonctionnels
+
+**Note :** La solution MoR finale sera déterminée après investigation Nexway (Semaine 1).
 
 #### Semaine 3 : Conformité & Boucle Virale
 
@@ -443,7 +505,7 @@ if (poll.timezone !== userTimezone) {
 
 **Checklist de lancement :**
 - [ ] i18n EN/FR à 100%
-- [ ] Lemon Squeezy intégré + testé
+- [ ] MoR intégré + testé (Lemon Squeezy / Paddle / Nexway)
 - [ ] Cookie banner + Privacy Policy
 - [ ] Branding viral sur pages de vote
 - [ ] Product Hunt submission préparée
@@ -492,7 +554,7 @@ Métrique de succès:
 
 **Objectifs :**
 - ✅ Localisation Hindi
-- ✅ Paiements UPI (via Lemon Squeezy)
+- ✅ Paiements UPI (via MoR - Lemon Squeezy / Paddle / Nexway supportent tous UPI)
 - ✅ Conformité DPDP Act
 
 **Actions spécifiques :**
@@ -525,7 +587,7 @@ const priceINR = new Intl.NumberFormat('hi-IN', {
 ```
 
 #### 4. UPI payments
-Lemon Squeezy détecte automatiquement l'IP indienne et propose UPI comme méthode de paiement.
+Le MoR (Lemon Squeezy / Paddle / Nexway) détecte automatiquement l'IP indienne et propose UPI comme méthode de paiement.
 
 #### 5. Conformité DPDP Act 2023
 
@@ -697,7 +759,7 @@ Si K < 1 → Besoin d'acquisition payante
 | Risque | Impact | Probabilité | Mitigation |
 |--------|--------|-------------|------------|
 | **Concurrents copient l'IA** | Élevé | Haute | Exécution rapide + boucle virale agressive + amélioration continue |
-| **Conformité fiscale mal gérée** | Critique | Moyenne | Lemon Squeezy (MoR) = élimine 100% du risque |
+| **Conformité fiscale mal gérée** | Critique | Moyenne | MoR (Lemon Squeezy / Paddle / Nexway) = élimine 100% du risque |
 | **Coûts IA explosent** | Élevé | Moyenne | Quotas stricts (déjà implémentés) + rate limiting serveur |
 | **Product Hunt flop** | Moyen | Moyenne | Préparation 2 semaines + communauté engagée + backup Reddit |
 | **i18n incomplet au lancement** | Moyen | Haute | Checklist stricte + tests E2E multi-locales + review natif |
@@ -774,10 +836,20 @@ Si K < 1 → Besoin d'acquisition payante
 ### Cette Semaine (10-16 Nov 2025)
 
 #### Priorité 1 : Décision MoR
-- [ ] Créer compte Lemon Squeezy (1h)
-- [ ] Explorer dashboard et configuration
-- [ ] Lire documentation API
-- [ ] Décision finale : Lemon Squeezy vs Paddle
+- [ ] **Investigation Nexway (2h)**
+  - [ ] Contacter Nexway (via contact Guillaume Hulin si possible)
+  - [ ] Obtenir documentation technique complète
+  - [ ] Obtenir structure de pricing détaillée
+  - [ ] Vérifier support in-app et exemples d'intégration
+  - [ ] Évaluer support français vs international
+- [ ] **Comparaison approfondie (2h)**
+  - [ ] Créer compte Lemon Squeezy (1h)
+  - [ ] Explorer dashboard et configuration Lemon Squeezy
+  - [ ] Lire documentation API Lemon Squeezy
+  - [ ] Comparer avec Nexway sur critères techniques/business
+- [ ] **Décision finale (1h)**
+  - [ ] Décision finale : Lemon Squeezy vs Paddle vs Nexway
+  - [ ] Justification basée sur critères objectifs
 
 #### Priorité 2 : Setup i18n
 - [ ] Installer react-i18next (30 min)
@@ -790,17 +862,17 @@ Si K < 1 → Besoin d'acquisition payante
 - [ ] Ajouter CTA "Créer mon sondage" (30 min)
 - [ ] Tests visuels desktop + mobile (30 min)
 
-**Temps total estimé :** 9-10h
+**Temps total estimé :** 11-12h (ajout investigation Nexway)
 
 ### Semaine Prochaine (17-23 Nov 2025)
 
 - [ ] Compléter migration i18n (tous composants)
-- [ ] Intégrer Lemon Squeezy backend
+- [ ] Intégrer MoR backend (Lemon Squeezy / Paddle / Nexway selon décision)
 - [ ] Cookie consent banner
 - [ ] Privacy Policy (via iubenda)
 - [ ] Tests E2E multi-locales
 
-**Temps total estimé :** 20-25h
+**Temps total estimé :** 20-25h (selon solution MoR choisie)
 
 ---
 
@@ -823,7 +895,7 @@ Si K < 1 → Besoin d'acquisition payante
 
 **Lancer Phase 0 immédiatement** (3 semaines de préparation intensive) puis **Phase 1 début décembre 2025** avec :
 1. Application 100% EN/FR
-2. Paiements Lemon Squeezy fonctionnels
+2. Paiements MoR fonctionnels (Lemon Squeezy / Paddle / Nexway selon décision)
 3. Boucle virale active
 4. Conformité RGPD complète
 

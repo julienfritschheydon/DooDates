@@ -1003,7 +1003,7 @@
 //                         ? 'Création en cours...'
 //                         : createdPollSlug
 //                         ? 'Sondage créé !'
-//                         : (state.participantEmails.trim() ? 'Partager' : 'Enregistrer')
+//                         : (state.participantEmails.trim() ? 'Sauvegarder' : 'Enregistrer')
 //                       }
 //                     </button>
 //                   </div>

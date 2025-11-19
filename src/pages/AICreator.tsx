@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { WorkspaceLayoutPrototype } from "@/components/prototype/WorkspaceLayoutPrototype";
+import { AICreationWorkspace } from "@/components/prototype/AICreationWorkspace";
 
 /**
  * Page de création avec IA
@@ -18,5 +18,5 @@ export default function AICreator() {
   }, [type]);
 
   // Afficher le workspace IA directement
-  return <WorkspaceLayoutPrototype />;
+  return <AICreationWorkspace />;
 }

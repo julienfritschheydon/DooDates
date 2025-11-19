@@ -6,6 +6,7 @@ import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
 import PollAnalyticsPanel from "@/components/polls/PollAnalyticsPanel";
 import { NPSResults } from "@/components/polls/NPSResults";
+import DateResultsView from "@/components/polls/DateResultsView";
 import {
   getPollBySlugOrId,
   getFormResults,
@@ -33,6 +34,9 @@ export default function FormPollResults({ idOrSlug }: Props) {
     {},
   );
   const [textAnswers, setTextAnswers] = useState<Record<string, string[]>>({});
+  const [dateResults, setDateResults] = useState<
+    Record<string, import("@/lib/pollStorage").DateQuestionResults>
+  >({});
   const [responses, setResponses] = useState<FormResponse[]>([]);
   const [expandedText, setExpandedText] = useState<Record<string, boolean>>({});
   const [showComparisonDetails, setShowComparisonDetails] = useState(false);
@@ -44,6 +48,7 @@ export default function FormPollResults({ idOrSlug }: Props) {
       const res = getFormResults(p.id);
       setCountsByQuestion(res.countsByQuestion);
       setTextAnswers(res.textAnswers);
+      setDateResults(res.dateResults || {});
       setTotal(res.totalResponses);
       setResponses(getFormResponses(p.id));
     }
@@ -350,33 +355,59 @@ export default function FormPollResults({ idOrSlug }: Props) {
                           ? "Choix multiples"
                           : kind === "matrix"
                             ? "Matrice"
-                            : "Question"}
+                            : kind === "date"
+                              ? "Date"
+                              : kind === "rating"
+                                ? "Échelle de notation"
+                                : kind === "nps"
+                                  ? "Net Promoter Score"
+                                  : "Question"}
                   </div>
                 </div>
 
-                {kind !== "text" && kind !== "long-text" && kind !== "matrix" && (
-                  <div className="space-y-2" data-testid="question-options-results">
-                    {(q.options || []).map((opt: FormQuestionOption) => {
-                      const count = stats?.counts?.[opt.id] || 0;
-                      const pct = totalRespondents
-                        ? Math.round((count / totalRespondents) * 100)
-                        : 0;
-                      return (
-                        <div key={opt.id} className="flex items-center gap-3">
-                          <div className="w-48 text-sm text-gray-700 dark:text-gray-300">
-                            {opt.label || "Option"}
-                          </div>
-                          <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded">
-                            <div className="h-2 bg-blue-500 rounded" style={{ width: `${pct}%` }} />
-                          </div>
-                          <div className="w-24 text-right text-sm text-gray-700 dark:text-gray-300">
-                            {count} ({pct}%)
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                {kind === "date" && (
+                  <DateResultsView
+                    question={q}
+                    results={
+                      dateResults[qid] || {
+                        votesByDate: {},
+                        votesByTimeSlot: {},
+                        totalResponses: 0,
+                      }
+                    }
+                    totalRespondents={totalRespondents}
+                  />
                 )}
+
+                {kind !== "text" &&
+                  kind !== "long-text" &&
+                  kind !== "matrix" &&
+                  kind !== "date" && (
+                    <div className="space-y-2" data-testid="question-options-results">
+                      {(q.options || []).map((opt: FormQuestionOption) => {
+                        const count = stats?.counts?.[opt.id] || 0;
+                        const pct = totalRespondents
+                          ? Math.round((count / totalRespondents) * 100)
+                          : 0;
+                        return (
+                          <div key={opt.id} className="flex items-center gap-3">
+                            <div className="w-48 text-sm text-gray-700 dark:text-gray-300">
+                              {opt.label || "Option"}
+                            </div>
+                            <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded">
+                              <div
+                                className="h-2 bg-blue-500 rounded"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                            <div className="w-24 text-right text-sm text-gray-700 dark:text-gray-300">
+                              {count} ({pct}%)
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
 
                 {kind === "matrix" && (
                   <div className="overflow-x-auto" data-testid="matrix-results">
@@ -603,6 +634,37 @@ export default function FormPollResults({ idOrSlug }: Props) {
                       let answerDisplay: string = "";
                       if (kind === "text" || kind === "long-text") {
                         answerDisplay = typeof it.value === "string" ? it.value : "";
+                      } else if (kind === "date") {
+                        // Afficher les votes sur dates
+                        const dateValue = it.value as
+                          | import("@/lib/pollStorage").DateVoteValue
+                          | undefined;
+                        if (dateValue && Array.isArray(dateValue)) {
+                          const voteStrings = dateValue.map((vote) => {
+                            // Parser la date YYYY-MM-DD correctement
+                            const [year, month, day] = vote.date.split("-").map(Number);
+                            const dateObj = new Date(year, month - 1, day);
+                            const dateStr = dateObj.toLocaleDateString("fr-FR", {
+                              day: "numeric",
+                              month: "short",
+                            });
+                            const timeStr =
+                              vote.timeSlots.length > 0
+                                ? vote.timeSlots
+                                    .map(
+                                      (slot) =>
+                                        `${slot.hour.toString().padStart(2, "0")}:${slot.minute.toString().padStart(2, "0")}`,
+                                    )
+                                    .join(", ")
+                                : "";
+                            const voteEmoji =
+                              vote.vote === "yes" ? "✓" : vote.vote === "no" ? "✗" : "?";
+                            return `${voteEmoji} ${dateStr}${timeStr ? ` (${timeStr})` : ""}`;
+                          });
+                          answerDisplay = voteStrings.join(" • ");
+                        } else {
+                          answerDisplay = "—";
+                        }
                       } else if (kind === "matrix") {
                         // Pour matrices, afficher un résumé
                         const matrixVal = it.value as Record<string, string | string[]>;

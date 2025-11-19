@@ -181,6 +181,69 @@ function extractAndGenerateTitle(
 function extractKeyPhrases(text: string, language: "fr" | "en"): string[] {
   const phrases: string[] = [];
 
+  // Extract poll/survey type (sondage pour déjeuner, réunion, événement, etc.)
+  const pollTypePatterns =
+    language === "fr"
+      ? [
+          /(?:sondage|poll|questionnaire)\s+(?:pour|de|du|sur)\s+([a-zà-ÿ\s]+?)(?:\s|$|,|\.)/gi,
+          /(?:cré|génér|fais)[a-z]*\s+(?:un|une|le|la)?\s*(?:sondage|poll|questionnaire)\s+(?:pour|de|du|sur)?\s*([a-zà-ÿ\s]+?)(?:\s|$|,|\.)/gi,
+          /(?:déjeuner|dîner|petit-déjeuner|brunch|repas|apéro|apéritif|goûter)/gi,
+          /(?:réunion|meeting|rendez-vous|rencontre|conférence|séminaire|atelier|formation)/gi,
+          /(?:événement|évènement|soirée|fête|anniversaire|célébration)/gi,
+          /(?:projet|tâche|mission|travail|collaboration)/gi,
+        ]
+      : [
+          /(?:poll|survey|questionnaire)\s+(?:for|about|on)\s+([a-z\s]+?)(?:\s|$|,|\.)/gi,
+          /(?:creat|generat|mak)[a-z]*\s+(?:a|an|the)?\s*(?:poll|survey|questionnaire)\s+(?:for|about|on)?\s*([a-z\s]+?)(?:\s|$|,|\.)/gi,
+          /(?:lunch|dinner|breakfast|brunch|meal|drinks)/gi,
+          /(?:meeting|appointment|call|conference|seminar|workshop)/gi,
+          /(?:event|party|celebration|anniversary)/gi,
+          /(?:project|task|mission|work|collaboration)/gi,
+        ];
+
+  pollTypePatterns.forEach((pattern) => {
+    const matches = text.match(pattern);
+    if (matches) {
+      matches.forEach((match) => {
+        // Extract the actual type (e.g., "déjeuner", "réunion")
+        const typeMatch = match.match(/(?:pour|de|du|sur|for|about|on)\s+([a-zà-ÿ\s]+)/i);
+        if (typeMatch && typeMatch[1]) {
+          phrases.push(typeMatch[1].trim());
+        } else {
+          // Extract direct type words
+          const directMatch = match.match(
+            /(?:déjeuner|dîner|réunion|meeting|événement|event|projet|project)/i,
+          );
+          if (directMatch) {
+            phrases.push(directMatch[0]);
+          } else {
+            phrases.push(match.trim());
+          }
+        }
+      });
+    }
+  });
+
+  // Extract days of the week
+  const dayPattern =
+    language === "fr"
+      ? /(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/gi
+      : /(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)/gi;
+  const days = text.match(dayPattern);
+  if (days) {
+    phrases.push(...days.map((d) => d.charAt(0).toUpperCase() + d.slice(1).toLowerCase()));
+  }
+
+  // Extract dates (day + month)
+  const datePattern =
+    language === "fr"
+      ? /(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)/gi
+      : /(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})/gi;
+  const dates = text.match(datePattern);
+  if (dates) {
+    phrases.push(...dates.map((d) => d.trim()));
+  }
+
   // Common scheduling/meeting patterns
   const schedulingPatterns =
     language === "fr"
@@ -188,19 +251,11 @@ function extractKeyPhrases(text: string, language: "fr" | "en"): string[] {
           /(?:organis|planifi|program|prépar|arrang)[a-z]*\s+(?:une?\s+)?(?:réunion|rendez-vous|meeting|rencontre)/gi,
           /(?:réunion|meeting|rendez-vous|rencontre)/gi,
           /(?:quand|à quelle heure|quel jour|quelle date)/gi,
-          /(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/gi,
-          /(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)/gi,
-          /(?:matin|après-midi|soir|midi)/gi,
-          /(?:urgent|important|priorit)/gi,
         ]
       : [
           /(?:schedul|organiz|plan|arrang)[a-z]*\s+(?:a\s+)?(?:meeting|appointment|call)/gi,
           /(?:meeting|appointment|call)/gi,
           /(?:when|what time|which day|what date)/gi,
-          /(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)/gi,
-          /(?:january|february|march|april|may|june|july|august|september|october|november|december)/gi,
-          /(?:morning|afternoon|evening|noon)/gi,
-          /(?:urgent|important|priority)/gi,
         ];
 
   // Extract matches from patterns
@@ -236,6 +291,15 @@ function extractKeyPhrases(text: string, language: "fr" | "en"): string[] {
         "The",
         "This",
         "That",
+        "Sondage",
+        "Poll",
+        "Samedi",
+        "Dimanche",
+        "Lundi",
+        "Mardi",
+        "Mercredi",
+        "Jeudi",
+        "Vendredi",
       ];
       if (!commonWords.includes(word)) {
         names.push(word);
@@ -255,7 +319,7 @@ function extractKeyPhrases(text: string, language: "fr" | "en"): string[] {
     phrases.push(...times.slice(0, 2)); // Limit to 2 time expressions
   }
 
-  return phrases.slice(0, 10); // Increase limit for more content
+  return phrases.slice(0, 15); // Increase limit for more content
 }
 
 /**
@@ -269,9 +333,30 @@ function generateTitleFromPhrases(
     return options.language === "fr" ? "Nouvelle conversation" : "New conversation";
   }
 
+  // Extract poll type (déjeuner, réunion, événement, etc.)
+  const pollTypePhrases = phrases.filter((p) =>
+    /(?:déjeuner|dîner|petit-déjeuner|brunch|repas|apéro|réunion|meeting|rendez-vous|événement|évènement|soirée|fête|projet|lunch|dinner|breakfast|event|party|project)/i.test(
+      p,
+    ),
+  );
+
+  // Extract days of the week
+  const dayPhrases = phrases.filter((p) =>
+    /^(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|monday|tuesday|wednesday|thursday|friday|saturday|sunday)$/i.test(
+      p,
+    ),
+  );
+
+  // Extract dates (day + month)
+  const datePhrases = phrases.filter((p) =>
+    /(?:\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)|(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2})/i.test(
+      p,
+    ),
+  );
+
   // Prioritize scheduling-related phrases
   const schedulingPhrases = phrases.filter((p) =>
-    /(?:réunion|meeting|rendez-vous|organis|planifi|schedul)/i.test(p),
+    /(?:organis|planifi|program|prépar|arrang|schedul)/i.test(p),
   );
 
   // Prioritize names (improved pattern)
@@ -287,38 +372,62 @@ function generateTitleFromPhrases(
   // Build title with priority order
   const titleParts: string[] = [];
 
-  // Start with base action
-  let baseAction = "";
-  if (schedulingPhrases.length > 0) {
-    baseAction = schedulingPhrases[0];
-  } else if (options.language === "fr") {
-    baseAction = "Discussion";
-  } else {
-    baseAction = "Discussion";
+  // Start with "Sondage" prefix if it's a poll-related conversation
+  const isPollConversation = pollTypePhrases.length > 0 || schedulingPhrases.length > 0;
+  const prefix = isPollConversation
+    ? options.language === "fr"
+      ? "Sondage"
+      : "Poll"
+    : options.language === "fr"
+      ? "Discussion"
+      : "Discussion";
+
+  titleParts.push(prefix);
+
+  // Add poll type (déjeuner, réunion, etc.)
+  if (pollTypePhrases.length > 0) {
+    // Take the first poll type found
+    const pollType = pollTypePhrases[0];
+    // Capitalize first letter
+    const capitalizedType = pollType.charAt(0).toUpperCase() + pollType.slice(1).toLowerCase();
+    titleParts.push(capitalizedType);
   }
 
-  titleParts.push(baseAction);
+  // Add days or dates
+  if (dayPhrases.length > 0) {
+    // Format: "Samedi/Dimanche" or "Samedi et Dimanche"
+    const formattedDays = dayPhrases
+      .map((d) => d.charAt(0).toUpperCase() + d.slice(1).toLowerCase())
+      .join("/");
+    titleParts.push(`- ${formattedDays}`);
+  } else if (datePhrases.length > 0) {
+    // Format: "15 novembre"
+    const formattedDate = datePhrases[0];
+    titleParts.push(`- ${formattedDate}`);
+  }
 
-  // Add participants
-  if (namesPhrases.length > 0) {
+  // Add participants (if no poll type found)
+  if (pollTypePhrases.length === 0 && namesPhrases.length > 0) {
     const connector = options.language === "fr" ? "avec" : "with";
     const participants = namesPhrases.slice(0, 2).join(" et ");
     titleParts.push(`${connector} ${participants}`);
   }
 
-  // Add timing
-  if (timePhrases.length > 0) {
-    titleParts.push(`- ${timePhrases[0]}`);
+  // Add timing if we have space
+  if (timePhrases.length > 0 && titleParts.length < 3) {
+    titleParts.push(`(${timePhrases[0]})`);
   }
 
-  // If still too short, add more context
+  // Build final title
   let title = titleParts.join(" ");
+
+  // If still too short, add more context
   if (title.length < options.minLength && phrases.length > titleParts.length) {
     const additionalPhrases = phrases
-      .filter((p) => !titleParts.some((part) => part.includes(p)))
+      .filter((p) => !titleParts.some((part) => part.toLowerCase().includes(p.toLowerCase())))
       .slice(0, 2);
     if (additionalPhrases.length > 0) {
-      title += ` (${additionalPhrases.join(", ")})`;
+      title += ` - ${additionalPhrases.join(", ")}`;
     }
   }
 

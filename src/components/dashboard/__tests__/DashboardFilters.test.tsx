@@ -56,12 +56,18 @@ const defaultProps = {
   onSearchChange: vi.fn(),
   filter: "all" as FilterType,
   onFilterChange: vi.fn(),
+  contentTypeFilter: "all" as const,
+  onContentTypeFilterChange: vi.fn(),
   viewMode: "grid" as const,
   onViewModeChange: vi.fn(),
-  selectedTags: [],
+  selectedTags: [] as string[],
   onTagsChange: vi.fn(),
-  selectedFolderId: undefined,
+  selectedFolderId: undefined as string | null | undefined,
   onFolderChange: vi.fn(),
+  selectedIdsCount: 0,
+  onSelectAll: vi.fn(),
+  onClearSelection: vi.fn(),
+  hasItems: true,
 };
 
 describe("DashboardFilters", () => {
@@ -99,16 +105,16 @@ describe("DashboardFilters", () => {
 
   it("should render filter buttons", () => {
     render(<DashboardFilters {...defaultProps} />);
-    expect(screen.getByText("Tous")).toBeInTheDocument();
-    expect(screen.getByText("Brouillon")).toBeInTheDocument();
-    expect(screen.getByText("Actif")).toBeInTheDocument();
-    expect(screen.getByText("Terminé")).toBeInTheDocument();
-    expect(screen.getByText("Archivé")).toBeInTheDocument();
+    expect(screen.getByTestId("status-filter-all")).toBeInTheDocument();
+    expect(screen.getByTestId("status-filter-draft")).toBeInTheDocument();
+    expect(screen.getByTestId("status-filter-active")).toBeInTheDocument();
+    expect(screen.getByTestId("status-filter-closed")).toBeInTheDocument();
+    expect(screen.getByTestId("status-filter-archived")).toBeInTheDocument();
   });
 
   it("should highlight active filter", () => {
     render(<DashboardFilters {...defaultProps} filter="active" />);
-    const activeButton = screen.getByText("Actif").closest("button");
+    const activeButton = screen.getByTestId("status-filter-active");
     expect(activeButton).toHaveClass("bg-blue-500");
   });
 
@@ -116,7 +122,7 @@ describe("DashboardFilters", () => {
     const onFilterChange = vi.fn();
     render(<DashboardFilters {...defaultProps} onFilterChange={onFilterChange} />);
 
-    const activeButton = screen.getByText("Actif");
+    const activeButton = screen.getByTestId("status-filter-active");
     fireEvent.click(activeButton);
 
     expect(onFilterChange).toHaveBeenCalledWith("active");

@@ -137,7 +137,13 @@ export const Docs: React.FC = () => {
             contents.set(doc.id, text);
           }
         } catch (error) {
-          logError(handleError(error, { component: "Docs", metadata: { docId: doc.id } }, `Failed to load ${doc.id}.md`));
+          logError(
+            handleError(
+              error,
+              { component: "Docs", metadata: { docId: doc.id } },
+              `Failed to load ${doc.id}.md`,
+            ),
+          );
         }
       });
 
@@ -254,9 +260,7 @@ export const Docs: React.FC = () => {
             <input
               type="text"
               placeholder={
-                isLoadingContent
-                  ? "Chargement de la documentation..."
-                  : "Rechercher dans la doc..."
+                isLoadingContent ? "Chargement de la documentation..." : "Rechercher dans la doc..."
               }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -272,10 +276,11 @@ export const Docs: React.FC = () => {
         <nav className="p-4 space-y-6 overflow-y-auto flex-1">
           <Link
             to="/docs"
-            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${!currentDoc && !searchQuery.trim()
-              ? "bg-primary text-white"
-              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+              !currentDoc && !searchQuery.trim()
+                ? "bg-primary text-white"
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
           >
             <Home className="w-4 h-4" />
             Accueil
@@ -293,10 +298,11 @@ export const Docs: React.FC = () => {
                     <Link
                       to={`/docs/${doc.id}`}
                       onClick={() => setSearchQuery("")}
-                      className={`block px-3 py-2 rounded-md text-sm transition-colors ${currentDoc === doc.id
-                        ? "bg-primary text-white"
-                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        }`}
+                      className={`block px-3 py-2 rounded-md text-sm transition-colors ${
+                        currentDoc === doc.id
+                          ? "bg-primary text-white"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      }`}
                     >
                       {doc.name}
                     </Link>

@@ -23,7 +23,7 @@ Les **formulaires DooDates** vous permettent de créer des enquêtes, questionna
 
 ### Avantages
 
-- ✅ **7 types de questions** (choix unique, choix multiples, texte court, texte long, rating, NPS, matrix)
+- ✅ **8 types de questions** (choix unique, choix multiples, texte court, texte long, rating, NPS, matrix, date)
 - ✅ **Logique conditionnelle** (questions dynamiques)
 - ✅ **Mode multi-étapes** (UX optimale mobile)
 - ✅ **Analytics IA automatiques**
@@ -264,6 +264,62 @@ Labels :
 - Benchmark industrie
 - Suivi dans le temps (trimestriel)
 - Segmentation clients (promoteurs vs détracteurs)
+
+---
+
+### 8. Date (Sélection de dates et horaires)
+
+**Usage :** Permettre aux répondants de sélectionner des dates et horaires disponibles
+
+**Exemple :**
+```
+Question : Quand seriez-vous disponible pour une réunion ?
+
+Calendrier :
+┌─────────────────────────────────────────┐
+│  Janvier 2025                           │
+│  Lu Ma Me Je Ve Sa Di                   │
+│        1  2  3  4  5                    │
+│   6  7  8  9 10 11 12                   │
+│  13 14 15 16 17 18 19                   │
+│  20 21 22 23 24 25 26                   │
+│  27 28 29 30 31                         │
+└─────────────────────────────────────────┘
+
+Horaires disponibles :
+Heure    │ Lun 13/01 │ Mar 14/01 │ Mer 15/01 │
+─────────┼───────────┼───────────┼───────────┤
+08:00    │    ✓      │    ✓      │    ✓      │
+08:30    │    ✓      │    ✓      │    ✓      │
+09:00    │    ✓      │    ✓      │    ✓      │
+...
+```
+
+**Configuration :**
+```
+Type : Date
+Dates sélectionnées : [Calendrier interactif]
+Granularité horaire : 15 min / 30 min / 1 h
+Horaires par date : [Configuration visuelle]
+☑ Permettre votes "Peut-être"
+☑ Permettre votes anonymes
+```
+
+**Fonctionnalités :**
+- **Calendrier interactif** : Sélection de plusieurs dates
+- **Configuration d'horaires** : Définir les créneaux disponibles pour chaque date
+- **Granularité** : Choisir la précision (15 min, 30 min, 1 h)
+- **Votes "Peut-être"** : Option pour indiquer une disponibilité incertaine
+- **Votes anonymes** : Permettre les réponses sans nom
+
+**Quand l'utiliser :**
+- Planification de réunions d'équipe
+- Organisation d'événements
+- Prise de rendez-vous
+- Sondages de disponibilité
+- Coordination de groupes
+
+**Note :** Ce type de question combine les fonctionnalités d'un sondage de dates avec la flexibilité d'un formulaire, permettant d'intégrer la sélection de dates dans un questionnaire plus large.
 
 ---
 

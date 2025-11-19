@@ -30,6 +30,7 @@ export interface PollCreationState {
   pollLinkCopied: boolean;
   expirationDays: number;
   showExpirationSettings: boolean;
+  showSettingsPanel: boolean;
 }
 export declare class PollCreatorService {
   /**

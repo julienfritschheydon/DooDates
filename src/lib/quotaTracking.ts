@@ -16,7 +16,11 @@ import { logger } from "./logger";
 import { consumeGuestCredits } from "./guestQuotaService";
 import { ErrorFactory, logError } from "./error-handling";
 import { isE2ETestingEnvironment } from "./e2e-detection";
-import { callSupabaseEdgeFunction } from "./supabaseApi";
+import {
+  callSupabaseEdgeFunction,
+  getSupabaseSessionWithTimeout,
+  supabaseSelectSingle,
+} from "./supabaseApi";
 
 const STORAGE_KEY = "doodates_quota_consumed";
 const JOURNAL_KEY = "doodates_quota_journal";
@@ -81,36 +85,44 @@ async function getSubscriptionStartDate(userId: string | null | undefined): Prom
   }
 
   try {
-    const { supabase } = await import("./supabase");
-
     // Timeout de 2 secondes pour éviter de bloquer
-    const timeoutPromise = new Promise<null>((resolve) => {
-      setTimeout(() => resolve(null), 2000);
-    });
+    try {
+      const profile = await Promise.race([
+        supabaseSelectSingle<{
+          subscription_expires_at: string | null;
+          created_at: string;
+        }>(
+          "profiles",
+          {
+            id: `eq.${userId}`,
+            select: "subscription_expires_at,created_at",
+          },
+          { timeout: 2000 },
+        ),
+        new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error("Timeout")), 2000);
+        }),
+      ]);
 
-    const fetchPromise = supabase
-      .from("profiles")
-      .select("subscription_expires_at, created_at")
-      .eq("id", userId)
-      .single();
-
-    const result = await Promise.race([
-      fetchPromise.then(({ data: profile }) => {
-        if (profile?.subscription_expires_at) {
-          return new Date(profile.subscription_expires_at);
-        }
-        if (profile?.created_at) {
-          return new Date(profile.created_at);
-        }
+      if (profile?.subscription_expires_at) {
+        const result = new Date(profile.subscription_expires_at);
+        subscriptionDateCache.set(userId, { date: result, timestamp: Date.now() });
+        return result;
+      }
+      if (profile?.created_at) {
+        const result = new Date(profile.created_at);
+        subscriptionDateCache.set(userId, { date: result, timestamp: Date.now() });
+        return result;
+      }
+      subscriptionDateCache.set(userId, { date: null, timestamp: Date.now() });
+      return null;
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes("Timeout")) {
+        subscriptionDateCache.set(userId, { date: null, timestamp: Date.now() });
         return null;
-      }),
-      timeoutPromise,
-    ]);
-
-    // Mettre en cache (même si timeout, on cache null pour éviter les appels répétés)
-    subscriptionDateCache.set(userId, { date: result, timestamp: Date.now() });
-
-    return result;
+      }
+      throw error;
+    }
   } catch (error) {
     logger.debug("Impossible de récupérer la date d'abonnement", "quota", { error });
     // Mettre null en cache pour éviter les appels répétés en cas d'erreur
@@ -153,10 +165,7 @@ function calculateNextResetDate(subscriptionStartDate: Date | null): Date {
  */
 async function fetchQuotaFromServer(userId: string): Promise<QuotaConsumedData | null> {
   try {
-    const { supabase } = await import("./supabase");
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const session = await getSupabaseSessionWithTimeout(2000);
 
     if (!session?.access_token) {
       return null;
@@ -254,10 +263,7 @@ export async function getQuotaConsumed(
 
             if (userDataMig) {
               // Appeler Edge Function pour créer/mettre à jour le quota
-              const { supabase: supabaseMig } = await import("./supabase");
-              const {
-                data: { session },
-              } = await supabaseMig.auth.getSession();
+              const session = await getSupabaseSessionWithTimeout(2000);
 
               if (session?.access_token) {
                 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -437,10 +443,7 @@ export async function getConsumptionJournal(
     // Pour les utilisateurs authentifiés, essayer de récupérer depuis le serveur
     if (!isGuest && !isE2E && userId) {
       try {
-        const { supabase } = await import("./supabase");
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const session = await getSupabaseSessionWithTimeout(2000);
 
         if (session?.access_token) {
           const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -525,9 +528,16 @@ async function consumeCredits(
           localStorage.getItem("e2e") === "1" ||
           localStorage.getItem("dev-local-mode") === "1"));
 
+    // Mode utilisateur illimité pour les tests E2E :
+    // - Permet de vérifier le tracking fin (aiMessages, totalCreditsConsumed, journal)
+    // - Sans être bloqué par les limites réelles de quota (popup "Crédits IA épuisés")
+    // Ce userId ne doit être utilisé que dans les tests automatisés.
+    const isUnlimitedE2ETestUser = isE2E && userId === "quota-test-unlimited";
+
     // Pour les guests, utiliser le service Supabase sécurisé
-    // SAUF en mode E2E où on utilise localStorage directement
-    if (isGuest && !isE2E) {
+    // SAUF en mode E2E (où on utilise localStorage directement)
+    // et SAUF pour l'utilisateur spécial d'E2E "quota-test-unlimited" qui ne doit pas être bloqué.
+    if (isGuest && !isE2E && !isUnlimitedE2ETestUser) {
       try {
         // Timeout réduit à 2 secondes (les timeouts internes sont déjà à 1s)
         const timeoutPromise = new Promise<{ success: false; error: string }>((resolve) => {
@@ -610,7 +620,8 @@ async function consumeCredits(
     }
 
     // Pour les utilisateurs authentifiés, utiliser Edge Function (sauf E2E)
-    if (!isGuest && !isE2E && userId) {
+    // et sauf pour l'utilisateur spécial d'E2E "quota-test-unlimited" qui doit rester localStorage-only.
+    if (!isGuest && !isE2E && userId && !isUnlimitedE2ETestUser) {
       console.log(`[quotaTracking] 🔒 consumeCredits - Mode auth, appel Edge Function...`, {
         userId,
         action,
@@ -670,7 +681,14 @@ async function consumeCredits(
             "Erreur consommation serveur",
             "Une erreur est survenue lors de la consommation des crédits",
           ),
-          { error },
+          {
+            metadata: {
+              error,
+              action,
+              credits,
+              userId,
+            },
+          },
         );
         // Si c'est une erreur de validation (quota atteint), la propager
         if (

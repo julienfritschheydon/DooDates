@@ -3,17 +3,25 @@ import { Link } from "react-router-dom";
 import { getPollBySlugOrId, addFormResponse } from "../../lib/pollStorage";
 import { sendVoteConfirmationEmail } from "../../services/EmailService";
 import { shouldShowQuestion } from "../../lib/conditionalEvaluator";
-import type { Poll, FormQuestionShape, FormQuestionOption } from "../../lib/pollStorage";
+import type {
+  Poll,
+  FormQuestionShape,
+  FormQuestionOption,
+  DateVoteValue,
+  FormResponseItem,
+} from "../../lib/pollStorage";
 import { StructuredInput } from "./StructuredInput";
 import type { ValidationType } from "../../lib/validation";
 import { RatingInput } from "./RatingInput";
 import { NPSInput } from "./NPSInput";
+import DateQuestionVote from "./DateQuestionVote";
 import { getThemeById, applyTheme, resetTheme } from "../../lib/themes";
 import { useThemeColor } from "../../hooks/useThemeColor";
 import MultiStepFormVote from "./MultiStepFormVote";
+import VoteCompletionScreen from "../voting/VoteCompletionScreen";
 import "./themed-inputs.css";
 
-type AnswerValue = string | string[] | Record<string, string | string[]> | number;
+type AnswerValue = string | string[] | Record<string, string | string[]> | number | DateVoteValue;
 
 interface Props {
   idOrSlug: string;
@@ -154,6 +162,16 @@ export default function FormPollVote({ idOrSlug }: Props) {
           if (!allRowsAnswered) {
             return `Toutes les lignes doivent être remplies pour: ${q.title || "Question"}`;
           }
+        } else if (kind === "date") {
+          const dateVal = val as DateVoteValue | undefined;
+          if (!dateVal || !Array.isArray(dateVal) || dateVal.length === 0) {
+            return `Vote requis pour: ${q.title || "Question"}`;
+          }
+          // Vérifier qu'au moins une date a été votée
+          const hasVote = dateVal.some((vote) => vote.vote && vote.date);
+          if (!hasVote) {
+            return `Au moins une date doit être votée pour: ${q.title || "Question"}`;
+          }
         }
       }
 
@@ -200,7 +218,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
     }
 
     // Map answers object to items array expected by addFormResponse
-    const items = Object.keys(answers).map((qid) => ({
+    const items: FormResponseItem[] = Object.keys(answers).map((qid) => ({
       questionId: qid,
       value: answers[qid],
     }));
@@ -259,54 +277,17 @@ export default function FormPollVote({ idOrSlug }: Props) {
     const canSeeResults = visibility === "public" || visibility === "voters";
 
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-2xl mx-auto p-6 pt-20">
-          <h1 className="text-2xl font-bold mb-2">Merci pour votre participation !</h1>
-          <p className="text-gray-600">Votre réponse a été enregistrée.</p>
-
-          {/* Message d'information pour la bêta */}
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-2 text-blue-700">
-              <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="text-sm font-medium">Information bêta</span>
-            </div>
-            <p className="text-sm text-blue-600 mt-1">
-              Pour finaliser et partager votre formulaire, après la bêta, vous devrez vous connecter
-              ou créer un compte.
-            </p>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            {canSeeResults ? (
-              <Link
-                to={`/poll/${poll.slug || poll.id}/results`}
-                className="inline-block text-white px-4 py-2 rounded transition-colors"
-                style={{
-                  backgroundColor: "var(--theme-primary, #3B82F6)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "var(--theme-primary-hover, #2563EB)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "var(--theme-primary, #3B82F6)";
-                }}
-              >
-                Voir les résultats
-              </Link>
-            ) : (
-              <div className="text-sm text-gray-500">
-                ℹ️ Les résultats ne sont pas publics pour ce sondage.
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <VoteCompletionScreen
+        voterName={voterName}
+        onBack={() => (window.location.href = "/")}
+        onViewResults={
+          canSeeResults
+            ? () => (window.location.href = `/poll/${poll.slug || poll.id}/results`)
+            : undefined
+        }
+        title="Merci pour votre participation !"
+        subtitle="Votre réponse a été enregistrée."
+      />
     );
   }
 
@@ -427,7 +408,9 @@ export default function FormPollVote({ idOrSlug }: Props) {
                                 ? "Échelle de notation"
                                 : kind === "nps"
                                   ? "Net Promoter Score"
-                                  : "Question"}
+                                  : kind === "date"
+                                    ? "Date"
+                                    : "Question"}
                       {q.required ? " • obligatoire" : ""}
                     </div>
                   </div>
@@ -745,6 +728,15 @@ export default function FormPollVote({ idOrSlug }: Props) {
                 {kind === "nps" && (
                   <NPSInput
                     value={typeof val === "number" ? val : null}
+                    onChange={(newVal) => updateAnswer(qid, newVal)}
+                    required={q.required}
+                  />
+                )}
+
+                {kind === "date" && (
+                  <DateQuestionVote
+                    question={q}
+                    value={Array.isArray(val) ? (val as DateVoteValue) : undefined}
                     onChange={(newVal) => updateAnswer(qid, newVal)}
                     required={q.required}
                   />
