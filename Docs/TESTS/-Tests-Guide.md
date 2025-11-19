@@ -953,7 +953,8 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 **Priorité 2 : 91% complété (10/11 tests terminés)** ✅
 
 **Priorité 3** :
-- [ ] Composants UI principaux
+- [x] Dashboard - Tests composants principaux ✅ EN COURS (19/11/2025) - 20 KB, 701 lignes
+- [ ] Composants UI principaux (restants)
 - [ ] Pages principales
 - [ ] Contexts
 
@@ -961,7 +962,8 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 
 **Court terme (1 mois)** :
 - Priorité 2 : **91% complété** (10/11 tests terminés) ✅
-- Tests récupérés : ~2300 lignes (~79 KB)
+- Priorité 3 : **8% complété** (1/12 composants démarré) 🚀
+- Tests récupérés : ~2400 lignes (~86 KB)
 - Couverture code : 70%
 
 **Moyen terme (3 mois)** :
@@ -989,8 +991,9 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 | `PollCreatorService.test.ts` | 17 KB | 558 | 19/11/2025 20:14 | ✅ |
 | `PollCreationBusinessLogic.test.ts` | 14 KB | 480 | 19/11/2025 20:14 | ✅ |
 | `useGeminiAPI.test.ts` | 13 KB | 442 | 19/11/2025 20:14 | ✅ |
+| `Dashboard.test.tsx` | 20 KB | 701 | 19/11/2025 21:35 | ✅ |
 
-**Total récupéré :** ~79 KB, ~2300 lignes de tests
+**Total récupéré :** ~86 KB, ~2400 lignes de tests
 
 ### Branches Mergées (7)
 1. `feature/changesets-setup` - Configuration Changesets
@@ -1445,6 +1448,6 @@ await waitForElementReady(page, selector); // Continue dès que prêt
 ---
 
 **Document maintenu par** : Équipe DooDates  
-**Dernière révision** : 19 novembre 2025 (Ajout tests unitaires useGeminiAPI (38 tests) - Services critiques: 85% Priority 2 terminé)
+**Dernière révision** : 19 novembre 2025 (Ajout tests Dashboard component - Priority 3 commencé)
 
 ---

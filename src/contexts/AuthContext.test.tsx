@@ -60,11 +60,17 @@ describe("AuthContext", () => {
     id: "test-user-id",
     email: "test@example.com",
     app_metadata: { provider: "email" },
+    user_metadata: {},
+    aud: "authenticated",
+    created_at: "2024-01-01T00:00:00Z",
   };
 
   const mockSession = {
     user: mockUser,
     access_token: "test-token",
+    refresh_token: "test-refresh-token",
+    expires_in: 3600,
+    token_type: "bearer" as const,
   };
 
   const mockProfile = {
@@ -429,8 +435,19 @@ describe("AuthContext", () => {
 
   describe("Local development mode", () => {
     it("should disable authentication in local development", async () => {
-      const { isLocalDevelopment } = await import("../lib/supabase");
-      vi.mocked(isLocalDevelopment).mockReturnValue(true);
+      // Mock the entire supabase module to return isLocalDevelopment = true
+      vi.doMock("../lib/supabase", () => ({
+        supabase: {
+          auth: {
+            signInWithPassword: vi.fn(),
+            signUp: vi.fn(),
+            signOut: vi.fn(),
+            getSession: vi.fn(),
+            onAuthStateChange: vi.fn(),
+          },
+        },
+        isLocalDevelopment: true,
+      }));
 
       const mockOnAuth = vi.fn();
 
