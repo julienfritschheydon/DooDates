@@ -3,14 +3,17 @@
  * DooDates - Conversation History System
  */
 
+/// <reference types="@testing-library/jest-dom" />
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ConversationSearch } from '../ConversationSearch';
 import type { SearchFilters } from '../ConversationSearch';
 
 // Mock UI components
-jest.mock('../../ui/calendar', () => ({
+vi.mock('../../ui/calendar', () => ({
   Calendar: ({ onSelect, selected }: any) => (
     <div data-testid="calendar">
       <button 
@@ -23,14 +26,14 @@ jest.mock('../../ui/calendar', () => ({
 }));
 
 describe('ConversationSearch', () => {
-  const mockOnFiltersChange = jest.fn();
+  const mockOnFiltersChange = vi.fn();
   const defaultProps = {
     onFiltersChange: mockOnFiltersChange,
     availableTags: ['urgent', 'meeting', 'project'],
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Search Input', () => {
