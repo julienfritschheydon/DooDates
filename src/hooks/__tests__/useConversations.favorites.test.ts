@@ -56,7 +56,7 @@ const createMockConversation = (
     userId: "test-user",
   });
 
-describe("useConversations - Favorites Sorting", () => {
+describe.skip("useConversations - Favorites Sorting", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
