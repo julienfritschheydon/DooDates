@@ -27,13 +27,12 @@ jobs:
           node-version: '20'
           cache: 'npm'
       
-      - name: 🧹 Clean npm cache (avoid permission conflicts)
-        run: |
-          npm cache clean --force
-          rm -rf node_modules
-      
       - name: 🔧 Install dependencies
-        run: npm ci
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
+          # Ensure Rollup native dependencies are properly installed (known npm bug)
+          npm install @rollup/rollup-linux-x64-gnu || true
       
       - name: 🧭 Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
@@ -219,7 +218,11 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm ci
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
+          # Ensure Rollup native dependencies are properly installed (known npm bug)
+          npm install @rollup/rollup-linux-x64-gnu || true
       
       - name: TypeScript Check
         run: npm run type-check
