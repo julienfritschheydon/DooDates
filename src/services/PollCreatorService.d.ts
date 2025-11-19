@@ -54,10 +54,6 @@ export declare class PollCreatorService {
     setState: (updater: (prev: PollCreationState) => PollCreationState) => void,
   ): void;
   /**
-   * Analyze calendar availability (placeholder)
-   */
-  static analyzeCalendarAvailability(dates: string[]): Promise<any[]>;
-  /**
    * Check if granularity is compatible with selected time slots
    */
   static isGranularityCompatible(granularity: number, timeSlots: TimeSlot[]): boolean;

@@ -189,7 +189,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             userRequest: "",
             generatedContent: proposal,
             pollContext: {
-              pollId: (proposal as import("../lib/gemini").PollSuggestion & { id?: string }).id || `generated-${Date.now()}`,
+              pollId:
+                (proposal as import("../lib/gemini").PollSuggestion & { id?: string }).id ||
+                `generated-${Date.now()}`,
               pollTitle: proposal.title,
               pollType: proposal.type,
             },
@@ -204,15 +206,19 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       (updater: (prev: Message[]) => Message[]) => {
         setMessagesRaw((prevMessages) => {
           // Convertir les messages du format ConversationService vers useMessageSender
-          const convertedPrev = prevMessages.map(msg => ({
+          const convertedPrev = prevMessages.map((msg) => ({
             ...msg,
-            pollSuggestion: msg.pollSuggestion as import("../lib/gemini").PollSuggestion | undefined
+            pollSuggestion: msg.pollSuggestion as
+              | import("../lib/gemini").PollSuggestion
+              | undefined,
           }));
           const updated = updater(convertedPrev);
           // Convertir les messages vers le format ConversationService
-          return updated.map(msg => ({
+          return updated.map((msg) => ({
             ...msg,
-            pollSuggestion: msg.pollSuggestion as import("../services/ConversationService").PollSuggestion | undefined
+            pollSuggestion: msg.pollSuggestion as
+              | import("../services/ConversationService").PollSuggestion
+              | undefined,
           }));
         });
       },
@@ -383,35 +389,35 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     });
 
     // Intent detection hook
-const intentDetection = useIntentDetection({
-  currentPoll,
-  onDispatchAction: (action) => {
-    // action: { type: string; payload: Record<string, unknown> }
+    const intentDetection = useIntentDetection({
+      currentPoll,
+      onDispatchAction: (action) => {
+        // action: { type: string; payload: Record<string, unknown> }
 
-    switch (action.type) {
-      case "REPLACE_POLL":
-        // On suppose que payload contient un poll complet sous la clé poll
-        dispatchPollAction({
-          type: "REPLACE_POLL",
-          payload: action.payload.poll as import("../lib/pollStorage").Poll,
-        });
-        break;
+        switch (action.type) {
+          case "REPLACE_POLL":
+            // On suppose que payload contient un poll complet sous la clé poll
+            dispatchPollAction({
+              type: "REPLACE_POLL",
+              payload: action.payload.poll as import("../lib/pollStorage").Poll,
+            });
+            break;
 
-      // Ajoute ici d’autres mappings explicites si ton hook envoie d’autres actions:
-      // case "ADD_QUESTION":
-      //   dispatchPollAction({
-      //     type: "ADD_QUESTION",
-      //     payload: action.payload as any,
-      //   });
-      //   break;
+          // Ajoute ici d’autres mappings explicites si ton hook envoie d’autres actions:
+          // case "ADD_QUESTION":
+          //   dispatchPollAction({
+          //     type: "ADD_QUESTION",
+          //     payload: action.payload as any,
+          //   });
+          //   break;
 
-      default:
-        // Pour l’instant on ignore les types non gérés
-        logger.warn?.("IntentDetection: action ignorée", "poll", { action });
-        break;
-    }
-  },
-});
+          default:
+            // Pour l’instant on ignore les types non gérés
+            logger.warn?.("IntentDetection: action ignorée", "poll", { action });
+            break;
+        }
+      },
+    });
 
     // Poll management hook
     const pollManagement = usePollManagement();
