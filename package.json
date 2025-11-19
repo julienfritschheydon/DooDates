@@ -143,11 +143,8 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
-<<<<<<< Updated upstream
-=======
     "@axe-core/playwright": "^4.11.0",
     "@changesets/cli": "^2.29.7",
->>>>>>> Stashed changes
     "@eslint/js": "^9.9.0",
     "@playwright/test": "^1.53.1",
     "@tailwindcss/typography": "^0.5.15",
