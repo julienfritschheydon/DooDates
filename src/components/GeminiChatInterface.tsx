@@ -20,7 +20,7 @@ import {
 } from "../lib/gemini";
 // Lazy load PollCreator - ne se charge que si nécessaire
 const PollCreator = lazy(() => import("./PollCreator"));
-import FormPollCreator, { type FormPollDraft } from "./polls/FormPollCreator";
+import FormPollCreator, { type FormPollDraft, type AnyFormQuestion } from "./polls/FormPollCreator";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { useConversationResume } from "../hooks/useConversationResume";
 import { useGeminiAPI } from "../hooks/useGeminiAPI";
@@ -181,9 +181,40 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     }, [location.state]); // Se déclenche quand location.state change
 
     // Wrapper pour éviter les erreurs de type PollSuggestion (conflit gemini.ts vs ConversationService.ts)
-    const setMessages = useCallback(
-      (updater: Parameters<typeof setMessagesRaw>[0]) => {
-        setMessagesRaw(updater);
+    // Create adapter for setLastAIProposal to match useMessageSender expected signature
+    const setLastAIProposalAdapter = useCallback(
+      (proposal: import("../lib/gemini").PollSuggestion | null) => {
+        if (proposal) {
+          setLastAIProposal({
+            userRequest: "",
+            generatedContent: proposal,
+            pollContext: {
+              pollId: (proposal as import("../lib/gemini").PollSuggestion & { id?: string }).id || `generated-${Date.now()}`,
+              pollTitle: proposal.title,
+              pollType: proposal.type,
+            },
+          });
+        } else {
+          setLastAIProposal(null);
+        }
+      },
+      [],
+    );
+    const setMessagesAdapter = useCallback(
+      (updater: (prev: Message[]) => Message[]) => {
+        setMessagesRaw((prevMessages) => {
+          // Convertir les messages du format ConversationService vers useMessageSender
+          const convertedPrev = prevMessages.map(msg => ({
+            ...msg,
+            pollSuggestion: msg.pollSuggestion as import("../lib/gemini").PollSuggestion | undefined
+          }));
+          const updated = updater(convertedPrev);
+          // Convertir les messages vers le format ConversationService
+          return updated.map(msg => ({
+            ...msg,
+            pollSuggestion: msg.pollSuggestion as import("../services/ConversationService").PollSuggestion | undefined
+          }));
+        });
       },
       [setMessagesRaw],
     );
@@ -347,15 +378,40 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     // Connection status hook
     const connectionStatusHook = useConnectionStatus({
       onAddMessage: (message) => {
-        setMessages((prev) => [...prev, message]);
+        setMessagesAdapter((prev) => [...prev, message]);
       },
     });
 
     // Intent detection hook
-    const intentDetection = useIntentDetection({
-      currentPoll,
-      onDispatchAction: dispatchPollAction,
-    });
+const intentDetection = useIntentDetection({
+  currentPoll,
+  onDispatchAction: (action) => {
+    // action: { type: string; payload: Record<string, unknown> }
+
+    switch (action.type) {
+      case "REPLACE_POLL":
+        // On suppose que payload contient un poll complet sous la clé poll
+        dispatchPollAction({
+          type: "REPLACE_POLL",
+          payload: action.payload.poll as import("../lib/pollStorage").Poll,
+        });
+        break;
+
+      // Ajoute ici d’autres mappings explicites si ton hook envoie d’autres actions:
+      // case "ADD_QUESTION":
+      //   dispatchPollAction({
+      //     type: "ADD_QUESTION",
+      //     payload: action.payload as any,
+      //   });
+      //   break;
+
+      default:
+        // Pour l’instant on ignore les types non gérés
+        logger.warn?.("IntentDetection: action ignorée", "poll", { action });
+        break;
+    }
+  },
+});
 
     // Poll management hook
     const pollManagement = usePollManagement();
@@ -410,7 +466,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           // Initializing new conversation
           // Ne pas ajouter de message de bienvenue ici pour que le message visuel s'affiche (messages.length === 0)
 
-          setMessages([]);
+          setMessagesAdapter(() => []);
           // Conversation initialized with empty messages - visual welcome will show
 
           conversationProtection.completeCreation("new-conversation");
@@ -435,11 +491,11 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
           // Show user-friendly error message
           if (error instanceof Error && error.message.includes("Quota dépassé")) {
-            setMessages([
+            setMessagesAdapter(() => [
               {
                 id: "quota-error",
                 content:
-                  "⚠️ Limite de conversations atteinte. Vous avez déjà créé le nombre maximum de conversations autorisées. Veuillez supprimer une conversation existante ou vous connecter pour augmenter votre limite.",
+                  "Vous avez atteint votre quota de sondages pour la période d'essai. Pour continuer à utiliser DooDates, vous pouvez passer à un compte payant ou attendre la prochaine période.",
                 isAI: true,
                 timestamp: new Date(),
               },
@@ -448,11 +504,21 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             error instanceof Error &&
             error.message.includes("Conversation limit reached")
           ) {
-            setMessages([
+            setMessagesAdapter(() => [
               {
                 id: "limit-error",
                 content:
-                  "⚠️ Limite de conversations atteinte. Vous avez déjà créé le nombre maximum de conversations autorisées. Veuillez supprimer une conversation existante ou vous connecter pour augmenter votre limite.",
+                  "Vous avez atteint la limite de conversations simultanées. Terminez ou archivez certaines conversations pour en créer de nouvelles.",
+                isAI: true,
+                timestamp: new Date(),
+              },
+            ]);
+          } else {
+            setMessagesAdapter(() => [
+              {
+                id: "init-error",
+                content:
+                  "Une erreur est survenue lors de l'initialisation. Veuillez réessayer ou contacter le support si le problème persiste.",
                 isAI: true,
                 timestamp: new Date(),
               },
@@ -472,7 +538,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     const handleNewChat = useCallback(async () => {
       try {
         // Reset all state
-        setMessages([]);
+        setMessagesAdapter(() => []);
         setInputValue("");
         setIsLoading(false);
         pollManagement.closePollCreator();
@@ -502,21 +568,33 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           operation: "handleNewChat",
         });
       }
-    }, [pollManagement, onNewChat, initializeNewConversation, setMessages]);
+    }, [pollManagement, onNewChat, initializeNewConversation, setMessagesAdapter]);
 
     // Message sender hook
     const messageSender = useMessageSender({
       isLoading,
       quota,
       aiQuota,
-      toast,
+      toast: {
+        toast: ({
+          title,
+          description,
+          variant,
+        }: {
+          title?: string;
+          description?: string;
+          variant?: "default" | "destructive";
+        }) => {
+          toast({ title, description, variant });
+        },
+      },
       intentDetection,
       geminiAPI,
       autoSave,
       onUserMessage,
-      setMessages,
+      setMessages: setMessagesAdapter,
       setIsLoading,
-      setLastAIProposal,
+      setLastAIProposal: setLastAIProposalAdapter,
       setModifiedQuestion,
       onStartNewChat: handleNewChat,
       hasCurrentPoll: !!currentPoll,
@@ -569,7 +647,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           if (result && result.conversation && result.messages) {
             // Clear messages only if we have a conversation to restore from URL
             if (isMounted) {
-              setMessages([]);
+              setMessagesAdapter(() => []);
             }
             // Resuming conversation from URL
 
@@ -583,7 +661,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
               // Messages convertis avec succès
 
               if (isMounted) {
-                setMessages(chatMessages);
+                setMessagesAdapter(() => chatMessages);
                 hasResumedConversation.current = true;
 
                 // 🔧 FIX E2E: Auto-ouvrir le poll si la conversation en contient un
@@ -627,7 +705,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
                 result.conversation.title,
               );
               if (isMounted) {
-                setMessages([resumeMessage]);
+                setMessagesAdapter(() => [resumeMessage]);
               }
             }
           } else {
@@ -804,7 +882,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
               id: currentPoll.id,
               type: "form",
               title: currentPoll.title,
-              questions: currentPoll.questions || [],
+              questions: (currentPoll.questions || []) as AnyFormQuestion[],
               conditionalRules: currentPoll.conditionalRules || [],
             }
           : pollManagement.getFormDraft();
