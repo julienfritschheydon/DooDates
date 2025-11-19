@@ -71,10 +71,11 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={onBack}
-              className={`${onViewResults
-                ? "bg-green-700/30 text-white hover:bg-green-700/40"
-                : "bg-white text-green-600 hover:bg-green-50"
-                } font-medium py-3 px-6 rounded-full shadow-lg w-full max-w-xs transition-colors`}
+              className={`${
+                onViewResults
+                  ? "bg-green-700/30 text-white hover:bg-green-700/40"
+                  : "bg-white text-green-600 hover:bg-green-50"
+              } font-medium py-3 px-6 rounded-full shadow-lg w-full max-w-xs transition-colors`}
             >
               Retour à l'accueil
             </motion.button>

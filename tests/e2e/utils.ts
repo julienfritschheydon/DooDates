@@ -20,6 +20,9 @@ export function getDefaultConsoleGuardAllowlist(): RegExp[] {
     /status: 401/i,
     /Failed to resolve import/i,
     /\[vite\] Internal Server Error/i,
+    // Erreurs Gemini attendues en CI (EDGE function / parsing JSON)
+    /DooDates Error: \{message: Failed to execute 'json' on 'Response': Unexpected end of JSON input/i,
+    /NETWORK_ERROR détectée \{mode: EDGE_FUNCTION/i,
   ];
 }
 
