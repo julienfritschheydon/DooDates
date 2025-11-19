@@ -92,7 +92,7 @@ export default function LandingPage() {
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
-              to="/workspace/availability"
+              to="/create/availability"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors font-semibold text-lg shadow-lg"
             >
               Créer une disponibilité
