@@ -293,7 +293,7 @@ function renderGeminiChat(props: Partial<React.ComponentProps<typeof GeminiChatI
   return { ref, ...utils };
 }
 
-describe.skip("GeminiChatInterface", () => {
+describe("GeminiChatInterface", () => {
   let mockUseMessageSender: any;
   let mockUseToast: any;
   let mockUseVoiceRecognition: any;
