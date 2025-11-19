@@ -28,7 +28,15 @@ export class SecureGeminiService {
   }
 
   private constructor() {
-    this.supabaseUrl = getEnv("VITE_SUPABASE_URL") || "";
+    const envSupabaseUrl = getEnv("VITE_SUPABASE_URL");
+
+    if (envSupabaseUrl) {
+      this.supabaseUrl = envSupabaseUrl;
+    } else if (typeof window !== "undefined" && window.location?.origin) {
+      this.supabaseUrl = window.location.origin;
+    } else {
+      this.supabaseUrl = "";
+    }
   }
 
   /**
@@ -201,7 +209,16 @@ export class SecureGeminiService {
         return await Promise.race([fetchPromise, timeoutPromise]);
       });
 
-      const { data, error } = result as { data: string | null; error: Error | null };
+      const { data, error } = result as {
+        data: {
+          success?: boolean;
+          data?: string;
+          error?: string;
+          message?: string;
+          creditsRemaining?: number;
+        } | null;
+        error: { message?: string } | null;
+      };
 
       if (error) {
         logger.error("Edge Function error", "api", error);
