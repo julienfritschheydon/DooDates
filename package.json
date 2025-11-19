@@ -66,7 +66,11 @@
     "supabase:lint:check": "npx supabase db lint --linked --level error",
     "supabase:lint:local": "npx supabase db lint",
     "supabase:lint:local:check": "npx supabase db lint --level error",
-    "supabase:apply-fixes": "pwsh scripts/apply-sql-fixes.ps1"
+    "supabase:apply-fixes": "pwsh scripts/apply-sql-fixes.ps1",
+    "changeset": "changeset",
+    "changeset:add": "changeset add",
+    "changeset:version": "changeset version",
+    "changeset:release": "changeset release"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -140,6 +144,7 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.7",
     "@eslint/js": "^9.9.0",
     "@playwright/test": "^1.53.1",
     "@tailwindcss/typography": "^0.5.15",

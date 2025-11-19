@@ -111,7 +111,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">1</span>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Créez votre sondage avec l'IA</h3>
+              <h3 className="text-xl font-semibold text-white mb-3">
+                Créez votre sondage avec l'IA
+              </h3>
               <p className="text-gray-400">
                 Décrivez simplement votre besoin en langage naturel. L'IA génère pour vous les
                 questions, les types de sondages (dates, formulaires, disponibilités) et la logique
@@ -122,7 +124,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">2</span>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Testez et partagez en quelques clics</h3>
+              <h3 className="text-xl font-semibold text-white mb-3">
+                Testez et partagez en quelques clics
+              </h3>
               <p className="text-gray-400">
                 Prévisualisez le sondage comme vos participants le verront, laissez l'IA suggérer
                 des améliorations, puis partagez le lien en un clic.
@@ -132,7 +136,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">3</span>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Analysez les réponses avec l'IA</h3>
+              <h3 className="text-xl font-semibold text-white mb-3">
+                Analysez les réponses avec l'IA
+              </h3>
               <p className="text-gray-400">
                 L'IA met en avant les tendances, détecte les points importants et vous aide à
                 choisir rapidement le meilleur créneau ou la meilleure décision.
