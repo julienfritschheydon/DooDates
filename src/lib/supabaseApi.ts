@@ -264,6 +264,60 @@ export async function supabaseSelect<T = Record<string, unknown>>(
 }
 
 /**
+ * Get single row from Supabase table (equivalent to .single())
+ * Throws error if not found or multiple rows
+ */
+export async function supabaseSelectSingle<T = Record<string, unknown>>(
+  table: string,
+  query: Record<string, string>,
+  options: { timeout?: number } = {},
+): Promise<T> {
+  const queryWithSingle = {
+    ...query,
+    limit: "1",
+  };
+  const results = await supabaseRestApi<T[]>(table, "GET", {
+    query: queryWithSingle,
+    timeout: options.timeout,
+  });
+
+  if (!results || results.length === 0) {
+    throw ErrorFactory.validation("No row found", "Aucune ligne trouvée");
+  }
+  if (results.length > 1) {
+    throw ErrorFactory.validation("Multiple rows found", "Plusieurs lignes trouvées");
+  }
+  return results[0];
+}
+
+/**
+ * Get single row from Supabase table (equivalent to .maybeSingle())
+ * Returns null if not found, throws error if multiple rows
+ */
+export async function supabaseSelectMaybeSingle<T = Record<string, unknown>>(
+  table: string,
+  query: Record<string, string>,
+  options: { timeout?: number } = {},
+): Promise<T | null> {
+  const queryWithSingle = {
+    ...query,
+    limit: "1",
+  };
+  const results = await supabaseRestApi<T[]>(table, "GET", {
+    query: queryWithSingle,
+    timeout: options.timeout,
+  });
+
+  if (!results || results.length === 0) {
+    return null;
+  }
+  if (results.length > 1) {
+    throw ErrorFactory.validation("Multiple rows found", "Plusieurs lignes trouvées");
+  }
+  return results[0];
+}
+
+/**
  * Call Supabase Edge Function
  * Uses session from localStorage or getSession() with timeout
  *
@@ -347,6 +401,104 @@ export async function callSupabaseEdgeFunction<T = Record<string, unknown>>(
   const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(() => {
       reject(new Error(`Edge Function timeout after ${timeout}ms`));
+    }, timeout);
+  });
+
+  // Execute with timeout
+  return await Promise.race([fetchPromise, timeoutPromise]);
+}
+
+/**
+ * Call Supabase RPC function
+ * Uses session from localStorage or getSession() with timeout
+ *
+ * @param functionName - Name of the RPC function (e.g., "generate_beta_key")
+ * @param params - Parameters to pass to the RPC function
+ * @param options - Request options
+ * @returns Response data from RPC function
+ */
+export async function supabaseRpc<T = Record<string, unknown>>(
+  functionName: string,
+  params: Record<string, unknown> = {},
+  options: {
+    timeout?: number;
+    requireAuth?: boolean;
+  } = {},
+): Promise<T> {
+  const { timeout = 10000, requireAuth = true } = options;
+
+  // Get session (with timeout fallback)
+  const session = await getSupabaseSessionWithTimeout(500);
+  if (requireAuth && !session?.access_token) {
+    throw ErrorFactory.auth("No authentication token found", "Please sign in to continue");
+  }
+
+  // Build URL
+  const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!baseUrl || !anonKey) {
+    throw ErrorFactory.validation("Supabase configuration missing", "System configuration error");
+  }
+
+  const rpcUrl = `${baseUrl}/rest/v1/rpc/${functionName}`;
+
+  // Build headers
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    apikey: anonKey,
+    Prefer: "return=representation",
+  };
+
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`;
+  }
+
+  // Create fetch promise
+  const fetchPromise = fetch(rpcUrl, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(params),
+  }).then(async (res) => {
+    let data: T;
+    try {
+      const text = await res.text();
+      if (!text) {
+        return null as T;
+      }
+      data = JSON.parse(text) as T;
+    } catch (parseError) {
+      logger.error("Failed to parse RPC response", "api", parseError);
+      throw ErrorFactory.validation(
+        "Invalid response from RPC function",
+        "Réponse invalide de la fonction RPC",
+      );
+    }
+
+    if (!res.ok) {
+      logger.error(`RPC error (${functionName})`, "api", {
+        status: res.status,
+        statusText: res.statusText,
+        error: data,
+      });
+
+      const errorMessage =
+        (data as { error?: string; message?: string })?.error ||
+        (data as { error?: string; message?: string })?.message ||
+        res.statusText;
+      throw ErrorFactory.network(
+        `RPC error: ${res.status} ${errorMessage}`,
+        errorMessage || "Unable to complete the operation. Please try again.",
+      );
+    }
+
+    return data;
+  });
+
+  // Add timeout
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`RPC timeout after ${timeout}ms`));
     }, timeout);
   });
 

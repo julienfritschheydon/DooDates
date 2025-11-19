@@ -6,7 +6,10 @@
  */
 
 import { test as base, expect } from '@playwright/test';
-import { setupGeminiMock } from './global-setup';
+import { Page } from '@playwright/test';
+import { setupGeminiMock, setupAllMocksWithoutNavigation } from './global-setup';
+import { navigateToWorkspace } from './helpers/chat-helpers';
+import { authenticateUser } from './helpers/auth-helpers';
 
 export interface Poll {
   id: string;
@@ -18,6 +21,15 @@ export interface Poll {
 interface TestFixtures {
   // Page avec Gemini mock configuré
   mockedPage: any;
+  
+  // Page avec tous les mocks configurés
+  mockedPageFull: Page;
+  
+  // Page authentifiée avec utilisateur mock
+  authenticatedPage: Page;
+  
+  // Page naviguée vers workspace avec chat prêt
+  workspacePage: Page;
   
   // Poll basique (actif)
   activePoll: Poll;
@@ -67,8 +79,8 @@ async function createPollQuick(page: any): Promise<Poll> {
     }
   }
   
-  // Finaliser
-  const finalizeButton = page.locator('button:has-text("Finaliser")');
+  // Finaliser (le bouton s'appelle "Publier le formulaire" dans FormEditor)
+  const finalizeButton = page.getByRole('button', { name: /publier le formulaire/i });
   await expect(finalizeButton).toBeVisible({ timeout: 5000 });
   await finalizeButton.click();
   
@@ -142,6 +154,29 @@ export const test = base.extend<TestFixtures>({
   // Page avec Gemini mock
   mockedPage: async ({ page }, use) => {
     await setupGeminiMock(page);
+    await use(page);
+  },
+  
+  // Page avec tous les mocks configurés
+  mockedPageFull: async ({ page, browserName }, use) => {
+    await setupAllMocksWithoutNavigation(page);
+    await use(page);
+  },
+  
+  // Page authentifiée avec utilisateur mock
+  authenticatedPage: async ({ page, browserName }, use) => {
+    await setupAllMocksWithoutNavigation(page);
+    await authenticateUser(page, browserName, {
+      reload: true,
+      waitForReady: true,
+    });
+    await use(page);
+  },
+  
+  // Page naviguée vers workspace avec chat prêt
+  workspacePage: async ({ page, browserName }, use) => {
+    await setupAllMocksWithoutNavigation(page);
+    await navigateToWorkspace(page, browserName);
     await use(page);
   },
   

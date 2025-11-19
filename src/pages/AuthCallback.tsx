@@ -11,137 +11,133 @@ export default function AuthCallback() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleCallback = async () => {
+    // Récupérer l'URL de redirection UNE SEULE FOIS au début
+    // et la sauvegarder dans une variable pour éviter de la perdre
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const queryParams = new URLSearchParams(window.location.search);
+
+    const returnToFromQuery = queryParams.get("returnTo");
+    const returnToFromHash = hashParams.get("returnTo");
+    const returnToFromStorage = localStorage.getItem("auth_return_to");
+
+    // Sauvegarder la valeur AVANT de la supprimer
+    const returnTo = returnToFromQuery || returnToFromHash || returnToFromStorage || "/dashboard";
+
+    // Supprimer auth_return_to UNE SEULE FOIS après l'avoir récupéré
+    if (returnToFromStorage) {
+      localStorage.removeItem("auth_return_to");
+    }
+
+    // Fonction helper pour récupérer l'URL de redirection (utilise la valeur sauvegardée)
+    const getReturnTo = () => returnTo;
+
+    // Vérifier s'il y a une erreur dans les paramètres
+    const error = hashParams.get("error") || queryParams.get("error");
+    const errorDescription =
+      hashParams.get("error_description") || queryParams.get("error_description");
+
+    if (error) {
+      logger.error("Erreur OAuth callback", "auth", { error, errorDescription });
+      setStatus("error");
+      setErrorMessage(errorDescription || error || "Erreur lors de la connexion");
+      return;
+    }
+
+    // Flag pour éviter les redirections multiples
+    let redirectHandled = false;
+
+    // Fonction helper pour rediriger
+    const handleRedirect = () => {
+      if (redirectHandled) {
+        return;
+      }
+      redirectHandled = true;
+
+      // Nettoyer le hash de l'URL
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+
+      // Attendre un peu pour que AuthContext détecte la session
+      setTimeout(() => {
+        navigate(getReturnTo(), { replace: true });
+      }, 500);
+    };
+
+    // Écouter les changements d'authentification avec onAuthStateChange
+    // Supabase avec detectSessionInUrl: true traite automatiquement le hash de l'URL
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session && !redirectHandled) {
+        setStatus("success");
+        handleRedirect();
+      } else if (event === "SIGNED_OUT") {
+        setStatus("error");
+        setErrorMessage("La connexion a échoué. Veuillez réessayer.");
+      } else if (event === "TOKEN_REFRESHED" && session && !redirectHandled) {
+        setStatus("success");
+        handleRedirect();
+      }
+    });
+
+    // Vérifier immédiatement la session au cas où Supabase l'aurait déjà traitée
+    const checkSession = async () => {
       try {
-        logger.info("Traitement du callback OAuth", "auth");
-
-        // Récupérer le hash de l'URL (Supabase utilise le hash pour les callbacks OAuth)
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const queryParams = new URLSearchParams(window.location.search);
-
-        // Vérifier s'il y a une erreur dans les paramètres
-        const error = hashParams.get("error") || queryParams.get("error");
-        const errorDescription =
-          hashParams.get("error_description") || queryParams.get("error_description");
-        const errorCode = queryParams.get("error_code");
-
-        if (error) {
-          logger.error("Erreur OAuth callback", "auth", { error, errorDescription, errorCode });
-
-          // Décoder l'erreur si elle est encodée
-          let decodedError = errorDescription;
-          try {
-            decodedError = decodeURIComponent(errorDescription || error);
-          } catch {
-            decodedError = errorDescription || error;
-          }
-
-          setStatus("error");
-
-          // Message d'erreur spécifique pour "Unable to exchange external code"
-          if (
-            decodedError.includes("Unable to exchange external code") ||
-            errorCode === "unexpected_failure"
-          ) {
-            setErrorMessage(
-              "Erreur lors de l'échange du code OAuth. Vérifiez que le Client Secret dans Supabase correspond au Client ID utilisé.",
-            );
-          } else {
-            setErrorMessage(decodedError || error || "Erreur lors de la connexion");
-          }
-          return;
-        }
-
-        // Écouter les changements d'authentification avec onAuthStateChange
-        // Cela permet de capturer l'échange du code automatiquement
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (event, session) => {
-          logger.info("Changement d'état auth détecté", "auth", { event });
-
-          if (event === "SIGNED_IN" && session) {
-            logger.info("Session OAuth récupérée avec succès", "auth", { userId: session.user.id });
-            setStatus("success");
-
-            // Rediriger vers le dashboard après un court délai
-            setTimeout(() => {
-              navigate("/dashboard", { replace: true });
-            }, 1500);
-          } else if (event === "SIGNED_OUT") {
-            logger.warn("Utilisateur déconnecté pendant le callback", "auth");
-            setStatus("error");
-            setErrorMessage("La connexion a échoué. Veuillez réessayer.");
-          }
-        });
-
-        // Essayer aussi getSession() immédiatement au cas où la session serait déjà disponible
         const {
           data: { session },
-          error: sessionError,
+          error,
         } = await supabase.auth.getSession();
-
-        if (sessionError) {
-          logger.error("Erreur lors de la récupération de la session", "auth", sessionError);
-
-          // Si l'erreur contient "exchange", c'est un problème de configuration Supabase
-          if (
-            sessionError.message?.includes("exchange") ||
-            sessionError.message?.includes("code")
-          ) {
-            setStatus("error");
-            setErrorMessage(
-              "Erreur lors de l'échange du code OAuth. Vérifiez que le Client Secret dans Supabase correspond au Client ID utilisé.",
-            );
-          } else {
-            // Attendre un peu pour voir si onAuthStateChange déclenche
-            setTimeout(() => {
-              if (status === "loading") {
-                setStatus("error");
-                setErrorMessage(
-                  sessionError.message || "Erreur lors de la récupération de la session",
-                );
-              }
-            }, 2000);
-          }
+        if (error) {
           return;
         }
-
-        if (session) {
-          logger.info("Session OAuth récupérée immédiatement", "auth", { userId: session.user.id });
+        if (session && !redirectHandled) {
           setStatus("success");
-
-          setTimeout(() => {
-            navigate("/dashboard", { replace: true });
-          }, 1500);
-        } else {
-          // Attendre que onAuthStateChange se déclenche
-          logger.info("Aucune session immédiate, attente du callback Supabase...", "auth");
-
-          // Timeout de sécurité après 5 secondes
-          setTimeout(() => {
-            if (status === "loading") {
-              logger.warn("Timeout: aucune session après 5 secondes", "auth");
-              setStatus("error");
-              setErrorMessage(
-                "La connexion prend trop de temps. Vérifiez votre configuration Supabase (Client Secret).",
-              );
-            }
-          }, 5000);
+          handleRedirect();
         }
-
-        // Nettoyer l'abonnement au démontage
-        return () => {
-          subscription.unsubscribe();
-        };
       } catch (err) {
-        logger.error("Exception lors du traitement du callback", "auth", err);
-        setStatus("error");
-        setErrorMessage(err instanceof Error ? err.message : "Erreur inconnue");
+        logger.error("Exception lors de la vérification de session", "auth", err);
       }
     };
 
-    handleCallback();
-  }, [navigate, status]);
+    // Vérifier immédiatement
+    checkSession();
+
+    // Polling pour vérifier périodiquement si la session est disponible
+    // (au cas où Supabase traiterait le hash de manière asynchrone)
+    let checkAttempts = 0;
+    const maxAttempts = 20; // 20 tentatives × 500ms = 10 secondes max
+    const checkInterval = setInterval(() => {
+      if (redirectHandled) {
+        clearInterval(checkInterval);
+        return;
+      }
+
+      checkAttempts++;
+      checkSession();
+
+      if (checkAttempts >= maxAttempts) {
+        clearInterval(checkInterval);
+        if (!redirectHandled) {
+          // Rediriger quand même (l'utilisateur pourra se reconnecter si nécessaire)
+          handleRedirect();
+        }
+      }
+    }, 500);
+
+    // Timeout de sécurité : si après 10 secondes rien ne s'est passé, rediriger quand même
+    const safetyTimeout = setTimeout(() => {
+      if (!redirectHandled) {
+        clearInterval(checkInterval);
+        handleRedirect();
+      }
+    }, 10000);
+
+    // Nettoyer l'abonnement et les timeouts au démontage
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(checkInterval);
+      clearTimeout(safetyTimeout);
+    };
+  }, [navigate]);
 
   return (
     <div className="container mx-auto p-8 flex items-center justify-center min-h-screen">

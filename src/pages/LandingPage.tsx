@@ -73,88 +73,31 @@ export default function LandingPage() {
             </p>
           </div>
           <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-            Créez des sondages de dates et des formulaires en quelques clics. Avec ou sans IA.
+            Créez des sondages de dates, des formulaires ou des disponibilités en quelques clics.
+            L'IA est toujours disponible pour vous aider.
           </p>
-          <Link
-            to="/create"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 transition-colors font-semibold text-lg shadow-lg"
-          >
-            Créer un DooDates
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
-      </section>
-
-      {/* Nouveauté Section */}
-      <section className="bg-gradient-to-r from-green-500/10 via-green-500/5 to-green-500/10 py-16 border-y border-green-500/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <span className="px-3 py-1 text-sm font-semibold text-green-400 bg-green-400/10 border border-green-400/20 rounded-full">
-              Nouveauté
-            </span>
-            <Clock className="w-5 h-5 text-green-400" />
-          </div>
-          <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Sondage Disponibilités : La planification inversée
-            </h2>
-            <p className="text-lg text-gray-300 mb-6">
-              Vos clients indiquent leurs disponibilités en langage naturel. Vous recevez
-              automatiquement les créneaux optimaux pour proposer des rendez-vous.
-            </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/create/availability"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-semibold"
+              to="/workspace/date"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-colors font-semibold text-lg shadow-lg"
             >
-              Découvrir
-              <ArrowRight className="w-4 h-4" />
+              Créer un sondage
+              <ArrowRight className="w-5 h-5" />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section - 5 types */}
-      <section className="bg-[#1a1a1a] py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">
-            Tous les outils dont vous avez besoin
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
-            <div className="bg-[#1e1e1e] border border-gray-800 p-6 rounded-lg text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Bot className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Dates avec IA</h3>
-              <p className="text-sm text-gray-400">Création conversationnelle</p>
-            </div>
-            <div className="bg-[#1e1e1e] border border-gray-800 p-6 rounded-lg text-center">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Calendar className="w-6 h-6 text-blue-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Dates manuelle</h3>
-              <p className="text-sm text-gray-400">Sélection calendrier</p>
-            </div>
-            <div className="bg-[#1e1e1e] border border-gray-800 p-6 rounded-lg text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Formulaire avec IA</h3>
-              <p className="text-sm text-gray-400">Génération automatique</p>
-            </div>
-            <div className="bg-[#1e1e1e] border border-gray-800 p-6 rounded-lg text-center">
-              <div className="w-12 h-12 bg-violet-500/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Check className="w-6 h-6 text-violet-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Formulaire manuel</h3>
-              <p className="text-sm text-gray-400">Questions personnalisées</p>
-            </div>
-            <div className="bg-[#1e1e1e] border border-gray-800 p-6 rounded-lg text-center">
-              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                <Clock className="w-6 h-6 text-green-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Disponibilités</h3>
-              <p className="text-sm text-gray-400">Planification inversée</p>
-            </div>
+            <Link
+              to="/workspace/form"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-lg hover:from-violet-600 hover:to-violet-700 transition-colors font-semibold text-lg shadow-lg"
+            >
+              Créer un formulaire
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
+              to="/workspace/availability"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors font-semibold text-lg shadow-lg"
+            >
+              Créer une disponibilité
+              <ArrowRight className="w-5 h-5" />
+            </Link>
           </div>
         </div>
       </section>
@@ -170,7 +113,8 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold text-white mb-3">Créez votre sondage</h3>
               <p className="text-gray-400">
-                Décrivez ce que vous voulez en langage naturel ou utilisez notre interface manuelle.
+                Choisissez le type de création qui vous convient. L'IA est toujours disponible pour
+                vous aider.
               </p>
             </div>
             <div className="text-center">
@@ -253,58 +197,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Preuve sociale */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Rejoignez les équipes qui nous font confiance
-            </h2>
-            <div className="flex items-center justify-center gap-8 text-4xl font-bold">
-              <div className="text-center">
-                <div className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">
-                  10K+
-                </div>
-                <div className="text-sm text-gray-400 font-normal mt-2">Sondages créés</div>
-              </div>
-              <div className="text-gray-600">•</div>
-              <div className="text-center">
-                <div className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">
-                  5K+
-                </div>
-                <div className="text-sm text-gray-400 font-normal mt-2">Utilisateurs actifs</div>
-              </div>
-              <div className="text-gray-600">•</div>
-              <div className="text-center">
-                <div className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">
-                  98%
-                </div>
-                <div className="text-sm text-gray-400 font-normal mt-2">Satisfaction</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-purple-500/10 py-20 border-y border-purple-500/20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Prêt à simplifier votre planification ?
-          </h2>
-          <p className="text-xl text-gray-400 mb-8">
-            Créez votre premier sondage en moins d'une minute.
-          </p>
-          <Link
-            to="/create"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 transition-colors font-semibold text-lg shadow-lg"
-          >
-            Commencer gratuitement
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="border-t border-gray-800 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -320,7 +212,7 @@ export default function LandingPage() {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    to="/create"
+                    to="/workspace/date"
                     className="text-sm text-gray-400 hover:text-white transition-colors"
                   >
                     Créer un sondage

@@ -4,7 +4,8 @@
 
 import { logger } from "@/lib/logger";
 
-// Formater la date de façon ultra-simple (éviter les décalages timezone)
+// Formater la date au format complet uniforme : "Samedi 15 novembre 2025"
+// Format standardisé pour l'affichage des dates dans toute l'application
 export const formatDate = (dateString: string) => {
   // Parser la date en mode local pour éviter les décalages timezone
   const [year, month, day] = dateString.split("-").map(Number);
@@ -22,10 +23,12 @@ export const formatDate = (dateString: string) => {
   if (dateOnly.getTime() === todayOnly.getTime()) return "Aujourd'hui";
   if (dateOnly.getTime() === tomorrowOnly.getTime()) return "Demain";
 
+  // Format uniforme : "Samedi 15 novembre 2025"
   return date.toLocaleDateString("fr-FR", {
     weekday: "long",
+    year: "numeric",
+    month: "long",
     day: "numeric",
-    month: "short",
   });
 };
 

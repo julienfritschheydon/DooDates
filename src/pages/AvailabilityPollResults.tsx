@@ -1,14 +1,26 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getPollBySlugOrId, savePolls, getAllPolls } from "@/lib/pollStorage";
+import { getPollBySlugOrId, savePolls, getAllPolls, type Poll } from "@/lib/pollStorage";
 import { logger } from "@/lib/logger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Calendar, Clock, CheckCircle2, X, Send, Loader2, Sparkles, Zap } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  CheckCircle2,
+  X,
+  Send,
+  Loader2,
+  Sparkles,
+  Zap,
+  ExternalLink,
+  CheckCircle,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { optimizeSchedule, type ProposedSlot } from "@/services/schedulingOptimizer";
 import { GoogleCalendarService } from "@/lib/google-calendar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,23 +40,37 @@ const AvailabilityPollResults = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [poll, setPoll] = useState<import("../types/poll").Poll | null>(null);
+  const [poll, setPoll] = useState<Poll | null>(null);
   const [proposedSlots, setProposedSlots] = useState<
-    Array<{ date: string; start: string; end: string }>
+    Array<{ date: string; start: string; end: string; score?: number; reasons?: string[] }>
   >([]);
+  const [selectedSlots, setSelectedSlots] = useState<Set<number>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [optimizedSlots, setOptimizedSlots] = useState<ProposedSlot[]>([]);
   const { user } = useAuth();
   const calendarService = useMemo(() => (user ? new GoogleCalendarService() : undefined), [user]);
 
-  useEffect(() => {
+  // Fonction pour charger le poll
+  const loadPoll = () => {
     if (!slug) return;
     const foundPoll = getPollBySlugOrId(slug);
     setPoll(foundPoll);
     if (foundPoll?.proposedSlots) {
       setProposedSlots(foundPoll.proposedSlots);
+      // Sélectionner tous les créneaux par défaut
+      setSelectedSlots(new Set(foundPoll.proposedSlots.map((_, index) => index)));
     }
+  };
+
+  useEffect(() => {
+    loadPoll();
+    // Rafraîchir le poll toutes les 5 secondes pour voir les validations en temps réel
+    const interval = setInterval(() => {
+      loadPoll();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [slug]);
 
   // Optimisation automatique si disponibilités parsées disponibles
@@ -77,6 +103,8 @@ const AvailabilityPollResults = () => {
             reasons: slot.reasons,
           }));
           setProposedSlots(autoProposed);
+          // Sélectionner tous les créneaux optimisés par défaut
+          setSelectedSlots(new Set(autoProposed.map((_, index) => index)));
         }
       } catch (error) {
         logger.warn("Erreur lors de l'optimisation automatique", "poll", error);
@@ -161,25 +189,58 @@ const AvailabilityPollResults = () => {
     setProposedSlots(proposedSlots.filter((_, i) => i !== index));
   };
 
+  const handleToggleSlotSelection = (index: number) => {
+    const newSelected = new Set(selectedSlots);
+    if (newSelected.has(index)) {
+      newSelected.delete(index);
+    } else {
+      newSelected.add(index);
+    }
+    setSelectedSlots(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedSlots.size === proposedSlots.length) {
+      setSelectedSlots(new Set());
+    } else {
+      setSelectedSlots(new Set(proposedSlots.map((_, index) => index)));
+    }
+  };
+
   const handleSaveProposedSlots = async () => {
+    if (selectedSlots.size === 0) {
+      toast({
+        title: "Aucun créneau sélectionné",
+        description: "Veuillez sélectionner au moins un créneau à proposer au client.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
+      // Sauvegarder uniquement les créneaux sélectionnés
+      const slotsToSave = proposedSlots.filter((_, index) => selectedSlots.has(index));
+
       const allPolls = getAllPolls();
       const pollIndex = allPolls.findIndex((p) => p.id === poll.id);
 
       if (pollIndex !== -1) {
         allPolls[pollIndex] = {
           ...allPolls[pollIndex],
-          proposedSlots: proposedSlots.length > 0 ? proposedSlots : undefined,
+          proposedSlots: slotsToSave.length > 0 ? slotsToSave : undefined,
           updated_at: new Date().toISOString(),
         };
         savePolls(allPolls);
         setPoll(allPolls[pollIndex]);
+        // Mettre à jour les créneaux proposés et la sélection
+        setProposedSlots(slotsToSave);
+        setSelectedSlots(new Set(slotsToSave.map((_, index) => index)));
       }
 
       toast({
         title: "Créneaux proposés sauvegardés",
-        description: `${proposedSlots.length} créneau(x) proposé(s) au client.`,
+        description: `${slotsToSave.length} créneau(x) proposé(s) au client. Le client peut maintenant les voir via le lien de vote.`,
       });
     } catch (error) {
       toast({
@@ -208,15 +269,25 @@ const AvailabilityPollResults = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-8">
-      {/* Bouton retour */}
-      <button
-        onClick={() => navigate("/dashboard")}
-        className="fixed top-20 right-4 z-50 p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
-        title="Retour"
-        aria-label="Retour"
-      >
-        <X className="w-6 h-6" />
-      </button>
+      {/* Boutons actions */}
+      <div className="fixed top-20 right-4 z-50 flex gap-2">
+        <button
+          onClick={loadPoll}
+          className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
+          title="Rafraîchir"
+          aria-label="Rafraîchir"
+        >
+          <Loader2 className="w-6 h-6" />
+        </button>
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="p-2 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white rounded-lg transition-colors border border-gray-700"
+          title="Retour"
+          aria-label="Retour"
+        >
+          <X className="w-6 h-6" />
+        </button>
+      </div>
 
       <div className="pt-20">
         <div className="max-w-4xl mx-auto p-4 sm:p-6">
@@ -306,6 +377,77 @@ const AvailabilityPollResults = () => {
             </Card>
           )}
 
+          {/* Créneau validé par le client */}
+          {poll.validatedSlot && (
+            <Card className="bg-[#1e1e1e] border-green-600/50 mb-6">
+              <CardHeader>
+                <CardTitle className="text-xl text-white flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  Créneau confirmé par le client
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-green-500/10 border border-green-600/30 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calendar className="w-5 h-5 text-green-400" />
+                    <span className="text-white font-semibold">
+                      {new Date(`${poll.validatedSlot.date}T00:00:00`).toLocaleDateString("fr-FR", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Clock className="w-5 h-5 text-green-400" />
+                    <span className="text-green-300 font-mono text-lg">
+                      {poll.validatedSlot.start} - {poll.validatedSlot.end}
+                    </span>
+                  </div>
+                  <Alert className="bg-blue-500/10 border-blue-600/30">
+                    <AlertDescription className="text-blue-300 text-sm">
+                      ✅ L'événement a été créé automatiquement dans votre calendrier Google
+                      Calendar.
+                    </AlertDescription>
+                  </Alert>
+                  <div className="mt-4 flex gap-2">
+                    <Button
+                      onClick={() => {
+                        const startDate = new Date(
+                          `${poll.validatedSlot.date}T${poll.validatedSlot.start}:00`,
+                        );
+                        const endDate = new Date(
+                          `${poll.validatedSlot.date}T${poll.validatedSlot.end}:00`,
+                        );
+                        // Ouvrir Google Calendar à la date du rendez-vous
+                        const dateStr = startDate.toISOString().split("T")[0].replace(/-/g, "");
+                        window.open(
+                          `https://calendar.google.com/calendar/render?action=TEMPLATE&dates=${dateStr}T${poll.validatedSlot.start.replace(":", "")}00Z/${dateStr}T${poll.validatedSlot.end.replace(":", "")}00Z&text=${encodeURIComponent(poll.title || "Rendez-vous")}`,
+                          "_blank",
+                        );
+                      }}
+                      variant="outline"
+                      className="border-green-600 text-green-400 hover:bg-green-600/20"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Ajouter à Google Calendar
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        window.open("https://calendar.google.com/calendar/u/0/r", "_blank");
+                      }}
+                      variant="outline"
+                      className="border-blue-600 text-blue-400 hover:bg-blue-600/20"
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Ouvrir mon calendrier
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Créneaux proposés */}
           <Card className="bg-[#1e1e1e] border-gray-700">
             <CardHeader>
@@ -343,6 +485,8 @@ const AvailabilityPollResults = () => {
                               reasons: slot.reasons,
                             }));
                             setProposedSlots(autoProposed);
+                            // Sélectionner tous les créneaux optimisés par défaut
+                            setSelectedSlots(new Set(autoProposed.map((_, index) => index)));
                             toast({
                               title: "Optimisation terminée",
                               description: `${optimized.length} créneau(x) optimal(x) trouvé(s).`,
@@ -398,8 +542,46 @@ const AvailabilityPollResults = () => {
                 </Alert>
               ) : (
                 <>
+                  {/* Sélection multiple */}
+                  {proposedSlots.length > 1 && (
+                    <div className="flex items-center justify-between p-3 bg-[#0a0a0a] border border-gray-700 rounded-lg mb-2">
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          checked={selectedSlots.size === proposedSlots.length}
+                          onCheckedChange={handleSelectAll}
+                          id="select-all"
+                        />
+                        <Label htmlFor="select-all" className="text-gray-300 cursor-pointer">
+                          Tout sélectionner ({selectedSlots.size}/{proposedSlots.length})
+                        </Label>
+                      </div>
+                      <span className="text-sm text-gray-400">
+                        {selectedSlots.size} créneau{selectedSlots.size > 1 ? "x" : ""} sélectionné
+                        {selectedSlots.size > 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  )}
                   {proposedSlots.map((slot, index) => (
-                    <div key={index} className="p-4 bg-[#0a0a0a] border border-gray-700 rounded-lg">
+                    <div
+                      key={index}
+                      className={`p-4 border rounded-lg transition-colors ${
+                        selectedSlots.has(index)
+                          ? "bg-[#0a0a0a] border-green-600/50"
+                          : "bg-[#0a0a0a] border-gray-700 opacity-60"
+                      }`}
+                    >
+                      {/* Checkbox de sélection */}
+                      <div className="flex items-start gap-3 mb-4">
+                        <Checkbox
+                          checked={selectedSlots.has(index)}
+                          onCheckedChange={() => handleToggleSlotSelection(index)}
+                          id={`slot-${index}`}
+                          className="mt-1"
+                        />
+                        <Label htmlFor={`slot-${index}`} className="flex-1 cursor-pointer">
+                          <span className="text-white font-medium">Créneau {index + 1}</span>
+                        </Label>
+                      </div>
                       {/* Affichage score et raisons si disponibles */}
                       {(slot.score !== undefined || slot.reasons) && (
                         <div className="mb-4 pb-4 border-b border-gray-700">
@@ -468,8 +650,8 @@ const AvailabilityPollResults = () => {
                   ))}
                   <Button
                     onClick={handleSaveProposedSlots}
-                    disabled={isSaving}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    disabled={isSaving || selectedSlots.size === 0}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSaving ? (
                       <>
@@ -479,10 +661,17 @@ const AvailabilityPollResults = () => {
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        Sauvegarder les créneaux proposés
+                        Sauvegarder {selectedSlots.size > 0 ? `${selectedSlots.size} ` : ""}créneau
+                        {selectedSlots.size > 1 ? "x" : ""} sélectionné
+                        {selectedSlots.size > 1 ? "s" : ""}
                       </>
                     )}
                   </Button>
+                  {selectedSlots.size === 0 && proposedSlots.length > 0 && (
+                    <p className="text-sm text-yellow-400 text-center mt-2">
+                      ⚠️ Veuillez sélectionner au moins un créneau à proposer au client
+                    </p>
+                  )}
                 </>
               )}
             </CardContent>
@@ -491,8 +680,9 @@ const AvailabilityPollResults = () => {
           {/* Note Version actuelle */}
           <Alert className="mt-6">
             <AlertDescription className="text-sm text-green-300">
-              ✅ <strong>Optimisation automatique active</strong> : Si votre calendrier Google Calendar est connecté, 
-              le système propose automatiquement les créneaux optimaux. Sinon, vous pouvez proposer manuellement les créneaux.
+              ✅ <strong>Optimisation automatique active</strong> : Si votre calendrier Google
+              Calendar est connecté, le système propose automatiquement les créneaux optimaux.
+              Sinon, vous pouvez proposer manuellement les créneaux.
             </AlertDescription>
           </Alert>
         </div>

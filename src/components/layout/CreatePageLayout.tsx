@@ -9,6 +9,7 @@ import { getConversations } from "../../lib/storage/ConversationStorageSimple";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../hooks/use-toast";
 import { logger } from "../../lib/logger";
+import { AuthModal } from "../modals/AuthModal";
 
 // Lazy load des icônes
 const X = createLazyIcon("X");
@@ -16,6 +17,7 @@ const Plus = createLazyIcon("Plus");
 const Menu = createLazyIcon("Menu");
 const Calendar = createLazyIcon("Calendar");
 const ClipboardList = createLazyIcon("ClipboardList");
+const Clock = createLazyIcon("Clock");
 const FileText = createLazyIcon("FileText");
 const MessageSquare = createLazyIcon("MessageSquare");
 const Sparkles = createLazyIcon("Sparkles");
@@ -29,15 +31,19 @@ const Book = createLazyIcon("Book");
 // Wrapper pour icônes lazy avec Suspense
 const LazyIconWrapper = ({
   Icon,
+  className,
   ...props
 }: {
-  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  [key: string]: unknown;
-}) => (
-  <Suspense fallback={<span className={props.className || "w-5 h-5"} />}>
-    <Icon {...props} />
-  </Suspense>
-);
+  Icon: React.LazyExoticComponent<React.ComponentType<React.SVGProps<SVGSVGElement>>>;
+  className?: string;
+} & Omit<React.SVGProps<SVGSVGElement>, "ref">) => {
+  const IconComponent = Icon as React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  return (
+    <Suspense fallback={<span className={className || "w-5 h-5"} />}>
+      <IconComponent className={className} {...props} />
+    </Suspense>
+  );
+};
 
 interface CreatePageLayoutProps {
   children: React.ReactNode;
@@ -45,13 +51,14 @@ interface CreatePageLayoutProps {
 
 /**
  * Layout pour les pages de création avec sidebar
- * Utilise le même style de sidebar que WorkspaceLayoutPrototype
+ * Utilise le même style de sidebar que AICreationWorkspace
  */
 export function CreatePageLayout({ children }: CreatePageLayoutProps) {
   const navigate = useNavigate();
   const { isMobile, isSidebarOpen, setIsSidebarOpen } = useUIState();
   const { user, profile, signOut } = useAuth();
-  const { toast } = useToast();
+  const { toast: showToast } = useToast();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
   const [conversations, setConversations] = useState<ReturnType<typeof getConversations>>([]);
@@ -147,26 +154,38 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
         {isSidebarOpen && (
           <>
             <div className="px-4 pb-4 space-y-2">
+              {/* Phase 0: Trois boutons distincts pour les trois types de création */}
               <button
                 onClick={() => {
-                  navigate("/create");
+                  navigate("/workspace/date");
                   if (isMobile) setIsSidebarOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg transition-colors font-medium"
+                className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg transition-colors font-medium"
               >
-                <LazyIconWrapper Icon={Plus} className="w-5 h-5" />
+                <LazyIconWrapper Icon={Calendar} className="w-5 h-5" />
                 <span>Créer un sondage</span>
               </button>
 
               <button
                 onClick={() => {
-                  navigate(`/workspace?new=${Date.now()}`);
+                  navigate("/workspace/form");
                   if (isMobile) setIsSidebarOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
+                className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 rounded-lg transition-colors font-medium"
               >
-                <LazyIconWrapper Icon={Sparkles} className="w-5 h-5" />
-                <span>Nouveau chat IA</span>
+                <LazyIconWrapper Icon={ClipboardList} className="w-5 h-5" />
+                <span>Créer un formulaire</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  navigate("/workspace/availability");
+                  if (isMobile) setIsSidebarOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-lg transition-colors font-medium"
+              >
+                <LazyIconWrapper Icon={Clock} className="w-5 h-5" />
+                <span>Créer une disponibilité</span>
               </button>
 
               <button
@@ -229,7 +248,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
                       <button
                         key={conv.id}
                         onClick={() => {
-                          navigate(`/workspace?resume=${conv.id}`);
+                          navigate(`/workspace?conversationId=${conv.id}`);
                           if (isMobile) setIsSidebarOpen(false);
                         }}
                         className="w-full flex items-start gap-3 p-3 hover:bg-[#2a2a2a] rounded-lg transition-colors text-left mb-1"
@@ -306,7 +325,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
-                    toast({
+                    showToast({
                       title: "Paramètres",
                       description: "Page en cours de développement",
                     });
@@ -339,6 +358,15 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
                   <p className="text-xs text-gray-500">Non connecté</p>
                 </div>
               </div>
+              <button
+                onClick={() => {
+                  setAuthModalOpen(true);
+                  if (isMobile) setIsSidebarOpen(false);
+                }}
+                className="w-full px-3 py-2.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-blue-500/20"
+              >
+                Se connecter
+              </button>
             </div>
           )}
         </div>
@@ -347,7 +375,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
       {/* Contenu principal */}
       <div className="flex-1 flex flex-col min-w-0 bg-[#0a0a0a]">
         {/* Header avec bouton hamburger */}
-        <div className="h-14 flex-shrink-0 bg-[#0a0a0a] flex items-center justify-between px-4 border-b border-gray-800">
+        <div className="h-14 flex-shrink-0 bg-[#0a0a0a] flex items-center px-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -363,6 +391,9 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
         {/* Contenu de la page */}
         <div className="flex-1 overflow-y-auto">{children}</div>
       </div>
+
+      {/* Modal d'authentification */}
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
   );
 }

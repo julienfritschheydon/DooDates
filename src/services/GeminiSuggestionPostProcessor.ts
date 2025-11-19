@@ -969,7 +969,7 @@ export function postProcessSuggestion(
           })());
 
       const shouldSeparateSharedSlots = sharedSlots.length > 0 && hasExplicitDifferentTimes;
-      
+
       // ⚠️ CAS SPÉCIAL : Si pas de créneaux partagés mais plusieurs dates avec horaires différents
       // et pas assez de créneaux → générer des créneaux adaptés selon le jour
       const shouldGenerateSlotsForMissingDates =

@@ -5,7 +5,12 @@ import { SignInInput, SignUpInput } from "../lib/schemas";
 import { isLocalDevelopment } from "../lib/supabase";
 import { isE2ETestingEnvironment } from "@/lib/e2e-detection";
 import { logger } from "@/lib/logger";
-import { getSupabaseSessionFromLocalStorage } from "../lib/supabaseApi";
+import {
+  getSupabaseSessionFromLocalStorage,
+  supabaseSelectSingle,
+  supabaseUpdate,
+  supabaseInsert,
+} from "../lib/supabaseApi";
 
 // Variables d'environnement pour validation
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -50,6 +55,17 @@ export function useAuth() {
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
+
+  // Log détaillé pour comprendre pourquoi user n'est pas disponible
+  logger.debug("🔍 AuthContext - useAuth() appelé", "auth", {
+    hasUser: !!context.user,
+    userId: context.user?.id || null,
+    userEmail: context.user?.email || null,
+    hasSession: !!context.session,
+    sessionUserId: context.session?.user?.id || null,
+    loading: context.loading,
+  });
+
   return context;
 }
 
@@ -80,12 +96,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return null;
     }
     try {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
-
-      if (error) {
-        logger.error("Error fetching profile", "auth", error);
-        return null;
-      }
+      const data = await supabaseSelectSingle<Profile>(
+        "profiles",
+        {
+          id: `eq.${userId}`,
+          select: "*",
+        },
+        { timeout: 5000 },
+      );
 
       return data;
     } catch (err) {
@@ -106,16 +124,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("id", user.id)
-        .select()
-        .single();
-
-      if (error) {
-        return { error };
-      }
+      const data = await supabaseUpdate<Profile>(
+        "profiles",
+        updates,
+        { id: `eq.${user.id}` },
+        { timeout: 5000 },
+      );
 
       setProfile(data);
       return { error: null };
@@ -240,6 +254,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       logger.info("Tentative de connexion Google", "auth");
 
+      // Sauvegarder la page actuelle pour y revenir après la connexion
+      const currentPath = window.location.pathname + window.location.search;
+      logger.info("Sauvegarde de la page actuelle pour redirection", "auth", { currentPath });
+      if (currentPath !== "/auth/callback" && currentPath !== "/auth/callback/") {
+        localStorage.setItem("auth_return_to", currentPath);
+        logger.info("Page sauvegardée dans localStorage", "auth", { savedPath: currentPath });
+      } else {
+        logger.info("Page callback détectée, pas de sauvegarde", "auth");
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -354,16 +378,59 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Récupérer la session initiale
     const getInitialSession = async () => {
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        // Essayer d'abord localStorage (plus rapide et évite les timeouts)
+        let effectiveSession = getSessionFromLocalStorage();
+        logger.debug("🔍 AuthContext - Session depuis localStorage", "auth", {
+          found: !!effectiveSession,
+          userId: effectiveSession?.user?.id || null,
+          hasAccessToken: !!effectiveSession?.access_token,
+        });
 
-        let effectiveSession = session;
+        if (!effectiveSession) {
+          // Fallback vers getSession() avec timeout
+          try {
+            const sessionPromise = supabase.auth.getSession();
+            const timeoutPromise = new Promise<{ data: { session: null } }>((resolve) =>
+              setTimeout(() => resolve({ data: { session: null } }), 2000),
+            );
+
+            const result = await Promise.race([sessionPromise, timeoutPromise]);
+            effectiveSession = result.data.session;
+            logger.debug("🔍 AuthContext - Session depuis getSession()", "auth", {
+              found: !!effectiveSession,
+              userId: effectiveSession?.user?.id || null,
+            });
+          } catch (error) {
+            logger.warn(
+              "getSession() a échoué ou timeout, utilisation de localStorage",
+              "auth",
+              error,
+            );
+            // Si getSession() échoue, réessayer localStorage au cas où la session aurait été stockée entre-temps
+            effectiveSession = getSessionFromLocalStorage();
+            logger.debug("🔍 AuthContext - Session depuis localStorage (fallback)", "auth", {
+              found: !!effectiveSession,
+              userId: effectiveSession?.user?.id || null,
+            });
+          }
+        }
+
+        // Fallback final pour E2E
         if (!effectiveSession && isE2ETestEnvironment()) {
           effectiveSession = getSessionFromLocalStorage();
+          logger.debug("🔍 AuthContext - Session depuis localStorage (E2E fallback)", "auth", {
+            found: !!effectiveSession,
+            userId: effectiveSession?.user?.id || null,
+            isE2ETestEnvironment: isE2ETestEnvironment(),
+          });
         }
 
         if (mounted) {
+          logger.debug("🔍 AuthContext - Initialisation user", "auth", {
+            hasSession: !!effectiveSession,
+            userId: effectiveSession?.user?.id || null,
+            willSetUser: !!effectiveSession?.user,
+          });
           setSession(effectiveSession);
           setUser(effectiveSession?.user ?? null);
 
@@ -425,6 +492,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (!mounted) return;
 
       let effectiveSession = session;
+
+      // Si pas de session depuis onAuthStateChange, vérifier localStorage
+      if (!effectiveSession) {
+        effectiveSession = getSessionFromLocalStorage();
+      }
+
+      // Fallback final pour E2E
       if (!effectiveSession && isE2ETestEnvironment()) {
         effectiveSession = getSessionFromLocalStorage();
       }
@@ -469,22 +543,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Analytics pour les événements d'auth
       if (event === "SIGNED_IN" && !isLocalDevelopment) {
-        // Tracker la connexion
-        supabase.from("analytics_events").insert({
-          event_type: "user_signed_in",
-          event_data: {
-            method: session?.user?.app_metadata?.provider || "email",
-            timestamp: new Date().toISOString(),
+        // Tracker la connexion (fire-and-forget)
+        supabaseInsert(
+          "analytics_events",
+          {
+            event_type: "user_signed_in",
+            event_data: {
+              method: session?.user?.app_metadata?.provider || "email",
+              timestamp: new Date().toISOString(),
+            },
+            user_id: session?.user?.id,
           },
-          user_id: session?.user?.id,
+          { timeout: 2000 },
+        ).catch((err) => {
+          logger.debug("Failed to track sign-in event", "auth", err);
         });
       } else if (event === "SIGNED_OUT" && !isLocalDevelopment) {
-        // Tracker la déconnexion
-        supabase.from("analytics_events").insert({
-          event_type: "user_signed_out",
-          event_data: {
-            timestamp: new Date().toISOString(),
+        // Tracker la déconnexion (fire-and-forget)
+        supabaseInsert(
+          "analytics_events",
+          {
+            event_type: "user_signed_out",
+            event_data: {
+              timestamp: new Date().toISOString(),
+            },
           },
+          { timeout: 2000 },
+        ).catch((err) => {
+          logger.debug("Failed to track sign-out event", "auth", err);
         });
       }
     });

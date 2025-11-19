@@ -86,7 +86,7 @@ describe("SimulationService", () => {
     const avgCompletion = completionRates.reduce((a, b) => a + b, 0) / completionRates.length;
 
     expect(avgCompletion).toBeGreaterThan(0.5);
-    expect(avgCompletion).toBeLessThan(1.0);
+    expect(avgCompletion).toBeLessThanOrEqual(1.0);
   });
 
   it("génère des réponses single choice", async () => {

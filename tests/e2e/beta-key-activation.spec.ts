@@ -12,39 +12,46 @@
 
 import { test, expect } from '@playwright/test';
 import { setupGeminiMock } from './global-setup';
-import { mockSupabaseAuth, waitForPageLoad } from './utils';
+import { mockSupabaseAuth } from './utils';
+import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
+import { getTimeouts } from './config/timeouts';
+import { clearTestData } from './helpers/test-data';
+import { safeIsVisible } from './helpers/safe-helpers';
 
 test.describe('Beta Key Activation', () => {
   test.beforeEach(async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
+    
     // Setup Gemini API mock to prevent costs
     await setupGeminiMock(page);
     
     // Clear localStorage and start fresh
     await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
-    await waitForPageLoad(page, browserName);
-    await page.evaluate(() => localStorage.clear());
+    await waitForNetworkIdle(page, { browserName });
+    await clearTestData(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await waitForPageLoad(page, browserName);
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
   });
 
   test('should show beta key activation option when authenticated', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName, browserName.includes('Mobile'));
+    
     // La page est déjà chargée par beforeEach, pas besoin de goto supplémentaire
     // Mock authentication
     await mockSupabaseAuth(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await waitForPageLoad(page, browserName);
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
     
     // Wait for app to load - check for message input or any interactive element
-    const messageInput = page.locator('[data-testid="message-input"]');
-    const hasMessageInput = await messageInput.isVisible({ timeout: 10000 }).catch(() => false);
+    const messageInput = await waitForElementReady(page, '[data-testid="message-input"]', { browserName, timeout: timeouts.element }).catch(async () => {
+      // If message input not found, check for any button or input as fallback
+      const anyInteractive = await waitForElementReady(page, 'input, button, [role="button"]', { browserName, timeout: timeouts.element });
+      return anyInteractive;
+    });
     
-    // If message input not found, check for any button or input as fallback
-    if (!hasMessageInput) {
-      const anyInteractive = await page.locator('input, button, [role="button"]').first().isVisible({ timeout: 5000 }).catch(() => false);
-      expect(anyInteractive).toBeTruthy();
-    } else {
-      expect(hasMessageInput).toBeTruthy();
-    }
+    await expect(messageInput).toBeVisible({ timeout: timeouts.element });
   });
 
   test('should validate beta key format', async ({ page, browserName }) => {
@@ -52,7 +59,8 @@ test.describe('Beta Key Activation', () => {
     // Mock authentication
     await mockSupabaseAuth(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await waitForPageLoad(page, browserName);
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
     
     // Try to find beta key input
     // Since UI might not have beta key modal yet, we test the service directly via browser console
@@ -89,7 +97,8 @@ test.describe('Beta Key Activation', () => {
     // Mock authentication
     await mockSupabaseAuth(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await waitForPageLoad(page, browserName);
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
     
     // Mock the beta key redemption API
     await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
@@ -143,7 +152,8 @@ test.describe('Beta Key Activation', () => {
     // Mock authentication
     await mockSupabaseAuth(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await waitForPageLoad(page, browserName);
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
     
     // Mock the beta key redemption API with error
     await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
@@ -196,7 +206,8 @@ test.describe('Beta Key Activation', () => {
     // Mock authentication
     await mockSupabaseAuth(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await waitForPageLoad(page, browserName);
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
     
     // Mock the beta key redemption API with conflict error
     await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
@@ -252,7 +263,8 @@ test.describe('Beta Key Activation', () => {
       expiresAt: Date.now() - 3600000, // Expired
     });
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await waitForPageLoad(page, browserName);
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
     
     // Mock the beta key redemption API with 401 error
     await page.route('**/rest/v1/rpc/redeem_beta_key', async route => {
@@ -356,13 +368,15 @@ test.describe('Beta Key Activation', () => {
 });
 
 test.describe('Beta Key Activation - Integration with Real Supabase', () => {
-  test.skip('should activate a valid beta key with real Supabase (requires .env.local)', async ({ page }) => {
+  test.skip('should activate a valid beta key with real Supabase (requires .env.local)', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
+    
     // Ce test nécessite une vraie connexion à Supabase de test
     // Il est skip par défaut et doit être activé manuellement avec une vraie clé de test
     // Pour l'activer : retirer le .skip et fournir une vraie clé bêta de test
     
     await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle');
+    await waitForNetworkIdle(page, { browserName });
     
     // Attendre que l'utilisateur se connecte manuellement (ou utiliser un helper)
     // Note: Ce test nécessite une authentification réelle et une clé bêta valide
@@ -372,17 +386,15 @@ test.describe('Beta Key Activation - Integration with Real Supabase', () => {
       hasText: /clé bêta|beta key|activer|activate/i 
     }).first();
     
-    if (await betaKeyButton.isVisible({ timeout: 5000 })) {
+    if (await safeIsVisible(betaKeyButton)) {
       await betaKeyButton.click();
       
       // Remplir le formulaire avec une vraie clé de test
       // Note: Cette clé doit exister dans la base de test
-      const keyInput = page.locator('input[placeholder*="BETA"], input[type="text"]').first();
+      const keyInput = await waitForElementReady(page, 'input[placeholder*="BETA"], input[type="text"]', { browserName, timeout: timeouts.element });
       await keyInput.fill('BETA-TEST-XXXX-YYYY'); // Remplacer par une vraie clé de test
       
-      const submitButton = page.locator('button').filter({ 
-        hasText: /activer|valider|submit|activate/i 
-      }).first();
+      const submitButton = await waitForElementReady(page, 'button', { browserName, timeout: timeouts.element });
       await submitButton.click();
       
       // Vérifier le message de succès ou d'erreur
@@ -390,18 +402,18 @@ test.describe('Beta Key Activation - Integration with Real Supabase', () => {
       const errorMessage = page.locator('text=/erreur|error|invalide/i');
       
       // Au moins un des deux devrait apparaître
-      const resultVisible = await Promise.race([
-        successMessage.isVisible({ timeout: 5000 }).then(() => 'success'),
-        errorMessage.isVisible({ timeout: 5000 }).then(() => 'error'),
-      ]).catch(() => null);
+      const successVisible = await safeIsVisible(successMessage);
+      const errorVisible = await safeIsVisible(errorMessage);
+      const resultVisible = successVisible ? 'success' : (errorVisible ? 'error' : null);
       
       expect(resultVisible).not.toBeNull();
     }
   });
 
-  test.skip('should show updated quotas after beta key activation (requires real Supabase)', async ({ page }) => {
+  test.skip('should show updated quotas after beta key activation (requires real Supabase)', async ({ page, browserName }) => {
     // Ce test nécessite une vraie connexion et une vraie activation
-    await page.goto('/workspace');
+    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
     
     // L'implémentation complète nécessiterait:
     // 1. Authentification réelle

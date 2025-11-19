@@ -13,10 +13,16 @@
  */
 
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
-import type { Poll, FormResults, FormResponse } from "@/lib/pollStorage";
 import { getFormResults, getFormResponses } from "@/lib/pollStorage";
 import { logger } from "@/lib/logger";
 import { handleError, ErrorFactory } from "@/lib/error-handling";
+import type {
+  Poll,
+  FormResults,
+  FormResponse,
+  FormQuestionOption,
+  FormQuestionShape,
+} from "@/lib/pollStorage";
 
 // Types pour les analytics
 export interface AnalyticsQuery {
@@ -185,7 +191,7 @@ export class PollAnalyticsService {
           const total = Object.values(counts).reduce((sum, c) => sum + c, 0);
 
           context += `- Réponses:\n`;
-          question.options?.forEach((opt: import("../lib/pollStorage").FormQuestionOption) => {
+          question.options?.forEach((opt: FormQuestionOption) => {
             const count = counts[opt.id] || 0;
             const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : "0.0";
             context += `  • ${opt.label}: ${count} (${percentage}%)\n`;
@@ -193,15 +199,13 @@ export class PollAnalyticsService {
         } else if (kind === "matrix") {
           const counts = results.countsByQuestion[question.id] || {};
           context += `- Matrice de réponses:\n`;
-          question.matrixRows?.forEach((row: import("../lib/pollStorage").FormQuestionOption) => {
+          question.matrixRows?.forEach((row: FormQuestionOption) => {
             context += `  ${row.label}:\n`;
-            question.matrixColumns?.forEach(
-              (col: import("../lib/pollStorage").FormQuestionOption) => {
-                const cellKey = `${row.id}_${col.id}`;
-                const count = counts[cellKey] || 0;
-                context += `    - ${col.label}: ${count}\n`;
-              },
-            );
+            question.matrixColumns?.forEach((col: FormQuestionOption) => {
+              const cellKey = `${row.id}_${col.id}`;
+              const count = counts[cellKey] || 0;
+              context += `    - ${col.label}: ${count}\n`;
+            });
           });
         }
       });
@@ -212,8 +216,7 @@ export class PollAnalyticsService {
           context += `\nRépondant ${idx + 1} (${resp.respondentName || "Anonyme"}):\n`;
           resp.items.forEach((item) => {
             const q = poll.questions?.find(
-              (question: import("../../lib/pollStorage").FormQuestionShape) =>
-                question.id === item.questionId,
+              (question: FormQuestionShape) => question.id === item.questionId,
             );
             if (q) {
               context += `- ${q.title}: ${JSON.stringify(item.value)}\n`;
@@ -312,7 +315,10 @@ Réponds maintenant à la question de l'utilisateur.`;
         const { consumeAnalyticsCredits } = await import("../lib/quotaTracking");
         const { getCurrentUserId } = await import("../lib/pollStorage");
         const currentUserId = getCurrentUserId();
-        consumeAnalyticsCredits(currentUserId, query.pollId, query.question);
+        // Normaliser l'ID pour les invités: deviceId (dev-...) → null → "guest" côté quotaTracking
+        const normalizedUserId =
+          currentUserId && currentUserId.startsWith("dev-") ? null : currentUserId;
+        consumeAnalyticsCredits(normalizedUserId, query.pollId, query.question);
       } catch (error) {
         logger.debug("Impossible de consommer les crédits analytics", "analytics", { error });
       }
@@ -417,7 +423,10 @@ Réponds UNIQUEMENT avec le JSON, sans texte additionnel.`;
         const { consumeAnalyticsCredits } = await import("../lib/quotaTracking");
         const { getCurrentUserId } = await import("../lib/pollStorage");
         const currentUserId = getCurrentUserId();
-        consumeAnalyticsCredits(currentUserId, pollId, "auto-insights");
+        // Normaliser l'ID pour les invités: deviceId (dev-...) → null → "guest" côté quotaTracking
+        const normalizedUserId =
+          currentUserId && currentUserId.startsWith("dev-") ? null : currentUserId;
+        consumeAnalyticsCredits(normalizedUserId, pollId, "auto-insights");
       } catch (error) {
         logger.debug("Impossible de consommer les crédits insights", "analytics", { error });
       }

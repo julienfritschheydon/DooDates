@@ -20,6 +20,11 @@ export function isE2ETestingEnvironment(): boolean {
     return false;
   }
 
+  // Permettre de désactiver temporairement la détection E2E pour certains tests
+  if ((window as any).__DISABLE_E2E_DETECTION__ === true) {
+    return false;
+  }
+
   return (
     window.location.search.includes("e2e-test") ||
     window.navigator.userAgent.includes("Playwright") ||

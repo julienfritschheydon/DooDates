@@ -1,16 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { BetaKeyService, isValidBetaKeyFormat, formatBetaKey } from "../BetaKeyService";
 import type { BetaKey, RedemptionResult } from "../BetaKeyService";
+import { getSupabaseSessionWithTimeout, supabaseRpc } from "../../lib/supabaseApi";
 
-// Mock du module supabase
-vi.mock("@/lib/supabase", () => ({
-  supabase: {
-    auth: {
-      getSession: vi.fn(),
-    },
-    from: vi.fn(),
-    rpc: vi.fn(),
-  },
+// Mock du module supabaseApi (nouvelle implémentation)
+vi.mock("@/lib/supabaseApi", () => ({
+  getSupabaseSessionWithTimeout: vi.fn(),
+  supabaseRpc: vi.fn(),
+  supabaseSelect: vi.fn(),
+  supabaseSelectSingle: vi.fn(),
+  supabaseUpdate: vi.fn(),
 }));
 
 // Mock du logger
@@ -60,17 +59,17 @@ describe("BetaKeyService", () => {
 
   describe("redeemKey", () => {
     it("should redeem a valid beta key successfully", async () => {
-      // Mock de la réponse fetch
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          success: true,
-          tier: "beta",
-          credits: 1000,
-          expires_at: "2025-12-31T23:59:59Z",
-        }),
-      });
+      // Mock de la session et de la réponse RPC
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue({
+        access_token: mockAccessToken,
+      } as any);
+
+      vi.mocked(supabaseRpc).mockResolvedValue({
+        success: true,
+        tier: "beta",
+        credits: 1000,
+        expires_at: "2025-12-31T23:59:59Z",
+      } as RedemptionResult);
 
       const result = await BetaKeyService.redeemKey(
         mockUserId,
@@ -81,30 +80,25 @@ describe("BetaKeyService", () => {
       expect(result.success).toBe(true);
       expect(result.tier).toBe("beta");
       expect(result.credits).toBe(1000);
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining("/rest/v1/rpc/redeem_beta_key"),
-        expect.objectContaining({
-          method: "POST",
-          headers: expect.objectContaining({
-            "Content-Type": "application/json",
-            Prefer: "return=representation",
-            apikey: expect.any(String),
-            Authorization: expect.stringContaining("Bearer"),
-          }),
-          body: JSON.stringify({
-            p_user_id: mockUserId,
-            p_code: "BETA-TEST-XXXX-YYYY",
-          }),
-        }),
+      expect(supabaseRpc).toHaveBeenCalledWith(
+        "redeem_beta_key",
+        {
+          p_user_id: mockUserId,
+          p_code: "BETA-TEST-XXXX-YYYY",
+        },
+        expect.objectContaining({ timeout: 10000 }),
       );
     });
 
     it("should reject an invalid beta key", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 400,
-        text: async () => "Clé bêta invalide ou déjà utilisée",
-      });
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue({
+        access_token: mockAccessToken,
+      } as any);
+
+      vi.mocked(supabaseRpc).mockResolvedValue({
+        success: false,
+        error: "Clé bêta invalide ou déjà utilisée",
+      } as RedemptionResult);
 
       const result = await BetaKeyService.redeemKey(mockUserId, "INVALID-KEY", mockAccessToken);
 
@@ -113,11 +107,14 @@ describe("BetaKeyService", () => {
     });
 
     it("should reject an already used beta key", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 409,
-        text: async () => "Clé déjà utilisée",
-      });
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue({
+        access_token: mockAccessToken,
+      } as any);
+
+      vi.mocked(supabaseRpc).mockResolvedValue({
+        success: false,
+        error: "Erreur HTTP 409 - Clé déjà utilisée",
+      } as RedemptionResult);
 
       const result = await BetaKeyService.redeemKey(
         mockUserId,
@@ -130,7 +127,11 @@ describe("BetaKeyService", () => {
     });
 
     it("should handle network errors gracefully", async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue({
+        access_token: mockAccessToken,
+      } as any);
+
+      vi.mocked(supabaseRpc).mockRejectedValue(new Error("Network error"));
 
       const result = await BetaKeyService.redeemKey(
         mockUserId,
@@ -143,22 +144,32 @@ describe("BetaKeyService", () => {
     });
 
     it("should normalize beta key codes (uppercase and trim)", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: true, tier: "beta", credits: 1000 }),
-      });
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue({
+        access_token: mockAccessToken,
+      } as any);
+
+      vi.mocked(supabaseRpc).mockResolvedValue({
+        success: true,
+        tier: "beta",
+        credits: 1000,
+      } as RedemptionResult);
 
       await BetaKeyService.redeemKey(mockUserId, "  beta-test-xxxx-yyyy  ", mockAccessToken);
 
-      expect(fetch).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          body: expect.stringContaining("BETA-TEST-XXXX-YYYY"),
-        }),
+      expect(supabaseRpc).toHaveBeenCalledWith(
+        "redeem_beta_key",
+        {
+          p_user_id: mockUserId,
+          p_code: "BETA-TEST-XXXX-YYYY",
+        },
+        expect.any(Object),
       );
     });
 
     it("should return error when no access token is available", async () => {
+      // Simuler l'absence de session / token côté supabaseApi
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue(null as any);
+
       const result = await BetaKeyService.redeemKey(mockUserId, "BETA-TEST-XXXX-YYYY");
 
       expect(result.success).toBe(false);
@@ -166,11 +177,14 @@ describe("BetaKeyService", () => {
     });
 
     it("should handle 401 unauthorized error", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 401,
-        text: async () => "Unauthorized",
-      });
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue({
+        access_token: mockAccessToken,
+      } as any);
+
+      vi.mocked(supabaseRpc).mockResolvedValue({
+        success: false,
+        error: "Non autorisé",
+      } as RedemptionResult);
 
       const result = await BetaKeyService.redeemKey(
         mockUserId,
@@ -183,11 +197,14 @@ describe("BetaKeyService", () => {
     });
 
     it("should handle 403 forbidden error", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 403,
-        text: async () => "Forbidden",
-      });
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue({
+        access_token: mockAccessToken,
+      } as any);
+
+      vi.mocked(supabaseRpc).mockResolvedValue({
+        success: false,
+        error: "Accès refusé",
+      } as RedemptionResult);
 
       const result = await BetaKeyService.redeemKey(
         mockUserId,
@@ -200,11 +217,14 @@ describe("BetaKeyService", () => {
     });
 
     it("should handle 404 not found error", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 404,
-        text: async () => "Not found",
-      });
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue({
+        access_token: mockAccessToken,
+      } as any);
+
+      vi.mocked(supabaseRpc).mockResolvedValue({
+        success: false,
+        error: "Fonction RPC introuvable",
+      } as RedemptionResult);
 
       const result = await BetaKeyService.redeemKey(
         mockUserId,
@@ -224,62 +244,40 @@ describe("BetaKeyService", () => {
         { code: "BETA-ABCD-EFGH-IJKL", expires_at: "2025-12-31T23:59:59Z" },
       ];
 
-      // Mock de la session
-      const { supabase } = await import("@/lib/supabase");
-      vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: { access_token: mockAccessToken } as any },
-        error: null,
-      });
+      // Mock de la session et de la réponse RPC
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue({
+        access_token: mockAccessToken,
+      } as any);
 
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => mockKeys,
-      });
+      vi.mocked(supabaseRpc).mockResolvedValue(mockKeys as any);
 
       const result = await BetaKeyService.generateKeys(2, "Test batch", 3);
 
       expect(result).toHaveLength(2);
       expect(result[0].code).toBe("BETA-1234-5678-9012");
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining("/rest/v1/rpc/generate_beta_key"),
-        expect.objectContaining({
-          method: "POST",
-          headers: expect.objectContaining({
-            "Content-Type": "application/json",
-            Prefer: "return=representation",
-            apikey: expect.any(String),
-            Authorization: expect.any(String),
-          }),
-          body: JSON.stringify({
-            p_count: 2,
-            p_notes: "Test batch",
-            p_duration_months: 3,
-          }),
-        }),
+      expect(supabaseRpc).toHaveBeenCalledWith(
+        "generate_beta_key",
+        {
+          p_count: 2,
+          p_notes: "Test batch",
+          p_duration_months: 3,
+        },
+        expect.objectContaining({ timeout: 10000 }),
       );
     });
 
     it("should throw error when no session is available", async () => {
-      const { supabase } = await import("@/lib/supabase");
-      vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: null },
-        error: null,
-      });
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue(null as any);
 
       await expect(BetaKeyService.generateKeys(1)).rejects.toThrow("Aucune session active");
     });
 
     it("should handle empty response from server", async () => {
-      const { supabase } = await import("@/lib/supabase");
-      vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: { access_token: mockAccessToken } as any },
-        error: null,
-      });
+      vi.mocked(getSupabaseSessionWithTimeout).mockResolvedValue({
+        access_token: mockAccessToken,
+      } as any);
 
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => [],
-      });
+      vi.mocked(supabaseRpc).mockResolvedValue([] as any);
 
       await expect(BetaKeyService.generateKeys(1)).rejects.toThrow();
     });

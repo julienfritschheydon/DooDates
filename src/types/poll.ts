@@ -88,3 +88,11 @@ export interface TimeSlot {
   minute: number;
   enabled: boolean;
 }
+
+export interface DateQuestionConfig {
+  selectedDates: string[]; // Dates au format ISO string (YYYY-MM-DD)
+  timeSlotsByDate: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>;
+  timeGranularity: "15min" | "30min" | "1h";
+  allowMaybeVotes: boolean;
+  allowAnonymousVotes: boolean;
+}
