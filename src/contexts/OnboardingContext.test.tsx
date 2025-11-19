@@ -1,7 +1,11 @@
+/**
+ * Tests for OnboardingContext
+ * DooDates - Onboarding Context Tests
+ */
+
+/// <reference types="@testing-library/jest-dom" />
+
 import { render, screen, waitFor, act } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { OnboardingProvider, useOnboarding } from "./OnboardingContext";
 
 // Mock des dépendances
 vi.mock("../lib/error-handling", () => ({
@@ -43,7 +47,7 @@ function TestComponent({ onOnboarding }: { onOnboarding: (onboarding: any) => vo
   );
 }
 
-describe.skip("OnboardingContext", () => {
+describe("OnboardingContext", () => {
   const mockLocalStorage = {
     getItem: vi.fn(),
     setItem: vi.fn(),
