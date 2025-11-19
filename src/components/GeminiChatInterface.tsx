@@ -361,6 +361,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     const pollManagement = usePollManagement();
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const scrollFixTimeoutRef = useRef<number | null>(null);
     const hasInitialized = useRef(false);
     const hasResumedConversation = useRef(false);
 
@@ -537,11 +538,15 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         connectionStatusHook.testConnection();
       }
 
-      // Scroll fixes for Android
-      window.scrollTo({ top: 0, behavior: "instant" });
-      setTimeout(() => {
+      // Scroll fixes pour Android (protégé pour environnements sans window)
+      if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "instant" });
-      }, 100);
+        scrollFixTimeoutRef.current = window.setTimeout(() => {
+          if (typeof window !== "undefined") {
+            window.scrollTo({ top: 0, behavior: "instant" });
+          }
+        }, 100);
+      }
 
       const resumeConversation = async () => {
         // Additional guard: prevent multiple resume attempts
@@ -660,6 +665,10 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
       return () => {
         isMounted = false;
+        if (scrollFixTimeoutRef.current != null && typeof window !== "undefined") {
+          clearTimeout(scrollFixTimeoutRef.current);
+          scrollFixTimeoutRef.current = null;
+        }
         clearTimeout(timeoutId);
         connectionStatusHook.cleanup();
       };
