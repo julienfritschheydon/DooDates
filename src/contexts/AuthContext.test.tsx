@@ -1,9 +1,11 @@
+/**
+ * Tests for AuthContext
+ * DooDates - Authentication Context Tests
+ */
+
+/// <reference types="@testing-library/jest-dom" />
+
 import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { AuthProvider, useAuth } from "./AuthContext";
-import { supabase } from "../lib/supabase";
-import { logger } from "../lib/logger";
 
 // Mock des dépendances
 vi.mock("../lib/supabase", () => ({
@@ -55,7 +57,7 @@ function TestComponent({ onAuth }: { onAuth: (auth: any) => void }) {
   );
 }
 
-describe.skip("AuthContext", () => {
+describe("AuthContext", () => {
   const mockUser = {
     id: "test-user-id",
     email: "test@example.com",
