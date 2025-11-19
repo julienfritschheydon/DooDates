@@ -86,7 +86,7 @@ async function createPollWithVotesAndClose(
 
 // NOTE (2025-11-18): Spec conservée mais hors scope court terme.
 // Prochaine étape planifiée dans Docs/2. Planning.md.
-test.describe.skip("Analytics IA - Suite Optimisée", () => {
+test.describe("Analytics IA - Suite Optimisée", () => {
   test.describe.configure({ mode: 'serial' });
 
   // Skip WebKit/Safari : les routes Playwright ne semblent pas intercepter correctement
@@ -161,7 +161,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
   // 2. Quick Queries + Query personnalisée (combiné)
   // Utilise le poll déjà créé par le test 1 (via pollSlug).
   // Objectif : vérifier que les quick queries et les requêtes personnalisées renvoient une réponse.
-  test.skip("2. Quick Queries et Query Personnalisée (combiné) @functional @flaky", async ({ page, browserName }) => {
+  test("2. Quick Queries et Query Personnalisée (combiné) @functional", async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     
     // Si pollSlug n'est pas défini (sharding), créer un poll indépendant
@@ -212,7 +212,7 @@ test.describe.skip("Analytics IA - Suite Optimisée", () => {
   // 3. Cache + Quotas (combiné)
   // Objectif : vérifier que deux queries identiques ne provoquent pas d'erreur
   // et qu'un indicateur de quota est présent (sans chercher à atteindre le quota).
-  test.skip("3. Quotas et Cache (combiné) @functional @flaky", async ({ page, browserName }) => {
+  test("3. Quotas et Cache (combiné) @functional", async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     
     // Si pollSlug n'est pas défini (sharding), créer un poll indépendant
