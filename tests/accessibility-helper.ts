@@ -7,7 +7,7 @@ export const test = base.extend<{
   checkA11y: (page: Page, options?: { skipRules?: string[] }) => Promise<void>;
 }>({
   makeAxeBuilder: async ({ page }, use) => {
-    const axeBuilder = new AxeBuilder({ page });
+    const axeBuilder = () => new AxeBuilder({ page });
     await use(axeBuilder);
   },
 
@@ -40,9 +40,8 @@ export const test = base.extend<{
           .map(v => `${v.id} (${v.impact}): ${v.help}`)
           .join('\n');
 
-        expect(results.violations).toHaveLength(0,
-          `Accessibility violations found:\n${violationSummary}`
-        );
+        // Use expect with custom message
+        expect(results.violations, `Accessibility violations found:\n${violationSummary}`).toHaveLength(0);
       }
 
       // Log passes for information
