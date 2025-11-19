@@ -1004,7 +1004,7 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 - [x] GeminiChatInterface - Structure de tests (fichier de base créé, plan identifié)
 - [ ] GeminiChatInterface - Implémentation tests (via `TestProviders` partagé)
 - [x] ConversationService - Tests unitaires de base (9 tests) ✅
-- [ ] QuotaService - Tests quotas
+- [x] QuotaService - Tests quotas ✅ TERMINÉ (19/11/2025)
 - [ ] PollCreatorService - Tests création
 - [ ] PollCreationBusinessLogic - Tests logique métier
 - [ ] useGeminiAPI - Tests API
@@ -1019,11 +1019,11 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 - [ ] Pages principales
 - [ ] Contexts
 
-### 🎯 Objectifs
+### Objectifs
 
 **Court terme (1 mois)** :
-- Priorité 2 : 50% complété
-- Couverture code : 60%
+- Priorité 2 : 70% complété
+- Couverture code : 68%
 
 **Moyen terme (3 mois)** :
 - Priorité 2 : 100% complété
