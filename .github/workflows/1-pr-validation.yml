@@ -30,7 +30,7 @@ jobs:
       - name: 🔧 Install dependencies
         run: |
           rm -rf node_modules package-lock.json
-          npm ci
+          npm install
           # Ensure Rollup native dependencies are properly installed (known npm bug)
           npm install @rollup/rollup-linux-x64-gnu || true
       
@@ -220,7 +220,7 @@ jobs:
       - name: Install dependencies
         run: |
           rm -rf node_modules package-lock.json
-          npm ci
+          npm install
           # Ensure Rollup native dependencies are properly installed (known npm bug)
           npm install @rollup/rollup-linux-x64-gnu || true
       
