@@ -5,19 +5,20 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import GeminiChatInterface from '../GeminiChatInterface';
 
 // Mock all dependencies
-jest.mock('../../contexts/AuthContext');
-jest.mock('../../hooks/useConversations');
-jest.mock('../../hooks/useAutoSave');
-jest.mock('../../hooks/useConversationResume');
-jest.mock('../../hooks/useFreemiumQuota');
-jest.mock('../../hooks/usePollConversationLink');
+vi.mock('../../contexts/AuthContext');
+vi.mock('../../hooks/useConversations');
+vi.mock('../../hooks/useAutoSave');
+vi.mock('../../hooks/useConversationResume');
+vi.mock('../../hooks/useFreemiumQuota');
+vi.mock('../../hooks/usePollConversationLink');
 
 // Mock components
-jest.mock('../../components/modals/AuthIncentiveModal', () => ({
+vi.mock('../../components/modals/AuthIncentiveModal', () => ({
   AuthIncentiveModal: ({ isOpen, onClose, trigger }: any) => 
     isOpen ? (
       <div data-testid="auth-incentive-modal">
@@ -27,7 +28,7 @@ jest.mock('../../components/modals/AuthIncentiveModal', () => ({
     ) : null
 }));
 
-jest.mock('../../components/ui/QuotaIndicator', () => ({
+vi.mock('../../components/ui/QuotaIndicator', () => ({
   QuotaIndicator: ({ usage, limits }: any) => (
     <div data-testid="quota-indicator">
       {usage.conversations}/{limits.conversations} conversations
@@ -35,7 +36,7 @@ jest.mock('../../components/ui/QuotaIndicator', () => ({
   )
 }));
 
-jest.mock('../../components/PollCreator', () => ({
+vi.mock('../../components/PollCreator', () => ({
   PollCreator: ({ onClose }: any) => (
     <div data-testid="poll-creator">
       <button onClick={onClose}>Close Poll Creator</button>
@@ -58,7 +59,7 @@ const mockUseConversationResume = useConversationResume as jest.MockedFunction<t
 const mockUseFreemiumQuota = useFreemiumQuota as jest.MockedFunction<typeof useFreemiumQuota>;
 const mockUsePollConversationLink = usePollConversationLink as jest.MockedFunction<typeof usePollConversationLink>;
 
-describe.skip('GeminiChatInterface - Freemium Workflow Integration', () => {
+describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
   let queryClient: QueryClient;
 
   const defaultMocks = {
@@ -345,7 +346,7 @@ describe.skip('GeminiChatInterface - Freemium Workflow Integration', () => {
     });
   });
 
-  describe.skip('poll creation integration', () => {
+  describe.skip('GeminiChatInterface Integration', () => {
     it.skip('should link polls to conversations with metadata', async () => {
       const mockLinkPoll = jest.fn();
       const mockGetMetadata = jest.fn().mockReturnValue({

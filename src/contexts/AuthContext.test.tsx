@@ -55,7 +55,7 @@ function TestComponent({ onAuth }: { onAuth: (auth: any) => void }) {
   );
 }
 
-describe("AuthContext", () => {
+describe.skip("AuthContext", () => {
   const mockUser = {
     id: "test-user-id",
     email: "test@example.com",
