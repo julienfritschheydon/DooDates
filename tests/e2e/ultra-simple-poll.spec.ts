@@ -52,7 +52,7 @@ test.describe('DooDates - Test Ultra Simple 2 (avec helpers)', () => {
   });
 
   // Workflow principal: création date poll via IA, navigation votant, vérifs dashboard.
-  test('Workflow complet : Création DatePoll → Dashboard (avec helpers) @smoke @critical', async ({ page, browserName }, testInfo) => {
+  test('Workflow complet : Création DatePoll → Dashboard (avec helpers) @critical', async ({ page, browserName }, testInfo) => {
     const timeouts = getTimeouts(browserName);
     const log = mkLogger('UltraSimple2');
 
