@@ -330,7 +330,7 @@ describe("usePollManagement", () => {
 
       const formPollData: FormPollSuggestion = {
         type: "form",
-        title: "Test form", // Add missing title property
+        title: "Test form", // Explicit title provided
         questions: [
           {
             type: "text",
@@ -347,7 +347,7 @@ describe("usePollManagement", () => {
 
       const draft = result.current.getFormDraft();
 
-      expect(draft?.title).toBe("Nouveau questionnaire"); // Default title
+      expect(draft?.title).toBe("Test form"); // Should use the provided title
     });
 
     it("should handle unknown question types", () => {
