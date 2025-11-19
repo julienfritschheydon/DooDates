@@ -7,6 +7,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { GeminiChatHandle } from "../GeminiChatInterface";
 import GeminiChatInterface from "../GeminiChatInterface";
 
+// Import the hooks that are being mocked
+import { useMessageSender } from "../../hooks/useMessageSender";
+import { useVoiceRecognition } from "../../hooks/useVoiceRecognition";
+import { useQuota } from "../../hooks/useQuota";
+import { useAiMessageQuota } from "../../hooks/useAiMessageQuota";
+import { ConversationService } from "../../services/ConversationService";
+import { useToast } from "../../../hooks/use-toast";
+import { usePollManagement } from "../../hooks/usePollManagement";
+
 // Helpers pour wrapper avec Router et React Query
 const queryClient = new QueryClient();
 
@@ -410,7 +419,9 @@ describe("GeminiChatInterface", () => {
     });
 
     // Résoudre la promesse pour terminer l'envoi
-    resolveSendMessage();
+    if (resolveSendMessage) {
+      resolveSendMessage();
+    }
 
     // Vérifier que l'input et le bouton sont réactivés
     await waitFor(() => {
@@ -478,16 +489,25 @@ describe("GeminiChatInterface", () => {
     vi.mocked(ConversationService.resumeFromUrl).mockImplementation(mockResumeFromUrl);
 
     // Simuler une URL avec conversationId
-    delete window.location;
-    window.location = {
-      search: "?conversationId=test-conv",
-      pathname: "/",
-    } as any;
+    const originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      value: {
+        search: "?conversationId=test-conv",
+        pathname: "/",
+      },
+      writable: true,
+    });
 
     renderGeminiChat({ resumeLastConversation: true });
 
     await waitFor(() => {
-      expect(mockResumeFromUrl).toHaveBeenCalled();
+      expect(vi.mocked(ConversationService.resumeFromUrl)).toHaveBeenCalled();
+    });
+
+    // Restore original location
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
     });
   });
 
