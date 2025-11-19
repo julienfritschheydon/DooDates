@@ -35,17 +35,6 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 15000,
-    // Axe-core configuration for accessibility testing
-    axe: {
-      // Run axe-core checks automatically on every page
-      enabled: true,
-      // Configure which rules to run (default is all rules)
-      rules: undefined,
-      // Configure which tags to run (default is wcag2a, wcag2aa, wcag21a, wcag21aa)
-      tags: ['wcag2a', 'wcag2aa'],
-      // Configure which rules to skip
-      skipRules: [],
-    },
   },
 
   projects: [
