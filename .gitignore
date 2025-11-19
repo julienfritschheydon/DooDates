@@ -202,4 +202,4 @@ id_dsa
 id_ecdsa
 id_ed25519
 julienfritschheydonKEY
-!id_*.pub
+!id_*.pubsrc/hooks/__tests__/useConversations.favorites.test.ts
