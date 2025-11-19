@@ -944,13 +944,13 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 - [x] PollCreatorService - Tests création ✅ TERMINÉ (19/11/2025) - 17 KB, 558 lignes
 - [x] PollCreationBusinessLogic - Tests logique métier ✅ TERMINÉ (19/11/2025) - 14 KB, 480 lignes
 - [x] useGeminiAPI - Tests API ✅ TERMINÉ (19/11/2025) - 13 KB, 442 lignes
-- [ ] useIntentDetection - Tests détection (TODO)
-- [ ] usePollManagement - Tests gestion polls (TODO)
-- [ ] error-handling.ts - Tests erreurs (TODO - était dans branche refactor/simplify-architecture retirée)
+- [x] useIntentDetection - Tests détection ✅ TERMINÉ (19/11/2025) - 16 KB, 340 lignes
+- [x] usePollManagement - Tests gestion polls ✅ TERMINÉ (19/11/2025) - 12 KB, 280 lignes
+- [x] error-handling.ts - Tests erreurs ✅ TERMINÉ (19/11/2025) - 15 KB, 380 lignes
+- [x] enhanced-gemini.ts - Tests wrapper ✅ TERMINÉ (19/11/2025) - 18 KB, 420 lignes
 - [x] temporal-parser.ts - Tests parsing ⚠️ PARTIEL (14/11/2025) - 4 KB, tests basiques existants
-- [ ] enhanced-gemini.ts - Tests wrapper (TODO - était dans branche refactor/simplify-architecture retirée)
 
-**Priorité 2 : 55% complété (6/11 tests terminés)** ✅
+**Priorité 2 : 91% complété (10/11 tests terminés)** ✅
 
 **Priorité 3** :
 - [ ] Composants UI principaux
@@ -960,7 +960,7 @@ npm run test:docs:production   # Mode production (base path /DooDates/)
 ### Objectifs
 
 **Court terme (1 mois)** :
-- Priorité 2 : **55% complété** (6/11 tests terminés) ✅
+- Priorité 2 : **91% complété** (10/11 tests terminés) ✅
 - Tests récupérés : ~2300 lignes (~79 KB)
 - Couverture code : 70%
 
