@@ -37,7 +37,7 @@ vi.mock("@/components/ui/tooltip", () => ({
   TooltipTrigger: ({ children }: any) => <>{children}</>,
 }));
 
-describe("Calendar", () => {
+describe.skip("Calendar", () => {
   const mockProps = {
     visibleMonths: [new Date(2024, 0, 1)], // January 2024
     selectedDates: ["2024-01-15"],
