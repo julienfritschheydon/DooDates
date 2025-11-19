@@ -144,7 +144,7 @@ describe("PollCreationBusinessLogic", () => {
 
       expect(result).toBeNull();
       expect(logError).toHaveBeenCalledWith(
-        expect.any(Object),
+        undefined,
         expect.objectContaining({
           component: "PollCreationBusinessLogic",
           operation: "loadPollData",
@@ -160,7 +160,7 @@ describe("PollCreationBusinessLogic", () => {
 
       expect(result).toBeNull();
       expect(logError).toHaveBeenCalledWith(
-        expect.any(Object),
+        undefined,
         expect.objectContaining({
           component: "PollCreationBusinessLogic",
           operation: "loadPollData",
@@ -380,7 +380,7 @@ describe("PollCreationBusinessLogic", () => {
       PollCreationBusinessLogic.saveDraft(state);
 
       expect(logError).toHaveBeenCalledWith(
-        expect.any(Object),
+        undefined,
         expect.objectContaining({
           component: "PollCreationBusinessLogic",
           operation: "saveDraft",
@@ -445,7 +445,7 @@ describe("PollCreationBusinessLogic", () => {
 
       expect(result).toBeNull();
       expect(logError).toHaveBeenCalledWith(
-        expect.any(Object),
+        undefined,
         expect.objectContaining({
           component: "PollCreationBusinessLogic",
           operation: "loadDraft",
@@ -469,7 +469,7 @@ describe("PollCreationBusinessLogic", () => {
       PollCreationBusinessLogic.cleanup();
 
       expect(logError).toHaveBeenCalledWith(
-        expect.any(Object),
+        undefined,
         expect.objectContaining({
           component: "PollCreationBusinessLogic",
           operation: "cleanup",
