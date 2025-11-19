@@ -226,15 +226,15 @@ describe("usePollManagement", () => {
       expect(singleQuestion?.type).toBe("single");
       expect(singleQuestion?.title).toBe("Votre âge");
       expect(singleQuestion?.required).toBe(false);
-      expect(singleQuestion?.options).toHaveLength(4);
-      expect(singleQuestion?.options?.[0].label).toBe("18-25");
+      expect((singleQuestion as any)?.options).toHaveLength(4);
+      expect((singleQuestion as any)?.options?.[0].label).toBe("18-25");
 
       // Check multiple choice question
       const multipleQuestion = draft?.questions[2];
       expect(multipleQuestion?.type).toBe("multiple");
       expect(multipleQuestion?.title).toBe("Vos centres d'intérêt");
       expect(multipleQuestion?.required).toBe(false);
-      expect(multipleQuestion?.options).toHaveLength(4);
+      expect((multipleQuestion as any)?.options).toHaveLength(4);
     });
 
     it("should generate unique IDs for questions and options", () => {
@@ -264,7 +264,7 @@ describe("usePollManagement", () => {
       const draft = result.current.getFormDraft();
 
       const questionIds = draft?.questions.map(q => q.id) || [];
-      const optionIds = draft?.questions.flatMap(q => q.options?.map(o => o.id) || []) || [];
+      const optionIds = draft?.questions.flatMap(q => (q as any).options?.map((o: any) => o.id) || []) || [];
 
       // All IDs should be unique
       expect(new Set(questionIds).size).toBe(questionIds.length);
@@ -308,7 +308,7 @@ describe("usePollManagement", () => {
 
       const draft = result.current.getFormDraft();
 
-      expect(draft?.questions[0].options).toEqual([]); // Empty array for single/multiple without options
+      expect((draft?.questions[0] as any).options).toEqual([]); // Empty array for single/multiple without options
       expect(draft?.questions[1]).not.toHaveProperty("options"); // Text questions don't have options
     });
 

@@ -50,7 +50,16 @@ vi.mock("../logger", () => ({
   },
 }));
 
-// Mock environment variable
+// Mock environment variable with proper global typing
+declare global {
+  interface ImportMetaEnv {
+    VITE_GEMINI_API_KEY: string;
+  }
+  interface ImportMeta {
+    env: ImportMetaEnv;
+  }
+}
+
 vi.mock("import.meta", () => ({
   env: {
     VITE_GEMINI_API_KEY: "test-api-key",
