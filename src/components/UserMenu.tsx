@@ -21,7 +21,7 @@ export function UserMenu() {
         setTimeout(() => reject(new Error("Timeout déconnexion")), 5000),
       );
 
-      const result = await Promise.race([signOutPromise, timeoutPromise]);
+      const result = (await Promise.race([signOutPromise, timeoutPromise])) as { error?: Error | null };
       const { error } = result || { error: null };
 
       if (error) {
@@ -29,14 +29,16 @@ export function UserMenu() {
         // Forcer la déconnexion locale même en cas d'erreur
         localStorage.clear();
         sessionStorage.clear();
-        window.location.href = "/";
+        // 🔧 FIX BUG #2: Utiliser BASE_URL pour GitHub Pages
+        window.location.href = import.meta.env.BASE_URL || "/";
       } else {
         logger.info("Déconnexion réussie", "auth");
         // Nettoyer le stockage local
         localStorage.clear();
         sessionStorage.clear();
         // Redirection après déconnexion
-        window.location.href = "/";
+        // 🔧 FIX BUG #2: Utiliser BASE_URL pour GitHub Pages
+        window.location.href = import.meta.env.BASE_URL || "/";
       }
     } catch (err) {
       logger.error("Erreur lors de la déconnexion", "auth", err);
@@ -47,7 +49,8 @@ export function UserMenu() {
       sessionStorage.clear();
 
       // Redirection forcée
-      window.location.href = "/";
+      // 🔧 FIX BUG #2: Utiliser BASE_URL pour GitHub Pages
+      window.location.href = import.meta.env.BASE_URL || "/";
     }
   };
 

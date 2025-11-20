@@ -168,7 +168,7 @@ class CalendarGenerator {
 const yearlyCalendarCache = new Map<number, CalendarDay[]>();
 const CACHE_VERSION = "1.1";
 
-export function getPreGeneratedCalendar(): PreGeneratedCalendar {
+export function getPreGeneratedCalendar(): Promise<PreGeneratedCalendar> {
   // Initializing progressive calendar
 
   // NOUVELLE OPTIMISATION: Calendrier progressif par année !
@@ -193,7 +193,7 @@ export function getPreGeneratedCalendar(): PreGeneratedCalendar {
       const generator = new CalendarGenerator();
       const currentYear = new Date().getFullYear();
       return generator.generateCalendar(currentYear, 2);
-    }) as Array<{ date: string; events: unknown[] }>;
+    });
 }
 
 // Cache global pour le calendrier progressif
