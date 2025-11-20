@@ -13,9 +13,10 @@ import { Loader2, Mail, Lock, User } from "lucide-react";
 interface SignUpFormProps {
   onSuccess?: () => void;
   onSwitchToSignIn?: () => void;
+  onFormChange?: (hasData: boolean) => void;
 }
 
-export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
+export function SignUpForm({ onSuccess, onSwitchToSignIn, onFormChange }: SignUpFormProps) {
   const { signUp, loading, error } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -24,9 +25,19 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
     handleSubmit,
     formState: { errors },
     setError,
+    watch,
   } = useForm<SignUpInput>({
     resolver: zodResolver(SignUpSchema),
   });
+
+  // 🔧 FIX BUG #3: Détecter si des données sont saisies
+  React.useEffect(() => {
+    const subscription = watch((value) => {
+      const hasData = !!(value.email || value.password || value.confirmPassword || value.fullName);
+      onFormChange?.(hasData);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onFormChange]);
 
   const onSubmit = async (data: SignUpInput) => {
     setIsSubmitting(true);
@@ -103,6 +114,16 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
                 className="pl-10"
                 {...register("password")}
               />
+            </div>
+            {/* 🔧 FIX BUG #4: Afficher toutes les contraintes dès le départ */}
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p className="font-medium">Votre mot de passe doit contenir :</p>
+              <ul className="list-disc list-inside space-y-0.5 ml-2">
+                <li>Au moins 8 caractères</li>
+                <li>Une lettre minuscule</li>
+                <li>Une lettre majuscule</li>
+                <li>Un chiffre</li>
+              </ul>
             </div>
             {errors.password && (
               <p className="text-sm text-destructive">{errors.password.message}</p>
