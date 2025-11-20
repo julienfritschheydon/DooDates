@@ -30,11 +30,11 @@ const REPO = process.env.GITHUB_REPOSITORY || 'owner/repo';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 // 🔥 NOUVEAU: Focus sur le commit actuel
-const TRIGGER_COMMIT_SHA = process.env.GITHUB_SHA || process.env.GITHUB_EVENT_HEAD_SHA;
-const TRIGGER_WORKFLOW_NAME = process.env.GITHUB_WORKFLOW_TRIGGER_NAME;
-const TRIGGER_BRANCH = process.env.GITHUB_REF_NAME;
-const TRIGGER_ACTOR = process.env.GITHUB_ACTOR || 'unknown';
-const TRIGGER_COMMIT_MESSAGE = process.env.GITHUB_EVENT_HEAD_COMMIT_MESSAGE || 'unknown';
+const TRIGGER_COMMIT_SHA = process.env.GITHUB_SHA || process.env.GITHUB_EVENT_HEAD_SHA || null;
+const TRIGGER_WORKFLOW_NAME = process.env.GITHUB_WORKFLOW_TRIGGER_NAME || null;
+const TRIGGER_BRANCH = process.env.GITHUB_REF_NAME || 'develop';
+const TRIGGER_ACTOR = process.env.GITHUB_ACTOR || 'local-user';
+const TRIGGER_COMMIT_MESSAGE = process.env.GITHUB_EVENT_HEAD_COMMIT_MESSAGE || 'Local execution';
 
 // Workflows à monitorer
 const WORKFLOWS_TO_MONITOR = [
