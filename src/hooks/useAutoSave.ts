@@ -199,8 +199,10 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
               const supabaseResult = await Promise.race([syncPromise, syncTimeoutPromise]);
               if (!supabaseResult || !supabaseResult.id) {
                 throw ErrorFactory.storage(
-                  "Synchronisation Supabase échouée: résultat invalide",
-                  "La synchronisation avec Supabase a échoué"
+                  "Synchronisation Supabase échouée: résultat invalide ou manquant",
+                  supabaseResult === undefined
+                    ? "La synchronisation Supabase a retourné undefined"
+                    : "La synchronisation Supabase a retourné un résultat sans ID"
                 );
               }
               console.log(

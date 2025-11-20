@@ -56,19 +56,19 @@ describe('QuotaIndicator', () => {
     it('should show normal state when usage is low', () => {
       render(<QuotaIndicator type="conversations" used={1} limit={5} />);
       
-      const container = screen.getByText('1/5').closest('div');
+      const container = screen.getByTestId('quota-indicator-conversations');
       expect(container).toHaveClass('bg-blue-100');
       expect(container).toHaveClass('border-blue-200');
-      expect(container).toHaveClass('text-blue-700');
+      expect(screen.getByText('Conversations')).toHaveClass('text-blue-700');
     });
 
     it('should show warning state when approaching limit (80%)', () => {
       render(<QuotaIndicator type="conversations" used={4} limit={5} />);
       
-      const container = screen.getByText('4/5').closest('div');
+      const container = screen.getByTestId('quota-indicator-conversations');
       expect(container).toHaveClass('bg-orange-100');
       expect(container).toHaveClass('border-orange-200');
-      expect(container).toHaveClass('text-orange-700');
+      expect(screen.getByText('Conversations')).toHaveClass('text-orange-700');
       expect(screen.getByTestId('alert-icon')).toBeInTheDocument();
       expect(screen.getByText('Proche de la limite')).toBeInTheDocument();
     });
@@ -76,10 +76,10 @@ describe('QuotaIndicator', () => {
     it('should show danger state when at limit (100%)', () => {
       render(<QuotaIndicator type="conversations" used={5} limit={5} />);
       
-      const container = screen.getByText('5/5').closest('div');
+      const container = screen.getByTestId('quota-indicator-conversations');
       expect(container).toHaveClass('bg-red-100');
       expect(container).toHaveClass('border-red-200');
-      expect(container).toHaveClass('text-red-700');
+      expect(screen.getByText('Conversations')).toHaveClass('text-red-700');
       expect(screen.getByTestId('alert-icon')).toBeInTheDocument();
       expect(screen.getByText('Limite atteinte')).toBeInTheDocument();
     });
@@ -89,9 +89,9 @@ describe('QuotaIndicator', () => {
       
       expect(screen.getByText('6/5')).toBeInTheDocument();
       
-      const container = screen.getByText('6/5').closest('div');
+      const container = screen.getByTestId('quota-indicator-conversations');
       expect(container).toHaveClass('bg-red-100');
-      expect(container).toHaveClass('text-red-700');
+      expect(screen.getByText('Conversations')).toHaveClass('text-red-700');
       expect(screen.getByText('Limite atteinte')).toBeInTheDocument();
     });
   });
@@ -100,21 +100,24 @@ describe('QuotaIndicator', () => {
     it('should show correct progress bar width for normal usage', () => {
       render(<QuotaIndicator type="conversations" used={2} limit={5} />);
       
-      const progressBar = screen.getByText('2/5').parentElement?.querySelector('.bg-blue-500');
+      const container = screen.getByTestId('quota-indicator-conversations');
+      const progressBar = container.querySelector('.bg-blue-500');
       expect(progressBar).toHaveStyle('width: 40%'); // 2/5 = 40%
     });
 
     it('should show correct progress bar width for warning state', () => {
       render(<QuotaIndicator type="conversations" used={4} limit={5} />);
       
-      const progressBar = screen.getByText('4/5').parentElement?.querySelector('.bg-orange-500');
+      const container = screen.getByTestId('quota-indicator-conversations');
+      const progressBar = container.querySelector('.bg-orange-500');
       expect(progressBar).toHaveStyle('width: 80%'); // 4/5 = 80%
     });
 
     it('should show full progress bar when at limit', () => {
       render(<QuotaIndicator type="conversations" used={5} limit={5} />);
       
-      const progressBar = screen.getByText('5/5').parentElement?.querySelector('.bg-red-500');
+      const container = screen.getByTestId('quota-indicator-conversations');
+      const progressBar = container.querySelector('.bg-red-500');
       expect(progressBar).toHaveStyle('width: 100%');
     });
 
@@ -123,7 +126,8 @@ describe('QuotaIndicator', () => {
       
       expect(screen.getByText('0/5')).toBeInTheDocument();
       
-      const progressBar = screen.getByText('0/5').parentElement?.querySelector('.bg-blue-500');
+      const container = screen.getByTestId('quota-indicator-conversations');
+      const progressBar = container.querySelector('.bg-blue-500');
       expect(progressBar).toHaveStyle('width: 0%');
     });
   });
@@ -132,22 +136,25 @@ describe('QuotaIndicator', () => {
     it('should render in small size', () => {
       render(<QuotaIndicator type="conversations" used={2} limit={5} size="sm" />);
       
-      const container = screen.getByText('2/5').closest('div');
-      expect(container).toHaveClass('px-2', 'py-1', 'text-xs');
+      const container = screen.getByTestId('quota-indicator-conversations');
+      expect(container).toHaveClass('px-2', 'py-1');
+      expect(screen.getByText('Conversations')).toHaveClass('text-xs');
     });
 
     it('should render in medium size by default', () => {
       render(<QuotaIndicator type="conversations" used={2} limit={5} />);
       
-      const container = screen.getByText('2/5').closest('div');
-      expect(container).toHaveClass('px-3', 'py-2', 'text-sm');
+      const container = screen.getByTestId('quota-indicator-conversations');
+      expect(container).toHaveClass('px-3', 'py-2');
+      expect(screen.getByText('Conversations')).toHaveClass('text-sm');
     });
 
     it('should render in large size', () => {
       render(<QuotaIndicator type="conversations" used={2} limit={5} size="lg" />);
       
-      const container = screen.getByText('2/5').closest('div');
-      expect(container).toHaveClass('px-4', 'py-3', 'text-sm');
+      const container = screen.getByTestId('quota-indicator-conversations');
+      expect(container).toHaveClass('px-4', 'py-3');
+      expect(screen.getByText('Conversations')).toHaveClass('text-sm');
     });
   });
 
@@ -156,17 +163,17 @@ describe('QuotaIndicator', () => {
       const handleClick = vi.fn();
       render(<QuotaIndicator type="conversations" used={2} limit={5} onClick={handleClick} />);
       
-      const container = screen.getByText('2/5').closest('div');
+      const container = screen.getByTestId('quota-indicator-conversations');
       expect(container).toHaveClass('cursor-pointer');
       
-      container?.click();
+      container.click();
       expect(handleClick).toHaveBeenCalled();
     });
 
     it('should not be clickable when onClick is not provided', () => {
       render(<QuotaIndicator type="conversations" used={2} limit={5} />);
       
-      const container = screen.getByText('2/5').closest('div');
+      const container = screen.getByTestId('quota-indicator-conversations');
       expect(container).not.toHaveClass('cursor-pointer');
     });
   });

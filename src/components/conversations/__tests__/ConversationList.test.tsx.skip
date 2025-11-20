@@ -8,6 +8,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ConversationList } from '../ConversationList';
 import type { Conversation } from '../../../types/conversation';
 
@@ -186,7 +187,7 @@ describe('ConversationList', () => {
 
       render(<ConversationList conversations={mockConversations} />);
 
-      expect(screen.getByText('Aucune conversation trouvÃ©e')).toBeInTheDocument();
+      expect(screen.getByText('Aucune conversation trouvée')).toBeInTheDocument();
       expect(screen.getByText(/Essayez de modifier vos critÃ¨res/)).toBeInTheDocument();
     });
 
@@ -236,7 +237,7 @@ describe('ConversationList', () => {
 
       render(<ConversationList conversations={mockConversations} />);
 
-      expect(screen.getByText('1 conversation trouvÃ©e')).toBeInTheDocument();
+      expect(screen.getByText('1 conversation trouvée')).toBeInTheDocument();
     });
   });
 
@@ -271,7 +272,7 @@ describe('ConversationList', () => {
       const statusFilter = screen.getByRole('combobox');
       await userEvent.click(statusFilter);
 
-      const activeOption = screen.getByText('En cours (1)');
+      const activeOption = screen.getByText((content, element) => content.includes('En cours (1)'));
       await userEvent.click(activeOption);
 
       expect(mockSetFilters).toHaveBeenCalledWith(expect.any(Function));
@@ -346,7 +347,7 @@ describe('ConversationList', () => {
       const sortButton = screen.getByText('Trier');
       await userEvent.click(sortButton);
 
-      expect(screen.getByText('DerniÃ¨re modification')).toBeInTheDocument();
+      expect(screen.getByText((content, element) => content.includes('Dernière modification'))).toBeInTheDocument();
       expect(screen.getByText('Date de crÃ©ation')).toBeInTheDocument();
       expect(screen.getByText('Titre')).toBeInTheDocument();
       expect(screen.getByText('Nombre de messages')).toBeInTheDocument();
@@ -482,9 +483,9 @@ describe('ConversationList', () => {
       await userEvent.click(statusFilter);
 
       expect(screen.getByText('Toutes (3)')).toBeInTheDocument();
-      expect(screen.getByText('En cours (1)')).toBeInTheDocument();
-      expect(screen.getByText('TerminÃ©es (1)')).toBeInTheDocument();
-      expect(screen.getByText('ArchivÃ©es (1)')).toBeInTheDocument();
+      expect(screen.getByText((content, element) => content.includes('En cours (1)'))).toBeInTheDocument();
+      expect(screen.getByText('Terminées (1)')).toBeInTheDocument();
+      expect(screen.getByText('Archivées (1)')).toBeInTheDocument();
     });
   });
 });

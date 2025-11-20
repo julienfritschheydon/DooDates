@@ -294,36 +294,8 @@ function renderGeminiChat(props: Partial<React.ComponentProps<typeof GeminiChatI
 }
 
 describe("GeminiChatInterface", () => {
-  let mockUseMessageSender: any;
-  let mockUseToast: any;
-  let mockUseVoiceRecognition: any;
-  let mockConversationService: any;
-
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Create fresh mocks for each test
-    mockUseMessageSender = vi.fn();
-    mockUseToast = vi.fn();
-    mockUseVoiceRecognition = vi.fn();
-    mockConversationService = vi.fn();
-
-    // Apply mocks
-    vi.mocked(useMessageSender).mockImplementation(mockUseMessageSender);
-    vi.mocked(useToast).mockImplementation(mockUseToast);
-    vi.mocked(useVoiceRecognition).mockImplementation(mockUseVoiceRecognition);
-    vi.mocked(ConversationService.resumeFromUrl).mockImplementation(mockConversationService);
-
-    // Set default return values
-    mockUseMessageSender.mockReturnValue({
-      sendMessage: vi.fn().mockResolvedValue(undefined),
-    });
-
-    mockUseToast.mockReturnValue({
-      toast: vi.fn(),
-      dismiss: vi.fn(),
-      toasts: [],
-    });
   });
 
   it("affiche l'input de message et le bouton d'envoi", () => {

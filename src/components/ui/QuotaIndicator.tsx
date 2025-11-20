@@ -111,6 +111,7 @@ const QuotaIndicator: React.FC<QuotaIndicatorProps> = ({
 
   return (
     <div
+      data-testid={`quota-indicator-${type}`}
       className={`
         ${colors.bg} ${colors.border} border rounded-lg ${sizes.container}
         ${onClick ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}

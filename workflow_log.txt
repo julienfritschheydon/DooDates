@@ -1,0 +1,927 @@
+generate-health-report	Set up job	﻿2025-11-20T07:28:49.9498015Z Current runner version: '2.329.0'
+generate-health-report	Set up job	2025-11-20T07:28:49.9521380Z ##[group]Runner Image Provisioner
+generate-health-report	Set up job	2025-11-20T07:28:49.9522293Z Hosted Compute Agent
+generate-health-report	Set up job	2025-11-20T07:28:49.9522885Z Version: 20251016.436
+generate-health-report	Set up job	2025-11-20T07:28:49.9523467Z Commit: 8ab8ac8bfd662a3739dab9fe09456aba92132568
+generate-health-report	Set up job	2025-11-20T07:28:49.9524215Z Build Date: 2025-10-15T20:44:12Z
+generate-health-report	Set up job	2025-11-20T07:28:49.9524822Z ##[endgroup]
+generate-health-report	Set up job	2025-11-20T07:28:49.9525395Z ##[group]Operating System
+generate-health-report	Set up job	2025-11-20T07:28:49.9525919Z Ubuntu
+generate-health-report	Set up job	2025-11-20T07:28:49.9526477Z 24.04.3
+generate-health-report	Set up job	2025-11-20T07:28:49.9526923Z LTS
+generate-health-report	Set up job	2025-11-20T07:28:49.9527373Z ##[endgroup]
+generate-health-report	Set up job	2025-11-20T07:28:49.9527908Z ##[group]Runner Image
+generate-health-report	Set up job	2025-11-20T07:28:49.9528498Z Image: ubuntu-24.04
+generate-health-report	Set up job	2025-11-20T07:28:49.9529002Z Version: 20251112.124.1
+generate-health-report	Set up job	2025-11-20T07:28:49.9530066Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20251112.124/images/ubuntu/Ubuntu2404-Readme.md
+generate-health-report	Set up job	2025-11-20T07:28:49.9531803Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20251112.124
+generate-health-report	Set up job	2025-11-20T07:28:49.9533033Z ##[endgroup]
+generate-health-report	Set up job	2025-11-20T07:28:49.9534214Z ##[group]GITHUB_TOKEN Permissions
+generate-health-report	Set up job	2025-11-20T07:28:49.9536089Z Actions: read
+generate-health-report	Set up job	2025-11-20T07:28:49.9536634Z Contents: write
+generate-health-report	Set up job	2025-11-20T07:28:49.9537143Z Issues: write
+generate-health-report	Set up job	2025-11-20T07:28:49.9537649Z Metadata: read
+generate-health-report	Set up job	2025-11-20T07:28:49.9538208Z ##[endgroup]
+generate-health-report	Set up job	2025-11-20T07:28:49.9540414Z Secret source: Actions
+generate-health-report	Set up job	2025-11-20T07:28:49.9541649Z Prepare workflow directory
+generate-health-report	Set up job	2025-11-20T07:28:49.9865204Z Prepare all required actions
+generate-health-report	Set up job	2025-11-20T07:28:49.9903236Z Getting action download info
+generate-health-report	Set up job	2025-11-20T07:28:50.3939939Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+generate-health-report	Set up job	2025-11-20T07:28:51.2411870Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+generate-health-report	Set up job	2025-11-20T07:28:51.3301685Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+generate-health-report	Set up job	2025-11-20T07:28:51.5915811Z Complete job name: generate-health-report
+generate-health-report	📊 Contexte de déclenchement	﻿2025-11-20T07:28:51.6665120Z ##[group]Run echo "🔔 Monitoring déclenché par: workflow_run"
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6666864Z [36;1mecho "🔔 Monitoring déclenché par: workflow_run"[0m
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6668260Z [36;1mif [ "workflow_run" = "workflow_run" ]; then[0m
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6669764Z [36;1m  echo "📋 Workflow surveillé: 2️⃣ Develop → Main (Auto-merge)"[0m
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6671477Z [36;1m  echo "✅ Status: failure"[0m
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6672768Z [36;1m  echo "🎯 Raison: Workflow critique ou échec détecté"[0m
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6674164Z [36;1melif [ "workflow_run" = "schedule" ]; then[0m
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6675455Z [36;1m  echo "⏰ Exécution périodique (backup 6h)"[0m
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6676600Z [36;1melse[0m
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6677454Z [36;1m  echo "👤 Exécution manuelle"[0m
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6678506Z [36;1mfi[0m
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6717265Z shell: /usr/bin/bash -e {0}
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6718544Z ##[endgroup]
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6845980Z 🔔 Monitoring déclenché par: workflow_run
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6847961Z 📋 Workflow surveillé: 2️⃣ Develop → Main (Auto-merge)
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6849356Z ✅ Status: failure
+generate-health-report	📊 Contexte de déclenchement	2025-11-20T07:28:51.6850294Z 🎯 Raison: Workflow critique ou échec détecté
+generate-health-report	📥 Checkout code	﻿2025-11-20T07:28:51.7071824Z ##[group]Run actions/checkout@v4
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7072837Z with:
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7073561Z   fetch-depth: 0
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7074734Z   token: ***
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7075581Z   repository: julienfritschheydon/DooDates
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7076659Z   ssh-strict: true
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7077443Z   ssh-user: git
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7078259Z   persist-credentials: true
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7079145Z   clean: true
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7079962Z   sparse-checkout-cone-mode: true
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7081107Z   fetch-tags: false
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7081913Z   show-progress: true
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7082714Z   lfs: false
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7083460Z   submodules: false
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7084269Z   set-safe-directory: true
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.7085265Z ##[endgroup]
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8122503Z Syncing repository: julienfritschheydon/DooDates
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8125502Z ##[group]Getting Git version info
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8126825Z Working directory is '/home/runner/work/DooDates/DooDates'
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8128766Z [command]/usr/bin/git version
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8195942Z git version 2.51.2
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8223032Z ##[endgroup]
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8239409Z Temporarily overriding HOME='/home/runner/work/_temp/d7314a66-d10c-4d57-a190-401467b70475' before making global git config changes
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8244567Z Adding repository directory to the temporary git global config as a safe directory
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8248611Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/DooDates/DooDates
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8282081Z Deleting the contents of '/home/runner/work/DooDates/DooDates'
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8285873Z ##[group]Initializing the repository
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8291167Z [command]/usr/bin/git init /home/runner/work/DooDates/DooDates
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8374911Z hint: Using 'master' as the name for the initial branch. This default branch name
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8377542Z hint: is subject to change. To configure the initial branch name to use in all
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8380345Z hint: of your new repositories, which will suppress this warning, call:
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8382989Z hint:
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8384667Z hint: 	git config --global init.defaultBranch <name>
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8386657Z hint:
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8388540Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8391988Z hint: 'development'. The just-created branch can be renamed via this command:
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8394522Z hint:
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8395757Z hint: 	git branch -m <name>
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8397237Z hint:
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8398493Z hint: Disable this message with "git config set advice.defaultBranchName false"
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8400481Z Initialized empty Git repository in /home/runner/work/DooDates/DooDates/.git/
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8405375Z [command]/usr/bin/git remote add origin https://github.com/julienfritschheydon/DooDates
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8425982Z ##[endgroup]
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8428486Z ##[group]Disabling automatic garbage collection
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8430955Z [command]/usr/bin/git config --local gc.auto 0
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8459979Z ##[endgroup]
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8462507Z ##[group]Setting up auth
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8467538Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8500136Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8810473Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.8842212Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.9053144Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.9085116Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.9314305Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.9347803Z ##[endgroup]
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.9350237Z ##[group]Fetching the repository
+generate-health-report	📥 Checkout code	2025-11-20T07:28:51.9359110Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4063519Z From https://github.com/julienfritschheydon/DooDates
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4066290Z  * [new branch]      develop                     -> origin/develop
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4067400Z  * [new branch]      feature/axe-core-accessibility -> origin/feature/axe-core-accessibility
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4068891Z  * [new branch]      feature/changesets-setup    -> origin/feature/changesets-setup
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4070197Z  * [new branch]      feature/fix-ultra-simple-poll-ci-flakiness -> origin/feature/fix-ultra-simple-poll-ci-flakiness
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4071987Z  * [new branch]      feature/improve-gemini-chat-tests -> origin/feature/improve-gemini-chat-tests
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4073217Z  * [new branch]      feature/stabilize-analytics-tests -> origin/feature/stabilize-analytics-tests
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4074371Z  * [new branch]      feature/use-gemini-api-tests -> origin/feature/use-gemini-api-tests
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4075414Z  * [new branch]      feature/zod-3-23-upgrade    -> origin/feature/zod-3-23-upgrade
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4076304Z  * [new branch]      main                        -> origin/main
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4077148Z  * [new branch]      test/ci-validation-fix      -> origin/test/ci-validation-fix
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4078065Z  * [new tag]         checkpoint/2025-08-25_09-10 -> checkpoint/2025-08-25_09-10
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4078923Z  * [new tag]         checkpoint/2025-08-25_09-19 -> checkpoint/2025-08-25_09-19
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4120381Z [command]/usr/bin/git branch --list --remote origin/main
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4144816Z   origin/main
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4152899Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4172347Z 3231b1b00ffa1508f218a02a49d286c9d6dd7126
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4176287Z ##[endgroup]
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4176912Z ##[group]Determining the checkout info
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4177920Z ##[endgroup]
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4183811Z [command]/usr/bin/git sparse-checkout disable
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4223416Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4247815Z ##[group]Checking out the ref
+generate-health-report	📥 Checkout code	2025-11-20T07:28:56.4252726Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4304682Z Updating files:  58% (720/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4330504Z Updating files:  59% (721/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4339333Z Updating files:  60% (733/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4347247Z Updating files:  61% (745/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4360606Z Updating files:  62% (758/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4373522Z Updating files:  63% (770/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4385637Z Updating files:  64% (782/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4398526Z Updating files:  65% (794/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4410410Z Updating files:  66% (806/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4423894Z Updating files:  67% (819/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4436460Z Updating files:  68% (831/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4446044Z Updating files:  69% (843/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4458540Z Updating files:  70% (855/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4471801Z Updating files:  71% (867/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4486491Z Updating files:  72% (880/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4497838Z Updating files:  73% (892/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4509612Z Updating files:  74% (904/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4521589Z Updating files:  75% (916/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4531605Z Updating files:  76% (928/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4541630Z Updating files:  77% (941/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4556765Z Updating files:  78% (953/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4563927Z Updating files:  79% (965/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4572681Z Updating files:  80% (977/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4581104Z Updating files:  81% (990/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4587541Z Updating files:  82% (1002/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4596427Z Updating files:  83% (1014/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4603934Z Updating files:  84% (1026/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4611134Z Updating files:  85% (1038/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4620226Z Updating files:  86% (1051/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4628497Z Updating files:  87% (1063/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4635381Z Updating files:  88% (1075/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4643265Z Updating files:  89% (1087/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4661809Z Updating files:  90% (1099/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4667421Z Updating files:  91% (1112/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4676487Z Updating files:  92% (1124/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4687625Z Updating files:  93% (1136/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4697486Z Updating files:  94% (1148/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4707641Z Updating files:  95% (1160/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4719666Z Updating files:  96% (1173/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4727784Z Updating files:  97% (1185/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4781935Z Updating files:  98% (1197/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4790582Z Updating files:  99% (1209/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4791171Z Updating files: 100% (1221/1221)
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4791563Z Updating files: 100% (1221/1221), done.
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4813794Z Switched to a new branch 'main'
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4817028Z branch 'main' set up to track 'origin/main'.
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4892504Z ##[endgroup]
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4931778Z [command]/usr/bin/git log -1 --format=%H
+generate-health-report	📥 Checkout code	2025-11-20T07:28:57.4954741Z 3231b1b00ffa1508f218a02a49d286c9d6dd7126
+generate-health-report	📦 Setup Node.js 20	﻿2025-11-20T07:28:57.5197574Z ##[group]Run actions/setup-node@v4
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:57.5198020Z with:
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:57.5198308Z   node-version: 20
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:57.5198685Z   cache: npm
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:57.5199028Z   always-auth: false
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:57.5199348Z   check-latest: false
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:57.5199901Z   token: ***
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:57.5200201Z ##[endgroup]
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:57.6969293Z Found in cache @ /opt/hostedtoolcache/node/20.19.5/x64
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:57.6975555Z ##[group]Environment details
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:58.0122757Z node: v20.19.5
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:58.0123132Z npm: 10.8.2
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:58.0123401Z yarn: 1.22.22
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:58.0124161Z ##[endgroup]
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:58.0146207Z [command]/opt/hostedtoolcache/node/20.19.5/x64/bin/npm config get cache
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:58.2804649Z /home/runner/.npm
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:58.5625796Z Cache hit for: node-cache-Linux-x64-npm-6a0fb106fc84f424e96803b6299111b3dbf4700b7504c1a85557bc843b1b112d
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:28:59.8085304Z Received 29360128 of 86041804 (34.1%), 28.0 MBs/sec
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:29:00.2782258Z Received 86041804 of 86041804 (100.0%), 55.8 MBs/sec
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:29:00.2784472Z Cache Size: ~82 MB (86041804 B)
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:29:00.2845633Z [command]/usr/bin/tar -xf /home/runner/work/_temp/57cfe712-d2fb-45e3-8fe2-6c33228b9a4d/cache.tzst -P -C /home/runner/work/DooDates/DooDates --use-compress-program unzstd
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:29:00.5402928Z Cache restored successfully
+generate-health-report	📦 Setup Node.js 20	2025-11-20T07:29:00.5577084Z Cache restored from key: node-cache-Linux-x64-npm-6a0fb106fc84f424e96803b6299111b3dbf4700b7504c1a85557bc843b1b112d
+generate-health-report	🔧 Install dependencies	﻿2025-11-20T07:29:00.5706297Z ##[group]Run npm ci
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:00.5706554Z [36;1mnpm ci[0m
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:00.5745413Z shell: /usr/bin/bash -e {0}
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:00.5745664Z ##[endgroup]
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:05.4377920Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:05.7431744Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:05.7446556Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:05.7462874Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:05.7465932Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:06.2158985Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:06.9809830Z npm warn deprecated later@1.2.0: Please upgrade to the maintained and new drop-in replacement @breejs/later at https://github.com/breejs/later 🚀 Thanks and happy hacking! 🚀  @niftylettuce
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6040405Z 
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6041181Z > vite_react_shadcn_ts@0.0.0 prepare
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6041667Z > husky
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6041839Z 
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6729521Z 
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6730350Z added 1032 packages, and audited 1033 packages in 10s
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6730911Z 
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6731293Z 237 packages are looking for funding
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6732045Z   run `npm fund` for details
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6744089Z 
+generate-health-report	🔧 Install dependencies	2025-11-20T07:29:10.6744373Z found 0 vulnerabilities
+generate-health-report	🎭 Cache Playwright browsers	﻿2025-11-20T07:29:10.7915079Z ##[group]Run actions/cache@v4
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:10.7915348Z with:
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:10.7915539Z   path: ~/.cache/ms-playwright
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:10.7915996Z   key: Linux-playwright-chromium-6a0fb106fc84f424e96803b6299111b3dbf4700b7504c1a85557bc843b1b112d
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:10.7916541Z   restore-keys: Linux-playwright-chromium-
+generate-health-report	🎭 Cache Playwright browsers	Linux-playwright-
+generate-health-report	🎭 Cache Playwright browsers	
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:10.7916870Z   enableCrossOsArchive: false
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:10.7917092Z   fail-on-cache-miss: false
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:10.7917293Z   lookup-only: false
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:10.7917479Z   save-always: false
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:10.7917665Z ##[endgroup]
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:11.1513483Z Cache hit for: Linux-playwright-chromium-6a0fb106fc84f424e96803b6299111b3dbf4700b7504c1a85557bc843b1b112d
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:12.4301443Z Received 33554432 of 279111313 (12.0%), 32.0 MBs/sec
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:13.4314991Z Received 150994944 of 279111313 (54.1%), 72.0 MBs/sec
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:14.4325058Z Received 270722705 of 279111313 (97.0%), 86.0 MBs/sec
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:14.5113375Z Received 279111313 of 279111313 (100.0%), 86.4 MBs/sec
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:14.5115826Z Cache Size: ~266 MB (279111313 B)
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:14.5214045Z [command]/usr/bin/tar -xf /home/runner/work/_temp/90ac6501-24c6-47b9-8934-a109d2879ec8/cache.tzst -P -C /home/runner/work/DooDates/DooDates --use-compress-program unzstd
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:16.0428191Z Cache restored successfully
+generate-health-report	🎭 Cache Playwright browsers	2025-11-20T07:29:16.1051119Z Cache restored from key: Linux-playwright-chromium-6a0fb106fc84f424e96803b6299111b3dbf4700b7504c1a85557bc843b1b112d
+generate-health-report	🎭 Install Playwright browsers	﻿2025-11-20T07:29:16.1182015Z ##[group]Run echo "📦 Installation de chromium avec dépendances système..."
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:16.1182563Z [36;1mecho "📦 Installation de chromium avec dépendances système..."[0m
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:16.1182965Z [36;1mnpx playwright install --with-deps chromium[0m
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:16.1215146Z shell: /usr/bin/bash -e {0}
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:16.1215408Z ##[endgroup]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:16.1268537Z 📦 Installation de chromium avec dépendances système...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:16.9876830Z Installing dependencies...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:16.9945543Z Switching to root user to install dependencies...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.0954263Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.1387369Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.1391802Z Get:6 https://packages.microsoft.com/repos/azure-cli noble InRelease [3564 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.1401693Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.1425857Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.1477446Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.1503934Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.2949476Z Get:8 https://packages.microsoft.com/repos/azure-cli noble/main amd64 Packages [1763 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.3419629Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [50.9 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.3489855Z Get:10 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [11.2 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.3578660Z Get:11 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [68.1 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.3851145Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1588 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.3936404Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [300 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.3965732Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [175 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.3987526Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 c-n-f Metadata [15.7 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4000125Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1500 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4086218Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [304 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4115882Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [378 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4147077Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 c-n-f Metadata [31.4 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4162428Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2251 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4299243Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [510 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4752214Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Components [212 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4762351Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [5808 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4773277Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4791419Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [7148 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4804885Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [11.0 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4813931Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble-backports/restricted amd64 Components [216 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4824054Z Get:28 http://azure.archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Components [212 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.4939858Z Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1311 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5008767Z Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [216 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5027924Z Get:31 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [21.6 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5038564Z Get:32 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 c-n-f Metadata [9420 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5050376Z Get:33 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [909 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5101220Z Get:34 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [205 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5125066Z Get:35 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [52.2 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5550271Z Get:36 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 c-n-f Metadata [19.4 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5564081Z Get:37 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2146 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5662244Z Get:38 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [488 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5692853Z Get:39 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Components [212 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5703843Z Get:40 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [5956 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:17.5714201Z Get:41 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Components [212 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:26.4677099Z Fetched 13.0 MB in 2s (8217 kB/s)
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.2103453Z Reading package lists...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.2360199Z Reading package lists...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.4086454Z Building dependency tree...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.4094242Z Reading state information...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5653323Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5654192Z libasound2t64 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5654995Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5655763Z libatk-bridge2.0-0t64 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5656580Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5657221Z libatk1.0-0t64 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5657942Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5658605Z libatspi2.0-0t64 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5659672Z libcairo2 is already the newest version (1.18.0-3build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5660274Z libcairo2 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5661131Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.4).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5661774Z libcups2t64 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5662529Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5663214Z libdbus-1-3 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5663918Z libgbm1 is already the newest version (25.0.7-0ubuntu0.24.04.2).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5664578Z libgbm1 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5665231Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.4).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5665888Z libglib2.0-0t64 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5666510Z libnspr4 is already the newest version (2:4.35-1.1build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5667080Z libnspr4 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5667475Z libnss3 is already the newest version (2:3.98-1build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5667840Z libnss3 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5668226Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5668599Z libpango-1.0-0 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5668972Z libx11-6 is already the newest version (2:1.8.7-1build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5669303Z libx11-6 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5669634Z libxcb1 is already the newest version (1.15-1ubuntu2).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5669959Z libxcb1 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5670342Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5671132Z libxcomposite1 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5671769Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5672137Z libxdamage1 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5672503Z libxext6 is already the newest version (2:1.3.4-1build2).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5672840Z libxext6 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5673205Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5673648Z libxfixes3 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5674105Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5674469Z libxkbcommon0 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5674846Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5675198Z libxrandr2 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5675561Z xvfb is already the newest version (2:21.1.12-1ubuntu1.5).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5676194Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5677058Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5677752Z libfontconfig1 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5678441Z libfreetype6 is already the newest version (2.13.2+dfsg-1build3).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5678990Z libfreetype6 set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5679388Z fonts-liberation is already the newest version (1:2.1.5-3).
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5679773Z fonts-liberation set to manually installed.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5680148Z The following additional packages will be installed:
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5680610Z   libdrm-amdgpu1 libdrm-common libdrm-intel1 xfonts-encodings xfonts-utils
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5681474Z Recommended packages:
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5681932Z   fonts-ipafont-mincho fonts-tlwg-loma
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5881901Z The following NEW packages will be installed:
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5882739Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5887900Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5888353Z   xfonts-utils
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5892447Z The following packages will be upgraded:
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.5897322Z   libdrm-amdgpu1 libdrm-common libdrm-intel1 libdrm2
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.6061004Z 4 upgraded, 9 newly installed, 0 to remove and 41 not upgraded.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.6061711Z Need to get 21.2 MB of archives.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.6062705Z After this operation, 79.5 MB of additional disk space will be used.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.6063488Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:27.7397061Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:28.2321864Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm-common all 2.4.122-1~ubuntu0.24.04.2 [8464 B]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:28.2892674Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm2 amd64 2.4.122-1~ubuntu0.24.04.2 [40.6 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:28.3482911Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:28.7949405Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:28.8472569Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:28.9479248Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.1177133Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm-amdgpu1 amd64 2.4.122-1~ubuntu0.24.04.2 [20.9 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.1685302Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm-intel1 amd64 2.4.122-1~ubuntu0.24.04.2 [63.8 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.2202742Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.2791499Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.3304961Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.3868035Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.6664452Z Fetched 21.2 MB in 2s (11.8 MB/s)
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7515998Z Selecting previously unselected package fonts-ipafont-gothic.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7800553Z (Reading database ... 
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7801657Z (Reading database ... 5%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7802336Z (Reading database ... 10%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7802662Z (Reading database ... 15%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7802920Z (Reading database ... 20%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7803153Z (Reading database ... 25%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7803382Z (Reading database ... 30%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7803617Z (Reading database ... 35%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7803851Z (Reading database ... 40%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7804088Z (Reading database ... 45%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.7804453Z (Reading database ... 50%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:29.8597691Z (Reading database ... 55%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:30.1795464Z (Reading database ... 60%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:30.3543123Z (Reading database ... 65%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:30.4633730Z (Reading database ... 70%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:30.5788606Z (Reading database ... 75%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:31.1358372Z (Reading database ... 80%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:31.7561243Z (Reading database ... 85%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:32.5664082Z (Reading database ... 90%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.3405402Z (Reading database ... 95%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.3406013Z (Reading database ... 100%
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.3406595Z (Reading database ... 216225 files and directories currently installed.)
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.3449358Z Preparing to unpack .../00-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.3538596Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.5933411Z Preparing to unpack .../01-libdrm-common_2.4.122-1~ubuntu0.24.04.2_all.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.5952849Z Unpacking libdrm-common (2.4.122-1~ubuntu0.24.04.2) over (2.4.122-1~ubuntu0.24.04.1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.6356131Z Preparing to unpack .../02-libdrm2_2.4.122-1~ubuntu0.24.04.2_amd64.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.6430361Z Unpacking libdrm2:amd64 (2.4.122-1~ubuntu0.24.04.2) over (2.4.122-1~ubuntu0.24.04.1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.6656626Z Selecting previously unselected package fonts-freefont-ttf.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.6795860Z Preparing to unpack .../03-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.6803421Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.7674514Z Selecting previously unselected package fonts-tlwg-loma-otf.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.7805679Z Preparing to unpack .../04-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.7814489Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.8021411Z Selecting previously unselected package fonts-unifont.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.8154861Z Preparing to unpack .../05-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.8163256Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.9382188Z Selecting previously unselected package fonts-wqy-zenhei.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.9512701Z Preparing to unpack .../06-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:33.9653949Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.4397327Z Preparing to unpack .../07-libdrm-amdgpu1_2.4.122-1~ubuntu0.24.04.2_amd64.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.4459691Z Unpacking libdrm-amdgpu1:amd64 (2.4.122-1~ubuntu0.24.04.2) over (2.4.122-1~ubuntu0.24.04.1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.4843701Z Preparing to unpack .../08-libdrm-intel1_2.4.122-1~ubuntu0.24.04.2_amd64.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.4868577Z Unpacking libdrm-intel1:amd64 (2.4.122-1~ubuntu0.24.04.2) over (2.4.122-1~ubuntu0.24.04.1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.5072023Z Selecting previously unselected package xfonts-encodings.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.5203296Z Preparing to unpack .../09-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.5210795Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.5491022Z Selecting previously unselected package xfonts-utils.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.5621760Z Preparing to unpack .../10-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.5629573Z Unpacking xfonts-utils (1:7.7+6build3) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.6173811Z Selecting previously unselected package xfonts-cyrillic.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.6307798Z Preparing to unpack .../11-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.6315265Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.6658338Z Selecting previously unselected package xfonts-scalable.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.6789157Z Preparing to unpack .../12-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.6797210Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7207713Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7322787Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7342571Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7362935Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7382163Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7448134Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7463865Z Setting up libdrm-common (2.4.122-1~ubuntu0.24.04.2) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7485342Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7504966Z Setting up xfonts-utils (1:7.7+6build3) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7544680Z Setting up libdrm2:amd64 (2.4.122-1~ubuntu0.24.04.2) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.7565803Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.8019987Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.8316168Z Setting up libdrm-amdgpu1:amd64 (2.4.122-1~ubuntu0.24.04.2) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.8334944Z Setting up libdrm-intel1:amd64 (2.4.122-1~ubuntu0.24.04.2) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:34.8358438Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:35.0087331Z Processing triggers for libc-bin (2.39-0ubuntu8.6) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:38.4662273Z Processing triggers for man-db (2.12.0-4build2) ...
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:38.4723494Z Not building database; man-db/auto-update is not 'true'.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:39.5493693Z 
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:39.5494395Z Running kernel seems to be up-to-date.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:39.5494874Z 
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:39.5495167Z No services need to be restarted.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:39.5495521Z 
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:39.5495801Z No containers need to be restarted.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:39.5496165Z 
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:39.5496519Z No user sessions are running outdated binaries.
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:39.5496943Z 
+generate-health-report	🎭 Install Playwright browsers	2025-11-20T07:29:39.5497520Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+generate-health-report	📊 Generate Workflow Health Report	﻿2025-11-20T07:29:40.4340351Z ##[group]Run node scripts/monitor-workflow-failures.js
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:40.4341062Z [36;1mnode scripts/monitor-workflow-failures.js[0m
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:40.4374036Z shell: /usr/bin/bash -e {0}
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:40.4374272Z env:
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:40.4374659Z   GITHUB_TOKEN: ***
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:40.4393916Z   GITHUB_REPOSITORY: julienfritschheydon/DooDates
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:40.4394294Z   GITHUB_API_URL: https://api.github.com
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:40.4394567Z ##[endgroup]
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:40.4822182Z 📊 Génération du rapport de monitoring des workflows...
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:40.4822638Z 
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:41.1190348Z 📋 Analyse de "1️⃣ PR Complete Validation"...
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:42.1251449Z   📥 Récupération des logs pour job 55854079200...
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:43.8662541Z 📋 Analyse de "2️⃣ Develop → Main (Auto-merge)"...
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:44.8101621Z   📥 Récupération des logs pour job 55907512639...
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:47.1679156Z 📋 Analyse de "3️⃣ Main Post-Merge E2E"...
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:48.3327512Z   📥 Récupération des logs pour job 55820305883...
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:49.7390575Z ⚠️ Workflow "4️⃣ Main Deploy Pages" non trouvé
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:49.7391616Z ⚠️ Workflow "6️⃣ Nightly Full Regression" non trouvé
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:49.7392138Z ⚠️ Workflow "7️⃣ Monthly Gemini" non trouvé
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:50.9213034Z 
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:50.9214600Z ✅ Rapport généré: /home/runner/work/DooDates/DooDates/Docs/monitoring/workflow-failures-report.md
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:50.9215812Z 📊 19 échec(s) détecté(s) dans les 24h
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:50.9216831Z 📊 Statut rapide généré: /home/runner/work/DooDates/DooDates/Docs/monitoring/workflow-status.json
+generate-health-report	📊 Generate Workflow Health Report	2025-11-20T07:29:51.5601671Z ✅ Issue #206 créée pour alerter sur les échecs
+generate-health-report	📤 Commit and push report	﻿2025-11-20T07:29:51.5713025Z ##[group]Run git config user.name "github-actions[bot]"
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5713449Z [36;1mgit config user.name "github-actions[bot]"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5713841Z [36;1mgit config user.email "github-actions[bot]@users.noreply.github.com"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5714184Z [36;1m[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5714376Z [36;1m# Déterminer la branche cible[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5714828Z [36;1m# Si déclenché par workflow_run, utiliser la branche du workflow déclencheur depuis l'événement[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5715283Z [36;1m# Sinon, utiliser la branche par défaut[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5715573Z [36;1mif [ -n "develop" ]; then[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5715813Z [36;1m  BRANCH="develop"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5716057Z [36;1melif [ -n "main" ]; then[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5716284Z [36;1m  BRANCH="main"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5716478Z [36;1melse[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5716646Z [36;1m  BRANCH="main"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5716835Z [36;1mfi[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5716995Z [36;1m[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5717208Z [36;1mecho "Branche cible: $BRANCH"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5717435Z [36;1m[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5717654Z [36;1m# S'assurer qu'on est sur la bonne branche et à jour[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5718063Z [36;1mgit fetch origin $BRANCH || git fetch origin main || git fetch origin develop[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5718792Z [36;1mgit checkout $BRANCH 2>/dev/null || git checkout -b $BRANCH origin/$BRANCH 2>/dev/null || echo "⚠️ Impossible de checkout $BRANCH, utilisation de la branche actuelle"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5719427Z [36;1mgit pull origin $BRANCH 2>/dev/null || true[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5719688Z [36;1m[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5719874Z [36;1m# Ajouter les fichiers de monitoring[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5720583Z [36;1mgit add "Docs/monitoring/workflow-failures-report.md" "Docs/monitoring/workflow-status.json" 2>/dev/null || true[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5721353Z [36;1m[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5721542Z [36;1mif git diff --staged --quiet; then[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5721856Z [36;1m  echo "✅ Aucun changement détecté, rien à committer"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5722149Z [36;1melse[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5722563Z [36;1m  COMMIT_MESSAGE="docs: mise à jour du rapport de monitoring des workflows (run #${GITHUB_RUN_NUMBER:-local}) [skip ci]"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5723055Z [36;1m  git commit -m "$COMMIT_MESSAGE"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5723292Z [36;1mfi[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5723449Z [36;1m[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5723626Z [36;1mgit push origin $BRANCH || {[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5723921Z [36;1m  echo "❌ Erreur lors du push, tentative avec HEAD"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5724275Z [36;1m  git push origin HEAD:$BRANCH || echo "❌ Échec du push"[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5724580Z [36;1m}[0m
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5756984Z shell: /usr/bin/bash -e {0}
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5757215Z ##[endgroup]
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.5839783Z Branche cible: develop
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.9080477Z From https://github.com/julienfritschheydon/DooDates
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:51.9081302Z  * branch            develop    -> FETCH_HEAD
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:52.2918785Z M	Docs/monitoring/workflow-failures-report.md
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:52.2919659Z M	Docs/monitoring/workflow-status.json
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:52.2920466Z branch 'develop' set up to track 'origin/develop'.
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:52.6136412Z Already up to date.
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:52.6328005Z 🔍 DooDates - Validation pre-commit...
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:52.6356768Z ℹ️ ggshield non installé (skip)
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:52.6357667Z ⚡ Branche DEVELOP: validation rapide (lint + format + error handling)...
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:52.6358595Z ⏭️ Environnement CI détecté - Vérification serveur local ignorée
+generate-health-report	📤 Commit and push report	2025-11-20T07:29:52.6359090Z 🔍 ESLint...
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4021495Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4022350Z /home/runner/work/DooDates/DooDates/src/components/PollCreator.tsx
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4060229Z ##[warning]  414:6  warning  React Hook useEffect has a missing dependency: 'toast'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4069179Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4069836Z /home/runner/work/DooDates/DooDates/src/components/dashboard/useDashboardData.ts
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4072946Z ##[warning]  461:6  warning  React Hook useCallback has a missing dependency: 'user'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4074559Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4075137Z /home/runner/work/DooDates/DooDates/src/components/polls/DateQuestionEditor.tsx
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4078470Z ##[warning]  28:9  warning  The 'selectedDates' logical expression could make the dependencies of useCallback Hook (at line 71) change on every render. To fix this, wrap the initialization of 'selectedDates' in its own useMemo() Hook       react-hooks/exhaustive-deps
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4083288Z ##[warning]  29:9  warning  The 'timeSlotsByDate' logical expression could make the dependencies of useCallback Hook (at line 71) change on every render. To fix this, wrap the initialization of 'timeSlotsByDate' in its own useMemo() Hook   react-hooks/exhaustive-deps
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4088193Z ##[warning]  29:9  warning  The 'timeSlotsByDate' logical expression could make the dependencies of useCallback Hook (at line 104) change on every render. To fix this, wrap the initialization of 'timeSlotsByDate' in its own useMemo() Hook  react-hooks/exhaustive-deps
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4092997Z ##[warning]  29:9  warning  The 'timeSlotsByDate' logical expression could make the dependencies of useCallback Hook (at line 123) change on every render. To fix this, wrap the initialization of 'timeSlotsByDate' in its own useMemo() Hook  react-hooks/exhaustive-deps
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4094999Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4095545Z /home/runner/work/DooDates/DooDates/src/components/polls/DateQuestionVote.tsx
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4099261Z ##[warning]   18:9   warning  The 'selectedDates' logical expression could make the dependencies of useMemo Hook (at line 68) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'selectedDates' in its own useMemo() Hook      react-hooks/exhaustive-deps
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4104573Z ##[warning]   19:9   warning  The 'timeSlotsByDate' logical expression could make the dependencies of useMemo Hook (at line 68) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'timeSlotsByDate' in its own useMemo() Hook  react-hooks/exhaustive-deps
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4108278Z ##[warning]  132:24  warning  Unexpected any. Specify a different type                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4109733Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4110293Z /home/runner/work/DooDates/DooDates/src/components/polls/DateResultsView.tsx
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4112592Z ##[warning]  49:6  warning  React Hook useMemo has a missing dependency: 'getDateScore'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4114269Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4114687Z /home/runner/work/DooDates/DooDates/src/lib/e2e-detection.ts
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4116084Z ##[warning]  24:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4117447Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4117788Z /home/runner/work/DooDates/DooDates/src/lib/gemini.ts
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4119020Z ##[warning]  1870:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4120392Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4121023Z /home/runner/work/DooDates/DooDates/src/lib/storage/storageUtils.ts
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4122470Z ##[warning]  27:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4124606Z ##[warning]  29:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4126683Z ##[warning]  51:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4129025Z ##[warning]  53:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4130306Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4131032Z /home/runner/work/DooDates/DooDates/src/pages/AvailabilityPollResults.tsx
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4133234Z ##[warning]  74:6  warning  React Hook useEffect has a missing dependency: 'loadPoll'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4134863Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4135391Z ✖ 17 problems (0 errors, 17 warnings)
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4135696Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.4766400Z 🛡️ Vérification Error Handling...
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.5820211Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.5821121Z > vite_react_shadcn_ts@0.0.0 test:error-handling
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.5821914Z > vitest run --config vitest.config.enforcement.ts
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.5822317Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.9217384Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.9219115Z [1m[46m RUN [49m[22m [36mv3.2.4 [39m[90m/home/runner/work/DooDates/DooDates[39m
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:00.9219727Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4950337Z [90mstderr[2m | src/__tests__/error-handling-enforcement.test.ts[2m > [22m[2mCentralized Error Handling Enforcement[2m > [22m[2mshould import centralized error handling where errors are used
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4952407Z [22m[39mWarning: 98 file(s) use error handling without centralized imports:
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4953382Z App.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4954482Z services/userPreferences.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4955771Z services/temporaryReservation.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4957852Z services/schedulingOptimizer.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4959209Z services/SurveyRequestAggregator.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4960568Z services/SecureGeminiService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4962015Z services/QuotaService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4963297Z services/PollTypeSwitchDetector.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4964612Z services/PollCreatorService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4965942Z services/PollCreationBusinessLogic.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4967286Z services/PollAnalyticsService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4968528Z services/IntentService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4969770Z services/GeminiIntentService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4971186Z services/EmailService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4972420Z services/DirectGeminiService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4973687Z services/ConversationService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4975020Z services/ConversationSearchService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4976301Z services/BetaKeyService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4977385Z pages/Docs.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4978530Z pages/ConsumptionJournal.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4979808Z pages/AvailabilityPollVote.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4981260Z pages/AvailabilityPollResults.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4982701Z lib/temporalParser.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4983774Z lib/supabaseApi.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4984895Z lib/supabase-fetch.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4985995Z lib/quotaTracking.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4987151Z lib/progressive-calendar.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4988289Z lib/pollStorage.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4989474Z lib/performance-measurement.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4990838Z lib/guestQuotaService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4992018Z lib/google-calendar.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4993068Z lib/gemini.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4994044Z lib/exports.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4995105Z lib/enhanced-gemini.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4996205Z lib/email-service.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4997283Z lib/calendar-data.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4998650Z lib/browserFingerprint.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.4999841Z lib/availability-parser.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5001273Z lib/ConversationPollLink.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5002438Z hooks/useVoting.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5003587Z hooks/useVoiceRecognition.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5004721Z hooks/useQuota.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5005758Z hooks/usePolls.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5006923Z hooks/usePollDeletionCascade.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5008219Z hooks/usePollConversationLink.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5009448Z hooks/useMessageSender.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5010587Z hooks/useGeminiAPI.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5011939Z hooks/useFreemiumQuota.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5013132Z hooks/useConversations.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5014367Z hooks/useConversationStorage.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5015621Z hooks/useConversationSearch.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5016863Z hooks/useConversationResume.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5018095Z hooks/useConversationQuota.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5019320Z hooks/useConnectionStatus.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5020460Z hooks/useAutoSave.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5021779Z hooks/useAnalyticsQuota.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5023266Z contexts/OnboardingContext.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5024489Z contexts/AuthContext.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5025678Z components/PollCreator.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5026934Z components/GeminiChatInterface.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5028158Z components/Dashboard.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5029391Z components/ConversationalAI.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5030630Z lib/storage/useMigration.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5032169Z lib/storage/storageUtils.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5033438Z lib/storage/statsStorage.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5034795Z lib/storage/autoMigrateGuestConversations.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5036143Z lib/storage/TagStorage.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5037312Z lib/storage/FolderStorage.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5038645Z lib/storage/ConversationStorageSupabase.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5040485Z lib/storage/ConversationMigrationService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5042075Z lib/simulation/SimulationService.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5043451Z lib/simulation/SimulationComparison.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5044823Z lib/simulation/SimulationAnalyzer.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5046117Z lib/services/titleGeneration.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5047363Z lib/services/deleteCascade.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5048659Z components/voting/ex-VotingSwipe.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5049952Z components/voting/VoterForm.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5051454Z components/voting/VoteResults.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5052887Z components/prototype/WorkspaceProvider.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5054443Z components/prototype/WorkspaceLayoutPrototype.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5055965Z components/prototype/UIStateProvider.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5057353Z components/prototype/PollPreview.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5058797Z components/prototype/EditorStateProvider.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5060327Z components/prototype/ConversationStateProvider.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5062068Z components/prototype/AICreationWorkspace.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5063486Z components/modals/BetaKeyModal.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5064867Z components/polls/PollAnalyticsPanel.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5066410Z components/polls/PollActions.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5067780Z components/polls/AIProposalFeedback.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5069140Z components/layout/HistoryPanel.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5070512Z components/layout/CreatePageLayout.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5071985Z components/docs/DocsViewer.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5073349Z components/dashboard/useDashboardData.ts - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5074852Z components/dashboard/ManageTagsFolderDialog.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5076385Z components/dashboard/DashboardTableView.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5077860Z components/dashboard/DashboardFilters.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5079305Z components/dashboard/ConversationCard.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5081034Z components/conversations/ConversationActions.tsx - Uses error handling but does not import centralized error system
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5081812Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5237208Z [90mstdout[2m | src/__tests__/error-handling-enforcement.test.ts[2m > [22m[2mCentralized Error Handling Enforcement[2m > [22m[2mshould provide helpful error messages for common violations
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5239560Z [22m[39m✅ Centralized Error Logging: logError(ErrorFactory.storage("message", "userMessage"), { context })
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5241184Z ✅ Error Creation: ErrorFactory.validation("message", "userMessage")
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5242268Z ✅ Error Handling: handleError(error, { context }, "fallback message")
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5243383Z ✅ Async Error Wrapping: withErrorHandling(async () => { ... }, { context })
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5244121Z ✅ Custom Error Types: throw ErrorFactory.network("message", "userMessage")
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5244410Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5535370Z [90mstderr[2m | src/__tests__/error-handling-enforcement.test.ts[2m > [22m[2mError Handling Integration Tests[2m > [22m[2mshould properly categorize and handle errors
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5536677Z [22m[39m🚨 DooDates Error: {
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5537164Z   message: [32m'Test error'[39m,
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5537528Z   name: [32m'DooDatesError'[39m,
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5538081Z   stack: [32m'DooDatesError: Test error\n'[39m +
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5539300Z     [32m'    at Object.validation (/home/runner/work/DooDates/DooDates/src/lib/error-handling.ts:136:5)\n'[39m +
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5541164Z     [32m'    at /home/runner/work/DooDates/DooDates/src/__tests__/error-handling-enforcement.test.ts:288:36\n'[39m +
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5542648Z     [32m'    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n'[39m +
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5544063Z     [32m'    at file:///home/runner/work/DooDates/DooDates/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20'[39m,
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5545204Z   timestamp: [32m'2025-11-20T07:30:01.550Z'[39m,
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5545873Z   context: { component: [32m'test'[39m },
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5546464Z   severity: [32m'medium'[39m,
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5546771Z   category: [32m'validation'[39m,
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5547113Z   userMessage: [32m'Test user message'[39m
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5547381Z }
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5547476Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5556690Z  [32m✓[39m src/__tests__/error-handling-enforcement.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 205[2mms[22m[39m
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5685650Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5689787Z [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5691174Z [2m      Tests [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5691852Z [2m   Start at [22m 07:30:00
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5693793Z [2m   Duration [22m 646ms[2m (transform 76ms, setup 0ms, collect 76ms, tests 205ms, environment 0ms, prepare 185ms)[22m
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.5694472Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.6667404Z 🧪 Vérification testabilité...
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.6884402Z 🔍 Vérification de la testabilité du code...
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.6884815Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.7016969Z 📂 2 fichier(s) à vérifier:
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.7017305Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.7020364Z ✅ Aucun fichier source à vérifier (fichiers de config, tests, etc.)
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.7044386Z 📋 Validation règles E2E...
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.7261447Z 🔍 Validation des règles E2E...
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.7261773Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.7310328Z ℹ️  Aucun fichier de test E2E modifié dans ce commit
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:01.7334328Z 🌐 Tests E2E critiques (ultra-simple form + poll)...
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:03.3268884Z [WebServer] 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:03.3269504Z [WebServer] > vite_react_shadcn_ts@0.0.0 dev:e2e
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:03.3270092Z [WebServer] > vite --mode test
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:03.3270494Z [WebServer] 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:03.5535674Z [WebServer] 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:03.5536998Z [WebServer]   [32m[1mVITE[22m v6.4.1[39m  [42m [1mtest[22m [49m  [2mready in [0m[1m199[22m[2m[0m ms[22m
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:03.5537700Z [WebServer] 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:03.5538565Z [WebServer]   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m8080[22m/[39m
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:03.5539686Z [WebServer]   [32m➜[39m  [1mNetwork[22m: [36mhttp://10.1.0.182:[1m8080[22m/[39m
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:04.9207856Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:04.9210440Z Running 1 test using 1 worker
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:10.2237043Z ✅ App chargée
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:10.2240036Z 🔍 DEBUG: projectName="", browserName="chromium", options.mobileMode=false, isMobileBrowser=false
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:10.2241994Z 📅 Dates à sélectionner: 2025-11-21, 2025-11-24, 2025-11-27
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:11.3598707Z ✅ Page /create/date accessible → redirigée vers /create/ai?type=date
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:11.3873465Z ✉️ Prompt IA saisi (108 caractères)
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:11.4677549Z 📨 Prompt IA envoyé, attente de la réponse...
+generate-health-report	📤 Commit and push report	2025-11-20T07:30:15.3388749Z ✅ Réponse IA reçue (champ vidé)
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:04.3334635Z ×✅ App chargée
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:04.3341057Z 🔍 DEBUG: projectName="", browserName="chromium", options.mobileMode=false, isMobileBrowser=false
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:04.3342078Z 📅 Dates à sélectionner: 2025-11-21, 2025-11-24, 2025-11-27
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:05.8557933Z ✅ Page /create/date accessible → redirigée vers /create/ai?type=date
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:05.9061931Z ✉️ Prompt IA saisi (108 caractères)
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:06.0078526Z 📨 Prompt IA envoyé, attente de la réponse...
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:09.9001356Z ✅ Réponse IA reçue (champ vidé)
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:58.6716753Z ×✅ App chargée
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:58.6721085Z 🔍 DEBUG: projectName="", browserName="chromium", options.mobileMode=false, isMobileBrowser=false
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:58.6723103Z 📅 Dates à sélectionner: 2025-11-21, 2025-11-24, 2025-11-27
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:59.7961297Z ✅ Page /create/date accessible → redirigée vers /create/ai?type=date
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:59.8189129Z ✉️ Prompt IA saisi (108 caractères)
+generate-health-report	📤 Commit and push report	2025-11-20T07:31:59.8881372Z 📨 Prompt IA envoyé, attente de la réponse...
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:03.7576671Z ✅ Réponse IA reçue (champ vidé)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2618417Z F
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2625173Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2640629Z   1) [chromium] › tests/e2e/ultra-simple-poll.spec.ts:55:3 › DooDates - Test Ultra Simple 2 (avec helpers) › Workflow complet : Création DatePoll → Dashboard (avec helpers) @critical 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2641500Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2641778Z     TimeoutError: locator.click: Timeout 5000ms exceeded.
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2642233Z     Call log:
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2642690Z     [2m  - waiting for locator('[data-testid="create-poll-button"]').first()[22m
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2642991Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2642999Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2643087Z        at e2e/utils.ts:217
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2643538Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2643749Z       215 |   // Fallback: petit délai puis clic forcé
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2644125Z       216 |   await new Promise((res) => setTimeout(res, 200));
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2644523Z     > 217 |   await locator.click({ force: true, timeout: 5000 });
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2644824Z           |                 ^
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2645036Z       218 | }
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2645212Z       219 |
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2645385Z       220 | /**
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2645771Z         at robustClick (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:217:17)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2646538Z         at createDatePollWithTimeSlots (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-date-helpers.ts:335:3)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2647312Z         at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-poll.spec.ts:72:46
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2647926Z         at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2648560Z         at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-poll.spec.ts:63:5
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2648890Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2649285Z     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2650017Z     test-results/e2e-ultra-simple-poll-DooD-3db5e-board-avec-helpers-critical-chromium/test-failed-1.png
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2650995Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2651243Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2651702Z     Error Context: test-results/e2e-ultra-simple-poll-DooD-3db5e-board-avec-helpers-critical-chromium/error-context.md
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2652377Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2652714Z     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2652965Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2653141Z     TimeoutError: locator.click: Timeout 5000ms exceeded.
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2653449Z     Call log:
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2653885Z     [2m  - waiting for locator('[data-testid="create-poll-button"]').first()[22m
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2654186Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2654192Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2654278Z        at e2e/utils.ts:217
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2654424Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2654626Z       215 |   // Fallback: petit délai puis clic forcé
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2654999Z       216 |   await new Promise((res) => setTimeout(res, 200));
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2655404Z     > 217 |   await locator.click({ force: true, timeout: 5000 });
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2655712Z           |                 ^
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2655926Z       218 | }
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2656104Z       219 |
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2656287Z       220 | /**
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2656672Z         at robustClick (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:217:17)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2657443Z         at createDatePollWithTimeSlots (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-date-helpers.ts:335:3)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2658211Z         at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-poll.spec.ts:72:46
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2658830Z         at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2659442Z         at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-poll.spec.ts:63:5
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2659769Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2660162Z     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2661107Z     test-results/e2e-ultra-simple-poll-DooD-3db5e-board-avec-helpers-critical-chromium-retry1/test-failed-1.png
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2661914Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2662153Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2662624Z     Error Context: test-results/e2e-ultra-simple-poll-DooD-3db5e-board-avec-helpers-critical-chromium-retry1/error-context.md
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2663105Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2663465Z     attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2664270Z     test-results/e2e-ultra-simple-poll-DooD-3db5e-board-avec-helpers-critical-chromium-retry1/trace.zip
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2664752Z     Usage:
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2664851Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2665334Z         npx playwright show-trace test-results/e2e-ultra-simple-poll-DooD-3db5e-board-avec-helpers-critical-chromium-retry1/trace.zip
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2665838Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2666134Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2666349Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2666657Z     Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2667018Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2667192Z     TimeoutError: locator.click: Timeout 5000ms exceeded.
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2667476Z     Call log:
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2667877Z     [2m  - waiting for locator('[data-testid="create-poll-button"]').first()[22m
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2668166Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2668172Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2668254Z        at e2e/utils.ts:217
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2668395Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2668582Z       215 |   // Fallback: petit délai puis clic forcé
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2668943Z       216 |   await new Promise((res) => setTimeout(res, 200));
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2669322Z     > 217 |   await locator.click({ force: true, timeout: 5000 });
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2669617Z           |                 ^
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2669824Z       218 | }
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2669992Z       219 |
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2670159Z       220 | /**
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2670524Z         at robustClick (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:217:17)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2671438Z         at createDatePollWithTimeSlots (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-date-helpers.ts:335:3)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2672156Z         at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-poll.spec.ts:72:46
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2672742Z         at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2673314Z         at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-poll.spec.ts:63:5
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2673620Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2673997Z     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2674711Z     test-results/e2e-ultra-simple-poll-DooD-3db5e-board-avec-helpers-critical-chromium-retry2/test-failed-1.png
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2675448Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2675667Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2676143Z     Error Context: test-results/e2e-ultra-simple-poll-DooD-3db5e-board-avec-helpers-critical-chromium-retry2/error-context.md
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2676625Z 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2676700Z   1 failed
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.2677495Z     [chromium] › tests/e2e/ultra-simple-poll.spec.ts:55:3 › DooDates - Test Ultra Simple 2 (avec helpers) › Workflow complet : Création DatePoll → Dashboard (avec helpers) @critical 
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.3341352Z husky - pre-commit script failed (code 1)
+generate-health-report	📤 Commit and push report	2025-11-20T07:32:49.3352812Z ##[error]Process completed with exit code 1.
+generate-health-report	📋 Display Report Summary	﻿2025-11-20T07:32:49.3394580Z ##[group]Run if [ -f "Docs/monitoring/workflow-failures-report.md" ]; then
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3395093Z [36;1mif [ -f "Docs/monitoring/workflow-failures-report.md" ]; then[0m
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3395480Z [36;1m  echo "## 📊 Résumé du Rapport de Monitoring"[0m
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3395759Z [36;1m  echo ""[0m
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3396035Z [36;1m  head -n 50 "Docs/monitoring/workflow-failures-report.md"[0m
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3396352Z [36;1mfi[0m
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3428496Z shell: /usr/bin/bash -e {0}
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3428731Z ##[endgroup]
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3478460Z ## 📊 Résumé du Rapport de Monitoring
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3478788Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3487976Z # 📊 Rapport de Monitoring des Workflows GitHub Actions
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3488416Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3488727Z **Dernière mise à jour:** 20/11/2025 08:29:40
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3488928Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3489296Z _Workflow run #478 (ID 19529057988) — génération UTC 2025-11-20T07:29:40.855Z_
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3489562Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3489953Z > Ce rapport est généré automatiquement pour suivre les échecs de workflows.
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3491057Z > Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3491524Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3491653Z ---
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3491812Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3492074Z ## 1️⃣ PR Complete Validation
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3492245Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3492379Z **Statut:** ❌ failure
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3492745Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3492893Z **Dernier run:** 19/11/2025 19:23:32
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3493056Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3493162Z **Statistiques:**
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3493424Z - ❌ Échecs (24h): **20**
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3493697Z - ❌ Échecs (7 jours): **20**
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3494005Z - 📊 Total runs analysés: **20**
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3494157Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3494291Z ### 🔴 Échecs récents (24h)
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3494435Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3494558Z #### Run #21 - 19/11/2025 19:23:32
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3494713Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3494802Z - **Commit:** `4c175b8`
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3495064Z - **Auteur:** julienfritschheydon
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3495362Z - **Branche:** `test/ci-validation-fix`
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3496003Z - **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19512060639)
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3496480Z - **Jobs en échec:**
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3496758Z   - ❌ `production-smoke` (failure)
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3497138Z     - Steps en échec: `🔥 Run production smoke tests`
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3497485Z     - **Erreurs détectées (1):**
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3497712Z       ```
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3498022Z File: packageResolve (node:internal/modules/esm/resolve:873
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3498800Z Error: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@playwright/test' imported from /home/runner/work/DooDates/DooDates/playwright.config.ts
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3499290Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3499802Z Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@playwright/test' imported from /home/runner/work/DooDates/DooDates/playwright.config.ts
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3500491Z at packageResolve (node:internal/modules/esm/resolve:873:9)
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3510095Z ##[error]Process completed with exit code 1.
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3511034Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3511134Z ```
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3511242Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3511385Z #### Run #20 - 19/11/2025 19:17:21
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3511568Z 
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3511667Z - **Commit:** `1d0e92a`
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3511952Z - **Auteur:** julienfritschheydon
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3512261Z - **Branche:** `test/ci-validation-fix`
+generate-health-report	📋 Display Report Summary	2025-11-20T07:32:49.3512975Z - **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19511883082)
+generate-health-report	Post 📥 Checkout code	﻿2025-11-20T07:32:49.3577891Z Post job cleanup.
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4516248Z [command]/usr/bin/git version
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4551454Z git version 2.51.2
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4599660Z Temporarily overriding HOME='/home/runner/work/_temp/cd54f7b8-cde7-45d3-9430-97bddf3925eb' before making global git config changes
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4600577Z Adding repository directory to the temporary git global config as a safe directory
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4604858Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/DooDates/DooDates
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4637252Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4668183Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4888792Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4908061Z http.https://github.com/.extraheader
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4920094Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.4949253Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.5167151Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+generate-health-report	Post 📥 Checkout code	2025-11-20T07:32:49.5197815Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+generate-health-report	Complete job	﻿2025-11-20T07:32:49.5525439Z Cleaning up orphan processes
