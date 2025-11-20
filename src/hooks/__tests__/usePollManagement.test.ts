@@ -51,7 +51,10 @@ describe("usePollManagement", () => {
       expect(result.current.showPollCreator).toBe(true);
       expect(result.current.selectedPollData).toEqual(datePollData);
       expect(result.current.isFormPoll).toBe(false);
-      expect(consoleLogSpy).toHaveBeenCalledWith("🔍 Opening poll creator with data:", datePollData);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        "🔍 Opening poll creator with data:",
+        datePollData,
+      );
     });
 
     it("should open creator with form poll data", () => {
@@ -272,20 +275,21 @@ describe("usePollManagement", () => {
 
       const draft = result.current.getFormDraft();
 
-      const questionIds = draft?.questions.map(q => q.id) || [];
-      const optionIds = draft?.questions.flatMap(q => (q as any).options?.map((o: any) => o.id) || []) || [];
+      const questionIds = draft?.questions.map((q) => q.id) || [];
+      const optionIds =
+        draft?.questions.flatMap((q) => (q as any).options?.map((o: any) => o.id) || []) || [];
 
       // All IDs should be unique
       expect(new Set(questionIds).size).toBe(questionIds.length);
       expect(new Set(optionIds).size).toBe(optionIds.length);
 
       // All IDs should be strings of reasonable length
-      questionIds.forEach(id => {
+      questionIds.forEach((id) => {
         expect(typeof id).toBe("string");
         expect(id.length).toBeGreaterThan(0);
       });
 
-      optionIds.forEach(id => {
+      optionIds.forEach((id) => {
         expect(typeof id).toBe("string");
         expect(id.length).toBeGreaterThan(0);
       });

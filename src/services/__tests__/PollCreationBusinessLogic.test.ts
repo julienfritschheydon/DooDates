@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { PollCreationBusinessLogic, type PollCreationState, type PollEditData, type TimeSlot } from "../PollCreationBusinessLogic";
+import {
+  PollCreationBusinessLogic,
+  type PollCreationState,
+  type PollEditData,
+  type TimeSlot,
+} from "../PollCreationBusinessLogic";
 
 // Mocks
 vi.mock("../../lib/error-handling", () => ({
@@ -8,12 +13,12 @@ vi.mock("../../lib/error-handling", () => ({
     validation: vi.fn().mockReturnValue({
       code: "validation",
       message: "Validation error",
-      userMessage: "Erreur de validation"
+      userMessage: "Erreur de validation",
     }),
     storage: vi.fn().mockReturnValue({
       code: "storage",
       message: "Storage error",
-      userMessage: "Erreur de stockage"
+      userMessage: "Erreur de stockage",
     }),
   },
 }));
@@ -44,10 +49,7 @@ const createMockPollEditData = (overrides: Partial<PollEditData> = {}): PollEdit
     timeGranularity: 30,
     expirationDays: 30,
   },
-  options: [
-    { option_date: "2025-12-01" },
-    { option_date: "2025-12-02" },
-  ],
+  options: [{ option_date: "2025-12-01" }, { option_date: "2025-12-02" }],
   ...overrides,
 });
 
@@ -149,7 +151,7 @@ describe("PollCreationBusinessLogic", () => {
           component: "PollCreationBusinessLogic",
           operation: "loadPollData",
           metadata: { editPollId: "nonexistent" },
-        })
+        }),
       );
     });
 
@@ -164,7 +166,7 @@ describe("PollCreationBusinessLogic", () => {
         expect.objectContaining({
           component: "PollCreationBusinessLogic",
           operation: "loadPollData",
-        })
+        }),
       );
     });
 
@@ -247,7 +249,7 @@ describe("PollCreationBusinessLogic", () => {
   describe("validateParticipantEmails", () => {
     it("valide une liste d'emails valides", () => {
       const result = PollCreationBusinessLogic.validateParticipantEmails(
-        "test@example.com, user@example.com"
+        "test@example.com, user@example.com",
       );
 
       expect(result).toEqual({
@@ -259,7 +261,7 @@ describe("PollCreationBusinessLogic", () => {
 
     it("détecte les emails invalides", () => {
       const result = PollCreationBusinessLogic.validateParticipantEmails(
-        "valid@example.com, invalid, another-valid@example.com"
+        "valid@example.com, invalid, another-valid@example.com",
       );
 
       expect(result).toEqual({
@@ -281,7 +283,7 @@ describe("PollCreationBusinessLogic", () => {
 
     it("ignore les espaces et emails vides", () => {
       const result = PollCreationBusinessLogic.validateParticipantEmails(
-        "  test@example.com  ,  ,  user@example.com  "
+        "  test@example.com  ,  ,  user@example.com  ",
       );
 
       expect(result).toEqual({
@@ -353,7 +355,7 @@ describe("PollCreationBusinessLogic", () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "doodates-draft",
-        expect.stringContaining('"pollTitle":"Draft Title"')
+        expect.stringContaining('"pollTitle":"Draft Title"'),
       );
     });
 
@@ -384,7 +386,7 @@ describe("PollCreationBusinessLogic", () => {
         expect.objectContaining({
           component: "PollCreationBusinessLogic",
           operation: "saveDraft",
-        })
+        }),
       );
     });
   });
@@ -449,7 +451,7 @@ describe("PollCreationBusinessLogic", () => {
         expect.objectContaining({
           component: "PollCreationBusinessLogic",
           operation: "loadDraft",
-        })
+        }),
       );
     });
   });
@@ -473,7 +475,7 @@ describe("PollCreationBusinessLogic", () => {
         expect.objectContaining({
           component: "PollCreationBusinessLogic",
           operation: "cleanup",
-        })
+        }),
       );
     });
   });

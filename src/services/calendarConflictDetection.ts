@@ -17,7 +17,7 @@ export interface TimeSlotConflict {
 }
 
 export class CalendarConflictDetector {
-  constructor(private calendarService: GoogleCalendarService) { }
+  constructor(private calendarService: GoogleCalendarService) {}
 
   /**
    * Détecte les conflits pour une liste de dates et de créneaux
@@ -25,7 +25,7 @@ export class CalendarConflictDetector {
   async detectConflicts(
     dates: string[],
     timeSlotsByDate: Record<string, TimeSlot[]>,
-    granularity: number
+    granularity: number,
   ): Promise<TimeSlotConflict[]> {
     const conflicts: TimeSlotConflict[] = [];
 
@@ -53,7 +53,7 @@ export class CalendarConflictDetector {
   private async analyzeDate(
     date: string,
     slots: TimeSlot[],
-    granularity: number
+    granularity: number,
   ): Promise<TimeSlotConflict[]> {
     const startOfDay = `${date}T00:00:00Z`;
     const endOfDay = `${date}T23:59:59Z`;
@@ -64,7 +64,9 @@ export class CalendarConflictDetector {
     const conflicts: TimeSlotConflict[] = [];
 
     for (const slot of slots) {
-      const slotStart = new Date(`${date}T${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}:00`);
+      const slotStart = new Date(
+        `${date}T${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}:00`,
+      );
       const slotEnd = new Date(slotStart.getTime() + granularity * 60000);
 
       // Vérifier les chevauchements
@@ -99,15 +101,15 @@ export class CalendarConflictDetector {
           date,
           timeSlot: {
             ...slot,
-            duration: granularity // S'assurer que la durée est là
+            duration: granularity, // S'assurer que la durée est là
           },
           status,
-          conflicts: overlappingEvents.map(evt => ({
+          conflicts: overlappingEvents.map((evt) => ({
             start: evt.start,
             end: evt.end,
-            eventTitle: "Événement" // L'API freeBusy ne donne pas les titres, il faudrait listEvents pour ça
+            eventTitle: "Événement", // L'API freeBusy ne donne pas les titres, il faudrait listEvents pour ça
           })),
-          suggestions
+          suggestions,
         });
       }
     }
@@ -122,15 +124,17 @@ export class CalendarConflictDetector {
     date: string,
     conflictSlot: TimeSlot,
     busySlots: Array<{ start: string; end: string }>,
-    granularity: number
+    granularity: number,
   ): Array<{ start: string; end: string }> {
     const suggestions: Array<{ start: string; end: string }> = [];
-    const slotStart = new Date(`${date}T${String(conflictSlot.hour).padStart(2, "0")}:${String(conflictSlot.minute).padStart(2, "0")}:00`);
+    const slotStart = new Date(
+      `${date}T${String(conflictSlot.hour).padStart(2, "0")}:${String(conflictSlot.minute).padStart(2, "0")}:00`,
+    );
 
     // Chercher 30 min avant et après
     const candidates = [
       new Date(slotStart.getTime() - granularity * 60000),
-      new Date(slotStart.getTime() + granularity * 60000)
+      new Date(slotStart.getTime() + granularity * 60000),
     ];
 
     for (const candidate of candidates) {
@@ -146,7 +150,7 @@ export class CalendarConflictDetector {
       if (!isBusy) {
         suggestions.push({
           start: `${String(candidate.getHours()).padStart(2, "0")}:${String(candidate.getMinutes()).padStart(2, "0")}`,
-          end: `${String(candidateEnd.getHours()).padStart(2, "0")}:${String(candidateEnd.getMinutes()).padStart(2, "0")}`
+          end: `${String(candidateEnd.getHours()).padStart(2, "0")}:${String(candidateEnd.getMinutes()).padStart(2, "0")}`,
         });
       }
     }

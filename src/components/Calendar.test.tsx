@@ -128,7 +128,12 @@ describe.skip("Calendar", () => {
       const day10 = screen.getByText("10");
       const day10Button = day10.closest("button");
 
-      expect(day10Button).toHaveClass("bg-blue-900/30", "text-blue-400", "border-2", "border-blue-700");
+      expect(day10Button).toHaveClass(
+        "bg-blue-900/30",
+        "text-blue-400",
+        "border-2",
+        "border-blue-700",
+      );
     });
 
     it("should disable past dates", () => {
@@ -239,7 +244,7 @@ describe.skip("Calendar", () => {
       const { container } = render(
         <div onClick={mockParentHandler}>
           <Calendar {...mockProps} />
-        </div>
+        </div>,
       );
 
       const day16 = screen.getByText("16");
@@ -270,9 +275,7 @@ describe.skip("Calendar", () => {
     it("should call onMonthsChange when scrolling near end", () => {
       const scrollProps = {
         ...mockProps,
-        visibleMonths: Array.from({ length: 10 }, (_, i) =>
-          new Date(2024, i, 1)
-        ), // 10 months
+        visibleMonths: Array.from({ length: 10 }, (_, i) => new Date(2024, i, 1)), // 10 months
       };
 
       render(<Calendar {...scrollProps} />);
@@ -300,9 +303,7 @@ describe.skip("Calendar", () => {
     it("should not load more months when limit reached", () => {
       const manyMonthsProps = {
         ...mockProps,
-        visibleMonths: Array.from({ length: 60 }, (_, i) =>
-          new Date(2024, i % 12, 1)
-        ), // 60 months (5 years)
+        visibleMonths: Array.from({ length: 60 }, (_, i) => new Date(2024, i % 12, 1)), // 60 months (5 years)
       };
 
       render(<Calendar {...manyMonthsProps} />);

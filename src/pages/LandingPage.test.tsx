@@ -20,11 +20,7 @@ vi.mock("lucide-react", () => ({
 
 describe("LandingPage", () => {
   const renderWithRouter = (component: React.ReactElement) => {
-    return render(
-      <MemoryRouter>
-        {component}
-      </MemoryRouter>
-    );
+    return render(<MemoryRouter>{component}</MemoryRouter>);
   };
 
   beforeEach(() => {
@@ -244,14 +240,22 @@ describe("LandingPage", () => {
       renderWithRouter(<LandingPage />);
 
       expect(screen.getByText("Planification simple conçue pour")).toBeInTheDocument();
-      expect(screen.getByText("Créez des sondages de dates, des formulaires ou des disponibilités en quelques clics. L'IA est toujours disponible pour vous aider.")).toBeInTheDocument();
-      expect(screen.getByText("Simplifiez la planification de vos réunions et événements.")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Créez des sondages de dates, des formulaires ou des disponibilités en quelques clics. L'IA est toujours disponible pour vous aider.",
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Simplifiez la planification de vos réunions et événements."),
+      ).toBeInTheDocument();
     });
 
     it.skip("should render tagline and branding", () => {
       renderWithRouter(<LandingPage />);
 
-      expect(screen.getByText("Simplifiez la planification de vos réunions et événements.")).toBeInTheDocument();
+      expect(
+        screen.getByText("Simplifiez la planification de vos réunions et événements."),
+      ).toBeInTheDocument();
     });
   });
 
@@ -272,7 +276,7 @@ describe("LandingPage", () => {
       renderWithRouter(<LandingPage />);
 
       const links = screen.getAllByRole("link");
-      links.forEach(link => {
+      links.forEach((link) => {
         expect(link.textContent).not.toBe("");
         expect(link.textContent?.trim().length).toBeGreaterThan(0);
       });
@@ -284,7 +288,13 @@ describe("LandingPage", () => {
       renderWithRouter(<LandingPage />);
 
       const useCaseElement = screen.getByText("les réunions d'équipe");
-      expect(useCaseElement).toHaveClass("text-transparent", "bg-clip-text", "bg-gradient-to-r", "from-purple-500", "to-blue-500");
+      expect(useCaseElement).toHaveClass(
+        "text-transparent",
+        "bg-clip-text",
+        "bg-gradient-to-r",
+        "from-purple-500",
+        "to-blue-500",
+      );
     });
 
     it("should apply gradient backgrounds to CTA buttons", () => {
@@ -295,16 +305,35 @@ describe("LandingPage", () => {
       const formButtons = screen.getAllByText("Créer un formulaire");
       const availabilityButtons = screen.getAllByText("Créer une disponibilité");
 
-      expect(datePollButtons[0].closest("a")).toHaveClass("bg-gradient-to-r", "from-blue-500", "to-blue-600");
-      expect(formButtons[0].closest("a")).toHaveClass("bg-gradient-to-r", "from-violet-500", "to-violet-600");
-      expect(availabilityButtons[0].closest("a")).toHaveClass("bg-gradient-to-r", "from-green-500", "to-green-600");
+      expect(datePollButtons[0].closest("a")).toHaveClass(
+        "bg-gradient-to-r",
+        "from-blue-500",
+        "to-blue-600",
+      );
+      expect(formButtons[0].closest("a")).toHaveClass(
+        "bg-gradient-to-r",
+        "from-violet-500",
+        "to-violet-600",
+      );
+      expect(availabilityButtons[0].closest("a")).toHaveClass(
+        "bg-gradient-to-r",
+        "from-green-500",
+        "to-green-600",
+      );
     });
 
     it("should apply proper spacing and layout classes", () => {
       renderWithRouter(<LandingPage />);
 
       const heroSection = screen.getByText("Planification simple conçue pour").closest("section");
-      expect(heroSection).toHaveClass("max-w-7xl", "mx-auto", "px-4", "sm:px-6", "lg:px-8", "py-20");
+      expect(heroSection).toHaveClass(
+        "max-w-7xl",
+        "mx-auto",
+        "px-4",
+        "sm:px-6",
+        "lg:px-8",
+        "py-20",
+      );
     });
   });
 
@@ -329,7 +358,7 @@ describe("LandingPage", () => {
         rerender(
           <MemoryRouter>
             <LandingPage />
-          </MemoryRouter>
+          </MemoryRouter>,
         );
       }
 
@@ -367,7 +396,11 @@ describe("LandingPage", () => {
       const datePollButtons = screen.getAllByText("Créer un sondage");
       const linkElement = datePollButtons[0].closest("a");
 
-      expect(linkElement).toHaveClass("hover:from-blue-600", "hover:to-blue-700", "transition-colors");
+      expect(linkElement).toHaveClass(
+        "hover:from-blue-600",
+        "hover:to-blue-700",
+        "transition-colors",
+      );
     });
   });
 });

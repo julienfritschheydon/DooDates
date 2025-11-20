@@ -3,61 +3,65 @@
  * DooDates - Freemium Workflow Integration Tests
  */
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import GeminiChatInterface from '../GeminiChatInterface';
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { vi, describe, it, expect, beforeEach } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import GeminiChatInterface from "../GeminiChatInterface";
 
 // Mock all dependencies
-vi.mock('../../contexts/AuthContext');
-vi.mock('../../hooks/useConversations');
-vi.mock('../../hooks/useAutoSave');
-vi.mock('../../hooks/useConversationResume');
-vi.mock('../../hooks/useFreemiumQuota');
-vi.mock('../../hooks/usePollConversationLink');
+vi.mock("../../contexts/AuthContext");
+vi.mock("../../hooks/useConversations");
+vi.mock("../../hooks/useAutoSave");
+vi.mock("../../hooks/useConversationResume");
+vi.mock("../../hooks/useFreemiumQuota");
+vi.mock("../../hooks/usePollConversationLink");
 
 // Mock components
-vi.mock('../../components/modals/AuthIncentiveModal', () => ({
-  AuthIncentiveModal: ({ isOpen, onClose, trigger }: any) => 
+vi.mock("../../components/modals/AuthIncentiveModal", () => ({
+  AuthIncentiveModal: ({ isOpen, onClose, trigger }: any) =>
     isOpen ? (
       <div data-testid="auth-incentive-modal">
         <div>Modal: {trigger}</div>
         <button onClick={onClose}>Close</button>
       </div>
-    ) : null
+    ) : null,
 }));
 
-vi.mock('../../components/ui/QuotaIndicator', () => ({
+vi.mock("../../components/ui/QuotaIndicator", () => ({
   QuotaIndicator: ({ usage, limits }: any) => (
     <div data-testid="quota-indicator">
       {usage.conversations}/{limits.conversations} conversations
     </div>
-  )
+  ),
 }));
 
-vi.mock('../../components/PollCreator', () => ({
+vi.mock("../../components/PollCreator", () => ({
   PollCreator: ({ onClose }: any) => (
     <div data-testid="poll-creator">
       <button onClick={onClose}>Close Poll Creator</button>
     </div>
-  )
+  ),
 }));
 
 // Import mocked hooks
-import { useAuth } from '../../contexts/AuthContext';
-import { useConversations } from '../../hooks/useConversations';
-import { useAutoSave } from '../../hooks/useAutoSave';
-import { useConversationResume } from '../../hooks/useConversationResume';
-import { useFreemiumQuota } from '../../hooks/useFreemiumQuota';
-import { usePollConversationLink } from '../../hooks/usePollConversationLink';
+import { useAuth } from "../../contexts/AuthContext";
+import { useConversations } from "../../hooks/useConversations";
+import { useAutoSave } from "../../hooks/useAutoSave";
+import { useConversationResume } from "../../hooks/useConversationResume";
+import { useFreemiumQuota } from "../../hooks/useFreemiumQuota";
+import { usePollConversationLink } from "../../hooks/usePollConversationLink";
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockUseConversations = useConversations as jest.MockedFunction<typeof useConversations>;
 const mockUseAutoSave = useAutoSave as jest.MockedFunction<typeof useAutoSave>;
-const mockUseConversationResume = useConversationResume as jest.MockedFunction<typeof useConversationResume>;
+const mockUseConversationResume = useConversationResume as jest.MockedFunction<
+  typeof useConversationResume
+>;
 const mockUseFreemiumQuota = useFreemiumQuota as jest.MockedFunction<typeof useFreemiumQuota>;
-const mockUsePollConversationLink = usePollConversationLink as jest.MockedFunction<typeof usePollConversationLink>;
+const mockUsePollConversationLink = usePollConversationLink as jest.MockedFunction<
+  typeof usePollConversationLink
+>;
 
 describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
   let queryClient: QueryClient;
@@ -117,39 +121,39 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
     return render(
       <QueryClientProvider client={queryClient}>
         <GeminiChatInterface />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
   };
 
-  describe.skip('guest user workflow', () => {
-    it.skip('should show quota indicator for guest users', () => {
+  describe.skip("guest user workflow", () => {
+    it.skip("should show quota indicator for guest users", () => {
       renderComponent();
-      
-      expect(screen.getByTestId('quota-indicator')).toBeInTheDocument();
-      expect(screen.getByText('0/3 conversations')).toBeInTheDocument();
+
+      expect(screen.getByTestId("quota-indicator")).toBeInTheDocument();
+      expect(screen.getByText("0/3 conversations")).toBeInTheDocument();
     });
 
-    it.skip('should allow conversation creation within quota', async () => {
-      const mockCreateConversation = jest.fn().mockResolvedValue({ id: 'conv-1' });
+    it.skip("should allow conversation creation within quota", async () => {
+      const mockCreateConversation = jest.fn().mockResolvedValue({ id: "conv-1" });
       mockUseAutoSave.mockReturnValue({
         ...defaultMocks.useAutoSave,
         createNewConversation: mockCreateConversation,
       } as any);
 
       renderComponent();
-      
+
       const input = screen.getByPlaceholderText(/ask me anything/i);
-      const sendButton = screen.getByRole('button', { name: /send/i });
-      
-      fireEvent.change(input, { target: { value: 'Test message' } });
+      const sendButton = screen.getByRole("button", { name: /send/i });
+
+      fireEvent.change(input, { target: { value: "Test message" } });
       fireEvent.click(sendButton);
-      
+
       await waitFor(() => {
         expect(mockCreateConversation).toHaveBeenCalled();
       });
     });
 
-    it.skip('should block conversation creation when quota exceeded', async () => {
+    it.skip("should block conversation creation when quota exceeded", async () => {
       const mockTriggerAuthIncentive = jest.fn();
       mockUseFreemiumQuota.mockReturnValue({
         ...defaultMocks.useFreemiumQuota,
@@ -159,22 +163,22 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
       } as any);
 
       renderComponent();
-      
+
       const input = screen.getByPlaceholderText(/ask me anything/i);
-      const sendButton = screen.getByRole('button', { name: /send/i });
-      
-      fireEvent.change(input, { target: { value: 'Test message' } });
+      const sendButton = screen.getByRole("button", { name: /send/i });
+
+      fireEvent.change(input, { target: { value: "Test message" } });
       fireEvent.click(sendButton);
-      
+
       await waitFor(() => {
         expect(mockTriggerAuthIncentive).toHaveBeenCalledWith(
-          'conversation_limit',
-          expect.any(Function)
+          "conversation_limit",
+          expect.any(Function),
         );
       });
     });
 
-    it.skip('should show auth incentive modal when quota exceeded', async () => {
+    it.skip("should show auth incentive modal when quota exceeded", async () => {
       const mockTriggerAuthIncentive = jest.fn((trigger, callback) => {
         callback({
           trigger,
@@ -190,20 +194,20 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
       } as any);
 
       renderComponent();
-      
+
       const input = screen.getByPlaceholderText(/ask me anything/i);
-      const sendButton = screen.getByRole('button', { name: /send/i });
-      
-      fireEvent.change(input, { target: { value: 'Test message' } });
+      const sendButton = screen.getByRole("button", { name: /send/i });
+
+      fireEvent.change(input, { target: { value: "Test message" } });
       fireEvent.click(sendButton);
-      
+
       await waitFor(() => {
-        expect(screen.getByTestId('auth-incentive-modal')).toBeInTheDocument();
-        expect(screen.getByText('Modal: conversation_limit')).toBeInTheDocument();
+        expect(screen.getByTestId("auth-incentive-modal")).toBeInTheDocument();
+        expect(screen.getByText("Modal: conversation_limit")).toBeInTheDocument();
       });
     });
 
-    it.skip('should block poll creation when quota exceeded', async () => {
+    it.skip("should block poll creation when quota exceeded", async () => {
       const mockTriggerAuthIncentive = jest.fn();
       mockUseFreemiumQuota.mockReturnValue({
         ...defaultMocks.useFreemiumQuota,
@@ -213,24 +217,21 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
       } as any);
 
       renderComponent();
-      
+
       // Simulate AI suggesting a poll
       const createPollButton = screen.getByText(/create poll/i);
       fireEvent.click(createPollButton);
-      
+
       await waitFor(() => {
-        expect(mockTriggerAuthIncentive).toHaveBeenCalledWith(
-          'poll_limit',
-          expect.any(Function)
-        );
+        expect(mockTriggerAuthIncentive).toHaveBeenCalledWith("poll_limit", expect.any(Function));
       });
     });
   });
 
-  describe.skip('authenticated user workflow', () => {
+  describe.skip("authenticated user workflow", () => {
     beforeEach(() => {
       mockUseAuth.mockReturnValue({
-        user: { id: 'user-1', email: 'test@example.com' },
+        user: { id: "user-1", email: "test@example.com" },
         isAuthenticated: true,
       } as any);
 
@@ -242,53 +243,53 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
       } as any);
     });
 
-    it.skip('should not show quota warnings for authenticated users', () => {
+    it.skip("should not show quota warnings for authenticated users", () => {
       renderComponent();
-      
+
       // Should still show quota indicator but with higher limits
-      expect(screen.getByTestId('quota-indicator')).toBeInTheDocument();
-      expect(screen.queryByTestId('auth-incentive-modal')).not.toBeInTheDocument();
+      expect(screen.getByTestId("quota-indicator")).toBeInTheDocument();
+      expect(screen.queryByTestId("auth-incentive-modal")).not.toBeInTheDocument();
     });
 
-    it.skip('should allow unlimited conversation creation', async () => {
-      const mockCreateConversation = jest.fn().mockResolvedValue({ id: 'conv-1' });
+    it.skip("should allow unlimited conversation creation", async () => {
+      const mockCreateConversation = jest.fn().mockResolvedValue({ id: "conv-1" });
       mockUseAutoSave.mockReturnValue({
         ...defaultMocks.useAutoSave,
         createNewConversation: mockCreateConversation,
       } as any);
 
       renderComponent();
-      
+
       const input = screen.getByPlaceholderText(/ask me anything/i);
-      const sendButton = screen.getByRole('button', { name: /send/i });
-      
-      fireEvent.change(input, { target: { value: 'Test message' } });
+      const sendButton = screen.getByRole("button", { name: /send/i });
+
+      fireEvent.change(input, { target: { value: "Test message" } });
       fireEvent.click(sendButton);
-      
+
       await waitFor(() => {
         expect(mockCreateConversation).toHaveBeenCalled();
       });
     });
 
-    it.skip('should allow poll creation without quota restrictions', async () => {
+    it.skip("should allow poll creation without quota restrictions", async () => {
       renderComponent();
-      
+
       const createPollButton = screen.getByText(/create poll/i);
       fireEvent.click(createPollButton);
-      
+
       await waitFor(() => {
-        expect(screen.getByTestId('poll-creator')).toBeInTheDocument();
+        expect(screen.getByTestId("poll-creator")).toBeInTheDocument();
       });
     });
   });
 
-  describe.skip('conversation resumption with freemium', () => {
-    it.skip('should resume conversation and show correct quota usage', () => {
+  describe.skip("conversation resumption with freemium", () => {
+    it.skip("should resume conversation and show correct quota usage", () => {
       mockUseConversationResume.mockReturnValue({
         resumedConversation: {
-          id: 'conv-1',
-          title: 'Resumed Conversation',
-          messages: [{ id: 'msg-1', content: 'Previous message', role: 'user' }],
+          id: "conv-1",
+          title: "Resumed Conversation",
+          messages: [{ id: "msg-1", content: "Previous message", role: "user" }],
         },
         isResuming: false,
       } as any);
@@ -299,32 +300,32 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
       } as any);
 
       renderComponent();
-      
-      expect(screen.getByText('1/3 conversations')).toBeInTheDocument();
-      expect(screen.getByText('Previous message')).toBeInTheDocument();
+
+      expect(screen.getByText("1/3 conversations")).toBeInTheDocument();
+      expect(screen.getByText("Previous message")).toBeInTheDocument();
     });
   });
 
-  describe.skip('new chat functionality with freemium', () => {
-    it.skip('should allow new chat creation within quota', async () => {
+  describe.skip("new chat functionality with freemium", () => {
+    it.skip("should allow new chat creation within quota", async () => {
       const mockCreateNewConversation = jest.fn();
       mockUseAutoSave.mockReturnValue({
         ...defaultMocks.useAutoSave,
-        currentConversation: { id: 'conv-1' },
+        currentConversation: { id: "conv-1" },
         createNewConversation: mockCreateNewConversation,
       } as any);
 
       renderComponent();
-      
+
       const newChatButton = screen.getByText(/new chat/i);
       fireEvent.click(newChatButton);
-      
+
       await waitFor(() => {
         expect(mockCreateNewConversation).toHaveBeenCalled();
       });
     });
 
-    it.skip('should block new chat creation when quota exceeded', async () => {
+    it.skip("should block new chat creation when quota exceeded", async () => {
       const mockTriggerAuthIncentive = jest.fn();
       mockUseFreemiumQuota.mockReturnValue({
         ...defaultMocks.useFreemiumQuota,
@@ -333,25 +334,25 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
       } as any);
 
       renderComponent();
-      
+
       const newChatButton = screen.getByText(/new chat/i);
       fireEvent.click(newChatButton);
-      
+
       await waitFor(() => {
         expect(mockTriggerAuthIncentive).toHaveBeenCalledWith(
-          'conversation_limit',
-          expect.any(Function)
+          "conversation_limit",
+          expect.any(Function),
         );
       });
     });
   });
 
-  describe.skip('GeminiChatInterface Integration', () => {
-    it.skip('should link polls to conversations with metadata', async () => {
+  describe.skip("GeminiChatInterface Integration", () => {
+    it.skip("should link polls to conversations with metadata", async () => {
       const mockLinkPoll = jest.fn();
       const mockGetMetadata = jest.fn().mockReturnValue({
-        conversationId: 'conv-1',
-        messageId: 'msg-1',
+        conversationId: "conv-1",
+        messageId: "msg-1",
       });
 
       mockUsePollConversationLink.mockReturnValue({
@@ -362,21 +363,25 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
 
       mockUseAutoSave.mockReturnValue({
         ...defaultMocks.useAutoSave,
-        currentConversation: { id: 'conv-1' },
+        currentConversation: { id: "conv-1" },
       } as any);
 
       renderComponent();
-      
+
       const createPollButton = screen.getByText(/create poll/i);
       fireEvent.click(createPollButton);
-      
-      expect(screen.getByTestId('poll-creator')).toBeInTheDocument();
-      expect(mockGetMetadata).toHaveBeenCalledWith('conv-1', expect.any(String), expect.any(String));
+
+      expect(screen.getByTestId("poll-creator")).toBeInTheDocument();
+      expect(mockGetMetadata).toHaveBeenCalledWith(
+        "conv-1",
+        expect.any(String),
+        expect.any(String),
+      );
     });
   });
 
-  describe.skip('modal interactions', () => {
-    it.skip('should close auth incentive modal', async () => {
+  describe.skip("modal interactions", () => {
+    it.skip("should close auth incentive modal", async () => {
       const mockTriggerAuthIncentive = jest.fn((trigger, callback) => {
         callback({
           trigger,
@@ -392,24 +397,24 @@ describe.skip("GeminiChatInterface - Freemium Workflow Integration", () => {
       } as any);
 
       renderComponent();
-      
+
       // Trigger modal
       const input = screen.getByPlaceholderText(/ask me anything/i);
-      const sendButton = screen.getByRole('button', { name: /send/i });
-      
-      fireEvent.change(input, { target: { value: 'Test message' } });
+      const sendButton = screen.getByRole("button", { name: /send/i });
+
+      fireEvent.change(input, { target: { value: "Test message" } });
       fireEvent.click(sendButton);
-      
+
       await waitFor(() => {
-        expect(screen.getByTestId('auth-incentive-modal')).toBeInTheDocument();
+        expect(screen.getByTestId("auth-incentive-modal")).toBeInTheDocument();
       });
-      
+
       // Close modal
-      const closeButton = screen.getByText('Close');
+      const closeButton = screen.getByText("Close");
       fireEvent.click(closeButton);
-      
+
       await waitFor(() => {
-        expect(screen.queryByTestId('auth-incentive-modal')).not.toBeInTheDocument();
+        expect(screen.queryByTestId("auth-incentive-modal")).not.toBeInTheDocument();
       });
     });
   });

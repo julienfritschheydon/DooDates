@@ -66,7 +66,7 @@ export function AuthModal({ open, onOpenChange, defaultMode = "signin" }: AuthMo
       e.preventDefault();
       // Optionnel: afficher un message à l'utilisateur
       const shouldClose = window.confirm(
-        "Vous avez des données non sauvegardées. Voulez-vous vraiment fermer ?"
+        "Vous avez des données non sauvegardées. Voulez-vous vraiment fermer ?",
       );
       if (shouldClose) {
         setHasFormData(false);
@@ -77,7 +77,7 @@ export function AuthModal({ open, onOpenChange, defaultMode = "signin" }: AuthMo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-md max-h-[90vh] overflow-y-auto"
         onInteractOutside={handleInteractOutside}
       >
@@ -91,14 +91,14 @@ export function AuthModal({ open, onOpenChange, defaultMode = "signin" }: AuthMo
         </DialogHeader>
         <div className="mt-4">
           {mode === "signin" ? (
-            <SignInForm 
-              onSuccess={handleAuthSuccess} 
+            <SignInForm
+              onSuccess={handleAuthSuccess}
               onSwitchToSignUp={() => setMode("signup")}
               onFormChange={(hasData) => setHasFormData(hasData)}
             />
           ) : (
-            <SignUpForm 
-              onSuccess={handleAuthSuccess} 
+            <SignUpForm
+              onSuccess={handleAuthSuccess}
               onSwitchToSignIn={() => setMode("signin")}
               onFormChange={(hasData) => setHasFormData(hasData)}
             />

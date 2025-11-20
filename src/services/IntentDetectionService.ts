@@ -471,7 +471,10 @@ export class IntentDetectionService {
     let referenceDate = new Date();
     if (monthMatch) {
       // Mois explicitement demandé → utiliser ce mois comme référence
-      const monthName = monthMatch[1].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Normaliser (é → e)
+      const monthName = monthMatch[1]
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, ""); // Normaliser (é → e)
       const monthIndex: Record<string, number> = {
         janvier: 0,
         fevrier: 1,
@@ -773,7 +776,10 @@ export class IntentDetectionService {
       décembre: 11,
     };
 
-    const normalizedMonth = monthName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const normalizedMonth = monthName
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
     const targetMonth = monthIndex[normalizedMonth];
     if (targetMonth === undefined) {
       return [];
