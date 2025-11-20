@@ -197,6 +197,12 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
               );
 
               const supabaseResult = await Promise.race([syncPromise, syncTimeoutPromise]);
+              if (!supabaseResult || !supabaseResult.id) {
+                throw ErrorFactory.storage(
+                  "Synchronisation Supabase échouée: résultat invalide",
+                  "La synchronisation avec Supabase a échoué"
+                );
+              }
               console.log(
                 `[${timestamp}] [${requestId}] ✅ Conversation synchronisée avec Supabase:`,
                 {
