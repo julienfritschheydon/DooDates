@@ -14,9 +14,10 @@ import { logError, ErrorFactory } from "../../lib/error-handling";
 interface SignInFormProps {
   onSuccess?: () => void;
   onSwitchToSignUp?: () => void;
+  onFormChange?: (hasData: boolean) => void;
 }
 
-export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
+export function SignInForm({ onSuccess, onSwitchToSignUp, onFormChange }: SignInFormProps) {
   const { signIn, loading, error } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,9 +26,19 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
     handleSubmit,
     formState: { errors },
     setError,
+    watch,
   } = useForm<SignInInput>({
     resolver: zodResolver(SignInSchema),
   });
+
+  // 🔧 FIX BUG #3: Détecter si des données sont saisies
+  React.useEffect(() => {
+    const subscription = watch((value) => {
+      const hasData = !!(value.email || value.password);
+      onFormChange?.(hasData);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onFormChange]);
 
   const onSubmit = async (data: SignInInput) => {
     console.log("SignInForm: onSubmit appelé", { email: data.email });

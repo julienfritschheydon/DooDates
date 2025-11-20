@@ -9,7 +9,7 @@ vi.mock("../../lib/error-handling", () => ({
     validation: vi.fn().mockReturnValue({
       code: "validation",
       message: "Validation error",
-      userMessage: "Erreur de validation"
+      userMessage: "Erreur de validation",
     }),
   },
   handleError: vi.fn(),
@@ -47,7 +47,12 @@ const createMockState = (overrides: Partial<PollCreationState> = {}): PollCreati
   ...overrides,
 });
 
-const createMockTimeSlot = (hour: number, minute: number, enabled: boolean = true, duration?: number): TimeSlot => ({
+const createMockTimeSlot = (
+  hour: number,
+  minute: number,
+  enabled: boolean = true,
+  duration?: number,
+): TimeSlot => ({
   hour,
   minute,
   enabled,
@@ -173,7 +178,7 @@ describe("PollCreatorService", () => {
       });
 
       await expect(PollCreatorService.handleFinalize(state, mockCreatePoll)).rejects.toThrow(
-        "Veuillez remplir tous les champs requis pour finaliser le sondage."
+        "Veuillez remplir tous les champs requis pour finaliser le sondage.",
       );
 
       expect(mockCreatePoll).not.toHaveBeenCalled();
@@ -192,7 +197,7 @@ describe("PollCreatorService", () => {
           component: "PollCreatorService",
           operation: "handleFinalize",
         },
-        "Erreur lors de la création du sondage"
+        "Erreur lors de la création du sondage",
       );
     });
   });
@@ -384,10 +389,7 @@ describe("PollCreatorService", () => {
   describe("handleTimeSlotToggle", () => {
     it("bascule l'état d'un slot existant", () => {
       const timeSlotsByDate = {
-        "2025-12-01": [
-          createMockTimeSlot(9, 0, true),
-          createMockTimeSlot(10, 0, false),
-        ],
+        "2025-12-01": [createMockTimeSlot(9, 0, true), createMockTimeSlot(10, 0, false)],
       };
 
       const result = PollCreatorService.handleTimeSlotToggle(
@@ -396,7 +398,7 @@ describe("PollCreatorService", () => {
         0,
         timeSlotsByDate,
         30,
-        true
+        true,
       );
 
       expect(result["2025-12-01"][1].enabled).toBe(true);
@@ -413,7 +415,7 @@ describe("PollCreatorService", () => {
         30,
         timeSlotsByDate,
         30,
-        true
+        true,
       );
 
       expect(result["2025-12-01"]).toHaveLength(2);
@@ -436,7 +438,7 @@ describe("PollCreatorService", () => {
         30,
         timeSlotsByDate,
         30,
-        false
+        false,
       );
 
       expect(result["2025-12-01"][1]).not.toHaveProperty("duration");

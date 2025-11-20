@@ -248,6 +248,6 @@ function createDateGroup(dates: string[], allowWeekendGrouping: boolean = false)
         label: `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${day} ${month} ${year}`,
         type: "custom" as const,
       };
-    }) as Array<{ date: string; timeRanges: Array<{ start: string; end: string }> }>; // Retourne un tableau, sera flatté par le parent
+    }) as unknown as DateGroup; // Retourne un tableau, sera flatté par le parent
   }
 }
