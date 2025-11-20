@@ -48,7 +48,10 @@ function getAllWeekdaysInMonth(weekdayName: string, monthName: string, year?: nu
   };
 
   const targetWeekday = weekdayMap[weekdayName.toLowerCase()];
-  const normalizedMonth = monthName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const normalizedMonth = monthName
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
   const targetMonth = monthMap[normalizedMonth];
 
   if (targetWeekday === undefined || targetMonth === undefined) {
@@ -66,7 +69,8 @@ function getAllWeekdaysInMonth(weekdayName: string, monthName: string, year?: nu
   if (
     !year &&
     (targetDate.getFullYear() < today.getFullYear() ||
-      (targetDate.getFullYear() === today.getFullYear() && targetDate.getMonth() < today.getMonth()))
+      (targetDate.getFullYear() === today.getFullYear() &&
+        targetDate.getMonth() < today.getMonth()))
   ) {
     finalYear = currentYear + 1;
   }

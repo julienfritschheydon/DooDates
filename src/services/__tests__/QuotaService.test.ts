@@ -8,7 +8,7 @@ vi.mock("../../lib/error-handling", () => ({
     storage: vi.fn().mockReturnValue({
       code: "storage",
       message: "Storage error",
-      userMessage: "Erreur de stockage"
+      userMessage: "Erreur de stockage",
     }),
   },
 }));
@@ -135,7 +135,10 @@ describe("QuotaService", () => {
 
       // Rendre l'objet itérable
       Object.defineProperty(mockLocalStorage, "key1", { value: "short", enumerable: true });
-      Object.defineProperty(mockLocalStorage, "key2", { value: "a".repeat(1000), enumerable: true });
+      Object.defineProperty(mockLocalStorage, "key2", {
+        value: "a".repeat(1000),
+        enumerable: true,
+      });
 
       // Mock Object.hasOwn pour notre localStorage
       const originalHasOwn = Object.hasOwn;
@@ -232,10 +235,7 @@ describe("QuotaService", () => {
   describe("getPollCount", () => {
     it("compte correctement les polls au format array", () => {
       const mockLocalStorage = window.localStorage as any;
-      const polls = [
-        createMockPoll("poll-1"),
-        createMockPoll("poll-2"),
-      ];
+      const polls = [createMockPoll("poll-1"), createMockPoll("poll-2")];
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(polls));
 
       const count = QuotaService.getPollCount();
@@ -303,7 +303,7 @@ describe("QuotaService", () => {
     it("retourne true pour les utilisateurs authentifiés sous la limite", () => {
       const mockLocalStorage = window.localStorage as any;
       const conversations = Array.from({ length: 50 }, (_, i) =>
-        createMockConversation(`conv-${i}`)
+        createMockConversation(`conv-${i}`),
       );
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(conversations));
 
@@ -315,7 +315,7 @@ describe("QuotaService", () => {
     it("retourne false pour les utilisateurs authentifiés à la limite", () => {
       const mockLocalStorage = window.localStorage as any;
       const conversations = Array.from({ length: 100 }, (_, i) =>
-        createMockConversation(`conv-${i}`)
+        createMockConversation(`conv-${i}`),
       );
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(conversations));
 
@@ -327,7 +327,7 @@ describe("QuotaService", () => {
     it("retourne true pour les invités sous la limite", () => {
       const mockLocalStorage = window.localStorage as any;
       const conversations = Array.from({ length: 5 }, (_, i) =>
-        createMockConversation(`conv-${i}`)
+        createMockConversation(`conv-${i}`),
       );
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(conversations));
 
@@ -339,7 +339,7 @@ describe("QuotaService", () => {
     it("retourne false pour les invités à la limite", () => {
       const mockLocalStorage = window.localStorage as any;
       const conversations = Array.from({ length: 10 }, (_, i) =>
-        createMockConversation(`conv-${i}`)
+        createMockConversation(`conv-${i}`),
       );
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(conversations));
 
@@ -352,9 +352,7 @@ describe("QuotaService", () => {
   describe("canCreatePoll", () => {
     it("retourne true pour les utilisateurs authentifiés sous la limite", () => {
       const mockLocalStorage = window.localStorage as any;
-      const polls = Array.from({ length: 25 }, (_, i) =>
-        createMockPoll(`poll-${i}`)
-      );
+      const polls = Array.from({ length: 25 }, (_, i) => createMockPoll(`poll-${i}`));
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(polls));
 
       const canCreate = QuotaService.canCreatePoll(true);
@@ -364,9 +362,7 @@ describe("QuotaService", () => {
 
     it("retourne false pour les utilisateurs authentifiés à la limite", () => {
       const mockLocalStorage = window.localStorage as any;
-      const polls = Array.from({ length: 50 }, (_, i) =>
-        createMockPoll(`poll-${i}`)
-      );
+      const polls = Array.from({ length: 50 }, (_, i) => createMockPoll(`poll-${i}`));
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(polls));
 
       const canCreate = QuotaService.canCreatePoll(true);
@@ -376,9 +372,7 @@ describe("QuotaService", () => {
 
     it("retourne true pour les invités sous la limite", () => {
       const mockLocalStorage = window.localStorage as any;
-      const polls = Array.from({ length: 2 }, (_, i) =>
-        createMockPoll(`poll-${i}`)
-      );
+      const polls = Array.from({ length: 2 }, (_, i) => createMockPoll(`poll-${i}`));
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(polls));
 
       const canCreate = QuotaService.canCreatePoll(false);
@@ -388,9 +382,7 @@ describe("QuotaService", () => {
 
     it("retourne false pour les invités à la limite", () => {
       const mockLocalStorage = window.localStorage as any;
-      const polls = Array.from({ length: 5 }, (_, i) =>
-        createMockPoll(`poll-${i}`)
-      );
+      const polls = Array.from({ length: 5 }, (_, i) => createMockPoll(`poll-${i}`));
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(polls));
 
       const canCreate = QuotaService.canCreatePoll(false);
@@ -408,8 +400,9 @@ describe("QuotaService", () => {
 
     it("retourne 'conversation_limit' quand la limite de conversations est atteinte", () => {
       const mockLocalStorage = window.localStorage as any;
-      const conversations: ReturnType<typeof createMockConversation>[] = Array.from({ length: 10 }, (_, i) =>
-        createMockConversation(`conv-${i}`)
+      const conversations: ReturnType<typeof createMockConversation>[] = Array.from(
+        { length: 10 },
+        (_, i) => createMockConversation(`conv-${i}`),
       );
       const polls: ReturnType<typeof createMockPoll>[] = [];
       mockLocalStorage.getItem.mockImplementation((key: string) => {
@@ -427,7 +420,7 @@ describe("QuotaService", () => {
       const mockLocalStorage = window.localStorage as any;
       const conversations: ReturnType<typeof createMockConversation>[] = [];
       const polls: ReturnType<typeof createMockPoll>[] = Array.from({ length: 5 }, (_, i) =>
-        createMockPoll(`poll-${i}`)
+        createMockPoll(`poll-${i}`),
       );
       mockLocalStorage.getItem.mockImplementation((key: string) => {
         if (key === "doodates_conversations") return JSON.stringify(conversations);
@@ -543,7 +536,7 @@ describe("QuotaService", () => {
       expect(deletedCount).toBe(2);
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         "doodates_conversations",
-        JSON.stringify([conversations[1]]) // conv-2 reste
+        JSON.stringify([conversations[1]]), // conv-2 reste
       );
     });
 
@@ -561,7 +554,7 @@ describe("QuotaService", () => {
       expect(deletedCount).toBe(2);
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         "doodates_conversations",
-        JSON.stringify({ "conv-2": conversations["conv-2"] })
+        JSON.stringify({ "conv-2": conversations["conv-2"] }),
       );
     });
 

@@ -54,21 +54,47 @@ vi.mock("@/lib/logger", () => ({
 }));
 
 vi.mock("./dashboard/DashboardFilters", () => ({
-  DashboardFilters: ({ onSearchChange, onFilterChange, onContentTypeFilterChange, onViewModeChange, onTagsChange, onFolderChange, onSelectAll, onClearSelection, selectedIdsCount }: any) => (
+  DashboardFilters: ({
+    onSearchChange,
+    onFilterChange,
+    onContentTypeFilterChange,
+    onViewModeChange,
+    onTagsChange,
+    onFolderChange,
+    onSelectAll,
+    onClearSelection,
+    selectedIdsCount,
+  }: any) => (
     <div data-testid="dashboard-filters">
       <input
         data-testid="search-input"
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder="Search..."
       />
-      <button data-testid="filter-all" onClick={() => onFilterChange("all")}>All</button>
-      <button data-testid="filter-active" onClick={() => onFilterChange("active")}>Active</button>
-      <button data-testid="content-type-all" onClick={() => onContentTypeFilterChange("all")}>All Types</button>
-      <button data-testid="content-type-polls" onClick={() => onContentTypeFilterChange("polls")}>Polls</button>
-      <button data-testid="view-mode-grid" onClick={() => onViewModeChange("grid")}>Grid</button>
-      <button data-testid="view-mode-table" onClick={() => onViewModeChange("table")}>Table</button>
-      <button data-testid="select-all" onClick={onSelectAll}>Select All</button>
-      <button data-testid="clear-selection" onClick={onClearSelection}>Clear</button>
+      <button data-testid="filter-all" onClick={() => onFilterChange("all")}>
+        All
+      </button>
+      <button data-testid="filter-active" onClick={() => onFilterChange("active")}>
+        Active
+      </button>
+      <button data-testid="content-type-all" onClick={() => onContentTypeFilterChange("all")}>
+        All Types
+      </button>
+      <button data-testid="content-type-polls" onClick={() => onContentTypeFilterChange("polls")}>
+        Polls
+      </button>
+      <button data-testid="view-mode-grid" onClick={() => onViewModeChange("grid")}>
+        Grid
+      </button>
+      <button data-testid="view-mode-table" onClick={() => onViewModeChange("table")}>
+        Table
+      </button>
+      <button data-testid="select-all" onClick={onSelectAll}>
+        Select All
+      </button>
+      <button data-testid="clear-selection" onClick={onClearSelection}>
+        Clear
+      </button>
       <span data-testid="selected-count">{selectedIdsCount}</span>
     </div>
   ),
@@ -84,7 +110,9 @@ vi.mock("./dashboard/ConversationCard", () => ({
         onChange={onToggleSelection}
         data-testid={`select-${item.id}`}
       />
-      <button onClick={onRefresh} data-testid={`refresh-${item.id}`}>Refresh</button>
+      <button onClick={onRefresh} data-testid={`refresh-${item.id}`}>
+        Refresh
+      </button>
     </div>
   ),
 }));
@@ -101,7 +129,9 @@ vi.mock("./dashboard/DashboardTableView", () => ({
             onChange={() => onToggleSelection(item.id)}
             data-testid={`table-select-${item.id}`}
           />
-          <button onClick={onRefresh} data-testid={`table-refresh-${item.id}`}>Refresh</button>
+          <button onClick={onRefresh} data-testid={`table-refresh-${item.id}`}>
+            Refresh
+          </button>
         </div>
       ))}
     </div>
@@ -117,11 +147,7 @@ vi.mock("@/components/ui/pagination", () => ({
   PaginationContent: ({ children }: any) => <div>{children}</div>,
   PaginationItem: ({ children }: any) => <div>{children}</div>,
   PaginationLink: ({ children, isActive, onClick }: any) => (
-    <button
-      data-testid={`page-${children}`}
-      className={isActive ? "active" : ""}
-      onClick={onClick}
-    >
+    <button data-testid={`page-${children}`} className={isActive ? "active" : ""} onClick={onClick}>
       {children}
     </button>
   ),
@@ -161,10 +187,10 @@ describe.skip("Dashboard", () => {
       id: "conv-1",
       conversationTitle: "Test Conversation 1",
       conversationDate: new Date("2024-01-15T10:00:00Z"),
-      poll: undefined,  // Changed from null to undefined
+      poll: undefined, // Changed from null to undefined
       hasAI: true,
       tags: [],
-      folderId: undefined,  // Changed from null to undefined
+      folderId: undefined, // Changed from null to undefined
     },
     {
       id: "conv-2",
@@ -445,7 +471,9 @@ describe.skip("Dashboard", () => {
       render(<Dashboard />);
 
       expect(screen.getByText("Tableau de bord")).toBeInTheDocument();
-      expect(screen.getByText("Pilotez vos conversations, sondages et analyses IA en un clin d'œil.")).toBeInTheDocument();
+      expect(
+        screen.getByText("Pilotez vos conversations, sondages et analyses IA en un clin d'œil."),
+      ).toBeInTheDocument();
     });
 
     it("should render within CreatePageLayout", () => {
@@ -478,7 +506,7 @@ describe.skip("Dashboard", () => {
         usage: {
           conversations: 5,
           polls: 2,
-          aiMessages: 25,  // Add missing aiMessages
+          aiMessages: 25, // Add missing aiMessages
           storageUsed: 100,
         },
         status: nearLimitQuota,
@@ -578,7 +606,9 @@ describe.skip("Dashboard", () => {
       render(<Dashboard />);
 
       expect(screen.getByText("Aucune conversation")).toBeInTheDocument();
-      expect(screen.getByText("Commencez une conversation avec l'IA pour créer des sondages")).toBeInTheDocument();
+      expect(
+        screen.getByText("Commencez une conversation avec l'IA pour créer des sondages"),
+      ).toBeInTheDocument();
     });
 
     it("should show no results message when filters applied", async () => {
@@ -750,7 +780,7 @@ describe.skip("Dashboard", () => {
       await user.click(deleteBtn);
 
       expect(mockConfirm).toHaveBeenCalledWith(
-        expect.stringContaining("Êtes-vous sûr de vouloir supprimer 1 élément(s)")
+        expect.stringContaining("Êtes-vous sûr de vouloir supprimer 1 élément(s)"),
       );
       // Should not delete since user cancelled
       expect(screen.getByTestId("selected-count")).toHaveTextContent("1");
