@@ -48,11 +48,7 @@ jobs:
           cache: 'npm'
 
       - name: 🔧 Install dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+        run: npm ci --prefer-offline --no-audit
 
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright
