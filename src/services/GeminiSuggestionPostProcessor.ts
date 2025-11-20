@@ -1,5 +1,6 @@
 import { DatePollSuggestion } from "@/lib/gemini";
 import type { ParsedTemporalInput } from "@/lib/temporalParser";
+import { formatDateLocal } from "@/lib/date-utils";
 
 export interface PostProcessingOptions {
   userInput: string;
@@ -11,6 +12,81 @@ interface ProcessedSuggestion {
   dates: string[];
   timeSlots: DatePollSuggestion["timeSlots"];
   type: DatePollSuggestion["type"];
+}
+
+/**
+ * 🔧 FIX BUG #1: Génère toutes les dates d'un jour de la semaine dans un mois donné
+ * Ex: "tous les samedis de mars 2026" → [2026-03-07, 2026-03-14, 2026-03-21, 2026-03-28]
+ */
+function getAllWeekdaysInMonth(weekdayName: string, monthName: string, year?: number): string[] {
+  const weekdayMap: Record<string, number> = {
+    dimanche: 0,
+    lundi: 1,
+    mardi: 2,
+    mercredi: 3,
+    jeudi: 4,
+    vendredi: 5,
+    samedi: 6,
+  };
+
+  const monthMap: Record<string, number> = {
+    janvier: 0,
+    fevrier: 1,
+    février: 1,
+    mars: 2,
+    avril: 3,
+    mai: 4,
+    juin: 5,
+    juillet: 6,
+    aout: 7,
+    août: 7,
+    septembre: 8,
+    octobre: 9,
+    novembre: 10,
+    decembre: 11,
+    décembre: 11,
+  };
+
+  const targetWeekday = weekdayMap[weekdayName.toLowerCase()];
+  const normalizedMonth = monthName
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  const targetMonth = monthMap[normalizedMonth];
+
+  if (targetWeekday === undefined || targetMonth === undefined) {
+    return [];
+  }
+
+  // Déterminer l'année
+  const currentYear = new Date().getFullYear();
+  const targetYear = year || currentYear;
+  const today = new Date();
+  const targetDate = new Date(targetYear, targetMonth, 1);
+
+  // Si le mois est passé cette année, utiliser l'année suivante
+  let finalYear = targetYear;
+  if (
+    !year &&
+    (targetDate.getFullYear() < today.getFullYear() ||
+      (targetDate.getFullYear() === today.getFullYear() &&
+        targetDate.getMonth() < today.getMonth()))
+  ) {
+    finalYear = currentYear + 1;
+  }
+
+  // Trouver tous les jours du mois qui correspondent
+  const dates: string[] = [];
+  const daysInMonth = new Date(finalYear, targetMonth + 1, 0).getDate();
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(finalYear, targetMonth, day);
+    if (date.getDay() === targetWeekday) {
+      dates.push(formatDateLocal(date));
+    }
+  }
+
+  return dates;
 }
 
 // Associe les mots-clés détectés dans le prompt aux jours recherchés (0 = dimanche → 6 = samedi).
@@ -752,6 +828,27 @@ export function postProcessSuggestion(
   suggestion: DatePollSuggestion,
   options: PostProcessingOptions,
 ): DatePollSuggestion {
+  // 🔧 FIX BUG #1: Détecter le pattern "tous les [jour] de [mois]" AVANT tout traitement
+  const allWeekdaysPattern =
+    /(?:tous\s+les|les)\s+(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)s?\s+(?:de|d')\s+(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)(?:\s+(\d{4}))?/i;
+  const allWeekdaysMatch = options.userInput.match(allWeekdaysPattern);
+
+  if (allWeekdaysMatch) {
+    const weekdayName = allWeekdaysMatch[1];
+    const monthName = allWeekdaysMatch[2];
+    const year = allWeekdaysMatch[3] ? parseInt(allWeekdaysMatch[3]) : undefined;
+
+    const generatedDates = getAllWeekdaysInMonth(weekdayName, monthName, year);
+
+    if (generatedDates.length > 0) {
+      // Remplacer les dates suggérées par Gemini par les dates générées
+      return {
+        ...suggestion,
+        dates: generatedDates,
+      };
+    }
+  }
+
   let dates = clampDatesToWindow(suggestion.dates, options.allowedDates) || [];
 
   // Si ParsedTemporalInput est fourni, utiliser ses données au lieu de recalculer

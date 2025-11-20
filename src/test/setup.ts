@@ -45,10 +45,14 @@ Object.defineProperty(window, "localStorage", {
 Element.prototype.scrollIntoView = () => {};
 
 // Polyfills pour Radix UI et Canvas
-Element.prototype.hasPointerCapture = function() { return false; };
-Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+Element.prototype.hasPointerCapture = function () {
+  return false;
+};
+Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
   writable: true,
-  value: function() { return {}; }
+  value: function () {
+    return {};
+  },
 });
 
 // Charger .env.local AVANT le mock pour que les variables soient disponibles

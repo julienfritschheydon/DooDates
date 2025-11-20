@@ -13,6 +13,7 @@ interface AuthModalProps {
 
 export function AuthModal({ open, onOpenChange, defaultMode = "signin" }: AuthModalProps) {
   const [mode, setMode] = useState<"signin" | "signup">(defaultMode);
+  const [hasFormData, setHasFormData] = useState(false);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -59,9 +60,27 @@ export function AuthModal({ open, onOpenChange, defaultMode = "signin" }: AuthMo
     );
   }
 
+  // 🔧 FIX BUG #3: Empêcher la fermeture si des données sont saisies
+  const handleInteractOutside = (e: Event) => {
+    if (hasFormData) {
+      e.preventDefault();
+      // Optionnel: afficher un message à l'utilisateur
+      const shouldClose = window.confirm(
+        "Vous avez des données non sauvegardées. Voulez-vous vraiment fermer ?",
+      );
+      if (shouldClose) {
+        setHasFormData(false);
+        onOpenChange(false);
+      }
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className="sm:max-w-md max-h-[90vh] overflow-y-auto"
+        onInteractOutside={handleInteractOutside}
+      >
         <DialogHeader className="sr-only">
           <DialogTitle>{mode === "signin" ? "Connexion" : "Inscription"}</DialogTitle>
           <DialogDescription>
@@ -72,9 +91,17 @@ export function AuthModal({ open, onOpenChange, defaultMode = "signin" }: AuthMo
         </DialogHeader>
         <div className="mt-4">
           {mode === "signin" ? (
-            <SignInForm onSuccess={handleAuthSuccess} onSwitchToSignUp={() => setMode("signup")} />
+            <SignInForm
+              onSuccess={handleAuthSuccess}
+              onSwitchToSignUp={() => setMode("signup")}
+              onFormChange={(hasData) => setHasFormData(hasData)}
+            />
           ) : (
-            <SignUpForm onSuccess={handleAuthSuccess} onSwitchToSignIn={() => setMode("signin")} />
+            <SignUpForm
+              onSuccess={handleAuthSuccess}
+              onSwitchToSignIn={() => setMode("signin")}
+              onFormChange={(hasData) => setHasFormData(hasData)}
+            />
           )}
         </div>
       </DialogContent>

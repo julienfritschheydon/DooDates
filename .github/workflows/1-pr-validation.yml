@@ -29,10 +29,7 @@ jobs:
       
       - name: 🔧 Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+          npm ci --prefer-offline --no-audit
       
       - name: 🧭 Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
@@ -102,10 +99,7 @@ jobs:
 
       - name: 🔧 Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+          npm ci --prefer-offline --no-audit
 
       - name: 🧭 Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
@@ -144,10 +138,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+          npm ci --prefer-offline --no-audit
       
       - name: Run ${{ matrix.test-type }} tests
         run: npm run test:${{ matrix.test-type }}
@@ -181,10 +172,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+          npm ci --prefer-offline --no-audit
       
       - name: Run AI Tests (Quick)
         run: npm run test:gemini:quick
@@ -231,10 +219,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+          npm ci --prefer-offline --no-audit
       
       - name: TypeScript Check
         run: npm run type-check
@@ -264,10 +249,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+          npm ci --prefer-offline --no-audit
       
       - name: Lint check
         run: npm run lint -- --max-warnings 1000
@@ -294,10 +276,7 @@ jobs:
 
       - name: 🔧 Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+          npm ci --prefer-offline --no-audit
 
       - name: 🧭 Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
@@ -341,10 +320,7 @@ jobs:
 
       - name: 🔧 Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+          npm ci --prefer-offline --no-audit
 
       - name: 🧭 Install Playwright (Chromium only)
         run: npx playwright install --with-deps chromium
@@ -398,10 +374,7 @@ jobs:
 
       - name: 🔧 Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+          npm ci --prefer-offline --no-audit
 
       - name: 🎭 Cache Playwright browsers
         id: cache-playwright
@@ -475,10 +448,7 @@ jobs:
 
       - name: 🔧 Install dependencies
         run: |
-          rm -rf node_modules package-lock.json
-          npm install
-          # Ensure Rollup native dependencies are properly installed (known npm bug)
-          npm install @rollup/rollup-linux-x64-gnu || true
+          npm ci --prefer-offline --no-audit
 
       - name: 📥 Download test results (if available)
         uses: actions/download-artifact@v4

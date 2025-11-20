@@ -202,7 +202,7 @@ export function useAutoSave(opts: UseAutoSaveOptions = {}): UseAutoSaveReturn {
                   "Synchronisation Supabase échouée: résultat invalide ou manquant",
                   supabaseResult === undefined
                     ? "La synchronisation Supabase a retourné undefined"
-                    : "La synchronisation Supabase a retourné un résultat sans ID"
+                    : "La synchronisation Supabase a retourné un résultat sans ID",
                 );
               }
               console.log(

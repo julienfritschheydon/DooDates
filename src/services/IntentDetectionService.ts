@@ -112,6 +112,45 @@ export class IntentDetectionService {
       }
     }
 
+    // 🔧 Détecter d'abord le pattern "tous les [jour] de [mois]" qui génère plusieurs dates
+    const allWeekdaysPattern =
+      /(?:tous\s+les|les)\s+(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)s?\s+(?:de|d')\s+(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)(?:\s+(\d{4}))?/i;
+    const allWeekdaysMatch = message.match(allWeekdaysPattern);
+
+    if (allWeekdaysMatch && ACTION_PATTERNS.ADD.test(message)) {
+      const weekdayName = allWeekdaysMatch[1];
+      const monthName = allWeekdaysMatch[2];
+      const year = allWeekdaysMatch[3] ? parseInt(allWeekdaysMatch[3]) : undefined;
+
+      const dates = this.getAllWeekdaysInMonth(weekdayName, monthName, year);
+
+      if (dates.length > 0) {
+        logger.info("✅ Pattern 'tous les [jour] de [mois]' détecté", "poll", {
+          weekday: weekdayName,
+          month: monthName,
+          year,
+          datesCount: dates.length,
+          dates,
+        });
+
+        // Retourner un MultiModificationIntent avec toutes les dates
+        const intents: ModificationIntent[] = dates.map((date) => ({
+          isModification: true,
+          action: "ADD_DATE",
+          payload: date,
+          confidence: 0.95,
+          explanation: `Ajout de la date ${date.split("-").reverse().join("/")}`,
+        }));
+
+        return {
+          isModification: true,
+          intents,
+          confidence: 0.95,
+          explanation: `Ajout de ${dates.length} dates: ${dates.map((d) => d.split("-").reverse().join("/")).join(", ")}`,
+        };
+      }
+    }
+
     // Si une seule partie, utiliser detectSimpleIntent
     if (segments.length === 1) {
       const singleIntent = await this.detectSimpleIntent(message, currentPoll);
@@ -209,7 +248,7 @@ export class IntentDetectionService {
       return null;
     }
 
-    // 1.5. Détecter les CRÉNEAUX HORAIRES avant Chrono (patterns spécifiques)
+    // 1.4. Détecter les CRÉNEAUX HORAIRES avant Chrono (patterns spécifiques)
     // Pattern: "ajoute 14h-15h le 29" ou "ajoute de 14h à 15h le 29"
     const timeslotPattern1 =
       /(\d{1,2})h?(\d{2})?\s*[-–]\s*(\d{1,2})h?(\d{2})?\s+le\s+(\d{1,2}(?:\/\d{1,2}(?:\/\d{4})?)?)/i;
@@ -423,11 +462,65 @@ export class IntentDetectionService {
     }
 
     // 2. Parser les DATES avec Chrono.js (français)
-    // Utiliser la dernière date du sondage comme référence pour inférer le mois/année
+    // 🔧 FIX BUG #1: Détecter si un mois est explicitement mentionné dans le message
+    // Si oui, utiliser ce mois comme référence (pas la dernière date du sondage)
+    const monthPattern =
+      /(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)/i;
+    const monthMatch = message.match(monthPattern);
+
     let referenceDate = new Date();
-    if (currentPoll.dates && currentPoll.dates.length > 0) {
+    if (monthMatch) {
+      // Mois explicitement demandé → utiliser ce mois comme référence
+      const monthName = monthMatch[1]
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, ""); // Normaliser (é → e)
+      const monthIndex: Record<string, number> = {
+        janvier: 0,
+        fevrier: 1,
+        mars: 2,
+        avril: 3,
+        mai: 4,
+        juin: 5,
+        juillet: 6,
+        aout: 7,
+        septembre: 8,
+        octobre: 9,
+        novembre: 10,
+        decembre: 11,
+      };
+
+      const targetMonthIndex = monthIndex[monthName];
+      if (targetMonthIndex !== undefined) {
+        const currentYear = new Date().getFullYear();
+        referenceDate = new Date(currentYear, targetMonthIndex, 1);
+
+        // Si le mois est passé, utiliser l'année suivante
+        const today = new Date();
+        if (
+          referenceDate.getFullYear() < today.getFullYear() ||
+          (referenceDate.getFullYear() === today.getFullYear() &&
+            referenceDate.getMonth() < today.getMonth())
+        ) {
+          referenceDate = new Date(currentYear + 1, targetMonthIndex, 1);
+        }
+
+        logger.info("🔧 Mois explicite détecté dans le message", "poll", {
+          monthName: monthMatch[1],
+          targetMonth: targetMonthIndex,
+          referenceDate: formatDateLocal(referenceDate),
+          message: message.slice(0, 50),
+        });
+      }
+    } else if (currentPoll.dates && currentPoll.dates.length > 0) {
+      // Pas de mois explicite → utiliser la dernière date du sondage comme référence
       const lastDate = currentPoll.dates[currentPoll.dates.length - 1];
       referenceDate = new Date(lastDate);
+
+      logger.info("🔧 Utilisation dernière date du sondage comme référence", "poll", {
+        lastDate,
+        referenceDate: formatDateLocal(referenceDate),
+      });
     }
 
     // 🔧 FIX 1: Détecter "le 27" (jour seul) et construire une date explicite
@@ -507,6 +600,18 @@ export class IntentDetectionService {
     // Lazy load chrono si nécessaire
     const chrono = await getChrono();
     const parsedDates = chrono.fr.parse(enhancedMessage, referenceDate, { forwardDate: true });
+
+    // 🔍 Log de debug pour tracer le parsing Chrono
+    logger.info("🔍 Parsing Chrono.js", "poll", {
+      originalMessage: message.slice(0, 50),
+      enhancedMessage: enhancedMessage.slice(0, 80),
+      referenceDate: formatDateLocal(referenceDate),
+      parsedCount: parsedDates.length,
+      parsedDates: parsedDates.slice(0, 3).map((d) => ({
+        text: d.text,
+        date: formatDateLocal(d.start.date()),
+      })),
+    });
 
     // Si aucune date trouvée par Chrono, essayer de détecter un jour de la semaine
     if (parsedDates.length === 0) {
@@ -636,6 +741,79 @@ export class IntentDetectionService {
       dimanche: 0,
     };
     return weekdayMap[weekdayName.toLowerCase()] ?? -1;
+  }
+
+  /**
+   * Génère toutes les dates d'un jour de la semaine dans un mois donné
+   * Ex: "tous les samedi de mars 2026" → [2026-03-07, 2026-03-14, 2026-03-21, 2026-03-28]
+   */
+  private static getAllWeekdaysInMonth(
+    weekdayName: string,
+    monthName: string,
+    year?: number,
+  ): string[] {
+    const targetWeekday = this.getWeekdayNumber(weekdayName);
+    if (targetWeekday === -1) {
+      return [];
+    }
+
+    // Convertir le nom du mois en index (0-11)
+    const monthIndex: Record<string, number> = {
+      janvier: 0,
+      fevrier: 1,
+      février: 1,
+      mars: 2,
+      avril: 3,
+      mai: 4,
+      juin: 5,
+      juillet: 6,
+      aout: 7,
+      août: 7,
+      septembre: 8,
+      octobre: 9,
+      novembre: 10,
+      decembre: 11,
+      décembre: 11,
+    };
+
+    const normalizedMonth = monthName
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    const targetMonth = monthIndex[normalizedMonth];
+    if (targetMonth === undefined) {
+      return [];
+    }
+
+    // Déterminer l'année (année courante ou suivante si le mois est passé)
+    const currentYear = new Date().getFullYear();
+    const targetYear = year || currentYear;
+    const today = new Date();
+    const targetDate = new Date(targetYear, targetMonth, 1);
+
+    // Si le mois est passé cette année, utiliser l'année suivante
+    let finalYear = targetYear;
+    if (
+      !year &&
+      (targetDate.getFullYear() < today.getFullYear() ||
+        (targetDate.getFullYear() === today.getFullYear() &&
+          targetDate.getMonth() < today.getMonth()))
+    ) {
+      finalYear = currentYear + 1;
+    }
+
+    // Trouver tous les jours du mois qui correspondent au jour de la semaine
+    const dates: string[] = [];
+    const daysInMonth = new Date(finalYear, targetMonth + 1, 0).getDate();
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(finalYear, targetMonth, day);
+      if (date.getDay() === targetWeekday) {
+        dates.push(formatDateLocal(date));
+      }
+    }
+
+    return dates;
   }
 
   /**

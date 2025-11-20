@@ -1,4 +1,4 @@
-# 📅 Sondages de Dates
+# 📅 Sondages de dates
 
 Guide complet pour créer et gérer des sondages de dates/horaires avec DooDates.
 
@@ -6,9 +6,9 @@ Guide complet pour créer et gérer des sondages de dates/horaires avec DooDates
 
 ## 📋 Table des Matières
 
-1. [Qu'est-ce qu'un Sondage de Dates](#quest-ce-quun-sondage-de-dates)
+1. [Qu'est-ce qu'un Sondage de dates](#quest-ce-quun-sondage-de-dates)
 2. [Créer un Sondage](#créer-un-sondage)
-3. [Sélection de Dates](#sélection-de-dates)
+3. [Sélection de dates](#sélection-de-dates)
 4. [Ajouter des Horaires](#ajouter-des-horaires)
 5. [Voter sur un Sondage](#voter-sur-un-sondage)
 6. [Analyser les Résultats](#analyser-les-résultats)
@@ -16,7 +16,7 @@ Guide complet pour créer et gérer des sondages de dates/horaires avec DooDates
 
 ---
 
-## 🎯 Qu'est-ce qu'un Sondage de Dates
+## 🎯 Qu'est-ce qu'un Sondage de dates
 
 Un **sondage de dates** permet de trouver le meilleur créneau pour un événement en collectant les disponibilités de tous les participants.
 
@@ -97,7 +97,7 @@ IA : "Parfait ! Sondage créé :
 
 ---
 
-## 📆 Sélection de Dates
+## 📆 Sélection de dates
 
 ### Interface Calendrier
 
@@ -137,7 +137,7 @@ Résultat : 12, 13, 14, 15 novembre sélectionnés
 
 ## ⏰ Ajouter des Horaires
 
-### Horaires par Date
+### Horaires par date
 
 Après avoir sélectionné les dates :
 
@@ -631,5 +631,5 @@ Après 10 votes :
 
 ---
 
-**© 2025 DooDates - Sondages de Dates v1.0**
+**© 2025 DooDates - Sondages de dates v1.0**
 
