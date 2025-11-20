@@ -1,9 +1,16 @@
+/**
+ * Tests for OnboardingContext
+ * DooDates - Onboarding Context Tests
+ */
+
+/// <reference types="@testing-library/jest-dom" />
+
+import React from 'react';
 import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { OnboardingProvider, useOnboarding } from "./OnboardingContext";
 
-// Mock des dépendances
+// Mock des dépendances - DOIT être avant l'import du composant
 vi.mock("../lib/error-handling", () => ({
   logError: vi.fn(),
   ErrorFactory: {
@@ -11,6 +18,8 @@ vi.mock("../lib/error-handling", () => ({
     critical: vi.fn((message, userMessage) => new Error(userMessage)),
   },
 }));
+
+import { OnboardingProvider, useOnboarding } from "./OnboardingContext";
 
 // Composant de test pour utiliser le hook
 function TestComponent({ onOnboarding }: { onOnboarding: (onboarding: any) => void }) {
@@ -43,7 +52,7 @@ function TestComponent({ onOnboarding }: { onOnboarding: (onboarding: any) => vo
   );
 }
 
-describe.skip("OnboardingContext", () => {
+describe("OnboardingContext", () => {
   const mockLocalStorage = {
     getItem: vi.fn(),
     setItem: vi.fn(),
@@ -97,7 +106,7 @@ describe.skip("OnboardingContext", () => {
         </OnboardingProvider>
       );
 
-      expect(mockOnOnboarding).toHaveBeenCalledWith(
+      expect(mockOnOnboarding).toHaveBeenLastCalledWith(
         expect.objectContaining({
           isCompleted: true,
           isOpen: false,
@@ -118,7 +127,7 @@ describe.skip("OnboardingContext", () => {
         </OnboardingProvider>
       );
 
-      expect(mockOnOnboarding).toHaveBeenCalledWith(
+      expect(mockOnOnboarding).toHaveBeenLastCalledWith(
         expect.objectContaining({
           isCompleted: false, // Fallback to false
           isOpen: false,
@@ -168,7 +177,7 @@ describe.skip("OnboardingContext", () => {
         </OnboardingProvider>
       );
 
-      expect(mockOnOnboarding).toHaveBeenCalledWith(
+      expect(mockOnOnboarding).toHaveBeenLastCalledWith(
         expect.objectContaining({
           isOpen: false,
         })
@@ -190,7 +199,7 @@ describe.skip("OnboardingContext", () => {
         </OnboardingProvider>
       );
 
-      expect(mockOnOnboarding).toHaveBeenCalledWith(
+      expect(mockOnOnboarding).toHaveBeenLastCalledWith(
         expect.objectContaining({
           isOpen: false,
         })
@@ -211,7 +220,7 @@ describe.skip("OnboardingContext", () => {
         </OnboardingProvider>
       );
 
-      expect(mockOnOnboarding).toHaveBeenCalledWith(
+      expect(mockOnOnboarding).toHaveBeenLastCalledWith(
         expect.objectContaining({
           isOpen: false,
         })

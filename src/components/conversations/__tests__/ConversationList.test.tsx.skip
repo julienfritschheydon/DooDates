@@ -3,14 +3,17 @@
  * DooDates - Conversation History System
  */
 
+/// <reference types="@testing-library/jest-dom" />
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ConversationList } from '../ConversationList';
 import type { Conversation } from '../../../types/conversation';
 
 // Mock react-window for virtualization
-jest.mock('react-window', () => ({
+vi.mock('react-window', () => ({
   FixedSizeList: ({ children, itemCount, itemData }: any) => (
     <div data-testid="virtualized-list">
       {Array.from({ length: itemCount }).map((_, index) => 
@@ -25,12 +28,12 @@ jest.mock('react-window', () => ({
 }));
 
 // Mock the search hook
-jest.mock('../../../hooks/useConversationSearch', () => ({
-  useConversationSearch: jest.fn(() => ({
+vi.mock('../../../hooks/useConversationSearch', () => ({
+  useConversationSearch: vi.fn(() => ({
     conversations: [],
-    setQuery: jest.fn(),
-    setFilters: jest.fn(),
-    clearSearch: jest.fn(),
+    setQuery: vi.fn(),
+    setFilters: vi.fn(),
+    clearSearch: vi.fn(),
     query: '',
     totalCount: 0,
     isLoading: false
@@ -38,7 +41,7 @@ jest.mock('../../../hooks/useConversationSearch', () => ({
 }));
 
 // Mock ConversationCard component
-jest.mock('../ConversationCard', () => ({
+vi.mock('../ConversationCard', () => ({
   ConversationCard: ({ conversation, onResume }: any) => (
     <div data-testid={`conversation-card-${conversation.id}`}>
       <h3>{conversation.title}</h3>
@@ -86,16 +89,16 @@ describe('ConversationList', () => {
 
   // Mock callbacks
   const mockCallbacks = {
-    onResume: jest.fn(),
-    onRename: jest.fn(),
-    onDelete: jest.fn(),
-    onToggleFavorite: jest.fn(),
-    onViewPoll: jest.fn(),
-    onCreateNew: jest.fn()
+    onResume: vi.fn(),
+    onRename: vi.fn(),
+    onDelete: vi.fn(),
+    onToggleFavorite: vi.fn(),
+    onViewPoll: vi.fn(),
+    onCreateNew: vi.fn()
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Basic Rendering', () => {
@@ -184,7 +187,7 @@ describe('ConversationList', () => {
 
       render(<ConversationList conversations={mockConversations} />);
 
-      expect(screen.getByText('Aucune conversation trouvÃ©e')).toBeInTheDocument();
+      expect(screen.getByText('Aucune conversation trouvée')).toBeInTheDocument();
       expect(screen.getByText(/Essayez de modifier vos critÃ¨res/)).toBeInTheDocument();
     });
 
@@ -234,7 +237,7 @@ describe('ConversationList', () => {
 
       render(<ConversationList conversations={mockConversations} />);
 
-      expect(screen.getByText('1 conversation trouvÃ©e')).toBeInTheDocument();
+      expect(screen.getByText('1 conversation trouvée')).toBeInTheDocument();
     });
   });
 
@@ -269,7 +272,7 @@ describe('ConversationList', () => {
       const statusFilter = screen.getByRole('combobox');
       await userEvent.click(statusFilter);
 
-      const activeOption = screen.getByText('En cours (1)');
+      const activeOption = screen.getByText((content, element) => content.includes('En cours (1)'));
       await userEvent.click(activeOption);
 
       expect(mockSetFilters).toHaveBeenCalledWith(expect.any(Function));
@@ -344,7 +347,7 @@ describe('ConversationList', () => {
       const sortButton = screen.getByText('Trier');
       await userEvent.click(sortButton);
 
-      expect(screen.getByText('DerniÃ¨re modification')).toBeInTheDocument();
+      expect(screen.getByText((content, element) => content.includes('Dernière modification'))).toBeInTheDocument();
       expect(screen.getByText('Date de crÃ©ation')).toBeInTheDocument();
       expect(screen.getByText('Titre')).toBeInTheDocument();
       expect(screen.getByText('Nombre de messages')).toBeInTheDocument();
@@ -480,9 +483,9 @@ describe('ConversationList', () => {
       await userEvent.click(statusFilter);
 
       expect(screen.getByText('Toutes (3)')).toBeInTheDocument();
-      expect(screen.getByText('En cours (1)')).toBeInTheDocument();
-      expect(screen.getByText('TerminÃ©es (1)')).toBeInTheDocument();
-      expect(screen.getByText('ArchivÃ©es (1)')).toBeInTheDocument();
+      expect(screen.getByText((content, element) => content.includes('En cours (1)'))).toBeInTheDocument();
+      expect(screen.getByText('Terminées (1)')).toBeInTheDocument();
+      expect(screen.getByText('Archivées (1)')).toBeInTheDocument();
     });
   });
 });

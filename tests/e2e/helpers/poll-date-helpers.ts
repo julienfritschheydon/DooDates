@@ -330,12 +330,18 @@ export async function createDatePollWithTimeSlots(
 
   const createSuggestionButton = await waitForElementReady(page, '[data-testid="create-poll-button"]', {
     browserName,
-    timeout: timeouts.element,
+    timeout: timeouts.element * 2, // Double timeout car l'IA peut être lente
   });
-  await robustClick(createSuggestionButton);
+
+  // Attendre que l'interface soit stable (fin des animations/effets)
+  await waitForReactStable(page, { browserName });
+
+  // S'assurer que le bouton est bien activé
+  await expect(createSuggestionButton).toBeEnabled({ timeout: timeouts.element });
+
+  await createSuggestionButton.click();
   console.log('🖱️ Bouton "Créer ce sondage" cliqué');
 
-  await waitForReactStable(page, { browserName });
 
   const result = await page.evaluate((existingIds) => {
     const parseArray = (key: string) => {

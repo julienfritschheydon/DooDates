@@ -9,6 +9,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
+// 🔥 NOUVEAU: Import de l'analyseur IA automatique
+import { analyzeWorkflowFailures } from './auto-workflow-analyzer.js';
+
 // Charger les variables d'environnement depuis .env.local si disponible
 const envLocalPath = path.join(process.cwd(), '.env.local');
 if (fs.existsSync(envLocalPath)) {
@@ -25,6 +28,11 @@ const ARTIFACTS_DIR = path.join(process.cwd(), 'temp-artifacts');
 const GITHUB_API_BASE = process.env.GITHUB_API_URL || 'https://api.github.com';
 const REPO = process.env.GITHUB_REPOSITORY || 'owner/repo';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
+// 🔥 NOUVEAU: Focus sur le commit actuel
+const TRIGGER_COMMIT_SHA = process.env.GITHUB_SHA || process.env.GITHUB_EVENT_HEAD_SHA;
+const TRIGGER_WORKFLOW_NAME = process.env.GITHUB_WORKFLOW_TRIGGER_NAME;
+const TRIGGER_BRANCH = process.env.GITHUB_REF_NAME;
 
 // Workflows à monitorer
 const WORKFLOWS_TO_MONITOR = [
@@ -456,6 +464,9 @@ async function generateReport() {
   const workflows = await getWorkflows();
   const reportSections = [];
   
+  // 🔥 NOUVEAU: Collecteur d'échecs pour l'analyse IA
+  const allFailures = [];
+  
   // En-tête du rapport
   const now = new Date();
   const runNumber = process.env.GITHUB_RUN_NUMBER ?? 'local';
@@ -464,7 +475,16 @@ async function generateReport() {
   reportSections.push(`# 📊 Rapport de Monitoring des Workflows GitHub Actions\n\n`);
   reportSections.push(`**Dernière mise à jour:** ${now.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}\n\n`);
   reportSections.push(`_Workflow run #${runNumber} (ID ${runId}) — génération UTC ${now.toISOString()}_\n\n`);
-  reportSections.push(`> Ce rapport est généré automatiquement pour suivre les échecs de workflows.\n`);
+  
+  // 🔥 FOCUS SUR LE COMMIT ACTUEL
+  if (TRIGGER_COMMIT_SHA) {
+    reportSections.push(`## 🎯 Focus: Commit \`${TRIGGER_COMMIT_SHA.substring(0, 7)}\`\n\n`);
+    reportSections.push(`**Branche:** \`${TRIGGER_BRANCH || 'unknown'}\`\n`);
+    reportSections.push(`**Workflow déclencheur:** \`${TRIGGER_WORKFLOW_NAME || 'unknown'}\`\n\n`);
+    reportSections.push(`> Ce rapport analyse **UNIQUEMENT** les échecs du commit actuel.\n\n`);
+  } else {
+    reportSections.push(`> Ce rapport analyse les échecs de workflows critiques.\n`);
+  }
   reportSections.push(`> Il peut être consulté par l'IA pour comprendre l'état de santé du CI/CD.\n\n`);
   reportSections.push(`---\n\n`);
 
@@ -480,11 +500,25 @@ async function generateReport() {
     console.log(`📋 Analyse de "${workflowName}"...`);
     const runs = await getWorkflowRuns(workflow.id, 20);
     
-    // Filtrer les échecs récents (dernières 24h)
+    // 🔥 FILTRE PAR COMMIT ACTUEL si disponible
+    let filteredRuns = runs;
+    if (TRIGGER_COMMIT_SHA) {
+      console.log(`🎯 Filtrage sur commit: ${TRIGGER_COMMIT_SHA.substring(0, 7)}`);
+      filteredRuns = runs.filter(run => run.head_sha === TRIGGER_COMMIT_SHA);
+      console.log(`📊 ${filteredRuns.length} run(s) trouvé(s) pour ce commit`);
+    }
+    
+    // Filtrer les échecs récents (dernières 24h) OU du commit actuel
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const recentFailures = runs.filter(run => {
-      const runDate = new Date(run.created_at);
-      return runDate >= oneDayAgo && run.conclusion === 'failure';
+    const recentFailures = filteredRuns.filter(run => {
+      if (TRIGGER_COMMIT_SHA) {
+        // Si on filtre par commit, prendre tous les runs de ce commit (succès ou échec)
+        return run.head_sha === TRIGGER_COMMIT_SHA;
+      } else {
+        // Sinon, prendre seulement les échecs récents
+        const runDate = new Date(run.created_at);
+        return runDate >= oneDayAgo && run.conclusion === 'failure';
+      }
     });
 
     // Filtrer les échecs des 7 derniers jours
@@ -514,14 +548,23 @@ async function generateReport() {
     }
 
     // Statistiques
+    const totalRunsForCommit = TRIGGER_COMMIT_SHA ? filteredRuns.length : runs.length;
+    const failuresForCommit = TRIGGER_COMMIT_SHA ? recentFailures.filter(r => r.conclusion === 'failure').length : recentFailures.length;
+    
     reportSections.push(`**Statistiques:**\n`);
-    reportSections.push(`- ❌ Échecs (24h): **${recentFailures.length}**\n`);
-    reportSections.push(`- ❌ Échecs (7 jours): **${weekFailures.length}**\n`);
-    reportSections.push(`- 📊 Total runs analysés: **${runs.length}**\n\n`);
+    if (TRIGGER_COMMIT_SHA) {
+      reportSections.push(`- 📊 **Total runs pour ce commit:** **${totalRunsForCommit}**\n`);
+      reportSections.push(`- ❌ **Échecs pour ce commit:** **${failuresForCommit}**\n`);
+    } else {
+      reportSections.push(`- ❌ Échecs (24h): **${recentFailures.length}**\n`);
+      reportSections.push(`- ❌ Échecs (7 jours): **${weekFailures.length}**\n`);
+      reportSections.push(`- 📊 Total runs analysés: **${runs.length}**\n\n`);
+    }
 
     // Détails des échecs récents
     if (recentFailures.length > 0) {
-      reportSections.push(`### 🔴 Échecs récents (24h)\n\n`);
+      const sectionTitle = TRIGGER_COMMIT_SHA ? `### 🔴 Échecs du commit actuel` : `### 🔴 Échecs récents (24h)`;
+      reportSections.push(`${sectionTitle}\n\n`);
       
       for (const failure of recentFailures.slice(0, 5)) {
         const failureDate = new Date(failure.created_at);
@@ -532,7 +575,12 @@ async function generateReport() {
         reportSections.push(`- **Commit:** \`${failure.head_sha.substring(0, 7)}\`\n`);
         reportSections.push(`- **Auteur:** ${failure.actor?.login || 'unknown'}\n`);
         reportSections.push(`- **Branche:** \`${failure.head_branch}\`\n`);
+        reportSections.push(`- **Statut:** ${failure.conclusion}\n`);
         reportSections.push(`- **Lien:** [Voir les détails](${failure.html_url})\n`);
+        
+        // 🔥 NOUVEAU: Collecter les données d'échec pour l'analyse IA
+        let failureError = '';
+        let failureLogs = '';
         
         if (failedJobs.length > 0) {
           reportSections.push(`- **Jobs en échec:**\n`);
@@ -556,6 +604,8 @@ async function generateReport() {
                   reportSections.push(`      - ❌ **[${testFailure.browser}]** \`${testFailure.file}\`\n`);
                   reportSections.push(`        - Test: ${testFailure.title}\n`);
                   reportSections.push(`        - Erreur: \`${testFailure.error.substring(0, 200)}${testFailure.error.length > 200 ? '...' : ''}\`\n`);
+                  // 🔥 Collecter l'erreur pour l'analyse IA
+                  failureError = testFailure.error;
                 }
                 if (artifactFailures.length > 10) {
                   reportSections.push(`      *... et ${artifactFailures.length - 10} autre(s) test(s) en échec*\n`);
@@ -571,6 +621,11 @@ async function generateReport() {
                       reportSections.push(`    - **Erreurs détectées (${errors.length}):**\n`);
                       for (const error of errors.slice(0, 5)) {
                         reportSections.push(`      \`\`\`\n${error}\n\`\`\`\n`);
+                        // 🔥 Collecter l'erreur pour l'analyse IA
+                        if (!failureError) {
+                          failureError = error.split('\n')[0]; // Première ligne de l'erreur
+                        }
+                        failureLogs += error + '\n';
                       }
                       if (errors.length > 5) {
                         reportSections.push(`      *... et ${errors.length - 5} autre(s) erreur(s)*\n`);
@@ -587,11 +642,22 @@ async function generateReport() {
           }
         }
         
+        // 🔥 Ajouter cet échec au collecteur pour l'analyse IA
+        allFailures.push({
+          id: failure.id.toString(),
+          name: workflowName,
+          error: failureError,
+          logs: failureLogs
+        });
+        
         reportSections.push(`\n`);
       }
-    } else if (weekFailures.length > 0) {
+    } else if (weekFailures.length > 0 && !TRIGGER_COMMIT_SHA) {
       reportSections.push(`### ⚠️ Échecs récents (7 jours)\n\n`);
       reportSections.push(`Aucun échec dans les 24 dernières heures, mais **${weekFailures.length}** échec(s) cette semaine.\n\n`);
+    } else if (TRIGGER_COMMIT_SHA) {
+      reportSections.push(`### ✅ Aucun échec pour ce commit\n\n`);
+      reportSections.push(`Tous les workflows surveillés ont réussi pour le commit \`${TRIGGER_COMMIT_SHA.substring(0, 7)}\`.\n\n`);
     } else {
       reportSections.push(`### ✅ Aucun échec récent\n\n`);
       reportSections.push(`Aucun échec détecté dans les 7 derniers jours.\n\n`);
@@ -603,36 +669,89 @@ async function generateReport() {
   // Résumé global
   reportSections.push(`## 📈 Résumé Global\n\n`);
   
-  const allRuns = [];
-  for (const workflow of workflows.filter(w => WORKFLOWS_TO_MONITOR.includes(w.name))) {
-    const runs = await getWorkflowRuns(workflow.id, 10);
-    allRuns.push(...runs);
+  let totalFailures24h = 0;
+  let totalFailures7d = 0;
+  
+  if (TRIGGER_COMMIT_SHA) {
+    // Pour le focus commit, compter uniquement les échecs du commit actuel
+    const commitFailures = [];
+    for (const workflow of workflows.filter(w => WORKFLOWS_TO_MONITOR.includes(w.name))) {
+      const runs = await getWorkflowRuns(workflow.id, 10);
+      const commitRuns = runs.filter(run => run.head_sha === TRIGGER_COMMIT_SHA);
+      commitFailures.push(...commitRuns.filter(run => run.conclusion === 'failure'));
+    }
+    
+    totalFailures24h = commitFailures.length;
+    reportSections.push(`- 🎯 **Focus: Commit actuel** \`${TRIGGER_COMMIT_SHA.substring(0, 7)}\`\n`);
+    reportSections.push(`- ❌ **Échecs pour ce commit:** ${totalFailures24h}\n`);
+  } else {
+    // Logique originale pour les rapports généraux
+    const allRuns = [];
+    for (const workflow of workflows.filter(w => WORKFLOWS_TO_MONITOR.includes(w.name))) {
+      const runs = await getWorkflowRuns(workflow.id, 10);
+      allRuns.push(...runs);
+    }
+
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    totalFailures24h = allRuns.filter(run => {
+      const runDate = new Date(run.created_at);
+      return runDate >= oneDayAgo && run.conclusion === 'failure';
+    }).length;
+
+    totalFailures7d = allRuns.filter(run => {
+      const runDate = new Date(run.created_at);
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      return runDate >= sevenDaysAgo && run.conclusion === 'failure';
+    }).length;
+
+    reportSections.push(`- ❌ **Total échecs (24h):** ${totalFailures24h}\n`);
+    reportSections.push(`- ❌ **Total échecs (7 jours):** ${totalFailures7d}\n`);
   }
-
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const totalFailures24h = allRuns.filter(run => {
-    const runDate = new Date(run.created_at);
-    return runDate >= oneDayAgo && run.conclusion === 'failure';
-  }).length;
-
-  const totalFailures7d = allRuns.filter(run => {
-    const runDate = new Date(run.created_at);
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    return runDate >= sevenDaysAgo && run.conclusion === 'failure';
-  }).length;
-
-  reportSections.push(`- ❌ **Total échecs (24h):** ${totalFailures24h}\n`);
-  reportSections.push(`- ❌ **Total échecs (7 jours):** ${totalFailures7d}\n`);
+  
   reportSections.push(`- 📊 **Workflows monitorés:** ${WORKFLOWS_TO_MONITOR.length}\n\n`);
 
   // Recommandations
   if (totalFailures24h > 0) {
     reportSections.push(`### ⚠️ Recommandations\n\n`);
-    reportSections.push(`Des échecs ont été détectés dans les 24 dernières heures. `);
-    reportSections.push(`Consultez les sections ci-dessus pour plus de détails.\n\n`);
+    if (TRIGGER_COMMIT_SHA) {
+      reportSections.push(`Des échecs ont été détectés pour le commit actuel. `);
+      reportSections.push(`Consultez les sections ci-dessus pour corriger les problèmes avant de pousser d'autres changements.\n\n`);
+    } else {
+      reportSections.push(`Des échecs ont été détectés dans les 24 dernières heures. `);
+      reportSections.push(`Consultez les sections ci-dessus pour plus de détails.\n\n`);
+    }
   } else {
     reportSections.push(`### ✅ État de santé\n\n`);
-    reportSections.push(`Aucun échec détecté dans les 24 dernières heures. Le système CI/CD est en bonne santé.\n\n`);
+    if (TRIGGER_COMMIT_SHA) {
+      reportSections.push(`Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !\n\n`);
+    } else {
+      reportSections.push(`Aucun échec détecté dans les 24 dernières heures. Le système CI/CD est en bonne santé.\n\n`);
+    }
+  }
+
+  // 🔥 NOUVEAU: Analyse IA automatique des échecs avec contexte prédictif
+  console.log('🤖 Génération de l\'analyse IA automatique...');
+
+  // Préparer le contexte pour l'analyse prédictive
+  const context = {
+    commitData: TRIGGER_COMMIT_SHA ? {
+      sha: TRIGGER_COMMIT_SHA,
+      branch: TRIGGER_BRANCH,
+      author: TRIGGER_ACTOR,
+      message: TRIGGER_COMMIT_MESSAGE,
+      files: [] // Pourrait être enrichi avec les fichiers modifiés
+    } : null,
+    failureHistory: [], // Pourrait être enrichi avec l'historique
+    lastSuccess: 'unknown',
+    failureRate: `${totalFailures24h}/${totalFailures24h + totalFailures7d}`,
+    criticalWorkflows: WORKFLOWS_TO_MONITOR,
+    technologies: ['React', 'TypeScript', 'Playwright', 'Supabase', 'GitHub Actions']
+  };
+
+  const aiAnalysis = await analyzeWorkflowFailures(allFailures, context);
+  if (aiAnalysis && aiAnalysis.trim()) {
+    reportSections.push(aiAnalysis);
+    reportSections.push('\n---\n\n');
   }
 
   // Écrire le rapport
@@ -658,6 +777,13 @@ async function generateReport() {
     workflowsMonitored: WORKFLOWS_TO_MONITOR.length,
     hasFailures: totalFailures24h > 0,
     reportPath: 'Docs/monitoring/workflow-failures-report.md',
+    // 🔥 NOUVEAU: Informations sur le commit actuel
+    focusCommit: TRIGGER_COMMIT_SHA ? {
+      sha: TRIGGER_COMMIT_SHA,
+      shortSha: TRIGGER_COMMIT_SHA.substring(0, 7),
+      branch: TRIGGER_BRANCH,
+      workflowTrigger: TRIGGER_WORKFLOW_NAME,
+    } : null,
   };
   fs.writeFileSync(statusFile, JSON.stringify(statusData, null, 2), 'utf-8');
   console.log(`📊 Statut rapide généré: ${statusFile}`);

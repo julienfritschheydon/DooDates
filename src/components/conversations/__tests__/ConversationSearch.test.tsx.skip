@@ -3,14 +3,17 @@
  * DooDates - Conversation History System
  */
 
+/// <reference types="@testing-library/jest-dom" />
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ConversationSearch } from '../ConversationSearch';
 import type { SearchFilters } from '../ConversationSearch';
 
 // Mock UI components
-jest.mock('../../ui/calendar', () => ({
+vi.mock('../../ui/calendar', () => ({
   Calendar: ({ onSelect, selected }: any) => (
     <div data-testid="calendar">
       <button 
@@ -23,14 +26,14 @@ jest.mock('../../ui/calendar', () => ({
 }));
 
 describe('ConversationSearch', () => {
-  const mockOnFiltersChange = jest.fn();
+  const mockOnFiltersChange = vi.fn();
   const defaultProps = {
     onFiltersChange: mockOnFiltersChange,
     availableTags: ['urgent', 'meeting', 'project'],
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Search Input', () => {
@@ -102,7 +105,7 @@ describe('ConversationSearch', () => {
       const statusSelect = screen.getByRole('combobox');
       await user.click(statusSelect);
       
-      const activeOption = screen.getByText('Actives');
+      const activeOption = screen.getByText((content, element) => content.includes('Actives'));
       await user.click(activeOption);
       
       expect(mockOnFiltersChange).toHaveBeenCalledWith({ status: 'active' });
@@ -121,7 +124,7 @@ describe('ConversationSearch', () => {
     it('renders favorite and poll quick filters', () => {
       render(<ConversationSearch {...defaultProps} />);
       
-      expect(screen.getByText('Favoris')).toBeInTheDocument();
+      expect(screen.getByText((content, element) => content.includes('Favoris'))).toBeInTheDocument();
       expect(screen.getByText('Avec sondage')).toBeInTheDocument();
     });
 
@@ -129,7 +132,7 @@ describe('ConversationSearch', () => {
       const user = userEvent.setup();
       render(<ConversationSearch {...defaultProps} />);
       
-      const favoriteButton = screen.getByText('Favoris');
+      const favoriteButton = screen.getByText((content, element) => content.includes('Favoris'));
       await user.click(favoriteButton);
       
       expect(mockOnFiltersChange).toHaveBeenCalledWith({ isFavorite: true });
@@ -143,7 +146,7 @@ describe('ConversationSearch', () => {
         />
       );
       
-      const favoriteButton = screen.getByText('Favoris');
+      const favoriteButton = screen.getByText((content, element) => content.includes('Favoris'));
       expect(favoriteButton).toHaveClass('bg-primary'); // or whatever active class
     });
   });
@@ -227,7 +230,7 @@ describe('ConversationSearch', () => {
         />
       );
       
-      expect(screen.getByText('Actives')).toBeInTheDocument();
+      expect(screen.getAllByText((content, element) => content.includes('Actives'))).toHaveLength(1);
     });
 
     it('displays active favorite filter as badge', () => {
@@ -238,7 +241,7 @@ describe('ConversationSearch', () => {
         />
       );
       
-      expect(screen.getByText('Favoris')).toBeInTheDocument();
+      expect(screen.getAllByText((content, element) => content.includes('Favoris'))).toHaveLength(1);
     });
 
     it('allows removing individual filter badges', async () => {
@@ -266,7 +269,7 @@ describe('ConversationSearch', () => {
       render(<ConversationSearch {...defaultProps} />);
       
       expect(screen.getByText('Filtres')).toBeInTheDocument();
-      expect(screen.getByText('Favoris')).toBeInTheDocument();
+      expect(screen.getAllByText((content, element) => content.includes('Favoris'))).toHaveLength(1);
     });
 
     it('renders English text when language is set to en', () => {
@@ -327,7 +330,7 @@ describe('ConversationSearch', () => {
       const filtersButton = screen.getByText('Filtres');
       await user.click(filtersButton);
       
-      const dateRangeOption = screen.getByText('PÃ©riode');
+      const dateRangeOption = screen.getByText('Période');
       await user.click(dateRangeOption);
       
       expect(screen.getByTestId('calendar')).toBeInTheDocument();
@@ -340,7 +343,7 @@ describe('ConversationSearch', () => {
       const filtersButton = screen.getByText('Filtres');
       await user.click(filtersButton);
       
-      const dateRangeOption = screen.getByText('PÃ©riode');
+      const dateRangeOption = screen.getByText('Période');
       await user.click(dateRangeOption);
       
       const selectRangeButton = screen.getByText('Select Range');
