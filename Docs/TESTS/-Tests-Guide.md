@@ -3,6 +3,23 @@
 > **Document de référence unique** - Novembre 2025  
 > **Dernière mise à jour** : 18 novembre 2025 (factorisation E2E, migration helpers + timeouts, stabilisation Firefox/WebKit)
 
+RAPPEL: 
+# ✅ Compteur dans terminal + erreurs dans fichier séparé
+npm run test -- --run 2> test_errors.txt
+
+# 1. Vérifier l'état du CI/CD
+node scripts/monitor-workflow-failures.js
+
+# 2. Consulter le rapport généré automatiquement
+# Docs/monitoring/workflow-failures-report.md
+
+# Si changements risqués → Analyse prédictive
+node scripts/gemini-predictive-analyzer.js
+
+# Vérifier que tout fonctionne
+npm run test:predictive
+node scripts/auto-workflow-analyzer.js
+
 
 ## 📊 Vue d'Ensemble
 

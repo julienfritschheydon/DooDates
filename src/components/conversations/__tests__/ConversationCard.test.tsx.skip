@@ -69,7 +69,7 @@ describe("ConversationCard", () => {
       render(<ConversationCard conversation={conversation} />);
 
       expect(screen.getByText("travail")).toBeInTheDocument();
-      expect(screen.getByText("réunion")).toBeInTheDocument();
+      expect(screen.getByText((content, element) => content.includes('Période'))).toBeInTheDocument();
     });
 
     it("should truncate long preview text", () => {
@@ -90,7 +90,7 @@ describe("ConversationCard", () => {
       const conversation = createMockConversation({ status: "active" });
       render(<ConversationCard conversation={conversation} />);
 
-      expect(screen.getByText(/Discussion/)).toBeInTheDocument();
+      expect(screen.getByText((content, element) => content.includes('En cours (1)'))).toBeInTheDocument();
       // Status badge with emoji exists
       const card = screen.getByTestId("conversation-card");
       expect(card.textContent).toContain("Discussion");

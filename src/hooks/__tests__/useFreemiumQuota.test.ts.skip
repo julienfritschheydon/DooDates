@@ -56,7 +56,7 @@ describe('useFreemiumQuota', () => {
       const { result } = renderHook(() => useFreemiumQuota());
 
       expect(result.current.limits).toEqual({
-        conversations: 5, // Updated to match CONVERSATION_QUOTAS.ANONYMOUS
+        conversations: 20, // Updated to match CONVERSATION_QUOTAS.ANONYMOUS (changed from 5 to 20)
         polls: 5,
         storageSize: 50, // Updated to match STORAGE_QUOTAS.ANONYMOUS
       });

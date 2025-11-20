@@ -44,6 +44,13 @@ Object.defineProperty(window, "localStorage", {
 // Mock pour scrollIntoView
 Element.prototype.scrollIntoView = () => {};
 
+// Polyfills pour Radix UI et Canvas
+Element.prototype.hasPointerCapture = function() { return false; };
+Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+  writable: true,
+  value: function() { return {}; }
+});
+
 // Charger .env.local AVANT le mock pour que les variables soient disponibles
 import path from "node:path";
 import { config as loadEnv } from "dotenv";

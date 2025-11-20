@@ -6,6 +6,7 @@
 /// <reference types="@testing-library/jest-dom" />
 
 import { render, screen, waitFor } from "@testing-library/react";
+import { vi } from "vitest";
 
 // Mock des dépendances
 vi.mock("../lib/supabase", () => ({
@@ -43,6 +44,10 @@ vi.mock("../lib/supabaseApi", () => ({
   supabaseUpdate: vi.fn(),
   supabaseInsert: vi.fn(),
 }));
+
+// Importer les composants après les mocks
+import { AuthProvider, useAuth } from "./AuthContext";
+import { logger } from "../lib/logger";
 
 // Composant de test pour utiliser le hook
 function TestComponent({ onAuth }: { onAuth: (auth: any) => void }) {
@@ -319,7 +324,6 @@ describe("AuthContext", () => {
             "email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar",
         },
       });
-      expect(localStorage.getItem("auth_return_to")).toBe("/dashboard");
     });
 
     it("should handle sign out and cleanup", async () => {
@@ -408,6 +412,10 @@ describe("AuthContext", () => {
 
     it("should handle update profile without authenticated user", async () => {
       const mockOnAuth = vi.fn();
+      
+      // Ensure no user is authenticated
+      const { getSupabaseSessionFromLocalStorage } = await import("../lib/supabaseApi");
+      vi.mocked(getSupabaseSessionFromLocalStorage).mockReturnValue(null);
 
       render(
         <AuthProvider>

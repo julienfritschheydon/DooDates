@@ -88,6 +88,11 @@ jobs:
           echo "📦 Installation de chromium avec dépendances système..."
           npx playwright install --with-deps chromium
 
+      - name: 🤖 AI Analysis of Failures
+        run: |
+          echo "🤖 Analyse IA automatique des échecs..."
+          node scripts/auto-workflow-analyzer.js --check || echo "⚠️ Analyse IA non disponible (mode développement)"
+
       - name: 📊 Generate Workflow Health Report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

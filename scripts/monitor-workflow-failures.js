@@ -9,6 +9,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
+// 🔥 NOUVEAU: Import de l'analyseur IA automatique
+import { analyzeWorkflowFailures } from './auto-workflow-analyzer.js';
+
 // Charger les variables d'environnement depuis .env.local si disponible
 const envLocalPath = path.join(process.cwd(), '.env.local');
 if (fs.existsSync(envLocalPath)) {
@@ -461,6 +464,9 @@ async function generateReport() {
   const workflows = await getWorkflows();
   const reportSections = [];
   
+  // 🔥 NOUVEAU: Collecteur d'échecs pour l'analyse IA
+  const allFailures = [];
+  
   // En-tête du rapport
   const now = new Date();
   const runNumber = process.env.GITHUB_RUN_NUMBER ?? 'local';
@@ -572,6 +578,10 @@ async function generateReport() {
         reportSections.push(`- **Statut:** ${failure.conclusion}\n`);
         reportSections.push(`- **Lien:** [Voir les détails](${failure.html_url})\n`);
         
+        // 🔥 NOUVEAU: Collecter les données d'échec pour l'analyse IA
+        let failureError = '';
+        let failureLogs = '';
+        
         if (failedJobs.length > 0) {
           reportSections.push(`- **Jobs en échec:**\n`);
           for (const job of failedJobs) {
@@ -594,6 +604,8 @@ async function generateReport() {
                   reportSections.push(`      - ❌ **[${testFailure.browser}]** \`${testFailure.file}\`\n`);
                   reportSections.push(`        - Test: ${testFailure.title}\n`);
                   reportSections.push(`        - Erreur: \`${testFailure.error.substring(0, 200)}${testFailure.error.length > 200 ? '...' : ''}\`\n`);
+                  // 🔥 Collecter l'erreur pour l'analyse IA
+                  failureError = testFailure.error;
                 }
                 if (artifactFailures.length > 10) {
                   reportSections.push(`      *... et ${artifactFailures.length - 10} autre(s) test(s) en échec*\n`);
@@ -609,6 +621,11 @@ async function generateReport() {
                       reportSections.push(`    - **Erreurs détectées (${errors.length}):**\n`);
                       for (const error of errors.slice(0, 5)) {
                         reportSections.push(`      \`\`\`\n${error}\n\`\`\`\n`);
+                        // 🔥 Collecter l'erreur pour l'analyse IA
+                        if (!failureError) {
+                          failureError = error.split('\n')[0]; // Première ligne de l'erreur
+                        }
+                        failureLogs += error + '\n';
                       }
                       if (errors.length > 5) {
                         reportSections.push(`      *... et ${errors.length - 5} autre(s) erreur(s)*\n`);
@@ -624,6 +641,14 @@ async function generateReport() {
             }
           }
         }
+        
+        // 🔥 Ajouter cet échec au collecteur pour l'analyse IA
+        allFailures.push({
+          id: failure.id.toString(),
+          name: workflowName,
+          error: failureError,
+          logs: failureLogs
+        });
         
         reportSections.push(`\n`);
       }
@@ -702,6 +727,31 @@ async function generateReport() {
     } else {
       reportSections.push(`Aucun échec détecté dans les 24 dernières heures. Le système CI/CD est en bonne santé.\n\n`);
     }
+  }
+
+  // 🔥 NOUVEAU: Analyse IA automatique des échecs avec contexte prédictif
+  console.log('🤖 Génération de l\'analyse IA automatique...');
+
+  // Préparer le contexte pour l'analyse prédictive
+  const context = {
+    commitData: TRIGGER_COMMIT_SHA ? {
+      sha: TRIGGER_COMMIT_SHA,
+      branch: TRIGGER_BRANCH,
+      author: TRIGGER_ACTOR,
+      message: TRIGGER_COMMIT_MESSAGE,
+      files: [] // Pourrait être enrichi avec les fichiers modifiés
+    } : null,
+    failureHistory: [], // Pourrait être enrichi avec l'historique
+    lastSuccess: 'unknown',
+    failureRate: `${totalFailures24h}/${totalFailures24h + totalFailures7d}`,
+    criticalWorkflows: WORKFLOWS_TO_MONITOR,
+    technologies: ['React', 'TypeScript', 'Playwright', 'Supabase', 'GitHub Actions']
+  };
+
+  const aiAnalysis = await analyzeWorkflowFailures(allFailures, context);
+  if (aiAnalysis && aiAnalysis.trim()) {
+    reportSections.push(aiAnalysis);
+    reportSections.push('\n---\n\n');
   }
 
   // Écrire le rapport
