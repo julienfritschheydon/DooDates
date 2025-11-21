@@ -20,6 +20,9 @@ import Calendar from "./Calendar";
 import { usePolls, type PollData } from "../hooks/usePolls";
 import type { Poll } from "../lib/pollStorage";
 import type { PollOption } from "../types/poll";
+import { GoogleCalendarService } from "@/lib/google-calendar";
+import { CalendarConflictDetector, type TimeSlotConflict } from "@/services/calendarConflictDetection";
+import { CalendarConflictsPanel } from "./calendar/CalendarConflictsPanel";
 import { PollCreatorService } from "../services/PollCreatorService";
 import { logger } from "../lib/logger";
 import { createConversationForPoll } from "../lib/ConversationPollLink";
@@ -43,6 +46,44 @@ import type { DatePollSuggestion } from "../lib/gemini";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { linkPollToConversationBidirectional } from "@/lib/ConversationPollLink";
+import { useDragToSelect } from "@/hooks/useDragToSelect";
+
+// Type pour identifier un slot avec sa date (défini en dehors du composant)
+interface TimeSlotWithDate {
+  date: string;
+  hour: number;
+  minute: number;
+}
+
+// Helper: Formater un slot en clé unique (défini en dehors pour éviter recréation)
+const formatSlotKey = (slot: TimeSlotWithDate): string => {
+  return `${slot.date}:${slot.hour}-${slot.minute}`;
+};
+
+// Helper: Obtenir tous les slots entre deux slots (défini en dehors pour éviter recréation)
+const createGetSlotsInRange = (timeGranularity: number) => {
+  return (start: TimeSlotWithDate, end: TimeSlotWithDate): TimeSlotWithDate[] => {
+    if (start.date !== end.date) {
+      return [start];
+    }
+
+    const startMinutes = start.hour * 60 + start.minute;
+    const endMinutes = end.hour * 60 + end.minute;
+    const [earlierMinutes, laterMinutes] = startMinutes <= endMinutes
+      ? [startMinutes, endMinutes]
+      : [endMinutes, startMinutes];
+
+    const slots: TimeSlotWithDate[] = [];
+    for (let m = earlierMinutes; m <= laterMinutes; m += timeGranularity) {
+      const h = Math.floor(m / 60);
+      const min = m % 60;
+      slots.push({ date: start.date, hour: h, minute: min });
+    }
+
+    return slots;
+  };
+};
+
 // Lazy load VoteGrid - utilisé uniquement dans la preview conditionnelle (code actuellement commenté)
 const VoteGrid = lazy(() =>
   import("@/components/voting/VoteGrid").then((m) => ({ default: m.VoteGrid })),
@@ -74,6 +115,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const editPollId = urlParams.get("edit");
   const [createdPollSlug, setCreatedPollSlug] = useState<string | null>(null);
   const [createdPoll, setCreatedPoll] = useState<Poll | null>(null);
+  const googleCalendarRef = useRef<GoogleCalendarService | null>(null);
   const shareRef = useRef<HTMLDivElement>(null);
   const timeSlotsRef = useRef<HTMLDivElement>(null);
   const timeGridRefMobile = useRef<HTMLDivElement>(null); // Grille mobile
@@ -81,6 +123,138 @@ const PollCreator: React.FC<PollCreatorProps> = ({
   const targetTimeSlotRefMobile = useRef<HTMLDivElement>(null); // 12:00 mobile
   const targetTimeSlotRefDesktop = useRef<HTMLDivElement>(null); // 12:00 desktop
   const hasAutoScrolled = useRef<boolean>(false);
+
+  // State declaration - MUST be before any functions that use it
+  const [state, setState] = useState<PollCreationState>(
+    PollCreatorService.initializeWithGeminiData(initialData) as PollCreationState,
+  );
+  const [visibleMonths, setVisibleMonths] = useState<Date[]>(() => {
+    const now = new Date();
+    const months: Date[] = [];
+    for (let i = 0; i < 6; i++) {
+      const month = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      months.push(month);
+    }
+    return months;
+  });
+  const [timeSlotsByDate, setTimeSlotsByDate] = useState<Record<string, TimeSlot[]>>({});
+
+  // État pour la détection de conflits
+  const [calendarConflicts, setCalendarConflicts] = useState<TimeSlotConflict[]>([]);
+  const [isAnalyzingCalendar, setIsAnalyzingCalendar] = useState(false);
+
+  const handleAnalyzeCalendar = useCallback(async () => {
+    if (!googleCalendarRef.current || state.selectedDates.length === 0) {
+      return;
+    }
+
+    // Si des créneaux sont activés, on analyse les créneaux.
+    // Sinon, on analyse les dates entières (pour les sondages de dates sans horaires).
+    const hasEnabledSlots = Object.values(timeSlotsByDate).some(slots => slots.some(s => s.enabled));
+
+    if (!hasEnabledSlots && state.showTimeSlots) {
+      // Si l'utilisateur a activé l'affichage des horaires mais n'en a sélectionné aucun, on le prévient mais on continue l'analyse (date-only)
+      // Ou on pourrait bloquer. Le user dit "il peut y avoir des sondages de dates sans horaires".
+      // Donc on continue.
+    }
+
+    setIsAnalyzingCalendar(true);
+
+    // Feedback visuel sur le compte utilisé
+    if (user?.email) {
+      toast({
+        title: "Analyse en cours",
+        description: `Vérification du calendrier pour ${user.email}...`,
+        duration: 2000,
+      });
+    }
+
+    logger.debug("📊 Démarrage analyse conflits", "calendar", {
+      selectedDates: state.selectedDates,
+      timeSlotsByDate: Object.keys(timeSlotsByDate).map(date => ({
+        date,
+        slots: timeSlotsByDate[date]?.filter(s => s.enabled).map(s => `${s.hour}:${s.minute}`)
+      })),
+      granularity: state.timeGranularity,
+      hasEnabledSlots
+    });
+
+    try {
+      const detector = new CalendarConflictDetector(googleCalendarRef.current);
+      const conflicts = await detector.detectConflicts(
+        state.selectedDates,
+        timeSlotsByDate,
+        state.timeGranularity
+      );
+      setCalendarConflicts(conflicts);
+
+      logger.info("✅ Analyse terminée", "calendar", {
+        conflictsCount: conflicts.length,
+        conflicts: conflicts.map(c => ({
+          date: c.date,
+          slot: c.timeSlot ? `${c.timeSlot.hour}:${c.timeSlot.minute}` : 'date-only',
+          status: c.status,
+          eventsCount: c.conflicts.length
+        }))
+      });
+
+      if (conflicts.length === 0) {
+        toast({
+          title: "Aucun conflit détecté",
+          description: "Tous les créneaux sélectionnés sont libres dans votre calendrier.",
+          variant: "default", // Succès
+        });
+      }
+    } catch (error) {
+      logger.error("Erreur lors de l'analyse du calendrier", "calendar", error);
+      toast({
+        title: "Erreur d'analyse",
+        description: "Impossible d'analyser votre calendrier. Vérifiez votre connexion.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzingCalendar(false);
+    }
+  }, [state.selectedDates, timeSlotsByDate, state.timeGranularity, toast]);
+
+  // Détection automatique avec debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (state.selectedDates.length > 0 && Object.keys(timeSlotsByDate).length > 0) {
+        // Vérifier s'il y a des slots activés avant de lancer l'auto-analyse
+        const hasEnabledSlots = Object.values(timeSlotsByDate).some(slots => slots.some(s => s.enabled));
+        if (hasEnabledSlots) {
+          handleAnalyzeCalendar();
+        }
+      }
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [state.selectedDates, timeSlotsByDate, handleAnalyzeCalendar]);
+
+  const handleRemoveConflictSlot = (conflict: TimeSlotConflict) => {
+    if (conflict.timeSlot) {
+      handleTimeSlotToggle(conflict.date, conflict.timeSlot.hour, conflict.timeSlot.minute);
+    } else {
+      // Si c'est un conflit de date entière, on retire la date
+      toggleDate(conflict.date);
+    }
+    setCalendarConflicts(prev => prev.filter(c => c !== conflict));
+  };
+
+  const handleReplaceConflictSlot = (conflict: TimeSlotConflict, suggestion: { start: string; end: string }) => {
+    if (!conflict.timeSlot) return;
+
+    // 1. Désactiver le slot en conflit
+    handleTimeSlotToggle(conflict.date, conflict.timeSlot.hour, conflict.timeSlot.minute);
+
+    // 2. Activer le slot suggéré
+    const [startHour, startMinute] = suggestion.start.split(':').map(Number);
+    handleTimeSlotToggle(conflict.date, startHour, startMinute);
+
+    // 3. Retirer le conflit de la liste
+    setCalendarConflicts(prev => prev.filter(c => c !== conflict));
+  };
 
   // Helper functions
   const canFinalize = () => PollCreatorService.canFinalize(state);
@@ -242,6 +416,45 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     );
   };
 
+  // Créer getSlotsInRange avec useMemo pour qu'il soit stable (après state)
+  const getSlotsInRange = React.useMemo(() => createGetSlotsInRange(state.timeGranularity), [state.timeGranularity]);
+
+  // Drag-to-extend avec le hook réutilisable
+  const { isDragging, handleDragStart, handleDragMove, handleDragEnd, isDraggedOver } = useDragToSelect<TimeSlotWithDate>({
+    onDragEnd: (draggedItems, startSlot) => {
+      if (!startSlot || draggedItems.size === 0) {
+        return;
+      }
+
+      const date = startSlot.date;
+
+      // Activer tous les slots dans le range
+      draggedItems.forEach((slotKey) => {
+        const parts = slotKey.split(':');
+        if (parts.length !== 2) {
+          return;
+        }
+        const [, timeStr] = parts;
+        const [hourStr, minuteStr] = timeStr.split('-');
+        const hour = parseInt(hourStr);
+        const minute = parseInt(minuteStr);
+
+        // Utiliser handleTimeSlotToggle pour activer le slot
+        const currentSlot = timeSlotsByDate[date]?.find(
+          (s) => s.hour === hour && s.minute === minute
+        );
+
+        // Seulement activer si le slot n'est pas déjà activé
+        if (!currentSlot?.enabled) {
+          handleTimeSlotToggle(date, hour, minute);
+        }
+      });
+    },
+    getItemKey: formatSlotKey,
+    getItemsInRange: getSlotsInRange,
+    disableOnMobile: false, // Activer aussi sur mobile
+  });
+
   // Fonction pour réinitialiser complètement l'état
   const resetPollState = () => {
     localStorage.removeItem("doodates-draft");
@@ -259,6 +472,13 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     setTimeSlotsByDate({});
     setCreatedPollSlug(null);
   };
+
+  // Initialiser le service Google Calendar
+  useEffect(() => {
+    if (!googleCalendarRef.current) {
+      googleCalendarRef.current = new GoogleCalendarService();
+    }
+  }, [state.calendarConnected]);
 
   // Charger les données du sondage à éditer ou restaurer le brouillon
   useEffect(() => {
@@ -282,9 +502,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                   draftData.settings?.sendNotifications || prev.notificationsEnabled,
                 expirationDays: draftData.settings?.expiresAt
                   ? Math.ceil(
-                      (new Date(draftData.settings.expiresAt).getTime() - Date.now()) /
-                        (24 * 60 * 60 * 1000),
-                    )
+                    (new Date(draftData.settings.expiresAt).getTime() - Date.now()) /
+                    (24 * 60 * 60 * 1000),
+                  )
                   : prev.expirationDays,
                 showTimeSlots: true,
               }));
@@ -412,23 +632,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
       isMounted = false;
     };
   }, [editPollId, initialData]);
-
-  const [state, setState] = useState<PollCreationState>(
-    PollCreatorService.initializeWithGeminiData(initialData) as PollCreationState,
-  );
-  // Initialiser visibleMonths directement dans useState pour éviter le délai sur Firefox/WebKit
-  // Cela garantit que le calendrier est visible immédiatement au premier rendu
-  const [visibleMonths, setVisibleMonths] = useState<Date[]>(() => {
-    // Calculer les mois initiaux directement (synchronisé)
-    const now = new Date();
-    const months: Date[] = [];
-    for (let i = 0; i < 6; i++) {
-      const month = new Date(now.getFullYear(), now.getMonth() + i, 1);
-      months.push(month);
-    }
-    return months;
-  });
-  const [timeSlotsByDate, setTimeSlotsByDate] = useState<Record<string, TimeSlot[]>>({});
 
   // Ajuster les mois visibles si initialData contient des dates
   // Ce useEffect s'exécute après le premier rendu mais le calendrier est déjà visible
@@ -688,6 +891,29 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 />
               </div>
 
+              {/* 🔧 Afficher les groupes de dates si fournis par l'IA */}
+              {initialData?.dateGroups && initialData.dateGroups.length > 0 && (
+                <div className="bg-blue-900/20 border border-blue-700/50 rounded-lg p-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <CalendarIcon className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white mb-2">Dates groupées détectées</h3>
+                      <div className="space-y-2">
+                        {initialData.dateGroups.map((group, index) => (
+                          <div key={index} className="text-sm text-gray-300">
+                            <span className="font-medium text-blue-400">{group.label}</span>
+                            <span className="text-gray-500 ml-2">({group.dates.length} dates)</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2">
+                        Les horaires ne sont pas disponibles pour les groupes de dates.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {state.selectedDates.length > 0 && (
                 <div className="space-y-4">
                   {state.showCalendarConnect && !state.calendarConnected && (
@@ -780,6 +1006,25 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           <Clock className="w-5 h-5" />
                           Horaires
                         </button>
+                        {state.selectedDates.length > 0 && (
+                          <button
+                            onClick={handleAnalyzeCalendar}
+                            disabled={isAnalyzingCalendar}
+                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-base font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-blue-600"
+                          >
+                            {isAnalyzingCalendar ? (
+                              <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Analyse...
+                              </>
+                            ) : (
+                              <>
+                                <CalendarIconLucide className="w-5 h-5" />
+                                Analyser disponibilités
+                              </>
+                            )}
+                          </button>
+                        )}
                       </div>
                     );
                   })()}
@@ -789,8 +1034,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
 
             {/* Section horaires - Masquée si les dates forment des groupes (week-ends, semaines, quinzaines) */}
             {(() => {
-              // Détecter si les dates sélectionnées forment des groupes RÉELS
-              const dateGroups = groupConsecutiveDates(state.selectedDates);
+              // 🔧 PRIORITÉ 1: Utiliser dateGroups fourni par l'IA si disponible
+              // PRIORITÉ 2: Sinon, détecter automatiquement les groupes dans les dates sélectionnées
+              const dateGroups = initialData?.dateGroups || groupConsecutiveDates(state.selectedDates);
+
               // Ne masquer que si c'est un vrai groupe (weekend, week, fortnight)
               // Pas si ce sont juste des dates consécutives individuelles
               const hasGroupedDates = dateGroups.some(
@@ -818,6 +1065,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                       <div className="flex items-center gap-2">
                         <Clock className="h-5 w-5 text-blue-600" />
                         <h3 className="font-semibold text-white">Précision des horaires</h3>
+
                       </div>
                       <button
                         onClick={() =>
@@ -870,13 +1118,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                 }
                                 disabled={!compatible}
                                 className={`px-3 py-1 text-sm rounded-full transition-colors
-                                ${
-                                  state.timeGranularity === option.value
+                                ${state.timeGranularity === option.value
                                     ? "bg-blue-500 text-white"
                                     : compatible
                                       ? "bg-[#1e1e1e] border border-gray-700 hover:border-blue-500 text-white"
                                       : "bg-[#0a0a0a] border border-gray-800 text-gray-600 cursor-not-allowed"
-                                }
+                                  }
                               `}
                               >
                                 {option.label}
@@ -947,9 +1194,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               const currentBlock = blocks.find(
                                 (block) =>
                                   timeSlot.hour * 60 + timeSlot.minute >=
-                                    block.start.hour * 60 + block.start.minute &&
+                                  block.start.hour * 60 + block.start.minute &&
                                   timeSlot.hour * 60 + timeSlot.minute <=
-                                    block.end.hour * 60 + block.end.minute,
+                                  block.end.hour * 60 + block.end.minute,
                               );
                               const isBlockStart = blocks.some(
                                 (block) =>
@@ -966,8 +1213,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   (timeSlot.hour * 60 + timeSlot.minute <
                                     currentBlock.end.hour * 60 + currentBlock.end.minute &&
                                     timeSlot.hour * 60 + timeSlot.minute + state.timeGranularity >=
-                                      currentBlock.end.hour * 60 + currentBlock.end.minute));
+                                    currentBlock.end.hour * 60 + currentBlock.end.minute));
                               const isBlockMiddle = currentBlock && !isBlockStart && !isBlockEnd;
+
+                              // Vérifier si ce slot est en cours de drag (MOBILE)
+                              const slotKey = formatSlotKey({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
+                              const isSlotDraggedOver = isDraggedOver(slotKey);
 
                               return (
                                 <button
@@ -976,10 +1227,27 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   onClick={() =>
                                     handleTimeSlotToggle(dateStr, timeSlot.hour, timeSlot.minute)
                                   }
+                                  onPointerDown={(e) => {
+                                    handleDragStart({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e);
+                                  }}
+                                  onPointerMove={() => {
+                                    if (isDragging) {
+                                      handleDragMove({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
+                                    }
+                                  }}
+                                  onPointerUp={() => {
+                                    handleDragEnd();
+                                  }}
                                   className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
-                                  ${slot?.enabled ? "bg-blue-900/30" : "bg-[#1e1e1e]"}
+                                  ${isSlotDraggedOver && isDragging
+                                      ? "bg-blue-500/50 border-2 border-blue-400"
+                                      : slot?.enabled
+                                        ? "bg-blue-900/30"
+                                        : "bg-[#1e1e1e]"
+                                    }
                                   ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
                                 `}
+                                  style={{ touchAction: "none" }}
                                 >
                                   {slot?.enabled && (
                                     <div
@@ -1066,9 +1334,9 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               const currentBlock = blocks.find(
                                 (block) =>
                                   timeSlot.hour * 60 + timeSlot.minute >=
-                                    block.start.hour * 60 + block.start.minute &&
+                                  block.start.hour * 60 + block.start.minute &&
                                   timeSlot.hour * 60 + timeSlot.minute <=
-                                    block.end.hour * 60 + block.end.minute,
+                                  block.end.hour * 60 + block.end.minute,
                               );
                               const isBlockStart = blocks.some(
                                 (block) =>
@@ -1085,8 +1353,12 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   (timeSlot.hour * 60 + timeSlot.minute <
                                     currentBlock.end.hour * 60 + currentBlock.end.minute &&
                                     timeSlot.hour * 60 + timeSlot.minute + state.timeGranularity >=
-                                      currentBlock.end.hour * 60 + currentBlock.end.minute));
+                                    currentBlock.end.hour * 60 + currentBlock.end.minute));
                               const isBlockMiddle = currentBlock && !isBlockStart && !isBlockEnd;
+
+                              // Vérifier si ce slot est en cours de drag (DESKTOP)
+                              const slotKey = formatSlotKey({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
+                              const isSlotDraggedOver = isDraggedOver(slotKey);
 
                               return (
                                 <button
@@ -1095,10 +1367,27 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   onClick={() =>
                                     handleTimeSlotToggle(dateStr, timeSlot.hour, timeSlot.minute)
                                   }
+                                  onPointerDown={(e) => {
+                                    handleDragStart({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e);
+                                  }}
+                                  onPointerMove={() => {
+                                    if (isDragging) {
+                                      handleDragMove({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
+                                    }
+                                  }}
+                                  onPointerUp={() => {
+                                    handleDragEnd();
+                                  }}
                                   className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
-                                  ${slot?.enabled ? "bg-blue-900/30" : "bg-[#1e1e1e]"}
+                                  ${isSlotDraggedOver && isDragging
+                                      ? "bg-blue-500/50 border-2 border-blue-400"
+                                      : slot?.enabled
+                                        ? "bg-blue-900/30"
+                                        : "bg-[#1e1e1e]"
+                                    }
                                   ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
                                 `}
+                                  style={{ touchAction: "none" }}
                                 >
                                   {slot?.enabled && (
                                     <div
@@ -1225,8 +1514,8 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                       sendNotifications: state.notificationsEnabled,
                                       expiresAt: state.expirationDays
                                         ? new Date(
-                                            Date.now() + state.expirationDays * 24 * 60 * 60 * 1000,
-                                          ).toISOString()
+                                          Date.now() + state.expirationDays * 24 * 60 * 60 * 1000,
+                                        ).toISOString()
                                         : undefined,
                                     },
                                   };

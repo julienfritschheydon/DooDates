@@ -22,9 +22,9 @@ export function PricingPage() {
 
   const handleGetStarted = () => {
     if (user) {
-      navigate("/workspace/date");
+      navigate(`/workspace/date?new=${Date.now()}`);
     } else {
-      localStorage.setItem("doodates-return-to", "/create/date");
+      localStorage.setItem("doodates-return-to", `/create/date?new=${Date.now()}`);
       setAuthMode("signup");
       setShowAuthModal(true);
     }

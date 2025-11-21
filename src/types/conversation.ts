@@ -99,7 +99,7 @@ export interface Conversation {
   pollId?: string;
 
   /** NOUVEAU : Type du poll lié */
-  pollType?: "date" | "form" | null;
+  pollType?: "date" | "form" | "availability" | null;
 
   /** NOUVEAU : Status du poll lié */
   pollStatus?: "draft" | "active" | "closed" | "archived";

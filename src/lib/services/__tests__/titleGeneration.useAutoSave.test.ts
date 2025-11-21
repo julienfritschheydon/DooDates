@@ -370,7 +370,7 @@ describe("titleGeneration + useAutoSave Integration", () => {
 
       expect(matchingCall).toBeDefined();
       expect(matchingCall[0]).toMatchObject({
-        title: "Je veux planifier une réunion d'équipe",
+        title: "Nouvelle conversation", // Titre temporaire qui sera régénéré automatiquement
         firstMessage: "Je veux planifier une réunion d'équipe",
         // userId can be either "guest" or "test-user" depending on Supabase fallback behavior
         userId: expect.stringMatching(/^(guest|test-user)$/),

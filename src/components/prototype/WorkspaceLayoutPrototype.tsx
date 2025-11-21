@@ -364,25 +364,13 @@ export function AICreationWorkspace() {
               <div className="px-4 pb-4 space-y-2">
                 <button
                   onClick={() => {
-                    navigate("/workspace/date");
+                    navigate(`/workspace/date?new=${Date.now()}`);
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg transition-colors font-medium"
                 >
                   <LazyIconWrapper Icon={Plus} className="w-5 h-5" />
                   <span>Créer un sondage</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    // Nouveau chat avec IA
-                    navigate(`/workspace?new=${Date.now()}`);
-                    if (isMobile) setIsSidebarOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
-                >
-                  <LazyIconWrapper Icon={Sparkles} className="w-5 h-5" />
-                  <span>Nouveau chat IA</span>
                 </button>
 
                 <button
