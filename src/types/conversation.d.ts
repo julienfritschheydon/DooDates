@@ -69,7 +69,7 @@ export interface Conversation {
   /** NOUVEAU : ID du poll lié (remplace progressivement relatedPollId) */
   pollId?: string;
   /** NOUVEAU : Type du poll lié */
-  pollType?: "date" | "form" | null;
+  pollType?: "date" | "form" | "availability" | null;
   /** NOUVEAU : Status du poll lié */
   pollStatus?: "draft" | "active" | "closed" | "archived";
   /** Indique si la conversation est marquée comme favorite */

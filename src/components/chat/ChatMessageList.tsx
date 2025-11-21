@@ -258,9 +258,9 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                                 message.pollSuggestion as import("../../lib/gemini").DatePollSuggestion;
                               const dates = datePollSuggestion.dates || [];
 
-                              // NE PAS grouper les dates - afficher individuellement
-                              // Convertir chaque date en "groupe" individuel pour réutiliser le code d'affichage
-                              const dateGroups = dates.map((date) => {
+                              // 🔧 Utiliser dateGroups si fourni (pour les week-ends groupés)
+                              // Sinon, afficher individuellement
+                              const dateGroups = datePollSuggestion.dateGroups || dates.map((date) => {
                                 const dateObj = new Date(date);
                                 const dayName = dateObj.toLocaleDateString("fr-FR", {
                                   weekday: "long",
