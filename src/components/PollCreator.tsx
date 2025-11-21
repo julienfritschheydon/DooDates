@@ -95,7 +95,22 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 interface PollCreatorProps {
   onBack?: (createdPoll?: Poll) => void;
   onOpenMenu?: () => void;
-  initialData?: DatePollSuggestion;
+  initialData?: {
+    title?: string;
+    description?: string;
+    dates?: string[];
+    participants?: string[];
+    timeSlots?: Array<{
+      start: string;
+      end: string;
+      dates?: string[];
+    }>;
+    dateGroups?: Array<{
+      dates: string[];
+      label: string;
+      type: 'weekend' | 'range' | 'custom';
+    }>;
+  };
   withBackground?: boolean;
 }
 
@@ -215,7 +230,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     } finally {
       setIsAnalyzingCalendar(false);
     }
-  }, [state.selectedDates, timeSlotsByDate, state.timeGranularity, toast]);
+  }, [state.selectedDates, timeSlotsByDate, state.timeGranularity, toast, state.showTimeSlots, user?.email]);
 
   // Détection automatique avec debounce
   useEffect(() => {
@@ -1261,17 +1276,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   onPointerUp={() => {
                                     handleDragEnd();
                                   }}
-                                  onPointerDown={(e) => {
-                                    handleDragStart({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e);
-                                  }}
-                                  onPointerMove={() => {
-                                    if (isDragging) {
-                                      handleDragMove({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
-                                    }
-                                  }}
-                                  onPointerUp={() => {
-                                    handleDragEnd();
-                                  }}
                                   className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
                                   ${isSlotDraggedOver && isDragging
                                       ? "bg-blue-500/50 border-2 border-blue-400"
@@ -1281,7 +1285,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                     }
                                   ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
                                 `}
-                                  style={{ touchAction: "none" }}
                                   style={{ touchAction: "none" }}
                                 >
                                   {slot?.enabled && (
@@ -1413,17 +1416,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   onPointerUp={() => {
                                     handleDragEnd();
                                   }}
-                                  onPointerDown={(e) => {
-                                    handleDragStart({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e);
-                                  }}
-                                  onPointerMove={() => {
-                                    if (isDragging) {
-                                      handleDragMove({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
-                                    }
-                                  }}
-                                  onPointerUp={() => {
-                                    handleDragEnd();
-                                  }}
                                   className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
                                   ${isSlotDraggedOver && isDragging
                                       ? "bg-blue-500/50 border-2 border-blue-400"
@@ -1433,7 +1425,6 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                     }
                                   ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
                                 `}
-                                  style={{ touchAction: "none" }}
                                   style={{ touchAction: "none" }}
                                 >
                                   {slot?.enabled && (

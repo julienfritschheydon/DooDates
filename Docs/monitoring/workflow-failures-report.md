@@ -1,5 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
+**Dernière mise à jour:** 21/11/2025 12:09:24
+
+_Workflow run #506 (ID 19568578808) — génération UTC 2025-11-21T11:09:24.554Z_
+
+## 🎯 Focus: Commit `ef9d60c`
 **Dernière mise à jour:** 21/11/2025 14:43:13
 
 _Workflow run #521 (ID 19572337502) — génération UTC 2025-11-21T13:43:13.504Z_
@@ -26,14 +31,16 @@ _Workflow run #521 (ID 19572337502) — génération UTC 2025-11-21T13:43:13.504
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
+Tous les workflows surveillés ont réussi pour le commit `ef9d60c`.
 Tous les workflows surveillés ont réussi pour le commit `c35b9f5`.
 
 ---
 
 ## 2️⃣ Develop → Main (Auto-merge)
 
-**Statut:** ❌ failure
+**Statut:** ✅ success
 
+**Dernier run:** 21/11/2025 12:04:41
 **Dernier run:** 21/11/2025 13:53:37
 
 **Statistiques:**
@@ -41,12 +48,16 @@ Tous les workflows surveillés ont réussi pour le commit `c35b9f5`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
+Tous les workflows surveillés ont réussi pour le commit `ef9d60c`.
 Tous les workflows surveillés ont réussi pour le commit `c35b9f5`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
+**Statut:** ⏳ unknown
+
+**Dernier run:** 21/11/2025 12:08:27
 **Statut:** ✅ success
 
 **Dernier run:** 21/11/2025 14:40:25
@@ -56,6 +67,13 @@ Tous les workflows surveillés ont réussi pour le commit `c35b9f5`.
 - ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
+#### Run #93 - 21/11/2025 12:08:27
+
+- **Commit:** `ef9d60c`
+- **Auteur:** julienfritschheydon
+- **Branche:** `main`
+- **Statut:** null
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19568577769)
 #### Run #95 - 21/11/2025 14:40:25
 
 - **Commit:** `c35b9f5`
@@ -68,6 +86,7 @@ Tous les workflows surveillés ont réussi pour le commit `c35b9f5`.
 
 ## 📈 Résumé Global
 
+- 🎯 **Focus: Commit actuel** `ef9d60c`
 - 🎯 **Focus: Commit actuel** `c35b9f5`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
@@ -115,6 +134,7 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-21T11:09:27.789Z*
 *Rapport généré automatiquement par l'analyseur IA - 2025-11-21T13:43:16.862Z*
 ---
 
