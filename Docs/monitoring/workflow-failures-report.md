@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 21/11/2025 12:09:24
+**Dernière mise à jour:** 21/11/2025 15:14:51
 
-_Workflow run #506 (ID 19568578808) — génération UTC 2025-11-21T11:09:24.554Z_
+_Workflow run #525 (ID 19573168093) — génération UTC 2025-11-21T14:14:51.027Z_
 
-## 🎯 Focus: Commit `ef9d60c`
-**Dernière mise à jour:** 21/11/2025 14:43:13
-
-_Workflow run #521 (ID 19572337502) — génération UTC 2025-11-21T13:43:13.504Z_
-
-## 🎯 Focus: Commit `c35b9f5`
+## 🎯 Focus: Commit `a044f79`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,8 +26,7 @@ _Workflow run #521 (ID 19572337502) — génération UTC 2025-11-21T13:43:13.504
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `ef9d60c`.
-Tous les workflows surveillés ont réussi pour le commit `c35b9f5`.
+Tous les workflows surveillés ont réussi pour le commit `a044f79`.
 
 ---
 
@@ -40,54 +34,41 @@ Tous les workflows surveillés ont réussi pour le commit `c35b9f5`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 21/11/2025 12:04:41
-**Dernier run:** 21/11/2025 13:53:37
+**Dernier run:** 21/11/2025 15:09:31
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `ef9d60c`.
-Tous les workflows surveillés ont réussi pour le commit `c35b9f5`.
+Tous les workflows surveillés ont réussi pour le commit `a044f79`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ⏳ unknown
-
-**Dernier run:** 21/11/2025 12:08:27
 **Statut:** ✅ success
 
-**Dernier run:** 21/11/2025 14:40:25
+**Dernier run:** 21/11/2025 15:13:25
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
-#### Run #93 - 21/11/2025 12:08:27
+#### Run #96 - 21/11/2025 15:13:25
 
-- **Commit:** `ef9d60c`
-- **Auteur:** julienfritschheydon
-- **Branche:** `main`
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19568577769)
-#### Run #95 - 21/11/2025 14:40:25
-
-- **Commit:** `c35b9f5`
+- **Commit:** `a044f79`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
 - **Statut:** success
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19572311534)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19573167260)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `ef9d60c`
-- 🎯 **Focus: Commit actuel** `c35b9f5`
+- 🎯 **Focus: Commit actuel** `a044f79`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -134,7 +115,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-21T11:09:27.789Z*
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-21T13:43:16.862Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-21T14:14:54.590Z*
 ---
 
