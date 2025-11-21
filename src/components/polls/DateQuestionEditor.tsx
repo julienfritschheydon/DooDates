@@ -26,8 +26,8 @@ export default function DateQuestionEditor({
     return [currentMonth, nextMonth];
   });
 
-  const selectedDates = question.selectedDates || [];
-  const timeSlotsByDate = question.timeSlotsByDate || {};
+  const selectedDates = useMemo(() => question.selectedDates || [], [question.selectedDates]);
+  const timeSlotsByDate = useMemo(() => question.timeSlotsByDate || {}, [question.timeSlotsByDate]);
   const timeGranularity = question.timeGranularity || "30min";
   const allowMaybeVotes = question.allowMaybeVotes ?? false;
   const allowAnonymousVotes = question.allowAnonymousVotes ?? false;
