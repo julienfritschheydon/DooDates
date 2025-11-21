@@ -48,7 +48,7 @@ export async function sendChatCommand(
   const timeouts = getTimeouts(browserName as BrowserName);
 
   // 1. S'assurer que l'élément est attaché au DOM, même s'il n'est pas encore visible
-  await inputLocator.waitFor({ state: 'attached', timeout: timeouts.element }).catch(() => {});
+  await inputLocator.waitFor({ state: 'attached', timeout: timeouts.element }).catch(() => { });
 
   // 2. Essayer de le rendre visible (notamment sur mobile où il peut être hors viewport)
   try {
@@ -94,10 +94,10 @@ export async function sendChatCommand(
  */
 async function clickViewFormButton(page: Page): Promise<void> {
   console.log('Recherche du bouton "Voir le formulaire"...');
-  
+
   // Ce sélecteur a prouvé être le plus fiable dans les tests
   const button = page.locator('a:has-text("Voir le formulaire"), a:has-text("Voir le sondage")').first();
-  
+
   try {
     await button.waitFor({ state: 'visible', timeout: 10000 });
     console.log('Bouton trouvé, clic en cours...');
@@ -107,8 +107,8 @@ async function clickViewFormButton(page: Page): Promise<void> {
     console.error('Échec du clic sur le bouton, tentative avec JavaScript...');
     await page.evaluate(() => {
       const buttons = Array.from(document.querySelectorAll('a'));
-      const targetButton = buttons.find(btn => 
-        btn.textContent?.includes('Voir le formulaire') || 
+      const targetButton = buttons.find(btn =>
+        btn.textContent?.includes('Voir le formulaire') ||
         btn.textContent?.includes('Voir le sondage')
       );
       if (targetButton) {
@@ -116,7 +116,7 @@ async function clickViewFormButton(page: Page): Promise<void> {
       }
     });
   }
-  
+
   // Attendre que la navigation soit terminée
   await page.waitForURL(/\/poll\/[^\/]+/, { timeout: 15000 });
 }
@@ -131,24 +131,24 @@ async function submitVoteAndVerifyConfirmation(
   answer: string
 ): Promise<void> {
   const timeouts = getTimeouts(browserName);
-  
+
   console.log(`[DEBUG] ${voterName} - Soumission du vote...`);
-  
+
   // Remplir le nom du votant
   const nameInput = page.locator('#voter-name-input').first();
   await expect(nameInput).toBeVisible({ timeout: timeouts.element });
   await nameInput.fill(voterName);
-  
+
   // Attendre que le formulaire soit complètement chargé
   await page.waitForTimeout(1000);
-  
+
   // Pour un formulaire avec question de date, voter sur les boutons disponibles
   console.log(`[DEBUG] Recherche des boutons de vote pour les dates...`);
-  
+
   // Chercher les boutons de vote (classes rounded-xl min-w pour les dates)
   const voteButtons = page.locator('button[class*="rounded-xl"][class*="min-w"]');
   const voteButtonCount = await voteButtons.count();
-  
+
   if (voteButtonCount > 0) {
     console.log(`[DEBUG] Trouvé ${voteButtonCount} boutons de vote pour les dates`);
     // Voter sur le premier bouton disponible (comme "Oui")
@@ -163,17 +163,17 @@ async function submitVoteAndVerifyConfirmation(
   } else {
     console.log(`[DEBUG] Aucun bouton de vote trouvé, formulaire vide ?`);
   }
-  
+
   console.log(`[DEBUG] Soumission du formulaire...`);
-  
+
   // Soumettre le formulaire
   const submitButton = page.locator('button[type="submit"], button:has-text("Soumettre")').first();
   await expect(submitButton).toBeVisible({ timeout: timeouts.element });
   await submitButton.click();
-  
+
   // Attendre la confirmation
   console.log(`[DEBUG] Attente de la confirmation...`);
-  
+
   // Vérifier la confirmation avec plusieurs alternatives de texte possibles
   const confirmationSelectors = [
     'text=/merci|enregistrée|enregistré|confirmation|votre réponse|votre vote/i',
@@ -181,9 +181,9 @@ async function submitVoteAndVerifyConfirmation(
     '.confirmation-message',
     '.alert-success'
   ];
-  
+
   let confirmationVisible = false;
-  
+
   for (const selector of confirmationSelectors) {
     try {
       const confirmationElement = page.locator(selector).first();
@@ -195,13 +195,13 @@ async function submitVoteAndVerifyConfirmation(
       console.log(`[DEBUG] Échec avec le sélecteur: ${selector}`);
     }
   }
-  
+
   if (!confirmationVisible) {
     // Prendre une capture d'écran pour le débogage
     await page.screenshot({ path: 'debug-confirmation-missing.png', fullPage: true });
     throw new Error('Impossible de trouver le message de confirmation après le vote');
   }
-  
+
   console.log(`[SUCCÈS] Le vote de ${voterName} a été correctement enregistré.`);
 }
 
@@ -235,40 +235,40 @@ async function simplifyFormToSingleQuestion(
   browserName: BrowserName
 ): Promise<void> {
   const timeouts = getTimeouts(browserName);
-  
+
   console.log('[INFO] Simplification du formulaire pour les tests...');
-  
+
   // Attendre que l'éditeur soit visible
   const editor = await waitForElementReady(page, '[data-poll-preview]', { browserName, timeout: timeouts.element });
-  
+
   // Trouver tous les onglets de questions (Q1, Q2, etc.)
   const questionTabs = page.locator('button[data-testid*="question"], button:has-text(/^Q\\d+$/i)');
   const tabCount = await questionTabs.count();
-  
+
   console.log(`[INFO] Trouvé ${tabCount} onglets de questions à supprimer`);
-  
+
   // Supprimer toutes les questions existantes (sauf la première qu'on va modifier)
   for (let i = tabCount - 1; i > 0; i--) {
     try {
       const tab = questionTabs.nth(i);
       if (await tab.isVisible({ timeout: 2000 }).catch(() => false)) {
         console.log(`[INFO] Suppression de la question ${i + 1}`);
-        
+
         // Cliquer sur l'onglet pour l'activer
         await tab.click();
         await page.waitForTimeout(500);
-        
+
         // Chercher et cliquer sur le bouton de suppression
         const deleteButton = page.locator('button:has-text("Supprimer"), button[aria-label*="supprimer" i]').first();
         if (await deleteButton.isVisible({ timeout: 2000 }).catch(() => false)) {
           await deleteButton.click();
-          
+
           // Confirmer la suppression si nécessaire
           const confirmButton = page.locator('button:has-text("Confirmer"), button:has-text("Oui")').first();
           if (await confirmButton.isVisible({ timeout: 2000 }).catch(() => false)) {
             await confirmButton.click();
           }
-          
+
           await page.waitForTimeout(500);
         }
       }
@@ -276,10 +276,10 @@ async function simplifyFormToSingleQuestion(
       console.log(`[WARN] Impossible de supprimer la question ${i + 1}:`, e);
     }
   }
-  
+
   // Maintenant modifier la première question pour en faire une question texte simple
   console.log('[INFO] Modification de la première question en question texte simple...');
-  
+
   try {
     // S'assurer que le premier onglet est actif
     const firstTab = questionTabs.first();
@@ -287,21 +287,21 @@ async function simplifyFormToSingleQuestion(
       await firstTab.click();
       await page.waitForTimeout(500);
     }
-    
+
     // Trouver le select de type de question et le changer en "text"
     const typeSelect = page.locator('select[data-testid="question-kind-select"]').first();
     if (await typeSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
       await typeSelect.selectOption('text');
       await waitForReactStable(page, { browserName });
     }
-    
+
     // Modifier le titre de la question
     const titleInput = page.locator('input[placeholder*="titre" i], input[placeholder*="question" i]').first();
     if (await titleInput.isVisible({ timeout: 2000 }).catch(() => false)) {
       await titleInput.fill('Comment avez-vous trouvé ce formulaire ?');
       await page.waitForTimeout(300);
     }
-    
+
     // S'assurer que la question est marquée comme obligatoire
     const requiredCheckbox = page.locator('input[type="checkbox"][aria-label*="obligatoire" i], input[type="checkbox"]:has-text("Obligatoire")').first();
     if (await requiredCheckbox.isVisible({ timeout: 2000 }).catch(() => false)) {
@@ -310,13 +310,13 @@ async function simplifyFormToSingleQuestion(
         await requiredCheckbox.click();
       }
     }
-    
+
     console.log('[SUCCÈS] Formulaire simplifié avec une seule question texte obligatoire');
-    
+
   } catch (e) {
     console.log('[WARN] Impossible de modifier la première question, mais on continue:', e);
   }
-  
+
   // Attendre que les changements soient stabilisés
   await waitForReactStable(page, { browserName });
 }
@@ -336,47 +336,52 @@ export async function createFormWithDateQuestion(
   formTitle: string = 'Test Formulaire avec Question Date'
 ): Promise<string> {
   const timeouts = getTimeouts(browserName);
-  
+
   console.log(`[INFO] Création automatique d'un formulaire avec question date: "${formTitle}"`);
-  
+
   // Aller sur la page de création
   await page.goto('/workspace/form', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
-  
+
   // Attendre que l'interface soit prête
-  const titleInput = page.locator('input[placeholder*="Titre"], input[placeholder*="Questionnaire"]');
-  await expect(titleInput).toBeVisible({ timeout: timeouts.element });
-  
+  // Attendre que l'interface soit prête
+  const titleInput = await waitForElementReady(page, 'input[placeholder*="Titre"], input[placeholder*="Questionnaire"]', {
+    browserName,
+    timeout: timeouts.element * 1.5 // Augmenter un peu le timeout pour la CI
+  });
+
   // Mettre le titre
   console.log(`[DEBUG] Définition du titre: ${formTitle}`);
-  await fillFormTitle(page, formTitle, { skipIfNotEmpty: true });
-  
+  // On remplit directement car on a déjà attendu et récupéré le locator
+  await robustFill(titleInput, formTitle);
+
   // Changer la question existante en type "date"
-  const typeSelect = page.locator('select[data-testid="question-kind-select"]');
+  console.log('[DEBUG] Recherche du select de type de question');
+  const typeSelect = await waitForElementReady(page, 'select[data-testid="question-kind-select"]', { browserName });
   console.log('[DEBUG] Changement du type de question en "date"');
   await typeSelect.selectOption('date');
   await waitForReactStable(page, { browserName });
-  
+
   // Attendre le calendrier
   console.log('[DEBUG] Attente du calendrier');
   const calendar = await waitForElementReady(page, '[data-testid="calendar"]', { browserName });
-  
+
   // Sélectionner des dates futures (7 et 14 jours)
   const today = new Date();
   const futureDate1 = new Date(today);
   futureDate1.setDate(today.getDate() + 7);
   const futureDate2 = new Date(today);
   futureDate2.setDate(today.getDate() + 14);
-  
+
   const dateStr1 = futureDate1.toISOString().split('T')[0];
   const dateStr2 = futureDate2.toISOString().split('T')[0];
-  
+
   console.log(`[DEBUG] Sélection des dates: ${dateStr1} et ${dateStr2}`);
-  
+
   // Approche directe : utiliser JavaScript pour déclencher onDateToggle
   console.log('[DEBUG] Utilisation approche JavaScript directe pour sélectionner les dates');
-  
+
   const datesSelected = await page.evaluate(async (datesToSelect) => {
     try {
       // Trouver le composant DateQuestionEditor
@@ -385,11 +390,11 @@ export async function createFormWithDateQuestion(
         console.error('DateQuestionEditor non trouvé');
         return false;
       }
-      
+
       // Simuler les appels onDateToggle pour chaque date
       // On cherche dans le DOM des éléments qui pourraient avoir les handlers
       const calendarButtons = document.querySelectorAll('[data-testid="calendar"] button[data-date]');
-      
+
       let selectedCount = 0;
       for (const button of calendarButtons) {
         const dateAttr = button.getAttribute('data-date');
@@ -398,34 +403,34 @@ export async function createFormWithDateQuestion(
           (button as HTMLElement).click();
           console.log(`Clic simulé sur date: ${dateAttr}`);
           selectedCount++;
-          
+
           // Attendre un peu entre les clics
           await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
-      
+
       console.log(`Dates sélectionnées via JavaScript: ${selectedCount}`);
       return selectedCount > 0;
-      
+
     } catch (error) {
       console.error('Erreur lors de la sélection JavaScript:', error);
       return false;
     }
   }, [dateStr1, dateStr2]);
-  
+
   console.log(`[DEBUG] Résultat sélection JavaScript: ${datesSelected}`);
-  
+
   // Fallback : utiliser les clics traditionnels si JavaScript échoue
   if (!datesSelected) {
     console.log('[WARN] Approche JavaScript échouée, utilisation fallback clics traditionnels');
     // ... code des clics traditionnels ...
   }
-  
+
   console.log('[DEBUG] Dates sélectionnées, publication du formulaire');
-  
+
   // Attendre un peu pour que l'état se mette à jour
   await page.waitForTimeout(1000);
-  
+
   // Vérifier combien de dates sont sélectionnées dans l'état après les clics
   const selectedDatesCount = await page.evaluate(() => {
     try {
@@ -490,27 +495,27 @@ async function openFormFromDashboard(
   timeout = 15000
 ): Promise<void> {
   console.log(`[INFO] Navigation vers le tableau de bord...`);
-  
+
   // Aller au tableau de bord
   await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-  
+
   console.log(`[INFO] Recherche du formulaire "${formTitle}"...`);
-  
+
   // Attendre que la liste des formulaires soit chargée
   const formList = page.locator('[data-testid="form-list"]');
   await expect(formList).toBeVisible({ timeout });
-  
+
   // Essayer de trouver le formulaire par son titre
   const formCard = page.locator(`[data-testid="form-card"]:has-text("${formTitle}")`).first();
   await expect(formCard).toBeVisible({ timeout });
-  
+
   console.log(`[INFO] Ouverture du formulaire "${formTitle}"...`);
-  
+
   // Cliquer sur le bouton pour ouvrir le formulaire
   const openButton = formCard.locator('button:has-text("Ouvrir"), a[href*="/poll/"]').first();
   await expect(openButton).toBeVisible({ timeout: 5000 });
   await openButton.click();
-  
+
   // Attendre que la page du formulaire soit chargée
   await page.waitForURL(/\/poll\/[^\/]+/, { timeout });
   console.log(`[SUCCÈS] Formulaire "${formTitle}" ouvert avec succès.`);
@@ -527,29 +532,29 @@ export async function voteOnPollComplete(
   voterName: string = 'Test Voter'
 ): Promise<void> {
   const timeouts = getTimeouts(browserName);
-  
+
   console.log(`[VOTE] Début du vote complet sur poll ${pollSlug} par ${voterName}`);
-  
+
   // Navigation vers page de vote
   await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
-  
+
   // Vérifier que la page de vote est visible
   await expect(page).toHaveURL(/\/poll\/[^\/]+/, { timeout: timeouts.navigation });
-  
+
   // Remplir le nom du votant
   const nameInput = page.locator('#voter-name-input').first();
   await expect(nameInput).toBeVisible({ timeout: timeouts.element });
   await nameInput.fill(voterName);
-  
+
   // Attendre que le formulaire soit prêt
   await waitForReactStable(page, { browserName });
-  
+
   // 1. Gérer les questions de date (boutons de vote Oui/Non/Peut-être)
   const dateVoteButtons = page.locator('button:has-text("Oui"), button:has-text("Non"), button:has-text("Peut-être")');
   const dateButtonCount = await dateVoteButtons.count();
-  
+
   if (dateButtonCount > 0) {
     console.log(`[VOTE] Trouvé ${dateButtonCount} boutons de vote pour dates`);
     // Voter "Oui" sur la première date disponible
@@ -560,7 +565,7 @@ export async function voteOnPollComplete(
       console.log('[VOTE] Vote effectué sur date');
     }
   }
-  
+
   // 2. Gérer les questions de choix uniques (radio buttons) groupés par "name"
   const radioGroupNames: string[] = await page.evaluate(() => {
     const names = new Set<string>();
@@ -581,7 +586,7 @@ export async function voteOnPollComplete(
       console.log(`[VOTE] Option sélectionnée pour le groupe ${groupName}`);
     }
   }
-  
+
   // 3. Gérer les checkboxes
   const checkboxes = page.locator('input[type="checkbox"]').filter({ hasNotText: '' });
   const checkboxCount = await checkboxes.count();
@@ -617,15 +622,15 @@ export async function voteOnPollComplete(
 
   // Prendre une capture d'écran avant soumission
   await page.screenshot({ path: 'debug-before-submit.png', fullPage: true });
-  
+
   // Soumettre le formulaire
   const submitButton = page.locator('button[type="submit"], button:has-text("Envoyer"), button:has-text("Soumettre")').first();
   await expect(submitButton).toBeVisible({ timeout: timeouts.element });
   await submitButton.click();
-  
+
   // Attendre la confirmation
   await waitForReactStable(page, { browserName });
-  
+
   // Vérifier la confirmation (plusieurs patterns possibles)
   const confirmationSelectors = [
     'text=/merci|enregistré|confirmé|participation/i',
@@ -634,7 +639,7 @@ export async function voteOnPollComplete(
     '.confirmation-message',
     '[data-testid="vote-confirmation-message"]'
   ];
-  
+
   let confirmationFound = false;
   for (const selector of confirmationSelectors) {
     try {
@@ -684,30 +689,30 @@ export async function publishPollAndNavigateToVote(
   browserName: BrowserName
 ): Promise<string | null> {
   const timeouts = getTimeouts(browserName);
-  
+
   console.log('[PUBLISH] Début publication du poll');
-  
+
   // Attendre et cliquer sur le bouton de publication
   const publishButton = await waitForElementReady(page, '[data-testid="publish-button"], button:has-text("Publier")', { browserName });
   await publishButton.click();
-  
+
   console.log('[PUBLISH] Bouton de publication cliqué');
-  
+
   // Attendre la redirection vers la page de succès
   await page.waitForURL(/\/poll\/[^\/]+/, { timeout: 15000 });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
-  
+
   // Cliquer sur "Voir le formulaire" pour aller à la page de vote
   await clickViewFormButton(page);
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
-  
+
   // Récupérer le slug du poll
   const pollSlug = await getPollSlugFromPage(page);
-  
+
   console.log(`[PUBLISH] ✅ Poll publié et navigation vers page de vote: ${pollSlug}`);
-  
+
   return pollSlug;
 } // <--- Added closing brace here
 
@@ -721,15 +726,15 @@ export async function verifyPollInDashboard(
   timeout: number = 10000
 ): Promise<void> {
   console.log(`[DASHBOARD] Vérification présence du poll "${expectedTitle}" dans dashboard`);
-  
+
   // Aller au dashboard
   await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
-  
+
   // Attendre et vérifier que le poll apparaît
   const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout });
   await expect(pollItem).toContainText(expectedTitle, { timeout });
-  
+
   console.log(`[DASHBOARD] ✅ Poll "${expectedTitle}" trouvé dans dashboard`);
 }
 
@@ -749,7 +754,7 @@ export async function createPollInStorage(
   }
 ): Promise<void> {
   const deviceId = pollData.creator_id || `dev-${Date.now()}`;
-  
+
   await page.evaluate(({ poll, deviceId }) => {
     const fullPoll = {
       id: poll.slug,
@@ -764,13 +769,13 @@ export async function createPollInStorage(
       dates: poll.dates || [],
       questions: poll.questions || []
     };
-    
+
     const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
     polls.push(fullPoll);
     localStorage.setItem('doodates_polls', JSON.stringify(polls));
     localStorage.setItem('dd-device-id', deviceId);
   }, { poll: pollData, deviceId });
-  
+
   console.log(`[STORAGE] ✅ Poll "${pollData.title}" créé dans localStorage`);
 }
 
@@ -842,18 +847,18 @@ export async function setupTestWithWorkspace(
   } = {}
 ): Promise<void> {
   const { setupTestEnvironment } = await import('../helpers/test-setup');
-  
+
   await setupTestEnvironment(page, browserName, {
     enableE2ELocalMode: options.enableE2ELocalMode ?? true,
     warmup: options.warmup ?? true,
     consoleGuard: options.consoleGuard ? { enabled: true } : undefined,
     mocks: options.mocks || { all: true },
   });
-  
+
   await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
-  
+
   // Attendre que le chat input soit prêt via le helper résilient
   await waitForChatInputReady(page, browserName);
 

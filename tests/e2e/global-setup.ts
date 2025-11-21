@@ -9,22 +9,22 @@ import { Page, Route, BrowserContext } from '@playwright/test';
  */
 function generateMockPollResponse(prompt: string): any {
   const lowerPrompt = prompt.toLowerCase();
-  
+
   console.log('🤖 generateMockPollResponse - Prompt:', lowerPrompt.substring(0, 100) + '...');
-  
+
   // Detect if it's a form poll or date poll request
-  const isFormPoll = lowerPrompt.includes('questionnaire') || 
-                     lowerPrompt.includes('formulaire') || 
-                     lowerPrompt.includes('form') ||
-                     lowerPrompt.includes('question');
-  
+  const isFormPoll = lowerPrompt.includes('questionnaire') ||
+    lowerPrompt.includes('formulaire') ||
+    lowerPrompt.includes('form') ||
+    lowerPrompt.includes('question');
+
   console.log('🤖 generateMockPollResponse - isFormPoll:', isFormPoll);
-  
+
   if (isFormPoll) {
     // 🎯 Détection de mots-clés spéciaux pour les tests E2E
     let numQuestions = 3; // Par défaut
     let simpleTextOnly = false; // Pour générer uniquement des questions texte simples
-    
+
     if (lowerPrompt.includes('e2e-test-1-question') || lowerPrompt.includes('1 seule question')) {
       numQuestions = 1;
       simpleTextOnly = true; // Test simple : 1 question texte uniquement
@@ -35,7 +35,7 @@ function generateMockPollResponse(prompt: string): any {
       const questionMatch = lowerPrompt.match(/(\d+)\s*(question|q)/);
       numQuestions = questionMatch ? parseInt(questionMatch[1]) : 3;
     }
-    
+
     // Generate questions
     const questions: any[] = [];
     for (let i = 1; i <= numQuestions; i++) {
@@ -60,7 +60,7 @@ function generateMockPollResponse(prompt: string): any {
         });
       }
     }
-    
+
     const pollData = {
       type: 'form',
       title: 'Questionnaire Mock E2E',
@@ -68,9 +68,9 @@ function generateMockPollResponse(prompt: string): any {
       description: 'Questionnaire généré automatiquement pour les tests',
       questions
     };
-    
+
     console.log('🤖 generateMockPollResponse - pollData généré:', JSON.stringify(pollData));
-    
+
     return {
       candidates: [{
         content: {
@@ -81,13 +81,21 @@ function generateMockPollResponse(prompt: string): any {
     };
   } else {
     // Date poll mock
-    // Extraire le titre depuis le prompt si présent (chercher "titre" ou "title" suivi de guillemets)
+    // Extraire le titre depuis le prompt si présent
     let title = 'Sondage de dates Mock E2E';
-    const titleMatch = prompt.match(/titre\s+["']([^"']+)["']|title\s+["']([^"']+)["']|"([^"]+)"|'([^']+)'/i);
-    if (titleMatch) {
-      title = titleMatch[1] || titleMatch[2] || titleMatch[3] || titleMatch[4];
+
+    // Chercher d'abord un titre après "créer un sondage", "créer le sondage", "titre", etc.
+    const titleAfterKeyword = prompt.match(/(?:créer un sondage|créer le sondage|titre|title)\s+[«"]([^»"]+)[»"]|(?:créer un sondage|créer le sondage|titre|title)\s+"([^"]+)"/i);
+    if (titleAfterKeyword) {
+      title = titleAfterKeyword[1] || titleAfterKeyword[2];
+    } else {
+      // Fallback: chercher le premier texte entre guillemets
+      const firstQuoted = prompt.match(/[«"]([^»"]{5,})[»"]|"([^"]{5,})"/);
+      if (firstQuoted) {
+        title = firstQuoted[1] || firstQuoted[2];
+      }
     }
-    
+
     // Extraire les dates depuis le prompt si présentes (format YYYY-MM-DD)
     let dates = ['2025-11-01', '2025-11-02', '2025-11-03'];
     const dateMatches = prompt.matchAll(/\b(\d{4}-\d{2}-\d{2})\b/g);
@@ -95,14 +103,14 @@ function generateMockPollResponse(prompt: string): any {
     if (extractedDates.length > 0) {
       dates = extractedDates;
     }
-    
+
     const pollData = {
       type: 'date',
       title: title,
       description: 'Sondage généré automatiquement pour les tests',
       dates: dates
     };
-    
+
     return {
       candidates: [{
         content: {
@@ -125,19 +133,19 @@ function generateEdgeFunctionResponse(userInput: string, prompt?: string): any {
   // Use userInput directly (it's already the user's message)
   // The prompt is the full system prompt, we don't need to extract from it
   const userPrompt = userInput || (prompt ? prompt.split('\n').pop() : '') || '';
-  
+
   // console.log('🔧 Edge Function mock - Generating response for:', userPrompt.substring(0, 100));
-  
+
   // Generate the poll response using the same logic as Gemini mock
   const mockPollResponse = generateMockPollResponse(userPrompt);
-  
+
   // Extract the poll data from the mock response
   // This is the JSON string that Gemini would return
   const pollDataText = mockPollResponse.candidates[0].content.parts[0].text;
-  
+
   // console.log('🔧 Edge Function mock - Generated poll data:', pollDataText.substring(0, 200));
   // console.log('🔧 Edge Function mock - Full poll data:', pollDataText);
-  
+
   // Validate that pollDataText is valid JSON
   try {
     const parsed = JSON.parse(pollDataText);
@@ -146,7 +154,7 @@ function generateEdgeFunctionResponse(userInput: string, prompt?: string): any {
     console.error('❌ Edge Function mock - Invalid JSON generated!', e);
     throw e;
   }
-  
+
   // Return the Edge Function response format (matches real Edge Function exactly)
   // The real Edge Function returns: { success: true, data: responseText }
   // where responseText is the raw text from Gemini (a JSON string)
@@ -168,9 +176,9 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
     const request = route.request();
     const method = request.method();
     const url = request.url();
-    
+
     // console.log('🔧 Edge Function mock - Intercepted request:', method, url);
-    
+
     // Handle OPTIONS preflight requests for CORS
     if (method === 'OPTIONS') {
       // console.log('🔧 Edge Function mock - Handling OPTIONS preflight');
@@ -185,25 +193,25 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
       });
       return;
     }
-    
+
     // Handle POST requests
     if (method !== 'POST') {
       // console.log('🔧 Edge Function mock - Non-POST request, continuing');
       await route.continue();
       return;
     }
-    
+
     try {
       const postData = request.postDataJSON();
       const userInput = postData?.userInput || '';
       const prompt = postData?.prompt;
-      
+
       // console.log('🔧 Edge Function mock - User input:', userInput.substring(0, 100) + '...');
-      
+
       const mockResponse = generateEdgeFunctionResponse(userInput, prompt);
-      
+
       // console.log('🔧 Edge Function mock - Returning response:', JSON.stringify(mockResponse).substring(0, 200));
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -230,15 +238,15 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
       });
     }
   });
-  
+
   // Also intercept with glob pattern as fallback
   await page.route('**/functions/v1/hyper-task', async (route: Route) => {
     const request = route.request();
     const method = request.method();
     const url = request.url();
-    
+
     // console.log('🔧 Edge Function mock (alt pattern) - Intercepted request:', method, url);
-    
+
     if (method === 'OPTIONS') {
       await route.fulfill({
         status: 200,
@@ -251,21 +259,21 @@ export async function setupSupabaseEdgeFunctionMock(page: Page) {
       });
       return;
     }
-    
+
     if (method !== 'POST') {
       await route.continue();
       return;
     }
-    
+
     try {
       const postData = request.postDataJSON();
       const userInput = postData?.userInput || '';
       const prompt = postData?.prompt;
-      
+
       // console.log('🔧 Edge Function mock (alt pattern) - User input:', userInput.substring(0, 100) + '...');
-      
+
       const mockResponse = generateEdgeFunctionResponse(userInput, prompt);
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -302,7 +310,7 @@ export async function setupGeminiMock(page: Page) {
   await page.route('**/generativelanguage.googleapis.com/**', async (route: Route) => {
     const request = route.request();
     const postData = request.postDataJSON();
-    
+
     // Extract user prompt from request
     let userPrompt = '';
     if (postData?.contents) {
@@ -311,9 +319,9 @@ export async function setupGeminiMock(page: Page) {
         userPrompt = lastContent.parts[0].text;
       }
     }
-    
+
     console.log('🤖 Gemini API mock - Prompt reçu:', userPrompt.substring(0, 100) + '...');
-    
+
     // Si c'est un test de connexion (prompt court comme "Test de connexion"), retourner une réponse simple
     if (userPrompt.toLowerCase().includes('test de connexion') || userPrompt.toLowerCase().includes('ok')) {
       console.log('🤖 Gemini API mock - Test de connexion détecté');
@@ -331,23 +339,23 @@ export async function setupGeminiMock(page: Page) {
       });
       return;
     }
-    
+
     // console.log('🤖 Gemini API mock - Prompt reçu:', userPrompt.substring(0, 100) + '...');
-    
+
     // Détecter les demandes de parsing de disponibilités
     const lowerPrompt = userPrompt.toLowerCase();
-    const isAvailabilityParsing = 
-      (lowerPrompt.includes('disponibilités') || 
-       lowerPrompt.includes('disponible') ||
-       lowerPrompt.includes('mardi') || lowerPrompt.includes('jeudi') ||
-       lowerPrompt.includes('lundi') || lowerPrompt.includes('mercredi') ||
-       lowerPrompt.includes('vendredi') || lowerPrompt.includes('samedi') ||
-       lowerPrompt.includes('dimanche') ||
-       lowerPrompt.includes('après-midi') || lowerPrompt.includes('matin') ||
-       lowerPrompt.includes('semaine prochaine')) &&
-      (lowerPrompt.includes('analyse') || lowerPrompt.includes('extrait') || 
-       lowerPrompt.includes('parse') || lowerPrompt.includes('assistant spécialisé'));
-    
+    const isAvailabilityParsing =
+      (lowerPrompt.includes('disponibilités') ||
+        lowerPrompt.includes('disponible') ||
+        lowerPrompt.includes('mardi') || lowerPrompt.includes('jeudi') ||
+        lowerPrompt.includes('lundi') || lowerPrompt.includes('mercredi') ||
+        lowerPrompt.includes('vendredi') || lowerPrompt.includes('samedi') ||
+        lowerPrompt.includes('dimanche') ||
+        lowerPrompt.includes('après-midi') || lowerPrompt.includes('matin') ||
+        lowerPrompt.includes('semaine prochaine')) &&
+      (lowerPrompt.includes('analyse') || lowerPrompt.includes('extrait') ||
+        lowerPrompt.includes('parse') || lowerPrompt.includes('assistant spécialisé'));
+
     if (isAvailabilityParsing) {
       console.log('🤖 Gemini API mock - Parsing disponibilités détecté');
       // Détecter les jours mentionnés dans le prompt pour générer une réponse adaptée
@@ -357,9 +365,9 @@ export async function setupGeminiMock(page: Page) {
       const hasWednesday = lowerPrompt.includes('mercredi') || lowerPrompt.includes('wednesday');
       const isAfternoon = lowerPrompt.includes('après-midi') || lowerPrompt.includes('afternoon');
       const isMorning = lowerPrompt.includes('matin') || lowerPrompt.includes('morning');
-      
+
       const availabilities: any[] = [];
-      
+
       if (hasTuesday) {
         availabilities.push({
           day: 'tuesday',
@@ -392,7 +400,7 @@ export async function setupGeminiMock(page: Page) {
           originalText: 'mercredi ' + (isAfternoon ? 'après-midi' : isMorning ? 'matin' : '')
         });
       }
-      
+
       // Si aucun jour spécifique détecté, retourner une réponse par défaut
       if (availabilities.length === 0) {
         availabilities.push({
@@ -402,12 +410,12 @@ export async function setupGeminiMock(page: Page) {
           originalText: 'mardi après-midi'
         });
       }
-      
+
       const mockAvailabilityResponse = {
         availabilities,
         confidence: 0.9
       };
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -422,21 +430,21 @@ export async function setupGeminiMock(page: Page) {
       });
       return;
     }
-    
+
     // Détecter les demandes de modification de poll (ajout/suppression de questions)
-    const isModificationRequest = 
+    const isModificationRequest =
       lowerPrompt.includes('ajoute') || lowerPrompt.includes('ajouter') ||
       lowerPrompt.includes('supprime') || lowerPrompt.includes('supprimer') ||
       lowerPrompt.includes('modifie') || lowerPrompt.includes('modifier') ||
       lowerPrompt.includes('change') || lowerPrompt.includes('changer') ||
       lowerPrompt.includes('renomme') || lowerPrompt.includes('renommer');
-    
+
     // Si c'est une demande de modification (détection d'intention)
     if (isModificationRequest && (lowerPrompt.includes('intention') || lowerPrompt.includes('détecte') || lowerPrompt.includes('assistant qui détecte'))) {
       // console.log('🤖 Gemini API mock - Détection intention (modification)');
       let action: string | null = null;
       let payload: any = {};
-      
+
       if (lowerPrompt.includes('ajoute') || lowerPrompt.includes('ajouter')) {
         action = 'ADD_QUESTION';
         // Extraire le sujet de la question
@@ -454,7 +462,7 @@ export async function setupGeminiMock(page: Page) {
           questionIndex: numMatch ? parseInt(numMatch[1]) : 2
         };
       }
-      
+
       const intentResponse = {
         isModification: true,
         action: action,
@@ -462,7 +470,7 @@ export async function setupGeminiMock(page: Page) {
         confidence: 0.9,
         explanation: `Action détectée: ${action}`
       };
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -477,13 +485,13 @@ export async function setupGeminiMock(page: Page) {
       });
       return;
     }
-    
+
     // console.log('🤖 Gemini API mock - Prompt:', userPrompt.substring(0, 100) + '...');
-    
+
     console.log('🤖 Gemini API mock - Génération réponse pour prompt:', userPrompt.substring(0, 100) + '...');
     const mockResponse = generateMockPollResponse(userPrompt);
     console.log('🤖 Gemini API mock - Réponse générée:', JSON.stringify(mockResponse).substring(0, 200) + '...');
-    
+
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -500,7 +508,7 @@ export async function setupBetaKeyMocks(page: Page) {
   await page.route(/.*\/rest\/v1\/rpc\/generate_beta_key.*/, async (route: Route) => {
     const request = route.request();
     const method = request.method();
-    
+
     if (method === 'OPTIONS') {
       await route.fulfill({
         status: 200,
@@ -513,17 +521,17 @@ export async function setupBetaKeyMocks(page: Page) {
       });
       return;
     }
-    
+
     if (method !== 'POST') {
       await route.continue();
       return;
     }
-    
+
     try {
       const postData = request.postDataJSON();
       const count = postData?.p_count || 1;
       const durationMonths = postData?.p_duration_months || 3;
-      
+
       // Generate mock beta keys
       const keys: Array<{ code: string; expires_at: string }> = [];
       for (let i = 0; i < count; i++) {
@@ -534,16 +542,16 @@ export async function setupBetaKeyMocks(page: Page) {
         const segment1 = generateSegment();
         const segment2 = generateSegment();
         const segment3 = generateSegment();
-        
+
         const expiresAt = new Date();
         expiresAt.setMonth(expiresAt.getMonth() + durationMonths);
-        
+
         keys.push({
           code: `BETA-${segment1}-${segment2}-${segment3}`,
           expires_at: expiresAt.toISOString()
         });
       }
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -569,12 +577,12 @@ export async function setupBetaKeyMocks(page: Page) {
       });
     }
   });
-  
+
   // Mock redeem_beta_key RPC (user redemption)
   await page.route(/.*\/rest\/v1\/rpc\/redeem_beta_key.*/, async (route: Route) => {
     const request = route.request();
     const method = request.method();
-    
+
     if (method === 'OPTIONS') {
       await route.fulfill({
         status: 200,
@@ -587,17 +595,17 @@ export async function setupBetaKeyMocks(page: Page) {
       });
       return;
     }
-    
+
     if (method !== 'POST') {
       await route.continue();
       return;
     }
-    
+
     try {
       const postData = request.postDataJSON();
       const code = (postData?.p_code || '').trim().toUpperCase();
       const userId = postData?.p_user_id;
-      
+
       // Check for invalid/used key patterns (for testing error scenarios)
       if (code.includes('INVALID') || code.includes('ERROR')) {
         await route.fulfill({
@@ -610,7 +618,7 @@ export async function setupBetaKeyMocks(page: Page) {
         });
         return;
       }
-      
+
       if (code.includes('USED') || code.includes('CONFLICT')) {
         await route.fulfill({
           status: 409,
@@ -622,7 +630,7 @@ export async function setupBetaKeyMocks(page: Page) {
         });
         return;
       }
-      
+
       // Check authorization header for 401 scenarios
       const authHeader = request.headers()['authorization'];
       if (!authHeader || authHeader.includes('expired') || authHeader === 'Bearer expired-token') {
@@ -636,11 +644,11 @@ export async function setupBetaKeyMocks(page: Page) {
         });
         return;
       }
-      
+
       // Success response
       const expiresAt = new Date();
       expiresAt.setMonth(expiresAt.getMonth() + 3);
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -683,15 +691,15 @@ import { E2E_CONFIG } from './e2e-utils';
 export async function setupAllMocks(page: Page) {
   // Enable E2E mode first
   await E2E_CONFIG.enableE2EMode(page.context());
-  
+
   // Setup API mocks
   await setupGeminiMock(page);
   await setupSupabaseEdgeFunctionMock(page);
   await setupBetaKeyMocks(page);
-  
+
   // Attendre que la page soit chargée avant d'accéder au localStorage
   await page.waitForLoadState('domcontentloaded');
-  
+
   // Désactiver les vérifications de quota via l'URL
   await page.goto(page.url() + (page.url().includes('?') ? '&' : '?') + 'e2e-test=true');
 }
@@ -703,12 +711,12 @@ export async function setupAllMocks(page: Page) {
 export async function setupAllMocksWithoutNavigation(page: Page) {
   // Enable E2E mode first
   await E2E_CONFIG.enableE2EMode(page.context());
-  
+
   // Setup API mocks
   await setupGeminiMock(page);
   await setupSupabaseEdgeFunctionMock(page);
   await setupBetaKeyMocks(page);
-  
+
   // Note: No page.goto() here - caller is responsible for navigation
 }
 
@@ -720,7 +728,7 @@ export async function setupAllMocksContext(context: BrowserContext) {
   await context.route('**/generativelanguage.googleapis.com/**', async (route: Route) => {
     const request = route.request();
     const postData = request.postDataJSON();
-    
+
     let userPrompt = '';
     if (postData?.contents) {
       const lastContent = postData.contents[postData.contents.length - 1];
@@ -728,20 +736,20 @@ export async function setupAllMocksContext(context: BrowserContext) {
         userPrompt = lastContent.parts[0].text;
       }
     }
-    
+
     const mockResponse = generateMockPollResponse(userPrompt);
-    
+
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify(mockResponse)
     });
   });
-  
+
   // Mock Beta Key RPC endpoints
   await context.route(/.*\/rest\/v1\/rpc\/generate_beta_key.*/, async (route: Route) => {
     const request = route.request();
-    
+
     if (request.method() === 'OPTIONS') {
       await route.fulfill({
         status: 200,
@@ -754,17 +762,17 @@ export async function setupAllMocksContext(context: BrowserContext) {
       });
       return;
     }
-    
+
     if (request.method() !== 'POST') {
       await route.continue();
       return;
     }
-    
+
     try {
       const postData = request.postDataJSON();
       const count = postData?.p_count || 1;
       const durationMonths = postData?.p_duration_months || 3;
-      
+
       const keys: Array<{ code: string; expires_at: string }> = [];
       for (let i = 0; i < count; i++) {
         // Generate 12 alphanumeric characters (4 groups of 4)
@@ -774,16 +782,16 @@ export async function setupAllMocksContext(context: BrowserContext) {
         const segment1 = generateSegment();
         const segment2 = generateSegment();
         const segment3 = generateSegment();
-        
+
         const expiresAt = new Date();
         expiresAt.setMonth(expiresAt.getMonth() + durationMonths);
-        
+
         keys.push({
           code: `BETA-${segment1}-${segment2}-${segment3}`,
           expires_at: expiresAt.toISOString()
         });
       }
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -808,10 +816,10 @@ export async function setupAllMocksContext(context: BrowserContext) {
       });
     }
   });
-  
+
   await context.route(/.*\/rest\/v1\/rpc\/redeem_beta_key.*/, async (route: Route) => {
     const request = route.request();
-    
+
     if (request.method() === 'OPTIONS') {
       await route.fulfill({
         status: 200,
@@ -824,16 +832,16 @@ export async function setupAllMocksContext(context: BrowserContext) {
       });
       return;
     }
-    
+
     if (request.method() !== 'POST') {
       await route.continue();
       return;
     }
-    
+
     try {
       const postData = request.postDataJSON();
       const code = (postData?.p_code || '').trim().toUpperCase();
-      
+
       if (code.includes('INVALID') || code.includes('ERROR')) {
         await route.fulfill({
           status: 400,
@@ -845,7 +853,7 @@ export async function setupAllMocksContext(context: BrowserContext) {
         });
         return;
       }
-      
+
       if (code.includes('USED') || code.includes('CONFLICT')) {
         await route.fulfill({
           status: 409,
@@ -857,7 +865,7 @@ export async function setupAllMocksContext(context: BrowserContext) {
         });
         return;
       }
-      
+
       const authHeader = request.headers()['authorization'];
       if (!authHeader || authHeader.includes('expired')) {
         await route.fulfill({
@@ -870,10 +878,10 @@ export async function setupAllMocksContext(context: BrowserContext) {
         });
         return;
       }
-      
+
       const expiresAt = new Date();
       expiresAt.setMonth(expiresAt.getMonth() + 3);
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -904,11 +912,11 @@ export async function setupAllMocksContext(context: BrowserContext) {
       });
     }
   });
-  
+
   // Mock Supabase Edge Function
   await context.route('**/functions/v1/hyper-task**', async (route: Route) => {
     const request = route.request();
-    
+
     if (request.method() === 'OPTIONS') {
       await route.fulfill({
         status: 200,
@@ -921,19 +929,19 @@ export async function setupAllMocksContext(context: BrowserContext) {
       });
       return;
     }
-    
+
     if (request.method() !== 'POST') {
       await route.continue();
       return;
     }
-    
+
     try {
       const postData = request.postDataJSON();
       const userInput = postData?.userInput || '';
       const prompt = postData?.prompt;
-      
+
       const mockResponse = generateEdgeFunctionResponse(userInput, prompt);
-      
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
