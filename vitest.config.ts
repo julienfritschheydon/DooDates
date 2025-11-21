@@ -26,8 +26,9 @@ export default defineConfig({
     poolOptions: {
       threads: {
         singleThread: false,
-        maxThreads: 4,
-        minThreads: 2,
+        // Utiliser les CPUs disponibles (max 4, min 1)
+        maxThreads: Math.min(4, require('os').cpus().length),
+        minThreads: 1,
       },
     },
     typecheck: {
