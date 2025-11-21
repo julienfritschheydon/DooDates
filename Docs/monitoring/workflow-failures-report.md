@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 21/11/2025 11:29:49
+**Dernière mise à jour:** 21/11/2025 12:09:24
 
-_Workflow run #504 (ID 19567591281) — génération UTC 2025-11-21T10:29:49.565Z_
+_Workflow run #506 (ID 19568578808) — génération UTC 2025-11-21T11:09:24.554Z_
 
-## 🎯 Focus: Commit `6020740`
+## 🎯 Focus: Commit `ef9d60c`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,137 +26,82 @@ _Workflow run #504 (ID 19567591281) — génération UTC 2025-11-21T10:29:49.565
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `6020740`.
+Tous les workflows surveillés ont réussi pour le commit `ef9d60c`.
 
 ---
 
 ## 2️⃣ Develop → Main (Auto-merge)
 
-**Statut:** ❌ failure
+**Statut:** ✅ success
 
-**Dernier run:** 21/11/2025 11:24:58
+**Dernier run:** 21/11/2025 12:04:41
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `6020740`.
+Tous les workflows surveillés ont réussi pour le commit `ef9d60c`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ❌ failure
+**Statut:** ⏳ unknown
 
-**Dernier run:** 21/11/2025 10:02:19
+**Dernier run:** 21/11/2025 12:08:27
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **1**
-- ❌ **Échecs pour ce commit:** **1**
+- ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
-#### Run #92 - 21/11/2025 10:02:19
+#### Run #93 - 21/11/2025 12:08:27
 
-- **Commit:** `6020740`
+- **Commit:** `ef9d60c`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Statut:** failure
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19565372641)
-- **Jobs en échec:**
-  - ❌ `⚡ E2E Functional Tests (2)` (failure)
-    - Steps en échec: `⚡ Run Functional Tests (Shard 2/2)`
-    - **Erreurs détectées (10):**
-      ```
-Error: "errors": [],
-Locator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n",
-Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n",
-Locator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n\n    at createFormWithDateQuestion (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-helpers.ts:349:28)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-date-question.spec.ts:30:21",
-Expected: 21",
-
-"errors": [],
-"errors": [],
-"error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b
-... (truncated)
-```
-      ```
-Error: "errors": [
-Locator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n\n\n   at helpers/poll-helpers.ts:349\n\n  347 |   // Attendre que l'interface soit prête\n  348 |   const titleInput = page.locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]');\n> 349 |   await expect(titleInput).toBeVisible({ timeout: timeouts.element });\n      |                            ^\n  350 |   \n  351 |   // Mettre le titre\n  352 |   console.log(`[DEBUG] Définition du titre: ${formTitle}`);\n    at createFormWithDateQuestion (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-helpers.ts:349:28)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-date-question.spec.ts:30:21"
-Expected: 21"
-
-"errors": [
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n\n\n   at helpers/poll-helpers.ts:349\n\n  347 |   // Attendre que l'interface soit prête\n  348 |   const titleInput = page.locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]');\n> 349 |   await expect(titleInput).toBeVisible({ timeout: timeouts.element });\n      |                            ^\n 
-... (truncated)
-```
-      ```
-Error: "errorLocation": {
-Locator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n",
-Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n",
-Locator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n\n    at createFormWithDateQuestion (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-helpers.ts:349:28)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-date-question.spec.ts:30:21",
-Expected: 21",
-
-"errorLocation": {
-"error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expec
-... (truncated)
-```
-      ```
-Error: "errors": [
-Locator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n\n\n   at helpers/poll-helpers.ts:349\n\n  347 |   // Attendre que l'interface soit prête\n  348 |   const titleInput = page.locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]');\n> 349 |   await expect(titleInput).toBeVisible({ timeout: timeouts.element });\n      |                            ^\n  350 |   \n  351 |   // Mettre le titre\n  352 |   console.log(`[DEBUG] Définition du titre: ${formTitle}`);\n    at createFormWithDateQuestion (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-helpers.ts:349:28)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-date-question.spec.ts:30:21"
-Expected: 21"
-
-"errors": [
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n\n\n   at helpers/poll-helpers.ts:349\n\n  347 |   // Attendre que l'interface soit prête\n  348 |   const titleInput = page.locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]');\n> 349 |   await expect(titleInput).toBeVisible({ timeout: timeouts.element });\n      |                            ^\n 
-... (truncated)
-```
-      ```
-Error: "errorLocation": {
-Locator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n",
-Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n",
-Locator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n\n    at createFormWithDateQuestion (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-helpers.ts:349:28)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/form-poll-date-question.spec.ts:30:21",
-Expected: 21",
-
-"errorLocation": {
-"error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\u001b\n",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('input[placeholder*=\"Titre\"], input[placeholder*=\"Questionnaire\"]')\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expec
-... (truncated)
-```
-      *... et 5 autre(s) erreur(s)*
+- **Statut:** null
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19568577769)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `6020740`
-- ❌ **Échecs pour ce commit:** 1
+- 🎯 **Focus: Commit actuel** `ef9d60c`
+- ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
-### ⚠️ Recommandations
+### ✅ État de santé
 
-Des échecs ont été détectés pour le commit actuel. Consultez les sections ci-dessus pour corriger les problèmes avant de pousser d'autres changements.
+Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
 **Statistiques :**
-- 🔴 Critiques : 0
-- 📂 Catégories : performance (1)
+- 🔴 Critiques : 1
+- 📂 Catégories : unknown (1)
 
 ### 🚨 1. 3️⃣ Main Post-Merge E2E
 
-**Résumé :** Échec 3️⃣ Main Post-Merge E2E - performance (medium)
+**Résumé :** Échec 3️⃣ Main Post-Merge E2E - unknown (high)
 
-**Cause identifiée :** Erreur reconnue : Timeout
+**Cause identifiée :** Erreur non cataloguée - nécessite analyse manuelle
 
 **Solutions suggérées :**
-1. Augmenter le timeout ou optimiser les opérations asynchrones. Vérifier les attentes Playwright
+1. Consulter les logs détaillés du workflow
 
-**ℹ️ Action recommandée :** Résoudre prochainement
+**⚠️ Action requise :** Résoudre immédiatement - bloque le déploiement
 
 ---
+
+## 🚨 Actions prioritaires
+
+**1 échec(s) critique(s) détecté(s) :**
+
+1. **3️⃣ Main Post-Merge E2E** - Consulter les logs détaillés du workflow
+
+**Impact :** Ces échecs bloquent potentiellement le déploiement en production.
 
 ## 💡 Améliorations suggérées
 
@@ -170,6 +115,6 @@ Des échecs ont été détectés pour le commit actuel. Consultez les sections c
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-21T10:29:53.892Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-21T11:09:27.789Z*
 ---
 
