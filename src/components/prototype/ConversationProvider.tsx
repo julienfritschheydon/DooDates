@@ -17,6 +17,8 @@ import { linkPollToConversationBidirectional } from "../../lib/ConversationPollL
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { ErrorFactory } from "../../lib/error-handling";
 import { logger } from "../../lib/logger";
+import { useConversationActions } from "./ConversationStateProvider";
+import { useEditorActions } from "./EditorStateProvider";
 
 /**
  * Types pour la conversation partagée
@@ -92,6 +94,10 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   // Détection mobile
   const isMobile = useMediaQuery("(max-width: 767px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // 🔧 FIX BUG: Accéder aux nouveaux systèmes pour synchronisation
+  const { clearMessages: clearMessagesNew } = useConversationActions();
+  const { clearCurrentPoll: clearCurrentPollNew, closeEditor: closeEditorNew } = useEditorActions();
 
   // État conversation
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -210,6 +216,9 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const clearConversation = useCallback(() => {
+    console.log('🧹 [ConversationProvider] clearConversation appelé - Nettoyage complet (3 systèmes)');
+    
+    // 1. Nettoyer l'ancien système de messages (ConversationProvider)
     setConversationId(null);
     setMessages([]);
     try {
@@ -219,11 +228,32 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       logger.error("Erreur suppression messages", error);
     }
+    
+    // 2. 🔧 FIX BUG: Nettoyer le nouveau système de messages (ConversationStateProvider)
+    clearMessagesNew();
+    
+    // 3. 🔧 FIX BUG: Nettoyer l'ancien système d'éditeur (ConversationProvider)
     setIsEditorOpen(false);
     dispatchPoll({ type: "REPLACE_POLL", payload: null as Poll });
+    
+    // 4. 🔧 FIX BUG: Nettoyer aussi le nouveau système d'éditeur (EditorStateProvider)
+    clearCurrentPollNew();
+    closeEditorNew();
+    
+    // 5. 🔧 FIX BUG: Supprimer le brouillon PollCreator pour éviter restauration automatique
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem("doodates-draft");
+        console.log('🧹 [ConversationProvider] Brouillon PollCreator supprimé');
+      }
+    } catch (error) {
+      logger.error("Erreur suppression brouillon", error);
+    }
+    
+    console.log('✅ [ConversationProvider] Nettoyage complet terminé (messages + éditeur + brouillon)');
     // Note: On ne supprime PAS doodates_polls car il contient tous les polls sauvegardés
     // On vide juste currentPoll pour ne pas le restaurer au prochain refresh
-  }, []);
+  }, [clearMessagesNew, clearCurrentPollNew, closeEditorNew]);
 
   // Actions éditeur
   const openEditor = useCallback((poll: Poll) => {
@@ -330,7 +360,8 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
       // Convertir timeSlots si présents
       let timeSlotsByDate = {};
-      if (pollData.timeSlots && pollData.timeSlots.length > 0) {
+      const isDatePoll = pollData.type === "date" || pollData.type === "datetime" || pollData.type === "custom";
+      if (isDatePoll && "timeSlots" in pollData && pollData.timeSlots && pollData.timeSlots.length > 0) {
         timeSlotsByDate = (
           pollData as import("../../lib/gemini").DatePollSuggestion
         ).timeSlots.reduce(
@@ -342,7 +373,9 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
             slot: { start: string; end: string; dates?: string[] },
           ) => {
             const targetDates =
-              slot.dates && slot.dates.length > 0 ? slot.dates : pollData.dates || [];
+              slot.dates && slot.dates.length > 0 
+                ? slot.dates 
+                : (isDatePoll && "dates" in pollData ? pollData.dates || [] : []);
 
             targetDates.forEach((date: string) => {
               if (!acc[date]) acc[date] = [];
@@ -369,8 +402,9 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       }
 
       // Convertir les questions Gemini en format FormPollCreator
-      let convertedQuestions = pollData.questions || [];
-      if (pollData.type === "form" && pollData.questions) {
+      let convertedQuestions: any[] = [];
+      const isFormPoll = pollData.type === "form";
+      if (isFormPoll && "questions" in pollData && pollData.questions) {
         logger.debug("Conversion questions Gemini", "poll", { questions: pollData.questions });
         convertedQuestions = (
           pollData as import("../../lib/gemini").FormPollSuggestion
@@ -407,25 +441,41 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
         logger.debug("Questions converties", "poll", { convertedQuestions });
       }
 
+      // Déterminer le type de poll et extraire les propriétés appropriées
+      const pollType = pollData.type === "form" ? "form" : pollData.type === "availability" ? "availability" : "date";
+      const dates = isDatePoll && "dates" in pollData ? pollData.dates || [] : [];
+      const dateGroups = isDatePoll && "dateGroups" in pollData ? pollData.dateGroups : undefined;
+
       const poll: StoragePoll = {
         id: slug,
         slug: slug,
         title: pollData.title || "Nouveau sondage",
-        type: pollData.type || "date",
-        dates: pollData.dates || [],
+        type: pollType,
+        dates: dates,
+        // 🔧 Copier les groupes de dates si fournis (pour week-ends groupés)
+        dateGroups: dateGroups,
         questions: convertedQuestions,
         created_at: now,
         updated_at: now,
         creator_id: "guest",
         status: "draft" as const,
         settings: {
-          selectedDates: pollData.dates || [],
+          selectedDates: dates,
           timeSlotsByDate: timeSlotsByDate,
         },
       };
 
       // Sauvegarder dans pollStorage
       try {
+        console.log('[WEEKEND_GROUPING] 💾 ConversationProvider - Poll créé:', {
+          pollId: poll.id,
+          type: poll.type,
+          datesCount: poll.dates?.length,
+          hasDateGroups: !!poll.dateGroups,
+          dateGroupsCount: poll.dateGroups?.length,
+          dateGroups: poll.dateGroups,
+        });
+        
         addPoll(poll);
 
         // Lier bidirectionnellement le poll à la conversation (Session 1 - Architecture centrée conversations)
@@ -433,6 +483,11 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
           linkPollToConversationBidirectional(conversationId, poll.id, poll.type || "form");
         }
 
+        console.log('[WEEKEND_GROUPING] 📂 ConversationProvider - Ouverture éditeur avec poll:', {
+          pollId: poll.id,
+          hasDateGroups: !!poll.dateGroups,
+        });
+        
         // Ouvrir l'éditeur dans le panneau de droite
         openEditor(poll);
       } catch (error) {

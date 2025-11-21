@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { logger } from "../lib/logger";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDragToSelect } from "@/hooks/useDragToSelect";
 
 interface CalendarProps {
   visibleMonths: Date[];
   selectedDates: string[];
   onDateToggle: (date: Date) => void;
+  onBatchDateToggle?: (dates: Date[], action: 'add' | 'remove') => void;
   onMonthChange: (direction: "prev" | "next") => void;
   onMonthsChange?: (months: Date[]) => void;
 }
@@ -22,6 +24,7 @@ const Calendar: React.FC<CalendarProps> = ({
   visibleMonths,
   selectedDates,
   onDateToggle,
+  onBatchDateToggle,
   onMonthChange,
   onMonthsChange,
 }) => {
@@ -34,6 +37,72 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const weekDays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
   const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Helper: Formater une date en string YYYY-MM-DD
+  const formatDateStr = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Helper: Obtenir toutes les dates entre deux dates
+  const getDatesInRange = (start: Date, end: Date): Date[] => {
+    const [earlierDate, laterDate] = start <= end ? [start, end] : [end, start];
+    const dates: Date[] = [];
+    const currentDate = new Date(earlierDate);
+
+    while (currentDate <= laterDate) {
+      dates.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return dates;
+  };
+
+  // Drag-to-select avec le hook réutilisable
+  const { isDragging, handleDragStart, handleDragMove, handleDragEnd, isDraggedOver, isLongPressActive } = useDragToSelect<Date>({
+    onDragEnd: (draggedItems, startDate) => {
+      if (!startDate || draggedItems.size === 0) return;
+
+      const startDateStr = formatDateStr(startDate);
+      const wasSelected = selectedDates.includes(startDateStr);
+
+      // Si onBatchDateToggle est disponible, l'utiliser pour un seul appel
+      if (onBatchDateToggle) {
+        const datesToToggle: Date[] = [];
+        draggedItems.forEach((dateStr) => {
+          const isCurrentlySelected = selectedDates.includes(dateStr);
+          if ((wasSelected && isCurrentlySelected) || (!wasSelected && !isCurrentlySelected)) {
+            datesToToggle.push(new Date(dateStr));
+          }
+        });
+        if (datesToToggle.length > 0) {
+          onBatchDateToggle(datesToToggle, wasSelected ? 'remove' : 'add');
+        }
+      } else {
+        // Fallback: appeler onDateToggle pour chaque date (comportement original)
+        draggedItems.forEach((dateStr) => {
+          const date = new Date(dateStr);
+          const isCurrentlySelected = selectedDates.includes(dateStr);
+
+          if (wasSelected && isCurrentlySelected) {
+            onDateToggle(date);
+          } else if (!wasSelected && !isCurrentlySelected) {
+            onDateToggle(date);
+          }
+        });
+      }
+    },
+    getItemKey: formatDateStr,
+    getItemsInRange: getDatesInRange,
+    canDragItem: (date) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return date >= today; // Ne pas drag les dates passées
+    },
+    disableOnMobile: true,
+  });
 
   // Mise en cache des jours du calendrier avec useMemo
   const generateCalendarDays = useMemo(() => {
@@ -71,6 +140,11 @@ const Calendar: React.FC<CalendarProps> = ({
     return result;
   }, []); // Pas de dépendances car c'est une fonction pure
 
+  // Détecter si on est sur mobile
+  const isMobile = () => {
+    return window.innerWidth < 768; // md breakpoint
+  };
+
   const renderCalendarGrid = (month: Date, isMobile: boolean = false) => {
     const days = generateCalendarDays(month);
 
@@ -91,7 +165,7 @@ const Calendar: React.FC<CalendarProps> = ({
         </div>
 
         {/* Grille du calendrier */}
-        <div className="grid grid-cols-7 gap-1 place-items-center">
+        <div className="grid grid-cols-7 gap-1 place-items-center" style={{ touchAction: "none" }}>
           {days.map(({ date, isCurrentMonth, isEmpty }, index) => {
             // Si c'est une case vide, on affiche juste un espace
             if (isEmpty || !date) {
@@ -110,9 +184,11 @@ const Calendar: React.FC<CalendarProps> = ({
             const isToday = date.getTime() === today.getTime();
             const isPastDay = date < today;
 
+            const isDateDraggedOver = isDraggedOver(dateStr);
+
             return (
               <motion.button
-                key={`${dateStr}-${isSelected ? "selected" : "unselected"}`}
+                key={`${dateStr}-${isSelected ? "selected" : "unselected"}-${isDateDraggedOver ? "dragged" : ""}`}
                 initial={{
                   scale: 1,
                   boxShadow: "0 0 0 0 rgba(37, 99, 235, 0)",
@@ -140,13 +216,22 @@ const Calendar: React.FC<CalendarProps> = ({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={(e) => {
-                  e.stopPropagation(); // Empêcher la propagation du clic au parent
+                  e.stopPropagation();
                   if (!isPastDay) {
                     onDateToggle(date);
                   }
                 }}
                 onPointerDown={(e) => {
-                  e.stopPropagation(); // Empêcher le drag du parent
+                  e.stopPropagation();
+                  handleDragStart(date, e);
+                }}
+                onPointerMove={(e) => {
+                  if (isDragging) {
+                    handleDragMove(date, e);
+                  }
+                }}
+                onPointerUp={() => {
+                  handleDragEnd();
                 }}
                 disabled={isPastDay}
                 data-date={dateStr}
@@ -154,11 +239,16 @@ const Calendar: React.FC<CalendarProps> = ({
                   ${
                     isPastDay
                       ? "text-gray-600 bg-[#1e1e1e] cursor-not-allowed"
-                      : isSelected
-                        ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
-                        : isToday
-                          ? "bg-blue-900/30 text-blue-400 border-2 border-blue-700 hover:bg-blue-900/50"
-                          : "text-gray-300 hover:bg-[#2a2a2a]"
+                      : isDateDraggedOver && isDragging
+                        ? "bg-blue-500/50 text-white border-2 border-blue-400"
+                        : isSelected
+                          ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
+                          : isLongPressActive && isDateDraggedOver ? "animate-pulse ring-2 ring-blue-400" : ""
+                  }
+                  ${
+                    isToday
+                      ? "bg-blue-900/30 text-blue-400 border-2 border-blue-700 hover:bg-blue-900/50"
+                      : "text-gray-300 hover:bg-[#2a2a2a]"
                   }`}
                 style={{ touchAction: "none" }}
               >
@@ -204,7 +294,11 @@ const Calendar: React.FC<CalendarProps> = ({
   logger.timeEnd(timerId);
 
   return (
-    <div className="w-full" data-testid="calendar">
+    <div
+      className="w-full"
+      data-testid="calendar"
+      style={{ userSelect: isDragging ? "none" : "auto" }}
+    >
       {/* Mobile: Un seul mois avec navigation */}
       <div className="block md:hidden">
         {visibleMonths.length > 0 && (

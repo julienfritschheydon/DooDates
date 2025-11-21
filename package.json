@@ -43,6 +43,9 @@
     "test:accessibility:headed": "playwright test tests/accessibility.spec.ts --project=chromium --headed",
     "test:load": "k6 run tests/load/quota-tracking-load-test.js",
     "test:load:help": "echo 'Usage: npm run test:load -- --env JWT_TOKEN=\"votre_token\" --env SUPABASE_URL=\"https://xxx.supabase.co\"'",
+    "test:mobile:debug": "playwright test tests/mobile-debug.spec.ts --project=mobile-chrome --headed --timeout=60000",
+    "test:mobile:debug:ios": "playwright test tests/mobile-debug.spec.ts --project=mobile-safari --headed --timeout=60000",
+    "test:mobile:ci": "playwright test tests/mobile-debug.spec.ts --project=mobile-chrome --timeout=60000",
     "quota:view": "pwsh scripts/view-quotas.ps1",
     "quota:view:all": "pwsh scripts/view-quotas.ps1 -All",
     "quota:view:stats": "pwsh scripts/view-quotas.ps1 -Stats",
@@ -183,6 +186,8 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^6.3.5",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "winston": "^3.18.3",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }

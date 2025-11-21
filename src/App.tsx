@@ -41,7 +41,6 @@ const AvailabilityPollCreator = lazy(() => import("./pages/AvailabilityPollCreat
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Prototype pages (UX IA-First)
-const WorkspacePage = lazy(() => import("./app/workspace/page"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const ConsumptionJournal = lazy(() => import("./pages/ConsumptionJournal"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
@@ -425,11 +424,11 @@ const App = () => {
                                 {/* Route / vers LandingPage (Marketing) */}
                                 <Route path="/" element={<LandingPage />} />
 
-                                {/* Workspace IA */}
-                                <Route path="/workspace" element={<WorkspacePage />} />
-                                <Route path="/workspace/date" element={<WorkspacePage />} />
-                                <Route path="/workspace/form" element={<WorkspacePage />} />
-                                <Route path="/workspace/availability" element={<WorkspacePage />} />
+                                {/* Workspace IA - Uses AICreator */}
+                                <Route path="/workspace" element={<AICreator />} />
+                                <Route path="/workspace/date" element={<AICreator />} />
+                                <Route path="/workspace/form" element={<AICreator />} />
+                                <Route path="/workspace/availability" element={<AICreator />} />
 
                                 {/* Dashboard */}
                                 <Route path="/dashboard" element={<Dashboard />} />

@@ -403,17 +403,35 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             });
             break;
 
-          // Ajoute ici d’autres mappings explicites si ton hook envoie d’autres actions:
-          // case "ADD_QUESTION":
-          //   dispatchPollAction({
-          //     type: "ADD_QUESTION",
-          //     payload: action.payload as any,
-          //   });
-          //   break;
+          // 🔧 FIX BUG #4: Gérer les actions de modification de dates
+          case "ADD_DATE":
+          case "REMOVE_DATE":
+          case "UPDATE_TITLE":
+            // Ces actions ont un payload simple (string)
+            dispatchPollAction({
+              type: action.type as "ADD_DATE" | "REMOVE_DATE" | "UPDATE_TITLE",
+              payload: action.payload as unknown as string,
+            });
+            break;
+
+          case "ADD_TIMESLOT":
+            // Payload complexe pour les créneaux horaires
+            dispatchPollAction({
+              type: "ADD_TIMESLOT",
+              payload: action.payload as unknown as { date: string; start: string; end: string },
+            });
+            break;
+
+          // Form Poll actions - À implémenter si nécessaire
+          case "ADD_QUESTION":
+          case "REMOVE_QUESTION":
+          case "UPDATE_QUESTION":
+            logger.info("Form Poll action détectée (non implémentée)", "poll", { action });
+            break;
 
           default:
-            // Pour l’instant on ignore les types non gérés
-            logger.warn?.("IntentDetection: action ignorée", "poll", { action });
+            // Log les actions non gérées pour debug
+            logger.warn?.("IntentDetection: action non gérée", "poll", { action });
             break;
         }
       },
@@ -644,6 +662,19 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         const urlParams = new URLSearchParams(window.location.search);
         const resumeId = urlParams.get("resume") || urlParams.get("conversationId");
         const isResumingConversation = !!resumeId;
+        
+        // 🆕 Si on a ?new= dans l'URL, ne pas reprendre de conversation
+        const hasNewParam = urlParams.has("new");
+        if (hasNewParam) {
+          // IMPORTANT: Vider les messages AVANT d'initialiser pour contourner le guard dans initializeNewConversation
+          if (isMounted) {
+            setMessagesAdapter(() => []);
+            if (!isInitializing) {
+              await initializeNewConversation();
+            }
+          }
+          return;
+        }
 
         try {
           const result = await ConversationService.resumeFromUrl(autoSave);

@@ -157,35 +157,28 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
               {/* Phase 0: Trois boutons distincts pour les trois types de création */}
               <button
                 onClick={() => {
-                  navigate("/workspace/date");
+                  const url = `/workspace/date?new=${Date.now()}`;
+                  console.log('🔵 [CreatePageLayout] Bouton "Créer un nouveau sondage" cliqué - Navigation vers:', url);
+                  navigate(url);
                   if (isMobile) setIsSidebarOpen(false);
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg transition-colors font-medium"
               >
                 <LazyIconWrapper Icon={Calendar} className="w-5 h-5" />
-                <span>Créer un sondage</span>
+                <span>Créer un nouveau sondage</span>
               </button>
 
               <button
                 onClick={() => {
-                  navigate("/workspace/form");
+                  const url = `/workspace/form?new=${Date.now()}`;
+                  console.log('🟣 [CreatePageLayout] Bouton "Créer un nouveau formulaire" cliqué - Navigation vers:', url);
+                  navigate(url);
                   if (isMobile) setIsSidebarOpen(false);
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 rounded-lg transition-colors font-medium"
               >
                 <LazyIconWrapper Icon={ClipboardList} className="w-5 h-5" />
-                <span>Créer un formulaire</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  navigate("/workspace/availability");
-                  if (isMobile) setIsSidebarOpen(false);
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-lg transition-colors font-medium"
-              >
-                <LazyIconWrapper Icon={Clock} className="w-5 h-5" />
-                <span>Créer une disponibilité</span>
+                <span>Créer un nouveau formulaire</span>
               </button>
 
               <button
