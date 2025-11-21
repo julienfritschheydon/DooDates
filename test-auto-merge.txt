@@ -1,0 +1,6 @@
+Test auto-merge develop → main
+Date: 2025-11-21 15:02 UTC+01:00
+
+Ce fichier teste que l'auto-merge fonctionne correctement après l'ajout des règles merge=union dans .gitattributes.
+
+Les fichiers de monitoring ne devraient plus causer de conflits.

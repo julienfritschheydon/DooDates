@@ -15,8 +15,8 @@ export default function DateQuestionVote({
   onChange,
   required = false,
 }: DateQuestionVoteProps) {
-  const selectedDates = question.selectedDates || [];
-  const timeSlotsByDate = question.timeSlotsByDate || {};
+  const selectedDates = useMemo(() => question.selectedDates || [], [question.selectedDates]);
+  const timeSlotsByDate = useMemo(() => question.timeSlotsByDate || {}, [question.timeSlotsByDate]);
   const allowMaybeVotes = question.allowMaybeVotes ?? false;
 
   // Convertir les données de la question en format PollOption pour VoteGrid
