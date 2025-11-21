@@ -18,6 +18,7 @@ const dateReviver = (key: string, value: any) => {
   }
   return value;
 };
+
 const readConversations = (): StoredConversationData => {
   if (typeof window === 'undefined') return { conversations: [], messages: [] };
 
@@ -37,6 +38,7 @@ const readConversations = (): StoredConversationData => {
     return { conversations: [], messages: [] };
   }
 };
+
 const writeConversations = (data: StoredConversationData): void => {
   if (typeof window === 'undefined') return;
 
