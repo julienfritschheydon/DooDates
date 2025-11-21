@@ -40,3 +40,4 @@
 
 # Gestion des fichiers de monitoring pour les fusions automatiques
 Docs/monitoring/workflow-*.md merge=union
+Docs/monitoring/workflow-*.json merge=union
