@@ -230,7 +230,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     } finally {
       setIsAnalyzingCalendar(false);
     }
-  }, [state.selectedDates, timeSlotsByDate, state.timeGranularity, toast]);
+  }, [state.selectedDates, timeSlotsByDate, state.timeGranularity, toast, state.showTimeSlots, user?.email]);
 
   // Détection automatique avec debounce
   useEffect(() => {
