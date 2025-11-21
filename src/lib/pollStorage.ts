@@ -184,6 +184,12 @@ export interface Poll {
   updated_at: string;
   creatorEmail?: string; // Email du créateur pour les notifications
   dates?: string[]; // Dates sélectionnées pour le sondage (uniquement pour type: "date")
+  // 🔧 Groupes de dates (week-ends, semaines, quinzaines)
+  dateGroups?: Array<{
+    dates: string[];
+    label: string;
+    type: "weekend" | "week" | "fortnight" | "custom";
+  }>;
   // Unification des types de sondages
   type?: "date" | "form" | "availability";
   // Champs spécifiques aux sondages disponibilités

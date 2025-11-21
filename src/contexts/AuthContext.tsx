@@ -56,15 +56,20 @@ export function useAuth() {
     throw new Error("useAuth must be used within an AuthProvider");
   }
 
-  // Log détaillé pour comprendre pourquoi user n'est pas disponible
-  logger.debug("🔍 AuthContext - useAuth() appelé", "auth", {
-    hasUser: !!context.user,
-    userId: context.user?.id || null,
-    userEmail: context.user?.email || null,
-    hasSession: !!context.session,
-    sessionUserId: context.session?.user?.id || null,
-    loading: context.loading,
-  });
+  // Logger uniquement les changements importants (pas à chaque rendu)
+  React.useEffect(() => {
+    // Log uniquement quand l'état de connexion change
+    if (context.user) {
+      logger.debug("✅ Utilisateur connecté", "auth", {
+        userId: context.user.id,
+        userEmail: context.user.email,
+      });
+    } else if (!context.loading) {
+      logger.debug("❌ Aucun utilisateur connecté", "auth", {
+        hasSession: !!context.session,
+      });
+    }
+  }, [context.user?.id, context.loading]); // Seulement si l'ID change ou loading termine
 
   return context;
 }

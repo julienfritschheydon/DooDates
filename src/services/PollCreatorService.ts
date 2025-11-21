@@ -13,6 +13,12 @@ export interface TimeSlot {
   duration?: number; // Durée en minutes
 }
 
+export interface DateGroup {
+  dates: string[];
+  label: string;
+  type: 'weekend' | 'range' | 'custom';
+}
+
 export interface PollCreationState {
   selectedDates: string[];
   currentMonth: Date;
@@ -35,6 +41,7 @@ export interface PollCreationState {
   expirationDays: number;
   showExpirationSettings: boolean;
   showSettingsPanel: boolean;
+  dateGroups?: DateGroup[];
 }
 
 export class PollCreatorService {
@@ -427,6 +434,11 @@ export class PollCreatorService {
     dates?: string[];
     participants?: string[];
     timeSlots?: unknown;
+    dateGroups?: Array<{
+      dates: string[];
+      label: string;
+      type: 'weekend' | 'range' | 'custom';
+    }>;
   }): PollCreationState {
     const baseState: PollCreationState = {
       selectedDates: [],
@@ -459,6 +471,7 @@ export class PollCreatorService {
         selectedDates: initialData.dates || [],
         participantEmails: initialData.participants?.join(", ") || "",
         showTimeSlots: !!initialData.timeSlots,
+        dateGroups: initialData.dateGroups,
       };
     }
 

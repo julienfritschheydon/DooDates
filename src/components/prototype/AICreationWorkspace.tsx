@@ -45,6 +45,7 @@ import { useUIState } from "./UIStateProvider";
 import GeminiChatInterface, { type GeminiChatHandle } from "../GeminiChatInterface";
 import { PollPreview } from "./PollPreview";
 import PollCreatorComponent from "../PollCreator";
+import { MobileNavigationTabs } from "./MobileNavigationTabs";
 import FormPollCreator, {
   type FormPollDraft,
   type AnyFormQuestion,
@@ -115,8 +116,8 @@ export function AICreationWorkspace({
 } = {}) {
   const navigate = useNavigate();
   const location = useLocation();
-  // Sur mobile : true = afficher preview, false = afficher chat
-  const [showPreviewOnMobile, setShowPreviewOnMobile] = useState(false);
+  // Sur mobile : "chat" ou "editor" pour gérer les onglets
+  const [mobileActiveTab, setMobileActiveTab] = useState<"chat" | "editor">("chat");
   const [previewInputValue, setPreviewInputValue] = useState("");
   const chatRef = useRef<GeminiChatHandle>(null);
   const previewTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -196,9 +197,9 @@ export function AICreationWorkspace({
   });
 
   // Synchroniser la transcription vocale avec l'input de preview
-  // Seulement quand la preview est visible sur mobile
+  // Seulement quand l'éditeur est visible sur mobile
   useEffect(() => {
-    if (sharedVoiceRecognition.isListening && isMobile && showPreviewOnMobile) {
+    if (sharedVoiceRecognition.isListening && isMobile && mobileActiveTab === "editor") {
       const fullText =
         sharedVoiceRecognition.finalTranscript +
         (sharedVoiceRecognition.interimTranscript
@@ -211,33 +212,46 @@ export function AICreationWorkspace({
     sharedVoiceRecognition.finalTranscript,
     sharedVoiceRecognition.interimTranscript,
     isMobile,
-    showPreviewOnMobile,
+    mobileActiveTab,
   ]);
 
-  // Basculer automatiquement sur preview mobile quand l'éditeur s'ouvre/ferme
+  // Basculer automatiquement sur l'onglet éditeur mobile quand un poll est créé
   useEffect(() => {
     if (isMobile) {
       if (isEditorOpen && currentPoll) {
-        setShowPreviewOnMobile(true);
-        // Forcer le scroll en haut quand la preview s'ouvre pour éviter le focus automatique vers le bas
+        setMobileActiveTab("editor");
+        // Forcer le scroll en haut quand l'éditeur s'ouvre pour éviter le focus automatique vers le bas
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: "instant" });
         }, 0);
-      } else {
-        setShowPreviewOnMobile(false);
       }
+      // Ne pas basculer automatiquement sur "chat" quand l'éditeur se ferme
+      // L'utilisateur peut vouloir rester sur l'onglet éditeur
     }
   }, [isMobile, isEditorOpen, currentPoll]);
 
   // Détecter le paramètre 'new' pour réinitialiser la conversation
   useEffect(() => {
     if (newChatTimestamp) {
+      console.log('🔄 [AICreationWorkspace] Nouvelle conversation détectée - Nettoyage du paramètre ?new=');
       // Réinitialiser la conversation
       clearConversation();
-      // Nettoyer le paramètre de l'URL
-      navigate("/", { replace: true });
+      
+      // Nettoyer le paramètre ?new= de l'URL SANS changer de page
+      const currentPath = window.location.pathname;
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.delete('new');
+      const newUrl = searchParams.toString() ? `${currentPath}?${searchParams.toString()}` : currentPath;
+      console.log('🔄 [AICreationWorkspace] Navigation vers:', newUrl);
+      navigate(newUrl, { replace: true });
+      
+      // 🔧 FIX: Ouvrir l'éditeur APRÈS la navigation pour éviter que l'état soit perdu
+      setTimeout(() => {
+        console.log('🔓 [AICreationWorkspace] Ouverture éditeur après navigation');
+        openEditor();
+      }, 100);
     }
-  }, [newChatTimestamp, clearConversation, navigate]);
+  }, [newChatTimestamp, clearConversation, openEditor, navigate]);
 
   // Fonction pour charger les données
   const loadData = useCallback(() => {
@@ -322,20 +336,20 @@ export function AICreationWorkspace({
   // Écran de succès après publication
   if (publishedPoll) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] pb-8">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <div className="pt-20">
-          <div className="max-w-2xl mx-auto p-4 sm:p-6">
-            <div className="bg-[#3c4043] rounded-lg border border-gray-700 p-8 text-center space-y-6">
-              {/* Icône de succès */}
-              <div className="flex justify-center">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
-                  <LazyIconWrapper Icon={Check} className="w-10 h-10 text-green-500" />
+            <div className="max-w-2xl mx-auto p-4 sm:p-6">
+              <div className="bg-[#3c4043] rounded-lg border border-gray-700 p-8 text-center space-y-6">
+                {/* Icône de succès */}
+                <div className="flex justify-center">
+                  <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
+                    <LazyIconWrapper Icon={Check} className="w-10 h-10 text-green-500" />
+                  </div>
                 </div>
-              </div>
 
-              {/* Message de succès */}
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">
+                {/* Message de succès */}
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-2">
                   {publishedPoll.type === "form" ? "Formulaire publié !" : "Sondage publié !"}
                 </h1>
                 <p className="text-gray-300">
@@ -414,6 +428,18 @@ export function AICreationWorkspace({
 
   return (
     <>
+      {/* Style global pour ajuster le ChatInput au-dessus de la barre de navigation mobile */}
+      {isMobile && (
+        <style>{`
+          @media (max-width: 768px) {
+            /* Ajuster le ChatInput pour qu'il soit au-dessus de la barre de navigation (48px) */
+            [class*="p-4"][class*="fixed"][class*="bottom-0"][class*="z-40"] {
+              bottom: 48px !important;
+            }
+          }
+        `}</style>
+      )}
+      
       <div
         className={`flex flex-col h-screen bg-[#1e1e1e] ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}
       >
@@ -486,7 +512,9 @@ export function AICreationWorkspace({
                 {/* Phase 0: Trois boutons distincts pour les trois types de création */}
                 <button
                   onClick={() => {
-                    navigate("/workspace/date");
+                    const url = `/workspace/date?new=${Date.now()}`;
+                    console.log('🔵 [AICreationWorkspace] Bouton "Créer un sondage" cliqué - Navigation vers:', url);
+                    navigate(url);
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg transition-colors font-medium"
@@ -497,36 +525,15 @@ export function AICreationWorkspace({
 
                 <button
                   onClick={() => {
-                    navigate("/workspace/form");
+                    const url = `/workspace/form?new=${Date.now()}`;
+                    console.log('🟣 [AICreationWorkspace] Bouton "Créer un formulaire" cliqué - Navigation vers:', url);
+                    navigate(url);
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 rounded-lg transition-colors font-medium"
                 >
                   <LazyIconWrapper Icon={ClipboardList} className="w-5 h-5" />
                   <span>Créer un formulaire</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    navigate("/workspace/availability");
-                    if (isMobile) setIsSidebarOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-lg transition-colors font-medium"
-                >
-                  <LazyIconWrapper Icon={Clock} className="w-5 h-5" />
-                  <span>Créer une disponibilité</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    // Nouveau chat avec IA
-                    navigate(`/workspace?new=${Date.now()}`);
-                    if (isMobile) setIsSidebarOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
-                >
-                  <LazyIconWrapper Icon={Sparkles} className="w-5 h-5" />
-                  <span>Nouveau chat IA</span>
                 </button>
 
                 <button
@@ -803,46 +810,18 @@ export function AICreationWorkspace({
               - flex-1 min-h-0: Prend toute la hauteur disponible dans le flex parent
               - pb-32: Espace pour l'input fixe en bas
             */}
-              {/* Bouton pour créer manuellement sur mobile */}
-              {isMobile && !showManualEditorOnMobile && !showPreviewOnMobile && (
-                <div className="px-4 pt-4 pb-2">
-                  <button
-                    data-testid="manual-editor-trigger"
-                    onClick={() => {
-                      setShowManualEditorOnMobile(true);
-                      // Pour les formulaires, l'éditeur s'affichera automatiquement car currentPoll sera null
-                      // Pour les sondages de dates, créer un poll vide pour démarrer l'éditeur
-                      if (pollTypeFromUrl !== "form") {
-                        const emptyPoll: Partial<Poll> = {
-                          id: `poll-${Date.now()}`,
-                          type: pollTypeFromUrl || "date",
-                          title: "",
-                          dates: [],
-                          settings: {},
-                        };
-                        createPollFromChat(emptyPoll);
-                        openEditor();
-                      }
-                    }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white rounded-lg transition-colors font-medium border border-gray-600"
-                  >
-                    <LazyIconWrapper Icon={Plus} className="w-5 h-5" />
-                    <span>Créer manuellement</span>
-                  </button>
-                </div>
-              )}
 
               <div
-                className={`flex-1 min-h-0 w-full pb-32 ${isMobile && (showPreviewOnMobile || showManualEditorOnMobile) && isEditorOpen && currentPoll ? "hidden" : ""} ${isMobile && showManualEditorOnMobile ? "hidden" : ""}`}
+                className={`flex-1 min-h-0 w-full ${isMobile && mobileActiveTab === "editor" ? "hidden" : ""} ${isMobile && showManualEditorOnMobile ? "hidden" : ""}`}
               >
                 <GeminiChatInterface
                   ref={chatRef}
                   key={chatKey}
                   onPollCreated={(pollData) => {
                     createPollFromChat(pollData as Partial<Poll>);
-                    // Basculer sur preview après création
+                    // Basculer sur l'onglet éditeur après création
                     if (isMobile) {
-                      setShowPreviewOnMobile(true);
+                      setMobileActiveTab("editor");
                       setShowManualEditorOnMobile(false);
                     }
                   }}
@@ -856,57 +835,130 @@ export function AICreationWorkspace({
                 />
               </div>
 
-              {/* Preview overlay sur mobile */}
-              {isMobile && showPreviewOnMobile && isEditorOpen && currentPoll && (
-                <div className="absolute inset-0 bg-[#0a0a0a] z-10 overflow-y-auto pt-14">
+              {/* Éditeur sur mobile - affiché quand l'onglet "editor" est actif */}
+              {isMobile && mobileActiveTab === "editor" && (
+                <div className="absolute inset-0 bg-[#0a0a0a] z-10 overflow-y-auto pt-14 pb-16">
                   <div className="relative">
-                    <button
-                      onClick={() => {
-                        closeEditor();
-                        setShowPreviewOnMobile(false);
-                      }}
-                      className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
-                      aria-label="Fermer l'éditeur"
-                      title="Fermer"
-                    >
-                      <LazyIconWrapper Icon={X} className="w-5 h-5" />
-                    </button>
-                    <PollPreview poll={currentPoll} />
-
-                    {/* Barre d'input fixe en bas pour envoyer des messages depuis la Preview */}
-                    <ChatInput
-                      value={previewInputValue}
-                      onChange={setPreviewInputValue}
-                      onSend={() => {
-                        if (previewInputValue.trim() && chatRef.current) {
-                          chatRef.current.submitMessage(previewInputValue);
-                          setPreviewInputValue("");
-                        }
-                      }}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          if (previewInputValue.trim() && chatRef.current) {
-                            chatRef.current.submitMessage(previewInputValue);
-                            setPreviewInputValue("");
-                          }
-                        }
-                      }}
-                      isLoading={false}
-                      darkTheme={true}
-                      voiceRecognition={sharedVoiceRecognition}
-                      textareaRef={previewTextareaRef}
-                      pollType={pollTypeForComponents}
-                    />
+                    {/* Bouton fermer visible seulement si un poll existe */}
+                    {currentPoll && (
+                      <button
+                        onClick={() => {
+                          closeEditor();
+                          setMobileActiveTab("chat");
+                        }}
+                        className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                        aria-label="Fermer l'éditeur"
+                        title="Fermer"
+                      >
+                        <LazyIconWrapper Icon={X} className="w-5 h-5" />
+                      </button>
+                    )}
+                    
+                    {currentPoll ? (
+                      <>
+                        <PollPreview poll={currentPoll} />
+                        {/* Barre d'input fixe en bas pour envoyer des messages depuis l'éditeur */}
+                        <ChatInput
+                          value={previewInputValue}
+                          onChange={setPreviewInputValue}
+                          onSend={() => {
+                            if (previewInputValue.trim() && chatRef.current) {
+                              chatRef.current.submitMessage(previewInputValue);
+                              setPreviewInputValue("");
+                            }
+                          }}
+                          onKeyPress={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              if (previewInputValue.trim() && chatRef.current) {
+                                chatRef.current.submitMessage(previewInputValue);
+                                setPreviewInputValue("");
+                              }
+                            }
+                          }}
+                          isLoading={false}
+                          darkTheme={true}
+                          voiceRecognition={sharedVoiceRecognition}
+                          textareaRef={previewTextareaRef}
+                          pollType={pollTypeForComponents}
+                        />
+                      </>
+                    ) : (
+                      // Afficher le créateur vide si pas de poll
+                      <>
+                        {pollTypeFromUrl === "form" ? (
+                          <FormPollCreator
+                            initialDraft={undefined}
+                            onCancel={() => {
+                              setShowManualEditorOnMobile(false);
+                              setMobileActiveTab("chat");
+                            }}
+                            onSave={() => {}}
+                            onFinalize={(draft, savedPoll) => {
+                              if (savedPoll) {
+                                setPublishedPoll(savedPoll);
+                              }
+                              setShowManualEditorOnMobile(false);
+                            }}
+                          />
+                        ) : (
+                          <PollCreatorComponent
+                            onBack={(createdPoll) => {
+                              if (createdPoll) {
+                                setPublishedPoll(createdPoll);
+                              }
+                              setShowManualEditorOnMobile(false);
+                              setMobileActiveTab("chat");
+                            }}
+                            initialData={undefined}
+                          />
+                        )}
+                        {/* Barre d'input fixe en bas pour envoyer des messages depuis l'éditeur vide */}
+                        <ChatInput
+                          value={previewInputValue}
+                          onChange={setPreviewInputValue}
+                          onSend={() => {
+                            if (previewInputValue.trim() && chatRef.current) {
+                              chatRef.current.submitMessage(previewInputValue);
+                              setPreviewInputValue("");
+                            }
+                          }}
+                          onKeyPress={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              if (previewInputValue.trim() && chatRef.current) {
+                                chatRef.current.submitMessage(previewInputValue);
+                                setPreviewInputValue("");
+                              }
+                            }
+                          }}
+                          isLoading={false}
+                          darkTheme={true}
+                          voiceRecognition={sharedVoiceRecognition}
+                          textareaRef={previewTextareaRef}
+                          pollType={pollTypeForComponents}
+                        />
+                      </>
+                    )}
                   </div>
                 </div>
+              )}
+              
+              {/* Barre de navigation mobile avec onglets */}
+              {isMobile && (
+                <MobileNavigationTabs
+                  activeTab={mobileActiveTab}
+                  onTabChange={setMobileActiveTab}
+                  pollType={pollTypeFromUrl}
+                  hasPoll={!!currentPoll}
+                />
               )}
             </div>
           </div>
 
-          {/* Créateur de sondage/formulaire - Sidebar droite sur desktop, toujours visible */}
+          {/* Créateur de sondage/formulaire - Sidebar droite sur desktop, visible si éditeur ouvert */}
           {/* Sur mobile, afficher l'éditeur manuel quand showManualEditorOnMobile est true */}
-          {(!isMobile || (isMobile && showManualEditorOnMobile)) && (
+          {((!isMobile && isEditorOpen) || (isMobile && showManualEditorOnMobile)) && (
             <div
               className={`${isMobile ? "w-full absolute inset-0 z-20" : "w-1/2"} bg-[#0a0a0a] flex flex-col`}
             >
@@ -925,18 +977,50 @@ export function AICreationWorkspace({
                 </button>
               )}
               <div className="flex-1 overflow-y-auto relative pt-4">
-                {currentPoll ? (
-                  <>
-                    <button
-                      onClick={closeEditor}
-                      className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
-                      aria-label="Fermer l'éditeur"
-                      title="Fermer"
-                    >
-                      <LazyIconWrapper Icon={X} className="w-5 h-5" />
-                    </button>
-                    <PollPreview poll={currentPoll} />
-                  </>
+                {isEditorOpen && currentPoll ? (
+                  currentPoll.type === "date" ? (
+                    // Pour les sondages de dates, utiliser PollCreator avec les données du poll
+                    (() => {
+                      const initialData = {
+                        title: currentPoll.title,
+                        description: currentPoll.description,
+                        dates: currentPoll.dates || [],
+                        dateGroups: currentPoll.dateGroups,
+                        type: "date" as const,
+                      };
+                      console.log('[WEEKEND_GROUPING] 🎯 AICreationWorkspace - Passage à PollCreator:', {
+                        hasDates: !!initialData.dates?.length,
+                        datesCount: initialData.dates?.length,
+                        hasDateGroups: !!initialData.dateGroups,
+                        dateGroupsCount: initialData.dateGroups?.length,
+                        dateGroups: initialData.dateGroups,
+                      });
+                      return (
+                        <PollCreatorComponent
+                          onBack={(createdPoll) => {
+                            if (createdPoll) {
+                              setPublishedPoll(createdPoll);
+                            }
+                            closeEditor();
+                          }}
+                          initialData={initialData}
+                        />
+                      );
+                    })()
+                  ) : (
+                    // Pour les autres types, afficher la preview
+                    <>
+                      <button
+                        onClick={closeEditor}
+                        className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                        aria-label="Fermer l'éditeur"
+                        title="Fermer"
+                      >
+                        <LazyIconWrapper Icon={X} className="w-5 h-5" />
+                      </button>
+                      <PollPreview poll={currentPoll} />
+                    </>
+                  )
                 ) : // Afficher le créateur vide par défaut selon le type
                 pollTypeFromUrl === "form" ? (
                   <FormPollCreator

@@ -188,7 +188,7 @@ describe("useAutoSave", () => {
       });
 
       expect(mockCreateConversation).toHaveBeenCalledWith({
-        title: "Test message content",
+        title: "Nouvelle conversation", // Titre temporaire qui sera régénéré
         firstMessage: "Test message content",
         userId: "guest", // Guest user dans les tests
       });
@@ -225,8 +225,16 @@ describe("useAutoSave", () => {
       const { result } = renderHook(() => useAutoSave());
       const messageWithPoll = createMockMessage({
         pollSuggestion: {
-          type: "date-poll",
-          options: ["Option 1", "Option 2"],
+          type: "date",
+          title: "Test Poll",
+          dates: ["2025-12-25", "2025-12-26"],
+          timeSlots: [
+            {
+              start: "10:00",
+              end: "12:00",
+              dates: ["2025-12-25", "2025-12-26"]
+            }
+          ]
         },
       });
       const createdConversation = createMockConversation({ id: "conv-1" });
@@ -249,7 +257,15 @@ describe("useAutoSave", () => {
           expect.objectContaining({
             metadata: expect.objectContaining({
               pollGenerated: true,
-              type: "date-poll",
+              type: "date",
+              title: "Test Poll",
+              dates: expect.arrayContaining(["2025-12-25", "2025-12-26"]),
+              timeSlots: expect.arrayContaining([
+                expect.objectContaining({
+                  start: "10:00",
+                  end: "12:00",
+                })
+              ]),
             }),
           }),
         ]),
@@ -396,7 +412,7 @@ describe("useAutoSave", () => {
       });
 
       expect(mockCreateConversation).toHaveBeenCalledWith({
-        title: "A".repeat(50) + "...", // Should be truncated
+        title: "Nouvelle conversation", // Titre temporaire qui sera régénéré
         firstMessage: longMessage.content,
         userId: "guest", // Guest user dans les tests
       });

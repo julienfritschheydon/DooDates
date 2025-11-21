@@ -5,6 +5,7 @@ import type { Question } from "./QuestionCard";
 import { formatDateLocal } from "../../lib/date-utils";
 import { PollCreatorService } from "../../services/PollCreatorService";
 import type { TimeSlot } from "../../services/PollCreatorService";
+import { useDragToSelect } from "../../hooks/useDragToSelect";
 
 interface DateQuestionEditorProps {
   question: Question;
@@ -71,6 +72,39 @@ export default function DateQuestionEditor({
     [selectedDates, timeSlotsByDate, onChange],
   );
 
+  const handleBatchDateToggle = useCallback(
+    (dates: Date[], action: 'add' | 'remove') => {
+      const currentDates = [...selectedDates];
+      const currentTimeSlots = { ...timeSlotsByDate };
+
+      if (action === 'add') {
+        // Ajouter toutes les dates qui ne sont pas déjà sélectionnées
+        dates.forEach((date) => {
+          const dateString = formatDateLocal(date);
+          if (!currentDates.includes(dateString)) {
+            currentDates.push(dateString);
+          }
+        });
+        onChange({ selectedDates: currentDates });
+      } else {
+        // Retirer toutes les dates
+        dates.forEach((date) => {
+          const dateString = formatDateLocal(date);
+          const index = currentDates.indexOf(dateString);
+          if (index >= 0) {
+            currentDates.splice(index, 1);
+            delete currentTimeSlots[dateString];
+          }
+        });
+        onChange({
+          selectedDates: currentDates,
+          timeSlotsByDate: currentTimeSlots,
+        });
+      }
+    },
+    [selectedDates, timeSlotsByDate, onChange],
+  );
+
   const handleMonthChange = useCallback((direction: "prev" | "next") => {
     setVisibleMonths((prev) => {
       if (direction === "prev") {
@@ -123,8 +157,96 @@ export default function DateQuestionEditor({
     [timeSlotsByDate, granularityMinutes],
   );
 
+  // Types pour le drag des horaires
+  type TimeSlotWithDate = { date: string; hour: number; minute: number };
+
+  // Helpers pour le drag
+  const formatSlotKey = useCallback(
+    (slot: TimeSlotWithDate) => `${slot.date}-${slot.hour}-${slot.minute}`,
+    [],
+  );
+
+  const getSlotsInRange = useMemo(
+    () => (start: TimeSlotWithDate, end: TimeSlotWithDate): TimeSlotWithDate[] => {
+      // Si les dates sont différentes, retourner seulement le slot de départ
+      if (start.date !== end.date) {
+        return [start];
+      }
+
+      const startMinutes = start.hour * 60 + start.minute;
+      const endMinutes = end.hour * 60 + end.minute;
+      const [minMinutes, maxMinutes] =
+        startMinutes <= endMinutes ? [startMinutes, endMinutes] : [endMinutes, startMinutes];
+
+      const slots: TimeSlotWithDate[] = [];
+      for (let minutes = minMinutes; minutes <= maxMinutes; minutes += granularityMinutes) {
+        slots.push({
+          date: start.date,
+          hour: Math.floor(minutes / 60),
+          minute: minutes % 60,
+        });
+      }
+      return slots;
+    },
+    [granularityMinutes],
+  );
+
+  // Hook drag-to-extend pour les horaires
+  const { isDragging, handleDragStart, handleDragMove, handleDragEnd, isDraggedOver, isLongPressActive } =
+    useDragToSelect<TimeSlotWithDate>({
+      onDragEnd: (draggedItems, startSlot) => {
+        if (!startSlot || draggedItems.size === 0) return;
+
+        const startKey = formatSlotKey(startSlot);
+        const startSlotData = timeSlotsByDate[startSlot.date]?.find(
+          (s) => s.hour === startSlot.hour && s.minute === startSlot.minute,
+        );
+        const wasEnabled = startSlotData?.enabled ?? false;
+
+        // Collecter tous les slots à toggler
+        const slotsToToggle: Array<{ dateStr: string; hour: number; minute: number }> = [];
+        
+        draggedItems.forEach((slotKey) => {
+          const parts = slotKey.split("-");
+          const dateStr = parts.slice(0, 3).join("-");
+          const hour = parseInt(parts[3]);
+          const minute = parseInt(parts[4]);
+
+          const currentSlot = timeSlotsByDate[dateStr]?.find(
+            (s) => s.hour === hour && s.minute === minute,
+          );
+          const isCurrentlyEnabled = currentSlot?.enabled ?? false;
+
+          // Si le slot de départ était enabled et celui-ci aussi, on toggle (disable)
+          // Si le slot de départ était disabled et celui-ci aussi, on toggle (enable)
+          if ((wasEnabled && isCurrentlyEnabled) || (!wasEnabled && !isCurrentlyEnabled)) {
+            slotsToToggle.push({ dateStr, hour, minute });
+          }
+        });
+
+        // Appliquer tous les toggles en un seul appel
+        if (slotsToToggle.length > 0) {
+          let newTimeSlotsByDate = { ...timeSlotsByDate };
+          slotsToToggle.forEach(({ dateStr, hour, minute }) => {
+            newTimeSlotsByDate = PollCreatorService.handleTimeSlotToggle(
+              dateStr,
+              hour,
+              minute,
+              newTimeSlotsByDate,
+              granularityMinutes,
+              false,
+            );
+          });
+          onChange({ timeSlotsByDate: newTimeSlotsByDate });
+        }
+      },
+      getItemKey: formatSlotKey,
+      getItemsInRange: getSlotsInRange,
+      disableOnMobile: true,
+    });
+
   return (
-    <div className="rounded-lg border border-gray-700 bg-[#1a1a1a] p-4 space-y-4">
+    <div className="rounded-lg border border-gray-700 bg-[#1a1a1a] p-4 space-y-4" style={{ userSelect: isDragging ? "none" : "auto" }}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -149,6 +271,7 @@ export default function DateQuestionEditor({
           visibleMonths={visibleMonths}
           selectedDates={selectedDates}
           onDateToggle={handleDateToggle}
+          onBatchDateToggle={handleBatchDateToggle}
           onMonthChange={handleMonthChange}
           onMonthsChange={setVisibleMonths}
         />
@@ -158,7 +281,15 @@ export default function DateQuestionEditor({
       {selectedDates.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-300">Configurer les horaires</label>
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-300">Configurer les horaires</label>
+              {isLongPressActive && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500/20 border border-blue-400 rounded-md text-xs text-blue-400 animate-pulse">
+                  <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  Mode sélection actif
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <label className="text-xs text-gray-400">Granularité:</label>
               <select
@@ -200,7 +331,7 @@ export default function DateQuestionEditor({
             </div>
 
             {/* Créneaux horaires */}
-            <div className="max-h-96 overflow-y-auto">
+            <div className="max-h-96 overflow-y-auto" style={{ touchAction: "pan-y" }}>
               {getVisibleTimeSlots().map((timeSlot) => {
                 return (
                   <div key={`${timeSlot.hour}-${timeSlot.minute}`} className="flex">
@@ -233,18 +364,31 @@ export default function DateQuestionEditor({
                             timeSlot.hour * 60 + timeSlot.minute + granularityMinutes >=
                               currentBlock.end.hour * 60 + currentBlock.end.minute));
                       const isBlockMiddle = currentBlock && !isBlockStart && !isBlockEnd;
+                      const slotKey = formatSlotKey({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
+                      const isSlotDraggedOver = isDraggedOver(slotKey);
 
                       return (
                         <button
-                          key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
+                          key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}-${isSlotDraggedOver ? "dragged" : ""}-${slot?.enabled ? "enabled" : ""}`}
                           type="button"
                           onClick={() =>
                             handleTimeSlotToggle(dateStr, timeSlot.hour, timeSlot.minute)
                           }
-                          className={`flex-1 relative transition-colors hover:bg-[#2a2a2a] border-r border-gray-700
-                            ${slot?.enabled ? "bg-blue-900/30" : "bg-[#1e1e1e]"}
+                          onPointerDown={(e) =>
+                            handleDragStart({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e)
+                          }
+                          onPointerMove={(e) => {
+                            if (isDragging) {
+                              handleDragMove({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e);
+                            }
+                          }}
+                          onPointerUp={handleDragEnd}
+                          className={`flex-1 relative transition-all hover:bg-[#2a2a2a] border-r border-gray-700
+                            ${isSlotDraggedOver ? "bg-blue-500/50 border-2 border-blue-400" : slot?.enabled ? "bg-blue-900/30" : "bg-[#1e1e1e]"}
                             ${granularityMinutes >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
+                            ${isLongPressActive && isSlotDraggedOver ? "animate-pulse ring-2 ring-blue-400" : ""}
                           `}
+                          style={{ touchAction: "none" }}
                         >
                           {slot?.enabled && (
                             <div
