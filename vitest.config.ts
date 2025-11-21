@@ -2,6 +2,7 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
+import os from 'os';
 import { config as loadEnv } from 'dotenv';
 
 // Charger .env.local pour les tests qui ont besoin de vraies variables d'environnement
@@ -27,7 +28,7 @@ export default defineConfig({
       threads: {
         singleThread: false,
         // Utiliser les CPUs disponibles (max 4, min 1)
-        maxThreads: Math.min(4, require('os').cpus().length),
+        maxThreads: Math.min(4, os.cpus().length),
         minThreads: 1,
       },
     },
