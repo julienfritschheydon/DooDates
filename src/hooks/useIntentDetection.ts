@@ -205,22 +205,27 @@ export function useIntentDetection(options: UseIntentDetectionOptions) {
           const isAlreadyInPoll = previousDates.includes(intent.payload);
           const isNotInPoll = !previousDates.includes(intent.payload);
 
-          // Dispatcher l'action
-          onDispatchActionRef.current({
-            type: intent.action as string,
-            payload: intent.payload,
-          });
-
-          // Générer le feedback pour cette action
+          // 🔧 FIX BUG #3: Vérifier les doublons AVANT de dispatcher
           const icon = dateActionIcons[intent.action] || "✅";
           let feedback = `${icon} ${intent.explanation}`;
+          let shouldDispatch = true;
 
           if (intent.action === "ADD_DATE" && isAlreadyInPoll) {
             feedback = `ℹ️ La date ${String(intent.payload).split("-").reverse().join("/")} est déjà dans le sondage`;
+            shouldDispatch = false; // Ne pas ajouter un doublon
           }
 
           if (intent.action === "REMOVE_DATE" && isNotInPoll) {
             feedback = `ℹ️ La date ${String(intent.payload).split("-").reverse().join("/")} n'est pas dans le sondage`;
+            shouldDispatch = false; // Ne pas supprimer une date absente
+          }
+
+          // Dispatcher l'action seulement si nécessaire
+          if (shouldDispatch) {
+            onDispatchActionRef.current({
+              type: intent.action as string,
+              payload: intent.payload,
+            });
           }
 
           confirmations.push(feedback);

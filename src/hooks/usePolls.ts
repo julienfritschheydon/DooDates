@@ -32,6 +32,11 @@ interface SupabaseConversation {
     title?: string;
     description?: string | null;
     dates?: string[];
+    dateGroups?: Array<{
+      dates: string[];
+      label: string;
+      type: "weekend" | "week" | "fortnight" | "custom";
+    }>;
     timeSlots?: Record<string, unknown>;
     questions?: unknown[];
     settings?: {
@@ -85,6 +90,11 @@ export interface DatePollData {
   selectedDates: string[];
   timeSlotsByDate: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>;
   participantEmails: string[];
+  dateGroups?: Array<{
+    dates: string[];
+    label: string;
+    type: "weekend" | "week" | "fortnight" | "custom";
+  }>;
   settings: {
     timeGranularity: number;
     allowAnonymousVotes: boolean;
@@ -240,7 +250,9 @@ export function usePolls() {
 
           const mockPoll: StoragePoll = {
             ...basePoll,
-            ...(pollData.type === "date" ? { dates: pollData.selectedDates } : {}),
+            ...(pollData.type === "date"
+              ? { dates: pollData.selectedDates, dateGroups: pollData.dateGroups }
+              : {}),
             ...(pollData.type === "form" ? { questions: pollData.questions } : {}),
           } as StoragePoll;
 
@@ -269,6 +281,7 @@ export function usePolls() {
             description: pollData.description || null,
             dates: pollData.selectedDates,
             timeSlots: pollData.timeSlotsByDate,
+            dateGroups: pollData.dateGroups, // 🔧 Préserver les groupes de dates (week-ends, semaines)
             settings: {
               timeGranularity: pollData.settings.timeGranularity,
               allowAnonymousVotes: pollData.settings.allowAnonymousVotes,
@@ -475,6 +488,7 @@ export function usePolls() {
                     selectedDates: conversation.poll_data?.dates || [], // 🔧 Fix validation
                   },
                   dates: conversation.poll_data?.dates || [],
+                  dateGroups: conversation.poll_data?.dateGroups, // 🔧 Préserver les groupes de dates
                 }
               : {
                   questions: (conversation.poll_data?.questions as StoragePoll["questions"]) || [],
@@ -635,6 +649,7 @@ export function usePolls() {
                 updated_at: c.updated_at,
                 creator_id: c.user_id || undefined,
                 dates: c.poll_data?.dates || [],
+                dateGroups: c.poll_data?.dateGroups, // 🔧 Préserver les groupes de dates
                 settings: {
                   ...c.poll_data?.settings,
                   selectedDates: c.poll_data?.dates || [], // 🔧 Fix validation
