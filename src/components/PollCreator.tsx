@@ -84,6 +84,44 @@ const createGetSlotsInRange = (timeGranularity: number) => {
   };
 };
 
+import { useDragToSelect } from "@/hooks/useDragToSelect";
+
+// Type pour identifier un slot avec sa date (défini en dehors du composant)
+interface TimeSlotWithDate {
+  date: string;
+  hour: number;
+  minute: number;
+}
+
+// Helper: Formater un slot en clé unique (défini en dehors pour éviter recréation)
+const formatSlotKey = (slot: TimeSlotWithDate): string => {
+  return `${slot.date}:${slot.hour}-${slot.minute}`;
+};
+
+// Helper: Obtenir tous les slots entre deux slots (défini en dehors pour éviter recréation)
+const createGetSlotsInRange = (timeGranularity: number) => {
+  return (start: TimeSlotWithDate, end: TimeSlotWithDate): TimeSlotWithDate[] => {
+    if (start.date !== end.date) {
+      return [start];
+    }
+
+    const startMinutes = start.hour * 60 + start.minute;
+    const endMinutes = end.hour * 60 + end.minute;
+    const [earlierMinutes, laterMinutes] = startMinutes <= endMinutes
+      ? [startMinutes, endMinutes]
+      : [endMinutes, startMinutes];
+
+    const slots: TimeSlotWithDate[] = [];
+    for (let m = earlierMinutes; m <= laterMinutes; m += timeGranularity) {
+      const h = Math.floor(m / 60);
+      const min = m % 60;
+      slots.push({ date: start.date, hour: h, minute: min });
+    }
+
+    return slots;
+  };
+};
+
 // Lazy load VoteGrid - utilisé uniquement dans la preview conditionnelle (code actuellement commenté)
 const VoteGrid = lazy(() =>
   import("@/components/voting/VoteGrid").then((m) => ({ default: m.VoteGrid })),
@@ -914,6 +952,29 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                 </div>
               )}
 
+              {/* 🔧 Afficher les groupes de dates si fournis par l'IA */}
+              {initialData?.dateGroups && initialData.dateGroups.length > 0 && (
+                <div className="bg-blue-900/20 border border-blue-700/50 rounded-lg p-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <CalendarIcon className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white mb-2">Dates groupées détectées</h3>
+                      <div className="space-y-2">
+                        {initialData.dateGroups.map((group, index) => (
+                          <div key={index} className="text-sm text-gray-300">
+                            <span className="font-medium text-blue-400">{group.label}</span>
+                            <span className="text-gray-500 ml-2">({group.dates.length} dates)</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2">
+                        Les horaires ne sont pas disponibles pour les groupes de dates.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {state.selectedDates.length > 0 && (
                 <div className="space-y-4">
                   {state.showCalendarConnect && !state.calendarConnected && (
@@ -1220,6 +1281,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               const slotKey = formatSlotKey({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
                               const isSlotDraggedOver = isDraggedOver(slotKey);
 
+                              // Vérifier si ce slot est en cours de drag (MOBILE)
+                              const slotKey = formatSlotKey({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
+                              const isSlotDraggedOver = isDraggedOver(slotKey);
+
                               return (
                                 <button
                                   key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
@@ -1227,6 +1292,17 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   onClick={() =>
                                     handleTimeSlotToggle(dateStr, timeSlot.hour, timeSlot.minute)
                                   }
+                                  onPointerDown={(e) => {
+                                    handleDragStart({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e);
+                                  }}
+                                  onPointerMove={() => {
+                                    if (isDragging) {
+                                      handleDragMove({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
+                                    }
+                                  }}
+                                  onPointerUp={() => {
+                                    handleDragEnd();
+                                  }}
                                   onPointerDown={(e) => {
                                     handleDragStart({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e);
                                   }}
@@ -1247,6 +1323,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                     }
                                   ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
                                 `}
+                                  style={{ touchAction: "none" }}
                                   style={{ touchAction: "none" }}
                                 >
                                   {slot?.enabled && (
@@ -1360,6 +1437,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                               const slotKey = formatSlotKey({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
                               const isSlotDraggedOver = isDraggedOver(slotKey);
 
+                              // Vérifier si ce slot est en cours de drag (DESKTOP)
+                              const slotKey = formatSlotKey({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
+                              const isSlotDraggedOver = isDraggedOver(slotKey);
+
                               return (
                                 <button
                                   key={`${dateStr}-${timeSlot.hour}-${timeSlot.minute}`}
@@ -1367,6 +1448,17 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                   onClick={() =>
                                     handleTimeSlotToggle(dateStr, timeSlot.hour, timeSlot.minute)
                                   }
+                                  onPointerDown={(e) => {
+                                    handleDragStart({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e);
+                                  }}
+                                  onPointerMove={() => {
+                                    if (isDragging) {
+                                      handleDragMove({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
+                                    }
+                                  }}
+                                  onPointerUp={() => {
+                                    handleDragEnd();
+                                  }}
                                   onPointerDown={(e) => {
                                     handleDragStart({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e);
                                   }}
@@ -1387,6 +1479,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                                     }
                                   ${state.timeGranularity >= 60 ? "min-h-[32px] p-1" : "min-h-[24px] p-0.5"}
                                 `}
+                                  style={{ touchAction: "none" }}
                                   style={{ touchAction: "none" }}
                                 >
                                   {slot?.enabled && (
