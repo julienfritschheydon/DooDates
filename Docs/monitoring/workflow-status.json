@@ -1,11 +1,16 @@
 {
-  "lastUpdate": "2025-11-20T09:10:31.049Z",
-  "runNumber": "local",
-  "runId": "unknown",
-  "totalFailures24h": 0,
+  "lastUpdate": "2025-11-21T10:29:49.565Z",
+  "runNumber": "504",
+  "runId": "19567591281",
+  "totalFailures24h": 1,
   "totalFailures7d": 0,
   "workflowsMonitored": 6,
-  "hasFailures": false,
+  "hasFailures": true,
   "reportPath": "Docs/monitoring/workflow-failures-report.md",
-  "focusCommit": null
+  "focusCommit": {
+    "sha": "602074049491a2d58a70870d6ed424e356d46e1f",
+    "shortSha": "6020740",
+    "branch": "main",
+    "workflowTrigger": null
+  }
 }
