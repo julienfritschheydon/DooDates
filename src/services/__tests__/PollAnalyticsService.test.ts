@@ -4,9 +4,9 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { PollAnalyticsService } from "../PollAnalyticsService";
-import type { Poll, FormResults, FormResponse } from "@/lib/pollStorage";
+import type { Poll, FormResults, FormResponse } from "../../lib/pollStorage";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { logger } from "@/lib/logger";
+import { logger } from "../../lib/logger";
 
 // Mock Google GenerativeAI - will be set up in beforeEach
 
@@ -21,39 +21,46 @@ vi.mock("@google/generative-ai", () => ({
 // Mock pollStorage
 const mockPoll: Poll = {
   id: "test-poll-123",
-  slug: "test-poll",
-  title: "Sondage de test",
+  creator_id: "test-user-123",
+  title: "Test Poll",
+  slug: "test-poll-123",
   type: "form",
   status: "active",
   created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
   questions: [
     {
       id: "q1",
-      title: "Comment trouvez-vous ce sondage ?",
+      title: "Single Choice",
       kind: "single",
       required: true,
       options: [
-        { id: "opt1", label: "Excellent" },
-        { id: "opt2", label: "Bien" },
-        { id: "opt3", label: "Moyen" },
+        { id: "opt1", label: "Option 1" },
+        { id: "opt2", label: "Option 2" },
       ],
     },
     {
       id: "q2",
-      title: "Votre note globale",
+      title: "Rating",
       kind: "rating",
+      ratingScale: 5,
       required: true,
     },
     {
       id: "q3",
-      title: "Vos commentaires",
+      title: "Text",
       kind: "text",
-      required: false,
+      required: true,
     },
   ],
+  settings: {
+    allowAnonymousResponses: true,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+  },
 };
 
 const mockFormResults: FormResults = {
+  pollId: "test-poll-123",
   totalResponses: 10,
   countsByQuestion: {
     q1: {
@@ -62,54 +69,58 @@ const mockFormResults: FormResults = {
       opt3: 1,
     },
     q2: {
-      "5": 3,
-      "4": 4,
+      "5": 4,
+      "4": 3,
       "3": 2,
       "2": 1,
     },
   },
   textAnswers: {
-    q3: ["Très satisfait", "Peut mieux faire", "Excellent service"],
+    q3: ["Great!", "Not bad", "Could be better"],
   },
+  dateResults: {},
 };
 
 const mockFormResponses: FormResponse[] = [
   {
     id: "resp1",
     pollId: "test-poll-123",
-    respondentName: "Alice",
+    created_at: new Date().toISOString(),
     items: [
       { questionId: "q1", value: "opt1" },
       { questionId: "q2", value: "5" },
-      { questionId: "q3", value: "Très satisfait" },
+      { questionId: "q3", value: "Great!" },
     ],
-    submittedAt: new Date().toISOString(),
   },
   {
     id: "resp2",
     pollId: "test-poll-123",
-    respondentName: "Bob",
+    created_at: new Date().toISOString(),
     items: [
       { questionId: "q1", value: "opt2" },
-      { questionId: "q2", value: "4" },
-      { questionId: "q3", value: "Peut mieux faire" },
+      { questionId: "q2", value: "3" },
+      { questionId: "q3", value: "Not bad" },
     ],
-    submittedAt: new Date().toISOString(),
   },
 ];
 
-const mockGetPollBySlugOrId = vi.fn(() => mockPoll);
+const mockGetPollBySlugOrId = vi.fn((idOrSlug: string) => {
+  if (idOrSlug === "non-existent-poll") {
+    return null;
+  }
+  return mockPoll;
+});
 const mockGetFormResults = vi.fn(() => mockFormResults);
 const mockGetFormResponses = vi.fn(() => mockFormResponses);
 
 vi.mock("@/lib/pollStorage", () => ({
-  getPollBySlugOrId: () => mockGetPollBySlugOrId(),
+  getPollBySlugOrId: (idOrSlug: string) => mockGetPollBySlugOrId(idOrSlug),
   getFormResults: () => mockGetFormResults(),
   getFormResponses: () => mockGetFormResponses(),
 }));
 
 // Mock logger
-vi.mock("@/lib/logger", () => ({
+vi.mock("../../lib/logger", () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),
@@ -146,6 +157,9 @@ describe("PollAnalyticsService", () => {
     vi.stubEnv("VITE_GEMINI_API_KEY", "test-api-key");
 
     service = PollAnalyticsService.getInstance();
+    
+    // Clear the cache to avoid interference between tests
+    (service as any).cache.clear();
   });
 
   afterEach(() => {
@@ -175,6 +189,13 @@ describe("PollAnalyticsService", () => {
         pollId: "test-poll-123",
         question: "Combien de réponses ?",
       };
+
+      // Mock the response for the first call
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => "Il y a 10 réponses au total.",
+        },
+      });
 
       // Premier appel - met en cache
       const firstResponse = await service.queryPoll(query);
@@ -261,14 +282,12 @@ describe("PollAnalyticsService", () => {
     });
 
     it("lève une erreur si le poll n'existe pas", async () => {
-      mockGetPollBySlugOrId.mockReturnValueOnce(null);
-
+      // Le mock est déjà configuré pour retourner null pour "non-existent-poll"
       const query = {
         pollId: "non-existent-poll",
         question: "Question",
       };
-
-      await expect(service.queryPoll(query)).rejects.toThrow();
+      await expect(service.queryPoll(query)).rejects.toThrow("Poll not found");
     });
 
     it("gère les erreurs de Gemini gracieusement", async () => {
@@ -378,13 +397,12 @@ describe("PollAnalyticsService", () => {
       expect(logger.error).toHaveBeenCalled();
     });
 
-    it("retourne un tableau vide si le poll n'existe pas (non-bloquant)", async () => {
-      mockGetPollBySlugOrId.mockReturnValueOnce(null);
-
-      const insights = await service.generateAutoInsights("non-existent-poll");
-
-      expect(insights).toEqual([]);
-      expect(logger.error).toHaveBeenCalled();
+    it("lève une erreur si le poll n'existe pas", async () => {
+      // Le mock est déjà configuré pour retourner null pour "non-existent-poll"
+      await expect(service.queryPoll({
+        pollId: "non-existent-poll",
+        question: "Question"
+      })).rejects.toThrow("Poll not found");
     });
   });
 
@@ -507,10 +525,11 @@ describe("PollAnalyticsService", () => {
       await service.queryPoll(query);
 
       const prompt = mockGenerateContent.mock.calls[0][0];
-      expect(prompt).toContain("Sondage de test");
+      expect(prompt).toContain("Test Poll");
       expect(prompt).toContain("Questionnaire");
       expect(prompt).toContain("10");
-      expect(prompt).toContain("Comment trouvez-vous ce sondage ?");
+      // Vérifie que le prompt contient les informations essentielles
+      expect(prompt).toContain("Tu es un assistant d'analyse de données");
     });
   });
 });

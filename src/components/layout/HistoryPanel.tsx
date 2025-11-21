@@ -181,7 +181,7 @@ export default function HistoryPanel({ onClose, onConversationSelect }: HistoryP
         <div className="p-4 border-b border-gray-700 flex-shrink-0">
           <button
             onClick={() => {
-              navigate("/workspace/date");
+              navigate(`/workspace/date?new=${Date.now()}`);
               onClose();
             }}
             className="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition-colors"
@@ -350,11 +350,11 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
       return conversation.title;
     }
 
-    // 3. Extraire le premier message utilisateur
-    const firstUserMessage = conversation.messages?.find((msg) => msg.role === "user");
-    if (firstUserMessage) {
+    // 3. Utiliser le premier message (aperçu stocké dans la conversation)
+    if (conversation.firstMessage && conversation.firstMessage.trim()) {
       return (
-        firstUserMessage.content.slice(0, 50) + (firstUserMessage.content.length > 50 ? "..." : "")
+        conversation.firstMessage.slice(0, 50) +
+        (conversation.firstMessage.length > 50 ? "..." : "")
       );
     }
 

@@ -57,8 +57,8 @@ export const createMockConversation = (overrides: Partial<Conversation> = {}): C
  * Crée un ConversationMessage mocké
  */
 export const createMockMessage = (
-  overrides: Partial<ConversationMessage> = {},
-): ConversationMessage => ({
+  overrides: Partial<ConversationMessage & { pollSuggestion?: any }> = {},
+): ConversationMessage & { pollSuggestion?: any } => ({
   id: "msg-1",
   conversationId: "conv-123",
   content: "Test message content",
@@ -70,13 +70,20 @@ export const createMockMessage = (
 /**
  * Crée un message pour useAutoSave (format simplifié)
  */
+import type { PollSuggestion } from "../../lib/gemini";
+
 type AutoSaveMessage = {
   id: string;
   content: string;
   isAI: boolean;
   timestamp: Date;
-  pollSuggestion?: unknown;
+  pollSuggestion?: PollSuggestion; // Updated to use the correct type
   isGenerating?: boolean;
+  metadata?: {
+    pollGenerated?: boolean;
+    pollSuggestion?: PollSuggestion;
+    [key: string]: unknown;
+  };
 };
 
 export const createMockAutoSaveMessage = (
@@ -86,6 +93,7 @@ export const createMockAutoSaveMessage = (
   content: "Test message content",
   isAI: false,
   timestamp: new Date("2024-01-01T10:00:00Z"),
+  pollSuggestion: undefined, // Explicitly set to undefined to match AutoSaveMessage type
   ...overrides,
 });
 

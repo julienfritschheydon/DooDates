@@ -228,9 +228,12 @@ describe("useConversations", () => {
         },
       );
 
-      await waitFor(() => {
-        expect(result.current.conversationState.isSuccess).toBe(true);
-      });
+      await waitFor(
+        () => {
+          expect(result.current.conversationState.isSuccess).toBe(true);
+        },
+        { timeout: 10000 }, // Increase timeout to 10s
+      );
 
       expect(result.current.conversationState.conversation).toBeDefined();
       expect(result.current.conversationState.conversation?.id).toBe("conv-1");

@@ -81,6 +81,12 @@ export interface DatePollSuggestion {
   }>;
   type: "date" | "datetime" | "custom";
   participants?: string[];
+  // 🔧 Groupes de dates (week-ends, semaines, quinzaines)
+  dateGroups?: Array<{
+    dates: string[];
+    label: string;
+    type: "weekend" | "week" | "fortnight" | "custom";
+  }>;
 }
 
 // Union type pour supporter les deux types de sondages

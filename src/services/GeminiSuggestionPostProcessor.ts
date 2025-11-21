@@ -1,6 +1,6 @@
 import { DatePollSuggestion } from "@/lib/gemini";
 import type { ParsedTemporalInput } from "@/lib/temporalParser";
-import { formatDateLocal } from "@/lib/date-utils";
+import { formatDateLocal, groupConsecutiveDates } from "@/lib/date-utils";
 
 export interface PostProcessingOptions {
   userInput: string;
@@ -87,6 +87,66 @@ function getAllWeekdaysInMonth(weekdayName: string, monthName: string, year?: nu
   }
 
   return dates;
+}
+
+/**
+ * 🔧 FIX BUG #1: Génère tous les week-ends (samedi + dimanche) pour plusieurs mois
+ * Ex: "week-end de mars et avril 2026" → tous les samedis et dimanches de mars et avril
+ * Utilise la fonction isWeekend() existante pour la cohérence
+ */
+function getAllWeekendsInMonths(monthNames: string[], year?: number): string[] {
+  const allDates: string[] = [];
+  
+  for (const monthName of monthNames) {
+    // Générer tous les samedis ET dimanches du mois
+    const saturdays = getAllWeekdaysInMonth("samedi", monthName, year);
+    const sundays = getAllWeekdaysInMonth("dimanche", monthName, year);
+    
+    allDates.push(...saturdays, ...sundays);
+  }
+  
+  // Trier chronologiquement et filtrer avec isWeekend() pour cohérence
+  return allDates.filter(isWeekend).sort();
+}
+
+/**
+ * 🔧 FIX BUG #1: Détecte et extrait les patterns "week-end" + multi-mois
+ * Ex: "week-end de mars et avril" → { isWeekend: true, months: ["mars", "avril"], year: 2026 }
+ */
+function detectWeekendMultiMonthPattern(userInput: string): {
+  isWeekend: boolean;
+  months: string[];
+  year?: number;
+} | null {
+  const input = userInput.toLowerCase();
+  
+  // Détecter "week-end" ou "samedi et dimanche"
+  const weekendPattern = /week-?end|samedi\s+et\s+dimanche|dimanche\s+et\s+samedi/i;
+  const isWeekend = weekendPattern.test(input);
+  
+  if (!isWeekend) {
+    return null;
+  }
+  
+  // Extraire les mois mentionnés
+  const monthsPattern = /(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)/gi;
+  const monthMatches = input.match(monthsPattern);
+  
+  if (!monthMatches || monthMatches.length === 0) {
+    return null;
+  }
+  
+  // Normaliser les mois (enlever accents)
+  const months = monthMatches.map(m => 
+    m.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  );
+  
+  // Extraire l'année si présente
+  const yearPattern = /\b(20\d{2})\b/;
+  const yearMatch = input.match(yearPattern);
+  const year = yearMatch ? parseInt(yearMatch[1]) : undefined;
+  
+  return { isWeekend, months, year };
 }
 
 // Associe les mots-clés détectés dans le prompt aux jours recherchés (0 = dimanche → 6 = samedi).
@@ -250,6 +310,13 @@ function filterDatesByExplicitConstraints(dates: string[], userInput: string): s
 
   if (targetMonths.length === 0) {
     return dates;
+  }
+
+  // 🔧 FIX BUG #1: Génère tous les week-ends (samedi + dimanche) pour plusieurs mois
+  const weekendPatternResult = detectWeekendMultiMonthPattern(userInput);
+  if (weekendPatternResult) {
+    const allWeekends = getAllWeekendsInMonths(weekendPatternResult.months, weekendPatternResult.year);
+    return allWeekends;
   }
 
   // Filtrer pour ne garder que les dates dans les mois cibles
@@ -828,7 +895,30 @@ export function postProcessSuggestion(
   suggestion: DatePollSuggestion,
   options: PostProcessingOptions,
 ): DatePollSuggestion {
-  // 🔧 FIX BUG #1: Détecter le pattern "tous les [jour] de [mois]" AVANT tout traitement
+  // 🔧 FIX BUG #1 (PRIORITÉ 1): Détecter le pattern "week-end" + multi-mois AVANT tout traitement
+  // Ex: "week-end de mars et avril 2026" → tous les samedis et dimanches de mars et avril
+  const weekendMultiMonth = detectWeekendMultiMonthPattern(options.userInput);
+  
+  if (weekendMultiMonth && weekendMultiMonth.months.length > 0) {
+    const generatedDates = getAllWeekendsInMonths(weekendMultiMonth.months, weekendMultiMonth.year);
+    
+    if (generatedDates.length > 0) {
+      // Grouper les week-ends par paires (samedi + dimanche)
+      const dateGroups = groupConsecutiveDates(generatedDates, true); // allowWeekendGrouping = true
+      
+      // Remplacer les dates suggérées par Gemini par les dates générées
+      // Supprimer les timeSlots car non demandés
+      return {
+        ...suggestion,
+        dates: generatedDates,
+        dateGroups, // Ajouter les groupes de week-ends
+        timeSlots: [], // Pas d'horaires pour les week-ends
+        type: "date", // Type simple sans horaires
+      };
+    }
+  }
+
+  // 🔧 FIX BUG #1 (PRIORITÉ 2): Détecter le pattern "tous les [jour] de [mois]" AVANT tout traitement
   const allWeekdaysPattern =
     /(?:tous\s+les|les)\s+(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)s?\s+(?:de|d')\s+(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)(?:\s+(\d{4}))?/i;
   const allWeekdaysMatch = options.userInput.match(allWeekdaysPattern);
