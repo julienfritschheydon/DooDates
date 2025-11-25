@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 24/11/2025 19:21:55
+**Dernière mise à jour:** 25/11/2025 02:04:11
 
-_Workflow run #541 (ID 19644767661) — génération UTC 2025-11-24T18:21:55.297Z_
+_Workflow run #542 (ID 19654618948) — génération UTC 2025-11-25T01:04:11.409Z_
 
-## 🎯 Focus: Commit `3a6737c`
+## 🎯 Focus: Commit `d287767`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #541 (ID 19644767661) — génération UTC 2025-11-24T18:21:55.297
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `3a6737c`.
+Tous les workflows surveillés ont réussi pour le commit `d287767`.
 
 ---
 
@@ -41,7 +41,7 @@ Tous les workflows surveillés ont réussi pour le commit `3a6737c`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `3a6737c`.
+Tous les workflows surveillés ont réussi pour le commit `d287767`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `3a6737c`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `3a6737c`.
+Tous les workflows surveillés ont réussi pour le commit `d287767`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `3a6737c`
+- 🎯 **Focus: Commit actuel** `d287767`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
