@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 26/11/2025 02:04:18
+**Dernière mise à jour:** 26/11/2025 07:22:15
 
-_Workflow run #546 (ID 19689013246) — génération UTC 2025-11-26T01:04:18.828Z_
+_Workflow run #547 (ID 19694525306) — génération UTC 2025-11-26T06:22:15.560Z_
 
-## 🎯 Focus: Commit `0d7c106`
+## 🎯 Focus: Commit `8f20c8b`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #546 (ID 19689013246) — génération UTC 2025-11-26T01:04:18.828
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `0d7c106`.
+Tous les workflows surveillés ont réussi pour le commit `8f20c8b`.
 
 ---
 
@@ -41,7 +41,7 @@ Tous les workflows surveillés ont réussi pour le commit `0d7c106`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `0d7c106`.
+Tous les workflows surveillés ont réussi pour le commit `8f20c8b`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `0d7c106`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `0d7c106`.
+Tous les workflows surveillés ont réussi pour le commit `8f20c8b`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `0d7c106`
+- 🎯 **Focus: Commit actuel** `8f20c8b`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
