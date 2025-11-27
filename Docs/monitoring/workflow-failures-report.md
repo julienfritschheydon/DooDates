@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 26/11/2025 19:18:10
+**Dernière mise à jour:** 27/11/2025 02:03:02
 
-_Workflow run #549 (ID 19713515283) — génération UTC 2025-11-26T18:18:10.056Z_
+_Workflow run #550 (ID 19721868424) — génération UTC 2025-11-27T01:03:02.271Z_
 
-## 🎯 Focus: Commit `63581a0`
+## 🎯 Focus: Commit `8c68136`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #549 (ID 19713515283) — génération UTC 2025-11-26T18:18:10.056
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `63581a0`.
+Tous les workflows surveillés ont réussi pour le commit `8c68136`.
 
 ---
 
@@ -41,7 +41,7 @@ Tous les workflows surveillés ont réussi pour le commit `63581a0`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `63581a0`.
+Tous les workflows surveillés ont réussi pour le commit `8c68136`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `63581a0`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `63581a0`.
+Tous les workflows surveillés ont réussi pour le commit `8c68136`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `63581a0`
+- 🎯 **Focus: Commit actuel** `8c68136`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
