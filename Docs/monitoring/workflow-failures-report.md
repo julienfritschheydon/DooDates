@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 12:46:29
+**Dernière mise à jour:** 28/11/2025 13:28:23
 
-_Workflow run #590 (ID 19762897944) — génération UTC 2025-11-28T11:46:29.294Z_
+_Workflow run #593 (ID 19763820587) — génération UTC 2025-11-28T12:28:23.014Z_
 
-## 🎯 Focus: Commit `5054961`
+## 🎯 Focus: Commit `af8c45c`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #590 (ID 19762897944) — génération UTC 2025-11-28T11:46:29.294
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `5054961`.
+Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
 
 ---
 
@@ -34,14 +34,14 @@ Tous les workflows surveillés ont réussi pour le commit `5054961`.
 
 **Statut:** ❌ failure
 
-**Dernier run:** 28/11/2025 12:42:49
+**Dernier run:** 28/11/2025 12:50:33
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `5054961`.
+Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `5054961`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `5054961`.
+Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `5054961`
+- 🎯 **Focus: Commit actuel** `af8c45c`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
