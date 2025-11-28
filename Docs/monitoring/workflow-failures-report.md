@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 12:13:02
+**Dernière mise à jour:** 28/11/2025 12:35:57
 
-_Workflow run #586 (ID 19762140649) — génération UTC 2025-11-28T11:13:02.015Z_
+_Workflow run #587 (ID 19762677527) — génération UTC 2025-11-28T11:35:57.628Z_
 
-## 🎯 Focus: Commit `9289995`
+## 🎯 Focus: Commit `efebb4b`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #586 (ID 19762140649) — génération UTC 2025-11-28T11:13:02.015
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `9289995`.
+Tous les workflows surveillés ont réussi pour le commit `efebb4b`.
 
 ---
 
@@ -41,7 +41,7 @@ Tous les workflows surveillés ont réussi pour le commit `9289995`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `9289995`.
+Tous les workflows surveillés ont réussi pour le commit `efebb4b`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `9289995`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `9289995`.
+Tous les workflows surveillés ont réussi pour le commit `efebb4b`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `9289995`
+- 🎯 **Focus: Commit actuel** `efebb4b`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
