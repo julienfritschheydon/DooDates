@@ -116,6 +116,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   */
   return (
     <div
+      data-testid="chat-messages"
       className={`flex-1 min-h-0 w-full ${messages.length > 0 ? "overflow-y-auto" : ""} ${
         darkTheme ? "bg-[#0a0a0a]" : "bg-gradient-to-br from-blue-50 to-indigo-50"
       } ${messages.length === 0 ? "flex items-center justify-center" : ""}`}
@@ -189,7 +190,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                   </div>
                 )}
                 <div
-                  data-testid="chat-message"
+                  data-testid={message.isAI ? "ai-response" : "chat-message"}
                   className={`max-w-[80%] ${
                     message.isAI
                       ? darkTheme

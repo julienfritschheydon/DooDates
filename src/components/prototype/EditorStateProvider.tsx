@@ -106,6 +106,14 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
         logger.debug("Nettoyage du poll (pas de conversation à restaurer)", "poll");
         localStorage.removeItem(STORAGE_KEY);
         dispatchPoll({ type: "REPLACE_POLL", payload: null });
+        
+        // 🔥 NOUVEAU: Si on arrive depuis la landing page (/workspace/date ou /workspace/form), 
+        // on ouvre automatiquement l'éditeur pour montrer le sondage immédiatement
+        const pathname = location.pathname;
+        if (pathname.includes("/workspace/date") || pathname.includes("/workspace/form") || pathname.includes("/workspace/availability")) {
+          setIsEditorOpen(true);
+          logger.info("🚀 Ouverture automatique de l'éditeur depuis landing page", "poll", { pathname });
+        }
         // 🔧 FIX: Ne PAS fermer l'éditeur - il peut être ouvert volontairement (nouveau chat)
         // setIsEditorOpen(false); ← Commenté pour garder l'éditeur ouvert si déjà ouvert
         logger.info("🧹 Poll nettoyé - état vierge (éditeur conservé)", "poll");

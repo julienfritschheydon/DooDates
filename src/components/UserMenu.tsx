@@ -31,16 +31,16 @@ export function UserMenu() {
         // Forcer la déconnexion locale même en cas d'erreur
         localStorage.clear();
         sessionStorage.clear();
-        // 🔧 FIX BUG #2: Utiliser BASE_URL pour GitHub Pages
-        window.location.href = import.meta.env.BASE_URL || "/";
+        // Redirection unique partout - plus de conditions
+        window.location.href = "/DooDates/";
       } else {
         logger.info("Déconnexion réussie", "auth");
         // Nettoyer le stockage local
         localStorage.clear();
         sessionStorage.clear();
         // Redirection après déconnexion
-        // 🔧 FIX BUG #2: Utiliser BASE_URL pour GitHub Pages
-        window.location.href = import.meta.env.BASE_URL || "/";
+        // Redirection unique partout - plus de conditions
+        window.location.href = "/DooDates/";
       }
     } catch (err) {
       logger.error("Erreur lors de la déconnexion", "auth", err);
@@ -50,9 +50,8 @@ export function UserMenu() {
       localStorage.clear();
       sessionStorage.clear();
 
-      // Redirection forcée
-      // 🔧 FIX BUG #2: Utiliser BASE_URL pour GitHub Pages
-      window.location.href = import.meta.env.BASE_URL || "/";
+      // Redirection unique partout - plus de conditions
+      window.location.href = "/DooDates/";
     }
   };
 

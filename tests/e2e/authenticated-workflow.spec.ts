@@ -28,7 +28,7 @@ test.describe('Authenticated User Workflow', () => {
     await setupGeminiMock(page);
     
     // Clear localStorage and start fresh
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await clearTestData(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
@@ -225,7 +225,7 @@ test.describe('Authenticated User Workflow', () => {
     }, { key: authTokenKey, value: tokenValue });
     
     // Le chat est maintenant dans /workspace
-    await newPage.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await newPage.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(newPage, { browserName });
     await waitForReactStable(newPage, { browserName });
     

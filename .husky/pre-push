@@ -1,1 +1,70 @@
-npm run test:error-handling
+#!/bin/sh
+echo "🚀 DooDates - Validation pre-push..."
+
+# Détection branche courante
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+
+# Skip tous les tests pour les branches de test (test, test-*)
+if echo "$BRANCH" | grep -qE "^test"; then
+  echo "⚡ Branche TEST ($BRANCH): skip validation complète (tests gérés par CI)"
+  echo "✅ Pre-push (test branch) validé - Push autorisé"
+  exit 0
+fi
+
+# Récupérer la branche cible du push
+while read local_ref local_sha remote_ref remote_sha
+do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    PUSHING_TO_MAIN=true
+  fi
+done
+
+# Si push vers develop → validation légère (CI fera le reste)
+if [ "$BRANCH" = "develop" ]; then
+  echo "⚡ Push vers DEVELOP: validation légère (CI complète sur GitHub)..."
+  echo "✅ Pre-push (develop) validé - Push autorisé"
+  exit 0
+fi
+
+# Ressources accrues pour éviter OOM et fiabiliser Vitest
+export NODE_OPTIONS="--max-old-space-size=4096"
+export VITEST_MAX_THREADS=1
+export VITEST_POOL=forks
+
+# 1. Suite complète de tests unitaires
+echo "🧪 Tests unitaires complets..."
+npm run test:unit
+if [ $? -ne 0 ]; then
+  echo "❌ Tests unitaires complets échoués - Push bloqué"
+  exit 1
+fi
+
+# 2. Tests d'intégration
+echo "🔗 Tests d'intégration..."
+npm run test:integration
+if [ $? -ne 0 ]; then
+  echo "❌ Tests d'intégration échoués - Push bloqué"
+  exit 1
+fi
+
+# 3. Build de production
+echo "🏗️ Build production..."
+npm run build
+if [ $? -ne 0 ]; then
+  echo "❌ Build production échoué - Push bloqué"
+  exit 1
+fi
+
+# 4. Tests E2E Smoke (uniquement si push vers main)
+if [ "$PUSHING_TO_MAIN" = "true" ]; then
+  echo "🔥 Tests E2E Smoke (protection branche main)..."
+  npm run test:e2e:smoke
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests E2E Smoke échoués - Push vers main bloqué"
+    echo "💡 Les tests critiques doivent passer avant de pusher vers main"
+    exit 1
+  fi
+  echo "✅ Tests E2E Smoke passés"
+fi
+
+echo "✅ Pre-push validé - Push autorisé"

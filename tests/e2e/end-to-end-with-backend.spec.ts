@@ -90,7 +90,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
 
   test.beforeEach(async ({ page, browserName }) => {
     await setupGeminiMock(page);
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -459,7 +459,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await setupGeminiMock(pageB);
 
       // ===== APPAREIL A : Créer une conversation =====
-      await pageA.goto('/workspace', { waitUntil: 'domcontentloaded' });
+      await pageA.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(pageA, { browserName: 'chromium' });
       await waitForReactStable(pageA, { browserName: 'chromium' });
       
@@ -518,7 +518,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       expect(conversationInLocalStorage?.userId).toBe(testUserId);
 
       // ===== APPAREIL B : Voir la conversation depuis le dashboard =====
-      await pageB.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+      await pageB.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(pageB, { browserName: 'chromium' });
       await waitForReactStable(pageB, { browserName: 'chromium' });
       
@@ -564,7 +564,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await waitForElementReady(pageB, '[data-testid="message"]', { browserName: 'chromium', timeout: 10000 });
 
       // ===== APPAREIL A : Vérifier la synchronisation =====
-      await pageA.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+      await pageA.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(pageA, { browserName: 'chromium' });
       await waitForReactStable(pageA, { browserName: 'chromium' });
       
@@ -723,7 +723,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier persistence
    */
   test('8. Test mise à jour conversation', async ({ page, browserName }) => {
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -843,7 +843,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * - Vérifier non réapparition
    */
   test('9. Test suppression conversation', async ({ page, browserName }) => {
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -958,7 +958,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
    * (la sauvegarde est testée dans d'autres tests)
    */
   test('10. Test génération automatique titre', async ({ page, browserName }) => {
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
