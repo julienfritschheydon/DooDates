@@ -90,7 +90,7 @@ export function useSmartNavigation(
 
       // Déterminer la stratégie de reset
       const strategy = ChatResetService.determineResetStrategy(
-        previousLocation.current as Location | null,
+        previousLocation.current,
         toLocationObj as Location,
         navOptions.replace ? "REPLACE" : "PUSH",
       );
