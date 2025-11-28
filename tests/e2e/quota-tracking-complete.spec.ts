@@ -1024,7 +1024,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     await waitForReactStable(page, { browserName });
     
     // Essayer de créer une nouvelle conversation
-    const messageInput = page.locator('[data-testid="message-input"]').first();
+    const messageInput = page.locator('[data-testid="chat-input"]').first();
     const hasMessageInput = await messageInput.isVisible({ timeout: 5000 }).catch(() => false);
     
     if (hasMessageInput) {

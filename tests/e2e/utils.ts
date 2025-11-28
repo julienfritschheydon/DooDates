@@ -740,7 +740,7 @@ export async function waitForPageLoad(page: Page, browserName: string, timeout?:
     // Cela détecte quand l'app est vraiment prête, pas seulement quand le réseau est inactif
     try {
       await page.waitForSelector(
-        '[data-testid="message-input"], [data-testid="calendar"], [data-testid="poll-title"], [data-testid="poll-item"], main, [role="main"]',
+        '[data-testid="chat-input"], [data-testid="calendar"], [data-testid="poll-title"], [data-testid="poll-item"], main, [role="main"]',
         { 
           timeout: 20000,
           state: 'attached' // 'attached' est plus rapide que 'visible'

@@ -49,7 +49,7 @@ export async function createFormPollViaAI(
   await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
 
-  const chatInput = page.locator('[data-testid="message-input"]');
+  const chatInput = page.locator('[data-testid="chat-input"]');
   await expect(chatInput).toBeVisible({ timeout: 10000 });
 
   await robustFill(chatInput, prompt, { debug: process.env.DEBUG_E2E === '1' });
