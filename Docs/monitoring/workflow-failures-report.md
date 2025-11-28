@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 11:53:35
+**Dernière mise à jour:** 28/11/2025 12:09:41
 
-_Workflow run #582 (ID 19761674526) — génération UTC 2025-11-28T10:53:35.163Z_
+_Workflow run #584 (ID 19762054661) — génération UTC 2025-11-28T11:09:41.699Z_
 
-## 🎯 Focus: Commit `a161ac1`
-**Dernière mise à jour:** 28/11/2025 11:49:22
-
-_Workflow run #579 (ID 19761581865) — génération UTC 2025-11-28T10:49:22.139Z_
-
-## 🎯 Focus: Commit `d702a17`
+## 🎯 Focus: Commit `3a1a929`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,8 +26,7 @@ _Workflow run #579 (ID 19761581865) — génération UTC 2025-11-28T10:49:22.139
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `a161ac1`.
-Tous les workflows surveillés ont réussi pour le commit `d702a17`.
+Tous les workflows surveillés ont réussi pour le commit `3a1a929`.
 
 ---
 
@@ -40,44 +34,41 @@ Tous les workflows surveillés ont réussi pour le commit `d702a17`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 11:44:33
+**Dernier run:** 28/11/2025 12:03:04
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `a161ac1`.
-Tous les workflows surveillés ont réussi pour le commit `d702a17`.
+Tous les workflows surveillés ont réussi pour le commit `3a1a929`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ⏳ unknown
+**Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 11:48:32
+**Dernier run:** 28/11/2025 12:07:07
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `a161ac1`.
-#### Run #102 - 28/11/2025 11:48:32
+#### Run #103 - 28/11/2025 12:07:07
 
-- **Commit:** `d702a17`
+- **Commit:** `3a1a929`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19761580857)
+- **Statut:** success
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19762018251)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `a161ac1`
-- 🎯 **Focus: Commit actuel** `d702a17`
+- 🎯 **Focus: Commit actuel** `3a1a929`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -85,7 +76,6 @@ Tous les workflows surveillés ont réussi pour le commit `a161ac1`.
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
 **Statistiques :**
@@ -125,6 +115,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T10:49:25.174Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T11:09:45.683Z*
 ---
 
