@@ -1,7 +1,7 @@
 # DooDates - Guide des Tests
 
 > **Document de référence unique** - Novembre 2025  
-> **Dernière mise à jour** : 18 novembre 2025 (factorisation E2E, migration helpers + timeouts, stabilisation Firefox/WebKit)
+> **Dernière mise à jour** : 28 novembre 2025 (restauration tests Gemini)
 
 RAPPEL: 
 # ✅ Compteur dans terminal + erreurs dans fichier séparé
@@ -24,7 +24,30 @@ npm run test:predictive
 node scripts/auto-workflow-analyzer.js
 
 # ============================================================================
-# 🚀 TESTS GEMINI - INSTRUCTIONS DE LANCEMENT
+# 🚨 ÉTAT ACTUEL DES TESTS GEMINI - RESTAURATION EN COURS
+# ============================================================================
+#
+# ⚠️ SITUATION ACTUELLE (28/11/2025):
+# - Les fichiers gemini-date-polls.test.ts, gemini-form-polls.test.ts, gemini-comprehensive.test.ts 
+#   référencés dans ce guide N'EXISTENT PAS encore
+# - Templates de base disponibles : gemini-professional.test.ts, prompts-generation.test.ts, temporal-prompts-validation.test.ts
+# - Plan de restauration : 7h pour recréer les 58 tests manquants
+#
+# ✅ CE QUI FONCTIONNE MAINTENANT:
+# - Tests unitaires Gemini : 1082/1082 passent (100%)
+# - Templates base : 25 tests actifs dans src/test/
+# - Scripts de rapports fonctionnels
+#
+# 🔄 PLAN DE RESTAURATION (voir Docs/2. Planning.md):
+# 1. Analyser templates existants (1h)
+# 2. Créer gemini-date-polls.test.ts (2h) - 48 tests
+# 3. Créer gemini-form-polls.test.ts (1.5h) - 10 tests  
+# 4. Créer gemini-comprehensive.test.ts (2h) - 57+ tests
+# 5. Créer vitest.config.gemini.ts (0.5h)
+# 6. Mettre à jour ce guide (0.5h)
+#
+# ============================================================================
+# 🚀 TESTS GEMINI - INSTRUCTIONS DE LANCEMENT (QUAND RESTAURÉS)
 # ============================================================================
 #
 # ⚠️ IMPORTANT: Les fichiers de tests Gemini sont EXCLUS des tests standard
@@ -58,9 +81,12 @@ node scripts/auto-workflow-analyzer.js
 #     setupFiles: ['./src/test/setup.ts'],
 #     globals: true,
 #     include: [
-#       'src/test/gemini-comprehensive.test.ts',
-#       'src/test/gemini-form-polls.test.ts',
-#       'src/test/gemini-date-polls.test.ts',
+#       'src/test/gemini-comprehensive.test.ts',    # ⚠️ À CRÉER
+#       'src/test/gemini-form-polls.test.ts',       # ⚠️ À CRÉER
+#       'src/test/gemini-date-polls.test.ts',       # ⚠️ À CRÉER
+#       'src/test/gemini-professional.test.ts',     # ✅ EXISTE (22 tests)
+#       'src/test/prompts-generation.test.ts',      # ✅ EXISTE (2 tests)
+#       'src/test/temporal-prompts-validation.test.ts', # ✅ EXISTE (framework)
 #     ],
 #     exclude: [
 #       'node_modules/**',
@@ -76,7 +102,20 @@ node scripts/auto-workflow-analyzer.js
 # ```
 #
 # ============================================================================
-# ÉTAPE 2: Lancer les tests
+# ÉTAPE 2: Lancer les tests disponibles MAINTENANT
+# ============================================================================
+#
+# Tests professionnels (DISPONIBLE - 22 tests dont 10 commentés):
+npx vitest run --config vitest.config.gemini.ts src/test/gemini-professional.test.ts --reporter=default --no-coverage
+#
+# Tests cas limites (DISPONIBLE - 2 tests):
+npx vitest run --config vitest.config.gemini.ts src/test/prompts-generation.test.ts --reporter=default --no-coverage
+#
+# Tests validation temporelle (DISPONIBLE - framework):
+npx vitest run --config vitest.config.gemini.ts src/test/temporal-prompts-validation.test.ts --reporter=default --no-coverage
+#
+# ============================================================================
+# ÉTAPE 3: Lancer les tests complets (QUAND RESTAURÉS)
 # ============================================================================
 #
 # Tests de sondages de dates uniquement (RECOMMANDÉ):
@@ -117,17 +156,22 @@ FAILED_TEST_IDS="form-1,form-2" npx vitest run --config vitest.config.gemini.ts 
 # ============================================================================
 #
 # Les rapports sont générés automatiquement dans tests/reports/:
-# - tests/reports/gemini-date-polls-report.md (rapport markdown - tests de dates)
-# - tests/reports/gemini-form-polls-report.md (rapport markdown - tests de formulaires)
-# - tests/reports/gemini-comprehensive-report.md (rapport markdown - tous les tests combinés)
+# - tests/reports/gemini-date-polls-report.md (rapport markdown - tests de dates) ⚠️ À CRÉER
+# - tests/reports/gemini-form-polls-report.md (rapport markdown - tests de formulaires) ⚠️ À CRÉER
+# - tests/reports/gemini-comprehensive-report.md (rapport markdown - tous les tests combinés) ⚠️ À CRÉER
 #
 # ============================================================================
 # Durées estimées
 # ============================================================================
 #
-# - gemini-date-polls.test.ts: ~35-40 minutes (47 tests × ~45s chacun)
+# Tests disponibles MAINTENANT:
+# - gemini-professional.test.ts: ~10-15 minutes (12 tests actifs × ~45s chacun)
+# - prompts-generation.test.ts: ~2 minutes (2 tests × ~45s chacun)
+#
+# Tests après restauration:
+# - gemini-date-polls.test.ts: ~35-40 minutes (48 tests × ~45s chacun)
 # - gemini-form-polls.test.ts: ~7-8 minutes (10 tests × ~45s chacun)
-# - gemini-comprehensive.test.ts: ~45 minutes (57 tests × ~45s chacun)
+# - gemini-comprehensive.test.ts: ~45 minutes (57+ tests × ~45s chacun)
 # - Tests en échec uniquement: ~2-5 minutes (selon nombre)
 #
 # ============================================================================
@@ -141,10 +185,10 @@ npx vitest run src/lib/__tests__/gemini-detection.test.ts
 
 ## 📊 Vue d'Ensemble
 
-### Résultats Actuels
+### Résultats Actuels (28/11/2025)
 
 ```
-🎯 Tests Unitaires (Vitest)    : 872/872 passent (100%)
+🎯 Tests Unitaires (Vitest)    : 1082/1082 passent (100%) | 85 skip
    - Dashboard                 : ~68 tests
    - BetaKeyService            : 25/25 passent (100%)
    - useAutoSave               : 13/13 passent (100%) ✅ RÉACTIVÉ
@@ -156,10 +200,85 @@ npx vitest run src/lib/__tests__/gemini-detection.test.ts
    - usePollConversationLink   : 12/12 passent (100%) ✅ RÉACTIVÉ (14/11/2025)
    - FormPoll Results Access   : 14/14 passent (100%)
    - ConversationService       : 9/9 passent (100%) ✅ NOUVEAU
-🤖 Tests IA (Gemini/Jest)      : 23/25 passent (92%)
-   - Date Polls                : 15/15 passent (100%)
-   - Form Polls                : 8/10 passent (80%)
-   - GeminiChatInterface       : Structure de test créée, tests en cours de développement (WIP)
+   - gemini-form-parsing       : 18/18 passent (100%) ✅ NOUVEAU
+   - gemini-conditional-parsing: 10/10 passent (100%) ✅ NOUVEAU
+   - conditionalEvaluator      : 30/30 passent (100%) ✅ NOUVEAU
+   - conditionalValidator      : 17/17 passent (100%) ✅ NOUVEAU
+   - statsStorage              : 27/27 passent (100%) ✅ NOUVEAU
+   - useConversationSearch     : 25/25 passent (100%) ✅ NOUVEAU
+   - exports                   : 15/15 passent (100%) ✅ NOUVEAU
+
+🚨 Tests Unitaires SKIP (Performance) : 85 tests | 4 fichiers
+   ⚠️ src/components/Calendar.test.tsx (23 tests | 23 skipped)
+      - Raison: Tests d'intégration lourds - Exclus pour performance
+      - Action: À réactiver si besoin de tests Calendar complets
+   
+   ⚠️ src/components/Dashboard.test.tsx (29 tests | 29 skipped)
+      - Raison: Tests d'intégration lourds - Exclus pour performance  
+      - Action: À réactiver si besoin de tests Dashboard complets
+   
+   ⚠️ src/components/__tests__/GeminiChatInterface.integration.test.tsx (13 tests | 13 skipped)
+      - Raison: Tests d'intégration avec appels Gemini réels
+      - Action: À réactiver pour tests E2E Gemini (lents)
+   
+   ⚠️ src/services/__tests__/PollCreatorService.weekendGrouping.test.ts (4 tests | 4 skipped)
+      - Raison: Tests d'intégration weekend grouping
+      - Action: À réactiver quand weekend grouping fonctionnel
+
+🤖 Tests IA (Gemini) - ÉTAT ACTUEL (28/11/2025)
+   
+   **⚠️ SITUATION RÉELLE :**
+   - **Tests unitaires Gemini** : 1082/1082 passent (100%) ✅
+   - **Tests d'intégration Gemini** : 25/58 tests actifs (43%) ⚠️
+     - `gemini-professional.test.ts` : 22 tests (10 professionnels commentés)
+     - `prompts-generation.test.ts` : 2 tests (cas limites)
+     - `temporal-prompts-validation.test.ts` : Framework validation
+   - **Tests manquants** : 33 tests (57%) ❌
+     - `gemini-date-polls.test.ts` : 48 tests (à créer)
+     - `gemini-form-polls.test.ts` : 10 tests (à créer)
+     - `gemini-comprehensive.test.ts` : 57+ tests (à créer)
+   
+   **📊 Couverture cible vs actuelle :**
+   - **Objectif documenté** : 92% (58/63 tests)
+   - **Actuel** : 43% (25/58 tests)
+   - **Manque** : 33 tests pour atteindre la cible
+   
+   **🔄 Plan de restauration en cours (7h) :**
+   - Voir section "🚨 ÉTAT ACTUEL DES TESTS GEMINI" ci-dessus
+   - Templates de base disponibles et fonctionnels
+   - Objectif : Passer de 43% à 92% de couverture
+## 🚨 GESTION DES TESTS SKIP - GUIDE D'ACTION
+
+### Comment réactiver les tests skip :
+
+```bash
+# 1. Réactiver Calendar tests (lourds)
+npx vitest run src/components/Calendar.test.tsx
+
+# 2. Réactiver Dashboard tests (lourds)  
+npx vitest run src/components/Dashboard.test.tsx
+
+# 3. Réactiver Gemini Integration tests (très lourds - appels réels)
+npx vitest run src/components/__tests__/GeminiChatInterface.integration.test.tsx
+
+# 4. Réactiver Weekend Grouping tests (quand fonctionnel)
+npx vitest run src/services/__tests__/PollCreatorService.weekendGrouping.test.ts
+```
+
+### Impact sur performance :
+- **Tests actuels** : 1082 tests en 2min 20s ✅
+- **Avec Calendar** : +23 tests ~+30s
+- **Avec Dashboard** : +29 tests ~+40s  
+- **Avec Gemini Integration** : +13 tests ~+10min (appels réels)
+- **Avec Weekend Grouping** : +4 tests ~+15s
+
+### Quand réactiver ?
+- **Calendar/Dashboard** : Pour tests complets avant release
+- **Gemini Integration** : Pour debug Gemini uniquement
+- **Weekend Grouping** : Quand feature fonctionnelle
+
+---
+
 🌐 Tests E2E (Playwright)      : 81/81 passent (100% sur Chrome)
    - Dashboard                 : 22 tests
    - Analytics IA              : 9/9 passent (dont analytics-ai-optimized.spec.ts factorisé)
