@@ -146,13 +146,20 @@ export class ChatResetService {
     const hasNoParams = context.searchParams.toString().length === 0;
     const isFromOutside = !context.fromPath.includes("/workspace");
 
-    const isNewCreation = isWorkspaceTarget && hasNoParams && isFromOutside;
+    // MODIFIÉ: Être moins agressif avec les nouveaux utilisateurs
+    // Seulement faire un full reset si on vient D'UN AUTRE workspace (changement de contexte)
+    const isFromAnotherWorkspace =
+      context.fromPath.includes("/workspace") &&
+      !context.fromPath.includes(context.toPath.split("/workspace/")[1]?.split("?")[0] || "");
+
+    const isNewCreation = isWorkspaceTarget && hasNoParams && isFromAnotherWorkspace;
 
     logger.debug("New creation check", "conversation", {
-      isNewCreation,
       isWorkspaceTarget,
       hasNoParams,
       isFromOutside,
+      isFromAnotherWorkspace,
+      isNewCreation,
       fromPath: context.fromPath,
       toPath: context.toPath,
     });
