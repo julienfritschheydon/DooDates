@@ -70,14 +70,17 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev:e2e',
-    url: 'http://localhost:8080/DooDates', // Le serveur démarre sur 8080 comme configuré dans vite.config.ts
-    reuseExistingServer: !(process.env.CI || process.env.GITHUB_ACTIONS), // Réutiliser le serveur existant seulement en local
-    timeout: 120 * 1000,
-    stdout: 'pipe',
-    stderr: 'pipe',
+    url: 'http://localhost:8080/DooDates',
+    reuseExistingServer: true, // Toujours réutiliser le serveur existant
+    timeout: 30000, // Réduit car le serveur est déjà démarré
     env: {
+      NODE_ENV: 'test', // Forcer le mode test
       VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'http://localhost:8080',
       VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY || 'test-anon-key',
+      // Désactiver HMR pour les tests
+      VITE_HMR: 'false',
+      // Désactiver les optimisations en développement pour accélérer le démarrage
+      VITE_DEV_SERVER_OPTIMIZE_DEPS: 'false',
     },
   },
 });
