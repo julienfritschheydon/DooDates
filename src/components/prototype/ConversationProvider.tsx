@@ -190,21 +190,55 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
   const clearConversation = clearConversationLocal;
 
+  // État éditeur avec reducer - DÉCLARÉ AVANT UTILISATION
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [currentPoll, dispatchPoll] = useReducer(pollReducer, null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const [highlightType, setHighlightType] = useState<"add" | "remove" | "modify" | null>(null);
+
+  // État modification question (pour feedback visuel)
+  const [modifiedQuestionId, setModifiedQuestionId] = useState<string | null>(null);
+  const [modifiedField, setModifiedField] = useState<
+    "title" | "type" | "options" | "required" | null
+  >(null);
+
+  const setModifiedQuestion = useCallback(
+    (questionId: string | null, field: "title" | "type" | "options" | "required" | null) => {
+      setModifiedQuestionId(questionId);
+      setModifiedField(field);
+
+      // Clear après 3 secondes
+      if (questionId) {
+        setTimeout(() => {
+          setModifiedQuestionId(null);
+          setModifiedField(null);
+        }, 3000);
+      }
+    },
+    [],
+  );
+
   // Actions éditeur
-  const openEditor = useCallback((poll: Poll) => {
-    dispatchPoll({ type: "REPLACE_POLL", payload: poll });
-    setIsEditorOpen(true);
-  }, []);
+  const openEditor = useCallback(
+    (poll: Poll) => {
+      setIsEditorOpen(true);
+      dispatchPoll({ type: "REPLACE_POLL", payload: poll });
+    },
+    [dispatchPoll],
+  );
 
   const closeEditor = useCallback(() => {
     setIsEditorOpen(false);
     // Garder currentPoll pour pouvoir rouvrir
   }, []);
 
-  const updatePoll = useCallback((poll: Poll) => {
-    // Remplacer complètement le poll (utilisé pour l'ouverture initiale)
-    dispatchPoll({ type: "REPLACE_POLL", payload: poll });
-  }, []);
+  const updatePoll = useCallback(
+    (poll: Poll) => {
+      // Remplacer complètement le poll (utilisé pour l'ouverture initiale)
+      dispatchPoll({ type: "REPLACE_POLL", payload: poll });
+    },
+    [dispatchPoll],
+  );
 
   // Action pour dispatcher des modifications via le reducer
   // Route vers le bon reducer selon le type de poll
@@ -230,8 +264,9 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
           if (highlightId) {
             setHighlightedId(highlightId);
+          }
+          if (highlightTypeValue) {
             setHighlightType(highlightTypeValue);
-            // Garder le highlight en permanence (pas de timeout)
           }
 
           dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll });
@@ -248,8 +283,9 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
           if (highlightId) {
             setHighlightedId(highlightId);
+          }
+          if (highlightTypeValue) {
             setHighlightType(highlightTypeValue);
-            // Garder le highlight en permanence (pas de timeout)
           }
 
           dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll });
@@ -262,25 +298,26 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   // État conversation
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>(() => {
-    // Restaurer les messages depuis localStorage au démarrage
-    try {
-      if (typeof localStorage === "undefined") return [];
-      const saved = localStorage.getItem("prototype_messages");
-      if (!saved) return [];
-      const parsed = JSON.parse(saved);
-      // Valider que c'est bien un tableau
-      if (!Array.isArray(parsed)) return [];
-      return parsed.map((msg) => ({
-        ...msg,
-        timestamp: new Date(msg.timestamp),
-      }));
-    } catch (error) {
-      logger.error("Erreur chargement messages", error);
-      return [];
+    // Charger les messages existants au démarrage
+    if (typeof localStorage !== "undefined") {
+      try {
+        const stored = localStorage.getItem("doodates_messages");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          return parsed.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          }));
+        }
+      } catch (error) {
+        logger.error("Erreur chargement messages", error);
+        return [];
+      }
     }
+    return [];
   });
 
-  // État éditeur avec reducer
+  // État éditeur avec reducer - DÉPLACÉ AVANT L'UTILISATION
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [currentPoll, dispatchPoll] = useReducer(pollReducer, null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
