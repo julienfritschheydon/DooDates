@@ -31,7 +31,18 @@ jobs:
         run: |
           npm ci --prefer-offline --no-audit
       
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright-smoke
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-chromium-
+            ${{ runner.os }}-playwright-
+      
       - name: 🧭 Install Playwright (Chromium only)
+        if: steps.cache-playwright-smoke.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
       
       - name: 📦 Build production (avec base path local pour tests)
@@ -101,7 +112,18 @@ jobs:
         run: |
           npm ci --prefer-offline --no-audit
 
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright-health
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-chromium-
+            ${{ runner.os }}-playwright-
+
       - name: 🧭 Install Playwright (Chromium only)
+        if: steps.cache-playwright-health.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
 
       - name: 🧪 Run Supabase Health Check (APIs critiques)
@@ -387,6 +409,7 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: 🧭 Install Playwright Browser (${{ matrix.project }})
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: |
           # Déterminer le navigateur à installer
           case "${{ matrix.project }}" in
