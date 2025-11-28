@@ -3,6 +3,9 @@
 **Dernière mise à jour:** 28/11/2025 13:40:52
 
 _Workflow run #596 (ID 19764098422) — génération UTC 2025-11-28T12:40:52.113Z_
+**Dernière mise à jour:** 28/11/2025 13:38:36
+
+_Workflow run #595 (ID 19764047848) — génération UTC 2025-11-28T12:38:36.341Z_
 
 ## 🎯 Focus: Commit `e205dcd`
 
@@ -48,12 +51,14 @@ Tous les workflows surveillés ont réussi pour le commit `e205dcd`.
 ## 3️⃣ Main Post-Merge E2E
 
 **Statut:** ❌ failure
+**Statut:** ⏳ unknown
 
 **Dernier run:** 28/11/2025 13:37:41
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **1**
+- ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
 #### Run #104 - 28/11/2025 13:37:41
@@ -115,6 +120,8 @@ Error: "snippet": "   at utils.ts:155\n\n\u001b[0m \u001b 153 |\u001b   \u001b[3
 ... (truncated)
 ```
       *... et 3 autre(s) erreur(s)*
+- **Statut:** null
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19764047229)
 
 ---
 
@@ -122,6 +129,7 @@ Error: "snippet": "   at utils.ts:155\n\n\u001b[0m \u001b 153 |\u001b   \u001b[3
 
 - 🎯 **Focus: Commit actuel** `e205dcd`
 - ❌ **Échecs pour ce commit:** 1
+- ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
@@ -168,5 +176,6 @@ Des échecs ont été détectés pour le commit actuel. Consultez les sections c
 ---
 
 *Rapport généré automatiquement par l'analyseur IA - 2025-11-28T12:40:55.359Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T12:38:40.167Z*
 ---
 
