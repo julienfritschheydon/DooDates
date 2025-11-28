@@ -44,6 +44,7 @@ import AuthIncentiveModal from "./modals/AuthIncentiveModal";
 import { AuthModal } from "./modals/AuthModal";
 import QuotaIndicator from "./ui/QuotaIndicator";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useSmartNavigation } from "../hooks/useSmartNavigation";
 import { conversationProtection } from "../services/ConversationProtection";
 import { performanceMonitor } from "../services/PerformanceMonitor";
 import { useInfiniteLoopProtection } from "../services/InfiniteLoopProtection";
@@ -662,7 +663,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         const urlParams = new URLSearchParams(window.location.search);
         const resumeId = urlParams.get("resume") || urlParams.get("conversationId");
         const isResumingConversation = !!resumeId;
-        
+
         // 🆕 Si on a ?new= dans l'URL, ne pas reprendre de conversation
         const hasNewParam = urlParams.has("new");
         if (hasNewParam) {

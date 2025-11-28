@@ -5,7 +5,7 @@
  * Distingue nouvelle création (reset) vs refresh (préservation)
  */
 
-import { logger } from "@/lib/logger";
+import { logger } from "../lib/logger";
 
 export type NavigationAction = "PUSH" | "POP" | "REPLACE";
 
@@ -48,7 +48,7 @@ export class ChatResetService {
       timestamp: Date.now(),
     };
 
-    logger.debug("Navigation context analyzed", "chat-reset", context);
+    logger.debug("Navigation context analyzed", "conversation", context);
 
     // 1. Mode édition - préserver et charger contexte
     if (this.isEditMode(context)) {
@@ -106,7 +106,7 @@ export class ChatResetService {
     const editId = context.searchParams.get("edit");
     const hasEditId = editId && editId.length > 0;
 
-    logger.debug("Edit mode check", "chat-reset", {
+    logger.debug("Edit mode check", "conversation", {
       hasEditId,
       editId,
       path: context.toPath,
@@ -127,7 +127,7 @@ export class ChatResetService {
 
     const isTypeChange = (fromIsDate && toIsForm) || (fromIsForm && toIsDate);
 
-    logger.debug("Type change check", "chat-reset", {
+    logger.debug("Type change check", "conversation", {
       isTypeChange,
       fromPath: context.fromPath,
       toPath: context.toPath,
@@ -148,7 +148,7 @@ export class ChatResetService {
 
     const isNewCreation = isWorkspaceTarget && hasNoParams && isFromOutside;
 
-    logger.debug("New creation check", "chat-reset", {
+    logger.debug("New creation check", "conversation", {
       isNewCreation,
       isWorkspaceTarget,
       hasNoParams,
@@ -171,7 +171,7 @@ export class ChatResetService {
 
     const isTemporaryNavigation = isFromNonWorkspace && isToWorkspace;
 
-    logger.debug("Temporary navigation check", "chat-reset", {
+    logger.debug("Temporary navigation check", "conversation", {
       isTemporaryNavigation,
       isFromNonWorkspace,
       isToWorkspace,
@@ -186,7 +186,7 @@ export class ChatResetService {
    * Applique la stratégie de reset
    */
   static async applyResetStrategy(strategy: ResetStrategy): Promise<void> {
-    logger.info("Applying reset strategy", "chat-reset", strategy);
+    logger.info("Applying reset strategy", "conversation", strategy);
 
     try {
       // Émettre un événement custom pour que les composants écoutent
@@ -196,12 +196,12 @@ export class ChatResetService {
 
       window.dispatchEvent(event);
 
-      logger.info("Reset event dispatched", "chat-reset", {
+      logger.info("Reset event dispatched", "conversation", {
         resetType: strategy.resetType,
         reason: strategy.reason,
       });
     } catch (error) {
-      logger.error("Failed to apply reset strategy", "chat-reset", error);
+      logger.error("Failed to apply reset strategy", "conversation", error);
       throw error;
     }
   }

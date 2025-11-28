@@ -99,6 +99,163 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   const { clearMessages: clearMessagesNew } = useConversationActions();
   const { clearCurrentPoll: clearCurrentPollNew, closeEditor: closeEditorNew } = useEditorActions();
 
+  // Écouter les événements de reset du chat
+  useEffect(() => {
+    const handleChatReset = (event: CustomEvent) => {
+      const strategy = event.detail;
+      console.log("🔄 [ConversationProvider] Chat reset event received:", strategy);
+
+      // Appliquer le reset selon la stratégie
+      switch (strategy.resetType) {
+        case "full":
+          console.log("🧹 [ConversationProvider] Full reset - Nettoyage complet");
+          clearConversationLocal();
+          break;
+
+        case "context-only":
+          console.log("🧹 [ConversationProvider] Context reset - Nettoyage partiel");
+          // Conserver la conversation mais nettoyer le poll/éditeur
+          clearCurrentPollNew();
+          closeEditorNew();
+          setIsEditorOpen(false);
+          dispatchPoll({ type: "REPLACE_POLL", payload: null as Poll });
+          break;
+
+        case "none":
+          console.log("🔄 [ConversationProvider] No reset - Préservation de l'état");
+          break;
+
+        default:
+          console.warn("⚠️ [ConversationProvider] Unknown reset type:", strategy.resetType);
+      }
+    };
+
+    // Ajouter l'écouteur d'événement
+    window.addEventListener("chat-reset", handleChatReset as EventListener);
+
+    // Nettoyer l'écouteur
+    return () => {
+      window.removeEventListener("chat-reset", handleChatReset as EventListener);
+    };
+  }, [clearCurrentPollNew, closeEditorNew, clearMessagesNew]);
+
+  // Actions conversation
+  const addMessage = useCallback((message: Message) => {
+    setMessages((prev) => [...prev, message]);
+  }, []);
+
+  const clearConversationLocal = useCallback(() => {
+    console.log(
+      "🧹 [ConversationProvider] clearConversation appelé - Nettoyage complet (3 systèmes)",
+    );
+
+    // 1. Nettoyer l'ancien système de messages (ConversationProvider)
+    setConversationId(null);
+    setMessages([]);
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem("prototype_messages");
+      }
+    } catch (error) {
+      logger.error("Erreur suppression messages", error);
+    }
+
+    // 2. 🔧 FIX BUG: Nettoyer le nouveau système de messages (ConversationStateProvider)
+    clearMessagesNew();
+
+    // 3. 🔧 FIX BUG: Nettoyer l'ancien système d'éditeur (ConversationProvider)
+    setIsEditorOpen(false);
+    dispatchPoll({ type: "REPLACE_POLL", payload: null as Poll });
+
+    // 4. 🔧 FIX BUG: Nettoyer aussi le nouveau système d'éditeur (EditorStateProvider)
+    clearCurrentPollNew();
+    closeEditorNew();
+
+    // 5. 🔧 FIX BUG: Supprimer le brouillon PollCreator pour éviter restauration automatique
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem("doodates-draft");
+        console.log("🧹 [ConversationProvider] Brouillon PollCreator supprimé");
+      }
+    } catch (error) {
+      logger.error("Erreur suppression brouillon", error);
+    }
+
+    console.log(
+      "✅ [ConversationProvider] Nettoyage complet terminé (messages + éditeur + brouillon)",
+    );
+    // Note: On ne supprime PAS doodates_polls car il contient tous les polls sauvegardés
+    // On vide juste currentPoll pour ne pas le restaurer au prochain refresh
+  }, [clearMessagesNew, clearCurrentPollNew, closeEditorNew]);
+
+  const clearConversation = clearConversationLocal;
+
+  // Actions éditeur
+  const openEditor = useCallback((poll: Poll) => {
+    dispatchPoll({ type: "REPLACE_POLL", payload: poll });
+    setIsEditorOpen(true);
+  }, []);
+
+  const closeEditor = useCallback(() => {
+    setIsEditorOpen(false);
+    // Garder currentPoll pour pouvoir rouvrir
+  }, []);
+
+  const updatePoll = useCallback((poll: Poll) => {
+    // Remplacer complètement le poll (utilisé pour l'ouverture initiale)
+    dispatchPoll({ type: "REPLACE_POLL", payload: poll });
+  }, []);
+
+  // Action pour dispatcher des modifications via le reducer
+  // Route vers le bon reducer selon le type de poll
+  const dispatchPollAction = useCallback(
+    (action: PollAction | FormPollAction) => {
+      if (!currentPoll) return;
+
+      // Déterminer quel reducer utiliser selon le type de poll
+      const pollType = currentPoll?.type;
+
+      // Si c'est un Form Poll, utiliser formPollReducer
+      if (pollType === "form") {
+        const updatedPoll = formPollReducer(currentPoll, action as FormPollAction);
+        if (updatedPoll) {
+          // Extraire highlightedId pour l'animation
+          const highlightId = (updatedPoll as Poll & { _highlightedId?: string })._highlightedId;
+          const highlightTypeValue = (
+            updatedPoll as Poll & { _highlightType?: "add" | "remove" | "modify" }
+          )._highlightType;
+
+          if (highlightId) {
+            setHighlightedId(highlightId);
+            setHighlightType(highlightTypeValue);
+            // Garder le highlight en permanence (pas de timeout)
+          }
+
+          dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll });
+        }
+      } else {
+        // Sinon, utiliser pollReducer pour les Date Polls (type "date" ou undefined)
+        const updatedPoll = pollReducer(currentPoll, action as PollAction);
+        if (updatedPoll) {
+          // Extraire highlightedId pour l'animation (même logique que Form Poll)
+          const highlightId = (updatedPoll as Poll & { _highlightedId?: string })._highlightedId;
+          const highlightTypeValue = (
+            updatedPoll as Poll & { _highlightType?: "add" | "remove" | "modify" }
+          )._highlightType;
+
+          if (highlightId) {
+            setHighlightedId(highlightId);
+            setHighlightType(highlightTypeValue);
+            // Garder le highlight en permanence (pas de timeout)
+          }
+
+          dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll });
+        }
+      }
+    },
+    [currentPoll],
+  );
+
   // État conversation
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>(() => {
@@ -109,9 +266,13 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       if (!saved) return [];
       const parsed = JSON.parse(saved);
       // Valider que c'est bien un tableau
-      return Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) return [];
+      return parsed.map((msg) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp),
+      }));
     } catch (error) {
-      logger.error("Erreur restauration messages", error);
+      logger.error("Erreur chargement messages", error);
       return [];
     }
   });
@@ -210,117 +371,6 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     }
   }, [messages]);
 
-  // Actions conversation
-  const addMessage = useCallback((message: Message) => {
-    setMessages((prev) => [...prev, message]);
-  }, []);
-
-  const clearConversation = useCallback(() => {
-    console.log('🧹 [ConversationProvider] clearConversation appelé - Nettoyage complet (3 systèmes)');
-    
-    // 1. Nettoyer l'ancien système de messages (ConversationProvider)
-    setConversationId(null);
-    setMessages([]);
-    try {
-      if (typeof localStorage !== "undefined") {
-        localStorage.removeItem("prototype_messages");
-      }
-    } catch (error) {
-      logger.error("Erreur suppression messages", error);
-    }
-    
-    // 2. 🔧 FIX BUG: Nettoyer le nouveau système de messages (ConversationStateProvider)
-    clearMessagesNew();
-    
-    // 3. 🔧 FIX BUG: Nettoyer l'ancien système d'éditeur (ConversationProvider)
-    setIsEditorOpen(false);
-    dispatchPoll({ type: "REPLACE_POLL", payload: null as Poll });
-    
-    // 4. 🔧 FIX BUG: Nettoyer aussi le nouveau système d'éditeur (EditorStateProvider)
-    clearCurrentPollNew();
-    closeEditorNew();
-    
-    // 5. 🔧 FIX BUG: Supprimer le brouillon PollCreator pour éviter restauration automatique
-    try {
-      if (typeof localStorage !== "undefined") {
-        localStorage.removeItem("doodates-draft");
-        console.log('🧹 [ConversationProvider] Brouillon PollCreator supprimé');
-      }
-    } catch (error) {
-      logger.error("Erreur suppression brouillon", error);
-    }
-    
-    console.log('✅ [ConversationProvider] Nettoyage complet terminé (messages + éditeur + brouillon)');
-    // Note: On ne supprime PAS doodates_polls car il contient tous les polls sauvegardés
-    // On vide juste currentPoll pour ne pas le restaurer au prochain refresh
-  }, [clearMessagesNew, clearCurrentPollNew, closeEditorNew]);
-
-  // Actions éditeur
-  const openEditor = useCallback((poll: Poll) => {
-    dispatchPoll({ type: "REPLACE_POLL", payload: poll });
-    setIsEditorOpen(true);
-  }, []);
-
-  const closeEditor = useCallback(() => {
-    setIsEditorOpen(false);
-    // Garder currentPoll pour pouvoir rouvrir
-  }, []);
-
-  const updatePoll = useCallback((poll: Poll) => {
-    // Remplacer complètement le poll (utilisé pour l'ouverture initiale)
-    dispatchPoll({ type: "REPLACE_POLL", payload: poll });
-  }, []);
-
-  // Action pour dispatcher des modifications via le reducer
-  // Route vers le bon reducer selon le type de poll
-  const dispatchPollAction = useCallback(
-    (action: PollAction | FormPollAction) => {
-      if (!currentPoll) return;
-
-      // Déterminer quel reducer utiliser selon le type de poll
-      const pollType = currentPoll?.type;
-
-      // Si c'est un Form Poll, utiliser formPollReducer
-      if (pollType === "form") {
-        const updatedPoll = formPollReducer(currentPoll, action as FormPollAction);
-        if (updatedPoll) {
-          // Extraire highlightedId pour l'animation
-          const highlightId = (updatedPoll as Poll & { _highlightedId?: string })._highlightedId;
-          const highlightTypeValue = (
-            updatedPoll as Poll & { _highlightType?: "add" | "remove" | "modify" }
-          )._highlightType;
-
-          if (highlightId) {
-            setHighlightedId(highlightId);
-            setHighlightType(highlightTypeValue);
-            // Garder le highlight en permanence (pas de timeout)
-          }
-
-          dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll });
-        }
-      } else {
-        // Sinon, utiliser pollReducer pour les Date Polls (type "date" ou undefined)
-        const updatedPoll = pollReducer(currentPoll, action as PollAction);
-        if (updatedPoll) {
-          // Extraire highlightedId pour l'animation (même logique que Form Poll)
-          const highlightId = (updatedPoll as Poll & { _highlightedId?: string })._highlightedId;
-          const highlightTypeValue = (
-            updatedPoll as Poll & { _highlightType?: "add" | "remove" | "modify" }
-          )._highlightType;
-
-          if (highlightId) {
-            setHighlightedId(highlightId);
-            setHighlightType(highlightTypeValue);
-            // Garder le highlight en permanence (pas de timeout)
-          }
-
-          dispatchPoll({ type: "REPLACE_POLL", payload: updatedPoll });
-        }
-      }
-    },
-    [currentPoll],
-  );
-
   // Persistance automatique avec debounce (500ms)
   useEffect(() => {
     if (!currentPoll) return;
@@ -360,8 +410,14 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
       // Convertir timeSlots si présents
       let timeSlotsByDate = {};
-      const isDatePoll = pollData.type === "date" || pollData.type === "datetime" || pollData.type === "custom";
-      if (isDatePoll && "timeSlots" in pollData && pollData.timeSlots && pollData.timeSlots.length > 0) {
+      const isDatePoll =
+        pollData.type === "date" || pollData.type === "datetime" || pollData.type === "custom";
+      if (
+        isDatePoll &&
+        "timeSlots" in pollData &&
+        pollData.timeSlots &&
+        pollData.timeSlots.length > 0
+      ) {
         timeSlotsByDate = (
           pollData as import("../../lib/gemini").DatePollSuggestion
         ).timeSlots.reduce(
@@ -373,9 +429,11 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
             slot: { start: string; end: string; dates?: string[] },
           ) => {
             const targetDates =
-              slot.dates && slot.dates.length > 0 
-                ? slot.dates 
-                : (isDatePoll && "dates" in pollData ? pollData.dates || [] : []);
+              slot.dates && slot.dates.length > 0
+                ? slot.dates
+                : isDatePoll && "dates" in pollData
+                  ? pollData.dates || []
+                  : [];
 
             targetDates.forEach((date: string) => {
               if (!acc[date]) acc[date] = [];
@@ -442,7 +500,12 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       }
 
       // Déterminer le type de poll et extraire les propriétés appropriées
-      const pollType = pollData.type === "form" ? "form" : pollData.type === "availability" ? "availability" : "date";
+      const pollType =
+        pollData.type === "form"
+          ? "form"
+          : pollData.type === "availability"
+            ? "availability"
+            : "date";
       const dates = isDatePoll && "dates" in pollData ? pollData.dates || [] : [];
       const dateGroups = isDatePoll && "dateGroups" in pollData ? pollData.dateGroups : undefined;
 
@@ -467,7 +530,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
       // Sauvegarder dans pollStorage
       try {
-        console.log('[WEEKEND_GROUPING] 💾 ConversationProvider - Poll créé:', {
+        console.log("[WEEKEND_GROUPING] 💾 ConversationProvider - Poll créé:", {
           pollId: poll.id,
           type: poll.type,
           datesCount: poll.dates?.length,
@@ -475,7 +538,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
           dateGroupsCount: poll.dateGroups?.length,
           dateGroups: poll.dateGroups,
         });
-        
+
         addPoll(poll);
 
         // Lier bidirectionnellement le poll à la conversation (Session 1 - Architecture centrée conversations)
@@ -483,11 +546,11 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
           linkPollToConversationBidirectional(conversationId, poll.id, poll.type || "form");
         }
 
-        console.log('[WEEKEND_GROUPING] 📂 ConversationProvider - Ouverture éditeur avec poll:', {
+        console.log("[WEEKEND_GROUPING] 📂 ConversationProvider - Ouverture éditeur avec poll:", {
           pollId: poll.id,
           hasDateGroups: !!poll.dateGroups,
         });
-        
+
         // Ouvrir l'éditeur dans le panneau de droite
         openEditor(poll);
       } catch (error) {
