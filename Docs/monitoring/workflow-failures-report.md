@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 11:20:31
+**Dernière mise à jour:** 28/11/2025 11:28:40
 
-_Workflow run #572 (ID 19760875831) — génération UTC 2025-11-28T10:20:31.114Z_
+_Workflow run #573 (ID 19761080903) — génération UTC 2025-11-28T10:28:40.400Z_
 
-## 🎯 Focus: Commit `d2a19ac`
-**Dernière mise à jour:** 28/11/2025 11:16:29
-
-_Workflow run #569 (ID 19760773995) — génération UTC 2025-11-28T10:16:29.701Z_
-
-## 🎯 Focus: Commit `44dc864`
+## 🎯 Focus: Commit `ad8d46a`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,8 +26,7 @@ _Workflow run #569 (ID 19760773995) — génération UTC 2025-11-28T10:16:29.701
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `d2a19ac`.
-Tous les workflows surveillés ont réussi pour le commit `44dc864`.
+Tous les workflows surveillés ont réussi pour le commit `ad8d46a`.
 
 ---
 
@@ -40,15 +34,14 @@ Tous les workflows surveillés ont réussi pour le commit `44dc864`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 11:11:54
+**Dernier run:** 28/11/2025 11:24:02
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `d2a19ac`.
-Tous les workflows surveillés ont réussi pour le commit `44dc864`.
+Tous les workflows surveillés ont réussi pour le commit `ad8d46a`.
 
 ---
 
@@ -56,28 +49,26 @@ Tous les workflows surveillés ont réussi pour le commit `44dc864`.
 
 **Statut:** ⏳ unknown
 
-**Dernier run:** 28/11/2025 11:15:37
+**Dernier run:** 28/11/2025 11:27:47
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `d2a19ac`.
-#### Run #100 - 28/11/2025 11:15:37
+#### Run #101 - 28/11/2025 11:27:47
 
-- **Commit:** `44dc864`
+- **Commit:** `ad8d46a`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
 - **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19760773099)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19761080059)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `d2a19ac`
-- 🎯 **Focus: Commit actuel** `44dc864`
+- 🎯 **Focus: Commit actuel** `ad8d46a`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -85,7 +76,6 @@ Tous les workflows surveillés ont réussi pour le commit `d2a19ac`.
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
 **Statistiques :**
@@ -125,6 +115,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T10:16:33.668Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T10:28:44.142Z*
 ---
 
