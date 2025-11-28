@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 11:32:23
+**Dernière mise à jour:** 28/11/2025 11:50:26
 
-_Workflow run #576 (ID 19761177093) — génération UTC 2025-11-28T10:32:23.012Z_
+_Workflow run #580 (ID 19761604504) — génération UTC 2025-11-28T10:50:26.169Z_
 
-## 🎯 Focus: Commit `7de0990`
-**Dernière mise à jour:** 28/11/2025 11:28:40
-
-_Workflow run #573 (ID 19761080903) — génération UTC 2025-11-28T10:28:40.400Z_
-
-## 🎯 Focus: Commit `ad8d46a`
+## 🎯 Focus: Commit `d702a17`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,8 +26,7 @@ _Workflow run #573 (ID 19761080903) — génération UTC 2025-11-28T10:28:40.400
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `7de0990`.
-Tous les workflows surveillés ont réussi pour le commit `ad8d46a`.
+Tous les workflows surveillés ont réussi pour le commit `d702a17`.
 
 ---
 
@@ -40,15 +34,14 @@ Tous les workflows surveillés ont réussi pour le commit `ad8d46a`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 11:24:02
+**Dernier run:** 28/11/2025 11:44:33
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `7de0990`.
-Tous les workflows surveillés ont réussi pour le commit `ad8d46a`.
+Tous les workflows surveillés ont réussi pour le commit `d702a17`.
 
 ---
 
@@ -56,28 +49,26 @@ Tous les workflows surveillés ont réussi pour le commit `ad8d46a`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 11:27:47
+**Dernier run:** 28/11/2025 11:48:32
 
 **Statistiques:**
-- 📊 **Total runs pour ce commit:** **0**
+- 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
-### ✅ Aucun échec pour ce commit
+### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `7de0990`.
-#### Run #101 - 28/11/2025 11:27:47
+#### Run #102 - 28/11/2025 11:48:32
 
-- **Commit:** `ad8d46a`
+- **Commit:** `d702a17`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19761080059)
+- **Statut:** success
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19761580857)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `7de0990`
-- 🎯 **Focus: Commit actuel** `ad8d46a`
+- 🎯 **Focus: Commit actuel** `d702a17`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -85,7 +76,6 @@ Tous les workflows surveillés ont réussi pour le commit `7de0990`.
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
 **Statistiques :**
@@ -125,6 +115,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T10:28:44.142Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T10:50:29.431Z*
 ---
 
