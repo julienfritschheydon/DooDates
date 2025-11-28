@@ -1,7 +1,7 @@
 /**
  * Centralized Error Handling System for DooDates
  *
- * This module provides consistent error handling patterns across the application.
+ * This  patterns across the application.
  * It standardizes how errors are logged, reported, and handled.
  */
 export declare enum ErrorSeverity {
