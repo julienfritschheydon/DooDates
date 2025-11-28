@@ -156,6 +156,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
             <div className="px-4 pb-4 space-y-2">
               {/* Phase 0: Trois boutons distincts pour les trois types de création */}
               <button
+                data-testid="create-date-poll"
                 onClick={() => {
                   const url = `/workspace/date?new=${Date.now()}`;
                   console.log('🔵 [CreatePageLayout] Bouton "Créer un nouveau sondage" cliqué - Navigation vers:', url);
@@ -169,6 +170,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
               </button>
 
               <button
+                data-testid="create-form-poll"
                 onClick={() => {
                   const url = `/workspace/form?new=${Date.now()}`;
                   console.log('🟣 [CreatePageLayout] Bouton "Créer un nouveau formulaire" cliqué - Navigation vers:', url);

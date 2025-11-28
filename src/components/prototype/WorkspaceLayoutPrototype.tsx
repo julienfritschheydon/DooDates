@@ -22,13 +22,15 @@ const Key = createLazyIcon("Key");
 // Wrapper pour icônes lazy avec Suspense
 const LazyIconWrapper = ({
   Icon,
+  className,
   ...props
 }: {
-  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  [key: string]: unknown;
+  Icon: React.LazyExoticComponent<React.ComponentType<React.SVGProps<SVGSVGElement>>>;
+  className?: string;
+  [key: string]: any;
 }) => (
-  <Suspense fallback={<span className={props.className || "w-5 h-5"} />}>
-    <Icon {...props} />
+  <Suspense fallback={<span className={className || "w-5 h-5"} />}>
+    <Icon className={className} {...props} />
   </Suspense>
 );
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -792,7 +794,7 @@ export function AICreationWorkspace() {
                     setSignOutDialogOpen(false);
                     // Forcer le rechargement pour s'assurer que tout est nettoyé
                     setTimeout(() => {
-                      window.location.href = "/";
+                      window.location.href = "/DooDates/";
                     }, 500);
                   }
                 } catch (error) {

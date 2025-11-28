@@ -66,7 +66,7 @@ export function Sidebar() {
   // Desktop: Sidebar fixe
   return (
     <aside className="w-60 h-screen bg-white border-r border-gray-200 hidden md:block">
-      <SidebarContent />
+      <SidebarContent onItemClick={() => {}} />
     </aside>
   );
 }

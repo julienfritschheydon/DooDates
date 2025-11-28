@@ -1,1 +1,202 @@
-npx lint-staged
+#!/bin/sh
+echo "🔍 DooDates - Validation pre-commit..."
+
+# Détection branche courante
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+
+# Skip tous les tests pour les branches de test (test, test-*)
+if echo "$BRANCH" | grep -qE "^test"; then
+  echo "⚡ Branche TEST ($BRANCH): skip validation complète (tests gérés par CI)"
+  echo "✅ Pre-commit (test branch) validé - Commit autorisé"
+  exit 0
+fi
+
+# ggshield secret scan (fail-fast sur toutes les branches)
+if command -v ggshield >/dev/null 2>&1; then
+  echo "🛡️ ggshield: scan des secrets (pre-commit)..."
+  ggshield secret scan pre-commit
+  if [ $? -ne 0 ]; then
+    echo "❌ Secrets détectés - Commit bloqué"
+    exit 1
+  fi
+else
+  echo "ℹ️ ggshield non installé (skip)"
+fi
+
+# Mode rapide optionnel pour accélérer les commits locaux
+# Activez-le avec FAST_HOOKS=1 pour ignorer les vérifications lourdes
+if [ "$FAST_HOOKS" = "1" ]; then
+  echo "⚡ Mode rapide activé (FAST_HOOKS=1) - tests lourds ignorés"
+  echo "🧪 Tests unitaires rapides..."
+  npm run test:unit:fast
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Commit bloqué"
+    exit 1
+  fi
+
+  echo "💅 Formatage du code..."
+  npm run format
+
+  echo "✅ Pre-commit (rapide) validé - Commit autorisé"
+  exit 0
+fi
+
+# Validation conditionnelle selon la branche
+if [ "$BRANCH" = "main" ]; then
+  echo "🔒 Branche MAIN: validation complète..."
+  # Suite complète (tests, type-check, intégration, etc.)
+else
+  echo "⚡ Branche DEVELOP: validation rapide (lint + format + error handling)..."
+
+  # 0. Vérification serveur local ET erreurs JavaScript (optionnel, activé par défaut)
+  # Skip automatiquement en CI (GitHub Actions, etc.)
+  if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
+    echo "⏭️ Environnement CI détecté - Vérification serveur local ignorée"
+  else
+    if [ "$SKIP_LOCAL_SERVER_CHECK" = "1" ]; then
+      echo "⏭️ Vérification serveur local ignorée (SKIP_LOCAL_SERVER_CHECK=1)"
+    else
+      echo "🌐 Vérification serveur local et erreurs JavaScript..."
+      if [ -f "scripts/verify-local-server-with-console-check.js" ]; then
+        # Utiliser le script Node.js optimisé qui vérifie aussi les erreurs console avec Playwright
+        node scripts/verify-local-server-with-console-check.js
+        if [ $? -ne 0 ]; then
+          echo "❌ Erreurs JavaScript détectées - Le site ne fonctionne pas correctement"
+          echo "💡 Corrigez les erreurs avant de commiter"
+          echo "💡 Pour ignorer cette vérification: SKIP_LOCAL_SERVER_CHECK=1 git commit"
+          exit 1  # Bloquer le commit si erreurs JS détectées
+        fi
+      elif [ -f "scripts/verify-local-server.sh" ]; then
+        bash scripts/verify-local-server.sh
+        if [ $? -ne 0 ]; then
+          echo "⚠️ Serveur local non disponible - Vérifiez avec: npm run dev"
+          echo "💡 Pour ignorer cette vérification: SKIP_LOCAL_SERVER_CHECK=1 git commit"
+          # Ne pas bloquer le commit, juste avertir
+        fi
+      elif [ -f "scripts/verify-local-server.ps1" ]; then
+        # Sur Windows avec PowerShell
+        pwsh -File scripts/verify-local-server.ps1
+        if [ $? -ne 0 ]; then
+          echo "⚠️ Serveur local non disponible - Vérifiez avec: npm run dev"
+          echo "💡 Pour ignorer cette vérification: SKIP_LOCAL_SERVER_CHECK=1 git commit"
+          # Ne pas bloquer le commit, juste avertir
+        fi
+      else
+        echo "⚠️ Script de vérification serveur local non trouvé"
+      fi
+    fi
+  fi
+
+  # 1. Lint rapide (warnings autorisés, erreurs bloquantes seulement)
+  echo "🔍 ESLint..."
+  npx eslint . --report-unused-disable-directives --max-warnings 1000
+  if [ $? -ne 0 ]; then
+    echo "❌ Erreurs lint - Commit bloqué"
+    exit 1
+  fi
+
+  # 2. Error Handling Enforcement (rapide ~5s)
+  echo "🛡️ Vérification Error Handling..."
+  npm run test:error-handling
+  if [ $? -ne 0 ]; then
+    echo "❌ Violations Error Handling détectées - Commit bloqué"
+    echo "💡 Utilisez ErrorFactory au lieu de 'throw new Error'"
+    exit 1
+  fi
+
+  # 2b. Vérification testabilité (data-testid, tests pour nouveau code)
+  echo "🧪 Vérification testabilité..."
+  node scripts/verify-testability.cjs
+  if [ $? -ne 0 ]; then
+    echo "⚠️ Problèmes de testabilité détectés (non bloquant pour le moment)"
+  fi
+
+  # 2c. Validation règles E2E (bonnes pratiques)
+  echo "📋 Validation règles E2E..."
+  node scripts/validation/validate-e2e-rules.cjs --staged
+  if [ $? -ne 0 ]; then
+    echo "❌ Violations des règles E2E détectées - Commit bloqué"
+    echo "💡 Consultez Docs/TESTS/-Tests-Guide.md pour les bonnes pratiques"
+    exit 1
+  fi
+
+  # 3. Tests E2E critiques (ultra-simple form + poll @critical)
+  echo "🌐 Tests E2E critiques (ultra-simple form + poll)..."
+  npx playwright test tests/e2e/ultra-simple-form.spec.ts tests/e2e/ultra-simple-poll.spec.ts --project=chromium --grep "@critical"
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests E2E critiques échoués - Commit bloqué"
+    exit 1
+  fi
+
+  # 4. Formatage automatique
+  if [ "$NO_FORMAT" != "1" ]; then
+    echo "💅 Formatage du code..."
+    npm run format
+  else
+    echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
+  fi
+
+  echo "✅ Pre-commit (develop) validé - Commit autorisé"
+  exit 0
+fi
+
+# 1. Tests unitaires rapides (< 30s)
+echo "🧪 Tests unitaires rapides..."
+npm run test:unit:fast
+if [ $? -ne 0 ]; then
+  echo "❌ Tests unitaires échoués - Commit bloqué"
+  exit 1
+fi
+
+# 2. Validation TypeScript
+echo "🔍 Vérification TypeScript..."
+npm run type-check
+if [ $? -ne 0 ]; then
+  echo "❌ Erreurs TypeScript - Commit bloqué"
+  exit 1
+fi
+
+# 3. Tests UX Régression (critique)
+echo "🎨 Tests UX Régression..."
+npm run test:ux-regression
+if [ $? -ne 0 ]; then
+  echo "❌ Régression UX détectée - Commit bloqué"
+  exit 1
+fi
+
+# 4. Tests d'intégration
+echo "🔗 Tests d'intégration..."
+npm run test:integration
+if [ $? -ne 0 ]; then
+  echo "❌ Tests d'intégration échoués - Commit bloqué"
+  exit 1
+fi
+
+# 5. Error Handling Enforcement (CRITIQUE)
+echo "🛡️ Vérification Error Handling..."
+npm run test:error-handling
+if [ $? -ne 0 ]; then
+  echo "❌ Violations Error Handling détectées - Commit bloqué"
+  echo "💡 Utilisez ErrorFactory au lieu de 'throw new Error'"
+  exit 1
+fi
+
+# 5b. Validation règles E2E (bonnes pratiques)
+echo "📋 Validation règles E2E..."
+node scripts/validation/validate-e2e-rules.cjs --staged
+if [ $? -ne 0 ]; then
+  echo "❌ Violations des règles E2E détectées - Commit bloqué"
+  echo "💡 Consultez Docs/TESTS/-Tests-Guide.md pour les bonnes pratiques"
+  exit 1
+fi
+
+# 6. Formatage automatique (optionnel)
+# Désactivez avec NO_FORMAT=1 pour éviter les changements automatiques
+if [ "$NO_FORMAT" != "1" ]; then
+  echo "💅 Formatage du code..."
+  npm run format
+else
+  echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
+fi
+
+echo "✅ Pre-commit validé - Commit autorisé"
