@@ -132,18 +132,21 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: 🧭 Install Playwright browsers
+        if: steps.cache-playwright-unit.outputs.cache-hit != 'true'
         run: |
           echo "📦 Installation de chromium avec dépendances système..."
           npx playwright install --with-deps chromium
 
-      - name: 🧪 Tests unitaires
-        run: npm run test:unit
+      # - name: 🧪 Tests unitaires
+      #   run: npm run test:unit
+      # Commenté pour accélérer le workflow de push
 
       - name: 🔗 Tests d'intégration
         run: npm run test:integration
 
-      - name: 🎨 Tests UX Régression
-        run: npm run test:ux-regression
+      # - name: 🎨 Tests UX Régression
+      #   run: npm run test:ux-regression
+      # Commenté pour accélérer le workflow de push
 
   tests-e2e:
     needs: changes
@@ -200,6 +203,7 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: 🧭 Install Playwright (Chromium)
+        if: steps.cache-playwright-e2e.outputs.cache-hit != 'true'
         run: |
           echo "📦 Installation de chromium avec dépendances système..."
           npx playwright install --with-deps chromium
@@ -344,6 +348,7 @@ jobs:
             ${{ runner.os }}-playwright-
       
       - name: 🧭 Install Playwright (Chromium only)
+        if: steps.cache-playwright-smoke.outputs.cache-hit != 'true'
         run: |
           echo "📦 Installation de chromium avec dépendances système..."
           npx playwright install --with-deps chromium

@@ -10,7 +10,7 @@ import { chromium } from 'playwright';
 import http from 'http';
 
 const PORT = 8080;
-const URL = `http://localhost:${PORT}`;
+const URL = `http://localhost:${PORT}/DooDates/`;
 const SERVER_TIMEOUT = 2000; // Réduit de 5000 à 2000ms
 const PAGE_TIMEOUT = 10000; // Réduit de 30000 à 10000ms
 const CONSOLE_WAIT = 500; // Réduit de 2000ms à 500ms

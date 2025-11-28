@@ -31,7 +31,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 60000,
   use: {
-    baseURL: 'http://localhost:8080',
+    baseURL: 'http://localhost:8080/DooDates',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 15000,
@@ -70,17 +70,19 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev:e2e',
-    url: 'http://localhost:8080',
-    // Temporairement activé pour utiliser le serveur existant
-    reuseExistingServer: true,
-    timeout: 120 * 1000,
+    url: 'http://localhost:8080/DooDates/',
+    reuseExistingServer: true, // Toujours réutiliser le serveur existant
+    timeout: 30000, // Réduit car le serveur est déjà démarré
     stdout: 'pipe',
     stderr: 'pipe',
     env: {
-      // Injecter les variables d'environnement de test dans le serveur de dev
-      // Utiliser localhost:8080 comme URL factice pour que les mocks puissent intercepter
+      NODE_ENV: 'test', // Forcer le mode test
       VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'http://localhost:8080',
       VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY || 'test-anon-key',
+      // Désactiver HMR pour les tests
+      VITE_HMR: 'false',
+      // Désactiver les optimisations en développement pour accélérer le démarrage
+      VITE_DEV_SERVER_OPTIMIZE_DEPS: 'false',
     },
   },
 });

@@ -32,19 +32,19 @@ test.describe('Security and Data Isolation', () => {
     const timeouts = getTimeouts(browserName);
     
     // Verify basic navigation doesn't crash on security-sensitive pages
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await expect(page).toHaveTitle(/DooDates/);
     
-    await page.goto('/create', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/create', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
     
-    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
     
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await expect(page.locator('body')).toBeVisible({ timeout: timeouts.element });
   });
@@ -52,7 +52,7 @@ test.describe('Security and Data Isolation', () => {
 
 
   test('should handle authentication token security @smoke @critical', async ({ page, browserName }) => {
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     const timeouts = getTimeouts(browserName);

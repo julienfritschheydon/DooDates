@@ -57,7 +57,12 @@ export const usePollConversationLink = () => {
         });
         return true;
       } catch (error) {
-        logError("Failed to link poll to conversation:", error);
+        logError(error as Error, {
+          component: "usePollConversationLink",
+          operation: "linkPollToConversation",
+          conversationId,
+          pollId: pollData.pollId,
+        });
         return false;
       }
     },
