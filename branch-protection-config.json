@@ -1,0 +1,1 @@
+{"required_status_checks": {"strict": true, "contexts": ["build-validation", "quick-tests", "ai-validation", "code-quality", "e2e-smoke", "e2e-functional", "e2e-matrix", "supabase-health"]}, "enforce_admins": true, "required_pull_request_reviews": {"required_approving_review_count": 0}, "restrictions": null}
