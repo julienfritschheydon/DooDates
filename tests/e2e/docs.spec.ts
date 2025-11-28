@@ -120,7 +120,7 @@ test.describe('Documentation - Tests E2E', () => {
     try {
       const timeouts = getTimeouts(browserName);
       // Naviguer vers un document qui n'existe pas
-      await page.goto('/docs/non-existent-document', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/docs/non-existent-document', { waitUntil: 'domcontentloaded' });
       
       // Attendre que la page soit chargée
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network }).catch(() => {});
@@ -168,7 +168,7 @@ test.describe('Documentation - Tests E2E', () => {
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
       
       // Naviguer vers un document pour déclencher le chargement des assets
-      await page.goto('/docs/01-Guide-Demarrage-Rapide', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/docs/01-Guide-Demarrage-Rapide', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
       
       // Vérifier qu'il n'y a pas de requêtes 404 pour les assets de documentation
