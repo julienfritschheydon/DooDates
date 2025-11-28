@@ -317,34 +317,6 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     return [];
   });
 
-  // État éditeur avec reducer - DÉPLACÉ AVANT L'UTILISATION
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [currentPoll, dispatchPoll] = useReducer(pollReducer, null);
-  const [highlightedId, setHighlightedId] = useState<string | null>(null);
-  const [highlightType, setHighlightType] = useState<"add" | "remove" | "modify" | null>(null);
-
-  // État modification question (pour feedback visuel)
-  const [modifiedQuestionId, setModifiedQuestionId] = useState<string | null>(null);
-  const [modifiedField, setModifiedField] = useState<
-    "title" | "type" | "options" | "required" | null
-  >(null);
-
-  const setModifiedQuestion = useCallback(
-    (questionId: string | null, field: "title" | "type" | "options" | "required" | null) => {
-      setModifiedQuestionId(questionId);
-      setModifiedField(field);
-
-      // Clear après 3 secondes
-      if (questionId) {
-        setTimeout(() => {
-          setModifiedQuestionId(null);
-          setModifiedField(null);
-        }, 3000);
-      }
-    },
-    [],
-  );
-
   // Initialisation de l'éditeur
   useEffect(() => {
     // Ouvrir l'éditeur uniquement si on a des messages (= pas une nouvelle conversation)
