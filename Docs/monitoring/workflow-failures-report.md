@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 10:05:19
+**Dernière mise à jour:** 28/11/2025 11:08:22
 
-_Workflow run #564 (ID 19759045785) — génération UTC 2025-11-28T09:05:19.154Z_
+_Workflow run #566 (ID 19760571441) — génération UTC 2025-11-28T10:08:22.237Z_
 
-## 🎯 Focus: Commit `3f41402`
-**Dernière mise à jour:** 28/11/2025 10:01:35
-
-_Workflow run #561 (ID 19758954332) — génération UTC 2025-11-28T09:01:35.581Z_
-
-## 🎯 Focus: Commit `afabd58`
+## 🎯 Focus: Commit `2235a31`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,8 +26,7 @@ _Workflow run #561 (ID 19758954332) — génération UTC 2025-11-28T09:01:35.581
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `3f41402`.
-Tous les workflows surveillés ont réussi pour le commit `afabd58`.
+Tous les workflows surveillés ont réussi pour le commit `2235a31`.
 
 ---
 
@@ -40,44 +34,41 @@ Tous les workflows surveillés ont réussi pour le commit `afabd58`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 09:56:57
+**Dernier run:** 28/11/2025 11:02:29
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `3f41402`.
-Tous les workflows surveillés ont réussi pour le commit `afabd58`.
+Tous les workflows surveillés ont réussi pour le commit `2235a31`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ⏳ unknown
+**Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 10:00:40
+**Dernier run:** 28/11/2025 11:06:25
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `3f41402`.
-#### Run #98 - 28/11/2025 10:00:40
+#### Run #99 - 28/11/2025 11:06:25
 
-- **Commit:** `afabd58`
+- **Commit:** `2235a31`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19758953274)
+- **Statut:** success
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19760545154)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `3f41402`
-- 🎯 **Focus: Commit actuel** `afabd58`
+- 🎯 **Focus: Commit actuel** `2235a31`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -85,7 +76,6 @@ Tous les workflows surveillés ont réussi pour le commit `3f41402`.
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
 **Statistiques :**
@@ -125,6 +115,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T09:01:39.135Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T10:08:25.789Z*
 ---
 
