@@ -100,6 +100,7 @@ IA : "Parfait ! Sondage créé :
 ## 📆 Sélection de dates
 
 ### Interface Calendrier
+![Interface du calendrier de sélection](assets/screenshots/calendar-interface.png)
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -138,6 +139,7 @@ Résultat : 12, 13, 14, 15 novembre sélectionnés
 ## ⏰ Ajouter des Horaires
 
 ### Horaires par date
+![Interface de sélection des horaires par date](assets/screenshots/time-selection-by-date.png)
 
 Après avoir sélectionné les dates :
 
