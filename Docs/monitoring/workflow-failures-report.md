@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 12:11:37
+**Dernière mise à jour:** 28/11/2025 12:13:02
 
-_Workflow run #585 (ID 19762102238) — génération UTC 2025-11-28T11:11:37.034Z_
+_Workflow run #586 (ID 19762140649) — génération UTC 2025-11-28T11:13:02.015Z_
 
-## 🎯 Focus: Commit `89ca467`
+## 🎯 Focus: Commit `9289995`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #585 (ID 19762102238) — génération UTC 2025-11-28T11:11:37.034
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `89ca467`.
+Tous les workflows surveillés ont réussi pour le commit `9289995`.
 
 ---
 
@@ -41,7 +41,7 @@ Tous les workflows surveillés ont réussi pour le commit `89ca467`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `89ca467`.
+Tous les workflows surveillés ont réussi pour le commit `9289995`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `89ca467`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `89ca467`.
+Tous les workflows surveillés ont réussi pour le commit `9289995`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `89ca467`
+- 🎯 **Focus: Commit actuel** `9289995`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
