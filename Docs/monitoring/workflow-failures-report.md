@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 13:28:23
+**Dernière mise à jour:** 28/11/2025 13:40:52
 
-_Workflow run #593 (ID 19763820587) — génération UTC 2025-11-28T12:28:23.014Z_
+_Workflow run #596 (ID 19764098422) — génération UTC 2025-11-28T12:40:52.113Z_
 
-## 🎯 Focus: Commit `af8c45c`
-**Dernière mise à jour:** 28/11/2025 12:07:58
-
-_Workflow run #583 (ID 19762019157) — génération UTC 2025-11-28T11:07:58.090Z_
-
-## 🎯 Focus: Commit `3a1a929`
+## 🎯 Focus: Commit `e205dcd`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,62 +26,108 @@ _Workflow run #583 (ID 19762019157) — génération UTC 2025-11-28T11:07:58.090
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
-Tous les workflows surveillés ont réussi pour le commit `3a1a929`.
+Tous les workflows surveillés ont réussi pour le commit `e205dcd`.
 
 ---
 
 ## 2️⃣ Develop → Main (Auto-merge)
 
-**Statut:** ❌ failure
+**Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 12:50:33
-**Dernier run:** 28/11/2025 12:03:04
+**Dernier run:** 28/11/2025 13:32:59
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
-Tous les workflows surveillés ont réussi pour le commit `3a1a929`.
+Tous les workflows surveillés ont réussi pour le commit `e205dcd`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ✅ success
+**Statut:** ❌ failure
 
-**Dernier run:** 28/11/2025 12:07:07
+**Dernier run:** 28/11/2025 13:37:41
 
 **Statistiques:**
-- 📊 **Total runs pour ce commit:** **0**
-- ❌ **Échecs pour ce commit:** **0**
-### ✅ Aucun échec pour ce commit
+- 📊 **Total runs pour ce commit:** **1**
+- ❌ **Échecs pour ce commit:** **1**
+### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
-#### Run #103 - 28/11/2025 12:07:07
+#### Run #104 - 28/11/2025 13:37:41
 
-- **Commit:** `3a1a929`
+- **Commit:** `e205dcd`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19762018251)
+- **Statut:** failure
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19764047229)
+- **Jobs en échec:**
+  - ❌ `⚡ E2E Functional Tests (2)` (failure)
+    - Steps en échec: `⚡ Run Functional Tests (Shard 2/2)`
+    - **Erreurs détectées (8):**
+      ```
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"errors": [],
+```
+      ```
+File: tests/e2e/ultra-simple-form.spec.ts:53
+Error: "errors": [],
+
+"errors": [],
+"errors": [],
+"errors": [],
+"error": {
+"message": "Error: [console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n\n\u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoHaveLength\u001b(\u001b\u001b[32mexpected\u001b\u001b)\u001b\n\nExpected length: \u001b[32m0\u001b\nReceived length: \u001b[31m10\u001b\nReceived array:  \u001b[31m[\"
+... (truncated)
+```
+      ```
+File: tests/e2e/ultra-simple-form.spec.ts:53
+Error: "snippet": "   at utils.ts:155\n\n\u001b[0m \u001b 153 |\u001b   \u001b[36mreturn\u001b {\n \u001b 154 |\u001b     \u001b[36masync\u001b assertClean() {\n\u001b[31m\u001b[1m>\u001b\u001b\u001b 155 |\u001b       \u001b[36mawait\u001b expect(errors\u001b[33m,\u001b errors\u001b[33m.\u001bjoin(\u001b[32m'\\n'\u001b))\u001b[33m.\u001btoHaveLength(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                               \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 156 |\u001b     }\u001b[33m,\u001b\n \u001b 157 |\u001b     stop() {\n \u001b 158 |\u001b       page\u001b[33m.\u001boff(\u001b[32m'console'\u001b\u001b[33m,\u001b onConsole)\u001b[33m;\u001b\u001b[0m"
+
+"snippet": "   at utils.ts:155\n\n\u001b[0m \u001b 153 |\u001b   \u001b[36mreturn\u001b {\n \u001b 154 |\u001b     \u001b[36masync\u001b assertClean() {\n\u001b[31m\u001b[1m>\u001b\u001b\u001b 155 |\u001b       \u001b[36mawait\u001b expect(errors\u001b[33m,\u001b errors\u001b[33m.\u001bjoin(\u001b[32m'\\n'\u001b))\u001b[33m.\u001btoHaveLength(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                               \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 156 |\u001b     }\u001b[33m,\u001b\n \u001b 157 |\u001b     stop() {\n \u001b 158 |\u001b       page\u001b[33m.\u001boff(\u001b[32m'console'\u001b\u001b[33m,\u001b onConsole)\u001b[33m;\u001b\u001b[0m"
+"errors": [
+"message": "Error: [console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur
+... (truncated)
+```
+      ```
+File: tests/e2e/ultra-simple-form.spec.ts:53
+Error: "path": "/home/runner/work/DooDates/DooDates/test-results/ultra-simple-form-DooDates-0b3b5--dashboard-smoke-functional-chromium/error-context.md"
+
+"path": "/home/runner/work/DooDates/DooDates/test-results/ultra-simple-form-DooDates-0b3b5--dashboard-smoke-functional-chromium/error-context.md"
+"errorLocation": {
+"error": {
+"message": "Error: [console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur chargement messages \n\n\u001bexpect(\u001b\u001b[31mreceived\u001b\u001b).\u001btoHaveLength\u001b(\u001b\u001b[32mexpected\u0
+... (truncated)
+```
+      ```
+File: tests/e2e/ultra-simple-form.spec.ts:53
+Error: "snippet": "   at utils.ts:155\n\n\u001b[0m \u001b 153 |\u001b   \u001b[36mreturn\u001b {\n \u001b 154 |\u001b     \u001b[36masync\u001b assertClean() {\n\u001b[31m\u001b[1m>\u001b\u001b\u001b 155 |\u001b       \u001b[36mawait\u001b expect(errors\u001b[33m,\u001b errors\u001b[33m.\u001bjoin(\u001b[32m'\\n'\u001b))\u001b[33m.\u001btoHaveLength(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                               \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 156 |\u001b     }\u001b[33m,\u001b\n \u001b 157 |\u001b     stop() {\n \u001b 158 |\u001b       page\u001b[33m.\u001boff(\u001b[32m'console'\u001b\u001b[33m,\u001b onConsole)\u001b[33m;\u001b\u001b[0m"
+
+"snippet": "   at utils.ts:155\n\n\u001b[0m \u001b 153 |\u001b   \u001b[36mreturn\u001b {\n \u001b 154 |\u001b     \u001b[36masync\u001b assertClean() {\n\u001b[31m\u001b[1m>\u001b\u001b\u001b 155 |\u001b       \u001b[36mawait\u001b expect(errors\u001b[33m,\u001b errors\u001b[33m.\u001bjoin(\u001b[32m'\\n'\u001b))\u001b[33m.\u001btoHaveLength(\u001b[35m0\u001b)\u001b[33m;\u001b\n \u001b     |\u001b                                               \u001b[31m\u001b[1m^\u001b\u001b\n \u001b 156 |\u001b     }\u001b[33m,\u001b\n \u001b 157 |\u001b     stop() {\n \u001b 158 |\u001b       page\u001b[33m.\u001boff(\u001b[32m'console'\u001b\u001b[33m,\u001b onConsole)\u001b[33m;\u001b\u001b[0m"
+"errors": [
+"message": "Error: [console.error] ❌ ℹ️ Erreur chargement messages \n[console.error] ❌ ℹ️ Erreur
+... (truncated)
+```
+      *... et 3 autre(s) erreur(s)*
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `af8c45c`
-- 🎯 **Focus: Commit actuel** `3a1a929`
-- ❌ **Échecs pour ce commit:** 0
+- 🎯 **Focus: Commit actuel** `e205dcd`
+- ❌ **Échecs pour ce commit:** 1
 - 📊 **Workflows monitorés:** 6
 
-### ✅ État de santé
+### ⚠️ Recommandations
 
-Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
+Des échecs ont été détectés pour le commit actuel. Consultez les sections ci-dessus pour corriger les problèmes avant de pousser d'autres changements.
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
 **Statistiques :**
@@ -126,6 +167,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T11:08:01.508Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T12:40:55.359Z*
 ---
 
