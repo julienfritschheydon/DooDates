@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 12:44:41
+**Dernière mise à jour:** 28/11/2025 12:46:29
 
-_Workflow run #589 (ID 19762864370) — génération UTC 2025-11-28T11:44:41.147Z_
+_Workflow run #590 (ID 19762897944) — génération UTC 2025-11-28T11:46:29.294Z_
 
-## 🎯 Focus: Commit `c4851d6`
+## 🎯 Focus: Commit `5054961`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,13 +26,13 @@ _Workflow run #589 (ID 19762864370) — génération UTC 2025-11-28T11:44:41.147
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `c4851d6`.
+Tous les workflows surveillés ont réussi pour le commit `5054961`.
 
 ---
 
 ## 2️⃣ Develop → Main (Auto-merge)
 
-**Statut:** ⏳ unknown
+**Statut:** ❌ failure
 
 **Dernier run:** 28/11/2025 12:42:49
 
@@ -41,7 +41,7 @@ Tous les workflows surveillés ont réussi pour le commit `c4851d6`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `c4851d6`.
+Tous les workflows surveillés ont réussi pour le commit `5054961`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `c4851d6`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `c4851d6`.
+Tous les workflows surveillés ont réussi pour le commit `5054961`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `c4851d6`
+- 🎯 **Focus: Commit actuel** `5054961`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
