@@ -14,7 +14,7 @@ import { safeIsVisible } from './helpers/safe-helpers';
 test.describe('Form Poll - Accès aux résultats et Email', () => {
   test.beforeEach(async ({ page, browserName }) => {
     await setupGeminiMock(page);
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await clearTestData(page);
   });

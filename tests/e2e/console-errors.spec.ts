@@ -154,7 +154,7 @@ test.describe('Console Errors & React Warnings', () => {
     });
 
     // Aller sur la page d'accueil
-    await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -325,7 +325,7 @@ test.describe('Console Errors & React Warnings', () => {
 
     const timeouts = getTimeouts(browserName);
     // Créer un poll via IA
-    await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     

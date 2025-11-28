@@ -163,7 +163,7 @@ test.describe('Guest Quota System', () => {
   });
 
   test('Bypass E2E fonctionne avec ?e2e-test=true', async ({ page, browserName }) => {
-    await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Vérifier que le flag E2E est détecté

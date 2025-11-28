@@ -156,7 +156,7 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
           log('🗳️ Vote simulé avec succès');
 
           // Vérification minimaliste côté dashboard : au moins une carte de sondage est présente
-          await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+          await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
           await waitForNetworkIdle(page, { browserName });
 
           const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {

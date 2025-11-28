@@ -164,7 +164,7 @@ test.describe('Documentation - Tests E2E', () => {
     try {
       const timeouts = getTimeouts(browserName);
       // Naviguer vers la documentation
-      await page.goto('/docs', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/docs', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
       
       // Naviguer vers un document pour déclencher le chargement des assets
