@@ -1,13 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 20:49:19
+**Dernière mise à jour:** 28/11/2025 20:58:05
 
-_Workflow run #636 (ID 19772675502) — génération UTC 2025-11-28T19:49:19.627Z_
-**Dernière mise à jour:** 28/11/2025 20:46:06
+_Workflow run #638 (ID 19772802930) — génération UTC 2025-11-28T19:58:05.335Z_
 
-_Workflow run #633 (ID 19772640119) — génération UTC 2025-11-28T19:46:06.309Z_
-
-## 🎯 Focus: Commit `8db4883`
+## 🎯 Focus: Commit `81863af`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -29,7 +26,7 @@ _Workflow run #633 (ID 19772640119) — génération UTC 2025-11-28T19:46:06.309
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `8db4883`.
+Tous les workflows surveillés ont réussi pour le commit `81863af`.
 
 ---
 
@@ -37,37 +34,35 @@ Tous les workflows surveillés ont réussi pour le commit `8db4883`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 20:42:03
+**Dernier run:** 28/11/2025 20:50:56
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `8db4883`.
+Tous les workflows surveillés ont réussi pour le commit `81863af`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
 **Statut:** ❌ failure
-**Statut:** ⏳ unknown
 
-**Dernier run:** 28/11/2025 20:44:58
+**Dernier run:** 28/11/2025 20:53:43
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **1**
-- ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
-#### Run #109 - 28/11/2025 20:44:58
+#### Run #110 - 28/11/2025 20:53:43
 
-- **Commit:** `8db4883`
+- **Commit:** `81863af`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
 - **Statut:** failure
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19772639742)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19772762924)
 - **Jobs en échec:**
   - ❌ `⚡ E2E Functional Tests (2)` (failure)
     - Steps en échec: `⚡ Run Functional Tests (Shard 2/2)`
@@ -82,61 +77,58 @@ Error: "errors": [],
 ```
       ```
 Error: "errors": [],
-Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
-Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
-Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:144:37)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5",
+Locator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n",
+Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n",
+Locator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n\n    at voteOnPollComplete (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-helpers.ts:548:27)\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:155:11)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5",
 Expected: 5",
 
 "errors": [],
 "errors": [],
 "errors": [],
 "error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n    at withConsoleGuard.allowlist (/home/runner/work/Doo
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u
 ... (truncated)
 ```
       ```
 Error: "errors": [
-Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n\n  142 |\n  143 |           const pollHeading = page.locator('h1').first();\n> 144 |           await expect(pollHeading).toBeVisible({ timeout: timeouts.element });\n      |                                     ^\n  145 |           const pollHeadingText = ((await pollHeading.textContent()) || '').trim();\n  146 |           log(`ℹ️ Heading page votant: ${pollHeadingText}`);\n  147 |           // Le formulaire doit afficher le champ \"Votre nom\" pour permettre l'identification du votant.\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:144:37)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5"
+Locator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n\n\n   at helpers/poll-helpers.ts:548\n\n  546 |   // Remplir le nom du votant\n  547 |   const nameInput = page.locator('#voter-name-input').first();\n> 548 |   await expect(nameInput).toBeVisible({ timeout: timeouts.element });\n      |                           ^\n  549 |   await nameInput.fill(voterName);\n  550 |\n  551 |   // Attendre que le formulaire soit prêt\n    at voteOnPollComplete (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-helpers.ts:548:27)\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:155:11)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5"
 Expected: 5"
 
 "errors": [
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n\n  142 |\n  143 |           const pollHeading = page.locator('h1').first();\n> 144 |           await expect(pollHeading).toBeVisible({ timeout: timeouts.element });\n      |                                     ^\n  145 |           const pollHeadingText = ((await pollHeading.textContent()) || '').trim();\n  146 |           log(`ℹ️ Heading page votant: ${pollHeadingText}`);\n  147 |           // Le formulaire doit afficher le champ \"Votre
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n\n\n   at helpers/poll-helpers.ts:548\n\n  546 |   // Remplir le nom du votant\n  547 |   const nameInput = page.locator('#voter-name-input').first();\n> 548 |   await expect(nameInput).toBeVisible({ timeout: timeouts.element });\n      |                           ^\n  549 |   await nameInput.fill(voterName);\n  550 |\n  551 |   // Attendre que le formulaire soit prêt\n    at voteOnPollComplete (/home/runner/
 ... (truncated)
 ```
       ```
 Error: "errorLocation": {
-Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
-Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
-Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:144:37)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5",
+Locator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n",
+Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n",
+Locator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n\n    at voteOnPollComplete (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-helpers.ts:548:27)\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:155:11)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5",
 Expected: 5",
 
 "errorLocation": {
 "error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n\n    at voteOnPo
 ... (truncated)
 ```
       ```
 Error: "errors": [
-Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n\n  142 |\n  143 |           const pollHeading = page.locator('h1').first();\n> 144 |           await expect(pollHeading).toBeVisible({ timeout: timeouts.element });\n      |                                     ^\n  145 |           const pollHeadingText = ((await pollHeading.textContent()) || '').trim();\n  146 |           log(`ℹ️ Heading page votant: ${pollHeadingText}`);\n  147 |           // Le formulaire doit afficher le champ \"Votre nom\" pour permettre l'identification du votant.\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:144:37)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5"
+Locator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n\n\n   at helpers/poll-helpers.ts:548\n\n  546 |   // Remplir le nom du votant\n  547 |   const nameInput = page.locator('#voter-name-input').first();\n> 548 |   await expect(nameInput).toBeVisible({ timeout: timeouts.element });\n      |                           ^\n  549 |   await nameInput.fill(voterName);\n  550 |\n  551 |   // Attendre que le formulaire soit prêt\n    at voteOnPollComplete (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-helpers.ts:548:27)\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:155:11)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5"
 Expected: 5"
 
 "errors": [
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n\n  142 |\n  143 |           const pollHeading = page.locator('h1').first();\n> 144 |           await expect(pollHeading).toBeVisible({ timeout: timeouts.element });\n      |                                     ^\n  145 |           const pollHeadingText = ((await pollHeading.textContent()) || '').trim();\n  146 |           log(`ℹ️ Heading page votant: ${pollHeadingText}`);\n  147 |           // Le formulaire doit afficher le champ \"Votre
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('#voter-name-input').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 15000ms\u001b\n\u001b  - waiting for locator('#voter-name-input').first()\u001b\n\n\n   at helpers/poll-helpers.ts:548\n\n  546 |   // Remplir le nom du votant\n  547 |   const nameInput = page.locator('#voter-name-input').first();\n> 548 |   await expect(nameInput).toBeVisible({ timeout: timeouts.element });\n      |                           ^\n  549 |   await nameInput.fill(voterName);\n  550 |\n  551 |   // Attendre que le formulaire soit prêt\n    at voteOnPollComplete (/home/runner/
 ... (truncated)
 ```
       *... et 3 autre(s) erreur(s)*
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19772639742)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `8db4883`
+- 🎯 **Focus: Commit actuel** `81863af`
 - ❌ **Échecs pour ce commit:** 1
-- ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
@@ -162,33 +154,6 @@ Des échecs ont été détectés pour le commit actuel. Consultez les sections c
 
 ---
 
-## 📊 Analyse des 1 échec(s) détecté(s)
-
-**Statistiques :**
-- 🔴 Critiques : 1
-- 📂 Catégories : unknown (1)
-
-### 🚨 1. 3️⃣ Main Post-Merge E2E
-
-**Résumé :** Échec 3️⃣ Main Post-Merge E2E - unknown (high)
-
-**Cause identifiée :** Erreur non cataloguée - nécessite analyse manuelle
-
-**Solutions suggérées :**
-1. Consulter les logs détaillés du workflow
-
-**⚠️ Action requise :** Résoudre immédiatement - bloque le déploiement
-
----
-
-## 🚨 Actions prioritaires
-
-**1 échec(s) critique(s) détecté(s) :**
-
-1. **3️⃣ Main Post-Merge E2E** - Consulter les logs détaillés du workflow
-
-**Impact :** Ces échecs bloquent potentiellement le déploiement en production.
-
 ## 💡 Améliorations suggérées
 
 - **Monitoring :** Ajouter des métriques de performance
@@ -201,7 +166,6 @@ Des échecs ont été détectés pour le commit actuel. Consultez les sections c
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T19:49:23.031Z*
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T19:46:10.103Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T19:58:09.227Z*
 ---
 
