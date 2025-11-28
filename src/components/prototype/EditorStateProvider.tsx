@@ -74,7 +74,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
     try {
       // 🔧 FIX: Si on vient de nettoyer, ne pas restaurer
       if (justClearedRef.current) {
-        console.log('🚫 [EditorStateProvider] Restauration bloquée - nettoyage récent');
+        console.log("🚫 [EditorStateProvider] Restauration bloquée - nettoyage récent");
         justClearedRef.current = false;
         return;
       }
@@ -106,13 +106,19 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
         logger.debug("Nettoyage du poll (pas de conversation à restaurer)", "poll");
         localStorage.removeItem(STORAGE_KEY);
         dispatchPoll({ type: "REPLACE_POLL", payload: null });
-        
-        // 🔥 NOUVEAU: Si on arrive depuis la landing page (/workspace/date ou /workspace/form), 
+
+        // 🔥 NOUVEAU: Si on arrive depuis la landing page (/workspace/date ou /workspace/form),
         // on ouvre automatiquement l'éditeur pour montrer le sondage immédiatement
         const pathname = location.pathname;
-        if (pathname.includes("/workspace/date") || pathname.includes("/workspace/form") || pathname.includes("/workspace/availability")) {
+        if (
+          pathname.includes("/workspace/date") ||
+          pathname.includes("/workspace/form") ||
+          pathname.includes("/workspace/availability")
+        ) {
           setIsEditorOpen(true);
-          logger.info("🚀 Ouverture automatique de l'éditeur depuis landing page", "poll", { pathname });
+          logger.info("🚀 Ouverture automatique de l'éditeur depuis landing page", "poll", {
+            pathname,
+          });
         }
         // 🔧 FIX: Ne PAS fermer l'éditeur - il peut être ouvert volontairement (nouveau chat)
         // setIsEditorOpen(false); ← Commenté pour garder l'éditeur ouvert si déjà ouvert
@@ -153,9 +159,9 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
 
   // Actions éditeur
   const openEditor = useCallback(() => {
-    console.log('🔓 [EditorStateProvider] openEditor appelé');
+    console.log("🔓 [EditorStateProvider] openEditor appelé");
     setIsEditorOpen(true);
-    console.log('✅ [EditorStateProvider] Éditeur ouvert');
+    console.log("✅ [EditorStateProvider] Éditeur ouvert");
   }, []);
 
   const closeEditor = useCallback(() => {
@@ -176,12 +182,12 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
   }, []);
 
   const clearCurrentPoll = useCallback(() => {
-    console.log('🧹 [EditorStateProvider] clearCurrentPoll appelé');
+    console.log("🧹 [EditorStateProvider] clearCurrentPoll appelé");
     justClearedRef.current = true; // 🔧 FIX: Marquer qu'on vient de nettoyer
     setIsEditorOpen(false); // 🔧 FIX: Fermer l'éditeur
     dispatchPoll({ type: "REPLACE_POLL", payload: null });
     localStorage.removeItem(STORAGE_KEY);
-    console.log('✅ [EditorStateProvider] Poll et éditeur nettoyés');
+    console.log("✅ [EditorStateProvider] Poll et éditeur nettoyés");
   }, []);
 
   // Action combinée : créer un sondage depuis les données Gemini

@@ -85,7 +85,8 @@ export const useVoting = (pollSlug: string) => {
 
       // 🔧 Utiliser dateGroups si fourni (pour week-ends groupés par l'IA)
       // Sinon, grouper les dates consécutives automatiquement
-      const dateGroups = pollData.dateGroups || groupConsecutiveDates(pollData.settings.selectedDates);
+      const dateGroups =
+        pollData.dateGroups || groupConsecutiveDates(pollData.settings.selectedDates);
 
       logger.debug("Groupement des dates", "vote", {
         originalDates: pollData.settings.selectedDates.length,

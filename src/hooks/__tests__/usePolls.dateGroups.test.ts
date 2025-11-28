@@ -1,35 +1,35 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
 /**
  * Test de fiabilité pour la chaîne de données dateGroups
- * 
+ *
  * Ce test garantit que les dateGroups sont préservés à travers toute la chaîne :
  * 1. Sauvegarde dans poll_data (Supabase ou localStorage)
  * 2. Récupération depuis poll_data
  * 3. Conversion en Poll
  * 4. Passage à PollCreator via initialData
  */
-describe('usePolls - dateGroups Data Chain Reliability', () => {
+describe("usePolls - dateGroups Data Chain Reliability", () => {
   beforeEach(() => {
     // Clear localStorage before each test
     localStorage.clear();
   });
 
-  describe('DatePollData Interface', () => {
-    it('✅ DatePollData devrait inclure dateGroups', () => {
+  describe("DatePollData Interface", () => {
+    it("✅ DatePollData devrait inclure dateGroups", () => {
       // Type check: si ce test compile, l'interface est correcte
-      const datePollData: import('../usePolls').DatePollData = {
-        type: 'date',
-        title: 'Test Poll',
+      const datePollData: import("../usePolls").DatePollData = {
+        type: "date",
+        title: "Test Poll",
         description: null,
-        selectedDates: ['2026-03-07', '2026-03-08'],
+        selectedDates: ["2026-03-07", "2026-03-08"],
         timeSlotsByDate: {},
         participantEmails: [],
         dateGroups: [
           {
-            dates: ['2026-03-07', '2026-03-08'],
-            label: 'Week-end du 7-8 mars',
-            type: 'weekend',
+            dates: ["2026-03-07", "2026-03-08"],
+            label: "Week-end du 7-8 mars",
+            type: "weekend",
           },
         ],
         settings: {
@@ -42,32 +42,32 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
 
       expect(datePollData.dateGroups).toBeDefined();
       expect(datePollData.dateGroups).toHaveLength(1);
-      expect(datePollData.dateGroups![0].type).toBe('weekend');
+      expect(datePollData.dateGroups![0].type).toBe("weekend");
     });
   });
 
-  describe('SupabaseConversation Interface', () => {
-    it('✅ poll_data devrait inclure dateGroups', () => {
+  describe("SupabaseConversation Interface", () => {
+    it("✅ poll_data devrait inclure dateGroups", () => {
       // Simuler une conversation Supabase avec poll_data
       const supabaseConversation = {
-        id: 'test-id',
-        user_id: 'user-123',
-        session_id: 'session-123',
-        title: 'Test Conversation',
-        first_message: 'Test message',
+        id: "test-id",
+        user_id: "user-123",
+        session_id: "session-123",
+        title: "Test Conversation",
+        first_message: "Test message",
         message_count: 0,
         messages: [],
         context: {},
         poll_data: {
-          type: 'date' as const,
-          title: 'Test Poll',
+          type: "date" as const,
+          title: "Test Poll",
           description: null,
-          dates: ['2026-03-07', '2026-03-08'],
+          dates: ["2026-03-07", "2026-03-08"],
           dateGroups: [
             {
-              dates: ['2026-03-07', '2026-03-08'],
-              label: 'Week-end du 7-8 mars',
-              type: 'weekend' as const,
+              dates: ["2026-03-07", "2026-03-08"],
+              label: "Week-end du 7-8 mars",
+              type: "weekend" as const,
             },
           ],
           settings: {
@@ -77,10 +77,10 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
             sendNotifications: false,
           },
         },
-        poll_type: 'date' as const,
-        poll_status: 'active' as const,
-        poll_slug: 'test-poll',
-        status: 'active' as const,
+        poll_type: "date" as const,
+        poll_status: "active" as const,
+        poll_slug: "test-poll",
+        status: "active" as const,
         is_favorite: false,
         tags: [],
         metadata: {},
@@ -90,29 +90,29 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
 
       expect(supabaseConversation.poll_data?.dateGroups).toBeDefined();
       expect(supabaseConversation.poll_data?.dateGroups).toHaveLength(1);
-      expect(supabaseConversation.poll_data?.dateGroups![0].type).toBe('weekend');
+      expect(supabaseConversation.poll_data?.dateGroups![0].type).toBe("weekend");
     });
   });
 
-  describe('Poll Conversion', () => {
-    it('✅ Conversion poll_data → Poll devrait préserver dateGroups', () => {
+  describe("Poll Conversion", () => {
+    it("✅ Conversion poll_data → Poll devrait préserver dateGroups", () => {
       // Simuler la conversion comme dans usePolls.ts ligne 477-491
       const conversation = {
-        id: 'test-id',
-        user_id: 'user-123',
-        title: 'Test Poll',
-        poll_type: 'date' as const,
-        poll_slug: 'test-poll',
-        poll_status: 'active' as const,
+        id: "test-id",
+        user_id: "user-123",
+        title: "Test Poll",
+        poll_type: "date" as const,
+        poll_slug: "test-poll",
+        poll_status: "active" as const,
         poll_data: {
-          type: 'date' as const,
-          title: 'Test Poll',
-          dates: ['2026-03-07', '2026-03-08'],
+          type: "date" as const,
+          title: "Test Poll",
+          dates: ["2026-03-07", "2026-03-08"],
           dateGroups: [
             {
-              dates: ['2026-03-07', '2026-03-08'],
-              label: 'Week-end du 7-8 mars',
-              type: 'weekend' as const,
+              dates: ["2026-03-07", "2026-03-08"],
+              label: "Week-end du 7-8 mars",
+              type: "weekend" as const,
             },
           ],
           settings: {
@@ -147,20 +147,20 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
       // Vérifier que dateGroups est préservé
       expect(createdPoll.dateGroups).toBeDefined();
       expect(createdPoll.dateGroups).toHaveLength(1);
-      expect(createdPoll.dateGroups![0].type).toBe('weekend');
-      expect(createdPoll.dateGroups![0].dates).toEqual(['2026-03-07', '2026-03-08']);
+      expect(createdPoll.dateGroups![0].type).toBe("weekend");
+      expect(createdPoll.dateGroups![0].dates).toEqual(["2026-03-07", "2026-03-08"]);
     });
 
-    it('❌ RÉGRESSION: Conversion sans dateGroups devrait échouer ce test', () => {
+    it("❌ RÉGRESSION: Conversion sans dateGroups devrait échouer ce test", () => {
       // Ce test documente le bug qui existait avant le fix
       const conversation = {
         poll_data: {
-          dates: ['2026-03-07', '2026-03-08'],
+          dates: ["2026-03-07", "2026-03-08"],
           dateGroups: [
             {
-              dates: ['2026-03-07', '2026-03-08'],
-              label: 'Week-end du 7-8 mars',
-              type: 'weekend' as const,
+              dates: ["2026-03-07", "2026-03-08"],
+              label: "Week-end du 7-8 mars",
+              type: "weekend" as const,
             },
           ],
         },
@@ -183,32 +183,32 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
     });
   });
 
-  describe.skip('localStorage Persistence', () => {
-    it('✅ Poll sauvegardé dans localStorage devrait conserver dateGroups', () => {
+  describe.skip("localStorage Persistence", () => {
+    it("✅ Poll sauvegardé dans localStorage devrait conserver dateGroups", () => {
       const poll = {
-        id: 'local-123',
-        title: 'Test Poll',
-        type: 'date' as const,
-        dates: ['2026-03-07', '2026-03-08'],
+        id: "local-123",
+        title: "Test Poll",
+        type: "date" as const,
+        dates: ["2026-03-07", "2026-03-08"],
         dateGroups: [
           {
-            dates: ['2026-03-07', '2026-03-08'],
-            label: 'Week-end du 7-8 mars',
-            type: 'weekend' as const,
+            dates: ["2026-03-07", "2026-03-08"],
+            label: "Week-end du 7-8 mars",
+            type: "weekend" as const,
           },
         ],
         settings: {},
-        status: 'active' as const,
+        status: "active" as const,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
       // Sauvegarder
-      localStorage.setItem('doodates_polls', JSON.stringify([poll]));
+      localStorage.setItem("doodates_polls", JSON.stringify([poll]));
 
       // Récupérer
-      const stored = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
-      
+      const stored = JSON.parse(localStorage.getItem("doodates_polls") || "[]");
+
       // Vérifier que le poll existe
       expect(stored).toHaveLength(1);
       const retrievedPoll = stored[0];
@@ -217,21 +217,21 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
       // Vérifier que dateGroups est préservé
       expect(retrievedPoll.dateGroups).toBeDefined();
       expect(retrievedPoll.dateGroups).toHaveLength(1);
-      expect(retrievedPoll.dateGroups[0].type).toBe('weekend');
+      expect(retrievedPoll.dateGroups[0].type).toBe("weekend");
     });
   });
 
-  describe('Complete Data Flow', () => {
-    it('✅ SCÉNARIO COMPLET: Gemini → createPoll → localStorage → getPoll → PollCreator', () => {
+  describe("Complete Data Flow", () => {
+    it("✅ SCÉNARIO COMPLET: Gemini → createPoll → localStorage → getPoll → PollCreator", () => {
       // 1. Gemini génère un poll avec dateGroups
       const geminiResponse = {
-        title: 'Sondage Week-end Jeux',
-        dates: ['2026-03-07', '2026-03-08'],
+        title: "Sondage Week-end Jeux",
+        dates: ["2026-03-07", "2026-03-08"],
         dateGroups: [
           {
-            dates: ['2026-03-07', '2026-03-08'],
-            label: 'Week-end du 7-8 mars',
-            type: 'weekend' as const,
+            dates: ["2026-03-07", "2026-03-08"],
+            label: "Week-end du 7-8 mars",
+            type: "weekend" as const,
           },
         ],
       };
@@ -240,7 +240,7 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
 
       // 2. createPoll reçoit les données
       const datePollData = {
-        type: 'date' as const,
+        type: "date" as const,
         title: geminiResponse.title,
         description: undefined,
         selectedDates: geminiResponse.dates,
@@ -259,7 +259,7 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
 
       // 3. poll_data est créé
       const pollData_json = {
-        type: 'date',
+        type: "date",
         title: datePollData.title,
         dates: datePollData.selectedDates,
         dateGroups: datePollData.dateGroups, // 🔧 FIX: Sauvegardé correctement
@@ -270,13 +270,13 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
 
       // 4. Poll est créé depuis poll_data
       const createdPoll = {
-        id: 'test-123',
+        id: "test-123",
         title: pollData_json.title,
-        type: 'date' as const,
+        type: "date" as const,
         dates: pollData_json.dates,
         dateGroups: pollData_json.dateGroups, // 🔧 FIX: Récupéré correctement
         settings: pollData_json.settings,
-        status: 'active' as const,
+        status: "active" as const,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -288,7 +288,7 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
         title: createdPoll.title,
         dates: createdPoll.dates,
         dateGroups: createdPoll.dateGroups, // 🔧 FIX: Passé à PollCreator
-        type: 'date' as const,
+        type: "date" as const,
       };
 
       expect(initialData.dateGroups).toBeDefined();
@@ -296,17 +296,19 @@ describe('usePolls - dateGroups Data Chain Reliability', () => {
 
       // 6. hasGroupedDates est calculé correctement
       const hasGroupedDates = initialData.dateGroups!.some(
-        (group) => group.type && ['weekend', 'week', 'fortnight'].includes(group.type)
+        (group) => group.type && ["weekend", "week", "fortnight"].includes(group.type),
       );
 
       expect(hasGroupedDates).toBe(true); // ✅ Les horaires seront masqués
     });
 
-    it('❌ RÉGRESSION: Sans les fix, dateGroups serait undefined à chaque étape', () => {
+    it("❌ RÉGRESSION: Sans les fix, dateGroups serait undefined à chaque étape", () => {
       // Ce test documente le bug complet qui existait
 
       const geminiResponse = {
-        dateGroups: [{ dates: ['2026-03-07', '2026-03-08'], label: 'Week-end', type: 'weekend' as const }],
+        dateGroups: [
+          { dates: ["2026-03-07", "2026-03-08"], label: "Week-end", type: "weekend" as const },
+        ],
       };
 
       // ❌ ANCIEN BUG 1: EditorStateProvider ne passait pas dateGroups

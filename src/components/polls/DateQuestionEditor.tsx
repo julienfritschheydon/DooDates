@@ -73,11 +73,11 @@ export default function DateQuestionEditor({
   );
 
   const handleBatchDateToggle = useCallback(
-    (dates: Date[], action: 'add' | 'remove') => {
+    (dates: Date[], action: "add" | "remove") => {
       const currentDates = [...selectedDates];
       const currentTimeSlots = { ...timeSlotsByDate };
 
-      if (action === 'add') {
+      if (action === "add") {
         // Ajouter toutes les dates qui ne sont pas déjà sélectionnées
         dates.forEach((date) => {
           const dateString = formatDateLocal(date);
@@ -167,86 +167,96 @@ export default function DateQuestionEditor({
   );
 
   const getSlotsInRange = useMemo(
-    () => (start: TimeSlotWithDate, end: TimeSlotWithDate): TimeSlotWithDate[] => {
-      // Si les dates sont différentes, retourner seulement le slot de départ
-      if (start.date !== end.date) {
-        return [start];
-      }
+    () =>
+      (start: TimeSlotWithDate, end: TimeSlotWithDate): TimeSlotWithDate[] => {
+        // Si les dates sont différentes, retourner seulement le slot de départ
+        if (start.date !== end.date) {
+          return [start];
+        }
 
-      const startMinutes = start.hour * 60 + start.minute;
-      const endMinutes = end.hour * 60 + end.minute;
-      const [minMinutes, maxMinutes] =
-        startMinutes <= endMinutes ? [startMinutes, endMinutes] : [endMinutes, startMinutes];
+        const startMinutes = start.hour * 60 + start.minute;
+        const endMinutes = end.hour * 60 + end.minute;
+        const [minMinutes, maxMinutes] =
+          startMinutes <= endMinutes ? [startMinutes, endMinutes] : [endMinutes, startMinutes];
 
-      const slots: TimeSlotWithDate[] = [];
-      for (let minutes = minMinutes; minutes <= maxMinutes; minutes += granularityMinutes) {
-        slots.push({
-          date: start.date,
-          hour: Math.floor(minutes / 60),
-          minute: minutes % 60,
-        });
-      }
-      return slots;
-    },
+        const slots: TimeSlotWithDate[] = [];
+        for (let minutes = minMinutes; minutes <= maxMinutes; minutes += granularityMinutes) {
+          slots.push({
+            date: start.date,
+            hour: Math.floor(minutes / 60),
+            minute: minutes % 60,
+          });
+        }
+        return slots;
+      },
     [granularityMinutes],
   );
 
   // Hook drag-to-extend pour les horaires
-  const { isDragging, handleDragStart, handleDragMove, handleDragEnd, isDraggedOver, isLongPressActive } =
-    useDragToSelect<TimeSlotWithDate>({
-      onDragEnd: (draggedItems, startSlot) => {
-        if (!startSlot || draggedItems.size === 0) return;
+  const {
+    isDragging,
+    handleDragStart,
+    handleDragMove,
+    handleDragEnd,
+    isDraggedOver,
+    isLongPressActive,
+  } = useDragToSelect<TimeSlotWithDate>({
+    onDragEnd: (draggedItems, startSlot) => {
+      if (!startSlot || draggedItems.size === 0) return;
 
-        const startKey = formatSlotKey(startSlot);
-        const startSlotData = timeSlotsByDate[startSlot.date]?.find(
-          (s) => s.hour === startSlot.hour && s.minute === startSlot.minute,
+      const startKey = formatSlotKey(startSlot);
+      const startSlotData = timeSlotsByDate[startSlot.date]?.find(
+        (s) => s.hour === startSlot.hour && s.minute === startSlot.minute,
+      );
+      const wasEnabled = startSlotData?.enabled ?? false;
+
+      // Collecter tous les slots à toggler
+      const slotsToToggle: Array<{ dateStr: string; hour: number; minute: number }> = [];
+
+      draggedItems.forEach((slotKey) => {
+        const parts = slotKey.split("-");
+        const dateStr = parts.slice(0, 3).join("-");
+        const hour = parseInt(parts[3]);
+        const minute = parseInt(parts[4]);
+
+        const currentSlot = timeSlotsByDate[dateStr]?.find(
+          (s) => s.hour === hour && s.minute === minute,
         );
-        const wasEnabled = startSlotData?.enabled ?? false;
+        const isCurrentlyEnabled = currentSlot?.enabled ?? false;
 
-        // Collecter tous les slots à toggler
-        const slotsToToggle: Array<{ dateStr: string; hour: number; minute: number }> = [];
-        
-        draggedItems.forEach((slotKey) => {
-          const parts = slotKey.split("-");
-          const dateStr = parts.slice(0, 3).join("-");
-          const hour = parseInt(parts[3]);
-          const minute = parseInt(parts[4]);
-
-          const currentSlot = timeSlotsByDate[dateStr]?.find(
-            (s) => s.hour === hour && s.minute === minute,
-          );
-          const isCurrentlyEnabled = currentSlot?.enabled ?? false;
-
-          // Si le slot de départ était enabled et celui-ci aussi, on toggle (disable)
-          // Si le slot de départ était disabled et celui-ci aussi, on toggle (enable)
-          if ((wasEnabled && isCurrentlyEnabled) || (!wasEnabled && !isCurrentlyEnabled)) {
-            slotsToToggle.push({ dateStr, hour, minute });
-          }
-        });
-
-        // Appliquer tous les toggles en un seul appel
-        if (slotsToToggle.length > 0) {
-          let newTimeSlotsByDate = { ...timeSlotsByDate };
-          slotsToToggle.forEach(({ dateStr, hour, minute }) => {
-            newTimeSlotsByDate = PollCreatorService.handleTimeSlotToggle(
-              dateStr,
-              hour,
-              minute,
-              newTimeSlotsByDate,
-              granularityMinutes,
-              false,
-            );
-          });
-          onChange({ timeSlotsByDate: newTimeSlotsByDate });
+        // Si le slot de départ était enabled et celui-ci aussi, on toggle (disable)
+        // Si le slot de départ était disabled et celui-ci aussi, on toggle (enable)
+        if ((wasEnabled && isCurrentlyEnabled) || (!wasEnabled && !isCurrentlyEnabled)) {
+          slotsToToggle.push({ dateStr, hour, minute });
         }
-      },
-      getItemKey: formatSlotKey,
-      getItemsInRange: getSlotsInRange,
-      disableOnMobile: true,
-    });
+      });
+
+      // Appliquer tous les toggles en un seul appel
+      if (slotsToToggle.length > 0) {
+        let newTimeSlotsByDate = { ...timeSlotsByDate };
+        slotsToToggle.forEach(({ dateStr, hour, minute }) => {
+          newTimeSlotsByDate = PollCreatorService.handleTimeSlotToggle(
+            dateStr,
+            hour,
+            minute,
+            newTimeSlotsByDate,
+            granularityMinutes,
+            false,
+          );
+        });
+        onChange({ timeSlotsByDate: newTimeSlotsByDate });
+      }
+    },
+    getItemKey: formatSlotKey,
+    getItemsInRange: getSlotsInRange,
+    disableOnMobile: true,
+  });
 
   return (
-    <div className="rounded-lg border border-gray-700 bg-[#1a1a1a] p-4 space-y-4" style={{ userSelect: isDragging ? "none" : "auto" }}>
+    <div
+      className="rounded-lg border border-gray-700 bg-[#1a1a1a] p-4 space-y-4"
+      style={{ userSelect: isDragging ? "none" : "auto" }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -364,7 +374,11 @@ export default function DateQuestionEditor({
                             timeSlot.hour * 60 + timeSlot.minute + granularityMinutes >=
                               currentBlock.end.hour * 60 + currentBlock.end.minute));
                       const isBlockMiddle = currentBlock && !isBlockStart && !isBlockEnd;
-                      const slotKey = formatSlotKey({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute });
+                      const slotKey = formatSlotKey({
+                        date: dateStr,
+                        hour: timeSlot.hour,
+                        minute: timeSlot.minute,
+                      });
                       const isSlotDraggedOver = isDraggedOver(slotKey);
 
                       return (
@@ -375,11 +389,17 @@ export default function DateQuestionEditor({
                             handleTimeSlotToggle(dateStr, timeSlot.hour, timeSlot.minute)
                           }
                           onPointerDown={(e) =>
-                            handleDragStart({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e)
+                            handleDragStart(
+                              { date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute },
+                              e,
+                            )
                           }
                           onPointerMove={(e) => {
                             if (isDragging) {
-                              handleDragMove({ date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute }, e);
+                              handleDragMove(
+                                { date: dateStr, hour: timeSlot.hour, minute: timeSlot.minute },
+                                e,
+                              );
                             }
                           }}
                           onPointerUp={handleDragEnd}

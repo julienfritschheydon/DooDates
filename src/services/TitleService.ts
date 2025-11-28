@@ -1,12 +1,12 @@
-import { Poll } from '../types/poll';
-import { FormPoll } from '../types/form.ts';
-import { Conversation } from '../types/conversation';
-import * as pollStorage from '../lib/pollStorage';
-import * as formPollStorage from '../lib/formPollStorage.ts';
-import { conversationStorage } from '../lib/conversationStorage.ts';
-import { logger } from '../lib/logger';
+import { Poll } from "../types/poll";
+import { FormPoll } from "../types/form.ts";
+import { Conversation } from "../types/conversation";
+import * as pollStorage from "../lib/pollStorage";
+import * as formPollStorage from "../lib/formPollStorage.ts";
+import { conversationStorage } from "../lib/conversationStorage.ts";
+import { logger } from "../lib/logger";
 
-type EntityType = 'poll' | 'form' | 'conversation';
+type EntityType = "poll" | "form" | "conversation";
 type Entity = Poll | FormPoll | Conversation;
 
 /**
@@ -20,11 +20,11 @@ class TitleService {
    * @returns Le titre généré ou une valeur par défaut
    */
   static generateTitle(content: string): string {
-    if (!content) return 'Sans titre';
-    
+    if (!content) return "Sans titre";
+
     // Prend la première ligne non vide comme titre
-    const firstLine = content.split('\n').find(line => line.trim().length > 0);
-    return firstLine?.trim() || 'Sans titre';
+    const firstLine = content.split("\n").find((line) => line.trim().length > 0);
+    return firstLine?.trim() || "Sans titre";
   }
 
   /**
@@ -37,34 +37,36 @@ class TitleService {
   static async updateEntityTitle(
     entityType: EntityType,
     entityId: string,
-    title: string
+    title: string,
   ): Promise<void> {
     if (!entityId || !title) return;
 
     try {
       switch (entityType) {
-        case 'poll': {
+        case "poll": {
           const poll = pollStorage.getPollBySlugOrId(entityId);
           if (poll) {
             const polls = pollStorage.getPolls();
-            const updatedPolls = polls.map(p => 
-              p.id === poll.id ? { ...p, title } : p
-            );
+            const updatedPolls = polls.map((p) => (p.id === poll.id ? { ...p, title } : p));
             pollStorage.savePolls(updatedPolls);
           }
           break;
         }
-        case 'form':
+        case "form":
           formPollStorage.formPollStorage.updateFormPoll(entityId, { title });
           break;
-        case 'conversation':
+        case "conversation":
           conversationStorage.updateConversation(entityId, { title });
           break;
         default:
           console.warn(`Type d'entité non géré: ${entityType}`);
       }
     } catch (error) {
-      logger.error(`Erreur lors de la mise à jour du titre pour ${entityType} ${entityId}`, 'general', { entityType, entityId, error });
+      logger.error(
+        `Erreur lors de la mise à jour du titre pour ${entityType} ${entityId}`,
+        "general",
+        { entityType, entityId, error },
+      );
       throw error;
     }
   }
@@ -75,8 +77,8 @@ class TitleService {
    * @returns Le titre de l'entité ou une valeur par défaut
    */
   static getEntityTitle(entity: Entity | null | undefined): string {
-    if (!entity) return 'Sans titre';
-    return entity.title || 'Sans titre';
+    if (!entity) return "Sans titre";
+    return entity.title || "Sans titre";
   }
 
   /**
@@ -85,7 +87,7 @@ class TitleService {
    * @returns true si c'est un titre par défaut, false sinon
    */
   static isDefaultTitle(title: string): boolean {
-    return !title || ['Nouvelle conversation', 'Sans titre'].includes(title);
+    return !title || ["Nouvelle conversation", "Sans titre"].includes(title);
   }
 }
 
