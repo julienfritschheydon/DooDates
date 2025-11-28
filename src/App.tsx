@@ -406,7 +406,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <TooltipProvider>
-            <BrowserRouter>
+            <BrowserRouter basename={import.meta.env.DEV ? "/" : "/DooDates/"}>
               <AppLayout>
                 <ErrorBoundary>
                   <Suspense fallback={<LoadingSpinner />}>
