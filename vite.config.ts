@@ -1,9 +1,9 @@
-import { defineConfig } from "vite";
+import { defineConfig, type UserConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command }) => {
+export default defineConfig(({ command }): UserConfig => {
   const config = {
     plugins: [react()],
     base: "/",
@@ -27,7 +27,7 @@ export default defineConfig(({ command }) => {
         },
       },
       chunkSizeWarningLimit: 1000,
-      minify: "terser",
+      minify: "terser" as const,
       terserOptions: {
         compress: {
           drop_console: process.env.NODE_ENV === "production",
