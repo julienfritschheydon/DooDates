@@ -1,13 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 20:37:48
+**Dernière mise à jour:** 28/11/2025 20:49:19
 
-_Workflow run #632 (ID 19772522785) — génération UTC 2025-11-28T19:37:48.414Z_
-**Dernière mise à jour:** 28/11/2025 20:34:44
+_Workflow run #636 (ID 19772675502) — génération UTC 2025-11-28T19:49:19.627Z_
 
-_Workflow run #629 (ID 19772484792) — génération UTC 2025-11-28T19:34:44.228Z_
-
-## 🎯 Focus: Commit `d4f9c0a`
+## 🎯 Focus: Commit `8db4883`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -29,7 +26,7 @@ _Workflow run #629 (ID 19772484792) — génération UTC 2025-11-28T19:34:44.228
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `d4f9c0a`.
+Tous les workflows surveillés ont réussi pour le commit `8db4883`.
 
 ---
 
@@ -37,37 +34,35 @@ Tous les workflows surveillés ont réussi pour le commit `d4f9c0a`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 20:31:01
+**Dernier run:** 28/11/2025 20:42:03
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `d4f9c0a`.
+Tous les workflows surveillés ont réussi pour le commit `8db4883`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
 **Statut:** ❌ failure
-**Statut:** ⏳ unknown
 
-**Dernier run:** 28/11/2025 20:33:58
+**Dernier run:** 28/11/2025 20:44:58
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **1**
-- ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
-#### Run #108 - 28/11/2025 20:33:58
+#### Run #109 - 28/11/2025 20:44:58
 
-- **Commit:** `d4f9c0a`
+- **Commit:** `8db4883`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
 - **Statut:** failure
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19772484196)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19772639742)
 - **Jobs en échec:**
   - ❌ `⚡ E2E Functional Tests (2)` (failure)
     - Steps en échec: `⚡ Run Functional Tests (Shard 2/2)`
@@ -82,66 +77,82 @@ Error: "errors": [],
 ```
       ```
 Error: "errors": [],
-Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
-Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
-Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n    at createFormPollViaAI (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-form-helpers.ts:53:27)\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:62:9)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5",
+Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
+Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
+Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:144:37)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5",
 Expected: 5",
 
 "errors": [],
 "errors": [],
 "errors": [],
 "error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testi
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n    at withConsoleGuard.allowlist (/home/runner/work/Doo
 ... (truncated)
 ```
       ```
 Error: "errors": [
-Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n\n   at helpers/poll-form-helpers.ts:53\n\n  51 |\n  52 |   const chatInput = page.locator('[data-testid=\"message-input\"]');\n> 53 |   await expect(chatInput).toBeVisible({ timeout: 10000 });\n     |                           ^\n  54 |\n  55 |   await robustFill(chatInput, prompt, { debug: process.env.DEBUG_E2E === '1' });\n  56 |\n    at createFormPollViaAI (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-form-helpers.ts:53:27)\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:62:9)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5"
+Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n\n  142 |\n  143 |           const pollHeading = page.locator('h1').first();\n> 144 |           await expect(pollHeading).toBeVisible({ timeout: timeouts.element });\n      |                                     ^\n  145 |           const pollHeadingText = ((await pollHeading.textContent()) || '').trim();\n  146 |           log(`ℹ️ Heading page votant: ${pollHeadingText}`);\n  147 |           // Le formulaire doit afficher le champ \"Votre nom\" pour permettre l'identification du votant.\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:144:37)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5"
 Expected: 5"
 
 "errors": [
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n\n   at helpers/poll-form-helpers.ts:53\n\n  51 |\n  52 |   const chatInput = page.locator('[data-testid=\"message-input\"]');\n> 53 |   await expect(chatInput).toBeVisible({ timeout: 10000 });\n     |                           ^\n  54 |\n  55 |   await robustFill(chatInput, prompt, { debug: process.env.DEBUG_E2E === '1' });\n  56 |\n    at createFormPollViaAI (/home/runner/work/DooDates/DooDate
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n\n  142 |\n  143 |           const pollHeading = page.locator('h1').first();\n> 144 |           await expect(pollHeading).toBeVisible({ timeout: timeouts.element });\n      |                                     ^\n  145 |           const pollHeadingText = ((await pollHeading.textContent()) || '').trim();\n  146 |           log(`ℹ️ Heading page votant: ${pollHeadingText}`);\n  147 |           // Le formulaire doit afficher le champ \"Votre
 ... (truncated)
 ```
       ```
 Error: "errorLocation": {
-Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
-Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
-Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n    at createFormPollViaAI (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-form-helpers.ts:53:27)\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:62:9)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5",
+Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
+Expected: \n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
+Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:144:37)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5",
 Expected: 5",
 
 "errorLocation": {
 "error": {
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n",
-"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n",
+"stack": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2
 ... (truncated)
 ```
       ```
 Error: "errors": [
-Locator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n\n   at helpers/poll-form-helpers.ts:53\n\n  51 |\n  52 |   const chatInput = page.locator('[data-testid=\"message-input\"]');\n> 53 |   await expect(chatInput).toBeVisible({ timeout: 10000 });\n     |                           ^\n  54 |\n  55 |   await robustFill(chatInput, prompt, { debug: process.env.DEBUG_E2E === '1' });\n  56 |\n    at createFormPollViaAI (/home/runner/work/DooDates/DooDates/tests/e2e/helpers/poll-form-helpers.ts:53:27)\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:62:9)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5"
+Locator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n\n  142 |\n  143 |           const pollHeading = page.locator('h1').first();\n> 144 |           await expect(pollHeading).toBeVisible({ timeout: timeouts.element });\n      |                                     ^\n  145 |           const pollHeadingText = ((await pollHeading.textContent()) || '').trim();\n  146 |           log(`ℹ️ Heading page votant: ${pollHeadingText}`);\n  147 |           // Le formulaire doit afficher le champ \"Votre nom\" pour permettre l'identification du votant.\n    at withConsoleGuard.allowlist (/home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:144:37)\n    at withConsoleGuard (/home/runner/work/DooDates/DooDates/tests/e2e/utils.ts:63:12)\n    at /home/runner/work/DooDates/DooDates/tests/e2e/ultra-simple-form.spec.ts:53:5"
 Expected: 5"
 
 "errors": [
-"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('[data-testid=\"message-input\"]')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 10000ms\u001b\n\u001b  - waiting for locator('[data-testid=\"message-input\"]')\u001b\n\n\n   at helpers/poll-form-helpers.ts:53\n\n  51 |\n  52 |   const chatInput = page.locator('[data-testid=\"message-input\"]');\n> 53 |   await expect(chatInput).toBeVisible({ timeout: 10000 });\n     |                           ^\n  54 |\n  55 |   await robustFill(chatInput, prompt, { debug: process.env.DEBUG_E2E === '1' });\n  56 |\n    at createFormPollViaAI (/home/runner/work/DooDates/DooDate
+"message": "Error: \u001bexpect(\u001b\u001b[31mlocator\u001b\u001b).\u001btoBeVisible\u001b(\u001b\u001b)\u001b failed\n\nLocator: locator('h1').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b  - Expect \"toBeVisible\" with timeout 5000ms\u001b\n\u001b  - waiting for locator('h1').first()\u001b\n\n\n  142 |\n  143 |           const pollHeading = page.locator('h1').first();\n> 144 |           await expect(pollHeading).toBeVisible({ timeout: timeouts.element });\n      |                                     ^\n  145 |           const pollHeadingText = ((await pollHeading.textContent()) || '').trim();\n  146 |           log(`ℹ️ Heading page votant: ${pollHeadingText}`);\n  147 |           // Le formulaire doit afficher le champ \"Votre
 ... (truncated)
 ```
       *... et 3 autre(s) erreur(s)*
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19772484196)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `d4f9c0a`
+- 🎯 **Focus: Commit actuel** `8db4883`
 - ❌ **Échecs pour ce commit:** 1
-- ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
-### ✅ État de santé
+### ⚠️ Recommandations
 
-Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
+Des échecs ont été détectés pour le commit actuel. Consultez les sections ci-dessus pour corriger les problèmes avant de pousser d'autres changements.
+
+## 📊 Analyse des 1 échec(s) détecté(s)
+
+**Statistiques :**
+- 🔴 Critiques : 0
+- 📂 Catégories : performance (1)
+
+### 🚨 1. 3️⃣ Main Post-Merge E2E
+
+**Résumé :** Échec 3️⃣ Main Post-Merge E2E - performance (medium)
+
+**Cause identifiée :** Erreur reconnue : Timeout
+
+**Solutions suggérées :**
+1. Augmenter le timeout ou optimiser les opérations asynchrones. Vérifier les attentes Playwright
+
+**ℹ️ Action recommandée :** Résoudre prochainement
+
+---
 
 ## 💡 Améliorations suggérées
 
@@ -155,7 +166,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T19:37:51.295Z*
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T19:34:46.930Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T19:49:23.031Z*
 ---
 
