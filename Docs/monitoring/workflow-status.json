@@ -1,20 +1,15 @@
 {
-  "lastUpdate": "2025-11-28T12:28:23.014Z",
-  "runNumber": "593",
-  "runId": "19763820587",
-  "lastUpdate": "2025-11-28T11:07:58.090Z",
-  "runNumber": "583",
-  "runId": "19762019157",
+  "lastUpdate": "2025-11-28T12:38:36.341Z",
+  "runNumber": "595",
+  "runId": "19764047848",
   "totalFailures24h": 0,
   "totalFailures7d": 0,
   "workflowsMonitored": 6,
   "hasFailures": false,
   "reportPath": "Docs/monitoring/workflow-failures-report.md",
   "focusCommit": {
-    "sha": "af8c45c639b1339212a9755bd8904134479a90da",
-    "shortSha": "af8c45c",
-    "sha": "3a1a929cc3529466cf80704ae119f3f213bc17b7",
-    "shortSha": "3a1a929",
+    "sha": "e205dcdeb41078359b4b99955b15f829ef69f9a8",
+    "shortSha": "e205dcd",
     "branch": "main",
     "workflowTrigger": null
   }

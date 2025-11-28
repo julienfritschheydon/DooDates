@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 13:28:23
+**Dernière mise à jour:** 28/11/2025 13:38:36
 
-_Workflow run #593 (ID 19763820587) — génération UTC 2025-11-28T12:28:23.014Z_
+_Workflow run #595 (ID 19764047848) — génération UTC 2025-11-28T12:38:36.341Z_
 
-## 🎯 Focus: Commit `af8c45c`
-**Dernière mise à jour:** 28/11/2025 12:07:58
-
-_Workflow run #583 (ID 19762019157) — génération UTC 2025-11-28T11:07:58.090Z_
-
-## 🎯 Focus: Commit `3a1a929`
+## 🎯 Focus: Commit `e205dcd`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,54 +26,49 @@ _Workflow run #583 (ID 19762019157) — génération UTC 2025-11-28T11:07:58.090
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
-Tous les workflows surveillés ont réussi pour le commit `3a1a929`.
+Tous les workflows surveillés ont réussi pour le commit `e205dcd`.
 
 ---
 
 ## 2️⃣ Develop → Main (Auto-merge)
 
-**Statut:** ❌ failure
+**Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 12:50:33
-**Dernier run:** 28/11/2025 12:03:04
+**Dernier run:** 28/11/2025 13:32:59
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
-Tous les workflows surveillés ont réussi pour le commit `3a1a929`.
+Tous les workflows surveillés ont réussi pour le commit `e205dcd`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ✅ success
+**Statut:** ⏳ unknown
 
-**Dernier run:** 28/11/2025 12:07:07
+**Dernier run:** 28/11/2025 13:37:41
 
 **Statistiques:**
-- 📊 **Total runs pour ce commit:** **0**
+- 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
-### ✅ Aucun échec pour ce commit
+### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
-#### Run #103 - 28/11/2025 12:07:07
+#### Run #104 - 28/11/2025 13:37:41
 
-- **Commit:** `3a1a929`
+- **Commit:** `e205dcd`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
 - **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19762018251)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19764047229)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `af8c45c`
-- 🎯 **Focus: Commit actuel** `3a1a929`
+- 🎯 **Focus: Commit actuel** `e205dcd`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -86,7 +76,6 @@ Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
 **Statistiques :**
@@ -126,6 +115,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T11:08:01.508Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T12:38:40.167Z*
 ---
 
