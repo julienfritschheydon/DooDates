@@ -3,6 +3,9 @@
 **Dernière mise à jour:** 28/11/2025 20:49:19
 
 _Workflow run #636 (ID 19772675502) — génération UTC 2025-11-28T19:49:19.627Z_
+**Dernière mise à jour:** 28/11/2025 20:46:06
+
+_Workflow run #633 (ID 19772640119) — génération UTC 2025-11-28T19:46:06.309Z_
 
 ## 🎯 Focus: Commit `8db4883`
 
@@ -48,12 +51,14 @@ Tous les workflows surveillés ont réussi pour le commit `8db4883`.
 ## 3️⃣ Main Post-Merge E2E
 
 **Statut:** ❌ failure
+**Statut:** ⏳ unknown
 
 **Dernier run:** 28/11/2025 20:44:58
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **1**
+- ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
 #### Run #109 - 28/11/2025 20:44:58
@@ -122,6 +127,8 @@ Expected: 5"
 ... (truncated)
 ```
       *... et 3 autre(s) erreur(s)*
+- **Statut:** null
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19772639742)
 
 ---
 
@@ -129,6 +136,7 @@ Expected: 5"
 
 - 🎯 **Focus: Commit actuel** `8db4883`
 - ❌ **Échecs pour ce commit:** 1
+- ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
 ### ⚠️ Recommandations
@@ -154,6 +162,33 @@ Des échecs ont été détectés pour le commit actuel. Consultez les sections c
 
 ---
 
+## 📊 Analyse des 1 échec(s) détecté(s)
+
+**Statistiques :**
+- 🔴 Critiques : 1
+- 📂 Catégories : unknown (1)
+
+### 🚨 1. 3️⃣ Main Post-Merge E2E
+
+**Résumé :** Échec 3️⃣ Main Post-Merge E2E - unknown (high)
+
+**Cause identifiée :** Erreur non cataloguée - nécessite analyse manuelle
+
+**Solutions suggérées :**
+1. Consulter les logs détaillés du workflow
+
+**⚠️ Action requise :** Résoudre immédiatement - bloque le déploiement
+
+---
+
+## 🚨 Actions prioritaires
+
+**1 échec(s) critique(s) détecté(s) :**
+
+1. **3️⃣ Main Post-Merge E2E** - Consulter les logs détaillés du workflow
+
+**Impact :** Ces échecs bloquent potentiellement le déploiement en production.
+
 ## 💡 Améliorations suggérées
 
 - **Monitoring :** Ajouter des métriques de performance
@@ -167,5 +202,6 @@ Des échecs ont été détectés pour le commit actuel. Consultez les sections c
 ---
 
 *Rapport généré automatiquement par l'analyseur IA - 2025-11-28T19:49:23.031Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T19:46:10.103Z*
 ---
 
