@@ -148,7 +148,7 @@ test.describe('Authenticated User Workflow', () => {
     await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
     
     // Verify chat interface still works after auth
-    await expect(page.locator('[data-testid="message-input"]')).toBeVisible({ timeout: timeouts.element });
+    await expect(page.locator('[data-testid="chat-input"]')).toBeVisible({ timeout: timeouts.element });
     
     // Verify localStorage data persisted or migrated
     const authData = await page.evaluate(() => {
@@ -254,7 +254,7 @@ test.describe('Authenticated User Workflow', () => {
     }
     
     // Verify chat interface loads
-    await expect(newPage.locator('[data-testid="message-input"]')).toBeVisible({ timeout: timeouts.element });
+    await expect(newPage.locator('[data-testid="chat-input"]')).toBeVisible({ timeout: timeouts.element });
     
     await newPage.close();
   });
