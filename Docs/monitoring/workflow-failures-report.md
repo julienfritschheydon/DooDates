@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 07:22:29
+**Dernière mise à jour:** 28/11/2025 10:02:40
 
-_Workflow run #555 (ID 19755873083) — génération UTC 2025-11-28T06:22:29.142Z_
+_Workflow run #562 (ID 19758978508) — génération UTC 2025-11-28T09:02:40.542Z_
 
-## 🎯 Focus: Commit `a8cf402`
-**Dernière mise à jour:** 21/11/2025 15:14:51
-
-_Workflow run #525 (ID 19573168093) — génération UTC 2025-11-21T14:14:51.027Z_
-
-## 🎯 Focus: Commit `a044f79`
+## 🎯 Focus: Commit `afabd58`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,8 +26,7 @@ _Workflow run #525 (ID 19573168093) — génération UTC 2025-11-21T14:14:51.027
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `a8cf402`.
-Tous les workflows surveillés ont réussi pour le commit `a044f79`.
+Tous les workflows surveillés ont réussi pour le commit `afabd58`.
 
 ---
 
@@ -40,15 +34,14 @@ Tous les workflows surveillés ont réussi pour le commit `a044f79`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 21/11/2025 15:09:31
+**Dernier run:** 28/11/2025 09:56:57
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `a8cf402`.
-Tous les workflows surveillés ont réussi pour le commit `a044f79`.
+Tous les workflows surveillés ont réussi pour le commit `afabd58`.
 
 ---
 
@@ -56,28 +49,26 @@ Tous les workflows surveillés ont réussi pour le commit `a044f79`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 21/11/2025 15:13:25
+**Dernier run:** 28/11/2025 10:00:40
 
 **Statistiques:**
-- 📊 **Total runs pour ce commit:** **0**
+- 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
-### ✅ Aucun échec pour ce commit
+### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `a8cf402`.
-#### Run #96 - 21/11/2025 15:13:25
+#### Run #98 - 28/11/2025 10:00:40
 
-- **Commit:** `a044f79`
+- **Commit:** `afabd58`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
 - **Statut:** success
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19573167260)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19758953274)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `a8cf402`
-- 🎯 **Focus: Commit actuel** `a044f79`
+- 🎯 **Focus: Commit actuel** `afabd58`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -85,7 +76,6 @@ Tous les workflows surveillés ont réussi pour le commit `a8cf402`.
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
 **Statistiques :**
@@ -125,6 +115,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-21T14:14:54.590Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T09:02:43.924Z*
 ---
 
