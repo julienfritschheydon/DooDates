@@ -159,7 +159,10 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
                 data-testid="create-date-poll"
                 onClick={() => {
                   const url = `/workspace/date?new=${Date.now()}`;
-                  console.log('🔵 [CreatePageLayout] Bouton "Créer un nouveau sondage" cliqué - Navigation vers:', url);
+                  console.log(
+                    '🔵 [CreatePageLayout] Bouton "Créer un nouveau sondage" cliqué - Navigation vers:',
+                    url,
+                  );
                   navigate(url);
                   if (isMobile) setIsSidebarOpen(false);
                 }}
@@ -173,7 +176,10 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
                 data-testid="create-form-poll"
                 onClick={() => {
                   const url = `/workspace/form?new=${Date.now()}`;
-                  console.log('🟣 [CreatePageLayout] Bouton "Créer un nouveau formulaire" cliqué - Navigation vers:', url);
+                  console.log(
+                    '🟣 [CreatePageLayout] Bouton "Créer un nouveau formulaire" cliqué - Navigation vers:',
+                    url,
+                  );
                   navigate(url);
                   if (isMobile) setIsSidebarOpen(false);
                 }}

@@ -5,22 +5,22 @@ export interface UseDragToSelectOptions<T> {
    * Fonction appelée quand le drag se termine avec les items sélectionnés
    */
   onDragEnd: (draggedItems: Set<string>, startItem: T | null) => void;
-  
+
   /**
    * Fonction pour obtenir la clé unique d'un item
    */
   getItemKey: (item: T) => string;
-  
+
   /**
    * Fonction pour calculer tous les items entre deux items (inclusive)
    */
   getItemsInRange: (startItem: T, endItem: T) => T[];
-  
+
   /**
    * Fonction pour vérifier si un item peut être dragué (optionnel)
    */
   canDragItem?: (item: T) => boolean;
-  
+
   /**
    * Désactiver le drag sur mobile
    */
@@ -39,7 +39,7 @@ export interface UseDragToSelectReturn {
 
 /**
  * Hook réutilisable pour implémenter le drag-to-select sur n'importe quel type d'items
- * 
+ *
  * @example
  * // Pour des dates
  * const { isDragging, draggedItems, handleDragStart, handleDragMove, handleDragEnd } = useDragToSelect({
@@ -47,7 +47,7 @@ export interface UseDragToSelectReturn {
  *   getItemKey: (date) => formatDate(date),
  *   getItemsInRange: (start, end) => getDatesInRange(start, end),
  * });
- * 
+ *
  * @example
  * // Pour des créneaux horaires
  * const { isDragging, draggedItems, handleDragStart, handleDragMove, handleDragEnd } = useDragToSelect({
@@ -67,11 +67,11 @@ export function useDragToSelect<T>({
   const [dragStartItem, setDragStartItem] = useState<T | null>(null);
   const [draggedItems, setDraggedItems] = useState<Set<string>>(new Set());
   const [hasMoved, setHasMoved] = useState(false);
-  
+
   // État pour la détection de direction (mobile)
   const [dragStartPos, setDragStartPos] = useState<{ x: number; y: number } | null>(null);
-  const [dragDirection, setDragDirection] = useState<'horizontal' | 'vertical' | null>(null);
-  
+  const [dragDirection, setDragDirection] = useState<"horizontal" | "vertical" | null>(null);
+
   // État pour le long press (mobile/tablette)
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isLongPressActivated, setIsLongPressActivated] = useState(false);
@@ -88,15 +88,15 @@ export function useDragToSelect<T>({
       if (canDragItem && !canDragItem(item)) return;
 
       // Sur mobile/tablette avec touch, utiliser le long press
-      if (e.pointerType === 'touch') {
+      if (e.pointerType === "touch") {
         // Empêcher le comportement par défaut immédiatement
         e.preventDefault();
         e.stopPropagation();
-        
+
         setDragStartPos({ x: e.clientX, y: e.clientY });
         setDragDirection(null);
         setIsLongPressActivated(false);
-        
+
         // Démarrer le timer de long press (500ms)
         const timer = setTimeout(() => {
           const itemKey = getItemKey(item);
@@ -105,13 +105,13 @@ export function useDragToSelect<T>({
           setDragStartItem(item);
           setDraggedItems(new Set([itemKey]));
           setHasMoved(false);
-          
+
           // Feedback haptique si disponible
           if (navigator.vibrate) {
             navigator.vibrate(50);
           }
         }, 500);
-        
+
         setLongPressTimer(timer);
         return;
       }
@@ -125,19 +125,19 @@ export function useDragToSelect<T>({
       setDraggedItems(new Set([getItemKey(item)]));
       setHasMoved(false);
     },
-    [canDragItem, getItemKey]
+    [canDragItem, getItemKey],
   );
 
   // Gérer le drag en cours
   const handleDragMove = useCallback(
     (item: T, e?: React.PointerEvent) => {
       // Sur mobile/tablette avec touch
-      if (e && e.pointerType === 'touch') {
+      if (e && e.pointerType === "touch") {
         // Si le doigt bouge avant la fin du long press, annuler le timer
         if (longPressTimer && !isLongPressActivated && dragStartPos) {
           const deltaX = Math.abs(e.clientX - dragStartPos.x);
           const deltaY = Math.abs(e.clientY - dragStartPos.y);
-          
+
           // Si mouvement > 10px, c'est un scroll, pas un long press
           if (deltaX > 10 || deltaY > 10) {
             clearTimeout(longPressTimer);
@@ -146,23 +146,23 @@ export function useDragToSelect<T>({
             return;
           }
         }
-        
+
         // Si le long press n'est pas encore activé, ne rien faire
         if (!isLongPressActivated) {
           return;
         }
-        
+
         // Empêcher le scroll pendant le drag
         e.preventDefault();
         e.stopPropagation();
       }
-      
+
       if (!isDragging || !dragStartItem) return;
 
       // Marquer qu'on a bougé (différencier du simple clic)
       const currentKey = getItemKey(item);
       const startKey = getItemKey(dragStartItem);
-      
+
       if (currentKey !== startKey) {
         setHasMoved(true);
       }
@@ -173,7 +173,15 @@ export function useDragToSelect<T>({
 
       setDraggedItems(itemKeys);
     },
-    [isDragging, dragStartItem, dragStartPos, longPressTimer, isLongPressActivated, getItemKey, getItemsInRange]
+    [
+      isDragging,
+      dragStartItem,
+      dragStartPos,
+      longPressTimer,
+      isLongPressActivated,
+      getItemKey,
+      getItemsInRange,
+    ],
   );
 
   // Gérer la fin du drag
@@ -183,7 +191,7 @@ export function useDragToSelect<T>({
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
     }
-    
+
     if (!isDragging) {
       // Reset des états même si pas de drag actif
       setDragStartPos(null);
@@ -204,35 +212,43 @@ export function useDragToSelect<T>({
     setDragStartPos(null);
     setDragDirection(null);
     setIsLongPressActivated(false);
-  }, [isDragging, draggedItems, hasMoved, dragStartItem, onDragEnd, longPressTimer, isLongPressActivated]);
+  }, [
+    isDragging,
+    draggedItems,
+    hasMoved,
+    dragStartItem,
+    onDragEnd,
+    longPressTimer,
+    isLongPressActivated,
+  ]);
 
   // Vérifier si un item est survolé pendant le drag
   const isDraggedOver = useCallback(
     (itemKey: string) => {
       return isDragging && draggedItems.has(itemKey);
     },
-    [isDragging, draggedItems]
+    [isDragging, draggedItems],
   );
 
   // Bloquer le scroll quand le long press est activé (mobile/tablette)
   useEffect(() => {
     if (isLongPressActivated) {
       // Empêcher le scroll pendant le drag
-      document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
-      
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+
       // Bloquer les événements touch natifs (crucial pour Android)
       const preventTouch = (e: TouchEvent) => {
         e.preventDefault();
       };
-      
+
       // Utiliser {passive: false} pour pouvoir appeler preventDefault()
-      document.addEventListener('touchmove', preventTouch, { passive: false });
-      
+      document.addEventListener("touchmove", preventTouch, { passive: false });
+
       return () => {
-        document.body.style.overflow = '';
-        document.body.style.touchAction = '';
-        document.removeEventListener('touchmove', preventTouch);
+        document.body.style.overflow = "";
+        document.body.style.touchAction = "";
+        document.removeEventListener("touchmove", preventTouch);
       };
     }
   }, [isLongPressActivated]);

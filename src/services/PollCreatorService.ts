@@ -16,7 +16,7 @@ export interface TimeSlot {
 export interface DateGroup {
   dates: string[];
   label: string;
-  type: 'weekend' | 'range' | 'custom';
+  type: "weekend" | "range" | "custom";
 }
 
 export interface PollCreationState {
@@ -437,7 +437,7 @@ export class PollCreatorService {
     dateGroups?: Array<{
       dates: string[];
       label: string;
-      type: 'weekend' | 'range' | 'custom';
+      type: "weekend" | "range" | "custom";
     }>;
   }): PollCreationState {
     const baseState: PollCreationState = {

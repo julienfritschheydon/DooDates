@@ -261,23 +261,25 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
 
                               // 🔧 Utiliser dateGroups si fourni (pour les week-ends groupés)
                               // Sinon, afficher individuellement
-                              const dateGroups = datePollSuggestion.dateGroups || dates.map((date) => {
-                                const dateObj = new Date(date);
-                                const dayName = dateObj.toLocaleDateString("fr-FR", {
-                                  weekday: "long",
-                                });
-                                const day = dateObj.getDate();
-                                const month = dateObj.toLocaleDateString("fr-FR", {
-                                  month: "long",
-                                });
-                                const year = dateObj.getFullYear();
+                              const dateGroups =
+                                datePollSuggestion.dateGroups ||
+                                dates.map((date) => {
+                                  const dateObj = new Date(date);
+                                  const dayName = dateObj.toLocaleDateString("fr-FR", {
+                                    weekday: "long",
+                                  });
+                                  const day = dateObj.getDate();
+                                  const month = dateObj.toLocaleDateString("fr-FR", {
+                                    month: "long",
+                                  });
+                                  const year = dateObj.getFullYear();
 
-                                return {
-                                  dates: [date],
-                                  label: `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${day} ${month} ${year}`,
-                                  type: "custom" as const,
-                                };
-                              });
+                                  return {
+                                    dates: [date],
+                                    label: `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${day} ${month} ${year}`,
+                                    type: "custom" as const,
+                                  };
+                                });
 
                               return dateGroups.map((group, groupIndex) => {
                                 // Pour les groupes, afficher le label groupé

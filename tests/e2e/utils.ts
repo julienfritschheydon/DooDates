@@ -857,7 +857,7 @@ export async function waitForAppReady(
       state: 'visible',
       timeout: 10000,
     });
-  } else if (path.includes('/dashboard')) {
+  } else if (path.endsWith('/dashboard') || path.includes('/dashboard')) {
     await page.waitForSelector('[data-testid="dashboard-ready"]', {
       state: 'visible',
       timeout: 10000,

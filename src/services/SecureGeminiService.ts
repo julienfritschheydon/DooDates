@@ -226,10 +226,11 @@ export class SecureGeminiService {
         // Gérer les erreurs spécifiques
         if (error.message?.includes("QUOTA_EXCEEDED") || error.message?.includes("quota")) {
           const creditsRemaining = data?.creditsRemaining ?? 0;
-          const message = creditsRemaining === 0
-            ? "Vos crédits IA sont épuisés. Vous pouvez consulter votre consommation dans le tableau de bord et attendre le prochain renouvellement, ou mettre à niveau votre compte pour obtenir plus de crédits."
-            : `Il vous reste ${creditsRemaining} crédit${creditsRemaining > 1 ? "s" : ""} IA. Cette opération nécessite plus de crédits.`;
-          
+          const message =
+            creditsRemaining === 0
+              ? "Vos crédits IA sont épuisés. Vous pouvez consulter votre consommation dans le tableau de bord et attendre le prochain renouvellement, ou mettre à niveau votre compte pour obtenir plus de crédits."
+              : `Il vous reste ${creditsRemaining} crédit${creditsRemaining > 1 ? "s" : ""} IA. Cette opération nécessite plus de crédits.`;
+
           return {
             success: false,
             error: "QUOTA_EXCEEDED",
@@ -341,7 +342,7 @@ export class SecureGeminiService {
         } catch {
           // Ignore si on ne peut pas lire le body
         }
-        
+
         const errorDetails = {
           status: response.status,
           statusText: response.statusText,
@@ -352,33 +353,35 @@ export class SecureGeminiService {
           errorBody: errorBody || "No error body",
           responseHeaders: Object.fromEntries(response.headers.entries()),
         };
-        
+
         // Log avec logger ET système centralisé pour être sûr que ça s'affiche
         logger.warn("🔍 Edge Function testConnection error:", errorDetails);
-        logError(
-          new Error("Edge Function testConnection - Détails complets"),
-          { operation: "testConnection", metadata: errorDetails }
-        );
-        
+        logError(new Error("Edge Function testConnection - Détails complets"), {
+          operation: "testConnection",
+          metadata: errorDetails,
+        });
+
         // Si c'est un 403, essayer de parser le body pour plus d'infos
         if (response.status === 403 && errorBody) {
           try {
             const parsedError = JSON.parse(errorBody);
-            logError(
-              new Error("Edge Function 403 - Erreur parsée"),
-              { operation: "testConnection", status: 403, metadata: parsedError }
-            );
-            
+            logError(new Error("Edge Function 403 - Erreur parsée"), {
+              operation: "testConnection",
+              status: 403,
+              metadata: parsedError,
+            });
+
             // Si c'est un QUOTA_EXCEEDED, la connexion fonctionne, c'est juste le quota qui est épuisé
             if (parsedError.error === "QUOTA_EXCEEDED") {
               logger.info("✅ Edge Function accessible - Quota épuisé mais connexion OK");
               return true; // La connexion fonctionne, c'est juste le quota qui est épuisé
             }
           } catch {
-            logError(
-              new Error("Edge Function 403 - Body brut"),
-              { operation: "testConnection", status: 403, metadata: { body: errorBody } }
-            );
+            logError(new Error("Edge Function 403 - Body brut"), {
+              operation: "testConnection",
+              status: 403,
+              metadata: { body: errorBody },
+            });
           }
         }
       }

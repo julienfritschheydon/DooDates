@@ -130,9 +130,13 @@ export function AICreationWorkspace({
   const newChatTimestamp = searchParams.get("new");
 
   // Priorité : prop > pathname > query param > défaut "date"
-  const pollTypeFromPathname = location.pathname.includes("/workspace/form") ? "form" : 
-                               location.pathname.includes("/workspace/date") ? "date" :
-                               location.pathname.includes("/workspace/availability") ? "availability" : null;
+  const pollTypeFromPathname = location.pathname.includes("/workspace/form")
+    ? "form"
+    : location.pathname.includes("/workspace/date")
+      ? "date"
+      : location.pathname.includes("/workspace/availability")
+        ? "availability"
+        : null;
   const pollTypeFromQuery = searchParams.get("type") as "date" | "form" | "availability" | null;
   const pollTypeFromUrl = pollTypeFromProp || pollTypeFromPathname || pollTypeFromQuery || "date";
 
@@ -171,48 +175,66 @@ export function AICreationWorkspace({
   // 🔥 NOUVEAU: Créer un sondage par défaut quand on arrive depuis la landing page sans conversation
   useEffect(() => {
     // Si on arrive depuis landing page ET qu'il n'y a pas de conversation ET pas de poll actuel
-    const isFromLanding = location.pathname.includes("/workspace/") && 
-                         (location.pathname.includes("/date") || location.pathname.includes("/form") || location.pathname.includes("/availability"));
-    
+    const isFromLanding =
+      location.pathname.includes("/workspace/") &&
+      (location.pathname.includes("/date") ||
+        location.pathname.includes("/form") ||
+        location.pathname.includes("/availability"));
+
     if (isFromLanding && !conversationId && !resumeId && !currentPoll && !newChatTimestamp) {
       // Créer un sondage par défaut selon le type
       const now = new Date().toISOString();
-      const defaultPoll = pollTypeForComponents === "form" 
-        ? {
-            id: `default-form-${Date.now()}`,
-            creator_id: "guest",
-            title: "Nouveau formulaire",
-            slug: `nouveau-formulaire-${Date.now()}`,
-            status: "draft" as const,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            type: "form" as const,
-            questions: [
-              { id: "q1", kind: "text" as const, title: "Question 1", type: "text" as const, required: true }
-            ]
-          }
-        : {
-            id: `default-date-${Date.now()}`,
-            creator_id: "guest",
-            title: "Nouveau sondage de dates",
-            slug: `nouveau-sondage-${Date.now()}`,
-            status: "draft" as const,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            type: "date" as const,
-            settings: {
-              selectedDates: ["2025-12-01", "2025-12-02"] // Dates par défaut pour validation
+      const defaultPoll =
+        pollTypeForComponents === "form"
+          ? {
+              id: `default-form-${Date.now()}`,
+              creator_id: "guest",
+              title: "Nouveau formulaire",
+              slug: `nouveau-formulaire-${Date.now()}`,
+              status: "draft" as const,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              type: "form" as const,
+              questions: [
+                {
+                  id: "q1",
+                  kind: "text" as const,
+                  title: "Question 1",
+                  type: "text" as const,
+                  required: true,
+                },
+              ],
             }
-          };
-      
+          : {
+              id: `default-date-${Date.now()}`,
+              creator_id: "guest",
+              title: "Nouveau sondage de dates",
+              slug: `nouveau-sondage-${Date.now()}`,
+              status: "draft" as const,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              type: "date" as const,
+              settings: {
+                selectedDates: ["2025-12-01", "2025-12-02"], // Dates par défaut pour validation
+              },
+            };
+
       setCurrentPoll(defaultPoll);
-      
+
       // Ouvrir automatiquement l'éditeur après un court délai
       setTimeout(() => {
         openEditor();
       }, 100);
     }
-  }, [location.pathname, conversationId, resumeId, currentPoll, newChatTimestamp, pollTypeForComponents, setCurrentPoll]);
+  }, [
+    location.pathname,
+    conversationId,
+    resumeId,
+    currentPoll,
+    newChatTimestamp,
+    pollTypeForComponents,
+    setCurrentPoll,
+  ]);
 
   // Hook legacy pour clearConversation (non migré)
   const conversationContext = useConversation();
@@ -811,9 +833,9 @@ export function AICreationWorkspace({
                   </button>
                   <button
                     onClick={() => {
-                    setSignOutDialogOpen(true);
-                    if (isMobile) setIsSidebarOpen(false);
-                  }}
+                      setSignOutDialogOpen(true);
+                      if (isMobile) setIsSidebarOpen(false);
+                    }}
                     className="flex-1 min-w-0 px-2 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 border border-red-500/30 hover:border-red-500/50 hover:shadow-sm hover:shadow-red-500/10"
                     title="Déconnexion"
                   >

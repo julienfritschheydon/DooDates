@@ -219,11 +219,13 @@ export function createConversationForPoll(
     const currentUserId = getCurrentUserId();
     // Si c'est un device ID (commence par "dev-"), on est en mode invité → utiliser "guest"
     const userId = currentUserId.startsWith("dev-") ? undefined : currentUserId;
-    
+
     // Utiliser le titre du poll comme titre de conversation pour les sondages manuels
     // Le titre sera considéré comme "custom" et ne sera pas régénéré automatiquement
     const conversation = createConversation({
-      title: pollTitle || (pollType === "date"
+      title:
+        pollTitle ||
+        (pollType === "date"
           ? "Sondage de dates"
           : pollType === "availability"
             ? "Sondage de disponibilités"
