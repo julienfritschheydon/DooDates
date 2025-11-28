@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 12:37:43
+**Dernière mise à jour:** 28/11/2025 12:44:41
 
-_Workflow run #588 (ID 19762714204) — génération UTC 2025-11-28T11:37:43.203Z_
+_Workflow run #589 (ID 19762864370) — génération UTC 2025-11-28T11:44:41.147Z_
 
-## 🎯 Focus: Commit `fbc5ba5`
+## 🎯 Focus: Commit `c4851d6`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,22 +26,22 @@ _Workflow run #588 (ID 19762714204) — génération UTC 2025-11-28T11:37:43.203
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `fbc5ba5`.
+Tous les workflows surveillés ont réussi pour le commit `c4851d6`.
 
 ---
 
 ## 2️⃣ Develop → Main (Auto-merge)
 
-**Statut:** ✅ success
+**Statut:** ⏳ unknown
 
-**Dernier run:** 28/11/2025 12:03:04
+**Dernier run:** 28/11/2025 12:42:49
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `fbc5ba5`.
+Tous les workflows surveillés ont réussi pour le commit `c4851d6`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `fbc5ba5`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `fbc5ba5`.
+Tous les workflows surveillés ont réussi pour le commit `c4851d6`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `fbc5ba5`
+- 🎯 **Focus: Commit actuel** `c4851d6`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
