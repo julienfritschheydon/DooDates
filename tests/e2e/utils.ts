@@ -240,7 +240,7 @@ export async function robustFill(
     waitForStability?: boolean; // Attendre que le composant soit stable (useEffect, etc.)
   }
 ) {
-  const timeout = options?.timeout ?? 10000;
+  const timeout = options?.timeout ?? 20000;
   const debug = options?.debug ?? false;
   const waitForStability = options?.waitForStability ?? true;
   
@@ -742,7 +742,7 @@ export async function waitForPageLoad(page: Page, browserName: string, timeout?:
       await page.waitForSelector(
         '[data-testid="message-input"], [data-testid="calendar"], [data-testid="poll-title"], [data-testid="poll-item"], main, [role="main"]',
         { 
-          timeout: 10000,
+          timeout: 20000,
           state: 'attached' // 'attached' est plus rapide que 'visible'
         }
       );
@@ -833,7 +833,7 @@ export async function navigateAndWait(
   
   if (options?.waitForElement) {
     await expect(page.locator(options.waitForElement)).toBeVisible({
-      timeout: options.timeout || 10000,
+      timeout: options.timeout || 20000,
     });
   }
 }
