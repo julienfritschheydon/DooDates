@@ -541,7 +541,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await openConversationFromDashboard(pageB, "réunion d'équipe");
       
       // Vérifier que le chat est chargé
-      const messageInputB = pageB.locator('[data-testid="message-input"]');
+      const messageInputB = pageB.locator('[data-testid="chat-input"]');
       await expect(messageInputB).toBeVisible({ timeout: 10000 });
       // Attendre chargement messages depuis Supabase
       await waitForElementReady(pageB, '[data-testid="message"]', { browserName: 'chromium', timeout: 5000 });
@@ -576,7 +576,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
       await openConversationFromDashboard(pageA, "réunion d'équipe");
       
       // Vérifier que le chat est chargé
-      const messageInputARefresh = pageA.locator('[data-testid="message-input"]');
+      const messageInputARefresh = pageA.locator('[data-testid="chat-input"]');
       await expect(messageInputARefresh).toBeVisible({ timeout: 10000 });
       // Attendre chargement messages depuis Supabase
       await waitForElementReady(pageA, '[data-testid="message"]', { browserName: 'chromium', timeout: 5000 });
@@ -634,7 +634,7 @@ test.describe('Tests Supabase Automatisés (anciennement manuels)', () => {
     await waitForReactStable(page, { browserName });
 
     // S'assurer que la page est chargée avant de désactiver internet
-    const messageInput = page.locator('[data-testid="message-input"]');
+    const messageInput = page.locator('[data-testid="chat-input"]');
     await expect(messageInput).toBeVisible({ timeout: 10000 });
 
     // Désactiver internet
