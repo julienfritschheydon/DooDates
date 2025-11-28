@@ -210,10 +210,13 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
   // Route vers le bon reducer selon le type de poll
   const dispatchPollAction = useCallback(
     (action: PollAction | FormPollAction) => {
-      if (!currentPoll) return;
+      if (!currentPoll) {
+        logger.debug("dispatchPollAction: currentPoll is null, ignoring action");
+        return;
+      }
 
       // Déterminer quel reducer utiliser selon le type de poll
-      const pollType = currentPoll?.type;
+      const pollType = currentPoll.type;
 
       // Si c'est un Form Poll, utiliser formPollReducer
       if (pollType === "form") {
