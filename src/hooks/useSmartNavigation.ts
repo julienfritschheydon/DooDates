@@ -90,7 +90,7 @@ export function useSmartNavigation(
 
       // Déterminer la stratégie de reset
       const strategy = ChatResetService.determineResetStrategy(
-        previousLocation.current as Location | null,
+        previousLocation.current,
         toLocationObj as Location,
         navOptions.replace ? "REPLACE" : "PUSH",
       );
@@ -105,6 +105,14 @@ export function useSmartNavigation(
 
       // Appliquer la stratégie si nécessaire
       if (strategy.shouldReset) {
+        // Dispatch l'événement pour que ConversationProvider puisse réagir
+        window.dispatchEvent(
+          new CustomEvent<ResetStrategy>("chat-reset", {
+            detail: strategy,
+          }),
+        );
+
+        // Appliquer la stratégie via le service
         ChatResetService.applyResetStrategy(strategy);
       }
 
