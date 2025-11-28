@@ -231,6 +231,7 @@ async function waitForQuestionTabs(
     await poll.toBe(expectedCount);
   }
 }
+*/
 
 /**
  * Récupère le slug du sondage actuel depuis l'URL ou, en dernier recours, depuis le localStorage (brouillon non publié).
