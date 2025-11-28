@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 15:18:14
+**Dernière mise à jour:** 28/11/2025 19:19:48
 
-_Workflow run #606 (ID 19766351544) — génération UTC 2025-11-28T14:18:14.438Z_
+_Workflow run #611 (ID 19771285227) — génération UTC 2025-11-28T18:19:48.043Z_
 
-## 🎯 Focus: Commit `5784045`
+## 🎯 Focus: Commit `d264ae3`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,22 +26,22 @@ _Workflow run #606 (ID 19766351544) — génération UTC 2025-11-28T14:18:14.438
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `5784045`.
+Tous les workflows surveillés ont réussi pour le commit `d264ae3`.
 
 ---
 
 ## 2️⃣ Develop → Main (Auto-merge)
 
-**Statut:** ⏳ unknown
+**Statut:** ❌ failure
 
-**Dernier run:** 28/11/2025 15:17:22
+**Dernier run:** 28/11/2025 18:32:58
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `5784045`.
+Tous les workflows surveillés ont réussi pour le commit `d264ae3`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `5784045`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `5784045`.
+Tous les workflows surveillés ont réussi pour le commit `d264ae3`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `5784045`
+- 🎯 **Focus: Commit actuel** `d264ae3`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
