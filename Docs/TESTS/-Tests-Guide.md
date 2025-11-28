@@ -23,6 +23,22 @@ node scripts/gemini-predictive-analyzer.js
 npm run test:predictive
 node scripts/auto-workflow-analyzer.js
 
+# 🆕 NOUVEAU: Suivi automatique des tests avec monitoring
+# Pour suivre les résultats des tests jusqu'à la fin avec monitoring automatique :
+node test-runner.mjs src/services/__tests__/ChatResetService.test.ts
+
+# Avantages du système de monitoring :
+# ✅ Affiche les résultats en temps réel
+# ✅ Attend la fin des tests automatiquement  
+# ✅ Sort avec le bon code de sortie (0 si succès, 1 si échec)
+# ✅ Affiche les statistiques détaillées (passés/échoués/ignorés)
+# ✅ Utilise l'API Vitest pour un suivi fiable
+
+# Utilisation pour n'importe quel fichier de test :
+node test-runner.mjs [chemin/vers/le/fichier/de/test]
+node test-runner.mjs src/services/__tests__/ChatResetService.test.ts
+node test-runner.mjs src/components/__tests__/Dashboard.test.tsx
+
 # ============================================================================
 # 🚨 ÉTAT ACTUEL DES TESTS GEMINI - RESTAURATION EN COURS
 # ============================================================================
@@ -182,6 +198,8 @@ npm run test:unit
 
 # Run specific unit test file
 npx vitest run src/lib/__tests__/gemini-detection.test.ts
+
+
 
 ## 📊 Vue d'Ensemble
 

@@ -70,6 +70,7 @@ import { useOnboarding } from "../../hooks/useOnboarding";
 import { useAuth } from "../../contexts/AuthContext";
 import { AuthModal } from "../modals/AuthModal";
 import { BetaKeyModal } from "../modals/BetaKeyModal";
+import { useSmartNavigation } from "../../hooks/useSmartNavigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -177,6 +178,25 @@ export function AICreationWorkspace({
   const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
   const [betaKeyModalOpen, setBetaKeyModalOpen] = useState(false);
 
+  // Hook de navigation intelligente avec reset du chat
+  const { smartNavigate, currentResetStrategy, applyResetStrategy } = useSmartNavigation({
+    debug: process.env.NODE_ENV === "development",
+    onResetStrategy: (strategy) => {
+      console.log("🔄 Reset strategy applied:", strategy);
+
+      // Si reset complet, nettoyer aussi l'éditeur
+      if (strategy.resetType === "full") {
+        closeEditor();
+        setCurrentPoll(null);
+      }
+
+      // Si reset contextuel, conserver l'éditeur mais réinitialiser le poll courant
+      if (strategy.resetType === "context-only") {
+        setCurrentPoll(null);
+      }
+    },
+  });
+
   // Hook reconnaissance vocale UNIQUE pour toute l'application
   // Partagé entre le chat et la preview pour éviter les conflits
   const { toast } = useToast();
@@ -233,21 +253,25 @@ export function AICreationWorkspace({
   // Détecter le paramètre 'new' pour réinitialiser la conversation
   useEffect(() => {
     if (newChatTimestamp) {
-      console.log('🔄 [AICreationWorkspace] Nouvelle conversation détectée - Nettoyage du paramètre ?new=');
+      console.log(
+        "🔄 [AICreationWorkspace] Nouvelle conversation détectée - Nettoyage du paramètre ?new=",
+      );
       // Réinitialiser la conversation
       clearConversation();
-      
+
       // Nettoyer le paramètre ?new= de l'URL SANS changer de page
       const currentPath = window.location.pathname;
       const searchParams = new URLSearchParams(window.location.search);
-      searchParams.delete('new');
-      const newUrl = searchParams.toString() ? `${currentPath}?${searchParams.toString()}` : currentPath;
-      console.log('🔄 [AICreationWorkspace] Navigation vers:', newUrl);
-      navigate(newUrl, { replace: true });
-      
+      searchParams.delete("new");
+      const newUrl = searchParams.toString()
+        ? `${currentPath}?${searchParams.toString()}`
+        : currentPath;
+      console.log("🔄 [AICreationWorkspace] Navigation vers:", newUrl);
+      smartNavigate(newUrl, { replace: true });
+
       // 🔧 FIX: Ouvrir l'éditeur APRÈS la navigation pour éviter que l'état soit perdu
       setTimeout(() => {
-        console.log('🔓 [AICreationWorkspace] Ouverture éditeur après navigation');
+        console.log("🔓 [AICreationWorkspace] Ouverture éditeur après navigation");
         openEditor();
       }, 100);
     }
@@ -338,18 +362,18 @@ export function AICreationWorkspace({
     return (
       <div className="min-h-screen bg-[#0a0a0a]">
         <div className="pt-20">
-            <div className="max-w-2xl mx-auto p-4 sm:p-6">
-              <div className="bg-[#3c4043] rounded-lg border border-gray-700 p-8 text-center space-y-6">
-                {/* Icône de succès */}
-                <div className="flex justify-center">
-                  <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
-                    <LazyIconWrapper Icon={Check} className="w-10 h-10 text-green-500" />
-                  </div>
+          <div className="max-w-2xl mx-auto p-4 sm:p-6">
+            <div className="bg-[#3c4043] rounded-lg border border-gray-700 p-8 text-center space-y-6">
+              {/* Icône de succès */}
+              <div className="flex justify-center">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
+                  <LazyIconWrapper Icon={Check} className="w-10 h-10 text-green-500" />
                 </div>
+              </div>
 
-                {/* Message de succès */}
-                <div>
-                  <h1 className="text-3xl font-bold text-white mb-2">
+              {/* Message de succès */}
+              <div>
+                <h1 className="text-3xl font-bold text-white mb-2">
                   {publishedPoll.type === "form" ? "Formulaire publié !" : "Sondage publié !"}
                 </h1>
                 <p className="text-gray-300">
@@ -439,7 +463,7 @@ export function AICreationWorkspace({
           }
         `}</style>
       )}
-      
+
       <div
         className={`flex flex-col h-screen bg-[#1e1e1e] ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}
       >
@@ -513,8 +537,11 @@ export function AICreationWorkspace({
                 <button
                   onClick={() => {
                     const url = `/workspace/date?new=${Date.now()}`;
-                    console.log('🔵 [AICreationWorkspace] Bouton "Créer un sondage" cliqué - Navigation vers:', url);
-                    navigate(url);
+                    console.log(
+                      '🔵 [AICreationWorkspace] Bouton "Créer un sondage" cliqué - Navigation vers:',
+                      url,
+                    );
+                    smartNavigate(url);
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg transition-colors font-medium"
@@ -526,8 +553,11 @@ export function AICreationWorkspace({
                 <button
                   onClick={() => {
                     const url = `/workspace/form?new=${Date.now()}`;
-                    console.log('🟣 [AICreationWorkspace] Bouton "Créer un formulaire" cliqué - Navigation vers:', url);
-                    navigate(url);
+                    console.log(
+                      '🟣 [AICreationWorkspace] Bouton "Créer un formulaire" cliqué - Navigation vers:',
+                      url,
+                    );
+                    smartNavigate(url);
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 rounded-lg transition-colors font-medium"
@@ -538,7 +568,7 @@ export function AICreationWorkspace({
 
                 <button
                   onClick={() => {
-                    navigate("/dashboard");
+                    smartNavigate("/dashboard");
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
@@ -556,7 +586,7 @@ export function AICreationWorkspace({
 
                 <button
                   onClick={() => {
-                    navigate("/pricing");
+                    smartNavigate("/pricing");
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
@@ -582,7 +612,7 @@ export function AICreationWorkspace({
 
                 <button
                   onClick={() => {
-                    navigate("/docs");
+                    smartNavigate("/docs");
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
@@ -622,7 +652,7 @@ export function AICreationWorkspace({
                               openEditor();
                             }
 
-                            navigate(`/workspace?conversationId=${conv.id}`);
+                            smartNavigate(`/workspace?conversationId=${conv.id}`);
                             // Fermer la sidebar sur mobile
                             if (isMobile) setIsSidebarOpen(false);
                           }}
@@ -853,7 +883,7 @@ export function AICreationWorkspace({
                         <LazyIconWrapper Icon={X} className="w-5 h-5" />
                       </button>
                     )}
-                    
+
                     {currentPoll ? (
                       <>
                         <PollPreview poll={currentPoll} />
@@ -943,7 +973,7 @@ export function AICreationWorkspace({
                   </div>
                 </div>
               )}
-              
+
               {/* Barre de navigation mobile avec onglets */}
               {isMobile && (
                 <MobileNavigationTabs
@@ -985,16 +1015,25 @@ export function AICreationWorkspace({
                         title: currentPoll.title,
                         description: currentPoll.description,
                         dates: currentPoll.dates || [],
-                        dateGroups: currentPoll.dateGroups,
+                        dateGroups: currentPoll.dateGroups?.map((group) => ({
+                          ...group,
+                          type:
+                            group.type === "week" || group.type === "fortnight"
+                              ? ("range" as const)
+                              : group.type,
+                        })),
                         type: "date" as const,
                       };
-                      console.log('[WEEKEND_GROUPING] 🎯 AICreationWorkspace - Passage à PollCreator:', {
-                        hasDates: !!initialData.dates?.length,
-                        datesCount: initialData.dates?.length,
-                        hasDateGroups: !!initialData.dateGroups,
-                        dateGroupsCount: initialData.dateGroups?.length,
-                        dateGroups: initialData.dateGroups,
-                      });
+                      console.log(
+                        "[WEEKEND_GROUPING] 🎯 AICreationWorkspace - Passage à PollCreator:",
+                        {
+                          hasDates: !!initialData.dates?.length,
+                          datesCount: initialData.dates?.length,
+                          hasDateGroups: !!initialData.dateGroups,
+                          dateGroupsCount: initialData.dateGroups?.length,
+                          dateGroups: initialData.dateGroups,
+                        },
+                      );
                       return (
                         <PollCreatorComponent
                           onBack={(createdPoll) => {

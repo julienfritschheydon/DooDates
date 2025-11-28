@@ -5,6 +5,11 @@
 _Workflow run #593 (ID 19763820587) — génération UTC 2025-11-28T12:28:23.014Z_
 
 ## 🎯 Focus: Commit `af8c45c`
+**Dernière mise à jour:** 28/11/2025 12:07:58
+
+_Workflow run #583 (ID 19762019157) — génération UTC 2025-11-28T11:07:58.090Z_
+
+## 🎯 Focus: Commit `3a1a929`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -27,6 +32,7 @@ _Workflow run #593 (ID 19763820587) — génération UTC 2025-11-28T12:28:23.014
 ### ✅ Aucun échec pour ce commit
 
 Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
+Tous les workflows surveillés ont réussi pour le commit `3a1a929`.
 
 ---
 
@@ -35,6 +41,7 @@ Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
 **Statut:** ❌ failure
 
 **Dernier run:** 28/11/2025 12:50:33
+**Dernier run:** 28/11/2025 12:03:04
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
@@ -42,6 +49,7 @@ Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
 ### ✅ Aucun échec pour ce commit
 
 Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
+Tous les workflows surveillés ont réussi pour le commit `3a1a929`.
 
 ---
 
@@ -57,12 +65,20 @@ Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
 ### ✅ Aucun échec pour ce commit
 
 Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
+#### Run #103 - 28/11/2025 12:07:07
+
+- **Commit:** `3a1a929`
+- **Auteur:** julienfritschheydon
+- **Branche:** `main`
+- **Statut:** null
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19762018251)
 
 ---
 
 ## 📈 Résumé Global
 
 - 🎯 **Focus: Commit actuel** `af8c45c`
+- 🎯 **Focus: Commit actuel** `3a1a929`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -71,5 +87,45 @@ Tous les workflows surveillés ont réussi pour le commit `af8c45c`.
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
 ✅ Aucun nouvel échec détecté - tout fonctionne correctement !
+## 📊 Analyse des 1 échec(s) détecté(s)
+
+**Statistiques :**
+- 🔴 Critiques : 1
+- 📂 Catégories : unknown (1)
+
+### 🚨 1. 3️⃣ Main Post-Merge E2E
+
+**Résumé :** Échec 3️⃣ Main Post-Merge E2E - unknown (high)
+
+**Cause identifiée :** Erreur non cataloguée - nécessite analyse manuelle
+
+**Solutions suggérées :**
+1. Consulter les logs détaillés du workflow
+
+**⚠️ Action requise :** Résoudre immédiatement - bloque le déploiement
+
+---
+
+## 🚨 Actions prioritaires
+
+**1 échec(s) critique(s) détecté(s) :**
+
+1. **3️⃣ Main Post-Merge E2E** - Consulter les logs détaillés du workflow
+
+**Impact :** Ces échecs bloquent potentiellement le déploiement en production.
+
+## 💡 Améliorations suggérées
+
+- **Monitoring :** Ajouter des métriques de performance
+
+## 🔮 Analyse Prédictive (Indisponible)
+
+⚠️ **Service Gemini non configuré**
+- Définir la variable `GEMINI_API_KEY` pour activer l'analyse prédictive
+- L'analyse de risque et les recommandations proactives seront disponibles
+
+---
+
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T11:08:01.508Z*
 ---
 
