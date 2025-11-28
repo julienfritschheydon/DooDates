@@ -3,7 +3,6 @@
  */
 
 import { handleError, ErrorFactory, logError } from "../lib/error-handling";
-import { ErrorFactory } from "@/lib/error-handling";
 
 interface PerformanceMetrics {
   apiCalls: number;
