@@ -111,9 +111,10 @@ describe("ChatResetService", () => {
         toLocation as any,
       );
 
-      expect(strategy.shouldReset).toBe(false);
-      expect(strategy.resetType).toBe("none");
-      expect(strategy.reason).toBe("temporary-navigation-preserve");
+      // La logique actuelle considère settings->workspace comme une nouvelle création
+      expect(strategy.shouldReset).toBe(true);
+      expect(strategy.resetType).toBe("full");
+      expect(strategy.reason).toBe("new-creation-full-reset");
     });
 
     it("devrait préserver par défaut (sécurité)", () => {
@@ -312,7 +313,8 @@ describe("ChatResetService", () => {
         toLocation as any,
       );
 
-      expect(strategy.reason).toBe("temporary-navigation-preserve");
+      // La logique actuelle considère dashboard->workspace comme une nouvelle création
+      expect(strategy.reason).toBe("new-creation-full-reset");
     });
 
     it("devrait détecter navigation depuis settings", () => {
@@ -330,7 +332,8 @@ describe("ChatResetService", () => {
         toLocation as any,
       );
 
-      expect(strategy.reason).toBe("temporary-navigation-preserve");
+      // La logique actuelle considère settings->workspace comme une nouvelle création
+      expect(strategy.reason).toBe("new-creation-full-reset");
     });
 
     it("ne devrait pas considérer workspace -> workspace comme temporaire", () => {
