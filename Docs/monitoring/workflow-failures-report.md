@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 14:18:00
+**Dernière mise à jour:** 28/11/2025 15:15:18
 
-_Workflow run #603 (ID 19764943057) — génération UTC 2025-11-28T13:18:00.687Z_
+_Workflow run #604 (ID 19766282063) — génération UTC 2025-11-28T14:15:18.893Z_
 
-## 🎯 Focus: Commit `56fb87b`
-**Dernière mise à jour:** 28/11/2025 14:13:55
-
-_Workflow run #600 (ID 19764845275) — génération UTC 2025-11-28T13:13:55.868Z_
-
-## 🎯 Focus: Commit `05e13de`
+## 🎯 Focus: Commit `022d594`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,8 +26,7 @@ _Workflow run #600 (ID 19764845275) — génération UTC 2025-11-28T13:13:55.868
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `56fb87b`.
-Tous les workflows surveillés ont réussi pour le commit `05e13de`.
+Tous les workflows surveillés ont réussi pour le commit `022d594`.
 
 ---
 
@@ -47,47 +41,40 @@ Tous les workflows surveillés ont réussi pour le commit `05e13de`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `56fb87b`.
-Tous les workflows surveillés ont réussi pour le commit `05e13de`.
+Tous les workflows surveillés ont réussi pour le commit `022d594`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
 **Statut:** ✅ success
-**Statut:** ⏳ unknown
 
-**Dernier run:** 28/11/2025 14:13:06
+**Dernier run:** 28/11/2025 15:13:33
 
 **Statistiques:**
-- 📊 **Total runs pour ce commit:** **0**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
-### ✅ Aucun échec pour ce commit
+### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `56fb87b`.
-#### Run #105 - 28/11/2025 14:13:06
+#### Run #106 - 28/11/2025 15:13:33
 
-- **Commit:** `05e13de`
+- **Commit:** `022d594`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19764844725)
+- **Statut:** success
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19766258408)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `56fb87b`
-- 🎯 **Focus: Commit actuel** `05e13de`
+- 🎯 **Focus: Commit actuel** `022d594`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
 ### ✅ État de santé
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
-
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
@@ -128,6 +115,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T13:13:59.976Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T14:15:22.245Z*
 ---
 
