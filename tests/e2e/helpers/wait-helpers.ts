@@ -363,7 +363,7 @@ export async function waitForVisibleAndStable(
  * Attend que l'input de chat principal soit prêt.
  *
  * Stratégie en trois niveaux :
- * 1. Tente d'abord le textarea `[data-testid="message-input"]` (cas idéal).
+ * 1. Tente d'abord le textarea `[data-testid="chat-input"]` (cas idéal).
  * 2. Si absent, attend un élément représentatif de l'UX chat/workspace
  *    (preview ou textarea avec placeholder IA).
  * 3. En dernier recours, attend un élément interactif générique pour éviter
@@ -378,7 +378,7 @@ export async function waitForChatInputReady(
   const timeout = options?.timeout ?? timeouts.element;
 
   // 1. Tentative directe sur l'input de chat dédié
-  const chatInput = page.locator('[data-testid="message-input"]').first();
+  const chatInput = page.locator('[data-testid="chat-input"]').first();
   try {
     await chatInput.waitFor({ state: 'visible', timeout });
     return chatInput;
@@ -388,7 +388,7 @@ export async function waitForChatInputReady(
 
   // 2. Fallback sur des éléments représentatifs du workspace IA
   const chatOrPreviewSelector = [
-    '[data-testid="message-input"]',
+    '[data-testid="chat-input"]',
     '[data-poll-preview]',
     'textarea[placeholder*="Décrivez votre sondage"]',
     'textarea[placeholder*="Décrivez votre formulaire"]',
