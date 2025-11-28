@@ -70,7 +70,7 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev:e2e',
-    url: 'http://localhost:8080/DooDates',
+    url: 'http://localhost:8080/DooDates/',
     reuseExistingServer: true, // Toujours réutiliser le serveur existant
     timeout: 30000, // Réduit car le serveur est déjà démarré
     stdout: 'pipe',

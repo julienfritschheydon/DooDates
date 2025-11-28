@@ -13,7 +13,7 @@ function isServerRunning(port, callback) {
   const options = {
     hostname: 'localhost',
     port: port,
-    path: '/DooDates',
+    path: '/DooDates/',
     method: 'HEAD',
     timeout: 2000
   };
@@ -90,7 +90,7 @@ function startVite() {
     }, TIMEOUT);
     
     // Attendre que le serveur soit prêt
-    waitForServer('http://localhost:8080/DooDates')
+    waitForServer('http://localhost:8080/DooDates/')
       .then(() => {
         clearTimeout(timeout);
         resolve(viteProcess);
