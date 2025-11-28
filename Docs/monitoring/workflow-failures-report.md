@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 11:11:12
+**Dernière mise à jour:** 28/11/2025 11:16:29
 
-_Workflow run #568 (ID 19760648686) — génération UTC 2025-11-28T10:11:12.932Z_
+_Workflow run #569 (ID 19760773995) — génération UTC 2025-11-28T10:16:29.701Z_
 
-## 🎯 Focus: Commit `2230b03`
-**Dernière mise à jour:** 28/11/2025 11:07:12
-
-_Workflow run #565 (ID 19760546237) — génération UTC 2025-11-28T10:07:12.278Z_
-
-## 🎯 Focus: Commit `2235a31`
+## 🎯 Focus: Commit `44dc864`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,8 +26,7 @@ _Workflow run #565 (ID 19760546237) — génération UTC 2025-11-28T10:07:12.278
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `2230b03`.
-Tous les workflows surveillés ont réussi pour le commit `2235a31`.
+Tous les workflows surveillés ont réussi pour le commit `44dc864`.
 
 ---
 
@@ -40,44 +34,41 @@ Tous les workflows surveillés ont réussi pour le commit `2235a31`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 11:02:29
+**Dernier run:** 28/11/2025 11:11:54
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `2230b03`.
-Tous les workflows surveillés ont réussi pour le commit `2235a31`.
+Tous les workflows surveillés ont réussi pour le commit `44dc864`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ✅ success
+**Statut:** ⏳ unknown
 
-**Dernier run:** 28/11/2025 11:06:25
+**Dernier run:** 28/11/2025 11:15:37
 
 **Statistiques:**
-- 📊 **Total runs pour ce commit:** **0**
+- 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
-### ✅ Aucun échec pour ce commit
+### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `2230b03`.
-#### Run #99 - 28/11/2025 11:06:25
+#### Run #100 - 28/11/2025 11:15:37
 
-- **Commit:** `2235a31`
+- **Commit:** `44dc864`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
 - **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19760545154)
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19760773099)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `2230b03`
-- 🎯 **Focus: Commit actuel** `2235a31`
+- 🎯 **Focus: Commit actuel** `44dc864`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -85,7 +76,6 @@ Tous les workflows surveillés ont réussi pour le commit `2230b03`.
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
 **Statistiques :**
@@ -125,6 +115,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T10:07:15.612Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T10:16:33.668Z*
 ---
 
