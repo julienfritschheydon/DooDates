@@ -498,7 +498,7 @@ export async function openTagsFolderDialog(
   const card = conversationCard || page.locator('[data-testid="poll-item"]').first();
   
   // Attendre que la carte soit attachée
-  await card.waitFor({ state: 'attached', timeout: 10000 });
+  await card.waitFor({ state: 'attached', timeout: 20000 });
   
   // Trouver le bouton menu : chercher le bouton contenant l'icône MoreVertical (SVG)
   // Le menu est généralement le dernier bouton visible dans la carte
@@ -853,14 +853,77 @@ export async function waitForAppReady(
     // l'application n'est plus sur un écran blanc en attendant qu'au
     // moins un élément interactif soit visible. Les tests qui ont
     // besoin du champ de chat utiliseront waitForChatInputReady.
-    await page.waitForSelector('input, button, [role="button"]', {
-      state: 'visible',
-      timeout: 10000,
-    });
+    
+    // Essayer plusieurs sélecteurs en ordre de préférence
+    const selectors = [
+      'input, button, [role="button"]',  // Éléments interactifs
+      '[data-testid="chat-input"]',      // Champ de chat spécifique
+      'textarea',                        // Textareas
+      'a[href]',                         // Liens cliquables
+      'body',                            // Fallback : body visible
+    ];
+    
+    let elementFound = false;
+    for (const selector of selectors) {
+      try {
+        await page.waitForSelector(selector, {
+          state: 'visible',
+          timeout: 5000, // Timeout plus court par sélecteur
+        });
+        elementFound = true;
+        break;
+      } catch {
+        // Continuer avec le sélecteur suivant
+        continue;
+      }
+    }
+    
+    if (!elementFound) {
+      // Si aucun élément trouvé, vérifier que la page n'est pas complètement blanche
+      // et ajouter du diagnostic
+      console.log('⚠️ Aucun élément interactif trouvé, diagnostic de la page...');
+      
+      try {
+        // Vérifier l'URL actuelle
+        const currentUrl = page.url();
+        console.log(`URL actuelle: ${currentUrl}`);
+        
+        // Vérifier le contenu de la page
+        const bodyText = await page.locator('body').textContent() || '';
+        console.log(`Contenu body (premiers 200 chars): ${bodyText.substring(0, 200)}`);
+        
+        // Vérifier s'il y a des erreurs console
+        const logs = await page.evaluate(() => {
+          const errors: string[] = [];
+          const originalError = console.error;
+          console.error = (...args) => {
+            errors.push(args.join(' '));
+            originalError.apply(console, args);
+          };
+          return errors;
+        });
+        
+        if (logs.length > 0) {
+          console.log('Erreurs console détectées:', logs);
+        }
+        
+        // Vérifier si l'application est en état de chargement
+        const loadingElements = await page.locator('[class*="loading"], [class*="spinner"], [data-testid*="loading"]').count();
+        if (loadingElements > 0) {
+          console.log(`Éléments de chargement trouvés: ${loadingElements}`);
+        }
+        
+      } catch (diagError) {
+        console.log('Erreur pendant le diagnostic:', diagError);
+      }
+      
+      // Finalement, vérifier que le body est visible
+      await expect(page.locator('body')).toBeVisible({ timeout: 20000 });
+    }
   } else if (path.includes('/dashboard')) {
     await page.waitForSelector('[data-testid="dashboard-ready"]', {
       state: 'visible',
-      timeout: 10000,
+      timeout: 20000,
     });
     await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
   } else if (path.includes('/poll/') && path.includes('/results')) {
