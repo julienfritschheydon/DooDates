@@ -46,7 +46,7 @@ export async function createFormPollViaAI(
 ): Promise<string> {
   await setupAllMocksWithoutNavigation(page);
 
-  await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
 
   const chatInput = page.locator('[data-testid="message-input"]');
