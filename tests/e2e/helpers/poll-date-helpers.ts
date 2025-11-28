@@ -280,7 +280,7 @@ export async function createDatePollWithTimeSlots(
 
   console.log(`📅 Dates à sélectionner: ${dates.join(', ')}`);
 
-  await page.goto('/create/date', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/create/date', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   await expect(page).toHaveURL(/\/create\/ai\?type=date/);
   console.log('✅ Page /create/date accessible → redirigée vers /create/ai?type=date');

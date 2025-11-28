@@ -16,7 +16,7 @@ export async function navigateToWorkspace(
   page: Page,
   browserName: string
 ) {
-  await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
   
   // Attendre que le chat input soit visible
