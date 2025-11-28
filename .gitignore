@@ -7,6 +7,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Temporary debug/test files
+test-gemini-*.js
+debug-*.js
+test-debug-*.js
+test-hints-*.js
+test-prompt-*.js
+test-temporal-*.js
+debug-*.png
+debug-*.html
+
 node_modules
 dist
 dist-ssr
