@@ -5,17 +5,9 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   // Base URL pour GitHub Pages
-  // Détection automatique : si on est sur GitHub Pages, utiliser le nom du repo
-  // Sinon, utiliser '/' pour le développement local
-  base:
-    process.env.VITE_BASE_PATH ||
-    (() => {
-      if (process.env.NODE_ENV === "production") {
-        // GitHub Pages déploie automatiquement dans /repo-name/
-        return "/DooDates/";
-      }
-      return "/";
-    })(),
+  // En production sur GitHub Pages, on doit utiliser /DooDates/ comme base
+  // En développement, on utilise /
+  base: process.env.VITE_BASE_PATH || (process.env.NODE_ENV === "production" ? "/DooDates/" : "/"),
 
   server: {
     port: 8080,
@@ -46,9 +38,10 @@ export default defineConfig({
           "supabase-vendor": ["@supabase/supabase-js"],
           "gemini-vendor": ["@google/generative-ai"],
         },
-        entryFileNames: "assets/[name].js",
-        chunkFileNames: "assets/[name].js",
-        assetFileNames: "assets/[name].[ext]",
+        // Utiliser les noms par défaut avec hash pour éviter les conflits
+        // entryFileNames: 'assets/[name].js',
+        // chunkFileNames: 'assets/[name].js',
+        // assetFileNames: 'assets/[name].[ext]',
       },
     },
     chunkSizeWarningLimit: 1000,
