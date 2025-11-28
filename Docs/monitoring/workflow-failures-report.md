@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 28/11/2025 12:35:57
+**Dernière mise à jour:** 28/11/2025 12:37:43
 
-_Workflow run #587 (ID 19762677527) — génération UTC 2025-11-28T11:35:57.628Z_
+_Workflow run #588 (ID 19762714204) — génération UTC 2025-11-28T11:37:43.203Z_
 
-## 🎯 Focus: Commit `efebb4b`
+## 🎯 Focus: Commit `fbc5ba5`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #587 (ID 19762677527) — génération UTC 2025-11-28T11:35:57.628
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `efebb4b`.
+Tous les workflows surveillés ont réussi pour le commit `fbc5ba5`.
 
 ---
 
@@ -41,7 +41,7 @@ Tous les workflows surveillés ont réussi pour le commit `efebb4b`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `efebb4b`.
+Tous les workflows surveillés ont réussi pour le commit `fbc5ba5`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `efebb4b`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `efebb4b`.
+Tous les workflows surveillés ont réussi pour le commit `fbc5ba5`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `efebb4b`
+- 🎯 **Focus: Commit actuel** `fbc5ba5`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
