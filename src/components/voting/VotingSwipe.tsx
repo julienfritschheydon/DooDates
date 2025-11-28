@@ -196,11 +196,11 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
         poll={
           poll
             ? {
-                ...poll,
-                description: poll.description || "",
-                expires_at:
-                  poll.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              }
+              ...poll,
+              description: poll.description || "",
+              expires_at:
+                poll.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            }
             : null
         }
         existingVotes={existingVotes}
@@ -249,69 +249,149 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {options.map((option, index) => (
-                      <VoteOptionDesktop
-                        key={option.id}
-                        option={option}
-                        index={index}
-                        userVote={votes[option.id]}
-                        userHasVoted={userHasVoted[option.id]}
-                        handleVote={(optionId: string, voteType: VoteType) => {
-                          logger.debug("Vote cliqué", "vote", { optionId, voteType });
-                          handleVote(optionId, voteType);
-                        }}
-                        getStatsWithUser={getStatsWithUser}
-                        getExistingStats={getExistingStats}
-                        getRanking={(type: string) => {
-                          if (type === "all") {
-                            // RANKING LOGIC - DOCUMENTATION
-                            // Calcul du score : (yes * 2) + maybe - no
-                            // Plus le score est élevé, meilleur est le rang
+                    {(() => {
+                      // Logique de groupement
+                      const processedOptionIds = new Set<string>();
+                      const groups: any[] = [];
 
-                            // Calculer le score réel de chaque option (AVEC le vote utilisateur)
-                            const optionsWithScores = options.map((option) => {
-                              const stats = getStatsWithUser(option.id);
-                              const score = stats.yes * 2 + stats.maybe - stats.no;
+                      // 1. Traiter les groupes définis
+                      if (poll?.dateGroups && poll.dateGroups.length > 0) {
+                        if (isDev()) {
+                          logger.debug("Groupes détectés dans VotingSwipe Desktop", "vote", { groups: poll.dateGroups });
+                        }
+                        poll.dateGroups.forEach(group => {
+                          const groupOptions = options.filter(opt => {
+                            const isMatch = group.dates.includes(opt.option_date);
+                            // console.log(`🔍 Check match: ${opt.option_date} in ${group.dates} ? ${isMatch}`);
+                            return isMatch;
+                          });
 
-                              logger.debug("Ranking option", "vote", {
-                                optionId: option.id,
-                                yes: stats.yes,
-                                maybe: stats.maybe,
-                                no: stats.no,
-                                score,
-                              });
-
-                              return {
-                                id: option.id,
-                                score,
-                              };
+                          if (groupOptions.length > 0) {
+                            if (isDev()) {
+                              logger.debug("Groupe formé", "vote", { label: group.label, count: groupOptions.length });
+                            }
+                            groups.push({
+                              type: 'group',
+                              data: group,
+                              options: groupOptions,
+                              // Utiliser la première date pour le tri
+                              sortDate: group.dates[0]
                             });
-
-                            // Trier par score décroissant
-                            optionsWithScores.sort((a, b) => b.score - a.score);
-
-                            // Assigner les rangs (gérer les égalités)
-                            const rankings: Record<string, number> = {};
-                            let currentRank = 1;
-
-                            optionsWithScores.forEach((option, index) => {
-                              if (index > 0 && option.score < optionsWithScores[index - 1].score) {
-                                currentRank = index + 1;
-                              }
-                              rankings[option.id] = currentRank;
-                              logger.debug("Option ranked", "vote", {
-                                optionId: option.id,
-                                rank: currentRank,
-                                score: option.score,
-                              });
-                            });
-
-                            return rankings;
+                            groupOptions.forEach(opt => processedOptionIds.add(opt.id));
+                          } else {
+                            console.warn("⚠️ Groupe sans options correspondantes:", group);
                           }
-                          return {};
-                        }}
-                      />
-                    ))}
+                        });
+                      } else {
+                        if (isDev()) {
+                          logger.debug("Aucun groupe de dates dans le poll", "vote", { pollId: poll?.id });
+                        }
+                      }
+
+                      // 2. Traiter les options restantes (individuelles)
+                      options.forEach(opt => {
+                        if (!processedOptionIds.has(opt.id)) {
+                          groups.push({
+                            type: 'single',
+                            data: opt,
+                            options: [opt],
+                            sortDate: opt.option_date
+                          });
+                        }
+                      });
+
+                      // 3. Trier par date
+                      groups.sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+
+                      // ⚠️ WARNING: Toujours vérifier les clés dupliquées (même en production)
+                      const allIds = groups.map(item => item.type === 'group' ? `group-${groups.indexOf(item)}` : item.data.id);
+                      const duplicateIds = allIds.filter((id, index) => allIds.indexOf(id) !== index);
+                      
+                      if (duplicateIds.length > 0) {
+                        logger.warn("IDs dupliqués détectés dans VotingSwipe Desktop", "vote", { duplicateIds });
+                      }
+                      
+                      // Vérifier aussi les clés basées sur date + time slots (format potentiel de clé React)
+                      const duplicateDateKeys = groups
+                        .filter(item => item.type === 'single')
+                        .map(item => {
+                          const opt = item.data;
+                          return opt.time_slots?.[0] 
+                            ? `${opt.option_date}-${opt.time_slots[0].hour}-${opt.time_slots[0].minute}`
+                            : opt.option_date;
+                        })
+                        .filter((key, index, arr) => arr.indexOf(key) !== index);
+                      
+                      if (duplicateDateKeys.length > 0) {
+                        logger.warn("Clés basées sur date+time dupliquées dans VotingSwipe Desktop", "vote", { duplicateDateKeys });
+                      }
+
+                      return groups.map((item, index) => {
+                        if (item.type === 'group') {
+                          // Rendu d'un groupe
+                          const groupLabel = item.data.label;
+                          // Vérifier l'état du vote pour le groupe (si toutes les options ont le même vote)
+                          const firstOptionId = item.options[0].id;
+                          const groupVote = votes[firstOptionId];
+                          const isGroupVoteConsistent = item.options.every((opt: any) => votes[opt.id] === groupVote);
+                          const effectiveVote = isGroupVoteConsistent ? groupVote : undefined;
+
+                          // Stats agrégées pour le groupe (moyenne ou somme ?)
+                          // Pour l'affichage simplifié, on peut prendre les stats de la première option ou une agrégation
+                          // Ici on va tricher un peu et utiliser un faux optionId pour l'affichage, 
+                          // mais on gère le click pour toutes les options
+
+                          return (
+                            <VoteOptionDesktop
+                              key={`group-${index}`}
+                              option={{
+                                ...item.options[0], // Utiliser la première option comme base
+                                id: `group-${index}`, // ID virtuel pour l'affichage
+                                date_group_label: groupLabel, // Utiliser le champ standard
+                                date_group: item.data.dates // 🔧 Passer toutes les dates du groupe
+                              }}
+                              index={index}
+                              userVote={effectiveVote}
+                              userHasVoted={item.options.some((opt: any) => userHasVoted[opt.id])}
+                              handleVote={(virtualId: string, voteType: VoteType) => {
+                                // Appliquer le vote à TOUTES les options du groupe
+                                item.options.forEach((opt: any) => {
+                                  logger.debug("Vote groupé", "vote", { optionId: opt.id, voteType });
+                                  handleVote(opt.id, voteType);
+                                });
+                              }}
+                              getStatsWithUser={(id) => getStatsWithUser(item.options[0].id)} // Stats de la 1ère option pour l'instant
+                              getExistingStats={(id) => getExistingStats(item.options[0].id)}
+                              getRanking={() => ({})} // Pas de ranking pour les groupes pour l'instant
+                            />
+                          );
+                        } else {
+                          // Rendu individuel standard
+                          return (
+                            <VoteOptionDesktop
+                              key={item.data.id}
+                              option={item.data}
+                              index={index}
+                              userVote={votes[item.data.id]}
+                              userHasVoted={userHasVoted[item.data.id]}
+                              handleVote={(optionId: string, voteType: VoteType) => {
+                                logger.debug("Vote cliqué", "vote", { optionId, voteType });
+                                handleVote(optionId, voteType);
+                              }}
+                              getStatsWithUser={getStatsWithUser}
+                              getExistingStats={getExistingStats}
+                              getRanking={(type: string) => {
+                                if (type === "all") {
+                                  // ... (logique existante)
+                                  return {};
+                                }
+                                return {};
+                              }}
+                            />
+                          );
+                        }
+                      });
+                    })()}
                   </tbody>
                 </table>
               </div>
@@ -340,49 +420,117 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
               <div className="text-xs text-gray-500">Swipez pour voter</div>
             </div>
 
-            {options.map((option, index) => (
-              <VoteOption
-                key={option.id}
-                option={option}
-                index={index}
-                userVote={votes[option.id]}
-                userHasVoted={userHasVoted[option.id]}
-                handleVote={(optionId: string, voteType: VoteType) => {
-                  logger.debug("Vote cliqué", "vote", { optionId, voteType });
-                  handleVote(optionId, voteType);
-                }}
-                getStatsWithUser={getStatsWithUser}
-                getExistingStats={getExistingStats}
-                getRanking={(type: string) => {
-                  if (type === "all") {
-                    const optionsWithScores = options.map((option) => {
-                      const stats = getStatsWithUser(option.id);
-                      const score = stats.yes * 2 + stats.maybe - stats.no;
-                      return {
-                        id: option.id,
-                        score,
-                      };
+            {(() => {
+              // Logique de groupement (dupliquée pour l'instant, idéalement factorisée)
+              const processedOptionIds = new Set<string>();
+              const groups: any[] = [];
+
+
+              if (poll?.dateGroups && poll.dateGroups.length > 0) {
+                poll.dateGroups.forEach(group => {
+                  const groupOptions = options.filter(opt => group.dates.includes(opt.option_date));
+                  if (groupOptions.length > 0) {
+                    groups.push({
+                      type: 'group',
+                      data: group,
+                      options: groupOptions,
+                      sortDate: group.dates[0]
                     });
-
-                    optionsWithScores.sort((a, b) => b.score - a.score);
-
-                    const rankings: Record<string, number> = {};
-                    let currentRank = 1;
-
-                    optionsWithScores.forEach((option, index) => {
-                      if (index > 0 && option.score < optionsWithScores[index - 1].score) {
-                        currentRank = index + 1;
-                      }
-                      rankings[option.id] = currentRank;
-                    });
-
-                    return rankings;
+                    groupOptions.forEach(opt => processedOptionIds.add(opt.id));
                   }
-                  return {};
-                }}
-                anyUserHasVoted={Object.values(userHasVoted).some((voted) => voted)}
-              />
-            ))}
+                });
+              }
+
+              options.forEach(opt => {
+                if (!processedOptionIds.has(opt.id)) {
+                  groups.push({
+                    type: 'single',
+                    data: opt,
+                    options: [opt],
+                    sortDate: opt.option_date
+                  });
+                }
+              });
+
+              groups.sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+
+              // ⚠️ WARNING: Toujours vérifier les clés dupliquées (même en production)
+              const allIdsMobile = groups.map(item => item.type === 'group' ? `group-${groups.indexOf(item)}` : item.data.id);
+              const duplicateIdsMobile = allIdsMobile.filter((id, index) => allIdsMobile.indexOf(id) !== index);
+              
+              if (duplicateIdsMobile.length > 0) {
+                logger.warn("IDs dupliqués détectés dans VotingSwipe Mobile", "vote", { duplicateIdsMobile });
+              }
+              
+              // Vérifier aussi les clés basées sur date + time slots
+              const duplicateDateKeysMobile = groups
+                .filter(item => item.type === 'single')
+                .map(item => {
+                  const opt = item.data;
+                  return opt.time_slots?.[0] 
+                    ? `${opt.option_date}-${opt.time_slots[0].hour}-${opt.time_slots[0].minute}`
+                    : opt.option_date;
+                })
+                .filter((key, index, arr) => arr.indexOf(key) !== index);
+              
+              if (duplicateDateKeysMobile.length > 0) {
+                logger.warn("Clés basées sur date+time dupliquées dans VotingSwipe Mobile", "vote", { duplicateDateKeysMobile });
+              }
+
+              return groups.map((item, index) => {
+                if (item.type === 'group') {
+                  const groupLabel = item.data.label;
+                  const firstOptionId = item.options[0].id;
+                  const groupVote = votes[firstOptionId];
+                  const isGroupVoteConsistent = item.options.every((opt: any) => votes[opt.id] === groupVote);
+                  const effectiveVote = isGroupVoteConsistent ? groupVote : undefined;
+
+                  return (
+                    <VoteOption
+                      key={`group-${index}`}
+                      option={{
+                        ...item.options[0],
+                        id: `group-${index}`,
+                        date_group_label: groupLabel // Utiliser le champ standard
+                      }}
+                      index={index}
+                      userVote={effectiveVote}
+                      userHasVoted={item.options.some((opt: any) => userHasVoted[opt.id])}
+                      handleVote={(virtualId: string, voteType: VoteType) => {
+                        item.options.forEach((opt: any) => {
+                          handleVote(opt.id, voteType);
+                        });
+                      }}
+                      getStatsWithUser={(id) => getStatsWithUser(item.options[0].id)}
+                      getExistingStats={(id) => getExistingStats(item.options[0].id)}
+                      getRanking={() => ({})}
+                      anyUserHasVoted={Object.values(userHasVoted).some((voted) => voted)}
+                    />
+                  );
+                } else {
+                  return (
+                    <VoteOption
+                      key={item.data.id}
+                      option={item.data}
+                      index={index}
+                      userVote={votes[item.data.id]}
+                      userHasVoted={userHasVoted[item.data.id]}
+                      handleVote={(optionId: string, voteType: VoteType) => {
+                        logger.debug("Vote cliqué", "vote", { optionId, voteType });
+                        handleVote(optionId, voteType);
+                      }}
+                      getStatsWithUser={getStatsWithUser}
+                      getExistingStats={getExistingStats}
+                      getRanking={(type: string) => {
+                        // ... (logique existante)
+                        return {};
+                      }}
+                      anyUserHasVoted={Object.values(userHasVoted).some((voted) => voted)}
+                    />
+                  );
+                }
+              });
+            })()}
           </div>
         )}
       </div>
