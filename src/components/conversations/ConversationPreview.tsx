@@ -128,7 +128,6 @@ function MessageItem({ message, isFirst, isLast, language }: MessageItemProps) {
         <Avatar className="h-8 w-8">
           {isUser && (
             <>
-              <AvatarImage src="/placeholder-user.jpg" />
               <AvatarFallback className="bg-blue-100 text-blue-600">
                 <User className="h-4 w-4" />
               </AvatarFallback>
