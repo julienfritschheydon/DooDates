@@ -105,6 +105,14 @@ export function useSmartNavigation(
 
       // Appliquer la stratégie si nécessaire
       if (strategy.shouldReset) {
+        // Dispatch l'événement pour que ConversationProvider puisse réagir
+        window.dispatchEvent(
+          new CustomEvent<ResetStrategy>("chat-reset", {
+            detail: strategy,
+          }),
+        );
+
+        // Appliquer la stratégie via le service
         ChatResetService.applyResetStrategy(strategy);
       }
 
