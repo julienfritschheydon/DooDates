@@ -157,7 +157,7 @@ describe("usePollConversationLink", () => {
         result.current.navigateToPoll("poll-1");
       });
 
-      expect(window.location.href).toBe("http://localhost:3000/poll/poll-1?source=conversation");
+      expect(window.location.href).toBe("http://localhost:3000/DooDates/poll/poll-1?source=conversation");
     });
   });
 
@@ -279,7 +279,7 @@ describe("usePollConversationLink", () => {
         result.current.navigateToPoll("poll-1");
       });
 
-      expect(window.location.href).toBe("http://localhost:3000/poll/poll-1?source=conversation");
+      expect(window.location.href).toBe("http://localhost:3000/DooDates/poll/poll-1?source=conversation");
 
       // Navigate from poll back to conversation - verify localStorage is called
       act(() => {
