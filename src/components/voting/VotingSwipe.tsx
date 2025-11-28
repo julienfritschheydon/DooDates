@@ -10,6 +10,7 @@ import VoteOptionDesktop from "./VoteOptionDesktop";
 
 // Import types and utilities
 import { logger } from "@/lib/logger";
+import { isDev } from "@/lib/env";
 import { VoterInfo, FormErrors, VoteType } from "./utils/types";
 
 // Import custom hooks
@@ -157,7 +158,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
       onBack();
     } else {
       // Rediriger vers la page d'accueil si onBack n'est pas fourni
-      window.location.href = "/";
+      window.location.href = "/DooDates/";
     }
   };
 

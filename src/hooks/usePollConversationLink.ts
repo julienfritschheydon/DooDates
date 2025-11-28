@@ -57,7 +57,12 @@ export const usePollConversationLink = () => {
         });
         return true;
       } catch (error) {
-        logError("Failed to link poll to conversation:", error);
+        logError(error as Error, {
+          component: "usePollConversationLink",
+          operation: "linkPollToConversation",
+          conversationId,
+          pollId: pollData.pollId,
+        });
         return false;
       }
     },
@@ -108,7 +113,7 @@ export const usePollConversationLink = () => {
    */
   const navigateToPoll = useCallback((pollId: string) => {
     // Navigate to poll page
-    const pollUrl = `/poll/${pollId}?source=conversation`;
+    const pollUrl = `/DooDates/poll/${pollId}?source=conversation`;
     window.location.href = pollUrl;
   }, []);
 

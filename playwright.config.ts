@@ -68,19 +68,6 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: 'npm run dev:e2e',
-    url: 'http://localhost:8080',
-    // Temporairement activé pour utiliser le serveur existant
-    reuseExistingServer: true,
-    timeout: 120 * 1000,
-    stdout: 'pipe',
-    stderr: 'pipe',
-    env: {
-      // Injecter les variables d'environnement de test dans le serveur de dev
-      // Utiliser localhost:8080 comme URL factice pour que les mocks puissent intercepter
-      VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'http://localhost:8080',
-      VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY || 'test-anon-key',
-    },
-  },
+  // Désactiver webServer pour utiliser le serveur déjà démarré manuellement
+  webServer: undefined,
 });

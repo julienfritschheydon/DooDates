@@ -47,7 +47,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         >
           <textarea
             ref={textareaRef}
-            data-testid="message-input"
+            data-testid="chat-input"
             value={value}
             onChange={(e) => {
               onChange(e.target.value);

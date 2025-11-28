@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DooDates - Assistant IA pour Planification Collaborative</title>
+    <meta name="description" content="DooDates - Modern AI scheduling, no subscriptions. L'assistant IA révolutionnaire pour planifier vos rendez-vous collaboratifs." />
+    <meta name="author" content="DooDates" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/DooDates/logo-doodates.svg" />
+    <link rel="icon" type="image/x-icon" href="/DooDates/logo-doodates.svg" />
+    <link rel="apple-touch-icon" href="/DooDates/logo-doodates.svg" />
+
+    <meta property="og:title" content="DooDates - Assistant IA Planification" />
+    <meta property="og:description" content="Modern AI scheduling, no subscriptions. Planifiez vos rendez-vous avec l'IA conversationnelle." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://julienfritschheydon.github.io/DooDates/logo-doodates.svg" />
+    <meta property="og:url" content="https://julienfritschheydon.github.io/DooDates/" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@doodates" />
+    <meta name="twitter:image" content="https://julienfritschheydon.github.io/DooDates/logo-doodates.svg" />
+
+    <!-- PWA Métadonnées -->
+    <script>
+      // Generate manifest dynamically with correct base URL and absolute URLs
+      (function() {
+        const path = window.location.pathname;
+        const baseUrl = path.includes('/DooDates') ? '/DooDates/' : '/';
+        const origin = window.location.origin;
+        
+        // Helper to create absolute URLs
+        const absUrl = (path) => origin + (path.startsWith('/') ? path : '/' + path);
+        
+        const manifest = {
+          "name": "DooDates - Assistant IA Planification",
+          "short_name": "DooDates",
+          "description": "Modern AI scheduling, no subscriptions. L'assistant IA révolutionnaire pour planifier vos rendez-vous collaboratifs.",
+          "start_url": absUrl(baseUrl),
+          "display": "standalone",
+          "display_override": ["standalone", "minimal-ui"],
+          "background_color": "#ffffff",
+          "theme_color": "#3b82f6",
+          "orientation": "portrait-primary",
+          "scope": absUrl(baseUrl),
+          "lang": "fr",
+          "categories": ["productivity", "business", "utilities"],
+          "icons": [
+            {
+              "src": absUrl(baseUrl + "logo-doodates.svg"),
+              "sizes": "any",
+              "type": "image/svg+xml",
+              "purpose": "any maskable"
+            },
+            {
+              "src": absUrl(baseUrl + "logo-doodates.svg"),
+              "sizes": "192x192",
+              "type": "image/svg+xml"
+            },
+            {
+              "src": absUrl(baseUrl + "logo-doodates.svg"),
+              "sizes": "512x512",
+              "type": "image/svg+xml"
+            }
+          ],
+          "screenshots": [
+            {
+              "src": absUrl(baseUrl + "logo-doodates.svg"),
+              "sizes": "1280x720",
+              "type": "image/svg+xml",
+              "form_factor": "wide",
+              "label": "DooDates - Interface principale"
+            }
+          ],
+          "shortcuts": [
+            {
+              "name": "Nouveau sondage",
+              "short_name": "Nouveau",
+              "description": "Créer un nouveau sondage de dates",
+              "url": absUrl(baseUrl),
+              "icons": [
+                {
+                  "src": absUrl(baseUrl + "logo-doodates.svg"),
+                  "sizes": "96x96"
+                }
+              ]
+            }
+          ],
+          "prefer_related_applications": false,
+          "related_applications": [],
+          "edge_side_panel": {
+            "preferred_width": 400
+          }
+        };
+        
+        // Create blob URL for manifest
+        const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(blob);
+        
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestUrl;
+        document.head.appendChild(link);
+      })();
+    </script>
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="DooDates" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- Android PWA spécifique -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#3b82f6" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e40af" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    
+    <!-- Correction focus Android -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-status-bar-style" content="black-translucent" />
+    
+    <style>
+      /* Correction immédiate focus Android */
+      html, body {
+        position: relative;
+        overflow-x: hidden;
+        scroll-behavior: auto !important;
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      @media (max-width: 768px) {
+        body {
+          min-height: 100vh;
+          min-height: 100dvh;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    
+    <!-- Script immédiat pour correction focus Android -->
+    <script>
+      // Correction focus Android - exécution immédiate
+      (function() {
+        function scrollToTop() {
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+        }
+        
+        // Scroll immédiat
+        scrollToTop();
+        
+        // Scroll après DOM ready
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', scrollToTop);
+        } else {
+          scrollToTop();
+        }
+        
+        // Scroll après chargement complet
+        window.addEventListener('load', function() {
+          setTimeout(scrollToTop, 50);
+          setTimeout(scrollToTop, 200);
+        });
+        
+        // Correction pour PWA Android
+        window.addEventListener('focus', function() {
+          setTimeout(scrollToTop, 100);
+        });
+        
+        document.addEventListener('visibilitychange', function() {
+          if (!document.hidden) {
+            setTimeout(scrollToTop, 100);
+          }
+        });
+      })();
+    </script>
+    
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

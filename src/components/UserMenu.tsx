@@ -31,7 +31,7 @@ export function UserMenu() {
         // Forcer la déconnexion locale même en cas d'erreur
         localStorage.clear();
         sessionStorage.clear();
-        // Redirection statique vers GitHub Pages
+        // Redirection unique partout - plus de conditions
         window.location.href = "/DooDates/";
       } else {
         logger.info("Déconnexion réussie", "auth");
@@ -39,7 +39,7 @@ export function UserMenu() {
         localStorage.clear();
         sessionStorage.clear();
         // Redirection après déconnexion
-        // Redirection statique vers GitHub Pages
+        // Redirection unique partout - plus de conditions
         window.location.href = "/DooDates/";
       }
     } catch (err) {
@@ -50,9 +50,8 @@ export function UserMenu() {
       localStorage.clear();
       sessionStorage.clear();
 
-      // Redirection forcée
-      // 🔧 FIX BUG #2: Utiliser BASE_URL pour GitHub Pages
-      window.location.href = import.meta.env.BASE_URL || "/";
+      // Redirection unique partout - plus de conditions
+      window.location.href = "/DooDates/";
     }
   };
 

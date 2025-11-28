@@ -5,7 +5,7 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "/DooDates/", // Base path statique pour GitHub Pages - plus de complexité
+  base: "/DooDates/",  // Base path statique pour GitHub Pages - plus de complexité
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

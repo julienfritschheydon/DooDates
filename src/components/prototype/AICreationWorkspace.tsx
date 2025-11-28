@@ -129,9 +129,12 @@ export function AICreationWorkspace({
   const conversationId = searchParams.get("conversationId");
   const newChatTimestamp = searchParams.get("new");
 
-  // Priorité : prop > query param > défaut "date"
+  // Priorité : prop > pathname > query param > défaut "date"
+  const pollTypeFromPathname = location.pathname.includes("/workspace/form") ? "form" : 
+                               location.pathname.includes("/workspace/date") ? "date" :
+                               location.pathname.includes("/workspace/availability") ? "availability" : null;
   const pollTypeFromQuery = searchParams.get("type") as "date" | "form" | "availability" | null;
-  const pollTypeFromUrl = pollTypeFromProp || pollTypeFromQuery || "date";
+  const pollTypeFromUrl = pollTypeFromProp || pollTypeFromPathname || pollTypeFromQuery || "date";
 
   // Convertir "availability" en "date" pour les composants qui ne supportent que "date" | "form"
   const pollTypeForComponents: "date" | "form" =
@@ -164,6 +167,52 @@ export function AICreationWorkspace({
       setCurrentPoll(null);
     }
   }, [newChatTimestamp, conversationId, resumeId, closeEditor, setCurrentPoll]);
+
+  // 🔥 NOUVEAU: Créer un sondage par défaut quand on arrive depuis la landing page sans conversation
+  useEffect(() => {
+    // Si on arrive depuis landing page ET qu'il n'y a pas de conversation ET pas de poll actuel
+    const isFromLanding = location.pathname.includes("/workspace/") && 
+                         (location.pathname.includes("/date") || location.pathname.includes("/form") || location.pathname.includes("/availability"));
+    
+    if (isFromLanding && !conversationId && !resumeId && !currentPoll && !newChatTimestamp) {
+      // Créer un sondage par défaut selon le type
+      const now = new Date().toISOString();
+      const defaultPoll = pollTypeForComponents === "form" 
+        ? {
+            id: `default-form-${Date.now()}`,
+            creator_id: "guest",
+            title: "Nouveau formulaire",
+            slug: `nouveau-formulaire-${Date.now()}`,
+            status: "draft" as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            type: "form" as const,
+            questions: [
+              { id: "q1", kind: "text" as const, title: "Question 1", type: "text" as const, required: true }
+            ]
+          }
+        : {
+            id: `default-date-${Date.now()}`,
+            creator_id: "guest",
+            title: "Nouveau sondage de dates",
+            slug: `nouveau-sondage-${Date.now()}`,
+            status: "draft" as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            type: "date" as const,
+            settings: {
+              selectedDates: ["2025-12-01", "2025-12-02"] // Dates par défaut pour validation
+            }
+          };
+      
+      setCurrentPoll(defaultPoll);
+      
+      // Ouvrir automatiquement l'éditeur après un court délai
+      setTimeout(() => {
+        openEditor();
+      }, 100);
+    }
+  }, [location.pathname, conversationId, resumeId, currentPoll, newChatTimestamp, pollTypeForComponents, setCurrentPoll]);
 
   // Hook legacy pour clearConversation (non migré)
   const conversationContext = useConversation();
@@ -260,18 +309,16 @@ export function AICreationWorkspace({
       clearConversation();
 
       // Nettoyer le paramètre ?new= de l'URL SANS changer de page
-      const currentPath = window.location.pathname;
-      const searchParams = new URLSearchParams(window.location.search);
+      const currentPath = location.pathname; // Utiliser location.pathname de React Router (sans /DooDates)
+      const searchParams = new URLSearchParams(location.search);
       searchParams.delete("new");
       const newUrl = searchParams.toString()
         ? `${currentPath}?${searchParams.toString()}`
         : currentPath;
-      console.log("🔄 [AICreationWorkspace] Navigation vers:", newUrl);
       smartNavigate(newUrl, { replace: true });
 
       // 🔧 FIX: Ouvrir l'éditeur APRÈS la navigation pour éviter que l'état soit perdu
       setTimeout(() => {
-        console.log("🔓 [AICreationWorkspace] Ouverture éditeur après navigation");
         openEditor();
       }, 100);
     }
@@ -436,6 +483,7 @@ export function AICreationWorkspace({
                         title: "Lien copié !",
                         description: "Le lien a été copié dans le presse-papiers.",
                       });
+                      if (isMobile) setIsSidebarOpen(false);
                     }}
                     className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
                   >
@@ -753,6 +801,7 @@ export function AICreationWorkspace({
                         title: "Paramètres",
                         description: "Page en cours de développement",
                       });
+                      if (isMobile) setIsSidebarOpen(false);
                     }}
                     className="flex-1 min-w-0 px-2 py-2 text-xs font-medium text-gray-200 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 border border-gray-700/30 hover:border-gray-600/50"
                     title="Paramètres"
@@ -761,7 +810,10 @@ export function AICreationWorkspace({
                     <span className="truncate">Paramètres</span>
                   </button>
                   <button
-                    onClick={() => setSignOutDialogOpen(true)}
+                    onClick={() => {
+                    setSignOutDialogOpen(true);
+                    if (isMobile) setIsSidebarOpen(false);
+                  }}
                     className="flex-1 min-w-0 px-2 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 border border-red-500/30 hover:border-red-500/50 hover:shadow-sm hover:shadow-red-500/10"
                     title="Déconnexion"
                   >
@@ -782,7 +834,10 @@ export function AICreationWorkspace({
                   </div>
                 </div>
                 <button
-                  onClick={() => setAuthModalOpen(true)}
+                  onClick={() => {
+                    setAuthModalOpen(true);
+                    if (isMobile) setIsSidebarOpen(false);
+                  }}
                   className="w-full px-3 py-2.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-blue-500/20"
                 >
                   Se connecter
@@ -1127,7 +1182,7 @@ export function AICreationWorkspace({
                     setSignOutDialogOpen(false);
                     // Forcer le rechargement pour s'assurer que tout est nettoyé
                     setTimeout(() => {
-                      window.location.href = "/";
+                      window.location.href = "/DooDates/";
                     }, 500);
                   }
                 } catch (error) {
