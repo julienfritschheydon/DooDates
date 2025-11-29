@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 29/11/2025 13:25:22
+**Dernière mise à jour:** 29/11/2025 15:37:25
 
-_Workflow run #651 (ID 19783828768) — génération UTC 2025-11-29T12:25:22.963Z_
+_Workflow run #661 (ID 19785243145) — génération UTC 2025-11-29T14:37:25.254Z_
 
-## 🎯 Focus: Commit `cdd2f44`
-**Dernière mise à jour:** 28/11/2025 21:16:50
-
-_Workflow run #645 (ID 19773094479) — génération UTC 2025-11-28T20:16:50.967Z_
-
-## 🎯 Focus: Commit `73a88cf`
+## 🎯 Focus: Commit `c3e56ab`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,8 +26,7 @@ _Workflow run #645 (ID 19773094479) — génération UTC 2025-11-28T20:16:50.967
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
-Tous les workflows surveillés ont réussi pour le commit `73a88cf`.
+Tous les workflows surveillés ont réussi pour le commit `c3e56ab`.
 
 ---
 
@@ -40,46 +34,41 @@ Tous les workflows surveillés ont réussi pour le commit `73a88cf`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 28/11/2025 21:13:15
+**Dernier run:** 29/11/2025 15:30:37
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
-Tous les workflows surveillés ont réussi pour le commit `73a88cf`.
+Tous les workflows surveillés ont réussi pour le commit `c3e56ab`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
 **Statut:** ✅ success
-**Statut:** ⏳ unknown
 
-**Dernier run:** 28/11/2025 21:16:06
+**Dernier run:** 29/11/2025 15:33:31
 
 **Statistiques:**
-- 📊 **Total runs pour ce commit:** **0**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
-### ✅ Aucun échec pour ce commit
+### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
-#### Run #111 - 28/11/2025 21:16:06
+#### Run #113 - 29/11/2025 15:33:31
 
-- **Commit:** `73a88cf`
+- **Commit:** `c3e56ab`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19773093434)
+- **Statut:** success
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19785220296)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `cdd2f44`
-- 🎯 **Focus: Commit actuel** `73a88cf`
+- 🎯 **Focus: Commit actuel** `c3e56ab`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -87,7 +76,6 @@ Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 ## 📊 Analyse des 1 échec(s) détecté(s)
 
 **Statistiques :**
@@ -127,6 +115,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-28T20:16:54.266Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-11-29T14:37:28.727Z*
 ---
 
