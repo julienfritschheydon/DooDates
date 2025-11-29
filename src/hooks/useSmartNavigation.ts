@@ -80,11 +80,11 @@ export function useSmartNavigation(
           length: 0,
           contains: () => false,
           item: () => null,
-          [Symbol.iterator]: function* () {},
+          [Symbol.iterator]: function* () { },
         } as DOMStringList,
-        assign: () => {},
-        replace: () => {},
-        reload: () => {},
+        assign: () => { },
+        replace: () => { },
+        reload: () => { },
         toString: () => toLocation.href,
       } as unknown as Location;
 
@@ -114,9 +114,23 @@ export function useSmartNavigation(
 
         // Appliquer la stratégie via le service
         ChatResetService.applyResetStrategy(strategy);
+
+        // Laisser un court délai pour que les providers traitent l'événement avant la navigation
+        // Cela évite les race conditions où la navigation se produit avant le nettoyage
+        setTimeout(() => {
+          if (navOptions.replace) {
+            navigate(to, { replace: true });
+          } else {
+            navigate(to);
+          }
+        }, 50);
+
+        // Mettre à jour la location précédente
+        previousLocation.current = location;
+        return; // Sortir ici car la navigation est gérée dans le timeout
       }
 
-      // Naviguer
+      // Naviguer (cas sans reset)
       if (navOptions.replace) {
         navigate(to, { replace: true });
       } else {

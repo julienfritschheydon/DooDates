@@ -9,7 +9,7 @@ interface CalendarProps {
   visibleMonths: Date[];
   selectedDates: string[];
   onDateToggle: (date: Date) => void;
-  onBatchDateToggle?: (dates: Date[], action: 'add' | 'remove') => void;
+  onBatchDateToggle?: (dates: Date[], action: "add" | "remove") => void;
   onMonthChange: (direction: "prev" | "next") => void;
   onMonthsChange?: (months: Date[]) => void;
 }
@@ -61,7 +61,14 @@ const Calendar: React.FC<CalendarProps> = ({
   };
 
   // Drag-to-select avec le hook réutilisable
-  const { isDragging, handleDragStart, handleDragMove, handleDragEnd, isDraggedOver, isLongPressActive } = useDragToSelect<Date>({
+  const {
+    isDragging,
+    handleDragStart,
+    handleDragMove,
+    handleDragEnd,
+    isDraggedOver,
+    isLongPressActive,
+  } = useDragToSelect<Date>({
     onDragEnd: (draggedItems, startDate) => {
       if (!startDate || draggedItems.size === 0) return;
 
@@ -78,7 +85,7 @@ const Calendar: React.FC<CalendarProps> = ({
           }
         });
         if (datesToToggle.length > 0) {
-          onBatchDateToggle(datesToToggle, wasSelected ? 'remove' : 'add');
+          onBatchDateToggle(datesToToggle, wasSelected ? "remove" : "add");
         }
       } else {
         // Fallback: appeler onDateToggle pour chaque date (comportement original)
@@ -243,7 +250,9 @@ const Calendar: React.FC<CalendarProps> = ({
                         ? "bg-blue-500/50 text-white border-2 border-blue-400"
                         : isSelected
                           ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
-                          : isLongPressActive && isDateDraggedOver ? "animate-pulse ring-2 ring-blue-400" : ""
+                          : isLongPressActive && isDateDraggedOver
+                            ? "animate-pulse ring-2 ring-blue-400"
+                            : ""
                   }
                   ${
                     isToday

@@ -299,6 +299,25 @@ serve(async (req) => {
         },
       );
     }
+    
+    // Cas spécial: test de connexion
+    if (body.testConnection === true) {
+      console.log(`[${timestamp}] [${requestId}] 🔍 Test de connexion reçu`);
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Edge Function accessible" 
+        }),
+        {
+          status: 200,
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders,
+          },
+        },
+      );
+    }
+    
     const { userInput, prompt } = body;
 
     if (!userInput && !prompt) {

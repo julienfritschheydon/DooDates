@@ -96,15 +96,15 @@ function getAllWeekdaysInMonth(weekdayName: string, monthName: string, year?: nu
  */
 function getAllWeekendsInMonths(monthNames: string[], year?: number): string[] {
   const allDates: string[] = [];
-  
+
   for (const monthName of monthNames) {
     // Générer tous les samedis ET dimanches du mois
     const saturdays = getAllWeekdaysInMonth("samedi", monthName, year);
     const sundays = getAllWeekdaysInMonth("dimanche", monthName, year);
-    
+
     allDates.push(...saturdays, ...sundays);
   }
-  
+
   // Trier chronologiquement et filtrer avec isWeekend() pour cohérence
   return allDates.filter(isWeekend).sort();
 }
@@ -119,33 +119,37 @@ function detectWeekendMultiMonthPattern(userInput: string): {
   year?: number;
 } | null {
   const input = userInput.toLowerCase();
-  
+
   // Détecter "week-end" ou "samedi et dimanche"
   const weekendPattern = /week-?end|samedi\s+et\s+dimanche|dimanche\s+et\s+samedi/i;
   const isWeekend = weekendPattern.test(input);
-  
+
   if (!isWeekend) {
     return null;
   }
-  
+
   // Extraire les mois mentionnés
-  const monthsPattern = /(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)/gi;
+  const monthsPattern =
+    /(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)/gi;
   const monthMatches = input.match(monthsPattern);
-  
+
   if (!monthMatches || monthMatches.length === 0) {
     return null;
   }
-  
+
   // Normaliser les mois (enlever accents)
-  const months = monthMatches.map(m => 
-    m.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  const months = monthMatches.map((m) =>
+    m
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, ""),
   );
-  
+
   // Extraire l'année si présente
   const yearPattern = /\b(20\d{2})\b/;
   const yearMatch = input.match(yearPattern);
   const year = yearMatch ? parseInt(yearMatch[1]) : undefined;
-  
+
   return { isWeekend, months, year };
 }
 
@@ -315,7 +319,10 @@ function filterDatesByExplicitConstraints(dates: string[], userInput: string): s
   // 🔧 FIX BUG #1: Génère tous les week-ends (samedi + dimanche) pour plusieurs mois
   const weekendPatternResult = detectWeekendMultiMonthPattern(userInput);
   if (weekendPatternResult) {
-    const allWeekends = getAllWeekendsInMonths(weekendPatternResult.months, weekendPatternResult.year);
+    const allWeekends = getAllWeekendsInMonths(
+      weekendPatternResult.months,
+      weekendPatternResult.year,
+    );
     return allWeekends;
   }
 
@@ -898,14 +905,14 @@ export function postProcessSuggestion(
   // 🔧 FIX BUG #1 (PRIORITÉ 1): Détecter le pattern "week-end" + multi-mois AVANT tout traitement
   // Ex: "week-end de mars et avril 2026" → tous les samedis et dimanches de mars et avril
   const weekendMultiMonth = detectWeekendMultiMonthPattern(options.userInput);
-  
+
   if (weekendMultiMonth && weekendMultiMonth.months.length > 0) {
     const generatedDates = getAllWeekendsInMonths(weekendMultiMonth.months, weekendMultiMonth.year);
-    
+
     if (generatedDates.length > 0) {
       // Grouper les week-ends par paires (samedi + dimanche)
       const dateGroups = groupConsecutiveDates(generatedDates, true); // allowWeekendGrouping = true
-      
+
       // Remplacer les dates suggérées par Gemini par les dates générées
       // Supprimer les timeSlots car non demandés
       return {

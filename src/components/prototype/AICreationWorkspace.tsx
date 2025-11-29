@@ -130,9 +130,13 @@ export function AICreationWorkspace({
   const newChatTimestamp = searchParams.get("new");
 
   // Priorité : prop > pathname > query param > défaut "date"
-  const pollTypeFromPathname = location.pathname.includes("/workspace/form") ? "form" : 
-                               location.pathname.includes("/workspace/date") ? "date" :
-                               location.pathname.includes("/workspace/availability") ? "availability" : null;
+  const pollTypeFromPathname = location.pathname.includes("/workspace/form")
+    ? "form"
+    : location.pathname.includes("/workspace/date")
+      ? "date"
+      : location.pathname.includes("/workspace/availability")
+        ? "availability"
+        : null;
   const pollTypeFromQuery = searchParams.get("type") as "date" | "form" | "availability" | null;
   const pollTypeFromUrl = pollTypeFromProp || pollTypeFromPathname || pollTypeFromQuery || "date";
 
@@ -171,14 +175,18 @@ export function AICreationWorkspace({
   // 🔥 NOUVEAU: Créer un sondage par défaut quand on arrive depuis la landing page sans conversation
   useEffect(() => {
     // Si on arrive depuis landing page ET qu'il n'y a pas de conversation ET pas de poll actuel
-    const isFromLanding = location.pathname.includes("/workspace/") && 
-                         (location.pathname.includes("/date") || location.pathname.includes("/form") || location.pathname.includes("/availability"));
-    
+    const isFromLanding =
+      location.pathname.includes("/workspace/") &&
+      (location.pathname.includes("/date") ||
+        location.pathname.includes("/form") ||
+        location.pathname.includes("/availability"));
+
     if (isFromLanding && !conversationId && !resumeId && !currentPoll && !newChatTimestamp) {
       // Créer un sondage par défaut selon le type
       const now = new Date().toISOString();
-      const defaultPoll = pollTypeForComponents === "form" 
-        ? {
+      const defaultPoll =
+        pollTypeForComponents === "form"
+          ? {
             id: `default-form-${Date.now()}`,
             creator_id: "guest",
             title: "Nouveau formulaire",
@@ -188,10 +196,16 @@ export function AICreationWorkspace({
             updated_at: new Date().toISOString(),
             type: "form" as const,
             questions: [
-              { id: "q1", kind: "text" as const, title: "Question 1", type: "text" as const, required: true }
-            ]
+              {
+                id: "q1",
+                kind: "text" as const,
+                title: "Question 1",
+                type: "text" as const,
+                required: true,
+              },
+            ],
           }
-        : {
+          : {
             id: `default-date-${Date.now()}`,
             creator_id: "guest",
             title: "Nouveau sondage de dates",
@@ -201,22 +215,30 @@ export function AICreationWorkspace({
             updated_at: new Date().toISOString(),
             type: "date" as const,
             settings: {
-              selectedDates: ["2025-12-01", "2025-12-02"] // Dates par défaut pour validation
-            }
+              selectedDates: ["2025-12-01", "2025-12-02"], // Dates par défaut pour validation
+            },
           };
-      
+
       setCurrentPoll(defaultPoll);
-      
+
       // Ouvrir automatiquement l'éditeur après un court délai
       setTimeout(() => {
         openEditor();
       }, 100);
     }
-  }, [location.pathname, conversationId, resumeId, currentPoll, newChatTimestamp, pollTypeForComponents, setCurrentPoll]);
+  }, [
+    location.pathname,
+    conversationId,
+    resumeId,
+    currentPoll,
+    newChatTimestamp,
+    pollTypeForComponents,
+    setCurrentPoll,
+  ]);
 
   // Hook legacy pour clearConversation (non migré)
   const conversationContext = useConversation();
-  const clearConversation = conversationContext?.clearConversation || (() => {});
+  const clearConversation = conversationContext?.clearConversation || (() => { });
 
   // Hook onboarding
   const { startOnboarding } = useOnboarding();
@@ -338,7 +360,7 @@ export function AICreationWorkspace({
             if (
               !existing ||
               new Date(poll.updated_at || poll.created_at) >
-                new Date(existing.updated_at || existing.created_at)
+              new Date(existing.updated_at || existing.created_at)
             ) {
               map.set(poll.id, poll);
             }
@@ -522,9 +544,8 @@ export function AICreationWorkspace({
 
         {/* Sidebar gauche - Mode overlay pour tous les écrans */}
         <div
-          className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
           {/* Header avec bouton fermer */}
           <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800">
@@ -583,6 +604,7 @@ export function AICreationWorkspace({
               <div className="px-4 pb-4 space-y-2">
                 {/* Phase 0: Trois boutons distincts pour les trois types de création */}
                 <button
+                  data-testid="create-date-poll"
                   onClick={() => {
                     const url = `/workspace/date?new=${Date.now()}`;
                     console.log(
@@ -599,6 +621,7 @@ export function AICreationWorkspace({
                 </button>
 
                 <button
+                  data-testid="create-form-poll"
                   onClick={() => {
                     const url = `/workspace/form?new=${Date.now()}`;
                     console.log(
@@ -811,9 +834,9 @@ export function AICreationWorkspace({
                   </button>
                   <button
                     onClick={() => {
-                    setSignOutDialogOpen(true);
-                    if (isMobile) setIsSidebarOpen(false);
-                  }}
+                      setSignOutDialogOpen(true);
+                      if (isMobile) setIsSidebarOpen(false);
+                    }}
                     className="flex-1 min-w-0 px-2 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 border border-red-500/30 hover:border-red-500/50 hover:shadow-sm hover:shadow-red-500/10"
                     title="Déconnexion"
                   >
@@ -864,6 +887,7 @@ export function AICreationWorkspace({
           <div className="flex items-center gap-3">
             {/* Bouton hamburger (mobile + desktop pour replier sidebar) */}
             <button
+              data-testid="sidebar-toggle"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
@@ -878,9 +902,8 @@ export function AICreationWorkspace({
         <div className={`flex flex-1 min-h-0 ${isMobile ? "flex-col" : "flex-row"}`}>
           {/* Chat principal - Zone gauche */}
           <div
-            className={`flex flex-col bg-[#0a0a0a] transition-all duration-300 flex-1 flex-shrink-0 ${
-              isMobile ? "w-full" : "w-1/2"
-            }`}
+            className={`flex flex-col bg-[#0a0a0a] transition-all duration-300 flex-1 flex-shrink-0 ${isMobile ? "w-full" : "w-1/2"
+              }`}
           >
             {/* Toggle Chat/Preview sur mobile */}
             {/* 
@@ -978,7 +1001,7 @@ export function AICreationWorkspace({
                               setShowManualEditorOnMobile(false);
                               setMobileActiveTab("chat");
                             }}
-                            onSave={() => {}}
+                            onSave={() => { }}
                             onFinalize={(draft, savedPoll) => {
                               if (savedPoll) {
                                 setPublishedPoll(savedPoll);
@@ -1116,28 +1139,28 @@ export function AICreationWorkspace({
                     </>
                   )
                 ) : // Afficher le créateur vide par défaut selon le type
-                pollTypeFromUrl === "form" ? (
-                  <FormPollCreator
-                    initialDraft={undefined}
-                    onCancel={() => {}}
-                    onSave={() => {}}
-                    onFinalize={(draft, savedPoll) => {
-                      // Utiliser le poll créé par createFormPoll au lieu de créer un nouveau poll
-                      if (savedPoll) {
-                        setPublishedPoll(savedPoll);
-                      }
-                    }}
-                  />
-                ) : (
-                  <PollCreatorComponent
-                    onBack={(createdPoll) => {
-                      if (createdPoll) {
-                        setPublishedPoll(createdPoll);
-                      }
-                    }}
-                    initialData={undefined}
-                  />
-                )}
+                  pollTypeFromUrl === "form" ? (
+                    <FormPollCreator
+                      initialDraft={undefined}
+                      onCancel={() => { }}
+                      onSave={() => { }}
+                      onFinalize={(draft, savedPoll) => {
+                        // Utiliser le poll créé par createFormPoll au lieu de créer un nouveau poll
+                        if (savedPoll) {
+                          setPublishedPoll(savedPoll);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <PollCreatorComponent
+                      onBack={(createdPoll) => {
+                        if (createdPoll) {
+                          setPublishedPoll(createdPoll);
+                        }
+                      }}
+                      initialData={undefined}
+                    />
+                  )}
               </div>
             </div>
           )}

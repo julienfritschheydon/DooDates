@@ -1,8 +1,13 @@
-import { v4 as uuidv4 } from 'uuid';
-import { Conversation, ConversationMessage, CONVERSATION_STATUS, MessageRole } from '../types/conversation';
-import { logger } from './logger';
+import { v4 as uuidv4 } from "uuid";
+import {
+  Conversation,
+  ConversationMessage,
+  CONVERSATION_STATUS,
+  MessageRole,
+} from "../types/conversation";
+import { logger } from "./logger";
 
-const STORAGE_KEY = 'doodates_conversations';
+const STORAGE_KEY = "doodates_conversations";
 
 interface StoredConversationData {
   conversations: Conversation[];
@@ -10,7 +15,10 @@ interface StoredConversationData {
 }
 
 const dateReviver = (key: string, value: any) => {
-  if ((key === 'createdAt' || key === 'updatedAt' || key === 'timestamp') && typeof value === 'string') {
+  if (
+    (key === "createdAt" || key === "updatedAt" || key === "timestamp") &&
+    typeof value === "string"
+  ) {
     const date = new Date(value);
     if (!isNaN(date.getTime())) {
       return date;
@@ -20,7 +28,7 @@ const dateReviver = (key: string, value: any) => {
 };
 
 const readConversations = (): StoredConversationData => {
-  if (typeof window === 'undefined') return { conversations: [], messages: [] };
+  if (typeof window === "undefined") return { conversations: [], messages: [] };
 
   try {
     const data = localStorage.getItem(STORAGE_KEY);
@@ -28,24 +36,24 @@ const readConversations = (): StoredConversationData => {
 
     const parsed = JSON.parse(data, dateReviver);
     // Validation de la structure
-    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.conversations)) {
+    if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.conversations)) {
       return { conversations: [], messages: [] };
     }
 
     return parsed as StoredConversationData;
   } catch (error) {
-    logger.error('Error reading conversations from storage', 'conversation', { error });
+    logger.error("Error reading conversations from storage", "conversation", { error });
     return { conversations: [], messages: [] };
   }
 };
 
 const writeConversations = (data: StoredConversationData): void => {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (error) {
-    logger.error('Error writing conversations to storage', 'conversation', { error });
+    logger.error("Error writing conversations to storage", "conversation", { error });
   }
 };
 
@@ -62,7 +70,7 @@ export const conversationStorage = {
    */
   getConversation(id: string): Conversation | undefined {
     const { conversations } = readConversations();
-    return conversations.find(conv => conv.id === id);
+    return conversations.find((conv) => conv.id === id);
   },
 
   /**
@@ -72,11 +80,11 @@ export const conversationStorage = {
     const now = new Date();
     const newConversation: Conversation = {
       id: uuidv4(),
-      title: 'Nouvelle conversation',
+      title: "Nouvelle conversation",
       status: CONVERSATION_STATUS.ACTIVE,
       createdAt: now,
       updatedAt: now,
-      firstMessage: '',
+      firstMessage: "",
       messageCount: 0,
       isFavorite: false,
       tags: [],
@@ -98,10 +106,10 @@ export const conversationStorage = {
   updateConversation(id: string, updates: Partial<Conversation>): Conversation | null {
     const data = readConversations();
     if (!data.conversations || !Array.isArray(data.conversations)) {
-      logger.error('Invalid conversations data structure', 'conversation', { data });
+      logger.error("Invalid conversations data structure", "conversation", { data });
       return null;
     }
-    const index = data.conversations.findIndex(conv => conv.id === id);
+    const index = data.conversations.findIndex((conv) => conv.id === id);
 
     if (index === -1) return null;
 
@@ -128,11 +136,11 @@ export const conversationStorage = {
    */
   deleteConversation(id: string): boolean {
     const data = readConversations();
-    const newConversations = data.conversations.filter(conv => conv.id !== id);
+    const newConversations = data.conversations.filter((conv) => conv.id !== id);
 
     if (newConversations.length < data.conversations.length) {
       // Also delete associated messages
-      const newMessages = data.messages.filter(msg => msg.conversationId !== id);
+      const newMessages = data.messages.filter((msg) => msg.conversationId !== id);
 
       writeConversations({
         conversations: newConversations,
@@ -170,8 +178,8 @@ export const conversationStorage = {
     };
 
     // Update conversation in the list
-    const updatedConversations = data.conversations.map(conv =>
-      conv.id === conversationId ? updatedConversation : conv
+    const updatedConversations = data.conversations.map((conv) =>
+      conv.id === conversationId ? updatedConversation : conv,
     );
 
     writeConversations({
@@ -187,6 +195,6 @@ export const conversationStorage = {
    */
   getMessages(conversationId: string): ConversationMessage[] {
     const { messages } = readConversations();
-    return messages.filter(msg => msg.conversationId === conversationId);
+    return messages.filter((msg) => msg.conversationId === conversationId);
   },
 };

@@ -65,9 +65,8 @@ export function WeeklyTimeSlotsGrid({
 
     const startMinutes = start.hour * 60 + start.minute;
     const endMinutes = end.hour * 60 + end.minute;
-    const [earlierMinutes, laterMinutes] = startMinutes <= endMinutes
-      ? [startMinutes, endMinutes]
-      : [endMinutes, startMinutes];
+    const [earlierMinutes, laterMinutes] =
+      startMinutes <= endMinutes ? [startMinutes, endMinutes] : [endMinutes, startMinutes];
 
     const slots: TimeSlotWithDay[] = [];
     for (let m = earlierMinutes; m <= laterMinutes; m += timeGranularity) {
@@ -80,45 +79,46 @@ export function WeeklyTimeSlotsGrid({
   };
 
   // Drag-to-extend avec le hook réutilisable
-  const { isDragging, handleDragStart, handleDragMove, handleDragEnd, isDraggedOver } = useDragToSelect<TimeSlotWithDay>({
-    onDragEnd: (draggedItems, startSlot) => {
-      if (!startSlot || draggedItems.size === 0) return;
+  const { isDragging, handleDragStart, handleDragMove, handleDragEnd, isDraggedOver } =
+    useDragToSelect<TimeSlotWithDay>({
+      onDragEnd: (draggedItems, startSlot) => {
+        if (!startSlot || draggedItems.size === 0) return;
 
-      const day = startSlot.day;
-      const currentSlots = value[day] || [];
-      const newSlots = [...currentSlots];
+        const day = startSlot.day;
+        const currentSlots = value[day] || [];
+        const newSlots = [...currentSlots];
 
-      // Activer tous les slots dans le range
-      draggedItems.forEach((slotKey) => {
-        const parts = slotKey.split(':');
-        if (parts.length !== 2) return;
-        const [, timeStr] = parts;
-        const [hourStr, minuteStr] = timeStr.split('-');
-        const hour = parseInt(hourStr);
-        const minute = parseInt(minuteStr);
+        // Activer tous les slots dans le range
+        draggedItems.forEach((slotKey) => {
+          const parts = slotKey.split(":");
+          if (parts.length !== 2) return;
+          const [, timeStr] = parts;
+          const [hourStr, minuteStr] = timeStr.split("-");
+          const hour = parseInt(hourStr);
+          const minute = parseInt(minuteStr);
 
-        const existingIndex = newSlots.findIndex((s) => s.hour === hour && s.minute === minute);
-        if (existingIndex >= 0) {
-          newSlots[existingIndex] = { ...newSlots[existingIndex], enabled: true };
-        } else {
-          newSlots.push({
-            hour,
-            minute,
-            duration: timeGranularity,
-            enabled: true,
-          });
-        }
-      });
+          const existingIndex = newSlots.findIndex((s) => s.hour === hour && s.minute === minute);
+          if (existingIndex >= 0) {
+            newSlots[existingIndex] = { ...newSlots[existingIndex], enabled: true };
+          } else {
+            newSlots.push({
+              hour,
+              minute,
+              duration: timeGranularity,
+              enabled: true,
+            });
+          }
+        });
 
-      onChange({
-        ...value,
-        [day]: newSlots,
-      });
-    },
-    getItemKey: formatSlotKey,
-    getItemsInRange: getSlotsInRange,
-    disableOnMobile: false, // Activer aussi sur mobile pour les créneaux horaires
-  });
+        onChange({
+          ...value,
+          [day]: newSlots,
+        });
+      },
+      getItemKey: formatSlotKey,
+      getItemsInRange: getSlotsInRange,
+      disableOnMobile: false, // Activer aussi sur mobile pour les créneaux horaires
+    });
 
   const getVisibleTimeSlots = () => {
     const slots: Array<{ hour: number; minute: number; label: string }> = [];
@@ -332,7 +332,11 @@ export function WeeklyTimeSlotsGrid({
                         timeSlot.hour * 60 + timeSlot.minute + timeGranularity >=
                           currentBlock.end.hour * 60 + currentBlock.end.minute));
                   const isBlockMiddle = currentBlock && !isBlockStart && !isBlockEnd;
-                  const slotKey = formatSlotKey({ day: day.value, hour: timeSlot.hour, minute: timeSlot.minute });
+                  const slotKey = formatSlotKey({
+                    day: day.value,
+                    hour: timeSlot.hour,
+                    minute: timeSlot.minute,
+                  });
                   const isSlotDraggedOver = isDraggedOver(slotKey);
 
                   return (
@@ -341,10 +345,18 @@ export function WeeklyTimeSlotsGrid({
                       onClick={() =>
                         handleTimeSlotToggle(day.value, timeSlot.hour, timeSlot.minute)
                       }
-                      onPointerDown={(e) => handleDragStart({ day: day.value, hour: timeSlot.hour, minute: timeSlot.minute }, e)}
+                      onPointerDown={(e) =>
+                        handleDragStart(
+                          { day: day.value, hour: timeSlot.hour, minute: timeSlot.minute },
+                          e,
+                        )
+                      }
                       onPointerMove={(e) => {
                         if (isDragging) {
-                          handleDragMove({ day: day.value, hour: timeSlot.hour, minute: timeSlot.minute }, e);
+                          handleDragMove(
+                            { day: day.value, hour: timeSlot.hour, minute: timeSlot.minute },
+                            e,
+                          );
                         }
                       }}
                       onPointerUp={handleDragEnd}
@@ -449,7 +461,11 @@ export function WeeklyTimeSlotsGrid({
                         timeSlot.hour * 60 + timeSlot.minute + timeGranularity >=
                           currentBlock.end.hour * 60 + currentBlock.end.minute));
                   const isBlockMiddle = currentBlock && !isBlockStart && !isBlockEnd;
-                  const slotKey = formatSlotKey({ day: day.value, hour: timeSlot.hour, minute: timeSlot.minute });
+                  const slotKey = formatSlotKey({
+                    day: day.value,
+                    hour: timeSlot.hour,
+                    minute: timeSlot.minute,
+                  });
                   const isSlotDraggedOver = isDraggedOver(slotKey);
 
                   return (
@@ -458,10 +474,18 @@ export function WeeklyTimeSlotsGrid({
                       onClick={() =>
                         handleTimeSlotToggle(day.value, timeSlot.hour, timeSlot.minute)
                       }
-                      onPointerDown={(e) => handleDragStart({ day: day.value, hour: timeSlot.hour, minute: timeSlot.minute }, e)}
+                      onPointerDown={(e) =>
+                        handleDragStart(
+                          { day: day.value, hour: timeSlot.hour, minute: timeSlot.minute },
+                          e,
+                        )
+                      }
                       onPointerMove={(e) => {
                         if (isDragging) {
-                          handleDragMove({ day: day.value, hour: timeSlot.hour, minute: timeSlot.minute }, e);
+                          handleDragMove(
+                            { day: day.value, hour: timeSlot.hour, minute: timeSlot.minute },
+                            e,
+                          );
                         }
                       }}
                       onPointerUp={handleDragEnd}

@@ -232,9 +232,9 @@ describe("useAutoSave", () => {
             {
               start: "10:00",
               end: "12:00",
-              dates: ["2025-12-25", "2025-12-26"]
-            }
-          ]
+              dates: ["2025-12-25", "2025-12-26"],
+            },
+          ],
         },
       });
       const createdConversation = createMockConversation({ id: "conv-1" });
@@ -264,7 +264,7 @@ describe("useAutoSave", () => {
                 expect.objectContaining({
                   start: "10:00",
                   end: "12:00",
-                })
+                }),
               ]),
             }),
           }),
