@@ -1,5 +1,6 @@
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSmartNavigation } from "../../hooks/useSmartNavigation";
 import { useUIState } from "../prototype/UIStateProvider";
 import { createLazyIcon } from "../../lib/lazy-icons";
 import { formatDistanceToNow } from "date-fns";
@@ -59,6 +60,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
   const { user, profile, signOut } = useAuth();
   const { toast: showToast } = useToast();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { smartNavigate } = useSmartNavigation();
 
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
   const [conversations, setConversations] = useState<ReturnType<typeof getConversations>>([]);
@@ -75,7 +77,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
             if (
               !existing ||
               new Date(poll.updated_at || poll.created_at) >
-                new Date(existing.updated_at || existing.created_at)
+              new Date(existing.updated_at || existing.created_at)
             ) {
               map.set(poll.id, poll);
             }
@@ -126,6 +128,8 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
       );
   }, []);
 
+
+
   return (
     <div className="flex h-screen bg-[#1e1e1e] overflow-hidden">
       {/* Backdrop pour fermer la sidebar */}
@@ -135,9 +139,8 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
 
       {/* Sidebar gauche */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Header */}
         <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800">
@@ -159,8 +162,11 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
                 data-testid="create-date-poll"
                 onClick={() => {
                   const url = `/workspace/date?new=${Date.now()}`;
-                  console.log('🔵 [CreatePageLayout] Bouton "Créer un nouveau sondage" cliqué - Navigation vers:', url);
-                  navigate(url);
+                  console.log(
+                    '🔵 [CreatePageLayout] Bouton "Créer un nouveau sondage" cliqué - Navigation vers:',
+                    url,
+                  );
+                  smartNavigate(url);
                   if (isMobile) setIsSidebarOpen(false);
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg transition-colors font-medium"
@@ -173,8 +179,11 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
                 data-testid="create-form-poll"
                 onClick={() => {
                   const url = `/workspace/form?new=${Date.now()}`;
-                  console.log('🟣 [CreatePageLayout] Bouton "Créer un nouveau formulaire" cliqué - Navigation vers:', url);
-                  navigate(url);
+                  console.log(
+                    '🟣 [CreatePageLayout] Bouton "Créer un nouveau formulaire" cliqué - Navigation vers:',
+                    url,
+                  );
+                  smartNavigate(url);
                   if (isMobile) setIsSidebarOpen(false);
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 rounded-lg transition-colors font-medium"
@@ -373,6 +382,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
         <div className="h-14 flex-shrink-0 bg-[#0a0a0a] flex items-center px-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
             <button
+              data-testid="sidebar-toggle"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}

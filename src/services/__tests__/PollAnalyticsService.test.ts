@@ -157,7 +157,7 @@ describe("PollAnalyticsService", () => {
     vi.stubEnv("VITE_GEMINI_API_KEY", "test-api-key");
 
     service = PollAnalyticsService.getInstance();
-    
+
     // Clear the cache to avoid interference between tests
     (service as any).cache.clear();
   });
@@ -399,10 +399,12 @@ describe("PollAnalyticsService", () => {
 
     it("lève une erreur si le poll n'existe pas", async () => {
       // Le mock est déjà configuré pour retourner null pour "non-existent-poll"
-      await expect(service.queryPoll({
-        pollId: "non-existent-poll",
-        question: "Question"
-      })).rejects.toThrow("Poll not found");
+      await expect(
+        service.queryPoll({
+          pollId: "non-existent-poll",
+          question: "Question",
+        }),
+      ).rejects.toThrow("Poll not found");
     });
   });
 

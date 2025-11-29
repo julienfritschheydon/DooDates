@@ -48,7 +48,7 @@ export default defineConfig({
     },
     {
       name: 'webkit',
-      use: { 
+      use: {
         ...devices['Desktop Safari'],
         // Safari peut être plus lent, augmenter les timeouts
         actionTimeout: 20000,
@@ -60,7 +60,7 @@ export default defineConfig({
     },
     {
       name: 'Mobile Safari',
-      use: { 
+      use: {
         ...devices['iPhone 12'],
         // Mobile Safari est souvent plus lent, augmenter les timeouts
         actionTimeout: 25000,
@@ -72,7 +72,7 @@ export default defineConfig({
     command: 'npm run dev:e2e',
     url: 'http://localhost:8080/DooDates/',
     reuseExistingServer: true, // Toujours réutiliser le serveur existant
-    timeout: 30000, // Réduit car le serveur est déjà démarré
+    timeout: 120000, // Augmenté pour éviter les timeouts au démarrage
     stdout: 'pipe',
     stderr: 'pipe',
     env: {
