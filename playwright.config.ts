@@ -31,7 +31,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 60000,
   use: {
-    baseURL: 'http://localhost:8080',
+    baseURL: 'http://localhost:8080/DooDates',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 15000,
@@ -48,7 +48,7 @@ export default defineConfig({
     },
     {
       name: 'webkit',
-      use: { 
+      use: {
         ...devices['Desktop Safari'],
         // Safari peut être plus lent, augmenter les timeouts
         actionTimeout: 20000,
@@ -60,7 +60,7 @@ export default defineConfig({
     },
     {
       name: 'Mobile Safari',
-      use: { 
+      use: {
         ...devices['iPhone 12'],
         // Mobile Safari est souvent plus lent, augmenter les timeouts
         actionTimeout: 25000,
@@ -70,9 +70,11 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev:e2e',
-    url: 'http://localhost:8080/DooDates',
+    url: 'http://localhost:8080/DooDates/',
     reuseExistingServer: true, // Toujours réutiliser le serveur existant
     timeout: 30000, // Réduit car le serveur est déjà démarré
+    stdout: 'pipe',
+    stderr: 'pipe',
     env: {
       NODE_ENV: 'test', // Forcer le mode test
       VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'http://localhost:8080',

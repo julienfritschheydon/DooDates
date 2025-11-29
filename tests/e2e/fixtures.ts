@@ -49,7 +49,7 @@ async function createPollQuick(page: any): Promise<Poll> {
   await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
   
   // Demander à l'IA
-  const chatInput = page.locator('[data-testid="message-input"]');
+  const chatInput = page.locator('[data-testid="chat-input"]');
   await expect(chatInput).toBeVisible({ timeout: 5000 });
   await chatInput.fill('Crée un questionnaire avec 1 seule question');
   await chatInput.press('Enter');

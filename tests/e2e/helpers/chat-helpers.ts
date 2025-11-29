@@ -16,11 +16,11 @@ export async function navigateToWorkspace(
   page: Page,
   browserName: string
 ) {
-  await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
   
   // Attendre que le chat input soit visible
-  const messageInput = page.locator('[data-testid="message-input"]');
+  const messageInput = page.locator('[data-testid="chat-input"]');
   await expect(messageInput).toBeVisible({ timeout: 10000 });
 }
 
@@ -39,7 +39,7 @@ export async function sendChatMessage(
     timeout?: number;
   }
 ) {
-  const messageInput = page.locator('[data-testid="message-input"]');
+  const messageInput = page.locator('[data-testid="chat-input"]');
   await expect(messageInput).toBeVisible({ timeout: options?.timeout || 10000 });
 
   // Attendre que l'input soit activé avant de remplir (Gemini peut désactiver le champ pendant la génération)
