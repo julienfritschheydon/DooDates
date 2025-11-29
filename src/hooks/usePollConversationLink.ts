@@ -112,8 +112,8 @@ export const usePollConversationLink = () => {
    * Navigate to poll from conversation
    */
   const navigateToPoll = useCallback((pollId: string) => {
-    // Navigate to poll page
-    const pollUrl = `/poll/${pollId}?source=conversation`;
+    // Navigate to poll page with base path
+    const pollUrl = `/DooDates/poll/${pollId}?source=conversation`;
     window.location.href = pollUrl;
   }, []);
 
