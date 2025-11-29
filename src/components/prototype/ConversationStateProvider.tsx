@@ -21,6 +21,7 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
+import { useLocation } from "react-router-dom";
 import { ErrorFactory, logError } from "@/lib/error-handling";
 import type { Message } from "@/services/ConversationService";
 
@@ -51,34 +52,64 @@ export function ConversationStateProvider({ children }: ConversationStateProvide
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
 
+  const location = useLocation();
+
   // Charger les messages depuis localStorage au démarrage
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as Array<{
-          id: string;
-          content: string;
-          isAI: boolean;
-          timestamp: string | Date;
-        }>;
-        setMessages(
-          parsed.map((msg) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp),
-          })),
+    // 🛡️ PROTECTION ULTIME: Si on est sur une nouvelle création (?new=), on ignore le localStorage
+    // Cela empêche la "résurrection" des vieux messages
+    const urlParams = new URLSearchParams(location.search);
+    let shouldLoad = true;
+
+    if (urlParams.has("new")) {
+      setMessages([]);
+      localStorage.removeItem(STORAGE_KEY);
+      shouldLoad = false;
+    }
+
+    if (shouldLoad) {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored) as Array<{
+            id: string;
+            content: string;
+            isAI: boolean;
+            timestamp: string | Date;
+          }>;
+          setMessages(
+            parsed.map((msg) => ({
+              ...msg,
+              timestamp: new Date(msg.timestamp),
+            })),
+          );
+        }
+      } catch (error) {
+        logError(
+          ErrorFactory.storage(
+            "Failed to load messages from localStorage",
+            "Impossible de charger l'historique de conversation",
+          ),
+          { component: "ConversationStateProvider", operation: "loadMessages", metadata: { error } },
         );
       }
-    } catch (error) {
-      logError(
-        ErrorFactory.storage(
-          "Failed to load messages from localStorage",
-          "Impossible de charger l'historique de conversation",
-        ),
-        { component: "ConversationStateProvider", operation: "loadMessages", metadata: { error } },
-      );
     }
-  }, []);
+
+    // Écouter les événements de reset
+    const handleChatReset = (event: CustomEvent) => {
+      const strategy = event.detail;
+      if (strategy.resetType === "full") {
+        setMessages([]);
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    };
+
+    window.addEventListener("chat-reset", handleChatReset as EventListener);
+    return () => {
+      window.removeEventListener("chat-reset", handleChatReset as EventListener);
+    };
+  }, [location.search]);
+
 
   // Sauvegarder les messages dans localStorage à chaque changement
   useEffect(() => {
