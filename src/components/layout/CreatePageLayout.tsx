@@ -60,6 +60,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
   const { user, profile, signOut } = useAuth();
   const { toast: showToast } = useToast();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { smartNavigate } = useSmartNavigation();
 
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
   const [conversations, setConversations] = useState<ReturnType<typeof getConversations>>([]);
@@ -126,6 +127,8 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
         handleConversationsChanged as EventListener,
       );
   }, []);
+
+
 
   return (
     <div className="flex h-screen bg-[#1e1e1e] overflow-hidden">
@@ -379,6 +382,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
         <div className="h-14 flex-shrink-0 bg-[#0a0a0a] flex items-center px-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
             <button
+              data-testid="sidebar-toggle"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}

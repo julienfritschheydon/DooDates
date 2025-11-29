@@ -27,13 +27,24 @@ export interface NavigationContext {
 /**
  * Service central pour déterminer la stratégie de reset du chat
  */
+export interface LocationLike {
+  pathname: string;
+  search: string;
+  hash: string;
+  state?: unknown;
+  key?: string;
+}
+
+/**
+ * Service central pour déterminer la stratégie de reset du chat
+ */
 export class ChatResetService {
   /**
    * Détermine la stratégie de reset selon la navigation
    */
   static determineResetStrategy(
-    fromLocation: Location | null,
-    toLocation: Location,
+    fromLocation: LocationLike | null,
+    toLocation: LocationLike,
     action: NavigationAction = "PUSH",
   ): ResetStrategy {
     const fromPath = fromLocation?.pathname || "";
@@ -49,6 +60,16 @@ export class ChatResetService {
     };
 
     logger.debug("Navigation context analyzed", "conversation", context);
+
+    // 0. Nouvelle création explicite (paramètre ?new=) - reset complet prioritaire
+    if (searchParams.has("new")) {
+      return {
+        shouldReset: true,
+        preserveConversation: false,
+        resetType: "full",
+        reason: "explicit-new-creation",
+      };
+    }
 
     // 1. Mode édition - préserver et charger contexte
     if (this.isEditMode(context)) {

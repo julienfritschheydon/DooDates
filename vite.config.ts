@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   define: {
-    "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
+    "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV === 'test' ? 'development' : process.env.NODE_ENV || "development"),
   },
   build: {
     rollupOptions: {
@@ -47,8 +47,13 @@ export default defineConfig({
   server: {
     port: 8080,
     host: true,
+    strictPort: true, // Échoue si le port est déjà utilisé
     hmr: {
       overlay: false,
     },
+  },
+  preview: {
+    port: 8080,
+    strictPort: true,
   },
 });
