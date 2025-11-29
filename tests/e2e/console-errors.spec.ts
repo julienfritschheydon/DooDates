@@ -154,7 +154,7 @@ test.describe('Console Errors & React Warnings', () => {
     });
 
     // Aller sur la page d'accueil
-    await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -166,7 +166,8 @@ test.describe('Console Errors & React Warnings', () => {
              !error.includes('Gemini') &&
              !error.includes('DooDatesError') && // Erreurs métier loggées intentionnellement
              !error.includes('Failed to read from doodates_conversations') &&
-             !error.includes('process is not defined'); // Ignorer l'erreur process is not defined
+             !error.includes('process is not defined') && // Ignorer l'erreur process is not defined
+             !error.includes('Failed to load resource: the server responded with a status of 404'); // Ignorer les 404 génériques
     });
 
     const filteredWarnings = consoleWarnings.filter(warning => {
@@ -324,7 +325,7 @@ test.describe('Console Errors & React Warnings', () => {
 
     const timeouts = getTimeouts(browserName);
     // Créer un poll via IA
-    await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     

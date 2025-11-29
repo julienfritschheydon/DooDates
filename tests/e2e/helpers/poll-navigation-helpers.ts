@@ -79,7 +79,7 @@ export async function performDashboardActions(
 ): Promise<void> {
   const timeouts = getTimeouts(browserName);
 
-  await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   console.log('✅ Navigation vers /dashboard confirmée');
 

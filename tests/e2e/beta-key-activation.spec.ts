@@ -26,7 +26,7 @@ test.describe('Beta Key Activation', () => {
     await setupGeminiMock(page);
     
     // Clear localStorage and start fresh
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await clearTestData(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
@@ -370,7 +370,7 @@ test.describe('Beta Key Activation - Integration with Real Supabase', () => {
     // Il est skip par défaut et doit être activé manuellement avec une vraie clé de test
     // Pour l'activer : retirer le .skip et fournir une vraie clé bêta de test
     
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Attendre que l'utilisateur se connecte manuellement (ou utiliser un helper)
@@ -407,7 +407,7 @@ test.describe('Beta Key Activation - Integration with Real Supabase', () => {
 
   test.skip('should show updated quotas after beta key activation (requires real Supabase)', async ({ page, browserName }) => {
     // Ce test nécessite une vraie connexion et une vraie activation
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // L'implémentation complète nécessiterait:

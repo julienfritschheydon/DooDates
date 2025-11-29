@@ -340,7 +340,7 @@ export async function createFormWithDateQuestion(
   console.log(`[INFO] Création automatique d'un formulaire avec question date: "${formTitle}"`);
 
   // Aller sur la page de création
-  await page.goto('/workspace/form', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/workspace/form', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
@@ -497,7 +497,7 @@ async function openFormFromDashboard(
   console.log(`[INFO] Navigation vers le tableau de bord...`);
 
   // Aller au tableau de bord
-  await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
 
   console.log(`[INFO] Recherche du formulaire "${formTitle}"...`);
 
@@ -728,7 +728,7 @@ export async function verifyPollInDashboard(
   console.log(`[DASHBOARD] Vérification présence du poll "${expectedTitle}" dans dashboard`);
 
   // Aller au dashboard
-  await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
 
   // Attendre et vérifier que le poll apparaît
@@ -791,7 +791,7 @@ export async function verifyPollBySlugInDashboard(
   expectedSlug: string,
   timeout = 10000,
 ): Promise<void> {
-  await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
 
   const pollItems = page.locator('[data-testid="poll-item"]');
@@ -855,7 +855,7 @@ export async function setupTestWithWorkspace(
     mocks: options.mocks || { all: true },
   });
 
-  await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 

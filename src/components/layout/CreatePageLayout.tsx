@@ -1,5 +1,6 @@
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSmartNavigation } from "../../hooks/useSmartNavigation";
 import { useUIState } from "../prototype/UIStateProvider";
 import { createLazyIcon } from "../../lib/lazy-icons";
 import { formatDistanceToNow } from "date-fns";
@@ -75,7 +76,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
             if (
               !existing ||
               new Date(poll.updated_at || poll.created_at) >
-                new Date(existing.updated_at || existing.created_at)
+              new Date(existing.updated_at || existing.created_at)
             ) {
               map.set(poll.id, poll);
             }
@@ -135,9 +136,8 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
 
       {/* Sidebar gauche */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Header */}
         <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800">
@@ -163,7 +163,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
                     '🔵 [CreatePageLayout] Bouton "Créer un nouveau sondage" cliqué - Navigation vers:',
                     url,
                   );
-                  navigate(url);
+                  smartNavigate(url);
                   if (isMobile) setIsSidebarOpen(false);
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg transition-colors font-medium"
@@ -180,7 +180,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
                     '🟣 [CreatePageLayout] Bouton "Créer un nouveau formulaire" cliqué - Navigation vers:',
                     url,
                   );
-                  navigate(url);
+                  smartNavigate(url);
                   if (isMobile) setIsSidebarOpen(false);
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 rounded-lg transition-colors font-medium"

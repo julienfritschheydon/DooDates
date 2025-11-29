@@ -39,12 +39,12 @@ test.describe('Mobile Voting UX', () => {
     const timeouts = getTimeouts(browserName, true); // true pour mobile
     
     // Test that create pages load successfully
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await expect(page).toHaveTitle(/DooDates/);
     
     // Navigate to create date page (redirige vers /create/ai?type=date)
-    await page.goto('/create/date', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/create/date', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for redirect to /create/ai?type=date and verify AICreationWorkspace loads
@@ -54,14 +54,14 @@ test.describe('Mobile Voting UX', () => {
     await waitForElementReady(page, 'textarea, input, button, [role="textbox"]', { browserName, timeout: timeouts.element });
 
     // Test dashboard navigation
-    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for dashboard content to load (any visible dashboard element)
     await waitForElementReady(page, 'h1, [role="heading"], button, [data-testid]', { browserName, timeout: timeouts.element });
     
     // Test navigation back home
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for home page content (title or main heading)
@@ -72,12 +72,12 @@ test.describe('Mobile Voting UX', () => {
     const timeouts = getTimeouts(browserName, true); // true pour mobile
     
     // Test that form poll creator loads
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await expect(page).toHaveTitle(/DooDates/);
     
     // Navigate to form creator (redirige vers /create/ai?type=form)
-    await page.goto('/create/form', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/create/form', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for redirect to /create/ai?type=form and verify AICreationWorkspace loads
@@ -87,7 +87,7 @@ test.describe('Mobile Voting UX', () => {
     await waitForElementReady(page, 'textarea, input, button, [role="textbox"]', { browserName, timeout: timeouts.element });
     
     // Test navigation back
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     
     // Wait for home page content (title or main heading)
