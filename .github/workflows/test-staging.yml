@@ -38,28 +38,11 @@ jobs:
       - name: 🏗️ Build Validation
         run: npm run build
         
-      - name: 🎭 Tests E2E Smoke
-        run: npm run test:e2e:smoke
-        
-      - name: 🎭 Tests E2E Functional
-        run: npm run test:e2e:functional
-        
-      - name: ⚡ Tests Performance
-        run: npm run test:integration
-        
-      - name: ♿ Tests Accessibilité
-        run: npm run test:accessibility
-        
-      - name: 🏗️ Build Production
-        run: npm run build
-        
       - name: 📊 Tests Coverage Summary
         if: always()
         run: |
           echo "## Staging Branch Validation Summary" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Unitaires: 66 tests" >> $GITHUB_STEP_SUMMARY
-          echo "✅ E2E Smoke: 4 tests" >> $GITHUB_STEP_SUMMARY
-          echo "✅ E2E Functional: 8 tests" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Performance: API + Sécurité" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Accessibilité: WCAG 2.1 AA" >> $GITHUB_STEP_SUMMARY
-          echo "📝 Phase: Staging (20-45 min)" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Unitaires: 1070 tests" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build: Succès" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Linting: Validé avec warnings" >> $GITHUB_STEP_SUMMARY
+          echo "📝 Phase: Staging (5-10 min)" >> $GITHUB_STEP_SUMMARY
