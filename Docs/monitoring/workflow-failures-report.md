@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 29/11/2025 19:19:01
+**Dernière mise à jour:** 30/11/2025 02:12:05
 
-_Workflow run #664 (ID 19787566059) — génération UTC 2025-11-29T18:19:01.374Z_
+_Workflow run #665 (ID 19791812818) — génération UTC 2025-11-30T01:12:05.257Z_
 
-## 🎯 Focus: Commit `22cd675`
+## 🎯 Focus: Commit `5ac03c6`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #664 (ID 19787566059) — génération UTC 2025-11-29T18:19:01.374
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `22cd675`.
+Tous les workflows surveillés ont réussi pour le commit `5ac03c6`.
 
 ---
 
@@ -41,7 +41,7 @@ Tous les workflows surveillés ont réussi pour le commit `22cd675`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `22cd675`.
+Tous les workflows surveillés ont réussi pour le commit `5ac03c6`.
 
 ---
 
@@ -56,13 +56,13 @@ Tous les workflows surveillés ont réussi pour le commit `22cd675`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `22cd675`.
+Tous les workflows surveillés ont réussi pour le commit `5ac03c6`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `22cd675`
+- 🎯 **Focus: Commit actuel** `5ac03c6`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
