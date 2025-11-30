@@ -25,21 +25,18 @@ jobs:
         
       - name: 🏗️ Build Production
         run: npm run build
-        timeout: 2m
         
       - name: 🚀 Deploy to Production
         run: |
           echo "🚀 Deploying to production..."
           echo "🌐 URL: https://julienfritschheydon.github.io/DooDates/"
           # Note: GitHub Pages deployment will be handled by existing workflow
-        timeout: 2m
         
       - name: ❤️ Health Check
         run: |
           echo "❤️ Running production health checks..."
           echo "📊 Monitoring active"
           echo "🔍 Error tracking enabled"
-        timeout: 1m
         
       - name: 📊 Deploy Summary
         if: always()

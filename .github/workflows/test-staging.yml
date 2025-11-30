@@ -25,27 +25,21 @@ jobs:
         
       - name: 🧪 Tests Testing Complets
         run: npm run test:unit:fast && npm run lint -- --max-warnings=0
-        timeout: 3m
         
       - name: 🎭 Tests E2E Smoke
         run: npm run test:e2e:smoke
-        timeout: 5m
         
       - name: 🎭 Tests E2E Functional
         run: npm run test:e2e:functional
-        timeout: 10m
         
       - name: ⚡ Tests Performance
         run: npm run test:integration
-        timeout: 5m
         
       - name: ♿ Tests Accessibilité
         run: npm run test:accessibility
-        timeout: 3m
         
       - name: 🏗️ Build Production
         run: npm run build
-        timeout: 2m
         
       - name: 📊 Tests Coverage Summary
         if: always()
