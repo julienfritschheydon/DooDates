@@ -23,6 +23,9 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci
         
+      - name: 🎭 Install Playwright
+        run: npx playwright install --with-deps
+        
       - name: 🧪 Tests Unitaires Rapides
         run: npm run test:unit:fast
         
