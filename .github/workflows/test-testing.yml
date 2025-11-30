@@ -25,19 +25,15 @@ jobs:
         
       - name: 🧪 Tests Unitaires Rapides
         run: npm run test:unit:fast
-        timeout: 2m
         
       - name: 📝 TypeScript Check
         run: npm run type-check || echo "TypeScript check completed with warnings"
-        timeout: 1m
         
       - name: 🧹 Linting & Formatage
         run: npm run lint -- --max-warnings=0
-        timeout: 1m
         
       - name: 🏗️ Build Validation
         run: npm run build
-        timeout: 2m
         
       - name: 📊 Tests Coverage Summary
         if: always()
