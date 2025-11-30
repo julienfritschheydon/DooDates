@@ -49,7 +49,6 @@
     "test:testing:all": "npm run test:unit:fast && npm run type-check && npm run lint && npm run build",
     "test:staging:all": "npm run test:unit:fast && npm run lint && npm run build && npm run test:e2e:smoke && npm run test:e2e:functional && npm run test:integration && npm run test:accessibility",
     "test:preprod:local": "npm run test:unit:coverage && npm run test:e2e:regression && npm run test:integration && npm run test:accessibility:all",
-    "lint": "eslint . --report-unused-disable-directives --max-warnings 0 --cache --cache-location .eslintcache",
     "quota:view": "pwsh scripts/view-quotas.ps1",
     "quota:view:all": "pwsh scripts/view-quotas.ps1 -All",
     "quota:view:stats": "pwsh scripts/view-quotas.ps1 -Stats",

@@ -29,6 +29,40 @@ DooDates se distingue par son **interface conversationnelle IA** pour créer des
 - **Storage**: localStorage + Supabase (PostgreSQL) ready
 - **AI**: Google Gemini API with conversational context
 - **Deployment**: Netlify (configured)
+- **Branching Strategy**: Git Worktrees with progressive testing pipeline
+
+## 🌿 Branching Strategy
+
+DooDates uses a progressive testing pipeline with Git Worktrees:
+
+```
+main (Production)
+├── pre-prod (Pre-production - Full regression tests)
+│   └── staging (Staging - E2E functional tests)
+│       └── testing (Testing - Unit tests)
+│           ├── feature/* (New features)
+│           └── bug/* (Bug fixes)
+```
+
+### Worktrees Setup
+- `DooDates/` → `main` (Production)
+- `DooDates-develop/` → `staging` (Development)
+- `DooDates-testing/` → `testing` (Integration tests)
+- `DooDates-pre-prod/` → `pre-prod` (Regression tests)
+
+### Test Pipeline
+- **Testing**: 66 unit tests (5-15 min)
+- **Staging**: 12+ E2E tests (20-45 min)
+- **Pre-prod**: 45+ regression tests (30-45 min)
+- **Production**: Monitoring only
+
+### Promotion Scripts
+```bash
+./scripts/promote-to-staging.sh    # testing → staging
+./scripts/promote-to-main.sh       # pre-prod → main
+```
+
+*See [Branching-Strategy.md](./Docs/Branching-Strategy.md) for complete details*
 
 ## 🚀 Current Status
 
