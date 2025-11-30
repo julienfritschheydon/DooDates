@@ -361,27 +361,4 @@ Le système de navigation intelligente est maintenant **production-ready** avec 
 
 ---
 
----
-
-## 🔄 **MISE À JOUR 29/11/2025 - CORRECTION BUG PERSISTANT**
-
-### 🐛 Problème Identifié
-Malgré l'implémentation initiale, le chat n'était pas vidé lors de la création d'un nouveau sondage.
-**Cause :** `ConversationStateProvider` chargeait le `localStorage` avant que le reset ne soit effectif, écrasant l'état vide.
-
-### 🛠️ Solution Appliquée
-1. **Protection LocalStorage :** Ajout d'une vérification `?new=` dans `ConversationStateProvider` pour bloquer le chargement initial.
-2. **Tests E2E Robustes :**
-   - Fichier déplacé vers `tests/smart-navigation.spec.ts`.
-   - Support mobile (ouverture automatique sidebar).
-   - Utilisation de `data-testid` pour la fiabilité.
-   - Suppression des navigations inutiles vers le dashboard.
-
-### ✅ Résultat
-- **Vérification manuelle :** Chat vide confirmé.
-- **Tests E2E :** ✅ 5/5 Passés (Chromium, Firefox, Webkit, Mobile Chrome, Mobile Safari).
-- **Correctifs Test :** Ajout des `data-testid` manquants et correction des assertions.
-
----
-
-*Document mis à jour le 29/11/2025 - Bug fix finalisé et validé*
+*Document mis à jour le 28/11/2025 - Plan complètement réalisé + outils de test*

@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 29/11/2025 15:34:16
+**Dernière mise à jour:** 29/11/2025 13:25:22
 
-_Workflow run #660 (ID 19785220671) — génération UTC 2025-11-29T14:34:16.074Z_
+_Workflow run #651 (ID 19783828768) — génération UTC 2025-11-29T12:25:22.963Z_
 
-## 🎯 Focus: Commit `c3e56ab`
+## 🎯 Focus: Commit `cdd2f44`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #660 (ID 19785220671) — génération UTC 2025-11-29T14:34:16.074
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `c3e56ab`.
+Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
 
 ---
 
@@ -34,41 +34,35 @@ Tous les workflows surveillés ont réussi pour le commit `c3e56ab`.
 
 **Statut:** ✅ success
 
-**Dernier run:** 29/11/2025 15:30:37
+**Dernier run:** 28/11/2025 21:13:15
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `c3e56ab`.
+Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ⏳ unknown
+**Statut:** ✅ success
 
-**Dernier run:** 29/11/2025 15:33:31
+**Dernier run:** 28/11/2025 21:16:06
 
 **Statistiques:**
-- 📊 **Total runs pour ce commit:** **1**
+- 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
-### 🔴 Échecs du commit actuel
+### ✅ Aucun échec pour ce commit
 
-#### Run #113 - 29/11/2025 15:33:31
-
-- **Commit:** `c3e56ab`
-- **Auteur:** julienfritschheydon
-- **Branche:** `main`
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19785220296)
+Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `c3e56ab`
+- 🎯 **Focus: Commit actuel** `cdd2f44`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -76,45 +70,6 @@ Tous les workflows surveillés ont réussi pour le commit `c3e56ab`.
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-## 📊 Analyse des 1 échec(s) détecté(s)
-
-**Statistiques :**
-- 🔴 Critiques : 1
-- 📂 Catégories : unknown (1)
-
-### 🚨 1. 3️⃣ Main Post-Merge E2E
-
-**Résumé :** Échec 3️⃣ Main Post-Merge E2E - unknown (high)
-
-**Cause identifiée :** Erreur non cataloguée - nécessite analyse manuelle
-
-**Solutions suggérées :**
-1. Consulter les logs détaillés du workflow
-
-**⚠️ Action requise :** Résoudre immédiatement - bloque le déploiement
-
----
-
-## 🚨 Actions prioritaires
-
-**1 échec(s) critique(s) détecté(s) :**
-
-1. **3️⃣ Main Post-Merge E2E** - Consulter les logs détaillés du workflow
-
-**Impact :** Ces échecs bloquent potentiellement le déploiement en production.
-
-## 💡 Améliorations suggérées
-
-- **Monitoring :** Ajouter des métriques de performance
-
-## 🔮 Analyse Prédictive (Indisponible)
-
-⚠️ **Service Gemini non configuré**
-- Définir la variable `GEMINI_API_KEY` pour activer l'analyse prédictive
-- L'analyse de risque et les recommandations proactives seront disponibles
-
----
-
-*Rapport généré automatiquement par l'analyseur IA - 2025-11-29T14:34:19.186Z*
+✅ Aucun nouvel échec détecté - tout fonctionne correctement !
 ---
 

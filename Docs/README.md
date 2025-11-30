@@ -7,7 +7,6 @@
 | Document | Description | Statut |
 |----------|-------------|--------|
 | **[DATABASE-SCHEMA-COMPLETE.md](./DATABASE-SCHEMA-COMPLETE.md)** | **Schéma de BDD complet** - Architecture conversation-centric V2 | ✅ **À JOUR** |
-| **[Branching-Strategy.md](./Branching-Strategy.md)** | **Stratégie de branches** - Git Worktrees + Tests progressifs | ✅ **À JOUR** |
 | **[GUIDE_TEST_SAUVEGARDE.md](../GUIDE_TEST_SAUVEGARDE.md)** | Guide de test pour vérifier la sauvegarde Supabase | ✅ **À JOUR** |
 | **[CORRECTIONS-ERREUR-400.md](../CORRECTIONS-ERREUR-400.md)** | Explication et correction de l'erreur 400 | ✅ **À JOUR** |
 
