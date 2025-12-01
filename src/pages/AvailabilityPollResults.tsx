@@ -52,7 +52,7 @@ const AvailabilityPollResults = () => {
   const calendarService = useMemo(() => (user ? new GoogleCalendarService() : undefined), [user]);
 
   // Fonction pour charger le poll
-  const loadPoll = () => {
+  const loadPoll = React.useCallback(() => {
     if (!slug) return;
     const foundPoll = getPollBySlugOrId(slug);
     setPoll(foundPoll);
@@ -61,7 +61,7 @@ const AvailabilityPollResults = () => {
       // Sélectionner tous les créneaux par défaut
       setSelectedSlots(new Set(foundPoll.proposedSlots.map((_, index) => index)));
     }
-  };
+  }, [slug]);
 
   useEffect(() => {
     loadPoll();
@@ -71,7 +71,7 @@ const AvailabilityPollResults = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [slug]);
+  }, [loadPoll]);
 
   // Optimisation automatique si disponibilités parsées disponibles
   useEffect(() => {
@@ -256,15 +256,15 @@ const AvailabilityPollResults = () => {
   // Grouper les disponibilités parsées par date
   const availabilitiesByDate = hasParsedAvailabilities
     ? parsedAvailabilities.reduce(
-        (
-          acc: Record<string, Array<{ start: string; end: string }>>,
-          avail: { date: string; timeRanges: Array<{ start: string; end: string }> },
-        ) => {
-          acc[avail.date] = avail.timeRanges;
-          return acc;
-        },
-        {},
-      )
+      (
+        acc: Record<string, Array<{ start: string; end: string }>>,
+        avail: { date: string; timeRanges: Array<{ start: string; end: string }> },
+      ) => {
+        acc[avail.date] = avail.timeRanges;
+        return acc;
+      },
+      {},
+    )
     : {};
 
   return (
@@ -564,11 +564,10 @@ const AvailabilityPollResults = () => {
                   {proposedSlots.map((slot, index) => (
                     <div
                       key={index}
-                      className={`p-4 border rounded-lg transition-colors ${
-                        selectedSlots.has(index)
+                      className={`p-4 border rounded-lg transition-colors ${selectedSlots.has(index)
                           ? "bg-[#0a0a0a] border-green-600/50"
                           : "bg-[#0a0a0a] border-gray-700 opacity-60"
-                      }`}
+                        }`}
                     >
                       {/* Checkbox de sélection */}
                       <div className="flex items-start gap-3 mb-4">
