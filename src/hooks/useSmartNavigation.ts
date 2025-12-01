@@ -80,11 +80,11 @@ export function useSmartNavigation(
           length: 0,
           contains: () => false,
           item: () => null,
-          [Symbol.iterator]: function* () { },
+          [Symbol.iterator]: function* () {},
         } as DOMStringList,
-        assign: () => { },
-        replace: () => { },
-        reload: () => { },
+        assign: () => {},
+        replace: () => {},
+        reload: () => {},
         toString: () => toLocation.href,
       } as unknown as Location;
 

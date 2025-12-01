@@ -1,1 +1,1 @@
-{"last_found_secrets": [{"match": "beff572d18f20ef0f3790a777dd907023d6f6a9841596f1f5e7f2a4e266f110e", "name": "Slack Webhook URL - commit://staged/sql-scripts/test-slack-webhook-direct.sql"}, {"match": "97946d082fb1a6a60a85af0d44017d27e7f9addf5ae64a65d52b9590d3c9b5bb", "name": "JSON Web Token - commit://staged/test-edge-function.ps1"}]}
+{"last_found_secrets": [{"name": "JSON Web Token - commit://staged/.env.test", "match": "b9817370f788eab6a6a4f0e9a2e741bdb5dd37b7053fb66cada0c2e1d30c2981"}]}
