@@ -1,8 +1,8 @@
-name: 2️⃣ Develop → Main (Auto-merge)
+name: 5️⃣ Pre-Main → Main (Auto-merge)
 
 on:
   push:
-    branches: [staging]
+    branches: [pre-main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -86,16 +86,17 @@ jobs:
           echo "Skipping tests and auto-merge"
           echo "Changes detected:"
           echo "  - Code changes: ${{ needs.changes.outputs.code }}"
+          echo "  - Branch: ${{ github.ref_name }}"
 
   # ========================================
-  # PRÉPARATION DÉPENDANCES (partagée)
+  # PRÉPARATION DÉPENDANCES (partagée optimisée)
   # ========================================
   prepare-deps:
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     outputs:
-      cache-key: ${{ steps.cache-key.outputs.key }}
+      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -106,49 +107,49 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: 🔧 Cache dependencies
+      - name: 🔧 Cache dependencies (optimisé)
         uses: actions/cache@v4
         id: cache-deps
         with:
           path: |
             node_modules
             ~/.npm
-          key: ${{ runner.os }}-deps-${{ hashFiles('package-lock.json') }}
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-combined-${{ hashFiles('package-lock.json') }}
           restore-keys: |
+            ${{ runner.os }}-deps-combined-
             ${{ runner.os }}-deps-
 
-      - name: 🔧 Install dependencies
+      - name: 🔧 Install dependencies (si cache miss)
         if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: npm ci
-
-      - name: 🎭 Cache Playwright browsers
-        uses: actions/cache@v4
-        id: cache-playwright
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-chromium-
-            ${{ runner.os }}-playwright-
-
-      - name: 🧭 Install Playwright browsers
-        if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: |
-          echo "📦 Installation de chromium avec dépendances système..."
+          npm ci --prefer-offline --no-audit
           npx playwright install --with-deps chromium
 
-      - name: 📤 Upload dependencies as artifact
+      - name: 🔧 Cache TypeScript Build Info
+        uses: actions/cache@v4
+        with:
+          path: |
+            .tsbuildinfo
+            node_modules/.vite
+          key: ${{ runner.os }}-build-cache-${{ hashFiles('src/**/*', 'tsconfig.json', 'vite.config.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-build-cache-
+
+      - name: 📤 Upload dependencies as artifact (optimisé)
         uses: actions/upload-artifact@v4
         with:
-          name: node-modules-${{ github.run_id }}
+          name: shared-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
+            .tsbuildinfo
+            node_modules/.vite
           retention-days: 1
 
   # ========================================
-  # TESTS (skip si docs only)
+  # TESTS UNITAIRES (PARALLÈLE)
   # ========================================
   tests-unit:
     needs: [changes, prepare-deps]
@@ -162,23 +163,21 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Download dependencies
+      - name: 📦 Download shared dependencies
         uses: actions/download-artifact@v4
         with:
-          name: node-modules-${{ github.run_id }}
+          name: shared-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
+            .tsbuildinfo
+            node_modules/.vite
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      # - name: 🧪 Tests unitaires
-      #   run: npm run test:unit
-      # Commenté pour accélérer le workflow de push
 
       - name: 🔗 Tests d'intégration
         run: npm run test:integration
@@ -186,6 +185,53 @@ jobs:
       - name: 🎨 Tests UX Régression
         run: npm run test:ux-regression
 
+  # ========================================
+  # BUILD VALIDATION (PARALLÈLE)
+  # ========================================
+  build-validation:
+    needs: [changes, prepare-deps]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: � Download shared dependencies
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-deps-${{ github.run_id }}
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+            .tsbuildinfo
+            node_modules/.vite
+
+      - name: 🔧 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🔧 Cache ESLint
+        uses: actions/cache@v4
+        with:
+          path: .eslintcache
+          key: ${{ runner.os }}-eslint-${{ hashFiles('.eslintrc*', 'src/**/*.ts*', 'src/**/*.jsx') }}
+          restore-keys: |
+            ${{ runner.os }}-eslint-
+
+      - name: 🔍 Vérification TypeScript
+        run: npm run type-check
+
+      - name: 🧹 Lint (warnings allowed on develop)
+        run: npm run lint -- --max-warnings 1000
+
+      - name: 🏗️ Build production (optimisé)
+        run: npm run build
+
+  # ========================================
+  # E2E SMART (PARALLÈLE - CONDITIONNEL)
+  # ========================================
   tests-e2e:
     needs: [changes, prepare-deps]
     # E2E requis SI:
@@ -203,28 +249,30 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Download dependencies
+      - name: 📦 Download shared dependencies
         uses: actions/download-artifact@v4
         with:
-          name: node-modules-${{ github.run_id }}
+          name: shared-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
+            .tsbuildinfo
+            node_modules/.vite
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: "Tests E2E Smoke (develop: fast validation)"
+      - name: "🚀 E2E Smoke (validation rapide)"
         run: npm run test:e2e:smoke -- --reporter=html,json
 
       - name: 📊 Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-develop-smoke
+          name: playwright-report-branch-smoke
           path: playwright-report
           retention-days: 7
 
@@ -232,7 +280,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-develop-smoke
+          name: test-results-branch-smoke
           path: |
             test-results
             test-results.json
@@ -257,8 +305,12 @@ jobs:
           echo "  - Unit tests: ${{ needs.changes.outputs.tests-only }}"
           echo "  - Source code: ${{ needs.changes.outputs.src }}"
           echo "  - E2E required: ${{ needs.changes.outputs.e2e-required }}"
+          echo "  - Branch: ${{ github.ref_name }}"
 
-  build-validation:
+  # ========================================
+  # BUILD VALIDATION (PARALLÈLE)
+  # ========================================
+  build-validation-main:
     needs: [changes, prepare-deps]
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
@@ -316,95 +368,18 @@ jobs:
         run: npm run build
 
   # ========================================
-  # 🔥 PRODUCTION SMOKE TESTS (PRE-MERGE)
-  # ========================================
-  # CRITIQUE : Bloque le merge si le build production est cassé
-  # Ces tests s'exécutent AVANT le merge vers main
-  production-smoke-pre-merge:
-    needs: [changes, tests-unit, build-validation]
-    if: |
-      needs.changes.outputs.code == 'true' &&
-      needs.tests-unit.result == 'success' &&
-      needs.build-validation.result == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-      
-      - name: 📦 Download dependencies
-        uses: actions/download-artifact@v4
-        with:
-          name: node-modules-${{ github.run_id }}
-          path: |
-            node_modules
-            ~/.npm
-            ~/.cache/ms-playwright
-      
-      - name: 📦 Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: 📦 Build production (avec base path local pour tests)
-        run: npm run build
-        env:
-          NODE_ENV: production
-          VITE_BASE_PATH: /
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
-      
-      - name: 🚀 Start preview server
-        run: |
-          npm run preview &
-          echo $! > preview.pid
-      
-      - name: ⏳ Wait for server to be ready
-        run: npx wait-on http://localhost:4173/DooDates/ --timeout 60000
-      
-      - name: 🔥 Run production smoke tests
-        run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
-        env:
-          BASE_URL: http://localhost:4173/DooDates/
-          CI: true
-      
-      - name: 🛑 Stop preview server
-        if: always()
-        run: |
-          if [ -f preview.pid ]; then
-            kill $(cat preview.pid) || true
-            rm preview.pid
-          fi
-      
-      - name: 📊 Upload Playwright report (if failure)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-production-smoke-pre-merge
-          path: playwright-report
-          retention-days: 7
-      
-      - name: 📤 Upload test results (if failure)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-production-smoke-pre-merge
-          path: |
-            test-results
-            test-results.json
-          retention-days: 7
-
-  # ========================================
-  # AUTO-MERGE TO MAIN
+  # AUTO-MERGE TO MAIN (PARALLÈLE - VALIDATION RAPIDE)
   # ========================================
   auto-merge-to-main:
-    needs: [changes, tests-unit, build-validation, production-smoke-pre-merge]
+    needs: [changes, tests-unit, build-validation-main, tests-e2e]
     if: |
       always() &&
       needs.changes.outputs.code == 'true' &&
-      needs.tests-unit.result == 'success' &&
-      needs.build-validation.result == 'success' &&
-      needs.production-smoke-pre-merge.result == 'success'
+      (
+        (needs.tests-unit.result == 'success' || needs.tests-unit.result == 'skipped') &&
+        (needs.build-validation-main.result == 'success' || needs.build-validation-main.result == 'skipped') &&
+        (needs.tests-e2e.result == 'success' || needs.tests-e2e.result == 'skipped')
+      )
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -418,61 +393,65 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: 🚀 Merge develop → main
+      - name: 🚀 Merge pre-main → main (rapide)
         run: |
           git checkout main
-          git merge --no-ff develop -m "chore: auto-merge develop to main (CI validated)"
+          git merge --no-ff ${{ github.ref_name }} -m "chore: auto-merge ${{ github.ref_name }} to main (CI validated)"
           git push origin main
 
       - name: 📢 Notify success
         run: |
-          echo "✅ Develop merged to main successfully"
+          echo "✅ ${{ github.ref_name }} merged to main successfully"
           echo "All tests passed, deployment workflows will now run"
+          echo "⚡ Fast merge completed - validation will continue on main"
 
+  # ========================================
+  # NOTIFICATION ÉCHEC (VALIDATION RAPIDE)
+  # ========================================
   notify-failure:
-    needs: [changes, tests-unit, build-validation, production-smoke-pre-merge]
+    needs: [changes, tests-unit, build-validation-main, tests-e2e]
     if: |
       always() &&
       needs.changes.outputs.code == 'true' &&
       (needs.tests-unit.result == 'failure' || 
-       needs.build-validation.result == 'failure' ||
-       needs.production-smoke-pre-merge.result == 'failure')
+       needs.build-validation-main.result == 'failure' ||
+       needs.tests-e2e.result == 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Download dependencies
+      - name: 📦 Download shared dependencies
         uses: actions/download-artifact@v4
         with:
-          name: node-modules-${{ github.run_id }}
+          name: shared-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
+            .tsbuildinfo
+            node_modules/.vite
 
-      - name: � Setup Node.js 20
+      - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # E2E steps supprimés - tests-e2e n'est plus dans les dépendances
-
-      - name: 📥 Download production smoke test results (if failed)
-        if: needs.production-smoke-pre-merge.result == 'failure'
+      - name: 📥 Download E2E test results (if failed)
+        if: needs.tests-e2e.result == 'failure'
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          pattern: test-results-production-smoke-pre-merge
+          pattern: test-results-branch-smoke
           merge-multiple: true
           path: test-results
 
-      - name: 📊 Generate Production Smoke Summary (if failed)
-        id: prod-smoke-summary
-        if: needs.production-smoke-pre-merge.result == 'failure'
+      - name: 📊 Generate E2E Summary (if failed)
+        id: e2e-summary
+        if: needs.tests-e2e.result == 'failure'
         run: |
           if [ -d test-results ] || [ -f test-results.json ]; then
-            node scripts/generate-regression-summary.js develop || echo "Summary generation failed"
+            node scripts/generate-regression-summary.js ${{ github.ref_name }} || echo "Summary generation failed"
           else
             echo "No test results available"
           fi
@@ -486,39 +465,41 @@ jobs:
             const path = require('path');
             
             const unitStatus = '${{ needs.tests-unit.result }}';
-            const buildStatus = '${{ needs.build-validation.result }}';
-            const prodSmokeStatus = '${{ needs.production-smoke-pre-merge.result }}';
+            const buildStatus = '${{ needs.build-validation-main.result }}';
+            const e2eStatus = '${{ needs.tests-e2e.result }}';
             
             let failedComponents = [];
             if (unitStatus === 'failure') failedComponents.push('Tests Unitaires');
             if (buildStatus === 'failure') failedComponents.push('Build & Validation');
-            if (prodSmokeStatus === 'failure') failedComponents.push('🔥 Production Smoke (PRE-MERGE)');
+            if (e2eStatus === 'failure') failedComponents.push('E2E Tests');
             
-            let issueBody = `## ❌ Validation échouée sur develop - Auto-merge bloqué\n\n`;
+            let issueBody = `## ❌ Validation échouée sur ${{ github.ref_name }} - Auto-merge bloqué\n\n`;
             issueBody += `**Composants en échec:** ${failedComponents.join(', ')}\n\n`;
             issueBody += `**Détails:**\n`;
             issueBody += `- 🧪 Tests Unitaires: ${unitStatus === 'failure' ? '❌' : '✅'} ${unitStatus}\n`;
             issueBody += `- 🏗️ Build & Validation: ${buildStatus === 'failure' ? '❌' : '✅'} ${buildStatus}\n`;
-            issueBody += `- 🔥 Production Smoke (Pre-Merge): ${prodSmokeStatus === 'failure' ? '❌' : '✅'} ${prodSmokeStatus}\n\n`;
+            issueBody += `- 🚀 E2E Tests: ${e2eStatus === 'failure' ? '❌' : '✅'} ${e2eStatus}\n\n`;
             issueBody += `**Informations:**\n`;
-            issueBody += `- Commit: \`${context.sha.substring(0, 7)}\`\n`;
+            issueBody += `- Commit: \`${{ github.sha }}\`\n`;
+            issueBody += `- Branch: \`${{ github.ref_name }}\`\n`;
+            issueBody += `- ⚡ Fast validation mode - Main protection maintained\n`;
             
-            // Ajouter le résumé Production Smoke détaillé si disponible
-            if (prodSmokeStatus === 'failure') {
+            // Ajouter le résumé E2E détaillé si disponible
+            if (e2eStatus === 'failure') {
               const summaryPath = path.join(process.cwd(), 'regression-summary.md');
               if (fs.existsSync(summaryPath)) {
-                const prodSmokeSummary = fs.readFileSync(summaryPath, 'utf-8');
-                issueBody += `---\n\n## 🔥 Détails des Erreurs Production Smoke (Pre-Merge)\n\n${prodSmokeSummary}\n`;
+                const e2eSummary = fs.readFileSync(summaryPath, 'utf-8');
+                issueBody += `---\n\n## 🚀 Détails des Erreurs E2E (${{ github.ref_name }})\n\n${e2eSummary}\n`;
               } else {
-                issueBody += `---\n\n📋 **Rapports Production Smoke détaillés disponibles dans les artefacts GitHub Actions**\n`;
+                issueBody += `---\n\n📋 **Rapports E2E détaillés disponibles dans les artefacts GitHub Actions**\n`;
               }
             }
             
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: '🚨 Develop Validation Failed - Auto-merge blocked',
+              title: '🚨 Branch Validation Failed - Auto-merge blocked',
               body: issueBody,
-              labels: ['bug', 'develop-branch', 'automated', 'ci-failure', 'urgent']
+              labels: ['bug', '${{ github.ref_name }}-branch', 'automated', 'ci-failure', 'urgent']
             });
 

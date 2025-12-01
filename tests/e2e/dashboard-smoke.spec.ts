@@ -120,7 +120,7 @@ test.describe('Dashboard - Smoke Tests Critiques', () => {
       await waitForDashboardReady(page, browserName);
 
       // Attendre un peu pour capturer les erreurs potentielles
-      await page.waitForTimeout(2000);
+      await waitForReactStable(page, { browserName });
 
       // Le test passe si withConsoleGuard ne lève pas d'erreur
       expect(true).toBeTruthy();

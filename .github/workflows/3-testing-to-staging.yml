@@ -1,0 +1,308 @@
+name: 3️⃣ Testing → Staging (Auto-merge)
+
+on:
+  push:
+    branches: [testing]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  # ========================================
+  # DÉTECTION CHANGEMENTS (testing)
+  # ========================================
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.changes.outputs.code }}
+      src: ${{ steps.changes.outputs.src }}
+      e2e-required: ${{ steps.changes.outputs.e2e-required }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Detect file changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'tests/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vite.config.ts'
+              - 'vitest.config.ts'
+              - 'tsconfig.json'
+              - 'playwright.config.ts'
+              - '.github/workflows/**'
+            
+            e2e-required:
+              - 'src/**/!(*.test.ts|*.test.tsx|__tests__)'
+              - 'src/**/*.tsx'
+              - 'src/**/*.jsx'
+              - 'src/**/!(*.test).ts'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vite.config.ts'
+              - 'playwright.config.ts'
+              - 'tests/e2e/**'
+            
+            src:
+              - 'src/**/!(*.test.ts|*.test.tsx)'
+            
+            docs:
+              - 'Docs/**/*.md'
+              - 'README.md'
+              - '*.md'
+
+  # ========================================
+  # PRÉPARATION DÉPENDANCES (optimisé)
+  # ========================================
+  prepare-deps:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Cache dependencies (optimisé)
+        uses: actions/cache@v4
+        id: cache-deps
+        with:
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-testing-deps-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-testing-deps-
+            ${{ runner.os }}-deps-combined-
+            ${{ runner.os }}-deps-
+
+      - name: 🔧 Install dependencies (si cache miss)
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: |
+          npm ci --prefer-offline --no-audit
+          npx playwright install --with-deps chromium
+
+      - name: 📤 Upload dependencies as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: testing-deps-${{ github.run_id }}
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+          retention-days: 1
+
+  # ========================================
+  # TESTS COMPLETS (PARALLÈLE)
+  # ========================================
+  tests-complete:
+    needs: [changes, prepare-deps]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      INTEGRATION_TEST_PASSWORD: ${{ secrets.INTEGRATION_TEST_PASSWORD }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Download testing dependencies
+        uses: actions/download-artifact@v4
+        with:
+          name: testing-deps-${{ github.run_id }}
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+
+      - name: 🔧 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🧪 Tests unitaires complets
+        run: npm run test:unit
+
+      - name: 🔗 Tests d'intégration
+        run: npm run test:integration
+
+      - name: 🎨 Tests UX Régression
+        run: npm run test:ux-regression
+
+  build-validation:
+    needs: [changes, prepare-deps]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Download testing dependencies
+        uses: actions/download-artifact@v4
+        with:
+          name: testing-deps-${{ github.run_id }}
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+
+      - name: 🔧 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🔍 Vérification TypeScript
+        run: npm run type-check
+
+      - name: 🧹 Lint (warnings allowed on testing)
+        run: npm run lint -- --max-warnings 500
+
+      - name: 🏗️ Build production
+        run: npm run build
+
+  # ========================================
+  # E2E COMPLET (PARALLÈLE)
+  # ========================================
+  tests-e2e-complete:
+    needs: [changes, prepare-deps]
+    if: |
+      needs.changes.outputs.code == 'true' &&
+      needs.changes.outputs.e2e-required == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Download testing dependencies
+        uses: actions/download-artifact@v4
+        with:
+          name: testing-deps-${{ github.run_id }}
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+
+      - name: 🔧 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🚀 E2E Smoke Tests (testing)
+        run: npm run test:e2e:smoke -- --reporter=html,json
+
+      - name: 🚀 E2E Matrix Tests (testing - multi-browsers)
+        run: npm run test:e2e:matrix -- --reporter=html,json
+
+      - name: 📊 Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-testing-complete
+          path: playwright-report
+          retention-days: 7
+
+  # ========================================
+  # AUTO-MERGE TO STAGING
+  # ========================================
+  auto-merge-to-staging:
+    needs: [changes, tests-complete, build-validation, tests-e2e-complete]
+    if: |
+      always() &&
+      needs.changes.outputs.code == 'true' &&
+      (
+        (needs.tests-complete.result == 'success' || needs.tests-complete.result == 'skipped') &&
+        (needs.build-validation.result == 'success' || needs.build-validation.result == 'skipped') &&
+        (needs.tests-e2e-complete.result == 'success' || needs.tests-e2e-complete.result == 'skipped')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_WORKFLOW }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🚀 Merge testing → staging
+        run: |
+          git checkout staging
+          git merge --no-ff testing -m "chore: auto-merge testing to staging (CI validated)"
+          git push origin staging
+
+      - name: 📢 Notify success
+        run: |
+          echo "✅ Testing merged to staging successfully"
+          echo "All tests passed, ready for pre-main validation"
+          echo "🧪 Features validated and promoted to staging"
+
+  # ========================================
+  # NOTIFICATION ÉCHEC
+  # ========================================
+  notify-failure:
+    needs: [changes, tests-complete, build-validation, tests-e2e-complete]
+    if: |
+      always() &&
+      needs.changes.outputs.code == 'true' &&
+      (needs.tests-complete.result == 'failure' || 
+       needs.build-validation.result == 'failure' ||
+       needs.tests-e2e-complete.result == 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Issue if Validation Failed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const testStatus = '${{ needs.tests-complete.result }}';
+            const buildStatus = '${{ needs.build-validation.result }}';
+            const e2eStatus = '${{ needs.tests-e2e-complete.result }}';
+            
+            let failedComponents = [];
+            if (testStatus === 'failure') failedComponents.push('Tests Complets');
+            if (buildStatus === 'failure') failedComponents.push('Build & Validation');
+            if (e2eStatus === 'failure') failedComponents.push('E2E Complets');
+            
+            const issueBody = `## ❌ Testing Validation Failed - Cannot promote to staging\n\n` +
+              `**Failed Components:** ${failedComponents.join(', ')}\n\n` +
+              `**Details:**\n` +
+              `- 🧪 Tests Complets: ${testStatus === 'failure' ? '❌' : '✅'}\n` +
+              `- 🏗️ Build & Validation: ${buildStatus === 'failure' ? '❌' : '✅'}\n` +
+              `- 🚀 E2E Complets: ${e2eStatus === 'failure' ? '❌' : '✅'}\n\n` +
+              `**Informations:**\n` +
+              `- Commit: \`${{ github.sha }}\`\n` +
+              `- Branch: \`${{ github.ref_name }}\`\n` +
+              `- 🧪 Testing features need to be fixed before promotion\n`;
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🧪 Testing Validation Failed - Cannot promote to staging',
+              body: issueBody,
+              labels: ['testing', 'testing-branch', 'automated', 'ci-failure', 'urgent']
+            });
