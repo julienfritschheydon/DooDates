@@ -1,11 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 01/12/2025 13:29:38
+**Dernière mise à jour:** 01/12/2025 17:02:33
 
-_Workflow run #683 (ID 19822673595) — génération UTC 2025-12-01T12:29:38.591Z_
+_Workflow run #684 (ID 19829003767) — génération UTC 2025-12-01T16:02:33.039Z_
 
-## 🎯 Focus: Commit `1b00d5c`
-## 🎯 Focus: Commit `cdd2f44`
+## 🎯 Focus: Commit `8e4fb7f`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -27,46 +26,34 @@ _Workflow run #683 (ID 19822673595) — génération UTC 2025-12-01T12:29:38.591
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `1b00d5c`.
-Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
-
----
-
-## 2️⃣ Develop → Main (Auto-merge)
-
-**Statut:** ✅ success
-
-**Dernier run:** 28/11/2025 21:13:15
-
-**Statistiques:**
-- 📊 **Total runs pour ce commit:** **0**
-- ❌ **Échecs pour ce commit:** **0**
-### ✅ Aucun échec pour ce commit
-
-Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
+Tous les workflows surveillés ont réussi pour le commit `8e4fb7f`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ✅ success
+**Statut:** ⏳ unknown
 
-**Dernier run:** 01/12/2025 12:22:33
+**Dernier run:** 01/12/2025 17:01:25
 
 **Statistiques:**
-- 📊 **Total runs pour ce commit:** **0**
+- 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
-### ✅ Aucun échec pour ce commit
+### 🔴 Échecs du commit actuel
 
-Tous les workflows surveillés ont réussi pour le commit `1b00d5c`.
-Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
+#### Run #117 - 01/12/2025 17:01:25
+
+- **Commit:** `8e4fb7f`
+- **Auteur:** julienfritschheydon
+- **Branche:** `main`
+- **Statut:** null
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19828994951)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `1b00d5c`
-- 🎯 **Focus: Commit actuel** `cdd2f44`
+- 🎯 **Focus: Commit actuel** `8e4fb7f`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -74,6 +61,45 @@ Tous les workflows surveillés ont réussi pour le commit `cdd2f44`.
 
 Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développements en toute sérénité !
 
-✅ Aucun nouvel échec détecté - tout fonctionne correctement !
+## 📊 Analyse des 1 échec(s) détecté(s)
+
+**Statistiques :**
+- 🔴 Critiques : 1
+- 📂 Catégories : unknown (1)
+
+### 🚨 1. 3️⃣ Main Post-Merge E2E
+
+**Résumé :** Échec 3️⃣ Main Post-Merge E2E - unknown (high)
+
+**Cause identifiée :** Erreur non cataloguée - nécessite analyse manuelle
+
+**Solutions suggérées :**
+1. Consulter les logs détaillés du workflow
+
+**⚠️ Action requise :** Résoudre immédiatement - bloque le déploiement
+
+---
+
+## 🚨 Actions prioritaires
+
+**1 échec(s) critique(s) détecté(s) :**
+
+1. **3️⃣ Main Post-Merge E2E** - Consulter les logs détaillés du workflow
+
+**Impact :** Ces échecs bloquent potentiellement le déploiement en production.
+
+## 💡 Améliorations suggérées
+
+- **Monitoring :** Ajouter des métriques de performance
+
+## 🔮 Analyse Prédictive (Indisponible)
+
+⚠️ **Service Gemini non configuré**
+- Définir la variable `GEMINI_API_KEY` pour activer l'analyse prédictive
+- L'analyse de risque et les recommandations proactives seront disponibles
+
+---
+
+*Rapport généré automatiquement par l'analyseur IA - 2025-12-01T16:02:35.943Z*
 ---
 
