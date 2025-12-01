@@ -393,20 +393,16 @@ git merge feature/nouvelle-fonctionnalite
 git push origin testing
 ```
 
-### Bug → Testing
+### Bug → Testing (Automatisé)
 ```bash
-# Depuis la branche bug
-git checkout testing
-git merge bug/correction-critique
-git push origin testing
+# Push sur une branche bug/*
+# Si tests OK → Merge automatique vers testing
 ```
 
-### Testing → Staging
+### Testing → Staging (Automatisé)
 ```bash
-# Après validation complète en testing
-git checkout staging
-git merge testing
-git push origin staging
+# Push sur testing (ou merge depuis bug/*)
+# Si validation OK → Merge automatique vers staging
 ```
 
 ### Staging → Pre-prod
@@ -427,20 +423,32 @@ git push origin main
 
 ## 🚀 Workflows GitHub Actions (Simplifiés)
 
-### Testing Workflow
+### Testing Workflow (Automatisé)
 ```yaml
-# .github/workflows/deploy-testing.yml
+# .github/workflows/test-testing.yml
 on:
   push:
     branches: [testing]
 jobs:
-  test-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🧪 Tests Unitaires + Build
-        run: npm run test:unit:fast && npm run build
-      - name: 🚀 Deploy to Testing
-        run: npm run deploy:testing
+  testing-validation:
+    # Tests unitaires, lint, build
+  auto-merge-to-staging:
+    needs: testing-validation
+    # Merge testing → staging si succès
+```
+
+### Bug Workflow (Automatisé)
+```yaml
+# .github/workflows/auto-merge-bug-to-testing.yml
+on:
+  push:
+    branches: [bug/*]
+jobs:
+  validate:
+    # Tests unitaires rapides
+  merge-to-testing:
+    needs: validate
+    # Merge bug/* → testing si succès
 ```
 
 ### Staging Workflow  
