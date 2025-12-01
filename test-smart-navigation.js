@@ -9,8 +9,13 @@
  * node test-smart-navigation.js --watch    # Surveillance en continu
  */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Fix __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configuration
 const TEST_CONFIG = {
@@ -22,8 +27,8 @@ const TEST_CONFIG = {
       name: "Nouvelle création depuis dashboard",
       from: "/dashboard",
       to: "/workspace/date",
-      expectedStrategy: "full",
-      description: "Devrait vider complètement le chat",
+      expectedStrategy: "none",
+      description: "Devrait préserver (navigation temporaire depuis dashboard)",
     },
     {
       name: "Changement de type sondage",
@@ -50,7 +55,7 @@ const TEST_CONFIG = {
       name: "Mode édition",
       from: "/workspace/form",
       to: "/workspace/form?edit=test123",
-      expectedStrategy: "preserve",
+      expectedStrategy: "none",
       description: "Devrait préserver et charger le poll",
     },
   ],
@@ -153,53 +158,57 @@ function simulateChatResetService(fromPath, toPath) {
   const from = new URL(fromPath, "http://localhost");
   const to = new URL(toPath, "http://localhost");
 
-  // Mode édition ?
+  // 1. Mode édition ?
   if (to.searchParams.has("edit")) {
     return {
-      resetType: "preserve",
-      reason: "Mode édition détecté",
-    };
-  }
-
-  // Changement de type ?
-  if (from.pathname.includes("/date") && to.pathname.includes("/form")) {
-    return {
-      resetType: "context-only",
-      reason: "Changement de type sondage (date → form)",
-    };
-  }
-
-  if (from.pathname.includes("/form") && to.pathname.includes("/date")) {
-    return {
-      resetType: "context-only",
-      reason: "Changement de type sondage (form → date)",
-    };
-  }
-
-  // Navigation temporaire ?
-  if (
-    to.pathname.includes("/docs") ||
-    to.pathname.includes("/dashboard") ||
-    to.pathname.includes("/settings")
-  ) {
-    return {
       resetType: "none",
-      reason: "Navigation temporaire vers page système",
+      reason: "edit-mode-preserve-context",
     };
   }
 
-  // Nouvelle création ?
-  if (to.pathname.includes("/workspace/") && !to.searchParams.has("edit")) {
+  // 2. Changement de type ?
+  if ((from.pathname.includes("/date") && to.pathname.includes("/form")) ||
+      (from.pathname.includes("/form") && to.pathname.includes("/date"))) {
+    return {
+      resetType: "context-only",
+      reason: "type-change-reset-context",
+    };
+  }
+
+  // 3. Nouvelle création ? (logique complexe du service réel)
+  const isWorkspaceTarget = to.pathname.includes("/workspace/date") || to.pathname.includes("/workspace/form");
+  const hasNoParams = to.searchParams.toString().length === 0;
+  const isFromOutside = !from.pathname.includes("/workspace");
+  
+  // Logique exacte du ChatResetService.isNewCreation
+  const isFromAnotherWorkspace = from.pathname.includes("/workspace") &&
+    !from.pathname.includes(to.pathname.split("/workspace/")[1]?.split("?")[0] || "");
+  
+  const isNewCreation = isWorkspaceTarget && hasNoParams && isFromAnotherWorkspace;
+  
+  if (isNewCreation) {
     return {
       resetType: "full",
-      reason: "Nouvelle création de sondage",
+      reason: "new-creation-full-reset",
     };
   }
 
-  // Défaut : préserver
+  // 4. Navigation temporaire ? (depuis pages système vers workspace)
+  const nonWorkspacePaths = ["/dashboard", "/settings", "/profile", "/docs", "/pricing"];
+  const isFromNonWorkspace = nonWorkspacePaths.some((path) => from.pathname.startsWith(path));
+  const isToWorkspace = to.pathname.includes("/workspace");
+
+  if (isFromNonWorkspace && isToWorkspace) {
+    return {
+      resetType: "none",
+      reason: "temporary-navigation-preserve",
+    };
+  }
+
+  // 5. Défaut : préserver
   return {
-    resetType: "preserve",
-    reason: "Comportement par défaut (sécurité)",
+    resetType: "none",
+    reason: "default-preserve",
   };
 }
 
@@ -409,11 +418,9 @@ process.on("uncaughtException", (error) => {
 });
 
 // Lancer le programme
-if (require.main === module) {
-  main();
-}
+main();
 
-module.exports = {
+export {
   runAutomatedTests,
   showManualTestGuide,
   simulateChatResetService,

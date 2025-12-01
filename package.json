@@ -78,7 +78,8 @@
     "supabase:lint:check": "npx supabase db lint --linked --level error",
     "supabase:lint:local": "npx supabase db lint",
     "supabase:lint:local:check": "npx supabase db lint --level error",
-    "supabase:apply-fixes": "pwsh scripts/apply-sql-fixes.ps1"
+    "supabase:apply-fixes": "pwsh scripts/apply-sql-fixes.ps1",
+    "server": "tsx src/server/index.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -115,6 +116,7 @@
     "@supabase/supabase-js": "^2.50.0",
     "@tanstack/react-query": "^5.56.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/express": "^5.0.5",
     "chrono-node": "^2.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -122,6 +124,7 @@
     "compromise": "^14.14.4",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
+    "express": "^5.1.0",
     "framer-motion": "^12.19.1",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.462.0",
@@ -186,6 +189,7 @@
     "terser": "^5.43.1",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^6.3.5",
