@@ -8,12 +8,17 @@ import FormPollResults from "@/components/polls/FormPollResults";
 import ResultsLayout from "@/components/polls/ResultsLayout";
 import { ResultsEmpty, ResultsLoading } from "@/components/polls/ResultsStates";
 import { logger } from "@/lib/logger";
+import { useCalendarConflicts } from "@/hooks/useCalendarConflicts";
+import { ConflictList } from "@/components/availability/ConflictList";
+import { GoogleCalendarService } from "@/lib/google-calendar";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface VoteData {
   poll_id: string;
   voter_email: string;
   voter_name: string;
   vote_data: Record<string, "yes" | "no" | "maybe">;
+  selections?: Record<string, "yes" | "no" | "maybe">;
   created_at: string;
 }
 
@@ -69,6 +74,42 @@ const Results: React.FC = () => {
 
     setLoading(false);
   }, [slug]);
+
+  // Conflict Detection Logic
+  const { conflictingSlots, checkConflicts, isChecking } = useCalendarConflicts();
+  const { user } = useAuth();
+  const [calendarService] = useState(() => new GoogleCalendarService());
+
+  useEffect(() => {
+    logger.info("🔄 Checking conflict requirements", "calendar", {
+      hasPoll: !!poll,
+      hasDates: !!poll?.settings?.selectedDates,
+      hasUser: !!user,
+      userId: user?.id
+    });
+
+    if (poll && poll.settings?.selectedDates && user) {
+      // Initialiser le service avec le token si disponible
+      const token = localStorage.getItem("provider_token");
+      logger.info("🔑 Checking provider token", "calendar", { hasToken: !!token });
+
+      if (token) {
+        calendarService.setAccessToken(token);
+
+        // Préparer les dates à vérifier
+        const datesToCheck = poll.settings.selectedDates.map(date => ({
+          date: date,
+          // Pour l'instant, on vérifie la journée entière car les sondages de dates n'ont pas d'heure
+          // TODO: Supporter les heures si le sondage en a
+        }));
+
+        logger.info("🚀 Triggering checkConflicts", "calendar", { datesToCheck });
+        checkConflicts(datesToCheck, calendarService);
+      } else {
+        logger.warn("⚠️ No provider token found in localStorage", "calendar");
+      }
+    }
+  }, [poll, user, calendarService, checkConflicts]);
 
   // Router vers résultats FormPoll si nécessaire (après tous les hooks)
   if (isFormPoll && slug) {
@@ -219,6 +260,9 @@ const Results: React.FC = () => {
             },
           ]}
         >
+          {/* Liste des conflits */}
+          <ConflictList conflictingSlots={conflictingSlots} />
+
           {/* Résultats par date */}
           <div className="bg-[#1e1e1e] rounded-lg shadow overflow-hidden border border-gray-700">
             <div className="p-6 border-b border-gray-700">
@@ -376,13 +420,12 @@ const Results: React.FC = () => {
                               <td key={date} className="px-6 py-4 whitespace-nowrap text-center">
                                 {voteValue ? (
                                   <span
-                                    className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                                      voteValue === "yes"
-                                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                        : voteValue === "maybe"
-                                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                                    }`}
+                                    className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${voteValue === "yes"
+                                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                      : voteValue === "maybe"
+                                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                      }`}
                                   >
                                     {voteValue === "yes"
                                       ? "Oui"

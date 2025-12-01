@@ -16,6 +16,7 @@ export interface GoogleCalendarEvent {
     timeZone?: string;
   };
   status: string;
+  location?: string;
 }
 
 interface FreeBusyResponse {
@@ -34,6 +35,10 @@ export class GoogleCalendarService {
 
   constructor() {
     this.initializeToken();
+  }
+
+  public setAccessToken(token: string) {
+    this.accessToken = token;
   }
 
   private async initializeToken() {
@@ -77,6 +82,14 @@ export class GoogleCalendarService {
       if (userMetadata?.provider_token) {
         this.accessToken = userMetadata.provider_token;
         logger.info("Token Google Calendar récupéré (user_metadata)", "auth");
+        return;
+      }
+
+      // Fallback: localStorage (sauvegardé manuellement par AuthContext)
+      const storedToken = localStorage.getItem("google_provider_token");
+      if (storedToken) {
+        this.accessToken = storedToken;
+        logger.info("Token Google Calendar récupéré (localStorage)", "auth");
         return;
       }
 
@@ -146,10 +159,10 @@ export class GoogleCalendarService {
     try {
       const response = await fetch(
         `https://www.googleapis.com/calendar/v3/calendars/primary/events?` +
-          `timeMin=${encodeURIComponent(startDate)}&` +
-          `timeMax=${encodeURIComponent(endDate)}&` +
-          `singleEvents=true&` +
-          `orderBy=startTime`,
+        `timeMin=${encodeURIComponent(startDate)}&` +
+        `timeMax=${encodeURIComponent(endDate)}&` +
+        `singleEvents=true&` +
+        `orderBy=startTime`,
         {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
@@ -210,6 +223,103 @@ export class GoogleCalendarService {
   /**
    * Vérifier les créneaux occupés/libres
    */
+  /**
+   * Récupérer la liste des calendriers de l'utilisateur
+   */
+  async getCalendars(): Promise<Array<{ id: string; primary?: boolean; summary?: string }>> {
+    await this.refreshTokenIfNeeded();
+
+    if (!this.accessToken) return [];
+
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=reader`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) return [{ id: "primary" }];
+
+      const data = await response.json();
+      return data.items.map((item: any) => ({
+        id: item.id,
+        primary: item.primary,
+        summary: item.summary,
+      }));
+    } catch (error) {
+      logger.error("Erreur récupération liste calendriers", "calendar", error);
+      return [{ id: "primary" }];
+    }
+  }
+
+  /**
+   * Récupérer les événements de TOUS les calendriers sur une période
+   */
+  async getAllEvents(
+    startDate: string,
+    endDate: string,
+  ): Promise<Array<GoogleCalendarEvent & { calendarSummary?: string; calendarId?: string }>> {
+    await this.refreshTokenIfNeeded();
+
+    if (!this.accessToken) return [];
+
+    try {
+      // 1. Récupérer tous les calendriers
+      const calendars = await this.getCalendars();
+      const allEvents: Array<
+        GoogleCalendarEvent & { calendarSummary?: string; calendarId?: string }
+      > = [];
+
+      // 2. Récupérer les événements pour chaque calendrier (en parallèle)
+      const promises = calendars.map(async (cal) => {
+        try {
+          const response = await fetch(
+            `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events?` +
+            `timeMin=${encodeURIComponent(startDate)}&` +
+            `timeMax=${encodeURIComponent(endDate)}&` +
+            `singleEvents=true&` +
+            `orderBy=startTime`,
+            {
+              headers: {
+                Authorization: `Bearer ${this.accessToken}`,
+              },
+            },
+          );
+
+          if (!response.ok) return [];
+
+          const data = await response.json();
+          if (data.items && Array.isArray(data.items)) {
+            const events = data.items.map((event: any) => ({
+              ...event,
+              calendarSummary: cal.summary || (cal.primary ? "Principal" : "Autre"),
+              calendarId: cal.id,
+            }));
+            return events;
+          }
+          return [];
+        } catch (error) {
+          // Ignorer les erreurs pour un calendrier spécifique (ex: pas les droits)
+          return [];
+        }
+      });
+
+      const results = await Promise.all(promises);
+      results.forEach((events) => allEvents.push(...events));
+
+      return allEvents;
+    } catch (error) {
+      logger.error("Erreur récupération événements globaux", "calendar", error);
+      return [];
+    }
+  }
+
+  /**
+   * Vérifier les créneaux occupés/libres sur TOUS les calendriers
+   */
   async getFreeBusy(
     startDate: string,
     endDate: string,
@@ -221,16 +331,17 @@ export class GoogleCalendarService {
         "Pas de token Google Calendar disponible",
         "Connexion Google Calendar requise",
       );
-
-      logError(authError, {
-        component: "GoogleCalendarService",
-        operation: "getFreeBusy",
-      });
-
       throw authError;
     }
 
     try {
+      // 1. Récupérer tous les calendriers
+      const calendars = await this.getCalendars();
+      const calendarItems = calendars.map((c) => ({ id: c.id }));
+
+      logger.info(`Vérification disponibilités sur ${calendarItems.length} calendriers`, "calendar");
+
+      // 2. Demander le freeBusy pour tous
       const response = await fetch(`https://www.googleapis.com/calendar/v3/freeBusy`, {
         method: "POST",
         headers: {
@@ -240,28 +351,29 @@ export class GoogleCalendarService {
         body: JSON.stringify({
           timeMin: startDate,
           timeMax: endDate,
-          items: [{ id: "primary" }],
+          items: calendarItems,
         }),
       });
 
       if (!response.ok) {
-        const apiError = ErrorFactory.api(
+        throw ErrorFactory.api(
           `Erreur API FreeBusy: ${response.status}`,
           "Erreur lors de la vérification des créneaux occupés",
-          { status: response.status },
         );
-
-        logError(apiError, {
-          component: "GoogleCalendarService",
-          operation: "getFreeBusy",
-          status: response.status,
-        });
-
-        throw apiError;
       }
 
       const data: FreeBusyResponse = await response.json();
-      return data.calendars.primary?.busy || [];
+
+      // 3. Agréger tous les créneaux occupés de tous les calendriers
+      const allBusySlots: Array<{ start: string; end: string }> = [];
+
+      Object.values(data.calendars).forEach((cal) => {
+        if (cal.busy && Array.isArray(cal.busy)) {
+          allBusySlots.push(...cal.busy);
+        }
+      });
+
+      return allBusySlots;
     } catch (error) {
       const processedError = handleError(
         error,
@@ -271,12 +383,7 @@ export class GoogleCalendarService {
         },
         "Erreur lors de la récupération des créneaux occupés",
       );
-
-      logError(processedError, {
-        component: "GoogleCalendarService",
-        operation: "getFreeBusy",
-      });
-
+      logError(processedError, { component: "GoogleCalendarService" });
       throw processedError;
     }
   }

@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
   Clock,
@@ -16,6 +17,7 @@ import {
   Zap,
   ExternalLink,
   CheckCircle,
+  MapPin,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -24,6 +26,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { optimizeSchedule, type ProposedSlot } from "@/services/schedulingOptimizer";
 import { GoogleCalendarService } from "@/lib/google-calendar";
 import { useAuth } from "@/contexts/AuthContext";
+import { ConflictList } from "@/components/availability/ConflictList";
 
 const DAYS_OF_WEEK = [
   { value: "monday", label: "Lundi" },
@@ -48,6 +51,7 @@ const AvailabilityPollResults = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [optimizedSlots, setOptimizedSlots] = useState<ProposedSlot[]>([]);
+  const [conflictingSlots, setConflictingSlots] = useState<ProposedSlot[]>([]);
   const { user } = useAuth();
   const calendarService = useMemo(() => (user ? new GoogleCalendarService() : undefined), [user]);
 
@@ -90,12 +94,13 @@ const AvailabilityPollResults = () => {
       try {
         // Passer directement les dates concrètes au service d'optimisation avec les règles du poll
         const rules = poll.schedulingRules || {};
-        const optimized = await optimizeSchedule(parsedAvailabilities, rules, calendarService);
-        setOptimizedSlots(optimized);
+        const { proposed, conflicting } = await optimizeSchedule(parsedAvailabilities, rules, calendarService);
+        setOptimizedSlots(proposed);
+        setConflictingSlots(conflicting);
 
         // Si des créneaux optimisés sont trouvés et qu'aucun créneau n'est encore proposé, les proposer automatiquement
-        if (optimized.length > 0 && proposedSlots.length === 0) {
-          const autoProposed = optimized.slice(0, 3).map((slot) => ({
+        if (proposed.length > 0 && proposedSlots.length === 0) {
+          const autoProposed = proposed.slice(0, 3).map((slot) => ({
             date: slot.date,
             start: slot.start,
             end: slot.end,
@@ -324,55 +329,8 @@ const AvailabilityPollResults = () => {
                   </div>
                 </div>
 
-                {/* Disponibilités parsées */}
-                {hasParsedAvailabilities ? (
-                  <div>
-                    <Label className="text-gray-300 mb-3 block flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-purple-400" />
-                      Disponibilités analysées par IA
-                    </Label>
-                    <div className="space-y-3">
-                      {Object.entries(availabilitiesByDate).map(
-                        ([date, timeRanges]: [string, Array<{ start: string; end: string }>]) => (
-                          <div
-                            key={date}
-                            className="p-4 bg-[#0a0a0a] border border-gray-700 rounded-lg"
-                          >
-                            <div className="font-medium text-white mb-2">
-                              {new Date(`${date}T00:00:00`).toLocaleDateString("fr-FR", {
-                                weekday: "long",
-                                day: "numeric",
-                                month: "long",
-                              })}
-                            </div>
-                            <div className="space-y-2">
-                              {timeRanges.map(
-                                (timeRange: { start: string; end: string }, idx: number) => (
-                                  <div
-                                    key={idx}
-                                    className="flex items-center gap-2 px-3 py-2 bg-green-500/10 border border-green-600/30 rounded"
-                                  >
-                                    <Clock className="w-4 h-4 text-green-400" />
-                                    <span className="text-green-300 font-mono text-sm">
-                                      {timeRange.start} - {timeRange.end}
-                                    </span>
-                                  </div>
-                                ),
-                              )}
-                            </div>
-                          </div>
-                        ),
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <Alert>
-                    <AlertDescription className="text-gray-300">
-                      Les disponibilités n'ont pas encore été analysées par l'IA. Le texte brut est
-                      disponible ci-dessus.
-                    </AlertDescription>
-                  </Alert>
-                )}
+                {/* Disponibilités parsées - MASQUÉ */}
+
               </CardContent>
             </Card>
           )}
@@ -448,6 +406,9 @@ const AvailabilityPollResults = () => {
             </Card>
           )}
 
+          {/* Conflits détectés */}
+          <ConflictList conflictingSlots={conflictingSlots} />
+
           {/* Créneaux proposés */}
           <Card className="bg-[#1e1e1e] border-gray-700">
             <CardHeader>
@@ -470,14 +431,15 @@ const AvailabilityPollResults = () => {
                         try {
                           // Passer directement les dates concrètes au service d'optimisation avec les règles du poll
                           const rules = poll.schedulingRules || {};
-                          const optimized = await optimizeSchedule(
+                          const { proposed, conflicting } = await optimizeSchedule(
                             parsedAvailabilities,
                             rules,
                             calendarService,
                           );
-                          setOptimizedSlots(optimized);
-                          if (optimized.length > 0) {
-                            const autoProposed = optimized.slice(0, 3).map((slot) => ({
+                          setOptimizedSlots(proposed);
+                          setConflictingSlots(conflicting);
+                          if (proposed.length > 0) {
+                            const autoProposed = proposed.slice(0, 3).map((slot) => ({
                               date: slot.date,
                               start: slot.start,
                               end: slot.end,
@@ -489,7 +451,7 @@ const AvailabilityPollResults = () => {
                             setSelectedSlots(new Set(autoProposed.map((_, index) => index)));
                             toast({
                               title: "Optimisation terminée",
-                              description: `${optimized.length} créneau(x) optimal(x) trouvé(s).`,
+                              description: `${proposed.length} créneau(x) optimal(x) trouvé(s).`,
                             });
                           }
                         } catch (error) {
@@ -565,8 +527,8 @@ const AvailabilityPollResults = () => {
                     <div
                       key={index}
                       className={`p-4 border rounded-lg transition-colors ${selectedSlots.has(index)
-                          ? "bg-[#0a0a0a] border-green-600/50"
-                          : "bg-[#0a0a0a] border-gray-700 opacity-60"
+                        ? "bg-[#0a0a0a] border-green-600/50"
+                        : "bg-[#0a0a0a] border-gray-700 opacity-60"
                         }`}
                     >
                       {/* Checkbox de sélection */}

@@ -260,7 +260,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logger.info("Tentative de connexion Google", "auth");
 
       // Sauvegarder la page actuelle pour y revenir après la connexion
-      const currentPath = window.location.pathname + window.location.search;
+      let currentPath = window.location.pathname;
+
+      // Retirer le base path (/DooDates) car le router l'ajoute automatiquement
+      if (currentPath.startsWith("/DooDates")) {
+        currentPath = currentPath.replace("/DooDates", "") || "/";
+      }
+
+      currentPath += window.location.search;
+
       logger.info("Sauvegarde de la page actuelle pour redirection", "auth", { currentPath });
       if (currentPath !== "/auth/callback" && currentPath !== "/auth/callback/") {
         localStorage.setItem("auth_return_to", currentPath);
@@ -511,6 +519,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setSession(effectiveSession ?? null);
       setUser(effectiveSession?.user ?? null);
       setError(null);
+
+      // Sauvegarder le token provider manuellement car Supabase ne le persiste pas toujours
+      if (effectiveSession?.provider_token) {
+        localStorage.setItem("google_provider_token", effectiveSession.provider_token);
+        logger.info("Token Google sauvegardé manuellement", "auth");
+      }
 
       const sessionUserId = effectiveSession?.user?.id;
 

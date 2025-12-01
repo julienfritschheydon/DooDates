@@ -22,17 +22,29 @@ export interface SchedulingRules {
   slotDurationMinutes?: number; // Durée standard des créneaux (ex: 60)
 }
 
+export interface ConflictDetails {
+  summary: string;
+  start: string; // HH:MM
+  end: string; // HH:MM
+  calendarSummary?: string;
+  location?: string;
+}
+
 export interface ProposedSlot {
   date: string;
   start: string; // HH:MM
   end: string; // HH:MM
   score?: number; // Score d'optimisation (0-100)
   reasons?: string[]; // Raisons de la recommandation
+  conflictDetails?: ConflictDetails;
 }
 
 export interface CalendarBusySlot {
   start: string; // ISO datetime
   end: string; // ISO datetime
+  summary?: string;
+  calendarSummary?: string;
+  location?: string;
 }
 
 /**
@@ -90,18 +102,19 @@ function convertDaysToDates(
 }
 
 /**
- * Trouver les créneaux libres dans une journée
+ * Trouver les créneaux libres et conflictuels dans une journée
  */
-function findFreeSlots(
+function findSlots(
   date: string,
   timeRanges: Array<{ start: string; end: string }>,
   busySlots: CalendarBusySlot[],
   slotDurationMinutes: number = 60,
-): Array<{ start: string; end: string }> {
+): { free: Array<{ start: string; end: string }>; conflicting: Array<{ start: string; end: string; reason?: string; conflictDetails?: ConflictDetails }> } {
   const freeSlots: Array<{ start: string; end: string }> = [];
+  const conflictingSlots: Array<{ start: string; end: string; reason?: string; conflictDetails?: ConflictDetails }> = [];
 
   // Convertir busy slots en minutes pour cette date
-  const busyMinutes: Array<{ start: number; end: number }> = [];
+  const busyMinutes: Array<{ start: number; end: number; original: CalendarBusySlot }> = [];
   busySlots.forEach((busy) => {
     const busyDate = new Date(busy.start);
     const busyDateStr = formatDateLocal(busyDate);
@@ -109,18 +122,24 @@ function findFreeSlots(
       const startMinutes = busyDate.getHours() * 60 + busyDate.getMinutes();
       const endDate = new Date(busy.end);
       const endMinutes = endDate.getHours() * 60 + endDate.getMinutes();
-      busyMinutes.push({ start: startMinutes, end: endMinutes });
+      busyMinutes.push({ start: startMinutes, end: endMinutes, original: busy });
     }
   });
 
-  // Pour chaque plage horaire demandée, trouver les créneaux libres
+  // Pour chaque plage horaire demandée, trouver les créneaux
   timeRanges.forEach((range) => {
     const [startHour, startMinute] = range.start.split(":").map(Number);
     const [endHour, endMinute] = range.end.split(":").map(Number);
     const rangeStartMinutes = startHour * 60 + startMinute;
-    const rangeEndMinutes = endHour * 60 + endMinute;
+    let rangeEndMinutes = endHour * 60 + endMinute;
 
-    // Chercher créneaux libres dans cette plage
+    // Si l'heure de fin est égale à l'heure de début (ex: "13h30"),
+    // on considère que c'est l'heure de début d'un créneau unique
+    if (rangeStartMinutes === rangeEndMinutes) {
+      rangeEndMinutes += slotDurationMinutes;
+    }
+
+    // Chercher créneaux dans cette plage
     for (
       let slotStart = rangeStartMinutes;
       slotStart + slotDurationMinutes <= rangeEndMinutes;
@@ -129,29 +148,55 @@ function findFreeSlots(
       const slotEnd = slotStart + slotDurationMinutes;
 
       // Vérifier si le créneau chevauche un créneau occupé
-      const overlaps = busyMinutes.some(
+      const conflictingBusy = busyMinutes.find(
         (busy) => !(slotEnd <= busy.start || slotStart >= busy.end),
       );
 
-      if (!overlaps) {
-        const startHourStr = Math.floor(slotStart / 60)
-          .toString()
-          .padStart(2, "0");
-        const startMinStr = (slotStart % 60).toString().padStart(2, "0");
-        const endHourStr = Math.floor(slotEnd / 60)
-          .toString()
-          .padStart(2, "0");
-        const endMinStr = (slotEnd % 60).toString().padStart(2, "0");
+      const startHourStr = Math.floor(slotStart / 60)
+        .toString()
+        .padStart(2, "0");
+      const startMinStr = (slotStart % 60).toString().padStart(2, "0");
+      const endHourStr = Math.floor(slotEnd / 60)
+        .toString()
+        .padStart(2, "0");
+      const endMinStr = (slotEnd % 60).toString().padStart(2, "0");
+      const slotTime = {
+        start: `${startHourStr}:${startMinStr}`,
+        end: `${endHourStr}:${endMinStr}`,
+      };
 
-        freeSlots.push({
-          start: `${startHourStr}:${startMinStr}`,
-          end: `${endHourStr}:${endMinStr}`,
+      if (!conflictingBusy) {
+        freeSlots.push(slotTime);
+      } else {
+        const busyStart = new Date(conflictingBusy.original.start);
+        const busyEnd = new Date(conflictingBusy.original.end);
+        const busyStartStr = `${busyStart.getHours().toString().padStart(2, "0")}:${busyStart.getMinutes().toString().padStart(2, "0")}`;
+        const busyEndStr = `${busyEnd.getHours().toString().padStart(2, "0")}:${busyEnd.getMinutes().toString().padStart(2, "0")}`;
+
+        let reason = `Conflit : ${conflictingBusy.original.summary || "Événement"} (${busyStartStr} - ${busyEndStr})`;
+        if (conflictingBusy.original.location) {
+          reason += ` à ${conflictingBusy.original.location}`;
+        }
+        if (conflictingBusy.original.calendarSummary) {
+          reason += ` [${conflictingBusy.original.calendarSummary}]`;
+        }
+
+        conflictingSlots.push({
+          ...slotTime,
+          reason,
+          conflictDetails: {
+            summary: conflictingBusy.original.summary || "Événement",
+            start: busyStartStr,
+            end: busyEndStr,
+            calendarSummary: conflictingBusy.original.calendarSummary,
+            location: conflictingBusy.original.location
+          }
         });
       }
     }
   });
 
-  return freeSlots;
+  return { free: freeSlots, conflicting: conflictingSlots };
 }
 
 /**
@@ -385,8 +430,8 @@ export async function optimizeSchedule(
     | ParsedAvailability[],
   rules: SchedulingRules = {},
   calendarService?: GoogleCalendarService,
-): Promise<ProposedSlot[]> {
-  logger.info("Optimisation des créneaux", "schedulingOptimizer", {
+): Promise<{ proposed: ProposedSlot[]; conflicting: ProposedSlot[] }> {
+  logger.info("Optimisation des créneaux", "calendar", {
     availabilitiesCount: parsedAvailabilities.length,
     rules,
   });
@@ -398,51 +443,72 @@ export async function optimizeSchedule(
   const availabilitiesByDate: ParsedAvailability[] = hasDates
     ? (parsedAvailabilities as ParsedAvailability[])
     : convertDaysToDates(
-        parsedAvailabilities as Array<{ day: string; timeRange: { start: string; end: string } }>,
-        4,
-      );
+      parsedAvailabilities as Array<{ day: string; timeRange: { start: string; end: string } }>,
+      4,
+    );
 
   if (availabilitiesByDate.length === 0) {
-    logger.warn("Aucune disponibilité trouvée", "schedulingOptimizer");
-    return [];
+    logger.warn("Aucune disponibilité trouvée", "calendar");
+    return { proposed: [], conflicting: [] };
   }
 
   // Récupérer les créneaux occupés du calendrier
   let busySlots: CalendarBusySlot[] = [];
   if (calendarService) {
     try {
-      const today = getTodayLocal();
+      const today = new Date();
       const endDate = new Date(today);
       endDate.setDate(endDate.getDate() + 28); // 4 semaines
 
       const startISO = today.toISOString();
       const endISO = endDate.toISOString();
 
-      busySlots = await calendarService.getFreeBusy(startISO, endISO);
-      logger.info("Créneaux occupés récupérés", "schedulingOptimizer", {
+      // Utiliser getAllEvents pour avoir les détails (titre, calendrier, lieu)
+      const events = await calendarService.getAllEvents(startISO, endISO);
+
+      busySlots = events
+        .map((event) => ({
+          start: event.start.dateTime || event.start.date || "",
+          end: event.end.dateTime || event.end.date || "",
+          summary: event.summary,
+          calendarSummary: event.calendarSummary,
+          location: event.location,
+        }))
+        .filter((slot) => slot.start && slot.end);
+
+      logger.info("Créneaux occupés récupérés", "calendar", {
         busySlotsCount: busySlots.length,
       });
     } catch (error) {
-      logger.warn("Impossible de récupérer les créneaux occupés", "schedulingOptimizer", error);
+      logger.warn("Impossible de récupérer les créneaux occupés", "calendar", error);
       // Continuer sans calendrier (mode dégradé)
     }
   }
 
-  // Trouver tous les créneaux libres possibles
+  // Trouver tous les créneaux libres et conflictuels possibles
   const allSlots: ProposedSlot[] = [];
+  const allConflictingSlots: ProposedSlot[] = [];
   const slotDuration = rules.slotDurationMinutes || 60;
 
   for (const avail of availabilitiesByDate) {
-    const freeSlots = findFreeSlots(avail.date, avail.timeRanges, busySlots, slotDuration);
+    const { free, conflicting } = findSlots(avail.date, avail.timeRanges, busySlots, slotDuration);
 
-    for (const slot of freeSlots) {
-      const proposedSlot: ProposedSlot = {
+    for (const slot of free) {
+      allSlots.push({
         date: avail.date,
         start: slot.start,
         end: slot.end,
-      };
+      });
+    }
 
-      allSlots.push(proposedSlot);
+    for (const slot of conflicting) {
+      allConflictingSlots.push({
+        date: avail.date,
+        start: slot.start,
+        end: slot.end,
+        reasons: slot.reason ? [slot.reason] : [],
+        conflictDetails: slot.conflictDetails,
+      });
     }
   }
 
@@ -464,6 +530,9 @@ export async function optimizeSchedule(
   // Trier par score décroissant
   slotsWithScores.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-  // Retourner les 5 meilleurs créneaux
-  return slotsWithScores.slice(0, 5);
+  // Retourner les 5 meilleurs créneaux et les conflits
+  return {
+    proposed: slotsWithScores.slice(0, 5),
+    conflicting: allConflictingSlots
+  };
 }
