@@ -117,7 +117,11 @@ export function useDragToSelect<T>({
       }
 
       // Desktop : comportement normal
-      e.preventDefault();
+      // Pour la souris, on n'empêche pas le comportement par défaut (click)
+      // car on veut que le onClick fonctionne si on ne drag pas
+      if (e.pointerType !== "mouse") {
+        e.preventDefault();
+      }
       e.stopPropagation();
 
       setIsDragging(true);
