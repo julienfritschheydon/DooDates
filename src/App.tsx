@@ -393,8 +393,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+import { useGeoLocation } from "@/hooks/useGeoLocation";
+
 const App = () => {
   const AppLayout = Layout;
+
+  // Trigger Geo Detection on app load
+  useGeoLocation();
 
   // Marquer le début du rendu
   React.useEffect(() => {
