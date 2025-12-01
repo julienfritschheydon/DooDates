@@ -664,6 +664,7 @@ IA : "Enquête satisfaction créée (6 questions, mode multi-étapes, NPS inclus
 
 **Guides connexes :**
 - [Formulaires](./04-Formulaires-Questionnaires.md) - Créer, analyser, cas d'usage et bonnes pratiques
+- [Guide Détaillé des Commandes IA Formulaires](./05b-Commandes-IA-Formulaires.md) - Liste exhaustive des commandes vocales/texte pour les formulaires
 
 ---
 
