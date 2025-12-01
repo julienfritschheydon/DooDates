@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 01/12/2025 12:18:07
+**Dernière mise à jour:** 01/12/2025 12:27:29
 
-_Workflow run #675 (ID 19820776144) — génération UTC 2025-12-01T11:18:07.075Z_
+_Workflow run #681 (ID 19820996114) — génération UTC 2025-12-01T11:27:29.560Z_
 
-## 🎯 Focus: Commit `7e68640`
+## 🎯 Focus: Commit `29a9a00`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,49 +26,34 @@ _Workflow run #675 (ID 19820776144) — génération UTC 2025-12-01T11:18:07.075
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `7e68640`.
-
----
-
-## 2️⃣ Develop → Main (Auto-merge)
-
-**Statut:** ✅ success
-
-**Dernier run:** 29/11/2025 15:30:37
-
-**Statistiques:**
-- 📊 **Total runs pour ce commit:** **0**
-- ❌ **Échecs pour ce commit:** **0**
-### ✅ Aucun échec pour ce commit
-
-Tous les workflows surveillés ont réussi pour le commit `7e68640`.
+Tous les workflows surveillés ont réussi pour le commit `29a9a00`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ⏳ unknown
+**Statut:** ✅ success
 
-**Dernier run:** 01/12/2025 12:17:01
+**Dernier run:** 01/12/2025 12:22:33
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **1**
 - ❌ **Échecs pour ce commit:** **0**
 ### 🔴 Échecs du commit actuel
 
-#### Run #115 - 01/12/2025 12:17:01
+#### Run #116 - 01/12/2025 12:22:33
 
-- **Commit:** `7e68640`
+- **Commit:** `29a9a00`
 - **Auteur:** julienfritschheydon
 - **Branche:** `main`
-- **Statut:** null
-- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19820768210)
+- **Statut:** success
+- **Lien:** [Voir les détails](https://github.com/julienfritschheydon/DooDates/actions/runs/19820917753)
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `7e68640`
+- 🎯 **Focus: Commit actuel** `29a9a00`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
@@ -115,6 +100,6 @@ Le commit actuel passe tous les tests CI/CD. Vous pouvez continuer vos développ
 
 ---
 
-*Rapport généré automatiquement par l'analyseur IA - 2025-12-01T11:18:11.529Z*
+*Rapport généré automatiquement par l'analyseur IA - 2025-12-01T11:27:31.874Z*
 ---
 
