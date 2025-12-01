@@ -60,11 +60,13 @@ const FORM_PATTERNS = {
     /change\s+(?:la\s+)?question\s+(\d+)\s+en\s+(choix\s+(?:unique|multiple)|texte|matrice)/i,
 
   // "ajoute l'option [texte] à la question [numéro]"
-  ADD_OPTION: /ajout(?:e|er)\s+(?:l'|l')?option\s+"([^"]+)"\s+[àa]\s+(?:la\s+)?question\s+(\d+)/i,
+  // Supporte avec ou sans guillemets
+  ADD_OPTION:
+    /ajout(?:e|er)\s+(?:l'|l')?option\s+(?:"([^"]+)"|(.+?))\s+[àa]\s+(?:la\s+)?question\s+(\d+)/i,
 
   // "supprime l'option [texte] de la question [numéro]"
   REMOVE_OPTION:
-    /(?:supprime|retire|enl[èe]ve)\s+(?:l'|l')?option\s+"([^"]+)"\s+de\s+(?:la\s+)?question\s+(\d+)/i,
+    /(?:supprime|retire|enl[èe]ve)\s+(?:l'|l')?option\s+(?:"([^"]+)"|(.+?))\s+de\s+(?:la\s+)?question\s+(\d+)/i,
 
   // "rends la question [numéro] obligatoire/optionnelle"
   SET_REQUIRED: /rends\s+(?:la\s+)?question\s+(\d+)\s+(obligatoire|optionnelle)/i,
@@ -191,8 +193,9 @@ export class FormPollIntentService {
     // Pattern 4 : Ajouter une option
     const addOptionMatch = message.match(FORM_PATTERNS.ADD_OPTION);
     if (addOptionMatch) {
-      const optionText = addOptionMatch[1].trim();
-      const questionNumber = parseInt(addOptionMatch[2]);
+      // Group 1: quoted, Group 2: unquoted, Group 3: question number
+      const optionText = (addOptionMatch[1] || addOptionMatch[2]).trim();
+      const questionNumber = parseInt(addOptionMatch[3]);
       const questionIndex = questionNumber - 1;
 
       // Vérifier que la question existe et supporte les options
@@ -223,8 +226,9 @@ export class FormPollIntentService {
     // Pattern 5 : Supprimer une option
     const removeOptionMatch = message.match(FORM_PATTERNS.REMOVE_OPTION);
     if (removeOptionMatch) {
-      const optionText = removeOptionMatch[1].trim();
-      const questionNumber = parseInt(removeOptionMatch[2]);
+      // Group 1: quoted, Group 2: unquoted, Group 3: question number
+      const optionText = (removeOptionMatch[1] || removeOptionMatch[2]).trim();
+      const questionNumber = parseInt(removeOptionMatch[3]);
       const questionIndex = questionNumber - 1;
 
       // Vérifier que la question existe
