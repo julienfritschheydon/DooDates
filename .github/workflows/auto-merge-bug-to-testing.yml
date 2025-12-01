@@ -1,0 +1,50 @@
+name: 🐛 Bug → Testing (Auto-merge)
+
+on:
+  push:
+    branches:
+      - 'bug/*'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🧪 Tests Unitaires Rapides
+        run: npm run test:unit:fast
+
+  merge-to-testing:
+    needs: validate
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: 📥 Checkout Testing
+        uses: actions/checkout@v4
+        with:
+          ref: testing
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🚀 Merge Bug Branch
+        run: |
+          git merge origin/${{ github.ref_name }} --no-ff -m "chore: auto-merge ${{ github.ref_name }} to testing"
+          git push origin testing

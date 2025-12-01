@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [testing]
 
+permissions:
+  contents: write
+
 jobs:
   testing-validation:
     runs-on: ubuntu-latest
@@ -43,3 +46,25 @@ jobs:
           echo "✅ Build: Succès" >> $GITHUB_STEP_SUMMARY
           echo "✅ Linting: Validé" >> $GITHUB_STEP_SUMMARY
           echo "📝 Phase: Testing (5-15 min)" >> $GITHUB_STEP_SUMMARY
+
+  auto-merge-to-staging:
+    needs: testing-validation
+    runs-on: ubuntu-latest
+    if: success() && github.event_name == 'push' && github.ref == 'refs/heads/testing'
+    steps:
+      - name: 📥 Checkout Staging
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🚀 Merge Testing to Staging
+        run: |
+          git merge origin/testing --no-ff -m "chore: auto-merge testing to staging"
+          git push origin staging
