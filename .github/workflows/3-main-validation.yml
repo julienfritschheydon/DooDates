@@ -109,17 +109,7 @@ jobs:
             ${{ runner.os }}-main-build-cache-
             ${{ runner.os }}-build-cache-
 
-      - name: 📤 Upload dependencies as artifact (optimisé)
-        uses: actions/upload-artifact@v4
-        with:
-          name: main-deps-${{ github.run_id }}
-          path: |
-            node_modules
-            ~/.npm
-            ~/.cache/ms-playwright
-            .tsbuildinfo
-            node_modules/.vite
-          retention-days: 1
+
 
   # ========================================
   # TESTS COMPLETS (main - PARALLÈLE)
@@ -136,16 +126,16 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Download main dependencies
-        uses: actions/download-artifact@v4
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
         with:
-          name: main-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
-            .tsbuildinfo
-            node_modules/.vite
+          key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-main-deps-
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
@@ -172,16 +162,16 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Download main dependencies
-        uses: actions/download-artifact@v4
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
         with:
-          name: main-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
-            .tsbuildinfo
-            node_modules/.vite
+          key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-main-deps-
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
@@ -219,16 +209,16 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Download main dependencies
-        uses: actions/download-artifact@v4
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
         with:
-          name: main-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
-            .tsbuildinfo
-            node_modules/.vite
+          key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-main-deps-
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
@@ -273,16 +263,16 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
       
-      - name: 📦 Download main dependencies
-        uses: actions/download-artifact@v4
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
         with:
-          name: main-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
-            .tsbuildinfo
-            node_modules/.vite
+          key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-main-deps-
       
       - name: 📦 Setup Node.js 20
         uses: actions/setup-node@v4

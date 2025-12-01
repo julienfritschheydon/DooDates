@@ -136,17 +136,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-cache-
 
-      - name: 📤 Upload dependencies as artifact (optimisé)
-        uses: actions/upload-artifact@v4
-        with:
-          name: shared-deps-${{ github.run_id }}
-          path: |
-            node_modules
-            ~/.npm
-            ~/.cache/ms-playwright
-            .tsbuildinfo
-            node_modules/.vite
-          retention-days: 1
+
 
   # ========================================
   # TESTS UNITAIRES (PARALLÈLE)
@@ -163,21 +153,24 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Download shared dependencies
-        uses: actions/download-artifact@v4
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
         with:
-          name: shared-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
-            .tsbuildinfo
-            node_modules/.vite
+          key: ${{ runner.os }}-deps-combined-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-combined-
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: 🧪 Tests unitaires complets
+        run: npm run test:unit
 
       - name: 🔗 Tests d'intégration
         run: npm run test:integration
@@ -196,16 +189,26 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: � Download shared dependencies
-        uses: actions/download-artifact@v4
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
         with:
-          name: shared-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-combined-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-combined-
+
+      - name: 🔧 Restore TypeScript Build Info
+        uses: actions/cache@v4
+        with:
+          path: |
             .tsbuildinfo
             node_modules/.vite
+          key: ${{ runner.os }}-build-cache-${{ hashFiles('src/**/*', 'tsconfig.json', 'vite.config.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-build-cache-
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
@@ -249,16 +252,16 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Download shared dependencies
-        uses: actions/download-artifact@v4
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
         with:
-          name: shared-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
-            .tsbuildinfo
-            node_modules/.vite
+          key: ${{ runner.os }}-deps-combined-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-combined-
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
@@ -318,14 +321,16 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Download dependencies
-        uses: actions/download-artifact@v4
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
         with:
-          name: node-modules-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-combined-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-combined-
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
@@ -421,16 +426,16 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Download shared dependencies
-        uses: actions/download-artifact@v4
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
         with:
-          name: shared-deps-${{ github.run_id }}
           path: |
             node_modules
             ~/.npm
             ~/.cache/ms-playwright
-            .tsbuildinfo
-            node_modules/.vite
+          key: ${{ runner.os }}-deps-combined-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-combined-
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
