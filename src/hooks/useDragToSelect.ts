@@ -84,6 +84,9 @@ export function useDragToSelect<T>({
   // Gérer le début du drag
   const handleDragStart = useCallback(
     (item: T, e: React.PointerEvent) => {
+      // Si drag désactivé sur mobile
+      if (isMobile()) return;
+
       // Vérifier si l'item peut être dragué
       if (canDragItem && !canDragItem(item)) return;
 
@@ -116,14 +119,13 @@ export function useDragToSelect<T>({
         return;
       }
 
-      // Desktop : comportement normal
-      e.preventDefault();
+      // Desktop : comportement avec seuil de déplacement (threshold)
+      // On stocke la position de départ mais on ne démarre pas le drag tout de suite
+      // Le drag ne commencera que si on bouge de plus de 5px
       e.stopPropagation();
-
-      setIsDragging(true);
+      setDragStartPos({ x: e.clientX, y: e.clientY });
       setDragStartItem(item);
-      setDraggedItems(new Set([getItemKey(item)]));
-      setHasMoved(false);
+      // On ne met PAS isDragging à true ici pour laisser le click passer si on relâche sans bouger
     },
     [canDragItem, getItemKey],
   );
@@ -131,6 +133,9 @@ export function useDragToSelect<T>({
   // Gérer le drag en cours
   const handleDragMove = useCallback(
     (item: T, e?: React.PointerEvent) => {
+      // Si drag désactivé sur mobile
+      if (isMobile()) return;
+
       // Sur mobile/tablette avec touch
       if (e && e.pointerType === "touch") {
         // Si le doigt bouge avant la fin du long press, annuler le timer
@@ -152,12 +157,39 @@ export function useDragToSelect<T>({
           return;
         }
 
+        // Vérifier un seuil minimal pour éviter de bloquer le clic sur un micro-mouvement
+        if (dragStartPos) {
+          const deltaX = Math.abs(e.clientX - dragStartPos.x);
+          const deltaY = Math.abs(e.clientY - dragStartPos.y);
+          if (deltaX < 3 && deltaY < 3) {
+            return; // Laisser passer le clic
+          }
+        }
+
         // Empêcher le scroll pendant le drag
         e.preventDefault();
         e.stopPropagation();
       }
 
-      if (!isDragging || !dragStartItem) return;
+      let currentIsDragging = isDragging;
+
+      // Desktop : Vérifier le seuil de drag si pas encore en dragging
+      if (!currentIsDragging && dragStartItem && dragStartPos && e && e.pointerType !== "touch") {
+        const deltaX = Math.abs(e.clientX - dragStartPos.x);
+        const deltaY = Math.abs(e.clientY - dragStartPos.y);
+        const threshold = 5; // 5px de seuil
+
+        if (deltaX > threshold || deltaY > threshold) {
+          setIsDragging(true);
+          currentIsDragging = true; // On marque comme dragging pour la suite de cette fonction
+          setHasMoved(true);
+        } else {
+          // Pas encore dépassé le seuil, on ne fait rien
+          return;
+        }
+      }
+
+      if (!currentIsDragging || !dragStartItem) return;
 
       // Marquer qu'on a bougé (différencier du simple clic)
       const currentKey = getItemKey(item);
