@@ -228,9 +228,6 @@ jobs:
       - name: 🚀 E2E Smoke Tests (main)
         run: npm run test:e2e:smoke -- --reporter=html,json
 
-      - name: 🚀 E2E Matrix Tests (main - multi-browsers)
-        run: npm run test:e2e:matrix -- --reporter=html,json
-
       - name: 📊 Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4

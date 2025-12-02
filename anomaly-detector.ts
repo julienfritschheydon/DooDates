@@ -14,9 +14,25 @@ interface AnomalyReport {
   fixApplied?: string;
 }
 
+interface GeminiContentPart {
+  text: string;
+}
+
+interface GeminiContent {
+  parts: GeminiContentPart[];
+}
+
+interface GeminiCandidate {
+  content: GeminiContent;
+}
+
+interface GeminiResponseData {
+  candidates: GeminiCandidate[];
+}
+
 interface GeminiResponse {
   status: number;
-  data?: any;
+  data?: GeminiResponseData;
   rawResponse: string;
   error?: string;
 }
@@ -154,7 +170,15 @@ class AnomalyDetector {
 
   async analyzeResponse(response: GeminiResponse): Promise<AnalysisResult> {
     const startTime = Date.now();
-    const anomalies: AnomalyReport[] = [];
+    
+    // Collect all anomalies first
+    const anomalies: AnomalyReport[] = [
+      ...this.analyzeJSONAnomalies(response),
+      ...this.analyzeLogicAnomalies(response),
+      ...this.analyzeContentAnomalies(response),
+      ...this.analyzeSecurityAnomalies(response),
+    ];
+    
     const fixedResponse = await this.applyAutoFixes(response, anomalies);
 
     const processingTime = Date.now() - startTime;
@@ -440,7 +464,7 @@ class AnomalyDetector {
             }
             break;
 
-          case "security":
+          case "security": {
             // Supprimer le contenu dangereux
             const text = fixedResponse.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
             let cleanText = text;
@@ -454,6 +478,7 @@ class AnomalyDetector {
               fixesApplied++;
             }
             break;
+          }
         }
       }
     }

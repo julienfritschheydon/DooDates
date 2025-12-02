@@ -666,7 +666,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [editPollId, initialData]);
+  }, [editPollId, initialData, toast]);
 
   // Ajuster les mois visibles si initialData contient des dates
   // Ce useEffect s'exécute après le premier rendu mais le calendrier est déjà visible

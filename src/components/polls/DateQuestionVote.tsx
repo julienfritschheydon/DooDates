@@ -129,7 +129,7 @@ export default function DateQuestionVote({
   );
 
   // Pas de votes existants pour l'affichage (on est en mode vote, pas résultats)
-  const existingVotes: any[] = [];
+  const existingVotes: unknown[] = [];
   const userHasVoted: Record<string, boolean> = {};
 
   // Fonction haptique vide (peut être implémentée plus tard)
