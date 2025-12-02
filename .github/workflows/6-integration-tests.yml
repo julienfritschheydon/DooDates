@@ -8,9 +8,9 @@ name: 6. Production Integration Tests (Real Supabase)
 
 on:
   pull_request:
-    branches: [main]
+    branches: [pre-main]
   # push:
-  #   branches: [main]  # TEMPORAIREMENT DÉSACTIVÉ - test manquant
+  #   branches: [pre-main]  # TEMPORAIREMENT DÉSACTIVÉ - test manquant
   workflow_dispatch:
 
 # Exécution séquentielle pour éviter conflits sur compte de test
