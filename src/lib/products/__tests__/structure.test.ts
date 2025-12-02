@@ -1,4 +1,4 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from "vitest";
 
 // Test uniquement des types et exports structurels
 describe("Structure - Architecture Multi-Produits", () => {
@@ -37,6 +37,7 @@ describe("Structure - Architecture Multi-Produits", () => {
 
     expect(mainIndex).toContain("getPollType");
     expect(mainIndex).toContain("createPollService");
-    expect(mainIndex).toContain("export * from");
+    // L'interface unifiée utilise export * as au lieu de export * from
+    expect(mainIndex).toContain("export * as");
   });
 });

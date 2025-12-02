@@ -139,7 +139,8 @@ describe.skip("Intégration - Architecture Multi-Produits", () => {
 
       // Ajouter tous les polls
       for (const poll of polls) {
-        await formService.addPoll(poll);
+        // Cast nécessaire car createPollService retourne un type union
+        await (formService as any).addPoll(poll);
       }
 
       const allPolls = formService.getPolls();
