@@ -50,7 +50,9 @@ export const useProduct = (productId?: string, options: UseProductOptions = {}) 
         });
 
         if (!response.ok) {
-          throw ErrorFactory.api(`Erreur HTTP: ${response.status}`, "Erreur du serveur", { status: response.status });
+          throw ErrorFactory.api(`Erreur HTTP: ${response.status}`, "Erreur du serveur", {
+            status: response.status,
+          });
         }
 
         const data = await response.json();
@@ -58,7 +60,10 @@ export const useProduct = (productId?: string, options: UseProductOptions = {}) 
         // Détecter le type de produit
         const productType = getPollType(data);
         if (!productType) {
-          throw ErrorFactory.validation("Type de produit non reconnu", "Ce type de produit n'est pas supporté");
+          throw ErrorFactory.validation(
+            "Type de produit non reconnu",
+            "Ce type de produit n'est pas supporté",
+          );
         }
 
         // Créer le service approprié
@@ -125,7 +130,10 @@ export const useProduct = (productId?: string, options: UseProductOptions = {}) 
           variant: "destructive",
         });
 
-        logger.error("Erreur lors de la mise à jour du produit", "poll", { productId: product.id, error });
+        logger.error("Erreur lors de la mise à jour du produit", "poll", {
+          productId: product.id,
+          error,
+        });
 
         onError?.(error);
       } finally {
@@ -161,7 +169,10 @@ export const useProduct = (productId?: string, options: UseProductOptions = {}) 
         variant: "destructive",
       });
 
-      logger.error("Erreur lors de la suppression du produit", "poll", { productId: product.id, error });
+      logger.error("Erreur lors de la suppression du produit", "poll", {
+        productId: product.id,
+        error,
+      });
 
       onError?.(error);
     } finally {

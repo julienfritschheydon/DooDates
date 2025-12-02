@@ -196,7 +196,10 @@ export function getFormPolls(): FormPoll[] {
 
     return deduplicateFormPolls(validFormPolls);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "getFormPolls" });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "FormPollsService",
+      operation: "getFormPolls",
+    });
     return [];
   }
 }
@@ -228,7 +231,10 @@ export function saveFormPolls(polls: FormPoll[]): void {
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(deduplicatedPolls));
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "saveFormPolls" });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "FormPollsService",
+      operation: "saveFormPolls",
+    });
     throw error;
   }
 }
@@ -255,7 +261,10 @@ export async function addFormPoll(poll: FormPoll): Promise<void> {
 
     saveFormPolls(polls);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "addFormPoll" });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "FormPollsService",
+      operation: "addFormPoll",
+    });
     throw error;
   }
 }
@@ -266,7 +275,10 @@ export function deleteFormPollById(id: string): void {
     const next = polls.filter((p) => p.id !== id);
     saveFormPolls(next);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "deleteFormPollById" });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "FormPollsService",
+      operation: "deleteFormPollById",
+    });
     throw error;
   }
 }
@@ -292,7 +304,10 @@ function readAllFormResponses(): FormResponse[] {
     const raw = localStorage.getItem(FORM_RESPONSES_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "readAllFormResponses" });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "FormPollsService",
+      operation: "readAllFormResponses",
+    });
     return [];
   }
 }
@@ -302,7 +317,10 @@ function writeAllFormResponses(resps: FormResponse[]): void {
     if (!hasWindow()) return;
     localStorage.setItem(FORM_RESPONSES_KEY, JSON.stringify(resps));
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "writeAllFormResponses" });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "FormPollsService",
+      operation: "writeAllFormResponses",
+    });
     throw error;
   }
 }
@@ -366,7 +384,10 @@ export function addFormResponse(params: {
     all.push(response);
     writeAllFormResponses(all);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "addFormResponse" });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "FormPollsService",
+      operation: "addFormResponse",
+    });
     throw error;
   }
 }

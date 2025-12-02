@@ -167,12 +167,19 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
         type: "SET_ERROR",
         payload: error instanceof Error ? error : new Error("Erreur inconnue"),
       });
-      logError(error instanceof Error ? error : new Error(String(error)), { component: "ProductContext", operation: "loadProducts" });
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        component: "ProductContext",
+        operation: "loadProducts",
+      });
     }
   };
 
   const createProduct = async (data: Omit<Product, "id" | "created_at" | "updated_at">) => {
-    if (!user) throw ErrorFactory.auth("Utilisateur non authentifié", "Vous devez être connecté pour créer un produit");
+    if (!user)
+      throw ErrorFactory.auth(
+        "Utilisateur non authentifié",
+        "Vous devez être connecté pour créer un produit",
+      );
 
     try {
       const product = await api.post<Product>("/products", data);
@@ -183,7 +190,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
         type: "SET_ERROR",
         payload: error instanceof Error ? error : new Error("Erreur inconnue"),
       });
-      logError(error instanceof Error ? error : new Error(String(error)), { component: "ProductContext", operation: "createProduct" });
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        component: "ProductContext",
+        operation: "createProduct",
+      });
       throw error;
     }
   };
@@ -199,7 +209,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
         type: "SET_ERROR",
         payload: error instanceof Error ? error : new Error("Erreur inconnue"),
       });
-      logError(error instanceof Error ? error : new Error(String(error)), { component: "ProductContext", operation: "updateProduct" });
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        component: "ProductContext",
+        operation: "updateProduct",
+      });
       throw error;
     }
   };
@@ -215,7 +228,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
         type: "SET_ERROR",
         payload: error instanceof Error ? error : new Error("Erreur inconnue"),
       });
-      logError(error instanceof Error ? error : new Error(String(error)), { component: "ProductContext", operation: "deleteProduct" });
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        component: "ProductContext",
+        operation: "deleteProduct",
+      });
       throw error;
     }
   };
@@ -266,7 +282,7 @@ export const useProductContext = (): ProductContextType => {
   if (context === undefined) {
     throw ErrorFactory.validation(
       "useProductContext must be used within a ProductProvider",
-      "Erreur de configuration du contexte"
+      "Erreur de configuration du contexte",
     );
   }
   return context;

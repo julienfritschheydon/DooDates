@@ -92,7 +92,7 @@ export const useAnalytics = (): AnalyticsContextType => {
   if (context === undefined) {
     throw ErrorFactory.validation(
       "useAnalytics must be used within an AnalyticsProvider",
-      "Erreur de configuration du contexte"
+      "Erreur de configuration du contexte",
     );
   }
   return context;

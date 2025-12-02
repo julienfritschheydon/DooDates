@@ -76,7 +76,7 @@ export const useFeatureFlags = (): FeatureFlagsContextType => {
   if (context === undefined) {
     throw ErrorFactory.validation(
       "useFeatureFlags must be used within a FeatureFlagsProvider",
-      "Erreur de configuration du contexte"
+      "Erreur de configuration du contexte",
     );
   }
   return context;
