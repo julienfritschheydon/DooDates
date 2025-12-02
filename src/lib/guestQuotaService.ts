@@ -101,7 +101,18 @@ interface GuestQuotaSupabaseRow {
   screen_resolution?: string | null;
 }
 
+// Configuration object for testing purposes
+export const GuestQuotaConfig = {
+  bypass: true, // Default to true for safety/backward compatibility
+  forceEnable: false, // Set to true in tests to force logic execution
+};
+
 function shouldBypassGuestQuota(): boolean {
+  // Allow tests to force enable the logic even in E2E/Mock environments
+  if (GuestQuotaConfig.forceEnable) {
+    return false;
+  }
+
   if (typeof window === "undefined") {
     return false;
   }
@@ -265,7 +276,7 @@ async function fetchQuotaByFingerprint(fingerprint: string): Promise<GuestQuotaS
             fingerprint: `eq.${fingerprint}`,
             select: "*",
           },
-          { timeout: 1000 },
+          { timeout: 1000, requireAuth: false },
         ),
         new Promise<null>((resolve) => {
           setTimeout(() => resolve(null), 1000);
@@ -298,7 +309,7 @@ async function fetchQuotaByFingerprint(fingerprint: string): Promise<GuestQuotaS
       return null;
     }
   } catch (error) {
-    logger.error("Error fetching quota by fingerprint", error);
+    logger.error("Error fetching quota by fingerprint", "quota", error);
     return null;
   }
 }
@@ -314,7 +325,7 @@ async function fetchQuotaById(id: string): Promise<GuestQuotaSupabaseRow | null>
             id: `eq.${id}`,
             select: "*",
           },
-          { timeout: 1000 },
+          { timeout: 1000, requireAuth: false },
         ),
         new Promise<null>((resolve) => {
           setTimeout(() => resolve(null), 1000);
@@ -336,7 +347,7 @@ async function fetchQuotaById(id: string): Promise<GuestQuotaSupabaseRow | null>
       return null;
     }
   } catch (error) {
-    logger.error("Error fetching quota by id", error);
+    logger.error("Error fetching quota by id", "quota", error);
     return null;
   }
 }
@@ -375,7 +386,7 @@ async function ensureGuestQuota(
                   GUEST_QUOTA_TABLE,
                   { fingerprint },
                   { id: `eq.${cachedRow.id}` },
-                  { timeout: 1000 },
+                  { timeout: 1000, requireAuth: false },
                 ),
                 new Promise<never>((_, reject) => {
                   setTimeout(() => reject(new Error("Timeout")), 1000);
@@ -395,7 +406,7 @@ async function ensureGuestQuota(
               row = { ...cachedRow, fingerprint };
             }
           } catch (error) {
-            logger.error("Error updating fingerprint for cached quota", error);
+            logger.error("Error updating fingerprint for cached quota", "quota", error);
             row = { ...cachedRow, fingerprint };
           }
         }
@@ -420,7 +431,7 @@ async function ensureGuestQuota(
                 language: metadata.language,
                 screen_resolution: metadata.screenResolution,
               },
-              { timeout: 1000 },
+              { timeout: 1000, requireAuth: false },
             ),
             new Promise<never>((_, reject) => {
               setTimeout(() => reject(new Error("Timeout")), 1000);
@@ -439,11 +450,11 @@ async function ensureGuestQuota(
             // En cas de timeout, retourner null immédiatement (Supabase est trop lent)
             return null;
           }
-          logger.error("Failed to create guest quota", error);
+          logger.error("Failed to create guest quota", "quota", error);
           return null;
         }
       } catch (error) {
-        logger.error("Error creating guest quota", error);
+        logger.error("Error creating guest quota", "quota", error);
         return null;
       }
     }
@@ -502,7 +513,7 @@ async function ensureGuestQuota(
               GUEST_QUOTA_TABLE,
               updates,
               { id: `eq.${row.id}` },
-              { timeout: 1000 },
+              { timeout: 1000, requireAuth: false },
             ),
             new Promise<never>((_, reject) => {
               setTimeout(() => reject(new Error("Timeout")), 1000);
@@ -523,7 +534,7 @@ async function ensureGuestQuota(
           }
         }
       } catch (error) {
-        logger.error("Error updating guest quota metadata", error);
+        logger.error("Error updating guest quota metadata", "quota", error);
       }
     }
 
@@ -536,7 +547,7 @@ async function ensureGuestQuota(
       fingerprint,
     };
   } catch (error) {
-    logger.error("Failed to synchronize guest quota", error);
+    logger.error("Failed to synchronize guest quota", "quota", error);
     return null;
   }
 }
@@ -579,7 +590,7 @@ export async function canConsumeCredits(
 
     return { allowed: true, currentQuota: quota };
   } catch (error) {
-    logger.error("Failed to check credit consumption", error);
+    logger.error("Failed to check credit consumption", "quota", error);
     return { allowed: false, reason: "Internal error" };
   }
 }
@@ -650,7 +661,7 @@ export async function consumeGuestCredits(
           GUEST_QUOTA_TABLE,
           updates,
           { id: `eq.${quota.id}` },
-          { timeout: 1000 },
+          { timeout: 1000, requireAuth: false },
         ),
         new Promise<never>((_, reject) => {
           setTimeout(() => reject(new Error("Timeout")), 1000);
@@ -673,7 +684,7 @@ export async function consumeGuestCredits(
               credits,
               metadata: metadata || {},
             },
-            { timeout: 1000 },
+            { timeout: 1000, requireAuth: false },
           ),
           new Promise<never>((_, reject) => {
             setTimeout(() => reject(new Error("Timeout")), 1000);
@@ -682,7 +693,7 @@ export async function consumeGuestCredits(
       } catch (journalError: unknown) {
         // Ne logger que les erreurs non-timeout
         if (!(journalError instanceof Error && journalError.message.includes("Timeout"))) {
-          logger.error("Failed to add journal entry", journalError);
+          logger.error("Failed to add journal entry", "quota", journalError);
         }
         // Ignorer les erreurs de journal (non-critique)
       }
@@ -702,11 +713,11 @@ export async function consumeGuestCredits(
         // En cas de timeout, retourner immédiatement sans logger (trop verbeux)
         return { success: false, error: "Timeout: Supabase is slow or unavailable" };
       }
-      logger.error("Failed to update guest quota", error);
+      logger.error("Failed to update guest quota", "quota", error);
       return { success: false, error: "Failed to update quota" };
     }
   } catch (error) {
-    logger.error("Failed to consume credits", error);
+    logger.error("Failed to consume credits", "quota", error);
     return { success: false, error: "Internal error" };
   }
 }
@@ -731,7 +742,7 @@ export async function getGuestQuotaJournal(limit: number = 100): Promise<GuestQu
         limit: limit.toString(),
         select: "*",
       },
-      { timeout: 2000 },
+      { timeout: 2000, requireAuth: false },
     );
 
     return entries.map((entry) => ({
@@ -744,7 +755,7 @@ export async function getGuestQuotaJournal(limit: number = 100): Promise<GuestQu
       createdAt: entry.created_at,
     }));
   } catch (error) {
-    logger.error("Failed to get journal", error);
+    logger.error("Failed to get journal", "quota", error);
     return [];
   }
 }
