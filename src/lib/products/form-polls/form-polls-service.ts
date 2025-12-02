@@ -11,8 +11,8 @@ import {
   readRecordStorage,
   writeRecordStorage,
 } from "../../storage/storageUtils";
-import { handleError, ErrorFactory, logError } from "../../error-handling";
-import { logger } from "../../logger";
+import { handleError, ErrorFactory } from "../../error-handling";
+import { logger } from '../../logger';
 
 // Types spécifiques aux Form Polls
 export type FormQuestionKind =
@@ -146,8 +146,7 @@ const FORM_RESPONSES_KEY = "doodates_form_responses";
 export function validateFormPoll(poll: FormPoll): void {
   if (!poll.title || typeof poll.title !== "string" || poll.title.trim() === "") {
     throw ErrorFactory.validation(
-      "Invalid form poll: title must be a non-empty string",
-      { pollId: poll.id, title: poll.title }
+      "Invalid form poll: title must be a non-empty string"
     );
   }
 
@@ -155,18 +154,13 @@ export function validateFormPoll(poll: FormPoll): void {
     poll.questions.forEach((question, index) => {
       if (!question.id || !question.title || !question.kind) {
         throw ErrorFactory.validation(
-          `Invalid form poll question at index ${index}: missing required fields`,
-          { pollId: poll.id, questionIndex: index, question }
+          `Invalid form poll question at index ${index}: missing required fields`
         );
       }
     });
   }
 
-  logger.info("Form poll validated successfully", {
-    pollId: poll.id,
-    title: poll.title,
-    questionsCount: poll.questions?.length || 0,
-  });
+  // logger.info("Form poll validated successfully");
 }
 
 // Helper functions
@@ -179,7 +173,7 @@ export function getFormPolls(): FormPoll[] {
   try {
     if (!hasWindow()) return [];
 
-    const raw = readFromStorage(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
 
     const parsed = JSON.parse(raw);
@@ -195,10 +189,7 @@ export function getFormPolls(): FormPoll[] {
 
     return deduplicateFormPolls(validFormPolls);
   } catch (error) {
-    logError(error, "getFormPolls", {
-      operation: "getFormPolls",
-      storageKey: STORAGE_KEY,
-    });
+    console.error(error);
     return [];
   }
 }
@@ -213,7 +204,6 @@ function deduplicateFormPolls(polls: FormPoll[]): FormPoll[] {
     })
     .filter((poll) => {
       if (seen.has(poll.id)) {
-        logger.warn("Duplicate form poll found and removed", { pollId: poll.id });
         return false;
       }
       seen.add(poll.id);
@@ -229,15 +219,9 @@ export function saveFormPolls(polls: FormPoll[]): void {
     const mergedPolls = [...existingPolls, ...polls];
     const deduplicatedPolls = deduplicateFormPolls(mergedPolls);
 
-    writeToStorage(STORAGE_KEY, JSON.stringify(deduplicatedPolls));
-    logger.info("Form polls saved successfully", {
-      count: deduplicatedPolls.length,
-    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(deduplicatedPolls));
   } catch (error) {
-    logError(error, "saveFormPolls", {
-      operation: "saveFormPolls",
-      pollCount: polls.length,
-    });
+    console.error(error);
     throw error;
   }
 }
@@ -258,18 +242,13 @@ export async function addFormPoll(poll: FormPoll): Promise<void> {
     
     if (existingIndex >= 0) {
       polls[existingIndex] = poll;
-      logger.info("Form poll updated", { pollId: poll.id });
     } else {
       polls.push(poll);
-      logger.info("Form poll created", { pollId: poll.id });
     }
     
     saveFormPolls(polls);
   } catch (error) {
-    logError(error, "addFormPoll", {
-      operation: "addFormPoll",
-      pollId: poll.id,
-    });
+    console.error(error);
     throw error;
   }
 }
@@ -279,12 +258,8 @@ export function deleteFormPollById(id: string): void {
     const polls = getFormPolls();
     const next = polls.filter((p) => p.id !== id);
     saveFormPolls(next);
-    logger.info("Form poll deleted", { pollId: id });
   } catch (error) {
-    logError(error, "deleteFormPollById", {
-      operation: "deleteFormPollById",
-      pollId: id,
-    });
+    console.error(error);
     throw error;
   }
 }
@@ -299,11 +274,6 @@ export function duplicateFormPoll(poll: FormPoll): FormPoll {
     updated_at: new Date().toISOString(),
   };
 
-  logger.info("Form poll duplicated", { 
-    originalId: poll.id, 
-    newId: newPoll.id 
-  });
-
   return newPoll;
 }
 
@@ -312,13 +282,10 @@ function readAllFormResponses(): FormResponse[] {
   try {
     if (!hasWindow()) return [];
 
-    const raw = readFromStorage(FORM_RESPONSES_KEY);
+    const raw = localStorage.getItem(FORM_RESPONSES_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch (error) {
-    logError(error, "readAllFormResponses", {
-      operation: "readAllFormResponses",
-      storageKey: FORM_RESPONSES_KEY,
-    });
+    console.error(error);
     return [];
   }
 }
@@ -326,12 +293,9 @@ function readAllFormResponses(): FormResponse[] {
 function writeAllFormResponses(resps: FormResponse[]): void {
   try {
     if (!hasWindow()) return;
-    writeToStorage(FORM_RESPONSES_KEY, JSON.stringify(resps));
+    localStorage.setItem(FORM_RESPONSES_KEY, JSON.stringify(resps));
   } catch (error) {
-    logError(error, "writeAllFormResponses", {
-      operation: "writeAllFormResponses",
-      responseCount: resps.length,
-    });
+    console.error(error);
     throw error;
   }
 }
@@ -339,7 +303,7 @@ function writeAllFormResponses(resps: FormResponse[]): void {
 export function getFormPollById(pollId: string): FormPoll | null {
   const poll = getFormPolls().find((p) => p.id === pollId) || null;
   if (!poll) {
-    logger.warn("Form poll not found", { pollId });
+    throw ErrorFactory.storage("Form poll not found");
   }
   return poll;
 }
@@ -356,15 +320,13 @@ function assertValidFormAnswer(poll: FormPoll, items: FormResponseItem[]): void 
 
     if (q.required && (!item.value || (Array.isArray(item.value) && item.value.length === 0))) {
       throw ErrorFactory.validation(
-        `Missing required answer for question ${q.id}`,
-        { pollId: poll.id, questionId: q.id, questionTitle: q.title }
+        `Missing required answer for question ${q.id}`
       );
     }
 
     if (q.kind === "text" && typeof item.value !== "string") {
       throw ErrorFactory.validation(
-        "Text answer required",
-        { pollId: poll.id, questionId: q.id }
+        "Text answer required"
       );
     }
   }
@@ -381,10 +343,7 @@ export function addFormResponse(params: {
   try {
     const poll = getFormPollById(pollId);
     if (!poll) {
-      throw ErrorFactory.notFound(
-        "Form poll not found",
-        { pollId }
-      );
+      throw ErrorFactory.storage("Form poll not found");
     }
 
     assertValidFormAnswer(poll, items);
@@ -403,30 +362,14 @@ export function addFormResponse(params: {
     const all = readAllFormResponses();
     all.push(response);
     writeAllFormResponses(all);
-
-    logger.info("Form response added", {
-      responseId: response.id,
-      pollId,
-      itemsCount: items.length,
-    });
   } catch (error) {
-    logError(error, "addFormResponse", {
-      operation: "addFormResponse",
-      pollId,
-      itemsCount: items.length,
-    });
+    console.error(error);
     throw error;
   }
 }
 
 export function getFormResults(pollId: string): FormResults {
   const poll = getFormPollById(pollId);
-  if (!poll) {
-    throw ErrorFactory.notFound(
-      "Form poll not found",
-      { pollId }
-    );
-  }
 
   const all = readAllFormResponses().filter((r) => r.pollId === pollId);
   const countsByQuestion: Record<string, Record<string, number>> = {};

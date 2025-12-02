@@ -1,16 +1,14 @@
 // Products Unified Interface
 // Interface unifiée pour tous les services produits
 
-import { ErrorFactory } from '../../error-handling';
-
 // Date Polls
-export * from './date-polls';
+export * as DatePolls from "./date-polls";
 
 // Form Polls  
-export * from './form-polls';
+export * as FormPolls from "./form-polls";
 
 // Quizz
-export * from './quizz';
+export * as Quizz from "./quizz";
 
 // Helper functions universelles
 export function getPollType(poll: any): "date" | "form" | "quizz" | null {
@@ -27,19 +25,15 @@ export function getPollType(poll: any): "date" | "form" | "quizz" | null {
 }
 
 // Factory functions
-export function createPollService(type: "date" | "form" | "quizz") {
+export async function createPollService(type: "date" | "form" | "quizz") {
   switch (type) {
     case "date":
-      return import('./date-polls');
+      return await import("./date-polls");
     case "form":
-      return import('./form-polls');
+      return await import("./form-polls");
     case "quizz":
-      return import('./quizz');
+      return await import("./quizz");
     default:
-      throw ErrorFactory.createValidationError(
-        `Unknown poll type: ${type}`,
-        "createPollService",
-        { type }
-      );
+      throw new Error(`Unknown poll type: ${type}`);
   }
 }

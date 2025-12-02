@@ -94,35 +94,35 @@ const QUIZZ_RESPONSES_KEY = "doodates_quizz_responses";
 // Validation spécifique aux Quizz
 function validateQuizz(poll: Quizz): void {
   if (!poll.title || typeof poll.title !== "string" || poll.title.trim() === "") {
-    throw ErrorFactory.createValidationError(
+    throw ErrorFactory.validation(
       "Invalid quizz: title must be a non-empty string",
-      "validateQuizz",
+      "Invalid quizz: title must be a non-empty string",
       { pollId: poll.id, title: poll.title }
     );
   }
 
   if (!Array.isArray(poll.questions) || poll.questions.length === 0) {
-    throw ErrorFactory.createValidationError(
+    throw ErrorFactory.validation(
       "Invalid quizz: questions must be a non-empty array",
-      "validateQuizz",
+      "Invalid quizz: questions must be a non-empty array",
       { pollId: poll.id, questions: poll.questions }
     );
   }
 
   poll.questions.forEach((question, index) => {
     if (!question.id || !question.question || !question.type) {
-      throw ErrorFactory.createValidationError(
+      throw ErrorFactory.validation(
         `Invalid quizz question at index ${index}: missing required fields`,
-        "validateQuizz",
+        `Invalid quizz question at index ${index}: missing required fields`,
         { pollId: poll.id, questionIndex: index, question }
       );
     }
 
     if (question.type === "single" || question.type === "multiple") {
       if (!Array.isArray(question.options) || question.options.length === 0) {
-        throw ErrorFactory.createValidationError(
+        throw ErrorFactory.validation(
           `Invalid quizz question at index ${index}: options required for ${question.type} type`,
-          "validateQuizz",
+          `Invalid quizz question at index ${index}: options required for ${question.type} type`,
           { pollId: poll.id, questionIndex: index, question }
         );
       }
@@ -326,9 +326,9 @@ export function addQuizzResponse(params: {
   try {
     const quizz = getQuizzById(pollId);
     if (!quizz) {
-      throw ErrorFactory.createNotFoundError(
+      throw ErrorFactory.validation(
         "Quizz not found",
-        "addQuizzResponse",
+        "Quizz not found",
         { pollId }
       );
     }
@@ -337,9 +337,9 @@ export function addQuizzResponse(params: {
     const processedAnswers = answers.map((answer) => {
       const question = quizz.questions.find((q) => q.id === answer.questionId);
       if (!question) {
-        throw ErrorFactory.createNotFoundError(
+        throw ErrorFactory.validation(
           `Question not found: ${answer.questionId}`,
-          "addQuizzResponse",
+          `Question not found: ${answer.questionId}`,
           { pollId, questionId: answer.questionId }
         );
       }
@@ -415,9 +415,9 @@ function checkAnswer(question: QuizzQuestion, userAnswer: string | string[] | bo
 export function getQuizzResults(pollId: string): QuizzResults {
   const quizz = getQuizzById(pollId);
   if (!quizz) {
-    throw ErrorFactory.createNotFoundError(
+    throw ErrorFactory.validation(
       "Quizz not found",
-      "getQuizzResults",
+      "Quizz not found",
       { pollId }
     );
   }

@@ -1,0 +1,528 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import {
+  getQuizz,
+  addQuizz,
+  deleteQuizzById,
+  duplicateQuizz,
+  getQuizzBySlugOrId,
+  saveQuizz,
+  addQuizzResponse,
+  getQuizzResponses,
+  getQuizzResults,
+  type Quizz,
+  type QuizzQuestion,
+  type QuizzResponse,
+} from "../quizz/quizz-service";
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+Object.defineProperty(window, "localStorage", { value: localStorageMock });
+
+describe("QuizzService - Advanced Tests", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorageMock.getItem.mockReturnValue(null);
+  });
+
+  describe("Advanced Scoring Logic", () => {
+    it("should handle weighted questions", () => {
+      const weightedQuestion: QuizzQuestion = {
+        id: "q1",
+        question: "Weighted question",
+        type: "single",
+        options: [
+          { id: "opt1", text: "Correct", isCorrect: true, points: 5 },
+          { id: "opt2", text: "Wrong", isCorrect: false, points: 0 }
+        ],
+        weight: 2 as any // Custom property for question weight
+      };
+
+      const quizz: Quizz = {
+        id: "quizz_1",
+        creator_id: "user_1",
+        title: "Weighted Quizz",
+        description: "Test weighted scoring",
+        type: "quizz",
+        slug: "weighted-quizz",
+        created_at: new Date().toISOString(),
+        questions: [weightedQuestion],
+        responses: [],
+        settings: {
+          passingScore: 70,
+          timeLimit: null,
+          shuffleQuestions: false,
+          showResults: true
+        }
+      };
+
+      const response: QuizzResponse = {
+        id: "resp_1",
+        user_id: "user_1",
+        quizz_id: "quizz_1",
+        created_at: new Date().toISOString(),
+        answers: {
+          q1: "opt1"
+        },
+        score: 0,
+        totalQuestions: 1,
+        correctAnswers: 0,
+        timeSpent: 30,
+        completed: true
+      };
+
+      addQuizzResponse(quizz, response);
+      const results = getQuizzResults(quizz);
+
+      expect(results[0].score).toBe(100); // 5 points * weight 2 = 10/10 = 100%
+    });
+
+    it("should handle partial credit for multiple choice", () => {
+      const partialCreditQuestion: QuizzQuestion = {
+        id: "q1",
+        question: "Select all correct answers",
+        type: "multiple",
+        options: [
+          { id: "opt1", text: "Correct 1", isCorrect: true, points: 2 },
+          { id: "opt2", text: "Wrong", isCorrect: false, points: 0 },
+          { id: "opt3", text: "Correct 2", isCorrect: true, points: 2 },
+          { id: "opt4", text: "Wrong", isCorrect: false, points: 0 }
+        ],
+        allowPartialCredit: true as any
+      };
+
+      const quizz: Quizz = {
+        id: "quizz_1",
+        creator_id: "user_1",
+        title: "Partial Credit Quizz",
+        description: "Test partial credit",
+        type: "quizz",
+        slug: "partial-credit-quizz",
+        created_at: new Date().toISOString(),
+        questions: [partialCreditQuestion],
+        responses: [],
+        settings: {
+          passingScore: 50,
+          timeLimit: null,
+          shuffleQuestions: false,
+          showResults: true
+        }
+      };
+
+      // Partially correct answer (1 out of 2 correct options)
+      const response: QuizzResponse = {
+        id: "resp_1",
+        user_id: "user_1",
+        quizz_id: "quizz_1",
+        created_at: new Date().toISOString(),
+        answers: {
+          q1: ["opt1"] // Only selected one correct option
+        },
+        score: 0,
+        totalQuestions: 1,
+        correctAnswers: 0,
+        timeSpent: 30,
+        completed: true
+      };
+
+      addQuizzResponse(quizz, response);
+      const results = getQuizzResults(quizz);
+
+      expect(results[0].score).toBe(50); // 2 out of 4 points = 50%
+    });
+
+    it("should handle negative scoring for wrong answers", () => {
+      const negativeScoringQuestion: QuizzQuestion = {
+        id: "q1",
+        question: "Risk question",
+        type: "single",
+        options: [
+          { id: "opt1", text: "Correct", isCorrect: true, points: 10 },
+          { id: "opt2", text: "Wrong", isCorrect: false, points: -2 },
+          { id: "opt3", text: "Also Wrong", isCorrect: false, points: -2 }
+        ],
+        penaltyForWrong: true as any
+      };
+
+      const quizz: Quizz = {
+        id: "quizz_1",
+        creator_id: "user_1",
+        title: "Negative Scoring Quizz",
+        description: "Test negative scoring",
+        type: "quizz",
+        slug: "negative-scoring-quizz",
+        created_at: new Date().toISOString(),
+        questions: [negativeScoringQuestion],
+        responses: [],
+        settings: {
+          passingScore: 50,
+          timeLimit: null,
+          shuffleQuestions: false,
+          showResults: true
+        }
+      };
+
+      const wrongResponse: QuizzResponse = {
+        id: "resp_1",
+        user_id: "user_1",
+        quizz_id: "quizz_1",
+        created_at: new Date().toISOString(),
+        answers: {
+          q1: "opt2" // Wrong answer with penalty
+        },
+        score: 0,
+        totalQuestions: 1,
+        correctAnswers: 0,
+        timeSpent: 30,
+        completed: true
+      };
+
+      addQuizzResponse(quizz, wrongResponse);
+      const results = getQuizzResults(quizz);
+
+      expect(results[0].score).toBe(0); // Negative scores should be capped at 0
+    });
+  });
+
+  describe("Timed Responses", () => {
+    it("should track time spent per question", () => {
+      const question: QuizzQuestion = {
+        id: "q1",
+        question: "Timed question",
+        type: "single",
+        options: [
+          { id: "opt1", text: "Correct", isCorrect: true, points: 1 },
+          { id: "opt2", text: "Wrong", isCorrect: false, points: 0 }
+        ],
+        timeLimit: 30 as any // 30 seconds for this question
+      };
+
+      const quizz: Quizz = {
+        id: "quizz_1",
+        creator_id: "user_1",
+        title: "Timed Quizz",
+        description: "Test timed responses",
+        type: "quizz",
+        slug: "timed-quizz",
+        created_at: new Date().toISOString(),
+        questions: [question],
+        responses: [],
+        settings: {
+          passingScore: 50,
+          timeLimit: 60, // 1 minute total
+          shuffleQuestions: false,
+          showResults: true
+        }
+      };
+
+      const response: QuizzResponse = {
+        id: "resp_1",
+        user_id: "user_1",
+        quizz_id: "quizz_1",
+        created_at: new Date().toISOString(),
+        answers: {
+          q1: "opt1"
+        },
+        score: 0,
+        totalQuestions: 1,
+        correctAnswers: 0,
+        timeSpent: 45, // Took 45 seconds
+        completed: true,
+        questionTimes: {
+          q1: 25 as any // 25 seconds on this question
+        }
+      };
+
+      addQuizzResponse(quizz, response);
+      const results = getQuizzResults(quizz);
+
+      expect(results[0].timeSpent).toBe(45);
+      expect(results[0].questionTimes?.q1).toBe(25);
+    });
+
+    it("should handle time limit exceeded", () => {
+      const question: QuizzQuestion = {
+        id: "q1",
+        question: "Quick question",
+        type: "single",
+        options: [
+          { id: "opt1", text: "Correct", isCorrect: true, points: 1 },
+          { id: "opt2", text: "Wrong", isCorrect: false, points: 0 }
+        ]
+      };
+
+      const quizz: Quizz = {
+        id: "quizz_1",
+        creator_id: "user_1",
+        title: "Quick Quizz",
+        description: "Test time limit",
+        type: "quizz",
+        slug: "quick-quizz",
+        created_at: new Date().toISOString(),
+        questions: [question],
+        responses: [],
+        settings: {
+          passingScore: 50,
+          timeLimit: 30, // 30 seconds total
+          shuffleQuestions: false,
+          showResults: true
+        }
+      };
+
+      const lateResponse: QuizzResponse = {
+        id: "resp_1",
+        user_id: "user_1",
+        quizz_id: "quizz_1",
+        created_at: new Date().toISOString(),
+        answers: {
+          q1: "opt1"
+        },
+        score: 0,
+        totalQuestions: 1,
+        correctAnswers: 0,
+        timeSpent: 45, // Exceeded time limit
+        completed: true,
+        timeLimitExceeded: true as any
+      };
+
+      addQuizzResponse(quizz, lateResponse);
+      const results = getQuizzResults(quizz);
+
+      expect(results[0].timeLimitExceeded).toBe(true);
+      // Potentially apply penalty for exceeding time limit
+    });
+  });
+
+  describe("Answer Validation", () => {
+    it("should validate answer format for different question types", () => {
+      const questions: QuizzQuestion[] = [
+        {
+          id: "q1",
+          question: "Single choice",
+          type: "single",
+          options: [
+            { id: "opt1", text: "Option 1", isCorrect: true, points: 1 },
+            { id: "opt2", text: "Option 2", isCorrect: false, points: 0 }
+          ]
+        },
+        {
+          id: "q2",
+          question: "Multiple choice",
+          type: "multiple",
+          options: [
+            { id: "opt3", text: "Option 3", isCorrect: true, points: 1 },
+            { id: "opt4", text: "Option 4", isCorrect: true, points: 1 },
+            { id: "opt5", text: "Option 5", isCorrect: false, points: 0 }
+          ]
+        },
+        {
+          id: "q3",
+          question: "Text answer",
+          type: "text" as any,
+          options: [],
+          correctAnswer: "exact answer" as any
+        }
+      ];
+
+      const quizz: Quizz = {
+        id: "quizz_validation",
+        creator_id: "user_1",
+        title: "Validation Test",
+        description: "Test answer validation",
+        type: "quizz",
+        slug: "validation-test",
+        created_at: new Date().toISOString(),
+        questions,
+        responses: [],
+        settings: {
+          passingScore: 50,
+          timeLimit: null,
+          shuffleQuestions: false,
+          showResults: true
+        }
+      };
+
+      // Test valid answers
+      const validResponse: QuizzResponse = {
+        id: "resp_1",
+        user_id: "user_1",
+        quizz_id: "quizz_validation",
+        created_at: new Date().toISOString(),
+        answers: {
+          q1: "opt1", // Single choice: string
+          q2: ["opt3", "opt4"], // Multiple choice: array
+          q3: "exact answer" // Text: string
+        },
+        score: 0,
+        totalQuestions: 3,
+        correctAnswers: 0,
+        timeSpent: 60,
+        completed: true
+      };
+
+      expect(() => addQuizzResponse(quizz, validResponse)).not.toThrow();
+
+      // Test invalid answers
+      const invalidResponse: QuizzResponse = {
+        id: "resp_2",
+        user_id: "user_2",
+        quizz_id: "quizz_validation",
+        created_at: new Date().toISOString(),
+        answers: {
+          q1: ["opt1"], // Should be string, not array
+          q2: "opt3", // Should be array, not string
+          q3: 123 // Should be string, not number
+        },
+        score: 0,
+        totalQuestions: 3,
+        correctAnswers: 0,
+        timeSpent: 60,
+        completed: true
+      };
+
+      expect(() => addQuizzResponse(quizz, invalidResponse)).toThrow();
+    });
+
+    it("should handle case-insensitive text answers", () => {
+      const textQuestion: QuizzQuestion = {
+        id: "q1",
+        question: "Text question",
+        type: "text" as any,
+        options: [],
+        correctAnswer: "Paris" as any,
+        caseSensitive: false as any
+      };
+
+      const quizz: Quizz = {
+        id: "quizz_text",
+        creator_id: "user_1",
+        title: "Text Answer Test",
+        description: "Test text answer validation",
+        type: "quizz",
+        slug: "text-answer-test",
+        created_at: new Date().toISOString(),
+        questions: [textQuestion],
+        responses: [],
+        settings: {
+          passingScore: 50,
+          timeLimit: null,
+          shuffleQuestions: false,
+          showResults: true
+        }
+      };
+
+      const responses = [
+        {
+          id: "resp_1",
+          user_id: "user_1",
+          quizz_id: "quizz_text",
+          created_at: new Date().toISOString(),
+          answers: { q1: "paris" }, // Lowercase
+          score: 0,
+          totalQuestions: 1,
+          correctAnswers: 0,
+          timeSpent: 30,
+          completed: true
+        },
+        {
+          id: "resp_2",
+          user_id: "user_2",
+          quizz_id: "quizz_text",
+          created_at: new Date().toISOString(),
+          answers: { q1: "PARIS" }, // Uppercase
+          score: 0,
+          totalQuestions: 1,
+          correctAnswers: 0,
+          timeSpent: 30,
+          completed: true
+        }
+      ];
+
+      responses.forEach(response => addQuizzResponse(quizz, response));
+      const results = getQuizzResults(quizz);
+
+      expect(results[0].score).toBe(100);
+      expect(results[1].score).toBe(100);
+    });
+  });
+
+  describe("Edge Cases", () => {
+    it("should handle questions with no correct answers", () => {
+      const surveyQuestion: QuizzQuestion = {
+        id: "q1",
+        question: "Survey question",
+        type: "single",
+        options: [
+          { id: "opt1", text: "Option 1", isCorrect: false, points: 0 },
+          { id: "opt2", text: "Option 2", isCorrect: false, points: 0 }
+        ],
+        isSurvey: true as any // Mark as survey question
+      };
+
+      const quizz: Quizz = {
+        id: "quizz_survey",
+        creator_id: "user_1",
+        title: "Survey Quizz",
+        description: "Test survey questions",
+        type: "quizz",
+        slug: "survey-quizz",
+        created_at: new Date().toISOString(),
+        questions: [surveyQuestion],
+        responses: [],
+        settings: {
+          passingScore: 0, // No passing score for surveys
+          timeLimit: null,
+          shuffleQuestions: false,
+          showResults: true
+        }
+      };
+
+      const response: QuizzResponse = {
+        id: "resp_1",
+        user_id: "user_1",
+        quizz_id: "quizz_survey",
+        created_at: new Date().toISOString(),
+        answers: {
+          q1: "opt1"
+        },
+        score: 0,
+        totalQuestions: 1,
+        correctAnswers: 0,
+        timeSpent: 30,
+        completed: true
+      };
+
+      addQuizzResponse(quizz, response);
+      const results = getQuizzResults(quizz);
+
+      expect(results[0].score).toBe(0); // Survey questions don't affect score
+    });
+
+    it("should handle empty quizz gracefully", () => {
+      const emptyQuizz: Quizz = {
+        id: "quizz_empty",
+        creator_id: "user_1",
+        title: "Empty Quizz",
+        description: "Test empty quizz",
+        type: "quizz",
+        slug: "empty-quizz",
+        created_at: new Date().toISOString(),
+        questions: [],
+        responses: [],
+        settings: {
+          passingScore: 50,
+          timeLimit: null,
+          shuffleQuestions: false,
+          showResults: true
+        }
+      };
+
+      // Empty quizz should be handled by the service functions
+      expect(() => getQuizzResults(emptyQuizz.id)).toThrow();
+    });
+  });
+});

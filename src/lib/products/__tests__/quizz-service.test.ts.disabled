@@ -1,0 +1,428 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import {
+  getQuizz,
+  addQuizz,
+  deleteQuizzById,
+  duplicateQuizz,
+  getQuizzBySlugOrId,
+  saveQuizz,
+  addQuizzResponse,
+  getQuizzResponses,
+  getQuizzResults,
+  type Quizz,
+  type QuizzQuestion,
+} from "../quizz/quizz-service";
+
+const mockQuestion: QuizzQuestion = {
+  id: "q1",
+  question: "What is 2+2?",
+  type: "single",
+  options: ["3", "4", "5"],
+  correctAnswer: "4",
+  points: 10,
+  explanation: "Basic arithmetic",
+};
+
+const mockQuizz: Quizz = {
+  id: "quizz_1",
+  creator_id: "user_1",
+  title: "Math Quiz",
+  description: "Basic math questions",
+  slug: "math-quiz",
+  status: "active",
+  created_at: "2025-01-01T10:00:00Z",
+  updated_at: "2025-01-01T10:00:00Z",
+  type: "quizz",
+  questions: [mockQuestion],
+  maxPoints: 10,
+};
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+Object.defineProperty(window, "localStorage", { value: localStorageMock });
+
+describe("QuizzService", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorageMock.getItem.mockImplementation((key) => {
+      if (key === "doodates_polls") return JSON.stringify([mockQuizz]);
+      if (key === "doodates_quizz_responses") return JSON.stringify([]);
+      return null;
+    });
+  });
+
+  describe("getQuizz", () => {
+    it("should return empty array when localStorage is empty", () => {
+      localStorageMock.getItem.mockReturnValue(null);
+      expect(getQuizz()).toEqual([]);
+    });
+
+    it("should return quizz from localStorage", () => {
+      const quizzList = [mockQuizz];
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(quizzList));
+      expect(getQuizz()).toEqual(quizzList);
+    });
+
+    it("should filter out non-quizz polls", () => {
+      const mixedPolls = [
+        mockQuizz,
+        { type: "date", id: "date_1", title: "Date" },
+        { type: "form", id: "form_1", title: "Form" },
+      ];
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(mixedPolls));
+      expect(getQuizz()).toEqual([mockQuizz]);
+    });
+
+    it("should handle malformed localStorage data", () => {
+      localStorageMock.getItem.mockReturnValue("invalid json");
+      expect(getQuizz()).toEqual([]);
+    });
+  });
+
+  describe("addQuizz", () => {
+    it("should add a new quizz", async () => {
+      localStorageMock.getItem.mockReturnValue("[]");
+      
+      await addQuizz(mockQuizz);
+      
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        "doodates_polls",
+        expect.stringContaining(mockQuizz.id)
+      );
+    });
+
+    it("should update existing quizz", async () => {
+      const existingQuizz = [mockQuizz];
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(existingQuizz));
+      
+      const updatedQuizz = { ...mockQuizz, title: "Updated title" };
+      await addQuizz(updatedQuizz);
+      
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        "doodates_polls",
+        expect.stringContaining("Updated title")
+      );
+    });
+
+    it("should throw error for invalid quizz", async () => {
+      const invalidQuizz = { ...mockQuizz, title: "" };
+      
+      await expect(addQuizz(invalidQuizz)).rejects.toThrow();
+    });
+  });
+
+  describe("deleteQuizzById", () => {
+    it("should delete quizz by id", () => {
+      const quizzList = [mockQuizz];
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(quizzList));
+      
+      deleteQuizzById(mockQuizz.id);
+      
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        "doodates_polls",
+        "[]"
+      );
+    });
+
+    it("should handle non-existent quizz", () => {
+      const quizzList = [mockQuizz];
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(quizzList));
+      
+      deleteQuizzById("non_existent");
+      
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        "doodates_polls",
+        JSON.stringify(quizzList)
+      );
+    });
+  });
+
+  describe("duplicateQuizz", () => {
+    it("should create a duplicate with new id and slug", () => {
+      const duplicate = duplicateQuizz(mockQuizz);
+      
+      expect(duplicate.id).not.toBe(mockQuizz.id);
+      expect(duplicate.slug).not.toBe(mockQuizz.slug);
+      expect(duplicate.title).toBe("Math Quiz (copie)");
+      expect(duplicate.id).toMatch(/^quizz_\d+_[a-z0-9]+$/);
+    });
+  });
+
+  describe("getQuizzBySlugOrId", () => {
+    it("should find quizz by id", () => {
+      const quizzList = [mockQuizz];
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(quizzList));
+      
+      const found = getQuizzBySlugOrId(mockQuizz.id);
+      expect(found).toEqual(mockQuizz);
+    });
+
+    it("should find quizz by slug", () => {
+      const quizzList = [mockQuizz];
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(quizzList));
+      
+      const found = getQuizzBySlugOrId(mockQuizz.slug);
+      expect(found).toEqual(mockQuizz);
+    });
+
+    it("should return null for not found", () => {
+      const quizzList = [mockQuizz];
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(quizzList));
+      
+      const found = getQuizzBySlugOrId("not_found");
+      expect(found).toBeNull();
+    });
+
+    it("should return null for empty input", () => {
+      expect(getQuizzBySlugOrId("")).toBeNull();
+      expect(getQuizzBySlugOrId(null)).toBeNull();
+      expect(getQuizzBySlugOrId(undefined)).toBeNull();
+    });
+  });
+
+  describe("addQuizzResponse", () => {
+    beforeEach(() => {
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === "doodates_polls") return JSON.stringify([mockQuizz]);
+        if (key === "doodates_quizz_responses") return "[]";
+        return null;
+      });
+    });
+
+    it("should add a quizz response with correct answer", () => {
+      const response = addQuizzResponse({
+        pollId: mockQuizz.id,
+        answers: [{ questionId: "q1", answer: "4" }],
+        respondentName: "Test User",
+      });
+
+      expect(response.answers[0].isCorrect).toBe(true);
+      expect(response.answers[0].points).toBe(10);
+      expect(response.totalPoints).toBe(10);
+      expect(response.percentage).toBe(100);
+    });
+
+    it("should add a quizz response with incorrect answer", () => {
+      const response = addQuizzResponse({
+        pollId: mockQuizz.id,
+        answers: [{ questionId: "q1", answer: "3" }],
+        respondentName: "Test User",
+      });
+
+      expect(response.answers[0].isCorrect).toBe(false);
+      expect(response.answers[0].points).toBe(0);
+      expect(response.totalPoints).toBe(0);
+      expect(response.percentage).toBe(0);
+    });
+
+    it("should handle multiple choice questions", () => {
+      const multipleQuestion: QuizzQuestion = {
+        id: "q2",
+        question: "Select correct answers",
+        type: "multiple",
+        options: ["A", "B", "C"],
+        correctAnswer: ["A", "B"],
+        points: 5,
+      };
+      const quizzWithMultiple = { ...mockQuizz, questions: [multipleQuestion] };
+      
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === "doodates_polls") return JSON.stringify([quizzWithMultiple]);
+        if (key === "doodates_quizz_responses") return "[]";
+        return null;
+      });
+
+      const response = addQuizzResponse({
+        pollId: quizzWithMultiple.id,
+        answers: [{ questionId: "q2", answer: ["A", "B"] }],
+      });
+
+      expect(response.answers[0].isCorrect).toBe(true);
+      expect(response.answers[0].points).toBe(5);
+    });
+
+    it("should throw error for non-existent quizz", () => {
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === "doodates_polls") return "[]";
+        if (key === "doodates_quizz_responses") return "[]";
+        return null;
+      });
+
+      expect(() => {
+        addQuizzResponse({
+          pollId: "non_existent",
+          answers: [{ questionId: "q1", answer: "4" }],
+        });
+      }).toThrow("Quizz not found");
+    });
+
+    it("should throw error for non-existent question", () => {
+      expect(() => {
+        addQuizzResponse({
+          pollId: mockQuizz.id,
+          answers: [{ questionId: "non_existent", answer: "4" }],
+        });
+      }).toThrow("Question not found: non_existent");
+    });
+  });
+
+  describe("getQuizzResponses", () => {
+    beforeEach(() => {
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === "doodates_polls") return JSON.stringify([mockQuizz]);
+        if (key === "doodates_quizz_responses") return JSON.stringify([
+          {
+            id: "resp1",
+            pollId: mockQuizz.id,
+            answers: [{ questionId: "q1", answer: "4", isCorrect: true, points: 10 }],
+            totalPoints: 10,
+            maxPoints: 10,
+            percentage: 100,
+            created_at: "2025-01-01T10:00:00Z",
+          },
+          {
+            id: "resp2",
+            pollId: "other_quizz",
+            answers: [],
+            totalPoints: 0,
+            maxPoints: 0,
+            percentage: 0,
+            created_at: "2025-01-01T10:00:00Z",
+          },
+        ]);
+        return null;
+      });
+    });
+
+    it("should return responses for specific quizz", () => {
+      const quizzResponses = getQuizzResponses(mockQuizz.id);
+      expect(quizzResponses).toHaveLength(1);
+      expect(quizzResponses[0].id).toBe("resp1");
+    });
+
+    it("should return empty array for quizz with no responses", () => {
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === "doodates_polls") return JSON.stringify([mockQuizz]);
+        if (key === "doodates_quizz_responses") return "[]";
+        return null;
+      });
+
+      const responses = getQuizzResponses(mockQuizz.id);
+      expect(responses).toEqual([]);
+    });
+  });
+
+  describe("getQuizzResults", () => {
+    beforeEach(() => {
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === "doodates_polls") return JSON.stringify([mockQuizz]);
+        if (key === "doodates_quizz_responses") return "[]";
+        return null;
+      });
+    });
+
+    it("should calculate quizz statistics", () => {
+      const responses = [
+        {
+          id: "resp1",
+          pollId: mockQuizz.id,
+          answers: [{ questionId: "q1", answer: "4", isCorrect: true, points: 10 }],
+          totalPoints: 10,
+          maxPoints: 10,
+          percentage: 100,
+          created_at: "2025-01-01T10:00:00Z",
+        },
+        {
+          id: "resp2",
+          pollId: mockQuizz.id,
+          answers: [{ questionId: "q1", answer: "3", isCorrect: false, points: 0 }],
+          totalPoints: 0,
+          maxPoints: 10,
+          percentage: 0,
+          created_at: "2025-01-01T10:00:00Z",
+        },
+      ];
+      
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === "doodates_polls") return JSON.stringify([mockQuizz]);
+        if (key === "doodates_quizz_responses") return JSON.stringify(responses);
+        return null;
+      });
+
+      const results = getQuizzResults(mockQuizz.id);
+      
+      expect(results.pollId).toBe(mockQuizz.id);
+      expect(results.totalResponses).toBe(2);
+      expect(results.averageScore).toBe(5);
+      expect(results.averagePercentage).toBe(50);
+      expect(results.questionStats["q1"].correctAnswers).toBe(1);
+      expect(results.questionStats["q1"].totalAnswers).toBe(2);
+      expect(results.questionStats["q1"].percentage).toBe(50);
+      expect(results.questionStats["q1"].mostCommonWrongAnswer).toBe("3");
+    });
+
+    it("should return empty results for quizz with no responses", () => {
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === "doodates_polls") return JSON.stringify([mockQuizz]);
+        if (key === "doodates_quizz_responses") return "[]";
+        return null;
+      });
+
+      const results = getQuizzResults(mockQuizz.id);
+      
+      expect(results.totalResponses).toBe(0);
+      expect(results.averageScore).toBe(0);
+      expect(results.averagePercentage).toBe(0);
+      expect(results.responses).toEqual([]);
+      expect(results.questionStats).toEqual({});
+    });
+
+    it("should throw error for non-existent quizz", () => {
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === "doodates_polls") return "[]";
+        if (key === "doodates_quizz_responses") return "[]";
+        return null;
+      });
+
+      expect(() => getQuizzResults("non_existent")).toThrow("Quizz not found");
+    });
+
+    it("should handle true-false questions", () => {
+      const trueFalseQuestion: QuizzQuestion = {
+        id: "q_tf",
+        question: "True or false?",
+        type: "true-false",
+        correctAnswer: true,
+        points: 5,
+      };
+      const quizzWithTrueFalse = { ...mockQuizz, questions: [trueFalseQuestion] };
+      const responses = [
+        {
+          id: "resp1",
+          pollId: quizzWithTrueFalse.id,
+          answers: [{ questionId: "q_tf", answer: true, isCorrect: true, points: 5 }],
+          totalPoints: 5,
+          maxPoints: 5,
+          percentage: 100,
+          created_at: "2025-01-01T10:00:00Z",
+        },
+      ];
+      
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === "doodates_polls") return JSON.stringify([quizzWithTrueFalse]);
+        if (key === "doodates_quizz_responses") return JSON.stringify(responses);
+        return null;
+      });
+
+      const results = getQuizzResults(quizzWithTrueFalse.id);
+      
+      expect(results.questionStats["q_tf"].correctAnswers).toBe(1);
+      expect(results.questionStats["q_tf"].totalAnswers).toBe(1);
+    });
+  });
+});

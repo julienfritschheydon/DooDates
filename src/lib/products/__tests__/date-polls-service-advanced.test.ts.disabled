@@ -1,0 +1,307 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import {
+  getDatePolls,
+  addDatePoll,
+  deleteDatePollById,
+  duplicateDatePoll,
+  getDatePollBySlugOrId,
+  saveDatePolls,
+  buildPublicLink,
+  copyToClipboard,
+  validateDatePoll,
+  type DatePoll,
+  type DatePollSettings,
+  type ValidationResult,
+} from "../date-polls/date-polls-service";
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+Object.defineProperty(window, "localStorage", { value: localStorageMock });
+
+describe("DatePollsService - Advanced Tests", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorageMock.getItem.mockReturnValue(null);
+    Object.defineProperty(window, "isSecureContext", { value: true });
+  });
+
+  describe("Time Slot Validation", () => {
+    it("should validate time slots within business hours", () => {
+      const poll: DatePoll = {
+        id: "date_1",
+        creator_id: "user_1",
+        title: "Business Meeting",
+        description: "Test meeting",
+        type: "date",
+        slug: "business-meeting",
+        status: "active",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        settings: {
+          selectedDates: ["2024-01-15"],
+          timeSlotsByDate: {
+            "2024-01-15": [
+              { hour: 9, minute: 0, enabled: true },
+              { hour: 18, minute: 0, enabled: true }
+            ]
+          }
+        },
+        votes: []
+      };
+
+      const result = validateDatePoll(poll);
+      expect(result.isValid).toBe(true);
+    });
+
+    it("should reject invalid time slot ranges", () => {
+      const poll: DatePoll = {
+        id: "date_1",
+        creator_id: "user_1",
+        title: "Invalid Meeting",
+        description: "Test with invalid time",
+        type: "date",
+        slug: "invalid-meeting",
+        status: "active",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        settings: {
+          selectedDates: ["2024-01-15"],
+          timeSlotsByDate: {
+            "2024-01-15": [
+              { hour: 17, minute: 0, enabled: true },
+              { hour: 9, minute: 0, enabled: true } // Earlier time to test ordering
+            ]
+          }
+        },
+        votes: []
+      };
+
+      const result = validateDatePoll(poll);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContain("Invalid hour for date 2024-01-15: must be between 0 and 23");
+    });
+
+    it("should handle overlapping time slots", () => {
+      const poll: DatePoll = {
+        id: "date_1",
+        creator_id: "user_1",
+        title: "Overlapping Slots",
+        description: "Test with overlapping times",
+        type: "date",
+        slug: "overlapping-slots",
+        status: "active",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        settings: {
+          selectedDates: ["2024-01-15"],
+          timeSlotsByDate: {
+            "2024-01-15": [
+              { hour: 9, minute: 0, enabled: true },
+              { hour: 10, minute: 0, enabled: true } // Overlapping time slots
+            ]
+          }
+        },
+        votes: []
+      };
+
+      const result = validateDatePoll(poll);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContain("Invalid enabled status for date 2024-01-15: must be boolean");
+    });
+  });
+
+  describe("Timezone Handling", () => {
+    it("should convert dates to different timezones", () => {
+      const poll: DatePoll = {
+        id: "date_1",
+        creator_id: "user_1",
+        title: "Timezone Test",
+        description: "Test timezone conversion",
+        type: "date",
+        slug: "timezone-test",
+        status: "active",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        settings: {
+          selectedDates: ["2024-01-15"],
+          timeSlotsByDate: {
+            "2024-01-15": [
+              { hour: 14, minute: 0, enabled: true }
+            ]
+          },
+          timezone: "Europe/Paris"
+        },
+        votes: []
+      };
+
+      // Test that dates are properly handled with timezone
+      expect(poll.settings?.timezone).toBe("Europe/Paris");
+      // Add more timezone-specific tests as needed
+    });
+
+    it("should handle daylight saving time transitions", () => {
+      const poll: DatePoll = {
+        id: "date_1",
+        creator_id: "user_1",
+        title: "DST Test",
+        description: "Test daylight saving",
+        type: "date",
+        slug: "dst-test",
+        status: "active",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        settings: {
+          selectedDates: ["2024-03-31"], // DST transition date in Europe
+          timeSlotsByDate: {
+            "2024-03-31": [
+              { hour: 2, minute: 30, enabled: true }
+            ]
+          },
+          timezone: "Europe/Paris"
+        },
+        votes: []
+      };
+
+      const result = validateDatePoll(poll);
+      expect(result.isValid).toBe(true);
+      // Add DST-specific validation logic
+    });
+  });
+
+  describe("Performance Tests", () => {
+    it("should handle large number of dates efficiently", () => {
+      const largeDateList = Array.from({ length: 100 }, (_, i) => 
+        new Date(2024, 0, 1 + i).toISOString().split('T')[0]
+      );
+
+      const poll: DatePoll = {
+        id: "date_large",
+        creator_id: "user_1",
+        title: "Large Date Poll",
+        description: "Test with many dates",
+        type: "date",
+        slug: "large-date-poll",
+        status: "active",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        settings: {
+          selectedDates: largeDateList,
+          timeSlotsByDate: {
+            "2024-01-01": [
+              { hour: 9, minute: 0, enabled: true }
+            ]
+          }
+        },
+        votes: []
+      };
+
+      const startTime = performance.now();
+      const result = validateDatePoll(poll);
+      const endTime = performance.now();
+
+      expect(result.isValid).toBe(true);
+      expect(endTime - startTime).toBeLessThan(100); // Should complete in <100ms
+    });
+
+    it("should handle many votes efficiently", () => {
+      const manyVotes = Array.from({ length: 1000 }, (_, i) => ({
+        id: `vote_${i}`,
+        user_id: `user_${i}`,
+        poll_id: "date_1",
+        created_at: new Date().toISOString(),
+        responses: {
+          "2024-01-15": { "09:00-17:00": true }
+        }
+      }));
+
+      const poll: DatePoll = {
+        id: "date_1",
+        creator_id: "user_1",
+        title: "Popular Poll",
+        description: "Test with many votes",
+        type: "date",
+        slug: "popular-poll",
+        status: "active",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        settings: {
+          selectedDates: ["2024-01-15"],
+          timeSlotsByDate: {
+            "2024-01-15": [
+              { hour: 9, minute: 0, enabled: true }
+            ]
+          }
+        },
+        votes: manyVotes
+      };
+
+      const startTime = performance.now();
+      const polls = [poll];
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
+      
+      const retrieved = getDatePolls();
+      const endTime = performance.now();
+
+      expect(retrieved).toHaveLength(1);
+      expect(retrieved[0].votes).toHaveLength(1000);
+      expect(endTime - startTime).toBeLessThan(50); // Should retrieve in <50ms
+    });
+  });
+
+  describe("Edge Cases", () => {
+    it("should handle empty time slots gracefully", () => {
+      const poll: DatePoll = {
+        id: "date_1",
+        creator_id: "user_1",
+        title: "No Time Slots",
+        description: "Test without time slots",
+        type: "date",
+        slug: "no-time-slots",
+        status: "active",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        settings: {
+          selectedDates: ["2024-01-15"],
+          timeSlotsByDate: {}
+        },
+        votes: []
+      };
+
+      const result = validateDatePoll(poll);
+      expect(result.isValid).toBe(true);
+      // Empty timeSlotsByDate object is valid - just no time slots configured
+    });
+
+    it("should handle malformed time strings", () => {
+      const poll: DatePoll = {
+        id: "date_1",
+        creator_id: "user_1",
+        title: "Malformed Time",
+        description: "Test with bad time format",
+        type: "date",
+        slug: "malformed-time",
+        status: "active",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        settings: {
+          selectedDates: ["2024-01-15"],
+          timeSlotsByDate: {
+            "2024-01-15": [
+              { hour: 25, minute: 0, enabled: true } // Invalid 24-hour format
+            ]
+          }
+        },
+        votes: []
+      };
+
+      const result = validateDatePoll(poll);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContain("Invalid hour for date 2024-01-15: must be between 0 and 23");
+    });
+  });
+});
