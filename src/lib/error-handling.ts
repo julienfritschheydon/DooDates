@@ -31,6 +31,14 @@ export interface ErrorContext {
   pollData?: unknown;
   questionId?: string;
   maxChoices?: number;
+  identifier?: string;
+  error?: string | Error;
+  function?: string;
+  ip?: string;
+  userAgent?: string;
+  blockedUntil?: number;
+  count?: number;
+  maxRequests?: number;
   metadata?: Record<string, unknown>;
 }
 

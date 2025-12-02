@@ -152,7 +152,7 @@
     "@axe-core/playwright": "^4.11.0",
     "@changesets/cli": "^2.29.7",
     "@eslint/js": "^9.9.0",
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.57.0",
     "@tailwindcss/typography": "^0.5.15",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",

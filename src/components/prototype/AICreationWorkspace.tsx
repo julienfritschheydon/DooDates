@@ -499,13 +499,14 @@ export function AICreationWorkspace({
                   </code>
                   <button
                     onClick={() => {
+                      // Fermer la sidebar immédiatement sur mobile avant l'action
+                      if (isMobile) setIsSidebarOpen(false);
                       const url = `${window.location.origin}/poll/${publishedPoll.slug || publishedPoll.id}`;
                       navigator.clipboard.writeText(url);
                       toast({
                         title: "Lien copié !",
                         description: "Le lien a été copié dans le presse-papiers.",
                       });
-                      if (isMobile) setIsSidebarOpen(false);
                     }}
                     className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
                   >
@@ -539,7 +540,21 @@ export function AICreationWorkspace({
       >
         {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur */}
         {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsSidebarOpen(false)} />
+          <div 
+            className="fixed inset-0 bg-black/50 z-40" 
+            onClick={() => {
+              setIsSidebarOpen(false);
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Fermer le menu"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsSidebarOpen(false);
+              }
+            }}
+          />
         )}
 
         {/* Sidebar gauche - Mode overlay pour tous les écrans */}
@@ -591,7 +606,7 @@ export function AICreationWorkspace({
               {/* Bouton Fermer */}
               <button
                 onClick={() => setIsSidebarOpen(false)}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label="Fermer le menu"
                 title="Fermer le menu"
               >
@@ -611,8 +626,11 @@ export function AICreationWorkspace({
                       '🔵 [AICreationWorkspace] Bouton "Créer un sondage" cliqué - Navigation vers:',
                       url,
                     );
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
+                    if (isMobile) {
+                      setIsSidebarOpen(false);
+                    }
                     smartNavigate(url);
-                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg transition-colors font-medium"
                 >
@@ -627,8 +645,11 @@ export function AICreationWorkspace({
                       '🟣 [AICreationWorkspace] Bouton "Créer un formulaire" cliqué - Navigation vers:',
                       url,
                     );
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
+                    if (isMobile) {
+                      setIsSidebarOpen(false);
+                    }
                     smartNavigate(url);
-                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 rounded-lg transition-colors font-medium"
                 >
@@ -638,8 +659,11 @@ export function AICreationWorkspace({
 
                 <button
                   onClick={() => {
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
+                    if (isMobile) {
+                      setIsSidebarOpen(false);
+                    }
                     smartNavigate("/dashboard");
-                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
@@ -656,8 +680,11 @@ export function AICreationWorkspace({
 
                 <button
                   onClick={() => {
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
+                    if (isMobile) {
+                      setIsSidebarOpen(false);
+                    }
                     smartNavigate("/pricing");
-                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
@@ -672,7 +699,10 @@ export function AICreationWorkspace({
                     } else {
                       setAuthModalOpen(true);
                     }
-                    if (isMobile) setIsSidebarOpen(false);
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
+                    if (isMobile) {
+                      setIsSidebarOpen(false);
+                    }
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
@@ -682,8 +712,11 @@ export function AICreationWorkspace({
 
                 <button
                   onClick={() => {
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
+                    if (isMobile) {
+                      setIsSidebarOpen(false);
+                    }
                     smartNavigate("/docs");
-                    if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
@@ -722,9 +755,11 @@ export function AICreationWorkspace({
                               openEditor();
                             }
 
+                            // Fermer la sidebar immédiatement sur mobile avant navigation
+                            if (isMobile) {
+                              setIsSidebarOpen(false);
+                            }
                             smartNavigate(`/workspace?conversationId=${conv.id}`);
-                            // Fermer la sidebar sur mobile
-                            if (isMobile) setIsSidebarOpen(false);
                           }}
                           className="w-full flex items-start gap-3 p-3 hover:bg-[#2a2a2a] rounded-lg transition-colors text-left mb-1"
                         >
@@ -819,11 +854,12 @@ export function AICreationWorkspace({
                 <div className="flex items-center gap-2 min-w-0">
                   <button
                     onClick={() => {
+                      // Fermer la sidebar immédiatement sur mobile avant l'action
+                      if (isMobile) setIsSidebarOpen(false);
                       toast({
                         title: "Paramètres",
                         description: "Page en cours de développement",
                       });
-                      if (isMobile) setIsSidebarOpen(false);
                     }}
                     className="flex-1 min-w-0 px-2 py-2 text-xs font-medium text-gray-200 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 border border-gray-700/30 hover:border-gray-600/50"
                     title="Paramètres"
@@ -833,8 +869,9 @@ export function AICreationWorkspace({
                   </button>
                   <button
                     onClick={() => {
-                      setSignOutDialogOpen(true);
+                      // Fermer la sidebar immédiatement sur mobile avant l'action
                       if (isMobile) setIsSidebarOpen(false);
+                      setSignOutDialogOpen(true);
                     }}
                     className="flex-1 min-w-0 px-2 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 border border-red-500/30 hover:border-red-500/50 hover:shadow-sm hover:shadow-red-500/10"
                     title="Déconnexion"
@@ -857,8 +894,9 @@ export function AICreationWorkspace({
                 </div>
                 <button
                   onClick={() => {
-                    setAuthModalOpen(true);
+                    // Fermer la sidebar immédiatement sur mobile avant l'action
                     if (isMobile) setIsSidebarOpen(false);
+                    setAuthModalOpen(true);
                   }}
                   className="w-full px-3 py-2.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-blue-500/20"
                 >
@@ -887,8 +925,9 @@ export function AICreationWorkspace({
             {/* Bouton hamburger (mobile + desktop pour replier sidebar) */}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={isSidebarOpen}
             >
               <LazyIconWrapper Icon={Menu} className="w-5 h-5 text-gray-300" />
             </button>

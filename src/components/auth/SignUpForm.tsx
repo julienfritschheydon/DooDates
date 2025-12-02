@@ -9,6 +9,8 @@ import { Label } from "../ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Loader2, Mail, Lock, User } from "lucide-react";
+import { logError, ErrorFactory } from "../../lib/error-handling";
+import { LazyIcon } from "../../lib/lazy-icons";
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -17,8 +19,9 @@ interface SignUpFormProps {
 }
 
 export function SignUpForm({ onSuccess, onSwitchToSignIn, onFormChange }: SignUpFormProps) {
-  const { signUp, loading, error } = useAuth();
+  const { signUp, signInWithGoogle, loading, error } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   const {
     register,
@@ -38,6 +41,35 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn, onFormChange }: SignUp
     });
     return () => subscription.unsubscribe();
   }, [watch, onFormChange]);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleSubmitting(true);
+
+    try {
+      const { error } = await signInWithGoogle();
+
+      if (error) {
+        setError("root", {
+          message: error.message || "Erreur de connexion Google",
+        });
+      } else {
+        onSuccess?.();
+      }
+    } catch (err) {
+      logError(
+        ErrorFactory.validation(
+          "Erreur lors de la connexion Google",
+          "Une erreur inattendue s'est produite lors de la connexion Google",
+        ),
+        { metadata: { originalError: err } },
+      );
+      setError("root", {
+        message: "Une erreur inattendue s'est produite avec Google",
+      });
+    } finally {
+      setIsGoogleSubmitting(false);
+    }
+  };
 
   const onSubmit = async (data: SignUpInput) => {
     setIsSubmitting(true);
@@ -69,6 +101,35 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn, onFormChange }: SignUp
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Google Sign-In Button */}
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full relative"
+          disabled={isGoogleSubmitting || loading}
+          onClick={handleGoogleSignIn}
+        >
+          {isGoogleSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <LazyIcon 
+            name="Chrome" 
+            fallback={<div className="w-4 h-4 mr-2 bg-blue-500 rounded" />}
+            className="mr-2 h-4 w-4"
+          />
+          Continuer avec Google
+        </Button>
+
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Ou créer un compte avec email
+            </span>
+          </div>
+        </div>
+
         {/* Formulaire inscription */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">

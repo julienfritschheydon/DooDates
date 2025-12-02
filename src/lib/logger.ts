@@ -21,6 +21,7 @@ type LogCategory =
   | "quota"
   | "dashboard"
   | "security"
+  | "gdpr"
   | "general";
 
 interface LogEntry {

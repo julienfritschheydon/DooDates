@@ -14,7 +14,8 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { geminiService, type PollSuggestion } from "../lib/ai/gemini";
+import { geminiService } from "../lib/ai/gemini";
+import type { PollSuggestion } from "../types/poll-suggestions";
 import { handleError, logError } from "../lib/error-handling";
 import { logger } from "../lib/logger";
 
@@ -106,7 +107,7 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
           setIsLoading(false);
           return {
             success: true,
-            data: pollResponse.data,
+            data: pollResponse.data as PollSuggestion,
           };
         }
 

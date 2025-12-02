@@ -21,10 +21,8 @@ test.describe("Navigation Intelligente - E2E", () => {
 
     // 2. Créer une conversation avec du contenu
     await page.goto("http://localhost:5173/workspace/form");
-    await page
-      .locator('[data-testid="chat-input"]')
-      .fill("Crée-moi un sondage sur les préférences alimentaires");
-    await page.locator('[data-testid="chat-input"]').press("Enter");
+    await page.getByTestId('chat-input').fill("Crée-moi un sondage sur les préférences alimentaires");
+    await page.getByTestId('chat-input').press("Enter");
 
     // Attendre la réponse de l'IA
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
@@ -33,11 +31,11 @@ test.describe("Navigation Intelligente - E2E", () => {
     await page.goto("http://localhost:5173/dashboard");
 
     // 4. Cliquer sur "Créer un sondage de dates"
-    await page.locator('[data-testid="create-date-poll"]').click();
+    await page.getByTestId('create-date-poll').click();
 
     // 5. Vérifier que le chat est vide (full reset)
-    await expect(page.locator('[data-testid="chat-messages"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="chat-input"]')).toBeVisible();
+    await expect(page.getByTestId('chat-messages')).toHaveCount(0);
+    await expect(page.getByTestId('chat-input')).toBeVisible();
 
     // 6. Vérifier les logs console
     const logs = [];
@@ -57,17 +55,17 @@ test.describe("Navigation Intelligente - E2E", () => {
     // 1. Commencer avec un sondage de dates
     await page.goto("http://localhost:5173/workspace/date");
     await page
-      .locator('[data-testid="chat-input"]')
+      .getByTestId('chat-input')
       .fill("Organise une réunion pour la semaine prochaine");
-    await page.locator('[data-testid="chat-input"]').press("Enter");
+    await page.getByTestId('chat-input').press("Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
 
     // 2. Changer vers formulaire
     await page.goto("http://localhost:5173/workspace/form");
 
     // 3. Vérifier que la conversation est préservée mais l'éditeur est vide
-    await expect(page.locator('[data-testid="chat-messages"]')).not.toHaveCount(0);
-    await expect(page.locator('[data-testid="poll-editor"]')).toBeEmpty();
+    await expect(page.getByTestId('chat-messages')).not.toHaveCount(0);
+    await expect(page.getByTestId('poll-editor')).toBeEmpty();
 
     // 4. Vérifier les logs
     const logs = [];
@@ -85,8 +83,8 @@ test.describe("Navigation Intelligente - E2E", () => {
   test("Navigation temporaire - No reset", async ({ page }) => {
     // 1. Créer du contenu dans workspace
     await page.goto("http://localhost:5173/workspace/form");
-    await page.locator('[data-testid="chat-input"]').fill("Test de contenu à préserver");
-    await page.locator('[data-testid="chat-input"]').press("Enter");
+    await page.getByTestId('chat-input').fill("Test de contenu à préserver");
+    await page.getByTestId('chat-input').press("Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
 
     // 2. Naviguer vers docs (temporaire)
@@ -96,7 +94,7 @@ test.describe("Navigation Intelligente - E2E", () => {
     await page.goto("http://localhost:5173/workspace/form");
 
     // 4. Vérifier que tout est préservé
-    await expect(page.locator('[data-testid="chat-messages"]')).not.toHaveCount(0);
+    await expect(page.getByTestId('chat-messages')).not.toHaveCount(0);
 
     // 5. Vérifier les logs
     const logs = [];
@@ -115,9 +113,9 @@ test.describe("Navigation Intelligente - E2E", () => {
     // 1. Créer un sondage
     await page.goto("http://localhost:5173/workspace/form");
     await page
-      .locator('[data-testid="chat-input"]')
+      .getByTestId('chat-input')
       .fill("Crée un sondage sur la satisfaction client");
-    await page.locator('[data-testid="chat-input"]').press("Enter");
+    await page.getByTestId('chat-input').press("Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
 
     // 2. Simuler un poll ID (en pratique, viendrait de la création)
@@ -127,7 +125,7 @@ test.describe("Navigation Intelligente - E2E", () => {
     await page.goto(`http://localhost:5173/workspace/form?edit=${pollId}`);
 
     // 4. Vérifier que le contexte est préservé
-    await expect(page.locator('[data-testid="chat-input"]')).toBeVisible();
+    await expect(page.getByTestId('chat-input')).toBeVisible();
 
     // 5. Vérifier les logs
     const logs = [];
@@ -243,15 +241,15 @@ test.describe("Navigation Intelligente - Cas limites", () => {
   test("Refresh page - Pas de reset", async ({ page }) => {
     // 1. Créer du contenu
     await page.goto("http://localhost:5173/workspace/form");
-    await page.locator('[data-testid="chat-input"]').fill("Contenu à préserver au refresh");
-    await page.locator('[data-testid="chat-input"]').press("Enter");
+    await page.getByTestId('chat-input').fill("Contenu à préserver au refresh");
+    await page.getByTestId('chat-input').press("Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
 
     // 2. Refresh (F5)
     await page.reload();
 
     // 3. Vérifier que le contenu est préservé
-    await expect(page.locator('[data-testid="chat-messages"]')).not.toHaveCount(0);
+    await expect(page.getByTestId('chat-messages')).not.toHaveCount(0);
 
     // 4. Ne doit pas y avoir de logs de reset (refresh ne déclenche pas de navigation)
     const logs = [];

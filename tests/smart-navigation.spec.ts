@@ -53,10 +53,10 @@ test.describe("Navigation Intelligente - E2E", () => {
       await expect(page.locator("body")).toBeVisible();
       
       // 2. Cliquer sur "Créer un nouveau formulaire"
-      await page.locator('[data-testid="create-form-poll"]').click();
+      await page.getByTestId('create-form-poll').click();
       
       // 3. Vérifier qu'on arrive dans le workspace
-      await expect(page.locator('[data-testid="chat-input"]')).toBeVisible();
+      await expect(page.getByTestId('chat-input')).toBeVisible();
       
       // 4. Vérifier les logs de navigation
       const logs = [];
@@ -79,10 +79,10 @@ test.describe("Navigation Intelligente - E2E", () => {
   test("Test navigation - Dashboard vers date poll", async ({ page }) => {
     await withConsoleGuard(page, async () => {
       // 1. Cliquer sur "Créer un nouveau sondage"
-      await page.locator('[data-testid="create-date-poll"]').click();
+      await page.getByTestId('create-date-poll').click();
       
       // 2. Vérifier qu'on arrive dans le workspace pour les dates
-      await expect(page.locator('[data-testid="chat-input"]')).toBeVisible();
+      await expect(page.getByTestId('chat-input')).toBeVisible();
       
       console.log("✅ Test navigation date poll réussi");
     });

@@ -13,14 +13,18 @@ import { createLazyIcon } from "../lib/lazy-icons";
 const PlusLazy = createLazyIcon("Plus");
 import { ChatMessageList } from "./chat/ChatMessageList";
 import { ChatInput } from "./chat/ChatInput";
-import {
-  type PollSuggestion,
-  type FormPollSuggestion,
-  type DatePollSuggestion,
-} from "../lib/ai/gemini";
+// Types partagés pour les suggestions de sondages
+import type {
+  PollSuggestion,
+  FormPollSuggestion,
+  DatePollSuggestion,
+  isFormPollSuggestion,
+  isDatePollSuggestion
+} from "@/types/poll-suggestions";
 // Lazy load PollCreator - ne se charge que si nécessaire
 const PollCreator = lazy(() => import("./PollCreator"));
-import FormPollCreator, { type FormPollDraft, type AnyFormQuestion } from "./polls/FormPollCreator";
+import FormPollCreator, { type FormPollDraft } from "./polls/FormPollCreator";
+import type { AnyFormQuestion } from "@/types/poll-suggestions";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { useConversationResume } from "../hooks/useConversationResume";
 import { useGeminiAPI } from "../hooks/useGeminiAPI";
@@ -182,16 +186,15 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     }, [location.state]); // Se déclenche quand location.state change
 
     // Wrapper pour éviter les erreurs de type PollSuggestion (conflit gemini.ts vs ConversationService.ts)
-    // Create adapter for setLastAIProposal to match useMessageSender expected signature
-    const setLastAIProposalAdapter = useCallback(
-      (proposal: import("../lib/gemini").PollSuggestion | null) => {
+    const handlePollSuggestion = useCallback(
+      (proposal: import("../lib/ai/gemini").PollSuggestion | null) => {
         if (proposal) {
           setLastAIProposal({
             userRequest: "",
             generatedContent: proposal,
             pollContext: {
               pollId:
-                (proposal as import("../lib/gemini").PollSuggestion & { id?: string }).id ||
+                (proposal as import("../lib/ai/gemini").PollSuggestion & { id?: string }).id ||
                 `generated-${Date.now()}`,
               pollTitle: proposal.title,
               pollType: proposal.type,
@@ -210,7 +213,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           const convertedPrev = prevMessages.map((msg) => ({
             ...msg,
             pollSuggestion: msg.pollSuggestion as
-              | import("../lib/gemini").PollSuggestion
+              | import("../lib/ai/gemini").PollSuggestion
               | undefined,
           }));
           const updated = updater(convertedPrev);
@@ -218,7 +221,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           return updated.map((msg) => ({
             ...msg,
             pollSuggestion: msg.pollSuggestion as
-              | import("../services/ConversationService").PollSuggestion
+              | import("../lib/ai/gemini").PollSuggestion
               | undefined,
           }));
         });
@@ -230,16 +233,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     const [isLoading, setIsLoading] = useState(false);
 
     // État pour le feedback IA
-    const [lastAIProposal, setLastAIProposal] = useState<{
-      userRequest: string;
-      generatedContent: unknown;
-      pollContext?: {
-        pollId?: string;
-        pollTitle?: string;
-        pollType?: string;
-        action?: string;
-      };
-    } | null>(null);
+    const [lastAIProposal, setLastAIProposal] = useState<PollSuggestion | null>(null);
+    // Alias pour la compatibilité avec le code existant
+    const setLastAIProposalAdapter = setLastAIProposal;
 
     // Surveiller _highlightedId pour déclencher le feedback visuel (ADD_QUESTION)
     useEffect(() => {
@@ -619,7 +615,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       onUserMessage,
       setMessages: setMessagesAdapter,
       setIsLoading,
-      setLastAIProposal: setLastAIProposalAdapter,
+      setLastAIProposal,
       setModifiedQuestion,
       onStartNewChat: handleNewChat,
       hasCurrentPoll: !!currentPoll,
