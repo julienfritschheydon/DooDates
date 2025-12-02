@@ -23,6 +23,18 @@ if [ "$BRANCH" = "bug" ]; then
     exit 1
   fi
   
+  # 1b. Vérification Jest vs Vitest (éviter les erreurs CI)
+  echo "🧪 Vérification Jest vs Vitest..."
+  JEST_VIOLATIONS=$(git diff --cached --name-only | grep -E '\.test\.(ts|tsx)$' | xargs grep -l '@jest/globals\|jest\.mock\|jest\.fn' 2>/dev/null || true)
+  if [ -n "$JEST_VIOLATIONS" ]; then
+    echo "❌ Utilisation de Jest détectée dans des fichiers Vitest:"
+    echo "$JEST_VIOLATIONS"
+    echo "💡 Remplacez '@jest/globals' par 'vitest'"
+    echo "💡 Remplacez 'jest.mock' par 'vi.mock'"
+    echo "💡 Remplacez 'jest.fn' par 'vi.fn'"
+    exit 1
+  fi
+  
   # 2. Error Handling (CRITIQUE - sur toutes les branches)
   echo "🛡️ Vérification Error Handling..."
   npm run test:error-handling
