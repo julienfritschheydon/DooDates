@@ -13,21 +13,48 @@ main (Production)
 │       └── testing (Testing/Integration)
 │           ├── feature/* (Nouvelles fonctionnalités)
 │           └── bug/* (Corrections de bugs)
-└── develop (Actuel → sera renommé en staging)
 ```
 
 ## 🔄 Périodicité des Promotions
 
-**Approche :** "Quand c'est prêt et quand ça marche"
-- **Pas de délais fixes** : Promotions manuelles basées sur la validation
-- **Critère principal** : Tous les tests de l'étape actuelle doivent passer
-- **Flexibilité totale** : Chaque promotion peut prendre le temps nécessaire
+**Approche :** "Automatique dès que les tests passent" ✅
 
-**Processus de décision :**
-1. **Développeur** : "Je pense que c'est prêt pour testing"
-2. **Tests automatiques** : Validation technique
-3. **Validation manuelle** : Tests fonctionnels rapides
-4. **Promotion** : Si tout passe → étape suivante
+### Flux Automatisé Complet
+```
+bug/* ──[push]──> Tests ──[✅]──> testing ──[push]──> Tests ──[✅]──> staging ──[push]──> Tests E2E ──[✅]──> pre-prod ──[push]──> Tests Complets ──[✅]──> main
+         └──[❌]──> Échec           └──[❌]──> Échec              └──[❌]──> Échec                  └──[❌]──> Échec
+```
+
+### Principe
+- **Pas de PR manuelle** : Tout est automatisé via GitHub Actions
+- **Critère unique** : Tous les tests de l'étape doivent passer ✅
+- **Promotion immédiate** : Si tests OK → merge automatique vers la branche suivante
+- **Sécurité** : Si un test échoue → aucun merge (vous devez corriger)
+
+### Workflow Développeur
+```bash
+# 1. Vous créez une branche bug
+git checkout -b bug/mon-fix
+git commit -m "fix: problème résolu"
+git push origin bug/mon-fix
+
+# 2. GitHub Actions fait le reste automatiquement :
+#    - Tests sur bug/* → merge vers testing
+#    - Tests sur testing → merge vers staging  
+#    - Tests sur staging → merge vers pre-prod
+#    - Tests sur pre-prod → merge vers main + tag release
+
+# 3. Vous suivez la progression dans GitHub Actions
+# 4. En cas d'échec, vous corrigez et re-push
+```
+
+### Temps de Promotion Estimé
+- **bug/* → testing** : 2-5 minutes
+- **testing → staging** : 5-10 minutes
+- **staging → pre-prod** : 20-30 minutes
+- **pre-prod → main** : 30-45 minutes
+- **Total (si tout passe)** : ~1h-1h30 de bug à production
+
 
 ## 🌐 Environnements de Déploiement GitHub
 
@@ -63,44 +90,6 @@ jobs:
 - **staging** : `.github/workflows/test-staging.yml` (tests complets)
 - **main** : `.github/workflows/deploy-production.yml` (déploiement production)
 - **pre-prod** : Tests locaux uniquement (pas de workflow)
-
-## 🏗️ Migration des Worktrees
-
-### État Actuel
-```
-C:/Users/Julien Fritsch/Documents/GitHub/DooDates          [main]
-C:/Users/Julien Fritsch/Documents/GitHub/DooDates-develop  [develop]
-```
-
-### État Ciblé (après renommage)
-```
-C:/Users/Julien Fritsch/Documents/GitHub/DooDates-main      [main]
-C:/Users/Julien Fritsch/Documents/GitHub/DooDates-develop  [staging]
-C:/Users/Julien Fritsch/Documents/GitHub/DooDates-testing   [testing]
-C:/Users/Julien Fritsch/Documents/GitHub/DooDates-pre-prod  [pre-prod]  # Local uniquement
-```
-
-### Plan de Migration
-1. **Renommer le worktree develop**
-   ```bash
-   # Depuis le worktree develop actuel
-   cd ../DooDates-develop
-   git checkout -b staging
-   cd ..
-   mv DooDates-develop DooDates-staging
-   ```
-
-2. **Créer les nouveaux worktrees**
-   ```bash
-   # Depuis le répertoire principal
-   git worktree add ../DooDates-testing testing
-   git worktree add ../DooDates-pre-prod pre-prod  # Local uniquement
-   git worktree add ../DooDates-main main  # Remplace l'actuel
-   ```
-
-3. **Mettre à jour les références**
-   - Mettre à jour les scripts et documentation
-   - Vérifier les chemins relatifs
 
 ## 🧪 Stratégie de Tests par Branche
 
@@ -259,16 +248,17 @@ npm run test:accessibility:all    # Tests accessibilité tous navigateurs
 - ✅ Expérience mobile native-like
 - ✅ Feedback utilisateurs positif
 
-#### Processus de Promotion
+#### Processus de Promotion (Automatisé)
 ```bash
-# Depuis staging vers pre-prod (local)
-git checkout pre-prod
-git merge staging
-# Tests locaux complets
-# Si OK → promotion vers main
-git checkout main
-git merge pre-prod
-git push origin main
+# Toutes les promotions sont automatiques via CI/CD :
+# 1. bug/* → testing (auto-merge après tests unitaires)
+# 2. testing → staging (auto-merge après validation complète)
+# 3. staging → pre-prod (auto-merge après tests E2E smoke)
+# 4. pre-prod → main (auto-merge après tests E2E complets + tag release)
+
+# Vous n'avez qu'à push sur votre branche de travail :
+git push origin bug/mon-fix
+# Le reste se fait automatiquement si tous les tests passent
 ```
 
 ---
@@ -383,107 +373,167 @@ jobs:
 - Lecteur écran
 - axe-core integration
 
-## 🔄 Processus de Merge
+## 🔄 Processus de Merge (100% Automatisé)
 
-### Feature → Testing
-```bash
-# Depuis la branche feature
-git checkout testing
-git merge feature/nouvelle-fonctionnalite
-git push origin testing
+### Workflow Complet
+```
+bug/* ──[push]──> Tests Unitaires ──[✅]──> Auto-merge vers testing
+                                      └──[❌]──> Échec (pas de merge)
+
+testing ──[push]──> Validation Complète ──[✅]──> Auto-merge vers staging
+                                          └──[❌]──> Échec (pas de merge)
+
+staging ──[push]──> Tests E2E Smoke ──[✅]──> Auto-merge vers pre-prod
+                                      └──[❌]──> Échec (pas de merge)
+
+pre-prod ──[push]──> Tests E2E Complets ──[✅]──> Auto-merge vers main + Tag Release
+                                          └──[❌]──> Échec (pas de merge)
 ```
 
 ### Bug → Testing (Automatisé)
+**Workflow:** `.github/workflows/auto-merge-bug-to-testing.yml`
 ```bash
-# Push sur une branche bug/*
-# Si tests OK → Merge automatique vers testing
+# Vous travaillez sur une branche bug
+git checkout -b bug/fix-calendar-issue
+# ... vos modifications ...
+git commit -m "fix: calendar timezone issue"
+git push origin bug/fix-calendar-issue
+
+# GitHub Actions s'occupe du reste :
+# 1. ✅ Tests unitaires rapides (2-3 min)
+# 2. ✅ Auto-merge vers testing
 ```
 
 ### Testing → Staging (Automatisé)
+**Workflow:** `.github/workflows/test-testing.yml`
 ```bash
-# Push sur testing (ou merge depuis bug/*)
-# Si validation OK → Merge automatique vers staging
+# Dès qu'un commit arrive sur testing (via bug/* ou push direct)
+# GitHub Actions exécute automatiquement :
+# 1. ✅ Tests unitaires (2 min)
+# 2. ✅ TypeScript check (1 min)
+# 3. ✅ Linting (1 min)
+# 4. ✅ Build validation (2 min)
+# 5. ✅ Auto-merge vers staging
 ```
 
-### Staging → Pre-prod
+### Staging → Pre-prod (Automatisé)
+**Workflow:** `.github/workflows/auto-merge-staging-to-preprod.yml`
 ```bash
-# Après validation complète en staging
-git checkout pre-prod
-git merge staging
-git push origin pre-prod
+# Dès qu'un commit arrive sur staging
+# GitHub Actions exécute automatiquement :
+# 1. ✅ Tests unitaires (2 min)
+# 2. ✅ TypeScript check (1 min)
+# 3. ✅ Linting (1 min)
+# 4. ✅ Build validation (2 min)
+# 5. ✅ Tests E2E Smoke (5-10 min)
+# 6. ✅ Auto-merge vers pre-prod
 ```
 
-### Pre-prod → Main
+### Pre-prod → Main (Automatisé)
+**Workflow:** `.github/workflows/auto-merge-preprod-to-main.yml`
 ```bash
-# Depuis pre-prod (local) vers main
-git checkout main
-git merge pre-prod
-git push origin main
+# Dès qu'un commit arrive sur pre-prod
+# GitHub Actions exécute automatiquement :
+# 1. ✅ Tests unitaires (2 min)
+# 2. ✅ TypeScript check (1 min)
+# 3. ✅ Linting strict (0 warnings) (1 min)
+# 4. ✅ Build production (2 min)
+# 5. ✅ Tests E2E Smoke (5-10 min)
+# 6. ✅ Tests E2E Functional (10-15 min)
+# 7. ✅ Auto-merge vers main
+# 8. 🏷️ Création tag release automatique
 ```
 
-## 🚀 Workflows GitHub Actions (Simplifiés)
+### Feature → Testing (Manuel)
+```bash
+# Pour les nouvelles fonctionnalités, merge manuel vers testing
+git checkout testing
+git merge feature/nouvelle-fonctionnalite
+git push origin testing
+# Ensuite le processus automatique prend le relais
+```
 
-### Testing Workflow (Automatisé)
+### ⚠️ En Cas d'Échec
+Si un workflow échoue, **aucun merge automatique n'est effectué**. Vous devez :
+1. Consulter les logs GitHub Actions
+2. Corriger le problème sur la branche source
+3. Push à nouveau (relance automatique des tests)
+
+
+## 🚀 Workflows GitHub Actions (Automatisés)
+
+### 1. Bug → Testing (Auto-merge)
+**Fichier:** `.github/workflows/auto-merge-bug-to-testing.yml`
 ```yaml
-# .github/workflows/test-testing.yml
 on:
   push:
-    branches: [testing]
-jobs:
-  testing-validation:
-    # Tests unitaires, lint, build
-  auto-merge-to-staging:
-    needs: testing-validation
-    # Merge testing → staging si succès
-```
-
-### Bug Workflow (Automatisé)
-```yaml
-# .github/workflows/auto-merge-bug-to-testing.yml
-on:
-  push:
-    branches: [bug/*]
+    branches: ['bug/*']
 jobs:
   validate:
     # Tests unitaires rapides
   merge-to-testing:
     needs: validate
-    # Merge bug/* → testing si succès
+    # Auto-merge vers testing si succès
 ```
+**Durée:** 2-5 minutes
 
-### Staging Workflow  
+### 2. Testing → Staging (Auto-merge)
+**Fichier:** `.github/workflows/test-testing.yml`
 ```yaml
-# .github/workflows/deploy-staging.yml
+on:
+  push:
+    branches: [testing]
+jobs:
+  testing-validation:
+    # Tests unitaires, TypeScript, Linting, Build
+  auto-merge-to-staging:
+    needs: testing-validation
+    # Auto-merge vers staging si succès
+```
+**Durée:** 5-10 minutes
+
+### 3. Staging → Pre-prod (Auto-merge)
+**Fichier:** `.github/workflows/auto-merge-staging-to-preprod.yml`
+```yaml
 on:
   push:
     branches: [staging]
 jobs:
-  test-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🧪 Tests Complets
-        run: npm run test:staging:all
-      - name: 🚀 Deploy to Staging
-        run: npm run deploy:staging
+  staging-validation:
+    # Tests complets + E2E Smoke
+  auto-merge-to-preprod:
+    needs: staging-validation
+    # Auto-merge vers pre-prod si succès
 ```
+**Durée:** 20-30 minutes
 
-### Production Workflow
+### 4. Pre-prod → Main (Auto-merge + Release)
+**Fichier:** `.github/workflows/auto-merge-preprod-to-main.yml`
 ```yaml
-# .github/workflows/deploy-production.yml
+on:
+  push:
+    branches: [pre-prod]
+jobs:
+  preprod-validation:
+    # Tests E2E complets (Smoke + Functional)
+  auto-merge-to-main:
+    needs: preprod-validation
+    # Auto-merge vers main + création tag release
+```
+**Durée:** 30-45 minutes
+
+### 5. Production Deployment
+**Fichier:** `.github/workflows/deploy-production.yml`
+```yaml
 on:
   push:
     branches: [main]
 jobs:
   deploy-and-monitor:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🏗️ Build Production
-        run: npm run build
-      - name: 🚀 Deploy to Production
-        run: npm run deploy:production
-      - name: ❤️ Health Check
-        run: npm run health:check
+    # Build production + déploiement + health checks
 ```
+**Durée:** 5-10 minutes
+
 
 ## 🚀 Workflows GitHub Actions
 
