@@ -10,9 +10,11 @@ Chaque IDE travaille sur une branche dédiée avec un **dossier séparé** :
 
 | Dossier | Branche | Usage |
 |---------|---------|-------|
-| `DooDates` | `main`, `develop` | Repo principal |
+| `DooDates` | `main` | Repo principal (production) |
 | `DooDates-bug` | `bug` | Corrections bugs |
-| `DooDates-feature` | `feature/*` | Nouvelles fonctionnalités |
+| `DooDates-testing` | `testing` | Tests d'intégration |
+| `DooDates-staging` | `staging` | Pré-validation |
+| `DooDates-preprod` | `pre-prod` | Pré-production |
 
 **⚠️ Important :** Tous les dossiers doivent pointer vers le même remote GitHub :
 ```bash
