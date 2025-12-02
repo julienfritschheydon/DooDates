@@ -165,7 +165,16 @@ export function validateFormPoll(poll: FormPoll): void {
 
 // Helper functions
 function isFormPoll(poll: any): poll is FormPoll {
-  return poll?.type === "form" || (poll?.questions && Array.isArray(poll.questions));
+  // Explicit type check first
+  if (poll?.type === "form") return true;
+  // Exclude quizz (has correctAnswer in questions)
+  if (poll?.type === "quizz") return false;
+  // Fallback: has questions but not quizz-style questions
+  if (poll?.questions && Array.isArray(poll.questions)) {
+    // Quizz questions have correctAnswer, form questions don't
+    return !poll.questions.some((q: any) => q.correctAnswer !== undefined);
+  }
+  return false;
 }
 
 // CRUD Operations
