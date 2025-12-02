@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { geminiService } from "../lib/gemini";
+import { geminiService } from "../lib/ai/gemini";
 import { handleError, logError } from "../lib/error-handling";
 
 export type ConnectionStatus = "unknown" | "connected" | "error";

@@ -51,4 +51,10 @@ export default defineConfig({
       overlay: false,
     },
   },
+  // Configuration spécifique pour les tests E2E
+  // Utilise un port différent pour éviter les conflits
+  preview: {
+    port: 8081,
+    host: true,
+  },
 });

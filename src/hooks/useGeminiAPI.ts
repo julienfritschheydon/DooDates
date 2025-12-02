@@ -14,7 +14,7 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { geminiService, type PollSuggestion } from "../lib/gemini";
+import { geminiService, type PollSuggestion } from "../lib/ai/gemini";
 import { handleError, logError } from "../lib/error-handling";
 import { logger } from "../lib/logger";
 

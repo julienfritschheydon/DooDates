@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { GeminiService } from "../gemini";
+import { GeminiService } from "../ai/gemini";
 
 describe("GeminiService - Poll Type Detection", () => {
   let service: GeminiService;

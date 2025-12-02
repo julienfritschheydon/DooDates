@@ -6,6 +6,10 @@ import * as os from 'os';
 // Charger les variables d'environnement depuis .env.local
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
+// Configuration avec port dynamique
+const port = parseInt(process.env.PORT || '8081', 10);
+const baseURL = `http://localhost:${port}`;
+
 export default defineConfig({
   testDir: './tests',
   // Match Playwright test files (.spec.ts everywhere, .test.ts in specific directories)
@@ -31,7 +35,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 60000,
   use: {
-    baseURL: 'http://localhost:8080',
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 15000,
@@ -69,10 +73,11 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm run dev:e2e',
-    url: 'http://localhost:8080/DooDates', // Le serveur démarre sur 8080 comme configuré dans vite.config.ts
-    reuseExistingServer: !(process.env.CI || process.env.GITHUB_ACTIONS), // Réutiliser le serveur existant seulement en local
-    timeout: 120 * 1000,
+    command: process.env.PORT ? `npm run dev:e2e -- --port ${port}` : 'npm run dev:e2e',
+    port: process.env.PORT ? port : undefined,
+    url: baseURL,
+    reuseExistingServer: !(process.env.CI || process.env.GITHUB_ACTIONS),
+    timeout: 60 * 1000, // Pas plus de 1 minute, sinon ce n'est pas normal
     stdout: 'pipe',
     stderr: 'pipe',
     env: {
