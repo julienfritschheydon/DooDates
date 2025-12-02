@@ -12,11 +12,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { useGeminiAPI, GeminiAPIResponse } from "../useGeminiAPI";
-import { geminiService } from "../../lib/gemini";
+import { geminiService, type PollSuggestion } from "../../lib/ai/gemini";
 import { handleError, logError } from "../../lib/error-handling";
 
 // Mocks
-vi.mock("../../lib/gemini", () => ({
+vi.mock("../../lib/ai/gemini", () => ({
   geminiService: {
     generatePollFromText: vi.fn(),
   },

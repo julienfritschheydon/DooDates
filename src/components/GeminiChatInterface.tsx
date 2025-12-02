@@ -17,7 +17,7 @@ import {
   type PollSuggestion,
   type FormPollSuggestion,
   type DatePollSuggestion,
-} from "../lib/gemini";
+} from "../lib/ai/gemini";
 // Lazy load PollCreator - ne se charge que si nécessaire
 const PollCreator = lazy(() => import("./PollCreator"));
 import FormPollCreator, { type FormPollDraft, type AnyFormQuestion } from "./polls/FormPollCreator";

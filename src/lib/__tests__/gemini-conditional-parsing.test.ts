@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { GeminiService } from "../gemini";
+import { GeminiService } from "../ai/gemini";
 
 describe("GeminiService - Conditional Rules Parsing", () => {
   let service: GeminiService;
