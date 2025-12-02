@@ -7,19 +7,7 @@ import type { Conversation, ConversationMessage } from "../types/conversation";
 import type { UseAutoSaveReturn } from "../hooks/useAutoSave";
 import { logError, ErrorFactory } from "../lib/error-handling";
 import { logger } from "../lib/logger";
-
-export interface PollSuggestion {
-  title: string;
-  description?: string;
-  dates: string[];
-  timeSlots?: Array<{
-    start: string;
-    end: string;
-    dates?: string[];
-  }>;
-  type: "date" | "datetime" | "custom";
-  participants?: string[];
-}
+import type { PollSuggestion } from "../types/poll-suggestions";
 
 export interface Message {
   id: string;
@@ -27,6 +15,7 @@ export interface Message {
   isAI: boolean;
   timestamp: Date;
   pollSuggestion?: PollSuggestion;
+  isGenerating?: boolean;
 }
 
 export class ConversationService {
@@ -301,7 +290,7 @@ export class ConversationService {
       // PRIORITÉ 1: Utiliser pollSuggestion complet si disponible (nouveau format)
       // PRIORITÉ 2: Reconstruire depuis les champs individuels (ancien format, rétrocompatibilité)
       pollSuggestion: msg.metadata?.pollSuggestion
-        ? msg.metadata.pollSuggestion
+        ? (msg.metadata.pollSuggestion as PollSuggestion)
         : msg.metadata?.pollGenerated && msg.metadata?.title
           ? ({
               title: msg.metadata.title,

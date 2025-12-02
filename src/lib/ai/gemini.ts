@@ -85,7 +85,7 @@ export interface DatePollSuggestion {
   dateGroups?: Array<{
     dates: string[];
     label: string;
-    type: "weekend" | "week" | "fortnight" | "custom";
+    type: "weekend" | "week" | "fortnight" | "custom" | "range";
   }>;
 }
 
