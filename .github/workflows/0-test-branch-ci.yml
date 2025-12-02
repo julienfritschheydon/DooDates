@@ -2,7 +2,7 @@ name: 🧪 Test Branch - Tests Dashboard Corrigés
 
 on:
   push:
-    branches: [test, test-dashboard]
+    branches: [testing, test-dashboard]
   workflow_dispatch: # Permet de lancer manuellement depuis GitHub UI
 
 concurrency:
