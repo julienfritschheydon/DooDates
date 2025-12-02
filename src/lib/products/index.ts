@@ -45,10 +45,8 @@ export async function createPollService(type: "date" | "form" | "quizz") {
     case "quizz":
       return await import("./quizz");
     default:
-      throw ErrorFactory.validation(
-        `Unknown poll type: ${type}`,
-        `Unknown poll type: ${type}`,
-        { type }
-      );
+      throw ErrorFactory.validation(`Unknown poll type: ${type}`, `Unknown poll type: ${type}`, {
+        type,
+      });
   }
 }

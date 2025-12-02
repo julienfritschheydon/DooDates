@@ -26,7 +26,10 @@ export const useProductAPI = (options: UseProductAPIOptions = {}) => {
   const makeRequest = useCallback(
     async <T>(endpoint: string, fetchOptions: RequestInit = {}): Promise<T> => {
       if (!user) {
-        throw ErrorFactory.auth("Utilisateur non authentifié", "Vous devez être connecté pour effectuer cette action");
+        throw ErrorFactory.auth(
+          "Utilisateur non authentifié",
+          "Vous devez être connecté pour effectuer cette action",
+        );
       }
 
       setLoading(true);
@@ -48,7 +51,11 @@ export const useProductAPI = (options: UseProductAPIOptions = {}) => {
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw ErrorFactory.api(`Erreur HTTP ${response.status}: ${errorText}`, "Erreur du serveur", { status: response.status });
+          throw ErrorFactory.api(
+            `Erreur HTTP ${response.status}: ${errorText}`,
+            "Erreur du serveur",
+            { status: response.status },
+          );
         }
 
         const data = await response.json();

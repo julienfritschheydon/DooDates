@@ -248,11 +248,17 @@ class ConsentLoggerService {
    */
   private validateLogEntry(entry: ConsentLogEntry): void {
     if (!entry.action) {
-      throw ErrorFactory.validation("Action is required", "Action requise pour le log de consentement");
+      throw ErrorFactory.validation(
+        "Action is required",
+        "Action requise pour le log de consentement",
+      );
     }
 
     if (!entry.timestamp) {
-      throw ErrorFactory.validation("Timestamp is required", "Timestamp requis pour le log de consentement");
+      throw ErrorFactory.validation(
+        "Timestamp is required",
+        "Timestamp requis pour le log de consentement",
+      );
     }
 
     const validActions = [
@@ -270,7 +276,10 @@ class ConsentLoggerService {
     if (entry.consentType) {
       const validTypes = ["essential", "analytics", "marketing", "functional"];
       if (!validTypes.includes(entry.consentType)) {
-        throw ErrorFactory.validation(`Invalid consent type: ${entry.consentType}`, "Type de consentement invalide");
+        throw ErrorFactory.validation(
+          `Invalid consent type: ${entry.consentType}`,
+          "Type de consentement invalide",
+        );
       }
     }
   }

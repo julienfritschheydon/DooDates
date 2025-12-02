@@ -192,7 +192,10 @@ export function getDatePolls(): DatePoll[] {
 
     return deduplicateDatePolls(validDatePolls);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "DatePollsService", operation: "getDatePolls" });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "DatePollsService",
+      operation: "getDatePolls",
+    });
     return [];
   }
 }
@@ -228,7 +231,10 @@ export function saveDatePolls(polls: DatePoll[]): void {
       count: deduplicatedPolls.length,
     } as any);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "DatePollsService", operation: "saveDatePolls" });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "DatePollsService",
+      operation: "saveDatePolls",
+    });
     throw error;
   }
 }
@@ -247,7 +253,7 @@ export async function addDatePoll(poll: DatePoll): Promise<void> {
       throw ErrorFactory.validation(
         `Invalid date poll: ${validation.errors.join(", ")}`,
         `Invalid date poll: ${validation.errors.join(", ")}`,
-        { pollId: poll.id, errors: validation.errors }
+        { pollId: poll.id, errors: validation.errors },
       );
     }
 
@@ -264,7 +270,11 @@ export async function addDatePoll(poll: DatePoll): Promise<void> {
 
     saveDatePolls(polls);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "DatePollsService", operation: "addDatePoll", pollId: poll.id });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "DatePollsService",
+      operation: "addDatePoll",
+      pollId: poll.id,
+    });
     throw error;
   }
 }
@@ -276,7 +286,11 @@ export function deleteDatePollById(id: string): void {
     saveDatePolls(next);
     logger.info("Date poll deleted", { pollId: id } as any);
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "DatePollsService", operation: "deleteDatePollById", pollId: id });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "DatePollsService",
+      operation: "deleteDatePollById",
+      pollId: id,
+    });
     throw error;
   }
 }
@@ -342,7 +356,10 @@ export function copyToClipboard(text: string): Promise<void> {
       }
     }
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { component: "DatePollsService", operation: "copyToClipboard" });
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      component: "DatePollsService",
+      operation: "copyToClipboard",
+    });
     return Promise.reject(error);
   }
 }

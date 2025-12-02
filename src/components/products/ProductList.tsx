@@ -37,7 +37,11 @@ export const ProductList: React.FC = () => {
       try {
         await actions.deleteProduct(productId);
       } catch (error) {
-        logError(error instanceof Error ? error : new Error(String(error)), { component: "ProductList", operation: "deleteProduct", pollId: productId } as const);
+        logError(error instanceof Error ? error : new Error(String(error)), {
+          component: "ProductList",
+          operation: "deleteProduct",
+          pollId: productId,
+        } as const);
       }
     }
   };
