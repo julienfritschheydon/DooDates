@@ -212,7 +212,9 @@ const Dashboard: React.FC = () => {
   const renderHeader = () => (
     <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div>
-        <h1 role="heading" className="text-3xl font-bold tracking-tight text-white">Tableau de bord</h1>
+        <h1 role="heading" className="text-3xl font-bold tracking-tight text-white">
+          Tableau de bord
+        </h1>
         <p className="mt-2 max-w-2xl text-sm text-gray-400">
           Pilotez vos conversations, sondages et analyses IA en un clin d'œil.
         </p>

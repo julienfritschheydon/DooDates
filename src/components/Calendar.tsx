@@ -162,8 +162,9 @@ const Calendar: React.FC<CalendarProps> = ({
           {weekDays.map((day) => (
             <div
               key={day}
-              className={`text-center text-gray-400 py-1 font-medium ${isMobile ? "text-sm" : "text-sm"
-                }`}
+              className={`text-center text-gray-400 py-1 font-medium ${
+                isMobile ? "text-sm" : "text-sm"
+              }`}
             >
               {day}
             </div>
@@ -202,17 +203,17 @@ const Calendar: React.FC<CalendarProps> = ({
                 animate={
                   isSelected
                     ? {
-                      scale: [1, 1.15, 1, 1.05, 1, 1.05, 1],
-                      boxShadow: [
-                        "0 0 0 0 rgba(37, 99, 235, 0)",
-                        "0 0 0 4px rgba(37, 99, 235, 0.4)",
-                        "0 0 0 8px rgba(37, 99, 235, 0)",
-                        "0 0 0 4px rgba(37, 99, 235, 0.4)",
-                        "0 0 0 8px rgba(37, 99, 235, 0)",
-                        "0 0 0 4px rgba(37, 99, 235, 0.4)",
-                        "0 0 0 0 rgba(37, 99, 235, 0)",
-                      ],
-                    }
+                        scale: [1, 1.15, 1, 1.05, 1, 1.05, 1],
+                        boxShadow: [
+                          "0 0 0 0 rgba(37, 99, 235, 0)",
+                          "0 0 0 4px rgba(37, 99, 235, 0.4)",
+                          "0 0 0 8px rgba(37, 99, 235, 0)",
+                          "0 0 0 4px rgba(37, 99, 235, 0.4)",
+                          "0 0 0 8px rgba(37, 99, 235, 0)",
+                          "0 0 0 4px rgba(37, 99, 235, 0.4)",
+                          "0 0 0 0 rgba(37, 99, 235, 0)",
+                        ],
+                      }
                     : { scale: 1, boxShadow: "0 0 0 0 rgba(37, 99, 235, 0)" }
                 }
                 transition={{
@@ -239,19 +240,21 @@ const Calendar: React.FC<CalendarProps> = ({
                 disabled={isPastDay}
                 data-date={dateStr}
                 className={`${isMobile ? "w-9 h-9" : "w-10 h-10"} text-sm rounded-lg transition-all duration-200 font-medium flex items-center justify-center touch-none
-                  ${isPastDay
-                    ? "text-gray-600 bg-[#1e1e1e] cursor-not-allowed"
-                    : isDateDraggedOver && isDragging
-                      ? "bg-blue-500/50 text-white border-2 border-blue-400"
-                      : isSelected
-                        ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
-                        : isLongPressActive && isDateDraggedOver
-                          ? "animate-pulse ring-2 ring-blue-400"
-                          : ""
+                  ${
+                    isPastDay
+                      ? "text-gray-600 bg-[#1e1e1e] cursor-not-allowed"
+                      : isDateDraggedOver && isDragging
+                        ? "bg-blue-500/50 text-white border-2 border-blue-400"
+                        : isSelected
+                          ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
+                          : isLongPressActive && isDateDraggedOver
+                            ? "animate-pulse ring-2 ring-blue-400"
+                            : ""
                   }
-                  ${isToday
-                    ? "bg-blue-900/30 text-blue-400 border-2 border-blue-700 hover:bg-blue-900/50"
-                    : "text-gray-300 hover:bg-[#2a2a2a]"
+                  ${
+                    isToday
+                      ? "bg-blue-900/30 text-blue-400 border-2 border-blue-700 hover:bg-blue-900/50"
+                      : "text-gray-300 hover:bg-[#2a2a2a]"
                   }`}
                 style={{ touchAction: "none" }}
               >

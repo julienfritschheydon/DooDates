@@ -187,37 +187,37 @@ export function AICreationWorkspace({
       const defaultPoll =
         pollTypeForComponents === "form"
           ? {
-            id: `default-form-${Date.now()}`,
-            creator_id: "guest",
-            title: "Nouveau formulaire",
-            slug: `nouveau-formulaire-${Date.now()}`,
-            status: "draft" as const,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            type: "form" as const,
-            questions: [
-              {
-                id: "q1",
-                kind: "text" as const,
-                title: "Question 1",
-                type: "text" as const,
-                required: true,
-              },
-            ],
-          }
+              id: `default-form-${Date.now()}`,
+              creator_id: "guest",
+              title: "Nouveau formulaire",
+              slug: `nouveau-formulaire-${Date.now()}`,
+              status: "draft" as const,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              type: "form" as const,
+              questions: [
+                {
+                  id: "q1",
+                  kind: "text" as const,
+                  title: "Question 1",
+                  type: "text" as const,
+                  required: true,
+                },
+              ],
+            }
           : {
-            id: `default-date-${Date.now()}`,
-            creator_id: "guest",
-            title: "Nouveau sondage de dates",
-            slug: `nouveau-sondage-${Date.now()}`,
-            status: "draft" as const,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            type: "date" as const,
-            settings: {
-              selectedDates: ["2025-12-01", "2025-12-02"], // Dates par défaut pour validation
-            },
-          };
+              id: `default-date-${Date.now()}`,
+              creator_id: "guest",
+              title: "Nouveau sondage de dates",
+              slug: `nouveau-sondage-${Date.now()}`,
+              status: "draft" as const,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              type: "date" as const,
+              settings: {
+                selectedDates: ["2025-12-01", "2025-12-02"], // Dates par défaut pour validation
+              },
+            };
 
       setCurrentPoll(defaultPoll);
 
@@ -238,7 +238,7 @@ export function AICreationWorkspace({
 
   // Hook legacy pour clearConversation (non migré)
   const conversationContext = useConversation();
-  const clearConversation = conversationContext?.clearConversation || (() => { });
+  const clearConversation = conversationContext?.clearConversation || (() => {});
 
   // Hook onboarding
   const { startOnboarding } = useOnboarding();
@@ -360,7 +360,7 @@ export function AICreationWorkspace({
             if (
               !existing ||
               new Date(poll.updated_at || poll.created_at) >
-              new Date(existing.updated_at || existing.created_at)
+                new Date(existing.updated_at || existing.created_at)
             ) {
               map.set(poll.id, poll);
             }
@@ -544,8 +544,9 @@ export function AICreationWorkspace({
 
         {/* Sidebar gauche - Mode overlay pour tous les écrans */}
         <div
-          className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         >
           {/* Header avec bouton fermer */}
           <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800">
@@ -902,8 +903,9 @@ export function AICreationWorkspace({
         <div className={`flex flex-1 min-h-0 ${isMobile ? "flex-col" : "flex-row"}`}>
           {/* Chat principal - Zone gauche */}
           <div
-            className={`flex flex-col bg-[#0a0a0a] transition-all duration-300 flex-1 flex-shrink-0 ${isMobile ? "w-full" : "w-1/2"
-              }`}
+            className={`flex flex-col bg-[#0a0a0a] transition-all duration-300 flex-1 flex-shrink-0 ${
+              isMobile ? "w-full" : "w-1/2"
+            }`}
           >
             {/* Toggle Chat/Preview sur mobile */}
             {/* 
@@ -1001,7 +1003,7 @@ export function AICreationWorkspace({
                               setShowManualEditorOnMobile(false);
                               setMobileActiveTab("chat");
                             }}
-                            onSave={() => { }}
+                            onSave={() => {}}
                             onFinalize={(draft, savedPoll) => {
                               if (savedPoll) {
                                 setPublishedPoll(savedPoll);
@@ -1139,28 +1141,28 @@ export function AICreationWorkspace({
                     </>
                   )
                 ) : // Afficher le créateur vide par défaut selon le type
-                  pollTypeFromUrl === "form" ? (
-                    <FormPollCreator
-                      initialDraft={undefined}
-                      onCancel={() => { }}
-                      onSave={() => { }}
-                      onFinalize={(draft, savedPoll) => {
-                        // Utiliser le poll créé par createFormPoll au lieu de créer un nouveau poll
-                        if (savedPoll) {
-                          setPublishedPoll(savedPoll);
-                        }
-                      }}
-                    />
-                  ) : (
-                    <PollCreatorComponent
-                      onBack={(createdPoll) => {
-                        if (createdPoll) {
-                          setPublishedPoll(createdPoll);
-                        }
-                      }}
-                      initialData={undefined}
-                    />
-                  )}
+                pollTypeFromUrl === "form" ? (
+                  <FormPollCreator
+                    initialDraft={undefined}
+                    onCancel={() => {}}
+                    onSave={() => {}}
+                    onFinalize={(draft, savedPoll) => {
+                      // Utiliser le poll créé par createFormPoll au lieu de créer un nouveau poll
+                      if (savedPoll) {
+                        setPublishedPoll(savedPoll);
+                      }
+                    }}
+                  />
+                ) : (
+                  <PollCreatorComponent
+                    onBack={(createdPoll) => {
+                      if (createdPoll) {
+                        setPublishedPoll(createdPoll);
+                      }
+                    }}
+                    initialData={undefined}
+                  />
+                )}
               </div>
             </div>
           )}
