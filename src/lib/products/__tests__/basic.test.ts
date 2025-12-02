@@ -1,4 +1,4 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from "vitest";
 
 // Tests simples sans dépendances externes
 describe("Tests Basiques - Architecture Multi-Produits", () => {
