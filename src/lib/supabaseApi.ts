@@ -117,10 +117,21 @@ export async function supabaseRestApi<T = Record<string, unknown>>(
 ): Promise<T> {
   const { body, query, timeout = 10000, requireAuth = true } = options;
 
-  // Get token
-  const token = getSupabaseToken();
-  if (requireAuth && !token) {
-    throw ErrorFactory.auth("No authentication token found", "Please sign in to continue");
+  // Get token (with refresh support)
+  let token: string | null = null;
+
+  if (requireAuth) {
+    const session = await getSupabaseSessionWithTimeout(500);
+    token = session?.access_token ?? null;
+
+    if (!token) {
+      throw ErrorFactory.auth("No authentication token found", "Please sign in to continue");
+    }
+  } else {
+    // If auth not required, try to get token anyway (for RLS that might use it if present)
+    // but don't fail if missing
+    const session = await getSupabaseSessionWithTimeout(200);
+    token = session?.access_token ?? null;
   }
 
   // Build URL
@@ -198,11 +209,12 @@ export async function supabaseRestApi<T = Record<string, unknown>>(
 export async function supabaseInsert<T = Record<string, unknown>>(
   table: string,
   data: unknown,
-  options: { timeout?: number } = {},
+  options: { timeout?: number; requireAuth?: boolean } = {},
 ): Promise<T> {
   const result = await supabaseRestApi<T[]>(table, "POST", {
     body: data,
     timeout: options.timeout,
+    requireAuth: options.requireAuth,
   });
 
   // Supabase returns array with single item
@@ -216,12 +228,13 @@ export async function supabaseUpdate<T = Record<string, unknown>>(
   table: string,
   data: unknown,
   query: Record<string, string>,
-  options: { timeout?: number } = {},
+  options: { timeout?: number; requireAuth?: boolean } = {},
 ): Promise<T> {
   const result = await supabaseRestApi<T[]>(table, "PATCH", {
     body: data,
     query,
     timeout: options.timeout,
+    requireAuth: options.requireAuth,
   });
 
   return Array.isArray(result) ? result[0] : result;
@@ -233,11 +246,12 @@ export async function supabaseUpdate<T = Record<string, unknown>>(
 export async function supabaseDelete(
   table: string,
   query: Record<string, string>,
-  options: { timeout?: number } = {},
+  options: { timeout?: number; requireAuth?: boolean } = {},
 ): Promise<void> {
   await supabaseRestApi(table, "DELETE", {
     query,
     timeout: options.timeout,
+    requireAuth: options.requireAuth,
   });
 }
 
@@ -255,11 +269,12 @@ export async function supabaseDelete(
 export async function supabaseSelect<T = Record<string, unknown>>(
   table: string,
   query: Record<string, string>,
-  options: { timeout?: number } = {},
+  options: { timeout?: number; requireAuth?: boolean } = {},
 ): Promise<T[]> {
   return await supabaseRestApi<T[]>(table, "GET", {
     query,
     timeout: options.timeout,
+    requireAuth: options.requireAuth,
   });
 }
 
@@ -270,7 +285,7 @@ export async function supabaseSelect<T = Record<string, unknown>>(
 export async function supabaseSelectSingle<T = Record<string, unknown>>(
   table: string,
   query: Record<string, string>,
-  options: { timeout?: number } = {},
+  options: { timeout?: number; requireAuth?: boolean } = {},
 ): Promise<T> {
   const queryWithSingle = {
     ...query,
@@ -279,6 +294,7 @@ export async function supabaseSelectSingle<T = Record<string, unknown>>(
   const results = await supabaseRestApi<T[]>(table, "GET", {
     query: queryWithSingle,
     timeout: options.timeout,
+    requireAuth: options.requireAuth,
   });
 
   if (!results || results.length === 0) {
@@ -297,7 +313,7 @@ export async function supabaseSelectSingle<T = Record<string, unknown>>(
 export async function supabaseSelectMaybeSingle<T = Record<string, unknown>>(
   table: string,
   query: Record<string, string>,
-  options: { timeout?: number } = {},
+  options: { timeout?: number; requireAuth?: boolean } = {},
 ): Promise<T | null> {
   const queryWithSingle = {
     ...query,
@@ -306,6 +322,7 @@ export async function supabaseSelectMaybeSingle<T = Record<string, unknown>>(
   const results = await supabaseRestApi<T[]>(table, "GET", {
     query: queryWithSingle,
     timeout: options.timeout,
+    requireAuth: options.requireAuth,
   });
 
   if (!results || results.length === 0) {

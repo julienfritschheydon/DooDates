@@ -71,7 +71,7 @@ export class EnhancedGeminiService {
       try {
         this.genAI = new GoogleGenerativeAI(API_KEY);
         this.model = this.genAI.getGenerativeModel({
-          model: "gemini-2.0-flash-exp",
+          model: "gemini-1.5-flash",
         });
         return true;
       } catch (error) {
@@ -412,28 +412,32 @@ Réponds SEULEMENT avec le JSON validé.`;
     const errors: string[] = [];
 
     // Test counterfactual 1: Cohérence des jours
-    for (const dateStr of parsed.dates) {
-      const date = new Date(dateStr);
-      const dayOfWeek = date.getDay();
+    if (Array.isArray(parsed.dates)) {
+      for (const dateStr of parsed.dates) {
+        if (typeof dateStr !== "string") continue;
+        const date = new Date(dateStr);
+        const dayOfWeek = date.getDay();
 
-      if (analysis.originalText.includes("lundi") && dayOfWeek !== 1) {
-        errors.push(`Date ${dateStr} n'est pas un lundi comme demandé`);
-      }
-      if (analysis.originalText.includes("mardi") && dayOfWeek !== 2) {
-        errors.push(`Date ${dateStr} n'est pas un mardi comme demandé`);
-      }
-      if (analysis.constraints.weekend && ![0, 6].includes(dayOfWeek)) {
-        errors.push(`Date ${dateStr} n'est pas un weekend`);
-      }
-      if (analysis.constraints.semaine && [0, 6].includes(dayOfWeek)) {
-        errors.push(`Date ${dateStr} est un weekend mais semaine demandée`);
+        if (analysis.originalText.includes("lundi") && dayOfWeek !== 1) {
+          errors.push(`Date ${dateStr} n'est pas un lundi comme demandé`);
+        }
+        if (analysis.originalText.includes("mardi") && dayOfWeek !== 2) {
+          errors.push(`Date ${dateStr} n'est pas un mardi comme demandé`);
+        }
+        if (analysis.constraints.weekend && ![0, 6].includes(dayOfWeek)) {
+          errors.push(`Date ${dateStr} n'est pas un weekend`);
+        }
+        if (analysis.constraints.semaine && [0, 6].includes(dayOfWeek)) {
+          errors.push(`Date ${dateStr} est un weekend mais semaine demandée`);
+        }
       }
     }
 
     // Test counterfactual 2: Cohérence des horaires
-    if (parsed.timeSlots) {
+    if (parsed.timeSlots && Array.isArray(parsed.timeSlots)) {
       for (const slot of parsed.timeSlots) {
-        const startHour = parseInt(slot.start.split(":")[0]);
+        if (!slot || typeof slot !== "object" || !("start" in slot)) continue;
+        const startHour = parseInt((slot as { start: string }).start.split(":")[0]);
 
         if (analysis.constraints.matin && startHour >= 12) {
           errors.push(`Créneau ${slot.start} n'est pas le matin (doit être < 12:00)`);
