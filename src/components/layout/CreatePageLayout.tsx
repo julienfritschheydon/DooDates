@@ -378,7 +378,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
       {/* Contenu principal */}
       <div className="flex-1 flex flex-col min-w-0 bg-[#0a0a0a]">
         {/* Header avec bouton hamburger */}
-        <div className="h-14 flex-shrink-0 bg-[#0a0a0a] flex items-center px-4 border-b border-gray-800">
+        <div className="h-14 flex-shrink-0 bg-[#0a0a0a] flex items-center justify-between px-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
             <button
               data-testid="sidebar-toggle"

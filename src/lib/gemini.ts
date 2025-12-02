@@ -1873,7 +1873,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
                 });
                 // Mettre à jour aussi timeSlotsByDate si présent
                 if (q.timeSlotsByDate) {
-                  const correctedTimeSlots: Record<string, any> = {};
+                  const correctedTimeSlots: Record<string, unknown> = {};
                   Object.entries(q.timeSlotsByDate).forEach(([date, slots]) => {
                     const [year, month, day] = date.split("-");
                     const dateYear = parseInt(year, 10);

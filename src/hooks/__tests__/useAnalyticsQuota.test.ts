@@ -7,6 +7,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useAnalyticsQuota } from "../useAnalyticsQuota";
 import { ANALYTICS_QUOTAS } from "../../constants/quotas";
+import { getTodayLocal, formatDateLocal } from "../../lib/date-utils";
 
 // Fonction utilitaire pour créer un mock d'authentification
 const createAuthMock = (user: User | null = null) => ({
@@ -233,7 +234,7 @@ describe("useAnalyticsQuota", () => {
     });
 
     it(" charge le quota depuis localStorage si présent", async () => {
-      const today = new Date().toISOString().split("T")[0];
+      const today = getTodayLocal();
       localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 3, date: today }));
 
       const { result } = renderHook(() => useAnalyticsQuota());
@@ -248,7 +249,7 @@ describe("useAnalyticsQuota", () => {
     it(" reset le quota si date différente dans localStorage", async () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split("T")[0];
+      const yesterdayStr = formatDateLocal(yesterday);
 
       localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 10, date: yesterdayStr }));
 
@@ -260,7 +261,7 @@ describe("useAnalyticsQuota", () => {
 
         // Vérifier que localStorage a été mis à jour avec la date d'aujourd'hui
         const stored = JSON.parse(localStorageMock.getItem(STORAGE_KEY) || "{}");
-        expect(stored.date).toBe(new Date().toISOString().split("T")[0]);
+        expect(stored.date).toBe(getTodayLocal());
       });
     });
 
@@ -274,7 +275,7 @@ describe("useAnalyticsQuota", () => {
         // Vérifier que localStorage a été initialisé
         const stored = JSON.parse(localStorageMock.getItem(STORAGE_KEY) || "{}");
         expect(stored.count).toBe(0);
-        expect(stored.date).toBe(new Date().toISOString().split("T")[0]);
+        expect(stored.date).toBe(getTodayLocal());
       });
     });
   });
@@ -341,7 +342,7 @@ describe("useAnalyticsQuota", () => {
     it(" reset automatiquement si changement de jour lors de l'incrémentation", () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split("T")[0];
+      const yesterdayStr = formatDateLocal(yesterday);
 
       localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ count: 10, date: yesterdayStr }));
 

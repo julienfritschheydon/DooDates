@@ -24,16 +24,34 @@ export function readFromStorage<T>(
       const cachedItems = Array.from(cache.values());
       // Debug: vérifier les questions de type date dans le cache
       if (key === "doodates_polls") {
-        cachedItems.forEach((item: any) => {
-          if (item?.type === "form" && item?.questions) {
-            item.questions.forEach((q: any) => {
-              if (q?.kind === "date" || q?.type === "date") {
-                console.log("🔍 readFromStorage (cache) - Question date:", {
-                  pollId: item.id,
-                  questionId: q.id,
-                  selectedDates: q.selectedDates,
-                  timeSlotsByDate: q.timeSlotsByDate,
-                });
+        cachedItems.forEach((item: unknown) => {
+          if (
+            item &&
+            typeof item === "object" &&
+            "type" in item &&
+            item.type === "form" &&
+            "questions" in item &&
+            Array.isArray(item.questions) &&
+            "id" in item
+          ) {
+            const itemObj = item as { id: string; questions: unknown[] };
+            itemObj.questions.forEach((q: unknown) => {
+              if (q && typeof q === "object" && "id" in q) {
+                const qObj = q as {
+                  id: string;
+                  kind?: string;
+                  type?: string;
+                  selectedDates?: unknown;
+                  timeSlotsByDate?: unknown;
+                };
+                if (qObj.kind === "date" || qObj.type === "date") {
+                  console.log("🔍 readFromStorage (cache) - Question date:", {
+                    pollId: itemObj.id,
+                    questionId: qObj.id,
+                    selectedDates: qObj.selectedDates,
+                    timeSlotsByDate: qObj.timeSlotsByDate,
+                  });
+                }
               }
             });
           }
@@ -48,17 +66,42 @@ export function readFromStorage<T>(
 
     // Debug: vérifier les questions de type date dans localStorage
     if (key === "doodates_polls" && Array.isArray(items)) {
-      items.forEach((item: any) => {
-        if (item?.type === "form" && item?.questions) {
-          item.questions.forEach((q: any) => {
-            if (q?.kind === "date" || q?.type === "date") {
-              console.log("🔍 readFromStorage (localStorage) - Question date:", {
-                pollId: item.id,
-                questionId: q.id,
-                selectedDates: q.selectedDates,
-                timeSlotsByDate: q.timeSlotsByDate,
-                rawQuestion: q,
-              });
+      items.forEach((item: unknown) => {
+        if (
+          item &&
+          typeof item === "object" &&
+          "type" in item &&
+          item.type === "form" &&
+          "questions" in item &&
+          Array.isArray(item.questions) &&
+          "id" in item
+        ) {
+          const itemObj = item as { id: string; questions: unknown[] };
+          itemObj.questions.forEach((q: unknown) => {
+            if (
+              q &&
+              typeof q === "object" &&
+              ("kind" in q || "type" in q) &&
+              (q.kind === "date" || q.type === "date") &&
+              "id" in q
+            ) {
+              const qObj = q as {
+                id: string;
+                kind?: string;
+                type?: string;
+                selectedDates?: unknown;
+                timeSlotsByDate?: unknown;
+                [key: string]: unknown;
+              };
+              if (qObj.kind === "date" || qObj.type === "date") {
+                console.log("🔍 readFromStorage (localStorage) - Question date:", {
+                  pollId: itemObj.id,
+                  questionId: qObj.id,
+                  selectedDates: qObj.selectedDates,
+                  timeSlotsByDate: qObj.timeSlotsByDate,
+                  rawQuestion: q,
+                });
+              }
             }
           });
         }

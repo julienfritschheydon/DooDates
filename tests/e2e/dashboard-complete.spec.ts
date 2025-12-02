@@ -10,7 +10,10 @@ import { safeIsVisible } from './helpers/safe-helpers';
 /**
  * Tests E2E complets pour toutes les fonctionnalités du Dashboard
  * 
- * @tags @dashboard @smoke @critical @functional
+ * @tags @dashboard @functional
+ * 
+ * NOTE: Les tests smoke critiques (@smoke @critical) sont dans dashboard-smoke.spec.ts
+ * pour éviter la duplication et permettre une exécution rapide séparée.
  */
 test.describe('Dashboard - Fonctionnalités Complètes', () => {
   test.describe.configure({ mode: 'serial' });
@@ -70,29 +73,22 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   async function waitForDashboardReady(page: Page, browserName: string) {
     const timeouts = getTimeouts(browserName);
+    
+    // Attendre que l'élément dashboard-ready soit visible
     await waitForElementReady(page, '[data-testid="dashboard-ready"]', {
       browserName,
       timeout: timeouts.element,
     });
-    await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
-  }
-
-  test('@smoke @critical - Charger le dashboard sans erreur', async ({ page, browserName }) => {
-    const timeouts = getTimeouts(browserName);
     
-    await withConsoleGuard(page, async () => {
-      await setupTestData(page);
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
-      await waitForNetworkIdle(page, { browserName });
-      await waitForDashboardReady(page, browserName);
-
-      // Vérifier que le dashboard se charge
-      const heading = page.getByRole('heading', { name: /Tableau de bord/i });
-      await expect(heading).toBeVisible({ timeout: timeouts.element });
-      const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
-      await expect(pollItem).toBeVisible({ timeout: timeouts.element });
-    });
-  });
+    // Attendre que les éléments de chargement disparaissent
+    await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
+    
+    // Attendre que le titre du dashboard soit visible
+    await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible({ timeout: timeouts.element });
+    
+    // Attendre que React soit stable
+    await waitForReactStable(page, { browserName });
+  }
 
   test('@functional - Rechercher une conversation', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);

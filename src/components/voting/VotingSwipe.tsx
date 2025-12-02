@@ -24,6 +24,19 @@ interface VotingSwipeProps {
   onViewResults?: () => void;
 }
 
+type GroupItem = {
+  type: "group" | "single";
+  data: {
+    id: string;
+    label?: string;
+    dates?: string[];
+    option_date?: string;
+    [key: string]: unknown;
+  };
+  options: Array<{ id: string; option_date: string; [key: string]: unknown }>;
+  sortDate: string;
+};
+
 const VotingSwipe: React.FC<VotingSwipeProps> = ({
   pollId,
   onBack,
@@ -253,7 +266,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                     {(() => {
                       // Logique de groupement
                       const processedOptionIds = new Set<string>();
-                      const groups: any[] = [];
+                      const groups: GroupItem[] = [];
 
                       // 1. Traiter les groupes définis
                       if (poll?.dateGroups && poll.dateGroups.length > 0) {
@@ -352,7 +365,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                           const firstOptionId = item.options[0].id;
                           const groupVote = votes[firstOptionId];
                           const isGroupVoteConsistent = item.options.every(
-                            (opt: any) => votes[opt.id] === groupVote,
+                            (opt) => votes[opt.id] === groupVote,
                           );
                           const effectiveVote = isGroupVoteConsistent ? groupVote : undefined;
 
@@ -372,10 +385,10 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                               }}
                               index={index}
                               userVote={effectiveVote}
-                              userHasVoted={item.options.some((opt: any) => userHasVoted[opt.id])}
+                              userHasVoted={item.options.some((opt) => userHasVoted[opt.id])}
                               handleVote={(virtualId: string, voteType: VoteType) => {
                                 // Appliquer le vote à TOUTES les options du groupe
-                                item.options.forEach((opt: any) => {
+                                item.options.forEach((opt) => {
                                   logger.debug("Vote groupé", "vote", {
                                     optionId: opt.id,
                                     voteType,
@@ -446,7 +459,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
             {(() => {
               // Logique de groupement (dupliquée pour l'instant, idéalement factorisée)
               const processedOptionIds = new Set<string>();
-              const groups: any[] = [];
+              const groups: GroupItem[] = [];
 
               if (poll?.dateGroups && poll.dateGroups.length > 0) {
                 poll.dateGroups.forEach((group) => {
@@ -517,7 +530,7 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                   const firstOptionId = item.options[0].id;
                   const groupVote = votes[firstOptionId];
                   const isGroupVoteConsistent = item.options.every(
-                    (opt: any) => votes[opt.id] === groupVote,
+                    (opt) => votes[opt.id] === groupVote,
                   );
                   const effectiveVote = isGroupVoteConsistent ? groupVote : undefined;
 
@@ -531,9 +544,9 @@ const VotingSwipe: React.FC<VotingSwipeProps> = ({
                       }}
                       index={index}
                       userVote={effectiveVote}
-                      userHasVoted={item.options.some((opt: any) => userHasVoted[opt.id])}
+                      userHasVoted={item.options.some((opt) => userHasVoted[opt.id])}
                       handleVote={(virtualId: string, voteType: VoteType) => {
-                        item.options.forEach((opt: any) => {
+                        item.options.forEach((opt) => {
                           handleVote(opt.id, voteType);
                         });
                       }}

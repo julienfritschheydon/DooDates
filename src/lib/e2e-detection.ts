@@ -21,7 +21,9 @@ export function isE2ETestingEnvironment(): boolean {
   }
 
   // Permettre de désactiver temporairement la détection E2E pour certains tests
-  if ((window as any).__DISABLE_E2E_DETECTION__ === true) {
+  if (
+    (window as Window & { __DISABLE_E2E_DETECTION__?: boolean }).__DISABLE_E2E_DETECTION__ === true
+  ) {
     return false;
   }
 

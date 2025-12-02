@@ -14,7 +14,7 @@ interface StoredConversationData {
   messages: ConversationMessage[];
 }
 
-const dateReviver = (key: string, value: any) => {
+const dateReviver = (key: string, value: unknown) => {
   if (
     (key === "createdAt" || key === "updatedAt" || key === "timestamp") &&
     typeof value === "string"

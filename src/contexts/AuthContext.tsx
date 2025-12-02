@@ -69,7 +69,7 @@ export function useAuth() {
         hasSession: !!context.session,
       });
     }
-  }, [context.user?.id, context.loading]); // Seulement si l'ID change ou loading termine
+  }, [context.user?.id, context.loading, context.session, context.user]); // Seulement si l'ID change ou loading termine
 
   return context;
 }

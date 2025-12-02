@@ -1,0 +1,421 @@
+name: 3️⃣ Main Complete Validation (Production Protection)
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  # ========================================
+  # DÉTECTION CHANGEMENTS (main)
+  # ========================================
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.changes.outputs.code }}
+      src: ${{ steps.changes.outputs.src }}
+      e2e-required: ${{ steps.changes.outputs.e2e-required }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Detect file changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'tests/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vite.config.ts'
+              - 'vitest.config.ts'
+              - 'tsconfig.json'
+              - 'playwright.config.ts'
+              - '.github/workflows/**'
+            
+            # Changements nécessitant E2E (toujours tester sur main)
+            e2e-required:
+              - 'src/**/!(*.test.ts|*.test.tsx|__tests__)'
+              - 'src/**/*.tsx'
+              - 'src/**/*.jsx'
+              - 'src/**/!(*.test).ts'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vite.config.ts'
+              - 'playwright.config.ts'
+              - 'tests/e2e/**'
+            
+            # Code source (hors tests)
+            src:
+              - 'src/**/!(*.test.ts|*.test.tsx)'
+
+  # ========================================
+  # PRÉPARATION DÉPENDANCES (main - optimisé)
+  # ========================================
+  prepare-deps:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Cache dependencies (optimisé)
+        uses: actions/cache@v4
+        id: cache-deps
+        with:
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-main-deps-
+            ${{ runner.os }}-deps-combined-
+            ${{ runner.os }}-deps-
+
+      - name: 🔧 Install dependencies (si cache miss)
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: |
+          npm ci --prefer-offline --no-audit
+          npx playwright install --with-deps chromium
+
+      - name: 🔧 Cache TypeScript Build Info
+        uses: actions/cache@v4
+        with:
+          path: |
+            .tsbuildinfo
+            node_modules/.vite
+          key: ${{ runner.os }}-main-build-cache-${{ hashFiles('src/**/*', 'tsconfig.json', 'vite.config.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-main-build-cache-
+            ${{ runner.os }}-build-cache-
+
+
+
+  # ========================================
+  # TESTS COMPLETS (main - PARALLÈLE)
+  # ========================================
+  tests-complete:
+    needs: [changes, prepare-deps]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      INTEGRATION_TEST_PASSWORD: ${{ secrets.INTEGRATION_TEST_PASSWORD }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-main-deps-
+
+      - name: 🔧 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🧪 Tests unitaires complets
+        run: npm run test:unit
+
+      - name: 🔗 Tests d'intégration
+        run: npm run test:integration
+
+      - name: 🎨 Tests UX Régression
+        run: npm run test:ux-regression
+
+  # ========================================
+  # BUILD VALIDATION (main - PARALLÈLE)
+  # ========================================
+  build-validation:
+    needs: [changes, prepare-deps]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-main-deps-
+
+      - name: 🔧 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🔧 Cache ESLint
+        uses: actions/cache@v4
+        with:
+          path: .eslintcache
+          key: ${{ runner.os }}-main-eslint-${{ hashFiles('.eslintrc*', 'src/**/*.ts*', 'src/**/*.jsx') }}
+          restore-keys: |
+            ${{ runner.os }}-main-eslint-
+            ${{ runner.os }}-eslint-
+
+      - name: 🔍 Vérification TypeScript
+        run: npm run type-check
+
+      - name: 🧹 Lint strict (main)
+        run: npm run lint -- --max-warnings 0
+
+      - name: 🏗️ Build production (optimisé)
+        run: npm run build
+
+  # ========================================
+  # E2E COMPLET (main - PARALLÈLE)
+  # ========================================
+  tests-e2e-complete:
+    needs: [changes, prepare-deps]
+    if: |
+      needs.changes.outputs.code == 'true' &&
+      needs.changes.outputs.e2e-required == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-main-deps-
+
+      - name: 🔧 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🚀 E2E Smoke Tests (main)
+        run: npm run test:e2e:smoke -- --reporter=html,json
+
+      - name: 📊 Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-main-complete
+          path: playwright-report
+          retention-days: 7
+
+      - name: 📤 Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-main-complete
+          path: |
+            test-results
+            test-results.json
+          retention-days: 7
+
+  # ========================================
+  # 🔥 PRODUCTION SMOKE TESTS (main - CRITIQUE)
+  # ========================================
+  production-smoke-main:
+    needs: [changes, tests-complete, build-validation]
+    if: |
+      needs.changes.outputs.code == 'true' &&
+      needs.tests-complete.result == 'success' &&
+      needs.build-validation.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Restore dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-main-deps-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-main-deps-
+      
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: 📦 Build production (avec base path local pour tests)
+        run: npm run build
+        env:
+          NODE_ENV: production
+          VITE_BASE_PATH: /
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+      
+      - name: 🚀 Start preview server
+        run: |
+          npm run preview -- --port 4173 --host &
+          echo $! > preview.pid
+          sleep 5
+      
+      - name: ⏳ Wait for server to be ready
+        run: npx wait-on http://localhost:4173 --timeout 60000
+      
+      - name: 🔥 Run production smoke tests (main)
+        run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json
+        env:
+          BASE_URL: http://localhost:4173/
+          CI: true
+      
+      - name: 🛑 Stop preview server
+        if: always()
+        run: |
+          if [ -f preview.pid ]; then
+            kill $(cat preview.pid) || true
+            rm preview.pid
+          fi
+      
+      - name: 📊 Upload Playwright report (if failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-production-smoke-main
+          path: playwright-report
+          retention-days: 7
+      
+      - name: 📤 Upload test results (if failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-production-smoke-main
+          path: |
+            test-results
+            test-results.json
+          retention-days: 7
+
+  # ========================================
+  # AUTO-ROLLBACK (si échec critique sur main)
+  # ========================================
+  auto-rollback:
+    needs: [changes, tests-complete, build-validation, production-smoke-main]
+    if: |
+      always() &&
+      needs.changes.outputs.code == 'true' &&
+      (
+        needs.tests-complete.result == 'failure' || 
+        needs.build-validation.result == 'failure' ||
+        needs.production-smoke-main.result == 'failure'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_WORKFLOW }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🚨 Create rollback branch
+        run: |
+          git checkout -b rollback/main-${{ github.run_number }}
+          git push origin rollback/main-${{ github.run_number }}
+
+      - name: 📢 Create Critical Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const testStatus = '${{ needs.tests-complete.result }}';
+            const buildStatus = '${{ needs.build-validation.result }}';
+            const prodSmokeStatus = '${{ needs.production-smoke-main.result }}';
+            
+            let failedComponents = [];
+            if (testStatus === 'failure') failedComponents.push('Tests Complets');
+            if (buildStatus === 'failure') failedComponents.push('Build Validation');
+            if (prodSmokeStatus === 'failure') failedComponents.push('🔥 Production Smoke');
+            
+            const issueBody = `## 🚨 CRITICAL: Main Regression Detected\n\n` +
+              `**🔥 PRODUCTION PROTECTION ACTIVATED**\n\n` +
+              `**Failed Components:** ${failedComponents.join(', ')}\n\n` +
+              `**Details:**\n` +
+              `- 🧪 Tests Complets: ${testStatus === 'failure' ? '❌' : '✅'}\n` +
+              `- 🏗️ Build Validation: ${buildStatus === 'failure' ? '❌' : '✅'}\n` +
+              `- 🔥 Production Smoke: ${prodSmokeStatus === 'failure' ? '❌' : '✅'}\n\n` +
+              `**Actions Taken:**\n` +
+              `- 🚨 Rollback branch created: \`rollback/main-${{ github.run_number }}\`\n` +
+              `- 📊 Detailed reports available in artifacts\n` +
+              `- 🚫 Deployment blocked automatically\n\n` +
+              `**Next Steps:**\n` +
+              `1. Review test failures in artifacts\n` +
+              `2. Fix issues on develop branch\n` +
+              `3. Re-merge when fixed\n` +
+              `4. Delete rollback branch after resolution\n\n` +
+              `**Commit:** \`${{ github.sha }}\`\n` +
+              `**Run ID:** \`${{ github.run_id }}\``;
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 CRITICAL: Main Regression - Production Protected',
+              body: issueBody,
+              labels: ['critical', 'production', 'regression', 'urgent', 'rollback']
+            });
+
+  # ========================================
+  # SUCCESS NOTIFICATION (main)
+  # ========================================
+  success-notification:
+    needs: [changes, tests-complete, build-validation, production-smoke-main]
+    if: |
+      always() &&
+      needs.changes.outputs.code == 'true' &&
+      needs.tests-complete.result == 'success' &&
+      needs.build-validation.result == 'success' &&
+      needs.production-smoke-main.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🎉 Production Ready
+        run: |
+          echo "✅ Main validation completed successfully"
+          echo "🚀 Production deployment can proceed"
+          echo "📊 All tests passed:"
+          echo "  - 🧪 Tests Complets: ✅"
+          echo "  - 🏗️ Build Validation: ✅" 
+          echo "  - 🔥 Production Smoke: ✅"
+          echo "🛡️ Production protection maintained"

@@ -458,7 +458,7 @@ export function useDashboardData(refreshKey: number) {
     } finally {
       setLoading(false);
     }
-  }, [getUserPolls, user, user?.id, isE2ETestMode]);
+  }, [getUserPolls, user, isE2ETestMode]);
 
   useEffect(() => {
     loadData();
