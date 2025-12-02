@@ -27,11 +27,11 @@ export interface UseDragToSelectOptions<T> {
   disableOnMobile?: boolean;
 }
 
-export interface UseDragToSelectReturn {
+export interface UseDragToSelectReturn<T> {
   isDragging: boolean;
   draggedItems: Set<string>;
-  handleDragStart: (item: any, e: React.PointerEvent) => void;
-  handleDragMove: (item: any, e?: React.PointerEvent) => void;
+  handleDragStart: (item: T, e: React.PointerEvent) => void;
+  handleDragMove: (item: T, e?: React.PointerEvent) => void;
   handleDragEnd: () => void;
   isDraggedOver: (itemKey: string) => boolean;
   isLongPressActive: boolean;
@@ -62,7 +62,7 @@ export function useDragToSelect<T>({
   getItemsInRange,
   canDragItem,
   disableOnMobile = false,
-}: UseDragToSelectOptions<T>): UseDragToSelectReturn {
+}: UseDragToSelectOptions<T>): UseDragToSelectReturn<T> {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartItem, setDragStartItem] = useState<T | null>(null);
   const [draggedItems, setDraggedItems] = useState<Set<string>>(new Set());
@@ -127,7 +127,7 @@ export function useDragToSelect<T>({
       setDragStartItem(item);
       // On ne met PAS isDragging à true ici pour laisser le click passer si on relâche sans bouger
     },
-    [canDragItem, getItemKey],
+    [canDragItem, getItemKey, isMobile],
   );
 
   // Gérer le drag en cours
@@ -210,6 +210,7 @@ export function useDragToSelect<T>({
       dragStartItem,
       dragStartPos,
       longPressTimer,
+      isMobile,
       isLongPressActivated,
       getItemKey,
       getItemsInRange,

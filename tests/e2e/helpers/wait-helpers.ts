@@ -161,7 +161,14 @@ export async function waitForReactStable(
 
   // Attendre que React ait fini de traiter
   // On vérifie que le DOM ne change plus pendant un court instant
-  let initialHTML = await page.content();
+  let initialHTML: string;
+  try {
+    initialHTML = await page.content();
+  } catch (error) {
+    // Si la page navigue encore, attendre un peu et réessayer
+    await page.waitForTimeout(1000);
+    initialHTML = await page.content();
+  }
   let stableCount = 0;
   const checkInterval = 100;
   const stableThreshold = 2; // 2 vérifications consécutives = stable
@@ -169,7 +176,14 @@ export async function waitForReactStable(
   const startTime = Date.now();
 
   while (stableCount < stableThreshold && Date.now() - startTime < maxWaitTime) {
-    const currentHTML = await page.content();
+    let currentHTML: string;
+    try {
+      currentHTML = await page.content();
+    } catch (error) {
+      // Si la page navigue, attendre et continuer
+      await page.waitForTimeout(100);
+      continue;
+    }
 
     if (currentHTML === initialHTML) {
       stableCount++;

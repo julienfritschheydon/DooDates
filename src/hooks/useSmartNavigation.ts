@@ -34,7 +34,7 @@ export function useSmartNavigation(
 
   const location = useLocation();
   const navigate = useNavigate();
-  const previousLocation = useRef<Location<any> | null>(null);
+  const previousLocation = useRef<Location | null>(null);
   const currentResetStrategy = useRef<ResetStrategy | null>(null);
 
   // Écouter les événements de reset de chat
@@ -80,11 +80,11 @@ export function useSmartNavigation(
           length: 0,
           contains: () => false,
           item: () => null,
-          [Symbol.iterator]: function* () { },
+          [Symbol.iterator]: function* () {},
         } as DOMStringList,
-        assign: () => { },
-        replace: () => { },
-        reload: () => { },
+        assign: () => {},
+        replace: () => {},
+        reload: () => {},
         toString: () => toLocation.href,
       } as unknown as Location;
 

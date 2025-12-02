@@ -36,6 +36,8 @@ if [ "$FAST_HOOKS" = "1" ]; then
 
   echo "💅 Formatage du code..."
   npm run format
+  # Auto-stage les fichiers formatés pour éviter les changements non commités
+  git add -u
 
   echo "✅ Pre-commit (rapide) validé - Commit autorisé"
   exit 0
@@ -132,6 +134,8 @@ else
   if [ "$NO_FORMAT" != "1" ]; then
     echo "💅 Formatage du code..."
     npm run format
+    # Auto-stage les fichiers formatés pour éviter les changements non commités
+    git add -u
   else
     echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
   fi
@@ -195,6 +199,8 @@ fi
 if [ "$NO_FORMAT" != "1" ]; then
   echo "💅 Formatage du code..."
   npm run format
+  # Auto-stage les fichiers formatés pour éviter les changements non commités
+  git add -u
 else
   echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
 fi

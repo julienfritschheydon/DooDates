@@ -90,7 +90,11 @@ export function ConversationStateProvider({ children }: ConversationStateProvide
             "Failed to load messages from localStorage",
             "Impossible de charger l'historique de conversation",
           ),
-          { component: "ConversationStateProvider", operation: "loadMessages", metadata: { error } },
+          {
+            component: "ConversationStateProvider",
+            operation: "loadMessages",
+            metadata: { error },
+          },
         );
       }
     }
@@ -109,7 +113,6 @@ export function ConversationStateProvider({ children }: ConversationStateProvide
       window.removeEventListener("chat-reset", handleChatReset as EventListener);
     };
   }, [location.search]);
-
 
   // Sauvegarder les messages dans localStorage à chaque changement
   useEffect(() => {

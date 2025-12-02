@@ -2,7 +2,7 @@ name: 1️⃣ PR Complete Validation
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, pre-main]
   push:
     branches: [test/workflows-validation]
 

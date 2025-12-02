@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Check, X, HelpCircle, Calendar, Clock, Trophy } from "lucide-react";
 import type { FormQuestionShape, DateQuestionResults } from "../../lib/pollStorage";
@@ -14,7 +14,7 @@ export default function DateResultsView({
   results,
   totalRespondents,
 }: DateResultsViewProps) {
-  const selectedDates = question.selectedDates || [];
+  const selectedDates = useMemo(() => question.selectedDates || [], [question.selectedDates]);
   const timeSlotsByDate = question.timeSlotsByDate || {};
 
   // Formater une date pour l'affichage
@@ -34,10 +34,13 @@ export default function DateResultsView({
   };
 
   // Calculer le score pour trier les dates (yes - no*0.5)
-  const getDateScore = (date: string) => {
-    const votes = results.votesByDate[date] || { yes: 0, no: 0, maybe: 0, total: 0 };
-    return votes.yes - votes.no * 0.5;
-  };
+  const getDateScore = useCallback(
+    (date: string) => {
+      const votes = results.votesByDate[date] || { yes: 0, no: 0, maybe: 0, total: 0 };
+      return votes.yes - votes.no * 0.5;
+    },
+    [results],
+  );
 
   // Trier les dates par score décroissant
   const sortedDates = useMemo(() => {
@@ -46,7 +49,7 @@ export default function DateResultsView({
       const scoreB = getDateScore(b);
       return scoreB - scoreA;
     });
-  }, [selectedDates, results]);
+  }, [selectedDates, getDateScore]);
 
   // Obtenir le rang d'une date
   const getDateRank = (date: string) => {
