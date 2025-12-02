@@ -11,13 +11,16 @@ on:
       - staging
       - pre-prod
     paths:
-      # Déclenché uniquement pour les fichiers de tests
+      # Déclenché pour les fichiers de tests
       - 'tests/**'
       - 'src/**/__tests__/**'
       - 'src/**/*.test.ts'
       - 'src/**/*.test.tsx'
       - 'vitest.config.ts'
       - 'playwright.config.ts'
+      # Et les hooks Husky (config partagée)
+      - '.husky/pre-commit'
+      - '.husky/pre-push'
 
 permissions:
   contents: write
@@ -50,17 +53,17 @@ jobs:
       - name: 🔍 Identify changed test files
         id: changed-files
         run: |
-          # Récupérer les fichiers de tests modifiés
-          TEST_FILES=$(git diff --name-only HEAD~1 HEAD | grep -E '\.(test|spec)\.(ts|tsx|js)$|tests/|__tests__/' || echo "")
+          # Récupérer les fichiers de tests et hooks modifiés
+          TEST_FILES=$(git diff --name-only HEAD~1 HEAD | grep -E '\.(test|spec)\.(ts|tsx|js)$|tests/|__tests__/|\.husky/' || echo "")
           echo "test_files<<EOF" >> $GITHUB_OUTPUT
           echo "$TEST_FILES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
           
           if [ -n "$TEST_FILES" ]; then
-            echo "📝 Test files changed:"
+            echo "📝 Test/config files changed:"
             echo "$TEST_FILES"
           else
-            echo "⚠️ No test files detected in this commit"
+            echo "⚠️ No test/config files detected in this commit"
           fi
 
       - name: 🧪 Run unit tests
@@ -107,14 +110,16 @@ jobs:
           # Récupérer les commits récents de bug qui touchent uniquement les tests
           git fetch origin bug
           
-          # Trouver les commits de tests des dernières 24h
+          # Trouver les commits de tests/config des dernières 24h
           TEST_COMMITS=$(git log origin/bug --oneline --since="24 hours ago" -- \
             'tests/**' \
             'src/**/__tests__/**' \
             'src/**/*.test.ts' \
             'src/**/*.test.tsx' \
             'vitest.config.ts' \
-            'playwright.config.ts' | head -5)
+            'playwright.config.ts' \
+            '.husky/pre-commit' \
+            '.husky/pre-push' | head -5)
           
           echo "commits<<EOF" >> $GITHUB_OUTPUT
           echo "$TEST_COMMITS" >> $GITHUB_OUTPUT
@@ -125,12 +130,14 @@ jobs:
 
       - name: 🚀 Cherry-pick test changes
         run: |
-          # Récupérer le dernier commit de test de bug
+          # Récupérer le dernier commit de test/config de bug
           LAST_TEST_COMMIT=$(git log origin/bug -1 --format="%H" -- \
             'tests/**' \
             'src/**/__tests__/**' \
             'src/**/*.test.ts' \
-            'src/**/*.test.tsx')
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
           
           if [ -n "$LAST_TEST_COMMIT" ]; then
             echo "🍒 Cherry-picking: $LAST_TEST_COMMIT"
@@ -184,7 +191,9 @@ jobs:
             'tests/**' \
             'src/**/__tests__/**' \
             'src/**/*.test.ts' \
-            'src/**/*.test.tsx')
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
           
           if [ -n "$LAST_TEST_COMMIT" ]; then
             echo "🍒 Cherry-picking: $LAST_TEST_COMMIT"
@@ -233,7 +242,9 @@ jobs:
             'tests/**' \
             'src/**/__tests__/**' \
             'src/**/*.test.ts' \
-            'src/**/*.test.tsx')
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
           
           if [ -n "$LAST_TEST_COMMIT" ]; then
             echo "🍒 Cherry-picking: $LAST_TEST_COMMIT"
@@ -283,7 +294,9 @@ jobs:
             'tests/**' \
             'src/**/__tests__/**' \
             'src/**/*.test.ts' \
-            'src/**/*.test.tsx')
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
           
           if [ -n "$LAST_TEST_COMMIT" ]; then
             echo "🍒 Backporting to staging: $LAST_TEST_COMMIT"
@@ -318,7 +331,9 @@ jobs:
             'tests/**' \
             'src/**/__tests__/**' \
             'src/**/*.test.ts' \
-            'src/**/*.test.tsx')
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
           
           if [ -n "$LAST_TEST_COMMIT" ]; then
             echo "🍒 Backporting to testing: $LAST_TEST_COMMIT"
@@ -353,7 +368,9 @@ jobs:
             'tests/**' \
             'src/**/__tests__/**' \
             'src/**/*.test.ts' \
-            'src/**/*.test.tsx')
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
           
           if [ -n "$LAST_TEST_COMMIT" ]; then
             echo "🍒 Backporting to bug: $LAST_TEST_COMMIT"
@@ -401,7 +418,9 @@ jobs:
             'tests/**' \
             'src/**/__tests__/**' \
             'src/**/*.test.ts' \
-            'src/**/*.test.tsx')
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
           
           if [ -n "$LAST_TEST_COMMIT" ]; then
             echo "🍒 Backporting to testing: $LAST_TEST_COMMIT"
@@ -436,7 +455,9 @@ jobs:
             'tests/**' \
             'src/**/__tests__/**' \
             'src/**/*.test.ts' \
-            'src/**/*.test.tsx')
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
           
           if [ -n "$LAST_TEST_COMMIT" ]; then
             echo "🍒 Backporting to bug: $LAST_TEST_COMMIT"
