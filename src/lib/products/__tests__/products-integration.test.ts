@@ -56,7 +56,9 @@ describe("Products Integration Tests", () => {
     });
 
     it("should throw error for unknown poll type", async () => {
-      await expect(createPollService("unknown" as any)).rejects.toThrow("Unknown poll type: unknown");
+      await expect(createPollService("unknown" as any)).rejects.toThrow(
+        "Unknown poll type: unknown",
+      );
     });
   });
 

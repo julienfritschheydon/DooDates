@@ -1165,7 +1165,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           Heure
                         </div>
                         {state.selectedDates.map((dateStr) => {
-                          const dateInfo = PollCreatorService.formatSelectedDateHeader(dateStr, true);
+                          const dateInfo = PollCreatorService.formatSelectedDateHeader(
+                            dateStr,
+                            true,
+                          );
                           return (
                             <div
                               key={dateStr}
@@ -1185,7 +1188,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                       <div
                         ref={timeGridRefMobile}
                         className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
-                        style={{ scrollbarWidth: 'thin' }}
+                        style={{ scrollbarWidth: "thin" }}
                         data-testid="time-slots-grid-mobile"
                       >
                         {getVisibleTimeSlots().map((timeSlot) => (
@@ -1324,7 +1327,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           Heure
                         </div>
                         {state.selectedDates.map((dateStr) => {
-                          const dateInfo = PollCreatorService.formatSelectedDateHeader(dateStr, false);
+                          const dateInfo = PollCreatorService.formatSelectedDateHeader(
+                            dateStr,
+                            false,
+                          );
                           return (
                             <div
                               key={dateStr}
@@ -1344,7 +1350,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                       <div
                         ref={timeGridRefDesktop}
                         className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
-                        style={{ scrollbarWidth: 'thin' }}
+                        style={{ scrollbarWidth: "thin" }}
                         data-testid="time-slots-grid-desktop"
                       >
                         {getVisibleTimeSlots().map((timeSlot) => (

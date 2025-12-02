@@ -11,8 +11,8 @@ import {
   readRecordStorage,
   writeRecordStorage,
 } from "../../storage/storageUtils";
-import { handleError, ErrorFactory } from "../../error-handling";
-import { logger } from '../../logger';
+import { handleError, ErrorFactory, logError } from "../../error-handling";
+import { logger } from "../../logger";
 
 // Types spécifiques aux Form Polls
 export type FormQuestionKind =
@@ -145,16 +145,14 @@ const FORM_RESPONSES_KEY = "doodates_form_responses";
 // Validation spécifique aux Form Polls
 export function validateFormPoll(poll: FormPoll): void {
   if (!poll.title || typeof poll.title !== "string" || poll.title.trim() === "") {
-    throw ErrorFactory.validation(
-      "Invalid form poll: title must be a non-empty string"
-    );
+    throw ErrorFactory.validation("Invalid form poll: title must be a non-empty string");
   }
 
   if (poll.questions && Array.isArray(poll.questions)) {
     poll.questions.forEach((question, index) => {
       if (!question.id || !question.title || !question.kind) {
         throw ErrorFactory.validation(
-          `Invalid form poll question at index ${index}: missing required fields`
+          `Invalid form poll question at index ${index}: missing required fields`,
         );
       }
     });
@@ -198,7 +196,7 @@ export function getFormPolls(): FormPoll[] {
 
     return deduplicateFormPolls(validFormPolls);
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "getFormPolls" });
     return [];
   }
 }
@@ -230,14 +228,14 @@ export function saveFormPolls(polls: FormPoll[]): void {
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(deduplicatedPolls));
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "saveFormPolls" });
     throw error;
   }
 }
 
 export function getFormPollBySlugOrId(idOrSlug: string | undefined | null): FormPoll | null {
   if (!idOrSlug) return null;
-  
+
   const polls = getFormPolls();
   return polls.find((p) => p.id === idOrSlug || p.slug === idOrSlug) || null;
 }
@@ -245,19 +243,19 @@ export function getFormPollBySlugOrId(idOrSlug: string | undefined | null): Form
 export async function addFormPoll(poll: FormPoll): Promise<void> {
   try {
     validateFormPoll(poll);
-    
+
     const polls = getFormPolls();
     const existingIndex = polls.findIndex((p) => p.id === poll.id);
-    
+
     if (existingIndex >= 0) {
       polls[existingIndex] = poll;
     } else {
       polls.push(poll);
     }
-    
+
     saveFormPolls(polls);
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "addFormPoll" });
     throw error;
   }
 }
@@ -268,7 +266,7 @@ export function deleteFormPollById(id: string): void {
     const next = polls.filter((p) => p.id !== id);
     saveFormPolls(next);
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "deleteFormPollById" });
     throw error;
   }
 }
@@ -294,7 +292,7 @@ function readAllFormResponses(): FormResponse[] {
     const raw = localStorage.getItem(FORM_RESPONSES_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "readAllFormResponses" });
     return [];
   }
 }
@@ -304,7 +302,7 @@ function writeAllFormResponses(resps: FormResponse[]): void {
     if (!hasWindow()) return;
     localStorage.setItem(FORM_RESPONSES_KEY, JSON.stringify(resps));
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "writeAllFormResponses" });
     throw error;
   }
 }
@@ -328,15 +326,11 @@ function assertValidFormAnswer(poll: FormPoll, items: FormResponseItem[]): void 
     if (!q) continue;
 
     if (q.required && (!item.value || (Array.isArray(item.value) && item.value.length === 0))) {
-      throw ErrorFactory.validation(
-        `Missing required answer for question ${q.id}`
-      );
+      throw ErrorFactory.validation(`Missing required answer for question ${q.id}`);
     }
 
     if (q.kind === "text" && typeof item.value !== "string") {
-      throw ErrorFactory.validation(
-        "Text answer required"
-      );
+      throw ErrorFactory.validation("Text answer required");
     }
   }
 }
@@ -372,7 +366,7 @@ export function addFormResponse(params: {
     all.push(response);
     writeAllFormResponses(all);
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "FormPollsService", operation: "addFormResponse" });
     throw error;
   }
 }
@@ -413,7 +407,7 @@ export function getFormResults(pollId: string): FormResults {
 
           dateValue.forEach((voteData) => {
             const { date, timeSlots, vote } = voteData;
-            
+
             if (!questionResults.votesByDate[date]) {
               questionResults.votesByDate[date] = { yes: 0, no: 0, maybe: 0, total: 0 };
             }
@@ -423,7 +417,12 @@ export function getFormResults(pollId: string): FormResults {
             timeSlots.forEach((slot) => {
               const timeSlotKey = `${date}-${slot.hour}-${slot.minute}`;
               if (!questionResults.votesByTimeSlot[timeSlotKey]) {
-                questionResults.votesByTimeSlot[timeSlotKey] = { yes: 0, no: 0, maybe: 0, total: 0 };
+                questionResults.votesByTimeSlot[timeSlotKey] = {
+                  yes: 0,
+                  no: 0,
+                  maybe: 0,
+                  total: 0,
+                };
               }
               questionResults.votesByTimeSlot[timeSlotKey][vote]++;
               questionResults.votesByTimeSlot[timeSlotKey].total++;
@@ -467,7 +466,7 @@ function hasWindow(): boolean {
 
 export function getDeviceId(): string {
   if (!hasWindow()) return `server_${Date.now()}`;
-  
+
   let deviceId = localStorage.getItem("doodates_device_id");
   if (!deviceId) {
     deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

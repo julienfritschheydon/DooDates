@@ -11,20 +11,20 @@ export {
   addFormResponse,
   getFormResponses,
   getFormResults,
-  validateFormPoll as validatePoll
-} from './form-polls-service';
+  validateFormPoll as validatePoll,
+} from "./form-polls-service";
 
-export type { 
-  FormPoll as Poll, 
+export type {
+  FormPoll as Poll,
   FormPollSettings as PollSettings,
   FormQuestionShape as FormQuestion,
-  FormResponse, 
+  FormResponse,
   FormQuestionKind,
   FormQuestionOption,
   DateVoteValue,
   DateQuestionResults,
-  FormResults
-} from './form-polls-service';
+  FormResults,
+} from "./form-polls-service";
 
 // Helper function pour compatibilité
 export function isFormPoll(poll: any): boolean {

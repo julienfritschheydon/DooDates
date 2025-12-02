@@ -3,11 +3,11 @@
  * Protection des endpoints Express avec rate limiting et logging RGPD
  */
 
-import { Request, Response, NextFunction } from 'express';
-import { rateLimiter, RateLimiterService } from './rate-limiter';
-import { hashIP } from './ip-hash';
-import { logConsent } from './consent-logger';
-import { logError, ErrorFactory } from '../error-handling';
+import { Request, Response, NextFunction } from "express";
+import { rateLimiter, RateLimiterService } from "./rate-limiter";
+import { hashIP } from "./ip-hash";
+import { logConsent } from "./consent-logger";
+import { logError, ErrorFactory } from "../error-handling";
 
 interface SecurityMiddlewareOptions {
   // Rate limiting
@@ -35,7 +35,7 @@ export function securityMiddleware(options: SecurityMiddlewareOptions = {}) {
   const {
     rateLimit = {},
     gdpr = { logConsent: true, hashIP: true },
-    security = { addHeaders: true, cors: true }
+    security = { addHeaders: true, cors: true },
   } = options;
 
   return (req: Request, res: Response, next: NextFunction) => {
@@ -44,19 +44,19 @@ export function securityMiddleware(options: SecurityMiddlewareOptions = {}) {
       const identifier = getRequestIdentifier(req);
       if (!rateLimiter.isAllowed(identifier, rateLimit)) {
         const stats = rateLimiter.getStats(identifier);
-        
+
         // Logger la tentative de blocage
         logError(
           ErrorFactory.rateLimit(
             `Security middleware blocked request from ${identifier}`,
             "Trop de requêtes. Veuillez patienter.",
           ),
-          { 
-            component: "SecurityMiddleware", 
-            identifier, 
+          {
+            component: "SecurityMiddleware",
+            identifier,
             ip: req.ip,
-            userAgent: req.headers['user-agent'],
-            blockedUntil: stats?.blockUntil 
+            userAgent: req.headers["user-agent"],
+            blockedUntil: stats?.blockUntil,
           },
         );
 
@@ -76,14 +76,14 @@ export function securityMiddleware(options: SecurityMiddlewareOptions = {}) {
       if (gdpr.logConsent || gdpr.hashIP) {
         const ip = getClientIP(req);
         const hashedIP = gdpr.hashIP ? hashIP(ip) : undefined;
-        
+
         if (gdpr.logConsent) {
           logConsent({
-            action: 'api_request',
+            action: "api_request",
             endpoint: req.path,
             method: req.method,
             ipHash: hashedIP,
-            userAgent: req.headers['user-agent'],
+            userAgent: req.headers["user-agent"],
             timestamp: new Date().toISOString(),
           });
         }
@@ -97,9 +97,12 @@ export function securityMiddleware(options: SecurityMiddlewareOptions = {}) {
           "Security middleware error",
           "Erreur interne du middleware de sécurité.",
         ),
-        { component: "SecurityMiddleware", error: error instanceof Error ? error.message : String(error) },
+        {
+          component: "SecurityMiddleware",
+          error: error instanceof Error ? error.message : String(error),
+        },
       );
-      
+
       res.status(500).json({
         success: false,
         error: "Internal server error",
@@ -157,20 +160,21 @@ export function adminSecurityMiddleware() {
  */
 function addSecurityHeaders(res: Response) {
   // Headers de sécurité généraux
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-  
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+
   // Headers CSP
-  res.setHeader('Content-Security-Policy', 
+  res.setHeader(
+    "Content-Security-Policy",
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-    "style-src 'self' 'unsafe-inline'; " +
-    "img-src 'self' data: https:; " +
-    "font-src 'self' data:; " +
-    "connect-src 'self' https://api.openai.com https://generativelanguage.googleapis.com;"
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+      "style-src 'self' 'unsafe-inline'; " +
+      "img-src 'self' data: https:; " +
+      "font-src 'self' data:; " +
+      "connect-src 'self' https://api.openai.com https://generativelanguage.googleapis.com;",
   );
 }
 
@@ -179,7 +183,7 @@ function addSecurityHeaders(res: Response) {
  */
 function getRequestIdentifier(req: Request): string {
   const ip = getClientIP(req);
-  const userAgent = req.headers['user-agent'] || 'unknown';
+  const userAgent = req.headers["user-agent"] || "unknown";
   return `${ip}:${userAgent}`;
 }
 
@@ -187,12 +191,14 @@ function getRequestIdentifier(req: Request): string {
  * Extrait l'IP réelle du client
  */
 function getClientIP(req: Request): string {
-  return req.ip || 
-         req.connection?.remoteAddress || 
-         req.socket?.remoteAddress || 
-         req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() || 
-         req.headers['x-real-ip']?.toString() || 
-         'unknown';
+  return (
+    req.ip ||
+    req.connection?.remoteAddress ||
+    req.socket?.remoteAddress ||
+    req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ||
+    req.headers["x-real-ip"]?.toString() ||
+    "unknown"
+  );
 }
 
 /**
@@ -201,14 +207,16 @@ function getClientIP(req: Request): string {
 export function requestLogger() {
   return (req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
-    
-    res.on('finish', () => {
+
+    res.on("finish", () => {
       const duration = Date.now() - start;
       const ip = getClientIP(req);
-      
-      console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} - ${duration}ms - IP: ${ip}`);
+
+      console.log(
+        `[${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} - ${duration}ms - IP: ${ip}`,
+      );
     });
-    
+
     next();
   };
 }
@@ -219,25 +227,27 @@ export function requestLogger() {
 export function corsMiddleware(allowedOrigins: string[] = []) {
   return (req: Request, res: Response, next: NextFunction) => {
     const origin = req.headers.origin;
-    
+
     if (!origin) {
       return next();
     }
-    
+
     // Vérifier si l'origin est autorisée
-    if (allowedOrigins.includes(origin) || 
-        allowedOrigins.some(pattern => new RegExp(pattern).test(origin))) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key');
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    if (
+      allowedOrigins.includes(origin) ||
+      allowedOrigins.some((pattern) => new RegExp(pattern).test(origin))
+    ) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key");
+      res.setHeader("Access-Control-Allow-Credentials", "true");
     }
-    
+
     // Gérer les requêtes preflight
-    if (req.method === 'OPTIONS') {
+    if (req.method === "OPTIONS") {
       return res.status(204).end();
     }
-    
+
     next();
   };
 }

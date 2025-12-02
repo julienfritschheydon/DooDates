@@ -1,4 +1,5 @@
 import React, { createContext, useContext, ReactNode } from "react";
+import { ErrorFactory } from "@/lib/error-handling";
 
 interface AnalyticsEvent {
   name: string;
@@ -27,7 +28,7 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({
 }) => {
   const track = (event: string, properties?: Record<string, any>) => {
     if (!enabled) return;
-    
+
     const analyticsEvent: AnalyticsEvent = {
       name: event,
       properties,
@@ -83,17 +84,16 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({
     trackProductInteraction,
   };
 
-  return (
-    <AnalyticsContext.Provider value={value}>
-      {children}
-    </AnalyticsContext.Provider>
-  );
+  return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>;
 };
 
 export const useAnalytics = (): AnalyticsContextType => {
   const context = useContext(AnalyticsContext);
   if (context === undefined) {
-    throw new Error("useAnalytics must be used within an AnalyticsProvider");
+    throw ErrorFactory.validation(
+      "useAnalytics must be used within an AnalyticsProvider",
+      "Erreur de configuration du contexte"
+    );
   }
   return context;
 };

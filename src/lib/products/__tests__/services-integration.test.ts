@@ -1,15 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { createPollService, getPollType } from "../index";
-import { 
-  getDatePolls, 
-  addDatePoll, 
-  type DatePoll 
-} from "../date-polls/date-polls-service";
-import { 
-  getFormPolls, 
-  addFormPoll, 
-  type FormPoll 
-} from "../form-polls/form-polls-service";
+import { getDatePolls, addDatePoll, type DatePoll } from "../date-polls/date-polls-service";
+import { getFormPolls, addFormPoll, type FormPoll } from "../form-polls/form-polls-service";
 
 // Mock localStorage
 const localStorageMock = {
@@ -47,8 +39,8 @@ describe("Services Integration Tests", () => {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         settings: {
-          selectedDates: ["2024-01-15"]
-        }
+          selectedDates: ["2024-01-15"],
+        },
       };
 
       const formPoll: FormPoll = {
@@ -69,10 +61,10 @@ describe("Services Integration Tests", () => {
             required: true,
             options: [
               { id: "opt1", label: "Option 1" },
-              { id: "opt2", label: "Option 2" }
-            ]
-          }
-        ]
+              { id: "opt2", label: "Option 2" },
+            ],
+          },
+        ],
       };
 
       expect(getPollType(datePoll)).toBe("date");
@@ -84,7 +76,7 @@ describe("Services Integration Tests", () => {
   describe("Error Handling", () => {
     it("should handle errors consistently across services", async () => {
       const now = new Date().toISOString();
-      
+
       const invalidDatePoll: DatePoll = {
         id: "invalid_date",
         creator_id: "user",
@@ -95,8 +87,8 @@ describe("Services Integration Tests", () => {
         created_at: now,
         updated_at: now,
         settings: {
-          selectedDates: []
-        }
+          selectedDates: [],
+        },
       };
 
       const invalidFormPoll: FormPoll = {
@@ -108,7 +100,7 @@ describe("Services Integration Tests", () => {
         status: "active",
         created_at: now,
         updated_at: now,
-        questions: []
+        questions: [],
       };
 
       await expect(addDatePoll(invalidDatePoll)).rejects.toThrow();

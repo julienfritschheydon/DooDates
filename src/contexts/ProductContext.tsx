@@ -1,14 +1,15 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { useAuth } from './AuthContext';
-import { useProductAPI } from '@/lib/hooks/useProductAPI';
-import { logger } from '@/lib/logger';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
+import { useAuth } from "./AuthContext";
+import { useProductAPI } from "@/lib/hooks/useProductAPI";
+import { logger } from "@/lib/logger";
+import { ErrorFactory, logError } from "@/lib/error-handling";
 
 interface Product {
   id: string;
   title: string;
   description?: string;
-  type: 'date' | 'form' | 'quizz';
-  status: 'active' | 'archived' | 'deleted';
+  type: "date" | "form" | "quizz";
+  status: "active" | "archived" | "deleted";
   created_at: string;
   updated_at: string;
   responseCount?: number;
@@ -20,8 +21,8 @@ interface ProductState {
   error: Error | null;
   selectedProduct: Product | null;
   filters: {
-    type?: 'date' | 'form' | 'quizz';
-    status?: 'active' | 'archived' | 'deleted';
+    type?: "date" | "form" | "quizz";
+    status?: "active" | "archived" | "deleted";
     search?: string;
   };
   pagination: {
@@ -32,16 +33,16 @@ interface ProductState {
 }
 
 type ProductAction =
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: Error | null }
-  | { type: 'SET_PRODUCTS'; payload: Product[] }
-  | { type: 'ADD_PRODUCT'; payload: Product }
-  | { type: 'UPDATE_PRODUCT'; payload: { id: string; updates: Partial<Product> } }
-  | { type: 'DELETE_PRODUCT'; payload: string }
-  | { type: 'SET_SELECTED_PRODUCT'; payload: Product | null }
-  | { type: 'SET_FILTERS'; payload: Partial<ProductState['filters']> }
-  | { type: 'SET_PAGINATION'; payload: Partial<ProductState['pagination']> }
-  | { type: 'RESET_STATE' };
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_ERROR"; payload: Error | null }
+  | { type: "SET_PRODUCTS"; payload: Product[] }
+  | { type: "ADD_PRODUCT"; payload: Product }
+  | { type: "UPDATE_PRODUCT"; payload: { id: string; updates: Partial<Product> } }
+  | { type: "DELETE_PRODUCT"; payload: string }
+  | { type: "SET_SELECTED_PRODUCT"; payload: Product | null }
+  | { type: "SET_FILTERS"; payload: Partial<ProductState["filters"]> }
+  | { type: "SET_PAGINATION"; payload: Partial<ProductState["pagination"]> }
+  | { type: "RESET_STATE" };
 
 const initialState: ProductState = {
   products: [],
@@ -58,29 +59,27 @@ const initialState: ProductState = {
 
 function productReducer(state: ProductState, action: ProductAction): ProductState {
   switch (action.type) {
-    case 'SET_LOADING':
+    case "SET_LOADING":
       return { ...state, loading: action.payload };
-    
-    case 'SET_ERROR':
+
+    case "SET_ERROR":
       return { ...state, error: action.payload, loading: false };
-    
-    case 'SET_PRODUCTS':
+
+    case "SET_PRODUCTS":
       return { ...state, products: action.payload, loading: false };
-    
-    case 'ADD_PRODUCT':
+
+    case "ADD_PRODUCT":
       return {
         ...state,
         products: [action.payload, ...state.products],
         loading: false,
       };
-    
-    case 'UPDATE_PRODUCT':
+
+    case "UPDATE_PRODUCT":
       return {
         ...state,
-        products: state.products.map(product =>
-          product.id === action.payload.id
-            ? { ...product, ...action.payload.updates }
-            : product
+        products: state.products.map((product) =>
+          product.id === action.payload.id ? { ...product, ...action.payload.updates } : product,
         ),
         selectedProduct:
           state.selectedProduct?.id === action.payload.id
@@ -88,28 +87,28 @@ function productReducer(state: ProductState, action: ProductAction): ProductStat
             : state.selectedProduct,
         loading: false,
       };
-    
-    case 'DELETE_PRODUCT':
+
+    case "DELETE_PRODUCT":
       return {
         ...state,
-        products: state.products.filter(product => product.id !== action.payload),
+        products: state.products.filter((product) => product.id !== action.payload),
         selectedProduct:
           state.selectedProduct?.id === action.payload ? null : state.selectedProduct,
         loading: false,
       };
-    
-    case 'SET_SELECTED_PRODUCT':
+
+    case "SET_SELECTED_PRODUCT":
       return { ...state, selectedProduct: action.payload };
-    
-    case 'SET_FILTERS':
+
+    case "SET_FILTERS":
       return { ...state, filters: { ...state.filters, ...action.payload } };
-    
-    case 'SET_PAGINATION':
+
+    case "SET_PAGINATION":
       return { ...state, pagination: { ...state.pagination, ...action.payload } };
-    
-    case 'RESET_STATE':
+
+    case "RESET_STATE":
       return initialState;
-    
+
     default:
       return state;
   }
@@ -119,12 +118,12 @@ interface ProductContextType {
   state: ProductState;
   actions: {
     loadProducts: () => Promise<void>;
-    createProduct: (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => Promise<Product>;
+    createProduct: (data: Omit<Product, "id" | "created_at" | "updated_at">) => Promise<Product>;
     updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
     deleteProduct: (id: string) => Promise<void>;
     selectProduct: (product: Product | null) => void;
-    setFilters: (filters: Partial<ProductState['filters']>) => void;
-    setPagination: (pagination: Partial<ProductState['pagination']>) => void;
+    setFilters: (filters: Partial<ProductState["filters"]>) => void;
+    setPagination: (pagination: Partial<ProductState["pagination"]>) => void;
     refreshProducts: () => Promise<void>;
   };
 }
@@ -143,43 +142,48 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
   const loadProducts = async () => {
     if (!user) return;
 
-    dispatch({ type: 'SET_LOADING', payload: true });
-    dispatch({ type: 'SET_ERROR', payload: null });
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_ERROR", payload: null });
 
     try {
       const params = new URLSearchParams();
-      
-      if (state.filters.type) params.append('type', state.filters.type);
-      if (state.filters.status) params.append('status', state.filters.status);
-      if (state.filters.search) params.append('search', state.filters.search);
-      
-      params.append('page', state.pagination.page.toString());
-      params.append('limit', state.pagination.limit.toString());
+
+      if (state.filters.type) params.append("type", state.filters.type);
+      if (state.filters.status) params.append("status", state.filters.status);
+      if (state.filters.search) params.append("search", state.filters.search);
+
+      params.append("page", state.pagination.page.toString());
+      params.append("limit", state.pagination.limit.toString());
 
       const response = await api.get<{
         products: Product[];
         total: number;
       }>(`/products?${params}`);
 
-      dispatch({ type: 'SET_PRODUCTS', payload: response.products });
-      dispatch({ type: 'SET_PAGINATION', payload: { total: response.total } });
-
+      dispatch({ type: "SET_PRODUCTS", payload: response.products });
+      dispatch({ type: "SET_PAGINATION", payload: { total: response.total } });
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error : new Error('Erreur inconnue') });
-      console.error(error);
+      dispatch({
+        type: "SET_ERROR",
+        payload: error instanceof Error ? error : new Error("Erreur inconnue"),
+      });
+      logError(error instanceof Error ? error : new Error(String(error)), { component: "ProductContext", operation: "loadProducts" });
     }
   };
 
-  const createProduct = async (data: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
-    if (!user) throw new Error('Utilisateur non authentifié');
+  const createProduct = async (data: Omit<Product, "id" | "created_at" | "updated_at">) => {
+    if (!user) throw ErrorFactory.auth("Utilisateur non authentifié", "Vous devez être connecté pour créer un produit");
 
     try {
-      const product = await api.post<Product>('/products', data);
-      dispatch({ type: 'ADD_PRODUCT', payload: product });
+      const product = await api.post<Product>("/products", data);
+      dispatch({ type: "ADD_PRODUCT", payload: product });
       return product;
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error : new Error('Erreur inconnue') });
-      console.error(error);
+      dispatch({
+        type: "SET_ERROR",
+        payload: error instanceof Error ? error : new Error("Erreur inconnue"),
+      });
+      logError(error instanceof Error ? error : new Error(String(error)), { component: "ProductContext", operation: "createProduct" });
       throw error;
     }
   };
@@ -189,10 +193,13 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 
     try {
       await api.patch(`/products/${id}`, updates);
-      dispatch({ type: 'UPDATE_PRODUCT', payload: { id, updates } });
+      dispatch({ type: "UPDATE_PRODUCT", payload: { id, updates } });
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error : new Error('Erreur inconnue') });
-      console.error(error);
+      dispatch({
+        type: "SET_ERROR",
+        payload: error instanceof Error ? error : new Error("Erreur inconnue"),
+      });
+      logError(error instanceof Error ? error : new Error(String(error)), { component: "ProductContext", operation: "updateProduct" });
       throw error;
     }
   };
@@ -202,25 +209,28 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
 
     try {
       await api.delete(`/products/${id}`);
-      dispatch({ type: 'DELETE_PRODUCT', payload: id });
+      dispatch({ type: "DELETE_PRODUCT", payload: id });
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error : new Error('Erreur inconnue') });
-      console.error(error);
+      dispatch({
+        type: "SET_ERROR",
+        payload: error instanceof Error ? error : new Error("Erreur inconnue"),
+      });
+      logError(error instanceof Error ? error : new Error(String(error)), { component: "ProductContext", operation: "deleteProduct" });
       throw error;
     }
   };
 
   const selectProduct = (product: Product | null) => {
-    dispatch({ type: 'SET_SELECTED_PRODUCT', payload: product });
+    dispatch({ type: "SET_SELECTED_PRODUCT", payload: product });
   };
 
-  const setFilters = (filters: Partial<ProductState['filters']>) => {
-    dispatch({ type: 'SET_FILTERS', payload: filters });
-    dispatch({ type: 'SET_PAGINATION', payload: { page: 1 } }); // Reset to first page
+  const setFilters = (filters: Partial<ProductState["filters"]>) => {
+    dispatch({ type: "SET_FILTERS", payload: filters });
+    dispatch({ type: "SET_PAGINATION", payload: { page: 1 } }); // Reset to first page
   };
 
-  const setPagination = (pagination: Partial<ProductState['pagination']>) => {
-    dispatch({ type: 'SET_PAGINATION', payload: pagination });
+  const setPagination = (pagination: Partial<ProductState["pagination"]>) => {
+    dispatch({ type: "SET_PAGINATION", payload: pagination });
   };
 
   const refreshProducts = async () => {
@@ -248,17 +258,16 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     },
   };
 
-  return (
-    <ProductContext.Provider value={value}>
-      {children}
-    </ProductContext.Provider>
-  );
+  return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
 };
 
 export const useProductContext = (): ProductContextType => {
   const context = useContext(ProductContext);
   if (context === undefined) {
-    throw new Error('useProductContext must be used within a ProductProvider');
+    throw ErrorFactory.validation(
+      "useProductContext must be used within a ProductProvider",
+      "Erreur de configuration du contexte"
+    );
   }
   return context;
 };

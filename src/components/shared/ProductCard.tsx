@@ -1,17 +1,17 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Eye, Share2 } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import React from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Edit, Trash2, Eye, Share2 } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface ProductCardProps {
   id: string;
   title: string;
   description?: string;
-  type: 'date' | 'form' | 'quizz';
-  status: 'active' | 'archived' | 'deleted';
+  type: "date" | "form" | "quizz";
+  status: "active" | "archived" | "deleted";
   createdAt: string;
   updatedAt: string;
   responseCount?: number;
@@ -35,29 +35,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onDelete,
   onView,
   onShare,
-  className = '',
+  className = "",
 }) => {
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'date':
-        return 'bg-blue-100 text-blue-800';
-      case 'form':
-        return 'bg-green-100 text-green-800';
-      case 'quizz':
-        return 'bg-purple-100 text-purple-800';
+      case "date":
+        return "bg-blue-100 text-blue-800";
+      case "form":
+        return "bg-green-100 text-green-800";
+      case "quizz":
+        return "bg-purple-100 text-purple-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'date':
-        return 'Sondage de dates';
-      case 'form':
-        return 'Formulaire';
-      case 'quizz':
-        return 'Quiz';
+      case "date":
+        return "Sondage de dates";
+      case "form":
+        return "Formulaire";
+      case "quizz":
+        return "Quiz";
       default:
         return type;
     }
@@ -65,25 +65,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'archived':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'deleted':
-        return 'bg-red-100 text-red-800';
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "archived":
+        return "bg-yellow-100 text-yellow-800";
+      case "deleted":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'Actif';
-      case 'archived':
-        return 'Archivé';
-      case 'deleted':
-        return 'Supprimé';
+      case "active":
+        return "Actif";
+      case "archived":
+        return "Archivé";
+      case "deleted":
+        return "Supprimé";
       default:
         return status;
     }
@@ -96,31 +96,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex-1">
             <CardTitle className="text-lg line-clamp-2">{title}</CardTitle>
             {description && (
-              <CardDescription className="mt-1 line-clamp-2">
-                {description}
-              </CardDescription>
+              <CardDescription className="mt-1 line-clamp-2">{description}</CardDescription>
             )}
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-2 mt-2">
-          <Badge className={getTypeColor(type)}>
-            {getTypeLabel(type)}
-          </Badge>
-          <Badge className={getStatusColor(status)}>
-            {getStatusLabel(status)}
-          </Badge>
+          <Badge className={getTypeColor(type)}>{getTypeLabel(type)}</Badge>
+          <Badge className={getStatusColor(status)}>{getStatusLabel(status)}</Badge>
         </div>
       </CardHeader>
-      
+
       <CardContent className="pt-0">
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-          <span>Créé le {format(new Date(createdAt), 'dd MMM yyyy', { locale: fr })}</span>
+          <span>Créé le {format(new Date(createdAt), "dd MMM yyyy", { locale: fr })}</span>
           {responseCount > 0 && (
-            <span className="font-medium">{responseCount} réponse{responseCount > 1 ? 's' : ''}</span>
+            <span className="font-medium">
+              {responseCount} réponse{responseCount > 1 ? "s" : ""}
+            </span>
           )}
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {onView && (
             <Button variant="outline" size="sm" onClick={onView}>
@@ -141,7 +137,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </Button>
           )}
           {onDelete && (
-            <Button variant="outline" size="sm" onClick={onDelete} className="text-red-600 hover:text-red-700">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onDelete}
+              className="text-red-600 hover:text-red-700"
+            >
               <Trash2 className="h-4 w-4 mr-1" />
               Supprimer
             </Button>

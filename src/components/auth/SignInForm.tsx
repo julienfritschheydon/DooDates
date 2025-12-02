@@ -128,8 +128,8 @@ export function SignInForm({ onSuccess, onSwitchToSignUp, onFormChange }: SignIn
           onClick={handleGoogleSignIn}
         >
           {isGoogleSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          <LazyIcon 
-            name="Chrome" 
+          <LazyIcon
+            name="Chrome"
             fallback={<div className="w-4 h-4 mr-2 bg-blue-500 rounded" />}
             className="mr-2 h-4 w-4"
           />

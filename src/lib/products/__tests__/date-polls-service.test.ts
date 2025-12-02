@@ -79,9 +79,9 @@ describe("DatePollsService", () => {
     });
 
     it("should throw error for empty selectedDates array", () => {
-      const invalidPoll = { 
-        ...mockPoll, 
-        settings: { selectedDates: [] } 
+      const invalidPoll = {
+        ...mockPoll,
+        settings: { selectedDates: [] },
       };
       const result = validateDatePoll(invalidPoll);
       expect(result.isValid).toBe(false);
@@ -124,10 +124,10 @@ describe("DatePollsService", () => {
       localStorageMock.getItem.mockClear();
       localStorageMock.getItem.mockReturnValue(null);
       await addDatePoll(mockPoll);
-      
+
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "doodates_polls",
-        expect.stringContaining(mockPoll.id)
+        expect.stringContaining(mockPoll.id),
       );
     });
 
@@ -135,19 +135,19 @@ describe("DatePollsService", () => {
       localStorageMock.getItem.mockClear();
       const existingPolls = [mockPoll];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(existingPolls));
-      
+
       const updatedPoll = { ...mockPoll, title: "Updated title" };
       await addDatePoll(updatedPoll);
-      
+
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "doodates_polls",
-        expect.stringContaining("Réunion d'équipe")
+        expect.stringContaining("Réunion d'équipe"),
       );
     });
 
     it("should throw error for invalid poll", async () => {
       const invalidPoll = { ...mockPoll, title: "" };
-      
+
       await expect(addDatePoll(invalidPoll)).rejects.toThrow();
     });
   });
@@ -157,31 +157,28 @@ describe("DatePollsService", () => {
       localStorageMock.getItem.mockClear();
       const polls = [mockPoll];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       deleteDatePollById(mockPoll.id);
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       deleteDatePollById(mockPoll.id);
-      
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        "doodates_polls",
-        expect.any(String)
-      );
+
+      expect(localStorageMock.setItem).toHaveBeenCalledWith("doodates_polls", expect.any(String));
     });
 
     it("should handle non-existent poll", () => {
       localStorageMock.getItem.mockClear();
       const polls = [mockPoll];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       deleteDatePollById("non_existent");
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       deleteDatePollById("non_existent");
-      
+
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "doodates_polls",
-        JSON.stringify(polls)
+        JSON.stringify(polls),
       );
     });
   });
@@ -189,7 +186,7 @@ describe("DatePollsService", () => {
   describe("duplicateDatePoll", () => {
     it("should create a duplicate with new id and slug", () => {
       const duplicate = duplicateDatePoll(mockPoll);
-      
+
       expect(duplicate.id).not.toBe(mockPoll.id);
       expect(duplicate.slug).not.toBe(mockPoll.slug);
       expect(duplicate.title).toBe("Réunion d'équipe (copie)");
@@ -201,7 +198,7 @@ describe("DatePollsService", () => {
     it("should find poll by id", () => {
       const polls = [mockPoll];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       const found = getDatePollBySlugOrId(mockPoll.id);
       expect(found).toEqual(mockPoll);
     });
@@ -209,7 +206,7 @@ describe("DatePollsService", () => {
     it("should find poll by slug", () => {
       const polls = [mockPoll];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       const found = getDatePollBySlugOrId(mockPoll.slug);
       expect(found).toEqual(mockPoll);
     });
@@ -217,7 +214,7 @@ describe("DatePollsService", () => {
     it("should return null for not found", () => {
       const polls = [mockPoll];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       const found = getDatePollBySlugOrId("not_found");
       expect(found).toBeNull();
     });
@@ -235,7 +232,7 @@ describe("DatePollsService", () => {
         value: { origin: "https://example.com" },
         writable: true,
       });
-      
+
       const link = buildPublicLink("test-poll");
       expect(link).toBe("https://example.com/poll/test-poll");
     });
@@ -244,7 +241,7 @@ describe("DatePollsService", () => {
   describe("copyToClipboard", () => {
     it("should copy text using Clipboard API", async () => {
       await copyToClipboard("test text");
-      
+
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith("test text");
     });
 
@@ -254,9 +251,9 @@ describe("DatePollsService", () => {
         value: vi.fn().mockReturnValue(true),
         writable: true,
       });
-      
+
       await copyToClipboard("test text");
-      
+
       expect(document.execCommand).toHaveBeenCalledWith("copy");
     });
   });

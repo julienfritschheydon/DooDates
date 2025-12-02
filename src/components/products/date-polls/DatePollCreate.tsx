@@ -24,10 +24,10 @@ export const DatePollCreate: React.FC<DatePollCreateProps> = ({ id }) => {
       }
       navigate("/products/date");
     } catch (error) {
-      toast({ 
-        title: "Erreur", 
+      toast({
+        title: "Erreur",
         description: "Impossible de créer le sondage",
-        variant: "destructive" 
+        variant: "destructive",
       });
     }
   };

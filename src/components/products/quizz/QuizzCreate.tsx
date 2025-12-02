@@ -24,10 +24,10 @@ export const QuizzCreate: React.FC<QuizzCreateProps> = ({ id }) => {
       }
       navigate("/products/quizz");
     } catch (error) {
-      toast({ 
-        title: "Erreur", 
+      toast({
+        title: "Erreur",
         description: "Impossible de créer le quiz",
-        variant: "destructive" 
+        variant: "destructive",
       });
     }
   };

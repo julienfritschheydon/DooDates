@@ -4,19 +4,26 @@
  * Conforme aux exigences GDPR/CCPA
  */
 
-import { logger } from '../logger';
-import { hashIP } from './ip-hash';
+import { logger } from "../logger";
+import { hashIP } from "./ip-hash";
+import { ErrorFactory } from "../error-handling";
 
 export interface ConsentLogEntry {
   id?: string;
   timestamp: string;
-  action: 'consent_given' | 'consent_withdrawn' | 'api_request' | 'data_access' | 'data_deletion' | 'cookie_consent';
+  action:
+    | "consent_given"
+    | "consent_withdrawn"
+    | "api_request"
+    | "data_access"
+    | "data_deletion"
+    | "cookie_consent";
   endpoint?: string;
   method?: string;
   userId?: string;
   ipHash?: string;
   userAgent?: string;
-  consentType?: 'essential' | 'analytics' | 'marketing' | 'functional';
+  consentType?: "essential" | "analytics" | "marketing" | "functional";
   consentValue?: boolean;
   metadata?: Record<string, any>;
   retentionDays?: number;
@@ -38,7 +45,7 @@ class ConsentLoggerService {
   /**
    * Enregistre une action de consentement
    */
-  logConsent(entry: Omit<ConsentLogEntry, 'id' | 'timestamp'>): void {
+  logConsent(entry: Omit<ConsentLogEntry, "id" | "timestamp">): void {
     const logEntry: ConsentLogEntry = {
       ...entry,
       id: this.generateId(),
@@ -56,17 +63,16 @@ class ConsentLoggerService {
       this.cleanupStorage();
 
       // Logger système
-      logger.info('Consent log recorded', 'gdpr', {
+      logger.info("Consent log recorded", "gdpr", {
         action: logEntry.action,
         userId: logEntry.userId,
         endpoint: logEntry.endpoint,
-        ipHash: logEntry.ipHash?.substring(0, 16) + '...',
+        ipHash: logEntry.ipHash?.substring(0, 16) + "...",
       });
-
     } catch (error) {
-      logger.error('Failed to log consent', 'gdpr', { 
-        entry: logEntry, 
-        error: error instanceof Error ? error.message : String(error) 
+      logger.error("Failed to log consent", "gdpr", {
+        entry: logEntry,
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }
@@ -75,14 +81,14 @@ class ConsentLoggerService {
    * Enregistre un consentement de cookies
    */
   logCookieConsent(
-    userId: string, 
-    ip: string, 
-    userAgent: string, 
-    consents: Record<string, boolean>
+    userId: string,
+    ip: string,
+    userAgent: string,
+    consents: Record<string, boolean>,
   ): void {
     Object.entries(consents).forEach(([type, value]) => {
       this.logConsent({
-        action: 'cookie_consent',
+        action: "cookie_consent",
         userId,
         ipHash: hashIP(ip),
         userAgent,
@@ -98,11 +104,11 @@ class ConsentLoggerService {
    */
   logDataAccessRequest(userId: string, ip: string, userAgent: string): void {
     this.logConsent({
-      action: 'data_access',
+      action: "data_access",
       userId,
       ipHash: hashIP(ip),
       userAgent,
-      metadata: { requestType: 'gdpr_access_request' },
+      metadata: { requestType: "gdpr_access_request" },
     });
   }
 
@@ -111,31 +117,26 @@ class ConsentLoggerService {
    */
   logDataDeletionRequest(userId: string, ip: string, userAgent: string): void {
     this.logConsent({
-      action: 'data_deletion',
+      action: "data_deletion",
       userId,
       ipHash: hashIP(ip),
       userAgent,
-      metadata: { requestType: 'gdpr_deletion_request' },
+      metadata: { requestType: "gdpr_deletion_request" },
     });
   }
 
   /**
    * Enregistre un retrait de consentement
    */
-  logConsentWithdrawal(
-    userId: string, 
-    consentType: string, 
-    ip: string, 
-    userAgent: string
-  ): void {
+  logConsentWithdrawal(userId: string, consentType: string, ip: string, userAgent: string): void {
     this.logConsent({
-      action: 'consent_withdrawn',
+      action: "consent_withdrawn",
       userId,
       ipHash: hashIP(ip),
       userAgent,
       consentType: consentType as any,
       consentValue: false,
-      metadata: { withdrawalReason: 'user_request' },
+      metadata: { withdrawalReason: "user_request" },
     });
   }
 
@@ -144,7 +145,7 @@ class ConsentLoggerService {
    */
   getUserLogs(userId: string, limit: number = 100): ConsentLogEntry[] {
     return this.storage.logs
-      .filter(log => log.userId === userId)
+      .filter((log) => log.userId === userId)
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, limit);
   }
@@ -152,9 +153,9 @@ class ConsentLoggerService {
   /**
    * Récupère les logs par action
    */
-  getLogsByAction(action: ConsentLogEntry['action'], limit: number = 100): ConsentLogEntry[] {
+  getLogsByAction(action: ConsentLogEntry["action"], limit: number = 100): ConsentLogEntry[] {
     return this.storage.logs
-      .filter(log => log.action === action)
+      .filter((log) => log.action === action)
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, limit);
   }
@@ -164,11 +165,11 @@ class ConsentLoggerService {
    */
   exportUserData(userId: string): Record<string, any> {
     const userLogs = this.getUserLogs(userId);
-    
+
     return {
       userId,
       exportDate: new Date().toISOString(),
-      consentLogs: userLogs.map(log => ({
+      consentLogs: userLogs.map((log) => ({
         timestamp: log.timestamp,
         action: log.action,
         consentType: log.consentType,
@@ -177,10 +178,10 @@ class ConsentLoggerService {
       })),
       summary: {
         totalLogs: userLogs.length,
-        consentGiven: userLogs.filter(log => log.action === 'consent_given').length,
-        consentWithdrawn: userLogs.filter(log => log.action === 'consent_withdrawn').length,
-        dataAccessRequests: userLogs.filter(log => log.action === 'data_access').length,
-        dataDeletionRequests: userLogs.filter(log => log.action === 'data_deletion').length,
+        consentGiven: userLogs.filter((log) => log.action === "consent_given").length,
+        consentWithdrawn: userLogs.filter((log) => log.action === "consent_withdrawn").length,
+        dataAccessRequests: userLogs.filter((log) => log.action === "data_access").length,
+        dataDeletionRequests: userLogs.filter((log) => log.action === "data_deletion").length,
       },
     };
   }
@@ -190,10 +191,10 @@ class ConsentLoggerService {
    */
   deleteUserData(userId: string): { deletedCount: number; success: boolean } {
     const initialCount = this.storage.logs.length;
-    this.storage.logs = this.storage.logs.filter(log => log.userId !== userId);
+    this.storage.logs = this.storage.logs.filter((log) => log.userId !== userId);
     const deletedCount = initialCount - this.storage.logs.length;
 
-    logger.info('User data deleted', 'gdpr', {
+    logger.info("User data deleted", "gdpr", {
       userId,
       deletedCount,
       success: true,
@@ -207,17 +208,23 @@ class ConsentLoggerService {
    */
   getConsentStats(): Record<string, any> {
     const totalLogs = this.storage.logs.length;
-    const actionStats = this.storage.logs.reduce((stats, log) => {
-      stats[log.action] = (stats[log.action] || 0) + 1;
-      return stats;
-    }, {} as Record<string, number>);
+    const actionStats = this.storage.logs.reduce(
+      (stats, log) => {
+        stats[log.action] = (stats[log.action] || 0) + 1;
+        return stats;
+      },
+      {} as Record<string, number>,
+    );
 
-    const consentTypeStats = this.storage.logs.reduce((stats, log) => {
-      if (log.consentType) {
-        stats[log.consentType] = (stats[log.consentType] || 0) + 1;
-      }
-      return stats;
-    }, {} as Record<string, number>);
+    const consentTypeStats = this.storage.logs.reduce(
+      (stats, log) => {
+        if (log.consentType) {
+          stats[log.consentType] = (stats[log.consentType] || 0) + 1;
+        }
+        return stats;
+      },
+      {} as Record<string, number>,
+    );
 
     return {
       totalLogs,
@@ -225,7 +232,7 @@ class ConsentLoggerService {
       consentTypeStats,
       storageSize: this.storage.logs.length,
       maxSize: this.storage.maxSize,
-      utilizationRate: (this.storage.logs.length / this.storage.maxSize * 100).toFixed(2) + '%',
+      utilizationRate: ((this.storage.logs.length / this.storage.maxSize) * 100).toFixed(2) + "%",
     };
   }
 
@@ -241,22 +248,29 @@ class ConsentLoggerService {
    */
   private validateLogEntry(entry: ConsentLogEntry): void {
     if (!entry.action) {
-      throw new Error('Action is required');
+      throw ErrorFactory.validation("Action is required", "Action requise pour le log de consentement");
     }
 
     if (!entry.timestamp) {
-      throw new Error('Timestamp is required');
+      throw ErrorFactory.validation("Timestamp is required", "Timestamp requis pour le log de consentement");
     }
 
-    const validActions = ['consent_given', 'consent_withdrawn', 'api_request', 'data_access', 'data_deletion', 'cookie_consent'];
+    const validActions = [
+      "consent_given",
+      "consent_withdrawn",
+      "api_request",
+      "data_access",
+      "data_deletion",
+      "cookie_consent",
+    ];
     if (!validActions.includes(entry.action)) {
-      throw new Error(`Invalid action: ${entry.action}`);
+      throw ErrorFactory.validation(`Invalid action: ${entry.action}`, "Action invalide");
     }
 
     if (entry.consentType) {
-      const validTypes = ['essential', 'analytics', 'marketing', 'functional'];
+      const validTypes = ["essential", "analytics", "marketing", "functional"];
       if (!validTypes.includes(entry.consentType)) {
-        throw new Error(`Invalid consent type: ${entry.consentType}`);
+        throw ErrorFactory.validation(`Invalid consent type: ${entry.consentType}`, "Type de consentement invalide");
       }
     }
   }
@@ -269,7 +283,7 @@ class ConsentLoggerService {
     const retentionMs = this.storage.retentionDays * 24 * 60 * 60 * 1000;
 
     // Supprimer les logs anciens
-    this.storage.logs = this.storage.logs.filter(log => {
+    this.storage.logs = this.storage.logs.filter((log) => {
       const logTime = new Date(log.timestamp).getTime();
       return now - logTime <= retentionMs;
     });
@@ -301,6 +315,6 @@ class ConsentLoggerService {
 export const consentLogger = new ConsentLoggerService();
 
 // Fonction helper pour compatibilité
-export function logConsent(entry: Omit<ConsentLogEntry, 'id' | 'timestamp'>): void {
+export function logConsent(entry: Omit<ConsentLogEntry, "id" | "timestamp">): void {
   consentLogger.logConsent(entry);
 }

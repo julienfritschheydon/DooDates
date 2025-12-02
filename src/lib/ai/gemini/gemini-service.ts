@@ -10,7 +10,11 @@ import type { ParsedTemporalInput } from "../temporalParser";
 
 // Import modules
 import { PromptBuilder } from "./prompts";
-import { buildDateHintsFromParsed, validateFormPollResponse, validateDatePollResponse } from "./hints";
+import {
+  buildDateHintsFromParsed,
+  validateFormPollResponse,
+  validateDatePollResponse,
+} from "./hints";
 
 // Types pour Form Polls (questionnaires)
 export interface FormQuestion {
@@ -196,7 +200,7 @@ export class GeminiService {
 
       // Détecter le type de sondage
       const pollType = this.detectPollType(userInput);
-      
+
       // Traiter l'input selon le type
       let processedInput = userInput;
       if (pollType === "form") {
@@ -213,13 +217,13 @@ export class GeminiService {
           // Import dynamique pour éviter les dépendances circulaires
           const { parseTemporalInput } = await import("../temporalParser");
           const { validateTemporalInput } = await import("../temporalValidator");
-          
+
           const parsed = parseTemporalInput(userInput);
           const validation = validateTemporalInput(parsed);
 
           if (validation.isValid && parsed.allowedDates.length > 0) {
             dateHints = buildDateHintsFromParsed(parsed, userInput);
-            
+
             logger.debug("🎯 Hints envoyés à Gemini", "api", {
               requestId,
               hintsLength: dateHints.length,
@@ -249,9 +253,10 @@ export class GeminiService {
       }
 
       // Parser et valider la réponse
-      const suggestion = pollType === "form" 
-        ? this.parseFormPollResponse(secureResponse.data!)
-        : this.parseGeminiResponse(secureResponse.data!);
+      const suggestion =
+        pollType === "form"
+          ? this.parseFormPollResponse(secureResponse.data!)
+          : this.parseGeminiResponse(secureResponse.data!);
 
       if (!suggestion) {
         return {
@@ -269,9 +274,11 @@ export class GeminiService {
         data: processedSuggestion,
         message: "Sondage généré avec succès",
       };
-
     } catch (error) {
-      logError(error, "GeminiGenerationError", { requestId, userInput: userInput.substring(0, 100) });
+      logError(error, "GeminiGenerationError", {
+        requestId,
+        userInput: userInput.substring(0, 100),
+      });
       return {
         success: false,
         message: "Erreur lors de la génération du sondage",
@@ -290,27 +297,51 @@ export class GeminiService {
 
     // Mots-clés forts pour les formulaires
     const strongFormKeywords = [
-      "questionnaire", "formulaire", "sondage", "enquête", "feedback",
-      "avis", "opinion", "évaluation", "note", "cotation", "rating",
-      "satisfaction", "expérience", "service client", "enquête de satisfaction"
+      "questionnaire",
+      "formulaire",
+      "sondage",
+      "enquête",
+      "feedback",
+      "avis",
+      "opinion",
+      "évaluation",
+      "note",
+      "cotation",
+      "rating",
+      "satisfaction",
+      "expérience",
+      "service client",
+      "enquête de satisfaction",
     ];
 
     // Mots-clés pour les formulaires
     const formKeywords = [
-      "question", "réponse", "choix", "option", "case à cocher",
-      "bouton radio", "échelle", "notation", "note sur", "note de",
-      "satisfait", "pas satisfait", "recommanderiez", "NPS", "net promoter"
+      "question",
+      "réponse",
+      "choix",
+      "option",
+      "case à cocher",
+      "bouton radio",
+      "échelle",
+      "notation",
+      "note sur",
+      "note de",
+      "satisfait",
+      "pas satisfait",
+      "recommanderiez",
+      "NPS",
+      "net promoter",
     ];
 
     // Vérifier les mots-clés forts
-    strongFormKeywords.forEach(keyword => {
+    strongFormKeywords.forEach((keyword) => {
       if (input.toLowerCase().includes(keyword)) {
         strongFormScore += 2;
       }
     });
 
     // Vérifier les mots-clés de formulaire
-    formKeywords.forEach(keyword => {
+    formKeywords.forEach((keyword) => {
       if (input.toLowerCase().includes(keyword)) {
         formScore += 1;
       }
@@ -328,15 +359,48 @@ export class GeminiService {
 
     // Mots-clés pour les dates
     const dateKeywords = [
-      "date", "quand", "moment", "créneau", "horaire", "disponibilité",
-      "rendez-vous", "réunion", "meeting", "agenda", "calendrier",
-      "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche",
-      "janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août",
-      "septembre", "octobre", "novembre", "décembre", "aujourd'hui", "demain",
-      "semaine", "mois", "weekend", "matin", "après-midi", "soir", "nuit"
+      "date",
+      "quand",
+      "moment",
+      "créneau",
+      "horaire",
+      "disponibilité",
+      "rendez-vous",
+      "réunion",
+      "meeting",
+      "agenda",
+      "calendrier",
+      "lundi",
+      "mardi",
+      "mercredi",
+      "jeudi",
+      "vendredi",
+      "samedi",
+      "dimanche",
+      "janvier",
+      "février",
+      "mars",
+      "avril",
+      "mai",
+      "juin",
+      "juillet",
+      "août",
+      "septembre",
+      "octobre",
+      "novembre",
+      "décembre",
+      "aujourd'hui",
+      "demain",
+      "semaine",
+      "mois",
+      "weekend",
+      "matin",
+      "après-midi",
+      "soir",
+      "nuit",
     ];
 
-    dateKeywords.forEach(keyword => {
+    dateKeywords.forEach((keyword) => {
       if (input.toLowerCase().includes(keyword)) {
         dateScore += 1;
       }
@@ -350,7 +414,7 @@ export class GeminiService {
       /(dans|en)\s+\d+\s+(jour|jours|semaine|semaines|mois|an)/, // Dans X jours
     ];
 
-    datePatterns.forEach(pattern => {
+    datePatterns.forEach((pattern) => {
       if (pattern.test(input)) {
         dateScore += 2;
       }
@@ -359,7 +423,7 @@ export class GeminiService {
     if (isDev()) {
       logger.info(
         `🌐 Poll type detection: strongFormScore=${strongFormScore}, formScore=${formScore}, totalFormScore=${totalFormScore}, dateScore=${dateScore}`,
-        "api"
+        "api",
       );
     }
 
@@ -425,12 +489,14 @@ export class GeminiService {
       // Tenter de parser du JSON
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        logger.warn("Pas de JSON trouvé dans la réponse Gemini", "api", { text: text.substring(0, 200) });
+        logger.warn("Pas de JSON trouvé dans la réponse Gemini", "api", {
+          text: text.substring(0, 200),
+        });
         return null;
       }
 
       const parsed = JSON.parse(jsonMatch[0]);
-      
+
       // Validation basique
       if (!parsed.title || !Array.isArray(parsed.dates)) {
         logger.warn("Structure JSON invalide pour DatePoll", "api", { parsed });
@@ -459,12 +525,14 @@ export class GeminiService {
       // Tenter de parser du JSON
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        logger.warn("Pas de JSON trouvé dans la réponse Gemini", "api", { text: text.substring(0, 200) });
+        logger.warn("Pas de JSON trouvé dans la réponse Gemini", "api", {
+          text: text.substring(0, 200),
+        });
         return null;
       }
 
       const parsed = JSON.parse(jsonMatch[0]);
-      
+
       // Validation basique
       if (!parsed.title || !Array.isArray(parsed.questions)) {
         logger.warn("Structure JSON invalide pour FormPoll", "api", { parsed });
@@ -483,18 +551,29 @@ export class GeminiService {
         if (!q.title || !q.type) return false;
 
         const validTypes = [
-          "single", "multiple", "text", "long-text", "rating", "nps", "matrix", "date"
+          "single",
+          "multiple",
+          "text",
+          "long-text",
+          "rating",
+          "nps",
+          "matrix",
+          "date",
         ];
         if (!validTypes.includes(q.type)) return false;
 
         // Validation spécifique par type
-        if ((q.type === "single" || q.type === "multiple") && 
-            (!Array.isArray(q.options) || q.options.length < 2)) {
+        if (
+          (q.type === "single" || q.type === "multiple") &&
+          (!Array.isArray(q.options) || q.options.length < 2)
+        ) {
           return false;
         }
 
-        if (q.type === "date" && 
-            (!Array.isArray(q.selectedDates) || q.selectedDates.length === 0)) {
+        if (
+          q.type === "date" &&
+          (!Array.isArray(q.selectedDates) || q.selectedDates.length === 0)
+        ) {
           return false;
         }
 
@@ -509,7 +588,7 @@ export class GeminiService {
       return {
         ...parsed,
         questions: validQuestions,
-        type: "form"
+        type: "form",
       } as FormPollSuggestion;
     } catch (error) {
       logError(error, "FormPollResponseParseError", { text: text.substring(0, 200) });

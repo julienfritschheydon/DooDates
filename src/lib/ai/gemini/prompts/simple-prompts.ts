@@ -9,15 +9,17 @@ export function buildContextualHints(userInput: string): string {
   const today = new Date();
   const currentMonth = today.toLocaleDateString("fr-FR", { month: "long" });
   const currentYear = today.getFullYear();
-  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
-    .toLocaleDateString("fr-FR", { month: "long" });
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1).toLocaleDateString(
+    "fr-FR",
+    { month: "long" },
+  );
 
   // Détecter contexte repas
   const isMealContext = /(déjeuner|dîner|brunch|lunch|repas)/i.test(userInput);
-  
+
   // Détecter contexte professionnel
   const isWorkContext = /(réunion|meeting|travail|bureau|professionnel|collègue)/i.test(userInput);
-  
+
   // Détecter contexte événementiel
   const isEventContext = /(anniversaire|fête|célébration|soirée|weekend|vacances)/i.test(userInput);
 
@@ -94,7 +96,7 @@ export function isComplexCase(userInput: string): boolean {
     /(\d{1,2}h|\d{1,2}h\d{2})/i,
   ];
 
-  return complexPatterns.some(pattern => pattern.test(userInput));
+  return complexPatterns.some((pattern) => pattern.test(userInput));
 }
 
 /**
@@ -133,7 +135,7 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.`;
  */
 export function buildComplexDatePollPrompt(userInput: string, dateHints: string = ""): string {
   const contextualHints = buildContextualHints(userInput);
-  
+
   return `Tu es l'IA DooDates, expert en planification temporelle.
 ${dateHints}
 ${contextualHints}

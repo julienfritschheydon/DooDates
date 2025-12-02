@@ -5,7 +5,7 @@ import { FileText, MessageSquare } from "lucide-react";
 
 export const FormPollList: React.FC = () => {
   const { state } = useProductContext();
-  const formPolls = state.products.filter(p => p.type === "form");
+  const formPolls = state.products.filter((p) => p.type === "form");
 
   return (
     <div className="space-y-6">
@@ -13,7 +13,9 @@ export const FormPollList: React.FC = () => {
         <h2 className="text-2xl font-semibold">Formulaires</h2>
         <div className="flex items-center space-x-2 text-sm text-gray-600">
           <FileText className="h-4 w-4" />
-          <span>{formPolls.length} formulaire{formPolls.length > 1 ? "s" : ""}</span>
+          <span>
+            {formPolls.length} formulaire{formPolls.length > 1 ? "s" : ""}
+          </span>
         </div>
       </div>
 

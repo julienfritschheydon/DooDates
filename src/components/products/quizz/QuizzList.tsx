@@ -5,7 +5,7 @@ import { Brain, Trophy } from "lucide-react";
 
 export const QuizzList: React.FC = () => {
   const { state } = useProductContext();
-  const quizzList = state.products.filter(p => p.type === "quizz");
+  const quizzList = state.products.filter((p) => p.type === "quizz");
 
   return (
     <div className="space-y-6">

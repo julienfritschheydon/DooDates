@@ -173,7 +173,10 @@ export class PollCreatorService {
    * Format selected date header
    * Utilise formatDateFull pour le format complet uniforme
    */
-  static formatSelectedDateHeader(dateString: string, isMobile: boolean = false): {
+  static formatSelectedDateHeader(
+    dateString: string,
+    isMobile: boolean = false,
+  ): {
     dayName: string;
     dayNumber: string;
     month: string;
@@ -187,7 +190,7 @@ export class PollCreatorService {
     const dayNameMobile = date.toLocaleDateString("fr-FR", { weekday: "short" }).replace(".", "");
     // Format desktop: jours complets
     const dayNameDesktop = date.toLocaleDateString("fr-FR", { weekday: "long" });
-    
+
     const dayName = isMobile ? dayNameMobile : dayNameDesktop;
     const dayNumber = date.getDate().toString();
     const monthShort = date.toLocaleDateString("fr-FR", { month: "short" });

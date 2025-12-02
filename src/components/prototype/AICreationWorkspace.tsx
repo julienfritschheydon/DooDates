@@ -540,8 +540,8 @@ export function AICreationWorkspace({
       >
         {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur */}
         {isSidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black/50 z-40" 
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
             onClick={() => {
               setIsSidebarOpen(false);
             }}
@@ -549,7 +549,7 @@ export function AICreationWorkspace({
             tabIndex={0}
             aria-label="Fermer le menu"
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 setIsSidebarOpen(false);
               }

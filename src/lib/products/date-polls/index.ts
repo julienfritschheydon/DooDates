@@ -10,16 +10,19 @@ export {
   saveDatePolls as savePolls,
   buildPublicLink,
   copyToClipboard,
-  validateDatePoll as validatePoll
-} from './date-polls-service';
+  validateDatePoll as validatePoll,
+} from "./date-polls-service";
 
-export type { 
-  DatePoll as Poll, 
+export type {
+  DatePoll as Poll,
   DatePollSettings as PollSettings,
-  TimeSlot
-} from './date-polls-service';
+  TimeSlot,
+} from "./date-polls-service";
 
 // Helper function pour compatibilité
 export function isDatePoll(poll: any): boolean {
-  return poll?.type === "date" || (poll?.settings?.selectedDates && Array.isArray(poll?.settings?.selectedDates));
+  return (
+    poll?.type === "date" ||
+    (poll?.settings?.selectedDates && Array.isArray(poll?.settings?.selectedDates))
+  );
 }

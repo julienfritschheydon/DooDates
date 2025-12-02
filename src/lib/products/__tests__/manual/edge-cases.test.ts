@@ -27,10 +27,10 @@ describe("Edge Cases - Séparation Produits", () => {
   describe("Données corrompues dans localStorage", () => {
     it("devrait gérer les données JSON invalides", async () => {
       const { getPolls } = await import("../form-polls");
-      
+
       // Simuler des données corrompues
       window.localStorage.setItem("doodates_polls", "invalid json");
-      
+
       expect(() => {
         getPolls();
       }).not.toThrow();
@@ -38,10 +38,10 @@ describe("Edge Cases - Séparation Produits", () => {
 
     it("devrait gérer les données manquantes", async () => {
       const { getPolls } = await import("../form-polls");
-      
+
       // Pas de données dans localStorage
       const polls = getPolls();
-      
+
       expect(Array.isArray(polls)).toBe(true);
     });
   });
@@ -49,7 +49,7 @@ describe("Edge Cases - Séparation Produits", () => {
   describe("Conflits de mise à jour concurrente", () => {
     it("devrait gérer les modifications simultanées", async () => {
       const { addPoll, getPolls } = await import("../form-polls");
-      
+
       const poll1 = {
         id: "test1",
         creator_id: "user1",
@@ -59,9 +59,9 @@ describe("Edge Cases - Séparation Produits", () => {
         updated_at: "2025-01-01T00:00:00Z",
         type: "form" as const,
         title: "Test 1",
-        questions: []
+        questions: [],
       };
-      
+
       const poll2 = {
         id: "test2",
         creator_id: "user1",
@@ -71,13 +71,13 @@ describe("Edge Cases - Séparation Produits", () => {
         updated_at: "2025-01-01T00:00:00Z",
         type: "form" as const,
         title: "Test 2",
-        questions: []
+        questions: [],
       };
-      
+
       // Ajouter deux polls simultanément
       await addPoll(poll1);
       await addPoll(poll2);
-      
+
       const polls = getPolls();
       expect(polls.length).toBe(2);
     });
@@ -86,7 +86,7 @@ describe("Edge Cases - Séparation Produits", () => {
   describe("Taille maximale des données", () => {
     it("devrait gérer les grands volumes de données", async () => {
       const { addPoll } = await import("../form-polls");
-      
+
       // Créer un poll avec beaucoup de données
       const largePoll = {
         id: "large",
@@ -104,11 +104,11 @@ describe("Edge Cases - Séparation Produits", () => {
           required: false,
           options: Array.from({ length: 10 }, (_, j) => ({
             id: `opt${j}`,
-            label: `Option ${j}`
-          }))
-        }))
+            label: `Option ${j}`,
+          })),
+        })),
       };
-      
+
       expect(() => {
         addPoll(largePoll);
       }).not.toThrow();
@@ -118,7 +118,7 @@ describe("Edge Cases - Séparation Produits", () => {
   describe("Récupération après erreur", () => {
     it("devrait restaurer les données après erreur", async () => {
       const { addPoll, getPolls } = await import("../form-polls");
-      
+
       const poll = {
         id: "recovery",
         creator_id: "user1",
@@ -128,9 +128,9 @@ describe("Edge Cases - Séparation Produits", () => {
         updated_at: "2025-01-01T00:00:00Z",
         type: "form" as const,
         title: "Recovery Test",
-        questions: []
+        questions: [],
       };
-      
+
       // Simuler une erreur puis récupérer
       try {
         await addPoll(poll);

@@ -1,5 +1,6 @@
 import { renderHook } from "@testing-library/react";
-import { useFeatureFlags } from "@/contexts/FeatureFlagsContext";
+import { useFeatureFlags, FeatureFlagsProvider } from "../FeatureFlagsContext";
+import React from "react";
 
 describe("FeatureFlags Hook", () => {
   it("should provide default flags", () => {
