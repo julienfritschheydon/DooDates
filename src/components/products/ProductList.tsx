@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
-import { ProductLayout, ProductCard } from '../shared';
-import { useProductContext } from '@/contexts/ProductContext';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Search, Filter } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { ProductLayout, ProductCard } from "../shared";
+import { useProductContext } from "@/contexts/ProductContext";
+import { logError } from "@/lib/error-handling";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Search, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const ProductList: React.FC = () => {
   const navigate = useNavigate();
@@ -14,7 +21,7 @@ export const ProductList: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
 
   const handleCreateProduct = () => {
-    navigate('/products/create');
+    navigate("/products/create");
   };
 
   const handleEditProduct = (productId: string) => {
@@ -26,17 +33,20 @@ export const ProductList: React.FC = () => {
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
       try {
         await actions.deleteProduct(productId);
       } catch (error) {
-        console.error('Erreur lors de la suppression:', error);
+        logError(error instanceof Error ? error : new Error(String(error)), { component: "ProductList", operation: "deleteProduct", pollId: productId } as const);
       }
     }
   };
 
-  const filteredProducts = state.products.filter(product => {
-    if (state.filters.search && !product.title.toLowerCase().includes(state.filters.search.toLowerCase())) {
+  const filteredProducts = state.products.filter((product) => {
+    if (
+      state.filters.search &&
+      !product.title.toLowerCase().includes(state.filters.search.toLowerCase())
+    ) {
       return false;
     }
     if (state.filters.type && product.type !== state.filters.type) {
@@ -58,17 +68,13 @@ export const ProductList: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="Rechercher un produit..."
-                value={state.filters.search || ''}
+                value={state.filters.search || ""}
                 onChange={(e) => actions.setFilters({ search: e.target.value })}
                 className="pl-10 w-64"
               />
             </div>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-            >
+
+            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
               <Filter className="h-4 w-4 mr-2" />
               Filtres
             </Button>
@@ -93,8 +99,10 @@ export const ProductList: React.FC = () => {
                     Type de produit
                   </label>
                   <Select
-                    value={state.filters.type || ''}
-                    onValueChange={(value) => actions.setFilters({ type: value as any || undefined })}
+                    value={state.filters.type || ""}
+                    onValueChange={(value) =>
+                      actions.setFilters({ type: (value as any) || undefined })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Tous les types" />
@@ -109,12 +117,12 @@ export const ProductList: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Statut
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Statut</label>
                   <Select
-                    value={state.filters.status || ''}
-                    onValueChange={(value) => actions.setFilters({ status: value as any || undefined })}
+                    value={state.filters.status || ""}
+                    onValueChange={(value) =>
+                      actions.setFilters({ status: (value as any) || undefined })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Tous les statuts" />
@@ -156,13 +164,13 @@ export const ProductList: React.FC = () => {
             <div className="text-center text-gray-600">
               <p className="text-lg font-medium mb-2">
                 {state.filters.search || state.filters.type || state.filters.status
-                  ? 'Aucun produit trouvé'
-                  : 'Aucun produit créé'}
+                  ? "Aucun produit trouvé"
+                  : "Aucun produit créé"}
               </p>
               <p className="mb-4">
                 {state.filters.search || state.filters.type || state.filters.status
-                  ? 'Essayez de modifier vos filtres'
-                  : 'Créez votre premier produit pour commencer'}
+                  ? "Essayez de modifier vos filtres"
+                  : "Créez votre premier produit pour commencer"}
               </p>
               {!state.filters.search && !state.filters.type && !state.filters.status && (
                 <Button onClick={handleCreateProduct}>
@@ -198,11 +206,11 @@ export const ProductList: React.FC = () => {
       {filteredProducts.length > 0 && state.pagination.total > state.pagination.limit && (
         <div className="mt-8 flex items-center justify-between">
           <p className="text-sm text-gray-600">
-            Affichage de {(state.pagination.page - 1) * state.pagination.limit + 1} à{' '}
-            {Math.min(state.pagination.page * state.pagination.limit, filteredProducts.length)} sur{' '}
+            Affichage de {(state.pagination.page - 1) * state.pagination.limit + 1} à{" "}
+            {Math.min(state.pagination.page * state.pagination.limit, filteredProducts.length)} sur{" "}
             {state.pagination.total} produits
           </p>
-          
+
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
@@ -212,11 +220,9 @@ export const ProductList: React.FC = () => {
             >
               Précédent
             </Button>
-            
-            <span className="px-3 py-1 text-sm">
-              Page {state.pagination.page}
-            </span>
-            
+
+            <span className="px-3 py-1 text-sm">Page {state.pagination.page}</span>
+
             <Button
               variant="outline"
               size="sm"

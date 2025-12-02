@@ -11,16 +11,16 @@ export {
   addQuizzResponse,
   getQuizzResponses,
   getQuizzResults,
-  validateQuizz as validatePoll
-} from './quizz-service';
+  validateQuizz as validatePoll,
+} from "./quizz-service";
 
-export type { 
-  Quizz as Poll, 
+export type {
+  Quizz as Poll,
   QuizzSettings as PollSettings,
   QuizzQuestion,
   QuizzResponse,
-  QuizzResults
-} from './quizz-service';
+  QuizzResults,
+} from "./quizz-service";
 
 // Helper function pour compatibilité
 export function isQuizz(poll: any): boolean {

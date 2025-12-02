@@ -5,21 +5,25 @@ Ces tests couvrent les cas limites pour la nouvelle architecture multi-produits.
 ## Tests disponibles
 
 ### 1. Données corrompues dans localStorage
+
 - Gestion des JSON invalides
 - Données manquantes
 - Récupération après corruption
 
 ### 2. Conflits de mise à jour concurrente
+
 - Modifications simultanées
 - Race conditions
 - Intégrité des données
 
 ### 3. Taille maximale des données
+
 - Grands volumes de données
 - Performance avec beaucoup de questions
 - Gestion mémoire
 
 ### 4. Récupération après erreur
+
 - Restauration des données
 - Rollback en cas d erreur
 - Maintien de la cohérence

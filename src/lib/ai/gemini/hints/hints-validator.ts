@@ -8,18 +8,18 @@ export function validateFormPollResponse(response: any): { isValid: boolean; err
   const errors: string[] = [];
 
   // Validation basique
-  if (!response || typeof response !== 'object') {
+  if (!response || typeof response !== "object") {
     errors.push("La réponse doit être un objet");
     return { isValid: false, errors };
   }
 
   // Validation du titre
-  if (!response.title || typeof response.title !== 'string' || response.title.trim().length === 0) {
+  if (!response.title || typeof response.title !== "string" || response.title.trim().length === 0) {
     errors.push("Le titre est requis et doit être une chaîne non vide");
   }
 
   // Validation du type
-  if (!response.type || response.type !== 'form') {
+  if (!response.type || response.type !== "form") {
     errors.push("Le type doit être 'form'");
   }
 
@@ -44,7 +44,7 @@ function validateQuestion(question: any, index: number): string[] {
   const questionPrefix = `Question ${index + 1}`;
 
   // Validation du titre
-  if (!question.title || typeof question.title !== 'string' || question.title.trim().length === 0) {
+  if (!question.title || typeof question.title !== "string" || question.title.trim().length === 0) {
     errors.push(`${questionPrefix}: le titre est requis`);
   }
 
@@ -57,7 +57,9 @@ function validateQuestion(question: any, index: number): string[] {
   // Validation des options pour single/multiple
   if (question.type === "single" || question.type === "multiple") {
     if (!Array.isArray(question.options) || question.options.length < 2) {
-      errors.push(`${questionPrefix}: les questions single/multiple doivent avoir au moins 2 options`);
+      errors.push(
+        `${questionPrefix}: les questions single/multiple doivent avoir au moins 2 options`,
+      );
     }
   }
 
@@ -86,13 +88,13 @@ export function validateDatePollResponse(response: any): { isValid: boolean; err
   const errors: string[] = [];
 
   // Validation basique
-  if (!response || typeof response !== 'object') {
+  if (!response || typeof response !== "object") {
     errors.push("La réponse doit être un objet");
     return { isValid: false, errors };
   }
 
   // Validation du titre
-  if (!response.title || typeof response.title !== 'string' || response.title.trim().length === 0) {
+  if (!response.title || typeof response.title !== "string" || response.title.trim().length === 0) {
     errors.push("Le titre est requis et doit être une chaîne non vide");
   }
 

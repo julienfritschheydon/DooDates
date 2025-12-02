@@ -19,11 +19,13 @@ src/lib/products/
 ## 🔄 Types Partagés
 
 ### PollType
+
 ```typescript
 type PollType = "date" | "form" | "quizz";
 ```
 
 ### BasePoll
+
 ```typescript
 interface BasePoll {
   id: string;
@@ -41,12 +43,14 @@ interface BasePoll {
 ## 🛠️ Interface Unifiée
 
 ### Helper Functions
+
 - `getPollType(poll: any): PollType | null` - Détecte le type de sondage
 - `isDatePoll(poll: any): boolean` - Vérifie si c'est un sondage de dates
 - `isFormPoll(poll: any): boolean` - Vérifie si c'est un sondage de formulaire
 - `isQuizz(poll: any): boolean` - Vérifie si c'est un quizz
 
 ### Factory Function
+
 ```typescript
 createPollService(type: PollType): Promise<any>
 ```
@@ -54,16 +58,19 @@ createPollService(type: PollType): Promise<any>
 ## 📦 Services Spécifiques
 
 ### Date Polls Service
+
 - **Gestion** : Créneaux horaires, fuseaux horaires, validation
 - **Types** : `DatePoll`, `DatePollSettings`, `TimeSlot`
 - **Fonctions** : CRUD, validation, export
 
-### Form Polls Service  
+### Form Polls Service
+
 - **Gestion** : Questions, réponses, résultats
 - **Types** : `FormPoll`, `Question`, `Response`
 - **Fonctions** : CRUD, validation, analyse
 
 ### Quizz Service
+
 - **Gestion** : Questions, scoring, correction
 - **Types** : `Quizz`, `QuizQuestion`, `QuizResult`
 - **Fonctions** : CRUD, notation, rapports
@@ -71,6 +78,7 @@ createPollService(type: PollType): Promise<any>
 ## 🔧 Rétrocompatibilité
 
 Chaque service exporte des wrappers avec aliases :
+
 - `getDatePolls` → `getPolls`
 - `DatePoll` → `Poll`
 - Etc.
@@ -84,7 +92,7 @@ Chaque service exporte des wrappers avec aliases :
 ## 📋 Usage Exemple
 
 ```typescript
-import { getPollType, createPollService } from './products';
+import { getPollType, createPollService } from "./products";
 
 // Détecter le type
 const type = getPollType(myPoll);

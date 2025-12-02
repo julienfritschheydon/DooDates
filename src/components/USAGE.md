@@ -3,12 +3,14 @@
 ## 🚀 Démarrage Rapide
 
 ### 1. Importer les composants
+
 ```typescript
 import { ProductList, DatePollCreate } from "@/components/products";
 import { ProductProvider, FeatureFlagsProvider } from "@/contexts";
 ```
 
 ### 2. Configurer les providers
+
 ```typescript
 function App() {
   return (
@@ -22,6 +24,7 @@ function App() {
 ```
 
 ### 3. Utiliser les hooks
+
 ```typescript
 import { useProductContext } from "@/contexts/ProductContext";
 import { useFeatureFlags } from "@/contexts/FeatureFlagsContext";
@@ -29,7 +32,7 @@ import { useFeatureFlags } from "@/contexts/FeatureFlagsContext";
 function MyComponent() {
   const { state, actions } = useProductContext();
   const { isEnabled } = useFeatureFlags();
-  
+
   return <div>{state.products.length} produits</div>;
 }
 ```
@@ -62,12 +65,14 @@ src/
 ## 🔄 Workflow Développement
 
 ### Créer un nouveau composant de produit
+
 1. Créer dans `src/components/products/[type]/`
 2. Exporter dans `index.ts`
 3. Ajouter les tests dans `__tests__/`
 4. Documenter les props
 
 ### Ajouter une nouvelle fonctionnalité
+
 1. Créer le hook dans `lib/hooks/`
 2. Ajouter le contexte si nécessaire
 3. Créer les composants partagés

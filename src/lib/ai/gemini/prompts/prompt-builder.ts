@@ -1,7 +1,11 @@
 import { formatDateLocal, getTodayLocal } from "../../../date-utils";
 import { isDev } from "../../../env";
 import { logger } from "../../../logger";
-import { buildSimpleDatePollPrompt, buildComplexDatePollPrompt, isComplexCase } from "./simple-prompts";
+import {
+  buildSimpleDatePollPrompt,
+  buildComplexDatePollPrompt,
+  isComplexCase,
+} from "./simple-prompts";
 import { buildDateHintsFromParsed } from "../hints/hints-service";
 
 /**
@@ -13,16 +17,14 @@ export class PromptBuilder {
    */
   static buildDatePollPrompt(userInput: string, dateHints: string = ""): string {
     const isComplex = isComplexCase(userInput);
-    
+
     if (isDev()) {
-      logger.info(
-        `PromptBuilder: ${isComplex ? "COMPLEX" : "SIMPLE"} mode detected`,
-        "api",
-        { userInput: userInput.substring(0, 100) }
-      );
+      logger.info(`PromptBuilder: ${isComplex ? "COMPLEX" : "SIMPLE"} mode detected`, "api", {
+        userInput: userInput.substring(0, 100),
+      });
     }
 
-    return isComplex 
+    return isComplex
       ? buildComplexDatePollPrompt(userInput, dateHints)
       : buildSimpleDatePollPrompt(userInput);
   }
@@ -159,7 +161,7 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.`;
    */
   static buildChatPrompt(userInput: string, context?: string): string {
     const contextSection = context ? `\nContexte: ${context}\n` : "";
-    
+
     return `Tu es l'IA DooDates, assistant intelligent pour la planification d'événements et la création de sondages.
 ${contextSection}
 Demande utilisateur: "${userInput}"
@@ -181,13 +183,13 @@ Réponds de manière naturelle et utile.`;
    */
   static isStructuredQuestionnaire(input: string): boolean {
     const markdownPatterns = [
-      /^#\s+.+$/m,           // Titre principal
-      /^##\s+.+$/m,          // Sections
-      /^###\s*Q\d+/m,        // Questions numérotées
-      /-\s*[☐□]/m,          // Checkboxes vides
-      /-\s*\[\s*\]/m,        // Checkboxes vides (format alternatif)
+      /^#\s+.+$/m, // Titre principal
+      /^##\s+.+$/m, // Sections
+      /^###\s*Q\d+/m, // Questions numérotées
+      /-\s*[☐□]/m, // Checkboxes vides
+      /-\s*\[\s*\]/m, // Checkboxes vides (format alternatif)
     ];
 
-    return markdownPatterns.some(pattern => pattern.test(input)) && input.length > 200;
+    return markdownPatterns.some((pattern) => pattern.test(input)) && input.length > 200;
   }
 }

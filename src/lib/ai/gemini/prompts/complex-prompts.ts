@@ -7,7 +7,7 @@ import { logger } from "../../../logger";
  */
 export function buildComplexDatePollPrompt(userInput: string, dateHints: string = ""): string {
   const contextualHints = buildContextualHints(userInput);
-  
+
   return `Tu es l'IA DooDates, expert en planification temporelle.
 ${dateHints}
 ${contextualHints}
@@ -64,15 +64,17 @@ function buildContextualHints(userInput: string): string {
   const today = new Date();
   const currentMonth = today.toLocaleDateString("fr-FR", { month: "long" });
   const currentYear = today.getFullYear();
-  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
-    .toLocaleDateString("fr-FR", { month: "long" });
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1).toLocaleDateString(
+    "fr-FR",
+    { month: "long" },
+  );
 
   // Détecter contexte repas
   const isMealContext = /(déjeuner|dîner|brunch|lunch|repas)/i.test(userInput);
-  
+
   // Détecter contexte professionnel
   const isWorkContext = /(réunion|meeting|travail|bureau|professionnel|collègue)/i.test(userInput);
-  
+
   // Détecter contexte événementiel
   const isEventContext = /(anniversaire|fête|célébration|soirée|weekend|vacances)/i.test(userInput);
 

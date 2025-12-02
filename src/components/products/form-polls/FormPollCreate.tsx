@@ -24,10 +24,10 @@ export const FormPollCreate: React.FC<FormPollCreateProps> = ({ id }) => {
       }
       navigate("/products/form");
     } catch (error) {
-      toast({ 
-        title: "Erreur", 
+      toast({
+        title: "Erreur",
         description: "Impossible de créer le formulaire",
-        variant: "destructive" 
+        variant: "destructive",
       });
     }
   };

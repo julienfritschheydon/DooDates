@@ -5,8 +5,8 @@ import { Calendar, Clock, Users } from "lucide-react";
 
 export const DatePollList: React.FC = () => {
   const { state, actions } = useProductContext();
-  
-  const datePolls = state.products.filter(p => p.type === "date");
+
+  const datePolls = state.products.filter((p) => p.type === "date");
 
   return (
     <div className="space-y-6">
@@ -14,16 +14,16 @@ export const DatePollList: React.FC = () => {
         <h2 className="text-2xl font-semibold">Sondages de Dates</h2>
         <div className="flex items-center space-x-2 text-sm text-gray-600">
           <Calendar className="h-4 w-4" />
-          <span>{datePolls.length} sondage{datePolls.length > 1 ? "s" : ""}</span>
+          <span>
+            {datePolls.length} sondage{datePolls.length > 1 ? "s" : ""}
+          </span>
         </div>
       </div>
 
       {datePolls.length === 0 ? (
         <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
           <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Aucun sondage de dates
-          </h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun sondage de dates</h3>
           <p className="text-gray-600 mb-4">
             Créez votre premier sondage pour trouver les meilleures dates
           </p>

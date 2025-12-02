@@ -1,20 +1,21 @@
 import React, { createContext, useContext, ReactNode } from "react";
+import { ErrorFactory } from "@/lib/error-handling";
 
 interface FeatureFlags {
   // Product features
   enableDatePolls: boolean;
   enableFormPolls: boolean;
   enableQuizz: boolean;
-  
+
   // UI features
   enableDarkMode: boolean;
   enableAdvancedFilters: boolean;
   enableExportFeatures: boolean;
-  
+
   // Beta features
   enableBetaFeatures: boolean;
   enableNewDashboard: boolean;
-  
+
   // Analytics
   enableAnalytics: boolean;
   enableErrorTracking: boolean;
@@ -60,7 +61,7 @@ export const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({
   };
 
   const updateFlag = (feature: keyof FeatureFlags, value: boolean) => {
-    setFlags(prev => ({ ...prev, [feature]: value }));
+    setFlags((prev) => ({ ...prev, [feature]: value }));
   };
 
   return (
@@ -73,7 +74,10 @@ export const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({
 export const useFeatureFlags = (): FeatureFlagsContextType => {
   const context = useContext(FeatureFlagsContext);
   if (context === undefined) {
-    throw new Error("useFeatureFlags must be used within a FeatureFlagsProvider");
+    throw ErrorFactory.validation(
+      "useFeatureFlags must be used within a FeatureFlagsProvider",
+      "Erreur de configuration du contexte"
+    );
   }
   return context;
 };

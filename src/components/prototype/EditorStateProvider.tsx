@@ -27,34 +27,34 @@ import React, {
 import { useLocation } from "react-router-dom";
 import { logError, ErrorFactory } from "@/lib/error-handling";
 import { pollReducer, type PollAction } from "@/reducers/pollReducer";
-import { 
-  addPoll, 
-  type Poll, 
+import {
+  addPoll,
+  type Poll,
   type FormQuestionShape as PollFormQuestion,
-  type FormQuestionKind
+  type FormQuestionKind,
 } from "@/lib/pollStorage";
 import { logger } from "@/lib/logger";
 import { usePolls } from "@/hooks/usePolls";
 import { useFormPollCreation } from "@/hooks/useFormPollCreation";
-import type { PollSuggestion, FormQuestion as PollSuggestionFormQuestion } from "@/types/poll-suggestions";
+import type {
+  PollSuggestion,
+  FormQuestion as PollSuggestionFormQuestion,
+} from "@/types/poll-suggestions";
 
 // Type guard for date questions
-function isDateQuestion(q: { type: string }): q is { 
-  type: 'date';
+function isDateQuestion(q: { type: string }): q is {
+  type: "date";
   selectedDates?: string[];
   timeSlotsByDate?: Record<string, any>;
   timeGranularity?: string;
   allowMaybeVotes?: boolean;
   allowAnonymousVotes?: boolean;
 } {
-  return q.type === 'date';
+  return q.type === "date";
 }
 
 // Helper function to map between poll-suggestions FormQuestion and pollStorage FormQuestionShape
-function mapToStorageQuestion(
-  q: PollSuggestionFormQuestion, 
-  uid: () => string
-): PollFormQuestion {
+function mapToStorageQuestion(q: PollSuggestionFormQuestion, uid: () => string): PollFormQuestion {
   // Create the base question with required fields
   const baseQuestion: PollFormQuestion = {
     id: uid(),
@@ -75,14 +75,14 @@ function mapToStorageQuestion(
       ...question,
       options: (q.options || [])
         .filter((opt): opt is string => typeof opt === "string" && opt.trim() !== "")
-        .map(opt => ({
+        .map((opt) => ({
           id: uid(),
           label: opt.trim(),
         })),
       ...(q.maxChoices && { maxChoices: q.maxChoices }),
     };
-  } 
-  
+  }
+
   // Handle date question type
   if (isDateQuestion(q)) {
     return {
@@ -297,7 +297,7 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
 
         // Convertir les nouvelles questions en format FormPollCreator
         const uid = () => Math.random().toString(36).slice(2, 10);
-        const convertedNewQuestions = newQuestions.map(q => mapToStorageQuestion(q, uid));
+        const convertedNewQuestions = newQuestions.map((q) => mapToStorageQuestion(q, uid));
 
         // Fusionner : garder les questions existantes et ajouter les nouvelles
         const mergedQuestions = [...existingQuestions, ...convertedNewQuestions];
@@ -382,10 +382,12 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
         logger.debug("Conversion questions Gemini", "poll", { questions: pollData.questions });
         // Type assertion: si c'est un PollSuggestion, questions est FormQuestion[]
         const geminiQuestions = pollQuestions as import("../../lib/ai/gemini").FormQuestion[];
-        convertedQuestions = geminiQuestions.map((q: import("../../lib/ai/gemini").FormQuestion) => {
-          // Use the mapToStorageQuestion helper function for consistency
-          return mapToStorageQuestion(q as any, uid);
-        });
+        convertedQuestions = geminiQuestions.map(
+          (q: import("../../lib/ai/gemini").FormQuestion) => {
+            // Use the mapToStorageQuestion helper function for consistency
+            return mapToStorageQuestion(q as any, uid);
+          },
+        );
         logger.debug("Questions converties", "poll", { convertedQuestions });
       }
 
@@ -443,11 +445,13 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
             selectedDates: ("dates" in pollData && pollData.dates ? pollData.dates : []) || [],
             timeSlotsByDate: timeSlotsByDate,
             participantEmails: [],
-            dateGroups: ("dateGroups" in pollData ? pollData.dateGroups : undefined) as Array<{
-              dates: string[];
-              label: string;
-              type: "weekend" | "week" | "fortnight" | "custom";
-            }> | undefined, // 🔧 Préserver les groupes de dates
+            dateGroups: ("dateGroups" in pollData ? pollData.dateGroups : undefined) as
+              | Array<{
+                  dates: string[];
+                  label: string;
+                  type: "weekend" | "week" | "fortnight" | "custom";
+                }>
+              | undefined, // 🔧 Préserver les groupes de dates
             settings: {
               timeGranularity: 30,
               allowAnonymousVotes: true,

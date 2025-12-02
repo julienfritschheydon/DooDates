@@ -8,14 +8,14 @@ import type { ParsedTemporalInput } from "../../../temporalParser";
  */
 export function buildDateHintsFromParsed(parsed: ParsedTemporalInput, userInput: string): string {
   const dayNames = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
-  
+
   // Cas 1: Jour de la semaine + période
   if (parsed.type === "day_of_week" && parsed.relativeWeeks && parsed.dayOfWeek) {
     const hasMultipleDays = parsed.dayOfWeek.length > 1;
     const jourName = hasMultipleDays
       ? parsed.dayOfWeek.map((d) => dayNames[d]).join(" ET ")
       : dayNames[parsed.dayOfWeek[0]];
-    
+
     return `
 ⚠️⚠️⚠️ INSTRUCTION PRIORITAIRE - JOUR SPÉCIFIQUE + PÉRIODE ⚠️⚠️⚠️
 
@@ -36,7 +36,7 @@ ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
   // Cas 2: Date spécifique OU jour(s) de la semaine
   if (parsed.type === "specific_date" || parsed.type === "day_of_week") {
     const hasMultipleDays = parsed.dayOfWeek && parsed.dayOfWeek.length > 1;
-    
+
     if (hasMultipleDays) {
       const joursNames = parsed.dayOfWeek.map((d) => dayNames[d]).join(" ET ");
       return `
@@ -50,11 +50,13 @@ RÈGLE ABSOLUE:
 - INTERDIT : Ne générer qu'une seule date
 
 Dates autorisées:
-${parsed.allowedDates.map((d: string) => {
-  const dateObj = new Date(d + "T00:00:00");
-  const dayName = dayNames[dateObj.getDay()];
-  return `  - ${d} (${dayName})`;
-}).join("\n")}
+${parsed.allowedDates
+  .map((d: string) => {
+    const dateObj = new Date(d + "T00:00:00");
+    const dayName = dayNames[dateObj.getDay()];
+    return `  - ${d} (${dayName})`;
+  })
+  .join("\n")}
 
 ⚠️ CRITIQUE : Générer TOUTES ces dates, pas seulement une !`;
     }
@@ -86,14 +88,14 @@ ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}`;
 export function validateDateHints(hints: string, userInput: string): boolean {
   // Validation basique
   if (!hints || hints.trim().length === 0) return true;
-  
+
   // Vérifier que les hints contiennent des dates valides
   const dateRegex = /\d{4}-\d{2}-\d{2}/g;
   const dates = hints.match(dateRegex);
-  
+
   if (!dates) return true;
-  
+
   // Vérifier que toutes les dates sont dans le futur
   const today = getTodayLocal();
-  return dates.every(date => date >= today);
+  return dates.every((date) => date >= today);
 }

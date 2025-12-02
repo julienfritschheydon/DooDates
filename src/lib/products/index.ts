@@ -1,10 +1,12 @@
 // Products Unified Interface
 // Interface unifiée pour tous les services produits
 
+import { ErrorFactory } from "../error-handling";
+
 // Date Polls
 export * as DatePolls from "./date-polls";
 
-// Form Polls  
+// Form Polls
 export * as FormPolls from "./form-polls";
 
 // Quizz
@@ -13,12 +15,12 @@ export * as Quizz from "./quizz";
 // Helper functions universelles
 export function getPollType(poll: any): "date" | "form" | "quizz" | null {
   if (!poll) return null;
-  
+
   // Check explicit type first
   if (poll.type === "date") return "date";
   if (poll.type === "quizz") return "quizz";
   if (poll.type === "form") return "form";
-  
+
   // Fallback to structure detection
   if (poll.settings?.selectedDates && Array.isArray(poll.settings.selectedDates)) {
     return "date";
@@ -43,6 +45,10 @@ export async function createPollService(type: "date" | "form" | "quizz") {
     case "quizz":
       return await import("./quizz");
     default:
-      throw new Error(`Unknown poll type: ${type}`);
+      throw ErrorFactory.validation(
+        `Unknown poll type: ${type}`,
+        `Unknown poll type: ${type}`,
+        { type }
+      );
   }
 }

@@ -49,12 +49,15 @@ export interface QuizzResults {
   averageScore: number;
   averagePercentage: number;
   responses: QuizzResponse[];
-  questionStats: Record<string, {
-    correctAnswers: number;
-    totalAnswers: number;
-    percentage: number;
-    mostCommonWrongAnswer?: string;
-  }>;
+  questionStats: Record<
+    string,
+    {
+      correctAnswers: number;
+      totalAnswers: number;
+      percentage: number;
+      mostCommonWrongAnswer?: string;
+    }
+  >;
 }
 
 export interface QuizzSettings {
@@ -97,7 +100,7 @@ function validateQuizz(poll: Quizz): void {
     throw ErrorFactory.validation(
       "Invalid quizz: title must be a non-empty string",
       "Invalid quizz: title must be a non-empty string",
-      { pollId: poll.id, title: poll.title }
+      { pollId: poll.id, title: poll.title },
     );
   }
 
@@ -105,7 +108,7 @@ function validateQuizz(poll: Quizz): void {
     throw ErrorFactory.validation(
       "Invalid quizz: questions must be a non-empty array",
       "Invalid quizz: questions must be a non-empty array",
-      { pollId: poll.id, questions: poll.questions }
+      { pollId: poll.id, questions: poll.questions },
     );
   }
 
@@ -114,7 +117,7 @@ function validateQuizz(poll: Quizz): void {
       throw ErrorFactory.validation(
         `Invalid quizz question at index ${index}: missing required fields`,
         `Invalid quizz question at index ${index}: missing required fields`,
-        { pollId: poll.id, questionIndex: index, question }
+        { pollId: poll.id, questionIndex: index, question },
       );
     }
 
@@ -123,7 +126,7 @@ function validateQuizz(poll: Quizz): void {
         throw ErrorFactory.validation(
           `Invalid quizz question at index ${index}: options required for ${question.type} type`,
           `Invalid quizz question at index ${index}: options required for ${question.type} type`,
-          { pollId: poll.id, questionIndex: index, question }
+          { pollId: poll.id, questionIndex: index, question },
         );
       }
     }
@@ -212,7 +215,7 @@ export function saveQuizz(quizz: Quizz[]): void {
 
 export function getQuizzBySlugOrId(idOrSlug: string | undefined | null): Quizz | null {
   if (!idOrSlug) return null;
-  
+
   const quizz = getQuizz();
   return quizz.find((p) => p.id === idOrSlug || p.slug === idOrSlug) || null;
 }
@@ -220,10 +223,10 @@ export function getQuizzBySlugOrId(idOrSlug: string | undefined | null): Quizz |
 export async function addQuizz(poll: Quizz): Promise<void> {
   try {
     validateQuizz(poll);
-    
+
     const quizz = getQuizz();
     const existingIndex = quizz.findIndex((p) => p.id === poll.id);
-    
+
     if (existingIndex >= 0) {
       quizz[existingIndex] = poll;
       logger.info("Quizz updated", { pollId: poll.id });
@@ -231,7 +234,7 @@ export async function addQuizz(poll: Quizz): Promise<void> {
       quizz.push(poll);
       logger.info("Quizz created", { pollId: poll.id });
     }
-    
+
     saveQuizz(quizz);
   } catch (error) {
     logError(error, "addQuizz", {
@@ -267,9 +270,9 @@ export function duplicateQuizz(poll: Quizz): Quizz {
     updated_at: new Date().toISOString(),
   };
 
-  logger.info("Quizz duplicated", { 
-    originalId: poll.id, 
-    newId: newQuizz.id 
+  logger.info("Quizz duplicated", {
+    originalId: poll.id,
+    newId: newQuizz.id,
   });
 
   return newQuizz;
@@ -326,11 +329,7 @@ export function addQuizzResponse(params: {
   try {
     const quizz = getQuizzById(pollId);
     if (!quizz) {
-      throw ErrorFactory.validation(
-        "Quizz not found",
-        "Quizz not found",
-        { pollId }
-      );
+      throw ErrorFactory.validation("Quizz not found", "Quizz not found", { pollId });
     }
 
     const deviceId = getDeviceId();
@@ -340,12 +339,12 @@ export function addQuizzResponse(params: {
         throw ErrorFactory.validation(
           `Question not found: ${answer.questionId}`,
           `Question not found: ${answer.questionId}`,
-          { pollId, questionId: answer.questionId }
+          { pollId, questionId: answer.questionId },
         );
       }
 
       const isCorrect = checkAnswer(question, answer.answer);
-      const points = isCorrect ? (question.points || 1) : 0;
+      const points = isCorrect ? question.points || 1 : 0;
 
       return {
         ...answer,
@@ -355,7 +354,8 @@ export function addQuizzResponse(params: {
     });
 
     const totalPoints = processedAnswers.reduce((sum, a) => sum + a.points, 0);
-    const maxPoints = quizz.maxPoints || quizz.questions.reduce((sum, q) => sum + (q.points || 1), 0);
+    const maxPoints =
+      quizz.maxPoints || quizz.questions.reduce((sum, q) => sum + (q.points || 1), 0);
     const percentage = maxPoints > 0 ? (totalPoints / maxPoints) * 100 : 0;
 
     const response: QuizzResponse = {
@@ -404,7 +404,7 @@ function checkAnswer(question: QuizzQuestion, userAnswer: string | string[] | bo
       }
       const userSet = new Set(userAnswer);
       const correctSet = new Set(question.correctAnswer as string[]);
-      return userSet.size === correctSet.size && [...userSet].every(x => correctSet.has(x));
+      return userSet.size === correctSet.size && [...userSet].every((x) => correctSet.has(x));
     case "true-false":
       return userAnswer === question.correctAnswer;
     default:
@@ -415,11 +415,7 @@ function checkAnswer(question: QuizzQuestion, userAnswer: string | string[] | bo
 export function getQuizzResults(pollId: string): QuizzResults {
   const quizz = getQuizzById(pollId);
   if (!quizz) {
-    throw ErrorFactory.validation(
-      "Quizz not found",
-      "Quizz not found",
-      { pollId }
-    );
+    throw ErrorFactory.validation("Quizz not found", "Quizz not found", { pollId });
   }
 
   const responses = readAllQuizzResponses().filter((r) => r.pollId === pollId);
@@ -454,11 +450,14 @@ export function getQuizzResults(pollId: string): QuizzResults {
       .filter((a) => !a!.isCorrect)
       .map((a) => a!.answer.toString());
 
-    const mostCommonWrongAnswer = wrongAnswers.length > 0
-      ? wrongAnswers.sort((a, b) => 
-          wrongAnswers.filter(x => x === b).length - wrongAnswers.filter(x => x === a).length
-        )[0]
-      : undefined;
+    const mostCommonWrongAnswer =
+      wrongAnswers.length > 0
+        ? wrongAnswers.sort(
+            (a, b) =>
+              wrongAnswers.filter((x) => x === b).length -
+              wrongAnswers.filter((x) => x === a).length,
+          )[0]
+        : undefined;
 
     questionStats[question.id] = {
       correctAnswers,
@@ -490,7 +489,7 @@ function hasWindow(): boolean {
 
 export function getDeviceId(): string {
   if (!hasWindow()) return `server_${Date.now()}`;
-  
+
   let deviceId = localStorage.getItem("doodates_device_id");
   if (!deviceId) {
     deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

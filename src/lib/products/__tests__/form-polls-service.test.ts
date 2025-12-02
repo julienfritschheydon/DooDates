@@ -71,7 +71,9 @@ describe("FormPollsService", () => {
 
     it("should throw error for missing title", () => {
       const invalidPoll = { ...mockPoll, title: "" };
-      expect(() => validateFormPoll(invalidPoll)).toThrow("Invalid form poll: title must be a non-empty string");
+      expect(() => validateFormPoll(invalidPoll)).toThrow(
+        "Invalid form poll: title must be a non-empty string",
+      );
     });
 
     it("should throw error for invalid question structure", () => {
@@ -79,7 +81,9 @@ describe("FormPollsService", () => {
         ...mockPoll,
         questions: [{ id: "", title: "test", kind: "single" as const }],
       };
-      expect(() => validateFormPoll(invalidPoll)).toThrow("Invalid form poll question at index 0: missing required fields");
+      expect(() => validateFormPoll(invalidPoll)).toThrow(
+        "Invalid form poll question at index 0: missing required fields",
+      );
     });
 
     it("should validate poll without questions", () => {
@@ -119,37 +123,37 @@ describe("FormPollsService", () => {
   describe("addFormPoll", () => {
     it("should add a new form poll", async () => {
       localStorageMock.getItem.mockReturnValue("[]");
-      
+
       await addFormPoll(mockPoll);
-      
+
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "doodates_polls",
-        expect.stringContaining(mockPoll.id)
+        expect.stringContaining(mockPoll.id),
       );
     });
 
     it("should update existing form poll", async () => {
       // Reset mock before setting specific implementation
       localStorageMock.getItem.mockClear();
-      
+
       const existingPolls = [mockPoll];
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === "doodates_polls") return JSON.stringify(existingPolls);
         return null;
       });
-      
+
       const updatedPoll = { ...mockPoll, title: "Updated title" };
       await addFormPoll(updatedPoll);
-      
+
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "doodates_polls",
-        expect.stringContaining("Sondage formulaire")
+        expect.stringContaining("Sondage formulaire"),
       );
     });
 
     it("should throw error for invalid poll", async () => {
       const invalidPoll = { ...mockPoll, title: "" };
-      
+
       await expect(addFormPoll(invalidPoll)).rejects.toThrow();
     });
   });
@@ -158,30 +162,27 @@ describe("FormPollsService", () => {
     it("should delete form poll by id", () => {
       // Reset mock before setting specific implementation
       localStorageMock.getItem.mockClear();
-      
+
       const polls = [mockPoll];
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === "doodates_polls") return JSON.stringify(polls);
         return null;
       });
-      
+
       deleteFormPollById(mockPoll.id);
-      
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        "doodates_polls",
-        expect.any(String)
-      );
+
+      expect(localStorageMock.setItem).toHaveBeenCalledWith("doodates_polls", expect.any(String));
     });
 
     it("should handle non-existent poll", () => {
       const polls = [mockPoll];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       deleteFormPollById("non_existent");
-      
+
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "doodates_polls",
-        JSON.stringify(polls)
+        JSON.stringify(polls),
       );
     });
   });
@@ -189,7 +190,7 @@ describe("FormPollsService", () => {
   describe("duplicateFormPoll", () => {
     it("should create a duplicate with new id and slug", () => {
       const duplicate = duplicateFormPoll(mockPoll);
-      
+
       expect(duplicate.id).not.toBe(mockPoll.id);
       expect(duplicate.slug).not.toBe(mockPoll.slug);
       expect(duplicate.title).toBe("Sondage formulaire (copie)");
@@ -201,7 +202,7 @@ describe("FormPollsService", () => {
     it("should find poll by id", () => {
       const polls = [mockPoll];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       const found = getFormPollBySlugOrId(mockPoll.id);
       expect(found).toEqual(mockPoll);
     });
@@ -209,7 +210,7 @@ describe("FormPollsService", () => {
     it("should find poll by slug", () => {
       const polls = [mockPoll];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       const found = getFormPollBySlugOrId(mockPoll.slug);
       expect(found).toEqual(mockPoll);
     });
@@ -217,7 +218,7 @@ describe("FormPollsService", () => {
     it("should return null for not found", () => {
       const polls = [mockPoll];
       localStorageMock.getItem.mockReturnValue(JSON.stringify(polls));
-      
+
       const found = getFormPollBySlugOrId("not_found");
       expect(found).toBeNull();
     });
@@ -247,7 +248,7 @@ describe("FormPollsService", () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "doodates_form_responses",
-        expect.stringContaining("resp_")
+        expect.stringContaining("resp_"),
       );
     });
 
@@ -263,7 +264,7 @@ describe("FormPollsService", () => {
     it("should validate required answers", () => {
       const requiredQuestion = { ...mockQuestion, required: true };
       const pollWithRequired = { ...mockPoll, questions: [requiredQuestion] };
-      
+
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === "doodates_polls") return JSON.stringify([pollWithRequired]);
         if (key === "doodates_form_responses") return "[]";
@@ -282,12 +283,17 @@ describe("FormPollsService", () => {
   describe("getFormResponses", () => {
     it("should return responses for specific poll", () => {
       const responses = [
-        { id: "resp1", pollId: mockPoll.id, items: [mockResponse], created_at: "2025-01-01T10:00:00Z" },
+        {
+          id: "resp1",
+          pollId: mockPoll.id,
+          items: [mockResponse],
+          created_at: "2025-01-01T10:00:00Z",
+        },
         { id: "resp2", pollId: "other_poll", items: [], created_at: "2025-01-01T10:00:00Z" },
       ];
-      
+
       localStorageMock.getItem.mockReturnValue(JSON.stringify(responses));
-      
+
       const pollResponses = getFormResponses(mockPoll.id);
       expect(pollResponses).toHaveLength(1);
       expect(pollResponses[0].id).toBe("resp1");
@@ -295,7 +301,7 @@ describe("FormPollsService", () => {
 
     it("should return empty array for poll with no responses", () => {
       localStorageMock.getItem.mockReturnValue("[]");
-      
+
       const responses = getFormResponses(mockPoll.id);
       expect(responses).toEqual([]);
     });
@@ -317,7 +323,7 @@ describe("FormPollsService", () => {
           created_at: "2025-01-01T10:00:00Z",
         },
       ];
-      
+
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === "doodates_polls") return JSON.stringify([mockPoll]);
         if (key === "doodates_form_responses") return JSON.stringify(responses);
@@ -325,7 +331,7 @@ describe("FormPollsService", () => {
       });
 
       const results = getFormResults(mockPoll.id);
-      
+
       expect(results.pollId).toBe(mockPoll.id);
       expect(results.totalResponses).toBe(2);
       expect(results.countsByQuestion["q1"]["opt1"]).toBe(1);
@@ -351,7 +357,7 @@ describe("FormPollsService", () => {
           created_at: "2025-01-01T10:00:00Z",
         },
       ];
-      
+
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === "doodates_polls") return JSON.stringify([pollWithText]);
         if (key === "doodates_form_responses") return JSON.stringify(responses);
@@ -359,7 +365,7 @@ describe("FormPollsService", () => {
       });
 
       const results = getFormResults(pollWithText.id);
-      
+
       expect(results.textAnswers["q_text"]).toEqual(["Answer 1"]);
       expect(results.countsByQuestion["q_text"]).toBeUndefined();
     });

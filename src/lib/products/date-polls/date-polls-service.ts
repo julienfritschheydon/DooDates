@@ -95,7 +95,7 @@ export interface ValidationResult {
 
 export function validateDatePoll(poll: DatePoll): ValidationResult {
   const errors: string[] = [];
-  
+
   if (!poll.title || typeof poll.title !== "string" || poll.title.trim() === "") {
     errors.push("Invalid date poll: title must be a non-empty string");
   }
@@ -113,26 +113,26 @@ export function validateDatePoll(poll: DatePoll): ValidationResult {
   if (poll.settings?.timeSlotsByDate) {
     if (Array.isArray(poll.settings.timeSlotsByDate)) {
       errors.push("Invalid time slots: timeSlotsByDate must be an object, not an array");
-    } else if (typeof poll.settings.timeSlotsByDate === 'object') {
+    } else if (typeof poll.settings.timeSlotsByDate === "object") {
       for (const [date, slots] of Object.entries(poll.settings.timeSlotsByDate)) {
         if (!Array.isArray(slots)) {
           errors.push(`Invalid time slots for date ${date}: must be an array`);
           continue;
         }
-        
+
         if (slots.length === 0) {
           errors.push(`At least one time slot is required for date ${date}`);
           continue;
         }
-        
+
         for (const slot of slots) {
-          if (typeof slot.hour !== 'number' || slot.hour < 0 || slot.hour > 23) {
+          if (typeof slot.hour !== "number" || slot.hour < 0 || slot.hour > 23) {
             errors.push(`Invalid hour for date ${date}: must be between 0 and 23`);
           }
-          if (typeof slot.minute !== 'number' || slot.minute < 0 || slot.minute > 59) {
+          if (typeof slot.minute !== "number" || slot.minute < 0 || slot.minute > 59) {
             errors.push(`Invalid minute for date ${date}: must be between 0 and 59`);
           }
-          if (typeof slot.enabled !== 'boolean') {
+          if (typeof slot.enabled !== "boolean") {
             errors.push(`Invalid enabled status for date ${date}: must be boolean`);
           }
         }
@@ -142,7 +142,7 @@ export function validateDatePoll(poll: DatePoll): ValidationResult {
 
   const result: ValidationResult = {
     isValid: errors.length === 0,
-    errors: errors.length > 0 ? errors : undefined
+    errors: errors.length > 0 ? errors : undefined,
   };
 
   if (result.isValid) {
@@ -192,7 +192,7 @@ export function getDatePolls(): DatePoll[] {
 
     return deduplicateDatePolls(validDatePolls);
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "DatePollsService", operation: "getDatePolls" });
     return [];
   }
 }
@@ -228,14 +228,14 @@ export function saveDatePolls(polls: DatePoll[]): void {
       count: deduplicatedPolls.length,
     } as any);
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "DatePollsService", operation: "saveDatePolls" });
     throw error;
   }
 }
 
 export function getDatePollBySlugOrId(idOrSlug: string | undefined | null): DatePoll | null {
   if (!idOrSlug) return null;
-  
+
   const polls = getDatePolls();
   return polls.find((p) => p.id === idOrSlug || p.slug === idOrSlug) || null;
 }
@@ -244,12 +244,16 @@ export async function addDatePoll(poll: DatePoll): Promise<void> {
   try {
     const validation = validateDatePoll(poll);
     if (!validation.isValid) {
-      throw new Error(`Invalid date poll: ${validation.errors.join(", ")}`);
+      throw ErrorFactory.validation(
+        `Invalid date poll: ${validation.errors.join(", ")}`,
+        `Invalid date poll: ${validation.errors.join(", ")}`,
+        { pollId: poll.id, errors: validation.errors }
+      );
     }
-    
+
     const polls = getDatePolls();
     const existingIndex = polls.findIndex((p) => p.id === poll.id);
-    
+
     if (existingIndex >= 0) {
       polls[existingIndex] = poll;
       logger.info("Date poll updated", { pollId: poll.id } as any);
@@ -257,10 +261,10 @@ export async function addDatePoll(poll: DatePoll): Promise<void> {
       polls.push(poll);
       logger.info("Date poll created", { pollId: poll.id } as any);
     }
-    
+
     saveDatePolls(polls);
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "DatePollsService", operation: "addDatePoll", pollId: poll.id });
     throw error;
   }
 }
@@ -272,7 +276,7 @@ export function deleteDatePollById(id: string): void {
     saveDatePolls(next);
     logger.info("Date poll deleted", { pollId: id } as any);
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "DatePollsService", operation: "deleteDatePollById", pollId: id });
     throw error;
   }
 }
@@ -287,9 +291,9 @@ export function duplicateDatePoll(poll: DatePoll): DatePoll {
     updated_at: new Date().toISOString(),
   };
 
-  logger.info("Date poll duplicated", { 
-    originalId: poll.id, 
-    newId: newPoll.id 
+  logger.info("Date poll duplicated", {
+    originalId: poll.id,
+    newId: newPoll.id,
   } as any);
 
   return newPoll;
@@ -326,10 +330,10 @@ export function copyToClipboard(text: string): Promise<void> {
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
-      
+
       const successful = document.execCommand("copy");
       document.body.removeChild(textArea);
-      
+
       if (successful) {
         logger.info("Text copied to clipboard using execCommand fallback" as any);
         return Promise.resolve();
@@ -338,7 +342,7 @@ export function copyToClipboard(text: string): Promise<void> {
       }
     }
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), { component: "DatePollsService", operation: "copyToClipboard" });
     return Promise.reject(error);
   }
 }

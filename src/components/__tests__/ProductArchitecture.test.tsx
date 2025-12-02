@@ -12,9 +12,7 @@ jest.mock("@/components/shared/ProductLayout", () => ({
 }));
 
 jest.mock("@/components/shared/ProductCard", () => ({
-  ProductCard: ({ title }: { title: string }) => (
-    <div data-testid="product-card">{title}</div>
-  ),
+  ProductCard: ({ title }: { title: string }) => <div data-testid="product-card">{title}</div>,
 }));
 
 describe("Product Architecture Integration", () => {
@@ -26,7 +24,7 @@ describe("Product Architecture Integration", () => {
             <ProductList />
           </ProductProvider>
         </FeatureFlagsProvider>
-      </AnalyticsProvider>
+      </AnalyticsProvider>,
     );
 
     expect(screen.getByTestId("product-layout")).toBeInTheDocument();

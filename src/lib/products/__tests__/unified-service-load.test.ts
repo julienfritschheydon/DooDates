@@ -23,7 +23,7 @@ describe("Unified Service Load Tests", () => {
   it("should handle 1000+ date polls creation efficiently", async () => {
     const dateService = await createPollService("date");
     const startTime = performance.now();
-    
+
     // Créer 1000 date polls
     const polls = Array.from({ length: 1000 }, (_, i) => ({
       id: `date_${i}`,
@@ -60,7 +60,7 @@ describe("Unified Service Load Tests", () => {
   it("should handle 1000+ form polls creation efficiently", async () => {
     const service = await createPollService("form");
     const startTime = performance.now();
-    
+
     // Créer 1000 form polls
     const polls = Array.from({ length: 1000 }, (_, i) => ({
       id: `form_${i}`,
@@ -135,7 +135,7 @@ describe("Unified Service Load Tests", () => {
 
     // Opérations concurrentes
     const operations = [
-      ...Array.from({ length: 100 }, (_, i) => 
+      ...Array.from({ length: 100 }, (_, i) =>
         // @ts-ignore - TypeScript conflit avec interface unifiée
         dateService.addPoll({
           id: `concurrent_date_${i}`,
@@ -148,9 +148,9 @@ describe("Unified Service Load Tests", () => {
           },
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        })
+        }),
       ),
-      ...Array.from({ length: 100 }, (_, i) => 
+      ...Array.from({ length: 100 }, (_, i) =>
         // @ts-ignore - TypeScript conflit avec interface unifiée
         formService.addPoll({
           id: `concurrent_form_${i}`,
@@ -160,7 +160,7 @@ describe("Unified Service Load Tests", () => {
           questions: [{ id: `q_${i}`, title: `Question ${i}`, kind: "single" as const }],
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        })
+        }),
       ),
     ];
 

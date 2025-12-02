@@ -23,9 +23,7 @@ export const FormPollDetail: React.FC<FormPollDetailProps> = ({ id }) => {
     return (
       <ProductLayout title="Erreur">
         <div className="text-center py-8">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">
-            Formulaire non trouvé
-          </h2>
+          <h2 className="text-2xl font-semibold text-red-600 mb-4">Formulaire non trouvé</h2>
         </div>
       </ProductLayout>
     );

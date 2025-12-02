@@ -11,9 +11,9 @@ if echo "$BRANCH" | grep -qE "^test"; then
   exit 0
 fi
 
-# Branche bug: validation ultra-légère (lint + format seulement)
+# Branche bug: validation légère (lint + error handling + format)
 if [ "$BRANCH" = "bug" ]; then
-  echo "🐛 Branche BUG: validation ultra-légère..."
+  echo "🐛 Branche BUG: validation légère..."
   
   # 1. Lint rapide (quiet = pas de warnings)
   echo "🔍 ESLint..."
@@ -23,7 +23,17 @@ if [ "$BRANCH" = "bug" ]; then
     exit 1
   fi
   
-  # 2. Formatage
+  # 2. Error Handling (CRITIQUE - sur toutes les branches)
+  echo "🛡️ Vérification Error Handling..."
+  npm run test:error-handling
+  if [ $? -ne 0 ]; then
+    echo "❌ Violations Error Handling - Commit bloqué"
+    echo "💡 Utilisez ErrorFactory au lieu de 'throw new Error'"
+    echo "💡 Utilisez logError() au lieu de 'console.error'"
+    exit 1
+  fi
+  
+  # 3. Formatage
   if [ "$NO_FORMAT" != "1" ]; then
     echo "💅 Formatage du code..."
     npm run format

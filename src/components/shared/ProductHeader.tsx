@@ -1,9 +1,9 @@
-import React from 'react';
-import { UserMenu } from '../UserMenu';
-import { ThemeToggle } from '../ThemeToggle';
-import { ArrowLeft, Settings } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { UserMenu } from "../UserMenu";
+import { ThemeToggle } from "../ThemeToggle";
+import { ArrowLeft, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 interface ProductHeaderProps {
   title?: string;
@@ -20,7 +20,7 @@ export const ProductHeader: React.FC<ProductHeaderProps> = ({
   user,
   showBackButton = false,
   showSettings = false,
-  backTo = '/workspace',
+  backTo = "/workspace",
 }) => {
   const navigate = useNavigate();
 
@@ -30,25 +30,16 @@ export const ProductHeader: React.FC<ProductHeaderProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             {showBackButton && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(backTo)}
-                className="p-2"
-              >
+              <Button variant="ghost" size="sm" onClick={() => navigate(backTo)} className="p-2">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}
             <div>
-              {title && (
-                <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-              )}
-              {subtitle && (
-                <p className="text-sm text-gray-600 mt-1">{subtitle}</p>
-              )}
+              {title && <h1 className="text-2xl font-bold text-gray-900">{title}</h1>}
+              {subtitle && <p className="text-sm text-gray-600 mt-1">{subtitle}</p>}
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             {showSettings && (

@@ -86,7 +86,7 @@ export class RateLimiterService {
 
     // Réinitialiser si la fenêtre est passée
     if (now - tracker.lastReset > finalConfig.windowMs) {
-      tracker.count = 0; // Reset à 0, pas 1
+      tracker.count = 1; // Reset à 1 car cette requête compte
       tracker.lastReset = now;
       tracker.isBlocked = false;
       tracker.blockUntil = undefined;
@@ -97,7 +97,7 @@ export class RateLimiterService {
     if (tracker.isBlocked && tracker.blockUntil && now >= tracker.blockUntil) {
       tracker.isBlocked = false;
       tracker.blockUntil = undefined;
-      tracker.count = 0; // Reset à 0, pas 1
+      tracker.count = 1; // Reset à 1 car cette requête compte
       tracker.lastReset = now;
       return true;
     }
@@ -115,7 +115,13 @@ export class RateLimiterService {
           `RATE LIMIT EXCEEDED: ${identifier} blocked for ${finalConfig.blockDurationMs / 1000}s`,
           "Système temporairement bloqué pour prévenir les abus.",
         ),
-        { component: "RateLimiter", identifier, count: tracker.count, maxRequests: finalConfig.maxRequests, blockedUntil: tracker.blockUntil },
+        {
+          component: "RateLimiter",
+          identifier,
+          count: tracker.count,
+          maxRequests: finalConfig.maxRequests,
+          blockedUntil: tracker.blockUntil,
+        },
       );
 
       return false;
@@ -152,12 +158,21 @@ export class RateLimiterService {
   }
 
   /**
-   * Nettoie les trackers expirés
+   * Nettoie les trackers expirés (ou tous si forceAll=true)
    */
-  cleanup(): void {
+  cleanup(forceAll: boolean = true): void {
+    if (forceAll) {
+      this.trackers.clear();
+      return;
+    }
+    
     const now = Date.now();
     for (const [identifier, tracker] of this.trackers.entries()) {
-      if (tracker.blockUntil && now > tracker.blockUntil && now - tracker.lastReset > this.defaultConfig.windowMs * 2) {
+      if (
+        tracker.blockUntil &&
+        now > tracker.blockUntil &&
+        now - tracker.lastReset > this.defaultConfig.windowMs * 2
+      ) {
         this.trackers.delete(identifier);
       }
     }
@@ -170,7 +185,7 @@ export class RateLimiterService {
     return (req: any, res: any, next: any) => {
       // Identifier par IP + User-Agent
       const identifier = this.getRequestIdentifier(req);
-      
+
       if (!this.isAllowed(identifier, config)) {
         const stats = this.getStats(identifier);
         return res.status(429).json({
@@ -188,17 +203,17 @@ export class RateLimiterService {
    * Extrait un identifiant unique de la requête
    */
   private getRequestIdentifier(req: any): string {
-    const ip = req.ip || 
-               req.connection?.remoteAddress || 
-               req.socket?.remoteAddress || 
-               req.headers['x-forwarded-for']?.split(',')[0] || 
-               'unknown';
-    
-    const userAgent = req.headers['user-agent'] || 'unknown';
-    
+    const ip =
+      req.ip ||
+      req.connection?.remoteAddress ||
+      req.socket?.remoteAddress ||
+      req.headers["x-forwarded-for"]?.split(",")[0] ||
+      "unknown";
+
+    const userAgent = req.headers["user-agent"] || "unknown";
+
     return `${ip}:${userAgent}`;
   }
-
 }
 
 export const rateLimiter = new RateLimiterService();
@@ -220,15 +235,15 @@ export function useRateLimit(identifier: string, config?: Partial<RateLimitConfi
  */
 export function rateLimit(config?: Partial<RateLimitConfig>) {
   return function <T extends (...args: unknown[]) => unknown>(
-    target: unknown, 
-    propertyName: string, 
-    descriptor: TypedPropertyDescriptor<T>
+    target: unknown,
+    propertyName: string,
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const method = descriptor.value!;
 
     descriptor.value = ((...args: unknown[]) => {
-      const identifier = `${target?.constructor?.name || 'unknown'}:${propertyName}`;
-      
+      const identifier = `${target?.constructor?.name || "unknown"}:${propertyName}`;
+
       if (!rateLimiter.isAllowed(identifier, config)) {
         logError(
           ErrorFactory.rateLimit(
@@ -239,7 +254,7 @@ export function rateLimit(config?: Partial<RateLimitConfig>) {
         );
         return Promise.resolve({ success: false, error: "Rate limit exceeded" });
       }
-      
+
       return method.apply(target, args);
     }) as T;
   };

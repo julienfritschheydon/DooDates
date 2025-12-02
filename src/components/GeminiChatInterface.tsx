@@ -19,7 +19,7 @@ import type {
   FormPollSuggestion,
   DatePollSuggestion,
   isFormPollSuggestion,
-  isDatePollSuggestion
+  isDatePollSuggestion,
 } from "@/types/poll-suggestions";
 // Lazy load PollCreator - ne se charge que si nécessaire
 const PollCreator = lazy(() => import("./PollCreator"));
