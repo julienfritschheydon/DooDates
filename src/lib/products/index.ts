@@ -12,14 +12,23 @@ export * as Quizz from "./quizz";
 
 // Helper functions universelles
 export function getPollType(poll: any): "date" | "form" | "quizz" | null {
-  if (poll?.type === "date" || (poll?.settings?.selectedDates && Array.isArray(poll?.settings?.selectedDates))) {
+  if (!poll) return null;
+  
+  // Check explicit type first
+  if (poll.type === "date") return "date";
+  if (poll.type === "quizz") return "quizz";
+  if (poll.type === "form") return "form";
+  
+  // Fallback to structure detection
+  if (poll.settings?.selectedDates && Array.isArray(poll.settings.selectedDates)) {
     return "date";
   }
-  if (poll?.type === "form" || (poll?.questions && Array.isArray(poll.questions))) {
+  if (poll.questions && Array.isArray(poll.questions)) {
+    // Quizz has correctAnswer in questions, form doesn't
+    if (poll.questions.some((q: any) => q.correctAnswer !== undefined)) {
+      return "quizz";
+    }
     return "form";
-  }
-  if (poll?.type === "quizz" && Array.isArray(poll?.questions)) {
-    return "quizz";
   }
   return null;
 }

@@ -28,5 +28,13 @@ export type {
 
 // Helper function pour compatibilité
 export function isFormPoll(poll: any): boolean {
-  return poll?.type === "form" || (poll?.questions && Array.isArray(poll.questions));
+  // Explicit type check first
+  if (poll?.type === "form") return true;
+  // Exclude quizz
+  if (poll?.type === "quizz") return false;
+  // Fallback: has questions but not quizz-style questions
+  if (poll?.questions && Array.isArray(poll.questions)) {
+    return !poll.questions.some((q: any) => q.correctAnswer !== undefined);
+  }
+  return false;
 }
