@@ -79,6 +79,7 @@ export default defineConfig({
       NODE_ENV: 'test', // Forcer le mode test
       VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'http://localhost:8080',
       VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY || 'test-anon-key',
+      VITE_GEMINI_API_KEY: 'test-gemini-key',
       // Désactiver HMR pour les tests
       VITE_HMR: 'false',
       // Désactiver les optimisations en développement pour accélérer le démarrage
