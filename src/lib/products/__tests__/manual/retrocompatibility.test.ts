@@ -1,9 +1,9 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from "vitest";
 
 // Test simple des exports sans dépendances externes
 describe("Rétrocompatibilité des Wrappers", () => {
   it("devrait exporter les fonctions de base pour form-polls", async () => {
-    const formPollsModule = await import("../form-polls");
+    const formPollsModule = await import("../../form-polls");
 
     expect(typeof formPollsModule.getPolls).toBe("function");
     expect(typeof formPollsModule.addPoll).toBe("function");
@@ -12,7 +12,7 @@ describe("Rétrocompatibilité des Wrappers", () => {
   });
 
   it("devrait utiliser l interface unifiée", async () => {
-    const { getPollType } = await import("..");
+    const { getPollType } = await import("../..");
 
     expect(typeof getPollType).toBe("function");
 
@@ -25,7 +25,7 @@ describe("Rétrocompatibilité des Wrappers", () => {
   });
 
   it("devrait détecter correctement les types de polls", async () => {
-    const { isFormPoll } = await import("../form-polls");
+    const { isFormPoll } = await import("../../form-polls");
 
     const datePoll = { type: "date", settings: { selectedDates: [] } };
     const formPoll = { type: "form", questions: [] };
