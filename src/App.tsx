@@ -406,7 +406,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <TooltipProvider>
-            <BrowserRouter basename="/DooDates">
+            <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
               <AppLayout>
                 <ErrorBoundary>
                   <Suspense fallback={<LoadingSpinner />}>

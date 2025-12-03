@@ -50,10 +50,36 @@ jobs:
           if ! git merge origin/${{ github.ref_name }} --no-ff -m "chore: auto-merge ${{ github.ref_name }} to testing"; then
             echo "⚠️ Conflits détectés, résolution en faveur de la branche bug..."
             # Résoudre les conflits en faveur de la branche bug (--theirs = branche bug lors du merge dans testing)
+            # Résoudre les fichiers connus pour conflits fréquents
             git checkout --theirs .github/workflows/deploy-edge-functions.yml 2>/dev/null || true
             git checkout --theirs index.html 2>/dev/null || true
             git checkout --theirs public/404.html 2>/dev/null || true
-            git add .github/workflows/deploy-edge-functions.yml index.html public/404.html
-            git commit -m "chore: auto-merge ${{ github.ref_name }} to testing - resolved conflicts"
+            
+            # Vérifier s'il reste des fichiers en conflit
+            if git diff --name-only --diff-filter=U | grep -q .; then
+              echo "⚠️ Conflits supplémentaires détectés, résolution pour tous les fichiers..."
+              # Résoudre tous les conflits restants en faveur de la branche bug
+              git diff --name-only --diff-filter=U | while read file; do
+                git checkout --theirs "$file" 2>/dev/null || true
+              done
+            fi
+            
+            # Vérifier qu'il n'y a plus de conflits non résolus
+            if git diff --name-only --diff-filter=U | grep -q .; then
+              echo "❌ Impossible de résoudre tous les conflits. Fichiers en conflit restants:"
+              git diff --name-only --diff-filter=U
+              exit 1
+            fi
+            
+            # Ajouter tous les fichiers résolus
+            git add -A
+            
+            # Commit uniquement si tous les conflits sont résolus
+            if ! git commit -m "chore: auto-merge ${{ github.ref_name }} to testing - resolved conflicts"; then
+              echo "❌ Échec du commit après résolution des conflits"
+              exit 1
+            fi
           fi
+          
+          # Push uniquement si le merge/commit a réussi
           git push origin testing
