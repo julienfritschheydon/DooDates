@@ -1,0 +1,65 @@
+name: Auto-merge Bug → Testing
+
+on:
+  push:
+    branches: ['bug/*']
+
+jobs:
+  validate:
+    name: 🧪 Validate Bug Fix
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: npm ci
+
+      - name: 🧪 Run Unit Tests
+        run: npm run test:unit:fast
+        timeout: 3m
+
+      - name: 🔍 TypeScript Check
+        run: npm run type-check
+        timeout: 2m
+
+      - name: 🧹 Linting
+        run: npm run lint
+        timeout: 1m
+
+      - name: 🏗️ Build Validation
+        run: npm run build
+        timeout: 2m
+
+  auto-merge:
+    name: 🚀 Auto-merge to Testing
+    runs-on: ubuntu-latest
+    needs: validate
+    if: success()
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔧 Configure Git
+        run: |
+          git config --global user.name "Auto-merge Bot"
+          git config --global user.email "bot@doodates.com"
+
+      - name: 🔄 Merge to Testing
+        run: |
+          git checkout testing
+          git merge origin/${{ github.ref_name }} --no-ff -m "Auto-merge: ${{ github.ref_name }} → testing"
+          
+      - name: 📤 Push to Testing
+        run: git push origin testing
