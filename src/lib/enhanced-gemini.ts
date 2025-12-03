@@ -1,10 +1,8 @@
-import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
+import { secureGeminiService } from "@/services/SecureGeminiService";
 import CalendarQuery from "./calendar-generator";
 import { logError, ErrorFactory } from "./error-handling";
 import { formatDateLocal, getTodayLocal } from "./date-utils";
 import { logger } from "./logger";
-
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 // Interface simplifiée pour éviter les problèmes d'import
 interface SimpleTemporalAnalysis {
@@ -51,12 +49,26 @@ export interface EnhancedGeminiResponse {
 
 export class EnhancedGeminiService {
   private static instance: EnhancedGeminiService;
-  private genAI: GoogleGenerativeAI | null = null;
-  public model: GenerativeModel | null = null;
   private calendarQuery: CalendarQuery;
+  // Mock model property for compatibility with existing code that checks for .model
+  public model: { generateContent: (prompt: string) => Promise<{ response: { text: () => string } }> } | null = null;
 
   constructor() {
     this.calendarQuery = new CalendarQuery();
+    // Initialize mock model that delegates to SecureGeminiService
+    this.model = {
+      generateContent: async (prompt: string) => {
+        const result = await secureGeminiService.generateContent(prompt);
+        if (!result.success || !result.data) {
+          throw new Error(result.error || result.message || "Failed to generate content");
+        }
+        return {
+          response: {
+            text: () => result.data || ""
+          }
+        };
+      }
+    };
   }
 
   public static getInstance(): EnhancedGeminiService {
@@ -67,25 +79,8 @@ export class EnhancedGeminiService {
   }
 
   public async ensureInitialized(): Promise<boolean> {
-    if (!this.genAI && API_KEY) {
-      try {
-        this.genAI = new GoogleGenerativeAI(API_KEY);
-        this.model = this.genAI.getGenerativeModel({
-          model: "gemini-1.5-flash",
-        });
-        return true;
-      } catch (error) {
-        logError(
-          ErrorFactory.api(
-            "Failed to initialize Gemini",
-            "Erreur lors de l'initialisation de Gemini",
-          ),
-          { metadata: { originalError: error } },
-        );
-        return false;
-      }
-    }
-    return !!this.model;
+    // Always true as we rely on SecureGeminiService which handles its own initialization
+    return true;
   }
 
   /**
@@ -175,14 +170,7 @@ export class EnhancedGeminiService {
   }
 
   async generateEnhancedPoll(userInput: string): Promise<EnhancedGeminiResponse> {
-    const initialized = await this.ensureInitialized();
-    if (!initialized || !this.model) {
-      return {
-        success: false,
-        message: "Service IA temporairement indisponible",
-        error: "INITIALIZATION_FAILED",
-      };
-    }
+    // No need to check initialization as we use SecureGeminiService
 
     try {
       // 1. Analyse temporelle préalable
@@ -193,10 +181,14 @@ export class EnhancedGeminiService {
       // 2. Génération du prompt avec techniques Counterfactual-Consistency
       const enhancedPrompt = this.buildCounterfactualPrompt(userInput, temporalAnalysis);
 
-      // 3. Génération par Gemini
-      const result = await this.model.generateContent(enhancedPrompt);
-      const response = await result.response;
-      const text = response.text();
+      // 3. Génération par SecureGeminiService (via Edge Function)
+      const result = await secureGeminiService.generateContent(enhancedPrompt);
+
+      if (!result.success || !result.data) {
+        throw new Error(result.error || result.message || "Failed to generate content");
+      }
+
+      const text = result.data;
 
       logger.debug("Réponse Gemini améliorée", "api", { textLength: text.length });
 
@@ -273,11 +265,10 @@ VÉRIFICATIONS COUNTERFACTUAL OBLIGATOIRES:
 ${counterfactualQuestions.map((q) => `❓ ${q}`).join("\n")}
 
 RÉSOLUTION DES CONFLITS:
-${
-  analysis.conflicts.length > 0
-    ? analysis.conflicts.map((c) => `⚠️ RÉSOUDRE: ${c}`).join("\n")
-    : "✅ Aucun conflit - procéder normalement"
-}
+${analysis.conflicts.length > 0
+        ? analysis.conflicts.map((c) => `⚠️ RÉSOUDRE: ${c}`).join("\n")
+        : "✅ Aucun conflit - procéder normalement"
+      }
 
 INSTRUCTIONS AMÉLIORÉES AVEC COUNTERFACTUAL-CONSISTENCY:
 
@@ -306,21 +297,19 @@ INSTRUCTIONS AMÉLIORÉES AVEC COUNTERFACTUAL-CONSISTENCY:
    * Adapter les horaires aux contraintes détectées
 
 5. GESTION DES PATTERNS RÉCURRENTS:
-   ${
-     analysis.temporalType === "recurring"
-       ? "✓ Pattern récurrent détecté - générer plusieurs occurrences"
-       : "✗ Événement ponctuel - générer dates spécifiques"
-   }
+   ${analysis.temporalType === "recurring"
+        ? "✓ Pattern récurrent détecté - générer plusieurs occurrences"
+        : "✗ Événement ponctuel - générer dates spécifiques"
+      }
 
 Format JSON requis (avec validation counterfactual intégrée):
 
 {
   "title": "Titre descriptif et précis",
-  "dates": [${
-    analysis.extractedDates.length > 0
-      ? '"' + analysis.extractedDates.slice(0, 3).join('","') + '"'
-      : '"YYYY-MM-DD"'
-  }], // VÉRIFIÉES par counterfactual
+  "dates": [${analysis.extractedDates.length > 0
+        ? '"' + analysis.extractedDates.slice(0, 3).join('","') + '"'
+        : '"YYYY-MM-DD"'
+      }], // VÉRIFIÉES par counterfactual
   "timeSlots": [
     {
       "start": "${analysis.constraints.matin ? "09:00" : analysis.constraints.apresmidi ? "14:00" : analysis.constraints.soir ? "18:00" : "HH:MM"}",
@@ -455,19 +444,7 @@ Réponds SEULEMENT avec le JSON validé.`;
   }
 
   async testConnection(): Promise<boolean> {
-    const initialized = await this.ensureInitialized();
-    if (!initialized || !this.model) return false;
-
-    try {
-      const result = await this.model.generateContent('Test de connexion - réponds juste "OK"');
-      const response = await result.response;
-      return response.text().includes("OK");
-    } catch (error) {
-      logError(ErrorFactory.network("Connection test failed", "Test de connexion échoué"), {
-        metadata: { originalError: error },
-      });
-      return false;
-    }
+    return await secureGeminiService.testConnection();
   }
 }
 

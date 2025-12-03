@@ -1,10 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { secureGeminiService } from "@/services/SecureGeminiService";
 import { logger } from "./logger";
-import { getEnv } from "./env";
 import { logError } from "./error-handling";
 
-const API_KEY = getEnv("VITE_GEMINI_API_KEY");
-const MODEL = "gemini-2.0-flash-exp";
+const MODEL = "gemini-2.0-flash"; // Aligned with Edge Function model
 
 export interface ParsedAvailability {
   day: string; // "monday", "tuesday", etc.
@@ -25,7 +23,7 @@ export interface ParsedAvailabilitiesResult {
 }
 
 /**
- * Parse les disponibilités texte libre en utilisant Gemini 2.0 Flash
+ * Parse les disponibilités texte libre en utilisant Gemini via Edge Function
  *
  * Exemples d'entrées :
  * - "Disponible mardi et jeudi après-midi"
@@ -34,21 +32,7 @@ export interface ParsedAvailabilitiesResult {
  * - "Lundi 14h, mercredi 10h ou 15h"
  */
 export async function parseAvailabilitiesWithAI(text: string): Promise<ParsedAvailabilitiesResult> {
-  if (!API_KEY) {
-    logger.error("VITE_GEMINI_API_KEY non configurée", "availability-parser");
-    return {
-      availabilities: [],
-      rawText: text,
-      parsedAt: new Date().toISOString(),
-      confidence: 0,
-      errors: ["Clé API Gemini non configurée"],
-    };
-  }
-
   try {
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: MODEL });
-
     const prompt = `Tu es un assistant spécialisé dans l'analyse de disponibilités temporelles.
 
 Analyse le texte suivant et extrais toutes les disponibilités mentionnées. Retourne UNIQUEMENT un JSON valide, sans texte supplémentaire.
@@ -84,14 +68,19 @@ Texte à analyser :
 
 Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
 
-    logger.debug("Parsing disponibilités avec Gemini", "availability-parser", {
+    logger.debug("Parsing disponibilités avec Gemini (via SecureService)", "availability-parser", {
       textLength: text.length,
       model: MODEL,
     });
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const responseText = response.text();
+    // Utiliser le service sécurisé qui passe par l'Edge Function
+    const result = await secureGeminiService.generateContent("", prompt);
+
+    if (!result.success || !result.data) {
+      throw new Error(result.message || result.error || "Erreur lors de l'appel à Gemini");
+    }
+
+    const responseText = result.data;
 
     logger.debug("Réponse Gemini reçue", "availability-parser", {
       responseLength: responseText.length,
@@ -110,13 +99,13 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
     // Valider et normaliser la structure
     const availabilities: ParsedAvailability[] = (parsed.availabilities || []).map(
       (avail: Record<string, unknown>) => ({
-        day: normalizeDay(avail.day),
+        day: normalizeDay(avail.day as string),
         timeRange: {
-          start: normalizeTime(avail.timeRange?.start || avail.start || "09:00"),
-          end: normalizeTime(avail.timeRange?.end || avail.end || "17:00"),
+          start: normalizeTime((avail.timeRange as any)?.start || avail.start || "09:00"),
+          end: normalizeTime((avail.timeRange as any)?.end || avail.end || "17:00"),
         },
-        confidence: Math.max(0, Math.min(1, avail.confidence || 0.7)),
-        originalText: avail.originalText || text.substring(0, 50),
+        confidence: Math.max(0, Math.min(1, (avail.confidence as number) || 0.7)),
+        originalText: (avail.originalText as string) || text.substring(0, 50),
       }),
     );
 
