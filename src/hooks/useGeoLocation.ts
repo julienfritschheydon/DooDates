@@ -38,7 +38,7 @@ export function useGeoLocation() {
           console.log("[Geo] Detected:", data.country, `(${data.source})`);
         }
       } catch (err: any) {
-        logError(err, { component: 'geo', operation: 'fetchGeo' });
+        logError(err, { component: "geo", operation: "fetchGeo" });
         setError(err.message);
         // Fallback
         const fallback: GeoLocation = { country: "FR", source: "fallback" };
