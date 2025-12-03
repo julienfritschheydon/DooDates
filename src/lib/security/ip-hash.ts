@@ -182,14 +182,16 @@ export function validateIP(ip: string): boolean {
 
   // Vérifier les formes IPv6 courtes mais valides
   if (ip.includes(":")) {
+    // Rejeter immédiatement les cas avec ::: (triple colon)
+    const tripleColonCount = (ip.match(/:::/g) || []).length;
+    if (tripleColonCount > 0) return false; // ::: est toujours invalide
+
     const parts = ip.split(":");
     // Éviter les IPs avec trop de :: ou de caractères invalides
     const doubleColonCount = (ip.match(/::/g) || []).length;
-    const tripleColonCount = (ip.match(/:::/g) || []).length;
     const hasInvalidChars = /[^0-9a-fA-F:]/.test(ip);
 
     // Rejeter explicitement les cas invalides
-    if (tripleColonCount > 0) return false; // ::: est toujours invalide
     if (doubleColonCount > 1) return false;
     if (hasInvalidChars) return false;
     if (parts.length > 8) return false;
