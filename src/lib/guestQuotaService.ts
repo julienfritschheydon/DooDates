@@ -97,6 +97,13 @@ function shouldBypassGuestQuota(): boolean {
   }
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+  
+  // Si VITE_SUPABASE_URL n'est pas défini, bypass (mode développement local)
+  if (!supabaseUrl) {
+    logger.debug("VITE_SUPABASE_URL not configured, bypassing guest quota", "quota");
+    return true;
+  }
+
   const isMockedSupabase = supabaseUrl.includes("localhost") || supabaseUrl.includes("127.0.0.1");
 
   if (isMockedSupabase) {
@@ -116,6 +123,14 @@ async function callQuotaEdgeFunction(
 ): Promise<unknown> {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !anonKey) {
+    throw ErrorFactory.validation(
+      "Supabase configuration missing",
+      "Configuration Supabase manquante. Le mode guest quota nécessite VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.",
+    );
+  }
+
   const functionUrl = `${supabaseUrl}/functions/v1/quota-tracking`;
 
   const fingerprint = await getCachedFingerprint();

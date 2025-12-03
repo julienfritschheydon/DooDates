@@ -13,7 +13,7 @@
         // to the new url with only a query string and hash fragment,
         // e.g. https://www.foo.com/bar/baz?a=b#c
         //   -> https://www.foo.com/?p=/bar/baz&a=b#c
-        var segmentCount = 1;
+        var segmentCount = 2; // Prendre en compte le base path /DooDates/
         var l = window.location;
         l.replace(
             l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
