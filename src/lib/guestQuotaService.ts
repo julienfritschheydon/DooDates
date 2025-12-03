@@ -113,7 +113,7 @@ function shouldBypassGuestQuota(): boolean {
 async function callQuotaEdgeFunction(
   endpoint: string,
   body: Record<string, unknown>,
-): Promise<any> {
+): Promise<unknown> {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   const functionUrl = `${supabaseUrl}/functions/v1/quota-tracking`;
@@ -158,7 +158,7 @@ export async function getOrCreateGuestQuota(): Promise<GuestQuotaData | null> {
     const result = await callQuotaEdgeFunction("checkQuota", {
       action: "other",
       credits: 0,
-    });
+    }) as { currentQuota?: GuestQuotaData };
 
     return result.currentQuota || null;
   } catch (error) {
@@ -182,7 +182,7 @@ export async function canConsumeCredits(
     const result = await callQuotaEdgeFunction("checkQuota", {
       action,
       credits,
-    });
+    }) as { allowed: boolean; reason?: string; currentQuota?: GuestQuotaData };
 
     return {
       allowed: result.allowed,
@@ -218,7 +218,7 @@ export async function consumeGuestCredits(
       action,
       credits,
       metadata: mergedMetadata,
-    });
+    }) as { quota?: GuestQuotaData };
 
     return {
       success: true,
@@ -244,7 +244,7 @@ export async function getGuestQuotaJournal(limit: number = 100): Promise<GuestQu
   try {
     const result = await callQuotaEdgeFunction("getJournal", {
       limit,
-    });
+    }) as { journal?: GuestQuotaJournalEntry[] };
 
     return result.journal || [];
   } catch (error) {

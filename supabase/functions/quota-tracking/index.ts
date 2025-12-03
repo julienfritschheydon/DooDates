@@ -237,11 +237,13 @@ serve(async (req: Request) => {
         if (isGuest) {
           // Logique Guest
           // 1. Récupérer ou créer le quota guest
-          let { data: quota, error: quotaError } = await supabase
+          const { data: existingQuota, error: quotaError } = await supabase
             .from("guest_quotas")
             .select("*")
             .eq("fingerprint", fingerprint)
             .maybeSingle();
+
+          let quota = existingQuota;
 
           if (!quota) {
             const { data: newQuota, error: createError } = await supabase
@@ -264,7 +266,7 @@ serve(async (req: Request) => {
           }
 
           // 3. Mettre à jour (incrémenter)
-          const updates: any = {
+          const updates: Record<string, unknown> = {
             total_credits_consumed: totalCredits + credits,
             last_activity_at: new Date().toISOString(),
           };
@@ -357,7 +359,7 @@ serve(async (req: Request) => {
           return new Response(
             JSON.stringify({
               success: true,
-              journal: (journal || []).map((entry: any) => ({
+              journal: (journal || []).map((entry: { id: string; created_at: string; action: string; credits: number; metadata: Record<string, unknown> }) => ({
                 id: entry.id,
                 timestamp: entry.created_at,
                 action: entry.action,
@@ -382,7 +384,7 @@ serve(async (req: Request) => {
           return new Response(
             JSON.stringify({
               success: true,
-              journal: (journal || []).map((entry: any) => ({
+              journal: (journal || []).map((entry: { id: string; created_at: string; action: string; credits: number; user_id: string; metadata: Record<string, unknown> }) => ({
                 id: entry.id,
                 timestamp: entry.created_at,
                 action: entry.action,
