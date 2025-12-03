@@ -40,12 +40,13 @@ async function checkGemini() {
             console.error("❌ Gemini API returned unexpected response:", text);
             return false;
         }
-    } catch (error: any) {
-        console.error("❌ Gemini API check failed:", error.message);
-        if (error.message.includes("400")) {
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error("❌ Gemini API check failed:", errorMessage);
+        if (errorMessage.includes("400")) {
             console.error("   -> Likely invalid model name or bad request");
         }
-        if (error.message.includes("403")) {
+        if (errorMessage.includes("403")) {
             console.error("   -> Likely invalid API key");
         }
         return false;
@@ -80,8 +81,9 @@ async function checkSupabase() {
         console.log(`✅ Supabase API is reachable (Status: ${status})`);
         return true;
 
-    } catch (error: any) {
-        console.error("❌ Supabase connection error:", error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error("❌ Supabase connection error:", errorMessage);
         return false;
     }
 }
