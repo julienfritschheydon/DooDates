@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 01/12/2025 17:10:48
+**Dernière mise à jour:** 03/12/2025 02:06:09
 
-_Workflow run #687 (ID 19829159793) — génération UTC 2025-12-01T16:10:48.781Z_
+_Workflow run #702 (ID 19878769339) — génération UTC 2025-12-03T01:06:09.904Z_
 
-## 🎯 Focus: Commit `5d88827`
+## 🎯 Focus: Commit `84db8ce`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -19,35 +19,35 @@ _Workflow run #687 (ID 19829159793) — génération UTC 2025-12-01T16:10:48.781
 
 **Statut:** ❌ failure
 
-**Dernier run:** 19/11/2025 19:23:32
+**Dernier run:** 02/12/2025 16:44:01
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `5d88827`.
+Tous les workflows surveillés ont réussi pour le commit `84db8ce`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ✅ success
+**Statut:** ❌ failure
 
-**Dernier run:** 01/12/2025 17:01:25
+**Dernier run:** 02/12/2025 10:02:41
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `5d88827`.
+Tous les workflows surveillés ont réussi pour le commit `84db8ce`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `5d88827`
+- 🎯 **Focus: Commit actuel** `84db8ce`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
