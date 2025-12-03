@@ -89,9 +89,9 @@ else
     fi
   fi
 
-  # 1. Lint rapide (warnings autorisés, erreurs bloquantes seulement)
-  echo "🔍 ESLint..."
-  npx eslint . --report-unused-disable-directives --max-warnings 1000
+  # 1. Lint strict (0 warnings, pas de any)
+  echo "🔍 ESLint (Strict)..."
+  npm run lint
   if [ $? -ne 0 ]; then
     echo "❌ Erreurs lint - Commit bloqué"
     exit 1
@@ -142,6 +142,15 @@ else
 
   echo "✅ Pre-commit (develop) validé - Commit autorisé"
   exit 0
+fi
+
+# 1. Tests unitaires rapides (< 30s)
+# 0. Lint strict (Main branch)
+echo "🔍 ESLint (Strict)..."
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "❌ Erreurs lint - Commit bloqué"
+  exit 1
 fi
 
 # 1. Tests unitaires rapides (< 30s)
