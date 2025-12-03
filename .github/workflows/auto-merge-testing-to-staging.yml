@@ -4,6 +4,9 @@ on:
   push:
     branches: [testing]
 
+permissions:
+  contents: write
+
 jobs:
   validate:
     name: 🧪 Validate Testing
@@ -25,23 +28,23 @@ jobs:
 
       - name: 🧪 Run Unit Tests
         run: npm run test:unit:fast
-        timeout: 3m
+        timeout-minutes: 3
 
       - name: 🔍 TypeScript Check
         run: npm run type-check
-        timeout: 2m
+        timeout-minutes: 2
 
       - name: 🧹 Linting
         run: npm run lint
-        timeout: 1m
+        timeout-minutes: 1
 
       - name: 🏗️ Build Validation
         run: npm run build
-        timeout: 2m
+        timeout-minutes: 2
 
       - name: 🎭 E2E Smoke Tests
         run: npm run test:e2e:smoke
-        timeout: 5m
+        timeout-minutes: 5
 
   auto-merge:
     name: 🚀 Auto-merge to Staging
