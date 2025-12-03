@@ -37,7 +37,11 @@ export const pricingService = {
 
       return data.region_id;
     } catch (err) {
-      logError(err, { component: "pricing", operation: "getRegionForCountry", metadata: { countryCode } });
+      logError(err, {
+        component: "pricing",
+        operation: "getRegionForCountry",
+        metadata: { countryCode },
+      });
       return DEFAULT_REGION_ID;
     }
   },
@@ -55,7 +59,11 @@ export const pricingService = {
         .single();
 
       if (regionError || !region) {
-        logError(regionError, { component: "pricing", operation: "getPricingForRegion", metadata: { regionId } });
+        logError(regionError, {
+          component: "pricing",
+          operation: "getPricingForRegion",
+          metadata: { regionId },
+        });
         return [];
       }
 
@@ -67,7 +75,11 @@ export const pricingService = {
         .eq("active", true);
 
       if (pricesError) {
-        logError(pricesError, { component: "pricing", operation: "getPricingForRegion", metadata: { regionId } });
+        logError(pricesError, {
+          component: "pricing",
+          operation: "getPricingForRegion",
+          metadata: { regionId },
+        });
         return [];
       }
 
@@ -77,7 +89,11 @@ export const pricingService = {
         currency_symbol: region.currency_symbol,
       }));
     } catch (err) {
-      logError(err, { component: "pricing", operation: "getPricingForRegion", metadata: { regionId } });
+      logError(err, {
+        component: "pricing",
+        operation: "getPricingForRegion",
+        metadata: { regionId },
+      });
       return [];
     }
   },
