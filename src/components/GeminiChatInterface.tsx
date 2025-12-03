@@ -110,6 +110,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
   ) => {
     // Utiliser les hooks spécialisés
     const messages = useConversationMessages();
+    const {
+      addMessage: saveMessage,
+      resumeConversation,
+      conversationId: autoSaveId,
+      clearConversation: clearAutoSave,
+    } = useAutoSave({ debug: true });
     const { setMessages: setMessagesRaw } = useConversationActions();
     const { currentPoll } = useEditorState();
     const { dispatchPollAction, openEditor, setCurrentPoll, createPollFromChat, clearCurrentPoll } =
@@ -229,6 +235,23 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       [setMessagesRaw],
     );
 
+    // 🎯 FIX: Force clear immédiat si paramètre 'new' présent (avant tout chargement)
+    useEffect(() => {
+      const urlParams = new URLSearchParams(location.search);
+      if (urlParams.has("new")) {
+        logger.info("🧹 [GeminiChatInterface] Force clear immédiat pour nouveau chat");
+        setMessagesAdapter(() => []);
+        clearAutoSave(); // Nettoyer l'état de useAutoSave
+        // Nettoyage défensif du stockage local
+        try {
+          localStorage.removeItem("prototype_messages");
+          localStorage.removeItem("doodates_messages");
+        } catch (e) {
+          logger.error("Erreur nettoyage localStorage", e);
+        }
+      }
+    }, [location.search, setMessagesAdapter, clearAutoSave]);
+
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
@@ -241,9 +264,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     useEffect(() => {
       const pollWithHighlight = currentPoll as
         | (typeof currentPoll & {
-            _highlightedId?: string;
-            _highlightType?: "add" | "remove" | "modify";
-          })
+          _highlightedId?: string;
+          _highlightType?: "add" | "remove" | "modify";
+        })
         | null;
       if (
         pollWithHighlight &&
@@ -913,12 +936,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       if (pollManagement.selectedPollData?.type === "form" || currentPoll?.type === "form") {
         const formDraft: FormPollDraft = currentPoll
           ? {
-              id: currentPoll.id,
-              type: "form",
-              title: currentPoll.title,
-              questions: (currentPoll.questions || []) as AnyFormQuestion[],
-              conditionalRules: currentPoll.conditionalRules || [],
-            }
+            id: currentPoll.id,
+            type: "form",
+            title: currentPoll.title,
+            questions: (currentPoll.questions || []) as AnyFormQuestion[],
+            conditionalRules: currentPoll.conditionalRules || [],
+          }
           : pollManagement.getFormDraft();
 
         return (
@@ -995,7 +1018,22 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           }
         >
           <PollCreator
-            initialData={(pollManagement.selectedPollData as DatePollSuggestion) || undefined}
+            initialData={
+              pollManagement.selectedPollData
+                ? {
+                  ...(pollManagement.selectedPollData as DatePollSuggestion),
+                  dateGroups: (
+                    pollManagement.selectedPollData as DatePollSuggestion
+                  ).dateGroups?.map((g) => ({
+                    ...g,
+                    type:
+                      g.type === "week" || g.type === "fortnight"
+                        ? ("range" as const)
+                        : (g.type as "custom" | "weekend" | "range"),
+                  })),
+                }
+                : undefined
+            }
             onBack={() => {
               pollManagement.closePollCreator();
             }}

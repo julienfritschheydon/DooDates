@@ -35,7 +35,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 60000,
   use: {
-    baseURL,
+baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 15000,
@@ -52,7 +52,7 @@ export default defineConfig({
     },
     {
       name: 'webkit',
-      use: { 
+      use: {
         ...devices['Desktop Safari'],
         // Safari peut être plus lent, augmenter les timeouts
         actionTimeout: 20000,
@@ -64,7 +64,7 @@ export default defineConfig({
     },
     {
       name: 'Mobile Safari',
-      use: { 
+      use: {
         ...devices['iPhone 12'],
         // Mobile Safari est souvent plus lent, augmenter les timeouts
         actionTimeout: 25000,
@@ -73,7 +73,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: process.env.PORT ? `npm run dev:e2e -- --port ${port}` : 'npm run dev:e2e',
+command: process.env.PORT ? `npm run dev:e2e -- --port ${port}` : 'npm run dev:e2e',
     port: process.env.PORT ? port : undefined,
     url: baseURL,
     reuseExistingServer: !(process.env.CI || process.env.GITHUB_ACTIONS),
@@ -81,8 +81,13 @@ export default defineConfig({
     stdout: 'pipe',
     stderr: 'pipe',
     env: {
+      NODE_ENV: 'test', // Forcer le mode test
       VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'http://localhost:8080',
       VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY || 'test-anon-key',
+      // Désactiver HMR pour les tests
+      VITE_HMR: 'false',
+      // Désactiver les optimisations en développement pour accélérer le démarrage
+      VITE_DEV_SERVER_OPTIMIZE_DEPS: 'false',
     },
   },
 });

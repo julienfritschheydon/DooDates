@@ -40,7 +40,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     await setupGeminiMock(page);
     
     // Navigate to the workspace avec e2e-test=true pour activer le mode E2E
-    await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -154,7 +154,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     // Naviguer vers la page si nécessaire
     const initialUrl = page.url();
     if (!initialUrl.includes('workspace?e2e-test=true') && !initialUrl.includes('workspace')) {
-      await page.goto('/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
+      await page.goto('/DooDates/workspace?e2e-test=true', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForReactStable(page, { browserName });
     }
@@ -246,7 +246,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     
     // Vérifier que la mise à jour d'un poll existant ne consomme PAS de crédit
     // Retourner au dashboard et modifier le poll
-    await page.goto('/dashboard');
+    await page.goto('/DooDates/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -532,7 +532,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
     
     // Naviguer vers la page de création/édition du poll (où se trouve le bouton simulation)
     // Le bouton simulation est généralement sur la page de création, pas sur la page de vote
-    await page.goto('/dashboard');
+    await page.goto('/DooDates/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -545,7 +545,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
       await waitForReactStable(page, { browserName });
     } else {
       // Essayer d'aller directement à la page de création
-      await page.goto('/create');
+      await page.goto('/DooDates/create');
       await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     }
@@ -620,7 +620,7 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
     
     // Accéder à /dashboard/journal
-    await page.goto('/dashboard/journal');
+    await page.goto('/DooDates/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -951,7 +951,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
 
     
     // Aller au dashboard
-    await page.goto('/dashboard');
+    await page.goto('/DooDates/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -974,7 +974,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
       expect(currentUrl).toContain('/dashboard/journal');
       
       // Retourner au dashboard
-      await page.goto('/dashboard');
+      await page.goto('/DooDates/dashboard');
       await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
       
@@ -999,7 +999,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     // Pour tester le blocage, on doit désactiver le bypass
     
     // Désactiver le bypass E2E temporairement
-    await page.goto('/workspace?e2e-test=false');
+    await page.goto('/DooDates/workspace?e2e-test=false');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1024,7 +1024,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     await waitForReactStable(page, { browserName });
     
     // Essayer de créer une nouvelle conversation
-    const messageInput = page.locator('[data-testid="message-input"]').first();
+    const messageInput = page.locator('[data-testid="chat-input"]').first();
     const hasMessageInput = await messageInput.isVisible({ timeout: 5000 }).catch(() => false);
     
     if (hasMessageInput) {
@@ -1041,7 +1041,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     }
     
     // Vérifier que le journal continue de fonctionner même à la limite
-    await page.goto('/dashboard/journal');
+    await page.goto('/DooDates/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1049,7 +1049,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     await expect(journalPage).toBeVisible();
     
     // Vérifier que la barre de progression affiche 100%
-    await page.goto('/dashboard');
+    await page.goto('/DooDates/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1117,7 +1117,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     expect(journalBefore.length).toBe(120); // On a créé 120 entrées
     
     // Accéder à la page du journal
-    await page.goto('/dashboard/journal');
+    await page.goto('/DooDates/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1178,7 +1178,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     expect(initialQuotaData.pollsCreated).toBeGreaterThanOrEqual(1);
 
     // Supprimer le poll depuis le dashboard
-    await page.goto('/dashboard');
+    await page.goto('/DooDates/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1341,7 +1341,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
       localStorage.setItem('doodates_quota_journal', JSON.stringify(journal));
     });
     
-    await page.goto('/dashboard/journal');
+    await page.goto('/DooDates/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1393,7 +1393,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     const localStorageTotal = quotaData.totalCreditsConsumed;
     
     // Vérifier que les valeurs affichées dans l'UI correspondent exactement à localStorage
-    await page.goto('/dashboard');
+    await page.goto('/DooDates/dashboard');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1443,7 +1443,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     }
     
     // Vérifier que le journal affiche les mêmes totaux que le dashboard
-    await page.goto('/dashboard/journal');
+    await page.goto('/DooDates/dashboard/journal');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1468,7 +1468,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
   test('FormPoll Test 1: Visibilité creator-only', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     // Créer FormPoll avec visibilité "Moi uniquement"
-    await page.goto('/create');
+    await page.goto('/DooDates/create');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1498,7 +1498,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
       await waitForReactStable(page, { browserName });
       
       // Vérifier que créateur voit les résultats
-      await page.goto('/dashboard');
+      await page.goto('/DooDates/dashboard');
       await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
       
@@ -1526,7 +1526,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     title: string,
     visibility: 'creator-only' | 'voters' | 'public'
   ): Promise<string | null> {
-    await page.goto('/create');
+    await page.goto('/DooDates/create');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1799,7 +1799,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
    */
   test('FormPoll Test 5: Validation email', async ({ page, browserName }) => {
     // Créer FormPoll
-    await page.goto('/create');
+    await page.goto('/DooDates/create');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     
@@ -1819,7 +1819,7 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
       await waitForReactStable(page, { browserName });
       
       // Naviguer vers le vote
-      await page.goto('/dashboard');
+      await page.goto('/DooDates/dashboard');
       await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
       

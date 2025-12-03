@@ -73,6 +73,7 @@ class MobileDebugger {
     });
 
     // Exposer l'API de débogage dans la console
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__mobileDebug = {
       getEventLog: () => [...this.eventLog],
       clearLog: () => {
@@ -145,6 +146,7 @@ class MobileDebugger {
           radiusY: 5,
           rotationAngle: 0,
           force: 1,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
       ],
       bubbles: true,
@@ -173,6 +175,7 @@ class MobileDebugger {
           radiusY: 5,
           rotationAngle: 0,
           force: 0,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
       ],
       bubbles: true,

@@ -1,0 +1,29 @@
+name: 🔄 Sync Pre-prod → Staging
+
+on:
+  push:
+    branches: [pre-prod]
+
+jobs:
+  sync-to-staging:
+    name: 🔄 Sync to Staging Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔧 Configure Git
+        run: |
+          git config --global user.name "Sync Bot"
+          git config --global user.email "sync@doodates.com"
+
+      - name: 🔄 Merge to Staging
+        run: |
+          git checkout staging
+          git merge origin/pre-prod --no-ff -m "sync: pre-prod → staging"
+          
+      - name: 📤 Push to Staging
+        run: git push origin staging

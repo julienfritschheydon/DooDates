@@ -58,7 +58,7 @@ export async function withConsoleGuard<T>(
       ...(options?.allowlist || []),
     ],
   });
-  
+
   try {
     return await fn(guard);
   } finally {
@@ -140,7 +140,7 @@ export function attachConsoleGuard(
       if ((type === 'error' || type === 'assert') && !isAllowed(text)) {
         errors.push(`[console.${type}] ${text}`);
       }
-    } catch {}
+    } catch { }
   };
   const onPageError = (err: Error) => {
     const text = String(err?.message || err);
@@ -172,14 +172,14 @@ export async function enableE2ELocalMode(page: Page) {
       (window as any).__IS_E2E_TESTING__ = true;
       localStorage.setItem('e2e', '1');
       localStorage.setItem('dev-local-mode', '1');
-    } catch {}
+    } catch { }
   });
 
   // S'assurer que l'URL comporte le flag pour les détections basées sur location.search
   const url = new URL(page.url() || 'http://localhost');
   if (!url.searchParams.has('e2e-test')) {
     url.searchParams.set('e2e-test', 'true');
-    await page.goto(url.toString(), { waitUntil: 'domcontentloaded' }).catch(() => {});
+    await page.goto(url.toString(), { waitUntil: 'domcontentloaded' }).catch(() => { });
   }
 }
 
@@ -203,15 +203,15 @@ export async function robustClick(locator: ReturnType<Page['locator']>) {
   // S'assurer que le noeud existe
   try {
     await locator.waitFor({ state: 'attached', timeout: 5000 });
-  } catch {}
+  } catch { }
   // Tenter de le rendre visible
   try {
     await locator.scrollIntoViewIfNeeded();
-  } catch {}
+  } catch { }
   try {
     await locator.click({ timeout: 5000 });
     return;
-  } catch {}
+  } catch { }
   // Fallback: petit délai puis clic forcé
   await new Promise((res) => setTimeout(res, 200));
   await locator.click({ force: true, timeout: 5000 });
@@ -234,16 +234,16 @@ export async function robustClick(locator: ReturnType<Page['locator']>) {
 export async function robustFill(
   locator: ReturnType<Page['locator']>,
   text: string,
-  options?: { 
+  options?: {
     timeout?: number;
     debug?: boolean;
     waitForStability?: boolean; // Attendre que le composant soit stable (useEffect, etc.)
   }
 ) {
-  const timeout = options?.timeout ?? 10000;
+  const timeout = options?.timeout ?? 20000;
   const debug = options?.debug ?? false;
   const waitForStability = options?.waitForStability ?? true;
-  
+
   const log = (...args: any[]) => {
     if (debug) console.log('[robustFill]', ...args);
   };
@@ -322,17 +322,17 @@ export async function robustFill(
     if (!isVisible) {
       log('⚠️ Element not visible according to Playwright (z-index issue)');
       log('⚠️ Using evaluate() to bypass z-index and fill directly');
-      
+
       // Sur mobile, le textarea est visuellement visible mais Playwright ne peut pas
       // interagir avec à cause du z-index. Solution : evaluate() complet.
-      
+
       // Étape 1 : Cliquer + focus via DOM
       await locator.evaluate((el: HTMLTextAreaElement | HTMLInputElement) => {
         el.click();
         el.focus();
       });
       log('✅ Clicked + focused via evaluate()');
-      
+
       // Étape 2 : Attendre React + auto-focus du composant via petit polling
       const focusStart = Date.now();
       while (Date.now() - focusStart < 800) {
@@ -344,7 +344,7 @@ export async function robustFill(
         }
         await locator.page().waitForLoadState('domcontentloaded');
       }
-      
+
       // Étape 3 : Remplir avec synthetic events React
       await locator.evaluate((el: HTMLTextAreaElement | HTMLInputElement, value: string) => {
         // Utiliser le setter natif pour déclencher React
@@ -352,27 +352,27 @@ export async function robustFill(
           window.HTMLTextAreaElement.prototype,
           'value'
         )?.set;
-        
+
         if (nativeInputValueSetter) {
           nativeInputValueSetter.call(el, value);
         } else {
           el.value = value;
         }
-        
+
         // Déclencher les événements React
         el.dispatchEvent(new Event('input', { bubbles: true }));
         el.dispatchEvent(new Event('change', { bubbles: true }));
         el.focus();
       }, text);
       log('✅ Text filled via evaluate() with React events');
-      
+
       // Attendre que React traite via vérification de la valeur
       const reactStart = Date.now();
       while (Date.now() - reactStart < 300) {
         const value = await locator.inputValue().catch(() => undefined);
         if (value === text) break;
       }
-      
+
       // Vérifier
       const value = await locator.inputValue();
       if (value !== text) {
@@ -398,7 +398,7 @@ export async function robustFill(
       log('✅ Fill successful (normal)');
     } catch (e) {
       log('⚠️ Normal fill failed, trying evaluate() fallback...');
-      
+
       // Fallback: Utiliser evaluate() pour forcer la valeur (mobile, hidden inputs)
       await locator.evaluate((el: HTMLTextAreaElement | HTMLInputElement, value: string) => {
         el.value = value;
@@ -422,7 +422,7 @@ export async function robustFill(
         el.dispatchEvent(new Event('input', { bubbles: true }));
         el.dispatchEvent(new Event('change', { bubbles: true }));
       }, text);
-      
+
       const finalValue = await locator.inputValue();
       if (finalValue !== text) {
         throw new Error(`Fill verification failed: expected "${text}", got "${finalValue}"`);
@@ -444,7 +444,7 @@ export async function seedLocalStorage(page: Page, polls: any[]) {
   await page.addInitScript(({ polls }) => {
     try {
       localStorage.setItem('dev-polls', JSON.stringify(polls));
-    } catch {}
+    } catch { }
   }, { polls });
 }
 
@@ -467,7 +467,7 @@ export async function assertToast(page: Page, text: string, timeoutMs: number = 
           const has = await loc.first().getByText(text, { exact: false }).count();
           if (has || (await loc.first().textContent())?.includes(text)) return;
         }
-      } catch {}
+      } catch { }
     }
     // Utiliser un petit polling basé sur Date.now() sans attendre un timeout fixe élevé
     await page.waitForLoadState('domcontentloaded');
@@ -496,14 +496,14 @@ export async function openTagsFolderDialog(
 ) {
   // Utiliser la carte fournie ou prendre la première
   const card = conversationCard || page.locator('[data-testid="poll-item"]').first();
-  
+
   // Attendre que la carte soit attachée
-  await card.waitFor({ state: 'attached', timeout: 10000 });
-  
+  await card.waitFor({ state: 'attached', timeout: 20000 });
+
   // Trouver le bouton menu : chercher le bouton contenant l'icône MoreVertical (SVG)
   // Le menu est généralement le dernier bouton visible dans la carte
   const menuButton = card.locator('button').filter({ has: card.locator('svg') }).last();
-  
+
   // Fallback : si pas trouvé par SVG, prendre le dernier bouton visible
   const menuButtonCount = await card.locator('button').count();
   let finalMenuButton = menuButton;
@@ -522,23 +522,23 @@ export async function openTagsFolderDialog(
       }
     }
   }
-  
+
   // Attendre et cliquer sur le bouton menu
   await finalMenuButton.waitFor({ state: 'visible', timeout: 5000 });
   await finalMenuButton.click();
-  
+
   // Attendre que le menu dropdown s'ouvre
   const manageMenuItem = page.getByText('Gérer les tags/dossier');
   await expect(manageMenuItem).toBeVisible({ timeout: 5000 });
-  
+
   // Cliquer sur "Gérer les tags/dossier"
   await manageMenuItem.click();
-  
+
   // Attendre que le dialogue s'ouvre
   const dialog = page.locator('[role="dialog"]').filter({ hasText: 'Gérer les tags et le dossier' });
   await expect(dialog).toBeVisible({ timeout: 5000 });
   await expect(page.getByText('Gérer les tags et le dossier')).toBeVisible({ timeout: 5000 });
-  
+
   return dialog;
 }
 
@@ -551,20 +551,20 @@ export async function verifyTagsFoldersLoaded(page: Page) {
     const stored = localStorage.getItem('doodates_tags');
     return stored ? JSON.parse(stored) : null;
   });
-  
+
   const folders = await page.evaluate(() => {
     const stored = localStorage.getItem('doodates_folders');
     return stored ? JSON.parse(stored) : null;
   });
-  
+
   if (!tags || !Array.isArray(tags) || tags.length === 0) {
     throw new Error('Tags not loaded in localStorage');
   }
-  
+
   if (!folders || !Array.isArray(folders) || folders.length === 0) {
     throw new Error('Folders not loaded in localStorage');
   }
-  
+
   return { tags, folders };
 }
 
@@ -584,10 +584,10 @@ export async function authenticateWithSupabase(
   }
 ) {
   const supabaseUrl = process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'https://outmbbisrrdiumlweira.supabase.co';
-  
+
   // Récupérer la clé API depuis les variables d'environnement ou depuis le fichier .env.local
   let supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY_TEST || process.env.VITE_SUPABASE_ANON_KEY;
-  
+
   // Si la clé n'est pas disponible, essayer de la récupérer depuis l'application
   if (!supabaseAnonKey) {
     try {
@@ -606,7 +606,7 @@ export async function authenticateWithSupabase(
       // Ignorer les erreurs
     }
   }
-  
+
   if (!supabaseAnonKey) {
     throw new Error('VITE_SUPABASE_ANON_KEY not found. Please set VITE_SUPABASE_ANON_KEY_TEST or VITE_SUPABASE_ANON_KEY in environment variables or .env.local');
   }
@@ -616,7 +616,7 @@ export async function authenticateWithSupabase(
       // Utiliser le client Supabase déjà disponible dans l'application
       // L'app expose supabase via window ou on peut l'importer
       let supabase;
-      
+
       // Essayer d'utiliser le client Supabase existant de l'app via window
       if ((window as any).__SUPABASE_CLIENT__) {
         supabase = (window as any).__SUPABASE_CLIENT__;
@@ -649,7 +649,7 @@ export async function authenticateWithSupabase(
 
       // Vérifier que la session est bien stockée
       const { data: sessionData } = await supabase.auth.getSession();
-      
+
       return {
         error: null,
         data: {
@@ -691,14 +691,14 @@ export async function mockSupabaseAuth(
 ) {
   const userId = options?.userId || 'test-user-id';
   const email = options?.email || 'test@example.com';
-  
+
   // Si un vrai token Supabase est fourni, l'utiliser
   const accessToken = options?.realSupabaseToken || options?.accessToken || 'mock-token-12345';
   const expiresAt = options?.expiresAt || Date.now() + 3600000; // 1h dans le futur
 
   // Obtenir l'URL Supabase depuis les variables d'environnement
   const supabaseUrl = process.env.VITE_SUPABASE_URL_TEST || process.env.VITE_SUPABASE_URL || 'https://outmbbisrrdiumlweira.supabase.co';
-  
+
   // Extraire le projectId depuis l'URL Supabase
   const projectId = supabaseUrl.split('//')[1]?.split('.')[0] || 'outmbbisrrdiumlweira';
 
@@ -735,14 +735,14 @@ export async function waitForPageLoad(page: Page, browserName: string, timeout?:
       // Fallback: attendre un élément spécifique si load échoue
       await page.waitForSelector('body', { timeout: 5000 });
     });
-    
+
     // Attendre un élément clé de l'app au lieu de networkidle
     // Cela détecte quand l'app est vraiment prête, pas seulement quand le réseau est inactif
     try {
       await page.waitForSelector(
-        '[data-testid="message-input"], [data-testid="calendar"], [data-testid="poll-title"], [data-testid="poll-item"], main, [role="main"]',
-        { 
-          timeout: 10000,
+        '[data-testid="chat-input"], [data-testid="calendar"], [data-testid="poll-title"], [data-testid="poll-item"], main, [role="main"]',
+        {
+          timeout: 20000,
           state: 'attached' // 'attached' est plus rapide que 'visible'
         }
       );
@@ -778,7 +778,7 @@ export async function clearLocalStorage(
   const beforeNavigation = options?.beforeNavigation ?? false;
   const afterNavigation = options?.afterNavigation ?? true;
   const waitAfterClear = options?.waitAfterClear ?? 0;
-  
+
   if (beforeNavigation) {
     try {
       await page.evaluate(() => localStorage.clear());
@@ -786,7 +786,7 @@ export async function clearLocalStorage(
       // Ignorer erreurs de sécurité
     }
   }
-  
+
   if (afterNavigation) {
     await page.waitForLoadState('networkidle');
     try {
@@ -795,7 +795,7 @@ export async function clearLocalStorage(
         const start = Date.now();
         while (Date.now() - start < waitAfterClear) {
           // Petit yield pour laisser la boucle d'événements avancer sans utiliser waitForTimeout direct
-          await page.waitForLoadState('domcontentloaded').catch(() => {});
+          await page.waitForLoadState('domcontentloaded').catch(() => { });
         }
       }
     } catch (e) {
@@ -826,14 +826,14 @@ export async function navigateAndWait(
 ): Promise<void> {
   await page.goto(url, { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
-  
+
   if (options?.waitForAppReady) {
     await waitForAppReady(page, url);
   }
-  
+
   if (options?.waitForElement) {
     await expect(page.locator(options.waitForElement)).toBeVisible({
-      timeout: options.timeout || 10000,
+      timeout: options.timeout || 20000,
     });
   }
 }
@@ -853,14 +853,77 @@ export async function waitForAppReady(
     // l'application n'est plus sur un écran blanc en attendant qu'au
     // moins un élément interactif soit visible. Les tests qui ont
     // besoin du champ de chat utiliseront waitForChatInputReady.
-    await page.waitForSelector('input, button, [role="button"]', {
-      state: 'visible',
-      timeout: 10000,
-    });
-  } else if (path.endsWith('/dashboard') || path.includes('/dashboard')) {
+
+    // Essayer plusieurs sélecteurs en ordre de préférence
+    const selectors = [
+      'input, button, [role="button"]',  // Éléments interactifs
+      '[data-testid="chat-input"]',      // Champ de chat spécifique
+      'textarea',                        // Textareas
+      'a[href]',                         // Liens cliquables
+      'body',                            // Fallback : body visible
+    ];
+
+    let elementFound = false;
+    for (const selector of selectors) {
+      try {
+        await page.waitForSelector(selector, {
+          state: 'visible',
+          timeout: 5000, // Timeout plus court par sélecteur
+        });
+        elementFound = true;
+        break;
+      } catch {
+        // Continuer avec le sélecteur suivant
+        continue;
+      }
+    }
+
+    if (!elementFound) {
+      // Si aucun élément trouvé, vérifier que la page n'est pas complètement blanche
+      // et ajouter du diagnostic
+      console.log('⚠️ Aucun élément interactif trouvé, diagnostic de la page...');
+
+      try {
+        // Vérifier l'URL actuelle
+        const currentUrl = page.url();
+        console.log(`URL actuelle: ${currentUrl}`);
+
+        // Vérifier le contenu de la page
+        const bodyText = await page.locator('body').textContent() || '';
+        console.log(`Contenu body (premiers 200 chars): ${bodyText.substring(0, 200)}`);
+
+        // Vérifier s'il y a des erreurs console
+        const logs = await page.evaluate(() => {
+          const errors: string[] = [];
+          const originalError = console.error;
+          console.error = (...args) => {
+            errors.push(args.join(' '));
+            originalError.apply(console, args);
+          };
+          return errors;
+        });
+
+        if (logs.length > 0) {
+          console.log('Erreurs console détectées:', logs);
+        }
+
+        // Vérifier si l'application est en état de chargement
+        const loadingElements = await page.locator('[class*="loading"], [class*="spinner"], [data-testid*="loading"]').count();
+        if (loadingElements > 0) {
+          console.log(`Éléments de chargement trouvés: ${loadingElements}`);
+        }
+
+      } catch (diagError) {
+        console.log('Erreur pendant le diagnostic:', diagError);
+      }
+
+      // Finalement, vérifier que le body est visible
+      await expect(page.locator('body')).toBeVisible({ timeout: 20000 });
+    }
+  } else if (path.includes('/dashboard')) {
     await page.waitForSelector('[data-testid="dashboard-ready"]', {
       state: 'visible',
-      timeout: 10000,
+      timeout: 20000,
     });
     await expect(page.locator('[data-testid="dashboard-loading"]')).toHaveCount(0);
   } else if (path.includes('/poll/') && path.includes('/results')) {

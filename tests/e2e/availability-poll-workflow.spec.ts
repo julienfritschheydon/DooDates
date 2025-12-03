@@ -26,7 +26,7 @@ test.describe('Availability Poll Workflow', () => {
     await setupGeminiMock(page); // Mock Gemini API calls
 
     // Clear localStorage
-    await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await clearTestData(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
@@ -39,7 +39,7 @@ test.describe('Availability Poll Workflow', () => {
     
     // Step 1: Professional creates availability poll
     // Aller directement sur /create/availability (plus de page de choix)
-    await page.goto('/create/availability', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/create/availability', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await expect(page).toHaveURL(/\/create\/availability/, { timeout: timeouts.navigation });
 
@@ -515,7 +515,7 @@ test.describe('Availability Poll Workflow', () => {
     await createPollInLocalStorage(page, pollData);
 
     // Navigate to dashboard
-    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 

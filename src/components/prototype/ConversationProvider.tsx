@@ -301,7 +301,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     // Charger les messages existants au démarrage
     if (typeof localStorage !== "undefined") {
       try {
-        const stored = localStorage.getItem("doodates_messages");
+        const stored = localStorage.getItem("prototype_messages");
         if (stored) {
           const parsed = JSON.parse(stored);
           // Validation robuste : vérifier que c'est bien un tableau

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, X, Sparkles, Zap, Rocket, ArrowRight, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthModal } from "@/components/modals/AuthModal";
 import { CreatePageLayout } from "@/components/layout/CreatePageLayout";
+import { useGeoLocation } from "@/hooks/useGeoLocation";
+import { pricingService, Price } from "@/services/pricing-service";
 import {
   Accordion,
   AccordionContent,
@@ -19,6 +21,35 @@ export function PricingPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const currentTier = profile?.plan_type || "free";
+
+  // Regional Pricing State
+  const { geo } = useGeoLocation();
+  const [prices, setPrices] = useState<Price[]>([]);
+  const [currencySymbol, setCurrencySymbol] = useState("€");
+  const [regionName, setRegionName] = useState("");
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      // Default to EU/FR if no geo
+      const countryCode = geo?.country || 'FR';
+      const regionId = await pricingService.getRegionForCountry(countryCode);
+      const regionPrices = await pricingService.getPricingForRegion(regionId);
+
+      if (regionPrices.length > 0) {
+        setPrices(regionPrices);
+        setCurrencySymbol(regionPrices[0].currency_symbol);
+        setRegionName(regionId === 'EU' ? 'Europe' : regionId);
+      }
+    };
+
+    fetchPrices();
+  }, [geo]);
+
+  // Helper to get price
+  const getPrice = (productId: string, defaultPrice: string) => {
+    const price = prices.find(p => p.product_id === productId);
+    return price ? price.amount.toString() : defaultPrice;
+  };
 
   const handleGetStarted = () => {
     if (user) {
@@ -79,27 +110,26 @@ export function PricingPage() {
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
               De l'essai gratuit aux fonctionnalités pro, choisissez ce qui vous convient
+              {regionName && <span className="block text-sm mt-2 text-blue-600 dark:text-blue-400">Tarifs adaptés pour : {regionName}</span>}
             </p>
 
             {/* Toggle Monthly/Annual */}
             <div className="inline-flex items-center gap-4 bg-white dark:bg-gray-800 rounded-full p-2 shadow-md">
               <button
                 onClick={() => setBillingCycle("monthly")}
-                className={`px-6 py-2 rounded-full transition-all ${
-                  billingCycle === "monthly"
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                }`}
+                className={`px-6 py-2 rounded-full transition-all ${billingCycle === "monthly"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                  }`}
               >
                 Mensuel
               </button>
               <button
                 onClick={() => setBillingCycle("annual")}
-                className={`px-6 py-2 rounded-full transition-all ${
-                  billingCycle === "annual"
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                }`}
+                className={`px-6 py-2 rounded-full transition-all ${billingCycle === "annual"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                  }`}
               >
                 Annuel
                 <span className="ml-2 text-sm bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-full font-semibold">
@@ -116,6 +146,7 @@ export function PricingPage() {
               icon={<Sparkles className="w-6 h-6" />}
               name="Gratuit"
               price="0"
+              currency={currencySymbol}
               period=" Toujours gratuit"
               description="Utilisateurs occasionnels"
               features={[
@@ -129,7 +160,7 @@ export function PricingPage() {
                 { text: "Support garanti", included: false },
               ]}
               cta={currentTier === "free" ? "Plan actuel" : "Commencer gratuitement"}
-              onCTA={currentTier === "free" ? () => {} : handleGetStarted}
+              onCTA={currentTier === "free" ? () => { } : handleGetStarted}
               highlighted={false}
               isCurrentPlan={currentTier === "free"}
             />
@@ -138,8 +169,11 @@ export function PricingPage() {
             <PricingCard
               icon={<Zap className="w-6 h-6" />}
               name="Premium"
-              price={billingCycle === "monthly" ? "9" : "8.25"}
-              period={billingCycle === "monthly" ? "/mois" : "/mois (99€/an)"}
+              price={billingCycle === "monthly"
+                ? getPrice('premium_monthly', '9')
+                : getPrice('premium_yearly', '99')} // Note: logic simplified for demo
+              currency={currencySymbol}
+              period={billingCycle === "monthly" ? "/mois" : `/an`}
               description="Utilisateurs réguliers"
               features={[
                 { text: "100 crédits IA/mois", included: true, highlight: true },
@@ -163,7 +197,7 @@ export function PricingPage() {
                     : "Essayer Premium"
               }
               onCTA={
-                currentTier === "premium" ? () => {} : () => handleUpgrade("premium", billingCycle)
+                currentTier === "premium" ? () => { } : () => handleUpgrade("premium", billingCycle)
               }
               highlighted={true}
               betaBadge={true}
@@ -175,8 +209,11 @@ export function PricingPage() {
             <PricingCard
               icon={<Rocket className="w-6 h-6" />}
               name="Pro"
-              price={billingCycle === "monthly" ? "29" : "24.90"}
-              period={billingCycle === "monthly" ? "/mois" : "/mois (299€/an)"}
+              price={billingCycle === "monthly"
+                ? getPrice('pro_monthly', '29')
+                : getPrice('pro_yearly', '299')}
+              currency={currencySymbol}
+              period={billingCycle === "monthly" ? "/mois" : `/an`}
               description="Utilisateurs professionnels"
               features={[
                 { text: "1000 crédits IA/mois", included: true, highlight: true },
@@ -193,7 +230,7 @@ export function PricingPage() {
                 },
               ]}
               cta={currentTier === "pro" ? "Plan actuel" : user ? "Passer en Pro" : "Essayer Pro"}
-              onCTA={currentTier === "pro" ? () => {} : () => handleUpgrade("pro", billingCycle)}
+              onCTA={currentTier === "pro" ? () => { } : () => handleUpgrade("pro", billingCycle)}
               highlighted={false}
               betaBadge={true}
               isCurrentPlan={currentTier === "pro"}
@@ -257,6 +294,7 @@ interface PricingCardProps {
   icon: React.ReactNode;
   name: string;
   price: string;
+  currency?: string;
   period: string;
   description: string;
   features: Array<{ text: string; included: boolean; highlight?: boolean }>;
@@ -272,6 +310,7 @@ function PricingCard({
   icon,
   name,
   price,
+  currency = "€",
   period,
   description,
   features,
@@ -284,9 +323,8 @@ function PricingCard({
 }: PricingCardProps) {
   return (
     <div
-      className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transition-transform hover:scale-105 ${
-        highlighted ? "ring-4 ring-blue-600 dark:ring-blue-500" : ""
-      }`}
+      className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transition-transform hover:scale-105 ${highlighted ? "ring-4 ring-blue-600 dark:ring-blue-500" : ""
+        }`}
     >
       {highlighted && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
@@ -309,7 +347,7 @@ function PricingCard({
       </div>
 
       <div className="mb-4">
-        <span className="text-5xl font-bold text-gray-900 dark:text-white">{price}€</span>
+        <span className="text-5xl font-bold text-gray-900 dark:text-white">{price}{currency}</span>
         <span className="text-gray-600 dark:text-gray-400">{period}</span>
       </div>
 
@@ -333,11 +371,10 @@ function PricingCard({
               <X className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0" />
             )}
             <span
-              className={`${
-                feature.included
-                  ? "text-gray-900 dark:text-gray-100"
-                  : "text-gray-400 dark:text-gray-500"
-              } ${feature.highlight ? "font-semibold" : ""}`}
+              className={`${feature.included
+                ? "text-gray-900 dark:text-gray-100"
+                : "text-gray-400 dark:text-gray-500"
+                } ${feature.highlight ? "font-semibold" : ""}`}
             >
               {feature.text}
             </span>

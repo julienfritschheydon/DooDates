@@ -1,0 +1,29 @@
+name: 🔄 Sync Staging → Testing
+
+on:
+  push:
+    branches: [staging]
+
+jobs:
+  sync-to-testing:
+    name: 🔄 Sync to Testing Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔧 Configure Git
+        run: |
+          git config --global user.name "Sync Bot"
+          git config --global user.email "sync@doodates.com"
+
+      - name: 🔄 Merge to Testing
+        run: |
+          git checkout testing
+          git merge origin/staging --no-ff -m "sync: staging → testing"
+          
+      - name: 📤 Push to Testing
+        run: git push origin testing

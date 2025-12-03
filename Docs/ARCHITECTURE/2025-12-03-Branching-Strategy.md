@@ -2,7 +2,7 @@
 
 ## 📋 Vue d'Ensemble
 
-Ce document définit la stratégie de branching et de déploiement pour DooDates.
+Ce document définit la stratégie de branching et de déploiement pour DooDates, utilisant Git Worktrees pour une gestion efficace des environnements.
 
 ## 📁 Setup Multi-IDE (Repos Séparés)
 
@@ -82,6 +82,43 @@ git push origin bug/mon-fix
 - **pre-prod → main** : 30-45 minutes
 - **Total (si tout passe)** : ~1h-1h30 de bug à production
 
+## 🏗️ Migration des Worktrees
+
+### État Actuel
+```
+C:/Users/Julien Fritsch/Documents/GitHub/DooDates          [main]
+C:/Users/Julien Fritsch/Documents/GitHub/DooDates-develop  [develop]
+```
+
+### État Ciblé (après renommage)
+```
+C:/Users/Julien Fritsch/Documents/GitHub/DooDates-main      [main]
+C:/Users/Julien Fritsch/Documents/GitHub/DooDates-develop  [staging]
+C:/Users/Julien Fritsch/Documents/GitHub/DooDates-testing   [testing]
+C:/Users/Julien Fritsch/Documents/GitHub/DooDates-pre-prod  [pre-prod]  # Local uniquement
+```
+
+### Plan de Migration
+1. **Renommer le worktree develop**
+   ```bash
+   # Depuis le worktree develop actuel
+   cd ../DooDates-develop
+   git checkout -b staging
+   cd ..
+   mv DooDates-develop DooDates-staging
+   ```
+
+2. **Créer les nouveaux worktrees**
+   ```bash
+   # Depuis le répertoire principal
+   git worktree add ../DooDates-testing testing
+   git worktree add ../DooDates-pre-prod pre-prod  # Local uniquement
+   git worktree add ../DooDates-main main  # Remplace l'actuel
+   ```
+
+3. **Mettre à jour les références**
+   - Mettre à jour les scripts et documentation
+   - Vérifier les chemins relatifs
 
 ## 🌐 Environnements de Déploiement GitHub
 
@@ -486,7 +523,6 @@ Si un workflow échoue, **aucun merge automatique n'est effectué**. Vous devez 
 2. Corriger le problème sur la branche source
 3. Push à nouveau (relance automatique des tests)
 
-
 ## 🚀 Workflows GitHub Actions (Automatisés)
 
 ### 1. Bug → Testing (Auto-merge)
@@ -560,7 +596,6 @@ jobs:
     # Build production + déploiement + health checks
 ```
 **Durée:** 5-10 minutes
-
 
 ## 🚀 Workflows GitHub Actions
 
@@ -854,4 +889,4 @@ git worktree add ../DooDates-pre-prod pre-prod
 
 **Dernière mise à jour :** 30/11/2025
 **Auteur :** Julien Fritsch + Assistant IA
-**Version :** 1.2 (simplifiée - 8-13h)
+**Version :** 1.3 (fusionnée - complète)
