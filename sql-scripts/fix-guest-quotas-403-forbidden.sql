@@ -17,11 +17,9 @@ DROP POLICY IF EXISTS "Allow public read access" ON guest_quotas;
 DROP POLICY IF EXISTS "Allow public insert" ON guest_quotas;
 DROP POLICY IF EXISTS "Allow public update" ON guest_quotas;
 
--- S'assurer que RLS est activé
-ALTER TABLE guest_quotas ENABLE ROW LEVEL SECURITY;
-
 -- Garder uniquement la politique service_role (pour l'Edge Function)
 -- Cette politique existe déjà normalement, mais on la recrée pour être sûr
+-- IMPORTANT: Créer la politique AVANT d'activer RLS pour éviter un blocage temporaire
 DROP POLICY IF EXISTS "Service role full access guest_quotas" ON guest_quotas;
 CREATE POLICY "Service role full access guest_quotas"
   ON guest_quotas
@@ -29,6 +27,9 @@ CREATE POLICY "Service role full access guest_quotas"
   TO service_role
   USING (true)
   WITH CHECK (true);
+
+-- S'assurer que RLS est activé (après avoir créé la politique service_role)
+ALTER TABLE guest_quotas ENABLE ROW LEVEL SECURITY;
 
 -- Vérification: Aucune politique anon ne devrait exister maintenant
 -- Les appels directs depuis le client seront bloqués (403)

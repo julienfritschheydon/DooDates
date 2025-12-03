@@ -81,10 +81,36 @@ jobs:
           if ! git merge origin/staging --no-ff -m "chore: auto-merge staging to pre-prod"; then
             echo "⚠️ Conflits détectés, résolution en faveur de staging..."
             # Résoudre les conflits en faveur de staging (--theirs = staging lors du merge dans pre-prod)
+            # Résoudre les fichiers connus pour conflits fréquents
             git checkout --theirs .github/workflows/deploy-edge-functions.yml 2>/dev/null || true
             git checkout --theirs index.html 2>/dev/null || true
             git checkout --theirs public/404.html 2>/dev/null || true
-            git add .github/workflows/deploy-edge-functions.yml index.html public/404.html
-            git commit -m "chore: auto-merge staging to pre-prod - resolved conflicts"
+            
+            # Vérifier s'il reste des fichiers en conflit
+            if git diff --name-only --diff-filter=U | grep -q .; then
+              echo "⚠️ Conflits supplémentaires détectés, résolution pour tous les fichiers..."
+              # Résoudre tous les conflits restants en faveur de staging
+              git diff --name-only --diff-filter=U | while read file; do
+                git checkout --theirs "$file" 2>/dev/null || true
+              done
+            fi
+            
+            # Vérifier qu'il n'y a plus de conflits non résolus
+            if git diff --name-only --diff-filter=U | grep -q .; then
+              echo "❌ Impossible de résoudre tous les conflits. Fichiers en conflit restants:"
+              git diff --name-only --diff-filter=U
+              exit 1
+            fi
+            
+            # Ajouter tous les fichiers résolus
+            git add -A
+            
+            # Commit uniquement si tous les conflits sont résolus
+            if ! git commit -m "chore: auto-merge staging to pre-prod - resolved conflicts"; then
+              echo "❌ Échec du commit après résolution des conflits"
+              exit 1
+            fi
           fi
+          
+          # Push uniquement si le merge/commit a réussi
           git push origin pre-prod
