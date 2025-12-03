@@ -47,4 +47,5 @@ jobs:
       - name: 🚀 Merge Bug Branch
         run: |
           git merge origin/${{ github.ref_name }} --no-ff -m "chore: auto-merge ${{ github.ref_name }} to testing"
+          git pull origin testing --rebase
           git push origin testing

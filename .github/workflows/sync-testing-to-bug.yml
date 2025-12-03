@@ -25,6 +25,7 @@ jobs:
           # Créer/mettre à jour la branche bug avec les changements de testing
           git checkout -b bug || git checkout bug
           git merge origin/testing --no-ff -m "sync: testing → bug"
-          
+          git pull origin bug --rebase
+
       - name: 📤 Push to Bug
         run: git push origin bug

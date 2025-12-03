@@ -63,10 +63,11 @@ jobs:
           git config --global user.name "Auto-merge Bot"
           git config --global user.email "bot@doodates.com"
 
-      - name: 🔄 Merge to Staging
-        run: |
-          git checkout staging
-          git merge origin/testing --no-ff -m "Auto-merge: testing → staging"
-          
+          - name: 🔄 Merge to Staging
+          run: |
+            git checkout staging
+            git merge origin/testing --no-ff -m "Auto-merge: testing → staging"
+            git pull origin staging --rebase
+            
       - name: 📤 Push to Staging
         run: git push origin staging

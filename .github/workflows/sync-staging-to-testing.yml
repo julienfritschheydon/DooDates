@@ -24,6 +24,7 @@ jobs:
         run: |
           git checkout testing
           git merge origin/staging --no-ff -m "sync: staging → testing"
-          
+          git pull origin testing --rebase
+            
       - name: 📤 Push to Testing
         run: git push origin testing

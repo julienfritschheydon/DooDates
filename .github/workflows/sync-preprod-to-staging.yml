@@ -24,6 +24,7 @@ jobs:
         run: |
           git checkout staging
           git merge origin/pre-prod --no-ff -m "sync: pre-prod → staging"
+          git pull origin staging --rebase
           
       - name: 📤 Push to Staging
         run: git push origin staging
