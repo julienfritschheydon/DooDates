@@ -45,7 +45,15 @@ if [ "$BRANCH" = "bug" ]; then
     exit 1
   fi
   
-  # 3. Formatage
+  # 3. Tests unitaires rapides
+  echo "🧪 Tests unitaires rapides..."
+  npm run test:unit:fast
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests unitaires échoués - Commit bloqué"
+    exit 1
+  fi
+  
+  # 4. Formatage
   if [ "$NO_FORMAT" != "1" ]; then
     echo "💅 Formatage du code..."
     npm run format
