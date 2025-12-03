@@ -264,9 +264,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     useEffect(() => {
       const pollWithHighlight = currentPoll as
         | (typeof currentPoll & {
-          _highlightedId?: string;
-          _highlightType?: "add" | "remove" | "modify";
-        })
+            _highlightedId?: string;
+            _highlightType?: "add" | "remove" | "modify";
+          })
         | null;
       if (
         pollWithHighlight &&
@@ -936,12 +936,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       if (pollManagement.selectedPollData?.type === "form" || currentPoll?.type === "form") {
         const formDraft: FormPollDraft = currentPoll
           ? {
-            id: currentPoll.id,
-            type: "form",
-            title: currentPoll.title,
-            questions: (currentPoll.questions || []) as AnyFormQuestion[],
-            conditionalRules: currentPoll.conditionalRules || [],
-          }
+              id: currentPoll.id,
+              type: "form",
+              title: currentPoll.title,
+              questions: (currentPoll.questions || []) as AnyFormQuestion[],
+              conditionalRules: currentPoll.conditionalRules || [],
+            }
           : pollManagement.getFormDraft();
 
         return (
@@ -1021,17 +1021,17 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             initialData={
               pollManagement.selectedPollData
                 ? {
-                  ...(pollManagement.selectedPollData as DatePollSuggestion),
-                  dateGroups: (
-                    pollManagement.selectedPollData as DatePollSuggestion
-                  ).dateGroups?.map((g) => ({
-                    ...g,
-                    type:
-                      g.type === "week" || g.type === "fortnight"
-                        ? ("range" as const)
-                        : (g.type as "custom" | "weekend" | "range"),
-                  })),
-                }
+                    ...(pollManagement.selectedPollData as DatePollSuggestion),
+                    dateGroups: (
+                      pollManagement.selectedPollData as DatePollSuggestion
+                    ).dateGroups?.map((g) => ({
+                      ...g,
+                      type:
+                        g.type === "week" || g.type === "fortnight"
+                          ? ("range" as const)
+                          : (g.type as "custom" | "weekend" | "range"),
+                    })),
+                  }
                 : undefined
             }
             onBack={() => {
