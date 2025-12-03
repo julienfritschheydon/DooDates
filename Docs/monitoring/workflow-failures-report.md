@@ -5,6 +5,11 @@
 _Workflow run #714 (ID 19893860139) — génération UTC 2025-12-03T12:29:57.152Z_
 
 ## 🎯 Focus: Commit `839d1e4`
+**Dernière mise à jour:** 03/12/2025 07:23:03
+
+_Workflow run #703 (ID 19884514382) — génération UTC 2025-12-03T06:23:03.570Z_
+
+## 🎯 Focus: Commit `7fd9b4c`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -27,14 +32,16 @@ _Workflow run #714 (ID 19893860139) — génération UTC 2025-12-03T12:29:57.152
 ### ✅ Aucun échec pour ce commit
 
 Tous les workflows surveillés ont réussi pour le commit `839d1e4`.
+Tous les workflows surveillés ont réussi pour le commit `7fd9b4c`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ✅ success
+**Statut:** ❌ failure
 
 **Dernier run:** 03/12/2025 11:00:17
+**Dernier run:** 02/12/2025 10:02:41
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
@@ -42,12 +49,14 @@ Tous les workflows surveillés ont réussi pour le commit `839d1e4`.
 ### ✅ Aucun échec pour ce commit
 
 Tous les workflows surveillés ont réussi pour le commit `839d1e4`.
+Tous les workflows surveillés ont réussi pour le commit `7fd9b4c`.
 
 ---
 
 ## 📈 Résumé Global
 
 - 🎯 **Focus: Commit actuel** `839d1e4`
+- 🎯 **Focus: Commit actuel** `7fd9b4c`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - pre-prod
+  workflow_dispatch:  # Permet déclenchement manuel
 
 permissions:
   contents: write
@@ -67,7 +68,7 @@ jobs:
   auto-merge-to-main:
     needs: preprod-validation
     runs-on: ubuntu-latest
-    if: success() && github.event_name == 'push' && github.ref == 'refs/heads/pre-prod'
+    if: success() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     steps:
       - name: 📥 Checkout Main
         uses: actions/checkout@v4
@@ -83,7 +84,18 @@ jobs:
 
       - name: 🚀 Merge Pre-prod to Main
         run: |
-          git merge origin/pre-prod --no-ff -m "chore: auto-merge pre-prod to main [production release]"
+          # Récupérer la dernière version de pre-prod
+          git fetch origin pre-prod
+          # Tenter le merge
+          if ! git merge origin/pre-prod --no-ff -m "chore: auto-merge pre-prod to main [production release]"; then
+            echo "⚠️ Conflits détectés, résolution en faveur de pre-prod..."
+            # Résoudre les conflits en faveur de pre-prod (--theirs = pre-prod lors du merge dans main)
+            git checkout --theirs .github/workflows/deploy-edge-functions.yml 2>/dev/null || true
+            git checkout --theirs index.html 2>/dev/null || true
+            git checkout --theirs public/404.html 2>/dev/null || true
+            git add .github/workflows/deploy-edge-functions.yml index.html public/404.html
+            git commit -m "chore: auto-merge pre-prod to main [production release] - resolved conflicts"
+          fi
           git push origin main
           
       - name: 🏷️ Create Release Tag

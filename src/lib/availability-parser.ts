@@ -1,10 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { secureGeminiService } from "@/services/SecureGeminiService";
 import { logger } from "./logger";
-import { getEnv } from "./env";
-import { logError } from "./error-handling";
+import { logError, ErrorFactory } from "./error-handling";
 
-const API_KEY = getEnv("VITE_GEMINI_API_KEY");
-const MODEL = "gemini-2.0-flash-exp";
+const MODEL = "gemini-2.0-flash"; // Aligned with Edge Function model
 
 export interface ParsedAvailability {
   day: string; // "monday", "tuesday", etc.
@@ -25,7 +23,7 @@ export interface ParsedAvailabilitiesResult {
 }
 
 /**
- * Parse les disponibilités texte libre en utilisant Gemini 2.0 Flash
+ * Parse les disponibilités texte libre en utilisant Gemini via Edge Function
  *
  * Exemples d'entrées :
  * - "Disponible mardi et jeudi après-midi"
@@ -34,21 +32,7 @@ export interface ParsedAvailabilitiesResult {
  * - "Lundi 14h, mercredi 10h ou 15h"
  */
 export async function parseAvailabilitiesWithAI(text: string): Promise<ParsedAvailabilitiesResult> {
-  if (!API_KEY) {
-    logger.error("VITE_GEMINI_API_KEY non configurée", "availability-parser");
-    return {
-      availabilities: [],
-      rawText: text,
-      parsedAt: new Date().toISOString(),
-      confidence: 0,
-      errors: ["Clé API Gemini non configurée"],
-    };
-  }
-
   try {
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: MODEL });
-
     const prompt = `Tu es un assistant spécialisé dans l'analyse de disponibilités temporelles.
 
 Analyse le texte suivant et extrais toutes les disponibilités mentionnées. Retourne UNIQUEMENT un JSON valide, sans texte supplémentaire.
@@ -84,16 +68,21 @@ Texte à analyser :
 
 Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
 
-    logger.debug("Parsing disponibilités avec Gemini", "availability-parser", {
+    logger.debug("Parsing disponibilités avec Gemini (via SecureService)", "calendar", {
       textLength: text.length,
       model: MODEL,
     });
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const responseText = response.text();
+    // Utiliser le service sécurisé qui passe par l'Edge Function
+    const result = await secureGeminiService.generateContent("", prompt);
 
-    logger.debug("Réponse Gemini reçue", "availability-parser", {
+    if (!result.success || !result.data) {
+      throw ErrorFactory.api(result.message || result.error || "Erreur lors de l'appel à Gemini", "Erreur lors de l'analyse des disponibilités");
+    }
+
+    const responseText = result.data;
+
+    logger.debug("Réponse Gemini reçue", "calendar", {
       responseLength: responseText.length,
     });
 
@@ -110,13 +99,13 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
     // Valider et normaliser la structure
     const availabilities: ParsedAvailability[] = (parsed.availabilities || []).map(
       (avail: Record<string, unknown>) => ({
-        day: normalizeDay(avail.day),
+        day: normalizeDay(avail.day as string),
         timeRange: {
-          start: normalizeTime(avail.timeRange?.start || avail.start || "09:00"),
-          end: normalizeTime(avail.timeRange?.end || avail.end || "17:00"),
+          start: normalizeTime(((avail.timeRange as Record<string, unknown>)?.start as string) || (avail.start as string) || "09:00"),
+          end: normalizeTime(((avail.timeRange as Record<string, unknown>)?.end as string) || (avail.end as string) || "17:00"),
         },
-        confidence: Math.max(0, Math.min(1, avail.confidence || 0.7)),
-        originalText: avail.originalText || text.substring(0, 50),
+        confidence: Math.max(0, Math.min(1, (avail.confidence as number) || 0.7)),
+        originalText: (avail.originalText as string) || text.substring(0, 50),
       }),
     );
 
@@ -126,7 +115,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
         ? availabilities.reduce((sum, a) => sum + a.confidence, 0) / availabilities.length
         : parsed.confidence || 0.5;
 
-    logger.info("Disponibilités parsées avec succès", "availability-parser", {
+    logger.info("Disponibilités parsées avec succès", "calendar", {
       count: availabilities.length,
       confidence: globalConfidence,
     });
@@ -139,7 +128,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
     };
   } catch (error) {
     logError(error, {
-      component: "availability-parser",
+      component: "calendar",
       operation: "parseAvailabilitiesWithAI",
       metadata: { text: text.substring(0, 100) },
     });
@@ -203,7 +192,7 @@ function normalizeTime(time: string): string {
   }
 
   // Format par défaut si non reconnu
-  logger.warn("Format d'heure non reconnu", "availability-parser", { time });
+  logger.warn("Format d'heure non reconnu", "calendar", { time });
   return "09:00";
 }
 
