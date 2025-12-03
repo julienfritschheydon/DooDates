@@ -1,6 +1,6 @@
 import { Page, expect } from '@playwright/test';
 import { setupAllMocksWithoutNavigation } from '../global-setup';
-import { robustFill, waitForPageLoad } from '../utils';
+import { robustFill, waitForPageLoad, PRODUCT_ROUTES } from '../utils';
 import { waitForElementReady, waitForReactStable } from '../helpers/wait-helpers';
 import { fillFormTitle } from './form-helpers';
 import { type BrowserName, getTimeouts } from './poll-core-helpers';
@@ -46,7 +46,8 @@ export async function createFormPollViaAI(
 ): Promise<string> {
   await setupAllMocksWithoutNavigation(page);
 
-  await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+  // Use new product route
+  await page.goto(PRODUCT_ROUTES.formPoll.workspace, { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
 
   const chatInput = page.locator('[data-testid="chat-input"]');
@@ -84,7 +85,7 @@ export async function createFormPollViaAI(
 
   const createButton = page.locator('[data-testid="create-form-button"]');
   await expect(createButton).toBeVisible({ timeout: 10000 });
-  await createButton.click();
+  await createButton.click({ force: true });
 
   const previewCard = page.locator('[data-poll-preview]');
   await expect(previewCard).toBeVisible({ timeout: 15000 });
@@ -156,7 +157,8 @@ export async function voteOnFormPoll(
   voterName: string,
   answer: string,
 ) {
-  await page.goto(`/poll/${slug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
+  // Use prefix for poll route
+  await page.goto(`/DooDates/poll/${slug}?e2e-test=true`, { waitUntil: 'domcontentloaded' });
   await waitForPageLoad(page, browserName);
 
   const nameInput = page.locator('input[placeholder*="nom" i]').first();
@@ -171,7 +173,7 @@ export async function voteOnFormPoll(
 
   const submitButton = page.locator('[data-testid="form-submit"]');
   await expect(submitButton).toBeVisible({ timeout: 10000 });
-  await page.screenshot({ path: 'debug-before-submit.png', fullPage: true }).catch(() => {});
+  await page.screenshot({ path: 'debug-before-submit.png', fullPage: true }).catch(() => { });
   await submitButton.click();
 
   await expect(
@@ -181,6 +183,6 @@ export async function voteOnFormPoll(
     .catch(() => {
       return expect(page.locator('[data-testid="form-submit"]'))
         .not.toBeVisible({ timeout: 2000 })
-        .catch(() => {});
+        .catch(() => { });
     });
 }

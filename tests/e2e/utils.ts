@@ -976,3 +976,43 @@ export async function debugScreenshot(
     });
   }
 }
+
+/**
+ * Product-specific route constants for E2E tests
+ * Centralized route management for the 3 separate products
+ */
+export const PRODUCT_ROUTES = {
+  datePoll: {
+    landing: '/DooDates/date-polls',
+    workspace: '/DooDates/date-polls/workspace/date',
+    dashboard: '/DooDates/date-polls/dashboard',
+    docs: '/DooDates/date-polls/docs',
+    pricing: '/DooDates/date-polls/pricing',
+  },
+  formPoll: {
+    landing: '/DooDates/form-polls',
+    workspace: '/DooDates/form-polls/workspace/form',
+    dashboard: '/DooDates/form-polls/dashboard',
+    docs: '/DooDates/form-polls/docs',
+    pricing: '/DooDates/form-polls/pricing',
+  },
+  availabilityPoll: {
+    landing: '/DooDates/availability-polls',
+    workspace: '/DooDates/availability-polls/workspace/availability',
+    dashboard: '/DooDates/availability-polls/dashboard',
+    docs: '/DooDates/availability-polls/docs',
+    pricing: '/DooDates/availability-polls/pricing',
+  },
+} as const;
+
+/**
+ * Legacy routes that redirect to product-specific routes
+ * These are kept for backwards compatibility testing
+ */
+export const LEGACY_ROUTES = {
+  createDate: '/create/date',
+  createForm: '/create/form',
+  createAvailability: '/create/availability',
+  createAI: '/create/ai',
+  dashboard: '/dashboard',
+} as const;

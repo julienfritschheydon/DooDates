@@ -19,19 +19,23 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     // Setup mocks et mode E2E sans navigation (chaque test navigue vers sa propre page)
     const { setupAllMocksWithoutNavigation } = await import('./global-setup');
     const { enableE2ELocalMode, warmup, attachConsoleGuard, getDefaultConsoleGuardAllowlist } = await import('./utils');
-    
+    const { authenticateUser } = await import('./helpers/auth-helpers');
+
     await setupAllMocksWithoutNavigation(page);
     await enableE2ELocalMode(page);
-    
+
     // Warmup sur la page actuelle (peut être n'importe quelle page)
     await warmup(page);
-    
+
+    // Authenticate user (requires valid page context - warmup navigates to landing)
+    await authenticateUser(page, browserName, { reload: false });
+
     // Console guard (sera géré par withConsoleGuard dans chaque test)
   });
 
   test('@functional - Affichage quotas pour un utilisateur authentifié', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page, { mode: 'authenticated' });
       await page.reload({ waitUntil: 'domcontentloaded' });
@@ -79,7 +83,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@smoke @critical - Charger le dashboard sans erreur', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -94,9 +98,88 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     });
   });
 
+  test('@smoke @critical - Charger les dashboards produits (Date, Form, Availability)', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
+    const productDashboards = [
+      { name: 'Date Polls', url: '/DooDates/date-polls/dashboard', expectedTitle: 'Sondage Date', expectedHeading: /Vos Sondages de Dates/i },
+      { name: 'Form Polls', url: '/DooDates/form-polls/dashboard', expectedTitle: 'Sondage Formulaire', expectedHeading: /Vos Formulaires/i },
+      { name: 'Availability Polls', url: '/DooDates/availability-polls/dashboard', expectedTitle: 'Sondage Dispo', expectedHeading: /Vos Disponibilités/i }
+    ];
+
+    await withConsoleGuard(page, async () => {
+      // Override seed data to include polls of all types
+      const userId = 'auth-dashboard-user';
+      const polls = [
+        {
+          id: 'poll-date-1',
+          title: 'Sondage Date',
+          slug: 'poll-date-1',
+          type: 'date',
+          status: 'active' as const,
+          created_at: new Date().toISOString(),
+          creator_id: userId,
+          settings: {},
+        },
+        {
+          id: 'poll-form-1',
+          title: 'Sondage Formulaire',
+          slug: 'poll-form-1',
+          type: 'form',
+          status: 'active' as const,
+          created_at: new Date().toISOString(),
+          creator_id: userId,
+          settings: {},
+        },
+        {
+          id: 'poll-avail-1',
+          title: 'Sondage Dispo',
+          slug: 'poll-avail-1',
+          type: 'availability',
+          status: 'active' as const,
+          created_at: new Date().toISOString(),
+          creator_id: userId,
+          settings: {},
+        },
+      ];
+
+      // We also need conversations linking to these polls for them to appear in some views
+      const conversations = polls.map((poll, index) => ({
+        id: `conv-${poll.id}`,
+        title: `Conversation ${poll.title}`,
+        status: 'active' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        firstMessage: `Message for ${poll.title}`,
+        messageCount: 1,
+        isFavorite: false,
+        tags: [],
+        userId: userId,
+        metadata: { pollId: poll.id, pollGenerated: true },
+      }));
+
+      await setupTestData(page, undefined, { polls, conversations });
+
+      for (const dashboard of productDashboards) {
+        console.log(`Testing dashboard: ${dashboard.name}`);
+        await page.goto(dashboard.url, { waitUntil: 'domcontentloaded' });
+        await waitForNetworkIdle(page, { browserName });
+        await waitForDashboardReady(page, browserName);
+
+        // Verify dashboard loads with correct heading
+        const heading = page.getByRole('heading', { name: dashboard.expectedHeading });
+        await expect(heading).toBeVisible({ timeout: timeouts.element });
+
+        // Verify the specific poll for this product is visible
+        // This confirms the dashboard is filtering correctly and displaying data
+        const pollItem = page.locator(`[data-testid="poll-item"]:has-text("${dashboard.expectedTitle}")`).first();
+        await expect(pollItem).toBeVisible({ timeout: timeouts.element });
+      }
+    });
+  });
+
   test('@functional - Rechercher une conversation', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -120,7 +203,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@functional - Filtrer par statut (Tous, Brouillons, Actifs, Clôturés, Archivés)', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -128,7 +211,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await waitForDashboardReady(page, browserName);
 
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
-      
+
       // Attendre que les filtres soient visibles
       const tousButton = await waitForElementReady(page, 'button:has-text("Tous")', { browserName, timeout: timeouts.element });
 
@@ -137,15 +220,15 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       for (const filterName of filters) {
         // Trouver le bouton de filtre - prendre le premier qui est visible
         const filterButton = page.getByRole('button', { name: filterName }).first();
-        
+
         // Attendre que le bouton soit visible et cliquable
         await expect(filterButton).toBeVisible({ timeout: timeouts.element });
         await filterButton.scrollIntoViewIfNeeded();
-        
+
         // Cliquer sur le bouton
         await filterButton.click();
         await waitForReactStable(page, { browserName });
-        
+
         // Vérifier que le filtre est actif - le bouton doit avoir la classe bg-blue-500
         const className = await filterButton.getAttribute('class');
         expect(className).toContain('bg-blue-500');
@@ -155,7 +238,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@functional - Filtrer par tags', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -186,7 +269,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@functional - Filtrer par dossier', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -198,7 +281,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       const foldersButton = page.getByRole('button', { name: /Tous les dossiers/i }).first();
       await expect(foldersButton).toBeVisible({ timeout: timeouts.element });
       await foldersButton.click();
-      
+
       // Attendre que le menu s'ouvre
       await waitForReactStable(page, { browserName });
 
@@ -215,7 +298,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@functional - Créer un nouveau tag depuis les filtres', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -255,7 +338,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@functional - Créer un nouveau dossier depuis les filtres', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -309,7 +392,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     test.skip(isMobile, 'Table view not available on mobile devices');
 
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -346,7 +429,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@functional - Sélectionner/désélectionner des conversations', async ({ page, browserName, isMobile }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -356,14 +439,14 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Prendre la première carte pour vérifier le border bleu
       const firstCard = page.locator('[data-testid="poll-item"]').first();
-      
+
       // Vérifier que la carte n'est pas sélectionnée initialement
       await expect(firstCard).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: timeouts.element });
 
       // Utiliser le bouton "Sélectionner" en haut pour sélectionner toutes les conversations
       const selectionButton = await waitForElementReady(page, '[data-testid="selection-toggle-button"]', { browserName, timeout: timeouts.element });
       await selectionButton.click();
-      
+
       // Attendre que React se mette à jour
       await waitForReactStable(page, { browserName });
 
@@ -379,7 +462,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Cliquer à nouveau sur le bouton pour désélectionner (même testid, même bouton)
       await selectionButton.click();
-      
+
       // Attendre que React se mette à jour
       await waitForReactStable(page, { browserName });
 
@@ -390,7 +473,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@functional - Sélectionner tout', async ({ page, browserName, isMobile }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -415,7 +498,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@functional - Pagination fonctionne', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       const conversations = Array.from({ length: 25 }).map((_, index) => {
         const i = index + 1;
@@ -453,7 +536,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       if (await nextButton.count() > 0 && await nextButton.isEnabled()) {
         await nextButton.click();
         await waitForReactStable(page, { browserName });
-        
+
         // Vérifier qu'on est sur la page 2
         const page2Text = page.getByText(/Page 2/i);
         await expect(page2Text).toBeVisible({ timeout: timeouts.element });
@@ -463,7 +546,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@functional - Afficher l\'indicateur de quota', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -494,7 +577,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@functional - Gérer tags/dossiers depuis une carte (déjà implémenté mais testé ici)', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -504,12 +587,12 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
       // Trouver la carte et ouvrir le menu avec sélecteur robuste
       const conversationCard = page.locator('[data-testid="poll-item"]').first();
-      
+
       // Sélecteur robuste : chercher tous les boutons et prendre le dernier visible
       const menuButtons = conversationCard.locator('button');
       const menuButtonCount = await menuButtons.count();
       let menuButton = menuButtons.last();
-      
+
       if (menuButtonCount > 1) {
         for (let i = menuButtonCount - 1; i >= 0; i--) {
           const btn = menuButtons.nth(i);
@@ -520,7 +603,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
           }
         }
       }
-      
+
       await expect(menuButton).toBeVisible({ timeout: timeouts.element });
       await menuButton.click();
       await waitForReactStable(page, { browserName });
@@ -537,7 +620,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@edge - Dashboard vide (aucune conversation)', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       // Ne pas créer de conversations
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
@@ -551,7 +634,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
 
   test('@edge - Recherche sans résultats', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     await withConsoleGuard(page, async () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });

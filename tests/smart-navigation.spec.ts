@@ -9,23 +9,23 @@ import { test, expect } from "@playwright/test";
 // Utilitaire pour capturer les console errors pendant les tests
 async function withConsoleGuard(page: any, testFn: () => Promise<void>) {
   const consoleMessages: string[] = [];
-  
+
   page.on("console", (msg: any) => {
     if (msg.type() === "error") {
       consoleMessages.push(msg.text());
     }
   });
-  
+
   try {
     await testFn();
   } finally {
     // Vérifier qu'il n'y a pas d'erreurs console critiques
-    const criticalErrors = consoleMessages.filter(msg => 
-      msg.includes("Uncaught") || 
-      msg.includes("TypeError") || 
+    const criticalErrors = consoleMessages.filter(msg =>
+      msg.includes("Uncaught") ||
+      msg.includes("TypeError") ||
       msg.includes("ReferenceError")
     );
-    
+
     if (criticalErrors.length > 0) {
       console.error("Erreurs console détectées:", criticalErrors);
     }
@@ -35,21 +35,21 @@ async function withConsoleGuard(page: any, testFn: () => Promise<void>) {
 test.describe("Navigation Intelligente - E2E", () => {
   test.beforeEach(async ({ page }) => {
     // Activer les logs de navigation
-    await page.goto("http://localhost:8080/DooDates");
+    await page.goto("http://localhost:8080/DooDates/date-polls/dashboard");
     await page.evaluate(() => {
       localStorage.setItem("debug_smart_navigation", "true");
     });
   });
 
-test("Nouvelle création - Full reset", async ({ page }) => {
+  test("Nouvelle création - Full reset", async ({ page }) => {
     // 1. Aller au dashboard
-    await page.goto("http://localhost:8080/dashboard");
+    await page.goto("http://localhost:8080/DooDates/date-polls/dashboard");
 
     // 2. Créer une conversation avec du contenu
-    await page.goto("http://localhost:8080/workspace/form");
+    await page.goto("http://localhost:8080/DooDates/date-polls/workspace/date");
     await page.fill(
       '[data-testid="chat-input"]',
-      "Crée-moi un sondage sur les préférences alimentaires",
+      "Crée-moi un sondage pour le déjeuner d'équipe",
     );
     await page.press('[data-testid="chat-input"]', "Enter");
 
@@ -99,13 +99,15 @@ test("Nouvelle création - Full reset", async ({ page }) => {
     await withConsoleGuard(page, async () => {
       // 1. Vérifier qu'on est sur le dashboard
       await expect(page.locator("body")).toBeVisible();
-      
+
       // 2. Cliquer sur "Créer un nouveau formulaire"
+      // Note: On est sur le dashboard date-polls par défaut (beforeEach), donc on doit aller sur form-polls pour voir ce bouton
+      await page.goto("http://localhost:8080/DooDates/form-polls/dashboard");
       await page.getByTestId('create-form-poll').click();
-      
+
       // 3. Vérifier qu'on arrive dans le workspace
       await expect(page.getByTestId('chat-input')).toBeVisible();
-      
+
       // 4. Vérifier les logs de navigation
       const logs = [];
       page.on("console", (msg) => {
@@ -113,26 +115,26 @@ test("Nouvelle création - Full reset", async ({ page }) => {
           logs.push(msg.text());
         }
       });
-      
+
       // Attendre un peu pour les logs
       await page.waitForTimeout(1000);
-      
+
       // Vérifier qu'il y a des logs de navigation
       expect(logs.length).toBeGreaterThan(0);
-      
+
       console.log("✅ Test de navigation simple réussi");
     });
   });
 
   test("Changement de type - Context reset", async ({ page }) => {
     // 1. Commencer avec un sondage de dates
-    await page.goto("http://localhost:8080/workspace/date");
+    await page.goto("http://localhost:8080/DooDates/date-polls/workspace/date");
     await page.fill('[data-testid="chat-input"]', "Organise une réunion pour la semaine prochaine");
     await page.press('[data-testid="chat-input"]', "Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
 
     // 2. Changer vers formulaire
-    await page.goto("http://localhost:8080/workspace/form");
+    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
 
     // 3. Vérifier que la conversation est préservée mais l'éditeur est vide
     await expect(page.locator('[data-testid="chat-messages"]')).not.toHaveCount(0);
@@ -154,16 +156,16 @@ test("Nouvelle création - Full reset", async ({ page }) => {
 
   test("Navigation temporaire - No reset", async ({ page }) => {
     // 1. Créer du contenu dans workspace
-    await page.goto("http://localhost:8080/workspace/form");
+    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
     await page.fill('[data-testid="chat-input"]', "Test de contenu à préserver");
     await page.press('[data-testid="chat-input"]', "Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
 
     // 2. Naviguer vers docs (temporaire)
-    await page.goto("http://localhost:8080/docs");
+    await page.goto("http://localhost:8080/DooDates/date-polls/docs");
 
     // 3. Retourner au workspace
-    await page.goto("http://localhost:8080/workspace/form");
+    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
 
     // 4. Vérifier que tout est préservé
     await expect(page.locator('[data-testid="chat-messages"]')).not.toHaveCount(0);
@@ -184,7 +186,7 @@ test("Nouvelle création - Full reset", async ({ page }) => {
 
   test("Mode édition - Preserve", async ({ page }) => {
     // 1. Créer un sondage
-    await page.goto("http://localhost:8080/DooDates/workspace/form");
+    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
     await page.fill('[data-testid="chat-input"]', "Crée un sondage sur la satisfaction client");
     await page.press('[data-testid="chat-input"]', "Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });
@@ -193,7 +195,7 @@ test("Nouvelle création - Full reset", async ({ page }) => {
     const pollId = "test-poll-" + Date.now();
 
     // 3. Naviguer en mode édition
-    await page.goto(`http://localhost:8080/DooDates/workspace/form?edit=${pollId}`);
+    await page.goto(`http://localhost:8080/DooDates/form-polls/workspace/form?edit=${pollId}`);
 
     // 4. Vérifier que le contexte est préservé
     await expect(page.locator('[data-testid="chat-input"]')).toBeVisible();
@@ -216,16 +218,16 @@ test("Nouvelle création - Full reset", async ({ page }) => {
     // 1. Démarrer le timer
     const startTime = Date.now();
 
-    // 2. Effectuer un reset depuis le workspace actuel
+    // 2. Effectuer un reset depuis le workspace actuel (Date Polls par défaut)
     // Si le bouton n'est pas visible, ouvrir la sidebar
-    if (!(await page.locator('[data-testid="create-form-poll"]').isVisible())) {
+    if (!(await page.locator('[data-testid="create-date-poll"]').isVisible())) {
       if (await page.locator('[data-testid="sidebar-toggle"]').isVisible()) {
         await page.click('[data-testid="sidebar-toggle"]');
-        await page.waitForSelector('[data-testid="create-form-poll"]');
+        await page.waitForSelector('[data-testid="create-date-poll"]');
       }
     }
-    await page.click('[data-testid="create-form-poll"]');
-    await page.waitForURL(/\/workspace\/form/);
+    await page.click('[data-testid="create-date-poll"]');
+    await page.waitForURL(/\/workspace\/date/);
 
     // 3. Attendre que le reset soit appliqué
     await page.waitForSelector('[data-testid="chat-input"]', { timeout: 5000 });
@@ -254,10 +256,10 @@ test("Nouvelle création - Full reset", async ({ page }) => {
     });
 
     // Effectuer plusieurs navigations
-    await page.goto("http://localhost:8080/DooDates/workspace/date");
-    await page.goto("http://localhost:8080/DooDates/workspace/form");
-    await page.goto("http://localhost:8080/DooDates/docs");
-    await page.goto("http://localhost:8080/DooDates/dashboard");
+    await page.goto("http://localhost:8080/DooDates/date-polls/workspace/date");
+    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
+    await page.goto("http://localhost:8080/DooDates/date-polls/docs");
+    await page.goto("http://localhost:8080/DooDates/date-polls/dashboard");
 
     // Attendre un peu pour les logs
     await page.waitForTimeout(1000);
@@ -277,9 +279,9 @@ test("Nouvelle création - Full reset", async ({ page }) => {
 test.describe("Navigation Intelligente - Cas limites", () => {
   test("Navigation rapide successive", async ({ page }) => {
     // 1. Navigation rapide
-    await page.goto("http://localhost:8080/DooDates/workspace/date");
-    await page.goto("http://localhost:8080/DooDates/workspace/form");
-    await page.goto("http://localhost:8080/DooDates/workspace/date");
+    await page.goto("http://localhost:8080/DooDates/date-polls/workspace/date");
+    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
+    await page.goto("http://localhost:8080/DooDates/date-polls/workspace/date");
 
     // 2. Vérifier qu'il n'y a pas de crash
     await expect(page.locator("body")).toBeVisible();
@@ -321,7 +323,7 @@ test.describe("Navigation Intelligente - Cas limites", () => {
 
   test("Refresh page - Pas de reset", async ({ page }) => {
     // 1. Créer du contenu
-    await page.goto("http://localhost:8080/DooDates/workspace/form");
+    await page.goto("http://localhost:8080/DooDates/form-polls/workspace/form");
     await page.fill('[data-testid="chat-input"]', "Contenu à préserver au refresh");
     await page.press('[data-testid="chat-input"]', "Enter");
     await page.waitForSelector('[data-testid="ai-response"]', { timeout: 10000 });

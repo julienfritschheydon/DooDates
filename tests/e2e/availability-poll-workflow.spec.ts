@@ -12,21 +12,28 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { seedLocalStorage, enableE2ELocalMode } from './utils';
-import { setupGeminiMock } from './global-setup';
+import { seedLocalStorage, enableE2ELocalMode, PRODUCT_ROUTES } from './utils';
+import { setupGeminiMock, setupSupabaseEdgeFunctionMock, setupBetaKeyMocks } from './global-setup';
 import { createPollInLocalStorage } from './helpers/poll-storage-helpers';
 import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
 import { getTimeouts } from './config/timeouts';
 import { clearTestData } from './helpers/test-data';
 import { safeIsVisible } from './helpers/safe-helpers';
+import { authenticateUser } from './helpers/auth-helpers';
 
 test.describe('Availability Poll Workflow', () => {
   test.beforeEach(async ({ page, browserName }) => {
     await enableE2ELocalMode(page);
     await setupGeminiMock(page); // Mock Gemini API calls
+    await setupSupabaseEdgeFunctionMock(page);
+    await setupBetaKeyMocks(page);
 
     // Clear localStorage
-    await page.goto('/DooDates/workspace', { waitUntil: 'domcontentloaded' });
+    await page.goto(PRODUCT_ROUTES.availabilityPoll.landing, { waitUntil: 'domcontentloaded' });
+
+    // Authenticate user (requires valid page context)
+    await authenticateUser(page, browserName, { reload: false });
+
     await waitForNetworkIdle(page, { browserName });
     await clearTestData(page);
     await page.reload({ waitUntil: 'domcontentloaded' });
@@ -36,12 +43,13 @@ test.describe('Availability Poll Workflow', () => {
 
   test('Complete availability poll workflow', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     // Step 1: Professional creates availability poll
-    // Aller directement sur /create/availability (plus de page de choix)
-    await page.goto('/DooDates/create/availability', { waitUntil: 'domcontentloaded' });
+    // Aller directement sur le workspace
+    await page.goto(PRODUCT_ROUTES.availabilityPoll.workspace, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
-    await expect(page).toHaveURL(/\/create\/availability/, { timeout: timeouts.navigation });
+    // Verify URL contains workspace path
+    await expect(page).toHaveURL(/workspace\/availability/, { timeout: timeouts.navigation });
 
     // Fill poll title - use id="title" or placeholder containing "Planification"
     const titleInput = await waitForElementReady(page, 'input#title, input[placeholder*="Planification"], input[placeholder*="titre"]', { browserName, timeout: timeouts.element });
@@ -55,14 +63,14 @@ test.describe('Availability Poll Workflow', () => {
 
     // Click create button
     const createButton = await waitForElementReady(page, 'button:has-text("Créer le sondage"), button:has-text("Créer")', { browserName, timeout: timeouts.element });
-    await createButton.click();
+    await createButton.click({ force: true });
 
     // Wait for success screen - look for "Sondage Disponibilités créé" or success message
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
     const successTitle = page.getByText('Sondage Disponibilités créé').or(page.getByText('Sondage créé')).first();
     await expect(successTitle).toBeVisible({ timeout: timeouts.element });
-    
+
     // Get poll slug from localStorage
     const pollSlug = await page.evaluate(() => {
       const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
@@ -75,7 +83,7 @@ test.describe('Availability Poll Workflow', () => {
 
     // Step 2: Client submits availabilities
     // Navigate to vote page
-    await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
 
@@ -84,9 +92,9 @@ test.describe('Availability Poll Workflow', () => {
 
     // Submit availability text
     await availabilityTextarea.fill('Disponible mardi et jeudi après-midi');
-    
+
     const submitButton = await waitForElementReady(page, 'button:has-text("Envoyer"), button:has-text("Envoyer mes disponibilités")', { browserName, timeout: timeouts.element });
-    await submitButton.click();
+    await submitButton.click({ force: true });
 
     // Wait for parsing (may take a few seconds)
     await waitForReactStable(page, { browserName });
@@ -106,21 +114,21 @@ test.describe('Availability Poll Workflow', () => {
     // Verify parsed availabilities are displayed
     const parsedSection = page.locator('text=Disponibilités analysées, text=analysées').first();
     const hasParsed = await safeIsVisible(parsedSection);
-    
+
     // Note: Parsing may fail in test environment (no Gemini API), so we check for either parsed or raw text
     const rawTextSection = page.locator('text=Texte original').first();
     const hasRawText = await safeIsVisible(rawTextSection);
-    
+
     expect(hasParsed || hasRawText).toBeTruthy();
 
     // Step 4: Professional can optimize (if calendar connected) or add slots manually
     const optimizeButton = page.locator('button:has-text("Optimiser"), button:has-text("Optimiser automatiquement")').first();
     const hasOptimizeButton = await safeIsVisible(optimizeButton);
-    
+
     // If optimize button exists, try clicking (may fail if calendar not connected)
     if (hasOptimizeButton) {
       try {
-        await optimizeButton.click();
+        await optimizeButton.click({ force: true });
         await waitForReactStable(page, { browserName }); // Wait for optimization
       } catch (error) {
         // Optimization may fail if calendar not connected - that's OK for MVP v1.0
@@ -130,7 +138,7 @@ test.describe('Availability Poll Workflow', () => {
 
     // Step 5: Professional adds a slot manually
     const addSlotButton = await waitForElementReady(page, 'button:has-text("Ajouter"), button:has-text("Ajouter un créneau")', { browserName, timeout: timeouts.element });
-    await addSlotButton.click();
+    await addSlotButton.click({ force: true });
 
     // Wait for slot form to appear
     await waitForReactStable(page, { browserName });
@@ -138,10 +146,10 @@ test.describe('Availability Poll Workflow', () => {
     // Fill slot details
     const dateInputs = page.locator('input[type="date"]');
     const timeInputs = page.locator('input[type="time"]');
-    
+
     const dateInputCount = await dateInputs.count();
     const timeInputCount = await timeInputs.count();
-    
+
     if (dateInputCount > 0) {
       // Set date to next week
       const nextWeek = new Date();
@@ -158,22 +166,22 @@ test.describe('Availability Poll Workflow', () => {
     // IMPORTANT: Select the slot checkbox before saving (required for save button to be enabled)
     // Wait for the slot form to be fully rendered
     await waitForReactStable(page, { browserName });
-    
+
     // Find the checkbox for the slot (Radix UI Checkbox uses button with id="slot-0")
     // Try clicking the label first (which triggers the checkbox), then fallback to button
     const slotCheckboxLabel = page.locator('label[for="slot-0"]').first();
     const slotCheckboxButton = page.locator('[id="slot-0"]').first();
-    
+
     // Try to click the label (which will trigger the checkbox)
     const hasLabel = await safeIsVisible(slotCheckboxLabel);
     if (hasLabel) {
-      await slotCheckboxLabel.click();
+      await slotCheckboxLabel.click({ force: true });
       await waitForReactStable(page, { browserName });
     } else {
       // Fallback: try clicking the checkbox button directly
       const hasButton = await safeIsVisible(slotCheckboxButton);
       if (hasButton) {
-        await slotCheckboxButton.click();
+        await slotCheckboxButton.click({ force: true });
         await waitForReactStable(page, { browserName });
       }
     }
@@ -181,7 +189,7 @@ test.describe('Availability Poll Workflow', () => {
     // Save slots - wait for button to be enabled
     const saveButton = await waitForElementReady(page, 'button:has-text("Sauvegarder"), button:has-text("Sauvegarder les créneaux")', { browserName, timeout: timeouts.element });
     await expect(saveButton).toBeEnabled({ timeout: timeouts.element });
-    await saveButton.click();
+    await saveButton.click({ force: true });
     await waitForReactStable(page, { browserName });
 
     // Verify slots are saved
@@ -199,7 +207,7 @@ test.describe('Availability Poll Workflow', () => {
 
   test('Client validates proposed slot with automatic event creation', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     // Setup: Create poll with proposed slots
     const pollData = {
       id: 'test-validation-poll',
@@ -281,12 +289,12 @@ test.describe('Availability Poll Workflow', () => {
     // Verify score and reasons are displayed
     const scoreElement = page.locator('text=Score').or(page.locator('text=95%')).first();
     const hasScore = await safeIsVisible(scoreElement);
-    
+
     // Verify validation button exists
     const validateButton = await waitForElementReady(page, 'button:has-text("Valider"), button:has-text("Valider ce créneau")', { browserName, timeout: timeouts.element });
 
     // Click validate button
-    await validateButton.click();
+    await validateButton.click({ force: true });
 
     // Wait for validation process
     await waitForReactStable(page, { browserName });
@@ -313,7 +321,7 @@ test.describe('Availability Poll Workflow', () => {
 
   test('Display optimization scores and reasons in professional interface', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     // Setup: Create poll with optimized slots (with scores and reasons)
     const pollData = {
       id: 'test-scores-poll',
@@ -368,7 +376,7 @@ test.describe('Availability Poll Workflow', () => {
     // Verify reasons are displayed
     const reason1 = page.locator('text=Minimise le gap').or(page.locator('text=Raisons de la recommandation')).first();
     const hasReason = await safeIsVisible(reason1);
-    
+
     // Reasons might be in a collapsible section, so we check if at least one is visible
     if (!hasReason) {
       // Try to find the reasons section
@@ -383,7 +391,7 @@ test.describe('Availability Poll Workflow', () => {
 
   test('Error handling: calendar not connected', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     // Setup: Create poll with proposed slots
     const pollData = {
       id: 'test-no-calendar-poll',
@@ -421,7 +429,7 @@ test.describe('Availability Poll Workflow', () => {
 
     // Try to validate slot
     const validateButton = await waitForElementReady(page, 'button:has-text("Valider"), button:has-text("Valider ce créneau")', { browserName, timeout: timeouts.element });
-    await validateButton.click();
+    await validateButton.click({ force: true });
 
     // Wait for error message
     await waitForReactStable(page, { browserName });
@@ -429,12 +437,12 @@ test.describe('Availability Poll Workflow', () => {
     // Verify error toast appears (calendar not connected)
     const errorMessage = page.locator('text=Calendrier non connecté').or(page.locator('text=calendrier')).first();
     const hasError = await safeIsVisible(errorMessage);
-    
+
     // Error might be in toast, so we check if it appears anywhere
     // The validation should still work (choice is saved even without calendar)
     const successOrError = page.locator('text=Choix enregistré').or(page.locator('text=Calendrier non connecté')).first();
     const hasMessage = await safeIsVisible(successOrError);
-    
+
     // Either error message or success message should appear
     expect(hasMessage).toBeTruthy();
 
@@ -443,11 +451,11 @@ test.describe('Availability Poll Workflow', () => {
 
   test.skip('Error handling: slot becomes occupied', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     // NOTE: Cette fonctionnalité n'est pas encore implémentée.
     // La vérification des conflits de calendrier (créneaux occupés) n'est pas encore disponible.
     // Ce test sera activé lorsque la fonctionnalité sera implémentée.
-    
+
     // Setup: Create poll with proposed slots
     const nextWeekDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const pollData = {
@@ -484,7 +492,7 @@ test.describe('Availability Poll Workflow', () => {
 
     // Try to validate slot
     const validateButton = await waitForElementReady(page, 'button:has-text("Valider"), button:has-text("Valider ce créneau")', { browserName, timeout: timeouts.element });
-    await validateButton.click();
+    await validateButton.click({ force: true });
 
     // Wait for validation
     await waitForReactStable(page, { browserName });
@@ -498,7 +506,7 @@ test.describe('Availability Poll Workflow', () => {
 
   test('Availability poll appears in dashboard', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    
+
     // Create a poll via localStorage - use addInitScript to set doodates_polls directly
     const pollData = {
       id: 'test-availability-poll',
@@ -525,7 +533,7 @@ test.describe('Availability Poll Workflow', () => {
     // Verify poll appears - check for title text
     const pollTitle = page.locator('text=Test Availability Poll').first();
     const hasPoll = await safeIsVisible(pollTitle);
-    
+
     // If not visible, try checking localStorage directly
     if (!hasPoll) {
       const pollsInStorage = await page.evaluate(() => {
@@ -541,7 +549,7 @@ test.describe('Availability Poll Workflow', () => {
     // Verify it has the correct button - "Indiquer disponibilités" for availability polls
     const availabilityButton = page.locator('button:has-text("Indiquer disponibilités")').first();
     const hasAvailabilityButton = await safeIsVisible(availabilityButton);
-    
+
     // Button might not be visible if poll not found, so only check if poll is visible
     if (hasPoll) {
       expect(hasAvailabilityButton).toBeTruthy();

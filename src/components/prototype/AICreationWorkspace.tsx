@@ -172,21 +172,33 @@ export function AICreationWorkspace({
     }
   }, [newChatTimestamp, conversationId, resumeId, closeEditor, setCurrentPoll]);
 
-  // 🔥 NOUVEAU: Créer un sondage par défaut quand on arrive depuis la landing page sans conversation
+  // 🔥 NOUVEAU: Ouvrir l'éditeur automatiquement quand on arrive sur /workspace/*
   useEffect(() => {
-    // Si on arrive depuis landing page ET qu'il n'y a pas de conversation ET pas de poll actuel
-    const isFromLanding =
+    const isWorkspacePage =
       location.pathname.includes("/workspace/") &&
       (location.pathname.includes("/date") ||
         location.pathname.includes("/form") ||
         location.pathname.includes("/availability"));
 
-    if (isFromLanding && !conversationId && !resumeId && !currentPoll && !newChatTimestamp) {
-      // Créer un sondage par défaut selon le type
-      const now = new Date().toISOString();
-      const defaultPoll =
-        pollTypeForComponents === "form"
-          ? {
+    console.log("🔍 [AICreationWorkspace] Workspace check:", {
+      isWorkspacePage,
+      conversationId,
+      resumeId,
+      currentPoll: !!currentPoll,
+      newChatTimestamp,
+      pathname: location.pathname,
+    });
+
+    // Si on est sur une page workspace ET qu'il n'y a pas de conversation en cours
+    if (isWorkspacePage && !conversationId && !resumeId && !newChatTimestamp) {
+      console.log("✅ [AICreationWorkspace] Opening editor for workspace page");
+
+      // Si pas de poll, en créer un par défaut
+      if (!currentPoll) {
+        console.log("📝 [AICreationWorkspace] Creating default poll");
+        const defaultPoll =
+          pollTypeForComponents === "form"
+            ? {
               id: `default-form-${Date.now()}`,
               creator_id: "guest",
               title: "Nouveau formulaire",
@@ -205,7 +217,7 @@ export function AICreationWorkspace({
                 },
               ],
             }
-          : {
+            : {
               id: `default-date-${Date.now()}`,
               creator_id: "guest",
               title: "Nouveau sondage de dates",
@@ -215,14 +227,16 @@ export function AICreationWorkspace({
               updated_at: new Date().toISOString(),
               type: "date" as const,
               settings: {
-                selectedDates: ["2025-12-01", "2025-12-02"], // Dates par défaut pour validation
+                selectedDates: ["2025-12-01", "2025-12-02"],
               },
             };
 
-      setCurrentPoll(defaultPoll);
+        setCurrentPoll(defaultPoll);
+      }
 
-      // Ouvrir automatiquement l'éditeur après un court délai
+      // Toujours ouvrir l'éditeur après un court délai
       setTimeout(() => {
+        console.log("🔓 [AICreationWorkspace] Calling openEditor()");
         openEditor();
       }, 100);
     }
@@ -234,11 +248,12 @@ export function AICreationWorkspace({
     newChatTimestamp,
     pollTypeForComponents,
     setCurrentPoll,
+    openEditor,
   ]);
 
   // Hook legacy pour clearConversation (non migré)
   const conversationContext = useConversation();
-  const clearConversation = conversationContext?.clearConversation || (() => {});
+  const clearConversation = conversationContext?.clearConversation || (() => { });
 
   // Hook onboarding
   const { startOnboarding } = useOnboarding();
@@ -360,7 +375,7 @@ export function AICreationWorkspace({
             if (
               !existing ||
               new Date(poll.updated_at || poll.created_at) >
-                new Date(existing.updated_at || existing.created_at)
+              new Date(existing.updated_at || existing.created_at)
             ) {
               map.set(poll.id, poll);
             }
@@ -559,9 +574,8 @@ export function AICreationWorkspace({
 
         {/* Sidebar gauche - Mode overlay pour tous les écrans */}
         <div
-          className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
           {/* Header avec bouton fermer */}
           <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800">
@@ -942,9 +956,8 @@ export function AICreationWorkspace({
         <div className={`flex flex-1 min-h-0 ${isMobile ? "flex-col" : "flex-row"}`}>
           {/* Chat principal - Zone gauche */}
           <div
-            className={`flex flex-col bg-[#0a0a0a] transition-all duration-300 flex-1 flex-shrink-0 ${
-              isMobile ? "w-full" : "w-1/2"
-            }`}
+            className={`flex flex-col bg-[#0a0a0a] transition-all duration-300 flex-1 flex-shrink-0 ${isMobile ? "w-full" : "w-1/2"
+              }`}
           >
             {/* Toggle Chat/Preview sur mobile */}
             {/* 
@@ -1042,7 +1055,7 @@ export function AICreationWorkspace({
                               setShowManualEditorOnMobile(false);
                               setMobileActiveTab("chat");
                             }}
-                            onSave={() => {}}
+                            onSave={() => { }}
                             onFinalize={(draft, savedPoll) => {
                               if (savedPoll) {
                                 setPublishedPoll(savedPoll);
@@ -1092,99 +1105,100 @@ export function AICreationWorkspace({
                   </div>
                 </div>
               )}
-
-              {/* Barre de navigation mobile avec onglets */}
-              {isMobile && (
-                <MobileNavigationTabs
-                  activeTab={mobileActiveTab}
-                  onTabChange={setMobileActiveTab}
-                  pollType={pollTypeFromUrl}
-                  hasPoll={!!currentPoll}
-                />
-              )}
             </div>
-          </div>
 
-          {/* Créateur de sondage/formulaire - Sidebar droite sur desktop, visible si éditeur ouvert */}
-          {/* Sur mobile, afficher l'éditeur manuel quand showManualEditorOnMobile est true */}
-          {((!isMobile && isEditorOpen) || (isMobile && showManualEditorOnMobile)) && (
-            <div
-              className={`${isMobile ? "w-full absolute inset-0 z-20" : "w-1/2"} bg-[#0a0a0a] flex flex-col`}
-            >
-              {/* Bouton retour sur mobile */}
-              {isMobile && showManualEditorOnMobile && (
-                <button
-                  onClick={() => {
-                    setShowManualEditorOnMobile(false);
-                    closeEditor();
-                  }}
-                  className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
-                  aria-label="Retour au chat"
-                  title="Retour au chat"
-                >
-                  <LazyIconWrapper Icon={X} className="w-5 h-5" />
-                </button>
-              )}
-              <div className="flex-1 overflow-y-auto relative pt-4">
-                {isEditorOpen && currentPoll ? (
-                  currentPoll.type === "date" ? (
-                    // Pour les sondages de dates, utiliser PollCreator avec les données du poll
-                    (() => {
-                      const initialData = {
-                        title: currentPoll.title,
-                        description: currentPoll.description,
-                        dates: currentPoll.dates || [],
-                        dateGroups: currentPoll.dateGroups?.map((group) => ({
-                          ...group,
-                          type:
-                            group.type === "week" || group.type === "fortnight"
-                              ? ("range" as const)
-                              : group.type,
-                        })),
-                        type: "date" as const,
-                      };
-                      console.log(
-                        "[WEEKEND_GROUPING] 🎯 AICreationWorkspace - Passage à PollCreator:",
-                        {
-                          hasDates: !!initialData.dates?.length,
-                          datesCount: initialData.dates?.length,
-                          hasDateGroups: !!initialData.dateGroups,
-                          dateGroupsCount: initialData.dateGroups?.length,
-                          dateGroups: initialData.dateGroups,
-                        },
-                      );
-                      return (
-                        <PollCreatorComponent
-                          onBack={(createdPoll) => {
-                            if (createdPoll) {
-                              setPublishedPoll(createdPoll);
-                            }
-                            closeEditor();
-                          }}
-                          initialData={initialData}
-                        />
-                      );
-                    })()
-                  ) : (
-                    // Pour les autres types, afficher la preview
-                    <>
-                      <button
-                        onClick={closeEditor}
-                        className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
-                        aria-label="Fermer l'éditeur"
-                        title="Fermer"
-                      >
-                        <LazyIconWrapper Icon={X} className="w-5 h-5" />
-                      </button>
-                      <PollPreview poll={currentPoll} />
-                    </>
-                  )
-                ) : // Afficher le créateur vide par défaut selon le type
+            {/* Barre de navigation mobile avec onglets */}
+            {isMobile && (
+              <MobileNavigationTabs
+                activeTab={mobileActiveTab}
+                onTabChange={setMobileActiveTab}
+                pollType={pollTypeFromUrl}
+                hasPoll={!!currentPoll}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Créateur de sondage/formulaire - Sidebar droite sur desktop, visible si éditeur ouvert */}
+        {/* Sur mobile, afficher l'éditeur manuel quand showManualEditorOnMobile est true */}
+        {((!isMobile && isEditorOpen) || (isMobile && showManualEditorOnMobile)) && (
+          <div
+            className={`${isMobile ? "w-full absolute inset-0 z-20" : "w-1/2"} bg-[#0a0a0a] flex flex-col`}
+          >
+            {/* Bouton retour sur mobile */}
+            {isMobile && showManualEditorOnMobile && (
+              <button
+                onClick={() => {
+                  setShowManualEditorOnMobile(false);
+                  closeEditor();
+                }}
+                className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                aria-label="Retour au chat"
+                title="Retour au chat"
+              >
+                <LazyIconWrapper Icon={X} className="w-5 h-5" />
+              </button>
+            )}
+            <div className="flex-1 overflow-y-auto relative pt-4">
+              {isEditorOpen && currentPoll ? (
+                currentPoll.type === "date" ? (
+                  // Pour les sondages de dates, utiliser PollCreator avec les données du poll
+                  (() => {
+                    const initialData = {
+                      title: currentPoll.title,
+                      description: currentPoll.description,
+                      dates: currentPoll.dates || [],
+                      dateGroups: currentPoll.dateGroups?.map((group) => ({
+                        ...group,
+                        type:
+                          group.type === "week" || group.type === "fortnight"
+                            ? ("range" as const)
+                            : group.type,
+                      })),
+                      type: "date" as const,
+                    };
+                    console.log(
+                      "[WEEKEND_GROUPING] 🎯 AICreationWorkspace - Passage à PollCreator:",
+                      {
+                        hasDates: !!initialData.dates?.length,
+                        datesCount: initialData.dates?.length,
+                        hasDateGroups: !!initialData.dateGroups,
+                        dateGroupsCount: initialData.dateGroups?.length,
+                        dateGroups: initialData.dateGroups,
+                      },
+                    );
+                    return (
+                      <PollCreatorComponent
+                        onBack={(createdPoll) => {
+                          if (createdPoll) {
+                            setPublishedPoll(createdPoll);
+                          }
+                          closeEditor();
+                        }}
+                        initialData={initialData}
+                      />
+                    );
+                  })()
+                ) : (
+                  // Pour les autres types, afficher la preview
+                  <>
+                    <button
+                      onClick={closeEditor}
+                      className="fixed top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                      aria-label="Fermer l'éditeur"
+                      title="Fermer"
+                    >
+                      <LazyIconWrapper Icon={X} className="w-5 h-5" />
+                    </button>
+                    <PollPreview poll={currentPoll} />
+                  </>
+                )
+              ) : // Afficher le créateur vide par défaut selon le type
                 pollTypeFromUrl === "form" ? (
                   <FormPollCreator
                     initialDraft={undefined}
-                    onCancel={() => {}}
-                    onSave={() => {}}
+                    onCancel={() => { }}
+                    onSave={() => { }}
                     onFinalize={(draft, savedPoll) => {
                       // Utiliser le poll créé par createFormPoll au lieu de créer un nouveau poll
                       if (savedPoll) {
@@ -1202,62 +1216,30 @@ export function AICreationWorkspace({
                     initialData={undefined}
                   />
                 )}
-              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* Modal d'authentification */}
+      {/* Modals */}
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
-
-      {/* Modal clé bêta */}
       <BetaKeyModal open={betaKeyModalOpen} onOpenChange={setBetaKeyModalOpen} />
-
-      {/* Dialog de confirmation de déconnexion */}
       <AlertDialog open={signOutDialogOpen} onOpenChange={setSignOutDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Déconnexion</AlertDialogTitle>
+            <AlertDialogTitle>Confirmer la déconnexion</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir vous déconnecter ?
-              <br />
-              <br />
-              <span className="font-medium">Connecté en tant que {user?.email}</span>
+              Êtes-vous sûr de vouloir vous déconnecter ? Vos sondages et conversations seront
+              conservés.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
               onClick={async () => {
-                try {
-                  const { error } = await signOut();
-                  if (error) {
-                    toast({
-                      title: "Erreur",
-                      description: error.message || "Erreur lors de la déconnexion",
-                      variant: "destructive",
-                    });
-                  } else {
-                    toast({
-                      title: "Déconnexion",
-                      description: "Vous avez été déconnecté",
-                    });
-                    setSignOutDialogOpen(false);
-                    // Forcer le rechargement pour s'assurer que tout est nettoyé
-                    setTimeout(() => {
-                      window.location.href = "/DooDates/";
-                    }, 500);
-                  }
-                } catch (error) {
-                  toast({
-                    title: "Erreur",
-                    description: "Erreur lors de la déconnexion",
-                    variant: "destructive",
-                  });
-                }
+                await signOut();
+                navigate("/");
               }}
-              className="bg-red-600 hover:bg-red-700"
             >
               Se déconnecter
             </AlertDialogAction>

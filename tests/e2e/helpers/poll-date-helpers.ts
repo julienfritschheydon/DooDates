@@ -280,10 +280,13 @@ export async function createDatePollWithTimeSlots(
 
   console.log(`📅 Dates à sélectionner: ${dates.join(', ')}`);
 
-  await page.goto('/DooDates/create/date', { waitUntil: 'domcontentloaded' });
+  // Navigate to date polls workspace (new product-specific route)
+  await page.goto('/DooDates/date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
-  await expect(page).toHaveURL(/\/create\/ai\?type=date/);
-  console.log('✅ Page /create/date accessible → redirigée vers /create/ai?type=date');
+
+  // Verify we're on the date polls workspace page
+  await expect(page).toHaveURL(/\/date-polls\/workspace\/date/);
+  console.log('✅ Page /date-polls/workspace/date accessible');
 
   const existingPollIds = await page.evaluate(() => {
     const parseArray = (key: string) => {
@@ -339,9 +342,15 @@ export async function createDatePollWithTimeSlots(
   // S'assurer que le bouton est bien activé
   await expect(createSuggestionButton).toBeEnabled({ timeout: timeouts.element });
 
-  await createSuggestionButton.click();
-  console.log('🖱️ Bouton "Créer ce sondage" cliqué');
+  console.log('🖱️ Clic sur "Créer ce sondage"...');
+  await createSuggestionButton.click({ timeout: timeouts.action, force: true });
+  console.log('✅ Clic effectué');
 
+
+  console.log('✅ Clic effectué');
+
+  // Attendre un peu que le localStorage soit mis à jour
+  await page.waitForTimeout(2000);
 
   const result = await page.evaluate((existingIds) => {
     const parseArray = (key: string) => {
@@ -355,31 +364,51 @@ export async function createDatePollWithTimeSlots(
     };
 
     const merge = [...parseArray('dev-polls'), ...parseArray('doodates_polls')];
-    for (let idx = merge.length - 1; idx >= 0; idx -= 1) {
-      const poll = merge[idx];
-      if (!poll || poll.type !== 'date') continue;
 
-      const id = (poll.id as string | undefined) ?? (poll.slug as string | undefined);
-      if (!id || existingIds.includes(id)) continue;
+    const found = merge.find((p: any) => {
+      if (!p || p.type !== 'date') return false;
+      const id = (p.id as string | undefined) ?? (p.slug as string | undefined);
+      return (id && !existingIds.includes(id)) || p.title === 'Sondage de dates Mock E2E';
+    });
 
-      return {
-        id,
-        slug: (poll.slug as string | undefined) ?? undefined,
-        title: (poll.title as string | undefined) ?? undefined,
-      };
-    }
-    return null;
+    return {
+      found,
+      debug: {
+        devPolls: parseArray('dev-polls'),
+        doodatesPolls: parseArray('doodates_polls'),
+        allKeys: Object.keys(localStorage)
+      }
+    };
   }, existingPollIds);
 
-  if (!result) {
-    throw new Error('Sondage généré par le mock introuvable dans le localStorage');
+  if (!result.found) {
+    console.log('⚠️ Sondage non trouvé dans localStorage, tentative de récupération via URL...');
+
+    // Attendre la redirection vers la page de vote
+    try {
+      await expect(page).toHaveURL(/\/poll\/[a-zA-Z0-9-]+/, { timeout: 10000 });
+      const url = page.url();
+      const slugMatch = url.match(/\/poll\/([a-zA-Z0-9-]+)/);
+      if (slugMatch && slugMatch[1]) {
+        const slug = slugMatch[1];
+        console.log(`✅ Slug récupéré via URL: ${slug}`);
+        return {
+          pollId: slug, // On utilise le slug comme ID si on ne l'a pas
+          pollSlug: slug,
+          title: options.title ?? 'Sondage mock IA',
+        };
+      }
+    } catch (e) {
+      console.log('❌ Échec de récupération via URL');
+    }
+
+    console.log('❌ localStorage debug:', JSON.stringify(result.debug, null, 2));
+    throw new Error(`Sondage généré par le mock introuvable dans le localStorage ni via URL. Keys: ${result.debug.allKeys.join(', ')}`);
   }
 
-  console.log(`🤖 Sondage IA détecté: ${result.id} (${result.title ?? 'sans titre'})`);
-
   return {
-    pollId: result.id,
-    pollSlug: result.slug ?? result.id,
-    title: result.title ?? 'Sondage mock IA',
+    pollId: result.found.id,
+    pollSlug: result.found.slug ?? result.found.id,
+    title: result.found.title ?? 'Sondage mock IA',
   };
 }

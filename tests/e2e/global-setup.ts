@@ -97,11 +97,20 @@ function generateMockPollResponse(prompt: string): any {
     }
 
     // Extraire les dates depuis le prompt si présentes (format YYYY-MM-DD)
-    let dates = ['2025-11-01', '2025-11-02', '2025-11-03'];
+    let dates: string[] = [];
     const dateMatches = prompt.matchAll(/\b(\d{4}-\d{2}-\d{2})\b/g);
     const extractedDates = Array.from(dateMatches).map(m => m[1]);
+
     if (extractedDates.length > 0) {
       dates = extractedDates;
+    } else {
+      // Générer des dates futures par défaut (J+1, J+2, J+3)
+      const today = new Date();
+      for (let i = 1; i <= 3; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        dates.push(d.toISOString().split('T')[0]);
+      }
     }
 
     const pollData = {
@@ -679,6 +688,46 @@ export async function setupBetaKeyMocks(page: Page) {
         })
       });
     }
+  });
+
+  // Mock polls table insert (save poll)
+  await page.route(/.*\/rest\/v1\/polls.*/, async (route: Route) => {
+    const request = route.request();
+    const method = request.method();
+
+    if (method === 'OPTIONS') {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, GET, PATCH, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, Prefer',
+        },
+        body: ''
+      });
+      return;
+    }
+
+    if (method === 'POST') {
+      try {
+        const postData = request.postDataJSON();
+        // Return the created poll
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: JSON.stringify(postData)
+        });
+      } catch (error) {
+        console.error('❌ Poll save mock error:', error);
+        await route.fulfill({ status: 500 });
+      }
+      return;
+    }
+
+    await route.continue();
   });
 }
 

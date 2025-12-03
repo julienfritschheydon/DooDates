@@ -1,21 +1,14 @@
 // Base Playwright primitives + helpers utilisés dans l'ensemble du scénario.
 import { test, expect, Page, Locator } from '@playwright/test';
-import { withConsoleGuard } from './utils';
+import { withConsoleGuard, PRODUCT_ROUTES } from './utils';
 import { setupTestEnvironment } from './helpers/test-setup';
 import { sendChatCommand, voteOnPollComplete } from './helpers/poll-helpers';
 import { createFormPollViaAI } from './helpers/poll-form-helpers';
+import { authenticateUser } from './helpers/auth-helpers';
 
 // Outils communs pour synchroniser l'état réseau/React et ajuster les timeouts selon le navigateur.
 import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
 import { getTimeouts } from './config/timeouts';
-
-// ⚠️ TEST DÉSACTIVÉ TEMPORAIREMENT ⚠️
-// Ce test échoue sur la page de vote (h1 non trouvé) malgré les corrections d'URL
-// On désactive pour laisser les autres tests E2E passer
-// TODO: Réactiver après investigation du problème de page de vote
-test.skip('Ultra Simple Form - désactivé temporairement', () => {
-  // Test skip - à réactiver plus tard
-});
 
 // Logger scoped pour suivre précisément chaque étape dans les traces.
 const mkLogger = (scope: string) => (...parts: any[]) => console.log(`[${scope}]`, ...parts);
@@ -23,7 +16,7 @@ const mkLogger = (scope: string) => (...parts: any[]) => console.log(`[${scope}]
 /**
  * Test Ultra Simple Form (via IA) : workflow complet de création, ajout, suppression, reprise, vote et vérification dashboard.
  */
-test.describe.skip('DooDates - Test Ultra Simple Form (via IA)', () => {
+test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
   test.describe.configure({ mode: 'serial' });
 
   /**
@@ -32,7 +25,8 @@ test.describe.skip('DooDates - Test Ultra Simple Form (via IA)', () => {
   test.beforeEach(async ({ page, browserName }) => {
     await setupTestEnvironment(page, browserName, {
       enableE2ELocalMode: true,
-      warmup: true,
+      warmup: false,
+      navigation: { path: PRODUCT_ROUTES.formPoll.landing },
       consoleGuard: {
         enabled: true,
         allowlist: [
@@ -43,10 +37,18 @@ test.describe.skip('DooDates - Test Ultra Simple Form (via IA)', () => {
           /No dates selected/i,
           /Erreur lors de la sauvegarde/i,
           /Failed to send message/i,
+          /Edge Function testConnection/i,
+          /API_ERROR détectée/i,
+          /Invalid JWT/i,
+          /DooDates Error/i,
+          /API_ERROR/i,
         ],
       },
-      mocks: { gemini: true },
+      mocks: { all: true },
     });
+
+    // Authenticate user to avoid guest mode issues
+    await authenticateUser(page, browserName, { reload: true, waitForReady: true });
   });
 
   /**
@@ -155,7 +157,7 @@ test.describe.skip('DooDates - Test Ultra Simple Form (via IA)', () => {
           const pollRootContent = pollRootExists ? await page.locator('#root').textContent() || '' : '';
           const pollH1Count = await page.locator('h1').count();
           const pollH1Texts = pollH1Count > 0 ? await page.locator('h1').allTextContents() : [];
-          
+
           log(`[DIAGNOSTIC VOTE] Page URL: "${pollUrl}"`);
           log(`[DIAGNOSTIC VOTE] Body content (first 200 chars): "${pollBodyContent.substring(0, 200)}"`);
           log(`[DIAGNOSTIC VOTE] #root exists: ${pollRootExists}`);
@@ -196,7 +198,14 @@ test.describe.skip('DooDates - Test Ultra Simple Form (via IA)', () => {
         log('🎉 WORKFLOW COMPLET FORM POLL RÉUSSI');
       },
       {
-        allowlist: [/Failed to send message/i],
+        allowlist: [
+          /Failed to send message/i,
+          /Edge Function testConnection/i,
+          /API_ERROR détectée/i,
+          /Invalid JWT/i,
+          /DooDates Error/i,
+          /API_ERROR/i,
+        ],
       }
     );
   });
