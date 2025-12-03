@@ -51,7 +51,9 @@ export class EnhancedGeminiService {
   private static instance: EnhancedGeminiService;
   private calendarQuery: CalendarQuery;
   // Mock model property for compatibility with existing code that checks for .model
-  public model: { generateContent: (prompt: string) => Promise<{ response: { text: () => string } }> } | null = null;
+  public model: {
+    generateContent: (prompt: string) => Promise<{ response: { text: () => string } }>;
+  } | null = null;
 
   constructor() {
     this.calendarQuery = new CalendarQuery();
@@ -60,14 +62,17 @@ export class EnhancedGeminiService {
       generateContent: async (prompt: string) => {
         const result = await secureGeminiService.generateContent(prompt);
         if (!result.success || !result.data) {
-          throw ErrorFactory.api(result.error || result.message || "Failed to generate content", "Erreur lors de la génération de contenu");
+          throw ErrorFactory.api(
+            result.error || result.message || "Failed to generate content",
+            "Erreur lors de la génération de contenu",
+          );
         }
         return {
           response: {
-            text: () => result.data || ""
-          }
+            text: () => result.data || "",
+          },
         };
-      }
+      },
     };
   }
 
@@ -185,7 +190,10 @@ export class EnhancedGeminiService {
       const result = await secureGeminiService.generateContent(enhancedPrompt);
 
       if (!result.success || !result.data) {
-        throw ErrorFactory.api(result.error || result.message || "Failed to generate content", "Erreur lors de la génération améliorée");
+        throw ErrorFactory.api(
+          result.error || result.message || "Failed to generate content",
+          "Erreur lors de la génération améliorée",
+        );
       }
 
       const text = result.data;
@@ -265,10 +273,11 @@ VÉRIFICATIONS COUNTERFACTUAL OBLIGATOIRES:
 ${counterfactualQuestions.map((q) => `❓ ${q}`).join("\n")}
 
 RÉSOLUTION DES CONFLITS:
-${analysis.conflicts.length > 0
-        ? analysis.conflicts.map((c) => `⚠️ RÉSOUDRE: ${c}`).join("\n")
-        : "✅ Aucun conflit - procéder normalement"
-      }
+${
+  analysis.conflicts.length > 0
+    ? analysis.conflicts.map((c) => `⚠️ RÉSOUDRE: ${c}`).join("\n")
+    : "✅ Aucun conflit - procéder normalement"
+}
 
 INSTRUCTIONS AMÉLIORÉES AVEC COUNTERFACTUAL-CONSISTENCY:
 
@@ -297,19 +306,21 @@ INSTRUCTIONS AMÉLIORÉES AVEC COUNTERFACTUAL-CONSISTENCY:
    * Adapter les horaires aux contraintes détectées
 
 5. GESTION DES PATTERNS RÉCURRENTS:
-   ${analysis.temporalType === "recurring"
-        ? "✓ Pattern récurrent détecté - générer plusieurs occurrences"
-        : "✗ Événement ponctuel - générer dates spécifiques"
-      }
+   ${
+     analysis.temporalType === "recurring"
+       ? "✓ Pattern récurrent détecté - générer plusieurs occurrences"
+       : "✗ Événement ponctuel - générer dates spécifiques"
+   }
 
 Format JSON requis (avec validation counterfactual intégrée):
 
 {
   "title": "Titre descriptif et précis",
-  "dates": [${analysis.extractedDates.length > 0
-        ? '"' + analysis.extractedDates.slice(0, 3).join('","') + '"'
-        : '"YYYY-MM-DD"'
-      }], // VÉRIFIÉES par counterfactual
+  "dates": [${
+    analysis.extractedDates.length > 0
+      ? '"' + analysis.extractedDates.slice(0, 3).join('","') + '"'
+      : '"YYYY-MM-DD"'
+  }], // VÉRIFIÉES par counterfactual
   "timeSlots": [
     {
       "start": "${analysis.constraints.matin ? "09:00" : analysis.constraints.apresmidi ? "14:00" : analysis.constraints.soir ? "18:00" : "HH:MM"}",

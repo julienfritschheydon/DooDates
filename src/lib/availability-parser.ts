@@ -77,7 +77,10 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
     const result = await secureGeminiService.generateContent("", prompt);
 
     if (!result.success || !result.data) {
-      throw ErrorFactory.api(result.message || result.error || "Erreur lors de l'appel à Gemini", "Erreur lors de l'analyse des disponibilités");
+      throw ErrorFactory.api(
+        result.message || result.error || "Erreur lors de l'appel à Gemini",
+        "Erreur lors de l'analyse des disponibilités",
+      );
     }
 
     const responseText = result.data;
@@ -101,8 +104,16 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
       (avail: Record<string, unknown>) => ({
         day: normalizeDay(avail.day as string),
         timeRange: {
-          start: normalizeTime(((avail.timeRange as Record<string, unknown>)?.start as string) || (avail.start as string) || "09:00"),
-          end: normalizeTime(((avail.timeRange as Record<string, unknown>)?.end as string) || (avail.end as string) || "17:00"),
+          start: normalizeTime(
+            ((avail.timeRange as Record<string, unknown>)?.start as string) ||
+              (avail.start as string) ||
+              "09:00",
+          ),
+          end: normalizeTime(
+            ((avail.timeRange as Record<string, unknown>)?.end as string) ||
+              (avail.end as string) ||
+              "17:00",
+          ),
         },
         confidence: Math.max(0, Math.min(1, (avail.confidence as number) || 0.7)),
         originalText: (avail.originalText as string) || text.substring(0, 50),

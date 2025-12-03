@@ -104,7 +104,7 @@ describe("guestQuotaService", () => {
         expect.objectContaining({
           method: "POST",
           body: expect.stringContaining('"endpoint":"checkQuota"'),
-        })
+        }),
       );
     });
 
@@ -146,7 +146,7 @@ describe("guestQuotaService", () => {
         ok: true,
         json: async () => ({
           allowed: true,
-          currentQuota: mockQuota
+          currentQuota: mockQuota,
         }),
       });
 
@@ -158,7 +158,7 @@ describe("guestQuotaService", () => {
         expect.stringContaining("/functions/v1/quota-tracking"),
         expect.objectContaining({
           body: expect.stringContaining('"endpoint":"checkQuota"'),
-        })
+        }),
       );
     });
 
@@ -170,7 +170,7 @@ describe("guestQuotaService", () => {
         json: async () => ({
           allowed: false,
           reason: "Total credit limit reached",
-          currentQuota: mockQuota
+          currentQuota: mockQuota,
         }),
       });
 
@@ -207,7 +207,7 @@ describe("guestQuotaService", () => {
         ok: true,
         json: async () => ({
           success: true,
-          quota: mockQuota
+          quota: mockQuota,
         }),
       });
 
@@ -219,7 +219,7 @@ describe("guestQuotaService", () => {
         expect.stringContaining("/functions/v1/quota-tracking"),
         expect.objectContaining({
           body: expect.stringContaining('"endpoint":"consumeCredits"'),
-        })
+        }),
       );
     });
 
@@ -247,7 +247,7 @@ describe("guestQuotaService", () => {
         expect.stringContaining("/functions/v1/quota-tracking"),
         expect.objectContaining({
           body: expect.stringContaining('"extra":"data"'),
-        })
+        }),
       );
     });
 

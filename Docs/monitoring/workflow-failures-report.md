@@ -1,15 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 03/12/2025 13:29:57
+**Dernière mise à jour:** 03/12/2025 19:22:44
 
-_Workflow run #714 (ID 19893860139) — génération UTC 2025-12-03T12:29:57.152Z_
+_Workflow run #715 (ID 19904377089) — génération UTC 2025-12-03T18:22:44.954Z_
 
-## 🎯 Focus: Commit `839d1e4`
-**Dernière mise à jour:** 03/12/2025 07:23:03
-
-_Workflow run #703 (ID 19884514382) — génération UTC 2025-12-03T06:23:03.570Z_
-
-## 🎯 Focus: Commit `7fd9b4c`
+## 🎯 Focus: Commit `e050768`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -31,32 +26,28 @@ _Workflow run #703 (ID 19884514382) — génération UTC 2025-12-03T06:23:03.570
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `839d1e4`.
-Tous les workflows surveillés ont réussi pour le commit `7fd9b4c`.
+Tous les workflows surveillés ont réussi pour le commit `e050768`.
 
 ---
 
 ## 3️⃣ Main Post-Merge E2E
 
-**Statut:** ❌ failure
+**Statut:** ✅ success
 
 **Dernier run:** 03/12/2025 11:00:17
-**Dernier run:** 02/12/2025 10:02:41
 
 **Statistiques:**
 - 📊 **Total runs pour ce commit:** **0**
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `839d1e4`.
-Tous les workflows surveillés ont réussi pour le commit `7fd9b4c`.
+Tous les workflows surveillés ont réussi pour le commit `e050768`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `839d1e4`
-- 🎯 **Focus: Commit actuel** `7fd9b4c`
+- 🎯 **Focus: Commit actuel** `e050768`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 

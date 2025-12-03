@@ -97,7 +97,7 @@ function shouldBypassGuestQuota(): boolean {
   }
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-  
+
   // Si VITE_SUPABASE_URL n'est pas défini, bypass (mode développement local)
   if (!supabaseUrl) {
     logger.debug("VITE_SUPABASE_URL not configured, bypassing guest quota", "quota");
@@ -151,7 +151,10 @@ async function callQuotaEdgeFunction(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw ErrorFactory.api(errorData.error || `Edge Function error: ${response.status}`, "Erreur de communication avec le serveur");
+    throw ErrorFactory.api(
+      errorData.error || `Edge Function error: ${response.status}`,
+      "Erreur de communication avec le serveur",
+    );
   }
 
   return await response.json();
@@ -170,10 +173,10 @@ export async function getOrCreateGuestQuota(): Promise<GuestQuotaData | null> {
   }
 
   try {
-    const result = await callQuotaEdgeFunction("checkQuota", {
+    const result = (await callQuotaEdgeFunction("checkQuota", {
       action: "other",
       credits: 0,
-    }) as { currentQuota?: GuestQuotaData };
+    })) as { currentQuota?: GuestQuotaData };
 
     return result.currentQuota || null;
   } catch (error) {
@@ -194,10 +197,10 @@ export async function canConsumeCredits(
   }
 
   try {
-    const result = await callQuotaEdgeFunction("checkQuota", {
+    const result = (await callQuotaEdgeFunction("checkQuota", {
       action,
       credits,
-    }) as { allowed: boolean; reason?: string; currentQuota?: GuestQuotaData };
+    })) as { allowed: boolean; reason?: string; currentQuota?: GuestQuotaData };
 
     return {
       allowed: result.allowed,
@@ -229,11 +232,11 @@ export async function consumeGuestCredits(
     const browserMetadata = getBrowserMetadata();
     const mergedMetadata = { ...browserMetadata, ...metadata };
 
-    const result = await callQuotaEdgeFunction("consumeCredits", {
+    const result = (await callQuotaEdgeFunction("consumeCredits", {
       action,
       credits,
       metadata: mergedMetadata,
-    }) as { quota?: GuestQuotaData };
+    })) as { quota?: GuestQuotaData };
 
     return {
       success: true,
@@ -257,9 +260,9 @@ export async function getGuestQuotaJournal(limit: number = 100): Promise<GuestQu
   }
 
   try {
-    const result = await callQuotaEdgeFunction("getJournal", {
+    const result = (await callQuotaEdgeFunction("getJournal", {
       limit,
-    }) as { journal?: GuestQuotaJournalEntry[] };
+    })) as { journal?: GuestQuotaJournalEntry[] };
 
     return result.journal || [];
   } catch (error) {
