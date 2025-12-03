@@ -12,6 +12,7 @@ import { getCachedFingerprint, getBrowserMetadata } from "./browserFingerprint";
 import { logger } from "./logger";
 import { isE2ETestingEnvironment } from "./e2e-detection";
 import type { CreditActionType } from "./quotaTracking";
+import { ErrorFactory } from "./error-handling";
 
 // ============================================================================
 // TYPES
@@ -135,7 +136,7 @@ async function callQuotaEdgeFunction(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `Edge Function error: ${response.status}`);
+    throw ErrorFactory.api(errorData.error || `Edge Function error: ${response.status}`, "Erreur de communication avec le serveur");
   }
 
   return await response.json();

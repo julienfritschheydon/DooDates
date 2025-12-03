@@ -60,7 +60,7 @@ export class EnhancedGeminiService {
       generateContent: async (prompt: string) => {
         const result = await secureGeminiService.generateContent(prompt);
         if (!result.success || !result.data) {
-          throw new Error(result.error || result.message || "Failed to generate content");
+          throw ErrorFactory.api(result.error || result.message || "Failed to generate content", "Erreur lors de la génération de contenu");
         }
         return {
           response: {
@@ -185,7 +185,7 @@ export class EnhancedGeminiService {
       const result = await secureGeminiService.generateContent(enhancedPrompt);
 
       if (!result.success || !result.data) {
-        throw new Error(result.error || result.message || "Failed to generate content");
+        throw ErrorFactory.api(result.error || result.message || "Failed to generate content", "Erreur lors de la génération améliorée");
       }
 
       const text = result.data;

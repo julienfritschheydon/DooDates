@@ -1,6 +1,6 @@
 import { secureGeminiService } from "@/services/SecureGeminiService";
 import { logger } from "./logger";
-import { logError } from "./error-handling";
+import { logError, ErrorFactory } from "./error-handling";
 
 const MODEL = "gemini-2.0-flash"; // Aligned with Edge Function model
 
@@ -68,7 +68,7 @@ Texte à analyser :
 
 Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
 
-    logger.debug("Parsing disponibilités avec Gemini (via SecureService)", "availability-parser", {
+    logger.debug("Parsing disponibilités avec Gemini (via SecureService)", "calendar", {
       textLength: text.length,
       model: MODEL,
     });
@@ -77,12 +77,12 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
     const result = await secureGeminiService.generateContent("", prompt);
 
     if (!result.success || !result.data) {
-      throw new Error(result.message || result.error || "Erreur lors de l'appel à Gemini");
+      throw ErrorFactory.api(result.message || result.error || "Erreur lors de l'appel à Gemini", "Erreur lors de l'analyse des disponibilités");
     }
 
     const responseText = result.data;
 
-    logger.debug("Réponse Gemini reçue", "availability-parser", {
+    logger.debug("Réponse Gemini reçue", "calendar", {
       responseLength: responseText.length,
     });
 
@@ -115,7 +115,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
         ? availabilities.reduce((sum, a) => sum + a.confidence, 0) / availabilities.length
         : parsed.confidence || 0.5;
 
-    logger.info("Disponibilités parsées avec succès", "availability-parser", {
+    logger.info("Disponibilités parsées avec succès", "calendar", {
       count: availabilities.length,
       confidence: globalConfidence,
     });
@@ -128,7 +128,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
     };
   } catch (error) {
     logError(error, {
-      component: "availability-parser",
+      component: "calendar",
       operation: "parseAvailabilitiesWithAI",
       metadata: { text: text.substring(0, 100) },
     });
@@ -192,7 +192,7 @@ function normalizeTime(time: string): string {
   }
 
   // Format par défaut si non reconnu
-  logger.warn("Format d'heure non reconnu", "availability-parser", { time });
+  logger.warn("Format d'heure non reconnu", "calendar", { time });
   return "09:00";
 }
 
