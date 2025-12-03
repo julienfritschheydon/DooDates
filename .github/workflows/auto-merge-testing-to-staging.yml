@@ -1,0 +1,69 @@
+name: Auto-merge Testing → Staging
+
+on:
+  push:
+    branches: [testing]
+
+jobs:
+  validate:
+    name: 🧪 Validate Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: npm ci
+
+      - name: 🧪 Run Unit Tests
+        run: npm run test:unit:fast
+        timeout: 3m
+
+      - name: 🔍 TypeScript Check
+        run: npm run type-check
+        timeout: 2m
+
+      - name: 🧹 Linting
+        run: npm run lint
+        timeout: 1m
+
+      - name: 🏗️ Build Validation
+        run: npm run build
+        timeout: 2m
+
+      - name: 🎭 E2E Smoke Tests
+        run: npm run test:e2e:smoke
+        timeout: 5m
+
+  auto-merge:
+    name: 🚀 Auto-merge to Staging
+    runs-on: ubuntu-latest
+    needs: validate
+    if: success()
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔧 Configure Git
+        run: |
+          git config --global user.name "Auto-merge Bot"
+          git config --global user.email "bot@doodates.com"
+
+      - name: 🔄 Merge to Staging
+        run: |
+          git checkout staging
+          git merge origin/testing --no-ff -m "Auto-merge: testing → staging"
+          
+      - name: 📤 Push to Staging
+        run: git push origin staging
