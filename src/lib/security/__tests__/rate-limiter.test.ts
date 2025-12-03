@@ -23,15 +23,15 @@ describe("RateLimiterService", () => {
     it("should allow requests under limit", () => {
       const identifier = "test-user";
 
-      // 9 premières requêtes autorisées
+      // 9 premières requêtes autorisées (count = 1..9)
       for (let i = 0; i < 9; i++) {
         expect(rateLimiter.isAllowed(identifier)).toBe(true);
       }
 
-      // La 10ème doit être autorisée (limite = 10)
+      // La 10ème requête autorisée (count = 10)
       expect(rateLimiter.isAllowed(identifier)).toBe(true);
 
-      // La 11ème doit être bloquée
+      // La 11ème doit être bloquée (count = 11 > maxRequests)
       expect(rateLimiter.isAllowed(identifier)).toBe(false);
     });
 
@@ -65,15 +65,15 @@ describe("RateLimiterService", () => {
       const config = { maxRequests: 2, windowMs: 100, blockDurationMs: 100 }; // 100ms window et block
 
       // Consommer la limite
-      expect(rateLimiter.isAllowed(identifier, config)).toBe(true); // 1
-      expect(rateLimiter.isAllowed(identifier, config)).toBe(true); // 2
-      expect(rateLimiter.isAllowed(identifier, config)).toBe(false); // 3 - bloqué
+      expect(rateLimiter.isAllowed(identifier, config)).toBe(true); // count = 1
+      expect(rateLimiter.isAllowed(identifier, config)).toBe(true); // count = 2
+      expect(rateLimiter.isAllowed(identifier, config)).toBe(false); // count = 3 > maxRequests, bloqué
 
       // Attendre la fin de la fenêtre ET du blocage
       await new Promise((resolve) => setTimeout(resolve, 150));
 
       // Devrait être autorisé à nouveau (compteur reset)
-      expect(rateLimiter.isAllowed(identifier, config)).toBe(true); // 1
+      expect(rateLimiter.isAllowed(identifier, config)).toBe(true); // count = 1 (reset)
     }, 10000);
   });
 

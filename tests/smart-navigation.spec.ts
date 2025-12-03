@@ -6,6 +6,32 @@
 
 import { test, expect } from "@playwright/test";
 
+// Utilitaire pour capturer les console errors pendant les tests
+async function withConsoleGuard(page: any, testFn: () => Promise<void>) {
+  const consoleMessages: string[] = [];
+  
+  page.on("console", (msg: any) => {
+    if (msg.type() === "error") {
+      consoleMessages.push(msg.text());
+    }
+  });
+  
+  try {
+    await testFn();
+  } finally {
+    // Vérifier qu'il n'y a pas d'erreurs console critiques
+    const criticalErrors = consoleMessages.filter(msg => 
+      msg.includes("Uncaught") || 
+      msg.includes("TypeError") || 
+      msg.includes("ReferenceError")
+    );
+    
+    if (criticalErrors.length > 0) {
+      console.error("Erreurs console détectées:", criticalErrors);
+    }
+  }
+}
+
 test.describe("Navigation Intelligente - E2E", () => {
   test.beforeEach(async ({ page }) => {
     // Activer les logs de navigation
