@@ -1,0 +1,496 @@
+name: 🔄 Sync Test Fixes (Auto-propagate)
+
+# Propage automatiquement les modifications de tests entre branches
+# quand les tests passent sur une branche
+
+on:
+  push:
+    branches:
+      - bug
+      - testing
+      - staging
+      - pre-prod
+    paths:
+      # Déclenché pour les fichiers de tests
+      - 'tests/**'
+      - 'src/**/__tests__/**'
+      - 'src/**/*.test.ts'
+      - 'src/**/*.test.tsx'
+      - 'vitest.config.ts'
+      - 'playwright.config.ts'
+      # Et les hooks Husky (config partagée)
+      - '.husky/pre-commit'
+      - '.husky/pre-push'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # ========================================
+  # VALIDATION DES TESTS
+  # ========================================
+  validate-tests:
+    runs-on: ubuntu-latest
+    outputs:
+      tests-passed: ${{ steps.test-result.outputs.passed }}
+      test-files-changed: ${{ steps.changed-files.outputs.test_files }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Identify changed test files
+        id: changed-files
+        run: |
+          # Récupérer les fichiers de tests et hooks modifiés
+          TEST_FILES=$(git diff --name-only HEAD~1 HEAD | grep -E '\.(test|spec)\.(ts|tsx|js)$|tests/|__tests__/|\.husky/' || echo "")
+          echo "test_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$TEST_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          if [ -n "$TEST_FILES" ]; then
+            echo "📝 Test/config files changed:"
+            echo "$TEST_FILES"
+          else
+            echo "⚠️ No test/config files detected in this commit"
+          fi
+
+      - name: 🧪 Run unit tests
+        id: unit-tests
+        run: npm run test:unit:fast
+        continue-on-error: true
+
+      - name: 📊 Set test result
+        id: test-result
+        run: |
+          if [ "${{ steps.unit-tests.outcome }}" == "success" ]; then
+            echo "passed=true" >> $GITHUB_OUTPUT
+            echo "✅ Tests passed - ready to propagate"
+          else
+            echo "passed=false" >> $GITHUB_OUTPUT
+            echo "❌ Tests failed - propagation blocked"
+          fi
+
+  # ========================================
+  # PROPAGATION: bug → testing
+  # ========================================
+  propagate-bug-to-testing:
+    needs: validate-tests
+    if: |
+      github.ref == 'refs/heads/bug' &&
+      needs.validate-tests.outputs.tests-passed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout testing branch
+        uses: actions/checkout@v4
+        with:
+          ref: testing
+          fetch-depth: 0
+          token: ${{ secrets.PAT_WORKFLOW }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🔍 Get test commits from bug
+        id: get-commits
+        run: |
+          # Récupérer les commits récents de bug qui touchent uniquement les tests
+          git fetch origin bug
+          
+          # Trouver les commits de tests/config des dernières 24h
+          TEST_COMMITS=$(git log origin/bug --oneline --since="24 hours ago" -- \
+            'tests/**' \
+            'src/**/__tests__/**' \
+            'src/**/*.test.ts' \
+            'src/**/*.test.tsx' \
+            'vitest.config.ts' \
+            'playwright.config.ts' \
+            '.husky/pre-commit' \
+            '.husky/pre-push' | head -5)
+          
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$TEST_COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "📝 Test commits to propagate:"
+          echo "$TEST_COMMITS"
+
+      - name: 🚀 Cherry-pick test changes
+        run: |
+          # Récupérer le dernier commit de test/config de bug
+          LAST_TEST_COMMIT=$(git log origin/bug -1 --format="%H" -- \
+            'tests/**' \
+            'src/**/__tests__/**' \
+            'src/**/*.test.ts' \
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
+          
+          if [ -n "$LAST_TEST_COMMIT" ]; then
+            echo "🍒 Cherry-picking: $LAST_TEST_COMMIT"
+            
+            # Cherry-pick avec gestion des conflits
+            if git cherry-pick "$LAST_TEST_COMMIT" --no-commit; then
+              # Vérifier s'il y a des changements
+              if git diff --cached --quiet; then
+                echo "⚠️ No changes to commit (already applied)"
+              else
+                git commit -m "chore(tests): sync test fixes from bug branch [auto]"
+                git push origin testing
+                echo "✅ Test fixes propagated to testing"
+              fi
+            else
+              echo "⚠️ Cherry-pick conflict - manual intervention required"
+              git cherry-pick --abort
+              exit 0  # Ne pas échouer, juste notifier
+            fi
+          else
+            echo "ℹ️ No test commits to propagate"
+          fi
+
+  # ========================================
+  # PROPAGATION: testing → staging
+  # ========================================
+  propagate-testing-to-staging:
+    needs: validate-tests
+    if: |
+      github.ref == 'refs/heads/testing' &&
+      needs.validate-tests.outputs.tests-passed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 0
+          token: ${{ secrets.PAT_WORKFLOW }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🚀 Cherry-pick test changes from testing
+        run: |
+          git fetch origin testing
+          
+          LAST_TEST_COMMIT=$(git log origin/testing -1 --format="%H" -- \
+            'tests/**' \
+            'src/**/__tests__/**' \
+            'src/**/*.test.ts' \
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
+          
+          if [ -n "$LAST_TEST_COMMIT" ]; then
+            echo "🍒 Cherry-picking: $LAST_TEST_COMMIT"
+            
+            if git cherry-pick "$LAST_TEST_COMMIT" --no-commit; then
+              if git diff --cached --quiet; then
+                echo "⚠️ No changes to commit (already applied)"
+              else
+                git commit -m "chore(tests): sync test fixes from testing branch [auto]"
+                git push origin staging
+                echo "✅ Test fixes propagated to staging"
+              fi
+            else
+              echo "⚠️ Cherry-pick conflict - manual intervention required"
+              git cherry-pick --abort
+            fi
+          fi
+
+  # ========================================
+  # PROPAGATION: staging → pre-prod
+  # ========================================
+  propagate-staging-to-preprod:
+    needs: validate-tests
+    if: |
+      github.ref == 'refs/heads/staging' &&
+      needs.validate-tests.outputs.tests-passed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout pre-prod branch
+        uses: actions/checkout@v4
+        with:
+          ref: pre-prod
+          fetch-depth: 0
+          token: ${{ secrets.PAT_WORKFLOW }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🚀 Cherry-pick test changes from staging
+        run: |
+          git fetch origin staging
+          
+          LAST_TEST_COMMIT=$(git log origin/staging -1 --format="%H" -- \
+            'tests/**' \
+            'src/**/__tests__/**' \
+            'src/**/*.test.ts' \
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
+          
+          if [ -n "$LAST_TEST_COMMIT" ]; then
+            echo "🍒 Cherry-picking: $LAST_TEST_COMMIT"
+            
+            if git cherry-pick "$LAST_TEST_COMMIT" --no-commit; then
+              if git diff --cached --quiet; then
+                echo "⚠️ No changes to commit (already applied)"
+              else
+                git commit -m "chore(tests): sync test fixes from staging branch [auto]"
+                git push origin pre-prod
+                echo "✅ Test fixes propagated to pre-prod"
+              fi
+            else
+              echo "⚠️ Cherry-pick conflict - manual intervention required"
+              git cherry-pick --abort
+            fi
+          fi
+
+  # ========================================
+  # PROPAGATION INVERSE: pre-prod → staging → testing → bug
+  # (pour les hotfixes de tests sur pre-prod)
+  # ========================================
+  propagate-preprod-downstream:
+    needs: validate-tests
+    if: |
+      github.ref == 'refs/heads/pre-prod' &&
+      needs.validate-tests.outputs.tests-passed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 0
+          token: ${{ secrets.PAT_WORKFLOW }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🔄 Backport test fixes to staging
+        run: |
+          git fetch origin pre-prod
+          
+          LAST_TEST_COMMIT=$(git log origin/pre-prod -1 --format="%H" -- \
+            'tests/**' \
+            'src/**/__tests__/**' \
+            'src/**/*.test.ts' \
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
+          
+          if [ -n "$LAST_TEST_COMMIT" ]; then
+            echo "🍒 Backporting to staging: $LAST_TEST_COMMIT"
+            
+            if git cherry-pick "$LAST_TEST_COMMIT" --no-commit; then
+              if ! git diff --cached --quiet; then
+                git commit -m "chore(tests): backport test fixes from pre-prod [auto]"
+                git push origin staging
+                echo "✅ Test fixes backported to staging"
+              fi
+            else
+              git cherry-pick --abort
+              echo "⚠️ Backport conflict - skipping"
+            fi
+          fi
+
+      - name: 📥 Checkout testing branch
+        uses: actions/checkout@v4
+        with:
+          ref: testing
+          fetch-depth: 0
+          token: ${{ secrets.PAT_WORKFLOW }}
+
+      - name: 🔄 Backport test fixes to testing
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git fetch origin pre-prod
+          
+          LAST_TEST_COMMIT=$(git log origin/pre-prod -1 --format="%H" -- \
+            'tests/**' \
+            'src/**/__tests__/**' \
+            'src/**/*.test.ts' \
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
+          
+          if [ -n "$LAST_TEST_COMMIT" ]; then
+            echo "🍒 Backporting to testing: $LAST_TEST_COMMIT"
+            
+            if git cherry-pick "$LAST_TEST_COMMIT" --no-commit; then
+              if ! git diff --cached --quiet; then
+                git commit -m "chore(tests): backport test fixes from pre-prod [auto]"
+                git push origin testing
+                echo "✅ Test fixes backported to testing"
+              fi
+            else
+              git cherry-pick --abort
+              echo "⚠️ Backport conflict - skipping"
+            fi
+          fi
+
+      - name: 📥 Checkout bug branch
+        uses: actions/checkout@v4
+        with:
+          ref: bug
+          fetch-depth: 0
+          token: ${{ secrets.PAT_WORKFLOW }}
+
+      - name: 🔄 Backport test fixes to bug
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git fetch origin pre-prod
+          
+          LAST_TEST_COMMIT=$(git log origin/pre-prod -1 --format="%H" -- \
+            'tests/**' \
+            'src/**/__tests__/**' \
+            'src/**/*.test.ts' \
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
+          
+          if [ -n "$LAST_TEST_COMMIT" ]; then
+            echo "🍒 Backporting to bug: $LAST_TEST_COMMIT"
+            
+            if git cherry-pick "$LAST_TEST_COMMIT" --no-commit; then
+              if ! git diff --cached --quiet; then
+                git commit -m "chore(tests): backport test fixes from pre-prod [auto]"
+                git push origin bug
+                echo "✅ Test fixes backported to bug"
+              fi
+            else
+              git cherry-pick --abort
+              echo "⚠️ Backport conflict - skipping"
+            fi
+          fi
+
+  # ========================================
+  # PROPAGATION INVERSE: staging → testing → bug
+  # (pour les hotfixes de tests sur staging)
+  # ========================================
+  propagate-staging-downstream:
+    needs: validate-tests
+    if: |
+      github.ref == 'refs/heads/staging' &&
+      needs.validate-tests.outputs.tests-passed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout testing branch
+        uses: actions/checkout@v4
+        with:
+          ref: testing
+          fetch-depth: 0
+          token: ${{ secrets.PAT_WORKFLOW }}
+
+      - name: 🔀 Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🔄 Backport test fixes to testing
+        run: |
+          git fetch origin staging
+          
+          LAST_TEST_COMMIT=$(git log origin/staging -1 --format="%H" -- \
+            'tests/**' \
+            'src/**/__tests__/**' \
+            'src/**/*.test.ts' \
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
+          
+          if [ -n "$LAST_TEST_COMMIT" ]; then
+            echo "🍒 Backporting to testing: $LAST_TEST_COMMIT"
+            
+            if git cherry-pick "$LAST_TEST_COMMIT" --no-commit; then
+              if ! git diff --cached --quiet; then
+                git commit -m "chore(tests): backport test fixes from staging [auto]"
+                git push origin testing
+                echo "✅ Test fixes backported to testing"
+              fi
+            else
+              git cherry-pick --abort
+              echo "⚠️ Backport conflict - skipping"
+            fi
+          fi
+
+      - name: 📥 Checkout bug branch
+        uses: actions/checkout@v4
+        with:
+          ref: bug
+          fetch-depth: 0
+          token: ${{ secrets.PAT_WORKFLOW }}
+
+      - name: 🔄 Backport test fixes to bug
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git fetch origin staging
+          
+          LAST_TEST_COMMIT=$(git log origin/staging -1 --format="%H" -- \
+            'tests/**' \
+            'src/**/__tests__/**' \
+            'src/**/*.test.ts' \
+            'src/**/*.test.tsx' \
+            '.husky/pre-commit' \
+            '.husky/pre-push')
+          
+          if [ -n "$LAST_TEST_COMMIT" ]; then
+            echo "🍒 Backporting to bug: $LAST_TEST_COMMIT"
+            
+            if git cherry-pick "$LAST_TEST_COMMIT" --no-commit; then
+              if ! git diff --cached --quiet; then
+                git commit -m "chore(tests): backport test fixes from staging [auto]"
+                git push origin bug
+                echo "✅ Test fixes backported to bug"
+              fi
+            else
+              git cherry-pick --abort
+              echo "⚠️ Backport conflict - skipping"
+            fi
+          fi
+
+  # ========================================
+  # NOTIFICATION
+  # ========================================
+  notify-propagation:
+    needs: [validate-tests, propagate-bug-to-testing, propagate-testing-to-staging, propagate-staging-to-preprod, propagate-preprod-downstream, propagate-staging-downstream]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📢 Summary
+        run: |
+          echo "## 🔄 Test Sync Summary"
+          echo ""
+          echo "| Branch | Status |"
+          echo "|--------|--------|"
+          echo "| Source: ${{ github.ref_name }} | Tests: ${{ needs.validate-tests.outputs.tests-passed == 'true' && '✅' || '❌' }} |"
+          echo "| bug → testing | ${{ needs.propagate-bug-to-testing.result || 'N/A' }} |"
+          echo "| testing → staging | ${{ needs.propagate-testing-to-staging.result || 'N/A' }} |"
+          echo "| staging → pre-prod | ${{ needs.propagate-staging-to-preprod.result || 'N/A' }} |"
+          echo "| pre-prod → downstream | ${{ needs.propagate-preprod-downstream.result || 'N/A' }} |"
+          echo "| staging → downstream | ${{ needs.propagate-staging-downstream.result || 'N/A' }} |"

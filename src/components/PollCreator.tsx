@@ -1165,24 +1165,30 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           Heure
                         </div>
                         {state.selectedDates.map((dateStr) => {
-                          const dateInfo = PollCreatorService.formatSelectedDateHeader(dateStr);
+                          const dateInfo = PollCreatorService.formatSelectedDateHeader(
+                            dateStr,
+                            true,
+                          );
                           return (
                             <div
                               key={dateStr}
-                              className="flex-1 p-2 text-center border-r bg-blue-600 text-white"
+                              className="flex-1 p-1 text-center border-r bg-blue-600 text-white min-w-0"
                             >
-                              <div className="text-xs font-medium">{dateInfo.dayName}</div>
+                              <div className="text-xs font-medium truncate">{dateInfo.dayName}</div>
                               <div className="text-sm font-bold">{dateInfo.dayNumber}</div>
-                              <div className="text-xs opacity-90">{dateInfo.month}</div>
+                              <div className="text-xs opacity-90 truncate">{dateInfo.month}</div>
                             </div>
                           );
                         })}
+                        {/* Espace pour compenser la largeur du scrollbar */}
+                        <div className="w-0 md:w-3 flex-shrink-0 bg-blue-600" />
                       </div>
 
                       {/* Créneaux horaires */}
                       <div
                         ref={timeGridRefMobile}
-                        className="max-h-48 overflow-y-auto"
+                        className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+                        style={{ scrollbarWidth: "thin" }}
                         data-testid="time-slots-grid-mobile"
                       >
                         {getVisibleTimeSlots().map((timeSlot) => (
@@ -1321,7 +1327,10 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                           Heure
                         </div>
                         {state.selectedDates.map((dateStr) => {
-                          const dateInfo = PollCreatorService.formatSelectedDateHeader(dateStr);
+                          const dateInfo = PollCreatorService.formatSelectedDateHeader(
+                            dateStr,
+                            false,
+                          );
                           return (
                             <div
                               key={dateStr}
@@ -1333,12 +1342,15 @@ const PollCreator: React.FC<PollCreatorProps> = ({
                             </div>
                           );
                         })}
+                        {/* Espace pour compenser la largeur du scrollbar */}
+                        <div className="w-0 md:w-3 flex-shrink-0 bg-blue-600" />
                       </div>
 
                       {/* Créneaux horaires */}
                       <div
                         ref={timeGridRefDesktop}
-                        className="max-h-48 overflow-y-auto"
+                        className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+                        style={{ scrollbarWidth: "thin" }}
                         data-testid="time-slots-grid-desktop"
                       >
                         {getVisibleTimeSlots().map((timeSlot) => (

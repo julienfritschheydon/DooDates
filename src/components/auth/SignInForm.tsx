@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import { Alert, AlertDescription } from "../ui/alert";
 import { Loader2, Mail, Lock } from "lucide-react";
 import { logError, ErrorFactory } from "../../lib/error-handling";
+import { LazyIcon } from "../../lib/lazy-icons";
 
 interface SignInFormProps {
   onSuccess?: () => void;
@@ -18,8 +19,9 @@ interface SignInFormProps {
 }
 
 export function SignInForm({ onSuccess, onSwitchToSignUp, onFormChange }: SignInFormProps) {
-  const { signIn, loading, error } = useAuth();
+  const { signIn, signInWithGoogle, loading, error } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   const {
     register,
@@ -39,6 +41,39 @@ export function SignInForm({ onSuccess, onSwitchToSignUp, onFormChange }: SignIn
     });
     return () => subscription.unsubscribe();
   }, [watch, onFormChange]);
+
+  const handleGoogleSignIn = async () => {
+    console.log("SignInForm: Google Sign-In appelé");
+    setIsGoogleSubmitting(true);
+
+    try {
+      console.log("SignInForm: Appel signInWithGoogle...");
+      const { error } = await signInWithGoogle();
+      console.log("SignInForm: signInWithGoogle terminé", { error });
+
+      if (error) {
+        setError("root", {
+          message: error.message || "Erreur de connexion Google",
+        });
+      } else {
+        console.log("SignInForm: Connexion Google réussie, appel onSuccess");
+        onSuccess?.();
+      }
+    } catch (err) {
+      logError(
+        ErrorFactory.validation(
+          "Erreur lors de la connexion Google",
+          "Une erreur inattendue s'est produite lors de la connexion Google",
+        ),
+        { metadata: { originalError: err } },
+      );
+      setError("root", {
+        message: "Une erreur inattendue s'est produite avec Google",
+      });
+    } finally {
+      setIsGoogleSubmitting(false);
+    }
+  };
 
   const onSubmit = async (data: SignInInput) => {
     console.log("SignInForm: onSubmit appelé", { email: data.email });
@@ -84,6 +119,35 @@ export function SignInForm({ onSuccess, onSwitchToSignUp, onFormChange }: SignIn
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Google Sign-In Button */}
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full relative"
+          disabled={isGoogleSubmitting || loading}
+          onClick={handleGoogleSignIn}
+        >
+          {isGoogleSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <LazyIcon
+            name="Chrome"
+            fallback={<div className="w-4 h-4 mr-2 bg-blue-500 rounded" />}
+            className="mr-2 h-4 w-4"
+          />
+          Continuer avec Google
+        </Button>
+
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Ou continuer avec email
+            </span>
+          </div>
+        </div>
+
         {/* Formulaire email/password */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">

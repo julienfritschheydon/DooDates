@@ -12,11 +12,11 @@
     "types": ["vitest/globals", "@testing-library/jest-dom"],
 
     /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": false,
+    "isolatedModules": false,
     "moduleDetection": "force",
-    "emitDeclarationOnly": true,
+    "emitDeclarationOnly": false,
     "jsx": "react-jsx",
 
     /* Linting */
@@ -26,7 +26,7 @@
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
 
-    "baseUrl": ".",
+    "esModuleInterop": true,
     "paths": {
       "@/*": ["./src/*"]
     }

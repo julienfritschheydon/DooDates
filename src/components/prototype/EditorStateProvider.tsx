@@ -27,11 +27,92 @@ import React, {
 import { useLocation } from "react-router-dom";
 import { logError, ErrorFactory } from "@/lib/error-handling";
 import { pollReducer, type PollAction } from "@/reducers/pollReducer";
-import { addPoll, type Poll } from "@/lib/pollStorage";
+import {
+  addPoll,
+  type Poll,
+  type FormQuestionShape as PollFormQuestion,
+  type FormQuestionKind,
+} from "@/lib/pollStorage";
 import { logger } from "@/lib/logger";
 import { usePolls } from "@/hooks/usePolls";
 import { useFormPollCreation } from "@/hooks/useFormPollCreation";
-import type { PollSuggestion } from "@/lib/gemini";
+import type {
+  PollSuggestion,
+  FormQuestion as PollSuggestionFormQuestion,
+} from "@/types/poll-suggestions";
+
+// Type guard for date questions
+function isDateQuestion(q: { type: string }): q is {
+  type: "date";
+  selectedDates?: string[];
+  timeSlotsByDate?: Record<string, any>;
+  timeGranularity?: string;
+  allowMaybeVotes?: boolean;
+  allowAnonymousVotes?: boolean;
+} {
+  return q.type === "date";
+}
+
+// Helper function to map between poll-suggestions FormQuestion and pollStorage FormQuestionShape
+function mapToStorageQuestion(q: PollSuggestionFormQuestion, uid: () => string): PollFormQuestion {
+  // Create the base question with required fields
+  const baseQuestion: PollFormQuestion = {
+    id: uid(),
+    kind: (q.type === "date" ? "single" : q.type) as FormQuestionKind, // Map 'date' to 'single' for now
+    title: q.title || q.text || "Sans titre",
+    required: q.required || false,
+  };
+
+  // Add type for backward compatibility
+  const question = {
+    ...baseQuestion,
+    type: q.type as FormQuestionKind,
+  };
+
+  // Handle different question types
+  if (q.type === "single" || q.type === "multiple") {
+    return {
+      ...question,
+      options: (q.options || [])
+        .filter((opt): opt is string => typeof opt === "string" && opt.trim() !== "")
+        .map((opt) => ({
+          id: uid(),
+          label: opt.trim(),
+        })),
+      ...(q.maxChoices && { maxChoices: q.maxChoices }),
+    };
+  }
+
+  // Handle date question type
+  if (isDateQuestion(q)) {
+    return {
+      ...question,
+      selectedDates: q.selectedDates || [],
+      timeSlotsByDate: q.timeSlotsByDate || {},
+      timeGranularity: q.timeGranularity || "30min",
+      allowMaybeVotes: q.allowMaybeVotes || false,
+      allowAnonymousVotes: q.allowAnonymousVotes || false,
+    } as unknown as PollFormQuestion; // Type assertion needed for date-specific properties
+  }
+
+  // Handle other question types
+  return {
+    ...question,
+    ...(q.placeholder && { placeholder: q.placeholder }),
+    ...(q.maxLength && { maxLength: q.maxLength }),
+    ...(q.validationType && { validationType: q.validationType }),
+    ...(q.ratingScale && { ratingScale: q.ratingScale }),
+    ...(q.ratingStyle && { ratingStyle: q.ratingStyle }),
+    ...(q.ratingMinLabel && { ratingMinLabel: q.ratingMinLabel }),
+    ...(q.ratingMaxLabel && { ratingMaxLabel: q.ratingMaxLabel }),
+    ...(q.matrixRows && { matrixRows: q.matrixRows }),
+    ...(q.matrixColumns && { matrixColumns: q.matrixColumns }),
+    ...(q.matrixType && { matrixType: q.matrixType }),
+    ...(q.matrixColumnsNumeric !== undefined && {
+      matrixColumnsNumeric: q.matrixColumnsNumeric,
+    }),
+  };
+}
 
 export interface EditorStateContextType {
   // État éditeur
@@ -212,62 +293,11 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
         const existingQuestions = currentPoll.questions || [];
         // pollData.questions peut être FormQuestion[] (de PollSuggestion) ou FormQuestionShape[] (de Poll)
         // On vérifie si c'est un PollSuggestion en vérifiant la présence de la propriété 'text' sur la première question
-        const newQuestions = pollData.questions as import("../../lib/gemini").FormQuestion[];
+        const newQuestions = (pollData.questions || []) as PollSuggestionFormQuestion[];
 
         // Convertir les nouvelles questions en format FormPollCreator
         const uid = () => Math.random().toString(36).slice(2, 10);
-        const convertedNewQuestions = newQuestions.map(
-          (q: import("../../lib/gemini").FormQuestion) => {
-            const baseQuestion = {
-              id: uid(),
-              kind: q.type as import("../../lib/pollStorage").FormQuestionKind,
-              title: q.title,
-              required: q.required || false,
-              type: q.type as import("../../lib/pollStorage").FormQuestionKind,
-            };
-
-            if (q.type === "single" || q.type === "multiple") {
-              const options = (q.options || [])
-                .filter((opt: string | unknown) => opt && typeof opt === "string" && opt.trim())
-                .map((opt: string) => ({
-                  id: uid(),
-                  label: opt.trim(),
-                }));
-
-              return {
-                ...baseQuestion,
-                options,
-                ...(q.maxChoices && { maxChoices: q.maxChoices }),
-              };
-            } else if (q.type === "date") {
-              return {
-                ...baseQuestion,
-                selectedDates: q.selectedDates || [],
-                timeSlotsByDate: q.timeSlotsByDate || {},
-                timeGranularity: q.timeGranularity || "30min",
-                allowMaybeVotes: q.allowMaybeVotes || false,
-                allowAnonymousVotes: q.allowAnonymousVotes || false,
-              };
-            } else {
-              return {
-                ...baseQuestion,
-                ...(q.placeholder && { placeholder: q.placeholder }),
-                ...(q.maxLength && { maxLength: q.maxLength }),
-                ...(q.validationType && { validationType: q.validationType }),
-                ...(q.ratingScale && { ratingScale: q.ratingScale }),
-                ...(q.ratingStyle && { ratingStyle: q.ratingStyle }),
-                ...(q.ratingMinLabel && { ratingMinLabel: q.ratingMinLabel }),
-                ...(q.ratingMaxLabel && { ratingMaxLabel: q.ratingMaxLabel }),
-                ...(q.matrixRows && { matrixRows: q.matrixRows }),
-                ...(q.matrixColumns && { matrixColumns: q.matrixColumns }),
-                ...(q.matrixType && { matrixType: q.matrixType }),
-                ...(q.matrixColumnsNumeric !== undefined && {
-                  matrixColumnsNumeric: q.matrixColumnsNumeric,
-                }),
-              };
-            }
-          },
-        );
+        const convertedNewQuestions = newQuestions.map((q) => mapToStorageQuestion(q, uid));
 
         // Fusionner : garder les questions existantes et ajouter les nouvelles
         const mergedQuestions = [...existingQuestions, ...convertedNewQuestions];
@@ -351,59 +381,13 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
       if (pollData.type === "form" && "questions" in pollData && pollData.questions) {
         logger.debug("Conversion questions Gemini", "poll", { questions: pollData.questions });
         // Type assertion: si c'est un PollSuggestion, questions est FormQuestion[]
-        const geminiQuestions = pollQuestions as import("../../lib/gemini").FormQuestion[];
-        convertedQuestions = geminiQuestions.map((q: import("../../lib/gemini").FormQuestion) => {
-          const baseQuestion = {
-            id: uid(),
-            kind: q.type as import("../../lib/pollStorage").FormQuestionKind,
-            title: q.title,
-            required: q.required || false,
-            type: q.type as import("../../lib/pollStorage").FormQuestionKind,
-          };
-
-          if (q.type === "single" || q.type === "multiple") {
-            const options = (q.options || [])
-              .filter((opt: string | unknown) => opt && typeof opt === "string" && opt.trim())
-              .map((opt: string) => ({
-                id: uid(),
-                label: opt.trim(),
-              }));
-            logger.debug("Options converties", "poll", { options });
-
-            return {
-              ...baseQuestion,
-              options,
-              ...(q.maxChoices && { maxChoices: q.maxChoices }),
-            };
-          } else if (q.type === "date") {
-            // Conversion des questions de type "date"
-            return {
-              ...baseQuestion,
-              selectedDates: q.selectedDates || [],
-              timeSlotsByDate: q.timeSlotsByDate || {},
-              timeGranularity: q.timeGranularity || "30min",
-              allowMaybeVotes: q.allowMaybeVotes || false,
-              allowAnonymousVotes: q.allowAnonymousVotes || false,
-            };
-          } else {
-            return {
-              ...baseQuestion,
-              ...(q.placeholder && { placeholder: q.placeholder }),
-              ...(q.maxLength && { maxLength: q.maxLength }),
-              ...(q.validationType && { validationType: q.validationType }),
-              ...(q.ratingScale && { ratingScale: q.ratingScale }),
-              ...(q.ratingStyle && { ratingStyle: q.ratingStyle }),
-              ...(q.ratingMinLabel && { ratingMinLabel: q.ratingMinLabel }),
-              ...(q.ratingMaxLabel && { ratingMaxLabel: q.ratingMaxLabel }),
-              ...(q.matrixRows && { matrixRows: q.matrixRows }),
-              ...(q.matrixColumns && { matrixColumns: q.matrixColumns }),
-              ...(q.matrixType && { matrixType: q.matrixType }),
-              ...(q.matrixColumnsNumeric !== undefined && {
-                matrixColumnsNumeric: q.matrixColumnsNumeric,
-              }),
-            };
-          }
-        });
+        const geminiQuestions = pollQuestions as import("../../lib/ai/gemini").FormQuestion[];
+        convertedQuestions = geminiQuestions.map(
+          (q: import("../../lib/ai/gemini").FormQuestion) => {
+            // Use the mapToStorageQuestion helper function for consistency
+            return mapToStorageQuestion(q as any, uid);
+          },
+        );
         logger.debug("Questions converties", "poll", { convertedQuestions });
       }
 
@@ -461,7 +445,13 @@ export function EditorStateProvider({ children }: EditorStateProviderProps) {
             selectedDates: ("dates" in pollData && pollData.dates ? pollData.dates : []) || [],
             timeSlotsByDate: timeSlotsByDate,
             participantEmails: [],
-            dateGroups: "dateGroups" in pollData ? pollData.dateGroups : undefined, // 🔧 Préserver les groupes de dates
+            dateGroups: ("dateGroups" in pollData ? pollData.dateGroups : undefined) as
+              | Array<{
+                  dates: string[];
+                  label: string;
+                  type: "weekend" | "week" | "fortnight" | "custom";
+                }>
+              | undefined, // 🔧 Préserver les groupes de dates
             settings: {
               timeGranularity: 30,
               allowAnonymousVotes: true,

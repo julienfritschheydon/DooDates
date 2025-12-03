@@ -66,6 +66,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import type { PollSuggestion } from "@/types/poll-suggestions";
 
 // Fonction pour trouver la conversation liée à un sondage (rétrocompatibilité)
 function findRelatedConversation(poll: Poll): string | undefined {
@@ -300,7 +301,21 @@ export function AICreationWorkspace() {
       >
         {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur */}
         {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsSidebarOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => {
+              setIsSidebarOpen(false);
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Fermer le menu"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setIsSidebarOpen(false);
+              }
+            }}
+          />
         )}
 
         {/* Sidebar gauche - Mode overlay pour tous les écrans */}
@@ -316,8 +331,9 @@ export function AICreationWorkspace() {
               {/* Bouton Documentation
               <button
                 onClick={() => {
-                  navigate("/docs");
+                  // Fermer la sidebar immédiatement sur mobile avant navigation
                   if (isMobile) setIsSidebarOpen(false);
+                  navigate("/docs");
                 }}
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                 aria-label="Documentation"
@@ -328,8 +344,9 @@ export function AICreationWorkspace() {
               {/* Bouton Aide - Onboarding désactivé temporairement */}
               {/* <button
                 onClick={() => {
-                  startOnboarding();
+                  // Fermer la sidebar immédiatement sur mobile avant navigation
                   if (isMobile) setIsSidebarOpen(false);
+                  startOnboarding();
                 }}
                 className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                 aria-label="Aide"
@@ -352,7 +369,7 @@ export function AICreationWorkspace() {
               {/* Bouton Fermer */}
               <button
                 onClick={() => setIsSidebarOpen(false)}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label="Fermer le menu"
                 title="Fermer le menu"
               >
@@ -366,8 +383,9 @@ export function AICreationWorkspace() {
               <div className="px-4 pb-4 space-y-2">
                 <button
                   onClick={() => {
-                    navigate(`/workspace/date?new=${Date.now()}`);
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
                     if (isMobile) setIsSidebarOpen(false);
+                    navigate(`/workspace/date?new=${Date.now()}`);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg transition-colors font-medium"
                 >
@@ -377,8 +395,9 @@ export function AICreationWorkspace() {
 
                 <button
                   onClick={() => {
-                    navigate("/dashboard");
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
                     if (isMobile) setIsSidebarOpen(false);
+                    navigate("/dashboard");
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
@@ -395,8 +414,9 @@ export function AICreationWorkspace() {
 
                 <button
                   onClick={() => {
-                    navigate("/pricing");
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
                     if (isMobile) setIsSidebarOpen(false);
+                    navigate("/pricing");
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
@@ -411,6 +431,7 @@ export function AICreationWorkspace() {
                     } else {
                       setAuthModalOpen(true);
                     }
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
                     if (isMobile) setIsSidebarOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
@@ -421,8 +442,9 @@ export function AICreationWorkspace() {
 
                 <button
                   onClick={() => {
-                    navigate("/docs");
+                    // Fermer la sidebar immédiatement sur mobile avant navigation
                     if (isMobile) setIsSidebarOpen(false);
+                    navigate("/docs");
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"
                 >
@@ -461,9 +483,9 @@ export function AICreationWorkspace() {
                               openEditor();
                             }
 
-                            navigate(`/workspace?conversationId=${conv.id}`);
-                            // Fermer la sidebar sur mobile
+                            // Fermer la sidebar immédiatement sur mobile avant navigation
                             if (isMobile) setIsSidebarOpen(false);
+                            navigate(`/workspace?conversationId=${conv.id}`);
                           }}
                           className="w-full flex items-start gap-3 p-3 hover:bg-[#2a2a2a] rounded-lg transition-colors text-left mb-1"
                         >
@@ -625,8 +647,9 @@ export function AICreationWorkspace() {
               {/* Bouton hamburger (mobile + desktop pour replier sidebar) */}
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
+                aria-expanded={isSidebarOpen}
               >
                 <LazyIconWrapper Icon={Menu} className="w-5 h-5 text-gray-300" />
               </button>
@@ -663,7 +686,8 @@ export function AICreationWorkspace() {
                 ref={chatRef}
                 key={chatKey}
                 onPollCreated={(pollData) => {
-                  createPollFromChat(pollData);
+                  // Pass the poll data directly - createPollFromChat handles the conversion
+                  createPollFromChat(pollData as PollSuggestion);
                   // Basculer sur preview après création
                   if (isMobile) {
                     setShowPreviewOnMobile(true);

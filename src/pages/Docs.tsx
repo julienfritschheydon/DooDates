@@ -2,7 +2,19 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Routes, Route, Link, useParams, useLocation } from "react-router-dom";
 import { DocsViewer } from "@/components/docs/DocsViewer";
 import { logError, handleError } from "@/lib/error-handling";
-import { Book, HelpCircle, Zap, BarChart, FileText, Home, Search, Loader2 } from "lucide-react";
+import {
+  Book,
+  HelpCircle,
+  Zap,
+  BarChart,
+  FileText,
+  Home,
+  Search,
+  Loader2,
+  Menu,
+  X,
+} from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import "@/styles/docs.css";
 
 const docCategories = [
@@ -110,6 +122,15 @@ export const Docs: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [docContents, setDocContents] = useState<Map<string, string>>(new Map());
   const [isLoadingContent, setIsLoadingContent] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Fermer la sidebar sur mobile lors des changements de route
+  useEffect(() => {
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  }, [location.pathname, isMobile]);
 
   // Flatten all docs for search
   const allDocs = useMemo(() => {
@@ -235,8 +256,47 @@ export const Docs: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur (mobile uniquement) */}
+      {isMobile && isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsSidebarOpen(false)}
+          role="button"
+          tabIndex={0}
+          aria-label="Fermer le menu"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setIsSidebarOpen(false);
+            }
+          }}
+        />
+      )}
+
+      {/* Bouton hamburger (mobile uniquement) */}
+      {isMobile && (
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
+          aria-expanded={isSidebarOpen}
+        >
+          {isSidebarOpen ? (
+            <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+          ) : (
+            <Menu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+          )}
+        </button>
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto flex flex-col">
+      <aside
+        className={`
+        w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto flex flex-col
+        ${isMobile ? "fixed top-0 left-0 bottom-0 z-50 transform transition-transform duration-300" : ""}
+        ${isMobile && !isSidebarOpen ? "-translate-x-full" : "translate-x-0"}
+      `}
+      >
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 space-y-3 flex-shrink-0">
           <Link
             to="/"
@@ -316,7 +376,7 @@ export const Docs: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto p-8">
+        <div className={`max-w-4xl mx-auto p-8 ${isMobile ? "pt-16" : ""}`}>
           {searchQuery.trim() && searchResults.length > 0 ? (
             <div className="space-y-6">
               <div className="flex items-center justify-between mb-6">

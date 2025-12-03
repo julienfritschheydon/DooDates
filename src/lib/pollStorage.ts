@@ -188,7 +188,7 @@ export interface Poll {
   dateGroups?: Array<{
     dates: string[];
     label: string;
-    type: "weekend" | "week" | "fortnight" | "custom";
+    type: "weekend" | "week" | "fortnight" | "custom" | "range";
   }>;
   // Unification des types de sondages
   type?: "date" | "form" | "availability";

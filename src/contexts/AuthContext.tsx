@@ -262,7 +262,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Sauvegarder la page actuelle pour y revenir après la connexion
       const currentPath = window.location.pathname + window.location.search;
       logger.info("Sauvegarde de la page actuelle pour redirection", "auth", { currentPath });
-      if (currentPath !== "/auth/callback" && currentPath !== "/auth/callback/") {
+      if (
+        currentPath !== "/DooDates/auth/callback" &&
+        currentPath !== "/DooDates/auth/callback/" &&
+        currentPath !== "/auth/callback" &&
+        currentPath !== "/auth/callback/"
+      ) {
         localStorage.setItem("auth_return_to", currentPath);
         logger.info("Page sauvegardée dans localStorage", "auth", { savedPath: currentPath });
       } else {

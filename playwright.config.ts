@@ -6,6 +6,10 @@ import * as os from 'os';
 // Charger les variables d'environnement depuis .env.local
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
+// Configuration avec port dynamique
+const port = parseInt(process.env.PORT || '8081', 10);
+const baseURL = `http://localhost:${port}`;
+
 export default defineConfig({
   testDir: './tests',
   // Match Playwright test files (.spec.ts everywhere, .test.ts in specific directories)
@@ -31,7 +35,7 @@ export default defineConfig({
   reporter: 'html',
   timeout: 60000,
   use: {
-    baseURL: 'http://localhost:8080/DooDates',
+baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 15000,
@@ -69,10 +73,11 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm run dev:e2e',
-    url: 'http://localhost:8080/DooDates/',
-    reuseExistingServer: true, // Toujours réutiliser le serveur existant
-    timeout: 120000, // Augmenté pour éviter les timeouts au démarrage
+command: process.env.PORT ? `npm run dev:e2e -- --port ${port}` : 'npm run dev:e2e',
+    port: process.env.PORT ? port : undefined,
+    url: baseURL,
+    reuseExistingServer: !(process.env.CI || process.env.GITHUB_ACTIONS),
+    timeout: 60 * 1000, // Pas plus de 1 minute, sinon ce n'est pas normal
     stdout: 'pipe',
     stderr: 'pipe',
     env: {

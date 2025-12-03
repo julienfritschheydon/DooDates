@@ -1,12 +1,12 @@
-import CalendarQuery, { CalendarDay } from "./calendar-generator";
-import { handleError, ErrorFactory, logError } from "./error-handling";
-import { logger } from "./logger";
-import { formatDateLocal, getTodayLocal } from "./date-utils";
+import CalendarQuery, { CalendarDay } from "../calendar-generator";
+import { handleError, ErrorFactory, logError } from "../error-handling";
+import { logger } from "../logger";
+import { formatDateLocal, getTodayLocal } from "../date-utils";
 import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
 import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
-import { getEnv, isDev } from "./env";
-import type { ParsedTemporalInput } from "./temporalParser";
+import { getEnv, isDev } from "../env";
+import type { ParsedTemporalInput } from "../temporalParser";
 
 // Choisir entre appel direct Gemini ou Edge Function
 // Pour forcer appel direct, définir VITE_USE_DIRECT_GEMINI=true dans .env.local
@@ -66,7 +66,7 @@ export interface FormPollSuggestion {
   description?: string;
   questions: FormQuestion[];
   type: "form";
-  conditionalRules?: import("../types/conditionalRules").ConditionalRule[];
+  conditionalRules?: any[];
 }
 
 // Types pour Date Polls (sondages de dates)
@@ -85,7 +85,7 @@ export interface DatePollSuggestion {
   dateGroups?: Array<{
     dates: string[];
     label: string;
-    type: "weekend" | "week" | "fortnight" | "custom";
+    type: "weekend" | "week" | "fortnight" | "custom" | "range";
   }>;
 }
 
@@ -475,8 +475,8 @@ export class GeminiService {
       if (pollType === "date") {
         try {
           // Utiliser le nouveau parser temporel robuste
-          const { parseTemporalInput } = await import("./temporalParser");
-          const { validateParsedInput, autoFixParsedInput } = await import("./temporalValidator");
+          const { parseTemporalInput } = await import("../temporalParser");
+          const { validateParsedInput, autoFixParsedInput } = await import("../temporalValidator");
 
           const parsed = await parseTemporalInput(userInput);
 
