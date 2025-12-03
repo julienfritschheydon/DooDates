@@ -46,5 +46,14 @@ jobs:
 
       - name: 🚀 Merge Bug Branch
         run: |
-          git merge origin/${{ github.ref_name }} --no-ff -m "chore: auto-merge ${{ github.ref_name }} to testing"
+          # Tenter le merge
+          if ! git merge origin/${{ github.ref_name }} --no-ff -m "chore: auto-merge ${{ github.ref_name }} to testing"; then
+            echo "⚠️ Conflits détectés, résolution en faveur de la branche bug..."
+            # Résoudre les conflits en faveur de la branche bug (--theirs = branche bug lors du merge dans testing)
+            git checkout --theirs .github/workflows/deploy-edge-functions.yml 2>/dev/null || true
+            git checkout --theirs index.html 2>/dev/null || true
+            git checkout --theirs public/404.html 2>/dev/null || true
+            git add .github/workflows/deploy-edge-functions.yml index.html public/404.html
+            git commit -m "chore: auto-merge ${{ github.ref_name }} to testing - resolved conflicts"
+          fi
           git push origin testing

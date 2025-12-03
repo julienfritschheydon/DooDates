@@ -77,5 +77,14 @@ jobs:
 
       - name: 🚀 Merge Staging to Pre-prod
         run: |
-          git merge origin/staging --no-ff -m "chore: auto-merge staging to pre-prod"
+          # Tenter le merge
+          if ! git merge origin/staging --no-ff -m "chore: auto-merge staging to pre-prod"; then
+            echo "⚠️ Conflits détectés, résolution en faveur de staging..."
+            # Résoudre les conflits en faveur de staging (--theirs = staging lors du merge dans pre-prod)
+            git checkout --theirs .github/workflows/deploy-edge-functions.yml 2>/dev/null || true
+            git checkout --theirs index.html 2>/dev/null || true
+            git checkout --theirs public/404.html 2>/dev/null || true
+            git add .github/workflows/deploy-edge-functions.yml index.html public/404.html
+            git commit -m "chore: auto-merge staging to pre-prod - resolved conflicts"
+          fi
           git push origin pre-prod
