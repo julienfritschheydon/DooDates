@@ -249,7 +249,7 @@ export default function FormEditor({
             type="button"
             onClick={onFinalize}
             disabled={!value.title.trim() || value.questions.length === 0}
-            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             data-testid="publish-button"
           >
             Publier le formulaire

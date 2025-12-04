@@ -209,11 +209,11 @@ const FormPollsDashboard: React.FC = () => {
                     <div
                         className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${quotaStatus.conversations.isNearLimit
                             ? "bg-orange-900/20 border-orange-500/50"
-                            : "bg-blue-900/20 border-blue-500/50"
+                            : "bg-violet-900/20 border-violet-500/50"
                             }`}
                     >
                         <Info
-                            className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : "text-blue-400"
+                            className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : "text-violet-400"
                                 }`}
                         />
                         <TooltipProvider>
@@ -229,11 +229,11 @@ const FormPollsDashboard: React.FC = () => {
                                                 {quotaStatus.conversations.limit + quotaStatus.aiMessages.limit}
                                             </span>{" "}
                                             crédits utilisés
-                                            <span className="ml-2 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span className="ml-2 text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 → Voir le journal
                                             </span>
                                             {!user && (
-                                                <span className="ml-2 text-blue-400">
+                                                <span className="ml-2 text-violet-400">
                                                     • Créez un compte pour synchroniser vos données
                                                 </span>
                                             )}
@@ -243,7 +243,7 @@ const FormPollsDashboard: React.FC = () => {
                                                 className={`h-2 rounded-full transition-all ${quotaStatus.conversations.isNearLimit ||
                                                     quotaStatus.aiMessages.isNearLimit
                                                     ? "bg-orange-500"
-                                                    : "bg-blue-500"
+                                                    : "bg-violet-500"
                                                     }`}
                                                 style={{
                                                     width: `${Math.min(
@@ -267,7 +267,7 @@ const FormPollsDashboard: React.FC = () => {
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => navigate("/form-polls/journal")}
-                                className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                                className="flex items-center gap-2 px-3 py-2 text-sm text-violet-400 hover:text-violet-300 hover:bg-violet-900/20 rounded-lg transition-colors"
                                 title="Voir le journal de consommation"
                             >
                                 <FileText className="w-4 h-4" />
@@ -276,7 +276,7 @@ const FormPollsDashboard: React.FC = () => {
 
                             <button
                                 onClick={() => navigate("/form-polls/pricing")}
-                                className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                                className="flex items-center gap-2 px-3 py-2 text-sm text-violet-400 hover:text-violet-300 hover:bg-violet-900/20 rounded-lg transition-colors"
                                 title="Voir les quotas et tarifs"
                             >
                                 <Info className="w-4 h-4" />

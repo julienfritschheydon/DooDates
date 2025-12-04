@@ -132,13 +132,6 @@ SELECT
 FROM quota_tracking
 UNION ALL
 SELECT 
-  'Polls (Total)' as action_type,
-  SUM(polls_created) as total,
-  AVG(polls_created) as avg_per_user,
-  MAX(polls_created) as max_per_user
-FROM quota_tracking
-UNION ALL
-SELECT 
   'AI Messages' as action_type,
   SUM(ai_messages) as total,
   AVG(ai_messages) as avg_per_user,

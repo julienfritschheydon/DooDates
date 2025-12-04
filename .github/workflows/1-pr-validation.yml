@@ -531,9 +531,15 @@ jobs:
               '⚠️ **Des validations ont échoué. Veuillez corriger avant de merger.**\n\n';
             summary += `📋 **Rapports détaillés disponibles dans les artefacts GitHub Actions**`;
             
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: summary
-            }); 
+            // Only create comment if this is a pull_request event (context.issue exists)
+            if (context.issue && context.issue.number) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: summary
+              });
+            } else {
+              console.log('⚠️ Skipping comment creation: not a pull_request event');
+              console.log('Summary:', summary);
+            } 

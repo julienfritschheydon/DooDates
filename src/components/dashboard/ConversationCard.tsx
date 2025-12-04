@@ -21,7 +21,7 @@ import {
   Archive,
 } from "lucide-react";
 import { ConversationItem } from "./types";
-import { getStatusColor, getStatusLabel } from "./utils";
+import { getStatusColor, getStatusLabel, getThemeColors } from "./utils";
 import { useConversations } from "@/hooks/useConversations";
 import { useToast } from "@/hooks/use-toast";
 import { getAllTags } from "@/lib/storage/TagStorage";
@@ -80,6 +80,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
   const tags = getAllTags();
   const folders = getAllFolders();
   const folder = item.folderId ? getFolderById(item.folderId) : null;
+  const theme = getThemeColors(item.poll?.type || "date");
 
   const handleCardClick = () => {
     // Ouvrir le workspace avec la conversation
@@ -331,9 +332,8 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
 
   return (
     <div
-      className={`bg-[#3c4043] rounded-lg shadow-sm border transition-all cursor-pointer relative ${
-        isSelected ? "border-blue-500 ring-2 ring-blue-500/50" : "border-gray-700 hover:shadow-md"
-      }`}
+      className={`bg-[#3c4043] rounded-lg shadow-sm border transition-all cursor-pointer relative ${isSelected ? `${theme.activeBorder} ring-2 ${theme.ring}` : "border-gray-700 hover:shadow-md"
+        }`}
       data-testid="poll-item"
     >
       {/* Checkbox de sélection */}
@@ -347,11 +347,10 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div
-            className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${
-              isSelected
-                ? "bg-blue-600 border-blue-600"
-                : "bg-transparent border-gray-500 hover:border-blue-400"
-            }`}
+            className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected
+              ? theme.checkbox
+              : "bg-transparent border-gray-500 hover:border-blue-400"
+              }`}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -370,7 +369,9 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
             <div className="flex items-center gap-2 mb-2">
               {item.poll ? (
                 item.poll.type === "form" ? (
-                  <ClipboardList className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                  <ClipboardList className="w-5 h-5 text-violet-400 flex-shrink-0" />
+                ) : item.poll.type === "availability" ? (
+                  <Calendar className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                 ) : (
                   <Calendar className="w-5 h-5 text-blue-400 flex-shrink-0" />
                 )
@@ -437,11 +438,10 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                   {item.poll.topDates.map((dateInfo, index) => (
                     <span
                       key={index}
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        index === 0
-                          ? "bg-blue-900/30 text-blue-400"
-                          : "bg-purple-900/30 text-purple-400"
-                      }`}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${index === 0
+                        ? "bg-blue-900/30 text-blue-400"
+                        : "bg-purple-900/30 text-purple-400"
+                        }`}
                     >
                       {index === 0 && "⭐ "}
                       {dateInfo.date}
@@ -464,7 +464,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
         {/* Badge IA avec bouton reprendre conversation */}
         {item.hasAI && (
           <div className="mb-3 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">
+            <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${theme.lightBadge}`}>
               💬 Créé par IA
             </span>
             <button
@@ -472,7 +472,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                 e.stopPropagation();
                 navigate(`/workspace?conversationId=${item.id}`);
               }}
-              className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+              className={`text-xs transition-colors ${theme.linkText}`}
             >
               Reprendre la conversation →
             </button>
@@ -695,7 +695,7 @@ export const ConversationCard: React.FC<ConversationCardProps> = ({
                   e.stopPropagation();
                   navigate(`/workspace?conversationId=${item.id}`);
                 }}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-2"
+                className={`${theme.primaryButton} text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2`}
               >
                 <MessageSquare className="w-4 h-4" />
                 Reprendre

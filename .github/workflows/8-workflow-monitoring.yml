@@ -7,7 +7,7 @@ on:
     workflows:
       - "1️⃣ PR Complete Validation"           # PR validation (+ production-smoke)
       - "2️⃣ Develop → Main (Auto-merge)"      # Auto-merge develop
-      - "3️⃣ Main Post-Merge E2E"              # Tests post-merge
+      - "3️⃣ Main Complete Validation (Production Protection)"  # Tests post-merge
       - "4️⃣ Main Deploy to GitHub Pages"      # Déploiement production
       - "5️⃣ Production Smoke Tests"           # Tests production réelle
       - "5️⃣ YAML Workflows Validation"        # Validation YAML workflows

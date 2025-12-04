@@ -140,6 +140,28 @@ const PollCreator = () => {
 
   // Écran de succès après publication
   if (published && publishedPoll) {
+    const isForm = publishedPoll.type === "form";
+    const colorClass = isForm ? "text-violet-600 dark:text-violet-400" : "text-blue-600 dark:text-blue-400";
+    const bgClass = isForm ? "bg-violet-100 dark:bg-violet-900/20" : "bg-blue-100 dark:bg-blue-900/20";
+    const buttonClass = isForm ? "bg-violet-600 hover:bg-violet-700" : "bg-blue-600 hover:bg-blue-700";
+
+    // Dynamic classes for Beta Information
+    const betaBgClass = isForm ? "bg-violet-50 dark:bg-violet-900/10" : "bg-blue-50 dark:bg-blue-900/10";
+    const betaBorderClass = isForm ? "border-violet-200 dark:border-violet-900/30" : "border-blue-200 dark:border-blue-900/30";
+    const betaTextClass = isForm ? "text-violet-700 dark:text-violet-300" : "text-blue-700 dark:text-blue-300";
+    const betaIconClass = isForm ? "text-violet-700 dark:text-violet-400" : "text-blue-700 dark:text-blue-400";
+    const betaLinkClass = isForm ? "text-violet-600 dark:text-violet-300" : "text-blue-600 dark:text-blue-300";
+
+    // Dynamic classes for Secondary Actions (Outline buttons)
+    const outlineButtonClass = isForm
+      ? "border-violet-200 dark:border-violet-800 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20"
+      : "border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20";
+
+    // Dynamic classes for Copy button (Light background)
+    const copyButtonClass = isForm
+      ? "bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/20 dark:hover:bg-violet-900/40 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800"
+      : "bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800";
+
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-background pb-8">
         <div className="pt-20">
@@ -147,26 +169,26 @@ const PollCreator = () => {
             <div className="bg-white dark:bg-card rounded-lg border border-gray-200 dark:border-border p-8 text-center space-y-6 shadow-sm">
               {/* Icône de succès */}
               <div className="flex justify-center">
-                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
-                  <Check className="w-10 h-10 text-green-600 dark:text-green-500" />
+                <div className={`w-16 h-16 ${bgClass} rounded-full flex items-center justify-center`}>
+                  <Check className={`w-10 h-10 ${colorClass}`} />
                 </div>
               </div>
 
               {/* Message de succès */}
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2">
-                  {publishedPoll.type === "form" ? "Formulaire publié !" : "Sondage publié !"}
+                  {isForm ? "Formulaire publié !" : "Sondage publié !"}
                 </h1>
                 <p className="text-gray-600 dark:text-muted-foreground">
-                  {publishedPoll.type === "form"
+                  {isForm
                     ? `Votre formulaire "${publishedPoll.title}" est maintenant actif et prêt à recevoir des réponses.`
                     : `Votre sondage "${publishedPoll.title}" est maintenant actif et prêt à recevoir des votes.`}
                 </p>
               </div>
 
               {/* Message d'information pour la bêta */}
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/30 rounded-lg">
-                <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+              <div className={`p-4 ${betaBgClass} border ${betaBorderClass} rounded-lg`}>
+                <div className={`flex items-center gap-2 ${betaIconClass}`}>
                   <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
@@ -176,9 +198,9 @@ const PollCreator = () => {
                   </svg>
                   <span className="text-sm font-medium">Information bêta</span>
                 </div>
-                <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                <p className={`text-sm ${betaLinkClass} mt-1`}>
                   Pour finaliser et partager votre{" "}
-                  {publishedPoll.type === "form" ? "formulaire" : "sondage"}, après la bêta, vous
+                  {isForm ? "formulaire" : "sondage"}, après la bêta, vous
                   devrez vous connecter ou créer un compte.
                 </p>
               </div>
@@ -187,7 +209,7 @@ const PollCreator = () => {
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-doo-gradient text-white rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] transition-all"
+                  className={`inline-flex items-center justify-center gap-2 px-6 py-3 ${buttonClass} text-white rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] transition-all`}
                   data-testid="go-to-dashboard-button"
                 >
                   <Check className="w-5 h-5" />
@@ -195,11 +217,11 @@ const PollCreator = () => {
                 </Link>
                 <Link
                   to={`/poll/${publishedPoll.slug || publishedPoll.id}`}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-transparent text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className={`inline-flex items-center justify-center gap-2 px-6 py-3 border-2 rounded-lg font-semibold transition-colors ${outlineButtonClass}`}
                   data-testid="view-poll-button"
                 >
                   <ExternalLink className="w-5 h-5" />
-                  {publishedPoll.type === "form" ? "Voir le formulaire" : "Voir le sondage"}
+                  {isForm ? "Voir le formulaire" : "Voir le sondage"}
                 </Link>
               </div>
 
@@ -219,7 +241,7 @@ const PollCreator = () => {
                         description: "Le lien a été copié dans le presse-papiers.",
                       });
                     }}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg transition-colors text-sm font-medium whitespace-nowrap border border-gray-200 dark:border-gray-700"
+                    className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium whitespace-nowrap border ${copyButtonClass}`}
                     data-testid="copy-link-button"
                   >
                     Copier

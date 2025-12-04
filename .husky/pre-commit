@@ -232,11 +232,9 @@ if [ "$FAST_HOOKS" = "1" ]; then
 fi
 
 # Validation conditionnelle selon la branche
-if [ "$BRANCH" = "main" ]; then
-  echo "🔒 Branche MAIN: validation complète..."
-  # Suite complète (tests, type-check, intégration, etc.)
-else
-  echo "⚡ Branche DEVELOP: validation rapide (lint + format + error handling)..."
+# Branches non-main (feature branches, etc.): validation rapide
+if [ "$BRANCH" != "main" ]; then
+  echo "⚡ Branche $BRANCH: validation rapide (lint + format + error handling)..."
 
   # 0. Vérification serveur local ET erreurs JavaScript (optionnel, activé par défaut)
   # Skip automatiquement en CI (GitHub Actions, etc.)
@@ -328,11 +326,13 @@ else
     echo "⏭️ Formatage ignoré (NO_FORMAT=1)"
   fi
 
-  echo "✅ Pre-commit (develop) validé - Commit autorisé"
+  echo "✅ Pre-commit ($BRANCH) validé - Commit autorisé"
   exit 0
 fi
 
-# 1. Tests unitaires rapides (< 30s)
+# Branche MAIN: validation complète
+echo "🔒 Branche MAIN: validation complète..."
+
 # 0. Lint strict (Main branch)
 echo "🔍 ESLint (Strict)..."
 npm run lint

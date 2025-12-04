@@ -168,3 +168,4 @@ if [ "$PUSHING_TO_MAIN" = "true" ]; then
 fi
 
 echo "✅ Pre-push validé - Push autorisé"
+exit 0
