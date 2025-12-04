@@ -29,6 +29,10 @@ SELECT
   q.ai_messages,
   q.conversations_created,
   q.polls_created,
+  q.date_polls_created,
+  q.form_polls_created,
+  q.quizz_created,
+  q.availability_polls_created,
   q.analytics_queries,
   q.simulations,
   COUNT(j.id) as journal_entries_count,
@@ -108,7 +112,11 @@ SELECT
   q.total_credits_consumed as quota_total_at_time,
   q.ai_messages,
   q.conversations_created,
-  q.polls_created
+  q.polls_created,
+  q.date_polls_created,
+  q.form_polls_created,
+  q.quizz_created,
+  q.availability_polls_created
 FROM guest_quota_journal j
 JOIN guest_quotas q ON j.guest_quota_id = q.id
 WHERE j.fingerprint = 'FINGERPRINT_A_RECHERCHER'
@@ -173,6 +181,10 @@ SELECT
   SUM(q.ai_messages) as total_ai_messages,
   SUM(q.conversations_created) as total_conversations,
   SUM(q.polls_created) as total_polls,
+  SUM(q.date_polls_created) as total_date_polls,
+  SUM(q.form_polls_created) as total_form_polls,
+  SUM(q.quizz_created) as total_quizz,
+  SUM(q.availability_polls_created) as total_availability_polls,
   COUNT(DISTINCT j.id) as total_journal_entries,
   COUNT(DISTINCT CASE WHEN q.total_credits_consumed >= 40 THEN q.id END) as guests_near_limit,
   COUNT(DISTINCT CASE WHEN q.last_activity_at >= NOW() - INTERVAL '24 hours' THEN q.id END) as active_last_24h,
@@ -217,6 +229,10 @@ SELECT
   q.ai_messages,
   q.conversations_created,
   q.polls_created,
+  q.date_polls_created,
+  q.form_polls_created,
+  q.quizz_created,
+  q.availability_polls_created,
   q.analytics_queries,
   q.simulations,
   q.first_seen_at,

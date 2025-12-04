@@ -31,6 +31,11 @@ export interface GuestQuotaData {
   fingerprint: string;
   conversationsCreated: number;
   pollsCreated: number;
+  // Compteurs séparés par type de poll
+  datePollsCreated: number;
+  formPollsCreated: number;
+  quizzCreated: number;
+  availabilityPollsCreated: number;
   aiMessages: number;
   analyticsQueries: number;
   simulations: number;
@@ -72,7 +77,12 @@ export interface GuestQuotaJournalEntry {
 
 const GUEST_LIMITS = {
   CONVERSATIONS: 5,
-  POLLS: 5,
+  POLLS: 5, // Maintenu pour affichage uniquement (somme des 4 compteurs séparés)
+  // Limites par type de poll (valeurs temporaires, seront définies dans planning décembre)
+  DATE_POLLS: 5,
+  FORM_POLLS: 5,
+  QUIZZ: 5,
+  AVAILABILITY_POLLS: 5,
   AI_MESSAGES: 20,
   ANALYTICS_QUERIES: 10,
   SIMULATIONS: 2,
@@ -88,6 +98,10 @@ interface GuestQuotaSupabaseRow {
   fingerprint: string;
   conversations_created: number;
   polls_created: number;
+  date_polls_created: number;
+  form_polls_created: number;
+  quizz_created: number;
+  availability_polls_created: number;
   ai_messages: number;
   analytics_queries: number;
   simulations: number;
@@ -163,6 +177,10 @@ function mapSupabaseRowToGuestQuota(row: GuestQuotaSupabaseRow): GuestQuotaData 
     fingerprint: row.fingerprint,
     conversationsCreated: row.conversations_created,
     pollsCreated: row.polls_created,
+    datePollsCreated: row.date_polls_created || 0,
+    formPollsCreated: row.form_polls_created || 0,
+    quizzCreated: row.quizz_created || 0,
+    availabilityPollsCreated: row.availability_polls_created || 0,
     aiMessages: row.ai_messages,
     analyticsQueries: row.analytics_queries,
     simulations: row.simulations,
@@ -183,6 +201,7 @@ function evaluateQuotaLimits(
   quota: GuestQuotaData,
   action: CreditActionType,
   credits: number,
+  metadata?: Record<string, unknown>,
 ): { allowed: boolean; reason?: string } {
   if (quota.totalCreditsConsumed + credits > GUEST_LIMITS.TOTAL_CREDITS) {
     return {
@@ -200,14 +219,54 @@ function evaluateQuotaLimits(
         };
       }
       break;
-    case "poll_created":
-      if (quota.pollsCreated >= GUEST_LIMITS.POLLS) {
+    case "poll_created": {
+      // Vérifier limite par type de poll uniquement (séparation complète par produit)
+      // Note: pollsCreated est maintenu pour affichage uniquement, pas pour les limites
+      const pollType = metadata?.pollType as "date" | "form" | "quizz" | "availability" | undefined;
+      
+      // Validation stricte : pollType est obligatoire pour poll_created
+      if (!pollType || !["date", "form", "quizz", "availability"].includes(pollType)) {
         return {
           allowed: false,
-          reason: `Poll limit reached (${GUEST_LIMITS.POLLS})`,
+          reason: `pollType is required and must be one of: "date", "form", "quizz", "availability". Received: ${pollType}`,
+        };
+      }
+      
+      let limit: number;
+      let current: number;
+      switch (pollType) {
+        case "date":
+          limit = GUEST_LIMITS.DATE_POLLS;
+          current = quota.datePollsCreated;
+          break;
+        case "form":
+          limit = GUEST_LIMITS.FORM_POLLS;
+          current = quota.formPollsCreated;
+          break;
+        case "quizz":
+          limit = GUEST_LIMITS.QUIZZ;
+          current = quota.quizzCreated;
+          break;
+        case "availability":
+          limit = GUEST_LIMITS.AVAILABILITY_POLLS;
+          current = quota.availabilityPollsCreated;
+          break;
+        default:
+          // Type invalide, rejeter (ne devrait jamais arriver grâce à la validation ci-dessus)
+          return {
+            allowed: false,
+            reason: `Invalid pollType: ${pollType}`,
+          };
+      }
+      
+      if (current >= limit) {
+        return {
+          allowed: false,
+          reason: `${pollType} poll limit reached (${limit})`,
         };
       }
       break;
+    }
     case "ai_message":
       if (quota.aiMessages >= GUEST_LIMITS.AI_MESSAGES) {
         return {
@@ -439,7 +498,7 @@ async function ensureGuestQuota(
             // En cas de timeout, retourner null immédiatement (Supabase est trop lent)
             return null;
           }
-          logger.error("Failed to create guest quota", error);
+          logger.error("Failed to create guest quota", "quota", error);
           return null;
         }
       } catch (error) {
@@ -559,6 +618,7 @@ export async function getOrCreateGuestQuota(): Promise<GuestQuotaData | null> {
 export async function canConsumeCredits(
   action: CreditActionType,
   credits: number,
+  metadata?: Record<string, unknown>,
 ): Promise<{ allowed: boolean; reason?: string; currentQuota?: GuestQuotaData }> {
   if (shouldBypassGuestQuota()) {
     return { allowed: true };
@@ -572,7 +632,7 @@ export async function canConsumeCredits(
       return { allowed: false, reason: "Failed to fetch quota" };
     }
 
-    const evaluation = evaluateQuotaLimits(quota, action, credits);
+    const evaluation = evaluateQuotaLimits(quota, action, credits, metadata);
     if (!evaluation.allowed) {
       return { ...evaluation, currentQuota: quota };
     }
@@ -605,7 +665,7 @@ export async function consumeGuestCredits(
       return { success: false, error: "Failed to fetch quota" };
     }
 
-    const evaluation = evaluateQuotaLimits(quota, action, credits);
+    const evaluation = evaluateQuotaLimits(quota, action, credits, metadata);
     if (!evaluation.allowed) {
       logger.warn("Credit consumption denied", "quota", {
         action,
@@ -629,9 +689,32 @@ export async function consumeGuestCredits(
       case "conversation_created":
         updates.conversations_created = quota.conversationsCreated + 1;
         break;
-      case "poll_created":
+      case "poll_created": {
         updates.polls_created = quota.pollsCreated + 1;
+        // Incrémenter le compteur spécifique selon pollType
+        const pollType = metadata?.pollType as "date" | "form" | "quizz" | "availability" | undefined;
+        if (pollType) {
+          switch (pollType) {
+            case "date":
+              updates.date_polls_created = (quota.datePollsCreated || 0) + 1;
+              break;
+            case "form":
+              updates.form_polls_created = (quota.formPollsCreated || 0) + 1;
+              break;
+            case "quizz":
+              updates.quizz_created = (quota.quizzCreated || 0) + 1;
+              break;
+            case "availability":
+              updates.availability_polls_created = (quota.availabilityPollsCreated || 0) + 1;
+              break;
+            default:
+              logger.warn("Invalid pollType in metadata", "quota", { pollType, metadata });
+          }
+        } else {
+          logger.warn("poll_created action without pollType in metadata", "quota", { metadata });
+        }
         break;
+      }
       case "ai_message":
         updates.ai_messages = quota.aiMessages + 1;
         break;
@@ -682,7 +765,7 @@ export async function consumeGuestCredits(
       } catch (journalError: unknown) {
         // Ne logger que les erreurs non-timeout
         if (!(journalError instanceof Error && journalError.message.includes("Timeout"))) {
-          logger.error("Failed to add journal entry", journalError);
+          logger.error("Failed to add journal entry", "quota", journalError);
         }
         // Ignorer les erreurs de journal (non-critique)
       }
@@ -702,11 +785,11 @@ export async function consumeGuestCredits(
         // En cas de timeout, retourner immédiatement sans logger (trop verbeux)
         return { success: false, error: "Timeout: Supabase is slow or unavailable" };
       }
-      logger.error("Failed to update guest quota", error);
+      logger.error("Failed to update guest quota", "quota", error);
       return { success: false, error: "Failed to update quota" };
     }
   } catch (error) {
-    logger.error("Failed to consume credits", error);
+    logger.error("Failed to consume credits", "quota", error);
     return { success: false, error: "Internal error" };
   }
 }

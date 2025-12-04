@@ -24,6 +24,10 @@ SELECT
   u.raw_user_meta_data->>'full_name' as display_name,
   qt.conversations_created,
   qt.polls_created,
+  qt.date_polls_created,
+  qt.form_polls_created,
+  qt.quizz_created,
+  qt.availability_polls_created,
   qt.ai_messages,
   qt.analytics_queries,
   qt.simulations,
@@ -58,6 +62,10 @@ SELECT
   qt.total_credits_consumed,
   qt.conversations_created,
   qt.polls_created,
+  qt.date_polls_created,
+  qt.form_polls_created,
+  qt.quizz_created,
+  qt.availability_polls_created,
   qt.ai_messages,
   qt.analytics_queries,
   qt.simulations,
@@ -89,7 +97,42 @@ SELECT
 FROM quota_tracking
 UNION ALL
 SELECT 
-  'Polls' as action_type,
+  'Polls (Total)' as action_type,
+  SUM(polls_created) as total,
+  AVG(polls_created) as avg_per_user,
+  MAX(polls_created) as max_per_user
+FROM quota_tracking
+UNION ALL
+SELECT 
+  'Date Polls' as action_type,
+  SUM(date_polls_created) as total,
+  AVG(date_polls_created) as avg_per_user,
+  MAX(date_polls_created) as max_per_user
+FROM quota_tracking
+UNION ALL
+SELECT 
+  'Form Polls' as action_type,
+  SUM(form_polls_created) as total,
+  AVG(form_polls_created) as avg_per_user,
+  MAX(form_polls_created) as max_per_user
+FROM quota_tracking
+UNION ALL
+SELECT 
+  'Quizz' as action_type,
+  SUM(quizz_created) as total,
+  AVG(quizz_created) as avg_per_user,
+  MAX(quizz_created) as max_per_user
+FROM quota_tracking
+UNION ALL
+SELECT 
+  'Availability Polls' as action_type,
+  SUM(availability_polls_created) as total,
+  AVG(availability_polls_created) as avg_per_user,
+  MAX(availability_polls_created) as max_per_user
+FROM quota_tracking
+UNION ALL
+SELECT 
+  'Polls (Total)' as action_type,
   SUM(polls_created) as total,
   AVG(polls_created) as avg_per_user,
   MAX(polls_created) as max_per_user

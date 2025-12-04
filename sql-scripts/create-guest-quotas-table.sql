@@ -102,6 +102,11 @@ CREATE TABLE IF NOT EXISTS guest_quotas (
   -- Compteurs de crédits consommés
   conversations_created INTEGER DEFAULT 0 NOT NULL,
   polls_created INTEGER DEFAULT 0 NOT NULL,
+  -- Compteurs séparés par type de poll
+  date_polls_created INTEGER DEFAULT 0 NOT NULL,
+  form_polls_created INTEGER DEFAULT 0 NOT NULL,
+  quizz_created INTEGER DEFAULT 0 NOT NULL,
+  availability_polls_created INTEGER DEFAULT 0 NOT NULL,
   ai_messages INTEGER DEFAULT 0 NOT NULL,
   analytics_queries INTEGER DEFAULT 0 NOT NULL,
   simulations INTEGER DEFAULT 0 NOT NULL,
@@ -344,6 +349,10 @@ BEGIN
   SET 
     conversations_created = 0,
     polls_created = 0,
+    date_polls_created = 0,
+    form_polls_created = 0,
+    quizz_created = 0,
+    availability_polls_created = 0,
     ai_messages = 0,
     analytics_queries = 0,
     simulations = 0,

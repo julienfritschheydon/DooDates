@@ -26,7 +26,11 @@ BEGIN
         'avg_credits_per_guest', ROUND(AVG(q.total_credits_consumed)::numeric, 2),
         'total_ai_messages', SUM(q.ai_messages),
         'total_conversations', SUM(q.conversations_created),
-        'total_polls', SUM(q.polls_created)
+        'total_polls', SUM(q.polls_created),
+        'total_date_polls', SUM(q.date_polls_created),
+        'total_form_polls', SUM(q.form_polls_created),
+        'total_quizz', SUM(q.quizz_created),
+        'total_availability_polls', SUM(q.availability_polls_created)
       )
       FROM guest_quotas q
     ),
@@ -83,6 +87,10 @@ BEGIN
         'ai_messages', top.ai_messages,
         'conversations', top.conversations_created,
         'polls', top.polls_created,
+        'date_polls', top.date_polls_created,
+        'form_polls', top.form_polls_created,
+        'quizz', top.quizz_created,
+        'availability_polls', top.availability_polls_created,
         'last_activity', top.last_activity_at
       ) ORDER BY top.total_credits_consumed DESC), '[]'::jsonb)
       FROM (
@@ -92,6 +100,10 @@ BEGIN
           ai_messages,
           conversations_created,
           polls_created,
+          date_polls_created,
+          form_polls_created,
+          quizz_created,
+          availability_polls_created,
           last_activity_at
         FROM guest_quotas
         WHERE last_activity_at >= NOW() - INTERVAL '24 hours'

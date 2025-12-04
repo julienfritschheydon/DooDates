@@ -26,6 +26,7 @@ export interface CreditJournalEntry {
   metadata?: {
     conversationId?: string;
     pollId?: string;
+    pollType?: "date" | "form" | "quizz" | "availability"; // Obligatoire pour action = "poll_created"
     simulationId?: string;
     analyticsQuery?: string;
     [key: string]: unknown;
@@ -34,6 +35,11 @@ export interface CreditJournalEntry {
 interface QuotaConsumedData {
   conversationsCreated: number;
   pollsCreated: number;
+  // Compteurs séparés par type de poll
+  datePollsCreated: number;
+  formPollsCreated: number;
+  quizzCreated: number;
+  availabilityPollsCreated: number;
   aiMessages: number;
   analyticsQueries: number;
   simulations: number;
@@ -64,11 +70,15 @@ export declare function incrementConversationCreated(
 ): void;
 /**
  * Incrémenter le compteur de polls créés
+ * @param userId - ID de l'utilisateur (null pour guests)
+ * @param pollId - ID du poll créé (optionnel)
+ * @param pollType - Type du poll (OBLIGATOIRE: "date", "form", "quizz", ou "availability")
  */
 export declare function incrementPollCreated(
   userId: string | null | undefined,
-  pollId?: string,
-): void;
+  pollId: string | undefined,
+  pollType: "date" | "form" | "quizz" | "availability",
+): Promise<void>;
 /**
  * Consommer des crédits pour un message IA
  */

@@ -377,15 +377,26 @@ export async function addPoll(poll: Poll): Promise<void> {
   // VÉRIFIER ET CONSOMMER QUOTA APRÈS avoir sauvegardé (uniquement pour nouveaux polls)
   // Fait en async pour ne pas bloquer la création
   if (isNewPoll) {
-    import("./quotaTracking")
-      .then(({ incrementPollCreated }) => {
-        // Utiliser creator_id du poll pour identifier l'utilisateur
-        return incrementPollCreated(poll.creator_id);
-      })
-      .catch((error) => {
-        // Ignorer les erreurs d'import en mode développement
-        logger.error("Erreur lors de la vérification du quota poll", "quota", { error });
+    // Validation stricte : poll.type doit être défini
+    if (!poll.type || !["date", "form", "quizz", "availability"].includes(poll.type)) {
+      logger.error("Poll created without valid type - quota not consumed", "quota", {
+        pollId: poll.id,
+        pollType: poll.type,
+        pollTitle: poll.title,
       });
+      // Ne pas throw pour ne pas bloquer la création, mais logger l'erreur
+    } else {
+      import("./quotaTracking")
+        .then(({ incrementPollCreated }) => {
+          // Utiliser creator_id du poll pour identifier l'utilisateur
+          // Passer poll.type (obligatoire) et poll.id
+          return incrementPollCreated(poll.creator_id, poll.id, poll.type);
+        })
+        .catch((error) => {
+          // Ignorer les erreurs d'import en mode développement
+          logger.error("Erreur lors de la vérification du quota poll", "quota", { error });
+        });
+    }
   }
 }
 

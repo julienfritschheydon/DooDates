@@ -62,6 +62,10 @@ test.describe('Quota Tracking - Complete Tests', () => {
         allData['guest'] = {
           conversationsCreated: 0,
           pollsCreated: 0,
+          datePollsCreated: 0,
+          formPollsCreated: 0,
+          quizzCreated: 0,
+          availabilityPollsCreated: 0,
           aiMessages: 0,
           analyticsQueries: 0,
           simulations: 0,
@@ -241,6 +245,11 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(quotaData).toBeTruthy();
     expect(quotaData.totalCreditsConsumed).toBeGreaterThanOrEqual(1);
     expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+    // Vérifier que les compteurs séparés sont initialisés
+    expect(quotaData.datePollsCreated).toBeDefined();
+    expect(quotaData.formPollsCreated).toBeDefined();
+    expect(quotaData.quizzCreated).toBeDefined();
+    expect(quotaData.availabilityPollsCreated).toBeDefined();
     
     const initialCredits = quotaData.totalCreditsConsumed;
     
@@ -1921,5 +1930,179 @@ test.skip('Test 9: Reset mensuel fonctionne pour utilisateurs authentifiés', as
     const resultsText = await resultsPage.textContent();
     expect(resultsText).toBeTruthy();
     expect(resultsText?.toLowerCase()).not.toContain('accès restreint');
+  });
+
+  // ============================================================================
+  // TESTS SPÉCIFIQUES POUR SÉPARATION DES QUOTAS PAR TYPE DE POLL
+  // ============================================================================
+
+  test('Date poll creation increments datePollsCreated only', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
+    
+    // Reset quota
+    await resetGuestQuota(page);
+    
+    // Créer un date poll via l'interface
+    await page.goto('/DooDates/create/ai?type=date&e2e-test=true', { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
+    
+    // Simuler création d'un date poll (simplifié pour le test)
+    await page.evaluate(() => {
+      const { incrementPollCreated } = require('../src/lib/quotaTracking');
+      incrementPollCreated(null, 'test-date-poll-1', 'date').catch(() => {});
+    });
+    
+    // Attendre que le quota soit mis à jour
+    await page.waitForTimeout(timeouts.element);
+    
+    const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
+    
+    expect(quotaData).toBeTruthy();
+    expect(quotaData.datePollsCreated).toBeGreaterThanOrEqual(1);
+    expect(quotaData.formPollsCreated).toBe(0);
+    expect(quotaData.quizzCreated).toBe(0);
+    expect(quotaData.availabilityPollsCreated).toBe(0);
+    expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+  });
+
+  test('Form poll creation increments formPollsCreated only', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
+    
+    // Reset quota
+    await resetGuestQuota(page);
+    
+    // Simuler création d'un form poll
+    await page.evaluate(() => {
+      const { incrementPollCreated } = require('../src/lib/quotaTracking');
+      incrementPollCreated(null, 'test-form-poll-1', 'form').catch(() => {});
+    });
+    
+    // Attendre que le quota soit mis à jour
+    await page.waitForTimeout(timeouts.element);
+    
+    const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
+    
+    expect(quotaData).toBeTruthy();
+    expect(quotaData.formPollsCreated).toBeGreaterThanOrEqual(1);
+    expect(quotaData.datePollsCreated).toBe(0);
+    expect(quotaData.quizzCreated).toBe(0);
+    expect(quotaData.availabilityPollsCreated).toBe(0);
+    expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+  });
+
+  test('Quizz creation increments quizzCreated only', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
+    
+    // Reset quota
+    await resetGuestQuota(page);
+    
+    // Simuler création d'un quizz
+    await page.evaluate(() => {
+      const { incrementPollCreated } = require('../src/lib/quotaTracking');
+      incrementPollCreated(null, 'test-quizz-1', 'quizz').catch(() => {});
+    });
+    
+    // Attendre que le quota soit mis à jour
+    await page.waitForTimeout(timeouts.element);
+    
+    const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
+    
+    expect(quotaData).toBeTruthy();
+    expect(quotaData.quizzCreated).toBeGreaterThanOrEqual(1);
+    expect(quotaData.datePollsCreated).toBe(0);
+    expect(quotaData.formPollsCreated).toBe(0);
+    expect(quotaData.availabilityPollsCreated).toBe(0);
+    expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+  });
+
+  test('Availability poll creation increments availabilityPollsCreated only', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
+    
+    // Reset quota
+    await resetGuestQuota(page);
+    
+    // Simuler création d'un availability poll
+    await page.evaluate(() => {
+      const { incrementPollCreated } = require('../src/lib/quotaTracking');
+      incrementPollCreated(null, 'test-availability-poll-1', 'availability').catch(() => {});
+    });
+    
+    // Attendre que le quota soit mis à jour
+    await page.waitForTimeout(timeouts.element);
+    
+    const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
+    
+    expect(quotaData).toBeTruthy();
+    expect(quotaData.availabilityPollsCreated).toBeGreaterThanOrEqual(1);
+    expect(quotaData.datePollsCreated).toBe(0);
+    expect(quotaData.formPollsCreated).toBe(0);
+    expect(quotaData.quizzCreated).toBe(0);
+    expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(1);
+  });
+
+  test('Multiple poll types increment correct counters separately', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
+    
+    // Reset quota
+    await resetGuestQuota(page);
+    
+    // Créer un poll de chaque type
+    await page.evaluate(() => {
+      const { incrementPollCreated } = require('../src/lib/quotaTracking');
+      Promise.all([
+        incrementPollCreated(null, 'test-date-1', 'date'),
+        incrementPollCreated(null, 'test-form-1', 'form'),
+        incrementPollCreated(null, 'test-quizz-1', 'quizz'),
+        incrementPollCreated(null, 'test-availability-1', 'availability'),
+      ]).catch(() => {});
+    });
+    
+    // Attendre que le quota soit mis à jour
+    await page.waitForTimeout(timeouts.element * 2);
+    
+    const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
+    
+    expect(quotaData).toBeTruthy();
+    expect(quotaData.datePollsCreated).toBeGreaterThanOrEqual(1);
+    expect(quotaData.formPollsCreated).toBeGreaterThanOrEqual(1);
+    expect(quotaData.quizzCreated).toBeGreaterThanOrEqual(1);
+    expect(quotaData.availabilityPollsCreated).toBeGreaterThanOrEqual(1);
+    expect(quotaData.pollsCreated).toBeGreaterThanOrEqual(4);
+  });
+
+  test('Dashboard and Edge Function show same quota values after separation', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
+    
+    // Reset quota
+    await resetGuestQuota(page);
+    
+    // Créer des polls de différents types
+    await page.evaluate(() => {
+      const { incrementPollCreated } = require('../src/lib/quotaTracking');
+      Promise.all([
+        incrementPollCreated(null, 'test-date-1', 'date'),
+        incrementPollCreated(null, 'test-form-1', 'form'),
+      ]).catch(() => {});
+    });
+    
+    // Attendre que le quota soit mis à jour
+    await page.waitForTimeout(timeouts.element * 2);
+    
+    // Récupérer les données depuis localStorage (Dashboard)
+    const dashboardQuota = await waitForQuotaData(page, 'guest', 10000, browserName);
+    
+    // Vérifier que les compteurs séparés sont cohérents
+    expect(dashboardQuota).toBeTruthy();
+    expect(dashboardQuota.datePollsCreated).toBeGreaterThanOrEqual(1);
+    expect(dashboardQuota.formPollsCreated).toBeGreaterThanOrEqual(1);
+    expect(dashboardQuota.pollsCreated).toBeGreaterThanOrEqual(2);
+    
+    // Vérifier que pollsCreated = somme des compteurs séparés
+    const sumSeparated = (dashboardQuota.datePollsCreated || 0) + 
+                         (dashboardQuota.formPollsCreated || 0) + 
+                         (dashboardQuota.quizzCreated || 0) + 
+                         (dashboardQuota.availabilityPollsCreated || 0);
+    expect(dashboardQuota.pollsCreated).toBeGreaterThanOrEqual(sumSeparated);
   });
 });

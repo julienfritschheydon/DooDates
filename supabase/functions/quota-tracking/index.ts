@@ -211,6 +211,10 @@ serve(async (req) => {
             currentQuota: currentQuota ? {
               conversationsCreated: currentQuota.conversations_created,
               pollsCreated: currentQuota.polls_created,
+              datePollsCreated: currentQuota.date_polls_created || 0,
+              formPollsCreated: currentQuota.form_polls_created || 0,
+              quizzCreated: currentQuota.quizz_created || 0,
+              availabilityPollsCreated: currentQuota.availability_polls_created || 0,
               aiMessages: currentQuota.ai_messages,
               analyticsQueries: currentQuota.analytics_queries,
               simulations: currentQuota.simulations,
@@ -269,6 +273,10 @@ serve(async (req) => {
             quota: {
               conversationsCreated: quota.conversations_created,
               pollsCreated: quota.polls_created,
+              datePollsCreated: quota.date_polls_created || 0,
+              formPollsCreated: quota.form_polls_created || 0,
+              quizzCreated: quota.quizz_created || 0,
+              availabilityPollsCreated: quota.availability_polls_created || 0,
               aiMessages: quota.ai_messages,
               analyticsQueries: quota.analytics_queries,
               simulations: quota.simulations,

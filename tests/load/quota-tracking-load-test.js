@@ -87,11 +87,16 @@ export default function () {
   
   // Test 2: consumeCredits (seulement si checkQuota OK)
   if (checkRes.status === 200) {
+    // Rotater entre les différents types de polls pour tester la séparation
+    const pollTypes = ['date', 'form', 'quizz', 'availability'];
+    const pollType = pollTypes[Math.floor(Math.random() * pollTypes.length)];
+    
     const consumeBody = JSON.stringify({
       endpoint: 'consumeCredits',
-      action: 'other',
+      action: 'poll_created',
       credits: 1,
       metadata: {
+        pollType: pollType, // Ajouter pollType pour tester la séparation
         test: true,
         loadTest: true,
         timestamp: new Date().toISOString(),
@@ -107,6 +112,19 @@ export default function () {
         try {
           const data = JSON.parse(r.body);
           return data.success !== undefined;
+        } catch {
+          return false;
+        }
+      },
+      'consumeCredits includes separated counters': (r) => {
+        try {
+          const data = JSON.parse(r.body);
+          // Vérifier que la réponse inclut les compteurs séparés
+          return data.quota && 
+                 typeof data.quota.datePollsCreated !== 'undefined' &&
+                 typeof data.quota.formPollsCreated !== 'undefined' &&
+                 typeof data.quota.quizzCreated !== 'undefined' &&
+                 typeof data.quota.availabilityPollsCreated !== 'undefined';
         } catch {
           return false;
         }

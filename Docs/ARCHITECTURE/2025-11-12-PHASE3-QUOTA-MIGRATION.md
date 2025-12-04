@@ -23,7 +23,11 @@ Table principale pour les quotas utilisateurs authentifiés.
 - id (UUID, PK)
 - user_id (UUID, FK → auth.users, UNIQUE)
 - conversations_created (INTEGER)
-- polls_created (INTEGER)
+- polls_created (INTEGER)  -- Somme des 4 compteurs séparés (affichage uniquement, maintenu via trigger)
+- date_polls_created (INTEGER)  -- Compteur séparé pour polls de type "date"
+- form_polls_created (INTEGER)  -- Compteur séparé pour polls de type "form"
+- quizz_created (INTEGER)  -- Compteur séparé pour polls de type "quizz"
+- availability_polls_created (INTEGER)  -- Compteur séparé pour polls de type "availability"
 - ai_messages (INTEGER)
 - analytics_queries (INTEGER)
 - simulations (INTEGER)
@@ -33,6 +37,8 @@ Table principale pour les quotas utilisateurs authentifiés.
 - period_start, period_end (TIMESTAMPTZ)
 - created_at, updated_at (TIMESTAMPTZ)
 ```
+
+**Note :** Depuis décembre 2024, les quotas sont séparés par type de poll. Chaque type a son propre compteur et sa propre limite indépendante. Voir `Docs/ARCHITECTURE/2025-12-04-QUOTA-SEPARATION-BY-PRODUCT.md` pour plus de détails.
 
 #### `quota_tracking_journal`
 Journal détaillé de toutes les consommations.

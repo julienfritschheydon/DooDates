@@ -4,10 +4,10 @@
  */
 
 import React from "react";
-import { Crown, MessageCircle, Calendar, AlertTriangle } from "lucide-react";
+import { Crown, MessageCircle, Calendar, AlertTriangle, ClipboardList, BookOpen, Clock } from "lucide-react";
 
 interface QuotaIndicatorProps {
-  type: "conversations" | "polls" | "storage";
+  type: "conversations" | "polls" | "storage" | "datePolls" | "formPolls" | "quizz" | "availabilityPolls";
   used: number;
   limit: number;
   className?: string;
@@ -35,6 +35,14 @@ const QuotaIndicator: React.FC<QuotaIndicatorProps> = ({
         return <MessageCircle className="w-4 h-4" />;
       case "polls":
         return <Calendar className="w-4 h-4" />;
+      case "datePolls":
+        return <Calendar className="w-4 h-4" />;
+      case "formPolls":
+        return <ClipboardList className="w-4 h-4" />;
+      case "quizz":
+        return <BookOpen className="w-4 h-4" />;
+      case "availabilityPolls":
+        return <Clock className="w-4 h-4" />;
       case "storage":
         return <Crown className="w-4 h-4" />;
       default:
@@ -48,6 +56,14 @@ const QuotaIndicator: React.FC<QuotaIndicatorProps> = ({
         return "Conversations";
       case "polls":
         return "Sondages";
+      case "datePolls":
+        return "Sondages dates";
+      case "formPolls":
+        return "Formulaires";
+      case "quizz":
+        return "Quiz";
+      case "availabilityPolls":
+        return "Disponibilités";
       case "storage":
         return "Stockage";
       default:

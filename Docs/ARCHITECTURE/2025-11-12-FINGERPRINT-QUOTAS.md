@@ -33,7 +33,11 @@
 | `fingerprint` | `text` | Hash SHA-256 unique du navigateur |
 | `conversations_created` | `integer` | Compteur courant |
 | `ai_messages` | `integer` | Compteur courant |
-| `polls_created` | `integer` | Compteur courant |
+| `polls_created` | `integer` | Somme des 4 compteurs séparés (affichage uniquement, maintenu via trigger) |
+| `date_polls_created` | `integer` | Compteur séparé pour polls de type "date" |
+| `form_polls_created` | `integer` | Compteur séparé pour polls de type "form" |
+| `quizz_created` | `integer` | Compteur séparé pour polls de type "quizz" |
+| `availability_polls_created` | `integer` | Compteur séparé pour polls de type "availability" |
 | `analytics_queries` | `integer` | Compteur courant |
 | `simulations` | `integer` | Compteur courant |
 | `total_credits_consumed` | `integer` | Agrégat de crédits consommés |

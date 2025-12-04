@@ -202,6 +202,10 @@ try {
                 Total = $q.total_credits_consumed
                 Convs = $q.conversations_created
                 Polls = $q.polls_created
+                DatePolls = $q.date_polls_created
+                FormPolls = $q.form_polls_created
+                Quizz = $q.quizz_created
+                AvailabilityPolls = $q.availability_polls_created
                 AIMsg = $q.ai_messages
                 Analytics = $q.analytics_queries
                 Simulations = $q.simulations
@@ -217,6 +221,10 @@ try {
                     Total = $gq.total_credits_consumed
                     Convs = $gq.conversations_created
                     Polls = $gq.polls_created
+                    DatePolls = $gq.date_polls_created
+                    FormPolls = $gq.form_polls_created
+                    Quizz = $gq.quizz_created
+                    AvailabilityPolls = $gq.availability_polls_created
                     AIMsg = $gq.ai_messages
                     Analytics = $gq.analytics_queries
                     Simulations = $gq.simulations
@@ -306,7 +314,11 @@ try {
                 
                 Write-Host "   📊 Détail par action:" -ForegroundColor Gray
                 Write-Host "      ├─ Conversations: $($quota.conversations_created) / $($LIMITS_AUTH.conversations)" -ForegroundColor Gray
-                Write-Host "      ├─ Polls: $($quota.polls_created)" -ForegroundColor Gray
+                Write-Host "      ├─ Polls (Total): $($quota.polls_created)" -ForegroundColor Gray
+                Write-Host "      │  ├─ Date Polls: $($quota.date_polls_created)" -ForegroundColor DarkGray
+                Write-Host "      │  ├─ Form Polls: $($quota.form_polls_created)" -ForegroundColor DarkGray
+                Write-Host "      │  ├─ Quizz: $($quota.quizz_created)" -ForegroundColor DarkGray
+                Write-Host "      │  └─ Availability: $($quota.availability_polls_created)" -ForegroundColor DarkGray
                 Write-Host "      ├─ Messages IA: $($quota.ai_messages) / $($LIMITS_AUTH.aiMessages)" -ForegroundColor Gray
                 Write-Host "      ├─ Analytics: $($quota.analytics_queries) / $($LIMITS_AUTH.analytics) (par jour)" -ForegroundColor Gray
                 Write-Host "      └─ Simulations: $($quota.simulations)" -ForegroundColor Gray
@@ -355,7 +367,11 @@ try {
                 
                 Write-Host "   📊 Détail par action:" -ForegroundColor Gray
                 Write-Host "      ├─ Conversations: $($guest.conversations_created) / $($LIMITS_GUEST.conversations)" -ForegroundColor Gray
-                Write-Host "      ├─ Polls: $($guest.polls_created) / $($LIMITS_GUEST.polls)" -ForegroundColor Gray
+                Write-Host "      ├─ Polls (Total): $($guest.polls_created) / $($LIMITS_GUEST.polls)" -ForegroundColor Gray
+                Write-Host "      │  ├─ Date Polls: $($guest.date_polls_created)" -ForegroundColor DarkGray
+                Write-Host "      │  ├─ Form Polls: $($guest.form_polls_created)" -ForegroundColor DarkGray
+                Write-Host "      │  ├─ Quizz: $($guest.quizz_created)" -ForegroundColor DarkGray
+                Write-Host "      │  └─ Availability: $($guest.availability_polls_created)" -ForegroundColor DarkGray
                 Write-Host "      ├─ Messages IA: $($guest.ai_messages) / $($LIMITS_GUEST.aiMessages)" -ForegroundColor Gray
                 Write-Host "      ├─ Analytics: $($guest.analytics_queries) / $($LIMITS_GUEST.analytics)" -ForegroundColor Gray
                 Write-Host "      └─ Simulations: $($guest.simulations)" -ForegroundColor Gray

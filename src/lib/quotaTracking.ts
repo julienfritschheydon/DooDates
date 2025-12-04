@@ -46,6 +46,7 @@ export interface CreditJournalEntry {
   metadata?: {
     conversationId?: string;
     pollId?: string;
+    pollType?: "date" | "form" | "quizz" | "availability"; // Obligatoire pour action = "poll_created"
     simulationId?: string;
     analyticsQuery?: string;
     [key: string]: unknown;
@@ -55,6 +56,11 @@ export interface CreditJournalEntry {
 interface QuotaConsumedData {
   conversationsCreated: number;
   pollsCreated: number;
+  // Compteurs séparés par type de poll
+  datePollsCreated: number;
+  formPollsCreated: number;
+  quizzCreated: number;
+  availabilityPollsCreated: number;
   aiMessages: number;
   analyticsQueries: number;
   simulations: number;
@@ -205,6 +211,10 @@ async function fetchQuotaFromServer(userId: string): Promise<QuotaConsumedData |
       return {
         conversationsCreated: data.currentQuota.conversationsCreated || 0,
         pollsCreated: data.currentQuota.pollsCreated || 0,
+        datePollsCreated: data.currentQuota.datePollsCreated || 0,
+        formPollsCreated: data.currentQuota.formPollsCreated || 0,
+        quizzCreated: data.currentQuota.quizzCreated || 0,
+        availabilityPollsCreated: data.currentQuota.availabilityPollsCreated || 0,
         aiMessages: data.currentQuota.aiMessages || 0,
         analyticsQueries: data.currentQuota.analyticsQueries || 0,
         simulations: data.currentQuota.simulations || 0,
@@ -314,6 +324,10 @@ export async function getQuotaConsumed(
       return {
         conversationsCreated: 0,
         pollsCreated: 0,
+        datePollsCreated: 0,
+        formPollsCreated: 0,
+        quizzCreated: 0,
+        availabilityPollsCreated: 0,
         aiMessages: 0,
         analyticsQueries: 0,
         simulations: 0,
@@ -331,6 +345,10 @@ export async function getQuotaConsumed(
       userData = {
         conversationsCreated: 0,
         pollsCreated: 0,
+        datePollsCreated: 0,
+        formPollsCreated: 0,
+        quizzCreated: 0,
+        availabilityPollsCreated: 0,
         aiMessages: 0,
         analyticsQueries: 0,
         simulations: 0,
@@ -338,6 +356,12 @@ export async function getQuotaConsumed(
         subscriptionStartDate: subscriptionStart?.toISOString(),
         userId: currentUserId,
       };
+    } else {
+      // Migration automatique : ajouter les nouveaux compteurs s'ils n'existent pas
+      if (userData.datePollsCreated === undefined) userData.datePollsCreated = 0;
+      if (userData.formPollsCreated === undefined) userData.formPollsCreated = 0;
+      if (userData.quizzCreated === undefined) userData.quizzCreated = 0;
+      if (userData.availabilityPollsCreated === undefined) userData.availabilityPollsCreated = 0;
     }
 
     // Vérifier reset mensuel pour auth users basé sur la date d'abonnement
@@ -356,6 +380,10 @@ export async function getQuotaConsumed(
             const resetData: QuotaConsumedData = {
               conversationsCreated: 0,
               pollsCreated: 0,
+              datePollsCreated: 0,
+              formPollsCreated: 0,
+              quizzCreated: 0,
+              availabilityPollsCreated: 0,
               aiMessages: 0,
               analyticsQueries: 0,
               simulations: 0,
@@ -381,6 +409,10 @@ export async function getQuotaConsumed(
     return {
       conversationsCreated: 0,
       pollsCreated: 0,
+      datePollsCreated: 0,
+      formPollsCreated: 0,
+      quizzCreated: 0,
+      availabilityPollsCreated: 0,
       aiMessages: 0,
       analyticsQueries: 0,
       simulations: 0,
@@ -729,12 +761,22 @@ async function consumeCredits(
       userData = {
         conversationsCreated: 0,
         pollsCreated: 0,
+        datePollsCreated: 0,
+        formPollsCreated: 0,
+        quizzCreated: 0,
+        availabilityPollsCreated: 0,
         aiMessages: 0,
         analyticsQueries: 0,
         simulations: 0,
         totalCreditsConsumed: 0,
         userId: currentUserId,
       };
+    } else {
+      // Migration automatique : ajouter les nouveaux compteurs s'ils n'existent pas
+      if (userData.datePollsCreated === undefined) userData.datePollsCreated = 0;
+      if (userData.formPollsCreated === undefined) userData.formPollsCreated = 0;
+      if (userData.quizzCreated === undefined) userData.quizzCreated = 0;
+      if (userData.availabilityPollsCreated === undefined) userData.availabilityPollsCreated = 0;
     }
 
     // Mettre à jour les compteurs selon le type d'action
@@ -742,9 +784,34 @@ async function consumeCredits(
       case "conversation_created":
         userData.conversationsCreated = (userData.conversationsCreated || 0) + credits;
         break;
-      case "poll_created":
+      case "poll_created": {
         userData.pollsCreated = (userData.pollsCreated || 0) + credits;
+        // Incrémenter le compteur spécifique selon pollType
+        const pollType = metadata?.pollType as "date" | "form" | "quizz" | "availability" | undefined;
+        if (pollType) {
+          switch (pollType) {
+            case "date":
+              userData.datePollsCreated = (userData.datePollsCreated || 0) + credits;
+              break;
+            case "form":
+              userData.formPollsCreated = (userData.formPollsCreated || 0) + credits;
+              break;
+            case "quizz":
+              userData.quizzCreated = (userData.quizzCreated || 0) + credits;
+              break;
+            case "availability":
+              userData.availabilityPollsCreated = (userData.availabilityPollsCreated || 0) + credits;
+              break;
+          }
+        } else {
+          // Si pollType n'est pas fourni en fallback, logger un warning
+          logger.warn("poll_created action without pollType in metadata (localStorage fallback)", "quota", {
+            metadata,
+            userId: currentUserId,
+          });
+        }
         break;
+      }
       case "ai_message":
         userData.aiMessages = (userData.aiMessages || 0) + credits;
         break;
@@ -805,18 +872,33 @@ export async function incrementConversationCreated(
 /**
  * Incrémenter le compteur de polls créés
  * BLOQUANT : Throw une erreur si la limite est atteinte
+ * @param userId - ID de l'utilisateur (null pour guests)
+ * @param pollId - ID du poll créé (optionnel)
+ * @param pollType - Type du poll (OBLIGATOIRE: "date", "form", "quizz", ou "availability")
  */
 export async function incrementPollCreated(
   userId: string | null | undefined,
-  pollId?: string,
+  pollId: string | undefined,
+  pollType: "date" | "form" | "quizz" | "availability",
 ): Promise<void> {
+  // Validation stricte : pollType est obligatoire
+  if (!pollType || !["date", "form", "quizz", "availability"].includes(pollType)) {
+    const error = ErrorFactory.validation(
+      `pollType is required and must be one of: "date", "form", "quizz", "availability". Received: ${pollType}`,
+      `Type de poll requis pour la consommation de quota`,
+      { pollType, pollId, userId },
+    );
+    logger.error("incrementPollCreated called without valid pollType", "quota", { pollType, pollId, userId });
+    throw error;
+  }
+
   // Normaliser userId : si c'est un deviceId (commence par "dev-"), c'est un invité
   // On le convertit en null pour que consumeCredits le traite comme "guest"
   let normalizedUserId: string | null | undefined = userId;
   if (userId && userId.startsWith("dev-")) {
     normalizedUserId = null; // deviceId = invité = null pour le tracking
   }
-  await consumeCredits(normalizedUserId, 1, "poll_created", { pollId });
+  await consumeCredits(normalizedUserId, 1, "poll_created", { pollId, pollType });
 }
 
 /**

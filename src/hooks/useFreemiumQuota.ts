@@ -26,6 +26,11 @@ export interface QuotaLimits {
 export interface QuotaUsage {
   conversations: number;
   polls: number;
+  // Compteurs séparés par type de poll
+  datePolls: number;
+  formPolls: number;
+  quizz: number;
+  availabilityPolls: number;
   aiMessages: number;
   storageUsed: number; // in MB
 }
@@ -98,6 +103,10 @@ export const useFreemiumQuota = () => {
   const [quotaUsage, setQuotaUsage] = useState<QuotaUsage>({
     conversations: 0,
     polls: 0,
+    datePolls: 0,
+    formPolls: 0,
+    quizz: 0,
+    availabilityPolls: 0,
     aiMessages: 0,
     storageUsed: 0,
   });
@@ -115,6 +124,10 @@ export const useFreemiumQuota = () => {
     (quota: GuestQuotaData): QuotaUsage => ({
       conversations: quota.conversationsCreated,
       polls: quota.pollsCreated,
+      datePolls: quota.datePollsCreated || 0,
+      formPolls: quota.formPollsCreated || 0,
+      quizz: quota.quizzCreated || 0,
+      availabilityPolls: quota.availabilityPollsCreated || 0,
       aiMessages: quota.aiMessages,
       storageUsed: 0,
     }),
@@ -207,6 +220,10 @@ export const useFreemiumQuota = () => {
     return {
       conversations: conversationCount,
       polls: pollCount,
+      datePolls: quotaConsumed.datePollsCreated || 0,
+      formPolls: quotaConsumed.formPollsCreated || 0,
+      quizz: quotaConsumed.quizzCreated || 0,
+      availabilityPolls: quotaConsumed.availabilityPollsCreated || 0,
       aiMessages: quotaConsumed.aiMessages || 0,
       storageUsed,
     };
@@ -283,26 +300,31 @@ export const useFreemiumQuota = () => {
     return !status.conversations.isAtLimit;
   }, [getQuotaStatus, isAuthenticated]);
 
-  const canCreatePoll = useCallback(async () => {
-    // Pour les guests, vérifier avec Supabase
-    if (!isAuthenticated) {
-      const check = await canConsumeCredits("poll_created", 1);
-      if (check.currentQuota) {
-        guestQuotaRef.current = check.currentQuota;
-        setGuestQuotaState({
-          data: check.currentQuota,
-          pendingSync: false,
-          lastSyncedAt: new Date().toISOString(),
-          lastError: undefined,
-        });
+  const canCreatePoll = useCallback(
+    async (pollType?: "date" | "form" | "quizz" | "availability") => {
+      // Pour les guests, vérifier avec Supabase
+      if (!isAuthenticated) {
+        const metadata = pollType ? { pollType } : undefined;
+        const check = await canConsumeCredits("poll_created", 1, metadata);
+        if (check.currentQuota) {
+          guestQuotaRef.current = check.currentQuota;
+          setGuestQuotaState({
+            data: check.currentQuota,
+            pendingSync: false,
+            lastSyncedAt: new Date().toISOString(),
+            lastError: undefined,
+          });
+        }
+        return check.allowed;
       }
-      return check.allowed;
-    }
 
-    // Pour les authentifiés, utiliser le système existant
-    const status = getQuotaStatus();
-    return !status.polls.isAtLimit;
-  }, [getQuotaStatus, isAuthenticated]);
+      // Pour les authentifiés, utiliser le système existant
+      // TODO: Vérifier limite spécifique par type quand les limites seront définies dans planning décembre
+      const status = getQuotaStatus();
+      return !status.polls.isAtLimit;
+    },
+    [getQuotaStatus, isAuthenticated],
+  );
 
   const canUseFeature = useCallback(
     (feature: string) => {

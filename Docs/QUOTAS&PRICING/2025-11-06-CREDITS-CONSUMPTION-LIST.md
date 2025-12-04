@@ -31,11 +31,14 @@ Tous les crédits consommés sont **irréversibles** (sauf reset mensuel pour ut
 - **Tokens** : 0 (action locale uniquement)
 - **Où** : Lors de la création d'un nouveau poll
 - **Fichiers** :
-  - `src/lib/pollStorage.ts` (ligne 293)
-- **Fonction** : `incrementPollCreated()`
+  - `src/lib/pollStorage.ts` (ligne 393)
+- **Fonction** : `incrementPollCreated(userId, pollId, pollType)`
 - **Note** : 
   - Uniquement pour les **nouveaux** polls, pas les mises à jour
   - Crédit consommé pour tracking, mais pas d'appel API Gemini
+  - **Séparation par type** : Chaque type de poll (date, form, quizz, availability) a son propre compteur et sa propre limite
+  - **pollType obligatoire** : Le type de poll doit être fourni et validé
+  - Voir `Docs/ARCHITECTURE/2025-12-04-QUOTA-SEPARATION-BY-PRODUCT.md` pour plus de détails
 
 ### 3. **Message IA (Chat Gemini)**
 - **Coût** : 1 crédit

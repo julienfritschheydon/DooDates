@@ -18,6 +18,11 @@ import { supabase } from "../src/lib/supabase";
 interface QuotaConsumedData {
   conversationsCreated: number;
   pollsCreated: number;
+  // Compteurs séparés par type de poll
+  datePollsCreated: number;
+  formPollsCreated: number;
+  quizzCreated: number;
+  availabilityPollsCreated: number;
   aiMessages: number;
   analyticsQueries: number;
   simulations: number;
@@ -82,6 +87,22 @@ export async function migrateUserQuotaToSupabase(
             existingQuota.polls_created || 0,
             quotaData.pollsCreated || 0
           ),
+          date_polls_created: Math.max(
+            existingQuota.date_polls_created || 0,
+            quotaData.datePollsCreated || 0
+          ),
+          form_polls_created: Math.max(
+            existingQuota.form_polls_created || 0,
+            quotaData.formPollsCreated || 0
+          ),
+          quizz_created: Math.max(
+            existingQuota.quizz_created || 0,
+            quotaData.quizzCreated || 0
+          ),
+          availability_polls_created: Math.max(
+            existingQuota.availability_polls_created || 0,
+            quotaData.availabilityPollsCreated || 0
+          ),
           ai_messages: Math.max(
             existingQuota.ai_messages || 0,
             quotaData.aiMessages || 0
@@ -118,6 +139,10 @@ export async function migrateUserQuotaToSupabase(
           user_id: userId,
           conversations_created: quotaData.conversationsCreated || 0,
           polls_created: quotaData.pollsCreated || 0,
+          date_polls_created: quotaData.datePollsCreated || 0,
+          form_polls_created: quotaData.formPollsCreated || 0,
+          quizz_created: quotaData.quizzCreated || 0,
+          availability_polls_created: quotaData.availabilityPollsCreated || 0,
           ai_messages: quotaData.aiMessages || 0,
           analytics_queries: quotaData.analyticsQueries || 0,
           simulations: quotaData.simulations || 0,

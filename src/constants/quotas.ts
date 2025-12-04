@@ -94,6 +94,26 @@ export const POLL_CREATION_QUOTAS = {
   AUTHENTICATED: 5,
 } as const;
 
+/**
+ * Limites par type de poll (date, form, quizz, availability)
+ * 
+ * ⚠️ VALEURS TEMPORAIRES - Les valeurs exactes seront définies dans le planning de décembre
+ */
+export const POLL_TYPE_QUOTAS = {
+  ANONYMOUS: {
+    DATE_POLLS: 5,
+    FORM_POLLS: 5,
+    QUIZZ: 5,
+    AVAILABILITY_POLLS: 5,
+  },
+  AUTHENTICATED: {
+    DATE_POLLS: 50, // Valeur temporaire
+    FORM_POLLS: 50, // Valeur temporaire
+    QUIZZ: 50, // Valeur temporaire
+    AVAILABILITY_POLLS: 50, // Valeur temporaire
+  },
+} as const;
+
 // ============================================================================
 // QUOTAS ANALYTICS IA
 // ============================================================================

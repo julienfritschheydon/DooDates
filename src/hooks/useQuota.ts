@@ -33,6 +33,11 @@ export interface QuotaLimits {
 export interface QuotaUsage {
   conversations: number;
   polls: number;
+  // Compteurs séparés par type de poll
+  datePolls: number;
+  formPolls: number;
+  quizz: number;
+  availabilityPolls: number;
   storageUsed: number; // in MB
 }
 
@@ -301,6 +306,10 @@ export function useQuota(config: UseQuotaConfig = {}): UseQuotaReturn {
     const result = {
       conversations: conversationCount,
       polls: pollCount,
+      datePolls: 0, // TODO: Récupérer depuis getQuotaConsumed si disponible
+      formPolls: 0, // TODO: Récupérer depuis getQuotaConsumed si disponible
+      quizz: 0, // TODO: Récupérer depuis getQuotaConsumed si disponible
+      availabilityPolls: 0, // TODO: Récupérer depuis getQuotaConsumed si disponible
       storageUsed,
     };
 
