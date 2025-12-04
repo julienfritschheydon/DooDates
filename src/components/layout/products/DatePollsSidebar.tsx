@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Calendar, Plus, Home, List, Settings, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { UserMenu } from "@/components/UserMenu";
 
 export const DatePollsSidebar: React.FC = () => {
     const location = useLocation();
@@ -57,7 +58,6 @@ export const DatePollsSidebar: React.FC = () => {
             </nav>
 
             <div className="p-4 border-t border-gray-800 space-y-1">
-
                 <Link
                     to="/date-polls/settings"
                     className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
@@ -65,6 +65,10 @@ export const DatePollsSidebar: React.FC = () => {
                     <Settings className="w-5 h-5" />
                     Paramètres
                 </Link>
+            </div>
+
+            <div className="p-4 border-t border-gray-800">
+                <UserMenu />
             </div>
         </div>
     );

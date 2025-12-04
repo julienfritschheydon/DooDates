@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getConsumptionJournal, type CreditJournalEntry } from "@/lib/quotaTracking";
 import { getGuestQuotaJournal, type GuestQuotaJournalEntry } from "@/lib/guestQuotaService";
@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { logError, ErrorFactory } from "@/lib/error-handling";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getThemeColors } from "@/components/dashboard/utils";
+import { ContentTypeFilter } from "@/components/dashboard/types";
 
 const ACTION_LABELS: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   conversation_created: {
@@ -58,7 +60,31 @@ const ACTION_LABELS: Record<string, { label: string; icon: React.ReactNode; colo
 
 export default function ConsumptionJournal() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+
+  // Déterminer le thème basé sur l'URL
+  const theme = (() => {
+    let type: ContentTypeFilter = "date"; // default
+    if (location.pathname.includes("/form-polls/")) {
+      type = "form";
+    } else if (location.pathname.includes("/availability-polls/")) {
+      type = "availability";
+    }
+    return getThemeColors(type);
+  })();
+
+  const handleBack = () => {
+    if (location.pathname.includes("/form-polls/")) {
+      navigate("/form-polls/dashboard");
+    } else if (location.pathname.includes("/availability-polls/")) {
+      navigate("/availability-polls/dashboard");
+    } else if (location.pathname.includes("/date-polls/")) {
+      navigate("/date-polls/dashboard");
+    } else {
+      navigate("/dashboard");
+    }
+  };
   const [journal, setJournal] = useState<CreditJournalEntry[]>([]);
   const [filteredJournal, setFilteredJournal] = useState<CreditJournalEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -153,7 +179,7 @@ export default function ConsumptionJournal() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${theme.activeBorder.replace("border-", "border-")}`}></div>
       </div>
     );
   }
@@ -168,8 +194,8 @@ export default function ConsumptionJournal() {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  onClick={() => navigate("/dashboard")}
-                  className="mb-4 text-gray-400 hover:text-white"
+                  onClick={handleBack}
+                  className={`mb-4 text-gray-400 hover:text-white hover:${theme.bg}`}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Retour au dashboard
@@ -183,7 +209,7 @@ export default function ConsumptionJournal() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-white flex items-center gap-3 mb-2">
-                  <CreditCard className="w-8 h-8" />
+                  <CreditCard className={`w-8 h-8 ${theme.text}`} />
                   Journal de consommation
                 </h1>
                 <p className="text-gray-400">

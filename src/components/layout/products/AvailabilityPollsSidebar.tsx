@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Clock, Plus, Home, List, Settings, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { UserMenu } from "@/components/UserMenu";
 
 interface AvailabilityPollsSidebarProps {
     onClose?: () => void;
@@ -76,6 +77,10 @@ export const AvailabilityPollsSidebar: React.FC<AvailabilityPollsSidebarProps> =
                     <Settings className="w-5 h-5" />
                     Paramètres
                 </Link>
+            </div>
+
+            <div className="p-4 border-t border-gray-800">
+                <UserMenu />
             </div>
         </div>
     );

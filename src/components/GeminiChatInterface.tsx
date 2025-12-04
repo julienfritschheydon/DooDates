@@ -48,7 +48,7 @@ import AuthIncentiveModal from "./modals/AuthIncentiveModal";
 import { AuthModal } from "./modals/AuthModal";
 import QuotaIndicator from "./ui/QuotaIndicator";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useSmartNavigation } from "../hooks/useSmartNavigation";
+
 import { conversationProtection } from "../services/ConversationProtection";
 import { performanceMonitor } from "../services/PerformanceMonitor";
 import { useInfiniteLoopProtection } from "../services/InfiniteLoopProtection";
@@ -641,7 +641,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       onUserMessage,
       setMessages: setMessagesAdapter,
       setIsLoading,
-      setIsLoading,
+
       setLastAIProposal: setLastAIProposal,
       setModifiedQuestion,
       onStartNewChat: handleNewChat,

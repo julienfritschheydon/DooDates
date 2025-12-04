@@ -143,6 +143,43 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
     }
   };
 
+  const getFilterColor = (type: ContentTypeFilter) => {
+    switch (type) {
+      case "form":
+        return {
+          activeBg: "bg-violet-500",
+          activeBorder: "border-violet-400",
+          shadow: "shadow-violet-500/30",
+          text: "text-violet-500",
+          border: "border-violet-500",
+          hoverBg: "hover:bg-violet-600",
+          bg: "bg-violet-600",
+        };
+      case "availability":
+        return {
+          activeBg: "bg-emerald-500",
+          activeBorder: "border-emerald-400",
+          shadow: "shadow-emerald-500/30",
+          text: "text-emerald-500",
+          border: "border-emerald-500",
+          hoverBg: "hover:bg-emerald-700",
+          bg: "bg-emerald-600",
+        };
+      default: // date, all, conversations
+        return {
+          activeBg: "bg-blue-500",
+          activeBorder: "border-blue-400",
+          shadow: "shadow-blue-500/30",
+          text: "text-blue-500",
+          border: "border-blue-500",
+          hoverBg: "hover:bg-blue-700",
+          bg: "bg-blue-600",
+        };
+    }
+  };
+
+  const currentTheme = getFilterColor(contentTypeFilter);
+
   return (
     <div className="mb-6 space-y-4">
       {/* Ligne 1: Recherche + Actions principales (Vue + Sélectionner) */}
@@ -178,7 +215,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             <button
               data-testid="view-toggle-grid"
               onClick={() => onViewModeChange("grid")}
-              className={`p-2 rounded transition-colors ${viewMode === "grid" ? "bg-blue-500 text-white" : "text-gray-300 hover:bg-[#2a2a2a]"
+              className={`p-2 rounded transition-colors ${viewMode === "grid" ? `${currentTheme.activeBg} text-white` : "text-gray-300 hover:bg-[#2a2a2a]"
                 }`}
               title="Vue grille"
               aria-label="Vue grille"
@@ -188,7 +225,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             <button
               data-testid="view-toggle-table"
               onClick={() => onViewModeChange("table")}
-              className={`hidden md:block p-2 rounded transition-colors ${viewMode === "table" ? "bg-blue-500 text-white" : "text-gray-300 hover:bg-[#2a2a2a]"
+              className={`hidden md:block p-2 rounded transition-colors ${viewMode === "table" ? `${currentTheme.activeBg} text-white` : "text-gray-300 hover:bg-[#2a2a2a]"
                 }`}
               title="Vue table"
               aria-label="Vue table"
@@ -202,7 +239,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             <button
               onClick={selectedIdsCount > 0 ? onClearSelection : onSelectAll}
               className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 border ${selectedIdsCount > 0
-                ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-500"
+                ? `${currentTheme.bg} ${currentTheme.hoverBg} text-white ${currentTheme.border}`
                 : "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-300 hover:text-white border-gray-700"
                 }`}
               title={selectedIdsCount > 0 ? "Désélectionner tout" : "Sélectionner tout"}
@@ -222,20 +259,23 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         <div className="flex flex-wrap gap-3 items-center">
           {/* Filtres par type de contenu */}
           <div className="flex gap-2 flex-wrap">
-            {contentTypeFilters.map(({ value, label, icon }) => (
-              <button
-                key={value}
-                data-testid={`content-type-filter-${value}`}
-                onClick={() => onContentTypeFilterChange(value)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${contentTypeFilter === value
-                    ? "bg-blue-500 text-white border-2 border-blue-400 shadow-lg shadow-blue-500/30 scale-105 font-semibold"
+            {contentTypeFilters.map(({ value, label, icon }) => {
+              const theme = getFilterColor(value);
+              return (
+                <button
+                  key={value}
+                  data-testid={`content-type-filter-${value}`}
+                  onClick={() => onContentTypeFilterChange(value)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${contentTypeFilter === value
+                    ? `${theme.activeBg} text-white border-2 ${theme.activeBorder} shadow-lg ${theme.shadow} scale-105 font-semibold`
                     : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700 hover:border-gray-600"
-                  }`}
-              >
-                {icon}
-                {label}
-              </button>
-            ))}
+                    }`}
+                >
+                  {icon}
+                  {label}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -250,7 +290,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               data-testid={`status-filter-${f}`}
               onClick={() => onFilterChange(f)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${filter === f
-                ? "bg-blue-500 text-white border-2 border-blue-400 shadow-lg shadow-blue-500/30 scale-105 font-semibold"
+                ? `${currentTheme.activeBg} text-white border-2 ${currentTheme.activeBorder} shadow-lg ${currentTheme.shadow} scale-105 font-semibold`
                 : "bg-[#1e1e1e] text-gray-300 hover:bg-[#3c4043] border border-gray-700 hover:border-gray-600"
                 }`}
             >
@@ -265,7 +305,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
           <button
             onClick={() => setShowTagMenu(!showTagMenu)}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${selectedTags.length > 0
-              ? "bg-blue-500 text-white border-blue-500"
+              ? `${currentTheme.activeBg} text-white ${currentTheme.border}`
               : "bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700"
               }`}
           >
@@ -297,7 +337,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                     e.stopPropagation();
                     handleCreateTag();
                   }}
-                  className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                  className={`mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 ${currentTheme.bg} ${currentTheme.hoverBg} text-white rounded text-sm`}
                 >
                   <Plus className="w-3 h-3" />
                   Créer
@@ -339,7 +379,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
           <button
             onClick={() => setShowFolderMenu(!showFolderMenu)}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${selectedFolderId
-              ? "bg-blue-500 text-white border-blue-500"
+              ? `${currentTheme.activeBg} text-white ${currentTheme.border}`
               : "bg-[#1e1e1e] text-gray-300 hover:bg-[#2a2a2a] border-gray-700"
               }`}
           >
@@ -372,7 +412,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                     e.stopPropagation();
                     handleCreateFolder();
                   }}
-                  className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                  className={`mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 ${currentTheme.bg} ${currentTheme.hoverBg} text-white rounded text-sm`}
                 >
                   <Plus className="w-3 h-3" />
                   Créer
@@ -386,7 +426,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                     setShowFolderMenu(false);
                   }}
                   className={`w-full text-left px-3 py-2 rounded text-sm ${!selectedFolderId
-                    ? "bg-blue-600 text-white"
+                    ? `${currentTheme.bg} text-white`
                     : "text-gray-300 hover:bg-[#2a2a2a]"
                     }`}
                 >
@@ -401,7 +441,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                       setShowFolderMenu(false);
                     }}
                     className={`w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 ${selectedFolderId === folder.id
-                      ? "bg-blue-600 text-white"
+                      ? `${currentTheme.bg} text-white`
                       : "text-gray-300 hover:bg-[#2a2a2a]"
                       }`}
                   >
@@ -425,13 +465,13 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               return (
                 <span
                   key={tagName}
-                  className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-blue-600 text-white"
-                  style={{ backgroundColor: tag?.color || "#3b82f6" }}
+                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${currentTheme.bg} text-white`}
+                  style={{ backgroundColor: tag?.color || undefined }}
                 >
                   {tagName}
                   <button
                     onClick={() => toggleTag(tagName)}
-                    className="hover:bg-blue-700 rounded p-0.5"
+                    className="hover:bg-black/20 rounded p-0.5"
                   >
                     <X className="w-3 h-3" />
                   </button>

@@ -16,10 +16,45 @@ interface AnomalyReport {
 
 interface GeminiResponse {
   status: number;
-  data?: any;
+  data?: unknown;
   rawResponse: string;
   error?: string;
 }
+
+// ... (inside AnomalyDetector class)
+
+// Fix code blocks
+this.fixes.set("json_codeblock", (response: GeminiResponse) => {
+  const candidates = (response.data as any)?.candidates;
+  if (candidates?.[0]?.content?.parts?.[0]?.text) {
+    let text = candidates[0].content.parts[0].text;
+    // ...
+    candidates[0].content.parts[0].text = text;
+  }
+  return response;
+});
+
+// ... (apply similar casts for other fixes)
+
+// ... (inside analyzeGeminiResponse)
+
+const response: GeminiResponse = {
+  status: 200,
+  data: {
+    candidates: [
+      {
+        content: {
+          parts: [
+            {
+              text: responseText,
+            },
+          ],
+        },
+      },
+    ],
+  },
+  rawResponse: responseText,
+};
 
 interface AnalysisResult {
   isValid: boolean;
@@ -72,10 +107,11 @@ class AnomalyDetector {
   }
 
   private initializeFixes(): void {
-    // Fix JSON code blocks
+    // Fix code blocks
     this.fixes.set("json_codeblock", (response: GeminiResponse) => {
-      if (response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        let text = response.data.candidates[0].content.parts[0].text;
+      const data = response.data as any;
+      if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        let text = data.candidates[0].content.parts[0].text;
         // Remove code blocks
         text = text.replace(/```json\n?|\n?```/g, "").trim();
 
@@ -83,27 +119,29 @@ class AnomalyDetector {
         text = text.replace(/,\s*}/g, "}");
         text = text.replace(/,\s*]/g, "]");
 
-        response.data.candidates[0].content.parts[0].text = text;
+        data.candidates[0].content.parts[0].text = text;
       }
       return response;
     });
 
     // Fix form instead of date
     this.fixes.set("form_to_date", (response: GeminiResponse) => {
-      if (response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        let text = response.data.candidates[0].content.parts[0].text;
+      const data = response.data as any;
+      if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        let text = data.candidates[0].content.parts[0].text;
         // Replace form with date
         text = text.replace(/"type":\s*"form"/g, '"type": "date"');
 
-        response.data.candidates[0].content.parts[0].text = text;
+        data.candidates[0].content.parts[0].text = text;
       }
       return response;
     });
 
     // Fix empty dates
     this.fixes.set("empty_dates", (response: GeminiResponse) => {
-      if (response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        let text = response.data.candidates[0].content.parts[0].text;
+      const data = response.data as any;
+      if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        let text = data.candidates[0].content.parts[0].text;
 
         try {
           const parsed = JSON.parse(text);
@@ -121,7 +159,7 @@ class AnomalyDetector {
             ];
 
             text = JSON.stringify(parsed, null, 2);
-            response.data.candidates[0].content.parts[0].text = text;
+            data.candidates[0].content.parts[0].text = text;
           }
         } catch (e: unknown) {
           // If JSON parsing fails, we can't fix it
@@ -133,15 +171,16 @@ class AnomalyDetector {
 
     // Fix null timeSlots
     this.fixes.set("null_timeslots", (response: GeminiResponse) => {
-      if (response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        let text = response.data.candidates[0].content.parts[0].text;
+      const data = response.data as any;
+      if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        let text = data.candidates[0].content.parts[0].text;
 
         try {
           const parsed = JSON.parse(text);
           if (parsed.timeSlots === null) {
             parsed.timeSlots = [];
             text = JSON.stringify(parsed, null, 2);
-            response.data.candidates[0].content.parts[0].text = text;
+            data.candidates[0].content.parts[0].text = text;
           }
         } catch (e: unknown) {
           // If JSON parsing fails, we can't fix it
@@ -172,7 +211,8 @@ class AnomalyDetector {
 
   private analyzeJSONAnomalies(response: GeminiResponse): AnomalyReport[] {
     const anomalies: AnomalyReport[] = [];
-    const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const data = response.data as any;
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     // Vérifier les code blocks
     if (this.patterns.get("json")![0].test(text)) {
@@ -241,7 +281,8 @@ class AnomalyDetector {
 
   private analyzeLogicAnomalies(response: GeminiResponse): AnomalyReport[] {
     const anomalies: AnomalyReport[] = [];
-    const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const data = response.data as any;
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     try {
       const parsed = JSON.parse(text.replace(/```json\n?|\n?```/g, ""));
@@ -325,7 +366,8 @@ class AnomalyDetector {
 
   private analyzeContentAnomalies(response: GeminiResponse): AnomalyReport[] {
     const anomalies: AnomalyReport[] = [];
-    const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const data = response.data as any;
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     // Vérifier le texte introductif
     const introPatterns = this.patterns.get("content")!.slice(0, 3);
@@ -360,7 +402,8 @@ class AnomalyDetector {
 
   private analyzeSecurityAnomalies(response: GeminiResponse): AnomalyReport[] {
     const anomalies: AnomalyReport[] = [];
-    const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const data = response.data as any;
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     // Vérifier les scripts
     if (this.patterns.get("security")![0].test(text)) {
@@ -431,10 +474,11 @@ class AnomalyDetector {
           case "content":
             if (anomaly.message.includes("embedded in additional text")) {
               // Extraire seulement la partie JSON
-              const text = fixedResponse.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+              const data = fixedResponse.data as any;
+              const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
               const jsonMatch = text.match(/\{[\s\S]*\}/);
-              if (jsonMatch && fixedResponse.data?.candidates?.[0]?.content?.parts?.[0]) {
-                fixedResponse.data.candidates[0].content.parts[0].text = jsonMatch[0];
+              if (jsonMatch && data?.candidates?.[0]?.content?.parts?.[0]) {
+                data.candidates[0].content.parts[0].text = jsonMatch[0];
                 fixesApplied++;
               }
             }
@@ -442,15 +486,16 @@ class AnomalyDetector {
 
           case "security":
             // Supprimer le contenu dangereux
-            const text = fixedResponse.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            const data = fixedResponse.data as any;
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
             let cleanText = text;
 
             cleanText = cleanText.replace(/<script[^>]*>.*?<\/script>/gis, "");
             cleanText = cleanText.replace(/javascript:/gi, "");
             cleanText = cleanText.replace(/on\w+\s*=/gi, "");
 
-            if (cleanText !== text && fixedResponse.data?.candidates?.[0]?.content?.parts?.[0]) {
-              fixedResponse.data.candidates[0].content.parts[0].text = cleanText;
+            if (cleanText !== text && data?.candidates?.[0]?.content?.parts?.[0]) {
+              data.candidates[0].content.parts[0].text = cleanText;
               fixesApplied++;
             }
             break;

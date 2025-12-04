@@ -19,7 +19,7 @@ import {
   Archive,
 } from "lucide-react";
 import { ConversationItem, DashboardPoll } from "./types";
-import { getStatusColor, getStatusLabel } from "./utils";
+import { getStatusColor, getStatusLabel, getThemeColors } from "./utils";
 import { useConversations } from "@/hooks/useConversations";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -365,23 +365,22 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
           {items.map((item, index) => {
             const isSelected = selectedIds.has(item.id);
             const isDeleting = deletingIds.has(item.id);
+            const theme = getThemeColors(item.poll?.type || "date");
 
             return (
               <tr
                 key={item.id}
-                className={`border-b border-gray-800 hover:bg-[#2a2a2a] transition-colors cursor-pointer ${
-                  isSelected ? "bg-blue-900/20" : ""
-                } ${index % 2 === 0 ? "bg-[#1e1e1e]" : "bg-[#252525]"}`}
+                className={`border-b border-gray-800 hover:bg-[#2a2a2a] transition-colors cursor-pointer ${isSelected ? theme.selectionBg : ""
+                  } ${index % 2 === 0 ? "bg-[#1e1e1e]" : "bg-[#252525]"}`}
                 onClick={() => navigate(`/workspace?conversationId=${item.id}`)}
               >
                 {/* Checkbox */}
                 <td className="py-3 px-2 md:px-3 lg:px-4" onClick={(e) => e.stopPropagation()}>
                   <div
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer ${
-                      isSelected
-                        ? "bg-blue-600 border-blue-600"
-                        : "bg-transparent border-gray-500 hover:border-blue-400"
-                    }`}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer ${isSelected
+                      ? theme.checkbox
+                      : "bg-transparent border-gray-500 hover:border-blue-400"
+                      }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       onToggleSelection(item.id);
@@ -396,7 +395,9 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                   <div className="flex items-start gap-2">
                     {item.poll ? (
                       item.poll.type === "form" ? (
-                        <ClipboardList className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                        <ClipboardList className="w-4 h-4 text-violet-400 flex-shrink-0 mt-0.5" />
+                      ) : item.poll.type === "availability" ? (
+                        <Calendar className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                       ) : (
                         <Calendar className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
                       )
@@ -413,7 +414,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                         </div>
                       )}
                       {item.hasAI && (
-                        <span className="inline-flex items-center gap-1 text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded mt-1">
+                        <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded mt-1 ${theme.lightBadge}`}>
                           💬 IA
                         </span>
                       )}
@@ -425,15 +426,14 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                 <td className="py-3 px-2 md:px-3 lg:px-4">
                   {item.poll ? (
                     <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        item.poll.status === "draft"
-                          ? "bg-gray-700 text-gray-300"
-                          : item.poll.status === "active"
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${item.poll.status === "draft"
+                        ? "bg-gray-700 text-gray-300"
+                        : item.poll.status === "active"
+                          ? "bg-blue-900/50 text-blue-300"
+                          : item.poll.status === "closed"
                             ? "bg-blue-900/50 text-blue-300"
-                            : item.poll.status === "closed"
-                              ? "bg-blue-900/50 text-blue-300"
-                              : "bg-red-900/50 text-red-300"
-                      }`}
+                            : "bg-red-900/50 text-red-300"
+                        }`}
                     >
                       {getStatusLabel(item.poll.status)}
                     </span>
@@ -648,7 +648,7 @@ export const DashboardTableView: React.FC<DashboardTableViewProps> = ({
                             e.stopPropagation();
                             navigate(`/workspace?conversationId=${item.id}`);
                           }}
-                          className="px-3 py-2 md:px-3 md:py-2 lg:px-2 lg:py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors touch-manipulation"
+                          className={`px-3 py-2 md:px-3 md:py-2 lg:px-2 lg:py-1 ${theme.primaryButton} text-white text-xs rounded transition-colors touch-manipulation`}
                         >
                           Reprendre
                         </button>

@@ -222,6 +222,13 @@ const Dashboard: React.FC = () => {
     </div>
   );
 
+  // Récupérer les couleurs du thème actuel
+  const theme = useMemo(() => {
+    // Import dynamique pour éviter les cycles si nécessaire, ou juste utiliser la fonction importée
+    const { getThemeColors } = require("./dashboard/utils");
+    return getThemeColors(contentTypeFilter);
+  }, [contentTypeFilter]);
+
   if (loading) {
     return (
       <div
@@ -245,11 +252,11 @@ const Dashboard: React.FC = () => {
             <div
               className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${quotaStatus.conversations.isNearLimit
                 ? "bg-orange-900/20 border-orange-500/50"
-                : "bg-blue-900/20 border-blue-500/50"
+                : `${theme.bg} ${theme.border}`
                 }`}
             >
               <Info
-                className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : "text-blue-400"
+                className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.text
                   }`}
               />
               <TooltipProvider>
@@ -265,11 +272,11 @@ const Dashboard: React.FC = () => {
                           {quotaStatus.conversations.limit + quotaStatus.aiMessages.limit}
                         </span>{" "}
                         crédits utilisés
-                        <span className="ml-2 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className={`ml-2 ${theme.text} opacity-0 group-hover:opacity-100 transition-opacity`}>
                           → Voir le journal
                         </span>
                         {!user && (
-                          <span className="ml-2 text-blue-400">
+                          <span className={`ml-2 ${theme.text}`}>
                             • Créez un compte pour synchroniser vos données
                           </span>
                         )}
@@ -279,7 +286,7 @@ const Dashboard: React.FC = () => {
                           className={`h-2 rounded-full transition-all ${quotaStatus.conversations.isNearLimit ||
                             quotaStatus.aiMessages.isNearLimit
                             ? "bg-orange-500"
-                            : "bg-blue-500"
+                            : theme.progressBg
                             }`}
                           style={{
                             width: `${Math.min(
@@ -303,7 +310,7 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => navigate("/dashboard/journal")}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                  className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.buttonText}`}
                   title="Voir le journal de consommation"
                 >
                   <FileText className="w-4 h-4" />
@@ -312,7 +319,7 @@ const Dashboard: React.FC = () => {
 
                 <button
                   onClick={() => navigate("/pricing")}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                  className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${theme.buttonText}`}
                   title="Voir les quotas et tarifs"
                 >
                   <Info className="w-4 h-4" />

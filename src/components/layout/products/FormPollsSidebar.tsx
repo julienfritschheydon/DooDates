@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FileText, Plus, Home, List, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { UserMenu } from "@/components/UserMenu";
 
 interface FormPollsSidebarProps {
     onClose?: () => void;
@@ -77,6 +78,10 @@ export const FormPollsSidebar: React.FC<FormPollsSidebarProps> = ({ onClose, cla
                     <Settings className="w-5 h-5" />
                     Paramètres
                 </Link>
+            </div>
+
+            <div className="p-4 border-t border-gray-800">
+                <UserMenu />
             </div>
         </div>
     );

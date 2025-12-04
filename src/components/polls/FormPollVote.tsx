@@ -287,6 +287,7 @@ export default function FormPollVote({ idOrSlug }: Props) {
         }
         title="Merci pour votre participation !"
         subtitle="Votre réponse a été enregistrée."
+        color="violet"
       />
     );
   }

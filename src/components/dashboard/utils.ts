@@ -107,3 +107,56 @@ export function filterConversationItems(
     return matchesFilter && matchesContentType && matchesSearch && matchesTags && matchesFolder;
   });
 }
+
+export function getThemeColors(type: ContentTypeFilter) {
+  switch (type) {
+    case "form":
+      return {
+        bg: "bg-violet-900/20",
+        border: "border-violet-500/50",
+        text: "text-violet-400",
+        progressBg: "bg-violet-500",
+        hoverText: "group-hover:text-violet-300",
+        buttonText: "text-violet-400 hover:text-violet-300 hover:bg-violet-900/20",
+        primaryButton: "bg-violet-600 hover:bg-violet-700",
+        checkbox: "bg-violet-600 border-violet-600",
+        lightBadge: "bg-violet-500/20 text-violet-400",
+        selectionBg: "bg-violet-900/20",
+        activeBorder: "border-violet-500",
+        ring: "ring-violet-500/50",
+        linkText: "text-violet-400 hover:text-violet-300",
+      };
+    case "availability":
+      return {
+        bg: "bg-emerald-900/20",
+        border: "border-emerald-500/50",
+        text: "text-emerald-400",
+        progressBg: "bg-emerald-500",
+        hoverText: "group-hover:text-emerald-300",
+        buttonText: "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-900/20",
+        primaryButton: "bg-emerald-600 hover:bg-emerald-700",
+        checkbox: "bg-emerald-600 border-emerald-600",
+        lightBadge: "bg-emerald-500/20 text-emerald-400",
+        selectionBg: "bg-emerald-900/20",
+        activeBorder: "border-emerald-500",
+        ring: "ring-emerald-500/50",
+        linkText: "text-emerald-400 hover:text-emerald-300",
+      };
+    default: // date, all, conversations
+      return {
+        bg: "bg-blue-900/20",
+        border: "border-blue-500/50",
+        text: "text-blue-400",
+        progressBg: "bg-blue-500",
+        hoverText: "group-hover:text-blue-300",
+        buttonText: "text-blue-400 hover:text-blue-300 hover:bg-blue-900/20",
+        primaryButton: "bg-blue-600 hover:bg-blue-700",
+        checkbox: "bg-blue-600 border-blue-600",
+        lightBadge: "bg-blue-500/20 text-blue-400",
+        selectionBg: "bg-blue-900/20",
+        activeBorder: "border-blue-500",
+        ring: "ring-blue-500/50",
+        linkText: "text-blue-400 hover:text-blue-300",
+      };
+  }
+}
