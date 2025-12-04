@@ -749,8 +749,10 @@ export async function setupAllMocks(page: Page) {
   // Attendre que la page soit chargée avant d'accéder au localStorage
   await page.waitForLoadState('domcontentloaded');
 
-  // Désactiver les vérifications de quota via l'URL
-  await page.goto(page.url() + (page.url().includes('?') ? '&' : '?') + 'e2e-test=true');
+  // Désactiver les vérifications de quota via l'URL si on est déjà sur une page
+  if (page.url() && !page.url().startsWith('about:blank')) {
+    await page.goto(page.url() + (page.url().includes('?') ? '&' : '?') + 'e2e-test=true');
+  }
 }
 
 /**

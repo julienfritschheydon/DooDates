@@ -28,7 +28,8 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     await warmup(page);
 
     // Authenticate user (requires valid page context - warmup navigates to landing)
-    await authenticateUser(page, browserName, { reload: false });
+    // Use the same userId as in the seed data to ensure polls are visible
+    await authenticateUser(page, browserName, { reload: false, userId: 'auth-dashboard-user' });
 
     // Console guard (sera géré par withConsoleGuard dans chaque test)
   });
@@ -98,82 +99,66 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
     });
   });
 
-  test('@smoke @critical - Charger les dashboards produits (Date, Form, Availability)', async ({ page, browserName }) => {
+  test('@smoke @critical - Charger le dashboard Date Polls', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
-    const productDashboards = [
-      { name: 'Date Polls', url: '/DooDates/date-polls/dashboard', expectedTitle: 'Sondage Date', expectedHeading: /Vos Sondages de Dates/i },
-      { name: 'Form Polls', url: '/DooDates/form-polls/dashboard', expectedTitle: 'Sondage Formulaire', expectedHeading: /Vos Formulaires/i },
-      { name: 'Availability Polls', url: '/DooDates/availability-polls/dashboard', expectedTitle: 'Sondage Dispo', expectedHeading: /Vos Disponibilités/i }
-    ];
 
     await withConsoleGuard(page, async () => {
-      // Override seed data to include polls of all types
-      const userId = 'auth-dashboard-user';
-      const polls = [
-        {
-          id: 'poll-date-1',
-          title: 'Sondage Date',
-          slug: 'poll-date-1',
-          type: 'date',
-          status: 'active' as const,
-          created_at: new Date().toISOString(),
-          creator_id: userId,
-          settings: {},
-        },
-        {
-          id: 'poll-form-1',
-          title: 'Sondage Formulaire',
-          slug: 'poll-form-1',
-          type: 'form',
-          status: 'active' as const,
-          created_at: new Date().toISOString(),
-          creator_id: userId,
-          settings: {},
-        },
-        {
-          id: 'poll-avail-1',
-          title: 'Sondage Dispo',
-          slug: 'poll-avail-1',
-          type: 'availability',
-          status: 'active' as const,
-          created_at: new Date().toISOString(),
-          creator_id: userId,
-          settings: {},
-        },
-      ];
+      await seedDashboard(page);
 
-      // We also need conversations linking to these polls for them to appear in some views
-      const conversations = polls.map((poll, index) => ({
-        id: `conv-${poll.id}`,
-        title: `Conversation ${poll.title}`,
-        status: 'active' as const,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        firstMessage: `Message for ${poll.title}`,
-        messageCount: 1,
-        isFavorite: false,
-        tags: [],
-        userId: userId,
-        metadata: { pollId: poll.id, pollGenerated: true },
-      }));
+      // Navigate directly to the Date Polls dashboard
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await waitForNetworkIdle(page, { browserName });
+      await waitForDashboardReady(page, browserName);
 
-      await setupTestData(page, undefined, { polls, conversations });
+      // Verify the heading
+      await expect(page.getByRole('heading', { name: /Vos Sondages de Dates/i })).toBeVisible({ timeout: timeouts.element });
 
-      for (const dashboard of productDashboards) {
-        console.log(`Testing dashboard: ${dashboard.name}`);
-        await page.goto(dashboard.url, { waitUntil: 'domcontentloaded' });
-        await waitForNetworkIdle(page, { browserName });
-        await waitForDashboardReady(page, browserName);
+      // Verify the Date Poll is visible
+      // Title from DEFAULT_DASHBOARD_DATA in dashboardSeed.ts
+      const pollItem = page.locator('[data-testid="poll-item"]:has-text("Sondage de test")').first();
+      await expect(pollItem).toBeVisible({ timeout: timeouts.element });
+    });
+  });
 
-        // Verify dashboard loads with correct heading
-        const heading = page.getByRole('heading', { name: dashboard.expectedHeading });
-        await expect(heading).toBeVisible({ timeout: timeouts.element });
+  test('@smoke @critical - Charger le dashboard Form Polls', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
 
-        // Verify the specific poll for this product is visible
-        // This confirms the dashboard is filtering correctly and displaying data
-        const pollItem = page.locator(`[data-testid="poll-item"]:has-text("${dashboard.expectedTitle}")`).first();
-        await expect(pollItem).toBeVisible({ timeout: timeouts.element });
-      }
+    await withConsoleGuard(page, async () => {
+      await seedDashboard(page);
+
+      // Navigate directly to the Form Polls dashboard
+      await page.goto('/DooDates/form-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await waitForNetworkIdle(page, { browserName });
+      await waitForDashboardReady(page, browserName);
+
+      // Verify the heading
+      await expect(page.getByRole('heading', { name: /Vos Formulaires/i })).toBeVisible({ timeout: timeouts.element });
+
+      // Verify the Form Poll is visible
+      // Title from DEFAULT_DASHBOARD_DATA in dashboardSeed.ts
+      const pollItem = page.locator('[data-testid="poll-item"]:has-text("Sondage Formulaire")').first();
+      await expect(pollItem).toBeVisible({ timeout: timeouts.element });
+    });
+  });
+
+  test('@smoke @critical - Charger le dashboard Availability Polls', async ({ page, browserName }) => {
+    const timeouts = getTimeouts(browserName);
+
+    await withConsoleGuard(page, async () => {
+      await seedDashboard(page);
+
+      // Navigate directly to the Availability Polls dashboard
+      await page.goto('/DooDates/availability-polls/dashboard', { waitUntil: 'domcontentloaded' });
+      await waitForNetworkIdle(page, { browserName });
+      await waitForDashboardReady(page, browserName);
+
+      // Verify the heading
+      await expect(page.getByRole('heading', { name: /Vos Disponibilités/i })).toBeVisible({ timeout: timeouts.element });
+
+      // Verify the Availability Poll is visible
+      // Title from DEFAULT_DASHBOARD_DATA in dashboardSeed.ts
+      const pollItem = page.locator('[data-testid="poll-item"]:has-text("Sondage Disponibilité")').first();
+      await expect(pollItem).toBeVisible({ timeout: timeouts.element });
     });
   });
 

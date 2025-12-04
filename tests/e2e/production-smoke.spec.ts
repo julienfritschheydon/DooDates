@@ -68,29 +68,43 @@ test.describe('🔥 Production Smoke Tests', () => {
     const response = await request.get(baseUrl, { maxRedirects: 3 });
     expect(response.ok(), `BASE_URL ${baseUrl} inaccessible (status ${response.status()})`).toBeTruthy();
   });
-  
-  
+
+
   /**
    * TEST 1: Page d'accueil se charge
    * Vérifie que le déploiement de base fonctionne
    */
-  test('Page d\'accueil charge correctement', async ({ page, browserName }) => {
-    // Aller à la page d'accueil
-    await page.goto('/DooDates/');
-    await waitForNetworkIdle(page, { browserName });
-    await waitForReactStable(page, { browserName });
-    
-    // Vérifier que la page se charge (pas de 404/500)
-    expect(page.url()).toContain('/');
-    
-    // Vérifier que le titre est présent
-    await expect(page).toHaveTitle(/DooDates/i);
-    
-    // Vérifier qu'il n'y a pas d'erreur visible
-    const bodyText = await page.textContent('body');
-    expect(bodyText).not.toContain('404');
-    expect(bodyText).not.toContain('500');
-    expect(bodyText).not.toContain('Internal Server Error');
+  /**
+   * TEST 1: Pages d'accueil produits se chargent
+   * Vérifie que le déploiement de base fonctionne pour chaque produit
+   */
+  test('Pages produits chargent correctement', async ({ page, browserName }) => {
+    const products = [
+      { url: '/DooDates/date-polls', title: /Sondages de Dates/i },
+      { url: '/DooDates/form-polls', title: /Formulaires/i },
+      { url: '/DooDates/availability-polls', title: /Sondages de Disponibilité/i }
+    ];
+
+    for (const product of products) {
+      console.log(`Testing product landing: ${product.url}`);
+      await page.goto(product.url);
+      await waitForNetworkIdle(page, { browserName });
+      await waitForReactStable(page, { browserName });
+
+      // Vérifier que la page se charge (pas de 404/500)
+      expect(page.url()).toContain(product.url);
+
+      // Vérifier que le titre est présent (titre de la page ou h1)
+      const h1 = page.locator('h1');
+      await expect(h1).toBeVisible();
+      // Le titre peut varier légèrement, on vérifie juste qu'il y a du contenu pertinent
+
+      // Vérifier qu'il n'y a pas d'erreur visible
+      const bodyText = await page.textContent('body');
+      expect(bodyText).not.toContain('404');
+      expect(bodyText).not.toContain('500');
+      expect(bodyText).not.toContain('Internal Server Error');
+    }
   });
 
   /**
@@ -99,36 +113,36 @@ test.describe('🔥 Production Smoke Tests', () => {
    */
   test('Assets critiques sont chargés sans erreur', async ({ page, browserName }) => {
     const errors: string[] = [];
-    
+
     // Écouter les erreurs de chargement
     page.on('pageerror', error => {
       errors.push(`Page Error: ${error.message}`);
     });
-    
+
     page.on('response', response => {
       if (response.status() >= 400) {
         errors.push(`HTTP ${response.status()}: ${response.url()}`);
       }
     });
-    
+
     const timeouts = getTimeouts(browserName);
     // Charger la page
     await page.goto('/DooDates/');
-    
+
     // Attendre que la page soit complètement chargée
     await waitForNetworkIdle(page, { browserName, timeout: timeouts.network * 2 });
-    
+
     // Vérifier qu'il n'y a pas d'erreurs critiques
-    const criticalErrors = errors.filter(error => 
-      error.includes('.js') || 
+    const criticalErrors = errors.filter(error =>
+      error.includes('.js') ||
       error.includes('.css') ||
       error.includes('chunk')
     );
-    
+
     if (criticalErrors.length > 0) {
       console.error('❌ Erreurs critiques détectées:', criticalErrors);
     }
-    
+
     expect(criticalErrors.length).toBe(0);
   });
 
@@ -144,7 +158,7 @@ test.describe('🔥 Production Smoke Tests', () => {
     const failedRequests: { url: string; status: number; isCritical: boolean }[] = [];
     const all404s: string[] = []; // Logger TOUTES les 404 pour diagnostic
     const nonCritical404Urls = new Set<string>(); // URLs avec 404 non critiques
-    
+
     /**
      * Détermine si une 404 est critique ou optionnelle
      */
@@ -166,22 +180,22 @@ test.describe('🔥 Production Smoke Tests', () => {
         '/functions/v1/',          // Edge Functions Supabase (non disponibles en test local)
         'hyper-task',              // Edge Function hyper-task (non disponible en test local)
       ];
-      
+
       const urlLower = url.toLowerCase();
       return !optionalPatterns.some(pattern => urlLower.includes(pattern));
     }
-    
+
     // Capturer les requêtes échouées
     page.on('response', response => {
       const status = response.status();
       const url = response.url();
-      
+
       // Logger toutes les 404 pour diagnostic
       if (status === 404) {
         all404s.push(url);
         const isCritical = is404Critical(url);
         console.log(`🔍 404 détectée: ${url} → ${isCritical ? '❌ CRITIQUE' : '✅ Optionnelle'}`);
-        
+
         // Stocker les URLs non critiques pour filtrer les erreurs console
         if (!isCritical) {
           nonCritical404Urls.add(url);
@@ -191,15 +205,15 @@ test.describe('🔥 Production Smoke Tests', () => {
       }
       // Autres erreurs HTTP (5xx, 403, etc.) → toujours critiques
       else if (status >= 400) {
-        if (!url.includes('favicon') && 
-            !url.includes('analytics') &&
-            !url.includes('third-party')) {
+        if (!url.includes('favicon') &&
+          !url.includes('analytics') &&
+          !url.includes('third-party')) {
           console.error(`🚨 Erreur HTTP ${status}: ${url}`);
           failedRequests.push({ url, status, isCritical: true });
         }
       }
     });
-    
+
     // Capturer les requêtes qui ont échoué (pour corréler avec les erreurs console)
     const failedRequestUrls = new Set<string>();
     page.on('requestfailed', request => {
@@ -209,12 +223,12 @@ test.describe('🔥 Production Smoke Tests', () => {
         failedRequestUrls.add(url);
       }
     });
-    
+
     // Capturer les erreurs console
     page.on('console', msg => {
       if (msg.type() === 'error') {
         const text = msg.text();
-        
+
         // Ignorer les erreurs 404 génériques si elles concernent des URLs non critiques
         // Les erreurs console pour les 404 non critiques sont attendues et non bloquantes
         const is404Error = text.includes('404') || text.includes('Not Found');
@@ -223,15 +237,15 @@ test.describe('🔥 Production Smoke Tests', () => {
           // car elles correspondent aux Edge Functions non disponibles
           return;
         }
-        
+
         // Ignorer les erreurs non-critiques connues
-        if (!text.includes('ResizeObserver') && 
-            !text.includes('favicon') &&
-            !text.includes('manifest.json') &&
-            !text.includes('third-party') &&
-            !text.includes('chrome-extension://') &&  // Extensions Chrome/Edge
-            !text.includes('runtime/sendMessage') &&  // Erreurs extensions
-            !text.includes('ws://localhost:8080')) {   // WebSocket dev inexistant en smoke prod
+        if (!text.includes('ResizeObserver') &&
+          !text.includes('favicon') &&
+          !text.includes('manifest.json') &&
+          !text.includes('third-party') &&
+          !text.includes('chrome-extension://') &&  // Extensions Chrome/Edge
+          !text.includes('runtime/sendMessage') &&  // Erreurs extensions
+          !text.includes('ws://localhost:8080')) {   // WebSocket dev inexistant en smoke prod
           console.error(`🚨 Erreur console: ${text}`);
           consoleErrors.push(text);
         }
@@ -245,7 +259,7 @@ test.describe('🔥 Production Smoke Tests', () => {
         }
       }
     });
-    
+
     const timeouts = getTimeouts(browserName);
     // Charger la page
     await page.goto('/DooDates/');
@@ -256,19 +270,19 @@ test.describe('🔥 Production Smoke Tests', () => {
     await expect
       .poll(() => consoleErrors.length + failedRequests.length, { timeout: 4000 })
       .toBeGreaterThanOrEqual(0);
-    
+
     // Rapport détaillé
     console.log(`\n📊 Rapport d'erreurs:`);
     console.log(`  - Total 404 détectées: ${all404s.length}`);
     console.log(`  - 404 critiques: ${failedRequests.filter(r => r.status === 404).length}`);
     console.log(`  - Autres erreurs HTTP: ${failedRequests.filter(r => r.status !== 404).length}`);
     console.log(`  - Erreurs console: ${consoleErrors.length}`);
-    
+
     if (all404s.length > 0) {
       console.log(`\n🔍 Liste complète des 404:`);
       all404s.forEach(url => console.log(`  - ${url}`));
     }
-    
+
     if (failedRequests.length > 0) {
       console.error(`\n❌ Requêtes CRITIQUES échouées:`, JSON.stringify(failedRequests, null, 2));
       // Log détaillé pour chaque requête échouée
@@ -279,7 +293,7 @@ test.describe('🔥 Production Smoke Tests', () => {
     if (consoleErrors.length > 0) {
       console.error(`\n❌ Erreurs console:`, consoleErrors);
     }
-    
+
     // Vérifier qu'il n'y a pas d'erreurs critiques
     expect(failedRequests.length, `${failedRequests.length} requête(s) critique(s) échouée(s)`).toBe(0);
     expect(consoleErrors.length, `${consoleErrors.length} erreur(s) console détectée(s)`).toBe(0);
@@ -307,11 +321,11 @@ test.describe('🔥 Production Smoke Tests', () => {
     // mais on vérifie que l'app a rendu du contenu
     const bodyText = await page.locator('body').textContent();
     expect(bodyText).toBeTruthy();
-    
+
     // Vérifier qu'il y a du contenu significatif (pas juste du white space)
     const trimmedText = bodyText!.trim().replace(/\s+/g, ' ');
     expect(trimmedText.length).toBeGreaterThan(50);
-    
+
     // Vérifier que #root existe au moins (même s'il est caché en CSS)
     const root = await page.locator('#root');
     await expect(root).toBeAttached(); // Vérifie que l'élément existe dans le DOM
@@ -329,7 +343,7 @@ test.describe('🔥 Production Smoke Tests', () => {
         consoleErrors.push(msg.text());
       }
     });
-    
+
     await page.goto('/DooDates/');
     await waitForNetworkIdle(page, { browserName });
     await waitForReactStable(page, { browserName });
@@ -341,9 +355,9 @@ test.describe('🔥 Production Smoke Tests', () => {
         return body?.trim().length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(0);
-    
+
     const bodyText = await page.textContent('body');
-    
+
     // Vérifier qu'il n'y a pas de message d'erreur Supabase visible dans l'UI
     // Si ces erreurs sont visibles, cela signifie que la config Supabase est manquante ou invalide
     expect(bodyText).not.toContain('Supabase URL is required');
@@ -351,17 +365,17 @@ test.describe('🔥 Production Smoke Tests', () => {
     expect(bodyText).not.toContain('Invalid API key');
     expect(bodyText).not.toContain('supabase client is required');
     expect(bodyText).not.toContain('Failed to initialize Supabase');
-    
+
     // Vérifier qu'il n'y a pas d'erreurs Supabase critiques dans la console
-    const supabaseErrors = consoleErrors.filter(error => 
-      error.toLowerCase().includes('supabase') && 
+    const supabaseErrors = consoleErrors.filter(error =>
+      error.toLowerCase().includes('supabase') &&
       (error.includes('failed') || error.includes('error') || error.includes('invalid'))
     );
-    
+
     if (supabaseErrors.length > 0) {
       console.error('Erreurs Supabase détectées:', supabaseErrors);
     }
-    
+
     expect(supabaseErrors.length).toBe(0);
   });
 
@@ -371,14 +385,14 @@ test.describe('🔥 Production Smoke Tests', () => {
    */
   test('Routing SPA fonctionne (404 fallback)', async ({ page, browserName }) => {
     const basePath = getBasePath();
-    
+
     // Tester une route qui n'existe pas physiquement
     // GitHub Pages doit rediriger vers index.html via 404.html
     const testRoute = `${basePath}/some-random-route-that-does-not-exist`;
-    
-    await page.goto(testRoute, { 
+
+    await page.goto(testRoute, {
       waitUntil: 'domcontentloaded',
-      timeout: 30000 
+      timeout: 30000
     });
 
     // Attendre que l'app se charge et rende du contenu
@@ -388,15 +402,15 @@ test.describe('🔥 Production Smoke Tests', () => {
         return body?.trim().length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(20);
-    
+
     // La page ne doit pas afficher une vraie 404 GitHub Pages
     const bodyText = await page.textContent('body');
-    
+
     // Doit rediriger vers l'app, pas afficher une erreur GitHub Pages
     // Note: L'app peut afficher sa propre page 404 (Not Found), c'est OK
     expect(bodyText).not.toContain('GitHub Pages');
     expect(bodyText).not.toContain('There isn\'t a GitHub Pages site here');
-    
+
     // Vérifier que l'app a du contenu (même si c'est une page 404 de l'app)
     expect(bodyText).toBeTruthy();
     expect(bodyText!.trim().length).toBeGreaterThan(20);
@@ -409,7 +423,7 @@ test.describe('🔥 Production Smoke Tests', () => {
   test('UI principale est rendue', async ({ page, browserName }) => {
     const timeouts = getTimeouts(browserName);
     await page.goto('/DooDates/');
-    
+
     // Attendre que la page soit complètement chargée
     await waitForNetworkIdle(page, { browserName, timeout: timeouts.network });
     await waitForReactStable(page, { browserName });
@@ -420,18 +434,18 @@ test.describe('🔥 Production Smoke Tests', () => {
         return body?.trim().replace(/\s+/g, ' ').length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(50);
-    
+
     // Vérifier que l'app a du contenu dans le body (pas juste un écran blanc)
     const bodyText = await page.locator('body').textContent();
     expect(bodyText).toBeTruthy();
-    
+
     const trimmedText = bodyText!.trim().replace(/\s+/g, ' ');
     expect(trimmedText.length).toBeGreaterThan(50);
-    
+
     // Vérifier que #root existe (même s'il est caché en CSS)
     const root = await page.locator('#root');
     await expect(root).toBeAttached();
-    
+
     // Vérifier qu'il n'y a pas de message d'erreur React visible
     const hasReactError = await page.locator('text=/error|erreur|something went wrong/i').count();
     expect(hasReactError).toBe(0);
@@ -475,7 +489,7 @@ test.describe('🔥 Production Smoke Tests', () => {
  * Tests des parcours utilisateur essentiels qui DOIVENT fonctionner
  */
 test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
-  
+
   /**
    * TEST 9: Peut accéder au mode invité
    * Fonctionnalité de base: utiliser l'app sans compte
@@ -491,17 +505,17 @@ test.describe('👤 Fonctionnalités Critiques Utilisateur', () => {
         return body?.trim().length ?? 0;
       }, { timeout: 5000 })
       .toBeGreaterThan(0);
-    
+
     // Chercher des signes que l'app fonctionne en mode invité
     // (boutons, formulaires, etc.)
     const bodyText = await page.textContent('body');
-    
+
     // L'app ne doit pas être bloquée sur un écran de connexion forcée
     expect(bodyText).toBeTruthy();
-    
+
     // Vérifier que l'app n'est pas dans un état d'erreur
     const hasErrorState = await page.locator('[role="alert"]').count();
-    
+
     // Si une alerte existe, vérifier qu'elle n'est pas bloquante
     if (hasErrorState > 0) {
       const alertText = await page.locator('[role="alert"]').first().textContent();

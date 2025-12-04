@@ -41,6 +41,8 @@ export interface TestPoll {
   status: 'active' | 'closed';
   createdAt: string;
   updatedAt: string;
+  settings?: Record<string, any>;
+  creator_id?: string;
 }
 
 /**
@@ -78,11 +80,11 @@ export async function createTestTags(
     color: tag.color,
     createdAt: new Date().toISOString(),
   }));
-  
+
   await page.evaluate((tags) => {
     localStorage.setItem('doodates_tags', JSON.stringify(tags));
   }, testTags);
-  
+
   return testTags;
 }
 
@@ -102,20 +104,20 @@ export async function createTestTag(
     const stored = localStorage.getItem('doodates_tags');
     return stored ? JSON.parse(stored) : [];
   });
-  
+
   const newTag: TestTag = {
     id: `tag-${Date.now()}`,
     name: tag.name,
     color: tag.color,
     createdAt: new Date().toISOString(),
   };
-  
+
   const updatedTags = [...existingTags, newTag];
-  
+
   await page.evaluate((tags) => {
     localStorage.setItem('doodates_tags', JSON.stringify(tags));
   }, updatedTags);
-  
+
   return newTag;
 }
 
@@ -137,11 +139,11 @@ export async function createTestFolders(
     icon: folder.icon,
     createdAt: new Date().toISOString(),
   }));
-  
+
   await page.evaluate((folders) => {
     localStorage.setItem('doodates_folders', JSON.stringify(folders));
   }, testFolders);
-  
+
   return testFolders;
 }
 
@@ -162,20 +164,20 @@ export async function createTestConversation(
     updatedAt: new Date().toISOString(),
     ...conversation,
   };
-  
+
   // Récupérer les conversations existantes
   const existingConversations = await page.evaluate(() => {
     const stored = localStorage.getItem('doodates_conversations');
     return stored ? JSON.parse(stored) : [];
   });
-  
+
   // Ajouter la nouvelle conversation
   const updatedConversations = [...existingConversations, testConversation];
-  
+
   await page.evaluate((conversations) => {
     localStorage.setItem('doodates_conversations', JSON.stringify(conversations));
   }, updatedConversations);
-  
+
   return testConversation;
 }
 
@@ -196,11 +198,11 @@ export async function createTestConversations(
     updatedAt: new Date().toISOString(),
     ...conv,
   }));
-  
+
   await page.evaluate((conversations) => {
     localStorage.setItem('doodates_conversations', JSON.stringify(conversations));
   }, testConversations);
-  
+
   return testConversations;
 }
 
@@ -216,27 +218,32 @@ export async function createTestPoll(
   poll: Omit<TestPoll, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<TestPoll> {
   const { slug, ...restPoll } = poll;
+  // Récupérer le device ID pour le creator_id par défaut
+  const deviceId = await page.evaluate(() => localStorage.getItem('dd-device-id'));
+
   const testPoll: TestPoll = {
     id: `test-poll-${Date.now()}`,
     slug: slug || `test-poll-${Date.now()}`,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    settings: restPoll.settings || {},
+    creator_id: restPoll.creator_id || deviceId || 'test-device-id',
     ...restPoll,
   };
-  
+
   // Récupérer les polls existants
   const existingPolls = await page.evaluate(() => {
     const stored = localStorage.getItem('doodates_polls');
     return stored ? JSON.parse(stored) : [];
   });
-  
+
   // Ajouter le nouveau poll
   const updatedPolls = [...existingPolls, testPoll];
-  
+
   await page.evaluate((polls) => {
     localStorage.setItem('doodates_polls', JSON.stringify(polls));
   }, updatedPolls);
-  
+
   return testPoll;
 }
 
@@ -261,7 +268,7 @@ export async function clearTestData(
   const clearFolders = options?.folders ?? clearAll;
   const clearConversations = options?.conversations ?? clearAll;
   const clearPolls = options?.polls ?? clearAll;
-  
+
   await page.evaluate(({ clearTags, clearFolders, clearConversations, clearPolls }) => {
     if (clearTags) localStorage.removeItem('doodates_tags');
     if (clearFolders) localStorage.removeItem('doodates_folders');
@@ -289,33 +296,33 @@ export async function setupTestData(
   folders: TestFolder[];
   conversations: TestConversation[];
 }> {
-  const tags = options?.tags 
+  const tags = options?.tags
     ? await createTestTags(page, options.tags)
     : await createTestTags(page, [
-        { name: 'Test Tag 1', color: '#3b82f6' },
-        { name: 'Test Tag 2', color: '#ef4444' },
-        { name: 'Test Tag 3', color: '#10b981' },
-      ]);
-  
+      { name: 'Test Tag 1', color: '#3b82f6' },
+      { name: 'Test Tag 2', color: '#ef4444' },
+      { name: 'Test Tag 3', color: '#10b981' },
+    ]);
+
   const folders = options?.folders
     ? await createTestFolders(page, options.folders)
     : await createTestFolders(page, [
-        { name: 'Test Folder 1', color: '#3b82f6', icon: '📁' },
-        { name: 'Test Folder 2', color: '#ef4444', icon: '📂' },
-      ]);
-  
+      { name: 'Test Folder 1', color: '#3b82f6', icon: '📁' },
+      { name: 'Test Folder 2', color: '#ef4444', icon: '📂' },
+    ]);
+
   const conversations = options?.conversations
     ? await createTestConversations(page, options.conversations)
     : await createTestConversation(page, {
-        title: 'Conversation de test',
-        status: 'completed',
-        firstMessage: 'Premier message de test',
-        messageCount: 1,
-        isFavorite: false,
-        tags: [],
-        metadata: {},
-      }).then(c => [c]);
-  
+      title: 'Conversation de test',
+      status: 'completed',
+      firstMessage: 'Premier message de test',
+      messageCount: 1,
+      isFavorite: false,
+      tags: [],
+      metadata: {},
+    }).then(c => [c]);
+
   return { tags, folders, conversations: Array.isArray(conversations) ? conversations : [conversations] };
 }
 

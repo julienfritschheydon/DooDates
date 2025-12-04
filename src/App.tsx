@@ -34,6 +34,7 @@ const LoadingSpinner = () => (
 const Vote = lazy(() => import("./pages/Vote"));
 const Results = lazy(() => import("./pages/Results"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
+const MainLanding = lazy(() => import("./pages/MainLanding"));
 const DateCreator = lazy(() => import("./pages/DateCreator"));
 const FormCreator = lazy(() => import("./pages/FormCreator"));
 const AICreator = lazy(() => import("./pages/AICreator"));
@@ -451,8 +452,8 @@ const App = () => {
                             {/* ConversationProvider LEGACY - À migrer progressivement */}
                             <ConversationProvider>
                               <Routes>
-                                {/* Route / vers LandingPage (Marketing) */}
-                                <Route path="/" element={<LandingPage />} />
+                                {/* Route / vers MainLanding (Nouvelle Landing) */}
+                                <Route path="/" element={<MainLanding />} />
 
                                 {/* Workspace IA - Uses AICreator */}
                                 <Route path="/workspace" element={<AICreator />} />
@@ -461,9 +462,9 @@ const App = () => {
                                 <Route path="/workspace/availability" element={<AICreator />} />
 
                                 {/* Product Workspaces */}
-                                <Route path="/date-polls/workspace/date" element={<AICreator />} />
-                                <Route path="/form-polls/workspace/form" element={<AICreator />} />
-                                <Route path="/availability-polls/workspace/availability" element={<AICreator />} />
+                                <Route path="/date-polls/workspace/date" element={<DatePollsLayout><AICreator hideSidebar /></DatePollsLayout>} />
+                                <Route path="/form-polls/workspace/form" element={<FormPollsLayout><AICreator hideSidebar /></FormPollsLayout>} />
+                                <Route path="/availability-polls/workspace/availability" element={<AvailabilityPollsLayout><AICreator hideSidebar /></AvailabilityPollsLayout>} />
 
                                 {/* Product Landing Pages */}
                                 <Route path="/date-polls" element={<DatePollsLanding />} />
@@ -475,6 +476,16 @@ const App = () => {
                                 <Route path="/date-polls/dashboard" element={<DatePollsLayout><DatePollsDashboard /></DatePollsLayout>} />
                                 <Route path="/form-polls/dashboard" element={<FormPollsLayout><FormPollsDashboard /></FormPollsLayout>} />
                                 <Route path="/availability-polls/dashboard" element={<AvailabilityPollsLayout><AvailabilityPollsDashboard /></AvailabilityPollsLayout>} />
+
+                                {/* Product Journals */}
+                                <Route path="/date-polls/journal" element={<DatePollsLayout><ConsumptionJournal /></DatePollsLayout>} />
+                                <Route path="/form-polls/journal" element={<FormPollsLayout><ConsumptionJournal /></FormPollsLayout>} />
+                                <Route path="/availability-polls/journal" element={<AvailabilityPollsLayout><ConsumptionJournal /></AvailabilityPollsLayout>} />
+
+                                {/* Product Settings */}
+                                <Route path="/date-polls/settings" element={<DatePollsLayout><Settings /></DatePollsLayout>} />
+                                <Route path="/form-polls/settings" element={<FormPollsLayout><Settings /></FormPollsLayout>} />
+                                <Route path="/availability-polls/settings" element={<AvailabilityPollsLayout><Settings /></AvailabilityPollsLayout>} />
 
                                 {/* Product Pricing Pages */}
                                 {/* Product Pricing Pages */}

@@ -1,0 +1,210 @@
+
+> vite_react_shadcn_ts@0.0.0 lint
+> eslint . --report-unused-disable-directives --max-warnings 0 --cache --cache-location .eslintcache
+
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\anomaly-detector.ts
+   19:10  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  445:13  warning  Unexpected lexical declaration in case block  no-case-declarations
+  446:13  warning  Unexpected lexical declaration in case block  no-case-declarations
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\GeminiChatInterface.tsx
+  215:7  warning  React Hook useCallback has an unnecessary dependency: 'pollTypeProp'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\PollCreator.tsx
+  669:6  warning  React Hook useEffect has a missing dependency: 'toast'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\dashboard\useDashboardData.ts
+  461:6  warning  React Hook useCallback has an unnecessary dependency: 'user.id'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\layout\SidebarContext.tsx
+  30:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\polls\DateQuestionVote.tsx
+  132:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\polls\DateResultsView.tsx
+  49:6  warning  React Hook useMemo has a missing dependency: 'getDateScore'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\products\ProductList.tsx
+  108:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  128:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\products\date-polls\DatePollCreate.tsx
+  16:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\products\form-polls\FormPollCreate.tsx
+  16:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\products\quizz\QuizzCreate.tsx
+  16:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\shared\ProductHeader.tsx
+  11:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\components\voting\VotingSwipe.tsx
+  256:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  355:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  375:69  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  378:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  449:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  520:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  534:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  536:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\contexts\AnalyticsContext.tsx
+    6:31  warning  Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+   11:54  warning  Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+   29:61  warning  Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+   90:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  104:39  warning  Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\contexts\AuthContext.tsx
+  72:6  warning  React Hook React.useEffect has missing dependencies: 'context.session' and 'context.user'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\contexts\FeatureFlagsContext.tsx
+  74:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\contexts\ProductContext.tsx
+  261:6   warning  React Hook useEffect has a missing dependency: 'loadProducts'. Either include it or remove the dependency array                 react-hooks/exhaustive-deps
+  280:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\hooks\useDragToSelect.ts
+  33:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\hooks\useGeoLocation.ts
+  40:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\hooks\useMessageSender.ts
+  598:5  warning  React Hook useCallback has a missing dependency: 'options.pollType'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\hooks\useSmartNavigation.ts
+  37:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\ai\gemini\gemini-service.ts
+   50:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  411:16  warning  Unnecessary escape character: \/          no-useless-escape
+  411:18  warning  Unnecessary escape character: \-          no-useless-escape
+  411:29  warning  Unnecessary escape character: \/          no-useless-escape
+  411:31  warning  Unnecessary escape character: \-          no-useless-escape
+  412:14  warning  Unnecessary escape character: \/          no-useless-escape
+  412:16  warning  Unnecessary escape character: \-          no-useless-escape
+  412:27  warning  Unnecessary escape character: \/          no-useless-escape
+  412:29  warning  Unnecessary escape character: \-          no-useless-escape
+  444:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\ai\gemini\hints\hints-validator.ts
+    7:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   30:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   42:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   87:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  126:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\ai\products\form\FormPollService.ts
+   40:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  184:52  warning  Unnecessary escape character: \.          no-useless-escape
+  335:72  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\conversationStorage.ts
+  17:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\e2e-detection.ts
+  24:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\hooks\useProduct.ts
+   83:42  warning  Unexpected any. Specify a different type                                                                                                      @typescript-eslint/no-explicit-any
+  102:5   warning  React Hook useCallback has missing dependencies: 'productId' and 'session?.access_token'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\hooks\useProductAPI.ts
+   79:5   warning  React Hook useCallback has a missing dependency: 'session?.access_token'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   90:34  warning  Unexpected any. Specify a different type                                                                                    @typescript-eslint/no-explicit-any
+  100:34  warning  Unexpected any. Specify a different type                                                                                    @typescript-eslint/no-explicit-any
+  110:34  warning  Unexpected any. Specify a different type                                                                                    @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\hooks\useProductValidation.ts
+   24:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  114:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  158:16  warning  Unnecessary escape character: \-          no-useless-escape
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\products\date-polls\date-polls-service.ts
+   85:11  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  153:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  159:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  166:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  213:85  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  232:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  265:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  268:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  287:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  311:8   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  329:74  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  335:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  352:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\products\date-polls\index.ts
+  23:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\products\form-polls\form-polls-service.ts
+  130:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  165:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  173:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\products\form-polls\index.ts
+  30:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\products\index.ts
+  16:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\products\quizz\index.ts
+  26:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\products\quizz\quizz-service.ts
+  144:24  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  405:7   warning  Unexpected lexical declaration in case block  no-case-declarations
+  406:7   warning  Unexpected lexical declaration in case block  no-case-declarations
+  439:39  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\security\consent-logger.ts
+   28:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   95:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  137:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  166:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  209:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\security\ip-hash.ts
+  44:20  warning  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  69:20  warning  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\security\rate-limiter.ts
+  185:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  185:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  185:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  205:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\lib\storage\storageUtils.ts
+  27:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  51:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  53:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\pages\AvailabilityPollCreatorContent.tsx
+  130:8  error  Parsing error: Expression expected
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\pages\AvailabilityPollVote.tsx
+  404:4  error  Parsing error: Expression expected
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\pages\PollCreator.tsx
+  144:4  error  Parsing error: Expression expected
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\src\types\poll-suggestions.ts
+  48:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\testing_AICreationWorkspace.tsx
+  229:6  warning  React Hook useEffect has a missing dependency: 'openEditor'. Either include it or remove the dependency array                                                   react-hooks/exhaustive-deps
+  347:6  warning  React Hook useEffect has missing dependencies: 'location.pathname', 'location.search', and 'smartNavigate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Ô£û 113 problems (3 errors, 110 warnings)
+

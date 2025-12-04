@@ -1,0 +1,78 @@
+[1A[2K[2m[WebServer] [22m
+[2m[WebServer] [22m> vite_react_shadcn_ts@0.0.0 dev:e2e
+[2m[WebServer] [22m> node scripts/start-e2e-server.cjs
+[2m[WebServer] [22m
+
+[1A[2K[2m[WebServer] [22mStarting Vite dev server...
+
+[1A[2K[2m[WebServer] [22m
+[2m[WebServer] [22m  [32m[1mVITE[22m v6.4.1[39m  [42m [1mtest[22m [49m  [2mready in [0m[1m827[22m[2m[0m ms[22m
+[2m[WebServer] [22m
+
+[1A[2K[2m[WebServer] [22m  [32mÔ×£[39m  [1mLocal[22m:   [36mhttp://localhost:[1m8080[22m/DooDates/[39m
+[2m[WebServer] [22m  [32mÔ×£[39m  [1mNetwork[22m: [36mhttp://192.168.1.15:[1m8080[22m/DooDates/[39m
+
+
+Running 18 tests using 1 worker
+
+[1A[2K[1/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:37:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Affichage quotas pour un utilisateur authentifi├®
+[1A[2K[2m[WebServer] [22mServer is ready!
+
+[1A[2K[2/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:85:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @smoke @critical - Charger le dashboard sans erreur
+[1A[2K[3/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:102:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @smoke @critical - Charger les dashboards produits (Date, Form, Availability)
+[1A[2K[chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:102:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @smoke @critical - Charger les dashboards produits (Date, Form, Availability)
+Testing dashboard: Date Polls
+
+[1A[2K  1) [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:102:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @smoke @critical - Charger les dashboards produits (Date, Form, Availability) 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('[data-testid="poll-item"]:has-text("Sondage Date")').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-testid="poll-item"]:has-text("Sondage Date")').first()[22m
+
+
+      176 |         // This confirms the dashboard is filtering correctly and displaying data
+      177 |         const pollItem = page.locator(`[data-testid="poll-item"]:has-text("${dashboard.expectedTitle}")`).first();
+    > 178 |         await expect(pollItem).toBeVisible({ timeout: timeouts.element });
+          |                                ^
+      179 |       }
+      180 |     });
+      181 |   });
+        at C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\tests\e2e\dashboard-complete.spec.ts:178:32
+        at withConsoleGuard (C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\tests\e2e\utils.ts:63:12)
+        at C:\Users\Julien Fritsch\Documents\GitHub\DooDates-bug\tests\e2e\dashboard-complete.spec.ts:110:5
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\e2e-dashboard-complete-Das-4ca20-its-Date-Form-Availability--chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    Error Context: test-results\e2e-dashboard-complete-Das-4ca20-its-Date-Form-Availability--chromium\error-context.md
+
+
+[1A[2K[4/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:183:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Rechercher une conversation
+[1A[2K[5/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:207:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Filtrer par statut (Tous, Brouillons, Actifs, Cl├┤tur├®s, Archiv├®s)
+[1A[2K[6/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:242:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Filtrer par tags
+[1A[2K[7/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:273:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Filtrer par dossier
+[1A[2K[8/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:302:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Cr├®er un nouveau tag depuis les filtres
+[1A[2K[9/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:342:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Cr├®er un nouveau dossier depuis les filtres
+[1A[2K[10/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:393:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Basculer entre vue grille et vue tableau
+[1A[2K[11/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:433:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - S├®lectionner/d├®s├®lectionner des conversations
+[1A[2K[12/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:477:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - S├®lectionner tout
+[1A[2K[13/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:502:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Pagination fonctionne
+[1A[2K[14/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:550:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Afficher l'indicateur de quota
+[1A[2K[15/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:564:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - Fermer le dashboard (bouton X)
+[1A[2K[16/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:581:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @functional - G├®rer tags/dossiers depuis une carte (d├®j├á impl├®ment├® mais test├® ici)
+[1A[2K[17/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:624:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @edge - Dashboard vide (aucune conversation)
+[1A[2K[18/18] [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:638:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @edge - Recherche sans r├®sultats
+[1A[2K  1 failed
+    [chromium] ÔÇ║ tests\e2e\dashboard-complete.spec.ts:102:3 ÔÇ║ Dashboard - Fonctionnalit├®s Compl├¿tes ÔÇ║ @smoke @critical - Charger les dashboards produits (Date, Form, Availability) 
+  15 did not run
+  2 passed (31.6s)
+
+[36m  Serving HTML report at http://localhost:60273. Press Ctrl+C to quit.[39m

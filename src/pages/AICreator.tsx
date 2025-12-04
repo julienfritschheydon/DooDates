@@ -6,7 +6,11 @@ import { AICreationWorkspace } from "@/components/prototype/AICreationWorkspace"
  * Page de création avec IA
  * Redirige vers le workspace IA avec le type de sondage spécifié dans l'URL
  */
-export default function AICreator() {
+interface AICreatorProps {
+  hideSidebar?: boolean;
+}
+
+export default function AICreator({ hideSidebar }: AICreatorProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const type = searchParams.get("type"); // "date" ou "form"
@@ -18,5 +22,5 @@ export default function AICreator() {
   }, [type]);
 
   // Afficher le workspace IA directement
-  return <AICreationWorkspace />;
+  return <AICreationWorkspace hideSidebar={hideSidebar} />;
 }

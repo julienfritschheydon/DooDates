@@ -82,6 +82,30 @@ const DEFAULT_DASHBOARD_DATA: DashboardSeedPayload = {
       tags: ['Test Tag 1', 'Test Tag 3'],
       metadata: { folderId: 'folder-2', pollId: 'test-poll-1', pollGenerated: true },
     },
+    {
+      id: 'test-conv-4',
+      title: 'Conversation Formulaire',
+      status: 'active',
+      createdAt: new Date(Date.now() - 300000000).toISOString(),
+      updatedAt: new Date().toISOString(),
+      firstMessage: 'Message formulaire',
+      messageCount: 3,
+      isFavorite: false,
+      tags: [],
+      metadata: { pollId: 'test-poll-2', pollGenerated: true },
+    },
+    {
+      id: 'test-conv-5',
+      title: 'Conversation Dispo',
+      status: 'active',
+      createdAt: new Date(Date.now() - 400000000).toISOString(),
+      updatedAt: new Date().toISOString(),
+      firstMessage: 'Message dispo',
+      messageCount: 1,
+      isFavorite: false,
+      tags: [],
+      metadata: { pollId: 'test-poll-3', pollGenerated: true },
+    },
   ],
   polls: [
     {
@@ -94,6 +118,24 @@ const DEFAULT_DASHBOARD_DATA: DashboardSeedPayload = {
       settings: {
         selectedDates: ['2025-02-01', '2025-02-02'],
       },
+    },
+    {
+      id: 'test-poll-2',
+      title: 'Sondage Formulaire',
+      slug: 'sondage-form',
+      type: 'form',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      settings: {},
+    },
+    {
+      id: 'test-poll-3',
+      title: 'Sondage Disponibilité',
+      slug: 'sondage-dispo',
+      type: 'availability',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      settings: {},
     },
   ],
 };
@@ -123,7 +165,7 @@ function getSupabaseProjectId(): string {
         }
       }
     }
-  } catch {}
+  } catch { }
 
   return 'test';
 }
@@ -149,7 +191,7 @@ async function resolveProjectId(page: Page): Promise<string> {
           }
         }
       }
-    } catch {}
+    } catch { }
 
     return 'test';
   });
@@ -161,7 +203,7 @@ async function seedLocalStorage(page: Page, payload: DashboardSeedPayload): Prom
     localStorage.setItem('doodates_tags', JSON.stringify(data.tags));
     localStorage.setItem('doodates_folders', JSON.stringify(data.folders));
     localStorage.setItem('doodates_conversations', JSON.stringify(data.conversations));
-    localStorage.setItem('dev-polls', JSON.stringify(data.polls));
+    localStorage.setItem('doodates_polls', JSON.stringify(data.polls));
   }, { data: serializablePayload });
 }
 

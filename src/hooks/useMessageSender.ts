@@ -109,6 +109,8 @@ interface UseMessageSenderOptions {
   ) => void;
   /** Callback pour démarrer un nouveau chat (changement de type de sondage) */
   onStartNewChat?: () => Promise<void>;
+  /** Type de sondage attendu pour ce contexte (strict checking) */
+  pollType?: "date" | "form" | "availability";
 }
 
 /**
@@ -204,9 +206,8 @@ export function useMessageSender(options: UseMessageSenderOptions) {
           // Ajouter un message informatif
           const switchMessage: Message = {
             id: `ai-${Date.now()}`,
-            content: `✨ Vous souhaitez créer un ${
-              intentResult.requestedType === "form" ? "questionnaire" : "sondage de disponibilité"
-            }. Je démarre une nouvelle conversation pour vous...`,
+            content: `✨ Vous souhaitez créer un ${intentResult.requestedType === "form" ? "questionnaire" : "sondage de disponibilité"
+              }. Je démarre une nouvelle conversation pour vous...`,
             isAI: true,
             timestamp: new Date(),
           };
@@ -488,6 +489,25 @@ export function useMessageSender(options: UseMessageSenderOptions) {
         // Gemini response received successfully
         // Note: On ne efface PAS la demande en attente ici car le sondage n'est pas encore créé
         // La demande sera effacée uniquement quand l'utilisateur clique sur "Créer ce sondage"
+
+        // 🛡️ STRICT TYPE CHECKING
+        // Vérifier que le type généré correspond au type attendu (si spécifié)
+        if (options.pollType && pollResponse.data.type !== options.pollType) {
+          logger.warn("⚠️ Tentative de création de sondage de mauvais type bloquée", "poll", {
+            expected: options.pollType,
+            received: pollResponse.data.type,
+          });
+
+          const errorMessage: Message = {
+            id: `error-${Date.now()}`,
+            content: `Je ne peux pas créer ce type de sondage ici. Cette interface est réservée aux sondages de type "${options.pollType}".`,
+            isAI: true,
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, errorMessage]);
+          setIsLoading(false);
+          return;
+        }
 
         const pollType =
           pollResponse.data.type === "form" ? "questionnaire" : "sondage de disponibilité";

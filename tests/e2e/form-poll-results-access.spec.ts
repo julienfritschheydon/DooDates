@@ -24,7 +24,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     // 1. Créer un poll directement dans localStorage avec visibilité "creator-only"
     const pollSlug = `test-poll-creator-only-${Date.now()}`;
     const deviceId = `dev-${Date.now()}`;
-    
+
     await page.evaluate(({ slug, deviceId }) => {
       const poll = {
         id: slug,
@@ -49,7 +49,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
           },
         ],
       };
-      
+
       const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
       polls.push(poll);
       localStorage.setItem('doodates_polls', JSON.stringify(polls));
@@ -57,7 +57,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Vérifier que le créateur peut voir les résultats
-    const resultsUrl = `/poll/${pollSlug}/results`;
+    const resultsUrl = `/DooDates/poll/${pollSlug}/results`;
     await page.goto(resultsUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -69,8 +69,8 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     await page.evaluate(() => {
       localStorage.setItem('dd-device-id', `dev-other-${Date.now()}`);
     });
-    
-    const voteUrl = `/poll/${pollSlug}`;
+
+    const voteUrl = `/DooDates/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -109,7 +109,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     // 1. Créer un poll directement dans localStorage avec visibilité "voters"
     const pollSlug = `test-poll-voters-${Date.now()}`;
     const deviceId = `dev-${Date.now()}`;
-    
+
     await page.evaluate(({ slug, deviceId }) => {
       const poll = {
         id: slug,
@@ -134,7 +134,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
           },
         ],
       };
-      
+
       const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
       polls.push(poll);
       localStorage.setItem('doodates_polls', JSON.stringify(polls));
@@ -145,8 +145,8 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     await page.evaluate(() => {
       localStorage.setItem('dd-device-id', `dev-voter-${Date.now()}`);
     });
-    
-    const voteUrl = `/poll/${pollSlug}`;
+
+    const voteUrl = `/DooDates/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -156,7 +156,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     // Voter avec un nom - utiliser l'id spécifique pour plus de fiabilité
     const nameInput = await waitForElementReady(page, '#voter-name-input', { browserName, timeout: timeouts.element });
     await nameInput.fill('Test Voter');
-    
+
     const option = await waitForElementReady(page, 'input[type="radio"]', { browserName, timeout: timeouts.element });
     await option.check();
 
@@ -171,7 +171,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
 
     // 4. Cliquer sur le bouton et vérifier l'accès
     await seeResultsBtn.click();
-    
+
     // Attendre que la page de résultats se charge
     await waitForNetworkIdle(page, { browserName });
 
@@ -184,7 +184,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     // 1. Créer un poll directement dans localStorage avec visibilité "public"
     const pollSlug = `test-poll-public-${Date.now()}`;
     const deviceId = `dev-${Date.now()}`;
-    
+
     await page.evaluate(({ slug, deviceId }) => {
       const poll = {
         id: slug,
@@ -209,7 +209,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
           },
         ],
       };
-      
+
       const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
       polls.push(poll);
       localStorage.setItem('doodates_polls', JSON.stringify(polls));
@@ -217,7 +217,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Accéder directement aux résultats sans voter
-    const resultsUrl = `/poll/${pollSlug}/results`;
+    const resultsUrl = `/DooDates/poll/${pollSlug}/results`;
     await page.goto(resultsUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -231,7 +231,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     // 1. Créer un poll directement dans localStorage
     const pollSlug = `test-poll-email-${Date.now()}`;
     const deviceId = `dev-${Date.now()}`;
-    
+
     await page.evaluate(({ slug, deviceId }) => {
       const poll = {
         id: slug,
@@ -255,7 +255,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
           },
         ],
       };
-      
+
       const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
       polls.push(poll);
       localStorage.setItem('doodates_polls', JSON.stringify(polls));
@@ -263,7 +263,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Voter avec email
-    const voteUrl = `/poll/${pollSlug}`;
+    const voteUrl = `/DooDates/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -308,7 +308,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     // 1. Créer un poll directement dans localStorage
     const pollSlug = `test-poll-email-validation-${Date.now()}`;
     const deviceId = `dev-${Date.now()}`;
-    
+
     await page.evaluate(({ slug, deviceId }) => {
       const poll = {
         id: slug,
@@ -332,7 +332,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
           },
         ],
       };
-      
+
       const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
       polls.push(poll);
       localStorage.setItem('doodates_polls', JSON.stringify(polls));
@@ -340,7 +340,7 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
     }, { slug: pollSlug, deviceId });
 
     // 2. Voter avec checkbox cochée mais sans email
-    const voteUrl = `/poll/${pollSlug}`;
+    const voteUrl = `/DooDates/poll/${pollSlug}`;
     await page.goto(voteUrl, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
 
@@ -362,18 +362,18 @@ test.describe('Form Poll - Accès aux résultats et Email', () => {
 
     // Ne pas remplir l'email et essayer de soumettre
     const submitBtn = await waitForElementReady(page, 'button[type="submit"], button:has-text("Envoyer")', { browserName, timeout: timeouts.element });
-    
+
     await submitBtn.click();
 
     // 3. Vérifier que le formulaire n'a pas été soumis (attente explicite)
     // Le message de confirmation ne doit PAS apparaître
     const confirmationMessage = page.locator('text=Merci pour votre participation');
     await expect(confirmationMessage).not.toBeVisible({ timeout: timeouts.element });
-    
+
     // Vérifier qu'un message d'erreur est visible OU que la validation HTML5 bloque
     const errorMessage = page.locator('[role="alert"]').filter({ hasText: /email/i });
     const errorVisible = await safeIsVisible(errorMessage);
-    
+
     if (errorVisible) {
       // Message d'erreur visible → OK
       await expect(errorMessage).toBeVisible();

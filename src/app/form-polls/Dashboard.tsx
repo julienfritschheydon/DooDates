@@ -12,6 +12,9 @@ import { useConversations } from "@/hooks/useConversations";
 import { usePollDeletionCascade } from "@/hooks/usePollDeletionCascade";
 import { useToast } from "@/hooks/use-toast";
 import { useViewportItems } from "@/hooks/useViewportItems";
+import { useFreemiumQuota } from "@/hooks/useFreemiumQuota";
+import { useAuth } from "@/contexts/AuthContext";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
     Pagination,
     PaginationContent,
@@ -32,6 +35,8 @@ const FormPollsDashboard: React.FC = () => {
     const { deleteConversation } = useConversations();
     const { deletePollWithCascade } = usePollDeletionCascade();
     const { toast } = useToast();
+    const { user } = useAuth();
+    const { status: quotaStatus } = useFreemiumQuota();
 
     const [viewMode, setViewMode] = useState<ViewMode>(() => {
         if (typeof window !== "undefined" && window.innerWidth < 768) {
@@ -188,17 +193,98 @@ const FormPollsDashboard: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 pb-8">
+        <div className="min-h-screen bg-[#0a0a0a] pb-8" data-testid="dashboard-ready">
             <div className="pt-4">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     {renderHeader()}
+
+                    {/* Quota indicator */}
+                    <div
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${quotaStatus.conversations.isNearLimit
+                            ? "bg-orange-900/20 border-orange-500/50"
+                            : "bg-blue-900/20 border-blue-500/50"
+                            }`}
+                    >
+                        <Info
+                            className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : "text-blue-400"
+                                }`}
+                        />
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div
+                                        className="flex-1 cursor-pointer hover:opacity-80 transition-opacity group"
+                                        onClick={() => navigate("/form-polls/journal")}
+                                    >
+                                        <p className="text-sm text-gray-300 group-hover:text-gray-200 transition-colors">
+                                            <span className="font-semibold">
+                                                {quotaStatus.conversations.used + quotaStatus.aiMessages.used}/
+                                                {quotaStatus.conversations.limit + quotaStatus.aiMessages.limit}
+                                            </span>{" "}
+                                            crédits utilisés
+                                            <span className="ml-2 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                → Voir le journal
+                                            </span>
+                                            {!user && (
+                                                <span className="ml-2 text-blue-400">
+                                                    • Créez un compte pour synchroniser vos données
+                                                </span>
+                                            )}
+                                        </p>
+                                        <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
+                                            <div
+                                                className={`h-2 rounded-full transition-all ${quotaStatus.conversations.isNearLimit ||
+                                                    quotaStatus.aiMessages.isNearLimit
+                                                    ? "bg-orange-500"
+                                                    : "bg-blue-500"
+                                                    }`}
+                                                style={{
+                                                    width: `${Math.min(
+                                                        Math.max(
+                                                            quotaStatus.conversations.percentage,
+                                                            quotaStatus.aiMessages.percentage,
+                                                        ),
+                                                        100,
+                                                    )}%`,
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Cliquez pour voir le journal de consommation des crédits</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => navigate("/form-polls/journal")}
+                                className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                                title="Voir le journal de consommation"
+                            >
+                                <FileText className="w-4 h-4" />
+                                <span className="hidden sm:inline">Journal</span>
+                            </button>
+
+                            <button
+                                onClick={() => navigate("/form-polls/pricing")}
+                                className="flex items-center gap-2 px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                                title="Voir les quotas et tarifs"
+                            >
+                                <Info className="w-4 h-4" />
+                                <span className="hidden sm:inline">En savoir plus</span>
+                                <ExternalLink className="w-3 h-3" />
+                            </button>
+                        </div>
+                    </div>
 
                     <DashboardFilters
                         searchQuery={searchQuery}

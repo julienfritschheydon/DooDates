@@ -87,7 +87,8 @@ interface GeminiChatInterfaceProps {
   hideStatusBar?: boolean;
   darkTheme?: boolean;
   voiceRecognition?: ReturnType<typeof import("../hooks/useVoiceRecognition").useVoiceRecognition>;
-  pollType?: "date" | "form";
+  pollType?: "date" | "form" | "availability";
+  inputHidden?: boolean;
 }
 
 export type GeminiChatHandle = {
@@ -105,6 +106,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       hideStatusBar = false,
       darkTheme = false,
       pollType: pollTypeProp,
+      inputHidden = false,
     },
     ref,
   ) => {
@@ -129,7 +131,7 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
 
     // Récupérer le type depuis l'URL pour adapter les textes (priorité à la prop, sinon URL, sinon "date")
     const urlParams = new URLSearchParams(location.search);
-    const pollTypeFromUrl = (pollTypeProp || urlParams.get("type") || "date") as "date" | "form";
+    const pollTypeFromUrl = (pollTypeProp || urlParams.get("type") || "date") as "date" | "form" | "availability";
 
     // 🎯 FIX E2E: Auto-focus sur le textarea après ouverture de l'éditeur (mobile)
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -210,8 +212,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
           setLastAIProposal(null);
         }
       },
-      [],
+      [pollTypeProp], // Dépendance ajoutée pour le strict checking
     );
+
     const setMessagesAdapter = useCallback(
       (updater: (prev: Message[]) => Message[]) => {
         setMessagesRaw((prevMessages) => {
@@ -264,9 +267,9 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     useEffect(() => {
       const pollWithHighlight = currentPoll as
         | (typeof currentPoll & {
-            _highlightedId?: string;
-            _highlightType?: "add" | "remove" | "modify";
-          })
+          _highlightedId?: string;
+          _highlightType?: "add" | "remove" | "modify";
+        })
         | null;
       if (
         pollWithHighlight &&
@@ -638,10 +641,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       onUserMessage,
       setMessages: setMessagesAdapter,
       setIsLoading,
-      setLastAIProposal,
+      setIsLoading,
+      setLastAIProposal: setLastAIProposal,
       setModifiedQuestion,
       onStartNewChat: handleNewChat,
       hasCurrentPoll: !!currentPoll,
+      pollType: pollTypeProp, // Passer le type attendu pour le strict checking
     });
 
     useEffect(() => {
@@ -936,12 +941,12 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
       if (pollManagement.selectedPollData?.type === "form" || currentPoll?.type === "form") {
         const formDraft: FormPollDraft = currentPoll
           ? {
-              id: currentPoll.id,
-              type: "form",
-              title: currentPoll.title,
-              questions: (currentPoll.questions || []) as AnyFormQuestion[],
-              conditionalRules: currentPoll.conditionalRules || [],
-            }
+            id: currentPoll.id,
+            type: "form",
+            title: currentPoll.title,
+            questions: (currentPoll.questions || []) as AnyFormQuestion[],
+            conditionalRules: currentPoll.conditionalRules || [],
+          }
           : pollManagement.getFormDraft();
 
         return (
@@ -1021,17 +1026,17 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
             initialData={
               pollManagement.selectedPollData
                 ? {
-                    ...(pollManagement.selectedPollData as DatePollSuggestion),
-                    dateGroups: (
-                      pollManagement.selectedPollData as DatePollSuggestion
-                    ).dateGroups?.map((g) => ({
-                      ...g,
-                      type:
-                        g.type === "week" || g.type === "fortnight"
-                          ? ("range" as const)
-                          : (g.type as "custom" | "weekend" | "range"),
-                    })),
-                  }
+                  ...(pollManagement.selectedPollData as DatePollSuggestion),
+                  dateGroups: (
+                    pollManagement.selectedPollData as DatePollSuggestion
+                  ).dateGroups?.map((g) => ({
+                    ...g,
+                    type:
+                      g.type === "week" || g.type === "fortnight"
+                        ? ("range" as const)
+                        : (g.type as "custom" | "weekend" | "range"),
+                  })),
+                }
                 : undefined
             }
             onBack={() => {
@@ -1068,18 +1073,27 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
         />
 
         {/* Zone de saisie - Fixe en bas de l'écran */}
-        <ChatInput
-          value={inputValue}
-          onChange={setInputValue}
-          onSend={handleSendMessage}
-          onKeyPress={handleKeyPress}
-          onUserMessage={onUserMessage}
-          isLoading={isLoading}
-          darkTheme={darkTheme}
-          voiceRecognition={voiceRecognition}
-          textareaRef={textareaRef}
-          pollType={pollTypeFromUrl}
-        />
+        {/* Zone de saisie - Fixe en bas de l'écran */}
+        {!inputHidden ? (
+          <ChatInput
+            value={inputValue}
+            onChange={setInputValue}
+            onSend={handleSendMessage}
+            onKeyPress={handleKeyPress}
+            onUserMessage={onUserMessage}
+            isLoading={isLoading}
+            darkTheme={darkTheme}
+            voiceRecognition={voiceRecognition}
+            textareaRef={textareaRef}
+            pollType={pollTypeFromUrl}
+          />
+        ) : (
+          <div className="p-4 border-t border-gray-800 bg-[#0a0a0a] text-center">
+            <p className="text-gray-500 text-sm">
+              L'assistant IA n'est pas disponible pour ce type de sondage.
+            </p>
+          </div>
+        )}
 
         {/* Authentication Incentive Modal */}
         <AuthIncentiveModal

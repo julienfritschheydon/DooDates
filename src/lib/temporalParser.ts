@@ -47,6 +47,7 @@ export interface ParsedTemporalInput {
   // Métadonnées
   chronoParsedText?: string; // Texte parsé par Chrono-node
   detectedKeywords: string[]; // Mots-clés détectés (pour debug)
+  timeSlots?: Array<{ start: string; end: string; dates?: string[] }>; // Créneaux horaires imposés
 }
 
 interface LanguageConfig {
@@ -154,8 +155,8 @@ export async function parseTemporalInput(
   const dayOfWeek: number[] | undefined =
     dayOfWeekMatches.length > 0
       ? Array.from(
-          new Set(dayOfWeekMatches.map((match) => config.dayNames.indexOf(match[1].toLowerCase()))),
-        )
+        new Set(dayOfWeekMatches.map((match) => config.dayNames.indexOf(match[1].toLowerCase()))),
+      )
       : undefined;
   if (dayOfWeek && dayOfWeek.length > 0) {
     detectedKeywords.push(`day:${dayOfWeek.map((d) => config.dayNames[d]).join(",")}`);

@@ -1,5 +1,5 @@
 import { Suspense, useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSmartNavigation } from "../../hooks/useSmartNavigation";
 import { useUIState } from "../prototype/UIStateProvider";
 import { createLazyIcon } from "../../lib/lazy-icons";
@@ -61,6 +61,14 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
   const { toast: showToast } = useToast();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { smartNavigate } = useSmartNavigation();
+  const location = useLocation();
+
+  // Determine dashboard URL based on current path
+  const getDashboardUrl = () => {
+    if (location.pathname.includes("/form")) return "/form-polls/dashboard";
+    if (location.pathname.includes("/availability")) return "/availability-polls/dashboard";
+    return "/date-polls/dashboard"; // Default to date polls
+  };
 
   const [recentPolls, setRecentPolls] = useState<Poll[]>([]);
   const [conversations, setConversations] = useState<ReturnType<typeof getConversations>>([]);
@@ -77,7 +85,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
             if (
               !existing ||
               new Date(poll.updated_at || poll.created_at) >
-                new Date(existing.updated_at || existing.created_at)
+              new Date(existing.updated_at || existing.created_at)
             ) {
               map.set(poll.id, poll);
             }
@@ -137,9 +145,8 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
 
       {/* Sidebar gauche */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Header */}
         <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800">
@@ -193,7 +200,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
 
               <button
                 onClick={() => {
-                  navigate("/dashboard");
+                  navigate(getDashboardUrl());
                   if (isMobile) setIsSidebarOpen(false);
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors font-medium"

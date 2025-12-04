@@ -141,6 +141,8 @@ export const LandingPage: React.FC = () => {
                     </div>
                 </div>
             </section>
+            {/* Footer */}
+            <Footer />
         </div>
     );
 };

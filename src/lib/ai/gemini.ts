@@ -1,4 +1,4 @@
-import CalendarQuery, { CalendarDay } from "../calendar-generator";
+import CalendarQuery from "../calendar-generator";
 import { handleError, ErrorFactory, logError } from "../error-handling";
 import { logger } from "../logger";
 import { formatDateLocal, getTodayLocal } from "../date-utils";
@@ -7,6 +7,12 @@ import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
 import { getEnv, isDev } from "../env";
 import type { ParsedTemporalInput } from "../temporalParser";
+import { buildPollGenerationPrompt } from "./prompts/pollPrompts";
+
+import { datePollService, type DatePollSuggestion } from "./products/date/DatePollService";
+import { formPollService, type FormPollSuggestion } from "./products/form/FormPollService";
+
+export type PollSuggestion = DatePollSuggestion | FormPollSuggestion;
 
 // Choisir entre appel direct Gemini ou Edge Function
 // Pour forcer appel direct, définir VITE_USE_DIRECT_GEMINI=true dans .env.local
@@ -31,66 +37,6 @@ const RATE_LIMIT: { REQUESTS_PER_SECOND: number; REQUESTS_PER_DAY: number } = {
   REQUESTS_PER_DAY: 960, // Quota pour le chat
 };
 
-// Types pour Form Polls (questionnaires)
-export interface FormQuestion {
-  text: string;
-  title: string;
-  type: "single" | "multiple" | "text" | "long-text" | "rating" | "nps" | "matrix" | "date";
-  required: boolean;
-  options?: string[]; // Pour single/multiple
-  maxChoices?: number; // Pour multiple
-  placeholder?: string; // Pour text/long-text
-  maxLength?: number; // Pour text/long-text
-  // Rating-specific fields
-  ratingScale?: number; // 5 ou 10 (par défaut 5)
-  ratingStyle?: "numbers" | "stars" | "emojis"; // Style d'affichage (par défaut numbers)
-  ratingMinLabel?: string; // Label pour la valeur minimale
-  ratingMaxLabel?: string; // Label pour la valeur maximale
-  // Text validation fields
-  validationType?: "email" | "phone" | "url" | "number" | "date"; // Type de validation pour champs text
-  // Matrix-specific fields
-  matrixRows?: Array<{ id: string; label: string }>; // Lignes (aspects à évaluer)
-  matrixColumns?: Array<{ id: string; label: string }>; // Colonnes (échelle de réponse)
-  matrixType?: "single" | "multiple"; // Une seule réponse par ligne ou plusieurs
-  matrixColumnsNumeric?: boolean; // Colonnes numériques (1-5) au lieu de texte
-  // Date-specific fields
-  selectedDates?: string[]; // Dates au format ISO string (YYYY-MM-DD)
-  timeSlotsByDate?: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>; // Créneaux horaires par date
-  timeGranularity?: "15min" | "30min" | "1h"; // Granularité des créneaux horaires
-  allowMaybeVotes?: boolean; // Permettre les votes "peut-être"
-  allowAnonymousVotes?: boolean; // Permettre les votes anonymes
-}
-
-export interface FormPollSuggestion {
-  title: string;
-  description?: string;
-  questions: FormQuestion[];
-  type: "form";
-  conditionalRules?: any[];
-}
-
-// Types pour Date Polls (sondages de dates)
-export interface DatePollSuggestion {
-  title: string;
-  description?: string;
-  dates: string[];
-  timeSlots?: Array<{
-    start: string;
-    end: string;
-    dates?: string[]; // Dates spécifiques auxquelles ce créneau s'applique
-  }>;
-  type: "date" | "datetime" | "custom";
-  participants?: string[];
-  // 🔧 Groupes de dates (week-ends, semaines, quinzaines)
-  dateGroups?: Array<{
-    dates: string[];
-    label: string;
-    type: "weekend" | "week" | "fortnight" | "custom" | "range";
-  }>;
-}
-
-// Union type pour supporter les deux types de sondages
-export type PollSuggestion = DatePollSuggestion | FormPollSuggestion;
 
 export interface GeminiResponse {
   success: boolean;
@@ -118,178 +64,10 @@ export class GeminiService {
   /**
    * Détecte si l'input contient du markdown de questionnaire
    */
-  private isMarkdownQuestionnaire(text: string): boolean {
-    const hasTitle = /^#\s+.+$/m.test(text);
-    const hasSections = /^##\s+.+$/m.test(text);
-    const hasQuestions = /^###\s*Q\d+/m.test(text);
-    // Support multiple checkbox formats: ☐, □, - [ ], etc.
-    const hasCheckboxes = /-\s*[☐□]|^-\s*\[\s*\]/m.test(text);
-
-    const isMarkdown = hasTitle && hasSections && hasQuestions && text.length > 200;
-
-    if (isDev()) {
-      logger.info(
-        `Markdown detection: title=${hasTitle}, sections=${hasSections}, questions=${hasQuestions}, checkboxes=${hasCheckboxes}, length=${text.length}, result=${isMarkdown}`,
-        "api",
-      );
-    }
-
-    // Doit avoir au moins titre + questions ET sections
-    return isMarkdown;
-  }
 
   /**
    * Parse un questionnaire markdown et extrait la structure
    */
-  private parseMarkdownQuestionnaire(markdown: string): string | null {
-    try {
-      // Nettoyer les commentaires HTML
-      let cleaned = markdown.replace(/<!--[\s\S]*?-->/g, "");
-      cleaned = cleaned.replace(/\n{3,}/g, "\n\n").trim();
-
-      // Extraire titre principal
-      const titleMatch = cleaned.match(/^#\s+(.+?)$/m);
-      if (!titleMatch) return null;
-      const title = titleMatch[1].trim();
-
-      // Construire un format UNIFORME simplifié pour Gemini
-      let prompt = `TITRE: ${title}\n\n`;
-
-      // Extraire sections avec split() (méthode robuste testée)
-      const parts = cleaned.split(/(?=^##\s+)/gm);
-      const sections = parts.filter(
-        (part: string) => part.startsWith("##") && !part.startsWith("###"),
-      );
-
-      let questionNumber = 0;
-      const conditionalPatterns: Array<{
-        questionNumber: number;
-        title: string;
-      }> = [];
-
-      for (const sectionContent of sections) {
-        const lines = sectionContent.split("\n");
-        const sectionTitle = lines[0].replace(/^##\s+/, "").trim();
-
-        // Extraire questions avec split() (plus robuste que regex)
-        const questionParts = sectionContent.split(/(?=^###\s)/gm);
-        const questionBlocks = questionParts.filter((part: string) =>
-          part.trim().startsWith("###"),
-        );
-
-        for (const questionBlock of questionBlocks) {
-          questionNumber++;
-
-          // Extraire le titre de la question (première ligne sans les ###)
-          const firstLine = questionBlock.split("\n")[0];
-          const questionTitle = firstLine
-            .replace(/^###\s*(?:Q\d+[a-z]*\.|Q\d+[a-z]*|Question\s*\d+:?|\d+[).]\s*)\s*/, "")
-            .trim();
-
-          // Détecter si la question est conditionnelle (Si NON, Si OUI, etc.)
-          const conditionalMatch = questionTitle.match(/^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i);
-          if (conditionalMatch) {
-            conditionalPatterns.push({
-              questionNumber,
-              title: questionTitle,
-            });
-          }
-
-          // Détecter type de question
-          const lowerBlock = questionBlock.toLowerCase();
-          let type = "single";
-          let maxChoices = undefined;
-
-          // Texte libre (détection étendue)
-          if (
-            lowerBlock.includes("réponse libre") ||
-            lowerBlock.includes("texte libre") ||
-            lowerBlock.includes("votre réponse") ||
-            lowerBlock.includes("_votre réponse") ||
-            lowerBlock.includes("commentaires") ||
-            lowerBlock.includes("expliquez") ||
-            lowerBlock.includes("précisez") ||
-            lowerBlock.includes("détailler")
-          ) {
-            type = "text";
-          }
-          // Choix multiple avec contrainte
-          else {
-            const maxMatch = lowerBlock.match(/max\s+(\d+)|(\d+)\s+max/);
-            if (maxMatch) {
-              type = "multiple";
-              maxChoices = parseInt(maxMatch[1] || maxMatch[2]);
-            }
-            // Choix unique explicite
-            else if (
-              lowerBlock.includes("1 seule réponse") ||
-              lowerBlock.includes("une réponse") ||
-              lowerBlock.includes("une seule")
-            ) {
-              type = "single";
-            }
-          }
-
-          // Format UNIFORME simplifié
-          prompt += `QUESTION ${questionNumber} [${type}`;
-          if (maxChoices) prompt += `, max=${maxChoices}`;
-          prompt += `, required]:\n${questionTitle}\n`;
-
-          // Extraire options (support TOUS les formats)
-          if (type !== "text") {
-            // Support: -, *, •, ○, ☐, □, ✓, [ ]
-            const optionRegex = /^[\s]*[-*\u2022\u25cb\u2610\u25a1\u2713]\s*(?:\[\s*\])?\s*(.+)$/gm;
-            const options: string[] = [];
-            let optionMatch;
-
-            while ((optionMatch = optionRegex.exec(questionBlock)) !== null) {
-              let option = optionMatch[1].trim();
-
-              // Nettoyer les symboles checkbox résiduels (☐, □, ✓, [ ])
-              option = option.replace(/^[☐□✓\u2610\u25a1\u2713]\s*/, "");
-              option = option.replace(/^\[\s*\]\s*/, "");
-              option = option.trim();
-
-              // Ignorer les sous-titres markdown et "Autre :"
-              if (!option.startsWith("#") && !option.startsWith("Autre :") && option.length > 0) {
-                options.push(option);
-              }
-            }
-
-            if (options.length > 0) {
-              // Format simple : une ligne par option
-              options.forEach((opt: string) => {
-                prompt += `- ${opt}\n`;
-              });
-            }
-          } else {
-            prompt += `(réponse libre)\n`;
-          }
-
-          prompt += "\n";
-        }
-      }
-
-      // Ajouter les règles conditionnelles détectées
-      if (conditionalPatterns.length > 0) {
-        prompt += `\nRÈGLES CONDITIONNELLES:\n`;
-        for (const pattern of conditionalPatterns) {
-          const match = pattern.title.match(/^Si\s+(NON|OUI|non|oui)[,\s]+(.+)/i);
-          if (match) {
-            const condition = match[1].toUpperCase();
-            const dependsOnQuestion = pattern.questionNumber - 1;
-            prompt += `- Question ${pattern.questionNumber} s'affiche seulement si Question ${dependsOnQuestion} = "${condition === "OUI" ? "Oui" : "Non"}"\n`;
-          }
-        }
-        prompt += "\n";
-      }
-
-      return prompt;
-    } catch (error) {
-      logger.error("Erreur parsing markdown questionnaire", "api", error);
-      return null;
-    }
-  }
 
   /**
    * Détecte le type de sondage demandé par l'utilisateur
@@ -434,7 +212,7 @@ export class GeminiService {
 
     try {
       // NOUVEAU : Détecter si c'est du markdown
-      const isMarkdown = this.isMarkdownQuestionnaire(userInput);
+      const isMarkdown = formPollService.isMarkdownQuestionnaire(userInput);
       let processedInput = userInput;
       let pollType: "date" | "form";
 
@@ -444,7 +222,7 @@ export class GeminiService {
 
       if (isMarkdown) {
         // Parser le markdown et convertir en prompt structuré
-        const parsedPrompt = this.parseMarkdownQuestionnaire(userInput);
+        const parsedPrompt = formPollService.parseMarkdownQuestionnaire(userInput);
         if (parsedPrompt) {
           processedInput = parsedPrompt;
           pollType = "form"; // Les questionnaires markdown sont toujours des Form Polls
@@ -493,7 +271,7 @@ export class GeminiService {
           allowedDates = fixedParsed.allowedDates.length > 0 ? fixedParsed.allowedDates : undefined;
 
           // Générer les hints Gemini basés sur le parsing
-          dateHints = this.buildDateHintsFromParsed(fixedParsed, userInput);
+          dateHints = datePollService.buildDateHintsFromParsed(fixedParsed, userInput);
 
           if (isDev()) {
             logger.info("📅 Dates pré-parsées avec temporalParser", "api", {
@@ -517,10 +295,10 @@ export class GeminiService {
       let prompt: string;
       if (pollType === "form") {
         // Détecter si c'est un questionnaire structuré (markdown parsé) ou une simple demande
-        const isStructured = this.isStructuredQuestionnaire(processedInput);
+        const isStructured = formPollService.isStructuredQuestionnaire(processedInput);
         prompt = isStructured
-          ? this.buildFormPollPromptCopy(processedInput)
-          : this.buildFormPollPromptGenerate(processedInput);
+          ? formPollService.buildFormPollPromptCopy(processedInput)
+          : formPollService.buildFormPollPromptGenerate(processedInput);
 
         if (isDev()) {
           logger.info(
@@ -530,7 +308,7 @@ export class GeminiService {
         }
       } else {
         // Construire le prompt avec les hints de dates en priorité
-        prompt = this.buildPollGenerationPrompt(processedInput, dateHints);
+        prompt = buildPollGenerationPrompt(processedInput, dateHints);
       }
 
       // Appeler Gemini via backend configuré (direct ou Edge Function)
@@ -640,16 +418,16 @@ export class GeminiService {
 
       // Parser selon le type détecté
       const pollData =
-        pollType === "form" ? this.parseFormPollResponse(text) : this.parseGeminiResponse(text);
+        pollType === "form" ? formPollService.parseFormPollResponse(text) : this.parseGeminiResponse(text);
 
       if (pollData) {
         const processedPollData =
           pollType === "date"
             ? postProcessSuggestion(pollData as DatePollSuggestion, {
-                userInput,
-                allowedDates,
-                parsedTemporal: parsedTemporal, // Passer le parsing au post-processor
-              })
+              userInput,
+              allowedDates,
+              parsedTemporal: parsedTemporal, // Passer le parsing au post-processor
+            })
             : pollData;
 
         const successMessage =
@@ -1038,12 +816,12 @@ RÈGLE ABSOLUE - PLUSIEURS JOURS + PÉRIODE:
 
 Dates autorisées (OBLIGATOIRE de générer TOUTES ces dates):
 ${parsed.allowedDates
-  .map((d: string) => {
-    const dateObj = new Date(d + "T00:00:00");
-    const dayName = dayNames[dateObj.getDay()];
-    return `  - ${d} (${dayName})`;
-  })
-  .join("\n")}
+          .map((d: string) => {
+            const dateObj = new Date(d + "T00:00:00");
+            const dayName = dayNames[dateObj.getDay()];
+            return `  - ${d} (${dayName})`;
+          })
+          .join("\n")}
 
 ⚠️⚠️ CRITIQUE : Ne pas générer seulement 1 date ! L'utilisateur veut voir les options pour TOUS les jours mentionnés !`
         : "";
@@ -1056,9 +834,8 @@ Jour demandé: ${jourName}
 Période: dans ${parsed.relativeWeeks} semaines
 Date de référence: ${targetDate}
 ${multipleDaysHint}
-${
-  !hasMultipleDays
-    ? `RÈGLE ABSOLUE - JOUR SPÉCIFIQUE + PÉRIODE:
+${!hasMultipleDays
+          ? `RÈGLE ABSOLUE - JOUR SPÉCIFIQUE + PÉRIODE:
 - Proposer UNIQUEMENT les ${jourName}s autour de la période (1-2 dates MAXIMUM)
 - Filtrer pour ne garder QUE les ${jourName}s
 - Générer 2-3 créneaux par date
@@ -1067,8 +844,8 @@ Dates autorisées (filtrer pour ne garder que les ${jourName}s):
 ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
 
 ⚠️ CRITIQUE : Ne proposer QUE des ${jourName}s, pas d'autres jours !`
-    : ""
-}
+          : ""
+        }
 `;
     }
 
@@ -1109,12 +886,12 @@ ${parsed.isMealContext ? `→ OBLIGATOIRE : 1 CRÉNEAU UNIQUEMENT (partagé entr
 
 Dates autorisées (OBLIGATOIRE de générer TOUTES ces dates):
 ${parsed.allowedDates
-  .map((d: string, idx: number) => {
-    const dateObj = new Date(d + "T00:00:00");
-    const dayName = dayNames[dateObj.getDay()];
-    return `  - ${d} (${dayName})`;
-  })
-  .join("\n")}
+            .map((d: string, idx: number) => {
+              const dateObj = new Date(d + "T00:00:00");
+              const dayName = dayNames[dateObj.getDay()];
+              return `  - ${d} (${dayName})`;
+            })
+            .join("\n")}
 
 ⚠️⚠️ CRITIQUE : Ne pas générer seulement 1 date ! L'utilisateur veut voir les options pour TOUS les jours mentionnés !`;
       }
@@ -1142,16 +919,14 @@ ${parsed.isProfessionalContext ? "Contexte professionnel détecté → Week-ends
 ${multipleDaysHint}
 ${jourHint}
 ${partenariatsHint}
-${
-  !hasMultipleDays && !hasMultipleNumericDates
-    ? `RÈGLE ABSOLUE - DATE SPÉCIFIQUE:
+${!hasMultipleDays && !hasMultipleNumericDates
+          ? `RÈGLE ABSOLUE - DATE SPÉCIFIQUE:
 - Proposer CETTE DATE UNIQUEMENT (${targetDate})
 - Ajouter MAXIMUM 1-2 alternatives très proches (±1 jour) SEULEMENT si vraiment nécessaire`
-    : ""
-}
-${
-  parsed.isMealContext && !/partenariats/.test(userInput) && !isMealWithMultipleDays
-    ? `
+          : ""
+        }
+${parsed.isMealContext && !/partenariats/.test(userInput) && !isMealWithMultipleDays
+          ? `
 ⚠️⚠️⚠️ CAS SPÉCIAL REPAS + DATE SPÉCIFIQUE ⚠️⚠️⚠️
 Pour "${userInput}" :
 → OBLIGATOIRE : 1 DATE UNIQUEMENT (${targetDate})
@@ -1159,8 +934,8 @@ Pour "${userInput}" :
 → INTERDIT : Générer plusieurs créneaux (pas 2, pas 3, UNIQUEMENT 1)
 → INTERDIT : Générer plusieurs dates
 Cette règle PRIME sur toutes les autres !`
-    : ""
-}
+          : ""
+        }
 
 Dates autorisées${hasMultipleDays || hasMultipleNumericDates ? " (OBLIGATOIRE de générer TOUTES ces dates)" : " (pour alternatives seulement si vraiment nécessaire ET pas repas)"}:
 ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
@@ -1210,498 +985,25 @@ ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
 `;
   }
 
-  private buildContextualHints(userInput: string): string {
-    const lowerInput = userInput.toLowerCase();
-    const hints: string[] = [];
 
-    // Détection des contextes spécifiques (par ordre de priorité)
 
-    // Visite musée/exposition
-    if (/visite.*musée|musée.*visite|visite.*exposition|exposition.*visite/.test(lowerInput)) {
-      hints.push(
-        "CONTEXTE: Visite au musée/exposition → Générer 2-3 créneaux entre 14h00 et 17h00 (durée 2-3h)",
-      );
-    }
-
-    // Footing/course/jogging
-    if (/footing|course|jogging|running/.test(lowerInput)) {
-      hints.push("CONTEXTE: Activité sportive → Générer 1-2 créneaux courts (1h max)");
-      if (/vendredi.*soir|soir.*vendredi/.test(lowerInput)) {
-        hints.push("  - Vendredi soir: 18h00-19h00");
-      }
-      if (/samedi.*matin|matin.*samedi/.test(lowerInput)) {
-        hints.push("  - Samedi matin: 08h00-09h00");
-      }
-    }
-
-    // Visio/visioconférence
-    if (/visio|visioconférence|visioconference/.test(lowerInput)) {
-      hints.push(
-        "CONTEXTE: Visioconférence → Générer maximum 2 créneaux entre 18h00 et 20h00 (durée 1h)",
-      );
-    }
-
-    // Brunch
-    if (/brunch/.test(lowerInput)) {
-      hints.push("CONTEXTE: Brunch → Générer créneaux entre 11h30 et 13h00 (durée 90min)");
-    }
-
-    // Déjeuner/partenariats
-    if (/déjeuner|dejeuner|partenariats/.test(lowerInput)) {
-      hints.push(
-        "CONTEXTE: Déjeuner/partenariats → Générer 2-3 créneaux entre 11h30 et 13h30 (durée 1h)",
-      );
-    }
-
-    // Escape game
-    if (/escape.*game|escape game/.test(lowerInput)) {
-      hints.push(
-        "CONTEXTE: Escape game → Générer créneaux en soirée entre 19h00 et 21h00 (durée 2h)",
-      );
-    }
-
-    // Séance photo
-    if (
-      /photo|séance photo/.test(lowerInput) &&
-      /dimanche/.test(lowerInput) &&
-      /matin/.test(lowerInput)
-    ) {
-      hints.push(
-        "CONTEXTE: Séance photo dimanche matin → Générer 2-3 créneaux entre 09h00 et 12h00 (durée 3h)",
-      );
-    }
-
-    // Répétition chorale
-    if (
-      /chorale|répétition/.test(lowerInput) &&
-      /samedi/.test(lowerInput) &&
-      /dimanche/.test(lowerInput)
-    ) {
-      hints.push(
-        "CONTEXTE: Répétition chorale → Générer 1 créneau samedi matin (10h-12h) et 1 créneau dimanche après-midi (15h-17h)",
-      );
-    }
-
-    // Réunion parents-profs
-    if (/parents?-?profs?/.test(lowerInput)) {
-      hints.push(
-        "CONTEXTE: Réunion parents-profs → Générer 2 créneaux en début de soirée (18h30-20h00, durée 90min)",
-      );
-    }
-
-    // Aide aux devoirs
-    if (/aide aux devoirs|devoirs/.test(lowerInput)) {
-      hints.push(
-        "CONTEXTE: Aide aux devoirs → Générer créneaux mercredi après-midi (17h-18h) ou vendredi soir (18h-19h)",
-      );
-    }
-
-    // Distribution flyers
-    if (/distribution.*flyers|flyers/.test(lowerInput)) {
-      hints.push(
-        "CONTEXTE: Distribution de flyers → Générer 2 créneaux (samedi matin 9h-11h + dimanche après-midi 14h-16h)",
-      );
-    }
-
-    // Améliorer les plages horaires génériques
-    if (/matin/.test(lowerInput) && !/brunch/.test(lowerInput)) {
-      hints.push("CONTEXTE: Matin → Générer créneaux entre 09h00 et 12h00 (pas 8h-11h)");
-    }
-
-    if (/après-midi|apres-midi/.test(lowerInput)) {
-      hints.push("CONTEXTE: Après-midi → Générer créneaux entre 14h00 et 17h00 (pas 15h-17h)");
-    }
-
-    // Soirée générique
-    if (/soir|soirée|soiree/.test(lowerInput) && !/escape/.test(lowerInput)) {
-      hints.push("CONTEXTE: Soirée → Générer créneaux entre 18h30 et 21h00");
-    }
-
-    return hints.length > 0
-      ? `\n⚠️⚠️⚠️ HINTS CONTEXTUELS DÉTECTÉS ⚠️⚠️⚠️\n${hints.join("\n")}\n`
-      : "";
-  }
-
-  private buildPollGenerationPrompt(userInput: string, dateHints: string = ""): string {
-    const contextualHints = this.buildContextualHints(userInput);
-    const today = new Date();
-
-    // Détecter contexte repas + date spécifique
-    const isMealContext = /(déjeuner|dîner|brunch|lunch|repas)/i.test(userInput);
-    const isSpecificDateInInput =
-      /(demain|aujourd'hui|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|dans \d+ jours?)/i.test(
-        userInput,
-      );
-
-    return `Tu es l'IA DooDates, expert en planification temporelle.
-${dateHints}
-${contextualHints}
-
-Demande: "${userInput}"
-
-RÈGLES FONDAMENTALES:
-1. Dates futures uniquement (>= ${getTodayLocal()})
-2. Respecter les jours demandés (si "lundi" → uniquement lundis)
-3. Calculer à partir d'aujourd'hui (${getTodayLocal()})
-
-PRIORITÉ #1 - SPÉCIFICITÉ DE LA DEMANDE:
-- Date très spécifique ("demain", "lundi", "vendredi 15") → 1 DATE PRINCIPALE, max 1-2 alternatives
-- Période vague ("cette semaine", "semaine prochaine") → 5-7 dates
-
-PRIORITÉ #2 - CRÉNEAUX HORAIRES:
-Générer timeSlots UNIQUEMENT si mentionné :
-- Heures précises ("9h", "14h30")
-- Plages horaires ("matin", "après-midi", "soir", "midi")
-- Mots-clés repas ("déjeuner", "dîner", "brunch")
-- Durées ("1h", "30 minutes")
-
-⚠️⚠️⚠️ RÈGLE ABSOLUE - REPAS + DATE SPÉCIFIQUE ⚠️⚠️⚠️
-Si la demande contient un mot-clé de REPAS ("déjeuner", "dîner", "brunch", "lunch", "repas")
-ET une DATE SPÉCIFIQUE ("demain", "lundi", "vendredi", "dans X jours") :
-→ OBLIGATOIRE : 1 DATE UNIQUEMENT (la date spécifique)
-→ OBLIGATOIRE : 1 CRÉNEAU UNIQUEMENT autour de l'heure du repas
-→ INTERDIT : Générer plusieurs créneaux
-→ INTERDIT : Générer plusieurs dates
-
-Cette règle PRIME sur toutes les autres règles de génération de créneaux !
-
-Exemples OBLIGATOIRES :
-- "déjeuner demain midi" → 1 date (demain), 1 créneau (12h30-13h30) - PAS 3 créneaux !
-- "dîner vendredi soir" → 1 date (vendredi), 1 créneau (19h00-20h00) - PAS plusieurs créneaux !
-- "brunch dimanche" → 1 date (dimanche), 1 créneau (10h00-11h00) - PAS plusieurs créneaux !
-- "repas lundi midi" → 1 date (lundi), 1 créneau (12h30-13h30) - PAS plusieurs créneaux !
-
-CRÉNEAUX PAR TYPE D'ÉVÉNEMENT:
-⚠️ IMPORTANT : Si REPAS + DATE SPÉCIFIQUE → Voir règle absolue ci-dessus (1 créneau uniquement)
-
-Pour les autres cas :
-- Déjeuners ("déjeuner", "midi") : 1 créneau (12h30-13h30) par date
-- Dîners : 1 créneau (19h00-20h00) par date
-- Matin : Plusieurs créneaux (8h-12h, toutes les 30min) - SEULEMENT si pas repas + date spécifique
-- Après-midi : Plusieurs créneaux (14h-17h, toutes les 30min) - SEULEMENT si pas repas + date spécifique
-- Soir : Plusieurs créneaux (18h30-21h00) - SEULEMENT si pas repas + date spécifique
-
-EXPRESSIONS TEMPORELLES:
-- "cette semaine" = semaine actuelle (du ${getTodayLocal()} à 7 jours)
-- "semaine prochaine" = semaine suivante
-- "demain" = ${formatDateLocal(new Date(today.getTime() + 24 * 60 * 60 * 1000))}
-- "dans X jours" = ${getTodayLocal()} + X jours
-- "dans X semaines" = ${getTodayLocal()} + (X × 7) jours
-
-EXEMPLES:
-- "réunion lundi ou mardi" → type: "date", timeSlots: []
-- "réunion lundi matin" → 1 date (lundi), plusieurs créneaux matin
-- "déjeuner demain midi" → 1 date (demain), 1 créneau (12h00-13h00)
-- "disponibilité cette semaine" → 5-7 dates, pas de créneaux
-
-FORMAT JSON:
-{
-  "title": "Titre",
-  "description": "Description optionnelle",
-  "dates": ["YYYY-MM-DD"],
-  "timeSlots": [
-    {
-      "start": "HH:MM",
-      "end": "HH:MM",
-      "dates": ["YYYY-MM-DD"],
-      "description": "Description"
-    }
-  ],
-  "type": "date" ou "datetime"
-}
-
-VÉRIFICATIONS AVANT RÉPONSE:
-1. Toutes dates >= ${getTodayLocal()}
-2. Dates correspondent aux jours demandés
-3. ⚠️ CRITIQUE : Si repas + date spécifique → VÉRIFIER qu'il n'y a qu'1 DATE et qu'1 CRÉNEAU (pas 3 créneaux !)
-4. Si date spécifique (sans repas) → max 1-2 dates
-5. Si période vague → 5-7 dates
-
-⚠️⚠️⚠️ RAPPEL FINAL - REPAS + DATE SPÉCIFIQUE ⚠️⚠️⚠️
-Si tu détectes "repas" + "date spécifique" dans la demande :
-→ GÉNÉRER EXACTEMENT 1 DATE et 1 CRÉNEAU
-→ NE PAS générer 2 ou 3 créneaux même si "midi" est mentionné
-→ Exemple "déjeuner demain midi" = 1 date, 1 créneau (12h30-13h30) - PAS 3 créneaux différents !
-
-Réponds SEULEMENT avec le JSON, aucun texte supplémentaire.`;
-  }
 
   private buildChatPrompt(userInput: string, context?: string): string {
     return `Tu es l'assistant IA de DooDates, une application de création de sondages pour planifier des rendez-vous.
 
 ${context ? `Contexte : ${context}` : ""}
 
-Utilisateur : ${userInput}
+Utilisateur: ${userInput}
 
-Réponds de manière utile et amicale. Tu peux :
+Réponds de manière utile et amicale.Tu peux:
 - Aider à créer des sondages
-- Expliquer les fonctionnalités
-- Donner des conseils sur la planification
-- Répondre aux questions sur l'application
+  - Expliquer les fonctionnalités
+    - Donner des conseils sur la planification
+      - Répondre aux questions sur l'application
 
-Reste concis et pratique. Réponds en français.`;
+Reste concis et pratique.Réponds en français.`;
   }
 
-  /**
-   * Détecte si l'input est un questionnaire structuré (markdown parsé) ou une simple demande
-   */
-  private isStructuredQuestionnaire(input: string): boolean {
-    // Détecter le nouveau format uniforme
-    return (
-      input.startsWith("TITRE:") &&
-      input.includes("QUESTION") &&
-      input.includes("[") &&
-      (input.includes("- ") || input.includes("(réponse libre)"))
-    );
-  }
-
-  /**
-   * Prompt pour COPIER un questionnaire existant (markdown parsé)
-   */
-  private buildFormPollPromptCopy(userInput: string): string {
-    return `Tu es l'IA DooDates, expert en conversion de questionnaires.
-
-OBJECTIF: Convertir EXACTEMENT ce questionnaire au format JSON sans AUCUNE modification.
-
-QUESTIONNAIRE À COPIER:
-${userInput}
-
-FORMAT DU QUESTIONNAIRE:
-- Ligne "TITRE:" suivi du titre exact
-- "QUESTION X [type, required]:" suivi du texte de la question
-- Options listées avec "- " (une par ligne)
-- "(réponse libre)" pour les questions texte
-- Section "RÈGLES CONDITIONNELLES:" si présente (optionnelle)
-
-RÈGLES ABSOLUES (MODE COPIE 100% FIDÈLE):
-1. ✅ COPIE MOT-À-MOT - Chaque texte doit être copié caractère par caractère
-2. ✅ AUCUNE REFORMULATION - Ne jamais paraphraser ou simplifier
-3. ✅ TOUT COPIER - Parenthèses, chiffres, ponctuations inclus
-4. ✅ ORDRE EXACT - Respecter l'ordre des questions et options
-
-EXEMPLES DE COPIE EXACTE:
-✅ "Je suis en file d'attente (pas encore démarré)" → COPIE TELLE QUELLE
-✅ "Très utile (5/5)" → COPIE TELLE QUELLE
-✅ "Moins de 3 mois" → COPIE TELLE QUELLE
-
-INTERDIT (exemples de ce qu'il NE FAUT PAS faire):
-❌ "Je suis en file d'attente (pas encore démarré)" → "En attente"
-❌ "Très utile (5/5)" → "Très positive"
-❌ "Moins de 3 mois" → "0-3 mois"
-❌ Supprimer des parenthèses
-❌ Changer des mots
-❌ Inverser l'ordre
-
-FORMAT JSON ATTENDU:
-{
-  "title": "Titre exact copié tel quel",
-  "questions": [
-    {
-      "title": "Question exacte copiée telle quelle",
-      "type": "single" | "multiple" | "text" | "rating" | "nps" | "matrix" | "date",
-      "required": true,
-      "options": ["Option 1 exacte", "Option 2 exacte"],  // Pour single/multiple
-      "maxChoices": X,  // si [max=X] dans le type (pour multiple)
-      "ratingScale": 5 | 10,  // Pour rating (par défaut 5)
-      "ratingStyle": "numbers" | "stars" | "emojis",  // Pour rating (par défaut numbers)
-      "ratingMinLabel": "Label min",  // Pour rating (optionnel)
-      "ratingMaxLabel": "Label max",  // Pour rating (optionnel)
-      "validationType": "email" | "phone" | "url" | "number" | "date",  // Pour text (optionnel)
-      "selectedDates": ["${getTodayLocal()}", "${formatDateLocal(new Date(Date.now() + 24 * 60 * 60 * 1000))}"],  // Pour date (optionnel - dates au format YYYY-MM-DD, année ${new Date().getFullYear()})
-      "timeSlotsByDate": {  // Pour date (optionnel - créneaux horaires par date)
-        "${getTodayLocal()}": [{"hour": 10, "minute": 0, "enabled": true}, {"hour": 14, "minute": 0, "enabled": true}]
-      },
-      "timeGranularity": "15min" | "30min" | "1h",  // Pour date (optionnel - par défaut "30min")
-      "allowMaybeVotes": true | false,  // Pour date (optionnel - par défaut false)
-      "allowAnonymousVotes": true | false  // Pour date (optionnel - par défaut false)
-    }
-  ],
-  "conditionalRules": [  // OPTIONNEL - seulement si règles détectées
-    {
-      "questionId": "question-4",  // ID de la question à masquer/afficher
-      "dependsOn": "question-3",   // ID de la question dont elle dépend
-      "showIf": {
-        "operator": "equals",
-        "value": "Non"  // Valeur qui déclenche l'affichage
-      }
-    }
-  ],
-  "type": "form"
-}
-
-IMPORTANT pour les conditionalRules:
-- Les IDs des questions doivent correspondre à l'index dans le tableau questions
-- Exemple: Question 1 → "question-1", Question 4 → "question-4"
-- Si pas de règles conditionnelles, ne pas inclure le champ "conditionalRules"
-
-Réponds UNIQUEMENT avec le JSON, rien d'autre.`;
-  }
-
-  /**
-   * Prompt pour GÉNÉRER un questionnaire créatif (demande simple)
-   */
-  private buildFormPollPromptGenerate(userInput: string): string {
-    return `Tu es l'IA DooDates, expert en création de questionnaires et formulaires.
-
-OBJECTIF: Créer un questionnaire pertinent à partir de la demande utilisateur.
-
-Demande: "${userInput}"
-
-RÈGLES DE GÉNÉRATION (MODE CRÉATIF):
-1. **TITRE** - Clair et descriptif (max 100 caractères)
-2. **QUESTIONS** - 3 à 10 questions pertinentes et logiques
-3. **TYPES DE QUESTIONS**:
-   - "single" : Choix unique (radio buttons) - pour sélectionner UNE option
-   - "multiple" : Choix multiples (checkboxes) - pour sélectionner PLUSIEURS options
-   - "text" : Réponse libre - pour commentaires ou informations textuelles
-   - "rating" : Échelle de notation (1-5 ou 1-10) - pour évaluer satisfaction/qualité
-   - "nps" : Net Promoter Score (0-10) - pour mesurer probabilité de recommandation
-   - "matrix" : Matrice (lignes × colonnes) - pour évaluer plusieurs aspects sur une même échelle
-   - "date" : Sélection de dates et horaires - pour planifier réunions, événements, rendez-vous
-4. **OPTIONS** - Pour single/multiple : 2 à 8 options claires par question
-5. **COHÉRENCE** - Questions logiques, ordonnées et sans redondance
-6. **PERTINENCE** - Adapter précisément au contexte de la demande
-
-EXEMPLES DE QUESTIONS PAR TYPE:
-
-**Single choice (choix unique):**
-{
-  "title": "Quel est votre niveau d'expérience ?",
-  "type": "single",
-  "required": true,
-  "options": ["Débutant", "Intermédiaire", "Avancé", "Expert"]
-}
-
-**Multiple choice (choix multiples):**
-{
-  "title": "Quels langages maîtrisez-vous ? (3 max)",
-  "type": "multiple",
-  "required": false,
-  "options": ["JavaScript", "Python", "Java", "C++", "Go", "Rust"],
-  "maxChoices": 3
-}
-
-**Text (réponse libre):**
-{
-  "title": "Avez-vous des suggestions pour améliorer le service ?",
-  "type": "text",
-  "required": false,
-  "placeholder": "Vos commentaires ici...",
-  "maxLength": 500
-}
-
-**Rating (échelle de notation):**
-{
-  "title": "Comment évaluez-vous la qualité du service ?",
-  "type": "rating",
-  "required": true,
-  "ratingScale": 5,  // 5 ou 10 (par défaut 5)
-  "ratingStyle": "stars",  // "numbers", "stars" ou "emojis" (par défaut "numbers")
-  "ratingMinLabel": "Très mauvais",  // Optionnel
-  "ratingMaxLabel": "Excellent"  // Optionnel
-}
-
-**NPS (Net Promoter Score):**
-{
-  "title": "Recommanderiez-vous notre service à un ami ?",
-  "type": "nps",
-  "required": true
-  // Pas de configuration : échelle fixe 0-10
-}
-
-**Text avec validation:**
-{
-  "title": "Quelle est votre adresse email ?",
-  "type": "text",
-  "required": true,
-  "validationType": "email",  // "email", "phone", "url", "number" ou "date"
-  "placeholder": "exemple@email.com"
-}
-
-**Date (sélection de dates et horaires):**
-{
-  "title": "Quelles dates vous conviennent pour la réunion ?",
-  "type": "date",
-  "required": true,
-      "selectedDates": ["${getTodayLocal()}", "${formatDateLocal(new Date(Date.now() + 24 * 60 * 60 * 1000))}", "${formatDateLocal(new Date(Date.now() + 2 * 24 * 60 * 60 * 1000))}"],  // Dates au format YYYY-MM-DD (année ${new Date().getFullYear()})
-      "timeSlotsByDate": {  // Créneaux horaires par date (optionnel)
-        "${getTodayLocal()}": [
-      {"hour": 10, "minute": 0, "enabled": true},
-      {"hour": 14, "minute": 0, "enabled": true},
-      {"hour": 16, "minute": 0, "enabled": true}
-    ],
-        "${formatDateLocal(new Date(Date.now() + 24 * 60 * 60 * 1000))}": [
-          {"hour": 9, "minute": 0, "enabled": true},
-          {"hour": 13, "minute": 0, "enabled": true}
-        ]
-  },
-  "timeGranularity": "30min",  // "15min", "30min" ou "1h" (par défaut "30min")
-  "allowMaybeVotes": false,  // Permettre les votes "peut-être" (optionnel, par défaut false)
-  "allowAnonymousVotes": false  // Permettre les votes anonymes (optionnel, par défaut false)
-}
-
-IMPORTANT pour les questions de type "date":
-- Si la demande mentionne des dates/horaires/réunions/événements, utiliser le type "date"
-- Toujours inclure au moins 2-3 dates dans "selectedDates"
-- Les dates doivent être au format ISO (YYYY-MM-DD)
-- ⚠️ CRITIQUE : Utiliser UNIQUEMENT l'année ${new Date().getFullYear()} (année actuelle)
-- ⚠️ CRITIQUE : Les dates doivent être futures ou aujourd'hui (>= ${getTodayLocal()})
-- Les horaires sont optionnels mais recommandés pour les réunions
-- Si pas d'horaires spécifiques, omettre "timeSlotsByDate" (l'utilisateur pourra les configurer manuellement)
-
-FORMAT JSON REQUIS:
-{
-  "title": "Titre du questionnaire",
-  "description": "Description optionnelle (1-2 phrases)",
-  "questions": [
-    {
-      "title": "Texte de la question",
-      "type": "single" | "multiple" | "text" | "rating" | "nps" | "matrix" | "date",
-      "required": true | false,
-      "options": ["Option 1", "Option 2", "..."], // SEULEMENT pour single/multiple
-      "maxChoices": 3, // SEULEMENT pour multiple (optionnel)
-      "placeholder": "Texte d'aide", // SEULEMENT pour text (optionnel)
-      "maxLength": 500, // SEULEMENT pour text (optionnel)
-      "validationType": "email" | "phone" | "url" | "number" | "date", // SEULEMENT pour text (optionnel)
-      "ratingScale": 5 | 10, // SEULEMENT pour rating (par défaut 5)
-      "ratingStyle": "numbers" | "stars" | "emojis", // SEULEMENT pour rating (par défaut "numbers")
-      "ratingMinLabel": "Label min", // SEULEMENT pour rating (optionnel)
-      "ratingMaxLabel": "Label max", // SEULEMENT pour rating (optionnel)
-      "selectedDates": ["${getTodayLocal()}", "${formatDateLocal(new Date(Date.now() + 24 * 60 * 60 * 1000))}"], // SEULEMENT pour date (requis - dates au format YYYY-MM-DD, utiliser l'année ${new Date().getFullYear()})
-      "timeSlotsByDate": {  // SEULEMENT pour date (optionnel - créneaux horaires par date)
-        "${getTodayLocal()}": [{"hour": 10, "minute": 0, "enabled": true}]
-      },
-      "timeGranularity": "15min" | "30min" | "1h", // SEULEMENT pour date (optionnel - par défaut "30min")
-      "allowMaybeVotes": true | false, // SEULEMENT pour date (optionnel - par défaut false)
-      "allowAnonymousVotes": true | false // SEULEMENT pour date (optionnel - par défaut false)
-    }
-  ],
-  "type": "form"
-}
-
-BONNES PRATIQUES:
-- Questions courtes et claires (max 120 caractères)
-- Options mutuellement exclusives (pas de chevauchement)
-- Ordre logique : questions générales → spécifiques
-- Équilibrer questions obligatoires/optionnelles
-- Éviter les questions biaisées ou suggestives
-- Au moins 1 question obligatoire, maximum 70% obligatoires
-
-AVANT DE RÉPONDRE:
-1. Identifier le sujet principal et l'objectif du questionnaire
-2. Générer 3-10 questions pertinentes et variées
-3. Choisir le type approprié pour chaque question
-4. Vérifier la cohérence et l'absence de redondance
-5. S'assurer que les options sont claires et complètes
-6. Valider que le questionnaire répond à la demande
-
-IMPORTANT:
-- Si la demande est vague, générer un questionnaire généraliste cohérent
-- Privilégier la qualité à la quantité (mieux 5 bonnes questions que 10 médiocres)
-- Toujours inclure au moins 1 question "text" pour les commentaires libres
-
-Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
-  }
 
   private parseGeminiResponse(text: string): DatePollSuggestion | null {
     try {
@@ -1775,194 +1077,6 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire avant ou après.`;
     }
   }
 
-  /**
-   * Parse la réponse Gemini pour les Form Polls (questionnaires)
-   * @param text Réponse brute de Gemini
-   * @returns FormPollSuggestion validée ou null
-   */
-  private parseFormPollResponse(text: string): FormPollSuggestion | null {
-    try {
-      // Nettoyer le texte pour extraire le JSON
-      const cleanText = text.trim();
-      const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
-
-      if (jsonMatch) {
-        const jsonStr = jsonMatch[0];
-        const parsed = JSON.parse(jsonStr);
-
-        // Validation structure Form Poll
-        if (
-          parsed.title &&
-          parsed.questions &&
-          Array.isArray(parsed.questions) &&
-          parsed.questions.length > 0 &&
-          parsed.type === "form"
-        ) {
-          // Valider chaque question
-          const validQuestions = parsed.questions.filter((q: FormQuestion) => {
-            // Validation basique
-            if (!q.title || !q.type) {
-              return false;
-            }
-
-            // Vérifier que le type est valide
-            const validTypes = [
-              "single",
-              "multiple",
-              "text",
-              "long-text",
-              "rating",
-              "nps",
-              "matrix",
-              "date",
-            ];
-            if (!validTypes.includes(q.type)) {
-              return false;
-            }
-
-            // Questions single/multiple DOIVENT avoir des options
-            if (q.type === "single" || q.type === "multiple") {
-              if (!Array.isArray(q.options) || q.options.length < 2) {
-                logger.warn(
-                  `Question "${q.title}" de type ${q.type} ignorée : options invalides`,
-                  "api",
-                );
-                return false;
-              }
-            }
-
-            // Questions de type "date" DOIVENT avoir des dates sélectionnées
-            if (q.type === "date") {
-              if (!Array.isArray(q.selectedDates) || q.selectedDates.length === 0) {
-                logger.warn(
-                  `Question "${q.title}" de type date ignorée : aucune date sélectionnée`,
-                  "api",
-                );
-                return false;
-              }
-              // Valider le format des dates (YYYY-MM-DD)
-              const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-              if (!q.selectedDates.every((date: string) => dateRegex.test(date))) {
-                logger.warn(
-                  `Question "${q.title}" de type date ignorée : format de dates invalide`,
-                  "api",
-                );
-                return false;
-              }
-              // Valider et corriger les années des dates
-              const currentYear = new Date().getFullYear();
-              const hasInvalidYear = q.selectedDates.some((date: string) => {
-                const year = parseInt(date.split("-")[0], 10);
-                // Vérifier si l'année est dans le passé ou trop loin dans le futur (> currentYear + 1)
-                return year < currentYear || year > currentYear + 1;
-              });
-              if (hasInvalidYear) {
-                logger.warn(
-                  `Question "${q.title}" de type date : dates avec année invalide détectées, correction automatique vers ${currentYear}`,
-                  "api",
-                );
-                // Corriger automatiquement : remplacer l'année par l'année actuelle
-                q.selectedDates = q.selectedDates.map((date: string) => {
-                  const [year, month, day] = date.split("-");
-                  const dateYear = parseInt(year, 10);
-                  // Si l'année est dans le passé ou trop loin dans le futur, utiliser l'année actuelle
-                  if (dateYear < currentYear || dateYear > currentYear + 1) {
-                    return `${currentYear}-${month}-${day}`;
-                  }
-                  return date;
-                });
-                // Mettre à jour aussi timeSlotsByDate si présent
-                if (q.timeSlotsByDate) {
-                  const correctedTimeSlots: Record<string, any> = {};
-                  Object.entries(q.timeSlotsByDate).forEach(([date, slots]) => {
-                    const [year, month, day] = date.split("-");
-                    const dateYear = parseInt(year, 10);
-                    const correctedDate =
-                      dateYear < currentYear || dateYear > currentYear + 1
-                        ? `${currentYear}-${month}-${day}`
-                        : date;
-                    correctedTimeSlots[correctedDate] = slots;
-                  });
-                  q.timeSlotsByDate = correctedTimeSlots;
-                }
-              }
-            }
-
-            return true;
-          });
-
-          // Il faut au moins 1 question valide
-          if (validQuestions.length === 0) {
-            logError(
-              ErrorFactory.validation(
-                "No valid questions in form poll",
-                "Aucune question valide dans le questionnaire",
-              ),
-              {
-                component: "GeminiService",
-                operation: "parseFormPollResponse",
-              },
-            );
-            return null;
-          }
-
-          if (isDev()) {
-            logger.info(`Form Poll parsed: ${validQuestions.length} valid questions`, "api");
-          }
-
-          const finalPoll: FormPollSuggestion = {
-            title: parsed.title,
-            description: parsed.description,
-            questions: validQuestions.map((q: FormQuestion) => ({
-              title: q.title,
-              type: q.type,
-              required: q.required !== false, // Par défaut true
-              options: q.options,
-              maxChoices: q.maxChoices,
-              placeholder: q.placeholder,
-              maxLength: q.maxLength,
-              // Rating-specific fields
-              ratingScale: q.ratingScale,
-              ratingStyle: q.ratingStyle,
-              ratingMinLabel: q.ratingMinLabel,
-              ratingMaxLabel: q.ratingMaxLabel,
-              // Matrix-specific fields
-              matrixRows: q.matrixRows,
-              matrixColumns: q.matrixColumns,
-              matrixType: q.matrixType,
-              matrixColumnsNumeric: q.matrixColumnsNumeric,
-              // Text validation fields
-              validationType: q.validationType,
-              // Date-specific fields
-              selectedDates: q.selectedDates,
-              timeSlotsByDate: q.timeSlotsByDate,
-              timeGranularity: q.timeGranularity,
-              allowMaybeVotes: q.allowMaybeVotes,
-              allowAnonymousVotes: q.allowAnonymousVotes,
-            })),
-            type: "form" as const,
-            ...(parsed.conditionalRules && {
-              conditionalRules: parsed.conditionalRules,
-            }),
-          };
-
-          return finalPoll;
-        }
-      }
-
-      return null;
-    } catch (error) {
-      logError(
-        handleError(
-          error,
-          { component: "GeminiService", operation: "parseFormPollResponse" },
-          "Erreur lors du parsing de la réponse Gemini pour FormPoll",
-        ),
-        { component: "GeminiService", operation: "parseFormPollResponse" },
-      );
-      return null;
-    }
-  }
 
   /**
    * Analyse temporelle avec techniques Counterfactual-Consistency

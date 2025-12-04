@@ -340,7 +340,7 @@ export async function createFormWithDateQuestion(
   console.log(`[INFO] Création automatique d'un formulaire avec question date: "${formTitle}"`);
 
   // Aller sur la page de création
-  await page.goto('/DooDates/workspace/form', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/form-polls/workspace/form', { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 
@@ -497,7 +497,7 @@ async function openFormFromDashboard(
   console.log(`[INFO] Navigation vers le tableau de bord...`);
 
   // Aller au tableau de bord
-  await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+  await page.goto('/DooDates/form-polls/dashboard', { waitUntil: 'domcontentloaded' });
 
   console.log(`[INFO] Recherche du formulaire "${formTitle}"...`);
 
@@ -536,7 +536,7 @@ export async function voteOnPollComplete(
   console.log(`[VOTE] Début du vote complet sur poll ${pollSlug} par ${voterName}`);
 
   // Navigation vers page de vote
-  await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
   await waitForReactStable(page, { browserName });
 

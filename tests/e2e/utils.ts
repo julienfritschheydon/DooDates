@@ -172,14 +172,18 @@ export async function enableE2ELocalMode(page: Page) {
       (window as any).__IS_E2E_TESTING__ = true;
       localStorage.setItem('e2e', '1');
       localStorage.setItem('dev-local-mode', '1');
+      localStorage.setItem('dd-device-id', 'test-device-id');
     } catch { }
   });
 
   // S'assurer que l'URL comporte le flag pour les détections basées sur location.search
-  const url = new URL(page.url() || 'http://localhost');
-  if (!url.searchParams.has('e2e-test')) {
-    url.searchParams.set('e2e-test', 'true');
-    await page.goto(url.toString(), { waitUntil: 'domcontentloaded' }).catch(() => { });
+  // Ne naviguer que si on est déjà sur une page valide (pas about:blank)
+  if (page.url() && !page.url().startsWith('about:blank')) {
+    const url = new URL(page.url());
+    if (!url.searchParams.has('e2e-test')) {
+      url.searchParams.set('e2e-test', 'true');
+      await page.goto(url.toString(), { waitUntil: 'domcontentloaded' }).catch(() => { });
+    }
   }
 }
 
@@ -478,7 +482,8 @@ export async function assertToast(page: Page, text: string, timeoutMs: number = 
 // Warmup helper: prime Vite/route chunks to avoid transient dynamic import errors on first render
 export async function warmup(page: Page) {
   // Warmup workspace (route principale pour les tests)
-  await page.goto('/workspace', { waitUntil: 'domcontentloaded' });
+  // Warmup workspace (route principale pour les tests)
+  await page.goto('/DooDates/date-polls/workspace/date', { waitUntil: 'domcontentloaded' });
   await page.reload({ waitUntil: 'domcontentloaded' });
 }
 

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { openTagsFolderDialog, verifyTagsFoldersLoaded, withConsoleGuard } from './utils';
 import { setupTestEnvironment } from './helpers/test-setup';
-import { setupTestData, createTestTags, createTestFolders, createTestConversation } from './helpers/test-data';
+import { setupTestData, createTestTags, createTestFolders, createTestConversation, createTestPoll } from './helpers/test-data';
 import { waitForNetworkIdle, waitForElementReady } from './helpers/wait-helpers';
 import { safeIsVisible } from './helpers/safe-helpers';
 import { getTimeouts } from './config/timeouts';
@@ -36,6 +36,17 @@ test.describe('Dashboard - Tags et Dossiers', () => {
    * Utilise les factories centralisées
    */
   async function setupTestDataLocal(page: Page) {
+    const pollId = 'test-poll-tags-1';
+
+    // Créer le poll associé
+    const createdPoll = await createTestPoll(page, {
+      title: 'Sondage pour tags',
+      slug: 'sondage-tags-1',
+      type: 'date',
+      status: 'active',
+      settings: { selectedDates: ['2025-01-01'] }
+    });
+
     await setupTestData(page, {
       tags: [
         { name: 'Test Tag 1', color: '#3b82f6' },
@@ -54,7 +65,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
           messageCount: 1,
           isFavorite: false,
           tags: [],
-          metadata: {},
+          metadata: { pollId: createdPoll.id, pollGenerated: true },
         },
       ],
     });
@@ -64,8 +75,8 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     await withConsoleGuard(page, async () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
-      
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -77,7 +88,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       // Ouvrir le dialogue en utilisant le helper
       const dialog = await openTagsFolderDialog(page, conversationCard);
-      
+
       // Vérifier que le dialogue contient les sections Tags et Dossier
       await expect(dialog.getByText(/Tags/i).first()).toBeVisible({ timeout: timeouts.element });
       await expect(dialog.getByText(/Dossier/i).first()).toBeVisible({ timeout: timeouts.element });
@@ -88,8 +99,8 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     await withConsoleGuard(page, async () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
-      
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -106,10 +117,10 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       const tagCheckbox = page.getByRole('checkbox', { name: /Test Tag 1/i });
       await tagCheckbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await tagCheckbox.scrollIntoViewIfNeeded();
-      
+
       // Vérifier que le dialogue est toujours visible avant le clic
       await expect(dialog).toBeVisible();
-      
+
       // Cliquer sur le checkbox et attendre qu'il soit coché
       await tagCheckbox.click({ force: true });
       await expect(tagCheckbox).toBeChecked({ timeout: timeouts.element });
@@ -119,10 +130,10 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await tag2Checkbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await tag2Checkbox.scrollIntoViewIfNeeded();
       await tag2Checkbox.click({ force: true });
-      
+
       // Attendre que le deuxième tag soit coché
       await expect(tag2Checkbox).toBeChecked({ timeout: timeouts.element });
-      
+
       // Vérifier que le dialogue est toujours ouvert
       await expect(dialog).toBeVisible();
 
@@ -139,7 +150,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
         const isVisible = await safeIsVisible(dialog);
         return !isVisible;
       }, { timeout: timeouts.element }).toBe(true);
-      
+
       // Vérifier que les tags apparaissent sur la carte après rafraîchissement
       await expect(conversationCard.getByText('Test Tag 1')).toBeVisible({ timeout: timeouts.element });
       await expect(conversationCard.getByText('Test Tag 2')).toBeVisible({ timeout: timeouts.element });
@@ -150,8 +161,8 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     await withConsoleGuard(page, async () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
-      
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -169,7 +180,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await folderCheckbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await folderCheckbox.scrollIntoViewIfNeeded();
       await folderCheckbox.click({ force: true });
-      
+
       // Vérifier que le checkbox est coché (attente explicite)
       await expect(folderCheckbox).toHaveAttribute('data-state', 'checked', { timeout: timeouts.element });
 
@@ -208,6 +219,15 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       await verifyTagsFoldersLoaded(page);
 
+      // Créer le poll associé
+      const createdPoll = await createTestPoll(page, {
+        title: 'Sondage avec tags',
+        slug: 'sondage-tags-remove',
+        type: 'date',
+        status: 'active',
+        settings: { selectedDates: ['2025-01-01'] }
+      });
+
       // Créer la conversation avec tags et dossier
       await createTestConversation(page, {
         title: 'Conversation avec tags et dossier',
@@ -216,10 +236,10 @@ test.describe('Dashboard - Tags et Dossiers', () => {
         messageCount: 1,
         isFavorite: false,
         tags: ['Test Tag 1', 'Test Tag 2'],
-        metadata: { folderId: 'folder-1' },
+        metadata: { folderId: 'folder-1', pollId: createdPoll.id, pollGenerated: true },
       });
-      
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -229,7 +249,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
         browserName,
         timeout: timeouts.element,
       });
-      
+
       // Vérifier que les tags et dossier sont visibles avant retrait
       await expect(conversationCard.getByText(/Test Tag 1/i)).toBeVisible({ timeout: timeouts.element });
       await expect(conversationCard.getByText(/Test Tag 2/i)).toBeVisible({ timeout: timeouts.element });
@@ -257,7 +277,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       const noFolderCheckbox = page.getByRole('checkbox', { name: /Aucun dossier/i });
       await noFolderCheckbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await noFolderCheckbox.check();
-    
+
       // Vérifier que "Aucun dossier" est coché
       await expect(noFolderCheckbox).toBeChecked({ timeout: timeouts.element });
 
@@ -297,6 +317,15 @@ test.describe('Dashboard - Tags et Dossiers', () => {
 
       await verifyTagsFoldersLoaded(page);
 
+      // Créer le poll associé
+      const createdPoll = await createTestPoll(page, {
+        title: 'Sondage avec tags visibles',
+        slug: 'sondage-tags-visible',
+        type: 'date',
+        status: 'active',
+        settings: { selectedDates: ['2025-01-01'] }
+      });
+
       // Créer la conversation avec tags et dossier
       await createTestConversation(page, {
         title: 'Conversation avec tags et dossier visibles',
@@ -305,10 +334,10 @@ test.describe('Dashboard - Tags et Dossiers', () => {
         messageCount: 1,
         isFavorite: false,
         tags: ['Test Tag 1', 'Test Tag 2'],
-        metadata: { folderId: 'folder-1' },
+        metadata: { folderId: 'folder-1', pollId: createdPoll.id, pollGenerated: true },
       });
-    
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -331,8 +360,8 @@ test.describe('Dashboard - Tags et Dossiers', () => {
     await withConsoleGuard(page, async () => {
       await setupTestDataLocal(page);
       await verifyTagsFoldersLoaded(page);
-      
-      await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+
+      await page.goto('/DooDates/date-polls/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
 
       // Attendre que les cartes se chargent avec timeout adapté
@@ -363,7 +392,7 @@ test.describe('Dashboard - Tags et Dossiers', () => {
       await folder1Checkbox.waitFor({ state: 'visible', timeout: timeouts.element });
       await folder1Checkbox.scrollIntoViewIfNeeded();
       await folder1Checkbox.check({ timeout: timeouts.element });
-    
+
       // Vérifier que le dossier est coché
       await expect(folder1Checkbox).toHaveAttribute('data-state', 'checked', { timeout: timeouts.element });
 

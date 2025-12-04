@@ -395,24 +395,24 @@ const AvailabilityPollVote = () => {
   if (validatedSlot || (pollState && pollState.validatedSlot)) {
     const slot = validatedSlot
       ? pollState?.proposedSlots?.find(
-          (s: { date: string; start: string; end: string }) =>
-            `${s.date}-${s.start}-${s.end}` === validatedSlot,
-        )
+        (s: { date: string; start: string; end: string }) =>
+          `${s.date}-${s.start}-${s.end}` === validatedSlot,
+      )
       : pollState?.validatedSlot;
 
     return (
-      <div className="min-h-screen bg-[#0a0a0a] pb-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-background pb-8">
         <div className="pt-20">
           <div className="max-w-2xl mx-auto p-4 sm:p-6">
-            <Card className="bg-[#1e1e1e] border-gray-700">
+            <Card className="bg-white dark:bg-card border-gray-200 dark:border-gray-700 shadow-sm">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                    <CheckCircle2 className="w-7 h-7 text-green-500" />
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="w-7 h-7 text-green-600 dark:text-green-500" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-white">RDV Confirmé !</CardTitle>
-                    <p className="text-gray-400 mt-1">
+                    <CardTitle className="text-2xl text-gray-900 dark:text-white">RDV Confirmé !</CardTitle>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1">
                       Votre rendez-vous a été planifié avec succès.
                     </p>
                   </div>
@@ -420,10 +420,10 @@ const AvailabilityPollVote = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {slot && (
-                  <div className="p-4 bg-green-500/10 border border-green-600/30 rounded-lg">
+                  <div className="p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-600/30 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="w-5 h-5 text-green-400" />
-                      <span className="text-white font-semibold">
+                      <Calendar className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <span className="text-gray-900 dark:text-white font-semibold">
                         {new Date(`${slot.date}T00:00:00`).toLocaleDateString("fr-FR", {
                           weekday: "long",
                           day: "numeric",
@@ -432,15 +432,15 @@ const AvailabilityPollVote = () => {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-green-400" />
-                      <span className="text-green-300 font-mono text-lg">
+                      <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <span className="text-green-700 dark:text-green-300 font-mono text-lg">
                         {slot.start} - {slot.end}
                       </span>
                     </div>
                   </div>
                 )}
-                <Alert>
-                  <AlertDescription className="text-gray-300">
+                <Alert className="bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-900/30">
+                  <AlertDescription className="text-blue-700 dark:text-blue-300">
                     ✅ L'événement a été créé automatiquement dans le calendrier du professionnel.
                   </AlertDescription>
                 </Alert>
@@ -448,7 +448,7 @@ const AvailabilityPollVote = () => {
                 {/* Ajouter à mon calendrier */}
                 {slot && (
                   <div className="space-y-3">
-                    <Label className="text-gray-300 text-sm font-medium">
+                    <Label className="text-gray-700 dark:text-gray-300 text-sm font-medium">
                       Ajouter à mon calendrier :
                     </Label>
                     <div className="flex flex-col sm:flex-row gap-2">
@@ -473,7 +473,7 @@ const AvailabilityPollVote = () => {
                           });
                         }}
                         variant="outline"
-                        className="flex-1 border-blue-600 text-blue-400 hover:bg-blue-600/20"
+                        className="flex-1 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                       >
                         <Download className="w-4 h-4 mr-2" />
                         Télécharger .ics
@@ -491,7 +491,7 @@ const AvailabilityPollVote = () => {
                           window.open(generateGoogleCalendarLink(event), "_blank");
                         }}
                         variant="outline"
-                        className="flex-1 border-green-600 text-green-400 hover:bg-green-600/20"
+                        className="flex-1 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
                         Google Calendar
@@ -509,7 +509,7 @@ const AvailabilityPollVote = () => {
                           window.open(generateOutlookCalendarLink(event), "_blank");
                         }}
                         variant="outline"
-                        className="flex-1 border-purple-600 text-purple-400 hover:bg-purple-600/20"
+                        className="flex-1 border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
                         Outlook
@@ -523,7 +523,7 @@ const AvailabilityPollVote = () => {
                   <Button
                     onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
                     variant="outline"
-                    className="w-full border-blue-600 text-blue-400 hover:bg-blue-600/20 mb-2"
+                    className="w-full border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 mb-2"
                   >
                     Voir les résultats
                   </Button>
@@ -531,7 +531,7 @@ const AvailabilityPollVote = () => {
 
                 <Button
                   onClick={() => navigate("/")}
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
                   Retour à l'accueil
                 </Button>
@@ -549,18 +549,18 @@ const AvailabilityPollVote = () => {
 
   if (submitted && !hasProposedSlots) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] pb-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-background pb-8">
         <div className="pt-20">
           <div className="max-w-2xl mx-auto p-4 sm:p-6">
-            <Card className="bg-[#1e1e1e] border-gray-700">
+            <Card className="bg-white dark:bg-card border-gray-200 dark:border-gray-700 shadow-sm">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                    <CheckCircle2 className="w-7 h-7 text-green-500" />
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="w-7 h-7 text-green-600 dark:text-green-500" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-white">Disponibilités envoyées !</CardTitle>
-                    <p className="text-gray-400 mt-1">
+                    <CardTitle className="text-2xl text-gray-900 dark:text-white">Disponibilités envoyées !</CardTitle>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1">
                       Le professionnel recevra vos disponibilités et vous proposera des créneaux
                       optimaux.
                     </p>
@@ -568,8 +568,8 @@ const AvailabilityPollVote = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Alert>
-                  <AlertDescription className="text-gray-300">
+                <Alert className="bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-900/30">
+                  <AlertDescription className="text-blue-700 dark:text-blue-300">
                     <strong>Prochaines étapes :</strong>
                     <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
                       <li>Le professionnel analysera vos disponibilités</li>
@@ -582,14 +582,14 @@ const AvailabilityPollVote = () => {
                   <Button
                     onClick={() => navigate(`/poll/${poll.slug || poll.id}/results`)}
                     variant="outline"
-                    className="w-full border-blue-600 text-blue-400 hover:bg-blue-600/20 mb-2"
+                    className="w-full border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 mb-2"
                   >
                     Voir les résultats
                   </Button>
                 )}
                 <Button
                   onClick={() => navigate("/")}
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
                   Retour à l'accueil
                 </Button>

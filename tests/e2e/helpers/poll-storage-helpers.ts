@@ -18,12 +18,14 @@ export async function createPollInLocalStorage(
     validatedSlot?: any;
   },
 ): Promise<void> {
-  await page.addInitScript(({ poll }) => {
+  await page.evaluate((data) => {
     try {
       const polls = JSON.parse(localStorage.getItem('doodates_polls') || '[]');
-      polls.push(poll);
+      polls.push(data.poll);
       localStorage.setItem('doodates_polls', JSON.stringify(polls));
-    } catch {}
+    } catch (e) {
+      console.error('Failed to seed poll:', e);
+    }
   }, { poll: pollData });
 }
 
@@ -51,6 +53,6 @@ export async function createPollInStorage(
       };
       polls.push(newPoll);
       localStorage.setItem('doodates_polls', JSON.stringify(polls));
-    } catch {}
+    } catch { }
   }, { poll: pollData });
 }
