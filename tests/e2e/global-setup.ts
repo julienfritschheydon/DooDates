@@ -113,11 +113,23 @@ function generateMockPollResponse(prompt: string): any {
       }
     }
 
+    // Générer des créneaux horaires par défaut pour chaque date
+    const timeSlotsByDate: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>> = {};
+    dates.forEach(date => {
+      timeSlotsByDate[date] = [
+        { hour: 9, minute: 0, enabled: true },
+        { hour: 10, minute: 0, enabled: true },
+        { hour: 14, minute: 0, enabled: true },
+        { hour: 15, minute: 0, enabled: true },
+      ];
+    });
+
     const pollData = {
       type: 'date',
       title: title,
       description: 'Sondage généré automatiquement pour les tests',
-      dates: dates
+      dates: dates,
+      timeSlotsByDate: timeSlotsByDate
     };
 
     return {

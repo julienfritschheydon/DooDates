@@ -343,11 +343,50 @@ export async function createDatePollWithTimeSlots(
   await expect(createSuggestionButton).toBeEnabled({ timeout: timeouts.element });
 
   console.log('🖱️ Clic sur "Créer ce sondage"...');
+  
+  // Capturer les erreurs console avant le clic
+  const consoleErrorsBefore: string[] = [];
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') {
+      consoleErrorsBefore.push(msg.text());
+    }
+  });
+  
   await createSuggestionButton.click({ timeout: timeouts.action, force: true });
   console.log('✅ Clic effectué');
 
-
-  console.log('✅ Clic effectué');
+  // Attendre que la création soit terminée
+  await waitForReactStable(page, { browserName });
+  await waitForNetworkIdle(page, { browserName });
+  
+  // Attendre soit l'ouverture de l'éditeur, soit la redirection vers la page de vote
+  try {
+    // Option 1: L'éditeur s'ouvre (PollCreator visible)
+    const pollCreator = page.locator('[data-testid="poll-creator"], [data-testid="poll-title"]').first();
+    await pollCreator.waitFor({ state: 'visible', timeout: timeouts.element }).catch(() => {
+      // Option 2: Redirection vers la page de vote
+      return page.waitForURL(/\/poll\/[a-zA-Z0-9-]+/, { timeout: timeouts.element });
+    });
+    console.log('✅ Poll créé - éditeur ouvert ou redirection effectuée');
+  } catch (e) {
+    // Vérifier s'il y a une erreur affichée
+    const errorMessages = [
+      page.getByText(/Une erreur s'est produite/i),
+      page.getByText(/Erreur lors de la création/i),
+      page.getByRole('alert'),
+    ];
+    
+    for (const errorMsg of errorMessages) {
+      const isVisible = await errorMsg.isVisible().catch(() => false);
+      if (isVisible) {
+        const errorText = await errorMsg.textContent().catch(() => 'Erreur inconnue');
+        throw new Error(`Erreur lors de la création du poll: ${errorText}. Console errors: ${JSON.stringify(consoleErrorsBefore)}`);
+      }
+    }
+    
+    // Si pas d'erreur visible mais pas de redirection non plus, c'est suspect
+    console.log('⚠️ Pas de redirection ni d\'éditeur visible après création');
+  }
 
   // Attendre un peu que le localStorage soit mis à jour
   await page.waitForTimeout(2000);

@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { waitForNetworkIdle, waitForReactStable } from '../../helpers/wait-helpers';
+import { waitForNetworkIdle, waitForReactStable, waitForChatInputReady } from '../../helpers/wait-helpers';
 import { setupAllMocks } from '../../global-setup';
 import { robustFill, PRODUCT_ROUTES } from '../../utils';
+import { getTimeouts } from '../../config/timeouts';
 
 test.describe('Form Polls - Navigation Flow', () => {
     test.beforeEach(async ({ page }) => {
@@ -24,10 +25,11 @@ test.describe('Form Polls - Navigation Flow', () => {
 
         await expect(page).toHaveURL(/.*\/form-polls\/workspace\/form/);
         await waitForReactStable(page, { browserName });
+        await waitForNetworkIdle(page, { browserName });
 
         // 3. Create a Poll via AI
-        const chatInput = page.locator('[data-testid="chat-input"]');
-        await expect(chatInput).toBeVisible();
+        const timeouts = getTimeouts(browserName);
+        const chatInput = await waitForChatInputReady(page, browserName, { timeout: timeouts.element });
 
         await robustFill(chatInput, 'Crée un questionnaire avec 1 question');
         await chatInput.press('Enter');

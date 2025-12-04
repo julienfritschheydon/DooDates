@@ -6,6 +6,7 @@ import { seedDashboard, type DashboardSeedOptions, type DashboardSeedPayload } f
 import { waitForNetworkIdle, waitForReactStable, waitForElementReady } from './helpers/wait-helpers';
 import { getTimeouts } from './config/timeouts';
 import { safeIsVisible } from './helpers/safe-helpers';
+import { clearTestData } from './helpers/test-data';
 
 /**
  * Tests E2E complets pour toutes les fonctionnalités du Dashboard
@@ -16,6 +17,9 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
   test.describe.configure({ mode: 'serial' });
 
   test.beforeEach(async ({ page, browserName }) => {
+    // En mode serial, nettoyer les données de test pour éviter les interférences entre tests
+    await clearTestData(page, { all: true });
+
     // Setup mocks et mode E2E sans navigation (chaque test navigue vers sa propre page)
     const { setupAllMocksWithoutNavigation } = await import('./global-setup');
     const { enableE2ELocalMode, warmup, attachConsoleGuard, getDefaultConsoleGuardAllowlist } = await import('./utils');
