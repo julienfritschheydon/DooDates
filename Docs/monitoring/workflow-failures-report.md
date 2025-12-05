@@ -1,10 +1,10 @@
 # 📊 Rapport de Monitoring des Workflows GitHub Actions
 
-**Dernière mise à jour:** 05/12/2025 13:29:26
+**Dernière mise à jour:** 05/12/2025 19:19:03
 
-_Workflow run #722 (ID 19962969189) — génération UTC 2025-12-05T12:29:26.139Z_
+_Workflow run #723 (ID 19972043917) — génération UTC 2025-12-05T18:19:03.640Z_
 
-## 🎯 Focus: Commit `ccaa3fd`
+## 🎯 Focus: Commit `fdef862`
 
 **Branche:** `main`
 **Workflow déclencheur:** `unknown`
@@ -26,7 +26,7 @@ _Workflow run #722 (ID 19962969189) — génération UTC 2025-12-05T12:29:26.139
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `ccaa3fd`.
+Tous les workflows surveillés ont réussi pour le commit `fdef862`.
 
 ---
 
@@ -41,13 +41,13 @@ Tous les workflows surveillés ont réussi pour le commit `ccaa3fd`.
 - ❌ **Échecs pour ce commit:** **0**
 ### ✅ Aucun échec pour ce commit
 
-Tous les workflows surveillés ont réussi pour le commit `ccaa3fd`.
+Tous les workflows surveillés ont réussi pour le commit `fdef862`.
 
 ---
 
 ## 📈 Résumé Global
 
-- 🎯 **Focus: Commit actuel** `ccaa3fd`
+- 🎯 **Focus: Commit actuel** `fdef862`
 - ❌ **Échecs pour ce commit:** 0
 - 📊 **Workflows monitorés:** 6
 
