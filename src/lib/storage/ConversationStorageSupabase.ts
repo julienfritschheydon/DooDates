@@ -30,22 +30,22 @@ export { messageCache };
  */
 function fromSupabaseConversation(row: Record<string, unknown>): Conversation {
   return {
-    id: row.id,
-    title: row.title,
+    id: row.id as string,
+    title: row.title as string,
     status: row.status as Conversation["status"],
-    createdAt: new Date(row.created_at),
-    updatedAt: new Date(row.updated_at),
-    firstMessage: row.first_message,
-    messageCount: row.message_count || 0,
-    relatedPollId: row.related_poll_id,
-    pollId: row.related_poll_id, // Map related_poll_id to pollId
-    pollType: row.metadata?.pollType || null,
-    pollStatus: row.metadata?.pollStatus || undefined,
-    isFavorite: row.is_favorite || false,
-    favorite_rank: row.metadata?.favorite_rank,
-    tags: row.tags || [],
-    metadata: row.metadata || {},
-    userId: row.user_id || undefined,
+    createdAt: new Date(row.created_at as string),
+    updatedAt: new Date(row.updated_at as string),
+    firstMessage: row.first_message as string | undefined,
+    messageCount: (row.message_count as number) || 0,
+    relatedPollId: row.related_poll_id as string | undefined,
+    pollId: row.related_poll_id as string | undefined, // Map related_poll_id to pollId
+    pollType: (row.metadata as any)?.pollType || null,
+    pollStatus: (row.metadata as any)?.pollStatus || undefined,
+    isFavorite: (row.is_favorite as boolean) || false,
+    favorite_rank: (row.metadata as any)?.favorite_rank,
+    tags: (row.tags as string[]) || [],
+    metadata: (row.metadata as Record<string, unknown>) || {},
+    userId: row.user_id as string | undefined,
   };
 }
 
@@ -74,12 +74,12 @@ function toSupabaseConversation(conversation: Conversation): Record<string, unkn
  */
 function fromSupabaseMessage(row: Record<string, unknown>): ConversationMessage {
   return {
-    id: row.id,
-    conversationId: row.conversation_id,
+    id: row.id as string,
+    conversationId: row.conversation_id as string,
     role: row.role as ConversationMessage["role"],
-    content: row.content,
-    timestamp: new Date(row.timestamp),
-    metadata: row.metadata || {},
+    content: row.content as string,
+    timestamp: new Date(row.timestamp as string),
+    metadata: (row.metadata as Record<string, unknown>) || {},
   };
 }
 
@@ -108,7 +108,7 @@ export async function getConversations(userId: string): Promise<Conversation[]> 
         order: "updated_at.desc",
         select: "*",
       },
-      { timeout: 10000 }, // 10s timeout
+      { timeout: 20000 }, // 20s timeout
     );
 
     const conversations = (data || []).map(fromSupabaseConversation);
@@ -288,9 +288,11 @@ export async function createConversation(
     } catch (error: unknown) {
       const insertDuration = Date.now() - insertStartTime;
 
+      const errorMessage = error instanceof Error ? error.message : "Impossible de créer la conversation";
+
       const detailedError = ErrorFactory.storage(
         "Erreur Supabase lors de l'insertion",
-        error.message || "Impossible de créer la conversation",
+        errorMessage,
       );
       logError(detailedError, {
         operation: "ConversationStorageSupabase.createConversation",
@@ -298,7 +300,7 @@ export async function createConversation(
           requestId,
           userId,
           duration: `${insertDuration}ms`,
-          error: error.message,
+          error: errorMessage,
         },
       });
       throw detailedError;
@@ -603,7 +605,7 @@ export async function saveMessages(
           "Conversation non trouvée",
           "La conversation demandée n'a pas été trouvée",
         ),
-        { conversationId, requestId, timestamp },
+        { conversationId, metadata: { requestId, timestamp } },
       );
       throw ConversationErrorFactory.notFound(conversationId);
     }

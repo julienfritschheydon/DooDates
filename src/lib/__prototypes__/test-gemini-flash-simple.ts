@@ -7,7 +7,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const API_KEY = process.argv[2];
-const MODEL = "gemini-2.0-flash-exp";
+import { GEMINI_CONFIG } from "../../config/gemini";
+const MODEL = GEMINI_CONFIG.MODEL_NAME;
 
 if (!API_KEY) {
   console.error("\n❌ Usage: npx tsx test-gemini-flash-simple.ts YOUR_API_KEY\n");

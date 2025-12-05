@@ -11,7 +11,7 @@ export interface Poll {
   updated_at: string;
   creatorEmail?: string;
   dates?: string[];
-  type?: "date" | "form";
+  type?: "date" | "form" | "availability";
   questions?: Array<{
     id: string;
     type: string;

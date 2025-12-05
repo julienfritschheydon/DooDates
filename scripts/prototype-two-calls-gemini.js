@@ -16,8 +16,10 @@ if (!API_KEY) {
     process.exit(1);
 }
 
+const GEMINI_CONFIG = require("./src/config/gemini-constants.json");
+const GEMINI_MODEL = GEMINI_CONFIG.MODEL_NAME;
 const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
 // Cas difficiles à tester
 const difficultCases = [
@@ -87,7 +89,7 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire.`;
         const result = await model.generateContent(prompt);
         const response = result.response;
         const text = response.text();
-        
+
         // Extraire le JSON
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
@@ -146,14 +148,14 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire.`;
         const understandingResult = await model.generateContent(understandingPrompt);
         const understandingText = understandingResult.response.text();
         const understandingJsonMatch = understandingText.match(/\{[\s\S]*\}/);
-        
+
         if (!understandingJsonMatch) {
             console.error("❌ Impossible de parser la réponse du premier appel");
             return null;
         }
-        
+
         const understanding = JSON.parse(understandingJsonMatch[0]);
-        
+
         // DEUXIÈME APPEL : Générer le sondage avec les informations structurées
         const generationPrompt = `Tu es l'IA DooDates, expert en planification temporelle.
 
@@ -191,12 +193,12 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire.`;
         const generationResult = await model.generateContent(generationPrompt);
         const generationText = generationResult.response.text();
         const generationJsonMatch = generationText.match(/\{[\s\S]*\}/);
-        
+
         if (!generationJsonMatch) {
             console.error("❌ Impossible de parser la réponse du deuxième appel");
             return null;
         }
-        
+
         return {
             understanding,
             poll: JSON.parse(generationJsonMatch[0])
@@ -213,25 +215,25 @@ Réponds SEULEMENT avec le JSON, aucun texte supplémentaire.`;
 async function compareApproaches() {
     console.log("🔬 Prototype : Comparaison un appel vs deux appels IA\n");
     console.log("=".repeat(80));
-    
+
     const results = [];
-    
+
     for (const testCase of difficultCases) {
         console.log(`\n📋 Test: ${testCase.description}`);
         console.log(`   Input: "${testCase.input}"\n`);
-        
+
         // Approche 1 : Un seul appel
         console.log("   🔵 Approche 1 (un appel)...");
         const start1 = Date.now();
         const result1 = await singleCallApproach(testCase.input);
         const time1 = Date.now() - start1;
-        
+
         // Approche 2 : Deux appels
         console.log("   🟢 Approche 2 (deux appels)...");
         const start2 = Date.now();
         const result2 = await twoCallsApproach(testCase.input);
         const time2 = Date.now() - start2;
-        
+
         // Comparer les résultats
         const comparison = {
             caseId: testCase.id,
@@ -257,16 +259,16 @@ async function compareApproaches() {
                 understanding: result2?.understanding
             }
         };
-        
+
         results.push(comparison);
-        
+
         // Afficher la comparaison
         console.log(`\n   📊 Comparaison:`);
         console.log(`      Un appel: ${comparison.singleCall.datesCount} dates, ${comparison.singleCall.timeSlotsCount} créneaux (${time1}ms)`);
         console.log(`      Deux appels: ${comparison.twoCalls.datesCount} dates, ${comparison.twoCalls.timeSlotsCount} créneaux (${time2}ms)`);
         console.log(`      Titre (un appel): "${comparison.singleCall.title}"`);
         console.log(`      Titre (deux appels): "${comparison.twoCalls.title}"`);
-        
+
         if (result2?.understanding) {
             console.log(`      Compréhension (deux appels):`);
             console.log(`         - Type: ${result2.understanding.type}`);
@@ -274,15 +276,15 @@ async function compareApproaches() {
             console.log(`         - Mois: ${result2.understanding.temporalInfo?.months?.join(", ") || "aucun"}`);
             console.log(`         - Contrainte "ou": ${result2.understanding.temporalInfo?.constraints?.isOrConstraint || false}`);
         }
-        
+
         // Attendre un peu entre les tests pour éviter les rate limits
         await new Promise(resolve => setTimeout(resolve, 2000));
     }
-    
+
     // Générer un rapport
     const reportPath = "scripts/two-calls-prototype-report.md";
     const fs = await import("fs");
-    
+
     let reportContent = `# Rapport du prototype : Deux appels IA
 
 **Date**: ${new Date().toISOString()}
@@ -321,9 +323,9 @@ ${results.map((r, index) => `
 
 ## Conclusion
 
-${results.filter(r => r.twoCalls.datesCount > r.singleCall.datesCount || r.twoCalls.timeSlotsCount > r.singleCall.timeSlotsCount).length > 0 
-    ? "✅ L'approche à deux appels montre des améliorations sur certains cas."
-    : "❌ L'approche à deux appels ne montre pas d'amélioration significative."}
+${results.filter(r => r.twoCalls.datesCount > r.singleCall.datesCount || r.twoCalls.timeSlotsCount > r.singleCall.timeSlotsCount).length > 0
+            ? "✅ L'approche à deux appels montre des améliorations sur certains cas."
+            : "❌ L'approche à deux appels ne montre pas d'amélioration significative."}
 `;
 
     await fs.promises.writeFile(reportPath, reportContent, "utf8");

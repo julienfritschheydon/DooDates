@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Eye, Share2 } from "lucide-react";
+import { Edit, Trash2, Eye, Share2, Star } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -15,10 +15,12 @@ interface ProductCardProps {
   createdAt: string;
   updatedAt: string;
   responseCount?: number;
+  isFavorite?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
   onView?: () => void;
   onShare?: () => void;
+  onToggleFavorite?: () => void;
   className?: string;
 }
 
@@ -31,10 +33,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   createdAt,
   updatedAt,
   responseCount = 0,
+  isFavorite = false,
   onEdit,
   onDelete,
   onView,
   onShare,
+  onToggleFavorite,
   className = "",
 }) => {
   const getTypeColor = (type: string) => {
@@ -99,6 +103,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <CardDescription className="mt-1 line-clamp-2">{description}</CardDescription>
             )}
           </div>
+          {onToggleFavorite && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-8 w-8 ${isFavorite ? "text-yellow-400 hover:text-yellow-500" : "text-gray-300 hover:text-yellow-400"}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite();
+              }}
+            >
+              <Star className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
+            </Button>
+          )}
         </div>
 
         <div className="flex items-center space-x-2 mt-2">

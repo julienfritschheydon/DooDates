@@ -1,4 +1,8 @@
-import { supabase } from "@/lib/supabase";
+import {
+  supabaseSelect,
+  supabaseSelectSingle,
+  supabaseSelectMaybeSingle,
+} from "@/lib/supabaseApi";
 import { logError } from "@/lib/error-handling";
 
 export interface Region {
@@ -24,13 +28,15 @@ export const pricingService = {
    */
   async getRegionForCountry(countryCode: string): Promise<string> {
     try {
-      const { data, error } = await supabase
-        .from("country_region_map")
-        .select("region_id")
-        .eq("country_code", countryCode)
-        .single();
+      const data = await supabaseSelectMaybeSingle<{ region_id: string }>(
+        "country_region_map",
+        {
+          country_code: `eq.${countryCode}`,
+          select: "region_id",
+        },
+      );
 
-      if (error || !data) {
+      if (!data) {
         // console.warn('Region not found for country:', countryCode, 'Using default:', DEFAULT_REGION_ID);
         return DEFAULT_REGION_ID;
       }
@@ -52,36 +58,41 @@ export const pricingService = {
   async getPricingForRegion(regionId: string): Promise<Price[]> {
     try {
       // 1. Get Region Details (Currency)
-      const { data: region, error: regionError } = await supabase
-        .from("regions")
-        .select("currency_symbol")
-        .eq("id", regionId)
-        .single();
-
-      if (regionError || !region) {
-        logError(regionError, {
+      const region = await supabaseSelectSingle<{ currency_symbol: string }>(
+        "regions",
+        {
+          id: `eq.${regionId}`,
+          select: "currency_symbol",
+        },
+      ).catch((err) => {
+        logError(err, {
           component: "pricing",
           operation: "getPricingForRegion",
           metadata: { regionId },
         });
+        return null; // Retourner null en cas d'erreur
+      });
+
+      if (!region) {
         return [];
       }
 
       // 2. Get Prices
-      const { data: prices, error: pricesError } = await supabase
-        .from("price_lists")
-        .select("product_id, amount")
-        .eq("region_id", regionId)
-        .eq("active", true);
-
-      if (pricesError) {
-        logError(pricesError, {
+      const prices = await supabaseSelect<{ product_id: string; amount: number }>(
+        "price_lists",
+        {
+          region_id: `eq.${regionId}`,
+          active: "eq.true",
+          select: "product_id, amount",
+        },
+      ).catch((err) => {
+        logError(err, {
           component: "pricing",
           operation: "getPricingForRegion",
           metadata: { regionId },
         });
-        return [];
-      }
+        return [] as { product_id: string; amount: number }[];
+      });
 
       return prices.map((p) => ({
         product_id: p.product_id,

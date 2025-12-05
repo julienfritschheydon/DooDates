@@ -1,0 +1,8 @@
+{
+    "MODEL_NAME": "gemini-2.0-flash",
+    "API_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/models",
+    "API_VERSION": "v1beta",
+    "DEFAULT_TEMPERATURE": 1,
+    "DEFAULT_TOP_K": 40,
+    "DEFAULT_TOP_P": 0.95
+}

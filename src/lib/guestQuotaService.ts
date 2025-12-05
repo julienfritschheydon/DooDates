@@ -223,7 +223,7 @@ function evaluateQuotaLimits(
       // Vérifier limite par type de poll uniquement (séparation complète par produit)
       // Note: pollsCreated est maintenu pour affichage uniquement, pas pour les limites
       const pollType = metadata?.pollType as "date" | "form" | "quizz" | "availability" | undefined;
-      
+
       // Validation stricte : pollType est obligatoire pour poll_created
       if (!pollType || !["date", "form", "quizz", "availability"].includes(pollType)) {
         return {
@@ -231,7 +231,7 @@ function evaluateQuotaLimits(
           reason: `pollType is required and must be one of: "date", "form", "quizz", "availability". Received: ${pollType}`,
         };
       }
-      
+
       let limit: number;
       let current: number;
       switch (pollType) {
@@ -258,7 +258,7 @@ function evaluateQuotaLimits(
             reason: `Invalid pollType: ${pollType}`,
           };
       }
-      
+
       if (current >= limit) {
         return {
           allowed: false,
@@ -324,7 +324,7 @@ async function fetchQuotaByFingerprint(fingerprint: string): Promise<GuestQuotaS
             fingerprint: `eq.${fingerprint}`,
             select: "*",
           },
-          { timeout: 1000 },
+          { timeout: 1000, requireAuth: false },
         ),
         new Promise<null>((resolve) => {
           setTimeout(() => resolve(null), 1000);
@@ -373,7 +373,7 @@ async function fetchQuotaById(id: string): Promise<GuestQuotaSupabaseRow | null>
             id: `eq.${id}`,
             select: "*",
           },
-          { timeout: 1000 },
+          { timeout: 1000, requireAuth: false },
         ),
         new Promise<null>((resolve) => {
           setTimeout(() => resolve(null), 1000);
@@ -434,7 +434,7 @@ async function ensureGuestQuota(
                   GUEST_QUOTA_TABLE,
                   { fingerprint },
                   { id: `eq.${cachedRow.id}` },
-                  { timeout: 1000 },
+                  { timeout: 1000, requireAuth: false },
                 ),
                 new Promise<never>((_, reject) => {
                   setTimeout(() => reject(new Error("Timeout")), 1000);
@@ -479,7 +479,7 @@ async function ensureGuestQuota(
                 language: metadata.language,
                 screen_resolution: metadata.screenResolution,
               },
-              { timeout: 1000 },
+              { timeout: 1000, requireAuth: false },
             ),
             new Promise<never>((_, reject) => {
               setTimeout(() => reject(new Error("Timeout")), 1000);
@@ -527,12 +527,12 @@ async function ensureGuestQuota(
         key: keyof GuestQuotaSupabaseRow;
         field: keyof typeof merge;
       }> = [
-        { key: "conversations_created", field: "conversationsCreated" },
-        { key: "polls_created", field: "pollsCreated" },
-        { key: "ai_messages", field: "aiMessages" },
-        { key: "analytics_queries", field: "analyticsQueries" },
-        { key: "simulations", field: "simulations" },
-      ];
+          { key: "conversations_created", field: "conversationsCreated" },
+          { key: "polls_created", field: "pollsCreated" },
+          { key: "ai_messages", field: "aiMessages" },
+          { key: "analytics_queries", field: "analyticsQueries" },
+          { key: "simulations", field: "simulations" },
+        ];
 
       countersMapping.forEach(({ key, field }) => {
         const mergeValue = merge[field];
@@ -561,7 +561,7 @@ async function ensureGuestQuota(
               GUEST_QUOTA_TABLE,
               updates,
               { id: `eq.${row.id}` },
-              { timeout: 1000 },
+              { timeout: 1000, requireAuth: false },
             ),
             new Promise<never>((_, reject) => {
               setTimeout(() => reject(new Error("Timeout")), 1000);
@@ -733,7 +733,7 @@ export async function consumeGuestCredits(
           GUEST_QUOTA_TABLE,
           updates,
           { id: `eq.${quota.id}` },
-          { timeout: 1000 },
+          { timeout: 1000, requireAuth: false },
         ),
         new Promise<never>((_, reject) => {
           setTimeout(() => reject(new Error("Timeout")), 1000);
@@ -756,7 +756,7 @@ export async function consumeGuestCredits(
               credits,
               metadata: metadata || {},
             },
-            { timeout: 1000 },
+            { timeout: 1000, requireAuth: false },
           ),
           new Promise<never>((_, reject) => {
             setTimeout(() => reject(new Error("Timeout")), 1000);
@@ -814,7 +814,7 @@ export async function getGuestQuotaJournal(limit: number = 100): Promise<GuestQu
         limit: limit.toString(),
         select: "*",
       },
-      { timeout: 2000 },
+      { timeout: 2000, requireAuth: false },
     );
 
     return entries.map((entry) => ({

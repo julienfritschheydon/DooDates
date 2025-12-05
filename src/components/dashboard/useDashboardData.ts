@@ -162,6 +162,10 @@ export function useDashboardData(refreshKey: number) {
           );
           // Fallback sur localStorage en cas d'erreur Supabase
           allConversations = getLocalConversations();
+          logger.info("⚠️ Dashboard - Fallback localStorage actif", "dashboard", {
+            count: allConversations.length,
+            reason: "Supabase error"
+          });
         }
       } else {
         // Mode invité ou E2E : utiliser seulement localStorage
@@ -318,11 +322,11 @@ export function useDashboardData(refreshKey: number) {
               typeof dateStr === "string"
                 ? dateStr
                 : typeof dateStr === "object" &&
-                    dateStr !== null &&
-                    ("label" in dateStr || "title" in dateStr)
+                  dateStr !== null &&
+                  ("label" in dateStr || "title" in dateStr)
                   ? (dateStr as { label?: string; title?: string }).label ||
-                    (dateStr as { label?: string; title?: string }).title ||
-                    String(dateStr)
+                  (dateStr as { label?: string; title?: string }).title ||
+                  String(dateStr)
                   : String(dateStr);
             const optionId = `option-${index}`;
 

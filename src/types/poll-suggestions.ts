@@ -1,8 +1,18 @@
 // Types partagés pour les suggestions de sondages
 // Ce fichier centralise les définitions de types utilisées dans toute l'application
+// SOURCE DE VÉRITÉ : Les types sont définis dans les services et ré-exportés ici
+
+// Re-export from services (single source of truth)
+export type {
+  FormQuestion,
+  FormPollSuggestion,
+} from "../lib/ai/products/form/FormPollService";
+
+export type { DatePollSuggestion } from "../lib/ai/products/date/DatePollService";
 
 // Alias pour la compatibilité avec le code existant
-export type AnyFormQuestion = FormQuestion;
+import type { FormQuestion as FormQuestionType } from "../lib/ai/products/form/FormPollService";
+export type AnyFormQuestion = FormQuestionType;
 
 export type QuestionType =
   | "text"
@@ -12,59 +22,11 @@ export type QuestionType =
   | "rating"
   | "nps"
   | "matrix"
-  | "date"; // Ajout du type 'date' pour la compatibilité
+  | "date";
 
-export interface FormQuestion {
-  id: string;
-  type: "single" | "multiple" | "text" | "long-text" | "rating" | "nps" | "matrix" | "date";
-  text: string;
-  title: string;
-  required: boolean;
-  options?: string[];
-  maxChoices?: number;
-  placeholder?: string;
-  maxLength?: number;
-  ratingScale?: number;
-  ratingStyle?: "numbers" | "stars" | "emojis";
-  ratingMinLabel?: string;
-  ratingMaxLabel?: string;
-  validationType?: "email" | "phone" | "url" | "number" | "date";
-  matrixRows?: Array<{ id: string; label: string }>;
-  matrixColumns?: Array<{ id: string; label: string }>;
-  matrixType?: "single" | "multiple";
-  matrixColumnsNumeric?: boolean;
-  selectedDates?: string[];
-  timeSlotsByDate?: Record<string, Array<{ hour: number; minute: number; enabled: boolean }>>;
-  timeGranularity?: "15min" | "30min" | "1h";
-  allowMaybeVotes?: boolean;
-  allowAnonymousVotes?: boolean;
-}
-
-export interface FormPollSuggestion {
-  title: string;
-  description?: string;
-  questions: FormQuestion[];
-  type: "form";
-  conditionalRules?: any[]; // TODO: Définir un type plus précis
-}
-
-export interface DatePollSuggestion {
-  title: string;
-  description?: string;
-  dates: string[];
-  timeSlots?: Array<{
-    start: string;
-    end: string;
-    dates?: string[];
-  }>;
-  dateGroups?: Array<{
-    dates: string[];
-    label: string;
-    type: "custom" | "weekend" | "week" | "fortnight" | "range";
-  }>;
-  type: "date" | "datetime" | "custom";
-  participants?: string[];
-}
+// Import des types pour construire PollSuggestion
+import type { FormPollSuggestion } from "../lib/ai/products/form/FormPollService";
+import type { DatePollSuggestion } from "../lib/ai/products/date/DatePollService";
 
 export type PollSuggestion = FormPollSuggestion | DatePollSuggestion;
 

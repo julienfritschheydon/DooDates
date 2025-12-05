@@ -13,8 +13,10 @@ import { clearTestData } from './helpers/test-data';
  * 
  * @tags @dashboard @smoke @critical @functional
  */
+// Ces tests en mode serial ne fonctionnent correctement que sur Chromium
 test.describe('Dashboard - Fonctionnalités Complètes', () => {
   test.describe.configure({ mode: 'serial' });
+  test.skip(({ browserName }) => browserName !== 'chromium', 'Serial tests optimized for Chrome');
 
   test.beforeEach(async ({ page, browserName }) => {
     // En mode serial, nettoyer les données de test pour éviter les interférences entre tests

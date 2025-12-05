@@ -67,16 +67,16 @@ export class BetaKeyService {
   ): Promise<BetaKeyGeneration[]> {
     try {
       logger.info("Calling generate_beta_key RPC", "api", { count, notes, durationMonths });
-      console.log("🔑 [BetaKeyService] Appel RPC avec params:", {
+      logger.debug("🔑 [BetaKeyService] Appel RPC avec params:", "api", {
         p_count: count,
         p_notes: notes || null,
         p_duration_months: durationMonths,
       });
 
       // Vérifier la session AVANT tout
-      console.log("🔑 [BetaKeyService] Récupération de la session...");
+      logger.debug("🔑 [BetaKeyService] Récupération de la session...", "api");
       const session = await getSupabaseSessionWithTimeout(2000);
-      console.log("🔑 [BetaKeyService] Session récupérée:", session);
+      logger.debug("🔑 [BetaKeyService] Session récupérée", "api", { hasSession: !!session });
 
       if (!session) {
         throw ErrorFactory.auth(
@@ -85,7 +85,7 @@ export class BetaKeyService {
         );
       }
 
-      console.log("🔑 [BetaKeyService] Appel RPC via supabaseApi...");
+      logger.debug("🔑 [BetaKeyService] Appel RPC via supabaseApi...", "api");
       const data = await supabaseRpc<BetaKeyGeneration[]>(
         "generate_beta_key",
         {
@@ -96,7 +96,7 @@ export class BetaKeyService {
         { timeout: 10000 },
       );
 
-      console.log("🔑 [BetaKeyService] Données reçues:", data);
+      logger.debug("🔑 [BetaKeyService] Données reçues", "api", { data });
 
       if (!data || (Array.isArray(data) && data.length === 0)) {
         throw ErrorFactory.storage("Aucune clé générée", "La fonction a retourné un résultat vide");
@@ -123,7 +123,7 @@ export class BetaKeyService {
     try {
       // Normaliser le code (uppercase, trim)
       const normalizedCode = code.trim().toUpperCase();
-      console.log("🔑 [BetaKeyService] Activation clé:", { userId, code: normalizedCode });
+      logger.debug("🔑 [BetaKeyService] Activation clé", "api", { userId, code: normalizedCode });
 
       // Récupérer le token d'accès (depuis paramètre ou session)
       let token = accessToken;
@@ -132,7 +132,7 @@ export class BetaKeyService {
           const session = await getSupabaseSessionWithTimeout(2000);
           token = session?.access_token;
         } catch (err) {
-          console.warn("⚠️ [BetaKeyService] Impossible de récupérer la session", err);
+          logger.warn("⚠️ [BetaKeyService] Impossible de récupérer la session", "api", { err });
         }
       }
 
@@ -144,7 +144,7 @@ export class BetaKeyService {
       }
 
       // Utiliser supabaseRpc
-      console.log("🔑 [BetaKeyService] Appel RPC redeem_beta_key via supabaseApi...");
+      logger.debug("🔑 [BetaKeyService] Appel RPC redeem_beta_key via supabaseApi...", "api");
       const result = await supabaseRpc<RedemptionResult>(
         "redeem_beta_key",
         {
@@ -154,7 +154,7 @@ export class BetaKeyService {
         { timeout: 10000 },
       );
 
-      console.log("🔑 [BetaKeyService] Résultat redeem:", result);
+      logger.debug("🔑 [BetaKeyService] Résultat redeem", "api", { result });
 
       if (result.success) {
         logger.info("Beta key redeemed successfully", "api", {
@@ -240,34 +240,34 @@ export class BetaKeyService {
    */
   static async getUserKey(userId: string): Promise<BetaKey | null> {
     try {
-      const { data, error } = await supabase
-        .from("beta_keys")
-        .select("*")
-        .eq("assigned_to", userId)
-        .eq("status", "used")
-        .single();
+      const data = await supabaseSelectSingle<BetaKey>("beta_keys", {
+        assigned_to: `eq.${userId}`,
+        status: "eq.used",
+        select: "*",
+      });
 
-      if (error) {
-        if (error.code === "PGRST116") {
-          // Pas de clé trouvée (normal)
-          return null;
-        }
-        const err = ErrorFactory.storage(
-          `Failed to fetch user beta key: ${error.message}`,
-          "Erreur lors de la récupération de la clé utilisateur",
-        );
-        logError(err, {
-          component: "BetaKeyService",
-          operation: "getUserKey",
-          metadata: { error, userId },
-        });
-        throw err;
+      return data;
+    } catch (error: any) {
+      // Si aucune ligne trouvée, supabaseSelectSingle lance une erreur
+      // On vérifie si c'est une erreur "No row found"
+      if (
+        error.message === "No row found" ||
+        error.message === "Aucune ligne trouvée" ||
+        (error.context && error.context.originalError?.code === "PGRST116")
+      ) {
+        return null; // Pas de clé trouvée (normal)
       }
 
-      return data as BetaKey;
-    } catch (error) {
-      logger.error("Exception fetching user beta key", "api", { error, userId });
-      throw error;
+      const err = ErrorFactory.storage(
+        `Failed to fetch user beta key: ${error.message}`,
+        "Erreur lors de la récupération de la clé utilisateur",
+      );
+      logError(err, {
+        component: "BetaKeyService",
+        operation: "getUserKey",
+        metadata: { error, userId },
+      });
+      throw err;
     }
   }
 
@@ -440,7 +440,7 @@ export class BetaKeyService {
           keys
             .filter((k) => k.feedback_score !== null)
             .reduce((sum, k) => sum + (k.feedback_score || 0), 0) /
-            keys.filter((k) => k.feedback_score !== null).length || 0,
+          keys.filter((k) => k.feedback_score !== null).length || 0,
       };
 
       return stats;

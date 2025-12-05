@@ -20,7 +20,7 @@ interface ChatInputProps {
     resetTranscript: () => void;
   };
   textareaRef: React.RefObject<HTMLTextAreaElement>;
-  pollType?: "date" | "form";
+  pollType?: "date" | "form" | "availability";
   className?: string;
 }
 

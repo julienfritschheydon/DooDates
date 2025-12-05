@@ -1,54 +1,24 @@
-export interface FormQuestion {
-  text: string;
-  title: string;
-  type: "single" | "multiple" | "text" | "long-text" | "rating" | "nps" | "matrix";
-  required: boolean;
-  options?: string[];
-  maxChoices?: number;
-  placeholder?: string;
-  maxLength?: number;
-  ratingScale?: number;
-  ratingStyle?: "numbers" | "stars" | "emojis";
-  ratingMinLabel?: string;
-  ratingMaxLabel?: string;
-  validationType?: "email" | "phone" | "url" | "number" | "date";
-  matrixRows?: Array<{
-    id: string;
-    label: string;
-  }>;
-  matrixColumns?: Array<{
-    id: string;
-    label: string;
-  }>;
-  matrixType?: "single" | "multiple";
-  matrixColumnsNumeric?: boolean;
-}
-export interface FormPollSuggestion {
-  title: string;
-  description?: string;
-  questions: FormQuestion[];
-  type: "form";
-  conditionalRules?: import("../types/conditionalRules").ConditionalRule[];
-}
-export interface DatePollSuggestion {
-  title: string;
-  description?: string;
-  dates: string[];
-  timeSlots?: Array<{
-    start: string;
-    end: string;
-    dates?: string[];
-  }>;
-  type: "date" | "datetime" | "custom";
-  participants?: string[];
-}
+// Re-export types from services (single source of truth)
+export type {
+  FormQuestion,
+  FormPollSuggestion,
+} from "./ai/products/form/FormPollService";
+
+export type { DatePollSuggestion } from "./ai/products/date/DatePollService";
+
+// Import for local use
+import type { FormPollSuggestion } from "./ai/products/form/FormPollService";
+import type { DatePollSuggestion } from "./ai/products/date/DatePollService";
+
 export type PollSuggestion = DatePollSuggestion | FormPollSuggestion;
+
 export interface GeminiResponse {
   success: boolean;
   data?: PollSuggestion;
   message: string;
   error?: string;
 }
+
 export declare class GeminiService {
   private static instance;
   private calendarQuery;

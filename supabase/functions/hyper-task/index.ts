@@ -6,7 +6,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+import geminiConfig from "../../../src/config/gemini-constants.json" assert { type: "json" };
+
+const GEMINI_MODEL = geminiConfig.MODEL_NAME;
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 interface RateLimitEntry {
   hourlyCount: number;
@@ -43,7 +46,7 @@ const ALLOWED_PATTERNS = [
 // Fonction helper pour obtenir les headers CORS
 function getCorsHeaders(origin: string | null): HeadersInit {
   let allowedOrigin: string | null = null;
-  
+
   if (origin) {
     // Vérifier si l'origine est dans la liste exacte
     if (ALLOWED_ORIGINS.includes(origin)) {
@@ -58,7 +61,7 @@ function getCorsHeaders(origin: string | null): HeadersInit {
       }
     }
   }
-  
+
   // Fallback : utiliser la première origine de la liste (localhost:8080)
   if (!allowedOrigin) {
     allowedOrigin = ALLOWED_ORIGINS[0];
@@ -76,7 +79,7 @@ serve(async (req) => {
   // Log IMMÉDIATEMENT au début pour capturer toutes les requêtes
   const requestId = crypto.randomUUID();
   const timestamp = new Date().toISOString();
-  
+
   // Système de timing détaillé pour diagnostiquer les performances
   const timings = {
     start: Date.now(),
@@ -87,14 +90,14 @@ serve(async (req) => {
     gemini: 0,
     total: 0,
   };
-  
+
   console.log(`[${timestamp}] [${requestId}] ========================================`);
   console.log(`[${timestamp}] [${requestId}] 🚀 EDGE FUNCTION DÉMARRÉE`);
   console.log(`[${timestamp}] [${requestId}] ========================================`);
-  
+
   const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
-  
+
   timings.init = Date.now() - timings.start;
 
   console.log(`[${timestamp}] [${requestId}] 📥 Requête reçue:`, {
@@ -120,7 +123,7 @@ serve(async (req) => {
         JSON.stringify({ error: "Method not allowed" }),
         {
           status: 405,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             ...corsHeaders,
           },
@@ -129,9 +132,9 @@ serve(async (req) => {
     }
 
     // Récupérer l'IP du client
-    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0] || 
-                     req.headers.get("x-real-ip") || 
-                     "unknown";
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0] ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
 
     console.log(`[${timestamp}] [${requestId}] 🌐 IP client: ${clientIp}`);
 
@@ -174,14 +177,14 @@ serve(async (req) => {
     if (!ipLimit.allowed) {
       console.log(`[${timestamp}] [${requestId}] ❌ Rate limit IP dépassé`);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: "RATE_LIMIT_EXCEEDED",
-          message: `Limite de requêtes dépassée. Réessayez dans ${ipLimit.retryAfter} secondes.` 
+          message: `Limite de requêtes dépassée. Réessayez dans ${ipLimit.retryAfter} secondes.`
         }),
         {
           status: 429,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             "Retry-After": ipLimit.retryAfter.toString(),
             ...corsHeaders,
@@ -198,14 +201,14 @@ serve(async (req) => {
       if (!userLimit.allowed) {
         console.log(`[${timestamp}] [${requestId}] ❌ Rate limit User dépassé`);
         return new Response(
-          JSON.stringify({ 
-            success: false, 
+          JSON.stringify({
+            success: false,
             error: "RATE_LIMIT_EXCEEDED",
-            message: `Limite de requêtes dépassée. Réessayez dans ${userLimit.retryAfter} secondes.` 
+            message: `Limite de requêtes dépassée. Réessayez dans ${userLimit.retryAfter} secondes.`
           }),
           {
             status: 429,
-            headers: { 
+            headers: {
               "Content-Type": "application/json",
               "Retry-After": userLimit.retryAfter.toString(),
               ...corsHeaders,
@@ -221,14 +224,14 @@ serve(async (req) => {
       if (!guestLimit.allowed) {
         console.log(`[${timestamp}] [${requestId}] ❌ Rate limit Guest dépassé`);
         return new Response(
-          JSON.stringify({ 
-            success: false, 
+          JSON.stringify({
+            success: false,
             error: "RATE_LIMIT_EXCEEDED",
-            message: `Limite de requêtes dépassée pour les invités. Créez un compte pour plus de crédits.` 
+            message: `Limite de requêtes dépassée pour les invités. Créez un compte pour plus de crédits.`
           }),
           {
             status: 429,
-            headers: { 
+            headers: {
               "Content-Type": "application/json",
               "Retry-After": guestLimit.retryAfter.toString(),
               ...corsHeaders,
@@ -244,8 +247,8 @@ serve(async (req) => {
       console.log(`[${timestamp}] [${requestId}] 💳 Vérification quota utilisateur...`);
       const quotaCheck = await checkAndConsumeQuota(supabase, userId);
       timings.quota = Date.now() - quotaStartTime;
-      console.log(`[${timestamp}] [${requestId}] 💳 Résultat quota:`, { 
-        success: quotaCheck.success, 
+      console.log(`[${timestamp}] [${requestId}] 💳 Résultat quota:`, {
+        success: quotaCheck.success,
         creditsRemaining: quotaCheck.creditsRemaining,
         error: quotaCheck.error,
         duration: timings.quota
@@ -253,15 +256,15 @@ serve(async (req) => {
       if (!quotaCheck.success) {
         console.log(`[${timestamp}] [${requestId}] ❌ Quota insuffisant:`, quotaCheck.message);
         return new Response(
-          JSON.stringify({ 
-            success: false, 
+          JSON.stringify({
+            success: false,
             error: quotaCheck.error,
             message: quotaCheck.message,
-            creditsRemaining: quotaCheck.creditsRemaining 
+            creditsRemaining: quotaCheck.creditsRemaining
           }),
           {
             status: 403,
-            headers: { 
+            headers: {
               "Content-Type": "application/json",
               ...corsHeaders,
             },
@@ -276,8 +279,8 @@ serve(async (req) => {
     let body;
     try {
       body = await req.json();
-      console.log(`[${timestamp}] [${requestId}] 📦 Body reçu:`, { 
-        hasUserInput: !!body.userInput, 
+      console.log(`[${timestamp}] [${requestId}] 📦 Body reçu:`, {
+        hasUserInput: !!body.userInput,
         hasPrompt: !!body.prompt,
         userInputLength: body.userInput?.length || 0,
         promptLength: body.prompt?.length || 0
@@ -285,51 +288,51 @@ serve(async (req) => {
     } catch (error) {
       console.log(`[${timestamp}] [${requestId}] ❌ Erreur parsing JSON:`, error);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: "INVALID_REQUEST",
-          message: "Body JSON invalide" 
+          message: "Body JSON invalide"
         }),
         {
           status: 400,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             ...corsHeaders,
           },
         },
       );
     }
-    
+
     // Cas spécial: test de connexion
     if (body.testConnection === true) {
       console.log(`[${timestamp}] [${requestId}] 🔍 Test de connexion reçu`);
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: "Edge Function accessible" 
+        JSON.stringify({
+          success: true,
+          message: "Edge Function accessible"
         }),
         {
           status: 200,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             ...corsHeaders,
           },
         },
       );
     }
-    
+
     const { userInput, prompt } = body;
 
     if (!userInput && !prompt) {
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: "INVALID_REQUEST",
-          message: "userInput ou prompt requis" 
+          message: "userInput ou prompt requis"
         }),
         {
           status: 400,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             ...corsHeaders,
           },
@@ -342,14 +345,14 @@ serve(async (req) => {
     if (!geminiApiKey) {
       console.error(`[${timestamp}] [${requestId}] ❌ GEMINI_API_KEY non configurée`);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: "SERVER_ERROR",
-          message: "Configuration serveur manquante" 
+          message: "Configuration serveur manquante"
         }),
         {
           status: 500,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             ...corsHeaders,
           },
@@ -359,10 +362,10 @@ serve(async (req) => {
 
     // Appeler Gemini API
     const geminiPrompt = prompt || userInput;
-    console.log(`[${timestamp}] [${requestId}] 🤖 Appel Gemini API...`, { 
-      promptLength: geminiPrompt?.length || 0 
+    console.log(`[${timestamp}] [${requestId}] 🤖 Appel Gemini API...`, {
+      promptLength: geminiPrompt?.length || 0
     });
-    
+
     const geminiStartTime = Date.now();
     const geminiResponse = await fetch(
       `${GEMINI_API_URL}?key=${geminiApiKey}`,
@@ -385,7 +388,7 @@ serve(async (req) => {
     if (!geminiResponse.ok) {
       const errorText = await geminiResponse.text();
       console.error(`[${timestamp}] [${requestId}] ❌ Gemini API error (${geminiResponse.status}):`, errorText);
-      
+
       // Si erreur de quota Gemini, ne pas consommer notre quota
       if (geminiResponse.status === 429) {
         // Rollback quota si authentifié
@@ -395,14 +398,14 @@ serve(async (req) => {
       }
 
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: "GEMINI_API_ERROR",
-          message: "Erreur lors de l'appel à l'API Gemini" 
+          message: "Erreur lors de l'appel à l'API Gemini"
         }),
         {
           status: geminiResponse.status,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             ...corsHeaders,
           },
@@ -413,12 +416,12 @@ serve(async (req) => {
     const geminiData = await geminiResponse.json();
     const responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
     timings.gemini = geminiDuration;
-    
+
     // Calculer le total et l'overhead
     timings.total = Date.now() - timings.start;
     const overhead = timings.total - timings.gemini;
     const overheadPercent = Math.round((overhead / timings.total) * 100);
-    
+
     // Log des timings détaillés (format lisible)
     console.log(`[${timestamp}] [${requestId}] ⏱️  TIMINGS DÉTAILLÉS:`);
     console.log(`[${timestamp}] [${requestId}]   - Init: ${timings.init}ms`);
@@ -428,23 +431,23 @@ serve(async (req) => {
     console.log(`[${timestamp}] [${requestId}]   - Gemini API: ${timings.gemini}ms`);
     console.log(`[${timestamp}] [${requestId}]   - Overhead: ${overhead}ms (${overheadPercent}%)`);
     console.log(`[${timestamp}] [${requestId}]   - TOTAL: ${timings.total}ms`);
-    
-    console.log(`[${timestamp}] [${requestId}] ✅ Gemini API réponse reçue (${geminiDuration}ms)`, { 
+
+    console.log(`[${timestamp}] [${requestId}] ✅ Gemini API réponse reçue (${geminiDuration}ms)`, {
       hasResponse: !!responseText,
-      responseLength: responseText?.length || 0 
+      responseLength: responseText?.length || 0
     });
 
     if (!responseText) {
       console.log(`[${timestamp}] [${requestId}] ❌ Réponse Gemini invalide (pas de texte)`);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: "PARSE_ERROR",
-          message: "Réponse Gemini invalide" 
+          message: "Réponse Gemini invalide"
         }),
         {
           status: 500,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             ...corsHeaders,
           },
@@ -460,13 +463,13 @@ serve(async (req) => {
     // Retourner la réponse avec timings dans les headers (pour debug)
     console.log(`[${timestamp}] [${requestId}] ✅ Réponse envoyée avec succès (total: ${timings.total}ms)`);
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        data: responseText 
+      JSON.stringify({
+        success: true,
+        data: responseText
       }),
       {
         status: 200,
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           ...corsHeaders,
         },
@@ -475,14 +478,14 @@ serve(async (req) => {
   } catch (error) {
     console.error(`[${timestamp}] [${requestId}] ❌ Erreur Edge Function:`, error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
+      JSON.stringify({
+        success: false,
         error: "SERVER_ERROR",
-        message: error instanceof Error ? error.message : "Erreur serveur" 
+        message: error instanceof Error ? error.message : "Erreur serveur"
       }),
       {
         status: 500,
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           ...corsHeaders,
         },
@@ -555,7 +558,7 @@ function checkRateLimit(
   const oneDay = 24 * 60 * 60 * 1000;
 
   let entry = rateLimitCache.get(key);
-  
+
   // Initialiser si première requête
   if (!entry) {
     entry = {
@@ -565,13 +568,13 @@ function checkRateLimit(
       dailyResetAt: now + oneDay,
     };
   }
-  
+
   // Réinitialiser fenêtre horaire si expirée
   if (entry.hourlyResetAt < now) {
     entry.hourlyCount = 0;
     entry.hourlyResetAt = now + oneHour;
   }
-  
+
   // Réinitialiser fenêtre quotidienne si expirée
   if (entry.dailyResetAt < now) {
     entry.dailyCount = 0;

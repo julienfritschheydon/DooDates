@@ -260,13 +260,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logger.info("Tentative de connexion Google", "auth");
 
       // Sauvegarder la page actuelle pour y revenir après la connexion
-      const currentPath = window.location.pathname + window.location.search;
+      // IMPORTANT: Retirer le préfixe /DooDates car navigate() l'ajoute automatiquement
+      let currentPath = window.location.pathname + window.location.search;
+
+      // Retirer le préfixe /DooDates pour éviter la duplication /DooDates/DooDates/
+      if (currentPath.startsWith("/DooDates")) {
+        currentPath = currentPath.substring("/DooDates".length) || "/";
+      }
+
       logger.info("Sauvegarde de la page actuelle pour redirection", "auth", { currentPath });
       if (
-        currentPath !== "/DooDates/auth/callback" &&
-        currentPath !== "/DooDates/auth/callback/" &&
         currentPath !== "/auth/callback" &&
-        currentPath !== "/auth/callback/"
+        currentPath !== "/auth/callback/" &&
+        currentPath !== "/"
       ) {
         localStorage.setItem("auth_return_to", currentPath);
         logger.info("Page sauvegardée dans localStorage", "auth", { savedPath: currentPath });

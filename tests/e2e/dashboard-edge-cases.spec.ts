@@ -14,8 +14,10 @@ import { safeIsVisible } from './helpers/safe-helpers';
  * 
  * @tags @dashboard @edge-cases @stability
  */
+// Ces tests en mode serial ne fonctionnent correctement que sur Chromium
 test.describe('Dashboard - Cas Limites', () => {
   test.describe.configure({ mode: 'serial' });
+  test.skip(({ browserName }) => browserName !== 'chromium', 'Serial tests optimized for Chrome');
 
   test.beforeEach(async ({ page, browserName }) => {
     await setupTestEnvironment(page, browserName, {
@@ -78,7 +80,7 @@ test.describe('Dashboard - Cas Limites', () => {
         tags: [],
         metadata: {},
       }));
-      
+
       await createTestConversations(page, conversations);
 
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });

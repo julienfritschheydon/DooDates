@@ -118,17 +118,16 @@ export class SecureGeminiService {
       }
 
       // Appeler l'Edge Function (avec ou sans token selon authentification)
-      // IMPORTANT: Supabase nécessite toujours un header Authorization, même pour les invités
-      // On utilise l'anon key pour les invités, ou le token utilisateur si authentifié
+      // NOTE: Pour les invités, on n'envoie PAS de header Authorization
+      // L'anon key dans le header 'apikey' est suffisant pour l'accès anonyme
       const headers: Record<string, string> = {};
       const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
+      // Only include Authorization header for authenticated users with real JWT
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
-      } else if (supabaseAnonKey) {
-        // Mode invité: utiliser l'anon key pour autoriser l'appel
-        headers.Authorization = `Bearer ${supabaseAnonKey}`;
       }
+      // For guests: no Authorization header, apikey header is sufficient
 
       // Utiliser fetch direct au lieu de supabase.functions.invoke() pour plus de contrôle
       const edgeFunctionUrl = `${this.supabaseUrl}/functions/v1/hyper-task`;
@@ -312,15 +311,16 @@ export class SecureGeminiService {
         headers["apikey"] = supabaseAnonKey;
       }
 
-      // Utiliser le token utilisateur si disponible, sinon l'anon key
+      // NOTE: For Edge Functions, only include Bearer token if we have a real user JWT
+      // The anon key is NOT a valid JWT and cannot be used as a Bearer token
+      // Anonymous access to Edge Functions is controlled by the apikey header only
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
-      } else if (supabaseAnonKey) {
-        headers.Authorization = `Bearer ${supabaseAnonKey}`;
       }
+      // No else clause here - anonymous users don't send Authorization header
 
-      // Si aucun moyen d'authentification, la connexion échouera
-      if (!headers.Authorization) {
+      // For anonymous access, apikey header is sufficient - no need for Authorization
+      if (!headers["apikey"]) {
         return false;
       }
 
@@ -355,7 +355,7 @@ export class SecureGeminiService {
         };
 
         // Log avec logger ET système centralisé pour être sûr que ça s'affiche
-        logger.warn("🔍 Edge Function testConnection error:", errorDetails);
+        logger.warn("🔍 Edge Function testConnection error:", "api", errorDetails);
         logError(new Error("Edge Function testConnection - Détails complets"), {
           operation: "testConnection",
           metadata: errorDetails,

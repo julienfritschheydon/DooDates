@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { callSupabaseEdgeFunction } from "@/lib/supabaseApi";
 import { logError } from "@/lib/error-handling";
+import { logger } from "@/lib/logger";
 
 export interface GeoLocation {
   country: string;
@@ -28,14 +29,12 @@ export function useGeoLocation() {
     const fetchGeo = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase.functions.invoke("geo-detection");
-
-        if (error) throw error;
+        const data = await callSupabaseEdgeFunction<GeoLocation>("geo-detection", {});
 
         if (data) {
           setGeo(data);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-          console.log("[Geo] Detected:", data.country, `(${data.source})`);
+          logger.debug(`[Geo] Detected: ${data.country}`, "api", { source: data.source });
         }
       } catch (err: any) {
         logError(err, { component: "geo", operation: "fetchGeo" });

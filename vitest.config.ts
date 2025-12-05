@@ -46,9 +46,7 @@ export default defineConfig({
     exclude: [
       "node_modules/**",
       "tests/**",
-      "src/test/gemini-professional.test.ts",
-      "src/test/temporal-prompts-validation.test.ts", // Tests de validation prompts temporels (appels réels à Gemini, exclus de CI)
-      "src/test/prompts-generation.test.ts", // Tests de génération de prompts (appels réels à Gemini, exclus de CI)
+      "**/*.manual.ts", // Tests manuels avec appels API coûteux (ex: temporal-prompts, gemini-professional)
       "src/hooks/__tests__/useConversations.favorites.test.ts", // Tests problématiques de fallback Supabase/localStorage
     ],
     coverage: {

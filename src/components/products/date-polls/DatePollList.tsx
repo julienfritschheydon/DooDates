@@ -34,9 +34,11 @@ export const DatePollList: React.FC = () => {
             <ProductCard
               key={poll.id}
               {...poll}
+              isFavorite={poll.is_favorite}
               onView={() => console.log("View", poll.id)}
               onEdit={() => console.log("Edit", poll.id)}
               onDelete={() => console.log("Delete", poll.id)}
+              onToggleFavorite={() => actions.toggleFavorite(poll.id, !poll.is_favorite)}
             />
           ))}
         </div>

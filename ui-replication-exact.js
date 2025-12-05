@@ -17,6 +17,8 @@ function getApiKey() {
 }
 
 const API_KEY = getApiKey();
+const GEMINI_CONFIG = require("./src/config/gemini-constants.json");
+const GEMINI_MODEL = GEMINI_CONFIG.MODEL_NAME;
 
 class UIReplicationExact {
   constructor() {
@@ -212,7 +214,7 @@ class UIReplicationExact {
       },
     });
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
 
     return new Promise((resolve, reject) => {
       const options = {

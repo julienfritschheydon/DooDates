@@ -137,7 +137,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
         const isE2EDetectionDisabled =
           typeof window !== "undefined" &&
           (window as Window & { __DISABLE_E2E_DETECTION__?: boolean }).__DISABLE_E2E_DETECTION__ ===
-            true;
+          true;
 
         const isE2ETestMode =
           typeof window !== "undefined" &&
@@ -173,6 +173,13 @@ export function useConversations(config: UseConversationsConfig = {}) {
             // Add local conversations if they're more recent or not in Supabase
             localConversations.forEach((localConv) => {
               if (localConv.userId === user.id) {
+                // Check if this local conversation has been migrated to Supabase
+                // If so, we should ignore the local version if the Supabase version is present
+                const supabaseId = localConv.metadata?.supabaseId as string | undefined;
+                if (supabaseId && mergedMap.has(supabaseId)) {
+                  return;
+                }
+
                 const existing = mergedMap.get(localConv.id);
                 if (!existing) {
                   // Not in Supabase, add it
@@ -517,10 +524,10 @@ export function useConversations(config: UseConversationsConfig = {}) {
               (page: { conversations: Conversation[]; totalCount?: number }, index: number) =>
                 index === 0
                   ? {
-                      ...page,
-                      conversations: [optimisticConversation, ...page.conversations],
-                      totalCount: (page.totalCount || 0) + 1,
-                    }
+                    ...page,
+                    conversations: [optimisticConversation, ...page.conversations],
+                    totalCount: (page.totalCount || 0) + 1,
+                  }
                   : page,
             ),
           };

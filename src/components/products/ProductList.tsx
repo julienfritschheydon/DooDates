@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const ProductList: React.FC = () => {
@@ -59,6 +59,12 @@ export const ProductList: React.FC = () => {
     if (state.filters.status && product.status !== state.filters.status) {
       return false;
     }
+    if (state.filters.status && product.status !== state.filters.status) {
+      return false;
+    }
+    if (state.filters.favorites && !product.is_favorite) {
+      return false;
+    }
     return true;
   });
 
@@ -81,6 +87,18 @@ export const ProductList: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
               <Filter className="h-4 w-4 mr-2" />
               Filtres
+            </Button>
+
+            <Button
+              variant={state.filters.favorites ? "secondary" : "outline"}
+              size="sm"
+              onClick={() =>
+                actions.setFilters({ favorites: !state.filters.favorites })
+              }
+              className={state.filters.favorites ? "bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border-yellow-200" : ""}
+            >
+              <Star className={`h-4 w-4 mr-2 ${state.filters.favorites ? "fill-current" : ""}`} />
+              Favoris
             </Button>
           </div>
 
@@ -198,9 +216,11 @@ export const ProductList: React.FC = () => {
               createdAt={product.created_at}
               updatedAt={product.updated_at}
               responseCount={product.responseCount}
+              isFavorite={product.is_favorite}
               onView={() => handleViewProduct(product.id)}
               onEdit={() => handleEditProduct(product.id)}
               onDelete={() => handleDeleteProduct(product.id)}
+              onToggleFavorite={() => actions.toggleFavorite(product.id, !product.is_favorite)}
             />
           ))}
         </div>

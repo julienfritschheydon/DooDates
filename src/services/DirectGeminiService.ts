@@ -2,8 +2,9 @@
 // À utiliser en développement ou quand Edge Function est HS
 // Utilise fetch directement au lieu du SDK Google pour éviter les problèmes de version
 
-import { logger } from "@/lib/logger";
-import { getEnv } from "@/lib/env";
+import { logger } from "../lib/logger";
+import { getEnv } from "../lib/env";
+import { GEMINI_CONFIG, getGeminiApiUrl } from "../config/gemini";
 
 export interface DirectGeminiResponse {
   success: boolean;
@@ -69,11 +70,20 @@ export class DirectGeminiService {
   /**
    * Appelle DIRECTEMENT l'API Gemini (bypass Edge Function)
    * @param userInput Texte de l'utilisateur
-   * @param prompt Prompt optionnel (si déjà formaté)
+   * @param config Configuration optionnelle (temperature, etc.)
    * @returns Réponse Gemini ou erreur
    */
-  async generateContent(userInput: string, prompt?: string): Promise<DirectGeminiResponse> {
+  async generateContent(
+    userInput: string,
+    prompt?: string,
+    config?: { temperature?: number; topK?: number; topP?: number }
+  ): Promise<DirectGeminiResponse> {
     try {
+      // Tentative de rechargement de la clé si elle est manquante (utile pour les scripts)
+      if (!this.apiKey) {
+        this.apiKey = getEnv("VITE_GEMINI_API_KEY") || null;
+      }
+
       if (!this.apiKey) {
         return {
           success: false,
@@ -85,12 +95,12 @@ export class DirectGeminiService {
       logger.info("🔵 Appel DIRECT à Gemini API (fetch)", "api", {
         inputLength: userInput.length,
         hasPrompt: !!prompt,
+        config,
       });
 
       const textToSend = prompt || userInput;
 
-      // Utiliser le modèle Gemini 2.0 Flash pour rester cohérent avec l'Edge Function
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.apiKey}`;
+      const apiUrl = getGeminiApiUrl(this.apiKey);
 
       const requestBody = {
         contents: [
@@ -103,9 +113,9 @@ export class DirectGeminiService {
           },
         ],
         generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
+          temperature: config?.temperature ?? GEMINI_CONFIG.DEFAULT_TEMPERATURE, // Utiliser la config ou défaut
+          topK: config?.topK ?? GEMINI_CONFIG.DEFAULT_TOP_K,
+          topP: config?.topP ?? GEMINI_CONFIG.DEFAULT_TOP_P,
           maxOutputTokens: 2048,
         },
       };
@@ -179,9 +189,10 @@ export class DirectGeminiService {
       };
     } catch (error: unknown) {
       logger.error("Erreur appel direct Gemini", "api", error);
+      const err = error as any;
 
       // Gérer les erreurs réseau
-      if (error.message?.includes("fetch") || error.message?.includes("network")) {
+      if (err.message?.includes("fetch") || err.message?.includes("network")) {
         return {
           success: false,
           error: "NETWORK_ERROR",
@@ -192,7 +203,7 @@ export class DirectGeminiService {
       return {
         success: false,
         error: "API_ERROR",
-        message: error.message || "Erreur lors de l'appel direct à Gemini",
+        message: err.message || "Erreur lors de l'appel direct à Gemini",
       };
     }
   }

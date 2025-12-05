@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, Plus, Home, List, Settings, FileText } from "lucide-react";
+import { Calendar, Plus, Home, List, Settings, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { UserMenu } from "@/components/UserMenu";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "@/components/modals/AuthModal";
 
 export const DatePollsSidebar: React.FC = () => {
     const location = useLocation();
+    const { user, signOut } = useAuth();
+    const [authModalOpen, setAuthModalOpen] = useState(false);
     const isActive = (path: string) => location.pathname === path;
 
     return (
@@ -67,9 +70,68 @@ export const DatePollsSidebar: React.FC = () => {
                 </Link>
             </div>
 
-            <div className="p-4 border-t border-gray-800">
-                <UserMenu />
+            {/* User Menu / Connexion */}
+            <div className="p-3 border-t border-gray-800">
+                {user ? (
+                    <div className="px-3 py-3 bg-gradient-to-br from-blue-900/30 to-blue-800/30 rounded-xl border border-blue-700/30">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                <span className="text-sm font-semibold text-white">
+                                    {(user.user_metadata?.full_name || user.email?.split("@")[0] || "U")
+                                        .charAt(0)
+                                        .toUpperCase()}
+                                </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-white truncate">
+                                    {user.user_metadata?.full_name || user.email?.split("@")[0] || "Utilisateur"}
+                                </p>
+                                <p className="text-xs text-gray-400 truncate mt-0.5">{user.email}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Link
+                                to="/date-polls/settings"
+                                className="flex-1 px-2 py-2 text-xs font-medium text-gray-200 hover:text-white hover:bg-blue-700/50 rounded-lg transition-all flex items-center justify-center gap-1.5 border border-blue-700/30"
+                            >
+                                <Settings className="w-4 h-4" />
+                                <span>Paramètres</span>
+                            </Link>
+                            <button
+                                onClick={async () => {
+                                    await signOut();
+                                }}
+                                className="flex-1 px-2 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg transition-all flex items-center justify-center gap-1.5 border border-red-500/30"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                <span>Déconnexion</span>
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="px-3 py-3 bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl border border-gray-700/50">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+                                <User className="w-5 h-5 text-gray-400" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-gray-400">Invité</p>
+                                <p className="text-xs text-gray-500">Non connecté</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setAuthModalOpen(true);
+                            }}
+                            className="w-full px-3 py-2.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-blue-500/20"
+                        >
+                            Se connecter
+                        </button>
+                    </div>
+                )}
             </div>
+
+            <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
         </div>
     );
 };

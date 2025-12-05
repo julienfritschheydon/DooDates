@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, beforeAll } from "vitest";
+import { runGeminiPromptTest, PromptSpec } from "./gemini-test-helpers";
 import path from "node:path";
 import { config as loadEnv } from "dotenv";
 
@@ -9,99 +10,89 @@ let geminiService: GeminiServiceInstance;
 // Charger .env.local si présent (sans écraser les variables déjà définies)
 loadEnv({ path: path.resolve(process.cwd(), ".env.local"), override: false });
 
-interface PromptSpec {
-  category: "professionnel" | "personnel" | "associatif";
-  input: string;
-  description: string;
-  expectedType?: "date" | "datetime";
-  minDates?: number;
-  expectTimeSlots?: boolean;
-  expectedOutcome?: string;
-}
-
-type GeminiPollResponse = Awaited<ReturnType<GeminiServiceInstance["generatePollFromText"]>>;
+// type GeminiPollResponse = Awaited<ReturnType<GeminiServiceInstance["generatePollFromText"]>>;
 
 const prompts: PromptSpec[] = [
   // Professionnel
-  // {
-  //   category: "professionnel",
-  //   input: "Propose-moi trois créneaux mardi ou mercredi prochain pour la démo client.",
-  //   description: "Démo client mardi/mercredi",
-  //   expectedType: "datetime",
-  //   minDates: 2,
-  //   expectTimeSlots: true,
-  // },
-  // {
-  //   category: "professionnel",
-  //   input: "Planifie un point budget dans deux semaines autour de 9h30.",
-  //   description: "Point budget dans deux semaines",
-  //   expectedType: "datetime",
-  //   minDates: 1,
-  //   expectTimeSlots: true,
-  // },
-  // {
-  //   category: "professionnel",
-  //   input: "Génère une réunion projet la semaine du 18, plutôt en fin de journée.",
-  //   description: "Réunion projet semaine du 18",
-  //   expectedType: "datetime",
-  //   minDates: 2,
-  //   expectTimeSlots: true,
-  // },
-  // {
-  //   category: "professionnel",
-  //   input: "Trouve un créneau avant vendredi midi pour passer en revue les slides.",
-  //   description: "Revue slides avant vendredi midi",
-  //   expectedType: "datetime",
-  //   minDates: 1,
-  //   expectTimeSlots: true,
-  // },
-  // {
-  //   category: "professionnel",
-  //   input: "Organise un stand-up express demain matin pour l'équipe support.",
-  //   description: "Stand-up express demain matin",
-  //   expectedType: "datetime",
-  //   minDates: 1,
-  //   expectTimeSlots: true,
-  // },
-  // {
-  //   category: "professionnel",
-  //   input: "Planifie la réunion de lancement la semaine prochaine, idéalement mardi 14h ou jeudi 10h.",
-  //   description: "Réunion de lancement mardi 14h / jeudi 10h",
-  //   expectedType: "datetime",
-  //   minDates: 2,
-  //   expectTimeSlots: true,
-  // },
-  // {
-  //   category: "professionnel",
-  //   input: "Prévois un créneau avec le client canadien en fin d'après-midi (fuseau -5h).",
-  //   description: "Créneau client canadien (fuseau -5h)",
-  //   expectedType: "datetime",
-  //   minDates: 1,
-  //   expectTimeSlots: true,
-  // },
-  // {
-  //   category: "professionnel",
-  //   input: "Bloque 45 minutes lundi ou mardi matin pour faire le point prod.",
-  //   description: "Point prod lundi/mardi matin",
-  //   expectedType: "datetime",
-  //   minDates: 1,
-  //   expectTimeSlots: true,
-  // },
-  // {
-  //   category: "professionnel",
-  //   input: "Cherche un créneau entre 11h et 13h mercredi pour un déjeuner partenariats.",
-  //   description: "Déjeuner partenariats mercredi 11h-13h",
-  //   expectedType: "datetime",
-  //   minDates: 1,
-  //   expectTimeSlots: true,
-  // },
-  // {
-  //   category: "professionnel",
-  //   input: "Propose deux dates dans quinze jours pour répéter la présentation.",
-  //   description: "Répétition présentation dans quinze jours",
-  //   expectedType: "date",
-  //   minDates: 2,
-  // },
+  {
+    category: "professionnel",
+    input: "Propose-moi trois créneaux mardi ou mercredi prochain pour la démo client.",
+    description: "Démo client mardi/mercredi",
+    expectedType: "datetime",
+    minDates: 2,
+    expectTimeSlots: true,
+  },
+  {
+    category: "professionnel",
+    input: "Planifie un point budget dans deux semaines autour de 9h30.",
+    description: "Point budget dans deux semaines",
+    expectedType: "datetime",
+    minDates: 1,
+    expectTimeSlots: true,
+  },
+  {
+    category: "professionnel",
+    input: "Génère une réunion projet la semaine du 18, plutôt en fin de journée.",
+    description: "Réunion projet semaine du 18",
+    expectedType: "datetime",
+    minDates: 2,
+    expectTimeSlots: true,
+  },
+  {
+    category: "professionnel",
+    input: "Trouve un créneau avant vendredi midi pour passer en revue les slides.",
+    description: "Revue slides avant vendredi midi",
+    expectedType: "datetime",
+    minDates: 1,
+    expectTimeSlots: true,
+  },
+  {
+    category: "professionnel",
+    input: "Organise un stand-up express demain matin pour l'équipe support.",
+    description: "Stand-up express demain matin",
+    expectedType: "datetime",
+    minDates: 1,
+    expectTimeSlots: true,
+  },
+  {
+    category: "professionnel",
+    input: "Planifie la réunion de lancement la semaine prochaine, idéalement mardi 14h ou jeudi 10h.",
+    description: "Réunion de lancement mardi 14h / jeudi 10h",
+    expectedType: "datetime",
+    minDates: 2,
+    expectTimeSlots: true,
+  },
+  {
+    category: "professionnel",
+    input: "Prévois un créneau avec le client canadien en fin d'après-midi (fuseau -5h).",
+    description: "Créneau client canadien (fuseau -5h)",
+    expectedType: "datetime",
+    minDates: 1,
+    expectTimeSlots: true,
+  },
+  {
+    category: "professionnel",
+    input: "Bloque 45 minutes lundi ou mardi matin pour faire le point prod.",
+    description: "Point prod lundi/mardi matin",
+    expectedType: "datetime",
+    minDates: 1,
+    expectTimeSlots: true,
+  },
+  {
+    category: "professionnel",
+    input: "Cherche un créneau entre 11h et 13h mercredi pour un déjeuner partenariats.",
+    description: "Déjeuner partenariats mercredi 11h-13h",
+    expectedType: "datetime",
+    minDates: 1,
+    expectTimeSlots: true,
+  },
+  {
+    category: "professionnel",
+    input: "Propose deux dates dans quinze jours pour répéter la présentation.",
+    description: "Répétition présentation dans quinze jours",
+    expectedType: "date",
+    minDates: 2,
+  },
 
   // Personnel / Social
   {
@@ -258,78 +249,10 @@ describe("Gemini – prompts réalistes", () => {
 
     describe(`Catégorie ${category}`, () => {
       categoryPrompts.forEach((prompt) => {
-        if (promptFilter) {
-          const haystack = `${prompt.description} ${prompt.input}`.toLowerCase();
-          if (!haystack.includes(promptFilter)) {
-            return;
-          }
-        }
-
-        it(
-          prompt.description,
-          async () => {
-            const result: GeminiPollResponse = await geminiService.generatePollFromText(
-              prompt.input,
-            );
-
-            console.info(`[Gemini test][${category}] ${prompt.description}`, {
-              prompt: prompt.input,
-              expectedOutcome: prompt.expectedOutcome,
-            });
-
-            expect(result.success).toBe(true);
-            expect(result.data).toBeTruthy();
-
-            const poll = result.data as any;
-            const pollType = String(poll.type ?? "");
-            const dates = Array.isArray(poll.dates) ? poll.dates : [];
-            const timeSlots = Array.isArray(poll.timeSlots) ? poll.timeSlots : [];
-
-            if (prompt.expectedType === "datetime") {
-              expect(["datetime", "date"]).toContain(pollType);
-            } else if (prompt.expectedType) {
-              expect(pollType).toBe(prompt.expectedType);
-            }
-
-            if (typeof prompt.minDates === "number") {
-              expect(dates.length).toBeGreaterThanOrEqual(prompt.minDates);
-            }
-
-            if (prompt.expectTimeSlots) {
-              if (timeSlots.length === 0) {
-                console.warn(
-                  `[Gemini test][${category}] ${prompt.description} – aucun créneau horaire généré malgré l'attente`,
-                );
-              }
-            }
-
-            const sanitizedTimeSlots = timeSlots.map((slot: any) => ({
-              start: slot?.start ?? "",
-              end: slot?.end ?? "",
-              dates: Array.isArray(slot?.dates) ? slot.dates : [],
-              description:
-                typeof slot?.description === "string" && slot.description.length > 0
-                  ? slot.description
-                  : undefined,
-            }));
-
-            console.info(
-              `[Gemini test][${category}] ${prompt.description} – résultat`,
-              JSON.stringify(
-                {
-                  pollType,
-                  datesCount: dates.length,
-                  timeSlotsCount: timeSlots.length,
-                  dates,
-                  timeSlots: sanitizedTimeSlots,
-                },
-                null,
-                2,
-              ),
-            );
-          },
-          60_000,
-        );
+        runGeminiPromptTest(geminiService, prompt, {
+          category: categoryFilter,
+          prompt: promptFilter,
+        });
       });
     });
   });

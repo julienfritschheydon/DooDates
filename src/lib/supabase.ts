@@ -49,6 +49,12 @@ if (isLocalDev) {
 export const supabase = supabaseClient;
 export const isLocalDevelopment = isLocalDev;
 
+// Exposer le client Supabase pour les tests E2E
+// Permet aux tests d'utiliser le même client que l'app pour l'authentification
+if (typeof window !== "undefined") {
+  (window as any).__SUPABASE_CLIENT__ = supabaseClient;
+}
+
 // Logs de développement désactivés pour réduire le bruit en console
 // console.warn("🚧 Mode développement local activé - Supabase désactivé");
 // console.log("📝 Les données sont stockées dans localStorage");

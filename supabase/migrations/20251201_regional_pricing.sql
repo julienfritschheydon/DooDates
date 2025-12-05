@@ -31,6 +31,11 @@ ALTER TABLE price_lists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE country_region_map ENABLE ROW LEVEL SECURITY;
 
 -- Create policies (Public Read Access)
+-- Drop existing policies to ensure idempotency
+DROP POLICY IF EXISTS "Allow public read access on regions" ON regions;
+DROP POLICY IF EXISTS "Allow public read access on price_lists" ON price_lists;
+DROP POLICY IF EXISTS "Allow public read access on country_region_map" ON country_region_map;
+
 CREATE POLICY "Allow public read access on regions" ON regions FOR SELECT USING (true);
 CREATE POLICY "Allow public read access on price_lists" ON price_lists FOR SELECT USING (true);
 CREATE POLICY "Allow public read access on country_region_map" ON country_region_map FOR SELECT USING (true);

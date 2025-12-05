@@ -2,9 +2,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { logger } from "./logger";
 import { getEnv } from "./env";
 import { logError } from "./error-handling";
+import { GEMINI_CONFIG } from "../config/gemini";
 
 const API_KEY = getEnv("VITE_GEMINI_API_KEY");
-const MODEL = "gemini-2.0-flash-exp";
+const MODEL = GEMINI_CONFIG.MODEL_NAME;
 
 export interface ParsedAvailability {
   day: string; // "monday", "tuesday", etc.
@@ -84,7 +85,7 @@ Texte à analyser :
 
 Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
 
-    logger.debug("Parsing disponibilités avec Gemini", "availability-parser", {
+    logger.debug("Parsing disponibilités avec Gemini", "api", {
       textLength: text.length,
       model: MODEL,
     });
@@ -93,7 +94,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
     const response = await result.response;
     const responseText = response.text();
 
-    logger.debug("Réponse Gemini reçue", "availability-parser", {
+    logger.debug("Réponse Gemini reçue", "api", {
       responseLength: responseText.length,
     });
 
@@ -126,7 +127,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire.`;
         ? availabilities.reduce((sum, a) => sum + a.confidence, 0) / availabilities.length
         : parsed.confidence || 0.5;
 
-    logger.info("Disponibilités parsées avec succès", "availability-parser", {
+    logger.info("Disponibilités parsées avec succès", "api", {
       count: availabilities.length,
       confidence: globalConfidence,
     });
@@ -203,7 +204,7 @@ function normalizeTime(time: string): string {
   }
 
   // Format par défaut si non reconnu
-  logger.warn("Format d'heure non reconnu", "availability-parser", { time });
+  logger.warn("Format d'heure non reconnu", "api", { time });
   return "09:00";
 }
 

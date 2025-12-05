@@ -19,9 +19,11 @@ if (fs.existsSync(envPath)) {
   console.warn("⚠️  .env.local non trouvé");
 }
 
+import { GEMINI_CONFIG } from "../../config/gemini";
+
 // Configuration
 const API_KEY = process.env.VITE_GEMINI_API_KEY || "";
-const MODEL = "gemini-2.0-flash-exp";
+const MODEL = GEMINI_CONFIG.MODEL_NAME;
 
 if (!API_KEY) {
   console.error("❌ VITE_GEMINI_API_KEY non définie dans .env.local");

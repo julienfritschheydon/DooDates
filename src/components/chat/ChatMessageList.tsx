@@ -38,7 +38,7 @@ interface ChatMessageListProps {
   onFeedbackSent: () => void;
   messagesEndRef: React.RefObject<HTMLDivElement>;
   isLoading?: boolean;
-  pollType?: "date" | "form";
+  pollType?: "date" | "form" | "availability";
 }
 
 export const ChatMessageList: React.FC<ChatMessageListProps> = ({
@@ -223,10 +223,10 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 <div
                   data-testid={message.isAI ? "ai-response" : "chat-message"}
                   className={`max-w-[80%] ${message.isAI
-                      ? darkTheme
-                        ? "text-gray-100"
-                        : "text-gray-900"
-                      : "bg-[#3c4043] text-white rounded-[20px] px-5 py-3"
+                    ? darkTheme
+                      ? "text-gray-100"
+                      : "text-gray-900"
+                    : "bg-[#3c4043] text-white rounded-[20px] px-5 py-3"
                     } whitespace-pre-wrap break-words`}
                 >
                   {message.content}

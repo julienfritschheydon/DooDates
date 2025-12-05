@@ -13,6 +13,7 @@ interface Product {
   created_at: string;
   updated_at: string;
   responseCount?: number;
+  is_favorite?: boolean;
 }
 
 interface ProductState {
@@ -24,6 +25,7 @@ interface ProductState {
     type?: "date" | "form" | "quizz";
     status?: "active" | "archived" | "deleted";
     search?: string;
+    favorites?: boolean;
   };
   pagination: {
     page: number;
@@ -42,6 +44,7 @@ type ProductAction =
   | { type: "SET_SELECTED_PRODUCT"; payload: Product | null }
   | { type: "SET_FILTERS"; payload: Partial<ProductState["filters"]> }
   | { type: "SET_PAGINATION"; payload: Partial<ProductState["pagination"]> }
+  | { type: "TOGGLE_FAVORITE"; payload: { id: string; is_favorite: boolean } }
   | { type: "RESET_STATE" };
 
 const initialState: ProductState = {
@@ -106,6 +109,20 @@ function productReducer(state: ProductState, action: ProductAction): ProductStat
     case "SET_PAGINATION":
       return { ...state, pagination: { ...state.pagination, ...action.payload } };
 
+    case "TOGGLE_FAVORITE":
+      return {
+        ...state,
+        products: state.products.map((product) =>
+          product.id === action.payload.id
+            ? { ...product, is_favorite: action.payload.is_favorite }
+            : product,
+        ),
+        selectedProduct:
+          state.selectedProduct?.id === action.payload.id
+            ? { ...state.selectedProduct, is_favorite: action.payload.is_favorite }
+            : state.selectedProduct,
+      };
+
     case "RESET_STATE":
       return initialState;
 
@@ -125,6 +142,7 @@ interface ProductContextType {
     setFilters: (filters: Partial<ProductState["filters"]>) => void;
     setPagination: (pagination: Partial<ProductState["pagination"]>) => void;
     refreshProducts: () => Promise<void>;
+    toggleFavorite: (id: string, isFavorite: boolean) => Promise<void>;
   };
 }
 
@@ -151,6 +169,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
       if (state.filters.type) params.append("type", state.filters.type);
       if (state.filters.status) params.append("status", state.filters.status);
       if (state.filters.search) params.append("search", state.filters.search);
+      if (state.filters.favorites) params.append("is_favorite", "true");
 
       params.append("page", state.pagination.page.toString());
       params.append("limit", state.pagination.limit.toString());
@@ -253,6 +272,31 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     await loadProducts();
   };
 
+  const toggleFavorite = async (id: string, isFavorite: boolean) => {
+    if (!user) return;
+
+    // Optimistic update
+    dispatch({ type: "TOGGLE_FAVORITE", payload: { id, is_favorite: isFavorite } });
+
+    try {
+      // Using direct Supabase update via API wrapper if possible, or fallback to patch
+      // Since we don't have a specific endpoint for toggle, we use patch
+      await api.patch(`/products/${id}`, { is_favorite: isFavorite });
+    } catch (error) {
+      // Revert on error
+      dispatch({ type: "TOGGLE_FAVORITE", payload: { id, is_favorite: !isFavorite } });
+
+      dispatch({
+        type: "SET_ERROR",
+        payload: error instanceof Error ? error : new Error("Erreur inconnue"),
+      });
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        component: "ProductContext",
+        operation: "toggleFavorite",
+      });
+    }
+  };
+
   // Charger les produits au montage et quand les filtres changent
   useEffect(() => {
     if (user) {
@@ -271,6 +315,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
       setFilters,
       setPagination,
       refreshProducts,
+      toggleFavorite,
     },
   };
 

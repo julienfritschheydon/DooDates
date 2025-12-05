@@ -4,7 +4,7 @@ import { useProductContext } from "@/contexts/ProductContext";
 import { FileText, MessageSquare } from "lucide-react";
 
 export const FormPollList: React.FC = () => {
-  const { state } = useProductContext();
+  const { state, actions } = useProductContext();
   const formPolls = state.products.filter((p) => p.type === "form");
 
   return (
@@ -24,9 +24,11 @@ export const FormPollList: React.FC = () => {
           <ProductCard
             key={poll.id}
             {...poll}
+            isFavorite={poll.is_favorite}
             onView={() => console.log("View", poll.id)}
             onEdit={() => console.log("Edit", poll.id)}
             onDelete={() => console.log("Delete", poll.id)}
+            onToggleFavorite={() => actions.toggleFavorite(poll.id, !poll.is_favorite)}
           />
         ))}
       </div>

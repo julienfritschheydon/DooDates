@@ -51,6 +51,8 @@ interface Message {
   isGenerating?: boolean;
 }
 
+import { isDatePollSuggestion, isFormPollSuggestion } from "../types/poll-suggestions";
+
 /**
  * Options pour le hook useMessageSender
  */
@@ -492,21 +494,37 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
         // 🛡️ STRICT TYPE CHECKING
         // Vérifier que le type généré correspond au type attendu (si spécifié)
-        if (options.pollType && pollResponse.data.type !== options.pollType) {
-          logger.warn("⚠️ Tentative de création de sondage de mauvais type bloquée", "poll", {
-            expected: options.pollType,
-            received: pollResponse.data.type,
-          });
+        if (options.pollType) {
+          const receivedType = pollResponse.data.type;
+          let isValidType = false;
 
-          const errorMessage: Message = {
-            id: `error-${Date.now()}`,
-            content: `Je ne peux pas créer ce type de sondage ici. Cette interface est réservée aux sondages de type "${options.pollType}".`,
-            isAI: true,
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, errorMessage]);
-          setIsLoading(false);
-          return;
+          if (options.pollType === "date" || options.pollType === "availability") {
+            // Pour les sondages de dates, on accepte 'date', 'datetime', 'custom'
+            isValidType = isDatePollSuggestion(pollResponse.data);
+          } else if (options.pollType === "form") {
+            // Pour les formulaires, on accepte 'form'
+            isValidType = isFormPollSuggestion(pollResponse.data);
+          } else {
+            // Fallback strict equality
+            isValidType = receivedType === options.pollType;
+          }
+
+          if (!isValidType) {
+            logger.warn("⚠️ Tentative de création de sondage de mauvais type bloquée", "poll", {
+              expected: options.pollType,
+              received: receivedType,
+            });
+
+            const errorMessage: Message = {
+              id: `error-${Date.now()}`,
+              content: `Je ne peux pas créer ce type de sondage ici. Cette interface est réservée aux sondages de type "${options.pollType}".`,
+              isAI: true,
+              timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, errorMessage]);
+            setIsLoading(false);
+            return;
+          }
         }
 
         const pollType =
@@ -608,6 +626,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       setLastAIProposal,
       setModifiedQuestion,
       hasCurrentPoll,
+      options.pollType,
     ],
   ); // onUserMessage est dans une ref
 

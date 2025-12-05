@@ -52,12 +52,34 @@ BEGIN
     -- Récupérer les polls de cet utilisateur depuis doodates_polls
     -- et compter par type
     SELECT 
-      COUNT(*) FILTER (WHERE p.type = 'date'),
-      COUNT(*) FILTER (WHERE p.type = 'form'),
-      COUNT(*) FILTER (WHERE p.type = 'quizz'),
-      COUNT(*) FILTER (WHERE p.type = 'availability')
+      COUNT(*) FILTER (WHERE 
+        CASE 
+          WHEN p.settings->>'type' IS NOT NULL THEN p.settings->>'type' = 'date'
+          WHEN p.settings->'selectedDates' IS NOT NULL AND jsonb_array_length(p.settings->'selectedDates') > 0 THEN true
+          ELSE true -- Fallback to date
+        END
+      ),
+      COUNT(*) FILTER (WHERE 
+        CASE 
+          WHEN p.settings->>'type' IS NOT NULL THEN p.settings->>'type' = 'form'
+          WHEN p.settings->'questions' IS NOT NULL THEN true
+          ELSE false
+        END
+      ),
+      COUNT(*) FILTER (WHERE 
+        CASE 
+          WHEN p.settings->>'type' IS NOT NULL THEN p.settings->>'type' = 'quizz'
+          ELSE false
+        END
+      ),
+      COUNT(*) FILTER (WHERE 
+        CASE 
+          WHEN p.settings->>'type' IS NOT NULL THEN p.settings->>'type' = 'availability'
+          ELSE false
+        END
+      )
     INTO date_count, form_count, quizz_count, availability_count
-    FROM doodates_polls p
+    FROM polls p
     WHERE p.creator_id = poll_record.user_id;
     
     -- Si on trouve des polls, répartir selon les comptages réels

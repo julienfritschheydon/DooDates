@@ -20,12 +20,13 @@ import type {
 import { v4 as uuidv4 } from "uuid";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { logger } from "../logger";
+import { GEMINI_CONFIG } from "../../config/gemini";
 
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
-const GEMINI_MODEL = "gemini-2.0-flash-exp";
+const GEMINI_MODEL = GEMINI_CONFIG.MODEL_NAME;
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 // ============================================================================

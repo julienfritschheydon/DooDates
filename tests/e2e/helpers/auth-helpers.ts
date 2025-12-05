@@ -34,6 +34,18 @@ export async function authenticateUserInPage(
     throw new Error(`Failed to authenticate user: ${email}`);
   }
 
+  // FIX: Forcer un reload pour que AuthContext relise la session depuis localStorage
+  // Le client Supabase créé dans page.evaluate() ne notifie pas l'AuthContext de React
+  await page.reload({ waitUntil: 'domcontentloaded' });
+
+  // Réappliquer le flag après reload
+  await page.evaluate(() => {
+    (window as any).__DISABLE_E2E_DETECTION__ = true;
+  });
+
+  // Attendre que AuthContext s'initialise avec la session
+  await page.waitForTimeout(1000);
+
   return authResult;
 }
 
@@ -54,7 +66,7 @@ export async function ensureSessionAfterReload(
 ) {
   // Vérifier la session avant reload
   const sessionBefore = await getSessionFromPage(page);
-  
+
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(500);
 
@@ -171,13 +183,13 @@ export async function openConversationFromDashboard(
   while (!conversationCard && attempts < maxAttempts) {
     // Essayer plusieurs sélecteurs possibles
     const bodyText = await page.evaluate(() => document.body.innerText.toLowerCase());
-    
+
     // Chercher dans le texte de la page
     if (bodyText.includes(searchTextLower)) {
       // Essayer de trouver la carte par texte exact
       const exactCard = page.locator(`text=${searchText}`).first();
       const isVisible = await exactCard.isVisible({ timeout: 2000 }).catch(() => false);
-      
+
       if (isVisible) {
         conversationCard = exactCard;
       } else {
@@ -185,21 +197,21 @@ export async function openConversationFromDashboard(
         const firstWord = searchText.split(' ')[0];
         const partialCard = page.locator(`text=${firstWord}`).first();
         const isVisiblePartial = await partialCard.isVisible({ timeout: 2000 }).catch(() => false);
-        
+
         if (isVisiblePartial) {
           conversationCard = partialCard;
         } else {
           // Essayer de trouver n'importe quelle carte de conversation
           const anyCard = page.locator('[data-testid="poll-item"], [data-testid="conversation-item"], .conversation-item, .poll-item').first();
           const isVisibleAny = await anyCard.isVisible({ timeout: 2000 }).catch(() => false);
-          
+
           if (isVisibleAny) {
             conversationCard = anyCard;
           }
         }
       }
     }
-    
+
     if (!conversationCard) {
       await page.waitForTimeout(1000);
       attempts++;
@@ -244,12 +256,12 @@ export async function authenticateUser(
     userId: options?.userId,
     email: options?.email,
   });
-  
+
   if (options?.reload !== false) {
     await page.reload({ waitUntil: 'domcontentloaded' });
     await waitForPageLoad(page, browserName);
   }
-  
+
   if (options?.waitForReady) {
     const { waitForAppReady } = await import('../utils');
     await waitForAppReady(page, page.url());

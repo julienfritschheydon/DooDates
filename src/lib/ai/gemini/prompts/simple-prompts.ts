@@ -59,6 +59,11 @@ export function buildContextualHints(userInput: string): string {
 - Mois suivant: ${nextMonth}
 - Aujourd'hui: ${getTodayLocal()}
 - Saison: ${getSeason(today)}
+
+CONSEILS POUR PÉRIODES VAGUES ("fin avril", "courant mai", "semaine prochaine") :
+- Si la demande est vague sur la date, PROPOSER 2-3 options concrètes.
+- Pour des événements perso/familiaux ("cousins", "amis", "fête"), privilégier les WEEK-ENDS (Vendredi soir, Samedi, Dimanche).
+- Pour des événements pro, privilégier la semaine.
 `;
 
   return contextualHints;
@@ -166,6 +171,11 @@ ET une DATE SPÉCIFIQUE ("demain", "lundi", "vendredi", "dans X jours") :
 → INTERDIT : Générer plusieurs créneaux
 → INTERDIT : Générer plusieurs dates
 
+EXCEPTION À LA RÈGLE ABSOLUE :
+Si la demande contient "ou" (ex: "lundi ou mardi", "déjeuner ou dîner"), ALORS :
+→ IL FAUT générer TOUTES les options mentionnées (plusieurs dates ou plusieurs créneaux).
+→ Ne PAS limiter à 1 seul choix dans ce cas.
+
 Cette règle PRIME sur toutes les autres règles de génération de créneaux !
 
 FORMAT DE SORTIE OBLIGATOIRE:
@@ -179,6 +189,14 @@ FORMAT DE SORTIE OBLIGATOIRE:
       "end": "HH:MM"
     }
   ],
+  "type": "date"
+}
+
+EXEMPLE:
+{
+  "title": "Déjeuner d'équipe",
+  "dates": ["2024-03-20"],
+  "timeSlots": [{"start": "12:00", "end": "14:00"}],
   "type": "date"
 }
 

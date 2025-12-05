@@ -69,8 +69,13 @@ export interface MultiModificationIntent {
  */
 export class IntentDetectionService {
   /**
-   * Détecte plusieurs intentions dans une même phrase
-   * Ex: "ajoute vendredi 7 et jeudi 13" → 2 intentions
+   * Détecte plusieurs intentions dans une même phrase.
+   * Gère les conjonctions (et, puis) et les énumérations.
+   *
+   * @example "ajoute vendredi 7 et jeudi 13" → 2 intentions
+   * @param message Message utilisateur
+   * @param currentPoll Sondage actuel pour le contexte
+   * @returns MultiModificationIntent avec la liste des intentions ou null
    */
   static async detectMultipleIntents(
     message: string,
@@ -204,6 +209,15 @@ export class IntentDetectionService {
     };
   }
 
+  /**
+   * Détecte une intention simple (unique) dans un message.
+   * Analyse le texte pour trouver des actions (ajout, suppression, update)
+   * et des entités (dates, créneaux).
+   *
+   * @param message Segment de texte à analyser
+   * @param currentPoll Sondage actuel pour le contexte
+   * @returns ModificationIntent ou null
+   */
   static async detectSimpleIntent(
     message: string,
     currentPoll: Poll | null,
@@ -323,8 +337,8 @@ export class IntentDetectionService {
       // Pattern 2 : sans numéro de jour (ex: "samedi à 15h" / "samedi 15h" / "samedi à midi" / "samedi 12h00")
       const patternWithoutDay = !patternWithDay
         ? message.match(
-            /(?:^|\s+)(?:r?ajout(?:e|er)?\s+)?(?:le\s+)?(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+(?:[àa]\s+)?(?:(\d{1,2})h(?:(\d{2}))?|midi)(?:\s|$|,|et)/i,
-          )
+          /(?:^|\s+)(?:r?ajout(?:e|er)?\s+)?(?:le\s+)?(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+(?:[àa]\s+)?(?:(\d{1,2})h(?:(\d{2}))?|midi)(?:\s|$|,|et)/i,
+        )
         : null;
 
       const match = patternWithDay || patternWithoutDay;
@@ -360,7 +374,7 @@ export class IntentDetectionService {
           }
         }
 
-        console.log("🔍 Créneau horaire détecté", {
+        logger.debug("🔍 Créneau horaire détecté", "poll", {
           message,
           weekdayName,
           dayNumber,
@@ -398,7 +412,7 @@ export class IntentDetectionService {
           targetDate = this.findDateByWeekday(weekdayName, currentPoll, false);
         }
 
-        console.log("📅 Date cible trouvée", {
+        logger.debug("📅 Date cible trouvée", "poll", {
           weekdayName,
           dayNumber,
           targetDate,
@@ -433,7 +447,7 @@ export class IntentDetectionService {
       const weekdayMatch = message.match(weekdayPattern);
 
       if (weekdayMatch && currentPoll.dates && currentPoll.dates.length > 0) {
-        console.log("🔍 Recherche jour de la semaine dans dates existantes (REMOVE)", {
+        logger.debug("🔍 Recherche jour de la semaine dans dates existantes (REMOVE)", "poll", {
           message,
           weekday: weekdayMatch[1],
           existingDates: currentPoll.dates,
@@ -441,7 +455,7 @@ export class IntentDetectionService {
 
         const matchingDate = this.findDateByWeekday(weekdayMatch[1], currentPoll, true);
         if (matchingDate) {
-          console.log("✅ Jour de la semaine trouvé dans les dates existantes (REMOVE)", {
+          logger.debug("✅ Jour de la semaine trouvé dans les dates existantes (REMOVE)", "poll", {
             weekday: weekdayMatch[1],
             date: matchingDate,
           });
@@ -453,7 +467,7 @@ export class IntentDetectionService {
             explanation: `Suppression de la date ${matchingDate.split("-").reverse().join("/")}`,
           };
         } else {
-          console.warn("⚠️ Jour de la semaine non trouvé dans les dates existantes", {
+          logger.warn("⚠️ Jour de la semaine non trouvé dans les dates existantes", "poll", {
             weekday: weekdayMatch[1],
             existingDates: currentPoll.dates,
           });
@@ -682,7 +696,7 @@ export class IntentDetectionService {
       if (weekdayMatch && parsedDates.length > 0) {
         // Chrono a trouvé une date, mais on veut vérifier si c'est dans le sondage
         const chronoDate = formatDateLocal(parsedDates[0].start.date());
-        console.log("🔍 Chrono a trouvé une date pour REMOVE", {
+        logger.debug("🔍 Chrono a trouvé une date pour REMOVE", "poll", {
           chronoDate,
           isInPoll: currentPoll.dates?.includes(chronoDate),
           weekday: weekdayMatch[1],
@@ -690,7 +704,7 @@ export class IntentDetectionService {
 
         if (currentPoll.dates?.includes(chronoDate)) {
           // La date trouvée par Chrono est dans le sondage, on l'utilise
-          console.log("✅ Date Chrono trouvée dans le sondage, utilisation", { chronoDate });
+          logger.debug("✅ Date Chrono trouvée dans le sondage, utilisation", "poll", { chronoDate });
           return {
             isModification: true,
             action: "REMOVE_DATE",
@@ -699,7 +713,7 @@ export class IntentDetectionService {
             explanation: `Suppression de la date ${chronoDate.split("-").reverse().join("/")}`,
           };
         } else {
-          console.log("⚠️ Date Chrono hors sondage, recherche dans dates existantes", {
+          logger.debug("⚠️ Date Chrono hors sondage, recherche dans dates existantes", "poll", {
             chronoDate,
             weekday: weekdayMatch[1],
           });
@@ -707,7 +721,7 @@ export class IntentDetectionService {
           // Chercher dans les dates existantes du sondage (priorité sur le calcul)
           const matchingDate = this.findDateByWeekday(weekdayMatch[1], currentPoll, true);
           if (matchingDate) {
-            console.log("✅ Date Chrono hors sondage, utilisation du jour existant", {
+            logger.debug("✅ Date Chrono hors sondage, utilisation du jour existant", "poll", {
               chronoDate,
               weekday: weekdayMatch[1],
               matchingDate,
@@ -729,6 +743,8 @@ export class IntentDetectionService {
 
   /**
    * Obtient le numéro du jour de la semaine (0=dimanche, 1=lundi, etc.)
+   * @param weekdayName Nom du jour (ex: "lundi")
+   * @returns 0-6 ou -1 si invalide
    */
   private static getWeekdayNumber(weekdayName: string): number {
     const weekdayMap: { [key: string]: number } = {
@@ -744,8 +760,14 @@ export class IntentDetectionService {
   }
 
   /**
-   * Génère toutes les dates d'un jour de la semaine dans un mois donné
-   * Ex: "tous les samedi de mars 2026" → [2026-03-07, 2026-03-14, 2026-03-21, 2026-03-28]
+   * Génère toutes les dates d'un jour de la semaine dans un mois donné.
+   * Gère le changement d'année si le mois est passé.
+   *
+   * @example "tous les samedi de mars" → [2026-03-07, 2026-03-14...]
+   * @param weekdayName Jour de la semaine (ex: "samedi")
+   * @param monthName Mois (ex: "mars")
+   * @param year Année optionnelle (défaut: courante ou suivante)
+   * @returns Liste de dates au format YYYY-MM-DD
    */
   private static getAllWeekdaysInMonth(
     weekdayName: string,
@@ -874,7 +896,16 @@ export class IntentDetectionService {
   }
 
   /**
-   * Construit une intention pour un créneau horaire
+   * Construit une intention pour un créneau horaire.
+   * Valide et normalise la date et les heures.
+   *
+   * @param dateStr Date brute ou partielle (ex: "12", "12/03", "2024-03-12")
+   * @param startHour Heure début
+   * @param startMinute Minute début
+   * @param endHour Heure fin
+   * @param endMinute Minute fin
+   * @param currentPoll Sondage pour contexte (année, mois)
+   * @returns Intent ADD_TIMESLOT ou null si date invalide
    */
   private static buildTimeslotIntent(
     dateStr: string,

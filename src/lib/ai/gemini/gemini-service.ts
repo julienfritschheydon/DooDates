@@ -1,12 +1,12 @@
-import CalendarQuery, { CalendarDay } from "../calendar-generator";
-import { handleError, ErrorFactory, logError } from "../error-handling";
-import { logger } from "../logger";
-import { formatDateLocal, getTodayLocal } from "../date-utils";
+import CalendarQuery, { CalendarDay } from "../../calendar-generator";
+import { handleError, ErrorFactory, logError } from "../../error-handling";
+import { logger } from "../../logger";
+import { formatDateLocal, getTodayLocal } from "../../date-utils";
 import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
 import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
-import { getEnv, isDev } from "../env";
-import type { ParsedTemporalInput } from "../temporalParser";
+import { getEnv, isDev } from "../../env";
+import type { ParsedTemporalInput } from "../../temporalParser";
 
 // Import modules
 import { PromptBuilder } from "./prompts";
@@ -65,7 +65,7 @@ export interface DatePollSuggestion {
   dateGroups?: Array<{
     dates: string[];
     label: string;
-    type: "weekend" | "week" | "fortnight" | "custom";
+    type: "weekend" | "week" | "fortnight" | "custom" | "range";
   }>;
 }
 
@@ -179,7 +179,7 @@ export class GeminiService {
 
       return prompt;
     } catch (error) {
-      logError(error, "MarkdownParsingError", { markdown: markdown.substring(0, 100) });
+      logError(error as Error, { operation: "MarkdownParsingError", metadata: { markdown: markdown.substring(0, 100) } });
       return null;
     }
   }
@@ -212,17 +212,19 @@ export class GeminiService {
 
       // Générer les hints de dates si nécessaire
       let dateHints = "";
+      let parsedTemporal: ParsedTemporalInput | undefined;
+
       if (pollType === "date") {
         try {
           // Import dynamique pour éviter les dépendances circulaires
-          const { parseTemporalInput } = await import("../temporalParser");
-          const { validateTemporalInput } = await import("../temporalValidator");
+          const { parseTemporalInput } = await import("../../temporalParser");
+          const { validateParsedInput } = await import("../../temporalValidator");
 
-          const parsed = parseTemporalInput(userInput);
-          const validation = validateTemporalInput(parsed);
+          parsedTemporal = await parseTemporalInput(userInput);
+          const validation = validateParsedInput(parsedTemporal);
 
-          if (validation.isValid && parsed.allowedDates.length > 0) {
-            dateHints = buildDateHintsFromParsed(parsed, userInput);
+          if (validation.isValid && parsedTemporal.allowedDates.length > 0) {
+            dateHints = buildDateHintsFromParsed(parsedTemporal, userInput);
 
             logger.debug("🎯 Hints envoyés à Gemini", "api", {
               requestId,
@@ -246,6 +248,9 @@ export class GeminiService {
       }
 
       // Appeler Gemini via backend configuré
+      console.log("--------------- PROMPT GENERATED ---------------");
+      console.log(prompt);
+      console.log("------------------------------------------------");
       const secureResponse = await geminiBackend.generateContent(userInput, prompt);
 
       if (!secureResponse.success) {
@@ -266,8 +271,16 @@ export class GeminiService {
         };
       }
 
-      // Post-traitement
-      const processedSuggestion = postProcessSuggestion(suggestion);
+      // Post-traitement - CRITIQUE: passer userInput pour activer les règles contextuelles
+      // Le post-traitement ne s'applique qu'aux sondages de dates
+      let processedSuggestion: PollSuggestion = suggestion;
+      if (pollType === "date" && suggestion.type !== "form") {
+        processedSuggestion = postProcessSuggestion(suggestion as DatePollSuggestion, {
+          userInput,
+          allowedDates: parsedTemporal?.allowedDates,
+          parsedTemporal,
+        });
+      }
 
       return {
         success: true,
@@ -275,9 +288,12 @@ export class GeminiService {
         message: "Sondage généré avec succès",
       };
     } catch (error) {
-      logError(error, "GeminiGenerationError", {
-        requestId,
-        userInput: userInput.substring(0, 100),
+      logError(error as Error, {
+        operation: "GeminiGenerationError",
+        metadata: {
+          requestId,
+          userInput: userInput.substring(0, 100),
+        }
       });
       return {
         success: false,
@@ -486,16 +502,60 @@ export class GeminiService {
    */
   private parseGeminiResponse(text: string): DatePollSuggestion | null {
     try {
-      // Tenter de parser du JSON
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        logger.warn("Pas de JSON trouvé dans la réponse Gemini", "api", {
+      let jsonString = text;
+
+      // 1. Priorité : Extraire le contenu d'un bloc de code Markdown ```json ... ```
+      const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (codeBlockMatch) {
+        jsonString = codeBlockMatch[1];
+      }
+
+      // 2. Chercher le premier objet JSON valide
+      // Le regex greedy \{[\s\S]*\} est dangereux si plusieurs objets sont présents.
+      // On cherche la première accolade ouvrante
+      const startIndex = jsonString.indexOf("{");
+      if (startIndex === -1) {
+        logger.warn("Pas d'accolade ouvrante trouvée dans la réponse Gemini", "api", {
           text: text.substring(0, 200),
         });
         return null;
       }
 
-      const parsed = JSON.parse(jsonMatch[0]);
+      // On essaye de parser en partant de la fin (dernière accolade fermante)
+      // et en réduisant la fenêtre si ça échoue (pour gérer le "texte après JSON")
+      // Si plusieurs objets JSON se suivent, ça peut être complexe, mais on vise le cas nominal.
+      let endIndex = jsonString.lastIndexOf("}");
+      if (endIndex === -1) return null;
+
+      let parsed: any = null;
+      let parseError = null;
+
+      // Tentative : prendre tout entre la première { et la dernière }
+      // C'est le comportement standard, mais on nettoie ce qu'il y a avant/après
+      const candidate = jsonString.substring(startIndex, endIndex + 1);
+
+      try {
+        parsed = JSON.parse(candidate);
+      } catch (e) {
+        // Échec du parsing simple.
+        console.error("🔥🔥🔥 CRITICAL GEMINI PARSE ERROR 🔥🔥🔥");
+        console.error("Raw Text received:", text);
+        console.error("Candidate extracted:", candidate);
+        console.error("Error:", e);
+
+        parseError = e;
+      }
+
+      if (!parsed) {
+        // Tentative ultime : nettoyer les trailing commas ou commentaires si simple
+        try {
+          const cleaned = candidate.replace(/,(\s*[}\]])/g, '$1'); // Trailing commas
+          parsed = JSON.parse(cleaned);
+        } catch (e) {
+          logger.warn("Échec du parsing JSON Gemini malgré nettoyage", "api", { error: e });
+          return null;
+        }
+      }
 
       // Validation basique
       if (!parsed.title || !Array.isArray(parsed.dates)) {
@@ -512,7 +572,7 @@ export class GeminiService {
 
       return parsed as DatePollSuggestion;
     } catch (error) {
-      logError(error, "GeminiResponseParseError", { text: text.substring(0, 200) });
+      logError(error as Error, { operation: "GeminiResponseParseError", metadata: { text: text.substring(0, 200) } });
       return null;
     }
   }
@@ -591,7 +651,7 @@ export class GeminiService {
         type: "form",
       } as FormPollSuggestion;
     } catch (error) {
-      logError(error, "FormPollResponseParseError", { text: text.substring(0, 200) });
+      logError(error as Error, { operation: "FormPollResponseParseError", metadata: { text: text.substring(0, 200) } });
       return null;
     }
   }
