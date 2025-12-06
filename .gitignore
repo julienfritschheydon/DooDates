@@ -212,7 +212,8 @@ id_dsa
 id_ecdsa
 id_ed25519
 julienfritschheydonKEY
-!id_*.pubsrc/hooks/__tests__/useConversations.favorites.test.ts
+!id_*.pub
+src/hooks/__tests__/useConversations.favorites.test.ts
 
 # ggshield cache (contains sensitive secrets)
 .cache_ggshield

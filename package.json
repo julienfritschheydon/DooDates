@@ -35,7 +35,7 @@
     "test:docs:production": "bash scripts/test-docs-production.sh",
     "test:production": "pwsh scripts/test-production-build.ps1",
     "test:production:bash": "bash scripts/test-production-build.sh",
-    "test:integration": "PORT=$(npx -y get-port-cli) playwright test tests/integration/api-security-performance.spec.ts --project=chromium",
+    "test:integration": "node scripts/run-playwright-with-port.cjs test tests/integration/api-security-performance.spec.ts --project=chromium",
     "test:integration:ui": "PORT=$(npx -y get-port-cli) playwright test tests/integration/api-security-performance.spec.ts --project=chromium --ui",
     "test:integration:debug": "PORT=$(npx -y get-port-cli) playwright test tests/integration/api-security-performance.spec.ts --project=chromium --debug",
     "test:accessibility": "PORT=$(npx -y get-port-cli) playwright test tests/accessibility.spec.ts --project=chromium",

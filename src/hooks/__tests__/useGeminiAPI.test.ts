@@ -164,6 +164,7 @@ describe("useGeminiAPI", () => {
 
       expect(mockGeminiService.generatePollFromText).toHaveBeenCalledWith(
         "Organise une réunion demain",
+        undefined,
       );
       expect(response?.success).toBe(true);
     });

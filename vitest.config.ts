@@ -48,6 +48,11 @@ export default defineConfig({
       "tests/**",
       "**/*.manual.ts", // Tests manuels avec appels API coûteux (ex: temporal-prompts, gemini-professional)
       "src/hooks/__tests__/useConversations.favorites.test.ts", // Tests problématiques de fallback Supabase/localStorage
+      // Exclure les tests qui appellent réellement l'API Gemini (coûteux et lents)
+      "src/test/gemini-*.test.ts", // Tests Gemini avec appels API réels
+      "src/test/gemini-benchmark.test.ts",
+      "src/test/gemini-diagnostic.test.ts",
+      "src/test/gemini-form-polls.test.ts",
     ],
     coverage: {
       provider: "v8",

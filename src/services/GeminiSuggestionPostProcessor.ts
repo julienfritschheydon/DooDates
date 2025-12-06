@@ -1,6 +1,7 @@
 import { DatePollSuggestion } from "@/lib/gemini";
 import type { ParsedTemporalInput } from "@/lib/temporalParser";
 import { formatDateLocal, groupConsecutiveDates } from "@/lib/date-utils";
+import { logger } from "@/lib/logger";
 
 export interface PostProcessingOptions {
   userInput: string;
@@ -915,7 +916,7 @@ export function postProcessSuggestion(
   suggestion: DatePollSuggestion,
   options: PostProcessingOptions,
 ): DatePollSuggestion {
-  console.error("DEBUG POST PROCESS START", options.userInput);
+  logger.debug("DEBUG POST PROCESS START", "general", { userInput: options.userInput });
   // 🔧 FIX BUG #1 (PRIORITÉ 1): Détecter le pattern "week-end" + multi-mois AVANT tout traitement
   // Ex: "week-end de mars et avril 2026" → tous les samedis et dimanches de mars et avril
   const weekendMultiMonth = detectWeekendMultiMonthPattern(options.userInput);
@@ -1283,10 +1284,11 @@ export function postProcessSuggestion(
         });
       } else {
         if (options.userInput.includes("brunch")) {
-          console.error("DEBUG BRUNCH LOGIC:");
-          console.error("processedSlots:", processedSlots.length);
-          console.error("finalDates:", finalDates.length);
-          console.error("shouldGenerateSlotsForMissingDates:", shouldGenerateSlotsForMissingDates);
+          logger.debug("DEBUG BRUNCH LOGIC", "general", {
+            processedSlots: processedSlots.length,
+            finalDates: finalDates.length,
+            shouldGenerateSlotsForMissingDates,
+          });
         }
         if (processedSlots.length < finalDates.length) {
           // Pas de créneaux partagés mais pas assez de créneaux → générer pour les dates manquantes
@@ -1376,7 +1378,7 @@ export function postProcessSuggestion(
     }
   }
 
-  console.error("DEBUG POST PROCESS END. processedSlots:", processedSlots?.length);
+  logger.debug("DEBUG POST PROCESS END", "general", { processedSlotsCount: processedSlots?.length });
   const type = finalizeType(suggestion, processedSlots);
 
   return {

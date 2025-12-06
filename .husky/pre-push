@@ -156,6 +156,15 @@ if [ $? -ne 0 ]; then
 fi
 
 # 4. Tests E2E Smoke (uniquement si push vers main)
+# Détecter si on push vers main en lisant les refs depuis stdin
+PUSHING_TO_MAIN="false"
+while read local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    PUSHING_TO_MAIN="true"
+    break
+  fi
+done
+
 if [ "$PUSHING_TO_MAIN" = "true" ]; then
   echo "🔥 Tests E2E Smoke (protection branche main)..."
   npm run test:e2e:smoke

@@ -8,6 +8,19 @@
 import { formatDateLocal } from "./date-utils";
 import { ErrorFactory } from "./error-handling";
 
+// Logger optionnel pour debug (éviter import circulaire)
+let debugLogger: typeof import("./ai/geminiDebugLogger") | null = null;
+async function getDebugLogger() {
+  if (!debugLogger) {
+    try {
+      debugLogger = await import("./ai/geminiDebugLogger");
+    } catch {
+      // Ignore si le module n'est pas disponible
+    }
+  }
+  return debugLogger;
+}
+
 // Type for chrono-node parse result
 interface ChronoParsedDate {
   text: string;
@@ -291,6 +304,29 @@ export async function parseTemporalInput(
     detectedKeywords,
   };
 
+  // Log détaillé du parsing chrono (ÉTAPE 3)
+  getDebugLogger().then((logger) => {
+    if (logger?.isGeminiDebugEnabled()) {
+      logger.GeminiFlowLogger.logChronoParsing("temporal-parser", {
+        chronoResult: chronoParsedDates.map((d) => ({
+          text: d.text,
+          date: d.start.date().toISOString(),
+        })),
+        chronoText: chronoParsedText,
+        chronoDate: chronoParsedDates[0]?.start.date().toISOString(),
+        detectedKeywords,
+        dayOfWeek,
+        month,
+        dateNumeric,
+        relativeDays,
+        relativeWeeks,
+        allowedDates,
+        targetDates: targetDates.map((d) => d.toISOString()),
+        parseType: type,
+      });
+    }
+  });
+
   // Mettre en cache
   parsingCache.set(cacheKey, { result, timestamp: Date.now() });
 
@@ -500,7 +536,23 @@ function calculateDateWindow(params: {
 
   // Cas 4: Chrono-node a détecté quelque chose (seulement si relativeWeeks n'a pas été traité)
   if (chronoParsedDates.length > 0 && !relativeWeeks) {
-    const targetDateObj = chronoParsedDates[0].start.date();
+    let targetDateObj = chronoParsedDates[0].start.date();
+
+    // Si chrono a renvoyé une date passée ET qu'un jour de semaine est spécifié,
+    // recalculer vers la prochaine occurrence de ce jour
+    if (targetDateObj < now && dayOfWeek && dayOfWeek.length > 0) {
+      const targetDayOfWeek = dayOfWeek[0]; // Premier jour spécifié (ex: 3 pour mercredi)
+      const today = new Date(now);
+      const currentDayOfWeek = today.getDay();
+      // Calculer les jours jusqu'à la prochaine occurrence
+      let daysUntilTarget = targetDayOfWeek - currentDayOfWeek;
+      if (daysUntilTarget <= 0) {
+        daysUntilTarget += 7; // Semaine prochaine
+      }
+      targetDateObj = new Date(today);
+      targetDateObj.setDate(today.getDate() + daysUntilTarget);
+    }
+
     targetDates.push(targetDateObj);
 
     // Vérifier si c'est "semaine prochaine" pour générer plus de dates
@@ -529,6 +581,11 @@ function calculateDateWindow(params: {
     for (let offset = -3; offset <= 3; offset++) {
       const windowDate = new Date(targetDateObj);
       windowDate.setDate(targetDateObj.getDate() + offset);
+
+      // Filtrer les dates passées
+      if (windowDate < now) {
+        continue;
+      }
 
       // Si contexte professionnel, exclure week-end
       const dayOfWeekNum = windowDate.getDay();

@@ -59,33 +59,24 @@ export class DatePollService {
 
         let hints = "";
 
-        // 1. Instructions sur les dates autorisées
+        // 1. Instructions sur les dates autorisées (simplifiées)
         if (parsed.allowedDates.length > 0) {
             const formattedDates = parsed.allowedDates
                 .map((d) => {
                     const date = new Date(d);
-                    return `${dayNames[date.getDay()]} ${date.getDate()} ${monthNames[date.getMonth()]}`;
+                    return `${dayNames[date.getDay()]} ${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
                 })
                 .join(", ");
 
-            // Déterminer combien de dates on attend
             const expectedDatesCount = parsed.allowedDates.length;
 
             hints += `\n⚠️⚠️⚠️ INSTRUCTIONS STRICTES SUR LES DATES ⚠️⚠️⚠️\n`;
             hints += `Basé sur l'analyse temporelle de "${userInput}":\n`;
-            hints += `DATES AUTORISÉES UNIQUEMENT: ${formattedDates}\n`;
-            hints += `NOMBRE DE DATES ATTENDUES: ${expectedDatesCount}\n`;
-
-            hints += `\nRÈGLE ABSOLUE - PLUSIEURS JOURS:\n`;
-            hints += `→ OBLIGATOIRE : Générer EXACTEMENT ${expectedDatesCount} DATES (une pour chaque jour mentionné)\n`;
-            hints += `→ OBLIGATOIRE : Chaque date doit correspondre au bon jour de la semaine\n`;
-            hints += `→ INTERDIT : Ne générer qu'une seule date (l'utilisateur veut voir les options pour tous les jours)\n`;
+            hints += `- DATES AUTORISÉES UNIQUEMENT: ${formattedDates}\n`;
+            hints += `- NOMBRE DE DATES ATTENDUES: ${expectedDatesCount}\n`;
             if (parsed.isMealContext) {
-                hints += `→ OBLIGATOIRE : 1 CRÉNEAU UNIQUEMENT (partagé entre toutes les dates ou 1 par date selon le contexte)\n`;
+                hints += `- CONTEXTE REPAS: 1 CRÉNEAU UNIQUEMENT par date\n`;
             }
-
-            hints += `\nDates autorisées (OBLIGATOIRE de générer TOUTES ces dates):\n`;
-            hints += `${parsed.allowedDates.join("\n")}\n`;
         }
 
         // 2. Instructions sur les créneaux horaires

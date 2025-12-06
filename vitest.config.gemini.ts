@@ -13,6 +13,7 @@ export default defineConfig({
         'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || 'test-anon-key'),
         'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(process.env.VITE_GEMINI_API_KEY || ''),
         'import.meta.env.VITE_USE_DIRECT_GEMINI': '"true"',
+        'import.meta.env.VITE_DISABLE_POST_PROCESSING': JSON.stringify(process.env.VITE_DISABLE_POST_PROCESSING || 'false'),
     },
     test: {
         environment: 'jsdom',
@@ -21,16 +22,14 @@ export default defineConfig({
         testTimeout: 120000, // 2 minutes par test (appels Gemini lents)
         hookTimeout: 30000,
         include: [
+            // ✅ FICHIER CONSOLIDÉ PRINCIPAL (fusionné avec gemini-date-polls.test.ts)
+            'src/test/gemini-tests.manual.ts',           // ~70 tests consolidés avec filtrage et scoring sur 4 points
+            // Autres tests
             'src/test/gemini-tests/*.manual.ts',
-            'src/test/gemini-comprehensive.manual.ts',
-            'src/test/gemini-professional.manual.ts',
-            'src/test/prompts-generation.manual.ts',
-            'src/test/temporal-prompts-validation.manual.ts',
             'src/test/gemini-tests/*.test.ts',
-            'src/test/gemini-comprehensive.test.ts',
-            'src/test/gemini-professional.test.ts',
+            'src/test/gemini-form-polls.test.ts',        // 10 tests de formulaires
+            'src/test/prompts-generation.manual.ts',
             'src/test/prompts-generation.test.ts',
-            'src/test/temporal-prompts-validation.test.ts',
         ],
         exclude: [
             'node_modules/**',

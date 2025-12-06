@@ -109,7 +109,23 @@ export function buildContextualHints(userInput: string): string {
         hints.push("CONTEXTE: Soirée → Générer créneaux entre 18h30 et 21h00");
     }
 
+    // Durée explicite → OBLIGATOIRE de générer des timeSlots
+    const durationMatch = lowerInput.match(/(\d+)\s*(minutes?|min|h|heures?)/i);
+    if (durationMatch) {
+        const value = parseInt(durationMatch[1], 10);
+        const unit = durationMatch[2].toLowerCase();
+        const durationMinutes = unit.startsWith("h") ? value * 60 : value;
+        hints.push(
+            `CONTEXTE: Durée explicite (${durationMinutes} min) → OBLIGATOIRE: Générer des timeSlots de ${durationMinutes} minutes`,
+        );
+    }
+
+    // "créneau" mentionné → attente de timeSlots
+    if (/créneau|creneau/.test(lowerInput)) {
+        hints.push("CONTEXTE: 'créneau' mentionné → OBLIGATOIRE: Générer au moins 1 timeSlot");
+    }
+
     return hints.length > 0
-        ? `\n⚠️⚠️⚠️ HINTS CONTEXTUELS DÉTECTÉS ⚠️⚠️⚠️\n${hints.join("\n")}\n`
+        ? `\n⚠️⚠️⚠️ HINTS CONTEXTUELS DÉTECTÉS ⚠️⚠️⚠️\n${hints.join("\n")}\nUtilise ces hints pour affiner la sélection des créneaux horaires.\n`
         : "";
 }

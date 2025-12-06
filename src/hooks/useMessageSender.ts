@@ -444,17 +444,20 @@ export function useMessageSender(options: UseMessageSenderOptions) {
       );
 
       // Appel API Gemini via le hook
+      // Passer pollType pour forcer le type (séparation Date/Form)
+      const pollTypeForAPI = options.pollType === "availability" ? "date" : options.pollType;
       console.log(
         `[${timestamp}] [${requestId}] 🟣 useMessageSender: Appel geminiAPI.generatePoll`,
         {
           messageLength: trimmedInput.length,
           messagePreview: trimmedInput.substring(0, 50),
+          pollType: pollTypeForAPI,
         },
       );
 
       let pollResponse;
       try {
-        pollResponse = await geminiAPI.generatePoll(trimmedInput);
+        pollResponse = await geminiAPI.generatePoll(trimmedInput, pollTypeForAPI);
         console.log(
           `[${new Date().toISOString()}] [${requestId}] 🟣 useMessageSender: Réponse reçue`,
           {

@@ -40,155 +40,44 @@ node test-runner.mjs src/services/__tests__/ChatResetService.test.ts
 node test-runner.mjs src/components/__tests__/Dashboard.test.tsx
 
 # ============================================================================
-# 🚨 ÉTAT ACTUEL DES TESTS GEMINI - RESTAURATION EN COURS
+# 🚀 TESTS GEMINI - GUIDE RAPIDE
 # ============================================================================
 #
-# ⚠️ SITUATION ACTUELLE (28/11/2025):
-# - Les fichiers gemini-date-polls.test.ts, gemini-form-polls.test.ts, gemini-comprehensive.test.ts 
-#   référencés dans ce guide N'EXISTENT PAS encore
-# - Templates de base disponibles : gemini-professional.test.ts, prompts-generation.test.ts, temporal-prompts-validation.test.ts
-# - Plan de restauration : 7h pour recréer les 58 tests manquants
+# ⚠️ IMPORTANT: Utiliser `vitest.config.gemini.ts` avec --config pour tous les tests Gemini
 #
-# ✅ CE QUI FONCTIONNE MAINTENANT:
+# 📊 État actuel (05/12/2025):
 # - Tests unitaires Gemini : 1082/1082 passent (100%)
-# - Templates base : 25 tests actifs dans src/test/
-# - Scripts de rapports fonctionnels
-#
-# 🔄 PLAN DE RESTAURATION (voir Docs/2. Planning.md):
-# 1. Analyser templates existants (1h)
-# 2. Créer gemini-date-polls.test.ts (2h) - 48 tests
-# 3. Créer gemini-form-polls.test.ts (1.5h) - 10 tests  
-# 4. Créer gemini-comprehensive.test.ts (2h) - 57+ tests
-# 5. Créer vitest.config.gemini.ts (0.5h)
-# 6. Mettre à jour ce guide (0.5h)
+# - Tests d'intégration : 51 tests (41 date polls + 10 form polls)
+# - Score actuel : 91.83/100 (92%) - Quality Gate : > 70%
+# - Post-processing désactivé (score +7.8% sans post-processing)
 #
 # ============================================================================
-# 🚀 TESTS GEMINI - INSTRUCTIONS DE LANCEMENT (QUAND RESTAURÉS)
+# LANCER LES TESTS
 # ============================================================================
 #
-# ⚠️ IMPORTANT: Les fichiers de tests Gemini sont EXCLUS des tests standard
-# (vitest.config.ts). Pour les exécuter, vous devez créer un fichier de config
-# temporaire (vitest.config.gemini.ts) ou utiliser --config.
+# Tests consolidés (RECOMMANDÉ - ~51 tests, ~40-50 min):
+npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts --reporter=default --no-coverage
 #
-# ============================================================================
-# ÉTAPE 1: Créer le fichier de configuration temporaire
-# ============================================================================
-#
-# Créer vitest.config.gemini.ts à la racine du projet avec ce contenu:
-#
-# ```typescript
-# import { defineConfig } from 'vitest/config';
-# import react from '@vitejs/plugin-react-swc';
-# import path from 'path';
-# import { config as loadEnv } from 'dotenv';
-#
-# loadEnv({ path: path.resolve(process.cwd(), '.env.local'), override: false });
-#
-# export default defineConfig({
-#   plugins: [react()],
-#   define: {
-#     'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || 'https://test.supabase.co'),
-#     'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || 'test-anon-key'),
-#     'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(process.env.VITE_GEMINI_API_KEY || ''),
-#     'import.meta.env.VITE_USE_DIRECT_GEMINI': JSON.stringify(process.env.VITE_USE_DIRECT_GEMINI || 'false'),
-#   },
-#   test: {
-#     environment: 'jsdom',
-#     setupFiles: ['./src/test/setup.ts'],
-#     globals: true,
-#     include: [
-#       'src/test/gemini-comprehensive.test.ts',    # ⚠️ À CRÉER
-#       'src/test/gemini-form-polls.test.ts',       # ⚠️ À CRÉER
-#       'src/test/gemini-date-polls.test.ts',       # ⚠️ À CRÉER
-#       'src/test/gemini-professional.test.ts',     # ✅ EXISTE (22 tests)
-#       'src/test/prompts-generation.test.ts',      # ✅ EXISTE (2 tests)
-#       'src/test/temporal-prompts-validation.test.ts', # ✅ EXISTE (framework)
-#     ],
-#     exclude: [
-#       'node_modules/**',
-#       'tests/**',
-#     ],
-#   },
-#   resolve: {
-#     alias: {
-#       '@': path.resolve(__dirname, './src')
-#     }
-#   }
-# });
-# ```
-#
-# ============================================================================
-# ÉTAPE 2: Lancer les tests disponibles MAINTENANT
-# ============================================================================
-#
-# Tests professionnels (DISPONIBLE - 22 tests dont 10 commentés):
-npx vitest run --config vitest.config.gemini.ts src/test/gemini-professional.test.ts --reporter=default --no-coverage
-#
-# Tests cas limites (DISPONIBLE - 2 tests):
-npx vitest run --config vitest.config.gemini.ts src/test/prompts-generation.test.ts --reporter=default --no-coverage
-#
-# Tests validation temporelle (DISPONIBLE - framework):
-npx vitest run --config vitest.config.gemini.ts src/test/temporal-prompts-validation.test.ts --reporter=default --no-coverage
-#
-# ============================================================================
-# ÉTAPE 3: Lancer les tests complets (QUAND RESTAURÉS)
-# ============================================================================
-#
-# Tests de sondages de dates uniquement (RECOMMANDÉ):
-# PowerShell:
-$env:FAILED_TEST_IDS="bug1-4,bug1-5"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-date-polls.test.ts --reporter=default --no-coverage
-# Bash/Mac:
-FAILED_TEST_IDS="bug1-4,bug1-5" npx vitest run --config vitest.config.gemini.ts src/test/gemini-date-polls.test.ts --reporter=default --no-coverage
-#
-# Tests de formulaires uniquement:
-# PowerShell:
-npx vitest run --config vitest.config.gemini.ts src/test/gemini-form-polls.test.ts --reporter=default --no-coverage
-# Bash/Mac:
+# Tests de formulaires (10 tests, ~7-8 min):
 npx vitest run --config vitest.config.gemini.ts src/test/gemini-form-polls.test.ts --reporter=default --no-coverage
 #
-# Suite complète (legacy - tous les tests combinés):
-# PowerShell:
-npx vitest run --config vitest.config.gemini.ts src/test/gemini-comprehensive.test.ts --reporter=default --no-coverage 2>&1 | Tee-Object -FilePath "test_gemini_comprehensive_output.txt"
-# Bash/Mac:
-npx vitest run --config vitest.config.gemini.ts src/test/gemini-comprehensive.test.ts --reporter=default --no-coverage 2>&1 | tee test_gemini_comprehensive_output.txt
-#
 # ============================================================================
-# Relancer uniquement les tests échoués
+# FILTRAGE ET RELANCE
 # ============================================================================
 #
-# Après un premier run, identifier les IDs des tests en échec dans le rapport,
-# puis relancer uniquement ces tests:
+# Filtrer par catégorie (PowerShell):
+$env:GEMINI_CATEGORY="professionnel"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts
 #
-# PowerShell:
-$env:FAILED_TEST_IDS="bug1-4,bug1-5"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-date-polls.test.ts --reporter=default --no-coverage
-$env:FAILED_TEST_IDS="form-1,form-2"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-form-polls.test.ts --reporter=default --no-coverage
+# Filtrer par ID (PowerShell):
+$env:GEMINI_ID="brunch-samedi-23-dimanche-24"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts
 #
-# Bash/Mac:
-FAILED_TEST_IDS="bug1-4,bug1-5" npx vitest run --config vitest.config.gemini.ts src/test/gemini-date-polls.test.ts --reporter=default --no-coverage
-FAILED_TEST_IDS="form-1,form-2" npx vitest run --config vitest.config.gemini.ts src/test/gemini-form-polls.test.ts --reporter=default --no-coverage
+# Relancer tests échoués (PowerShell):
+$env:FAILED_TEST_IDS="bug1-4,bug1-5"; npx vitest run --config vitest.config.gemini.ts src/test/gemini-tests.manual.ts
 #
-# ============================================================================
-# Consulter les rapports générés
-# ============================================================================
-#
-# Les rapports sont générés automatiquement dans tests/reports/:
-# - tests/reports/gemini-date-polls-report.md (rapport markdown - tests de dates) ⚠️ À CRÉER
-# - tests/reports/gemini-form-polls-report.md (rapport markdown - tests de formulaires) ⚠️ À CRÉER
-# - tests/reports/gemini-comprehensive-report.md (rapport markdown - tous les tests combinés) ⚠️ À CRÉER
-#
-# ============================================================================
-# Durées estimées
-# ============================================================================
-#
-# Tests disponibles MAINTENANT:
-# - gemini-professional.test.ts: ~10-15 minutes (12 tests actifs × ~45s chacun)
-# - prompts-generation.test.ts: ~2 minutes (2 tests × ~45s chacun)
-#
-# Tests après restauration:
-# - gemini-date-polls.test.ts: ~35-40 minutes (48 tests × ~45s chacun)
-# - gemini-form-polls.test.ts: ~7-8 minutes (10 tests × ~45s chacun)
-# - gemini-comprehensive.test.ts: ~45 minutes (57+ tests × ~45s chacun)
-# - Tests en échec uniquement: ~2-5 minutes (selon nombre)
+# Rapports générés automatiquement dans tests/reports/:
+# - gemini-tests-report.md (rapport markdown consolidé)
+# - gemini-tests-report.json (rapport JSON consolidé)
+# - gemini-form-polls-report.md (rapport formulaires)
 #
 # ============================================================================
 
@@ -243,28 +132,11 @@ npx vitest run src/lib/__tests__/gemini-detection.test.ts
       - Raison: Tests d'intégration weekend grouping
       - Action: À réactiver quand weekend grouping fonctionnel
 
-🤖 Tests IA (Gemini) - ÉTAT ACTUEL (28/11/2025)
-   
-   **⚠️ SITUATION RÉELLE :**
-   - **Tests unitaires Gemini** : 1082/1082 passent (100%) ✅
-   - **Tests d'intégration Gemini** : 25/58 tests actifs (43%) ⚠️
-     - `gemini-professional.test.ts` : 22 tests (10 professionnels commentés)
-     - `prompts-generation.test.ts` : 2 tests (cas limites)
-     - `temporal-prompts-validation.test.ts` : Framework validation
-   - **Tests manquants** : 33 tests (57%) ❌
-     - `gemini-date-polls.test.ts` : 48 tests (à créer)
-     - `gemini-form-polls.test.ts` : 10 tests (à créer)
-     - `gemini-comprehensive.test.ts` : 57+ tests (à créer)
-   
-   **📊 Couverture cible vs actuelle :**
-   - **Objectif documenté** : 92% (58/63 tests)
-   - **Actuel** : 43% (25/58 tests)
-   - **Manque** : 33 tests pour atteindre la cible
-   
-   **🔄 Plan de restauration en cours (7h) :**
-   - Voir section "🚨 ÉTAT ACTUEL DES TESTS GEMINI" ci-dessus
-   - Templates de base disponibles et fonctionnels
-   - Objectif : Passer de 43% à 92% de couverture
+🤖 Tests IA (Gemini)
+   - **Tests unitaires** : 1082/1082 passent (100%)
+   - **Tests d'intégration** : 51 tests (41 date polls + 10 form polls)
+   - **Score actuel** : 91.83/100 (92%) - Quality Gate : > 70%
+   - **Fichiers** : gemini-tests.manual.ts (41 tests consolidés), gemini-form-polls.test.ts (10)
 ## 🚨 GESTION DES TESTS SKIP - GUIDE D'ACTION
 
 ### Comment réactiver les tests skip :
@@ -403,8 +275,8 @@ npx playwright test analytics-ai.spec.ts console-errors.spec.ts --project=chromi
 # Tests unitaires
 npm run test:unit              # Tous les tests (~30s)
 
-# Tests IA
-npm run test:gemini            # Tests complets (~30s)
+# Tests IA (Gemini)
+npm run test:gemini            # Tests complets (voir guide rapide ci-dessus)
 
 # Tests E2E
 npm run test:e2e:smoke         # Tests critiques (~2min)
@@ -672,9 +544,8 @@ npm run test:unit              # Tous les tests Vitest
 npm run test:unit:fast         # Mode rapide
 npm run test:integration       # Tests d'intégration
 
-# IA
-npm run test:gemini            # Tests IA complets
-npm run test:gemini:quick      # Tests IA rapides
+# IA (Gemini)
+npm run test:gemini            # Tests IA complets (voir guide rapide ci-dessus pour détails)
 
 # E2E
 npm run test:e2e               # Tous navigateurs
@@ -729,196 +600,23 @@ npm run test:ci                # Suite CI complète
 
 ### 2. Tests IA (Gemini)
 
-**Tests actifs** : 58 prompts répartis en deux fichiers séparés (21 novembre 2025)
-- **Date Polls** (`gemini-date-polls.test.ts`) : 48 tests
-  - Bug Regression Tests : 6 prompts (Bug #1: Mois Explicite, incluant le nouveau bug1-6)
-  - Realistic Prompts : 15 prompts (Professional, Personal, Associatif)
-  - Temporal Edge Cases : 10 prompts (PARTIEL/NOK Regression)
-  - Edge Cases : 2 prompts (Brunch & Footing)
-  - Date Polls - Réunions : 5 prompts
-  - Date Polls - Événements : 5 prompts
-  - Date Polls - Formations : 5 prompts
-- **Form Polls** (`gemini-form-polls.test.ts`) : 10 tests
-  - Form Polls - Simples : 2 prompts
-  - Form Polls - Rating : 1 prompt
-  - Form Polls - NPS : 1 prompt
-  - Form Polls - Matrix : 1 prompt
-  - Form Polls - Validation : 1 prompt
-  - Form Polls - Mix Types : 1 prompt
-  - Form Polls - Event : 1 prompt
-  - Form Polls - Feedback : 1 prompt
-  - Form Polls - Complex : 1 prompt
+**Tests d'intégration** : 51 tests (41 date polls + 10 form polls)
+- **gemini-tests.manual.ts** : 41 tests consolidés (fusionné avec gemini-date-polls.test.ts) (~40-50 min)
+- **gemini-form-polls.test.ts** : 10 tests de formulaires (~7-8 min)
 
-**Score actuel** : 91.83/100 (92%) - ✅ **EXCELLENT**
+**Tests unitaires** : ~65 tests (détection, parsing, règles conditionnelles)
+- **gemini-detection.test.ts** : ~20 tests (détection type poll)
+- **gemini-form-parsing.test.ts** : ~30 tests (parsing formulaires)
+- **gemini-conditional-parsing.test.ts** : ~15 tests (règles conditionnelles)
 
-**Quality Gate** : Score > 70% requis pour merge
+**Score actuel** : 91.83/100 (92%) - Quality Gate : > 70%
 
 **Rapports** : Générés automatiquement dans `tests/reports/`
-- `gemini-date-polls-report.md` : Rapport des tests de dates
-- `gemini-form-polls-report.md` : Rapport des tests de formulaires
-- `gemini-comprehensive-report.md` : Rapport combiné (si `gemini-comprehensive.test.ts` utilisé)
+- `gemini-tests-report.md` : Rapport markdown consolidé (tous les tests de dates)
+- `gemini-form-polls-report.md` : Rapport markdown des tests de formulaires
+- `gemini-tests-report.json` : Rapport JSON consolidé
 
----
-
-#### 📋 Quick Reference - Gemini Tests
-
-| Test File | Purpose | Prompts | Run Command | When to Use |
-|-----------|---------|---------|-------------|-------------|
-| **gemini-date-polls.test.ts** | Tests de sondages de dates | 48 | `npx vitest run --config vitest.config.gemini.ts src/test/gemini-date-polls.test.ts --reporter=default --no-coverage` | Tests de génération de sondages de dates |
-| **gemini-form-polls.test.ts** | Tests de formulaires | 10 | `npx vitest run --config vitest.config.gemini.ts src/test/gemini-form-polls.test.ts --reporter=default --no-coverage` | Tests de génération de formulaires |
-| **gemini-comprehensive.test.ts** | Suite complète (legacy) | 57+ | `npx vitest run --config vitest.config.gemini.ts src/test/gemini-comprehensive.test.ts --reporter=default --no-coverage` | Fichier original maintenu pour compatibilité |
-| **gemini-detection.test.ts** | Unit tests for poll type detection | ~20 | `npm run test:unit` | Testing `detectPollType` logic |
-| **gemini-form-parsing.test.ts** | Unit tests for form poll parsing | ~30 | `npm run test:unit` | Testing `parseFormPollResponse` logic |
-| **gemini-conditional-parsing.test.ts** | Unit tests for conditional rules | ~15 | `npm run test:unit` | Testing conditional question logic |
-
-**⚠️ IMPORTANT:** Les fichiers de tests Gemini nécessitent `vitest.config.gemini.ts` (voir instructions détaillées ci-dessus).
-
----
-
-#### 🌳 Decision Tree - Which Gemini Test to Run?
-
-```
-┌─ Need to test Gemini functionality?
-│
-├─ YES → Testing end-to-end poll generation?
-│   │
-│   ├─ Testing Date Polls? → Run gemini-date-polls.test.ts
-│   │        ✅ 48 tests de sondages de dates
-│   │        ✅ Tests real API calls
-│   │        ✅ Validates complete date poll generation
-│   │        📝 Command: npx vitest run --config vitest.config.gemini.ts src/test/gemini-date-polls.test.ts --reporter=default --no-coverage
-│   │        ⚠️ Nécessite vitest.config.gemini.ts (voir instructions ci-dessus)
-│   │
-│   ├─ Testing Form Polls? → Run gemini-form-polls.test.ts
-│   │        ✅ 10 tests de formulaires
-│   │        ✅ Tests real API calls
-│   │        ✅ Validates complete form poll generation
-│   │        📝 Command: npx vitest run --config vitest.config.gemini.ts src/test/gemini-form-polls.test.ts --reporter=default --no-coverage
-│   │        ⚠️ Nécessite vitest.config.gemini.ts (voir instructions ci-dessus)
-│   │
-│   └─ Testing All? → Run gemini-comprehensive.test.ts (legacy)
-│            ✅ 57+ tests combinés
-│            📝 Command: npx vitest run --config vitest.config.gemini.ts src/test/gemini-comprehensive.test.ts --reporter=default --no-coverage
-│            ⚠️ Nécessite vitest.config.gemini.ts (voir instructions ci-dessus)
-│   │
-│   └─ NO → Testing specific parsing logic?
-│       │
-│       ├─ Poll type detection → gemini-detection.test.ts
-│       ├─ Form poll parsing → gemini-form-parsing.test.ts
-│       └─ Conditional rules → gemini-conditional-parsing.test.ts
-│           📝 Command: npm run test:unit
-│
-└─ NO → See other test categories below
-```
-
----
-
-#### 📖 Detailed Test Descriptions
-
-##### **gemini-date-polls.test.ts** - Date Polls Test Suite (RECOMMANDÉ)
-- **Location**: `src/test/gemini-date-polls.test.ts`
-- **Purpose**: Tests spécialisés pour les sondages de dates
-- **Total Prompts**: 48 test cases
-- **Categories**:
-  1. **Bug Regression Tests (6 prompts)**: Tests for Bug #1 (Mois Explicite parsing), incluant le nouveau `bug1-6` (week-end jeux mars/avril 2026)
-  2. **Realistic Prompts (15 prompts)**: Real-world scenarios (Professional, Personal, Associatif)
-  3. **Temporal Edge Cases (10 prompts)**: Previously PARTIEL/NOK prompts for regression testing
-  4. **Edge Cases (2 prompts)**: Brunch & Footing scenarios
-  5. **Date Polls - Réunions (5 prompts)**: Scénarios de réunions
-  6. **Date Polls - Événements (5 prompts)**: Scénarios d'événements
-  7. **Date Polls - Formations (5 prompts)**: Scénarios de formations
-- **Scoring**: Each test scored out of 4 points (Type, Day Constraints, Time Constraints, Required Words)
-- **Reports**: Auto-generated markdown report in `tests/reports/gemini-date-polls-report.md`
-- **Run**: `npx vitest run --config vitest.config.gemini.ts src/test/gemini-date-polls.test.ts --reporter=default --no-coverage`
-- **Relancer tests échoués**: `FAILED_TEST_IDS="bug1-4,bug1-5" npx vitest run --config vitest.config.gemini.ts src/test/gemini-date-polls.test.ts --reporter=default --no-coverage`
-- **Durée**: ~35-40 minutes (tous) ou ~2-5 minutes (échecs uniquement)
-- **When to Use**: Tests de génération de sondages de dates uniquement
-- **⚠️ IMPORTANT**: Nécessite `vitest.config.gemini.ts` (voir instructions détaillées ci-dessus)
-
-##### **gemini-form-polls.test.ts** - Form Polls Test Suite (RECOMMANDÉ)
-- **Location**: `src/test/gemini-form-polls.test.ts`
-- **Purpose**: Tests spécialisés pour les formulaires
-- **Total Prompts**: 10 test cases
-- **Categories**:
-  1. **Form Polls - Simples (2 prompts)**: Questionnaires simples
-  2. **Form Polls - Rating (1 prompt)**: Questions de notation
-  3. **Form Polls - NPS (1 prompt)**: Net Promoter Score
-  4. **Form Polls - Matrix (1 prompt)**: Matrices d'évaluation
-  5. **Form Polls - Validation (1 prompt)**: Validations email/téléphone
-  6. **Form Polls - Mix Types (1 prompt)**: Types mixtes
-  7. **Form Polls - Event (1 prompt)**: Questionnaires d'événements
-  8. **Form Polls - Feedback (1 prompt)**: Formulaires de feedback
-  9. **Form Polls - Complex (1 prompt)**: Questionnaires complexes
-- **Scoring**: Each test scored out of 4 points (Type, Question Count, Question Types, Validation Types, Required Words)
-- **Reports**: Auto-generated markdown report in `tests/reports/gemini-form-polls-report.md`
-- **Run**: `npx vitest run --config vitest.config.gemini.ts src/test/gemini-form-polls.test.ts --reporter=default --no-coverage`
-- **Relancer tests échoués**: `FAILED_TEST_IDS="form-1,form-2" npx vitest run --config vitest.config.gemini.ts src/test/gemini-form-polls.test.ts --reporter=default --no-coverage`
-- **Durée**: ~7-8 minutes (tous) ou ~1-2 minutes (échecs uniquement)
-- **When to Use**: Tests de génération de formulaires uniquement
-- **⚠️ IMPORTANT**: Nécessite `vitest.config.gemini.ts` (voir instructions détaillées ci-dessus)
-
-##### **gemini-comprehensive.test.ts** - Unified Comprehensive Test Suite (LEGACY)
-- **Location**: `src/test/gemini-comprehensive.test.ts`
-- **Purpose**: Fichier original combinant tous les tests (maintenu pour compatibilité)
-- **Total Prompts**: 57+ test cases
-- **Note**: ⚠️ **Déprécié** - Utiliser `gemini-date-polls.test.ts` et `gemini-form-polls.test.ts` à la place
-- **Run**: `npx vitest run --config vitest.config.gemini.ts src/test/gemini-comprehensive.test.ts --reporter=default --no-coverage`
-- **Relancer tests échoués**: `FAILED_TEST_IDS="bug1-4,bug1-5" npx vitest run --config vitest.config.gemini.ts src/test/gemini-comprehensive.test.ts --reporter=default --no-coverage`
-- **Durée**: ~45 minutes (tous) ou ~2-5 minutes (échecs uniquement)
-- **⚠️ IMPORTANT**: Nécessite `vitest.config.gemini.ts` (voir instructions détaillées ci-dessus)
-
-##### **gemini-detection.test.ts** - Poll Type Detection Unit Tests
-- **Location**: `src/lib/__tests__/gemini-detection.test.ts`
-- **Purpose**: Unit tests for `detectPollType` method
-- **Coverage**: ~20 test cases
-- **Tests**: Form vs Date poll detection based on keywords
-- **Run**: `npm run test:unit`
-- **When to Use**: Testing poll type detection logic in isolation
-
-##### **gemini-form-parsing.test.ts** - Form Poll Parsing Unit Tests
-- **Location**: `src/lib/__tests__/gemini-form-parsing.test.ts`
-- **Purpose**: Unit tests for `parseFormPollResponse` method
-- **Coverage**: ~30 test cases
-- **Tests**: JSON parsing, question types, validation types, conditional rules
-- **Run**: `npm run test:unit`
-- **When to Use**: Testing form poll response parsing logic
-
-##### **gemini-conditional-parsing.test.ts** - Conditional Rules Unit Tests
-- **Location**: `src/lib/__tests__/gemini-conditional-parsing.test.ts`
-- **Purpose**: Unit tests for conditional question parsing
-- **Coverage**: ~15 test cases
-- **Tests**: Markdown and JSON conditional rules parsing
-- **Run**: `npm run test:unit`
-- **When to Use**: Testing conditional question logic in isolation
-
----
-
-#### 🎯 Gemini Test Best Practices
-
-1. **Use Separated Test Suites**: Run `gemini-date-polls.test.ts` and `gemini-form-polls.test.ts` separately for focused testing
-2. **Date Polls First**: Start with date polls tests as they are more numerous and complex
-3. **Form Polls Second**: Run form polls tests separately for faster iteration
-4. **Unit Tests for Debugging**: Use specific unit tests when debugging parsing logic
-5. **Check Reports**: Review auto-generated reports in `tests/reports/` for detailed failure analysis
-   - `gemini-date-polls-report.md` : Rapport des tests de dates
-   - `gemini-form-polls-report.md` : Rapport des tests de formulaires
-6. **Minimum Score**: Maintain 70% minimum score (2.8/4 points per test)
-7. **Real API Calls**: Test suites use real Gemini API calls (requires valid API key)
-8. **Environment Variables**: Ensure `VITE_GEMINI_API_KEY` or `VITE_SUPABASE_URL` is configured
-9. **Selective Testing**: Use `FAILED_TEST_IDS` environment variable to re-run only failed tests
-
----
-
-#### 📊 Gemini Test Metrics
-
-- **Total Test Cases**: 58 prompts (48 date polls + 10 form polls)
-- **Date Polls**: 48 tests dans `gemini-date-polls.test.ts`
-- **Form Polls**: 10 tests dans `gemini-form-polls.test.ts`
-- **Unit Tests**: ~65 tests across detection, parsing, and conditional logic
-- **Current Score**: 91.83/100 (92%)
-- **Quality Gate**: 70% minimum required
-- **Test Duration**: ~45s per prompt
-- **Report Format**: Markdown with detailed failure analysis (rapports séparés par type)
+**Configuration** : Utiliser `vitest.config.gemini.ts` avec `--config` (voir guide rapide ci-dessus)
 
 ### 3. Tests E2E (Playwright)
 
@@ -1225,8 +923,9 @@ npm run test:e2e:debug         # Mode debug
 **Solutions** :
 ```bash
 echo $VITE_GEMINI_API_KEY      # Vérifier API key
-npm run test:gemini:quick      # Tester connexion
+npm run test:gemini            # Tester connexion
 # Attendre si quota dépassé
+# Consulter rapports dans tests/reports/ pour détails
 ```
 
 ### Documentation ne Charge Pas (404)
@@ -1265,7 +964,7 @@ npm run build:dev              # Build dev pour debug
 |-------|-------|----------|
 | Tests unitaires | 30s | Local |
 | Tests unitaires dashboard | ~10s | Local (68 tests) |
-| Tests IA | 30-60s | Local (25 tests : Date + Form Polls) |
+| Tests IA (Gemini) | 7-40 min | Local (51 tests d'intégration, voir guide rapide ci-dessus) |
 | Tests E2E smoke | 2min | Chromium |
 | Tests E2E dashboard | ~5-8min | Chromium (22 tests) |
 | Tests E2E functional | 5min | Chromium |
@@ -1279,7 +978,7 @@ npm run build:dev              # Build dev pour debug
 ```javascript
 const QUALITY_THRESHOLDS = {
   unitTests: { pass: 95, warn: 90 },
-  geminiTests: { pass: 70, warn: 60 },
+  geminiTests: { pass: 70, warn: 60 }, // Score > 70% requis
   e2eTests: { pass: 90, warn: 80 },
   typeCheck: { errors: 0 },
   lint: { errors: 0, warnings: 10 },
@@ -1294,7 +993,7 @@ const QUALITY_THRESHOLDS = {
 ### Avant de Merger une PR
 
 - [ ] Tous les tests unitaires passent
-- [ ] Tests IA > 70%
+- [ ] Tests IA (Gemini) > 70% (voir guide rapide ci-dessus)
 - [ ] Tests E2E smoke passent
 - [ ] Build production réussit
 - [ ] Lint 0 erreur

@@ -1,0 +1,785 @@
+{
+  "timestamp": "2025-12-05",
+  "postProcessingEnabled": false,
+  "totalTests": 18,
+  "passedTests": 9,
+  "averageScore": 0.8777777777777779,
+  "results": [
+    {
+      "promptId": "demo-client-mardi-mercredi",
+      "input": "Propose-moi trois créneaux mardi ou mercredi prochain pour la démo client.",
+      "passed": false,
+      "score": 0.9,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 6,
+        "datesCount": 2,
+        "violations": [
+          "Trop de créneaux: 6 > 3"
+        ],
+        "timeSlots": [
+          {
+            "start": "09:00",
+            "end": "10:00",
+            "dates": [
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "10:00",
+            "end": "11:00",
+            "dates": [
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "11:00",
+            "end": "12:00",
+            "dates": [
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "09:00",
+            "end": "10:00",
+            "dates": [
+              "2025-12-10"
+            ]
+          },
+          {
+            "start": "10:00",
+            "end": "11:00",
+            "dates": [
+              "2025-12-10"
+            ]
+          },
+          {
+            "start": "11:00",
+            "end": "12:00",
+            "dates": [
+              "2025-12-10"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-09",
+          "2025-12-10"
+        ]
+      }
+    },
+    {
+      "promptId": "seance-photo-decembre",
+      "input": "Planifie une séance photo familiale un dimanche matin en décembre (avant fin décembre).",
+      "passed": true,
+      "score": 1,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 2,
+        "datesCount": 2,
+        "violations": [],
+        "timeSlots": [
+          {
+            "start": "09:00",
+            "end": "12:00",
+            "dates": [
+              "2025-12-21"
+            ]
+          },
+          {
+            "start": "09:00",
+            "end": "12:00",
+            "dates": [
+              "2025-12-28"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-21",
+          "2025-12-28"
+        ]
+      }
+    },
+    {
+      "promptId": "reunion-parents-profs",
+      "input": "Cale la réunion parents-profs entre mardi et jeudi prochains.",
+      "passed": true,
+      "score": 1,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 2,
+        "datesCount": 2,
+        "violations": [],
+        "timeSlots": [
+          {
+            "start": "18:30",
+            "end": "20:00",
+            "dates": [
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "18:30",
+            "end": "20:00",
+            "dates": [
+              "2025-12-11"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-09",
+          "2025-12-11"
+        ]
+      }
+    },
+    {
+      "promptId": "kermesse-samedi-10h",
+      "input": "Propose un créneau samedi 10h pour la réunion de préparation kermesse.",
+      "passed": true,
+      "score": 1,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 1,
+        "datesCount": 1,
+        "violations": [],
+        "timeSlots": [
+          {
+            "start": "10:00",
+            "end": "11:00",
+            "dates": [
+              "2025-12-06"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-06"
+        ]
+      }
+    },
+    {
+      "promptId": "aide-devoirs-mercredi-vendredi",
+      "input": "Cherche une disponibilité mercredi ou vendredi pour l'aide aux devoirs.",
+      "passed": true,
+      "score": 1,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 2,
+        "datesCount": 2,
+        "violations": [],
+        "timeSlots": [
+          {
+            "start": "17:00",
+            "end": "18:00",
+            "dates": [
+              "2025-12-10"
+            ]
+          },
+          {
+            "start": "18:00",
+            "end": "19:00",
+            "dates": [
+              "2025-12-12"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-10",
+          "2025-12-12"
+        ]
+      }
+    },
+    {
+      "promptId": "repetition-chorale",
+      "input": "Planifie une répétition chorale samedi matin ou dimanche après-midi.",
+      "passed": true,
+      "score": 1,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 2,
+        "datesCount": 2,
+        "violations": [],
+        "timeSlots": [
+          {
+            "start": "10:00",
+            "end": "12:00",
+            "dates": [
+              "2025-12-06"
+            ]
+          },
+          {
+            "start": "15:00",
+            "end": "17:00",
+            "dates": [
+              "2025-12-07"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-06",
+          "2025-12-07"
+        ]
+      }
+    },
+    {
+      "promptId": "dejeuner-partenariats-mercredi",
+      "input": "Cherche un créneau entre 11h et 13h mercredi pour un déjeuner partenariats.",
+      "passed": false,
+      "score": 0,
+      "details": {
+        "hasTimeSlots": false,
+        "timeSlotsCount": 0,
+        "datesCount": 0,
+        "violations": [
+          "Échec génération: Impossible de générer le sondage à partir de votre demande"
+        ]
+      }
+    },
+    {
+      "promptId": "brunch-samedi-23-dimanche-24",
+      "input": "Calcule un brunch samedi 23 ou dimanche 24.",
+      "passed": true,
+      "score": 1,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 2,
+        "datesCount": 2,
+        "violations": [],
+        "timeSlots": [
+          {
+            "start": "11:30",
+            "end": "13:00",
+            "dates": [
+              "2025-12-27"
+            ]
+          },
+          {
+            "start": "11:30",
+            "end": "13:00",
+            "dates": [
+              "2025-12-21"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-27",
+          "2025-12-21"
+        ]
+      }
+    },
+    {
+      "promptId": "escape-game-fin-mars",
+      "input": "Propose trois soirées pour un escape game fin mars.",
+      "passed": true,
+      "score": 1,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 3,
+        "datesCount": 3,
+        "violations": [],
+        "timeSlots": [
+          {
+            "start": "19:00",
+            "end": "21:00",
+            "dates": [
+              "2026-03-27",
+              "2026-03-28",
+              "2026-03-29"
+            ]
+          }
+        ],
+        "dates": [
+          "2026-03-27",
+          "2026-03-28",
+          "2026-03-29"
+        ]
+      }
+    },
+    {
+      "promptId": "diner-cousins-avril",
+      "input": "Organise un dîner avec les cousins courant avril, plutôt le week-end.",
+      "passed": false,
+      "score": 0.9,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 8,
+        "datesCount": 8,
+        "violations": [
+          "Trop de créneaux: 8 > 4"
+        ],
+        "timeSlots": [
+          {
+            "start": "19:00",
+            "end": "21:00",
+            "dates": [
+              "2026-04-04",
+              "2026-04-05",
+              "2026-04-11",
+              "2026-04-12",
+              "2026-04-18",
+              "2026-04-19",
+              "2026-04-25",
+              "2026-04-26"
+            ]
+          }
+        ],
+        "dates": [
+          "2026-04-04",
+          "2026-04-05",
+          "2026-04-11",
+          "2026-04-12",
+          "2026-04-18",
+          "2026-04-19",
+          "2026-04-25",
+          "2026-04-26"
+        ]
+      }
+    },
+    {
+      "promptId": "anniversaire-lea-15-mai",
+      "input": "Trouve une date pour l'anniversaire de Léa autour du 15 mai.",
+      "passed": false,
+      "score": 0.49999999999999994,
+      "details": {
+        "hasTimeSlots": false,
+        "timeSlotsCount": 0,
+        "datesCount": 5,
+        "violations": [
+          "Absence de créneaux horaires",
+          "Trop peu de créneaux: 0 < 2"
+        ],
+        "timeSlots": [],
+        "dates": [
+          "2026-05-13",
+          "2026-05-14",
+          "2026-05-15",
+          "2026-05-16",
+          "2026-05-17"
+        ]
+      }
+    },
+    {
+      "promptId": "apero-amis-trois-semaines",
+      "input": "Cherche une soirée disponible entre amis pour un apéro d'ici trois semaines.",
+      "passed": false,
+      "score": 0.9,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 7,
+        "datesCount": 4,
+        "violations": [
+          "Trop de créneaux: 7 > 5"
+        ],
+        "timeSlots": [
+          {
+            "start": "18:30",
+            "end": "21:00",
+            "dates": [
+              "2025-12-02",
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-06",
+              "2025-12-07",
+              "2025-12-08"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-05",
+          "2025-12-06",
+          "2025-12-07",
+          "2025-12-08"
+        ]
+      }
+    },
+    {
+      "promptId": "visite-musee-semaine-prochaine",
+      "input": "Trouve un après-midi libre la semaine prochaine pour la visite au musée.",
+      "passed": false,
+      "score": 0.9,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 21,
+        "datesCount": 5,
+        "violations": [
+          "Trop de créneaux: 21 > 3"
+        ],
+        "timeSlots": [
+          {
+            "start": "14:00",
+            "end": "16:00",
+            "dates": [
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-06",
+              "2025-12-07",
+              "2025-12-08",
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "14:30",
+            "end": "16:30",
+            "dates": [
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-06",
+              "2025-12-07",
+              "2025-12-08",
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "15:00",
+            "end": "17:00",
+            "dates": [
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-06",
+              "2025-12-07",
+              "2025-12-08",
+              "2025-12-09"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-05",
+          "2025-12-06",
+          "2025-12-07",
+          "2025-12-08",
+          "2025-12-09"
+        ]
+      }
+    },
+    {
+      "promptId": "footing-vendredi-samedi",
+      "input": "Bloque un créneau vendredi soir ou samedi matin pour un footing.",
+      "passed": true,
+      "score": 1,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 2,
+        "datesCount": 2,
+        "violations": [],
+        "timeSlots": [
+          {
+            "start": "18:00",
+            "end": "19:00",
+            "dates": [
+              "2025-12-05"
+            ]
+          },
+          {
+            "start": "08:00",
+            "end": "09:00",
+            "dates": [
+              "2025-12-06"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-05",
+          "2025-12-06"
+        ]
+      }
+    },
+    {
+      "promptId": "atelier-benevoles-semaine-12",
+      "input": "Organise deux dates en soirée pour l'atelier bénévoles, semaine du 12.",
+      "passed": false,
+      "score": 0.9,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 35,
+        "datesCount": 7,
+        "violations": [
+          "Trop de créneaux: 35 > 2"
+        ],
+        "timeSlots": [
+          {
+            "start": "18:30",
+            "end": "19:00",
+            "dates": [
+              "2025-12-08",
+              "2025-12-09",
+              "2025-12-10",
+              "2025-12-11",
+              "2025-12-12",
+              "2025-12-13",
+              "2025-12-14"
+            ]
+          },
+          {
+            "start": "19:00",
+            "end": "19:30",
+            "dates": [
+              "2025-12-08",
+              "2025-12-09",
+              "2025-12-10",
+              "2025-12-11",
+              "2025-12-12",
+              "2025-12-13",
+              "2025-12-14"
+            ]
+          },
+          {
+            "start": "19:30",
+            "end": "20:00",
+            "dates": [
+              "2025-12-08",
+              "2025-12-09",
+              "2025-12-10",
+              "2025-12-11",
+              "2025-12-12",
+              "2025-12-13",
+              "2025-12-14"
+            ]
+          },
+          {
+            "start": "20:00",
+            "end": "20:30",
+            "dates": [
+              "2025-12-08",
+              "2025-12-09",
+              "2025-12-10",
+              "2025-12-11",
+              "2025-12-12",
+              "2025-12-13",
+              "2025-12-14"
+            ]
+          },
+          {
+            "start": "20:30",
+            "end": "21:00",
+            "dates": [
+              "2025-12-08",
+              "2025-12-09",
+              "2025-12-10",
+              "2025-12-11",
+              "2025-12-12",
+              "2025-12-13",
+              "2025-12-14"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-08",
+          "2025-12-09",
+          "2025-12-10",
+          "2025-12-11",
+          "2025-12-12",
+          "2025-12-13",
+          "2025-12-14"
+        ]
+      }
+    },
+    {
+      "promptId": "distribution-flyers-fin-avril",
+      "input": "Planifie la distribution de flyers sur un week-end fin avril.",
+      "passed": true,
+      "score": 1,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 2,
+        "datesCount": 2,
+        "violations": [],
+        "timeSlots": [
+          {
+            "start": "09:00",
+            "end": "11:00",
+            "dates": [
+              "2026-04-25"
+            ]
+          },
+          {
+            "start": "14:00",
+            "end": "16:00",
+            "dates": [
+              "2026-04-26"
+            ]
+          }
+        ],
+        "dates": [
+          "2026-04-25",
+          "2026-04-26"
+        ]
+      }
+    },
+    {
+      "promptId": "reunion-equipe-educative",
+      "input": "Planifie une réunion d'équipe éducative avant les vacances, matinée uniquement.",
+      "passed": false,
+      "score": 0.9,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 30,
+        "datesCount": 3,
+        "violations": [
+          "Trop de créneaux: 30 > 4"
+        ],
+        "timeSlots": [
+          {
+            "start": "09:00",
+            "end": "09:30",
+            "dates": [
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-08",
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "09:30",
+            "end": "10:00",
+            "dates": [
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-08",
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "10:00",
+            "end": "10:30",
+            "dates": [
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-08",
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "10:30",
+            "end": "11:00",
+            "dates": [
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-08",
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "11:00",
+            "end": "11:30",
+            "dates": [
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-08",
+              "2025-12-09"
+            ]
+          },
+          {
+            "start": "11:30",
+            "end": "12:00",
+            "dates": [
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-08",
+              "2025-12-09"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-05",
+          "2025-12-08",
+          "2025-12-09"
+        ]
+      }
+    },
+    {
+      "promptId": "comite-quartier-quinze-jours",
+      "input": "Prévois le comité de quartier dans quinze jours, plutôt en début de soirée.",
+      "passed": false,
+      "score": 0.9,
+      "details": {
+        "hasTimeSlots": true,
+        "timeSlotsCount": 35,
+        "datesCount": 4,
+        "violations": [
+          "Trop de créneaux: 35 > 3"
+        ],
+        "timeSlots": [
+          {
+            "start": "18:30",
+            "end": "19:00",
+            "dates": [
+              "2025-12-02",
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-06",
+              "2025-12-07",
+              "2025-12-08"
+            ]
+          },
+          {
+            "start": "19:00",
+            "end": "19:30",
+            "dates": [
+              "2025-12-02",
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-06",
+              "2025-12-07",
+              "2025-12-08"
+            ]
+          },
+          {
+            "start": "19:30",
+            "end": "20:00",
+            "dates": [
+              "2025-12-02",
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-06",
+              "2025-12-07",
+              "2025-12-08"
+            ]
+          },
+          {
+            "start": "20:00",
+            "end": "20:30",
+            "dates": [
+              "2025-12-02",
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-06",
+              "2025-12-07",
+              "2025-12-08"
+            ]
+          },
+          {
+            "start": "20:30",
+            "end": "21:00",
+            "dates": [
+              "2025-12-02",
+              "2025-12-03",
+              "2025-12-04",
+              "2025-12-05",
+              "2025-12-06",
+              "2025-12-07",
+              "2025-12-08"
+            ]
+          }
+        ],
+        "dates": [
+          "2025-12-05",
+          "2025-12-06",
+          "2025-12-07",
+          "2025-12-08"
+        ]
+      }
+    }
+  ]
+}

@@ -27,6 +27,8 @@ describe("Centralized Error Handling Enforcement", () => {
         "**/lib/error-handling.ts", // Allow the error handling file itself
         "**/lib/logger.ts", // Allow the logger file (it IS the logging system)
         "**/__prototypes__/**", // Exclude prototype/experimental files
+        "**/test/**", // Exclude test folder (manual tests, helpers, etc.)
+        "**/*.manual.ts", // Exclude manual test files
       ],
     });
   });

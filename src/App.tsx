@@ -33,6 +33,8 @@ const LoadingSpinner = () => (
 // Pages avec preload hint pour les pages critiques
 const Vote = lazy(() => import("./pages/Vote"));
 const Results = lazy(() => import("./pages/Results"));
+const QuizzVote = lazy(() => import("./components/polls/QuizzVote"));
+const QuizzApp = lazy(() => import("./app/quizz/QuizzApp"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const MainLanding = lazy(() => import("./pages/MainLanding"));
 const DateCreator = lazy(() => import("./pages/DateCreator"));
@@ -519,6 +521,11 @@ const App = () => {
                                   path="/poll/:pollSlug/results/:adminToken"
                                   element={<Vote />}
                                 />
+
+                                {/* Quizz - Aide aux Devoirs */}
+                                <Route path="/quizz" element={<QuizzApp />} />
+                                <Route path="/quizz/create" element={<QuizzApp />} />
+                                <Route path="/quizz/:slug" element={<QuizzVote />} />
 
                                 {/* Pages de test */}
                                 <Route path="/vote-desktop-test" element={<VoteDesktopTest />} />

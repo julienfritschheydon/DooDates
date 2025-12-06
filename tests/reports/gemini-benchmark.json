@@ -1,0 +1,298 @@
+{
+  "timestamp": "2025-12-06T11:54:21.758Z",
+  "summary": {
+    "totalTests": 10,
+    "directWins": 5,
+    "normalWins": 5,
+    "ties": 0,
+    "bothFailed": 0,
+    "avgDirectTimeMs": 1496,
+    "avgNormalTimeMs": 2065,
+    "avgDirectPrecision": 98,
+    "avgNormalPrecision": 98,
+    "directSuccessRate": 100,
+    "normalSuccessRate": 100
+  },
+  "results": [
+    {
+      "id": "parents-profs",
+      "name": "Réunion parents-profs",
+      "category": "associatif",
+      "userInput": "Cale la réunion parents-profs entre mardi et jeudi prochains.",
+      "direct": {
+        "success": true,
+        "durationMs": 1084,
+        "datesCount": 3,
+        "timeSlotsCount": 0,
+        "datesInFuture": 3
+      },
+      "normal": {
+        "success": true,
+        "durationMs": 1261,
+        "datesCount": 3,
+        "timeSlotsCount": 0,
+        "datesInFuture": 3
+      },
+      "comparison": {
+        "winner": "direct",
+        "speedDiff": 177,
+        "precisionScore": {
+          "direct": 1,
+          "normal": 1
+        }
+      }
+    },
+    {
+      "id": "bureau-asso",
+      "name": "Bureau associatif 30min",
+      "category": "associatif",
+      "userInput": "Trouve un créneau de 30 minutes cette semaine pour le bureau de l'asso.",
+      "direct": {
+        "success": true,
+        "durationMs": 3045,
+        "datesCount": 6,
+        "timeSlotsCount": 3,
+        "datesInFuture": 6
+      },
+      "normal": {
+        "success": true,
+        "durationMs": 2886,
+        "datesCount": 6,
+        "timeSlotsCount": 3,
+        "datesInFuture": 6
+      },
+      "comparison": {
+        "winner": "normal",
+        "speedDiff": -159,
+        "precisionScore": {
+          "direct": 0.875,
+          "normal": 0.875
+        }
+      }
+    },
+    {
+      "id": "atelier-benevoles",
+      "name": "Atelier bénévoles",
+      "category": "associatif",
+      "userInput": "Organise deux dates en soirée pour l'atelier bénévoles, semaine du 12.",
+      "direct": {
+        "success": true,
+        "durationMs": 1576,
+        "datesCount": 2,
+        "timeSlotsCount": 2,
+        "datesInFuture": 2
+      },
+      "normal": {
+        "success": true,
+        "durationMs": 1520,
+        "datesCount": 2,
+        "timeSlotsCount": 2,
+        "datesInFuture": 2
+      },
+      "comparison": {
+        "winner": "normal",
+        "speedDiff": -56,
+        "precisionScore": {
+          "direct": 1,
+          "normal": 1
+        }
+      }
+    },
+    {
+      "id": "dejeuner-partenariats",
+      "name": "Déjeuner partenariats",
+      "category": "professionnel",
+      "userInput": "Cherche un créneau entre 11h et 13h mercredi pour un déjeuner partenariats.",
+      "direct": {
+        "success": true,
+        "durationMs": 788,
+        "datesCount": 1,
+        "timeSlotsCount": 1,
+        "datesInFuture": 1
+      },
+      "normal": {
+        "success": true,
+        "durationMs": 1226,
+        "datesCount": 1,
+        "timeSlotsCount": 1,
+        "datesInFuture": 1
+      },
+      "comparison": {
+        "winner": "direct",
+        "speedDiff": 438,
+        "precisionScore": {
+          "direct": 1,
+          "normal": 1
+        }
+      }
+    },
+    {
+      "id": "reunion-equipe",
+      "name": "Réunion équipe lundi",
+      "category": "professionnel",
+      "userInput": "Planifie une réunion d'équipe lundi prochain matin.",
+      "direct": {
+        "success": true,
+        "durationMs": 1324,
+        "datesCount": 1,
+        "timeSlotsCount": 3,
+        "datesInFuture": 1
+      },
+      "normal": {
+        "success": true,
+        "durationMs": 1193,
+        "datesCount": 1,
+        "timeSlotsCount": 1,
+        "datesInFuture": 1
+      },
+      "comparison": {
+        "winner": "normal",
+        "speedDiff": -131,
+        "precisionScore": {
+          "direct": 1,
+          "normal": 1
+        }
+      }
+    },
+    {
+      "id": "point-mensuel",
+      "name": "Point mensuel mardi/mercredi",
+      "category": "professionnel",
+      "userInput": "Créé un sondage pour un point mensuel mardi ou mercredi après-midi",
+      "direct": {
+        "success": true,
+        "durationMs": 2677,
+        "datesCount": 5,
+        "timeSlotsCount": 3,
+        "datesInFuture": 5
+      },
+      "normal": {
+        "success": true,
+        "durationMs": 7777,
+        "datesCount": 26,
+        "timeSlotsCount": 3,
+        "datesInFuture": 26
+      },
+      "comparison": {
+        "winner": "direct",
+        "speedDiff": 5100,
+        "precisionScore": {
+          "direct": 0.875,
+          "normal": 0.875
+        }
+      }
+    },
+    {
+      "id": "brunch-dimanche",
+      "name": "Brunch dimanche",
+      "category": "personnel",
+      "userInput": "Organise un brunch dimanche prochain.",
+      "direct": {
+        "success": true,
+        "durationMs": 1068,
+        "datesCount": 1,
+        "timeSlotsCount": 1,
+        "datesInFuture": 1
+      },
+      "normal": {
+        "success": true,
+        "durationMs": 962,
+        "datesCount": 1,
+        "timeSlotsCount": 1,
+        "datesInFuture": 1
+      },
+      "comparison": {
+        "winner": "normal",
+        "speedDiff": -106,
+        "precisionScore": {
+          "direct": 1,
+          "normal": 1
+        }
+      }
+    },
+    {
+      "id": "repetition-chorale",
+      "name": "Répétition chorale week-end",
+      "category": "personnel",
+      "userInput": "Planifie une répétition chorale samedi matin ou dimanche après-midi.",
+      "direct": {
+        "success": true,
+        "durationMs": 1154,
+        "datesCount": 2,
+        "timeSlotsCount": 2,
+        "datesInFuture": 2
+      },
+      "normal": {
+        "success": true,
+        "durationMs": 1427,
+        "datesCount": 2,
+        "timeSlotsCount": 2,
+        "datesInFuture": 2
+      },
+      "comparison": {
+        "winner": "direct",
+        "speedDiff": 273,
+        "precisionScore": {
+          "direct": 1,
+          "normal": 1
+        }
+      }
+    },
+    {
+      "id": "dans-15-jours",
+      "name": "Comité dans 15 jours",
+      "category": "edge",
+      "userInput": "Prévois la réunion du comité de quartier dans quinze jours, sur 2 heures.",
+      "direct": {
+        "success": true,
+        "durationMs": 1006,
+        "datesCount": 1,
+        "timeSlotsCount": 1,
+        "datesInFuture": 1
+      },
+      "normal": {
+        "success": true,
+        "durationMs": 1189,
+        "datesCount": 1,
+        "timeSlotsCount": 1,
+        "datesInFuture": 1
+      },
+      "comparison": {
+        "winner": "direct",
+        "speedDiff": 183,
+        "precisionScore": {
+          "direct": 1,
+          "normal": 1
+        }
+      }
+    },
+    {
+      "id": "semaine-prochaine",
+      "name": "Disponibilité semaine prochaine",
+      "category": "edge",
+      "userInput": "Trouve des disponibilités pour la semaine prochaine.",
+      "direct": {
+        "success": true,
+        "durationMs": 1234,
+        "datesCount": 7,
+        "timeSlotsCount": 0,
+        "datesInFuture": 7
+      },
+      "normal": {
+        "success": true,
+        "durationMs": 1208,
+        "datesCount": 5,
+        "timeSlotsCount": 0,
+        "datesInFuture": 5
+      },
+      "comparison": {
+        "winner": "normal",
+        "speedDiff": -26,
+        "precisionScore": {
+          "direct": 1,
+          "normal": 1
+        }
+      }
+    }
+  ]
+}

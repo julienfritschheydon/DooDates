@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Calendar, CheckCircle2, FileText, ArrowRight, Sparkles } from "lucide-react";
+import { Calendar, CheckCircle2, FileText, ArrowRight, Sparkles, Brain } from "lucide-react";
 
 export default function MainLanding() {
     return (
@@ -44,19 +44,19 @@ export default function MainLanding() {
                 </div>
 
                 {/* Product Cards */}
-                <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
                     {/* Date Polls */}
                     <Link
                         to="/date-polls"
-                        className="group relative p-8 rounded-2xl bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1"
+                        className="group relative p-6 rounded-2xl bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
                         <div className="relative z-10">
-                            <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                                 <Calendar className="w-6 h-6 text-purple-400" />
                             </div>
-                            <h3 className="text-2xl font-bold mb-3 text-white group-hover:text-purple-400 transition-colors">Sondages de Dates</h3>
-                            <p className="text-gray-400 mb-6 min-h-[3rem]">
+                            <h3 className="text-xl font-bold mb-2 text-white group-hover:text-purple-400 transition-colors">Sondages de Dates</h3>
+                            <p className="text-gray-400 text-sm mb-4 min-h-[3rem]">
                                 Trouvez la date parfaite pour vos réunions et événements en un clin d'œil.
                             </p>
                             <div className="flex items-center text-sm font-medium text-purple-400 group-hover:translate-x-1 transition-transform">
@@ -68,15 +68,15 @@ export default function MainLanding() {
                     {/* Form Polls */}
                     <Link
                         to="/form-polls"
-                        className="group relative p-8 rounded-2xl bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1"
+                        className="group relative p-6 rounded-2xl bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
                         <div className="relative z-10">
-                            <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                                 <FileText className="w-6 h-6 text-blue-400" />
                             </div>
-                            <h3 className="text-2xl font-bold mb-3 text-white group-hover:text-blue-400 transition-colors">Formulaires</h3>
-                            <p className="text-gray-400 mb-6 min-h-[3rem]">
+                            <h3 className="text-xl font-bold mb-2 text-white group-hover:text-blue-400 transition-colors">Formulaires</h3>
+                            <p className="text-gray-400 text-sm mb-4 min-h-[3rem]">
                                 Créez des formulaires intelligents pour collecter des avis et des informations.
                             </p>
                             <div className="flex items-center text-sm font-medium text-blue-400 group-hover:translate-x-1 transition-transform">
@@ -88,18 +88,38 @@ export default function MainLanding() {
                     {/* Availability Polls */}
                     <Link
                         to="/availability-polls"
-                        className="group relative p-8 rounded-2xl bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 hover:border-green-500/50 transition-all duration-300 hover:-translate-y-1"
+                        className="group relative p-6 rounded-2xl bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 hover:border-green-500/50 transition-all duration-300 hover:-translate-y-1"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
                         <div className="relative z-10">
-                            <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                                 <CheckCircle2 className="w-6 h-6 text-green-400" />
                             </div>
-                            <h3 className="text-2xl font-bold mb-3 text-white group-hover:text-green-400 transition-colors">Disponibilités</h3>
-                            <p className="text-gray-400 mb-6 min-h-[3rem]">
+                            <h3 className="text-xl font-bold mb-2 text-white group-hover:text-green-400 transition-colors">Disponibilités</h3>
+                            <p className="text-gray-400 text-sm mb-4 min-h-[3rem]">
                                 Partagez vos disponibilités et laissez les autres réserver des créneaux.
                             </p>
                             <div className="flex items-center text-sm font-medium text-green-400 group-hover:translate-x-1 transition-transform">
+                                Découvrir <ArrowRight className="w-4 h-4 ml-1" />
+                            </div>
+                        </div>
+                    </Link>
+
+                    {/* Quizz - Aide aux Devoirs */}
+                    <Link
+                        to="/quizz"
+                        className="group relative p-6 rounded-2xl bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 hover:border-yellow-500/50 transition-all duration-300 hover:-translate-y-1"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+                        <div className="relative z-10">
+                            <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                <Brain className="w-6 h-6 text-yellow-400" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-2 text-white group-hover:text-yellow-400 transition-colors">Quizz</h3>
+                            <p className="text-gray-400 text-sm mb-4 min-h-[3rem]">
+                                Créez des quiz éducatifs pour aider vos enfants dans leurs devoirs.
+                            </p>
+                            <div className="flex items-center text-sm font-medium text-yellow-400 group-hover:translate-x-1 transition-transform">
                                 Découvrir <ArrowRight className="w-4 h-4 ml-1" />
                             </div>
                         </div>

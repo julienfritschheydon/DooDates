@@ -95,7 +95,7 @@ const STORAGE_KEY = "doodates_polls";
 const QUIZZ_RESPONSES_KEY = "doodates_quizz_responses";
 
 // Validation spécifique aux Quizz
-function validateQuizz(poll: Quizz): void {
+export function validateQuizz(poll: Quizz): void {
   if (!poll.title || typeof poll.title !== "string" || poll.title.trim() === "") {
     throw ErrorFactory.validation(
       "Invalid quizz: title must be a non-empty string",

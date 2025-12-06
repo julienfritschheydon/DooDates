@@ -390,8 +390,10 @@ const GeminiChatInterface = React.forwardRef<GeminiChatHandle, GeminiChatInterfa
     ]);
 
     // Hook API Gemini
+    // Passer pollTypeFromUrl pour forcer le type de poll (séparation Date/Form)
     const geminiAPI = useGeminiAPI({
       debug: true,
+      pollType: pollTypeFromUrl === "availability" ? "date" : pollTypeFromUrl, // "availability" = "date"
       onQuotaExceeded: () => {
         // Le quota hook gère déjà l'affichage du modal
       },

@@ -13,6 +13,13 @@ export interface DirectGeminiResponse {
   message?: string;
 }
 
+export interface ImagePart {
+  inlineData: {
+    mimeType: string;
+    data: string; // Base64 encoded image
+  };
+}
+
 export class DirectGeminiService {
   private static instance: DirectGeminiService;
   private apiKey: string | null = null;
@@ -204,6 +211,132 @@ export class DirectGeminiService {
         success: false,
         error: "API_ERROR",
         message: err.message || "Erreur lors de l'appel direct à Gemini",
+      };
+    }
+  }
+
+  /**
+   * Appelle Gemini avec une image (Vision)
+   * @param imageBase64 Image en base64 (sans le préfixe data:image/...)
+   * @param mimeType Type MIME de l'image (image/jpeg, image/png, etc.)
+   * @param prompt Prompt textuel accompagnant l'image
+   * @param config Configuration optionnelle
+   * @returns Réponse Gemini ou erreur
+   */
+  async generateContentWithImage(
+    imageBase64: string,
+    mimeType: string,
+    prompt: string,
+    config?: { temperature?: number; topK?: number; topP?: number }
+  ): Promise<DirectGeminiResponse> {
+    try {
+      if (!this.apiKey) {
+        this.apiKey = getEnv("VITE_GEMINI_API_KEY") || null;
+      }
+
+      if (!this.apiKey) {
+        return {
+          success: false,
+          error: "MODEL_NOT_INITIALIZED",
+          message: "Gemini API non initialisée. Vérifiez VITE_GEMINI_API_KEY.",
+        };
+      }
+
+      logger.info("🔵 Appel DIRECT à Gemini Vision API", "api", {
+        mimeType,
+        imageSize: imageBase64.length,
+        promptLength: prompt.length,
+      });
+
+      const apiUrl = getGeminiApiUrl(this.apiKey);
+
+      const requestBody = {
+        contents: [
+          {
+            parts: [
+              {
+                inlineData: {
+                  mimeType,
+                  data: imageBase64,
+                },
+              },
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: config?.temperature ?? GEMINI_CONFIG.DEFAULT_TEMPERATURE,
+          topK: config?.topK ?? GEMINI_CONFIG.DEFAULT_TOP_K,
+          topP: config?.topP ?? GEMINI_CONFIG.DEFAULT_TOP_P,
+          maxOutputTokens: 4096, // Plus de tokens pour les réponses détaillées
+        },
+      };
+
+      const response = await this.retryWithBackoff(async () => {
+        return await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        });
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData?.error?.message || JSON.stringify(errorData);
+
+        logger.error("Erreur HTTP Gemini Vision", "api", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+
+        if (response.status === 429) {
+          return {
+            success: false,
+            error: "RATE_LIMIT_EXCEEDED",
+            message: "Trop de requêtes. Veuillez patienter.",
+          };
+        }
+
+        return {
+          success: false,
+          error: "API_ERROR",
+          message: `Erreur HTTP ${response.status}: ${errorMessage}`,
+        };
+      }
+
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+      if (!text) {
+        logger.error("Réponse Gemini Vision vide", "api", { data });
+        return {
+          success: false,
+          error: "EMPTY_RESPONSE",
+          message: "Réponse Gemini Vision vide",
+        };
+      }
+
+      logger.info("✅ Réponse Gemini Vision reçue", "api", {
+        responseLength: text.length,
+      });
+
+      return {
+        success: true,
+        data: text,
+      };
+    } catch (error: unknown) {
+      logger.error("Erreur appel Gemini Vision", "api", error);
+      const err = error as any;
+
+      return {
+        success: false,
+        error: "API_ERROR",
+        message: err.message || "Erreur lors de l'appel à Gemini Vision",
       };
     }
   }

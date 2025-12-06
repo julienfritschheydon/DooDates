@@ -30,11 +30,13 @@ export interface UseGeminiAPIOptions {
   onQuotaExceeded?: () => void;
   onNetworkError?: () => void;
   debug?: boolean;
+  /** Type de poll à générer (date ou form). Si fourni, force le type sans détection automatique. */
+  pollType?: "date" | "form";
 }
 
 export interface UseGeminiAPIReturn {
   isLoading: boolean;
-  generatePoll: (userMessage: string) => Promise<GeminiAPIResponse>;
+  generatePoll: (userMessage: string, pollType?: "date" | "form") => Promise<GeminiAPIResponse>;
   error: string | null;
   clearError: () => void;
 }
@@ -43,7 +45,7 @@ export interface UseGeminiAPIReturn {
  * Hook pour gérer les appels à l'API Gemini
  */
 export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIReturn {
-  const { onQuotaExceeded, onNetworkError, debug = false } = options;
+  const { onQuotaExceeded, onNetworkError, debug = false, pollType: defaultPollType } = options;
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,14 +63,18 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
    * Génère un sondage à partir d'un message utilisateur
    */
   const generatePoll = useCallback(
-    async (userMessage: string): Promise<GeminiAPIResponse> => {
+    async (userMessage: string, pollTypeOverride?: "date" | "form"): Promise<GeminiAPIResponse> => {
       const requestId = crypto.randomUUID();
       const timestamp = new Date().toISOString();
       const trimmedMessage = userMessage.trim();
+      
+      // Utiliser pollTypeOverride en priorité, sinon defaultPollType des options
+      const pollType = pollTypeOverride || defaultPollType;
 
       console.log(`[${timestamp}] [${requestId}] 🟢 useGeminiAPI.generatePoll appelé`, {
         messageLength: trimmedMessage.length,
         messagePreview: trimmedMessage.substring(0, 50),
+        pollType,
       });
 
       if (!trimmedMessage) {
@@ -84,13 +90,15 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
       setError(null);
 
       if (debug) {
-        logger.info("🤖 Appel API Gemini", "api", { message: trimmedMessage });
+        logger.info("🤖 Appel API Gemini", "api", { message: trimmedMessage, pollType });
       }
 
       try {
-        console.log(`[${timestamp}] [${requestId}] 🔵 Appel geminiService.generatePollFromText...`);
-        // Appel à l'API Gemini
-        const pollResponse = await geminiService.generatePollFromText(trimmedMessage);
+        console.log(`[${timestamp}] [${requestId}] 🔵 Appel geminiService.generatePollFromText...`, {
+          pollType,
+        });
+        // Appel à l'API Gemini avec pollType si fourni
+        const pollResponse = await geminiService.generatePollFromText(trimmedMessage, pollType);
         console.log(`[${timestamp}] [${requestId}] 🟡 Réponse geminiService reçue`, {
           success: pollResponse.success,
           hasData: !!pollResponse.data,
@@ -170,7 +178,7 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
         };
       }
     },
-    [debug],
+    [debug, defaultPollType],
   ); // onQuotaExceeded et onNetworkError sont dans des refs
 
   const clearError = useCallback(() => {

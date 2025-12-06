@@ -2,7 +2,8 @@ import CalendarQuery, { CalendarDay } from "../../calendar-generator";
 import { handleError, ErrorFactory, logError } from "../../error-handling";
 import { logger } from "../../logger";
 import { formatDateLocal, getTodayLocal } from "../../date-utils";
-import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
+// ARCHIVÉ 2025-12-05: Post-processor désactivé après test A/B (score +7.8% sans)
+// import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
 import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
 import { getEnv, isDev } from "../../env";
@@ -271,16 +272,21 @@ export class GeminiService {
         };
       }
 
-      // Post-traitement - CRITIQUE: passer userInput pour activer les règles contextuelles
-      // Le post-traitement ne s'applique qu'aux sondages de dates
+      // ARCHIVÉ 2025-12-05: Post-processor désactivé après test A/B (score +7.8% sans)
+      // Gemini 2.0 avec température 1 produit de meilleurs résultats sans post-processing
+      // Voir: Docs/Post-Processing-Comparison-Report.md
+      const processedSuggestion: PollSuggestion = suggestion;
+      /* ANCIEN CODE ARCHIVÉ:
+      const usePostProcessing = getEnv("VITE_DISABLE_POST_PROCESSING") !== "true";
       let processedSuggestion: PollSuggestion = suggestion;
-      if (pollType === "date" && suggestion.type !== "form") {
+      if (pollType === "date" && suggestion.type !== "form" && usePostProcessing) {
         processedSuggestion = postProcessSuggestion(suggestion as DatePollSuggestion, {
           userInput,
           allowedDates: parsedTemporal?.allowedDates,
           parsedTemporal,
         });
       }
+      */
 
       return {
         success: true,
@@ -538,10 +544,11 @@ export class GeminiService {
         parsed = JSON.parse(candidate);
       } catch (e) {
         // Échec du parsing simple.
-        console.error("🔥🔥🔥 CRITICAL GEMINI PARSE ERROR 🔥🔥🔥");
-        console.error("Raw Text received:", text);
-        console.error("Candidate extracted:", candidate);
-        console.error("Error:", e);
+        logger.error("CRITICAL GEMINI PARSE ERROR", "api", {
+          rawText: text?.substring(0, 200),
+          candidate: candidate?.substring(0, 200),
+          error: e,
+        });
 
         parseError = e;
       }

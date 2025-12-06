@@ -54,6 +54,10 @@ function createMockQuota(overrides: Partial<GuestQuotaData> = {}): GuestQuotaDat
     fingerprint: "test-fingerprint",
     conversationsCreated: 0,
     pollsCreated: 0,
+    datePollsCreated: 0,
+    formPollsCreated: 0,
+    quizzCreated: 0,
+    availabilityPollsCreated: 0,
     aiMessages: 0,
     analyticsQueries: 0,
     simulations: 0,
@@ -77,6 +81,10 @@ function createMockSupabaseRow(quota: GuestQuotaData) {
     fingerprint: quota.fingerprint,
     conversations_created: quota.conversationsCreated,
     polls_created: quota.pollsCreated,
+    date_polls_created: quota.datePollsCreated,
+    form_polls_created: quota.formPollsCreated,
+    quizz_created: quota.quizzCreated,
+    availability_polls_created: quota.availabilityPollsCreated,
     ai_messages: quota.aiMessages,
     analytics_queries: quota.analyticsQueries,
     simulations: quota.simulations,
@@ -419,12 +427,24 @@ describe("guestQuotaService", () => {
 
       (supabaseSelectMaybeSingle as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockRow);
 
-      const actions: Array<
-        "conversation_created" | "poll_created" | "ai_message" | "analytics_query" | "simulation"
-      > = ["conversation_created", "poll_created", "ai_message", "analytics_query", "simulation"];
+      const actionsWithMetadata: Array<{
+        action:
+          | "conversation_created"
+          | "poll_created"
+          | "ai_message"
+          | "analytics_query"
+          | "simulation";
+        metadata?: Record<string, unknown>;
+      }> = [
+        { action: "conversation_created" },
+        { action: "poll_created", metadata: { pollType: "date" } }, // pollType is required for poll_created
+        { action: "ai_message" },
+        { action: "analytics_query" },
+        { action: "simulation" },
+      ];
 
-      for (const action of actions) {
-        const result = await canConsumeCredits(action, 1);
+      for (const { action, metadata } of actionsWithMetadata) {
+        const result = await canConsumeCredits(action, 1, metadata);
         expect(result.allowed).toBe(true);
       }
     });
