@@ -2,12 +2,17 @@ import CalendarQuery from "../calendar-generator";
 import { handleError, ErrorFactory, logError } from "../error-handling";
 import { logger } from "../logger";
 import { formatDateLocal, getTodayLocal } from "../date-utils";
-import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
+// ARCHIVÉ 2025-12-05: Post-processor désactivé après test A/B (score +7.8% sans)
+// import { postProcessSuggestion } from "@/services/GeminiSuggestionPostProcessor";
 import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
 import { getEnv, isDev } from "../env";
-import type { ParsedTemporalInput } from "../temporalParser";
-import { buildPollGenerationPrompt } from "./prompts/pollPrompts";
+// ARCHIVÉ 2025-12-06: ParsedTemporalInput plus utilisé après simplification
+// import type { ParsedTemporalInput } from "../temporalParser";
+import { buildDirectPrompt } from "./prompts/pollPrompts";
+// ARCHIVÉ 2025-12-06: buildPollGenerationPrompt plus utilisé après simplification
+// import { buildPollGenerationPrompt, buildDirectPrompt } from "./prompts/pollPrompts";
+import { GeminiFlowLogger, isGeminiDebugEnabled } from "./geminiDebugLogger";
 
 import { datePollService, type DatePollSuggestion } from "./products/date/DatePollService";
 import { formPollService, type FormPollSuggestion } from "./products/form/FormPollService";
@@ -43,6 +48,7 @@ export interface GeminiResponse {
   data?: PollSuggestion;
   message: string;
   error?: string;
+  rawText?: string; // Réponse brute avant parsing pour debug/comparaison avec Google Studio
 }
 
 export class GeminiService {
@@ -154,39 +160,25 @@ export class GeminiService {
     const formScore = formKeywords.filter((kw: string) => inputLower.includes(kw)).length;
     const dateScore = dateKeywords.filter((kw: string) => inputLower.includes(kw)).length;
 
-    // Cas spécial : "sondage" seul est ambigu, mais avec contexte de dates → date poll
+    // ⚠️ IMPORTANT : "sondage" = TOUJOURS Date Poll (tous les prompts clients avec "sondage" sont des sondages de dates)
     const hasSondage = inputLower.includes("sondage");
-    const hasDateContext =
-      dateScore > 0 ||
-      inputLower.includes("demain") ||
-      inputLower.includes("déjeuner") ||
-      inputLower.includes("diner") ||
-      inputLower.includes("dîner") ||
-      inputLower.includes("midi") ||
-      inputLower.includes("soir") ||
-      inputLower.includes("matin");
+    
+    // Si "sondage" est présent → TOUJOURS Date Poll (priorité absolue)
+    if (hasSondage) {
+      return "date";
+    }
 
     const totalFormScore = strongFormScore + formScore;
 
     if (isDev()) {
       logger.info(
-        `Poll type detection: strongFormScore=${strongFormScore}, formScore=${formScore}, totalFormScore=${totalFormScore}, dateScore=${dateScore}, hasSondage=${hasSondage}, hasDateContext=${hasDateContext}`,
+        `Poll type detection: strongFormScore=${strongFormScore}, formScore=${formScore}, totalFormScore=${totalFormScore}, dateScore=${dateScore}, hasSondage=${hasSondage}`,
         "api",
       );
     }
 
-    // Si "sondage" + contexte de dates → Date Poll (priorité)
-    if (hasSondage && hasDateContext) {
-      return "date";
-    }
-
     // Si des mots-clés explicites de formulaire sont présents, priorité au form
     if (strongFormScore > 0) {
-      return "form";
-    }
-
-    // Si "sondage" seul sans contexte de dates → Form Poll (par défaut)
-    if (hasSondage && !hasDateContext) {
       return "form";
     }
 
@@ -199,8 +191,16 @@ export class GeminiService {
     return "date";
   }
 
-  async generatePollFromText(userInput: string): Promise<GeminiResponse> {
+  async generatePollFromText(
+    userInput: string,
+    pollTypeOverride?: "date" | "form",
+  ): Promise<GeminiResponse> {
     const requestId = crypto.randomUUID();
+
+    // ÉTAPE 1: Log de la question utilisateur
+    if (isGeminiDebugEnabled()) {
+      GeminiFlowLogger.logUserQuestion(requestId, userInput);
+    }
 
     if (isDev()) {
       logger.info("🟡 GeminiService.generatePollFromText appelé", "api", {
@@ -211,31 +211,51 @@ export class GeminiService {
     }
 
     try {
-      // NOUVEAU : Détecter si c'est du markdown
-      const isMarkdown = formPollService.isMarkdownQuestionnaire(userInput);
-      let processedInput = userInput;
+      // Si pollTypeOverride est fourni, l'utiliser directement (produits séparés dans l'UI)
+      // Sinon, détecter automatiquement (compatibilité legacy)
       let pollType: "date" | "form";
+      let processedInput = userInput;
 
-      if (isDev()) {
-        logger.info("📋 Détection type", "api", { requestId, isMarkdown });
-      }
-
-      if (isMarkdown) {
-        // Parser le markdown et convertir en prompt structuré
-        const parsedPrompt = formPollService.parseMarkdownQuestionnaire(userInput);
-        if (parsedPrompt) {
-          processedInput = parsedPrompt;
-          pollType = "form"; // Les questionnaires markdown sont toujours des Form Polls
-          if (isDev()) {
-            logger.info("Markdown questionnaire détecté et parsé avec succès", "api");
-          }
-        } else {
-          // Fallback si parsing échoue
-          pollType = this.detectPollType(userInput);
+      if (pollTypeOverride) {
+        pollType = pollTypeOverride;
+        if (isDev()) {
+          logger.info("📋 Type imposé depuis l'UI", "api", { requestId, pollType });
         }
       } else {
-        // Détection normale
-        pollType = this.detectPollType(userInput);
+        // Détection automatique (legacy - pour compatibilité)
+        const isMarkdown = formPollService.isMarkdownQuestionnaire(userInput);
+
+        if (isDev()) {
+          logger.info("📋 Détection automatique du type", "api", { requestId, isMarkdown });
+        }
+
+        if (isMarkdown) {
+          // Parser le markdown et convertir en prompt structuré
+          const parsedPrompt = formPollService.parseMarkdownQuestionnaire(userInput);
+          if (parsedPrompt) {
+            processedInput = parsedPrompt;
+            pollType = "form"; // Les questionnaires markdown sont toujours des Form Polls
+            if (isDev()) {
+              logger.info("Markdown questionnaire détecté et parsé avec succès", "api");
+            }
+          } else {
+            // Fallback si parsing échoue
+            pollType = this.detectPollType(userInput);
+          }
+        } else {
+          // Détection normale
+          pollType = this.detectPollType(userInput);
+        }
+      }
+
+      // ÉTAPE 2: Log du traitement du code
+      if (isGeminiDebugEnabled()) {
+        GeminiFlowLogger.logCodeProcessing(requestId, {
+          pollType,
+          pollTypeSource: pollTypeOverride ? "UI (override)" : "auto-detection",
+          processedInput,
+          markdownDetected: formPollService.isMarkdownQuestionnaire(userInput),
+        });
       }
 
       if (isDev()) {
@@ -245,12 +265,25 @@ export class GeminiService {
         );
       }
 
+      // ═══════════════════════════════════════════════════════════════════════════
+      // SIMPLIFICATION 2025-12-06: Mode Direct activé par défaut
+      // Benchmark: Direct 97.5% précision, 38% plus rapide que le pipeline complexe
+      // L'UX permet de demander des modifications → pas besoin de sur-ingénierie
+      // ═══════════════════════════════════════════════════════════════════════════
+      
+      /* ANCIEN CODE ARCHIVÉ - Pipeline complexe avec pré-processing temporel
+      // MODE DIRECT : Bypass le pré-processing temporel pour test A/B
+      // Activer avec : GEMINI_DIRECT_MODE=true
+      const isDirectMode =
+        (typeof process !== "undefined" && process.env?.GEMINI_DIRECT_MODE === "true") ||
+        (typeof localStorage !== "undefined" && localStorage.getItem("GEMINI_DIRECT_MODE") === "true");
+
       // PRE-PARSING TEMPOREL avec le nouveau parser robuste (seulement pour Date Polls)
       let dateHints = "";
       let allowedDates: string[] | undefined;
       let parsedTemporal: ParsedTemporalInput | undefined;
 
-      if (pollType === "date") {
+      if (pollType === "date" && !isDirectMode) {
         try {
           // Utiliser le nouveau parser temporel robuste
           const { parseTemporalInput } = await import("../temporalParser");
@@ -289,7 +322,10 @@ export class GeminiService {
         } catch (error) {
           logger.warn("Erreur lors du pré-parsing temporel, continuation normale", "api", error);
         }
+      } else if (isDirectMode) {
+        logger.info("🔴 MODE DIRECT ACTIVÉ - Bypass du pré-processing temporel", "api");
       }
+      FIN ANCIEN CODE ARCHIVÉ */
 
       // Router vers le bon prompt selon le type
       let prompt: string;
@@ -307,8 +343,23 @@ export class GeminiService {
           );
         }
       } else {
-        // Construire le prompt avec les hints de dates en priorité
-        prompt = buildPollGenerationPrompt(processedInput, dateHints);
+        // NOUVEAU: Toujours utiliser le prompt direct simplifié
+        // Benchmark 2025-12-06: 97.5% précision, 38% plus rapide
+        prompt = buildDirectPrompt(processedInput);
+        
+        if (isDev()) {
+          logger.info("🔵 Mode DIRECT - Prompt simplifié sans pré-processing", "api");
+        }
+      }
+
+      // ÉTAPE 4: Log du prompt envoyé
+      if (isGeminiDebugEnabled()) {
+        GeminiFlowLogger.logPromptSent(requestId, {
+          prompt,
+          dateHints,
+          promptLength: prompt?.length || 0,
+          pollType,
+        });
       }
 
       // Appeler Gemini via backend configuré (direct ou Edge Function)
@@ -320,8 +371,26 @@ export class GeminiService {
           hasPrompt: !!prompt,
           promptLength: prompt?.length || 0,
         });
+        // Log du prompt complet pour debug (uniquement en dev)
+        logger.debug("📝 Prompt complet envoyé à Gemini", "api", {
+          requestId,
+          prompt: prompt,
+        });
       }
+      const startTime = Date.now();
       const secureResponse = await geminiBackend.generateContent(userInput, prompt);
+      const responseTime = Date.now() - startTime;
+
+      // ÉTAPE 5: Log de la réponse brute
+      if (isGeminiDebugEnabled()) {
+        GeminiFlowLogger.logGeminiResponse(requestId, {
+          success: secureResponse.success,
+          rawText: secureResponse.data || "",
+          responseTime,
+          error: secureResponse.error,
+        });
+      }
+
       if (isDev()) {
         logger.info("🟢 Réponse geminiBackend reçue", "api", {
           requestId,
@@ -417,18 +486,46 @@ export class GeminiService {
       }
 
       // Parser selon le type détecté
+      // Note: parseGeminiResponse filtre les dates passées - on capture l'avant/après pour debug
+      const rawParsedData = this.extractJsonFromText(text);
       const pollData =
         pollType === "form" ? formPollService.parseFormPollResponse(text) : this.parseGeminiResponse(text);
 
+      // ÉTAPE 6: Log du traitement de la réponse
+      if (isGeminiDebugEnabled()) {
+        const rawDates = (rawParsedData?.dates as string[] | undefined) || [];
+        const rawTimeSlots = (rawParsedData?.timeSlots as unknown[] | undefined) || [];
+        const filteredDates = (pollData as DatePollSuggestion)?.dates || [];
+        const filteredTimeSlots = (pollData as DatePollSuggestion)?.timeSlots || [];
+
+        GeminiFlowLogger.logResponseProcessing(requestId, {
+          jsonExtracted: !!rawParsedData,
+          parsedDates: rawDates,
+          filteredDates: filteredDates,
+          datesRemoved: rawDates.filter((d: string) => !filteredDates.includes(d)),
+          parsedTimeSlots: rawTimeSlots,
+          filteredTimeSlots: filteredTimeSlots,
+          timeSlotsRemoved: rawTimeSlots.length - filteredTimeSlots.length,
+          parseErrors: pollData ? [] : ["Échec du parsing JSON"],
+        });
+      }
+
       if (pollData) {
+        // ARCHIVÉ 2025-12-05: Post-processor désactivé après test A/B (score +7.8% sans)
+        // Gemini 2.0 avec température 1 produit de meilleurs résultats sans post-processing
+        // Voir: Docs/Post-Processing-Comparison-Report.md
+        const processedPollData = pollData;
+        /* ANCIEN CODE ARCHIVÉ:
+        const usePostProcessing = getEnv("VITE_DISABLE_POST_PROCESSING") !== "true";
         const processedPollData =
-          pollType === "date"
+          pollType === "date" && usePostProcessing
             ? postProcessSuggestion(pollData as DatePollSuggestion, {
               userInput,
               allowedDates,
-              parsedTemporal: parsedTemporal, // Passer le parsing au post-processor
+              parsedTemporal: parsedTemporal,
             })
             : pollData;
+        */
 
         const successMessage =
           pollType === "form"
@@ -442,10 +539,26 @@ export class GeminiService {
           );
         }
 
+        // ÉTAPE 7: Log de la réponse finale
+        if (isGeminiDebugEnabled()) {
+          const datePoll = processedPollData as DatePollSuggestion;
+          GeminiFlowLogger.logFinalResponse(requestId, {
+            success: true,
+            title: datePoll.title,
+            description: datePoll.description,
+            type: datePoll.type,
+            datesCount: datePoll.dates?.length || 0,
+            dates: datePoll.dates,
+            timeSlotsCount: datePoll.timeSlots?.length || 0,
+            timeSlots: datePoll.timeSlots,
+          });
+        }
+
         return {
           success: true,
           data: processedPollData,
           message: successMessage,
+          rawText: text, // Réponse brute avant parsing pour debug/comparaison
         };
       } else {
         const parseError = ErrorFactory.validation(
@@ -458,10 +571,19 @@ export class GeminiService {
           operation: "parseGeminiResponse",
         });
 
+        // ÉTAPE 7: Log de l'échec
+        if (isGeminiDebugEnabled()) {
+          GeminiFlowLogger.logFinalResponse(requestId, {
+            success: false,
+            errorMessage: "Impossible de générer le sondage à partir de votre demande",
+          });
+        }
+
         return {
           success: false,
           message: "Impossible de générer le sondage à partir de votre demande",
           error: "PARSE_ERROR",
+          rawText: text, // Inclure la réponse brute même en cas d'échec pour debug
         };
       }
     } catch (error) {
@@ -1005,6 +1127,23 @@ Reste concis et pratique.Réponds en français.`;
   }
 
 
+  /**
+   * Extrait le JSON brut de la réponse Gemini SANS filtrage des dates.
+   * Utilisé pour le debug et la comparaison avant/après filtrage.
+   */
+  private extractJsonFromText(text: string): Record<string, unknown> | null {
+    try {
+      const cleanText = text.trim();
+      const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
   private parseGeminiResponse(text: string): DatePollSuggestion | null {
     try {
       // Nettoyer le texte pour extraire le JSON
@@ -1016,45 +1155,81 @@ Reste concis et pratique.Réponds en français.`;
         // Parsing JSON response
         const parsed = JSON.parse(jsonStr);
 
-        // Valider la structure et les dates
-        if (parsed.title && parsed.dates && Array.isArray(parsed.dates)) {
-          const todayStr = getTodayLocal();
+        // Valider la structure minimale (title obligatoire)
+        if (!parsed.title) {
+          logger.debug("Missing title in Gemini response", "general", { parsed });
+          return null;
+        }
 
-          // PROTECTION CRITIQUE : Filtrer strictement les dates passées
-          const validDates = parsed.dates.filter((dateStr: string) => {
-            const isValidDate = dateStr >= todayStr;
-            if (!isValidDate) {
-              logger.debug("Past date filtered out", "general", { date: dateStr, today: todayStr });
+        const todayStr = getTodayLocal();
+
+        // Extraire les dates - d'abord depuis parsed.dates, sinon depuis timeSlots
+        let allDates: string[] = [];
+
+        if (parsed.dates && Array.isArray(parsed.dates) && parsed.dates.length > 0) {
+          // Cas normal : dates au niveau racine
+          allDates = parsed.dates;
+        } else if (parsed.timeSlots && Array.isArray(parsed.timeSlots)) {
+          // Cas alternatif : Gemini a mis les dates uniquement dans timeSlots
+          // Extraire toutes les dates uniques depuis timeSlots[].dates
+          const datesFromTimeSlots = new Set<string>();
+          for (const slot of parsed.timeSlots) {
+            if (slot.dates && Array.isArray(slot.dates)) {
+              for (const d of slot.dates) {
+                if (typeof d === "string") {
+                  datesFromTimeSlots.add(d);
+                }
+              }
             }
-            return isValidDate;
+          }
+          allDates = Array.from(datesFromTimeSlots).sort();
+          if (allDates.length > 0) {
+            logger.debug("Dates extracted from timeSlots (fallback)", "general", {
+              extractedDates: allDates,
+            });
+          }
+        }
+
+        // Si toujours pas de dates, échec
+        if (allDates.length === 0) {
+          logger.debug("No dates found in Gemini response", "general", { parsed });
+          return null;
+        }
+
+        // PROTECTION CRITIQUE : Filtrer strictement les dates passées
+        const validDates = allDates.filter((dateStr: string) => {
+          const isValidDate = dateStr >= todayStr;
+          if (!isValidDate) {
+            logger.debug("Past date filtered out", "general", { date: dateStr, today: todayStr });
+          }
+          return isValidDate;
+        });
+
+        // Si toutes les dates ont été filtrées, retourner null
+        if (validDates.length === 0) {
+          const dateError = ErrorFactory.validation(
+            "All dates were in the past, suggestion rejected",
+            "Toutes les dates proposées sont dans le passé",
+          );
+
+          logError(dateError, {
+            component: "GeminiService",
+            operation: "parseGeminiResponse",
           });
 
-          // Si toutes les dates ont été filtrées, retourner null
-          if (validDates.length === 0) {
-            const dateError = ErrorFactory.validation(
-              "All dates were in the past, suggestion rejected",
-              "Toutes les dates proposées sont dans le passé",
-            );
-
-            logError(dateError, {
-              component: "GeminiService",
-              operation: "parseGeminiResponse",
-            });
-
-            return null;
-          }
-
-          // Validated future dates successfully
-
-          return {
-            title: parsed.title,
-            description: parsed.description,
-            dates: validDates,
-            timeSlots: parsed.timeSlots || [],
-            type: parsed.type || "date",
-            participants: parsed.participants || [],
-          };
+          return null;
         }
+
+        // Validated future dates successfully
+
+        return {
+          title: parsed.title,
+          description: parsed.description,
+          dates: validDates,
+          timeSlots: parsed.timeSlots || [],
+          type: parsed.type || "date",
+          participants: parsed.participants || [],
+        };
       }
 
       return null;
