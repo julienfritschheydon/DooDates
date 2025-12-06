@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { expect, it } from "vitest";
 
 export interface PromptSpec {

@@ -292,7 +292,7 @@ jobs:
           sleep 5
       
       - name: ⏳ Wait for server to be ready
-        run: npx wait-on http://localhost:4173 --timeout 60000
+        run: npx wait-on http://localhost:4173/ --timeout 60000
       
       - name: 🔥 Run production smoke tests (main)
         run: npx playwright test tests/e2e/production-smoke.spec.ts --project=chromium --reporter=html,json

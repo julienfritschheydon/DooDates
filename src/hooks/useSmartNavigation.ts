@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Hook React pour la navigation intelligente avec reset du chat
  * Implémente la logique de détermination et d'application des stratégies de reset

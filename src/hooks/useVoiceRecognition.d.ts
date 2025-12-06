@@ -42,10 +42,14 @@ export interface VoiceRecognitionState {
   error: string | null;
   /** API supportée par le navigateur */
   isSupported: boolean;
+  /** Est sur mobile (pour afficher des messages adaptés) */
+  isMobile: boolean;
+  /** Navigateur non supporté (ex: Safari iOS) */
+  isUnsupportedBrowser: boolean;
 }
 export interface VoiceRecognitionActions {
-  /** Démarrer l'écoute */
-  startListening: () => void;
+  /** Démarrer l'écoute (async pour demander permissions sur mobile) */
+  startListening: () => Promise<void>;
   /** Arrêter l'écoute */
   stopListening: () => void;
   /** Réinitialiser la transcription */

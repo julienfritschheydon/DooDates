@@ -67,7 +67,7 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
       const requestId = crypto.randomUUID();
       const timestamp = new Date().toISOString();
       const trimmedMessage = userMessage.trim();
-      
+
       // Utiliser pollTypeOverride en priorité, sinon defaultPollType des options
       const pollType = pollTypeOverride || defaultPollType;
 
@@ -94,9 +94,12 @@ export function useGeminiAPI(options: UseGeminiAPIOptions = {}): UseGeminiAPIRet
       }
 
       try {
-        console.log(`[${timestamp}] [${requestId}] 🔵 Appel geminiService.generatePollFromText...`, {
-          pollType,
-        });
+        console.log(
+          `[${timestamp}] [${requestId}] 🔵 Appel geminiService.generatePollFromText...`,
+          {
+            pollType,
+          },
+        );
         // Appel à l'API Gemini avec pollType si fourni
         const pollResponse = await geminiService.generatePollFromText(trimmedMessage, pollType);
         console.log(`[${timestamp}] [${requestId}] 🟡 Réponse geminiService reçue`, {

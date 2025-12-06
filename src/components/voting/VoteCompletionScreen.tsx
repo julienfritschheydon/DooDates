@@ -28,7 +28,8 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
       alertBorder: "border-green-200 dark:border-green-900/30",
       alertText: "text-green-700 dark:text-green-400",
       alertTextLight: "text-green-600 dark:text-green-300",
-      outlineButton: "text-green-600 dark:text-green-400 border-green-200 dark:border-green-800 hover:bg-green-50 dark:hover:bg-green-900/20",
+      outlineButton:
+        "text-green-600 dark:text-green-400 border-green-200 dark:border-green-800 hover:bg-green-50 dark:hover:bg-green-900/20",
     },
     blue: {
       bg: "bg-blue-100 dark:bg-blue-900/20",
@@ -38,7 +39,8 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
       alertBorder: "border-blue-200 dark:border-blue-900/30",
       alertText: "text-blue-700 dark:text-blue-400",
       alertTextLight: "text-blue-600 dark:text-blue-300",
-      outlineButton: "text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20",
+      outlineButton:
+        "text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20",
     },
     violet: {
       bg: "bg-violet-100 dark:bg-violet-900/20",
@@ -48,7 +50,8 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
       alertBorder: "border-violet-200 dark:border-violet-900/30",
       alertText: "text-violet-700 dark:text-violet-400",
       alertTextLight: "text-violet-600 dark:text-violet-300",
-      outlineButton: "text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800 hover:bg-violet-50 dark:hover:bg-violet-900/20",
+      outlineButton:
+        "text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800 hover:bg-violet-50 dark:hover:bg-violet-900/20",
     },
     emerald: {
       bg: "bg-emerald-100 dark:bg-emerald-900/20",
@@ -58,7 +61,8 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
       alertBorder: "border-emerald-200 dark:border-emerald-900/30",
       alertText: "text-emerald-700 dark:text-emerald-400",
       alertTextLight: "text-emerald-600 dark:text-emerald-300",
-      outlineButton: "text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20",
+      outlineButton:
+        "text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20",
     },
   };
 
@@ -88,7 +92,9 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
             </p>
 
             {/* Message d'information pour la bêta */}
-            <div className={`mb-8 p-4 ${theme.alertBg} border ${theme.alertBorder} rounded-lg text-left`}>
+            <div
+              className={`mb-8 p-4 ${theme.alertBg} border ${theme.alertBorder} rounded-lg text-left`}
+            >
               <div className={`flex items-center gap-2 ${theme.alertText}`}>
                 <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -100,8 +106,8 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
                 <span className="text-sm font-medium">Information bêta</span>
               </div>
               <p className={`text-sm ${theme.alertTextLight} mt-1`}>
-                Pour finaliser et partager votre sondage, après la bêta, vous devrez vous connecter ou
-                créer un compte.
+                Pour finaliser et partager votre sondage, après la bêta, vous devrez vous connecter
+                ou créer un compte.
               </p>
             </div>
 
@@ -119,10 +125,9 @@ const VoteCompletionScreen: React.FC<VoteCompletionScreenProps> = ({
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onBack}
-                className={`${onViewResults
-                  ? `${theme.button} text-white`
-                  : `${theme.button} text-white`
-                  } font-medium py-3 px-6 rounded-xl w-full transition-colors shadow-sm`}
+                className={`${
+                  onViewResults ? `${theme.button} text-white` : `${theme.button} text-white`
+                } font-medium py-3 px-6 rounded-xl w-full transition-colors shadow-sm`}
               >
                 Retour à l'accueil
               </motion.button>

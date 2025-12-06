@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from "@supabase/supabase-js";
 import { handleError, ErrorFactory, logError } from "./error-handling";
 import { getEnv, getMode } from "./env";

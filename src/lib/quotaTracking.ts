@@ -787,7 +787,12 @@ async function consumeCredits(
       case "poll_created": {
         userData.pollsCreated = (userData.pollsCreated || 0) + credits;
         // Incrémenter le compteur spécifique selon pollType
-        const pollType = metadata?.pollType as "date" | "form" | "quizz" | "availability" | undefined;
+        const pollType = metadata?.pollType as
+          | "date"
+          | "form"
+          | "quizz"
+          | "availability"
+          | undefined;
         if (pollType) {
           switch (pollType) {
             case "date":
@@ -800,15 +805,20 @@ async function consumeCredits(
               userData.quizzCreated = (userData.quizzCreated || 0) + credits;
               break;
             case "availability":
-              userData.availabilityPollsCreated = (userData.availabilityPollsCreated || 0) + credits;
+              userData.availabilityPollsCreated =
+                (userData.availabilityPollsCreated || 0) + credits;
               break;
           }
         } else {
           // Si pollType n'est pas fourni en fallback, logger un warning
-          logger.warn("poll_created action without pollType in metadata (localStorage fallback)", "quota", {
-            metadata,
-            userId: currentUserId,
-          });
+          logger.warn(
+            "poll_created action without pollType in metadata (localStorage fallback)",
+            "quota",
+            {
+              metadata,
+              userId: currentUserId,
+            },
+          );
         }
         break;
       }
@@ -888,7 +898,11 @@ export async function incrementPollCreated(
       `Type de poll requis pour la consommation de quota`,
       { pollType, pollId, userId },
     );
-    logger.error("incrementPollCreated called without valid pollType", "quota", { pollType, pollId, userId });
+    logger.error("incrementPollCreated called without valid pollType", "quota", {
+      pollType,
+      pollId,
+      userId,
+    });
     throw error;
   }
 

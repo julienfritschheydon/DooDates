@@ -80,7 +80,8 @@ export function filterConversationItems(
       (contentTypeFilter === "conversations" && !item.poll) ||
       (contentTypeFilter === "date" && item.poll?.type === "date") ||
       (contentTypeFilter === "availability" && item.poll?.type === "availability") ||
-      (contentTypeFilter === "form" && item.poll?.type === "form");
+      (contentTypeFilter === "form" && item.poll?.type === "form") ||
+      (contentTypeFilter === "quizz" && item.poll?.type === "quizz");
 
     // Recherche dans le titre de la conversation et du poll
     const searchLower = searchQuery.toLowerCase();
@@ -141,6 +142,22 @@ export function getThemeColors(type: ContentTypeFilter) {
         activeBorder: "border-emerald-500",
         ring: "ring-emerald-500/50",
         linkText: "text-emerald-400 hover:text-emerald-300",
+      };
+    case "quizz":
+      return {
+        bg: "bg-amber-900/20",
+        border: "border-amber-500/50",
+        text: "text-amber-400",
+        progressBg: "bg-amber-500",
+        hoverText: "group-hover:text-amber-300",
+        buttonText: "text-amber-400 hover:text-amber-300 hover:bg-amber-900/20",
+        primaryButton: "bg-amber-600 hover:bg-amber-700",
+        checkbox: "bg-amber-600 border-amber-600",
+        lightBadge: "bg-amber-500/20 text-amber-400",
+        selectionBg: "bg-amber-900/20",
+        activeBorder: "border-amber-500",
+        ring: "ring-amber-500/50",
+        linkText: "text-amber-400 hover:text-amber-300",
       };
     default: // date, all, conversations
       return {

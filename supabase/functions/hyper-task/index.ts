@@ -39,6 +39,10 @@ const ALLOWED_ORIGINS = [
 // Patterns d'origines autorisées (pour plus de flexibilité)
 const ALLOWED_PATTERNS = [
   /^http:\/\/localhost:\d+$/, // Tous les localhost avec n'importe quel port
+  /^http:\/\/127\.0\.0\.1:\d+$/, // Loopback avec n'importe quel port
+  /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:\d+$/, // Réseau local 192.168.x.x
+  /^http:\/\/10\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/, // Réseau local 10.x.x.x
+  /^http:\/\/172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}:\d+$/, // Réseau local 172.16-31.x.x
   /^https:\/\/julienfritschheydon\.github\.io$/, // Production GitHub Pages
   /^https:\/\/.*\.github\.io$/, // Tous les GitHub Pages (pour les forks)
 ];

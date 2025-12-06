@@ -56,7 +56,8 @@ const prompts: PromptSpec[] = [
   },
   {
     category: "professionnel",
-    input: "Planifie la réunion de lancement la semaine prochaine, idéalement mardi 14h ou jeudi 10h.",
+    input:
+      "Planifie la réunion de lancement la semaine prochaine, idéalement mardi 14h ou jeudi 10h.",
     description: "Réunion de lancement mardi 14h / jeudi 10h",
     expectedType: "datetime",
     minDates: 2,

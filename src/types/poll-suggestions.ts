@@ -3,10 +3,7 @@
 // SOURCE DE VÉRITÉ : Les types sont définis dans les services et ré-exportés ici
 
 // Re-export from services (single source of truth)
-export type {
-  FormQuestion,
-  FormPollSuggestion,
-} from "../lib/ai/products/form/FormPollService";
+export type { FormQuestion, FormPollSuggestion } from "../lib/ai/products/form/FormPollService";
 
 export type { DatePollSuggestion } from "../lib/ai/products/date/DatePollService";
 

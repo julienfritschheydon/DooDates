@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Script de test A/B pour comparer les performances de Gemini 2.0
  * avec et sans post-processing

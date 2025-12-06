@@ -155,7 +155,7 @@ export const commonValidationSchemas = {
     .min(1, "Le slug est requis")
     .max(50, "Le slug ne peut pas dépasser 50 caractères")
     .regex(
-      /^[a-z0-9\-]+$/,
+      /^[a-z0-9-]+$/,
       "Le slug ne doit contenir que des lettres minuscules, des chiffres et des tirets",
     ),
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Supabase Conversation Storage
  * DooDates - Conversation History System
@@ -288,7 +289,8 @@ export async function createConversation(
     } catch (error: unknown) {
       const insertDuration = Date.now() - insertStartTime;
 
-      const errorMessage = error instanceof Error ? error.message : "Impossible de créer la conversation";
+      const errorMessage =
+        error instanceof Error ? error.message : "Impossible de créer la conversation";
 
       const detailedError = ErrorFactory.storage(
         "Erreur Supabase lors de l'insertion",

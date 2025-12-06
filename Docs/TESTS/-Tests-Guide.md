@@ -224,6 +224,7 @@ Ces critères servent de référence pour classer les suites dans le reste du gu
 - `tests/e2e/form-poll-results-access.spec.ts` - FormPoll (accès résultats)
 - `tests/e2e/analytics-ai-optimized.spec.ts` - Analytics IA (3 tests, ~52s) ✅ migré vers `setupTestEnvironment` + helpers temps
 - `tests/e2e/availability-poll-workflow.spec.ts` - Agenda Intelligent (6 tests)
+- `tests/e2e/products/quizz/navigation.spec.ts` - Quizz (Aide aux Devoirs) (4 tests) ✅ NOUVEAU (Décembre 2025)
 - Autres workflows : `beta-key-activation.spec.ts`, `authenticated-workflow.spec.ts`, `security-isolation.spec.ts`, `mobile-voting.spec.ts`, `guest-quota.spec.ts`
 
 **Note** : Les anciens fichiers historiques `form-poll-regression.spec.ts`, `poll-actions.spec.ts`, `ultra-simple.spec.ts`, `guest-workflow.spec.ts` ont été déplacés dans `tests/e2e/OLD/` et remplacés par des specs plus simples et factorisées.
@@ -304,6 +305,10 @@ npx playwright test form-poll-regression.spec.ts --project=chromium
 
 # Agenda Intelligent (Sondage Inversé)
 npx playwright test availability-poll-workflow.spec.ts --project=chromium
+
+# Quizz (Aide aux Devoirs)
+npm run test:unit -- src/lib/products/quizz/__tests__/quizz-service.test.ts
+node scripts/run-playwright-with-port.cjs test tests/e2e/products/quizz/navigation.spec.ts --project=chromium
 
 # 🔥 Protection Production (CRITIQUE)
 npm run test:production          # Windows - Test build de production localement
@@ -589,6 +594,7 @@ npm run test:ci                # Suite CI complète
 - **Components** : MultiStepFormVote (17/17 tests) ✅ RÉACTIVÉ, DashboardFilters, ManageTagsFolderDialog, PollAnalyticsPanel
 - **Intégration useAutoSave** : titleGeneration.useAutoSave (9/9 tests) ✅ RÉACTIVÉ, useAutoSave.titleGeneration (1/1 test) ✅ RÉACTIVÉ
 - **Services** : BetaKeyService (25/25 tests) ✅ NOUVEAU, PollAnalyticsService, FormPollIntent, IntentDetection, EmailService
+- **Products** : quizz-service (54/54 tests) ✅ NOUVEAU (Décembre 2025), date-polls-service, form-polls-service, products-integration (inclut quizz)
 - **Components** : DashboardFilters, ManageTagsFolderDialog, PollAnalyticsPanel, MultiStepFormVote
 - **Lib** : conditionalEvaluator, exports, SimulationComparison, pollStorage (resultsVisibility)
 - **Storage** : statsStorage, messageCounter
@@ -1139,7 +1145,8 @@ Approche alternative gratuite :
 - **Authentification & Clés Bêta** : BetaKeyService (25/25), authenticated-workflow (6 tests), beta-key-activation (9 tests)
 - **Supabase Integration** : 11 tests E2E automatisés (anciennement manuels)
 - **Tests unitaires services** : +140 tests (ConversationService: 9, QuotaService: 38, PollCreatorService: 32, PollCreationBusinessLogic: 23, useGeminiAPI: 38)
-- **Ultra Simple** : 1/1 test passe sur Firefox (16.8s) et WebKit (19.2s) 
+- **Ultra Simple** : 1/1 test passe sur Firefox (16.8s) et WebKit (19.2s)
+- **Quizz (Aide aux Devoirs)** : 54 tests unitaires (728 lignes) + 4 scénarios E2E (122 lignes) ✅ NOUVEAU (Décembre 2025) 
 
 ### Corrections E2E
 - **Sharding** : Tests rendus indépendants avec fonctions helper (3 fichiers corrigés)
@@ -1511,7 +1518,107 @@ await waitForElementReady(page, selector); // Continue dès que prêt
 
 ---
 
+---
+
+## 🎓 Tests Quizz (Aide aux Devoirs)
+
+**Date d'ajout** : Décembre 2025  
+**Statut** : ✅ COMPLET - Tests unitaires et E2E implémentés
+
+### Tests Unitaires
+
+**Fichier** : `src/lib/products/quizz/__tests__/quizz-service.test.ts`  
+**Couverture** : 54 tests, 728 lignes
+
+**Fonctionnalités testées** :
+- ✅ **Validation** : `validateQuizz` avec tous les cas d'erreur (titre vide, questions manquantes, options manquantes)
+- ✅ **CRUD complet** : `getQuizz`, `saveQuizz`, `addQuizz`, `deleteQuizzById`, `duplicateQuizz`, `getQuizzBySlugOrId`
+- ✅ **Gestion des réponses** : `addQuizzResponse` pour tous les types de questions :
+  - Single choice (QCM à choix unique)
+  - Multiple choice (QCM à choix multiples)
+  - Text (avec normalisation accents/casse/espaces)
+  - True/False
+- ✅ **Calcul des résultats** : `getQuizzResults` avec :
+  - Calcul de moyenne et pourcentage
+  - Stats par question (taux de réussite)
+  - Identification de la mauvaise réponse la plus fréquente
+- ✅ **Historique enfant** : `getAllChildren`, `getChildHistory` avec :
+  - Calcul des stats (total, moyenne, meilleur score)
+  - Calcul des streaks (séries consécutives > 70%)
+  - Système de badges complet
+- ✅ **Système de badges** : `getNewBadges` avec 10 types de badges :
+  - `first_quiz` - Premier quiz complété
+  - `perfect_score` - 100% de bonnes réponses
+  - `streak_3/5/10` - Séries de quiz > 70%
+  - `improver` - Amélioration de 20%+
+  - `consistent` - 5 quiz > 80%
+  - `champion` - 10 quiz parfaits
+  - `explorer` - 5 quiz différents
+
+**Exécution** :
+```bash
+# Tests unitaires quizz
+npm run test:unit -- src/lib/products/quizz/__tests__/quizz-service.test.ts
+
+# Tests d'intégration produits (inclut quizz)
+npm run test:unit -- src/lib/products/__tests__/products-integration.test.ts
+```
+
+### Tests E2E
+
+**Fichier** : `tests/e2e/products/quizz/navigation.spec.ts`  
+**Couverture** : 4 scénarios, 122 lignes
+
+**Scénarios testés** :
+1. ✅ Navigation Landing → Dashboard
+2. ✅ Création manuelle de quiz
+3. ✅ Affichage de la liste dans le dashboard
+4. ✅ Navigation vers l'historique enfant (si disponible)
+
+**Exécution** :
+```bash
+# PowerShell (Windows)
+node scripts/run-playwright-with-port.cjs test tests/e2e/products/quizz/navigation.spec.ts --project=chromium
+
+# Bash/Linux/Mac
+npm run test:e2e -- tests/e2e/products/quizz/navigation.spec.ts
+```
+
+### Intégration CI/CD
+
+**Inclusion automatique** :
+- ✅ **Tests unitaires** : Inclus automatiquement dans `npm run test:unit` (exécuté dans tous les workflows)
+- ✅ **Tests E2E** : Inclus automatiquement dans `npm run test:e2e:smoke` et `npm run test:e2e:functional`
+- ✅ **Tests d'intégration** : Quizz inclus dans `products-integration.test.ts` pour vérifier la cohérence avec les autres produits
+
+**Workflows concernés** :
+- `1-pr-validation.yml` : Tests unitaires + E2E smoke/functional
+- `3-main-validation.yml` : Tests complets avant déploiement
+- Tous les workflows exécutent automatiquement les tests quizz
+
+### Routes E2E
+
+Les routes quizz sont définies dans `tests/e2e/utils.ts` :
+```typescript
+PRODUCT_ROUTES.quizz = {
+  landing: '/DooDates/quizz',
+  workspace: '/DooDates/quizz/workspace',
+  dashboard: '/DooDates/quizz/dashboard',
+  docs: '/DooDates/quizz/docs',
+  pricing: '/DooDates/quizz/pricing',
+}
+```
+
+### Statistiques
+
+- **Tests unitaires** : 54 tests, 728 lignes, ~95% couverture fonctionnelle
+- **Tests E2E** : 4 scénarios, 122 lignes
+- **Temps d'exécution** : ~30s (unitaires), ~2min (E2E)
+- **Pattern** : Suit les mêmes patterns que date-polls et form-polls pour cohérence
+
+---
+
 **Document maintenu par** : Équipe DooDates  
-**Dernière révision** : 19 novembre 2025 (Tests CI stabilisés - 11 tests obsolètes désactivés pour permettre CI verte)
+**Dernière révision** : 6 décembre 2025 (Ajout tests Quizz - 54 tests unitaires + 4 scénarios E2E)
 
 ---

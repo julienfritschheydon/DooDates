@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Service pour appeler DIRECTEMENT l'API Gemini (bypass Edge Function)
 // À utiliser en développement ou quand Edge Function est HS
 // Utilise fetch directement au lieu du SDK Google pour éviter les problèmes de version
@@ -83,7 +84,7 @@ export class DirectGeminiService {
   async generateContent(
     userInput: string,
     prompt?: string,
-    config?: { temperature?: number; topK?: number; topP?: number }
+    config?: { temperature?: number; topK?: number; topP?: number },
   ): Promise<DirectGeminiResponse> {
     try {
       // Tentative de rechargement de la clé si elle est manquante (utile pour les scripts)
@@ -227,7 +228,7 @@ export class DirectGeminiService {
     imageBase64: string,
     mimeType: string,
     prompt: string,
-    config?: { temperature?: number; topK?: number; topP?: number }
+    config?: { temperature?: number; topK?: number; topP?: number },
   ): Promise<DirectGeminiResponse> {
     try {
       if (!this.apiKey) {

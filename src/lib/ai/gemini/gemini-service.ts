@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import CalendarQuery, { CalendarDay } from "../../calendar-generator";
 import { handleError, ErrorFactory, logError } from "../../error-handling";
 import { logger } from "../../logger";
@@ -180,7 +181,10 @@ export class GeminiService {
 
       return prompt;
     } catch (error) {
-      logError(error as Error, { operation: "MarkdownParsingError", metadata: { markdown: markdown.substring(0, 100) } });
+      logError(error as Error, {
+        operation: "MarkdownParsingError",
+        metadata: { markdown: markdown.substring(0, 100) },
+      });
       return null;
     }
   }
@@ -299,7 +303,7 @@ export class GeminiService {
         metadata: {
           requestId,
           userInput: userInput.substring(0, 100),
-        }
+        },
       });
       return {
         success: false,
@@ -430,8 +434,8 @@ export class GeminiService {
 
     // Patterns de dates
     const datePatterns = [
-      /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/, // JJ/MM/AAAA
-      /\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}/, // AAAA/MM/JJ
+      /\d{1,2}[/-]\d{1,2}[/-]\d{2,4}/, // JJ/MM/AAAA
+      /\d{4}[/-]\d{1,2}[/-]\d{1,2}/, // AAAA/MM/JJ
       /\d{1,2}h\d{2}/, // Heures (9h30)
       /(dans|en)\s+\d+\s+(jour|jours|semaine|semaines|mois|an)/, // Dans X jours
     ];
@@ -530,7 +534,7 @@ export class GeminiService {
       // On essaye de parser en partant de la fin (dernière accolade fermante)
       // et en réduisant la fenêtre si ça échoue (pour gérer le "texte après JSON")
       // Si plusieurs objets JSON se suivent, ça peut être complexe, mais on vise le cas nominal.
-      let endIndex = jsonString.lastIndexOf("}");
+      const endIndex = jsonString.lastIndexOf("}");
       if (endIndex === -1) return null;
 
       let parsed: any = null;
@@ -556,7 +560,7 @@ export class GeminiService {
       if (!parsed) {
         // Tentative ultime : nettoyer les trailing commas ou commentaires si simple
         try {
-          const cleaned = candidate.replace(/,(\s*[}\]])/g, '$1'); // Trailing commas
+          const cleaned = candidate.replace(/,(\s*[}\]])/g, "$1"); // Trailing commas
           parsed = JSON.parse(cleaned);
         } catch (e) {
           logger.warn("Échec du parsing JSON Gemini malgré nettoyage", "api", { error: e });
@@ -579,7 +583,10 @@ export class GeminiService {
 
       return parsed as DatePollSuggestion;
     } catch (error) {
-      logError(error as Error, { operation: "GeminiResponseParseError", metadata: { text: text.substring(0, 200) } });
+      logError(error as Error, {
+        operation: "GeminiResponseParseError",
+        metadata: { text: text.substring(0, 200) },
+      });
       return null;
     }
   }
@@ -658,7 +665,10 @@ export class GeminiService {
         type: "form",
       } as FormPollSuggestion;
     } catch (error) {
-      logError(error as Error, { operation: "FormPollResponseParseError", metadata: { text: text.substring(0, 200) } });
+      logError(error as Error, {
+        operation: "FormPollResponseParseError",
+        metadata: { text: text.substring(0, 200) },
+      });
       return null;
     }
   }

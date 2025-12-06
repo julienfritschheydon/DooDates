@@ -395,9 +395,9 @@ const AvailabilityPollVote = () => {
   if (validatedSlot || (pollState && pollState.validatedSlot)) {
     const slot = validatedSlot
       ? pollState?.proposedSlots?.find(
-        (s: { date: string; start: string; end: string }) =>
-          `${s.date}-${s.start}-${s.end}` === validatedSlot,
-      )
+          (s: { date: string; start: string; end: string }) =>
+            `${s.date}-${s.start}-${s.end}` === validatedSlot,
+        )
       : pollState?.validatedSlot;
 
     return (
@@ -411,7 +411,9 @@ const AvailabilityPollVote = () => {
                     <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-500" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-gray-900 dark:text-white">RDV Confirmé !</CardTitle>
+                    <CardTitle className="text-2xl text-gray-900 dark:text-white">
+                      RDV Confirmé !
+                    </CardTitle>
                     <p className="text-gray-500 dark:text-gray-400 mt-1">
                       Votre rendez-vous a été planifié avec succès.
                     </p>
@@ -559,7 +561,9 @@ const AvailabilityPollVote = () => {
                     <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-500" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-gray-900 dark:text-white">Disponibilités envoyées !</CardTitle>
+                    <CardTitle className="text-2xl text-gray-900 dark:text-white">
+                      Disponibilités envoyées !
+                    </CardTitle>
                     <p className="text-gray-500 dark:text-gray-400 mt-1">
                       Le professionnel recevra vos disponibilités et vous proposera des créneaux
                       optimaux.

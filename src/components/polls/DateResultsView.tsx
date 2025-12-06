@@ -46,6 +46,7 @@ export default function DateResultsView({
       const scoreB = getDateScore(b);
       return scoreB - scoreA;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- getDateScore uses results which is in deps
   }, [selectedDates, results]);
 
   // Obtenir le rang d'une date

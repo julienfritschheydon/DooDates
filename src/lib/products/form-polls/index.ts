@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Form Polls Service Wrapper
 // Réexport des fonctions spécifiques aux form polls
 

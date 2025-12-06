@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Détecteur d'Anomalies - Phase 4.3
 // Analyse les réponses de Gemini pour identifier les anomalies et les corriger
 
@@ -27,7 +28,7 @@ interface GeminiResponse {
 this.fixes.set("json_codeblock", (response: GeminiResponse) => {
   const candidates = (response.data as any)?.candidates;
   if (candidates?.[0]?.content?.parts?.[0]?.text) {
-    let text = candidates[0].content.parts[0].text;
+    const text = candidates[0].content.parts[0].text;
     // ...
     candidates[0].content.parts[0].text = text;
   }
@@ -484,7 +485,7 @@ class AnomalyDetector {
             }
             break;
 
-          case "security":
+          case "security": {
             // Supprimer le contenu dangereux
             const data = fixedResponse.data as any;
             const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
@@ -499,6 +500,7 @@ class AnomalyDetector {
               fixesApplied++;
             }
             break;
+          }
         }
       }
     }

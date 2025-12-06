@@ -11,7 +11,11 @@ export default function Settings() {
     <div className="min-h-screen bg-[#1a1a1a] p-4 sm:p-6 lg:p-8 text-white">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 text-gray-400 hover:text-white hover:bg-gray-800">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="mb-4 text-gray-400 hover:text-white hover:bg-gray-800"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>

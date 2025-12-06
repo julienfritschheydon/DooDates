@@ -1,4 +1,4 @@
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { directGeminiService } from '../src/services/DirectGeminiService';
 import { PromptBuilder } from '../src/lib/ai/gemini/prompts/prompt-builder';
 import { config as loadEnv } from 'dotenv';

@@ -6,7 +6,7 @@ import { useDashboardData } from "./dashboard/useDashboardData";
 import { DashboardFilters, ViewMode } from "./dashboard/DashboardFilters";
 import { ConversationCard } from "./dashboard/ConversationCard";
 import { DashboardTableView } from "./dashboard/DashboardTableView";
-import { filterConversationItems } from "./dashboard/utils";
+import { filterConversationItems, getThemeColors } from "./dashboard/utils";
 import { FilterType, ContentTypeFilter } from "./dashboard/types";
 import { logger } from "@/lib/logger";
 import { useFreemiumQuota } from "@/hooks/useFreemiumQuota";
@@ -224,8 +224,6 @@ const Dashboard: React.FC = () => {
 
   // Récupérer les couleurs du thème actuel
   const theme = useMemo(() => {
-    // Import dynamique pour éviter les cycles si nécessaire, ou juste utiliser la fonction importée
-    const { getThemeColors } = require("./dashboard/utils");
     return getThemeColors(contentTypeFilter);
   }, [contentTypeFilter]);
 
@@ -250,14 +248,16 @@ const Dashboard: React.FC = () => {
 
             {/* Quota indicator */}
             <div
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${quotaStatus.conversations.isNearLimit
-                ? "bg-orange-900/20 border-orange-500/50"
-                : `${theme.bg} ${theme.border}`
-                }`}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg border mb-6 ${
+                quotaStatus.conversations.isNearLimit
+                  ? "bg-orange-900/20 border-orange-500/50"
+                  : `${theme.bg} ${theme.border}`
+              }`}
             >
               <Info
-                className={`w-5 h-5 ${quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.text
-                  }`}
+                className={`w-5 h-5 ${
+                  quotaStatus.conversations.isNearLimit ? "text-orange-400" : theme.text
+                }`}
               />
               <TooltipProvider>
                 <Tooltip>
@@ -272,7 +272,9 @@ const Dashboard: React.FC = () => {
                           {quotaStatus.conversations.limit + quotaStatus.aiMessages.limit}
                         </span>{" "}
                         crédits utilisés
-                        <span className={`ml-2 ${theme.text} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                        <span
+                          className={`ml-2 ${theme.text} opacity-0 group-hover:opacity-100 transition-opacity`}
+                        >
                           → Voir le journal
                         </span>
                         {!user && (
@@ -283,11 +285,12 @@ const Dashboard: React.FC = () => {
                       </p>
                       <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
                         <div
-                          className={`h-2 rounded-full transition-all ${quotaStatus.conversations.isNearLimit ||
+                          className={`h-2 rounded-full transition-all ${
+                            quotaStatus.conversations.isNearLimit ||
                             quotaStatus.aiMessages.isNearLimit
-                            ? "bg-orange-500"
-                            : theme.progressBg
-                            }`}
+                              ? "bg-orange-500"
+                              : theme.progressBg
+                          }`}
                           style={{
                             width: `${Math.min(
                               Math.max(

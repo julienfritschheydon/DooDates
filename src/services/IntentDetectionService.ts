@@ -337,8 +337,8 @@ export class IntentDetectionService {
       // Pattern 2 : sans numéro de jour (ex: "samedi à 15h" / "samedi 15h" / "samedi à midi" / "samedi 12h00")
       const patternWithoutDay = !patternWithDay
         ? message.match(
-          /(?:^|\s+)(?:r?ajout(?:e|er)?\s+)?(?:le\s+)?(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+(?:[àa]\s+)?(?:(\d{1,2})h(?:(\d{2}))?|midi)(?:\s|$|,|et)/i,
-        )
+            /(?:^|\s+)(?:r?ajout(?:e|er)?\s+)?(?:le\s+)?(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+(?:[àa]\s+)?(?:(\d{1,2})h(?:(\d{2}))?|midi)(?:\s|$|,|et)/i,
+          )
         : null;
 
       const match = patternWithDay || patternWithoutDay;
@@ -704,7 +704,9 @@ export class IntentDetectionService {
 
         if (currentPoll.dates?.includes(chronoDate)) {
           // La date trouvée par Chrono est dans le sondage, on l'utilise
-          logger.debug("✅ Date Chrono trouvée dans le sondage, utilisation", "poll", { chronoDate });
+          logger.debug("✅ Date Chrono trouvée dans le sondage, utilisation", "poll", {
+            chronoDate,
+          });
           return {
             isModification: true,
             action: "REMOVE_DATE",

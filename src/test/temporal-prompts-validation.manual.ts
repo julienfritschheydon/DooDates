@@ -503,7 +503,9 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        console.log(`\n🔄 Appel à GeminiService.generatePollFromText... (tentative ${attempt}/${MAX_RETRIES})`);
+        console.log(
+          `\n🔄 Appel à GeminiService.generatePollFromText... (tentative ${attempt}/${MAX_RETRIES})`,
+        );
         const startTime = Date.now();
 
         const response = await geminiService.generatePollFromText(testCase.input);
@@ -513,14 +515,14 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
 
         if (!response.success || !response.data) {
           console.error(`❌ Échec génération (tentative ${attempt}): ${response.message}`);
-          
+
           // Retry si ce n'est pas la dernière tentative
           if (attempt < MAX_RETRIES) {
             console.log(`⏳ Attente ${RETRY_DELAY_MS}ms avant retry...`);
-            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+            await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
             continue;
           }
-          
+
           return {
             promptId: testCase.id,
             input: testCase.input,
@@ -596,7 +598,10 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
               testCase.expectedCriteria.timeRange!.start.split(":")[0],
               10,
             );
-            const expectedEnd = parseInt(testCase.expectedCriteria.timeRange!.end.split(":")[0], 10);
+            const expectedEnd = parseInt(
+              testCase.expectedCriteria.timeRange!.end.split(":")[0],
+              10,
+            );
             return startHour >= expectedStart && startHour < expectedEnd;
           });
           if (validSlots.length === 0) {
@@ -634,7 +639,15 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
 
         // Vérifier les jours de la semaine
         if (testCase.expectedCriteria.days && poll.dates) {
-          const dayNames = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+          const dayNames = [
+            "dimanche",
+            "lundi",
+            "mardi",
+            "mercredi",
+            "jeudi",
+            "vendredi",
+            "samedi",
+          ];
           const wrongDayDates: string[] = [];
 
           poll.dates.forEach((dateStr: string) => {
@@ -679,14 +692,14 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
         };
       } catch (error) {
         console.error(`❌ Erreur lors du test (tentative ${attempt}):`, error);
-        
+
         // Retry si ce n'est pas la dernière tentative
         if (attempt < MAX_RETRIES) {
           console.log(`⏳ Attente ${RETRY_DELAY_MS}ms avant retry...`);
-          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+          await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
           continue;
         }
-        
+
         return {
           promptId: testCase.id,
           input: testCase.input,
@@ -696,12 +709,14 @@ describe("Validation prompts temporels PARTIEL/NOK", () => {
             hasTimeSlots: false,
             timeSlotsCount: 0,
             datesCount: 0,
-            violations: [`Erreur après ${MAX_RETRIES} tentatives: ${error instanceof Error ? error.message : "Erreur inconnue"}`],
+            violations: [
+              `Erreur après ${MAX_RETRIES} tentatives: ${error instanceof Error ? error.message : "Erreur inconnue"}`,
+            ],
           },
         };
       }
     }
-    
+
     // Ne devrait jamais arriver, mais au cas où
     return {
       promptId: testCase.id,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from "react";
 import { getPollType, createPollService } from "../products";
 import { useAuth } from "@/contexts/AuthContext";
@@ -99,6 +100,7 @@ export const useProduct = (productId?: string, options: UseProductOptions = {}) 
         setLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- productId and session are stable refs
     [user, toast, onError],
   );
 

@@ -9,7 +9,8 @@ import { GeminiService } from "@/lib/ai/gemini";
 process.env.GEMINI_DEBUG = "true";
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 interface GeminiTestCase {
   id: string;
@@ -45,7 +46,7 @@ function buildSimplePrompt(userInput: string): string {
   const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
   const formatDate = (d: Date) => d.toISOString().split("T")[0];
   const dayName = today.toLocaleDateString("fr-FR", { weekday: "long" });
-  
+
   return `Tu es l'IA DooDates, expert en planification temporelle.
 
 Demande: "${userInput}"
@@ -125,18 +126,27 @@ function extractDatesFromJson(text: string): {
   error?: string;
 } {
   const todayStr = new Date().toISOString().split("T")[0];
-  
+
   try {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      return { parsed: false, json: null, datesFromRoot: [], datesFromTimeSlots: [], allDates: [], futureDates: [], pastDates: [], error: "No JSON found" };
+      return {
+        parsed: false,
+        json: null,
+        datesFromRoot: [],
+        datesFromTimeSlots: [],
+        allDates: [],
+        futureDates: [],
+        pastDates: [],
+        error: "No JSON found",
+      };
     }
 
     const json = JSON.parse(jsonMatch[0]);
-    
+
     // Dates depuis la racine
     const datesFromRoot: string[] = json.dates && Array.isArray(json.dates) ? json.dates : [];
-    
+
     // Dates depuis timeSlots
     const datesFromTimeSlotsSet = new Set<string>();
     if (json.timeSlots && Array.isArray(json.timeSlots)) {
@@ -149,15 +159,23 @@ function extractDatesFromJson(text: string): {
       }
     }
     const datesFromTimeSlots = Array.from(datesFromTimeSlotsSet).sort();
-    
+
     // Toutes les dates (union)
     const allDatesSet = new Set([...datesFromRoot, ...datesFromTimeSlots]);
     const allDates = Array.from(allDatesSet).sort();
-    
-    const futureDates = allDates.filter(d => d >= todayStr);
-    const pastDates = allDates.filter(d => d < todayStr);
 
-    return { parsed: true, json, datesFromRoot, datesFromTimeSlots, allDates, futureDates, pastDates };
+    const futureDates = allDates.filter((d) => d >= todayStr);
+    const pastDates = allDates.filter((d) => d < todayStr);
+
+    return {
+      parsed: true,
+      json,
+      datesFromRoot,
+      datesFromTimeSlots,
+      allDates,
+      futureDates,
+      pastDates,
+    };
   } catch (error) {
     return {
       parsed: false,
@@ -226,16 +244,18 @@ describe("🔬 Diagnostic Gemini - DIRECT vs NORMAL", () => {
       console.log("```");
 
       const directParsed = extractDatesFromJson(directResult.rawResponse);
-      
+
       console.log(`\n📊 ANALYSE:`);
       console.log(`   JSON parsé: ${directParsed.parsed}`);
       console.log(`   Dates dans "dates": [${directParsed.datesFromRoot.join(", ")}]`);
       console.log(`   Dates dans "timeSlots": [${directParsed.datesFromTimeSlots.join(", ")}]`);
       console.log(`   ✅ Dates futures: [${directParsed.futureDates.join(", ")}]`);
       console.log(`   ❌ Dates passées: [${directParsed.pastDates.join(", ")}]`);
-      
+
       const directSuccess = directParsed.parsed && directParsed.futureDates.length > 0;
-      console.log(`\n   ${directSuccess ? "✅ SUCCÈS" : "❌ ÉCHEC"} - ${directParsed.futureDates.length} dates valides`);
+      console.log(
+        `\n   ${directSuccess ? "✅ SUCCÈS" : "❌ ÉCHEC"} - ${directParsed.futureDates.length} dates valides`,
+      );
 
       // ═══════════════════════════════════════════════════════════════════
       // MODE NORMAL (via GeminiService avec pré-processing)
@@ -247,7 +267,7 @@ describe("🔬 Diagnostic Gemini - DIRECT vs NORMAL", () => {
       const normalStart = Date.now();
       let normalResult;
       let normalError: Error | null = null;
-      
+
       try {
         normalResult = await geminiService.generatePollFromText(testCase.userInput, "date");
       } catch (e) {
@@ -256,7 +276,7 @@ describe("🔬 Diagnostic Gemini - DIRECT vs NORMAL", () => {
       const normalDuration = Date.now() - normalStart;
 
       console.log(`\n📊 RÉSULTAT (${normalDuration}ms):`);
-      
+
       if (normalError) {
         console.log(`   ❌ ERREUR: ${normalError.message}`);
       } else if (normalResult?.success && normalResult.data) {
@@ -282,12 +302,17 @@ describe("🔬 Diagnostic Gemini - DIRECT vs NORMAL", () => {
       console.log(`\n${sep}`);
       console.log(`📈 COMPARAISON`);
       console.log(sep);
-      
-      const normalSuccess = normalResult?.success && normalResult.data && (normalResult.data.dates?.length || 0) > 0;
-      
-      console.log(`   MODE DIRECT:  ${directSuccess ? "✅ SUCCÈS" : "❌ ÉCHEC"} (${directParsed.futureDates.length} dates)`);
-      console.log(`   MODE NORMAL:  ${normalSuccess ? "✅ SUCCÈS" : "❌ ÉCHEC"} (${normalResult?.data?.dates?.length || 0} dates)`);
-      
+
+      const normalSuccess =
+        normalResult?.success && normalResult.data && (normalResult.data.dates?.length || 0) > 0;
+
+      console.log(
+        `   MODE DIRECT:  ${directSuccess ? "✅ SUCCÈS" : "❌ ÉCHEC"} (${directParsed.futureDates.length} dates)`,
+      );
+      console.log(
+        `   MODE NORMAL:  ${normalSuccess ? "✅ SUCCÈS" : "❌ ÉCHEC"} (${normalResult?.data?.dates?.length || 0} dates)`,
+      );
+
       if (directSuccess && !normalSuccess) {
         console.log(`\n   ⚠️ PROBLÈME: Direct OK mais Normal KO → Bug dans notre pré-processing`);
       } else if (!directSuccess && normalSuccess) {

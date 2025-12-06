@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * QuizzVisionService - Extraction de quiz depuis une image de devoir
- * Utilise Gemini Vision pour analyser une photo et générer des questions/réponses
+ * Utilise Gemini via Supabase Edge Function pour générer des questions/réponses
+ * Pour les images: utilise l'API directe (fallback) car Edge Function ne supporte pas les images
  */
 
+import { secureGeminiService } from "./SecureGeminiService";
 import { directGeminiService } from "./DirectGeminiService";
 import { logger } from "../lib/logger";
+import { getEnv } from "../lib/env";
 import type { QuizzQuestion } from "../lib/products/quizz/quizz-service";
 
 export interface ExtractedQuizz {
@@ -26,44 +30,57 @@ export interface QuizzVisionResult {
  */
 const QUIZZ_EXTRACTION_PROMPT = `Tu es un assistant éducatif expert. Analyse cette image de devoir/exercice scolaire.
 
-OBJECTIF: Extraire TOUTES les questions visibles et leurs réponses correctes.
+OBJECTIF: TRANSFORMER l'exercice en VRAIES QUESTIONS de quiz interactif pour aider l'enfant à réviser.
 
-RÈGLES D'EXTRACTION:
-1. Identifie chaque question distincte dans l'image
-2. Détermine le type de chaque question:
-   - "single" = choix unique (QCM avec 1 réponse)
-   - "multiple" = choix multiples (plusieurs réponses possibles)
-   - "text" = réponse libre (mot, phrase, calcul)
-   - "true-false" = vrai/faux
-3. Pour les QCM, liste toutes les options visibles
-4. Déduis la réponse correcte si elle est indiquée ou évidente
-5. Ajoute une explication pédagogique courte pour chaque réponse
+⚠️ RÈGLE IMPORTANTE: Ne copie PAS le contenu brut de l'exercice !
+Tu dois CRÉER des questions pédagogiques basées sur l'exercice.
 
-MATIÈRES RECONNUES:
-- Mathématiques, Français, Histoire, Géographie, Sciences, Anglais, etc.
+EXEMPLES DE TRANSFORMATION:
+- Exercice "2 dizaines 3 unités" → Question: "Combien font 2 dizaines et 3 unités ?" Réponse: "23"
+- Exercice "Complète: Le chat ___ sur le toit" → Question: "Quel verbe complète: Le chat ___ sur le toit ?" Options: ["monte", "court", "dort"]
+- Exercice "3 + 5 = ?" → Question: "Combien font 3 + 5 ?" Réponse: "8"
+- Exercice avec cases à cocher → Questions QCM correspondantes
+
+RÈGLES DE CRÉATION:
+1. Formule chaque item comme une VRAIE QUESTION (avec "?")
+2. La réponse doit être la solution correcte de l'exercice
+3. Pour les calculs, crée des questions "Combien font...?"
+4. Pour les textes à trous, crée des QCM avec options
+5. Ajoute une explication pédagogique pour chaque réponse
+
+TYPES DE QUESTIONS (choisis le plus adapté):
+- "single" = QCM avec 1 seule bonne réponse (RECOMMANDÉ pour phrases/concepts)
+- "multiple" = plusieurs bonnes réponses possibles
+- "text" = réponse libre COURTE (nombre, mot unique, max 2-3 mots)
+- "text-ai" = réponse libre LONGUE nécessitant validation IA (phrases, définitions)
+- "true-false" = vrai/faux
+
+⚠️ RÈGLE DE CHOIX DU TYPE:
+- Réponse = nombre ou mot unique → "text"
+- Réponse = phrase/définition → PRÉFÈRE "single" avec options OU "text-ai"
+- Si tu mets "text-ai", Gemini vérifiera la réponse (plus souple mais plus lent)
 
 FORMAT JSON REQUIS:
 {
-  "title": "Exercice de [matière] - [sujet]",
+  "title": "Quiz - [sujet de l'exercice]",
   "subject": "Mathématiques" | "Français" | "Histoire" | etc.,
   "questions": [
     {
       "id": "q1",
-      "question": "Texte exact de la question",
-      "type": "single" | "multiple" | "text" | "true-false",
-      "options": ["Option A", "Option B", "..."],
-      "correctAnswer": "Option A" | ["A", "B"] | true | "réponse texte",
+      "question": "La vraie question formulée clairement ?",
+      "type": "text",
+      "options": [],
+      "correctAnswer": "la réponse correcte",
       "points": 1,
-      "explanation": "Courte explication pédagogique"
+      "explanation": "Explication pédagogique"
     }
   ],
   "confidence": 85
 }
 
-NOTES IMPORTANTES:
-- Si l'image est floue ou illisible, retourne confidence < 50
-- Si aucune question n'est détectée, retourne un tableau vide
-- Sois précis sur le texte des questions (pas de paraphrase)
+NOTES:
+- Si l'image est floue, retourne confidence < 50
+- Génère au moins 3-5 questions par exercice
 - Les options doivent correspondre exactement à ce qui est visible
 
 Réponds UNIQUEMENT avec le JSON, rien d'autre.`;
@@ -113,32 +130,39 @@ class QuizzVisionService {
 
   /**
    * Extrait un quiz d'une image de devoir
-   * @param imageBase64 Image en base64 (sans préfixe data:...)
-   * @param mimeType Type MIME (image/jpeg, image/png, etc.)
+   * Utilise l'API directe Gemini (car Edge Function ne supporte pas les images)
    */
-  async extractFromImage(
-    imageBase64: string,
-    mimeType: string
-  ): Promise<QuizzVisionResult> {
+  async extractFromImage(imageBase64: string, mimeType: string): Promise<QuizzVisionResult> {
+    // Vérifier si l'API directe est disponible
+    const apiKey = getEnv("VITE_GEMINI_API_KEY");
+    if (!apiKey) {
+      logger.warn("🔍 Extraction image - Clé API Gemini non configurée", "api");
+      return {
+        success: false,
+        error: "Pour analyser une photo, configurez VITE_GEMINI_API_KEY dans .env.local",
+      };
+    }
+
     try {
-      logger.info("🔍 Extraction quiz depuis image", "api", { mimeType });
+      logger.info("🔍 Extraction quiz depuis image (API directe)", "api", { mimeType });
 
       const response = await directGeminiService.generateContentWithImage(
         imageBase64,
         mimeType,
         QUIZZ_EXTRACTION_PROMPT,
-        { temperature: 0.3 } // Plus déterministe pour l'extraction
       );
 
       if (!response.success || !response.data) {
+        logger.error("Échec extraction image", "api", { error: response.error });
         return {
           success: false,
-          error: response.error || "Échec de l'analyse de l'image",
+          error: response.message || response.error || "Échec de l'analyse de l'image",
         };
       }
 
       const parsed = this.parseQuizzResponse(response.data);
       if (!parsed) {
+        logger.error("Parsing échoué", "api", { rawResponse: response.data?.substring(0, 200) });
         return {
           success: false,
           error: "Format de réponse invalide",
@@ -156,11 +180,11 @@ class QuizzVisionService {
         data: parsed,
         rawResponse: response.data,
       };
-    } catch (error) {
+    } catch (error: any) {
       logger.error("Erreur extraction quiz", "api", error);
       return {
         success: false,
-        error: "Erreur lors de l'analyse de l'image",
+        error: error?.message || "Erreur lors de l'analyse de l'image",
       };
     }
   }
@@ -177,19 +201,23 @@ class QuizzVisionService {
 
       const prompt = QUIZZ_GENERATION_PROMPT.replace("{userInput}", userInput);
 
-      const response = await directGeminiService.generateContent(userInput, prompt, {
-        temperature: 0.7, // Plus créatif pour la génération
-      });
+      // Utilise l'Edge Function Supabase
+      const response = await secureGeminiService.generateContent(userInput, prompt);
 
       if (!response.success || !response.data) {
+        logger.error("Échec génération quiz", "api", {
+          error: response.error,
+          message: response.message,
+        });
         return {
           success: false,
-          error: response.error || "Échec de la génération",
+          error: response.message || response.error || "Échec de la génération",
         };
       }
 
       const parsed = this.parseQuizzResponse(response.data);
       if (!parsed) {
+        logger.error("Parsing échoué", "api", { rawResponse: response.data?.substring(0, 200) });
         return {
           success: false,
           error: "Format de réponse invalide",
@@ -248,17 +276,15 @@ class QuizzVisionService {
       }
 
       // Normaliser les questions
-      const questions: QuizzQuestion[] = parsed.questions.map(
-        (q: any, index: number) => ({
-          id: q.id || `q${index + 1}`,
-          question: q.question || q.title || "",
-          type: this.normalizeQuestionType(q.type),
-          options: q.options || [],
-          correctAnswer: q.correctAnswer,
-          points: q.points || 1,
-          explanation: q.explanation,
-        })
-      );
+      const questions: QuizzQuestion[] = parsed.questions.map((q: any, index: number) => ({
+        id: q.id || `q${index + 1}`,
+        question: q.question || q.title || "",
+        type: this.normalizeQuestionType(q.type),
+        options: q.options || [],
+        correctAnswer: q.correctAnswer,
+        points: q.points || 1,
+        explanation: q.explanation,
+      }));
 
       return {
         title: parsed.title,
@@ -276,13 +302,13 @@ class QuizzVisionService {
    * Normalise le type de question
    */
   private normalizeQuestionType(
-    type: string
-  ): "single" | "multiple" | "text" | "true-false" {
+    type: string,
+  ): "single" | "multiple" | "text" | "text-ai" | "true-false" {
     const t = (type || "single").toLowerCase();
     if (t.includes("multi")) return "multiple";
+    if (t === "text-ai" || t.includes("text-ai")) return "text-ai";
     if (t.includes("text") || t.includes("libre")) return "text";
-    if (t.includes("true") || t.includes("vrai") || t.includes("bool"))
-      return "true-false";
+    if (t.includes("true") || t.includes("vrai") || t.includes("bool")) return "true-false";
     return "single";
   }
 }

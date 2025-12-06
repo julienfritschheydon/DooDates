@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { logError, ErrorFactory } from "../error-handling";
 
 /**

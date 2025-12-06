@@ -197,26 +197,26 @@ export function PollPreview({ poll }: PollPreviewProps) {
       dates: poll.dates || poll.settings?.selectedDates || [],
       timeSlots: poll.settings?.timeSlotsByDate
         ? Object.entries(poll.settings.timeSlotsByDate).flatMap(
-          ([date, slots]: [
-            string,
-            Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>,
-          ]) =>
-            slots.map(
-              (slot: { hour: number; minute: number; enabled: boolean; duration?: number }) => {
-                // Calculer l'heure de fin en fonction de la durée si disponible
-                // Sinon, par défaut 1 heure
-                const duration = slot.duration || 60; // durée en minutes
-                const endHour = slot.hour + Math.floor(duration / 60);
-                const endMinute = slot.minute + (duration % 60);
+            ([date, slots]: [
+              string,
+              Array<{ hour: number; minute: number; enabled: boolean; duration?: number }>,
+            ]) =>
+              slots.map(
+                (slot: { hour: number; minute: number; enabled: boolean; duration?: number }) => {
+                  // Calculer l'heure de fin en fonction de la durée si disponible
+                  // Sinon, par défaut 1 heure
+                  const duration = slot.duration || 60; // durée en minutes
+                  const endHour = slot.hour + Math.floor(duration / 60);
+                  const endMinute = slot.minute + (duration % 60);
 
-                return {
-                  start: `${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}`,
-                  end: `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`,
-                  dates: [date],
-                };
-              },
-            ),
-        )
+                  return {
+                    start: `${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}`,
+                    end: `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`,
+                    dates: [date],
+                  };
+                },
+              ),
+          )
         : [],
     };
 

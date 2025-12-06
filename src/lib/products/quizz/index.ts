@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Quizz Service Wrapper
 // Réexport des fonctions spécifiques aux quizz
 

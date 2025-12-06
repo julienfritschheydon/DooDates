@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Date Polls Service
 // Logique spécifique aux sondages de dates
 

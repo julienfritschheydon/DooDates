@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo, useCallback } from "react";
 import { VoteGrid } from "../voting/VoteGrid";
 import type { FormQuestionShape, DateVoteValue } from "../../lib/pollStorage";

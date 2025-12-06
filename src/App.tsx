@@ -52,19 +52,49 @@ const Pricing = lazy(() => import("./pages/Pricing").then((m) => ({ default: m.P
 const VoteDesktopTest = lazy(() => import("./pages/VoteDesktopTest"));
 
 // Product Landing Pages (New Architecture)
-const DatePollsLanding = lazy(() => import("./app/date-polls/LandingPage").then(m => ({ default: m.LandingPage })));
-const FormPollsLanding = lazy(() => import("./app/form-polls/LandingPage").then(m => ({ default: m.LandingPage })));
-const AvailabilityPollsLanding = lazy(() => import("./app/availability-polls/LandingPage").then(m => ({ default: m.LandingPage })));
+const DatePollsLanding = lazy(() =>
+  import("./app/date-polls/LandingPage").then((m) => ({ default: m.LandingPage })),
+);
+const FormPollsLanding = lazy(() =>
+  import("./app/form-polls/LandingPage").then((m) => ({ default: m.LandingPage })),
+);
+const AvailabilityPollsLanding = lazy(() =>
+  import("./app/availability-polls/LandingPage").then((m) => ({ default: m.LandingPage })),
+);
 
 // Product-Specific Creator Layouts
-const DooDates1CreatorLayout = lazy(() => import("./components/layout/products/DooDates1CreatorLayout").then(m => ({ default: m.DooDates1CreatorLayout })));
-const DooDates2CreatorLayout = lazy(() => import("./components/layout/products/DooDates2CreatorLayout").then(m => ({ default: m.DooDates2CreatorLayout })));
-const DooDates3CreatorLayout = lazy(() => import("./components/layout/products/DooDates3CreatorLayout").then(m => ({ default: m.DooDates3CreatorLayout })));
+const DooDates1CreatorLayout = lazy(() =>
+  import("./components/layout/products/DooDates1CreatorLayout").then((m) => ({
+    default: m.DooDates1CreatorLayout,
+  })),
+);
+const DooDates2CreatorLayout = lazy(() =>
+  import("./components/layout/products/DooDates2CreatorLayout").then((m) => ({
+    default: m.DooDates2CreatorLayout,
+  })),
+);
+const DooDates3CreatorLayout = lazy(() =>
+  import("./components/layout/products/DooDates3CreatorLayout").then((m) => ({
+    default: m.DooDates3CreatorLayout,
+  })),
+);
 
 // Product-Specific Layouts (Sidebar)
-const DatePollsLayout = lazy(() => import("./components/layout/products/DatePollsLayout").then(m => ({ default: m.DatePollsLayout })));
-const FormPollsLayout = lazy(() => import("./components/layout/products/FormPollsLayout").then(m => ({ default: m.FormPollsLayout })));
-const AvailabilityPollsLayout = lazy(() => import("./components/layout/products/AvailabilityPollsLayout").then(m => ({ default: m.AvailabilityPollsLayout })));
+const DatePollsLayout = lazy(() =>
+  import("./components/layout/products/DatePollsLayout").then((m) => ({
+    default: m.DatePollsLayout,
+  })),
+);
+const FormPollsLayout = lazy(() =>
+  import("./components/layout/products/FormPollsLayout").then((m) => ({
+    default: m.FormPollsLayout,
+  })),
+);
+const AvailabilityPollsLayout = lazy(() =>
+  import("./components/layout/products/AvailabilityPollsLayout").then((m) => ({
+    default: m.AvailabilityPollsLayout,
+  })),
+);
 
 // Product-Specific Dashboards
 const DatePollsDashboard = lazy(() => import("./app/date-polls/Dashboard"));
@@ -80,6 +110,10 @@ const AvailabilityPollsPricing = lazy(() => import("./app/availability-polls/Pri
 const DatePollsDocumentation = lazy(() => import("./app/date-polls/Documentation"));
 const FormPollsDocumentation = lazy(() => import("./app/form-polls/Documentation"));
 const AvailabilityPollsDocumentation = lazy(() => import("./app/availability-polls/Documentation"));
+
+// Product-Specific Documentation Advanced Pages
+const DatePollsDocumentationAdvanced = lazy(() => import("./app/date-polls/DocumentationAdvanced"));
+const FormPollsDocumentationAdvanced = lazy(() => import("./app/form-polls/DocumentationAdvanced"));
 
 // Pages de navigation et paramètres
 const Settings = lazy(() => import("./pages/Settings"));
@@ -439,7 +473,10 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <TooltipProvider>
-            <BrowserRouter basename="/DooDates">
+            <BrowserRouter
+              basename="/DooDates"
+              future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+            >
               <AppLayout>
                 <ErrorBoundary>
                   <Suspense fallback={<LoadingSpinner />}>
@@ -464,42 +501,210 @@ const App = () => {
                                 <Route path="/workspace/availability" element={<AICreator />} />
 
                                 {/* Product Workspaces */}
-                                <Route path="/date-polls/workspace/date" element={<DatePollsLayout><AICreator hideSidebar /></DatePollsLayout>} />
-                                <Route path="/form-polls/workspace/form" element={<FormPollsLayout><AICreator hideSidebar /></FormPollsLayout>} />
-                                <Route path="/availability-polls/workspace/availability" element={<AvailabilityPollsLayout><AICreator hideSidebar /></AvailabilityPollsLayout>} />
+                                <Route
+                                  path="/date-polls/workspace/date"
+                                  element={
+                                    <DatePollsLayout>
+                                      <AICreator hideSidebar />
+                                    </DatePollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/form-polls/workspace/form"
+                                  element={
+                                    <FormPollsLayout>
+                                      <AICreator hideSidebar />
+                                    </FormPollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/availability-polls/workspace/availability"
+                                  element={
+                                    <AvailabilityPollsLayout>
+                                      <AICreator hideSidebar />
+                                    </AvailabilityPollsLayout>
+                                  }
+                                />
 
                                 {/* Product Landing Pages */}
                                 <Route path="/date-polls" element={<DatePollsLanding />} />
                                 <Route path="/form-polls" element={<FormPollsLanding />} />
-                                <Route path="/availability-polls" element={<AvailabilityPollsLanding />} />
+                                <Route
+                                  path="/availability-polls"
+                                  element={<AvailabilityPollsLanding />}
+                                />
 
                                 {/* Product Dashboards */}
                                 {/* Product Dashboards */}
-                                <Route path="/date-polls/dashboard" element={<DatePollsLayout><DatePollsDashboard /></DatePollsLayout>} />
-                                <Route path="/form-polls/dashboard" element={<FormPollsLayout><FormPollsDashboard /></FormPollsLayout>} />
-                                <Route path="/availability-polls/dashboard" element={<AvailabilityPollsLayout><AvailabilityPollsDashboard /></AvailabilityPollsLayout>} />
+                                <Route
+                                  path="/date-polls/dashboard"
+                                  element={
+                                    <DatePollsLayout>
+                                      <DatePollsDashboard />
+                                    </DatePollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/form-polls/dashboard"
+                                  element={
+                                    <FormPollsLayout>
+                                      <FormPollsDashboard />
+                                    </FormPollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/availability-polls/dashboard"
+                                  element={
+                                    <AvailabilityPollsLayout>
+                                      <AvailabilityPollsDashboard />
+                                    </AvailabilityPollsLayout>
+                                  }
+                                />
 
                                 {/* Product Journals */}
-                                <Route path="/date-polls/journal" element={<DatePollsLayout><ConsumptionJournal /></DatePollsLayout>} />
-                                <Route path="/form-polls/journal" element={<FormPollsLayout><ConsumptionJournal /></FormPollsLayout>} />
-                                <Route path="/availability-polls/journal" element={<AvailabilityPollsLayout><ConsumptionJournal /></AvailabilityPollsLayout>} />
+                                <Route
+                                  path="/date-polls/journal"
+                                  element={
+                                    <DatePollsLayout>
+                                      <ConsumptionJournal />
+                                    </DatePollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/form-polls/journal"
+                                  element={
+                                    <FormPollsLayout>
+                                      <ConsumptionJournal />
+                                    </FormPollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/availability-polls/journal"
+                                  element={
+                                    <AvailabilityPollsLayout>
+                                      <ConsumptionJournal />
+                                    </AvailabilityPollsLayout>
+                                  }
+                                />
 
                                 {/* Product Settings */}
-                                <Route path="/date-polls/settings" element={<DatePollsLayout><Settings /></DatePollsLayout>} />
-                                <Route path="/form-polls/settings" element={<FormPollsLayout><Settings /></FormPollsLayout>} />
-                                <Route path="/availability-polls/settings" element={<AvailabilityPollsLayout><Settings /></AvailabilityPollsLayout>} />
+                                <Route
+                                  path="/date-polls/settings"
+                                  element={
+                                    <DatePollsLayout>
+                                      <Settings />
+                                    </DatePollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/form-polls/settings"
+                                  element={
+                                    <FormPollsLayout>
+                                      <Settings />
+                                    </FormPollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/availability-polls/settings"
+                                  element={
+                                    <AvailabilityPollsLayout>
+                                      <Settings />
+                                    </AvailabilityPollsLayout>
+                                  }
+                                />
 
                                 {/* Product Pricing Pages */}
                                 {/* Product Pricing Pages */}
-                                <Route path="/date-polls/pricing" element={<DatePollsLayout><DatePollsPricing /></DatePollsLayout>} />
-                                <Route path="/form-polls/pricing" element={<FormPollsLayout><FormPollsPricing /></FormPollsLayout>} />
-                                <Route path="/availability-polls/pricing" element={<AvailabilityPollsLayout><AvailabilityPollsPricing /></AvailabilityPollsLayout>} />
+                                <Route
+                                  path="/date-polls/pricing"
+                                  element={
+                                    <DatePollsLayout>
+                                      <DatePollsPricing />
+                                    </DatePollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/form-polls/pricing"
+                                  element={
+                                    <FormPollsLayout>
+                                      <FormPollsPricing />
+                                    </FormPollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/availability-polls/pricing"
+                                  element={
+                                    <AvailabilityPollsLayout>
+                                      <AvailabilityPollsPricing />
+                                    </AvailabilityPollsLayout>
+                                  }
+                                />
 
                                 {/* Documentation Routes */}
-                                {/* Documentation Routes */}
-                                <Route path="/date-polls/docs" element={<DatePollsLayout><DatePollsDocumentation /></DatePollsLayout>} />
-                                <Route path="/form-polls/docs" element={<FormPollsLayout><FormPollsDocumentation /></FormPollsLayout>} />
-                                <Route path="/availability-polls/docs" element={<AvailabilityPollsLayout><AvailabilityPollsDocumentation /></AvailabilityPollsLayout>} />
+                                <Route
+                                  path="/date-polls/docs"
+                                  element={
+                                    <DatePollsLayout>
+                                      <DatePollsDocumentation />
+                                    </DatePollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/date-polls/documentation"
+                                  element={
+                                    <DatePollsLayout>
+                                      <DatePollsDocumentation />
+                                    </DatePollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/date-polls/documentation/advanced"
+                                  element={
+                                    <DatePollsLayout>
+                                      <DatePollsDocumentationAdvanced />
+                                    </DatePollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/form-polls/docs"
+                                  element={
+                                    <FormPollsLayout>
+                                      <FormPollsDocumentation />
+                                    </FormPollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/form-polls/documentation"
+                                  element={
+                                    <FormPollsLayout>
+                                      <FormPollsDocumentation />
+                                    </FormPollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/form-polls/documentation/advanced"
+                                  element={
+                                    <FormPollsLayout>
+                                      <FormPollsDocumentationAdvanced />
+                                    </FormPollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/availability-polls/docs"
+                                  element={
+                                    <AvailabilityPollsLayout>
+                                      <AvailabilityPollsDocumentation />
+                                    </AvailabilityPollsLayout>
+                                  }
+                                />
+                                <Route
+                                  path="/availability-polls/documentation"
+                                  element={
+                                    <AvailabilityPollsLayout>
+                                      <AvailabilityPollsDocumentation />
+                                    </AvailabilityPollsLayout>
+                                  }
+                                />
 
                                 {/* Dashboard */}
                                 <Route path="/dashboard" element={<Dashboard />} />
@@ -523,18 +728,34 @@ const App = () => {
                                 />
 
                                 {/* Quizz - Aide aux Devoirs */}
-                                <Route path="/quizz" element={<QuizzApp />} />
-                                <Route path="/quizz/create" element={<QuizzApp />} />
-                                <Route path="/quizz/:slug" element={<QuizzVote />} />
+                                <Route path="/quizz/*" element={<QuizzApp />} />
+                                <Route path="/quizz/:slug/vote" element={<QuizzVote />} />
 
                                 {/* Pages de test */}
                                 <Route path="/vote-desktop-test" element={<VoteDesktopTest />} />
 
                                 {/* Old /create/* routes - Redirect to product-specific routes */}
-                                <Route path="/create/date" element={<Navigate to="/date-polls/workspace/date" replace />} />
-                                <Route path="/create/form" element={<Navigate to="/form-polls/workspace/form" replace />} />
-                                <Route path="/create/availability" element={<Navigate to="/availability-polls/workspace/availability" replace />} />
-                                <Route path="/create/ai" element={<Navigate to="/date-polls/workspace/date" replace />} />
+                                <Route
+                                  path="/create/date"
+                                  element={<Navigate to="/date-polls/workspace/date" replace />}
+                                />
+                                <Route
+                                  path="/create/form"
+                                  element={<Navigate to="/form-polls/workspace/form" replace />}
+                                />
+                                <Route
+                                  path="/create/availability"
+                                  element={
+                                    <Navigate
+                                      to="/availability-polls/workspace/availability"
+                                      replace
+                                    />
+                                  }
+                                />
+                                <Route
+                                  path="/create/ai"
+                                  element={<Navigate to="/date-polls/workspace/date" replace />}
+                                />
 
                                 {/* Autres */}
                                 <Route path="/pricing" element={<Pricing />} />

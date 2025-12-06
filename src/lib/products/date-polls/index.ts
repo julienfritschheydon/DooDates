@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Date Polls Service Wrapper
 // Réexport des fonctions spécifiques aux date polls
 

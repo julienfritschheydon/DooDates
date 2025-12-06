@@ -137,7 +137,7 @@ export function useConversations(config: UseConversationsConfig = {}) {
         const isE2EDetectionDisabled =
           typeof window !== "undefined" &&
           (window as Window & { __DISABLE_E2E_DETECTION__?: boolean }).__DISABLE_E2E_DETECTION__ ===
-          true;
+            true;
 
         const isE2ETestMode =
           typeof window !== "undefined" &&
@@ -524,10 +524,10 @@ export function useConversations(config: UseConversationsConfig = {}) {
               (page: { conversations: Conversation[]; totalCount?: number }, index: number) =>
                 index === 0
                   ? {
-                    ...page,
-                    conversations: [optimisticConversation, ...page.conversations],
-                    totalCount: (page.totalCount || 0) + 1,
-                  }
+                      ...page,
+                      conversations: [optimisticConversation, ...page.conversations],
+                      totalCount: (page.totalCount || 0) + 1,
+                    }
                   : page,
             ),
           };

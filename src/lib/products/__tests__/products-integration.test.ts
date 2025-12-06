@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { getPollType, createPollService } from "../index";
 import * as datePollsService from "../date-polls";
 import * as formPollsService from "../form-polls";
+import * as quizzService from "../quizz";
 
 // Mock localStorage
 const localStorageMock = {
@@ -27,6 +28,11 @@ describe("Products Integration Tests", () => {
     it("should identify form polls by type", () => {
       const formPoll = { type: "form", id: "1", title: "Form Poll" };
       expect(getPollType(formPoll)).toBe("form");
+    });
+
+    it("should identify quizz by type", () => {
+      const quizz = { type: "quizz", id: "1", title: "Quizz", questions: [] };
+      expect(getPollType(quizz)).toBe("quizz");
     });
 
     it("should return null for unknown poll type", () => {
@@ -55,6 +61,13 @@ describe("Products Integration Tests", () => {
       expect(service.addPoll).toBeDefined();
     });
 
+    it("should create quizz service", async () => {
+      const service = await createPollService("quizz");
+      expect(service).toBeDefined();
+      expect(service.getPolls).toBeDefined();
+      expect(service.addPoll).toBeDefined();
+    });
+
     it("should throw error for unknown poll type", async () => {
       await expect(createPollService("unknown" as any)).rejects.toThrow(
         "Unknown poll type: unknown",
@@ -66,12 +79,15 @@ describe("Products Integration Tests", () => {
     it("should maintain consistent type detection", () => {
       const datePoll = { type: "date", settings: { selectedDates: ["2025-01-01"] } };
       const formPoll = { type: "form", questions: [] };
+      const quizz = { type: "quizz", questions: [{ id: "q1", correctAnswer: "answer" }] };
 
       expect(datePollsService.isDatePoll?.(datePoll)).toBe(true);
       expect(formPollsService.isFormPoll?.(formPoll)).toBe(true);
+      expect(quizzService.isQuizz?.(quizz)).toBe(true);
 
       expect(getPollType(datePoll)).toBe("date");
       expect(getPollType(formPoll)).toBe("form");
+      expect(getPollType(quizz)).toBe("quizz");
     });
   });
 });

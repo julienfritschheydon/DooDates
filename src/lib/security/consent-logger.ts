@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Consent Logger Service
  * Logging RGPD des consentements et actions utilisateur

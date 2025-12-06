@@ -141,16 +141,32 @@ const PollCreator = () => {
   // Écran de succès après publication
   if (published && publishedPoll) {
     const isForm = publishedPoll.type === "form";
-    const colorClass = isForm ? "text-violet-600 dark:text-violet-400" : "text-blue-600 dark:text-blue-400";
-    const bgClass = isForm ? "bg-violet-100 dark:bg-violet-900/20" : "bg-blue-100 dark:bg-blue-900/20";
-    const buttonClass = isForm ? "bg-violet-600 hover:bg-violet-700" : "bg-blue-600 hover:bg-blue-700";
+    const colorClass = isForm
+      ? "text-violet-600 dark:text-violet-400"
+      : "text-blue-600 dark:text-blue-400";
+    const bgClass = isForm
+      ? "bg-violet-100 dark:bg-violet-900/20"
+      : "bg-blue-100 dark:bg-blue-900/20";
+    const buttonClass = isForm
+      ? "bg-violet-600 hover:bg-violet-700"
+      : "bg-blue-600 hover:bg-blue-700";
 
     // Dynamic classes for Beta Information
-    const betaBgClass = isForm ? "bg-violet-50 dark:bg-violet-900/10" : "bg-blue-50 dark:bg-blue-900/10";
-    const betaBorderClass = isForm ? "border-violet-200 dark:border-violet-900/30" : "border-blue-200 dark:border-blue-900/30";
-    const betaTextClass = isForm ? "text-violet-700 dark:text-violet-300" : "text-blue-700 dark:text-blue-300";
-    const betaIconClass = isForm ? "text-violet-700 dark:text-violet-400" : "text-blue-700 dark:text-blue-400";
-    const betaLinkClass = isForm ? "text-violet-600 dark:text-violet-300" : "text-blue-600 dark:text-blue-300";
+    const betaBgClass = isForm
+      ? "bg-violet-50 dark:bg-violet-900/10"
+      : "bg-blue-50 dark:bg-blue-900/10";
+    const betaBorderClass = isForm
+      ? "border-violet-200 dark:border-violet-900/30"
+      : "border-blue-200 dark:border-blue-900/30";
+    const betaTextClass = isForm
+      ? "text-violet-700 dark:text-violet-300"
+      : "text-blue-700 dark:text-blue-300";
+    const betaIconClass = isForm
+      ? "text-violet-700 dark:text-violet-400"
+      : "text-blue-700 dark:text-blue-400";
+    const betaLinkClass = isForm
+      ? "text-violet-600 dark:text-violet-300"
+      : "text-blue-600 dark:text-blue-300";
 
     // Dynamic classes for Secondary Actions (Outline buttons)
     const outlineButtonClass = isForm
@@ -169,7 +185,9 @@ const PollCreator = () => {
             <div className="bg-white dark:bg-card rounded-lg border border-gray-200 dark:border-border p-8 text-center space-y-6 shadow-sm">
               {/* Icône de succès */}
               <div className="flex justify-center">
-                <div className={`w-16 h-16 ${bgClass} rounded-full flex items-center justify-center`}>
+                <div
+                  className={`w-16 h-16 ${bgClass} rounded-full flex items-center justify-center`}
+                >
                   <Check className={`w-10 h-10 ${colorClass}`} />
                 </div>
               </div>
@@ -199,9 +217,8 @@ const PollCreator = () => {
                   <span className="text-sm font-medium">Information bêta</span>
                 </div>
                 <p className={`text-sm ${betaLinkClass} mt-1`}>
-                  Pour finaliser et partager votre{" "}
-                  {isForm ? "formulaire" : "sondage"}, après la bêta, vous
-                  devrez vous connecter ou créer un compte.
+                  Pour finaliser et partager votre {isForm ? "formulaire" : "sondage"}, après la
+                  bêta, vous devrez vous connecter ou créer un compte.
                 </p>
               </div>
 

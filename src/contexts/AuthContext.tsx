@@ -69,7 +69,8 @@ export function useAuth() {
         hasSession: !!context.session,
       });
     }
-  }, [context.user?.id, context.loading]); // Seulement si l'ID change ou loading termine
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: only log on ID or loading change
+  }, [context.user?.id, context.loading]);
 
   return context;
 }

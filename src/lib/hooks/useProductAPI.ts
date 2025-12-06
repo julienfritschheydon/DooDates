@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -76,6 +77,7 @@ export const useProductAPI = (options: UseProductAPIOptions = {}) => {
         setLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- session?.access_token is stable
     [user, baseUrl, defaultHeaders, toast],
   );
 

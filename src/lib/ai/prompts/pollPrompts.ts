@@ -6,9 +6,9 @@ import { buildContextualHints } from "./contextualHints";
  * Sans pré-processing temporel, Gemini gère tout seul
  */
 export function buildDirectPrompt(userInput: string): string {
-    const today = new Date();
+  const today = new Date();
 
-    return `Tu es l'IA DooDates, expert en planification temporelle.
+  return `Tu es l'IA DooDates, expert en planification temporelle.
 
 Demande: "${userInput}"
 
@@ -41,18 +41,18 @@ Répondre UNIQUEMENT avec le JSON valide.
  * Extrait de gemini.ts pour modularité
  */
 export function buildPollGenerationPrompt(userInput: string, dateHints: string = ""): string {
-    const contextualHints = buildContextualHints(userInput);
-    const today = new Date();
+  const contextualHints = buildContextualHints(userInput);
+  const today = new Date();
 
-    // Détecter contexte repas + date spécifique
-    // const isMealContext = /(déjeuner|dîner|brunch|lunch|repas)/i.test(userInput);
-    // const isSpecificDateInInput =
-    //   /(demain|aujourd'hui|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|dans \d+ jours?)/i.test(
-    //     userInput,
-    //   );
+  // Détecter contexte repas + date spécifique
+  // const isMealContext = /(déjeuner|dîner|brunch|lunch|repas)/i.test(userInput);
+  // const isSpecificDateInInput =
+  //   /(demain|aujourd'hui|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|dans \d+ jours?)/i.test(
+  //     userInput,
+  //   );
 
-    // Les INSTRUCTIONS STRICTES (dateHints) PRIMENT sur les règles générales
-    return `Tu es l'IA DooDates, expert en planification temporelle.
+  // Les INSTRUCTIONS STRICTES (dateHints) PRIMENT sur les règles générales
+  return `Tu es l'IA DooDates, expert en planification temporelle.
 ${dateHints}
 ${contextualHints}
 

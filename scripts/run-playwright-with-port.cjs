@@ -5,7 +5,6 @@
  */
 
 const { execSync } = require('child_process');
-const { exec } = require('child_process');
 
 // Obtenir un port libre
 function getFreePort() {
@@ -41,16 +40,16 @@ const playwrightCommand = `playwright ${args.join(' ')}`;
 
 console.log(`🚀 Exécution: ${playwrightCommand}`);
 
-const child = exec(playwrightCommand, {
-  env: { ...process.env, PORT: port },
-  stdio: 'inherit',
-});
-
-child.on('exit', (code) => {
-  process.exit(code || 0);
-});
-
-child.on('error', (error) => {
-  console.error('❌ Erreur lors de l\'exécution de Playwright:', error);
-  process.exit(1);
-});
+try {
+  // Utiliser execSync pour capturer correctement le code de sortie
+  execSync(playwrightCommand, {
+    env: { ...process.env, PORT: port },
+    stdio: 'inherit',
+  });
+  // Si on arrive ici, c'est que la commande a réussi
+  process.exit(0);
+} catch (error) {
+  // execSync lance une exception si le code de sortie n'est pas 0
+  const exitCode = error.status || 1;
+  process.exit(exitCode);
+}

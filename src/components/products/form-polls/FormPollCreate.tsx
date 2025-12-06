@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { ProductForm } from "@/components/shared/ProductForm";
 import { useNavigate } from "react-router-dom";

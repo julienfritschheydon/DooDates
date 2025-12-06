@@ -527,12 +527,12 @@ async function ensureGuestQuota(
         key: keyof GuestQuotaSupabaseRow;
         field: keyof typeof merge;
       }> = [
-          { key: "conversations_created", field: "conversationsCreated" },
-          { key: "polls_created", field: "pollsCreated" },
-          { key: "ai_messages", field: "aiMessages" },
-          { key: "analytics_queries", field: "analyticsQueries" },
-          { key: "simulations", field: "simulations" },
-        ];
+        { key: "conversations_created", field: "conversationsCreated" },
+        { key: "polls_created", field: "pollsCreated" },
+        { key: "ai_messages", field: "aiMessages" },
+        { key: "analytics_queries", field: "analyticsQueries" },
+        { key: "simulations", field: "simulations" },
+      ];
 
       countersMapping.forEach(({ key, field }) => {
         const mergeValue = merge[field];
@@ -692,7 +692,12 @@ export async function consumeGuestCredits(
       case "poll_created": {
         updates.polls_created = quota.pollsCreated + 1;
         // Incrémenter le compteur spécifique selon pollType
-        const pollType = metadata?.pollType as "date" | "form" | "quizz" | "availability" | undefined;
+        const pollType = metadata?.pollType as
+          | "date"
+          | "form"
+          | "quizz"
+          | "availability"
+          | undefined;
         if (pollType) {
           switch (pollType) {
             case "date":

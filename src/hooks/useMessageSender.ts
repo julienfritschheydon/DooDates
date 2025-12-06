@@ -208,8 +208,9 @@ export function useMessageSender(options: UseMessageSenderOptions) {
           // Ajouter un message informatif
           const switchMessage: Message = {
             id: `ai-${Date.now()}`,
-            content: `✨ Vous souhaitez créer un ${intentResult.requestedType === "form" ? "questionnaire" : "sondage de disponibilité"
-              }. Je démarre une nouvelle conversation pour vous...`,
+            content: `✨ Vous souhaitez créer un ${
+              intentResult.requestedType === "form" ? "questionnaire" : "sondage de disponibilité"
+            }. Je démarre une nouvelle conversation pour vous...`,
             isAI: true,
             timestamp: new Date(),
           };

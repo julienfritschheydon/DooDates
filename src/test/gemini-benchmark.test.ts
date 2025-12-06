@@ -7,7 +7,8 @@ import { GeminiService } from "@/lib/ai/gemini";
 import * as fs from "fs";
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 interface TestCase {
   id: string;
@@ -143,7 +144,7 @@ function buildDirectPrompt(userInput: string): string {
   const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
   const formatDate = (d: Date) => d.toISOString().split("T")[0];
   const dayName = today.toLocaleDateString("fr-FR", { weekday: "long" });
-  
+
   return `Tu es l'IA DooDates, expert en planification temporelle.
 
 Demande: "${userInput}"
@@ -209,13 +210,13 @@ async function callGeminiDirect(prompt: string): Promise<{
 
 function extractDates(text: string): { dates: string[]; timeSlots: number; futureDates: string[] } {
   const todayStr = new Date().toISOString().split("T")[0];
-  
+
   try {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return { dates: [], timeSlots: 0, futureDates: [] };
 
     const json = JSON.parse(jsonMatch[0]);
-    
+
     // Dates depuis racine ou timeSlots
     let allDates: string[] = [];
     if (json.dates && Array.isArray(json.dates)) {
@@ -229,8 +230,8 @@ function extractDates(text: string): { dates: string[]; timeSlots: number; futur
       }
       allDates = Array.from(set);
     }
-    
-    const futureDates = allDates.filter(d => d >= todayStr);
+
+    const futureDates = allDates.filter((d) => d >= todayStr);
     const timeSlots = json.timeSlots?.length || 0;
 
     return { dates: allDates, timeSlots, futureDates };
@@ -243,13 +244,16 @@ function calculatePrecisionScore(
   testCase: TestCase,
   datesCount: number,
   hasTimeSlots: boolean,
-  allDatesInFuture: boolean
+  allDatesInFuture: boolean,
 ): number {
   let score = 0;
   const maxScore = 4;
 
   // 1. Nombre de dates dans la plage attendue
-  if (datesCount >= testCase.expectedDatesCount.min && datesCount <= testCase.expectedDatesCount.max) {
+  if (
+    datesCount >= testCase.expectedDatesCount.min &&
+    datesCount <= testCase.expectedDatesCount.max
+  ) {
     score += 1;
   } else if (datesCount > 0) {
     score += 0.5; // Partiellement correct
@@ -288,7 +292,7 @@ describe("📊 Benchmark Gemini - DIRECT vs NORMAL", () => {
       throw new Error("VITE_GEMINI_API_KEY non définie");
     }
     geminiService = GeminiService.getInstance();
-    
+
     console.log("\n" + "═".repeat(80));
     console.log("📊 BENCHMARK GEMINI - DIRECT vs NORMAL");
     console.log("═".repeat(80));
@@ -304,19 +308,23 @@ describe("📊 Benchmark Gemini - DIRECT vs NORMAL", () => {
     console.log("═".repeat(80));
 
     // Statistiques globales
-    const directWins = results.filter(r => r.comparison.winner === "direct").length;
-    const normalWins = results.filter(r => r.comparison.winner === "normal").length;
-    const ties = results.filter(r => r.comparison.winner === "tie").length;
-    const bothFailed = results.filter(r => r.comparison.winner === "both_failed").length;
+    const directWins = results.filter((r) => r.comparison.winner === "direct").length;
+    const normalWins = results.filter((r) => r.comparison.winner === "normal").length;
+    const ties = results.filter((r) => r.comparison.winner === "tie").length;
+    const bothFailed = results.filter((r) => r.comparison.winner === "both_failed").length;
 
     const avgDirectTime = results.reduce((sum, r) => sum + r.direct.durationMs, 0) / results.length;
     const avgNormalTime = results.reduce((sum, r) => sum + r.normal.durationMs, 0) / results.length;
-    
-    const avgDirectPrecision = results.reduce((sum, r) => sum + r.comparison.precisionScore.direct, 0) / results.length;
-    const avgNormalPrecision = results.reduce((sum, r) => sum + r.comparison.precisionScore.normal, 0) / results.length;
 
-    const directSuccessRate = results.filter(r => r.direct.success && r.direct.datesInFuture > 0).length / results.length;
-    const normalSuccessRate = results.filter(r => r.normal.success && r.normal.datesInFuture > 0).length / results.length;
+    const avgDirectPrecision =
+      results.reduce((sum, r) => sum + r.comparison.precisionScore.direct, 0) / results.length;
+    const avgNormalPrecision =
+      results.reduce((sum, r) => sum + r.comparison.precisionScore.normal, 0) / results.length;
+
+    const directSuccessRate =
+      results.filter((r) => r.direct.success && r.direct.datesInFuture > 0).length / results.length;
+    const normalSuccessRate =
+      results.filter((r) => r.normal.success && r.normal.datesInFuture > 0).length / results.length;
 
     console.log("\n📈 STATISTIQUES GLOBALES:");
     console.log("─".repeat(60));
@@ -329,7 +337,9 @@ describe("📊 Benchmark Gemini - DIRECT vs NORMAL", () => {
     console.log(`\n⏱️ VITESSE MOYENNE:`);
     console.log(`   Mode Direct: ${avgDirectTime.toFixed(0)}ms`);
     console.log(`   Mode Normal: ${avgNormalTime.toFixed(0)}ms`);
-    console.log(`   Différence: ${(avgNormalTime - avgDirectTime).toFixed(0)}ms (${avgDirectTime < avgNormalTime ? "Direct plus rapide" : "Normal plus rapide"})`);
+    console.log(
+      `   Différence: ${(avgNormalTime - avgDirectTime).toFixed(0)}ms (${avgDirectTime < avgNormalTime ? "Direct plus rapide" : "Normal plus rapide"})`,
+    );
 
     console.log(`\n🎯 PRÉCISION MOYENNE:`);
     console.log(`   Mode Direct: ${(avgDirectPrecision * 100).toFixed(1)}%`);
@@ -342,18 +352,29 @@ describe("📊 Benchmark Gemini - DIRECT vs NORMAL", () => {
     console.log("\n" + "─".repeat(60));
     console.log("📋 DÉTAIL PAR TEST:");
     console.log("─".repeat(60));
-    
+
     for (const r of results) {
-      const winner = r.comparison.winner === "direct" ? "🔵" : 
-                     r.comparison.winner === "normal" ? "🟢" : 
-                     r.comparison.winner === "tie" ? "🟡" : "❌";
+      const winner =
+        r.comparison.winner === "direct"
+          ? "🔵"
+          : r.comparison.winner === "normal"
+            ? "🟢"
+            : r.comparison.winner === "tie"
+              ? "🟡"
+              : "❌";
       console.log(`${winner} ${r.name}`);
-      console.log(`   Direct: ${r.direct.durationMs}ms, ${r.direct.datesCount} dates, précision ${(r.comparison.precisionScore.direct * 100).toFixed(0)}%`);
-      console.log(`   Normal: ${r.normal.durationMs}ms, ${r.normal.datesCount} dates, précision ${(r.comparison.precisionScore.normal * 100).toFixed(0)}%`);
+      console.log(
+        `   Direct: ${r.direct.durationMs}ms, ${r.direct.datesCount} dates, précision ${(r.comparison.precisionScore.direct * 100).toFixed(0)}%`,
+      );
+      console.log(
+        `   Normal: ${r.normal.durationMs}ms, ${r.normal.datesCount} dates, précision ${(r.comparison.precisionScore.normal * 100).toFixed(0)}%`,
+      );
     }
 
     console.log("\n" + "═".repeat(80));
-    console.log(`🏁 CONCLUSION: ${normalWins > directWins ? "MODE NORMAL GAGNE" : directWins > normalWins ? "MODE DIRECT GAGNE" : "ÉGALITÉ"}`);
+    console.log(
+      `🏁 CONCLUSION: ${normalWins > directWins ? "MODE NORMAL GAGNE" : directWins > normalWins ? "MODE DIRECT GAGNE" : "ÉGALITÉ"}`,
+    );
     console.log("═".repeat(80) + "\n");
 
     // Sauvegarder le rapport JSON
@@ -375,10 +396,7 @@ describe("📊 Benchmark Gemini - DIRECT vs NORMAL", () => {
       results,
     };
 
-    fs.writeFileSync(
-      "tests/reports/gemini-benchmark.json",
-      JSON.stringify(report, null, 2)
-    );
+    fs.writeFileSync("tests/reports/gemini-benchmark.json", JSON.stringify(report, null, 2));
     console.log("📁 Rapport sauvegardé: tests/reports/gemini-benchmark.json\n");
   });
 
@@ -400,7 +418,7 @@ describe("📊 Benchmark Gemini - DIRECT vs NORMAL", () => {
       const normalStart = Date.now();
       let normalData: { dates?: string[]; timeSlots?: unknown[] } | null = null;
       let normalError: string | undefined;
-      
+
       try {
         const result = await geminiService.generatePollFromText(testCase.userInput, "date");
         if (result?.success && result.data) {
@@ -418,7 +436,7 @@ describe("📊 Benchmark Gemini - DIRECT vs NORMAL", () => {
         testCase,
         directParsed.futureDates.length,
         directParsed.timeSlots > 0,
-        directParsed.dates.length === directParsed.futureDates.length
+        directParsed.dates.length === directParsed.futureDates.length,
       );
 
       const normalDatesCount = normalData?.dates?.length || 0;
@@ -426,7 +444,7 @@ describe("📊 Benchmark Gemini - DIRECT vs NORMAL", () => {
         testCase,
         normalDatesCount,
         (normalData?.timeSlots?.length || 0) > 0,
-        true // Le mode normal filtre déjà les dates passées
+        true, // Le mode normal filtre déjà les dates passées
       );
 
       // Déterminer le gagnant
@@ -442,8 +460,12 @@ describe("📊 Benchmark Gemini - DIRECT vs NORMAL", () => {
         winner = "normal";
       } else {
         // Égalité de précision, départager par vitesse
-        winner = directResult.durationMs < normalDurationMs ? "direct" : 
-                 normalDurationMs < directResult.durationMs ? "normal" : "tie";
+        winner =
+          directResult.durationMs < normalDurationMs
+            ? "direct"
+            : normalDurationMs < directResult.durationMs
+              ? "normal"
+              : "tie";
       }
 
       const benchResult: BenchmarkResult = {
@@ -477,11 +499,16 @@ describe("📊 Benchmark Gemini - DIRECT vs NORMAL", () => {
       results.push(benchResult);
 
       // Affichage résumé
-      const winnerIcon = winner === "direct" ? "🔵" : winner === "normal" ? "🟢" : winner === "tie" ? "🟡" : "❌";
+      const winnerIcon =
+        winner === "direct" ? "🔵" : winner === "normal" ? "🟢" : winner === "tie" ? "🟡" : "❌";
       console.log(`   ${winnerIcon} Gagnant: ${winner.toUpperCase()}`);
       console.log(`   ⏱️ Direct: ${directResult.durationMs}ms | Normal: ${normalDurationMs}ms`);
-      console.log(`   📅 Direct: ${directParsed.futureDates.length} dates | Normal: ${normalDatesCount} dates`);
-      console.log(`   🎯 Précision: Direct ${(directPrecision * 100).toFixed(0)}% | Normal ${(normalPrecision * 100).toFixed(0)}%`);
+      console.log(
+        `   📅 Direct: ${directParsed.futureDates.length} dates | Normal: ${normalDatesCount} dates`,
+      );
+      console.log(
+        `   🎯 Précision: Direct ${(directPrecision * 100).toFixed(0)}% | Normal ${(normalPrecision * 100).toFixed(0)}%`,
+      );
 
       // Le test passe si au moins un mode fonctionne
       expect(directOk || normalOk).toBe(true);

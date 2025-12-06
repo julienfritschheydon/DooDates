@@ -183,11 +183,17 @@ export async function supabaseRestApi<T = Record<string, unknown>>(
     try {
       // Force refresh session
       const { supabase } = await import("./supabase");
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
 
       if (error || !session) {
         logger.error("Failed to refresh session", "api", error);
-        throw ErrorFactory.auth("Session expired", "Votre session a expiré. Veuillez vous reconnecter.");
+        throw ErrorFactory.auth(
+          "Session expired",
+          "Votre session a expiré. Veuillez vous reconnecter.",
+        );
       }
 
       // Retry with new token
@@ -223,7 +229,7 @@ export async function supabaseRestApi<T = Record<string, unknown>>(
     if (response.status === 401) {
       throw ErrorFactory.auth(
         `Supabase API error: ${response.status} ${errorData?.message || response.statusText}`,
-        "Votre session a expiré. Veuillez vous reconnecter."
+        "Votre session a expiré. Veuillez vous reconnecter.",
       );
     }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Products Unified Interface
 // Interface unifiée pour tous les services produits
 

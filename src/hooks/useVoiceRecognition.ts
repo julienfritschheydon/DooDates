@@ -1,6 +1,9 @@
 /**
  * Hook pour la reconnaissance vocale avec Web Speech API
  * Permet de transcrire la voix en texte pour le chat
+ *
+ * NOTE MOBILE: Safari iOS n'est pas supporté. Chrome Android devrait fonctionner
+ * mais nécessite HTTPS et permissions micro explicites.
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -43,6 +46,28 @@ declare global {
   }
 }
 
+/**
+ * Détecte si on est sur Safari iOS (non supporté pour Web Speech API)
+ */
+function isIOSSafari(): boolean {
+  const ua = navigator.userAgent;
+  const isIOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+  return isIOS && isSafari;
+}
+
+/**
+ * Détecte si on est sur mobile
+ */
+function isMobileDevice(): boolean {
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
+}
+
 export interface VoiceRecognitionState {
   /** Texte transcrit en cours (interim) */
   interimTranscript: string;
@@ -54,11 +79,15 @@ export interface VoiceRecognitionState {
   error: string | null;
   /** API supportée par le navigateur */
   isSupported: boolean;
+  /** Est sur mobile (pour afficher des messages adaptés) */
+  isMobile: boolean;
+  /** Navigateur non supporté (ex: Safari iOS) */
+  isUnsupportedBrowser: boolean;
 }
 
 export interface VoiceRecognitionActions {
-  /** Démarrer l'écoute */
-  startListening: () => void;
+  /** Démarrer l'écoute (async pour demander permissions sur mobile) */
+  startListening: () => Promise<void>;
   /** Arrêter l'écoute */
   stopListening: () => void;
   /** Réinitialiser la transcription */
@@ -97,6 +126,8 @@ export function useVoiceRecognition(
   const [finalTranscript, setFinalTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isMobile] = useState(() => isMobileDevice());
+  const [isUnsupportedBrowser] = useState(() => isIOSSafari());
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const finalTranscriptRef = useRef<string>(""); // Ref pour persister entre les sessions
   const onTranscriptChangeRef = useRef(onTranscriptChange);
@@ -109,6 +140,13 @@ export function useVoiceRecognition(
   }, [onTranscriptChange, onError]);
 
   useEffect(() => {
+    // Safari iOS n'est pas supporté
+    if (isUnsupportedBrowser) {
+      setIsSupported(false);
+      logger.warn("Safari iOS ne supporte pas la reconnaissance vocale", "general");
+      return;
+    }
+
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (SpeechRecognitionAPI) {
@@ -118,7 +156,7 @@ export function useVoiceRecognition(
       setIsSupported(false);
       logger.warn("Web Speech API non supportée par ce navigateur", "general");
     }
-  }, []);
+  }, [isUnsupportedBrowser]);
 
   // Configurer la reconnaissance vocale
   useEffect(() => {
@@ -239,9 +277,32 @@ export function useVoiceRecognition(
   }, [lang, continuous, interimResults, isListening]);
   // onTranscriptChange et onError sont dans des refs, pas besoin de les mettre en dépendances
 
-  const startListening = useCallback(() => {
+  const startListening = useCallback(async () => {
     const recognition = recognitionRef.current;
     if (!recognition || isListening) return;
+
+    // Sur mobile, demander explicitement la permission micro avant de démarrer
+    if (isMobile) {
+      try {
+        // Vérifier et demander la permission micro
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Arrêter immédiatement le stream, on veut juste la permission
+        stream.getTracks().forEach((track) => track.stop());
+        logger.debug("Permission micro accordée sur mobile", "general");
+      } catch (permissionError) {
+        const errorMessage =
+          "Permission microphone refusée. Veuillez autoriser l'accès au micro dans les paramètres de votre navigateur.";
+        setError(errorMessage);
+        if (onErrorRef.current) {
+          onErrorRef.current(errorMessage);
+        }
+        logError(
+          ErrorFactory.api("Permission micro refusée sur mobile", "Impossible d'accéder au micro"),
+          { metadata: { error: permissionError, isMobile: true } },
+        );
+        return;
+      }
+    }
 
     // NE PAS réinitialiser - on veut accumuler entre les sessions
     // setFinalTranscript("");
@@ -258,11 +319,11 @@ export function useVoiceRecognition(
 
       logError(
         ErrorFactory.api("Erreur démarrage reconnaissance vocale", "Impossible de démarrer"),
-        { metadata: { error: err } },
+        { metadata: { error: err, isMobile } },
       );
       setError("Impossible de démarrer la reconnaissance vocale");
     }
-  }, [isListening]);
+  }, [isListening, isMobile]);
 
   const stopListening = useCallback(() => {
     const recognition = recognitionRef.current;
@@ -293,6 +354,8 @@ export function useVoiceRecognition(
     isListening,
     error,
     isSupported,
+    isMobile,
+    isUnsupportedBrowser,
     startListening,
     stopListening,
     resetTranscript,

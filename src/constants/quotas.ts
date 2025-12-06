@@ -96,7 +96,7 @@ export const POLL_CREATION_QUOTAS = {
 
 /**
  * Limites par type de poll (date, form, quizz, availability)
- * 
+ *
  * ⚠️ VALEURS TEMPORAIRES - Les valeurs exactes seront définies dans le planning de décembre
  */
 export const POLL_TYPE_QUOTAS = {

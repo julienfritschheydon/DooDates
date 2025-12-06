@@ -42,13 +42,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       className={cn(
         "p-4 md:p-6 w-full",
         darkTheme ? "bg-[#0a0a0a]" : "bg-white border-t border-gray-200",
-        className
+        className,
       )}
     >
       <div className="max-w-2xl mx-auto">
         <div
-          className={`flex items-center gap-2 md:gap-3 rounded-full p-2 border ${darkTheme ? "bg-[#0a0a0a] border-gray-800" : "bg-white border-gray-200 shadow-lg"
-            }`}
+          className={`flex items-center gap-2 md:gap-3 rounded-full p-2 border ${
+            darkTheme ? "bg-[#0a0a0a] border-gray-800" : "bg-white border-gray-200 shadow-lg"
+          }`}
         >
           <textarea
             ref={textareaRef}
@@ -72,8 +73,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   : "Décrivez votre sondage..."
             }
             disabled={isLoading}
-            className={`flex-1 min-w-0 resize-none border-0 px-2 md:px-4 py-3 focus:outline-none min-h-[44px] max-h-32 text-sm md:text-base bg-transparent ${darkTheme ? "text-white placeholder-gray-400" : "text-gray-900 placeholder-gray-500"
-              } ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`flex-1 min-w-0 resize-none border-0 px-2 md:px-4 py-3 focus:outline-none min-h-[44px] max-h-32 text-sm md:text-base bg-transparent ${
+              darkTheme ? "text-white placeholder-gray-400" : "text-gray-900 placeholder-gray-500"
+            } ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
             rows={1}
           />
 
@@ -93,13 +95,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               disabled={isLoading}
               className={`
                 rounded-full p-2 transition-all flex-shrink-0
-                ${isLoading
-                  ? "bg-transparent text-gray-500 cursor-not-allowed"
-                  : voiceRecognition.isListening
-                    ? "bg-red-500 text-white hover:bg-red-600 animate-pulse"
-                    : darkTheme
-                      ? "bg-transparent text-gray-300 hover:bg-gray-700"
-                      : "bg-transparent text-gray-600 hover:bg-gray-100"
+                ${
+                  isLoading
+                    ? "bg-transparent text-gray-500 cursor-not-allowed"
+                    : voiceRecognition.isListening
+                      ? "bg-red-500 text-white hover:bg-red-600 animate-pulse"
+                      : darkTheme
+                        ? "bg-transparent text-gray-300 hover:bg-gray-700"
+                        : "bg-transparent text-gray-600 hover:bg-gray-100"
                 }
               `}
               title={voiceRecognition.isListening ? "Arrêter l'écoute" : "Activer le micro"}
@@ -119,11 +122,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             disabled={isLoading || !value.trim()}
             className={`
               rounded-full p-2 transition-all flex-shrink-0
-              ${isLoading || !value.trim()
-                ? "bg-transparent text-gray-500 cursor-not-allowed"
-                : darkTheme
-                  ? "bg-transparent text-gray-300 hover:bg-gray-700"
-                  : "bg-transparent text-gray-600 hover:bg-gray-100"
+              ${
+                isLoading || !value.trim()
+                  ? "bg-transparent text-gray-500 cursor-not-allowed"
+                  : darkTheme
+                    ? "bg-transparent text-gray-300 hover:bg-gray-700"
+                    : "bg-transparent text-gray-600 hover:bg-gray-100"
               }
             `}
             title={isLoading ? "Génération en cours..." : "Envoyer"}

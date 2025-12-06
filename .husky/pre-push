@@ -27,6 +27,22 @@ if [ "$BRANCH" = "bug" ]; then
   exit 0
 fi
 
+# Branches feature-*: validation légère (build seulement)
+if echo "$BRANCH" | grep -qE "^feature-"; then
+  echo "✨ Branche FEATURE ($BRANCH): validation légère (CI fera les tests complets)..."
+  
+  # Build seulement
+  echo "🏗️ Build production..."
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ Build production échoué - Push bloqué"
+    exit 1
+  fi
+  
+  echo "✅ Pre-push (feature) validé - Push autorisé"
+  exit 0
+fi
+
 # Branche testing: validation légère+ (build + tests unitaires rapides)
 if [ "$BRANCH" = "testing" ]; then
   echo "🧪 Branche TESTING: validation légère+..."

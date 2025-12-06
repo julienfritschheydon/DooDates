@@ -1008,6 +1008,13 @@ export const PRODUCT_ROUTES = {
     docs: '/DooDates/availability-polls/docs',
     pricing: '/DooDates/availability-polls/pricing',
   },
+  quizz: {
+    landing: '/DooDates/quizz',
+    workspace: '/DooDates/quizz/workspace',
+    dashboard: '/DooDates/quizz/dashboard',
+    docs: '/DooDates/quizz/docs',
+    pricing: '/DooDates/quizz/pricing',
+  },
 } as const;
 
 /**

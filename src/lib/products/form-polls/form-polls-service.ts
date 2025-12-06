@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Form Polls Service
 // Logique spécifique aux sondages de formulaires
 

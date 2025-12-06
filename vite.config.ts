@@ -48,6 +48,7 @@ export default defineConfig({
     port: 8080,
     host: true,
     strictPort: true, // Échoue si le port est déjà utilisé
+    allowedHosts: true, // Autorise tous les hôtes (ngrok, localtunnel, etc.)
     hmr: {
       overlay: false,
     },

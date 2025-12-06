@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests automatisés de génération de sondages
  * Teste les prompts de cas limites définis dans TESTS-PROMPTS-GENERATION.md

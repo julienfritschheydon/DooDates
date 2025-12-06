@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests Gemini Consolidés - Fichier Unique
  *
@@ -50,7 +51,16 @@ loadEnv({ path: path.resolve(process.cwd(), ".env.local"), override: false });
 
 interface PromptSpec {
   id: string;
-  category: "professionnel" | "personnel" | "associatif" | "temporel" | "edge" | "bug" | "reunions" | "evenements" | "formations";
+  category:
+    | "professionnel"
+    | "personnel"
+    | "associatif"
+    | "temporel"
+    | "edge"
+    | "bug"
+    | "reunions"
+    | "evenements"
+    | "formations";
   input: string;
   description: string;
   // Critères de validation
@@ -159,7 +169,8 @@ const allPrompts: PromptSpec[] = [
   {
     id: "reunion-lancement-mardi-jeudi",
     category: "professionnel",
-    input: "Planifie la réunion de lancement la semaine prochaine, idéalement mardi 14h ou jeudi 10h.",
+    input:
+      "Planifie la réunion de lancement la semaine prochaine, idéalement mardi 14h ou jeudi 10h.",
     description: "Réunion de lancement mardi 14h / jeudi 10h",
     expectTimeSlots: true,
     minDates: 2,
@@ -280,7 +291,8 @@ const allPrompts: PromptSpec[] = [
   {
     id: "seance-photo-decembre",
     category: "personnel",
-    input: "Planifie une séance photo familiale un dimanche matin en décembre (avant fin décembre).",
+    input:
+      "Planifie une séance photo familiale un dimanche matin en décembre (avant fin décembre).",
     description: "Séance photo familiale dimanche matin",
     expectTimeSlots: true,
     minTimeSlots: 2,
@@ -367,7 +379,8 @@ const allPrompts: PromptSpec[] = [
   {
     id: "comite-quartier-quinze-jours",
     category: "associatif",
-    input: "Prévois la réunion du comité de quartier dans quinze jours, sur 2 heures, plutôt en début de soirée.",
+    input:
+      "Prévois la réunion du comité de quartier dans quinze jours, sur 2 heures, plutôt en début de soirée.",
     description: "Comité de quartier J+15 - 2h",
     expectTimeSlots: true,
     minTimeSlots: 1,
@@ -422,7 +435,8 @@ const allPrompts: PromptSpec[] = [
     maxTimeSlots: 1, // CRITICAL: Doit être 1 seul créneau!
     timeRange: { start: "12:00", end: "14:00" },
     priority: "CRITIQUE",
-    originalIssue: "Génère 3 créneaux au lieu de 1 car hasExplicitTimeRange désactive isMealContext",
+    originalIssue:
+      "Génère 3 créneaux au lieu de 1 car hasExplicitTimeRange désactive isMealContext",
   },
   // SUPPRIMÉ 2025-12-06: Doublon avec brunch-samedi-dimanche dans PERSONNEL
   {
@@ -723,7 +737,7 @@ const allPrompts: PromptSpec[] = [
 const categoryFilter = process.env.GEMINI_CATEGORY?.toLowerCase().trim() || "";
 const promptFilter = process.env.GEMINI_PROMPT?.toLowerCase().trim() || "";
 const idFilter = process.env.GEMINI_ID?.toLowerCase().trim() || "";
-const failedTestIdsEnv = process.env.FAILED_TEST_IDS?.split(",").map(id => id.trim()) || [];
+const failedTestIdsEnv = process.env.FAILED_TEST_IDS?.split(",").map((id) => id.trim()) || [];
 
 function shouldRunTest(prompt: PromptSpec): boolean {
   // Filtre par FAILED_TEST_IDS (priorité absolue)
@@ -783,8 +797,13 @@ function calculateDuration(start: string, end: string): number {
 
 function scoreDatePollTest(
   prompt: PromptSpec,
-  result: any
-): { score: number; maxScore: number; violations: string[]; breakdown: { type: number; dates: number; timeSlots: number; requiredWords: number } } {
+  result: any,
+): {
+  score: number;
+  maxScore: number;
+  violations: string[];
+  breakdown: { type: number; dates: number; timeSlots: number; requiredWords: number };
+} {
   const maxScore = 4.0;
   let score = 0;
   const violations: string[] = [];
@@ -888,8 +907,8 @@ function scoreDatePollTest(
 
   // 4. Mots requis (1 point)
   if (prompt.requiredWords && prompt.requiredWords.length > 0) {
-    const foundWords = prompt.requiredWords.filter(word =>
-      textContent.includes(word.toLowerCase())
+    const foundWords = prompt.requiredWords.filter((word) =>
+      textContent.includes(word.toLowerCase()),
     );
     const ratio = foundWords.length / prompt.requiredWords.length;
 
@@ -897,8 +916,8 @@ function scoreDatePollTest(
       breakdown.requiredWords = 1.0;
       score += 1.0;
     } else {
-      const missing = prompt.requiredWords.filter(word =>
-        !textContent.includes(word.toLowerCase())
+      const missing = prompt.requiredWords.filter(
+        (word) => !textContent.includes(word.toLowerCase()),
       );
       violations.push(`Mots-clés manquants: ${missing.join(", ")}`);
       breakdown.requiredWords = ratio;
@@ -919,7 +938,7 @@ function scoreDatePollTest(
 
 function generateMarkdownReport(results: TestResult[]): string {
   const totalTests = results.length;
-  const passedTests = results.filter(r => r.passed).length;
+  const passedTests = results.filter((r) => r.passed).length;
   const totalScore = results.reduce((sum, r) => sum + r.score, 0);
   const maxTotalScore = results.reduce((sum, r) => sum + r.maxScore, 0);
   const percentage = maxTotalScore > 0 ? (totalScore / maxTotalScore) * 100 : 0;
@@ -957,24 +976,26 @@ function generateMarkdownReport(results: TestResult[]): string {
   report += `| Test ID | Catégorie | Score | Status | Détails |\n`;
   report += `|---------|-----------|--------|--------|----------|\n`;
 
-  results.forEach(result => {
+  results.forEach((result) => {
     const statusEmoji = result.passed ? "✅" : "❌";
     const statusText = result.passed ? "RÉUSSI" : "ÉCHEC";
     report += `| ${result.id} | ${result.category} | ${result.score.toFixed(1)}/${result.maxScore.toFixed(0)} | ${statusEmoji} | Score: ${result.score.toFixed(1)}/${result.maxScore.toFixed(0)} - ${statusText} |\n`;
   });
 
   // Analyse des échecs avec détails complets
-  const failedTests = results.filter(r => !r.passed);
+  const failedTests = results.filter((r) => !r.passed);
   if (failedTests.length > 0) {
     report += `\n## 🔍 Analyse des Échecs\n\n`;
-    failedTests.forEach(result => {
-      const prompt = allPrompts.find(p => p.id === result.id);
+    failedTests.forEach((result) => {
+      const prompt = allPrompts.find((p) => p.id === result.id);
       report += `### Test ${result.id}: ${result.category}\n\n`;
       if (prompt) {
         report += `**Prompt:** ${prompt.input}\n\n`;
         if (prompt.expectedType) report += `**Type attendu:** ${prompt.expectedType}\n`;
         if (prompt.minDates || prompt.maxDates) {
-          const range = prompt.maxDates ? `${prompt.minDates}-${prompt.maxDates}` : `≥${prompt.minDates}`;
+          const range = prompt.maxDates
+            ? `${prompt.minDates}-${prompt.maxDates}`
+            : `≥${prompt.minDates}`;
           report += `**Dates attendues:** ${range}\n`;
         }
         if (prompt.expectTimeSlots !== undefined) {
@@ -1018,7 +1039,7 @@ function generateMarkdownReport(results: TestResult[]): string {
       report += `\n`;
       if (result.details.violations.length > 0) {
         report += `**Violations détectées:**\n`;
-        result.details.violations.forEach(v => {
+        result.details.violations.forEach((v) => {
           report += `  - ❌ ${v}\n`;
         });
       }
@@ -1028,11 +1049,11 @@ function generateMarkdownReport(results: TestResult[]): string {
       report += `\n---\n\n`;
     });
   }
-  
+
   // Section détaillée pour tous les tests (réussis et échoués)
   report += `\n## 📊 Détails Complets de Tous les Tests\n\n`;
-  results.forEach(result => {
-    const prompt = allPrompts.find(p => p.id === result.id);
+  results.forEach((result) => {
+    const prompt = allPrompts.find((p) => p.id === result.id);
     const statusEmoji = result.passed ? "✅" : "❌";
     report += `### ${statusEmoji} ${result.id} (${result.category})\n\n`;
     report += `**Prompt:** ${result.input}\n\n`;
@@ -1109,7 +1130,7 @@ async function runPromptTest(prompt: PromptSpec): Promise<TestResult> {
       const response = await geminiService.generatePollFromText(prompt.input, "date");
       const duration = Date.now() - startTime;
       console.log(`   ⏱️ Durée: ${duration}ms`);
-      
+
       // Afficher la réponse générée pour juger la qualité
       if (response.success && response.data) {
         const poll = response.data as any;
@@ -1173,7 +1194,9 @@ async function runPromptTest(prompt: PromptSpec): Promise<TestResult> {
 
       console.log(`   ✅ Score: ${scoring.score.toFixed(1)}/4.0`);
       if (scoring.breakdown) {
-        console.log(`   📊 Breakdown: Type=${scoring.breakdown.type.toFixed(1)}, Dates=${scoring.breakdown.dates.toFixed(1)}, Créneaux=${scoring.breakdown.timeSlots.toFixed(1)}, Mots=${scoring.breakdown.requiredWords.toFixed(1)}`);
+        console.log(
+          `   📊 Breakdown: Type=${scoring.breakdown.type.toFixed(1)}, Dates=${scoring.breakdown.dates.toFixed(1)}, Créneaux=${scoring.breakdown.timeSlots.toFixed(1)}, Mots=${scoring.breakdown.requiredWords.toFixed(1)}`,
+        );
       }
       if (scoring.violations.length > 0) {
         console.log(`   ⚠️ Violations: ${scoring.violations.join("; ")}`);
@@ -1222,7 +1245,9 @@ async function runPromptTest(prompt: PromptSpec): Promise<TestResult> {
           }
         });
         if (wrongDays.length > 0) {
-          additionalViolations.push(`Mauvais jours (attendu: ${prompt.days.join("/")}): ${wrongDays.join(", ")}`);
+          additionalViolations.push(
+            `Mauvais jours (attendu: ${prompt.days.join("/")}): ${wrongDays.join(", ")}`,
+          );
         }
       }
 
@@ -1274,13 +1299,13 @@ async function runPromptTest(prompt: PromptSpec): Promise<TestResult> {
           hasTimeSlots: false,
           timeSlotsCount: 0,
           datesCount: 0,
-            type: "unknown",
+          type: "unknown",
           violations: [
             `Erreur après ${MAX_RETRIES} tentatives: ${error instanceof Error ? error.message : "Erreur inconnue"}`,
           ],
-            generatedTitle: "",
-            generatedDescription: "",
-            duration: 0,
+          generatedTitle: "",
+          generatedDescription: "",
+          duration: 0,
         },
       };
     }
@@ -1298,11 +1323,11 @@ async function runPromptTest(prompt: PromptSpec): Promise<TestResult> {
       hasTimeSlots: false,
       timeSlotsCount: 0,
       datesCount: 0,
-            type: "unknown",
+      type: "unknown",
       violations: ["Erreur inattendue: fin de boucle de retry"],
-            generatedTitle: "",
-            generatedDescription: "",
-            duration: 0,
+      generatedTitle: "",
+      generatedDescription: "",
+      duration: 0,
     },
   };
 }
@@ -1331,7 +1356,8 @@ describe("Gemini Tests Consolidés", () => {
     if (categoryFilter) console.log(`   Filtre catégorie: ${categoryFilter}`);
     if (promptFilter) console.log(`   Filtre texte: ${promptFilter}`);
     if (idFilter) console.log(`   Filtre ID: ${idFilter}`);
-    if (failedTestIdsEnv.length > 0) console.log(`   Tests échoués à relancer: ${failedTestIdsEnv.join(", ")}`);
+    if (failedTestIdsEnv.length > 0)
+      console.log(`   Tests échoués à relancer: ${failedTestIdsEnv.join(", ")}`);
     console.log("=".repeat(60));
   });
 
@@ -1375,7 +1401,12 @@ describe("Gemini Tests Consolidés", () => {
       // Générer rapport JSON
       const jsonReport = {
         timestamp: new Date().toISOString().split("T")[0],
-        filters: { category: categoryFilter, prompt: promptFilter, id: idFilter, failedTestIds: failedTestIdsEnv },
+        filters: {
+          category: categoryFilter,
+          prompt: promptFilter,
+          id: idFilter,
+          failedTestIds: failedTestIdsEnv,
+        },
         totalTests: testResults.length,
         passedTests: passed,
         averageScore: avgScore / 100,
@@ -1384,10 +1415,7 @@ describe("Gemini Tests Consolidés", () => {
         results: testResults,
       };
 
-      const jsonReportPath = path.resolve(
-        process.cwd(),
-        "tests/reports/gemini-tests-report.json",
-      );
+      const jsonReportPath = path.resolve(process.cwd(), "tests/reports/gemini-tests-report.json");
       await fsp.mkdir(path.dirname(jsonReportPath), { recursive: true });
       await fsp.writeFile(jsonReportPath, JSON.stringify(jsonReport, null, 2), "utf8");
       console.log(`\n📄 Rapport JSON: ${jsonReportPath}`);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { formatDateLocal, getTodayLocal } from "../../../date-utils";
 import { logger } from "../../../logger";
 

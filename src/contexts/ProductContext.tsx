@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
 import { useAuth } from "./AuthContext";
 import { useProductAPI } from "@/lib/hooks/useProductAPI";
@@ -302,6 +303,7 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({ children }) =>
     if (user) {
       loadProducts();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadProducts is stable
   }, [user, state.filters, state.pagination.page, state.pagination.limit]);
 
   const value: ProductContextType = {

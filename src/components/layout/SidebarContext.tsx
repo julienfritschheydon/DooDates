@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface SidebarContextType {
@@ -34,10 +35,10 @@ export const useSidebar = () => {
     // This allows components to work even if not wrapped in SidebarProvider
     return {
       isOpen: true,
-      toggle: () => { },
-      close: () => { },
-      open: () => { },
-      setIsOpen: () => { },
+      toggle: () => {},
+      close: () => {},
+      open: () => {},
+      setIsOpen: () => {},
     };
   }
   return context;

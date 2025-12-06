@@ -666,6 +666,7 @@ const PollCreator: React.FC<PollCreatorProps> = ({
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- toast is stable from hook
   }, [editPollId, initialData]);
 
   // Ajuster les mois visibles si initialData contient des dates

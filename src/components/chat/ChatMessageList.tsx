@@ -152,25 +152,29 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   return (
     <div
       data-testid="chat-messages"
-      className={`flex-1 min-h-0 w-full ${messages.length > 0 ? "overflow-y-auto" : ""} ${darkTheme ? "bg-[#0a0a0a]" : "bg-gradient-to-br from-blue-50 to-indigo-50"
-        } ${messages.length === 0 ? "flex items-center justify-center" : ""}`}
+      className={`flex-1 min-h-0 w-full ${messages.length > 0 ? "overflow-y-auto" : ""} ${
+        darkTheme ? "bg-[#0a0a0a]" : "bg-gradient-to-br from-blue-50 to-indigo-50"
+      } ${messages.length === 0 ? "flex items-center justify-center" : ""}`}
     >
       <div
-        className={`w-full max-w-4xl mx-auto ${messages.length > 0 ? "p-2 md:p-4 space-y-3 md:space-y-4" : ""
-          }`}
+        className={`w-full max-w-4xl mx-auto ${
+          messages.length > 0 ? "p-2 md:p-4 space-y-3 md:space-y-4" : ""
+        }`}
       >
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center">
             <div className={`max-w-md ${darkTheme ? "text-white" : "text-gray-900"}`}>
               <div
-                className={`flex items-center justify-center w-16 h-16 rounded-full mx-auto mb-4 ${darkTheme ? `${theme.darkBg} ${theme.darkText}` : `${theme.bg} ${theme.text}`
-                  }`}
+                className={`flex items-center justify-center w-16 h-16 rounded-full mx-auto mb-4 ${
+                  darkTheme ? `${theme.darkBg} ${theme.darkText}` : `${theme.bg} ${theme.text}`
+                }`}
               >
                 <Sparkles className="w-8 h-8" />
               </div>
               <h3
-                className={`text-lg font-medium mb-2 ${darkTheme ? "text-blue-400" : "text-gray-900"
-                  }`}
+                className={`text-lg font-medium mb-2 ${
+                  darkTheme ? "text-blue-400" : "text-gray-900"
+                }`}
               >
                 Bonjour ! 👋
               </h3>
@@ -215,19 +219,24 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 {/* Icône IA à gauche pour les messages IA */}
                 {message.isAI && (
                   <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                    <svg className={`w-6 h-6 ${theme.icon}`} fill="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className={`w-6 h-6 ${theme.icon}`}
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                     </svg>
                   </div>
                 )}
                 <div
                   data-testid={message.isAI ? "ai-response" : "chat-message"}
-                  className={`max-w-[80%] ${message.isAI
-                    ? darkTheme
-                      ? "text-gray-100"
-                      : "text-gray-900"
-                    : "bg-[#3c4043] text-white rounded-[20px] px-5 py-3"
-                    } whitespace-pre-wrap break-words`}
+                  className={`max-w-[80%] ${
+                    message.isAI
+                      ? darkTheme
+                        ? "text-gray-100"
+                        : "text-gray-900"
+                      : "bg-[#3c4043] text-white rounded-[20px] px-5 py-3"
+                  } whitespace-pre-wrap break-words`}
                 >
                   {message.content}
                   {message.pollSuggestion && (
@@ -259,7 +268,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                                             : question.type === "multiple"
                                               ? "Choix multiples"
                                               : question.type === "text" ||
-                                                question.type === "long-text"
+                                                  question.type === "long-text"
                                                 ? "Texte libre"
                                                 : question.type === "date"
                                                   ? "Date"
@@ -333,14 +342,14 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                                         <div className="font-medium text-white text-sm md:text-base leading-tight">
                                           {isGroup
                                             ? // Afficher le label groupé
-                                            group.label
+                                              group.label
                                             : // Afficher la date normale
-                                            new Date(group.dates[0]).toLocaleDateString("fr-FR", {
-                                              weekday: "long",
-                                              day: "numeric",
-                                              month: "long",
-                                              year: "numeric",
-                                            })}
+                                              new Date(group.dates[0]).toLocaleDateString("fr-FR", {
+                                                weekday: "long",
+                                                day: "numeric",
+                                                month: "long",
+                                                year: "numeric",
+                                              })}
                                         </div>
                                         {groupTimeSlots.length > 0 && !isGroup && (
                                           <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-gray-300">
@@ -425,8 +434,11 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                             });
                             onUsePollSuggestion(message.pollSuggestion!);
                           }}
-                          className={`w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors ${getThemeColors((message.pollSuggestion as FormPollSuggestion).type || "date").button
-                            }`}
+                          className={`w-full flex items-center justify-center gap-2 text-white px-4 py-3 rounded-lg font-medium transition-colors ${
+                            getThemeColors(
+                              (message.pollSuggestion as FormPollSuggestion).type || "date",
+                            ).button
+                          }`}
                         >
                           <span>
                             {(message.pollSuggestion as FormPollSuggestion).type === "form"
@@ -470,8 +482,9 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                   </svg>
                 </div>
                 <div
-                  className={`max-w-[80%] ${darkTheme ? "bg-[#1a1a1a] text-gray-200" : "bg-gray-100 text-gray-700"
-                    } rounded-[20px] px-5 py-3 flex items-center gap-3`}
+                  className={`max-w-[80%] ${
+                    darkTheme ? "bg-[#1a1a1a] text-gray-200" : "bg-gray-100 text-gray-700"
+                  } rounded-[20px] px-5 py-3 flex items-center gap-3`}
                 >
                   <Loader2 className={`w-4 h-4 animate-spin ${theme.icon}`} />
                   <span className="text-sm">Génération en cours...</span>

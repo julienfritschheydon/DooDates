@@ -726,10 +726,10 @@ function buildContextualSlots(
     const targetDate = effectiveDates[0];
     return targetDate
       ? [
-        createSlot(targetDate, 8, 0, 30),
-        createSlot(targetDate, 8, 30, 30),
-        createSlot(targetDate, 9, 0, 30),
-      ]
+          createSlot(targetDate, 8, 0, 30),
+          createSlot(targetDate, 8, 30, 30),
+          createSlot(targetDate, 9, 0, 30),
+        ]
       : undefined;
   }
 
@@ -1010,9 +1010,9 @@ export function postProcessSuggestion(
   const contextualDates =
     options.allowedDates || parsed?.allowedDates
       ? clampDatesToWindow(
-        contextualDatesPreClamp,
-        options.allowedDates || parsed?.allowedDates || [],
-      ) || []
+          contextualDatesPreClamp,
+          options.allowedDates || parsed?.allowedDates || [],
+        ) || []
       : contextualDatesPreClamp;
 
   const finalDates =
@@ -1048,8 +1048,8 @@ export function postProcessSuggestion(
   const isSpecificDate = parsed
     ? parsed.type === "specific_date" || parsed.type === "day_of_week" || (isMidiDeux && isPeriod)
     : /(demain|aujourd'hui|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|dans \d+ jours?)/i.test(
-      lowerInput,
-    );
+        lowerInput,
+      );
   const isMealWithSpecificDate = isMealContext && isSpecificDate;
 
   const expectedCount = detectExpectedSlotCount(options.userInput);
@@ -1378,7 +1378,9 @@ export function postProcessSuggestion(
     }
   }
 
-  logger.debug("DEBUG POST PROCESS END", "general", { processedSlotsCount: processedSlots?.length });
+  logger.debug("DEBUG POST PROCESS END", "general", {
+    processedSlotsCount: processedSlots?.length,
+  });
   const type = finalizeType(suggestion, processedSlots);
 
   return {

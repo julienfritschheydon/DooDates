@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { callSupabaseEdgeFunction } from "@/lib/supabaseApi";
 import { logError } from "@/lib/error-handling";

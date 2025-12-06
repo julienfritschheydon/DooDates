@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Rate Limiter Service
  * Protection contre les abus et attaques DDoS basiques

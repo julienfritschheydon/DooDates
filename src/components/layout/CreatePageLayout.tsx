@@ -85,7 +85,7 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
             if (
               !existing ||
               new Date(poll.updated_at || poll.created_at) >
-              new Date(existing.updated_at || existing.created_at)
+                new Date(existing.updated_at || existing.created_at)
             ) {
               map.set(poll.id, poll);
             }
@@ -145,8 +145,9 @@ export function CreatePageLayout({ children }: CreatePageLayoutProps) {
 
       {/* Sidebar gauche */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] transform transition-transform duration-300 flex flex-col border-r border-gray-700 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         {/* Header */}
         <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-800">

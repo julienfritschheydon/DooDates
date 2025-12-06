@@ -41,6 +41,7 @@ export function hashIP(ip: string): string {
 function hashWithSubtleCryptoSync(ip: string): string {
   try {
     // Tenter d'importer crypto de Node.js si disponible
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const crypto = require("crypto");
     return crypto.createHash("sha256").update(ip).digest("hex");
   } catch (error) {
@@ -66,6 +67,7 @@ async function hashWithSubtleCrypto(ip: string): Promise<string> {
 function hashWithNodeCrypto(ip: string): string {
   try {
     // Importer crypto dynamiquement pour éviter les erreurs en environnement navigateur
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const crypto = require("crypto");
     return crypto.createHash("sha256").update(ip).digest("hex");
   } catch (error) {

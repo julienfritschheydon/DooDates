@@ -226,6 +226,7 @@ export function AICreationWorkspace({
         openEditor();
       }, 100);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- openEditor is stable from hook
   }, [
     location.pathname,
     conversationId,
@@ -344,6 +345,7 @@ export function AICreationWorkspace({
         openEditor();
       }, 100);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- location and smartNavigate are stable
   }, [newChatTimestamp, clearConversation, openEditor, navigate]);
 
   // Fonction pour charger les données

@@ -15,6 +15,7 @@ import { usePolls } from "@/hooks/usePolls";
 import { isE2ETestingEnvironment } from "@/lib/e2e-detection";
 import type { Conversation } from "@/types/conversation";
 import type { Vote } from "@/lib/pollStorage";
+import { getQuizz, getQuizzResponses, type Quizz } from "@/lib/products/quizz/quizz-service";
 
 type VoteWithData = Vote & {
   vote_data?: Record<string, "yes" | "no" | "maybe">;
@@ -164,7 +165,7 @@ export function useDashboardData(refreshKey: number) {
           allConversations = getLocalConversations();
           logger.info("⚠️ Dashboard - Fallback localStorage actif", "dashboard", {
             count: allConversations.length,
-            reason: "Supabase error"
+            reason: "Supabase error",
           });
         }
       } else {
@@ -192,6 +193,17 @@ export function useDashboardData(refreshKey: number) {
         })),
       });
 
+      // Récupérer les quiz
+      const allQuizz = getQuizz();
+      logger.info("🔍 Dashboard - Quiz bruts", "dashboard", {
+        count: allQuizz.length,
+        quizz: allQuizz.map((q) => ({
+          id: q.id,
+          title: q.title,
+          creator_id: q.creator_id,
+        })),
+      });
+
       // Filtrer les polls pour ne garder que ceux du créateur actuel
       const currentUserId = getCurrentUserId(user?.id);
       logger.info("🔍 Dashboard - User ID pour filtrage", "dashboard", {
@@ -209,6 +221,15 @@ export function useDashboardData(refreshKey: number) {
           // Mode invité : SEULEMENT les polls avec le device ID actuel
           // Ne pas accepter "anonymous", undefined ou null pour éviter les fuites de données
           return poll.creator_id === currentUserId;
+        }
+      });
+
+      // Filtrer les quiz de la même manière
+      const localQuizz = allQuizz.filter((quiz) => {
+        if (user?.id) {
+          return quiz.creator_id === user.id;
+        } else {
+          return quiz.creator_id === currentUserId;
         }
       });
       logger.info("🔍 Dashboard - Polls filtrés", "dashboard", {
@@ -322,11 +343,11 @@ export function useDashboardData(refreshKey: number) {
               typeof dateStr === "string"
                 ? dateStr
                 : typeof dateStr === "object" &&
-                  dateStr !== null &&
-                  ("label" in dateStr || "title" in dateStr)
+                    dateStr !== null &&
+                    ("label" in dateStr || "title" in dateStr)
                   ? (dateStr as { label?: string; title?: string }).label ||
-                  (dateStr as { label?: string; title?: string }).title ||
-                  String(dateStr)
+                    (dateStr as { label?: string; title?: string }).title ||
+                    String(dateStr)
                   : String(dateStr);
             const optionId = `option-${index}`;
 
@@ -360,6 +381,34 @@ export function useDashboardData(refreshKey: number) {
         };
       });
 
+      // Convertir les quiz en DashboardPoll avec statistiques
+      const quizzWithStats: DashboardPoll[] = localQuizz.map((quiz) => {
+        const responses = getQuizzResponses(quiz.id);
+        const uniqueRespondents = new Set(
+          responses.map((r) => r.deviceId || r.respondentEmail || r.id),
+        ).size;
+
+        return {
+          id: quiz.id,
+          creator_id: quiz.creator_id,
+          title: quiz.title,
+          description: quiz.description,
+          slug: quiz.slug,
+          status: quiz.status,
+          created_at: quiz.created_at,
+          updated_at: quiz.updated_at,
+          type: "quizz" as const,
+          dates: [],
+          settings: {},
+          participants_count: uniqueRespondents,
+          votes_count: responses.length,
+          relatedConversationId: quiz.relatedConversationId || quiz.conversationId,
+        } as DashboardPoll;
+      });
+
+      // Combiner polls et quiz
+      const allPollsWithStats = [...pollsWithStats, ...quizzWithStats];
+
       // Créer les items unifiés
       // Filtrer aussi les conversations liées à des polls qui ne sont pas du créateur actuel
       const items: ConversationItem[] = conversations
@@ -368,7 +417,7 @@ export function useDashboardData(refreshKey: number) {
 
           // Chercher le poll associé via pollId (directement sur conv ou dans metadata)
           const pollId = conv.pollId || metadata?.pollId;
-          const relatedPoll = pollId ? pollsWithStats.find((p) => p.id === pollId) : undefined;
+          const relatedPoll = pollId ? allPollsWithStats.find((p) => p.id === pollId) : undefined;
 
           logger.debug("🔍 Dashboard - Mapping conversation", "dashboard", {
             convId: conv.id,
@@ -409,7 +458,7 @@ export function useDashboardData(refreshKey: number) {
           .filter((id): id is string => !!id),
       );
 
-      const orphanPolls = pollsWithStats.filter((poll) => !pollIdsWithConversation.has(poll.id));
+      const orphanPolls = allPollsWithStats.filter((poll) => !pollIdsWithConversation.has(poll.id));
 
       logger.info("🔍 Dashboard - Polls orphelins (sans conversation)", "dashboard", {
         count: orphanPolls.length,
@@ -462,7 +511,7 @@ export function useDashboardData(refreshKey: number) {
     } finally {
       setLoading(false);
     }
-  }, [getUserPolls, user, user?.id, isE2ETestMode]);
+  }, [getUserPolls, user, isE2ETestMode]);
 
   useEffect(() => {
     loadData();

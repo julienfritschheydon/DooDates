@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * BetaKeyService - Gestion des clés beta testeurs
  *
@@ -440,7 +441,7 @@ export class BetaKeyService {
           keys
             .filter((k) => k.feedback_score !== null)
             .reduce((sum, k) => sum + (k.feedback_score || 0), 0) /
-          keys.filter((k) => k.feedback_score !== null).length || 0,
+            keys.filter((k) => k.feedback_score !== null).length || 0,
       };
 
       return stats;

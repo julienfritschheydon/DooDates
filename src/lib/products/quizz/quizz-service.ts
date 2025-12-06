@@ -1,24 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Quizz Service
-// Logique spécifique aux quizz
+// Logique spécifique aux quizz - Stockage séparé des polls
 
-import {
-  readFromStorage,
-  writeToStorage,
-  addToStorage,
-  findById,
-  updateInStorage,
-  deleteFromStorage,
-  readRecordStorage,
-  writeRecordStorage,
-} from "../../storage/storageUtils";
-import { handleError, ErrorFactory, logError } from "../../error-handling";
+import { ErrorFactory, logError } from "../../error-handling";
 import { logger } from "../../logger";
 
 // Types spécifiques aux Quizz
 export interface QuizzQuestion {
   id: string;
   question: string;
-  type: "single" | "multiple" | "text" | "true-false";
+  type: "single" | "multiple" | "text" | "text-ai" | "true-false";
   options?: string[];
   correctAnswer: string | string[] | boolean;
   points?: number;
@@ -69,6 +60,95 @@ export interface QuizzSettings {
   randomizeOptions?: boolean;
 }
 
+// Système de badges
+export type BadgeType =
+  | "first_quiz" // Premier quiz complété
+  | "perfect_score" // 100%
+  | "streak_3" // 3 quiz d'affilée > 70%
+  | "streak_5" // 5 quiz d'affilée > 70%
+  | "streak_10" // 10 quiz d'affilée > 70%
+  | "speed_demon" // Quiz terminé avec timer
+  | "consistent" // 5 quiz avec score > 80%
+  | "improver" // Amélioration de 20%+ entre 2 quiz
+  | "champion" // 10 quiz avec 100%
+  | "explorer"; // 5 quiz différents complétés
+
+export interface Badge {
+  type: BadgeType;
+  name: string;
+  description: string;
+  emoji: string;
+  earnedAt?: string;
+  count?: number; // Pour les badges répétables (ex: perfect_score)
+}
+
+export interface ChildHistory {
+  childName: string;
+  totalQuizzes: number;
+  totalPoints: number;
+  averageScore: number;
+  bestScore: number;
+  currentStreak: number; // Quiz consécutifs > 70%
+  bestStreak: number;
+  badges: Badge[];
+  responses: QuizzResponse[];
+  lastActivity?: string;
+}
+
+// Définition des badges
+export const BADGE_DEFINITIONS: Record<BadgeType, Omit<Badge, "type" | "earnedAt" | "count">> = {
+  first_quiz: {
+    name: "Première étoile",
+    description: "Tu as complété ton premier quiz !",
+    emoji: "⭐",
+  },
+  perfect_score: {
+    name: "Sans faute",
+    description: "100% de bonnes réponses !",
+    emoji: "🏆",
+  },
+  streak_3: {
+    name: "En forme",
+    description: "3 quiz d'affilée avec plus de 70%",
+    emoji: "🔥",
+  },
+  streak_5: {
+    name: "Inarrêtable",
+    description: "5 quiz d'affilée avec plus de 70%",
+    emoji: "💪",
+  },
+  streak_10: {
+    name: "Légende",
+    description: "10 quiz d'affilée avec plus de 70%",
+    emoji: "👑",
+  },
+  speed_demon: {
+    name: "Éclair",
+    description: "Quiz terminé avec le chrono !",
+    emoji: "⚡",
+  },
+  consistent: {
+    name: "Régulier",
+    description: "5 quiz avec plus de 80%",
+    emoji: "📈",
+  },
+  improver: {
+    name: "En progrès",
+    description: "Tu t'améliores ! +20% par rapport au quiz précédent",
+    emoji: "🚀",
+  },
+  champion: {
+    name: "Champion",
+    description: "10 quiz parfaits à 100%",
+    emoji: "🎖️",
+  },
+  explorer: {
+    name: "Explorateur",
+    description: "5 quiz différents complétés",
+    emoji: "🗺️",
+  },
+};
+
 export interface Quizz {
   id: string;
   creator_id: string;
@@ -90,8 +170,8 @@ export interface Quizz {
   resultsVisibility?: "creator-only" | "voters" | "public";
 }
 
-// Constants
-const STORAGE_KEY = "doodates_polls";
+// Constants - Stockage séparé pour les quizz (indépendant des polls)
+const STORAGE_KEY = "doodates_quizz";
 const QUIZZ_RESPONSES_KEY = "doodates_quizz_responses";
 
 // Validation spécifique aux Quizz
@@ -132,12 +212,7 @@ export function validateQuizz(poll: Quizz): void {
     }
   });
 
-  logger.info("Quizz validated successfully", {
-    pollId: poll.id,
-    title: poll.title,
-    questionsCount: poll.questions.length,
-    maxPoints: poll.maxPoints,
-  });
+  logger.info("Quizz validated successfully", "api");
 }
 
 // Helper functions
@@ -150,26 +225,37 @@ export function getQuizz(): Quizz[] {
   try {
     if (!hasWindow()) return [];
 
-    const raw = readFromStorage(STORAGE_KEY);
-    if (!raw) return [];
+    // Lire directement depuis localStorage pour les quizz
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw || raw.trim() === "") return [];
 
-    const parsed = JSON.parse(raw);
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      // JSON corrompu - nettoyer et retourner tableau vide
+      logger.warn("🧹 localStorage quizz corrompu, nettoyage...", "api");
+      window.localStorage.setItem(STORAGE_KEY, "[]");
+      return [];
+    }
+
     if (!Array.isArray(parsed)) return [];
 
     const validQuizz: Quizz[] = [];
     for (const p of parsed) {
       if (isQuizz(p)) {
-        validateQuizz(p);
-        validQuizz.push(p);
+        try {
+          validateQuizz(p);
+          validQuizz.push(p);
+        } catch {
+          // Skip invalid quizz
+        }
       }
     }
 
     return deduplicateQuizz(validQuizz);
   } catch (error) {
-    logError(error, "getQuizz", {
-      operation: "getQuizz",
-      storageKey: STORAGE_KEY,
-    });
+    logError(error, { operation: "getQuizz" });
     return [];
   }
 }
@@ -184,7 +270,7 @@ function deduplicateQuizz(quizz: Quizz[]): Quizz[] {
     })
     .filter((poll) => {
       if (seen.has(poll.id)) {
-        logger.warn("Duplicate quizz found and removed", { pollId: poll.id });
+        logger.warn("Duplicate quizz found and removed", "api");
         return false;
       }
       seen.add(poll.id);
@@ -196,19 +282,15 @@ export function saveQuizz(quizz: Quizz[]): void {
   try {
     if (!hasWindow()) return;
 
-    const existingQuizz = getQuizz();
-    const mergedQuizz = [...existingQuizz, ...quizz];
-    const deduplicatedQuizz = deduplicateQuizz(mergedQuizz);
+    const deduplicatedQuizz = deduplicateQuizz(quizz);
 
-    writeToStorage(STORAGE_KEY, JSON.stringify(deduplicatedQuizz));
-    logger.info("Quizz saved successfully", {
+    // Écriture directe dans localStorage (stockage séparé des polls)
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(deduplicatedQuizz));
+    logger.info("Quizz saved successfully", "api", {
       count: deduplicatedQuizz.length,
     });
   } catch (error) {
-    logError(error, "saveQuizz", {
-      operation: "saveQuizz",
-      quizzCount: quizz.length,
-    });
+    logError(error, { operation: "saveQuizz" });
     throw error;
   }
 }
@@ -229,18 +311,15 @@ export async function addQuizz(poll: Quizz): Promise<void> {
 
     if (existingIndex >= 0) {
       quizz[existingIndex] = poll;
-      logger.info("Quizz updated", { pollId: poll.id });
+      logger.info("Quizz updated", "api");
     } else {
       quizz.push(poll);
-      logger.info("Quizz created", { pollId: poll.id });
+      logger.info("Quizz created", "api");
     }
 
     saveQuizz(quizz);
   } catch (error) {
-    logError(error, "addQuizz", {
-      operation: "addQuizz",
-      pollId: poll.id,
-    });
+    logError(error, { operation: "addQuizz", pollId: poll.id });
     throw error;
   }
 }
@@ -250,12 +329,9 @@ export function deleteQuizzById(id: string): void {
     const quizz = getQuizz();
     const next = quizz.filter((p) => p.id !== id);
     saveQuizz(next);
-    logger.info("Quizz deleted", { pollId: id });
+    logger.info("Quizz deleted", "api");
   } catch (error) {
-    logError(error, "deleteQuizzById", {
-      operation: "deleteQuizzById",
-      pollId: id,
-    });
+    logError(error, { operation: "deleteQuizzById", pollId: id });
     throw error;
   }
 }
@@ -270,10 +346,7 @@ export function duplicateQuizz(poll: Quizz): Quizz {
     updated_at: new Date().toISOString(),
   };
 
-  logger.info("Quizz duplicated", {
-    originalId: poll.id,
-    newId: newQuizz.id,
-  });
+  logger.info("Quizz duplicated", "api");
 
   return newQuizz;
 }
@@ -283,13 +356,18 @@ function readAllQuizzResponses(): QuizzResponse[] {
   try {
     if (!hasWindow()) return [];
 
-    const raw = readFromStorage(QUIZZ_RESPONSES_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const raw = window.localStorage.getItem(QUIZZ_RESPONSES_KEY);
+    if (!raw) return [];
+
+    try {
+      return JSON.parse(raw);
+    } catch {
+      // JSON corrompu - réinitialiser
+      window.localStorage.setItem(QUIZZ_RESPONSES_KEY, "[]");
+      return [];
+    }
   } catch (error) {
-    logError(error, "readAllQuizzResponses", {
-      operation: "readAllQuizzResponses",
-      storageKey: QUIZZ_RESPONSES_KEY,
-    });
+    logError(error, { operation: "readAllQuizzResponses" });
     return [];
   }
 }
@@ -297,12 +375,9 @@ function readAllQuizzResponses(): QuizzResponse[] {
 function writeAllQuizzResponses(responses: QuizzResponse[]): void {
   try {
     if (!hasWindow()) return;
-    writeToStorage(QUIZZ_RESPONSES_KEY, JSON.stringify(responses));
+    window.localStorage.setItem(QUIZZ_RESPONSES_KEY, JSON.stringify(responses));
   } catch (error) {
-    logError(error, "writeAllQuizzResponses", {
-      operation: "writeAllQuizzResponses",
-      responseCount: responses.length,
-    });
+    logError(error, { operation: "writeAllQuizzResponses" });
     throw error;
   }
 }
@@ -310,7 +385,7 @@ function writeAllQuizzResponses(responses: QuizzResponse[]): void {
 export function getQuizzById(pollId: string): Quizz | null {
   const poll = getQuizz().find((p) => p.id === pollId) || null;
   if (!poll) {
-    logger.warn("Quizz not found", { pollId });
+    logger.warn("Quizz not found", "api");
   }
   return poll;
 }
@@ -375,36 +450,49 @@ export function addQuizzResponse(params: {
     all.push(response);
     writeAllQuizzResponses(all);
 
-    logger.info("Quizz response added", {
-      responseId: response.id,
-      pollId,
-      totalPoints,
-      percentage,
-    });
+    logger.info("Quizz response added", "api");
 
     return response;
   } catch (error) {
-    logError(error, "addQuizzResponse", {
-      operation: "addQuizzResponse",
-      pollId,
-      answersCount: answers.length,
-    });
+    logError(error, { operation: "addQuizzResponse", pollId });
     throw error;
   }
+}
+
+/**
+ * Normalise une réponse pour comparaison souple
+ * (insensible à la casse, accents, espaces multiples, ponctuation)
+ */
+function normalizeAnswer(answer: string): string {
+  return answer
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Supprime les accents
+    .replace(/[^\w\s]/g, "") // Supprime la ponctuation
+    .replace(/\s+/g, " "); // Normalise les espaces
 }
 
 function checkAnswer(question: QuizzQuestion, userAnswer: string | string[] | boolean): boolean {
   switch (question.type) {
     case "single":
-    case "text":
       return userAnswer === question.correctAnswer;
-    case "multiple":
+    case "text":
+    case "text-ai":
+      // Comparaison souple pour les réponses textuelles
+      // (insensible à la casse, accents, espaces)
+      if (typeof userAnswer !== "string" || typeof question.correctAnswer !== "string") {
+        return userAnswer === question.correctAnswer;
+      }
+      return normalizeAnswer(userAnswer) === normalizeAnswer(question.correctAnswer);
+    case "multiple": {
       if (!Array.isArray(userAnswer) || !Array.isArray(question.correctAnswer)) {
         return false;
       }
       const userSet = new Set(userAnswer);
       const correctSet = new Set(question.correctAnswer as string[]);
       return userSet.size === correctSet.size && [...userSet].every((x) => correctSet.has(x));
+    }
     case "true-false":
       return userAnswer === question.correctAnswer;
     default:
@@ -480,6 +568,213 @@ export function getQuizzResults(pollId: string): QuizzResults {
 export function getQuizzResponses(pollId: string): QuizzResponse[] {
   const all = readAllQuizzResponses();
   return all.filter((r) => r.pollId === pollId);
+}
+
+// ============ HISTORIQUE ENFANT & BADGES ============
+
+/**
+ * Récupère tous les enfants qui ont participé à des quiz
+ */
+export function getAllChildren(): string[] {
+  const responses = readAllQuizzResponses();
+  const names = new Set<string>();
+  responses.forEach((r) => {
+    if (r.respondentName && r.respondentName.trim()) {
+      names.add(r.respondentName.trim().toLowerCase());
+    }
+  });
+  return Array.from(names).sort();
+}
+
+/**
+ * Récupère l'historique complet d'un enfant
+ */
+export function getChildHistory(childName: string): ChildHistory | null {
+  if (!childName || !childName.trim()) return null;
+
+  const normalizedName = childName.trim().toLowerCase();
+  const allResponses = readAllQuizzResponses();
+
+  // Filtrer les réponses de cet enfant
+  const childResponses = allResponses
+    .filter((r) => r.respondentName?.trim().toLowerCase() === normalizedName)
+    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+  if (childResponses.length === 0) return null;
+
+  // Calculer les stats
+  const totalQuizzes = childResponses.length;
+  const totalPoints = childResponses.reduce((sum, r) => sum + r.totalPoints, 0);
+  const averageScore = childResponses.reduce((sum, r) => sum + r.percentage, 0) / totalQuizzes;
+  const bestScore = Math.max(...childResponses.map((r) => r.percentage));
+
+  // Calculer les streaks
+  let currentStreak = 0;
+  let bestStreak = 0;
+  let tempStreak = 0;
+
+  childResponses.forEach((r) => {
+    if (r.percentage >= 70) {
+      tempStreak++;
+      bestStreak = Math.max(bestStreak, tempStreak);
+    } else {
+      tempStreak = 0;
+    }
+  });
+
+  // Streak actuel (depuis le dernier quiz)
+  for (let i = childResponses.length - 1; i >= 0; i--) {
+    if (childResponses[i].percentage >= 70) {
+      currentStreak++;
+    } else {
+      break;
+    }
+  }
+
+  // Calculer les badges
+  const badges = calculateBadges(childResponses);
+
+  return {
+    childName: childResponses[0].respondentName || childName,
+    totalQuizzes,
+    totalPoints,
+    averageScore: Math.round(averageScore * 10) / 10,
+    bestScore: Math.round(bestScore * 10) / 10,
+    currentStreak,
+    bestStreak,
+    badges,
+    responses: childResponses,
+    lastActivity: childResponses[childResponses.length - 1]?.created_at,
+  };
+}
+
+/**
+ * Calcule les badges gagnés basés sur l'historique
+ */
+function calculateBadges(responses: QuizzResponse[]): Badge[] {
+  const badges: Badge[] = [];
+
+  if (responses.length === 0) return badges;
+
+  // Premier quiz
+  badges.push({
+    type: "first_quiz",
+    ...BADGE_DEFINITIONS.first_quiz,
+    earnedAt: responses[0].created_at,
+  });
+
+  // Compteurs
+  let perfectScoreCount = 0;
+  let highScoreCount = 0; // > 80%
+  let currentStreak = 0;
+  let bestStreak = 0;
+  const uniqueQuizzes = new Set<string>();
+
+  responses.forEach((r, index) => {
+    uniqueQuizzes.add(r.pollId);
+
+    // Perfect score
+    if (r.percentage === 100) {
+      perfectScoreCount++;
+      if (perfectScoreCount === 1) {
+        badges.push({
+          type: "perfect_score",
+          ...BADGE_DEFINITIONS.perfect_score,
+          earnedAt: r.created_at,
+          count: 1,
+        });
+      }
+    }
+
+    // High score count
+    if (r.percentage >= 80) {
+      highScoreCount++;
+    }
+
+    // Streak calculation
+    if (r.percentage >= 70) {
+      currentStreak++;
+      bestStreak = Math.max(bestStreak, currentStreak);
+    } else {
+      currentStreak = 0;
+    }
+
+    // Amélioration (comparaison avec le quiz précédent)
+    if (index > 0) {
+      const improvement = r.percentage - responses[index - 1].percentage;
+      if (improvement >= 20 && !badges.find((b) => b.type === "improver")) {
+        badges.push({
+          type: "improver",
+          ...BADGE_DEFINITIONS.improver,
+          earnedAt: r.created_at,
+        });
+      }
+    }
+  });
+
+  // Badges de streak
+  if (bestStreak >= 3 && !badges.find((b) => b.type === "streak_3")) {
+    badges.push({
+      type: "streak_3",
+      ...BADGE_DEFINITIONS.streak_3,
+    });
+  }
+  if (bestStreak >= 5 && !badges.find((b) => b.type === "streak_5")) {
+    badges.push({
+      type: "streak_5",
+      ...BADGE_DEFINITIONS.streak_5,
+    });
+  }
+  if (bestStreak >= 10 && !badges.find((b) => b.type === "streak_10")) {
+    badges.push({
+      type: "streak_10",
+      ...BADGE_DEFINITIONS.streak_10,
+    });
+  }
+
+  // Badge régulier (5 quiz > 80%)
+  if (highScoreCount >= 5 && !badges.find((b) => b.type === "consistent")) {
+    badges.push({
+      type: "consistent",
+      ...BADGE_DEFINITIONS.consistent,
+    });
+  }
+
+  // Badge champion (10 quiz parfaits)
+  if (perfectScoreCount >= 10 && !badges.find((b) => b.type === "champion")) {
+    badges.push({
+      type: "champion",
+      ...BADGE_DEFINITIONS.champion,
+    });
+  }
+
+  // Badge explorateur (5 quiz différents)
+  if (uniqueQuizzes.size >= 5 && !badges.find((b) => b.type === "explorer")) {
+    badges.push({
+      type: "explorer",
+      ...BADGE_DEFINITIONS.explorer,
+    });
+  }
+
+  // Mettre à jour le count pour perfect_score
+  const perfectBadge = badges.find((b) => b.type === "perfect_score");
+  if (perfectBadge) {
+    perfectBadge.count = perfectScoreCount;
+  }
+
+  return badges;
+}
+
+/**
+ * Récupère les badges nouvellement gagnés après un quiz
+ * (compare avant/après pour afficher les nouveaux)
+ */
+export function getNewBadges(childName: string, previousBadgeCount: number): Badge[] {
+  const history = getChildHistory(childName);
+  if (!history) return [];
+
+  // Retourner les badges au-delà de previousBadgeCount
+  return history.badges.slice(previousBadgeCount);
 }
 
 // Utility functions

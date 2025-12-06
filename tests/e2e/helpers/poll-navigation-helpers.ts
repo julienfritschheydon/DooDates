@@ -53,12 +53,12 @@ export async function navigateToPollVotingPage(
     }
 
     if (!/\/poll\//.test(page.url())) {
-      await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+      await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       console.log('ℹ️ Navigation forcée vers page votant (URL inchangée après clic)');
     }
   } else {
-    await page.goto(`/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/DooDates/poll/${pollSlug}`, { waitUntil: 'domcontentloaded' });
     await waitForNetworkIdle(page, { browserName });
     console.log('✅ Navigation directe vers page votant via slug');
   }

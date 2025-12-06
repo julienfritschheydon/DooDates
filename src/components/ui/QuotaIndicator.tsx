@@ -4,10 +4,25 @@
  */
 
 import React from "react";
-import { Crown, MessageCircle, Calendar, AlertTriangle, ClipboardList, BookOpen, Clock } from "lucide-react";
+import {
+  Crown,
+  MessageCircle,
+  Calendar,
+  AlertTriangle,
+  ClipboardList,
+  BookOpen,
+  Clock,
+} from "lucide-react";
 
 interface QuotaIndicatorProps {
-  type: "conversations" | "polls" | "storage" | "datePolls" | "formPolls" | "quizz" | "availabilityPolls";
+  type:
+    | "conversations"
+    | "polls"
+    | "storage"
+    | "datePolls"
+    | "formPolls"
+    | "quizz"
+    | "availabilityPolls";
   used: number;
   limit: number;
   className?: string;

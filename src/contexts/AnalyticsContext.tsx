@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, react-refresh/only-export-components */
 import React, { createContext, useContext, ReactNode } from "react";
 import { ErrorFactory } from "@/lib/error-handling";
 

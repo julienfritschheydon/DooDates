@@ -40,9 +40,7 @@ describe("Pricing Service", () => {
       vi.mocked(supabaseApi.supabaseSelectSingle).mockResolvedValue({ currency_symbol: "€" });
 
       // Mock Prices Query
-      vi.mocked(supabaseApi.supabaseSelect).mockResolvedValue([
-        { product_id: "p1", amount: 10 },
-      ]);
+      vi.mocked(supabaseApi.supabaseSelect).mockResolvedValue([{ product_id: "p1", amount: 10 }]);
 
       const prices = await pricingService.getPricingForRegion("EU");
 

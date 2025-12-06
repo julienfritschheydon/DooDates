@@ -42,7 +42,6 @@ const RATE_LIMIT: { REQUESTS_PER_SECOND: number; REQUESTS_PER_DAY: number } = {
   REQUESTS_PER_DAY: 960, // Quota pour le chat
 };
 
-
 export interface GeminiResponse {
   success: boolean;
   data?: PollSuggestion;
@@ -162,7 +161,7 @@ export class GeminiService {
 
     // ⚠️ IMPORTANT : "sondage" = TOUJOURS Date Poll (tous les prompts clients avec "sondage" sont des sondages de dates)
     const hasSondage = inputLower.includes("sondage");
-    
+
     // Si "sondage" est présent → TOUJOURS Date Poll (priorité absolue)
     if (hasSondage) {
       return "date";
@@ -270,7 +269,7 @@ export class GeminiService {
       // Benchmark: Direct 97.5% précision, 38% plus rapide que le pipeline complexe
       // L'UX permet de demander des modifications → pas besoin de sur-ingénierie
       // ═══════════════════════════════════════════════════════════════════════════
-      
+
       /* ANCIEN CODE ARCHIVÉ - Pipeline complexe avec pré-processing temporel
       // MODE DIRECT : Bypass le pré-processing temporel pour test A/B
       // Activer avec : GEMINI_DIRECT_MODE=true
@@ -346,7 +345,7 @@ export class GeminiService {
         // NOUVEAU: Toujours utiliser le prompt direct simplifié
         // Benchmark 2025-12-06: 97.5% précision, 38% plus rapide
         prompt = buildDirectPrompt(processedInput);
-        
+
         if (isDev()) {
           logger.info("🔵 Mode DIRECT - Prompt simplifié sans pré-processing", "api");
         }
@@ -489,7 +488,9 @@ export class GeminiService {
       // Note: parseGeminiResponse filtre les dates passées - on capture l'avant/après pour debug
       const rawParsedData = this.extractJsonFromText(text);
       const pollData =
-        pollType === "form" ? formPollService.parseFormPollResponse(text) : this.parseGeminiResponse(text);
+        pollType === "form"
+          ? formPollService.parseFormPollResponse(text)
+          : this.parseGeminiResponse(text);
 
       // ÉTAPE 6: Log du traitement de la réponse
       if (isGeminiDebugEnabled()) {
@@ -938,12 +939,12 @@ RÈGLE ABSOLUE - PLUSIEURS JOURS + PÉRIODE:
 
 Dates autorisées (OBLIGATOIRE de générer TOUTES ces dates):
 ${parsed.allowedDates
-          .map((d: string) => {
-            const dateObj = new Date(d + "T00:00:00");
-            const dayName = dayNames[dateObj.getDay()];
-            return `  - ${d} (${dayName})`;
-          })
-          .join("\n")}
+  .map((d: string) => {
+    const dateObj = new Date(d + "T00:00:00");
+    const dayName = dayNames[dateObj.getDay()];
+    return `  - ${d} (${dayName})`;
+  })
+  .join("\n")}
 
 ⚠️⚠️ CRITIQUE : Ne pas générer seulement 1 date ! L'utilisateur veut voir les options pour TOUS les jours mentionnés !`
         : "";
@@ -956,8 +957,9 @@ Jour demandé: ${jourName}
 Période: dans ${parsed.relativeWeeks} semaines
 Date de référence: ${targetDate}
 ${multipleDaysHint}
-${!hasMultipleDays
-          ? `RÈGLE ABSOLUE - JOUR SPÉCIFIQUE + PÉRIODE:
+${
+  !hasMultipleDays
+    ? `RÈGLE ABSOLUE - JOUR SPÉCIFIQUE + PÉRIODE:
 - Proposer UNIQUEMENT les ${jourName}s autour de la période (1-2 dates MAXIMUM)
 - Filtrer pour ne garder QUE les ${jourName}s
 - Générer 2-3 créneaux par date
@@ -966,8 +968,8 @@ Dates autorisées (filtrer pour ne garder que les ${jourName}s):
 ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
 
 ⚠️ CRITIQUE : Ne proposer QUE des ${jourName}s, pas d'autres jours !`
-          : ""
-        }
+    : ""
+}
 `;
     }
 
@@ -1008,12 +1010,12 @@ ${parsed.isMealContext ? `→ OBLIGATOIRE : 1 CRÉNEAU UNIQUEMENT (partagé entr
 
 Dates autorisées (OBLIGATOIRE de générer TOUTES ces dates):
 ${parsed.allowedDates
-            .map((d: string, idx: number) => {
-              const dateObj = new Date(d + "T00:00:00");
-              const dayName = dayNames[dateObj.getDay()];
-              return `  - ${d} (${dayName})`;
-            })
-            .join("\n")}
+  .map((d: string, idx: number) => {
+    const dateObj = new Date(d + "T00:00:00");
+    const dayName = dayNames[dateObj.getDay()];
+    return `  - ${d} (${dayName})`;
+  })
+  .join("\n")}
 
 ⚠️⚠️ CRITIQUE : Ne pas générer seulement 1 date ! L'utilisateur veut voir les options pour TOUS les jours mentionnés !`;
       }
@@ -1041,14 +1043,16 @@ ${parsed.isProfessionalContext ? "Contexte professionnel détecté → Week-ends
 ${multipleDaysHint}
 ${jourHint}
 ${partenariatsHint}
-${!hasMultipleDays && !hasMultipleNumericDates
-          ? `RÈGLE ABSOLUE - DATE SPÉCIFIQUE:
+${
+  !hasMultipleDays && !hasMultipleNumericDates
+    ? `RÈGLE ABSOLUE - DATE SPÉCIFIQUE:
 - Proposer CETTE DATE UNIQUEMENT (${targetDate})
 - Ajouter MAXIMUM 1-2 alternatives très proches (±1 jour) SEULEMENT si vraiment nécessaire`
-          : ""
-        }
-${parsed.isMealContext && !/partenariats/.test(userInput) && !isMealWithMultipleDays
-          ? `
+    : ""
+}
+${
+  parsed.isMealContext && !/partenariats/.test(userInput) && !isMealWithMultipleDays
+    ? `
 ⚠️⚠️⚠️ CAS SPÉCIAL REPAS + DATE SPÉCIFIQUE ⚠️⚠️⚠️
 Pour "${userInput}" :
 → OBLIGATOIRE : 1 DATE UNIQUEMENT (${targetDate})
@@ -1056,8 +1060,8 @@ Pour "${userInput}" :
 → INTERDIT : Générer plusieurs créneaux (pas 2, pas 3, UNIQUEMENT 1)
 → INTERDIT : Générer plusieurs dates
 Cette règle PRIME sur toutes les autres !`
-          : ""
-        }
+    : ""
+}
 
 Dates autorisées${hasMultipleDays || hasMultipleNumericDates ? " (OBLIGATOIRE de générer TOUTES ces dates)" : " (pour alternatives seulement si vraiment nécessaire ET pas repas)"}:
 ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
@@ -1107,9 +1111,6 @@ ${parsed.allowedDates.map((d: string) => `  - ${d}`).join("\n")}
 `;
   }
 
-
-
-
   private buildChatPrompt(userInput: string, context?: string): string {
     return `Tu es l'assistant IA de DooDates, une application de création de sondages pour planifier des rendez-vous.
 
@@ -1125,7 +1126,6 @@ Réponds de manière utile et amicale.Tu peux:
 
 Reste concis et pratique.Réponds en français.`;
   }
-
 
   /**
    * Extrait le JSON brut de la réponse Gemini SANS filtrage des dates.
@@ -1251,7 +1251,6 @@ Reste concis et pratique.Réponds en français.`;
       return null;
     }
   }
-
 
   /**
    * Analyse temporelle avec techniques Counterfactual-Consistency

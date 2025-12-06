@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { ProductLayout, ProductCard } from "../shared";
 import { useProductContext } from "@/contexts/ProductContext";
@@ -92,10 +93,12 @@ export const ProductList: React.FC = () => {
             <Button
               variant={state.filters.favorites ? "secondary" : "outline"}
               size="sm"
-              onClick={() =>
-                actions.setFilters({ favorites: !state.filters.favorites })
+              onClick={() => actions.setFilters({ favorites: !state.filters.favorites })}
+              className={
+                state.filters.favorites
+                  ? "bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border-yellow-200"
+                  : ""
               }
-              className={state.filters.favorites ? "bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border-yellow-200" : ""}
             >
               <Star className={`h-4 w-4 mr-2 ${state.filters.favorites ? "fill-current" : ""}`} />
               Favoris

@@ -274,10 +274,11 @@ VÉRIFICATIONS COUNTERFACTUAL OBLIGATOIRES:
 ${counterfactualQuestions.map((q) => `❓ ${q}`).join("\n")}
 
 RÉSOLUTION DES CONFLITS:
-${analysis.conflicts.length > 0
-        ? analysis.conflicts.map((c) => `⚠️ RÉSOUDRE: ${c}`).join("\n")
-        : "✅ Aucun conflit - procéder normalement"
-      }
+${
+  analysis.conflicts.length > 0
+    ? analysis.conflicts.map((c) => `⚠️ RÉSOUDRE: ${c}`).join("\n")
+    : "✅ Aucun conflit - procéder normalement"
+}
 
 INSTRUCTIONS AMÉLIORÉES AVEC COUNTERFACTUAL-CONSISTENCY:
 
@@ -306,19 +307,21 @@ INSTRUCTIONS AMÉLIORÉES AVEC COUNTERFACTUAL-CONSISTENCY:
    * Adapter les horaires aux contraintes détectées
 
 5. GESTION DES PATTERNS RÉCURRENTS:
-   ${analysis.temporalType === "recurring"
-        ? "✓ Pattern récurrent détecté - générer plusieurs occurrences"
-        : "✗ Événement ponctuel - générer dates spécifiques"
-      }
+   ${
+     analysis.temporalType === "recurring"
+       ? "✓ Pattern récurrent détecté - générer plusieurs occurrences"
+       : "✗ Événement ponctuel - générer dates spécifiques"
+   }
 
 Format JSON requis (avec validation counterfactual intégrée):
 
 {
   "title": "Titre descriptif et précis",
-  "dates": [${analysis.extractedDates.length > 0
-        ? '"' + analysis.extractedDates.slice(0, 3).join('","') + '"'
-        : '"YYYY-MM-DD"'
-      }], // VÉRIFIÉES par counterfactual
+  "dates": [${
+    analysis.extractedDates.length > 0
+      ? '"' + analysis.extractedDates.slice(0, 3).join('","') + '"'
+      : '"YYYY-MM-DD"'
+  }], // VÉRIFIÉES par counterfactual
   "timeSlots": [
     {
       "start": "${analysis.constraints.matin ? "09:00" : analysis.constraints.apresmidi ? "14:00" : analysis.constraints.soir ? "18:00" : "HH:MM"}",

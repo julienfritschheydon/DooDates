@@ -1,8 +1,5 @@
 // Re-export types from services (single source of truth)
-export type {
-  FormQuestion,
-  FormPollSuggestion,
-} from "./ai/products/form/FormPollService";
+export type { FormQuestion, FormPollSuggestion } from "./ai/products/form/FormPollService";
 
 export type { DatePollSuggestion } from "./ai/products/date/DatePollService";
 
