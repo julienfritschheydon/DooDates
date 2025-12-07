@@ -118,13 +118,16 @@ export class SecureGeminiService {
       }
 
       // Appeler l'Edge Function (avec ou sans token selon authentification)
-      // Utilisateurs authentifiés : JWT Supabase. Invités : pas de header Authorization (mode invité).
+      // Utilisateurs authentifiés : JWT Supabase. Invités : utiliser l'anon key comme JWT public.
       const headers: Record<string, string> = {};
       const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
-      // Utilisateurs authentifiés uniquement : JWT de session
       if (session?.access_token) {
+        // Utilisateurs authentifiés : JWT de session
         headers.Authorization = `Bearer ${session.access_token}`;
+      } else if (supabaseAnonKey) {
+        // Invités : utiliser l'anon key comme JWT (même pattern que le test PowerShell)
+        headers.Authorization = `Bearer ${supabaseAnonKey}`;
       }
 
       // Utiliser fetch direct au lieu de supabase.functions.invoke() pour plus de contrôle
@@ -309,9 +312,11 @@ export class SecureGeminiService {
         headers["apikey"] = supabaseAnonKey;
       }
 
-      // Utilisateurs authentifiés uniquement : JWT de session
+      // Utilisateurs authentifiés : JWT de session. Invités : anon key comme JWT public.
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
+      } else if (supabaseAnonKey) {
+        headers.Authorization = `Bearer ${supabaseAnonKey}`;
       }
 
       if (!headers["apikey"]) {

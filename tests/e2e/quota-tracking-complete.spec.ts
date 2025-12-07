@@ -266,6 +266,34 @@ test.describe('Quota Tracking - Complete Tests', () => {
   }
 
   /**
+   * Helper pour créer un Date Poll via le workspace produit
+   */
+  async function createDatePollViaWorkspace(page: any, browserName: string): Promise<void> {
+    const timeouts = getTimeouts(browserName);
+
+    await page.goto(PRODUCT_ROUTES.datePoll.workspace, { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
+
+    const titleInput = await waitForElementReady(
+      page,
+      'input#title, input[placeholder*="Titre" i], input[placeholder*="titre" i]',
+      { browserName, timeout: timeouts.element },
+    );
+    await titleInput.fill('Test Quota Date Poll');
+
+    const createButton = await waitForElementReady(
+      page,
+      'button:has-text("Créer le sondage"), button:has-text("Créer le sondage de dates"), button:has-text("Créer")',
+      { browserName, timeout: timeouts.element },
+    );
+    await createButton.click({ force: true });
+
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
+  }
+
+  /**
    * Test 2: Création poll (1 crédit)
    */
   test('Test 2: Création poll consomme 1 crédit, mise à jour ne consomme pas', async ({ page, browserName }) => {
@@ -339,6 +367,24 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(quotaData.availabilityPollsCreated).toBe(1);
     expect(quotaData.datePollsCreated).toBe(0);
     expect(quotaData.formPollsCreated).toBe(0);
+    expect(quotaData.quizzCreated).toBe(0);
+  });
+
+  /**
+   * Test 2c: Création Date Poll consomme 1 crédit sur le compteur date uniquement
+   */
+  test('Test 2c: Création Date Poll incrémente uniquement datePollsCreated', async ({ page, browserName }) => {
+    await resetGuestQuota(page);
+
+    await createDatePollViaWorkspace(page, browserName);
+
+    const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
+
+    expect(quotaData).toBeTruthy();
+    expect(quotaData.pollsCreated).toBe(1);
+    expect(quotaData.datePollsCreated).toBe(1);
+    expect(quotaData.formPollsCreated).toBe(0);
+    expect(quotaData.availabilityPollsCreated).toBe(0);
     expect(quotaData.quizzCreated).toBe(0);
   });
 
