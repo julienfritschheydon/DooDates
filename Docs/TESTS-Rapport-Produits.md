@@ -199,7 +199,7 @@ Sans modifier les fichiers pour l’instant, voici ce que je recommande de faire
   - Actions à prévoir :
     - [x] Ajouter des tests équivalents pour :
       - [x] **Date Polls** (incrément dédié de `datePollsCreated`),
-      - [ ] **Quizz** (incrément dédié de `quizzCreated`).
+      - [x] **Quizz** (incrément dédié de `quizzCreated`).
     - [ ] Optionnellement : vérifier aussi l’impact UI (barre, badges, etc.) si une UI par produit pour les quotas existe.
 
 ### 6.4. Couverture spécifique pour Quizz
@@ -207,7 +207,7 @@ Sans modifier les fichiers pour l’instant, voici ce que je recommande de faire
 - Vérifier le contenu de `tests/e2e/products/quizz/*` et probablement :
   - [x] Ajouter un **`ultra-simple-quizz.spec.ts`** calqué sur les patterns ultra-simple Date / Form.
   - [ ] Vérifier la navigation depuis la landing principale (`/`) vers la page quizz (si elle existe dans l’UI).
-  - [ ] Lier quizz aux compteurs de quotas dans un test dédié.
+  - [x] Lier quizz aux compteurs de quotas dans un test dédié.
 
 ### 6.5. Intégration / flux unifiés
 

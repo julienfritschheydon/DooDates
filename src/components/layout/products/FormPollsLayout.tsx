@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FormPollsSidebar } from "./FormPollsSidebar";
 import { Menu, X } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { logger } from "@/lib/logger";
 
 interface FormPollsLayoutProps {
   children: React.ReactNode;
@@ -19,10 +20,20 @@ export const FormPollsLayout: React.FC<FormPollsLayoutProps> = ({ children }) =>
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar toggle button - visible on all viewports */}
+      {/* Sidebar toggle button - mobile only */}
       <button
-        onClick={() => setIsSidebarOpen(true)}
-        className="fixed top-4 left-4 z-40 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-colors"
+        onClick={() =>
+          setIsSidebarOpen((prev) => {
+            const next = !prev;
+            logger.info("FormPollsLayout sidebar toggle click", "dashboard", {
+              prev,
+              next,
+              isMobile,
+            });
+            return next;
+          })
+        }
+        className="fixed top-4 left-4 z-40 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-colors md:hidden"
         aria-label="Ouvrir le menu"
       >
         <Menu className="w-6 h-6" />
@@ -67,7 +78,11 @@ export const FormPollsLayout: React.FC<FormPollsLayoutProps> = ({ children }) =>
       <main
         className="flex-1 overflow-y-auto h-screen w-full"
         onClick={() => {
-          if (isSidebarOpen) {
+          if (isMobile && isSidebarOpen) {
+            logger.info("FormPollsLayout main click close", "dashboard", {
+              isMobile,
+              isSidebarOpen,
+            });
             setIsSidebarOpen(false);
           }
         }}

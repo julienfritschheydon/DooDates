@@ -1,10 +1,7 @@
-name: Testing Branch Tests
+name: Testing Branch Tests (legacy duplicate - manual only)
 
 on:
-  push:
-    branches: [testing]
-  pull_request:
-    branches: [testing]
+  workflow_dispatch:
 
 jobs:
   testing-validation:

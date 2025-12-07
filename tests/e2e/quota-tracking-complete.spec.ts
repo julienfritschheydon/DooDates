@@ -266,6 +266,36 @@ test.describe('Quota Tracking - Complete Tests', () => {
   }
 
   /**
+   * Helper pour créer un Quizz via le workspace produit
+   */
+  async function createQuizzViaWorkspace(page: any, browserName: string): Promise<void> {
+    const timeouts = getTimeouts(browserName);
+
+    await page.goto(PRODUCT_ROUTES.quizz.workspace, { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
+
+    const titleInput = page.getByPlaceholder(/Titre du quiz|Ex: Quiz/i).first();
+    await expect(titleInput).toBeVisible({ timeout: timeouts.element });
+    await titleInput.fill('Test Quota Quizz');
+
+    const addQuestionButton = page.getByRole('button', { name: /Ajouter/i }).first();
+    await expect(addQuestionButton).toBeVisible({ timeout: timeouts.element });
+    await addQuestionButton.click();
+
+    await waitForReactStable(page, { browserName });
+
+    const saveButton = page
+      .getByRole('button', { name: /Créer le quiz|Sauvegarder|Publier le quiz/i })
+      .first();
+    await expect(saveButton).toBeVisible({ timeout: timeouts.element });
+    await saveButton.click();
+
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
+  }
+
+  /**
    * Helper pour créer un Date Poll via le workspace produit
    */
   async function createDatePollViaWorkspace(page: any, browserName: string): Promise<void> {
@@ -386,6 +416,24 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(quotaData.formPollsCreated).toBe(0);
     expect(quotaData.availabilityPollsCreated).toBe(0);
     expect(quotaData.quizzCreated).toBe(0);
+  });
+
+  /**
+   * Test 2d: Création Quizz consomme 1 crédit sur le compteur quizz uniquement
+   */
+  test('Test 2d: Création Quizz incrémente uniquement quizzCreated', async ({ page, browserName }) => {
+    await resetGuestQuota(page);
+
+    await createQuizzViaWorkspace(page, browserName);
+
+    const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
+
+    expect(quotaData).toBeTruthy();
+    expect(quotaData.pollsCreated).toBe(1);
+    expect(quotaData.quizzCreated).toBe(1);
+    expect(quotaData.datePollsCreated).toBe(0);
+    expect(quotaData.formPollsCreated).toBe(0);
+    expect(quotaData.availabilityPollsCreated).toBe(0);
   });
 
   /**

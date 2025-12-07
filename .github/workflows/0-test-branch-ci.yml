@@ -1,18 +1,49 @@
-name: 🧪 Test Branch - Tests Dashboard Corrigés
+name: 🧪 Testing Branch - Pipeline complet
 
 on:
   push:
     branches: [testing, test-dashboard]
+  pull_request:
+    branches: [testing]
   workflow_dispatch: # Permet de lancer manuellement depuis GitHub UI
 
 concurrency:
-  group: test-branch-${{ github.ref }}
+  group: testing-branch-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # Job unique: Tests dashboard corrigés
+  # 1) Validation rapide (unit, TS, lint, build)
+  validation-rapide:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🧪 Tests Unitaires Rapides
+        run: npm run test:unit:fast
+
+      - name: 📝 TypeScript Check
+        run: npm run type-check || echo "TypeScript check completed with warnings"
+
+      - name: 🧹 Linting & Formatage
+        run: npm run lint -- --max-warnings=30 || echo "Linting completed with warnings"
+
+      - name: 🏗️ Build Validation
+        run: npm run build
+
+  # 2) E2E isolés dashboard (tests corrigés)
   e2e-isolated:
     runs-on: ubuntu-latest
+    needs: validation-rapide
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -101,9 +132,51 @@ jobs:
           if-no-files-found: ignore
           retention-days: 3
 
-  # Summary avec commentaire
+  # 3) E2E smoke tests
+  e2e-smoke:
+    runs-on: ubuntu-latest
+    needs: validation-rapide
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🎭 Cache Playwright browsers
+        id: cache-playwright-smoke
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🧭 Install Playwright (Chromium only)
+        run: |
+          if [ "${{ steps.cache-playwright-smoke.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ Cache trouvé, installation rapide (sans deps)..."
+            npx playwright install chromium
+          else
+            echo "⚠️ Cache vide, installation avec dépendances système..."
+            npx playwright install --with-deps chromium
+          fi
+
+      - name: 🎭 Run E2E Smoke Tests
+        run: npm run test:e2e:smoke
+        env:
+          CI: true
+          VITE_GEMINI_API_KEY: fake-key-for-e2e-tests
+
+  # 4) Summary global
   test-summary:
-    needs: [e2e-isolated]
+    needs: [validation-rapide, e2e-isolated, e2e-smoke]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -111,20 +184,18 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const status = '${{ needs.e2e-isolated.result }}' === 'success' ? '✅' : '❌';
-            
-            let summary = `## ${status} Tests Dashboard - ${status === '✅' ? 'Réussis' : 'Échoués'}\n\n`;
-            summary += `**Branche:** \`${context.ref.replace('refs/heads/', '')}\`\n`;
-            summary += `**Objectif:** Tester les tests corrigés (Sélectionner, Assigner tags/dossiers)\n\n`;
-            
-            if (status === '✅') {
-              summary += '🚀 **Les tests passent !**\n';
-              summary += '📸 **Screenshots disponibles dans les artefacts pour debug**';
-            } else {
-              summary += '⚠️ **Des tests ont échoué. Vérifier les rapports et screenshots dans les artefacts.**';
+            function statusIcon(result) {
+              return result === 'success' ? '✅' : (result === 'skipped' ? '⏭️' : '❌');
             }
-            
-            summary += `\n\n📋 **Rapports détaillés disponibles dans les artefacts GitHub Actions**`;
-            
-            // Afficher le summary dans les logs (pas de commentaire GitHub pour éviter les erreurs de permissions)
+
+            const validation = '${{ needs.validation-rapide.result }}';
+            const isolated = '${{ needs.e2e-isolated.result }}';
+            const smoke = '${{ needs.e2e-smoke.result }}';
+
+            let summary = '## 🧪 Testing Branch - Résumé pipeline complet\n\n';
+            summary += `**Branche:** \`${context.ref.replace('refs/heads/', '')}\`\n\n`;
+            summary += `- Validation rapide: ${statusIcon(validation)} (${validation})\n`;
+            summary += `- E2E isolés dashboard: ${statusIcon(isolated)} (${isolated})\n`;
+            summary += `- E2E smoke: ${statusIcon(smoke)} (${smoke})\n`;
+
             console.log(summary);

@@ -1,13 +1,10 @@
-name: Testing Branch Tests
+name: Testing Branch Tests (legacy/manual)
 
 on:
-  push:
-    branches: [testing]
-  pull_request:
-    branches: [testing]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   testing-validation:
@@ -50,21 +47,7 @@ jobs:
   auto-merge-to-staging:
     needs: testing-validation
     runs-on: ubuntu-latest
-    if: success() && github.event_name == 'push' && github.ref == 'refs/heads/testing'
+    if: false  # Auto-merge legacy désactivé
     steps:
-      - name: 📥 Checkout Staging
-        uses: actions/checkout@v4
-        with:
-          ref: staging
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 🔀 Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: 🚀 Merge Testing to Staging
-        run: |
-          git merge origin/testing --no-ff -m "chore: auto-merge testing to staging"
-          git push origin staging
+      - name: ⏭️ Auto-merge désactivé
+        run: echo "Auto-merge testing → staging legacy désactivé (utiliser les nouveaux workflows si besoin)"
