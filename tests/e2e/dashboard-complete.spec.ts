@@ -427,7 +427,7 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await setupTestData(page);
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
-
+      await waitForDashboardReady(page, browserName);
       await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
 
       // Prendre la première carte pour vérifier le border bleu
