@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { QuizzSidebar } from "./QuizzSidebar";
 import { Menu } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -9,33 +9,39 @@ interface QuizzLayoutProps {
 }
 
 export const QuizzLayout: React.FC<QuizzLayoutProps> = ({ children }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  
+  // État initial : ouvert sur desktop, fermé sur mobile
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => !isMobile);
 
-  useEffect(() => {
-    if (!isMobile) {
-      setIsSidebarOpen(true);
-    } else {
-      setIsSidebarOpen(false);
-    }
+  // Fonctions centralisées pour gérer l'état
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prev) => {
+      const next = !prev;
+      logger.info("Sidebar toggled", "dashboard", { prev, next, isMobile });
+      return next;
+    });
+  }, [isMobile]);
+
+  const closeSidebar = useCallback(() => {
+    logger.info("Sidebar closed", "dashboard", { isMobile });
+    setIsSidebarOpen(false);
   }, [isMobile]);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Bouton hamburger fixe, toujours cliquable, positionné à droite du sidebar quand ouvert */}
+      {/* Overlay mobile - ferme le sidebar au click */}
+      {isMobile && isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 transition-opacity duration-300"
+          onClick={closeSidebar}
+          aria-label="Fermer le menu"
+        />
+      )}
+
+      {/* Bouton hamburger - position calculée avec CSS variable */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsSidebarOpen((prev) => {
-            const next = !prev;
-            logger.info("QuizzLayout sidebar toggle click", "dashboard", {
-              prev,
-              next,
-              isMobile,
-            });
-            return next;
-          });
-        }}
+        onClick={toggleSidebar}
         className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${
           isSidebarOpen ? "left-[272px]" : "left-4"
         }`}
@@ -44,27 +50,25 @@ export const QuizzLayout: React.FC<QuizzLayoutProps> = ({ children }) => {
         <Menu className="w-5 h-5" />
       </button>
 
-      {/* Sidebar gauche, présent sur tous les écrans */}
+      {/* Sidebar - toujours monté, caché avec CSS */}
       <aside
-        className={`h-screen bg-[#0a0a0a] overflow-y-auto transition-all duration-300 z-40 ${
-          isSidebarOpen ? "w-64" : "w-0"
+        className={`fixed left-0 top-0 h-screen bg-[#0a0a0a] overflow-y-auto transition-all duration-300 z-40 ${
+          isSidebarOpen 
+            ? "w-64 opacity-100" 
+            : "w-0 opacity-0"
         }`}
       >
-        {isSidebarOpen && <QuizzSidebar onClose={() => setIsSidebarOpen(false)} className="h-full" />}
+        <QuizzSidebar 
+          onClose={closeSidebar} 
+          className={`h-full ${!isSidebarOpen ? 'pointer-events-none' : ''}`} 
+        />
       </aside>
 
-      {/* Zone contenu */}
+      {/* Zone contenu - pas de onClick, l'overlay gère la fermeture */}
       <main
-        className="flex-1 overflow-y-auto h-screen w-full"
-        onClick={() => {
-          if (isSidebarOpen) {
-            logger.info("QuizzLayout main click close", "dashboard", {
-              isMobile,
-              isSidebarOpen,
-            });
-            setIsSidebarOpen(false);
-          }
-        }}
+        className={`flex-1 overflow-y-auto h-screen w-full transition-all duration-300 ${
+          isSidebarOpen ? "ml-64" : "ml-0"
+        }`}
       >
         {children}
       </main>
