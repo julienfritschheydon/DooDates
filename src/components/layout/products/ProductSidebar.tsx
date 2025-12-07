@@ -89,22 +89,24 @@ export const ProductSidebar: React.FC<ProductSidebarProps> = ({
             Historique enfants
           </Link>
         )}
-        <Link
-          to={config.listRoute}
-          onClick={handleLinkClick}
-          className={cn(
-            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-            isActive(config.listRoute) && location.pathname !== config.baseRoute
-              ? cn(theme.bg, theme.text)
-              : location.pathname === config.baseRoute ||
-                  location.pathname === config.baseRoute + "/"
+        {productType !== "quizz" && (
+          <Link
+            to={config.listRoute}
+            onClick={handleLinkClick}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+              isActive(config.listRoute) && location.pathname !== config.baseRoute
                 ? cn(theme.bg, theme.text)
-                : "text-gray-400 hover:bg-gray-800 hover:text-white",
-          )}
-        >
-          <List className="w-5 h-5" />
-          {productType === "quizz" ? "Landing Page" : config.listLabel}
-        </Link>
+                : location.pathname === config.baseRoute ||
+                    location.pathname === config.baseRoute + "/"
+                  ? cn(theme.bg, theme.text)
+                  : "text-gray-400 hover:bg-gray-800 hover:text-white",
+            )}
+          >
+            <List className="w-5 h-5" />
+            {config.listLabel}
+          </Link>
+        )}
       </nav>
 
       <div className="p-4 border-t border-gray-800 space-y-1">

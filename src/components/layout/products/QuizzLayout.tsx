@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { QuizzSidebar } from "./QuizzSidebar";
 import { Menu, X } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -11,19 +11,26 @@ export const QuizzLayout: React.FC<QuizzLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
+  useEffect(() => {
+    if (!isMobile) {
+      setIsSidebarOpen(true);
+    }
+  }, [isMobile]);
+
   return (
     <div className="flex min-h-screen bg-[#0a0a0a]">
+      {/* Sidebar toggle button - visible on all viewports */}
+      <button
+        onClick={() => setIsSidebarOpen(true)}
+        className="fixed top-4 left-4 z-40 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-colors"
+        aria-label="Ouvrir le menu"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+
       {/* Mobile Sidebar Overlay */}
       {isMobile && (
         <>
-          {/* Hamburger Button */}
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="fixed top-4 left-4 z-40 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-colors"
-            aria-label="Ouvrir le menu"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
 
           {/* Backdrop */}
           {isSidebarOpen && (
@@ -55,9 +62,18 @@ export const QuizzLayout: React.FC<QuizzLayoutProps> = ({ children }) => {
       )}
 
       {/* Desktop Sidebar */}
-      {!isMobile && <QuizzSidebar />}
+      {!isMobile && isSidebarOpen && <QuizzSidebar />}
 
-      <main className="flex-1 overflow-y-auto h-screen w-full">{children}</main>
+      <main
+        className="flex-1 overflow-y-auto h-screen w-full"
+        onClick={() => {
+          if (isSidebarOpen) {
+            setIsSidebarOpen(false);
+          }
+        }}
+      >
+        {children}
+      </main>
     </div>
   );
 };

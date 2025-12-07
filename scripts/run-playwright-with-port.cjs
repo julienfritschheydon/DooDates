@@ -1,22 +1,19 @@
 #!/usr/bin/env node
 /**
- * Script wrapper cross-platform pour exécuter Playwright avec un port dynamique
+ * Script wrapper cross-platform pour exécuter Playwright avec un port FIXE
  * Compatible Windows, Linux, macOS
+ *
+ * Objectif : aligner le port utilisé par Playwright avec la config Vite/Playwright
+ * qui utilise déjà 8080 (baseURL + webServer.url).
  */
 
 const { execSync } = require('child_process');
 
-// Obtenir un port libre
-function getFreePort() {
-  try {
-    // Utiliser get-port-cli pour obtenir un port libre
-    const port = execSync('npx -y get-port-cli', { encoding: 'utf-8' }).trim();
-    return port;
-  } catch (error) {
-    // Fallback: utiliser un port par défaut
-    console.warn('⚠️  Impossible d\'obtenir un port libre, utilisation du port 3000 par défaut');
-    return '3000';
-  }
+// Pour les E2E, on utilise un port FIXE (8080) afin d'être aligné
+// avec la configuration Vite et les configs Playwright en CI.
+// On garde la structure du script pour rester cross-platform.
+function getPort() {
+  return process.env.PORT || '8080';
 }
 
 // Récupérer les arguments passés au script
@@ -27,8 +24,8 @@ if (args.length === 0) {
   process.exit(1);
 }
 
-// Obtenir un port libre
-const port = getFreePort();
+// Obtenir le port à utiliser (fixe: 8080 par défaut)
+const port = getPort();
 
 // Définir la variable d'environnement PORT
 process.env.PORT = port;

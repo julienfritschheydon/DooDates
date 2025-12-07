@@ -23,6 +23,7 @@ export function getDefaultConsoleGuardAllowlist(): RegExp[] {
     // Erreurs Gemini attendues en CI (EDGE function / parsing JSON)
     /DooDates Error: \{message: Failed to execute 'json' on 'Response': Unexpected end of JSON input/i,
     /NETWORK_ERROR détectée \{mode: EDGE_FUNCTION/i,
+    /Edge Function testConnection exception/i,
     // Erreurs de configuration Supabase/Gemini attendues en environnement de test (Analytics non configuré)
     /CONFIG_ERROR détectée \{useDirectGemini: false, hasApiKey: true, apiKeyLength: \d+, errorMessage: Configuration Supabase manquante\}/i,
   ];

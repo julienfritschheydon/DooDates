@@ -118,16 +118,18 @@ export class SecureGeminiService {
       }
 
       // Appeler l'Edge Function (avec ou sans token selon authentification)
-      // NOTE: Pour les invités, on n'envoie PAS de header Authorization
-      // L'anon key dans le header 'apikey' est suffisant pour l'accès anonyme
+      // Pour les utilisateurs authentifiés, on utilise le JWT Supabase.
+      // Pour les invités, on utilise l'anon key comme Bearer token, comme recommandé par Supabase.
       const headers: Record<string, string> = {};
       const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
-      // Only include Authorization header for authenticated users with real JWT
+      // Utilisateurs authentifiés : JWT de session
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
+      } else if (supabaseAnonKey) {
+        // Invités : utiliser l'anon key comme JWT public
+        headers.Authorization = `Bearer ${supabaseAnonKey}`;
       }
-      // For guests: no Authorization header, apikey header is sufficient
 
       // Utiliser fetch direct au lieu de supabase.functions.invoke() pour plus de contrôle
       const edgeFunctionUrl = `${this.supabaseUrl}/functions/v1/hyper-task`;
@@ -311,15 +313,13 @@ export class SecureGeminiService {
         headers["apikey"] = supabaseAnonKey;
       }
 
-      // NOTE: For Edge Functions, only include Bearer token if we have a real user JWT
-      // The anon key is NOT a valid JWT and cannot be used as a Bearer token
-      // Anonymous access to Edge Functions is controlled by the apikey header only
+      // Utilisateurs authentifiés : JWT de session. Invités : anon key comme JWT public.
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
+      } else if (supabaseAnonKey) {
+        headers.Authorization = `Bearer ${supabaseAnonKey}`;
       }
-      // No else clause here - anonymous users don't send Authorization header
 
-      // For anonymous access, apikey header is sufficient - no need for Authorization
       if (!headers["apikey"]) {
         return false;
       }

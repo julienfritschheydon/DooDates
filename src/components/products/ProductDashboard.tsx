@@ -616,8 +616,7 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                   >
                     <p className="text-sm text-gray-300 group-hover:text-gray-200 transition-colors">
                       <span className="font-semibold">
-                        {quotaStatus.conversations.used + quotaStatus.aiMessages.used}/
-                        {quotaStatus.conversations.limit + quotaStatus.aiMessages.limit}
+                        {quotaStatus.conversations.used}/{quotaStatus.conversations.limit}
                       </span>{" "}
                       crédits utilisés
                       <span
@@ -634,20 +633,9 @@ export const ProductDashboard: React.FC<ProductDashboardProps> = ({ productType 
                     <div className="mt-2 w-full bg-gray-700 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full transition-all ${
-                          quotaStatus.conversations.isNearLimit ||
-                          quotaStatus.aiMessages.isNearLimit
-                            ? "bg-orange-500"
-                            : theme.quotaBar
+                          quotaStatus.conversations.isNearLimit ? "bg-orange-500" : theme.quotaBar
                         }`}
-                        style={{
-                          width: `${Math.min(
-                            Math.max(
-                              quotaStatus.conversations.percentage,
-                              quotaStatus.aiMessages.percentage,
-                            ),
-                            100,
-                          )}%`,
-                        }}
+                        style={{ width: `${Math.min(quotaStatus.conversations.percentage, 100)}%` }}
                       />
                     </div>
                   </div>
