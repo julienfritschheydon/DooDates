@@ -270,10 +270,14 @@ export async function clearTestData(
   const clearPolls = options?.polls ?? clearAll;
 
   await page.evaluate(({ clearTags, clearFolders, clearConversations, clearPolls }) => {
-    if (clearTags) localStorage.removeItem('doodates_tags');
-    if (clearFolders) localStorage.removeItem('doodates_folders');
-    if (clearConversations) localStorage.removeItem('doodates_conversations');
-    if (clearPolls) localStorage.removeItem('doodates_polls');
+    try {
+      if (clearTags) localStorage.removeItem('doodates_tags');
+      if (clearFolders) localStorage.removeItem('doodates_folders');
+      if (clearConversations) localStorage.removeItem('doodates_conversations');
+      if (clearPolls) localStorage.removeItem('doodates_polls');
+    } catch (error) {
+      void error;
+    }
   }, { clearTags, clearFolders, clearConversations, clearPolls });
 }
 
