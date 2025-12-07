@@ -1,4 +1,10 @@
-name: Staging Branch Tests
+name: Staging Branch Tests [LEGACY]
+
+# LEGACY: ce workflow de tests complet sur la branche staging est
+# remplacé par "12-staging-validation.yml" (validation principale)
+# et par "11-staging-to-preprod.yml" pour l'auto-merge vers pre-prod.
+#
+# Il est conservé pour référence mais désactivé via `if: false`.
 
 on:
   push:
@@ -9,6 +15,7 @@ on:
 jobs:
   staging-validation:
     runs-on: ubuntu-latest
+    if: false
     
     steps:
       - name: 📥 Checkout Code

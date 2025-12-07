@@ -1,4 +1,11 @@
-name: Auto-merge Bug → Testing
+name: Auto-merge Bug → Testing [LEGACY]
+
+# LEGACY: ce workflow d'auto-merge des branches bug/* vers testing
+# est remplacé par "15-sync-test-fixes.yml" qui gère désormais
+# la propagation automatique des correctifs de tests entre branches.
+#
+# Les jobs sont conservés pour référence historique mais désactivés
+# via `if: false`.
 
 on:
   push:
@@ -7,6 +14,7 @@ on:
 jobs:
   validate:
     name: 🧪 Validate Bug Fix
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout Code
@@ -43,7 +51,7 @@ jobs:
     name: 🚀 Auto-merge to Testing
     runs-on: ubuntu-latest
     needs: validate
-    if: success()
+    if: false
     steps:
       - name: 📥 Checkout Code
         uses: actions/checkout@v4

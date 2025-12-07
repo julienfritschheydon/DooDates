@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { DatePollsSidebar } from "./DatePollsSidebar";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { logger } from "@/lib/logger";
 
@@ -9,83 +9,66 @@ interface DatePollsLayoutProps {
 }
 
 export const DatePollsLayout: React.FC<DatePollsLayoutProps> = ({ children }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  
+  // État initial : ouvert sur desktop, fermé sur mobile
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => !isMobile);
 
-  useEffect(() => {
-    if (!isMobile) {
-      setIsSidebarOpen(true);
-    }
+  // Fonctions centralisées pour gérer l'état
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prev) => {
+      const next = !prev;
+      logger.info("Sidebar toggled", "dashboard", { prev, next, isMobile });
+      return next;
+    });
+  }, [isMobile]);
+
+  const closeSidebar = useCallback(() => {
+    logger.info("Sidebar closed", "dashboard", { isMobile });
+    setIsSidebarOpen(false);
   }, [isMobile]);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar toggle button - mobile only */}
-      <button
-        onClick={() =>
-          setIsSidebarOpen((prev) => {
-            const next = !prev;
-            logger.info("DatePollsLayout sidebar toggle click", "dashboard", {
-              prev,
-              next,
-              isMobile,
-            });
-            return next;
-          })
-        }
-        className="fixed top-4 left-4 z-40 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-colors md:hidden"
-        aria-label="Ouvrir le menu"
-      >
-        <Menu className="w-6 h-6" />
-      </button>
-
-      {/* Mobile Sidebar Overlay */}
-      {isMobile && (
-        <>
-
-          {/* Backdrop */}
-          {isSidebarOpen && (
-            <div
-              className="fixed inset-0 bg-black/50 z-40"
-              onClick={() => setIsSidebarOpen(false)}
-              aria-hidden="true"
-            />
-          )}
-
-          {/* Sidebar Panel */}
-          <div
-            className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ${
-              isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
-          >
-            <DatePollsSidebar onClose={() => setIsSidebarOpen(false)} className="h-full" />
-
-            {/* Close Button inside Sidebar (optional, but good for UX) */}
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white md:hidden"
-              aria-label="Fermer le menu"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </>
+      {/* Overlay mobile - ferme le sidebar au click */}
+      {isMobile && isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 transition-opacity duration-300"
+          onClick={closeSidebar}
+          aria-label="Fermer le menu"
+        />
       )}
 
-      {/* Desktop Sidebar */}
-      {!isMobile && isSidebarOpen && <DatePollsSidebar />}
+      {/* Bouton hamburger - position calculée avec CSS variable */}
+      <button
+        onClick={toggleSidebar}
+        className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${
+          isSidebarOpen ? "left-[272px]" : "left-4"
+        }`}
+        aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
+      >
+        <Menu className="w-5 h-5" />
+      </button>
 
+      {/* Sidebar - toujours monté, caché avec CSS */}
+      <aside
+        className={`fixed left-0 top-0 h-screen bg-[#0a0a0a] overflow-y-auto transition-all duration-300 z-40 ${
+          isSidebarOpen 
+            ? "w-64 opacity-100" 
+            : "w-0 opacity-0"
+        }`}
+      >
+        <DatePollsSidebar 
+          onClose={closeSidebar} 
+          className={`h-full ${!isSidebarOpen ? 'pointer-events-none' : ''}`} 
+        />
+      </aside>
+
+      {/* Zone contenu - pas de onClick, l'overlay gère la fermeture */}
       <main
-        className="flex-1 overflow-y-auto h-screen w-full"
-        onClick={() => {
-          if (isMobile && isSidebarOpen) {
-            logger.info("DatePollsLayout main click close", "dashboard", {
-              isMobile,
-              isSidebarOpen,
-            });
-            setIsSidebarOpen(false);
-          }
-        }}
+        className={`flex-1 overflow-y-auto h-screen w-full transition-all duration-300 ${
+          isSidebarOpen ? "ml-64" : "ml-0"
+        }`}
       >
         {children}
       </main>

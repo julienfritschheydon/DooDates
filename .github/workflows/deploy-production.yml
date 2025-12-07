@@ -1,4 +1,11 @@
-name: Production Deploy
+name: Production Deploy [LEGACY]
+
+# LEGACY: ce workflow de déploiement production est remplacé par
+# la chaîne complète "3-main-validation.yml" → "4-main-deploy-pages.yml" → "5-production-smoke-tests.yml"
+# qui gère validation, déploiement GitHub Pages et smoke tests prod.
+#
+# Ce workflow ne fait pas de vrai déploiement et est conservé pour référence
+# mais désactivé via `if: false`.
 
 on:
   push:
@@ -9,6 +16,7 @@ on:
 jobs:
   production-deploy:
     runs-on: ubuntu-latest
+    if: false
     
     steps:
       - name: 📥 Checkout Code

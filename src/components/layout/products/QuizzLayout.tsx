@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { QuizzSidebar } from "./QuizzSidebar";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { logger } from "@/lib/logger";
 
@@ -15,14 +15,17 @@ export const QuizzLayout: React.FC<QuizzLayoutProps> = ({ children }) => {
   useEffect(() => {
     if (!isMobile) {
       setIsSidebarOpen(true);
+    } else {
+      setIsSidebarOpen(false);
     }
   }, [isMobile]);
 
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a]">
-      {/* Sidebar toggle button - mobile only */}
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Bouton hamburger fixe, toujours cliquable, positionné à droite du sidebar quand ouvert */}
       <button
-        onClick={() =>
+        onClick={(e) => {
+          e.stopPropagation();
           setIsSidebarOpen((prev) => {
             const next = !prev;
             logger.info("QuizzLayout sidebar toggle click", "dashboard", {
@@ -31,54 +34,30 @@ export const QuizzLayout: React.FC<QuizzLayoutProps> = ({ children }) => {
               isMobile,
             });
             return next;
-          })
-        }
-        className="fixed top-4 left-4 z-40 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-colors md:hidden"
-        aria-label="Ouvrir le menu"
+          });
+        }}
+        className={`fixed top-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-lg shadow-md hover:bg-gray-800 transition-all duration-300 ${
+          isSidebarOpen ? "left-[272px]" : "left-4"
+        }`}
+        aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
       >
-        <Menu className="w-6 h-6" />
+        <Menu className="w-5 h-5" />
       </button>
 
-      {/* Mobile Sidebar Overlay */}
-      {isMobile && (
-        <>
+      {/* Sidebar gauche, présent sur tous les écrans */}
+      <aside
+        className={`h-screen bg-[#0a0a0a] overflow-y-auto transition-all duration-300 z-40 ${
+          isSidebarOpen ? "w-64" : "w-0"
+        }`}
+      >
+        {isSidebarOpen && <QuizzSidebar onClose={() => setIsSidebarOpen(false)} className="h-full" />}
+      </aside>
 
-          {/* Backdrop */}
-          {isSidebarOpen && (
-            <div
-              className="fixed inset-0 bg-black/50 z-40"
-              onClick={() => setIsSidebarOpen(false)}
-              aria-hidden="true"
-            />
-          )}
-
-          {/* Sidebar Panel */}
-          <div
-            className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ${
-              isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
-          >
-            <QuizzSidebar onClose={() => setIsSidebarOpen(false)} className="h-full" />
-
-            {/* Close Button inside Sidebar */}
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white md:hidden"
-              aria-label="Fermer le menu"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* Desktop Sidebar */}
-      {!isMobile && isSidebarOpen && <QuizzSidebar />}
-
+      {/* Zone contenu */}
       <main
         className="flex-1 overflow-y-auto h-screen w-full"
         onClick={() => {
-          if (isMobile && isSidebarOpen) {
+          if (isSidebarOpen) {
             logger.info("QuizzLayout main click close", "dashboard", {
               isMobile,
               isSidebarOpen,

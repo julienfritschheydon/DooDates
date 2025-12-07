@@ -628,6 +628,28 @@ npm run test:ci                # Suite CI complète
 
 **Specs actifs** : 20 fichiers (~81 tests) après migration et nettoyage (anciens scénarios complexes déplacés dans `tests/e2e/OLD/`)
 
+#### 3.1 Séparation en 4 produits (Date / Form / Availability / Quizz)
+
+- **Structure des tests produits** :
+  - `tests/e2e/products/date-polls/*`
+  - `tests/e2e/products/form-polls/*`
+  - `tests/e2e/products/availability-polls/*`
+  - `tests/e2e/products/quizz/*`
+  - `tests/e2e/products/cross-product/product-isolation.spec.ts` (vérifie que chaque dashboard produit ne voit que son type de sondage).
+- **Workflows ultra-simples** :
+  - `ultra-simple-poll.spec.ts` → Date Poll complet (création + vote + présence dashboard Date).
+  - `ultra-simple-form.spec.ts` → Form Poll complet (création IA + vote + dashboard Form Polls dédié).
+  - `products/quizz/ultra-simple-quizz.spec.ts` → Quizz minimal (workspace → création → dashboard Quizz).
+- **Quizz** :
+  - Navigation et comportements de base testés dans `products/quizz/navigation.spec.ts` (landing Quizz, workspace, dashboard), **sans dépendre de `/`**.
+  - Quotas Quizz vérifiés dans `quota-tracking-complete.spec.ts` (`quizzCreated`).
+- **Quota tracking par produit** :
+  - `tests/e2e/quota-tracking-complete.spec.ts` contrôle maintenant que la création d’un sondage de chaque type n’incrémente **que** le compteur correspondant :
+    - `datePollsCreated`, `formPollsCreated`, `availabilityPollsCreated`, `quizzCreated`.
+  - Ces tests fonctionnent en mode E2E localStorage (clé `doodates_quota_consumed`) et servent de référence métier pour les quotas.
+
+#### 3.2 Suites principales
+
 **Principales suites** :
 - **Dashboard** : `dashboard-complete.spec.ts` (16 tests), `tags-folders.spec.ts` (6 tests)
 - **Analytics IA** : `analytics-ai.spec.ts` (18 tests), `analytics-ai-optimized.spec.ts` (3 tests) ✅ MIGRÉS vers nouveaux helpers

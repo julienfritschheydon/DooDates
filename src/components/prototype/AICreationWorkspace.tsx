@@ -565,7 +565,7 @@ export function AICreationWorkspace({
         className={`flex flex-col h-screen bg-[#1e1e1e] ${isMobile ? "overflow-y-auto" : "overflow-hidden"}`}
       >
         {/* Backdrop pour fermer la sidebar en cliquant à l'extérieur */}
-        {isSidebarOpen && (
+        {!hideSidebar && isSidebarOpen && (
           <div
             className="fixed inset-0 bg-black/50 z-40"
             onClick={() => {
@@ -954,23 +954,25 @@ export function AICreationWorkspace({
         )}
 
         {/* Header DooDates global - Au-dessus de tout */}
-        <div
-          className={`h-14 flex-shrink-0 z-40 bg-[#0a0a0a] flex items-center justify-between px-4`}
-        >
-          <div className="flex items-center gap-3">
-            {/* Bouton hamburger (mobile + desktop pour replier sidebar) */}
-            <button
-              data-testid="sidebar-toggle"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-              aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
-              aria-expanded={isSidebarOpen}
-            >
-              <LazyIconWrapper Icon={Menu} className="w-5 h-5 text-gray-300" />
-            </button>
-            <h1 className="text-xl font-medium text-white">DooDates</h1>
+        {!hideSidebar && (
+          <div
+            className={`h-14 flex-shrink-0 z-40 bg-[#0a0a0a] flex items-center justify-between px-4`}
+          >
+            <div className="flex items-center gap-3">
+              {/* Bouton hamburger (mobile + desktop pour replier sidebar) */}
+              <button
+                data-testid="sidebar-toggle"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
+                aria-expanded={isSidebarOpen}
+              >
+                <LazyIconWrapper Icon={Menu} className="w-5 h-5 text-gray-300" />
+              </button>
+              <h1 className="text-xl font-medium text-white">DooDates</h1>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Contenu principal - Chat et Créateur côte à côte */}
         <div className={`flex flex-1 min-h-0 ${isMobile ? "flex-col" : "flex-row"}`}>

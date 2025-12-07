@@ -1,4 +1,10 @@
-name: Release
+name: Release [LEGACY]
+
+# LEGACY: ce workflow Changesets ciblait la branche "develop" qui n'existe plus.
+# Le flux de release est maintenant géré par "13-preprod-to-main.yml"
+# (pre-prod → main avec tag automatique).
+#
+# Conservé pour référence mais désactivé via `if: false`.
 
 on:
   push:
@@ -11,6 +17,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    if: false
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
