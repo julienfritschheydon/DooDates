@@ -1,8 +1,7 @@
-name: 🔄 Sync Testing → Bug
+name: 🔄 Sync Testing → Bug (legacy/manual)
 
 on:
-  push:
-    branches: [testing]
+  workflow_dispatch:
 
 jobs:
   sync-to-bug:
