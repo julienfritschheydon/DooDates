@@ -61,12 +61,17 @@ test.describe('Quizz - Ultra Simple Workflow', () => {
     await expect(page).toHaveURL(/\/quizz\/dashboard/);
     await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible();
 
-    // Vérifier qu'au moins un élément de liste est présent et qu'il contient le titre du quiz
+    // Vérifier qu'au moins un élément de liste est présent
     const listItem = await waitForElementReady(page, '[data-testid="poll-item"], [data-testid="quiz-item"], main', {
       browserName,
     });
 
-    // Si la structure est générique poll-item, on se contente de vérifier que le titre est présent dans la page
-    await expect(page.getByText(quizTitle, { exact: false })).toBeVisible();
+    // Si la structure est générique poll-item, vérifier qu'au moins un item contient le titre du quiz
+    const matchingItem = page
+      .locator('[data-testid="poll-item"], [data-testid="quiz-item"], main')
+      .filter({ hasText: quizTitle })
+      .first();
+
+    await expect(matchingItem).toBeVisible();
   });
 });
