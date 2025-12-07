@@ -428,10 +428,11 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
       await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
       await waitForNetworkIdle(page, { browserName });
       await waitForDashboardReady(page, browserName);
-      await waitForElementReady(page, '[data-testid="poll-item"]', { browserName, timeout: timeouts.element });
-
-      // Prendre la première carte pour vérifier le border bleu
-      const firstCard = page.locator('[data-testid="poll-item"]').first();
+      // Récupérer directement la première carte via waitForElementReady pour éviter les race conditions
+      const firstCard = await waitForElementReady(page, '[data-testid="poll-item"]', {
+        browserName,
+        timeout: timeouts.element,
+      });
 
       // Vérifier que la carte n'est pas sélectionnée initialement
       await expect(firstCard).not.toHaveClass(/border-blue-500|ring-blue-500/, { timeout: timeouts.element });

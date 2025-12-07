@@ -25,7 +25,7 @@
 
 import { test, expect } from '@playwright/test';
 import { setupGeminiMock, setupAllMocksWithoutNavigation } from './global-setup';
-import { mockSupabaseAuth } from './utils';
+import { mockSupabaseAuth, PRODUCT_ROUTES } from './utils';
 import { voteOnPollComplete } from './helpers/poll-helpers';
 import { waitForNetworkIdle, waitForReactStable, waitForElementReady, waitForChatInputReady } from './helpers/wait-helpers';
 import { getTimeouts } from './config/timeouts';
@@ -232,6 +232,40 @@ test.describe('Quota Tracking - Complete Tests', () => {
   }
 
   /**
+   * Helper pour créer un Availability Poll via le workspace produit
+   */
+  async function createAvailabilityPollViaWorkspace(page: any, browserName: string): Promise<void> {
+    const timeouts = getTimeouts(browserName);
+
+    await page.goto(PRODUCT_ROUTES.availabilityPoll.workspace, { waitUntil: 'domcontentloaded' });
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
+
+    const titleInput = await waitForElementReady(
+      page,
+      'input#title, input[placeholder*="Planification"], input[placeholder*="titre"]',
+      { browserName, timeout: timeouts.element },
+    );
+    await titleInput.fill('Test Quota Availability');
+
+    const descriptionInput = page.locator('textarea').first();
+    const hasDescription = await safeIsVisible(descriptionInput);
+    if (hasDescription) {
+      await descriptionInput.fill('Test de quotas pour sondage de disponibilités');
+    }
+
+    const createButton = await waitForElementReady(
+      page,
+      'button:has-text("Créer le sondage"), button:has-text("Créer")',
+      { browserName, timeout: timeouts.element },
+    );
+    await createButton.click({ force: true });
+
+    await waitForNetworkIdle(page, { browserName });
+    await waitForReactStable(page, { browserName });
+  }
+
+  /**
    * Test 2: Création poll (1 crédit)
    */
   test('Test 2: Création poll consomme 1 crédit, mise à jour ne consomme pas', async ({ page, browserName }) => {
@@ -253,6 +287,13 @@ test.describe('Quota Tracking - Complete Tests', () => {
     expect(quotaData.formPollsCreated).toBeDefined();
     expect(quotaData.quizzCreated).toBeDefined();
     expect(quotaData.availabilityPollsCreated).toBeDefined();
+
+    // Vérifier que la création via IA (Form Poll) incrémente uniquement le compteur Form
+    expect(quotaData.pollsCreated).toBe(1);
+    expect(quotaData.formPollsCreated).toBe(1);
+    expect(quotaData.datePollsCreated).toBe(0);
+    expect(quotaData.quizzCreated).toBe(0);
+    expect(quotaData.availabilityPollsCreated).toBe(0);
 
     const initialCredits = quotaData.totalCreditsConsumed;
 
@@ -281,6 +322,24 @@ test.describe('Quota Tracking - Complete Tests', () => {
 
       expect(updatedQuotaData.totalCreditsConsumed).toBe(initialCredits);
     }
+  });
+
+  /**
+   * Test 2b: Création Availability Poll consomme 1 crédit sur le compteur availability uniquement
+   */
+  test('Test 2b: Création Availability Poll incrémente uniquement availabilityPollsCreated', async ({ page, browserName }) => {
+    await resetGuestQuota(page);
+
+    await createAvailabilityPollViaWorkspace(page, browserName);
+
+    const quotaData = await waitForQuotaData(page, 'guest', 10000, browserName);
+
+    expect(quotaData).toBeTruthy();
+    expect(quotaData.pollsCreated).toBe(1);
+    expect(quotaData.availabilityPollsCreated).toBe(1);
+    expect(quotaData.datePollsCreated).toBe(0);
+    expect(quotaData.formPollsCreated).toBe(0);
+    expect(quotaData.quizzCreated).toBe(0);
   });
 
   /**

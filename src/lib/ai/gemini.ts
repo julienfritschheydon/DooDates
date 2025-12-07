@@ -8,7 +8,7 @@ import { secureGeminiService } from "@/services/SecureGeminiService";
 import { directGeminiService } from "@/services/DirectGeminiService";
 import { getEnv, isDev } from "../env";
 // ARCHIVÉ 2025-12-06: ParsedTemporalInput plus utilisé après simplification
-// import type { ParsedTemporalInput } from "../temporalParser";
+import type { ParsedTemporalInput } from "../temporalParser";
 import { buildDirectPrompt } from "./prompts/pollPrompts";
 // ARCHIVÉ 2025-12-06: buildPollGenerationPrompt plus utilisé après simplification
 // import { buildPollGenerationPrompt, buildDirectPrompt } from "./prompts/pollPrompts";
@@ -355,7 +355,7 @@ export class GeminiService {
       if (isGeminiDebugEnabled()) {
         GeminiFlowLogger.logPromptSent(requestId, {
           prompt,
-          dateHints,
+          dateHints: "",
           promptLength: prompt?.length || 0,
           pollType,
         });
@@ -1348,6 +1348,13 @@ Reste concis et pratique.Réponds en français.`;
 
   async testConnection(): Promise<boolean> {
     try {
+      // En mode DIRECT, considérer la connexion comme OK si la clé API est configurée
+      if (USE_DIRECT_GEMINI) {
+        const apiKey = getEnv("VITE_GEMINI_API_KEY");
+        return !!apiKey;
+      }
+
+      // Sinon, utiliser l'Edge Function pour tester la connexion
       return await secureGeminiService.testConnection();
     } catch (error) {
       logger.error("Erreur lors du test de connexion", "api", error);

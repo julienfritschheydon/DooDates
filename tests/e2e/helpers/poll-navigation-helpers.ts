@@ -75,13 +75,16 @@ export async function performDashboardActions(
     copyLink?: boolean;
     verifyPollVisible?: boolean;
     expectedTitle?: string;
+    dashboardUrl?: string;
   } = {},
 ): Promise<void> {
   const timeouts = getTimeouts(browserName);
 
-  await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+  const targetDashboardUrl = actions.dashboardUrl || '/DooDates/dashboard';
+
+  await page.goto(targetDashboardUrl, { waitUntil: 'domcontentloaded' });
   await waitForNetworkIdle(page, { browserName });
-  console.log('✅ Navigation vers /dashboard confirmée');
+  console.log(`✅ Navigation vers dashboard: ${targetDashboardUrl}`);
 
   if (actions.verifyPollVisible && actions.expectedTitle) {
     const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {

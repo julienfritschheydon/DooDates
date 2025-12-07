@@ -101,7 +101,8 @@ test.describe('DooDates - Test Ultra Simple 2 (avec helpers)', () => {
       await performDashboardActions(page, browserName, {
         copyLink: true,
         verifyPollVisible: true,
-        expectedTitle: pollResult.title
+        expectedTitle: pollResult.title,
+        dashboardUrl: PRODUCT_ROUTES.datePoll.dashboard,
       });
 
       console.log('🎉 WORKFLOW COMPLET RÉUSSI (avec helpers)');

@@ -118,17 +118,13 @@ export class SecureGeminiService {
       }
 
       // Appeler l'Edge Function (avec ou sans token selon authentification)
-      // Pour les utilisateurs authentifiés, on utilise le JWT Supabase.
-      // Pour les invités, on utilise l'anon key comme Bearer token, comme recommandé par Supabase.
+      // Utilisateurs authentifiés : JWT Supabase. Invités : pas de header Authorization (mode invité).
       const headers: Record<string, string> = {};
       const supabaseAnonKey = getEnv("VITE_SUPABASE_ANON_KEY");
 
-      // Utilisateurs authentifiés : JWT de session
+      // Utilisateurs authentifiés uniquement : JWT de session
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
-      } else if (supabaseAnonKey) {
-        // Invités : utiliser l'anon key comme JWT public
-        headers.Authorization = `Bearer ${supabaseAnonKey}`;
       }
 
       // Utiliser fetch direct au lieu de supabase.functions.invoke() pour plus de contrôle
@@ -313,11 +309,9 @@ export class SecureGeminiService {
         headers["apikey"] = supabaseAnonKey;
       }
 
-      // Utilisateurs authentifiés : JWT de session. Invités : anon key comme JWT public.
+      // Utilisateurs authentifiés uniquement : JWT de session
       if (session?.access_token) {
         headers.Authorization = `Bearer ${session.access_token}`;
-      } else if (supabaseAnonKey) {
-        headers.Authorization = `Bearer ${supabaseAnonKey}`;
       }
 
       if (!headers["apikey"]) {

@@ -180,9 +180,12 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
           await voteOnPollComplete(page, browserName, pollSlug, 'Ultra Simple Form Voter');
           log('🗳️ Vote simulé avec succès');
 
-          // Vérification minimaliste côté dashboard : au moins une carte de sondage est présente
-          await page.goto('/DooDates/dashboard', { waitUntil: 'domcontentloaded' });
+          // Vérification côté dashboard Form Polls : le dashboard produit doit être accessible
+          await page.goto(PRODUCT_ROUTES.formPoll.dashboard, { waitUntil: 'domcontentloaded' });
           await waitForNetworkIdle(page, { browserName });
+          await waitForReactStable(page, { browserName });
+
+          await expect(page).toHaveURL(/.*\/form-polls\/dashboard/);
 
           const pollItem = await waitForElementReady(page, '[data-testid="poll-item"]', {
             browserName,
@@ -190,7 +193,10 @@ test.describe('DooDates - Test Ultra Simple Form (via IA)', () => {
           });
 
           await expect(pollItem).toBeVisible({ timeout: timeouts.element });
-          log('📋 Dashboard affiche au moins un formulaire après vote');
+          await expect(page.getByRole('heading', { name: /Tableau de bord/i })).toBeVisible({
+            timeout: timeouts.element,
+          });
+          log('📋 Dashboard Form Polls affiche au moins un formulaire après vote');
         } else {
           log('ℹ️ Aucun slug détecté (poll non publié), étape votant ignorée');
         }
