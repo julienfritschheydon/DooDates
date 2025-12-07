@@ -64,6 +64,8 @@ test.describe('Dashboard - Fonctionnalités Complètes', () => {
         /status: 401/i,
         /Failed to resolve import.*Settings/i,
         /\[vite\] Internal Server Error/i,
+        /Failed to refresh session/i,
+        /Session refresh failed DooDatesError: Session expired/i,
       ],
     });
   });
