@@ -3,7 +3,8 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
-const PORT = 8080; // Port par défaut pour le serveur de test
+// Utiliser le même port que Playwright (via process.env.PORT), avec 8080 en fallback local
+const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = '0.0.0.0';
 const TIMEOUT = process.env.CI ? 180000 : 120000; // 3 min en CI, 2 min en local
 
@@ -90,7 +91,7 @@ function startVite() {
     }, TIMEOUT);
 
     // Attendre que le serveur soit prêt
-    waitForServer('http://localhost:8080/DooDates/')
+    waitForServer(`http://localhost:${PORT}/DooDates/`)
       .then(() => {
         clearTimeout(timeout);
         resolve(viteProcess);

@@ -27,7 +27,7 @@
     "test:e2e": "PORT=$(npx -y get-port-cli) playwright test",
     "test:e2e:ui": "PORT=$(npx -y get-port-cli) playwright test --ui",
     "test:e2e:headed": "PORT=$(npx -y get-port-cli) playwright test --headed",
-    "test:e2e:smoke": "PORT=$(npx -y get-port-cli) playwright test --project=chromium --grep @smoke --grep-invert \"@analytics|@functional\"",
+    "test:e2e:smoke": "node scripts/run-playwright-with-port.cjs test --project=chromium --grep @smoke --grep-invert @analytics --grep-invert @functional",
     "test:e2e:functional": "PORT=$(npx -y get-port-cli) playwright test --project=chromium --grep @functional",
     "test:e2e:regression": "PORT=$(npx -y get-port-cli) playwright test",
     "test:e2e:critical": "PORT=$(npx -y get-port-cli) playwright test --grep @critical",
