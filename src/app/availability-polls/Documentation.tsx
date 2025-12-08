@@ -115,6 +115,11 @@ export default function AvailabilityPollsDocumentation() {
                 Envoyez le lien. Chaque participant indique ses disponibilités sur la grille en
                 cliquant sur les créneaux.
               </p>
+              <img
+                src="/docs/images/availability-grid.png"
+                alt="Grille de disponibilité"
+                className="mt-4 rounded-lg border border-white/10 w-full"
+              />
             </div>
 
             <div className="p-5 bg-white/[0.02] border border-white/5 rounded-xl hover:border-green-500/30 transition-colors">

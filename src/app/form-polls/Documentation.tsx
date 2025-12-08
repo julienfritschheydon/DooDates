@@ -116,6 +116,11 @@ export default function FormPollsDocumentation() {
                 Modifiez les questions, ajoutez des champs obligatoires, activez la logique
                 conditionnelle ou le mode multi-étapes.
               </p>
+              <img
+                src="/docs/images/form-builder.png"
+                alt="Création de formulaire"
+                className="mt-4 rounded-lg border border-white/10 w-full"
+              />
             </div>
 
             <div className="p-5 bg-white/[0.02] border border-white/5 rounded-xl hover:border-purple-500/30 transition-colors">

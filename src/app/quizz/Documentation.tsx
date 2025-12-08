@@ -99,6 +99,11 @@ export default function QuizzDocumentation() {
                 L'IA Gemini analyse votre contenu et génère automatiquement des questions avec les
                 bonnes réponses.
               </p>
+              <img
+                src="/docs/images/quizz-creation.png"
+                alt="Génération de Quiz par IA"
+                className="mt-4 rounded-lg border border-white/10 w-full"
+              />
             </div>
 
             <div className="p-5 bg-white/[0.02] border border-white/5 rounded-xl hover:border-amber-500/30 transition-colors">
@@ -124,6 +129,11 @@ export default function QuizzDocumentation() {
               <p className="text-sm text-gray-400">
                 Consultez les scores et le détail des réponses dans le tableau de bord.
               </p>
+              <img
+                src="/docs/images/quizz-play.png"
+                alt="Interface de jeu Quiz"
+                className="mt-4 rounded-lg border border-white/10 w-full"
+              />
             </div>
           </div>
         </div>

@@ -102,6 +102,11 @@ export default function DatePollsDocumentation() {
                 Cliquez sur les dates dans le calendrier interactif. Ajoutez des créneaux horaires
                 si besoin (matin, après-midi, soir).
               </p>
+              <img
+                src="/docs/images/date-poll-selection.png"
+                alt="Sélection des dates"
+                className="mt-4 rounded-lg border border-white/10 w-full"
+              />
             </div>
 
             <div className="p-5 bg-white/[0.02] border border-white/5 rounded-xl hover:border-blue-500/30 transition-colors">
